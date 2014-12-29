@@ -31,3 +31,17 @@
         color: #aaa;
     }
 }
+
+.hierarchy {
+    > .content {
+        > .ui-panel {
+            cursor: pointer;
+            &:hover {
+                background-color: rgba(#07f, 0.1);
+            }
+            &.selected {
+                background-color: #07f;
+            }
+        }
+    }
+}
