@@ -7,10 +7,6 @@
     user-select: none;
 }
 
-.hidden {
-    display: none;
-}
-
 .ui-panel {
     position: relative;
     background-color: #222;
@@ -154,6 +150,7 @@
 }
 
 .ui-button {
+    @extend .noSelect;
     display: inline-block;
     border: 1px solid #666;
     background-color: #000;
@@ -227,7 +224,10 @@
 .ui-code {
     display: block;
     margin: 0;
-    background-color: #222;
+    padding: 4px;
+    font-size: 11px;
+    color: #f8f4f0;
+    background-color: #1d292c;
     overflow: auto;
 }
 
@@ -266,4 +266,8 @@
 @keyframes ui-progress-background {
     from { background-position: 0px 0; }
     to { background-position: 24px 0; }
+}
+
+.hidden {
+    display: none;
 }
