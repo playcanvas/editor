@@ -194,7 +194,7 @@
 
                     field.on('change', function(value) {
                         if (! /^[0-9A-F]{6}$/i.test(value)) {
-                            updateField();
+                            setTimeout(updateField, 0);
                             return;
                         }
 
