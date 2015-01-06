@@ -50,8 +50,8 @@
 
         assetsIndex[asset.id] = item;
 
-        if (asset.file && asset.type == 'texture') {
-            item.style.backgroundImage = 'url("http://playcanvas.dev/api/' + asset.file.url + '")';
+        if (asset.thumbnails) {
+            item.style.backgroundImage = 'url("' + config.url.api + asset.thumbnails.m + '")';
         }
 
         var icon = document.createElement('div');

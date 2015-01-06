@@ -88,28 +88,19 @@
                 type: 'code'
             });
 
-            // ajax
-            var xhr = new XMLHttpRequest();
-            //      done
-            xhr.addEventListener('load', function(e) {
-                if (xhr.status == 200) {
-                    var json = JSON.parse(xhr.responseText);
-                    fieldData.text = JSON.stringify(json.response[0], null, 4);
-                    fieldLoading.progress = 1;
-                } else {
-                    var err = new Error(JSON.parse(xhr.responseText));
-                    err.status = xhr.status;
-                    console.log(err);
+            Ajax({
+                url: '{{url.api}}assets/' + asset.id,
+                query: {
+                    access_token: '{{accessToken}}'
                 }
-            }, false);
-            //      progress
-            xhr.addEventListener('progress', function(e) {
-                if (! e.lengthComputable) return;
-                fieldLoading.progress = .1 + ((e.loaded / e.total) * .8);
+            })
+            .on('load', function(status, data) {
+                fieldData.text = JSON.stringify(json.response[0], null, 4);
+                fieldLoading.progress = 1;
+            })
+            .on('progress', function(progress) {
+                fieldLoading.progress = .1 + progress * .8;
             });
-            //      call
-            xhr.open('GET', 'https://playcanvas.dev/api/assets/' + asset.id + '?access_token=abtneyzt0r7h2n7ixqi86gqxzhc7b3su', true);
-            xhr.send();
 
             fieldLoading.progress = .1;
         });
