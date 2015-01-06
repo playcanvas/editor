@@ -1,0 +1,167 @@
+"use strict";
+
+function Element() {
+    Events.call(this);
+    // this.parent = null;
+
+    this._parent = null;
+    var self = this;
+    this._parentDestroy = function() {
+        self.destroy();
+    };
+
+    this._destroyed = false;
+    this._element = null;
+    this._link = null;
+    this.path = '';
+    this._linkChange = null;
+}
+Element.prototype = Object.create(Events.prototype);
+
+Element.prototype.link = function(link, path) {
+    if (this._link) this.unlink();
+    this._link = link;
+    this.path = path;
+
+    this.emit('link', path);
+
+    // add :set link
+    if (this._onLinkChange) {
+        this._linkChange = this._onLinkChange.bind(this);
+        this._link.on(this.path + ':set', this._linkChange);
+        this._link.on(this.path + ':unset', this._linkChange);
+        this._linkChange(this._link.get(this.path));
+    }
+};
+
+Element.prototype.unlink = function() {
+    if (! this._link) return;
+
+    this.emit('unlink', this.path);
+
+    // remove :set link
+    if (this._linkChange) {
+        this._link.unbind(this.path + ':set', this._linkChange);
+        this._link.unbind(this.path + ':unset', this._linkChange);
+        this._linkChange = null;
+    }
+
+    this._link = null;
+    this.path = '';
+};
+
+Element.prototype.destroy = function() {
+    if (this._destroyed)
+        return;
+
+    this._destroyed = true;
+
+    if (this._parent) {
+        this._parent.unbind('destroy', this._parentDestroy);
+        this._parent = null;
+    }
+
+    if (this._element.parentNode)
+        this._element.parentNode.removeChild(this._element);
+
+    this.unlink();
+
+    this.emit('destroy');
+
+    this.unbind();
+};
+
+Object.defineProperty(Element.prototype, 'element', {
+    get: function() {
+        return this._element;
+    },
+    set: function(value) {
+        if (this._element)
+            return;
+
+        this._element = value;
+        this._element.ui = this;
+
+        this._element.addEventListener('click', function(evt) {
+            this.emit('click', evt);
+        }.bind(this), false);
+
+        if (! this.innerElement)
+            this.innerElement = this._element;
+    }
+});
+
+Object.defineProperty(Element.prototype, 'parent', {
+    get: function() {
+        return this._parent;
+    },
+    set: function(value) {
+        if (this._parent || ! value)
+            return;
+
+        this._parent = value;
+        this._parent.once('destroy', this._parentDestroy);
+    }
+});
+
+Object.defineProperty(Element.prototype, 'value', {
+    get: function() {
+        if (! this._link) return null;
+        return this._link.get(this.path);
+    },
+    set: function(value) {
+        if (! this._link) return;
+        this._link.set(this.path, value);
+    }
+});
+
+
+Object.defineProperty(Element.prototype, 'hidden', {
+    get: function() {
+        return this._element.classList.contains('hidden');
+    },
+    set: function(value) {
+        if (value) {
+            this._element.classList.add('hidden');
+        } else {
+            this._element.classList.remove('hidden');
+        }
+    }
+});
+
+
+Object.defineProperty(Element.prototype, 'style', {
+    get: function() {
+        return this._element.style;
+    }
+});
+
+
+Object.defineProperty(Element.prototype, 'class', {
+    get: function() {
+        return this._element.classList;
+    }
+});
+
+
+Object.defineProperty(Element.prototype, 'flexGrow', {
+    get: function() {
+        return this._element.style.flexGrow;
+    },
+    set: function(value) {
+        this._element.style.flexGrow = value;
+    }
+});
+
+
+Object.defineProperty(Element.prototype, 'flexShrink', {
+    get: function() {
+        return this._element.style.flexShrink;
+    },
+    set: function(value) {
+        this._element.style.flexShrink = value;
+    }
+});
+
+
+window.ui.Element = Element;
