@@ -49,7 +49,7 @@ middle.append(center);
 // viewport
 var viewport = new ui.Panel();
 viewport.flexGrow = true;
-viewport.innerElement.style.backgroundImage = 'url("http://moka.co/gui/img/webgl.jpg")';
+viewport.innerElement.style.backgroundImage = 'url("https://i.imgur.com/0zVgGIk.jpg")';
 viewport.innerElement.style.backgroundPosition = 'center center';
 viewport.innerElement.style.backgroundSize = 'cover';
 center.append(viewport);
