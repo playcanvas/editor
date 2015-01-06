@@ -51,7 +51,7 @@
         assetsIndex[asset.id] = item;
 
         if (asset.thumbnails) {
-            item.style.backgroundImage = 'url("' + config.url.api + asset.thumbnails.m + '")';
+            item.style.backgroundImage = 'url("' + config.url.home + asset.thumbnails.m + '")';
         }
 
         var icon = document.createElement('div');
