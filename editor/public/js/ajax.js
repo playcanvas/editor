@@ -117,11 +117,16 @@ AjaxRequest.prototype._onLoad = function() {
     this._progress = 1.0;
     this.emit('progress', 1.0);
 
+    var json;
+
     try {
-        var json = JSON.parse(this._xhr.responseText);
-        this.emit(this._xhr.status === 200 ? 'load' : 'error', this._xhr.status, json);
+        json = JSON.parse(this._xhr.responseText);
     } catch(ex) {
         this.emit('error', 0, new Error('invalid json'));
+    }
+
+    if (json) {
+        this.emit(this._xhr.status === 200 ? 'load' : 'error', this._xhr.status, json);
     }
 };
 

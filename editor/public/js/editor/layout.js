@@ -57,7 +57,7 @@ center.append(viewport);
 // assets
 var assetsPanel = new ui.Panel('Assets');
 assetsPanel.flexShrink = false;
-assetsPanel.style.height = '384px';
+assetsPanel.style.height = '300px';
 assetsPanel.scroll = true;
 center.append(assetsPanel);
 

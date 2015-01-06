@@ -57,6 +57,11 @@
         var icon = document.createElement('div');
         icon.classList.add('icon');
         item.element.appendChild(icon);
+
+        var label = document.createElement('div');
+        label.classList.add('label');
+        label.textContent = (asset.file && asset.file.filename) || asset.name;
+        item.element.appendChild(label);
     });
 
     msg.on('assets:remove', function(asset) {

@@ -129,22 +129,38 @@ body {
             }
         }
 
-        &.selected > .icon {
-            background-color: #07f;
+        &.selected {
+            > .icon,
+            > .label {
+                background-color: #07f;
+            }
         }
         > .icon {
-            display: block;
             position: absolute;
             width: 16px;
             height: 16px;
             top: 0;
             right: 0;
             padding: 4px;
-            background-color: #111;
+            background-color: rgba(0, 0, 0, 0.4);
             background-image: url("/editor/img/asset-icons/unknown.png");
             background-size: 16px 16px;
             background-repeat: no-repeat;
             background-position: center center;
+        }
+        > .label {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            max-width: 88px;
+            line-height: 16px;
+            margin: 0px;
+            padding: 2px 4px;
+            font-size: 10px;
+            text-overflow: ellipsis;
+            text-align: right;
+            overflow: hidden;
+            background-color: rgba(0, 0, 0, 0.4);
         }
     }
 }
