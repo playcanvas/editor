@@ -27,7 +27,7 @@
 
         // load data
         Ajax
-        .get('{{url.api}}' + asset.file.url)
+        .get('{{url.api}}/' + asset.file.url)
         .on('load', function(status, data) {
             fieldData.text = JSON.stringify(data, null, 4);
             fieldLoading.progress = 1;

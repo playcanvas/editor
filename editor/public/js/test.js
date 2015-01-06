@@ -76,7 +76,7 @@ var loaded = function(data) {
 
 
 Ajax({
-    url: '{{url.api}}{{owner.username}}/{{project.name}}/packs/{{pack.resource_id}}',
+    url: '{{url.api}}/{{owner.username}}/{{project.name}}/packs/{{pack.resource_id}}',
     query: {
         access_token: '{{accessToken}}',
         flat: 1

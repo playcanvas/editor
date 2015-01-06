@@ -89,13 +89,13 @@
             });
 
             Ajax({
-                url: '{{url.api}}assets/' + asset.id,
+                url: '{{url.api}}/assets/' + asset.id,
                 query: {
                     access_token: '{{accessToken}}'
                 }
             })
             .on('load', function(status, data) {
-                fieldData.text = JSON.stringify(json.response[0], null, 4);
+                fieldData.text = JSON.stringify(data.response[0], null, 4);
                 fieldLoading.progress = 1;
             })
             .on('progress', function(progress) {

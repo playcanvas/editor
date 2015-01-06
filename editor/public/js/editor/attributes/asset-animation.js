@@ -32,7 +32,7 @@
 
         // load data
         Ajax
-        .get('{{url.api}}' + asset.file.url)
+        .get('{{url.api}}/' + asset.file.url)
         .on('load', function(status, data) {
             if (data.animation && data.animation.duration !== undefined) {
                 fieldDuration.text = data.animation.duration;

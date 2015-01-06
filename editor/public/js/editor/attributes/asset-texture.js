@@ -68,7 +68,7 @@
         var image = msg.call('attributes:addField', {
             parent: previewPanel,
             type: 'image',
-            src: config.url.api + asset.file.url
+            src: config.url.api + '/' + asset.file.url
         });
 
         image.style.backgroundImage = 'url("/editor/img/asset-placeholder-texture.png")';

@@ -43,7 +43,7 @@
 
             // load data
             Ajax
-            .get('{{url.api}}' + asset.file.url)
+            .get('{{url.api}}/' + asset.file.url)
             .on('load', function(status, data) {
                 var nodes = [ ];
                 for(var i = 0; i < data.model.nodes.length; i++) {

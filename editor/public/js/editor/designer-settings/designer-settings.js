@@ -27,7 +27,7 @@
             return;
 
         Ajax({
-            url: '{{url.api}}{{owner.username}}/{{project.name}}/packs/{{pack.resource_id}}/designer_settings/max',
+            url: '{{url.api}}/{{owner.username}}/{{project.name}}/packs/{{pack.resource_id}}/designer_settings/max',
             method: 'PUT',
             query: {
                 access_token: '{{accessToken}}'
@@ -44,7 +44,7 @@
 
     // load designer settings
     Ajax
-    .get('{{url.api}}{{owner.username}}/{{project.name}}/packs/{{pack.resource_id}}/designer_settings/max?access_token={{accessToken}}')
+    .get('{{url.api}}/{{owner.username}}/{{project.name}}/packs/{{pack.resource_id}}/designer_settings/max?access_token={{accessToken}}')
     .on('load', function(status, data) {
         for(var i = 0; i < designerSettings.__keys.length; i++) {
             var key = designerSettings.__keys[i];
