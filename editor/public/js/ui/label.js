@@ -14,29 +14,31 @@ Label.prototype = Object.create(ui.Element.prototype);
 
 Label.prototype._onLinkChange = function(value) {
     this.text = value;
+    this.emit('change', value);
 };
 
 
 Object.defineProperty(Label.prototype, 'text', {
     get: function() {
-        return this._text;
+        if (this._link) {
+            return this._link.get(this.path);
+        } else {
+            return this._text;
+        }
     },
     set: function(value) {
-        if (this._text === value) return;
-        this._text = value;
-        this.element.innerHTML = this._text;
+        if (this._link) {
+            if (! this._link.set(this.path, value)) {
+                this.element.innerHTML = this._link.get(this.path);
+            }
+        } else {
+            if (this._text === value) return;
+            this._text = value;
+            this.element.innerHTML = this._text;
+            this.emit('change', value);
+        }
     }
 });
-
-
-// Object.defineProperty(Label.prototype, 'value', {
-//     get: function() {
-//         return this.text;
-//     },
-//     set: function(value) {
-//         this.text = value;
-//     }
-// });
 
 
 window.ui.Label = Label;

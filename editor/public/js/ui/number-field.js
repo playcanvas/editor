@@ -118,9 +118,7 @@ Object.defineProperty(NumberField.prototype, 'value', {
     },
     set: function(value) {
         if (this._link) {
-            if (this._link.set(this.path, value)) {
-                this.emit('change', this._link.get(this.path));
-            } else {
+            if (! this._link.set(this.path, value)) {
                 this.element.value = this._link.get(this.path);
             }
         } else {

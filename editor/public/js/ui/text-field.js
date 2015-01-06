@@ -18,11 +18,14 @@ TextField.prototype = Object.create(ui.Element.prototype);
 
 TextField.prototype._onLinkChange = function(value) {
     this.element.value = value;
+    this.emit('change', value);
 };
 
 TextField.prototype._onChange = function() {
     this.value = this.element.value || '';
-    this.emit('change', this.value);
+
+    if (! this._link)
+        this.emit('change', this.value);
 };
 
 Object.defineProperty(TextField.prototype, 'value', {
@@ -35,16 +38,15 @@ Object.defineProperty(TextField.prototype, 'value', {
     },
     set: function(value) {
         if (this._link) {
-            if (this._link.set(this.path, value)) {
-                this.emit('change', this._link.get(this.path));
-            } else {
+            if (! this._link.set(this.path, value)) {
                 this.element.value = this._link.get(this.path);
             }
         } else {
-            if (this.element.value !== value) {
-                this.element.value = value;
-                this.emit('change', value);
-            }
+            if (this.element.value === value)
+                return;
+
+            this.element.value = value;
+            this.emit('change', value);
         }
     }
 });

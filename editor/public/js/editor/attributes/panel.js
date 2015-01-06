@@ -168,6 +168,60 @@
                 }
 
                 return [ field0, field1, field2, field3 ];
+            case 'rgb':
+                var field = new ui.TextField();
+                field.style.borderRight = 'none';
+                field.value = args.value || 'ffffff';
+                field.flexGrow = 4;
+
+                if (args.link) {
+                    var updateField = function() {
+                        var value = args.link.get(args.path);
+                        field.value = ((1 << 24) + (Math.floor(value[0] * 255) << 16) + (Math.floor(value[1] * 255) << 8) + Math.floor(value[2] * 255)).toString(16).slice(1);
+                    };
+
+                    args.link.on(args.path + '.0:set', updateField);
+                    args.link.on(args.path + '.1:set', updateField);
+                    args.link.on(args.path + '.2:set', updateField);
+
+                    field.once('destroy', function() {
+                        args.link.unbind(args.path + '.0:set', updateField);
+                        args.link.unbind(args.path + '.1:set', updateField);
+                        args.link.unbind(args.path + '.2:set', updateField);
+                    });
+
+                    updateField();
+
+                    field.on('change', function(value) {
+                        if (! /^[0-9A-F]{6}$/i.test(value)) {
+                            updateField();
+                            return;
+                        }
+
+                        var bigint = parseInt(value, 16);
+                        var r = ((bigint >> 16) & 255) / 255;
+                        var g = ((bigint >> 8) & 255) / 255;
+                        var b = (bigint & 255) / 255;
+
+                        args.link.set(args.path, [ r, g, b ]);
+                    });
+                }
+
+                panel.append(field);
+
+                var button = new ui.Button();
+                button.flexGrow = 1;
+                button.style.width = '32px';
+                button.style.border = 'none';
+                button.style.marginLeft = '-4px';
+                button.style.padding = '0px';
+                button.style.backgroundColor = '#' + field.value;
+                field.on('change', function(value) {
+                    button.style.backgroundColor = '#' + value;
+                });
+                panel.append(button);
+
+                return field;
             case 'image':
                 panel.flex = false;
 

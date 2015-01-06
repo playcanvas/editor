@@ -1,15 +1,19 @@
 (function() {
     'use strict';
 
-    // var overlay = new ui.Panel();
-    // overlay.class.add('overlay');
-    // assetsPanel.append(overlay);
+    var overlay = new ui.Panel();
+    overlay.class.add('overlay');
+    assetsPanel.append(overlay);
 
-    // var loading = new ui.Progress();
-    // loading.on('progress:100', function() {
-    //     overlay.hidden = true;
-    // });
-    // overlay.append(loading);
+    var loading = new ui.Progress();
+    loading.on('progress:100', function() {
+        overlay.hidden = true;
+    });
+    overlay.append(loading);
+
+    msg.hook('assets:progress', function(progress) {
+        loading.progress = progress;
+    });
 
     var grid = new ui.Grid();
     grid.class.add('assets');

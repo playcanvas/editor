@@ -98,6 +98,7 @@ SelectField.prototype._onLinkChange = function(value) {
 
     this.elementValue.textContent = value;
     this.optionElements[value].classList.add('selected');
+    this.emit('change', value);
 };
 
 Object.defineProperty(SelectField.prototype, 'value', {
@@ -110,9 +111,7 @@ Object.defineProperty(SelectField.prototype, 'value', {
     },
     set: function(value) {
         if (this._link) {
-            if (this._link.set(this.path, value)) {
-                this.emit('change', this._link.get(this.path));
-            } else {
+            if (! this._link.set(this.path, value)) {
                 this.elementValue.textContent = this._link.get(this.path);
             }
         } else {

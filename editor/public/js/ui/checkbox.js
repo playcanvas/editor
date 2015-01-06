@@ -15,7 +15,6 @@ function Checkbox(args) {
 Checkbox.prototype = Object.create(ui.Element.prototype);
 
 Checkbox.prototype._onLinkChange = function(value) {
-    // this.element.checked = value;
     if (value) {
         this.element.classList.add('checked');
     } else {
@@ -38,9 +37,7 @@ Object.defineProperty(Checkbox.prototype, 'value', {
     },
     set: function(value) {
         if (this._link) {
-            if (this._link.set(this.path, value)) {
-                this.emit('change', this._link.get(this.path));
-            }
+            this._link.set(this.path, value);
         } else {
             if (this.element.classList.contains('checked') !== value) {
                 if (value) {
