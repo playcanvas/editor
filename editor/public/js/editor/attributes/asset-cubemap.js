@@ -20,11 +20,14 @@ editor.once('load', function() {
 
     var ctx = canvas.getContext('2d');
     var images = [ ];
+    var blankImage = new Image();
+    blankImage.src = '/editor/img/asset-placeholder-texture.png';
 
     var draw = function() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         for(var i = 0; i < 6; i++) {
+            ctx.drawImage(blankImage, positions[i][0] * imageSize, positions[i][1] * imageSize, imageSize, imageSize);
             ctx.drawImage(images[i], positions[i][0] * imageSize, positions[i][1] * imageSize, imageSize, imageSize);
         }
     };
