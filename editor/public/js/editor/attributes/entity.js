@@ -9,7 +9,7 @@
 
         // name
         msg.call('attributes:addField', {
-            name: 'name',
+            name: 'Name',
             type: 'string',
             link: entity,
             path: 'name'
@@ -17,7 +17,7 @@
 
         // position
         msg.call('attributes:addField', {
-            name: 'position',
+            name: 'Position',
             type: 'vec3',
             link: entity,
             path: 'position'
@@ -25,7 +25,7 @@
 
         // rotation
         msg.call('attributes:addField', {
-            name: 'rotation',
+            name: 'Rotation',
             type: 'vec3',
             link: entity,
             path: 'rotation'
@@ -33,7 +33,7 @@
 
         // scale
         msg.call('attributes:addField', {
-            name: 'scale',
+            name: 'Scale',
             type: 'vec3',
             link: entity,
             path: 'scale'

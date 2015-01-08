@@ -1,19 +1,19 @@
-function Messenger() {
+function Editor() {
     Events.call(this);
 
     this._hooks = { };
 }
-Messenger.prototype = Object.create(Events.prototype);
+Editor.prototype = Object.create(Events.prototype);
 
-Messenger.prototype.hook = function(name, fn) {
+Editor.prototype.hook = function(name, fn) {
     this._hooks[name] = fn;
 };
 
-Messenger.prototype.unhook = function(name) {
+Editor.prototype.unhook = function(name) {
     delete this._hooks[name];
 };
 
-Messenger.prototype.call = function(name) {
+Editor.prototype.call = function(name) {
     if (this._hooks[name]) {
         var args = Array.prototype.slice.call(arguments, 1);
         return this._hooks[name].apply(null, args);
@@ -23,4 +23,4 @@ Messenger.prototype.call = function(name) {
 };
 
 
-var msg = new Messenger();
+var msg = new Editor();

@@ -58,6 +58,11 @@
             item.style.backgroundImage = 'url("' + config.url.home + asset.thumbnails.m + '")';
         }
 
+        // update thumbnails change
+        asset.on('thumbnails.m:set', function(value) {
+            item.style.backgroundImage = 'url("' + config.url.home + value + '")';
+        });
+
         var icon = document.createElement('div');
         icon.classList.add('icon');
         item.element.appendChild(icon);
@@ -66,6 +71,14 @@
         label.classList.add('label');
         label.textContent = (asset.file && asset.file.filename) || asset.name;
         item.element.appendChild(label);
+
+        // update name/filename change
+        asset.on('name:set', function() {
+            label.textContent = (this.file && this.file.filename) || this.name;
+        });
+        asset.on('file.filename:set', function() {
+            label.textContent = (this.file && this.file.filename) || this.name;
+        });
     });
 
     msg.on('assets:remove', function(asset) {

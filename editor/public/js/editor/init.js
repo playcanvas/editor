@@ -9,3 +9,8 @@ var applyConfig = function(path, value) {
 };
 
 applyConfig('', config);
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    msg.emit('load');
+}, false);

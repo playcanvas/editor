@@ -56,6 +56,26 @@
             panel.append(label);
         }
 
+        if (args.enum) {
+            var field = new ui.SelectField({
+                options: args.enum
+            });
+            field.value == args.value || '';
+            field.flexGrow = 1;
+            panel.append(field);
+
+            if (args.type === 'number') {
+                field.on('change', function(value) {
+                    this.value = parseInt(value, 10);
+                });
+            }
+
+            if (args.link)
+                field.link(args.link, args.path);
+
+            return field;
+        }
+
         switch(args.type) {
             case 'string':
                 var field = new ui.TextField();

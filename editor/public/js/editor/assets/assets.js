@@ -17,6 +17,17 @@
     });
 
 
+    // get asset by id
+    msg.hook('assets:get', function(id) {
+        return assets.get(id);
+    });
+
+    // find one asset by function
+    msg.hook('assets:findOne', function(fn) {
+        return assets.findOne(fn);
+    });
+
+
     // publish added asset
     assets.on('add', function(asset) {
         msg.emit('assets:add', asset);

@@ -7,6 +7,19 @@
     user-select: none;
 }
 
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #000;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #444;
+}
+
 .ui-panel {
     position: relative;
     background-color: #222;
@@ -43,7 +56,7 @@
     }
     > .content {
         position: relative;
-        overflow: hidden;
+        // overflow: hidden;
         // border-right: 1px solid #111;
         // border-left: 1px solid #111;
     }
@@ -193,13 +206,19 @@
             display: block;
         }
     }
+    > .value {
+        min-height: 24px;
+        line-height: 24px;
+    }
     > ul {
         display: none;
-        min-width: 130px;
-        margin: 0;
         position: absolute;
         top: 0;
         left: -1px;
+        right: -1px;
+        width: auto;
+        min-width: 32px;
+        margin: 0;
         list-style: none;
         padding: 0;
         background-color: #000;

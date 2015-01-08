@@ -75,21 +75,23 @@ var loaded = function(data) {
 };
 
 
-Ajax({
-    url: '{{url.api}}/{{owner.username}}/{{project.name}}/packs/{{pack.resource_id}}',
-    query: {
-        access_token: '{{accessToken}}',
-        flat: 1
-    }
-})
-.on('load', function(status, data) {
-    loaded(data.response[0].hierarchy);
-})
-.on('progress', function(progress) {
-    p.progress = 0.1 + progress * .4;
-})
-.on('error', function(status, evt) {
-    console.log(status, evt);
+msg.on('load', function() {
+    Ajax({
+        url: '{{url.api}}/{{owner.username}}/{{project.name}}/packs/{{pack.resource_id}}',
+        query: {
+            access_token: '{{accessToken}}',
+            flat: 1
+        }
+    })
+    .on('load', function(status, data) {
+        loaded(data.response[0].hierarchy);
+    })
+    .on('progress', function(progress) {
+        p.progress = 0.1 + progress * .4;
+    })
+    .on('error', function(status, evt) {
+        console.log(status, evt);
+    });
 });
 
 

@@ -2,6 +2,17 @@ var A;
 (function() {
     'use strict';
 
+    var mappingTypes = {
+        'float': 'float',
+        'int': 'float',
+        'boolean': 'boolean',
+        'texture': 'texture',
+        'vec2': 'vec2',
+        'vec3': 'vec3',
+        'vec4': 'vec4',
+        'rgb': 'vec3'
+    };
+
     var mapping = {
         ambient: {
             'default': [ 0, 0, 0 ],
@@ -139,6 +150,12 @@ var A;
             'default': [ 0, 0 ],
             'type': 'vec2',
         },
+        heightMapFactor: {
+            'default': 1,
+            'min': 0,
+            'max': 2,
+            'type': 'float'
+        },
         opacity: {
             'default': 1,
             'min': 0,
@@ -203,11 +220,11 @@ var A;
         blendType: {
             'default': 1,
             'enum': {
-                0: 'None',
-                1: 'Normal',
-                2: 'Additive',
-                3: 'Pre-Multiply',
-                4: 'Multiply'
+                3: 'None',
+                2: 'Normal',
+                1: 'Additive',
+                4: 'Pre-Multiply',
+                5: 'Multiply'
             },
             'type': 'int'
         },
@@ -225,7 +242,25 @@ var A;
         };
 
         for(var key in mapping) {
-            obj[key] = indexed[key] || mapping[key].default;
+            obj[key] = indexed[key] === undefined ? mapping[key].default : indexed[key];
+        }
+
+        return obj;
+    });
+
+    msg.hook('material:mapToList', function(data) {
+        var obj = {
+            name: data.name,
+            shader: data.data.model,
+            parameters: [ ]
+        };
+
+        for(var key in mapping) {
+            obj.parameters.push({
+                name: key,
+                type: mappingTypes[mapping[key].type],
+                data: data.data[key] === undefined ? mapping[key].default : data.data[key]
+            });
         }
 
         return obj;
@@ -242,16 +277,21 @@ var A;
         var paramsPanel = msg.call('attributes:addPanel', {
             name: 'Material Properties'
         });
-        // paramsPanel.hidden = true;
 
 
         // model
         var fieldModel = msg.call('attributes:addField', {
             parent: paramsPanel,
+            type: 'string',
+            enum: {
+                'phong': 'Phong',
+                'blinn': 'Physical'
+            },
             name: 'Shading',
             link: asset,
             path: 'data.model'
         });
+
 
 
         // ambient
@@ -260,34 +300,17 @@ var A;
             name: 'Ambient'
         });
 
-
-        // map
-        var fieldAmbientMap = msg.call('attributes:addField', {
-            parent: ambientPanel,
-            type: 'number',
-            name: 'Texture',
-            link: asset,
-            path: 'data.aoMap'
-        });
-
-        // map, hide/show color
-        fieldAmbientMap.on('change', function(value) {
-            fieldAmbientTint.parent.hidden = ! value;
-            fieldAmbientColor.parent.hidden = ! (fieldAmbientTint.value || ! value);
-        });
-
         // tint
         var fieldAmbientTint = msg.call('attributes:addField', {
             parent: ambientPanel,
             type: 'checkbox',
             name: 'Tint',
             link: asset,
-            path: 'data.ambientMapTint'
+            path: 'data.ambientTint'
         });
-        fieldAmbientTint.parent.hidden = ! fieldAmbientMap.value;
 
         fieldAmbientTint.on('change', function(value) {
-            fieldAmbientColor.parent.hidden = ! (value || ! fieldAmbientMap.value);
+            fieldAmbientColor.parent.hidden = ! value;
         });
 
         // color
@@ -298,7 +321,27 @@ var A;
             link: asset,
             path: 'data.ambient'
         });
-        fieldAmbientColor.parent.hidden = ! (fieldAmbientTint.value || ! fieldAmbientMap.value);
+        fieldAmbientColor.parent.hidden = ! fieldAmbientTint.value;
+
+        // map
+        var fieldAmbientMap = msg.call('attributes:addField', {
+            parent: ambientPanel,
+            type: 'number',
+            name: 'Texture',
+            link: asset,
+            path: 'data.aoMap'
+        });
+
+        // color
+        var fieldAmbientUVSet = msg.call('attributes:addField', {
+            parent: ambientPanel,
+            type: 'number',
+            name: 'UV Set',
+            link: asset,
+            path: 'data.aoUvSet'
+        });
+        fieldAmbientUVSet.parent.hidden = ! fieldAmbientMap.value;
+
 
 
         // diffuse
@@ -352,6 +395,7 @@ var A;
             link: asset,
             path: 'data.diffuseMapTint'
         });
+        fieldDiffuseTint.parent.hidden = ! fieldDiffuseMap.value;
 
         // tint, hide/show color
         fieldDiffuseTint.on('change', function(value) {
@@ -484,6 +528,15 @@ var A;
         });
         fieldGlossTiling[0].parent.hidden = ! fieldGlossMap.value;
 
+        // conserve energy
+        var fieldConserveEnergy = msg.call('attributes:addField', {
+            parent: specularPanel,
+            type: 'checkbox',
+            name: 'Conserve Energy',
+            link: asset,
+            path: 'data.conserveEnergy'
+        });
+
 
 
         // emissive
@@ -537,6 +590,7 @@ var A;
             link: asset,
             path: 'data.emissiveMapTint'
         });
+        fieldEmissiveTint.parent.hidden = ! fieldEmissiveMap.value;
 
         // tint, hide/show color
         fieldEmissiveTint.on('change', function(value) {
@@ -554,6 +608,67 @@ var A;
 
         fieldEmissiveColor.parent.hidden = ! (fieldEmissiveTint.value || ! fieldEmissiveMap.value);
 
+        // intensity
+        var fieldEmissiveIntensity = msg.call('attributes:addField', {
+            parent: emissivePanel,
+            type: 'number',
+            name: 'Intensity',
+            link: asset,
+            path: 'data.emissiveIntensity'
+        });
+
+
+
+        // normals
+        var normalPanel = msg.call('attributes:addPanel', {
+            parent: paramsPanel,
+            name: 'Normals'
+        });
+
+        // bumpiness
+        var fieldBumpiness = msg.call('attributes:addField', {
+            parent: normalPanel,
+            type: 'number',
+            name: 'Bumpiness',
+            link: asset,
+            path: 'data.bumpMapFactor'
+        });
+
+        // map (normals)
+        var fieldNormalMap = msg.call('attributes:addField', {
+            parent: normalPanel,
+            type: 'number',
+            name: 'Texture',
+            link: asset,
+            path: 'data.normalMap'
+        });
+        fieldNormalMap.on('change', function(value) {
+            fieldNormalsOffset[0].parent.hidden = ! value;
+            fieldNormalsTiling[0].parent.hidden = ! value;
+            fieldBumpiness.parent.hidden = ! value;
+        })
+        fieldBumpiness.parent.hidden = ! fieldNormalMap.value;
+
+        // offset
+        var fieldNormalsOffset = msg.call('attributes:addField', {
+            parent: normalPanel,
+            type: 'vec2',
+            name: 'Offset',
+            link: asset,
+            path: 'data.normalMapOffset'
+        });
+        fieldNormalsOffset[0].parent.hidden = ! fieldNormalMap.value;
+
+        // tiling
+        var fieldNormalsTiling = msg.call('attributes:addField', {
+            parent: normalPanel,
+            type: 'vec2',
+            name: 'Tiling',
+            link: asset,
+            path: 'data.normalMapTiling'
+        });
+        fieldNormalsTiling[0].parent.hidden = ! fieldNormalMap.value;
+
 
 
         // parallax
@@ -563,50 +678,50 @@ var A;
         });
 
         // map
-        var fieldParallaxMap = msg.call('attributes:addField', {
+        var fieldHeightMap = msg.call('attributes:addField', {
             parent: parallaxPanel,
             type: 'number',
             name: 'Texture',
             link: asset,
-            path: 'data.parallaxMap'
+            path: 'data.heightMap'
         });
 
         // map, hide/show offset and tiling, as well as color
-        fieldParallaxMap.on('change', function(value) {
-            fieldParallaxOffset[0].parent.hidden = value === 0;
-            fieldParallaxTiling[0].parent.hidden = value === 0;
-            fieldParallaxStrength.parent.hidden = value === 0;
+        fieldHeightMap.on('change', function(value) {
+            fieldHeightMapOffset[0].parent.hidden = value === 0;
+            fieldHeightMapTiling[0].parent.hidden = value === 0;
+            fieldHeightMapFactor.parent.hidden = value === 0;
         });
 
         // offset
-        var fieldParallaxOffset = msg.call('attributes:addField', {
+        var fieldHeightMapOffset = msg.call('attributes:addField', {
             parent: parallaxPanel,
             type: 'vec2',
             name: 'Offset',
             link: asset,
-            path: 'data.parallaxMapOffset'
+            path: 'data.heightMapOffset'
         });
-        fieldParallaxOffset[0].parent.hidden = ! fieldEmissiveMap.value;
+        fieldHeightMapOffset[0].parent.hidden = ! fieldHeightMap.value;
 
         // tiling
-        var fieldParallaxTiling = msg.call('attributes:addField', {
+        var fieldHeightMapTiling = msg.call('attributes:addField', {
             parent: parallaxPanel,
             type: 'vec2',
             name: 'Tiling',
             link: asset,
-            path: 'data.parallaxMapTiling'
+            path: 'data.heightMapTiling'
         });
-        fieldParallaxTiling[0].parent.hidden = ! fieldEmissiveMap.value;
+        fieldHeightMapTiling[0].parent.hidden = ! fieldHeightMap.value;
 
         // strength
-        var fieldParallaxStrength = msg.call('attributes:addField', {
+        var fieldHeightMapFactor = msg.call('attributes:addField', {
             parent: parallaxPanel,
             type: 'number',
             name: 'Strength',
             link: asset,
-            path: 'data.parallaxStrength'
+            path: 'data.heightMapFactor'
         });
-        fieldParallaxStrength.parent.hidden = ! fieldEmissiveMap.value;
+        fieldHeightMapFactor.parent.hidden = ! fieldHeightMap.value;
 
 
 
@@ -653,6 +768,7 @@ var A;
         fieldReflectionStrength.parent.hidden = ! fieldReflectionSphere.value && ! fieldReflectionCubeMap.value;
 
 
+
         // lightmap
         var lightmapPanel = msg.call('attributes:addPanel', {
             parent: paramsPanel,
@@ -667,6 +783,7 @@ var A;
             link: asset,
             path: 'data.lightMap'
         });
+
 
 
         // render states
@@ -694,18 +811,20 @@ var A;
         });
 
         // culling
-        var fieldCullMode = msg.call('attributes:addField', {
+        var fieldCull = msg.call('attributes:addField', {
             parent: renderStatesPanel,
             type: 'number',
+            enum: mapping.cull.enum,
             name: 'Cull Mode',
             link: asset,
-            path: 'data.cullMode'
+            path: 'data.cull'
         });
 
-        // culling
+        // blend type
         var fieldBlendType = msg.call('attributes:addField', {
             parent: renderStatesPanel,
             type: 'number',
+            enum: mapping.blendType.enum,
             name: 'Blend Type',
             link: asset,
             path: 'data.blendType'
