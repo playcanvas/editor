@@ -78,6 +78,7 @@ editor.once('load', function() {
         // update name/filename change
         asset.on('name:set', function() {
             label.textContent = (this.file && this.file.filename) || this.name;
+            this.set('data.name', this.name);
         });
         asset.on('file.filename:set', function() {
             label.textContent = (this.file && this.file.filename) || this.name;

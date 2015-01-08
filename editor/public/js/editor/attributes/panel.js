@@ -65,8 +65,8 @@ editor.once('load', function() {
             panel.append(field);
 
             if (args.type === 'number') {
-                field.on('change', function(value) {
-                    this.value = parseInt(value, 10);
+                field.on('change:before', function(value) {
+                    field._value = parseInt(value, 10);
                 });
             }
 

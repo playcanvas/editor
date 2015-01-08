@@ -33,7 +33,7 @@ Observer.prototype._prepare = function(target, key, value) {
     if (type === 'object' && (value instanceof Array)) {
         if (value.length === 0) {
             target.__data[key] = [ ];
-        } else if(typeof(value[0]) === 'object' && ! (value[0] instanceof Array)) {
+        } else if(value[0] && typeof(value[0]) === 'object' && ! (value[0] instanceof Array)) {
             target.__data[key] = new ObserverList();
 
             target.__data[key].on('add', function(item, index) {
@@ -52,11 +52,22 @@ Observer.prototype._prepare = function(target, key, value) {
                 target.__data[key].add(new Observer(value[i]));
             }
         } else {
-            target.__data[key] = value;
-
-            for(var i = 0; i < value.length; i++) {
-                this.emit(path + '.' + i + ':set', value[i]);
-                this.emit('*:set', path + '.' + i, value[i]);
+            if (target.__data[key] && target.__data[key].length === value.length) {
+                // same length, update carefully
+                for(var i = 0; i < value.length; i++) {
+                    if (target.__data[key][i] !== value[i]) {
+                        target.__data[key][i] = value[i];
+                        this.emit(path + '.' + i + ':set', value[i]);
+                        this.emit('*:set', path + '.' + i, value[i]);
+                    }
+                }
+            } else {
+                // different length, update whole array
+                target.__data[key] = value;
+                for(var i = 0; i < value.length; i++) {
+                    this.emit(path + '.' + i + ':set', value[i]);
+                    this.emit('*:set', path + '.' + i, value[i]);
+                }
             }
         }
         this.emit(path + ':set', target.__data[key]);
@@ -136,6 +147,7 @@ Observer.prototype.set = function(path, value) {
     var key = keys[keys.length - 1];
     var nodePath = '';
     var node = this;
+
     for(var i = 0; i < keys.length - 1; i++) {
         if (! node.hasOwnProperty(keys[i])) {
             if (node instanceof ObserverList) {
@@ -152,6 +164,7 @@ Observer.prototype.set = function(path, value) {
     if (! node.hasOwnProperty(key)) {
         this._prepare(node, key, value);
     } else {
+
         if (typeof(value) === 'object' && (value instanceof Array)) {
             if (value.equals(node[key]))
                 return;

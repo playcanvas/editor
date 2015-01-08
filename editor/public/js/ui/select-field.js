@@ -111,7 +111,9 @@ Object.defineProperty(SelectField.prototype, 'value', {
     },
     set: function(value) {
         if (this._link) {
-            if (! this._link.set(this.path, value)) {
+            this._value = value;
+            this.emit('change:before', value);
+            if (! this._link.set(this.path, this._value)) {
                 this._value = this._link.get(this.path);
                 this.elementValue.textContent = this.options[this._value];
             }
@@ -120,8 +122,9 @@ Object.defineProperty(SelectField.prototype, 'value', {
             if (this.options[value] === undefined) return;
 
             this._value = value;
-            this.elementValue.textContent = this.options[value];
-            this.emit('change', value);
+            this.emit('change:before', this._value);
+            this.elementValue.textContent = this.options[this._value];
+            this.emit('change', this._value);
         }
     }
 });

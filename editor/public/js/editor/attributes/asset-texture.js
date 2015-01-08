@@ -31,7 +31,7 @@ editor.once('load', function() {
             parent: paramsPanel,
             name: 'Mag Filter',
             link: asset,
-            path: 'data.minfilter'
+            path: 'data.magfilter'
         });
 
         // addressu

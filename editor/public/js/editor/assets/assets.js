@@ -1,3 +1,21 @@
+/*
+
+NAMESPACE
+    asset
+
+METHODS
+    add
+    remove
+    get
+    find
+    findOne
+
+EVENTS
+    add
+    remove
+
+*/
+
 editor.once('load', function() {
     'use strict';
 
@@ -20,6 +38,11 @@ editor.once('load', function() {
     // get asset by id
     editor.hook('assets:get', function(id) {
         return assets.get(id);
+    });
+
+    // find assets by function
+    editor.hook('assets:find', function(fn) {
+        return assets.find(fn);
     });
 
     // find one asset by function

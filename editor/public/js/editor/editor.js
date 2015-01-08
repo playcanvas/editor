@@ -10,6 +10,9 @@
 
 
     Editor.prototype.hook = function(name, fn) {
+        if (this._hooks[name] !== undefined) {
+            throw new Error('can\'t override hook: ' + name);
+        }
         this._hooks[name] = fn;
     };
 
