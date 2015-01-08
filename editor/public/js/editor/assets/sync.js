@@ -1,9 +1,9 @@
-(function() {
-    'use strict'
+editor.once('load', function() {
+    'use strict';
 
     // loaded all assets
     var onLoad = function(data) {
-        msg.call('assets:progress', .5);
+        editor.call('assets:progress', .5);
 
         data = data.response;
 
@@ -14,38 +14,38 @@
             // TODO
             // this is workaround to convert from array to key-value material properties
             if (data[i].type == 'material') {
-                data[i].data = msg.call('material:listToMap', data[i].data);
+                data[i].data = editor.call('material:listToMap', data[i].data);
             }
 
             var asset = new Observer(data[i]);
 
-            msg.call('assets:add', asset);
-            msg.call('assets:progress', (i / data.length) * .5 + .5);
+            editor.call('assets:add', asset);
+            editor.call('assets:progress', (i / data.length) * .5 + .5);
         }
 
-        msg.call('assets:progress', 1);
+        editor.call('assets:progress', 1);
     };
 
     // load all assets
-    msg.once('load', function() {
+    editor.once('start', function() {
         Ajax
         .get('{{url.api}}/projects/{{project.id}}/assets?view=designer&access_token={{accessToken}}')
         .on('load', function(status, data) {
             onLoad(data);
         })
         .on('progress', function(progress) {
-            msg.call('assets:progress', .1 + progress * .4);
+            editor.call('assets:progress', .1 + progress * .4);
         })
         .on('error', function(status, evt) {
             console.log(status, evt);
         });
-    })
+    });
 
-    msg.call('assets:progress', .1);
+    editor.call('assets:progress', .1);
 
 
     // hook sync to new assets
-    msg.on('assets:add', function(asset) {
+    editor.on('assets:add', function(asset) {
         asset.sync = true;
 
         var updating = false;
@@ -54,7 +54,7 @@
             var json = asset.json();
 
             if (json.type === 'material') {
-                json.data = msg.call('material:mapToList', json);
+                json.data = editor.call('material:mapToList', json);
             }
 
             // TEMP
@@ -71,19 +71,9 @@
                     access_token: '{{accessToken}}'
                 },
                 data: json
-            })
-            // .on('load', function(status, data) {
-            //     // data = data.response[0];
-            //     // if (data.type == 'material') {
-            //     //     data.data = msg.call('material:listToMap', data.data);
-            //     // }
-            //     // asset.sync = false;
-            //     // asset.patch(data);
-            //     // asset.sync = true;
-            // })
-            // .on('error', function(err) {
-            //     console.log(err);
-            // });
+            });
+            // TODO
+            // do we update with data from response?
 
             updating = false;
         };
@@ -101,4 +91,4 @@
             }, 50);
         });
     });
-})();
+});

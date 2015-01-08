@@ -1,5 +1,7 @@
-(function() {
+editor.once('load', function() {
     'use strict';
+
+    var header = editor.call('layout.header');
 
     // settings button
     var button = new ui.Button({
@@ -8,7 +10,7 @@
     header.append(button);
 
     button.on('click', function() {
-        msg.call('selector:clear');
-        msg.call('attributes:inspect', 'designerSettings', msg.call('designerSettings'));
+        editor.call('selector:clear');
+        editor.call('attributes:inspect', 'designerSettings', editor.call('designerSettings'));
     });
-})();
+});

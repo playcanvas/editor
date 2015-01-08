@@ -10,7 +10,7 @@ function Checkbox(args) {
     this.element.classList.add('ui-checkbox', 'noSelect');
     // this.element.innerHTML = this._text;
 
-    this.element.addEventListener('click', this._onClick.bind(this));
+    this.on('click', this._onClick.bind(this));
 }
 Checkbox.prototype = Object.create(ui.Element.prototype);
 

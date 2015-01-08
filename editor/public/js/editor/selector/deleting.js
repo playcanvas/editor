@@ -1,9 +1,9 @@
-(function() {
+editor.once('load', function() {
     'use strict';
 
-    msg.hook('selector:delete', function() {
-        var type = msg.call('selector:type');
-        var items = msg.call('selector:items');
+    editor.hook('selector:delete', function() {
+        var type = editor.call('selector:type');
+        var items = editor.call('selector:items');
 
         // nothing to delete
         if (! type || ! items.length)
@@ -13,12 +13,12 @@
         switch(type) {
             case 'entity':
                 items.forEach(function(entity) {
-                    msg.call('entities:remove', entity);
+                    editor.call('entities:remove', entity);
                 });
                 break;
             case 'asset':
                 items.forEach(function(asset) {
-                    msg.call('assets:remove', asset);
+                    editor.call('assets:remove', asset);
                 });
                 break;
             default:
@@ -29,7 +29,7 @@
     // bind to DELETE key
     window.addEventListener('keydown', function(evt) {
         if (evt.keyCode === 46) { // DELETE key
-            msg.call('selector:delete');
+            editor.call('selector:delete');
         }
     });
-})();
+});

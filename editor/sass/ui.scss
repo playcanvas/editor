@@ -7,6 +7,29 @@
     user-select: none;
 }
 
+// scrollbar
+// ::-webkit-scrollbar {
+//     background: #000;
+// }
+// ::-webkit-scrollbar-button {
+//     background: #0f0;
+// }
+// ::-webkit-scrollbar-track {
+//     // background: #00f;
+// }
+// ::-webkit-scrollbar-track-piece {
+//     // background: #ff0;
+// }
+// ::-webkit-scrollbar-thumb {
+//     background: #f0f;
+// }
+// ::-webkit-scrollbar-corner {
+//     background: #0ff;
+// }
+// ::-webkit-resizer {
+//     background: #fff;
+// }
+
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -24,6 +47,12 @@
     position: relative;
     background-color: #222;
 
+    &.disabled {
+        > header {
+            color: #999;
+            background-color: mix(#111, #222, 50%);
+        }
+    }
     &.noHeader {
         > header {
             display: none;
@@ -77,6 +106,17 @@
     line-height: 31px;
     border-bottom: 1px solid #1a1a1a;
 
+    &.disabled {
+        cursor: default;
+        opacity: .5;
+
+        &:hover {
+            background-color: transparent;
+        }
+        &.selected {
+            background-color: #07f;
+        }
+    }
     &:hover {
         background-color: rgba(#07f, 0.1);
     }
@@ -108,6 +148,19 @@
     background-repeat: no-repeat;
     background-size: cover;
 
+    &.disabled {
+        cursor: default;
+        opacity: .5;
+
+        &:hover {
+            background-color: transparent;
+            border-color: #1a1a1a;
+        }
+        &.selected {
+            background-color: #07f;
+            border-color: #07f;
+        }
+    }
     &:hover {
         background-color: rgba(#07f, 0.1);
         border-color: #07f;
@@ -115,7 +168,6 @@
     &.selected {
         background-color: #07f;
         border-color: #07f;
-        // box-shadow: 0 0 8px rgba(0, 128, 255, .5);
     }
 }
 
@@ -124,6 +176,10 @@
     line-height: 24px;
     margin: 4px;
     vertical-align: bottom;
+
+    &.disabled {
+        opacity: .5;
+    }
 }
 
 .ui-number-field {
@@ -135,6 +191,10 @@
     background-color: #000;
     color: #fff;
     vertical-align: top;
+
+    &.disabled {
+        opacity: .5;
+    }
 }
 
 .ui-number-field.active,
@@ -153,6 +213,10 @@
     background-color: #000;
     color: #fff;
     vertical-align: top;
+
+    &.disabled {
+        opacity: .5;
+    }
 }
 
 .ui-text-field.active,
@@ -173,6 +237,11 @@
     line-height: 24px;
     font-size: 14px;
     cursor: pointer;
+
+    &.disabled {
+        opacity: .5;
+        cursor: default;
+    }
 }
 
 .ui-checkbox {
@@ -183,9 +252,14 @@
     margin: 4px;
     width: 24px;
     height: 24px;
+    cursor: pointer;
 
     &.checked {
         background-color: #fff;
+    }
+    &.disabled {
+        opacity: .5;
+        cursor: default;
     }
 }
 
@@ -201,7 +275,12 @@
     font-size: 12px;
     cursor: pointer;
 
+    &.disabled {
+        opacity: .5;
+        cursor: default;
+    }
     &.active {
+        z-index: 1;
         > ul {
             display: block;
         }
@@ -222,7 +301,7 @@
         list-style: none;
         padding: 0;
         background-color: #000;
-        z-index: 1;
+        // z-index: 1;
 
         box-shadow: 0 0 4px rgba(0, 0, 0, .5);
 
@@ -248,6 +327,11 @@
     color: #f8f4f0;
     background-color: #1d292c;
     overflow: auto;
+
+    &.disabled {
+        opacity: .5;
+        cursor: default;
+    }
 }
 
 .ui-progress {
@@ -255,6 +339,9 @@
     height: 4px;
     background-color: #000;
 
+    &.disabled {
+        opacity: .5;
+    }
     > .inner {
         width: 0%;
         height: inherit;

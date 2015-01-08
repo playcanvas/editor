@@ -1,26 +1,26 @@
-(function() {
+editor.once('load', function() {
     'use strict';
 
-    msg.on('attributes:inspect[asset]', function(assets) {
+    editor.on('attributes:inspect[asset]', function(assets) {
         if (assets.length !== 1 || assets[0].type !== 'json')
             return;
 
         var asset = assets[0];
 
         // loading
-        var fieldLoading = msg.call('attributes:addField', {
+        var fieldLoading = editor.call('attributes:addField', {
             type: 'progress'
         });
         fieldLoading.on('progress:100', function() {
             this.destroy();
         });
 
-        var panelRaw = msg.call('attributes:addPanel', {
+        var panelRaw = editor.call('attributes:addPanel', {
             name: 'Raw Data'
         });
 
         // code
-        var fieldData = msg.call('attributes:addField', {
+        var fieldData = editor.call('attributes:addField', {
             parent: panelRaw,
             type: 'code'
         });
@@ -38,4 +38,4 @@
 
         fieldLoading.progress = .1;
     });
-})();
+});

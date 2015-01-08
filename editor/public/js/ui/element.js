@@ -15,6 +15,32 @@ function Element() {
     this._link = null;
     this.path = '';
     this._linkChange = null;
+
+    this._disabled = false;
+    this._disabledParent = false;
+
+    this._parentDisable = function() {
+        if (self._disabledParent)
+            return;
+
+        self._disabledParent = true;
+
+        if (! self._disabled) {
+            self.emit('disable');
+            self.class.add('disabled');
+        }
+    };
+    this._parentEnable = function() {
+        if (! self._disabledParent)
+            return;
+
+        self._disabledParent = false;
+
+        if (! self._disabled) {
+            self.emit('enable');
+            self.class.remove('disabled');
+        }
+    };
 }
 Element.prototype = Object.create(Events.prototype);
 
@@ -58,6 +84,8 @@ Element.prototype.destroy = function() {
 
     if (this._parent) {
         this._parent.unbind('destroy', this._parentDestroy);
+        this._parent.unbind('disable', this._parentDisable);
+        this._parent.unbind('enable', this._parentEnable);
         this._parent = null;
     }
 
@@ -83,6 +111,7 @@ Object.defineProperty(Element.prototype, 'element', {
         this._element.ui = this;
 
         this._element.addEventListener('click', function(evt) {
+            if (this.disabled) return;
             this.emit('click', evt);
         }.bind(this), false);
 
@@ -101,6 +130,43 @@ Object.defineProperty(Element.prototype, 'parent', {
 
         this._parent = value;
         this._parent.once('destroy', this._parentDestroy);
+
+        this._parent.on('disable', this._parentDisable);
+        this._parent.on('enable', this._parentEnable);
+
+        this._disabledParent = this._parent.disabled;
+        if (this._disabledParent) {
+            this.class.add('disabled');
+            this.emit('disable');
+        }
+    }
+});
+
+Object.defineProperty(Element.prototype, 'disabled', {
+    get: function() {
+        return this._disabled || this._disabledParent;
+    },
+    set: function(value) {
+        if (this._disabled == value)
+            return;
+
+        this._disabled = !! value;
+        this.emit((this._disabled || this._disabledParent) ? 'disable' : 'enable');
+
+        if ((this._disabled || this._disabledParent)) {
+            this.class.add('disabled');
+        } else {
+            this.class.remove('disabled');
+        }
+    }
+});
+
+Object.defineProperty(Element.prototype, 'enabled', {
+    get: function() {
+        return ! this._disabled;
+    },
+    set: function(value) {
+        this.disabled = ! value;
     }
 });
 

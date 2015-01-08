@@ -1,5 +1,4 @@
-var A;
-(function() {
+editor.once('load', function() {
     'use strict';
 
     var mappingTypes = {
@@ -224,7 +223,7 @@ var A;
         },
     };
 
-    msg.hook('material:listToMap', function(data) {
+    editor.hook('material:listToMap', function(data) {
         var obj = {
             model: data.shader
         };
@@ -242,7 +241,7 @@ var A;
         return obj;
     });
 
-    msg.hook('material:mapToList', function(data) {
+    editor.hook('material:mapToList', function(data) {
         var obj = {
             name: data.name,
             shader: data.data.model,
@@ -260,21 +259,20 @@ var A;
         return obj;
     });
 
-    msg.on('attributes:inspect[asset]', function(assets) {
+    editor.on('attributes:inspect[asset]', function(assets) {
         if (assets.length !== 1 || assets[0].type !== 'material')
             return;
 
         var asset = assets[0];
-        A = asset;
 
         // properties panel
-        var paramsPanel = msg.call('attributes:addPanel', {
+        var paramsPanel = editor.call('attributes:addPanel', {
             name: 'Material Properties'
         });
 
 
         // model
-        var fieldModel = msg.call('attributes:addField', {
+        var fieldModel = editor.call('attributes:addField', {
             parent: paramsPanel,
             type: 'string',
             enum: {
@@ -289,13 +287,13 @@ var A;
 
 
         // ambient
-        var ambientPanel = msg.call('attributes:addPanel', {
+        var ambientPanel = editor.call('attributes:addPanel', {
             parent: paramsPanel,
             name: 'Ambient'
         });
 
         // tint
-        var fieldAmbientTint = msg.call('attributes:addField', {
+        var fieldAmbientTint = editor.call('attributes:addField', {
             parent: ambientPanel,
             type: 'checkbox',
             name: 'Tint',
@@ -308,7 +306,7 @@ var A;
         });
 
         // color
-        var fieldAmbientColor = msg.call('attributes:addField', {
+        var fieldAmbientColor = editor.call('attributes:addField', {
             parent: ambientPanel,
             type: 'rgb',
             name: 'Color',
@@ -318,7 +316,7 @@ var A;
         fieldAmbientColor.parent.hidden = ! fieldAmbientTint.value;
 
         // map
-        var fieldAmbientMap = msg.call('attributes:addField', {
+        var fieldAmbientMap = editor.call('attributes:addField', {
             parent: ambientPanel,
             type: 'number',
             name: 'Texture',
@@ -327,7 +325,7 @@ var A;
         });
 
         // color
-        var fieldAmbientUVSet = msg.call('attributes:addField', {
+        var fieldAmbientUVSet = editor.call('attributes:addField', {
             parent: ambientPanel,
             type: 'number',
             name: 'UV Set',
@@ -339,13 +337,13 @@ var A;
 
 
         // diffuse
-        var diffusePanel = msg.call('attributes:addPanel', {
+        var diffusePanel = editor.call('attributes:addPanel', {
             parent: paramsPanel,
             name: 'Diffuse'
         });
 
         // map
-        var fieldDiffuseMap = msg.call('attributes:addField', {
+        var fieldDiffuseMap = editor.call('attributes:addField', {
             parent: diffusePanel,
             type: 'number',
             name: 'Texture',
@@ -362,7 +360,7 @@ var A;
         });
 
         // offset
-        var fieldDiffuseOffset = msg.call('attributes:addField', {
+        var fieldDiffuseOffset = editor.call('attributes:addField', {
             parent: diffusePanel,
             type: 'vec2',
             name: 'Offset',
@@ -372,7 +370,7 @@ var A;
         fieldDiffuseOffset[0].parent.hidden = ! fieldDiffuseMap.value;
 
         // tiling
-        var fieldDiffuseTiling = msg.call('attributes:addField', {
+        var fieldDiffuseTiling = editor.call('attributes:addField', {
             parent: diffusePanel,
             type: 'vec2',
             name: 'Tiling',
@@ -382,7 +380,7 @@ var A;
         fieldDiffuseTiling[0].parent.hidden = ! fieldDiffuseMap.value;
 
         // tint
-        var fieldDiffuseTint = msg.call('attributes:addField', {
+        var fieldDiffuseTint = editor.call('attributes:addField', {
             parent: diffusePanel,
             type: 'checkbox',
             name: 'Tint',
@@ -397,7 +395,7 @@ var A;
         });
 
         // color
-        var fieldDiffuseColor = msg.call('attributes:addField', {
+        var fieldDiffuseColor = editor.call('attributes:addField', {
             parent: diffusePanel,
             type: 'rgb',
             name: 'Color',
@@ -410,13 +408,13 @@ var A;
 
 
         // specular
-        var specularPanel = msg.call('attributes:addPanel', {
+        var specularPanel = editor.call('attributes:addPanel', {
             parent: paramsPanel,
             name: 'Specular'
         });
 
         // map
-        var fieldSpecularMap = msg.call('attributes:addField', {
+        var fieldSpecularMap = editor.call('attributes:addField', {
             parent: specularPanel,
             type: 'number',
             name: 'Specular',
@@ -433,7 +431,7 @@ var A;
         });
 
         // offset
-        var fieldSpecularOffset = msg.call('attributes:addField', {
+        var fieldSpecularOffset = editor.call('attributes:addField', {
             parent: specularPanel,
             type: 'vec2',
             name: 'Offset',
@@ -443,7 +441,7 @@ var A;
         fieldSpecularOffset[0].parent.hidden = ! fieldSpecularMap.value;
 
         // tiling
-        var fieldSpecularTiling = msg.call('attributes:addField', {
+        var fieldSpecularTiling = editor.call('attributes:addField', {
             parent: specularPanel,
             type: 'vec2',
             name: 'Tiling',
@@ -453,7 +451,7 @@ var A;
         fieldSpecularTiling[0].parent.hidden = ! fieldSpecularMap.value;
 
         // tint
-        var fieldSpecularTint = msg.call('attributes:addField', {
+        var fieldSpecularTint = editor.call('attributes:addField', {
             parent: specularPanel,
             type: 'checkbox',
             name: 'Tint',
@@ -468,7 +466,7 @@ var A;
         });
 
         // color
-        var fieldSpecularColor = msg.call('attributes:addField', {
+        var fieldSpecularColor = editor.call('attributes:addField', {
             parent: specularPanel,
             type: 'rgb',
             name: 'Color',
@@ -479,7 +477,7 @@ var A;
         fieldSpecularColor.parent.hidden = ! (fieldSpecularTint.value || ! fieldSpecularMap.value);
 
         // shininess
-        var fieldShininess = msg.call('attributes:addField', {
+        var fieldShininess = editor.call('attributes:addField', {
             parent: specularPanel,
             type: 'number',
             name: 'Shininess',
@@ -488,7 +486,7 @@ var A;
         });
 
         // map (gloss)
-        var fieldGlossMap = msg.call('attributes:addField', {
+        var fieldGlossMap = editor.call('attributes:addField', {
             parent: specularPanel,
             type: 'number',
             name: 'Glossiness',
@@ -503,7 +501,7 @@ var A;
         });
 
         // offset
-        var fieldGlossOffset = msg.call('attributes:addField', {
+        var fieldGlossOffset = editor.call('attributes:addField', {
             parent: specularPanel,
             type: 'vec2',
             name: 'Offset',
@@ -513,7 +511,7 @@ var A;
         fieldGlossOffset[0].parent.hidden = ! fieldGlossMap.value;
 
         // tiling
-        var fieldGlossTiling = msg.call('attributes:addField', {
+        var fieldGlossTiling = editor.call('attributes:addField', {
             parent: specularPanel,
             type: 'vec2',
             name: 'Tiling',
@@ -523,7 +521,7 @@ var A;
         fieldGlossTiling[0].parent.hidden = ! fieldGlossMap.value;
 
         // conserve energy
-        var fieldConserveEnergy = msg.call('attributes:addField', {
+        var fieldConserveEnergy = editor.call('attributes:addField', {
             parent: specularPanel,
             type: 'checkbox',
             name: 'Conserve Energy',
@@ -534,13 +532,13 @@ var A;
 
 
         // emissive
-        var emissivePanel = msg.call('attributes:addPanel', {
+        var emissivePanel = editor.call('attributes:addPanel', {
             parent: paramsPanel,
             name: 'Emissive'
         });
 
         // map
-        var fieldEmissiveMap = msg.call('attributes:addField', {
+        var fieldEmissiveMap = editor.call('attributes:addField', {
             parent: emissivePanel,
             type: 'number',
             name: 'Texture',
@@ -557,7 +555,7 @@ var A;
         });
 
         // offset
-        var fieldEmissiveOffset = msg.call('attributes:addField', {
+        var fieldEmissiveOffset = editor.call('attributes:addField', {
             parent: emissivePanel,
             type: 'vec2',
             name: 'Offset',
@@ -567,7 +565,7 @@ var A;
         fieldEmissiveOffset[0].parent.hidden = ! fieldEmissiveMap.value;
 
         // tiling
-        var fieldEmissiveTiling = msg.call('attributes:addField', {
+        var fieldEmissiveTiling = editor.call('attributes:addField', {
             parent: emissivePanel,
             type: 'vec2',
             name: 'Tiling',
@@ -577,7 +575,7 @@ var A;
         fieldEmissiveTiling[0].parent.hidden = ! fieldEmissiveMap.value;
 
         // tint
-        var fieldEmissiveTint = msg.call('attributes:addField', {
+        var fieldEmissiveTint = editor.call('attributes:addField', {
             parent: emissivePanel,
             type: 'checkbox',
             name: 'Tint',
@@ -592,7 +590,7 @@ var A;
         });
 
         // color
-        var fieldEmissiveColor = msg.call('attributes:addField', {
+        var fieldEmissiveColor = editor.call('attributes:addField', {
             parent: emissivePanel,
             type: 'rgb',
             name: 'Color',
@@ -603,7 +601,7 @@ var A;
         fieldEmissiveColor.parent.hidden = ! (fieldEmissiveTint.value || ! fieldEmissiveMap.value);
 
         // intensity
-        var fieldEmissiveIntensity = msg.call('attributes:addField', {
+        var fieldEmissiveIntensity = editor.call('attributes:addField', {
             parent: emissivePanel,
             type: 'number',
             name: 'Intensity',
@@ -614,13 +612,13 @@ var A;
 
 
         // normals
-        var normalPanel = msg.call('attributes:addPanel', {
+        var normalPanel = editor.call('attributes:addPanel', {
             parent: paramsPanel,
             name: 'Normals'
         });
 
         // bumpiness
-        var fieldBumpiness = msg.call('attributes:addField', {
+        var fieldBumpiness = editor.call('attributes:addField', {
             parent: normalPanel,
             type: 'number',
             name: 'Bumpiness',
@@ -629,7 +627,7 @@ var A;
         });
 
         // map (normals)
-        var fieldNormalMap = msg.call('attributes:addField', {
+        var fieldNormalMap = editor.call('attributes:addField', {
             parent: normalPanel,
             type: 'number',
             name: 'Texture',
@@ -644,7 +642,7 @@ var A;
         fieldBumpiness.parent.hidden = ! fieldNormalMap.value;
 
         // offset
-        var fieldNormalsOffset = msg.call('attributes:addField', {
+        var fieldNormalsOffset = editor.call('attributes:addField', {
             parent: normalPanel,
             type: 'vec2',
             name: 'Offset',
@@ -654,7 +652,7 @@ var A;
         fieldNormalsOffset[0].parent.hidden = ! fieldNormalMap.value;
 
         // tiling
-        var fieldNormalsTiling = msg.call('attributes:addField', {
+        var fieldNormalsTiling = editor.call('attributes:addField', {
             parent: normalPanel,
             type: 'vec2',
             name: 'Tiling',
@@ -666,13 +664,13 @@ var A;
 
 
         // parallax
-        var parallaxPanel = msg.call('attributes:addPanel', {
+        var parallaxPanel = editor.call('attributes:addPanel', {
             parent: paramsPanel,
             name: 'Parallax'
         });
 
         // map
-        var fieldHeightMap = msg.call('attributes:addField', {
+        var fieldHeightMap = editor.call('attributes:addField', {
             parent: parallaxPanel,
             type: 'number',
             name: 'Texture',
@@ -688,7 +686,7 @@ var A;
         });
 
         // offset
-        var fieldHeightMapOffset = msg.call('attributes:addField', {
+        var fieldHeightMapOffset = editor.call('attributes:addField', {
             parent: parallaxPanel,
             type: 'vec2',
             name: 'Offset',
@@ -698,7 +696,7 @@ var A;
         fieldHeightMapOffset[0].parent.hidden = ! fieldHeightMap.value;
 
         // tiling
-        var fieldHeightMapTiling = msg.call('attributes:addField', {
+        var fieldHeightMapTiling = editor.call('attributes:addField', {
             parent: parallaxPanel,
             type: 'vec2',
             name: 'Tiling',
@@ -708,7 +706,7 @@ var A;
         fieldHeightMapTiling[0].parent.hidden = ! fieldHeightMap.value;
 
         // strength
-        var fieldHeightMapFactor = msg.call('attributes:addField', {
+        var fieldHeightMapFactor = editor.call('attributes:addField', {
             parent: parallaxPanel,
             type: 'number',
             name: 'Strength',
@@ -720,13 +718,13 @@ var A;
 
 
         // reflection
-        var reflectionPanel = msg.call('attributes:addPanel', {
+        var reflectionPanel = editor.call('attributes:addPanel', {
             parent: paramsPanel,
             name: 'Reflection'
         });
 
         // spheremap
-        var fieldReflectionSphere = msg.call('attributes:addField', {
+        var fieldReflectionSphere = editor.call('attributes:addField', {
             parent: reflectionPanel,
             type: 'number',
             name: 'Sphere Map',
@@ -739,7 +737,7 @@ var A;
         });
 
         // cubemap
-        var fieldReflectionCubeMap = msg.call('attributes:addField', {
+        var fieldReflectionCubeMap = editor.call('attributes:addField', {
             parent: reflectionPanel,
             type: 'number',
             name: 'Cube Map',
@@ -752,7 +750,7 @@ var A;
         });
 
         // reflectivity
-        var fieldReflectionStrength = msg.call('attributes:addField', {
+        var fieldReflectionStrength = editor.call('attributes:addField', {
             parent: reflectionPanel,
             type: 'number',
             name: 'Reflectivity',
@@ -764,13 +762,13 @@ var A;
 
 
         // lightmap
-        var lightmapPanel = msg.call('attributes:addPanel', {
+        var lightmapPanel = editor.call('attributes:addPanel', {
             parent: paramsPanel,
             name: 'LightMap'
         });
 
         // map
-        var fieldLightMap = msg.call('attributes:addField', {
+        var fieldLightMap = editor.call('attributes:addField', {
             parent: lightmapPanel,
             type: 'number',
             name: 'Texture',
@@ -781,13 +779,13 @@ var A;
 
 
         // render states
-        var renderStatesPanel = msg.call('attributes:addPanel', {
+        var renderStatesPanel = editor.call('attributes:addPanel', {
             parent: paramsPanel,
             name: 'Render States'
         });
 
         // depthTest
-        var fieldDepthTest = msg.call('attributes:addField', {
+        var fieldDepthTest = editor.call('attributes:addField', {
             parent: renderStatesPanel,
             type: 'checkbox',
             name: 'Depth Test',
@@ -796,7 +794,7 @@ var A;
         });
 
         // depthWrite
-        var fieldDepthWrite = msg.call('attributes:addField', {
+        var fieldDepthWrite = editor.call('attributes:addField', {
             parent: renderStatesPanel,
             type: 'checkbox',
             name: 'Depth Write',
@@ -805,7 +803,7 @@ var A;
         });
 
         // culling
-        var fieldCull = msg.call('attributes:addField', {
+        var fieldCull = editor.call('attributes:addField', {
             parent: renderStatesPanel,
             type: 'number',
             enum: mapping.cull.enum,
@@ -815,7 +813,7 @@ var A;
         });
 
         // blend type
-        var fieldBlendType = msg.call('attributes:addField', {
+        var fieldBlendType = editor.call('attributes:addField', {
             parent: renderStatesPanel,
             type: 'number',
             enum: mapping.blendType.enum,
@@ -824,4 +822,4 @@ var A;
             path: 'data.blendType'
         });
     });
-})();
+});

@@ -1,4 +1,4 @@
-(function() {
+editor.once('load', function() {
     'use strict';
 
     var selector = new ObserverList();
@@ -52,14 +52,14 @@
         // add index
         setIndex(this.type, item);
 
-        msg.emit('selector:add', item, this.type);
-        msg.emit('selector:change', this.array());
+        editor.emit('selector:add', item, this.type);
+        editor.emit('selector:change', this.array());
     });
 
 
     // removing
     selector.on('remove', function(item) {
-        msg.emit('selector:remove', item, this.type);
+        editor.emit('selector:remove', item, this.type);
 
         // remove index
         removeIndex(this.type, item);
@@ -67,12 +67,12 @@
         if (this.length === 0)
             this.type = null;
 
-        msg.emit('selector:change', this.array());
+        editor.emit('selector:change', this.array());
     });
 
 
     // selecting item
-    msg.hook('selector:toggle', function(type, item) {
+    editor.hook('selector:toggle', function(type, item) {
         if (selector.length && selector.type !== type) {
             selector.clear();
         }
@@ -87,7 +87,7 @@
 
 
     // selecting item
-    msg.hook('selector:add', function(type, item) {
+    editor.hook('selector:add', function(type, item) {
         if (selector.has(item))
             return;
 
@@ -100,7 +100,7 @@
 
 
     // deselecting item
-    msg.hook('selector:remove', function(item) {
+    editor.hook('selector:remove', function(item) {
         if (! selector.has(item))
             return;
 
@@ -109,31 +109,31 @@
 
 
     // deselecting
-    msg.hook('selector:clear', function(item) {
+    editor.hook('selector:clear', function(item) {
         selector.clear();
     });
 
 
     // return select type
-    msg.hook('selector:type', function() {
+    editor.hook('selector:type', function() {
         return selector.type;
     });
 
 
     // return selected count
-    msg.hook('selector:count', function() {
+    editor.hook('selector:count', function() {
         return selector.length;
     });
 
 
     // return selected items
-    msg.hook('selector:items', function() {
+    editor.hook('selector:items', function() {
         return selector.array();
     });
 
 
     // return if it has item
-    msg.hook('selector:has', function(item) {
+    editor.hook('selector:has', function(item) {
         return selector.has(item);
     });
-})();
+});

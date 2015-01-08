@@ -1,5 +1,8 @@
-(function() {
+editor.once('load', function() {
     'use strict';
+
+    var assetsPanel = editor.call('layout.assets');
+
 
     var overlay = new ui.Panel();
     overlay.class.add('overlay');
@@ -11,7 +14,7 @@
     });
     overlay.append(loading);
 
-    msg.hook('assets:progress', function(progress) {
+    editor.hook('assets:progress', function(progress) {
         loading.progress = progress;
     });
 
@@ -23,22 +26,22 @@
 
 
     grid.on('select', function(item) {
-        msg.call('selector:add', 'asset', item.asset);
+        editor.call('selector:add', 'asset', item.asset);
     });
 
     grid.on('deselect', function(item) {
-        msg.call('selector:remove', item.asset);
+        editor.call('selector:remove', item.asset);
     });
 
 
     // selector reflect in list
-    msg.on('selector:add', function(asset, type) {
+    editor.on('selector:add', function(asset, type) {
         if (type !== 'asset')
             return;
 
         assetsIndex[asset.id].selected = true;
     });
-    msg.on('selector:remove', function(asset, type) {
+    editor.on('selector:remove', function(asset, type) {
         if (type !== 'asset')
             return;
 
@@ -46,7 +49,7 @@
     });
 
 
-    msg.on('assets:add', function(asset) {
+    editor.on('assets:add', function(asset) {
         var item = new ui.GridItem();
         item.asset = asset;
         item.class.add('type-' + asset.type);
@@ -81,14 +84,7 @@
         });
     });
 
-    msg.on('assets:remove', function(asset) {
+    editor.on('assets:remove', function(asset) {
         assetsIndex[asset.id].destroy();
     });
-})();
-
-
-
-
-
-
-
+});

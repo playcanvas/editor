@@ -28,7 +28,12 @@ function NumberField(args) {
     this._dragDiff = 0;
     this._dragStart = 0;
 
-    // this._on
+    this.on('disable', function() {
+        this.element.disabled = true;
+    });
+    this.on('enable', function() {
+        this.element.disabled = false;
+    });
 }
 NumberField.prototype = Object.create(ui.Element.prototype);
 

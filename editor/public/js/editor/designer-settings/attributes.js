@@ -1,17 +1,17 @@
-(function() {
+editor.once('load', function() {
     'use strict';
 
-    var designerSettings = msg.call('designer-settings');
+    var designerSettings = editor.call('designer-settings');
 
     // inspecting
-    msg.on('attributes:inspect[designerSettings]', function() {
+    editor.on('attributes:inspect[designerSettings]', function() {
         // grid settings
-        var gridPanel = msg.call('attributes:addPanel', {
+        var gridPanel = editor.call('attributes:addPanel', {
             name: 'Grid Settings'
         });
 
         // divisions
-        msg.call('attributes:addField', {
+        editor.call('attributes:addField', {
             parent: gridPanel,
             name: 'Divisions',
             type: 'number',
@@ -20,7 +20,7 @@
         });
 
         // division size
-        msg.call('attributes:addField', {
+        editor.call('attributes:addField', {
             parent: gridPanel,
             name: 'Division Size',
             type: 'number',
@@ -29,12 +29,12 @@
         });
 
         // snap settings
-        var snapPanel = msg.call('attributes:addPanel', {
+        var snapPanel = editor.call('attributes:addPanel', {
             name: 'Snap Settings'
         });
 
         // snap increment
-        msg.call('attributes:addField', {
+        editor.call('attributes:addField', {
             parent: snapPanel,
             name: 'Snap Increment',
             type: 'number',
@@ -43,12 +43,12 @@
         });
 
         // camera settings
-        var cameraPanel = msg.call('attributes:addPanel', {
+        var cameraPanel = editor.call('attributes:addPanel', {
             name: 'Camera Settings'
         });
 
         // near clip
-        msg.call('attributes:addField', {
+        editor.call('attributes:addField', {
             parent: cameraPanel,
             name: 'Near Clip',
             type: 'number',
@@ -57,7 +57,7 @@
         });
 
         // far clip
-        msg.call('attributes:addField', {
+        editor.call('attributes:addField', {
             parent: cameraPanel,
             name: 'Far Clip',
             type: 'number',
@@ -66,7 +66,7 @@
         });
 
         // clear color
-        msg.call('attributes:addField', {
+        editor.call('attributes:addField', {
             parent: cameraPanel,
             name: 'Clear Color',
             type: 'vec4',
@@ -74,4 +74,4 @@
             path: 'camera_clear_color'
         });
     });
-})();
+});

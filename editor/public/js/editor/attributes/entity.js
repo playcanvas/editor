@@ -1,14 +1,14 @@
 (function() {
     'use strict';
 
-    msg.on('attributes:inspect[entity]', function(entities) {
+    editor.on('attributes:inspect[entity]', function(entities) {
         if (entities.length !== 1)
             return;
 
         var entity = entities[0];
 
         // name
-        msg.call('attributes:addField', {
+        editor.call('attributes:addField', {
             name: 'Name',
             type: 'string',
             link: entity,
@@ -16,7 +16,7 @@
         });
 
         // position
-        msg.call('attributes:addField', {
+        editor.call('attributes:addField', {
             name: 'Position',
             type: 'vec3',
             link: entity,
@@ -24,7 +24,7 @@
         });
 
         // rotation
-        msg.call('attributes:addField', {
+        editor.call('attributes:addField', {
             name: 'Rotation',
             type: 'vec3',
             link: entity,
@@ -32,7 +32,7 @@
         });
 
         // scale
-        msg.call('attributes:addField', {
+        editor.call('attributes:addField', {
             name: 'Scale',
             type: 'vec3',
             link: entity,

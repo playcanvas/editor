@@ -1,19 +1,19 @@
-(function() {
+editor.once('load', function() {
     'use strict';
 
-    var root = attributesPanel;
+    var root = editor.call('layout.right');
 
     var clearPanel = function() {
         root.clear();
     };
 
     // clearing
-    msg.hook('attributes:clear', clearPanel);
+    editor.hook('attributes:clear', clearPanel);
 
     // get current inspected items
-    msg.hook('attributes:items', function() {
-        var type = msg.call('selector:type');
-        var items = msg.call('selector:items');
+    editor.hook('attributes:items', function() {
+        var type = editor.call('selector:type');
+        var items = editor.call('selector:items');
         return {
             type: type,
             items: items
@@ -21,12 +21,12 @@
     });
 
     // set header
-    msg.hook('attributes:header', function(title) {
+    editor.hook('attributes:header', function(title) {
         root.header = 'Attributes (' + title + ')';
     });
 
     // add panel
-    msg.hook('attributes:addPanel', function(args) {
+    editor.hook('attributes:addPanel', function(args) {
         args = args || { };
         var panel = new ui.Panel(args.name || '');
         (args.parent || root).append(panel);
@@ -34,7 +34,7 @@
     });
 
     // add field
-    msg.hook('attributes:addField', function(args) {
+    editor.hook('attributes:addField', function(args) {
         var panel = new ui.Panel();
         panel.flexWrap = 'nowrap';
         panel.style.display = '';
@@ -294,13 +294,13 @@
         }
     });
 
-    msg.hook('attributes:inspect', function(type, item) {
+    editor.hook('attributes:inspect', function(type, item) {
         clearPanel();
         root.header = 'Attributes (' + type + ')';
-        msg.emit('attributes:inspect[' + type + ']', item);
+        editor.emit('attributes:inspect[' + type + ']', item);
     });
 
-    msg.on('selector:change', function(items) {
+    editor.on('selector:change', function(items) {
         clearPanel();
 
         // nothing selected
@@ -315,8 +315,8 @@
             return;
         }
 
-        var type = msg.call('selector:type');
+        var type = editor.call('selector:type');
         root.header = 'Attributes (' + type + ')';
-        msg.emit('attributes:inspect[' + type + ']', items);
+        editor.emit('attributes:inspect[' + type + ']', items);
     });
-})();
+});

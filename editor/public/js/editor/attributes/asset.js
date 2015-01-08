@@ -9,16 +9,16 @@
         return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
     };
 
-    msg.on('attributes:inspect[asset]', function(assets) {
+    editor.on('attributes:inspect[asset]', function(assets) {
         if (assets.length !== 1)
             return;
 
         var asset = assets[0];
 
-        msg.call('attributes:header', 'asset, ' + asset.type);
+        editor.call('attributes:header', 'asset, ' + asset.type);
 
         // id
-        msg.call('attributes:addField', {
+        editor.call('attributes:addField', {
             name: 'ID',
             link: asset,
             path: 'id'
@@ -26,7 +26,7 @@
 
         if (asset.get('file.filename')) {
             // filename
-            msg.call('attributes:addField', {
+            editor.call('attributes:addField', {
                 name: 'Filename',
                 type: 'string',
                 link: asset,
@@ -34,7 +34,7 @@
             });
         } else {
             // name
-            msg.call('attributes:addField', {
+            editor.call('attributes:addField', {
                 name: 'Name',
                 type: 'string',
                 link: asset,
@@ -43,7 +43,7 @@
         }
 
         // type
-        msg.call('attributes:addField', {
+        editor.call('attributes:addField', {
             name: 'Type',
             link: asset,
             path: 'type'
@@ -51,7 +51,7 @@
 
         // size
         if (asset.file) {
-            var fieldSize = msg.call('attributes:addField', {
+            var fieldSize = editor.call('attributes:addField', {
                 name: 'Size',
                 value: bytesToHuman(asset.file.size)
             });
@@ -62,7 +62,7 @@
 
         // TEMP
         // load raw
-        var button = msg.call('attributes:addField', {
+        var button = editor.call('attributes:addField', {
             type: 'button',
             text: 'Load raw'
         });
@@ -76,7 +76,7 @@
             this.destroy();
 
             // loading
-            var fieldLoading = msg.call('attributes:addField', {
+            var fieldLoading = editor.call('attributes:addField', {
                 type: 'progress'
             });
             fieldLoading.on('progress:100', function() {
@@ -84,7 +84,7 @@
             });
 
             // code
-            var fieldData = msg.call('attributes:addField', {
+            var fieldData = editor.call('attributes:addField', {
                 type: 'code'
             });
 

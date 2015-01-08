@@ -13,6 +13,13 @@ function TextField(args) {
     }
 
     this.element.addEventListener('change', this._onChange.bind(this), false);
+
+    this.on('disable', function() {
+        this.element.disabled = true;
+    });
+    this.on('enable', function() {
+        this.element.disabled = false;
+    });
 }
 TextField.prototype = Object.create(ui.Element.prototype);
 

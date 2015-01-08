@@ -1,4 +1,4 @@
-(function() {
+editor.once('load', function() {
     'use strict';
 
     var designerSettings = new Observer({
@@ -17,7 +17,7 @@
     designerSettings.sync = false;
 
     // get designer settings
-    msg.hook('designer-settings', function() {
+    editor.hook('designer-settings', function() {
         return designerSettings;
     });
 
@@ -43,17 +43,19 @@
     });
 
     // load designer settings
-    Ajax
-    .get('{{url.api}}/{{owner.username}}/{{project.name}}/packs/{{pack.resource_id}}/designer_settings/{{self.username}}?access_token={{accessToken}}')
-    .on('load', function(status, data) {
-        for(var i = 0; i < designerSettings.__keys.length; i++) {
-            var key = designerSettings.__keys[i];
-            var value = data.response[0][key];
+    editor.once('start', function() {
+        Ajax
+        .get('{{url.api}}/{{owner.username}}/{{project.name}}/packs/{{pack.resource_id}}/designer_settings/{{self.username}}?access_token={{accessToken}}')
+        .on('load', function(status, data) {
+            for(var i = 0; i < designerSettings.__keys.length; i++) {
+                var key = designerSettings.__keys[i];
+                var value = data.response[0][key];
 
-            if (value !== undefined)
-                designerSettings.set(key, value);
-        }
+                if (value !== undefined)
+                    designerSettings.set(key, value);
+            }
 
-        designerSettings.sync = true;
+            designerSettings.sync = true;
+        });
     });
-})();
+});

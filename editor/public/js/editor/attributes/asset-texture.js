@@ -1,7 +1,7 @@
-(function() {
+editor.once('load', function() {
     'use strict';
 
-    msg.on('attributes:inspect[asset]', function(assets) {
+    editor.on('attributes:inspect[asset]', function(assets) {
         if (assets.length !== 1 || assets[0].type !== 'texture')
             return;
 
@@ -9,17 +9,17 @@
 
 
         // properties panel
-        var paramsPanel = msg.call('attributes:addPanel');
+        var paramsPanel = editor.call('attributes:addPanel');
 
         // dimensions
-        var fieldDimensions = msg.call('attributes:addField', {
+        var fieldDimensions = editor.call('attributes:addField', {
             parent: paramsPanel,
             name: 'Dimensions',
             value: '...'
         });
 
         // minfilter
-        msg.call('attributes:addField', {
+        editor.call('attributes:addField', {
             parent: paramsPanel,
             name: 'Min Filter',
             link: asset,
@@ -27,7 +27,7 @@
         });
 
         // magfilter
-        msg.call('attributes:addField', {
+        editor.call('attributes:addField', {
             parent: paramsPanel,
             name: 'Mag Filter',
             link: asset,
@@ -35,7 +35,7 @@
         });
 
         // addressu
-        msg.call('attributes:addField', {
+        editor.call('attributes:addField', {
             parent: paramsPanel,
             name: 'Address U',
             link: asset,
@@ -43,7 +43,7 @@
         });
 
         // addressv
-        msg.call('attributes:addField', {
+        editor.call('attributes:addField', {
             parent: paramsPanel,
             name: 'Address V',
             link: asset,
@@ -51,7 +51,7 @@
         });
 
         // anisotropy
-        msg.call('attributes:addField', {
+        editor.call('attributes:addField', {
             parent: paramsPanel,
             name: 'Anisotropy',
             type: 'number',
@@ -59,13 +59,13 @@
             path: 'data.anisotropy'
         });
 
-        var previewPanel = msg.call('attributes:addPanel', {
+        var previewPanel = editor.call('attributes:addPanel', {
             parent: paramsPanel,
             name: 'Preview'
         });
 
         // preview
-        var image = msg.call('attributes:addField', {
+        var image = editor.call('attributes:addField', {
             parent: previewPanel,
             type: 'image',
             src: config.url.api + '/' + asset.file.url
@@ -79,4 +79,4 @@
             fieldDimensions.text = image.naturalWidth + ' x ' + image.naturalHeight;
         };
     });
-})();
+});

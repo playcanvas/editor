@@ -1,14 +1,14 @@
-(function() {
+editor.once('load', function() {
     'use strict';
 
-    msg.on('attributes:inspect[asset]', function(assets) {
+    editor.on('attributes:inspect[asset]', function(assets) {
         if (assets.length !== 1 || assets[0].type !== 'model')
             return;
 
         var asset = assets[0];
 
         // nodes panel
-        var panelNodes = msg.call('attributes:addPanel', {
+        var panelNodes = editor.call('attributes:addPanel', {
             name: 'Nodes'
         });
 
@@ -31,7 +31,7 @@
             nodesTemplate();
         } else {
             // loading
-            var fieldLoading = msg.call('attributes:addField', {
+            var fieldLoading = editor.call('attributes:addField', {
                 type: 'progress'
             });
             fieldLoading.on('progress:100', function() {
@@ -63,4 +63,4 @@
             fieldLoading.progress = .1;
         }
     });
-})();
+});
