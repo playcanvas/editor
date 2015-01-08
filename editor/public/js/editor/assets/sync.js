@@ -72,18 +72,18 @@
                 },
                 data: json
             })
-            .on('load', function(status, data) {
-                data = data.response[0];
-                if (data.type == 'material') {
-                    data.data = msg.call('material:listToMap', data.data);
-                }
-                asset.sync = false;
-                asset.patch(data);
-                asset.sync = true;
-            })
-            .on('error', function(err) {
-                console.log(err);
-            });
+            // .on('load', function(status, data) {
+            //     // data = data.response[0];
+            //     // if (data.type == 'material') {
+            //     //     data.data = msg.call('material:listToMap', data.data);
+            //     // }
+            //     // asset.sync = false;
+            //     // asset.patch(data);
+            //     // asset.sync = true;
+            // })
+            // .on('error', function(err) {
+            //     console.log(err);
+            // });
 
             updating = false;
         };
