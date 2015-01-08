@@ -3,13 +3,7 @@ var A;
     'use strict';
 
     var mappingTypes = {
-        'float': 'float',
         'int': 'float',
-        'boolean': 'boolean',
-        'texture': 'texture',
-        'vec2': 'vec2',
-        'vec3': 'vec3',
-        'vec4': 'vec4',
         'rgb': 'vec3'
     };
 
@@ -258,7 +252,7 @@ var A;
         for(var key in mapping) {
             obj.parameters.push({
                 name: key,
-                type: mappingTypes[mapping[key].type],
+                type: mappingTypes[mapping[key].type] || mapping[key].type,
                 data: data.data[key] === undefined ? mapping[key].default : data.data[key]
             });
         }
