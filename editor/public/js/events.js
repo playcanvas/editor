@@ -24,13 +24,14 @@ Events.prototype.on = function(name, fn) {
             this.emit('event:on', fn);
         }
     }
-    return this;
+    return new EventHandle(this, 'event:on', fn);
+    // return this;
 };
 
 Events.prototype.once = function(name, fn) {
     var events = this._events[name];
     fn.once = true;
-    if (!events) {
+    if (! events) {
         this._events[name] = [ fn ];
         this.emit('event:once', fn);
     } else {
@@ -39,7 +40,8 @@ Events.prototype.once = function(name, fn) {
             this.emit('event:once', fn);
         }
     }
-    return this;
+    return new EventHandle(this, 'event:on', fn);
+    // return this;
 };
 
 Events.prototype.emit = function(name) {
@@ -86,5 +88,35 @@ Events.prototype.unbind = function(name, fn) {
     } else {
         this._events = { };
     }
+
     return this;
+};
+
+
+function EventHandle(owner, name, fn) {
+    this.owner = owner;
+    this.name = name;
+    this.fn = fn;
+};
+
+EventHandle.prototype.unbind = function() {
+    if (! this.owner)
+        return;
+
+    this.owner.unbind(this.name, this.fn);
+
+    this.owner = null;
+    this.name = null;
+    this.fn = null;
+};
+
+EventHandle.prototype.call = function() {
+    if (! this.fn)
+        return;
+
+    this.fn.apply(this.owner, arguments);
+};
+
+EventHandle.prototype.on = function(name, fn) {
+    return this.owner.on(name, fn);
 };

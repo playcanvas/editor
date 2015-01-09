@@ -2,70 +2,124 @@ editor.once('load', function() {
     'use strict';
 
 
-    var canvas = document.createElement('canvas');
-    // previewPanel.append(canvas);
+    // reusable cubemap preview class
+    // use single instance instead of recreating it
+    function CubeMapPreview() {
+        this.canvas = document.createElement('canvas');
 
-    canvas.style.backgroundColor = '#000';
-    canvas.style.display = 'block';
-    canvas.style.width = '100%';
-    canvas.style.minHeight = '32px';
+        // styling
+        this.canvas.style.backgroundColor = '#000';
+        this.canvas.style.display = 'block';
+        this.canvas.style.width = '100%';
+        this.canvas.style.minHeight = '32px';
 
-    var imageSize = 32;
+        // size of image
+        this.imageSize = 32;
 
-    var canvasResize = function() {
-        imageSize = Math.floor(canvas.clientWidth / 4);
-        canvas.width = imageSize * 4;
-        canvas.height = imageSize * 3;
-    };
+        // context
+        this.ctx = this.canvas.getContext('2d');
 
-    var ctx = canvas.getContext('2d');
-    var images = [ ];
-    var blankImage = new Image();
-    blankImage.src = '/editor/img/asset-placeholder-texture.png';
+        // blank image
+        this.imageBlank = new Image();
+        this.imageBlank.src = '/editor/img/asset-placeholder-texture.png';
 
-    var draw = function() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+        // images
+        this.images = [ ];
         for(var i = 0; i < 6; i++) {
-            ctx.drawImage(blankImage, positions[i][0] * imageSize, positions[i][1] * imageSize, imageSize, imageSize);
-            ctx.drawImage(images[i], positions[i][0] * imageSize, positions[i][1] * imageSize, imageSize, imageSize);
+            this.images[i] = new Image();
+            this.images[i].onload = this.draw.bind(this);
         }
-    };
 
-    for(var i = 0; i < 6; i++) {
-        images[i] = new Image();
-        images[i].onload = draw;
+        // asset
+        this.assetOnSet = null;
+
+        // positions
+        this.positions = [
+            [ 2, 1 ], // right
+            [ 0, 1 ], // left
+            [ 1, 0 ], // top
+            [ 1, 2 ], // bottom
+            [ 1, 1 ], // front
+            [ 3, 1 ] // back
+        ];
     }
 
-    var positions = {
-        0: [ 2, 1 ],
-        1: [ 0, 1 ],
-        2: [ 1, 0 ],
-        3: [ 1, 2 ],
-        4: [ 1, 1 ],
-        5: [ 3, 1 ]
-    };
+    // remove bindings and from DOM
+    CubeMapPreview.prototype.unparent = function() {
+        if (this.assetOnSet)
+            this.assetOnSet.unbind();
 
-    var canvasLoadImages = function(asset) {
+        if (this.canvas.parentNode)
+            this.canvas.parentNode.removeChild(this.canvas);
+
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
         for(var i = 0; i < 6; i++) {
-            var id = asset.get('data.textures.' + i);
-            if (! id) continue;
-
-            var texture = editor.call('assets:get', id);
-            if (! texture || texture.type !== 'texture' || ! texture.get('file.url'))
-                continue;
-
-            images[i].src = config.url.api + '/' + texture.get('file.url');
+            this.images[i].src = '';
         }
     };
 
-    var canvasReloadImage = function(i, id) {
-        images[i].src = '';
-        var texture = editor.call('assets:get', id);
-        if (! texture || texture.type !== 'texture' || ! texture.get('file.url'))
-            return;
-        images[i].src = config.url.api + '/' + texture.get('file.url');
+    // draw canvas
+    CubeMapPreview.prototype.draw = function() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        for(var i = 0; i < 6; i++) {
+            this.ctx.drawImage(this.imageBlank, this.positions[i][0] * this.imageSize, this.positions[i][1] * this.imageSize, this.imageSize, this.imageSize);
+            this.ctx.drawImage(this.images[i], this.positions[i][0] * this.imageSize, this.positions[i][1] * this.imageSize, this.imageSize, this.imageSize);
+        }
     };
+
+    // resize
+    CubeMapPreview.prototype.resize = function() {
+        this.imageSize = Math.floor(this.canvas.clientWidth / 4);
+        this.canvas.width = this.imageSize * 4;
+        this.canvas.height = this.imageSize * 3;
+    };
+
+    // load data from asset and bind to changes
+    CubeMapPreview.prototype.load = function(asset) {
+        if (this.assetOnSet)
+            this.assetOnSet.unbind();
+
+        this.assetOnSet = asset.on('*:set', function(path, value) {
+            if (path.indexOf('data.textures.') !== 0)
+                return;
+
+            var ind = parseInt(path.slice('data.textures.'.length), 10);
+            this.loadImage(ind, value);
+            this.draw();
+        }.bind(this));
+
+        for(var i = 0; i < 6; i++) {
+            var id = asset.get('data.textures.' + i);
+            // no texture set
+            if (! id) {
+                this.images[i].src = '';
+                continue;
+            }
+
+            this.loadImage(i, id);
+        }
+
+        this.draw();
+    };
+
+    // load specific image
+    CubeMapPreview.prototype.loadImage = function(i, id) {
+        var texture = editor.call('assets:get', id);
+        // no texture found
+        if (! texture || texture.type !== 'texture' || ! texture.get('file.url')) {
+            this.images[i].src = '';
+            return;
+        }
+        // set image src
+        this.images[i].src = config.url.api + '/' + texture.file.url;
+    };
+
+
+    // preview instance
+    var preview = new CubeMapPreview();
+
 
 
     editor.on('attributes:inspect[asset]', function(assets) {
@@ -103,15 +157,12 @@ editor.once('load', function() {
             name: 'Mip Filter'
         });
 
-        console.log(asset.data.minFilter);
-
         // data > ui
-        var updateMinMip = function(value) {
+        var evtUpdateMinMip = asset.on('data.minFilter:set', function(value) {
             fieldMinFilter.value = [ 1, 4, 5 ].indexOf(value) === -1 ? 0 : 1;
             fieldMipFilter.value = (value < 2) ? 0 : (value % 2 + 1);
-        };
-        asset.on('data.minFilter:set', updateMinMip);
-        updateMinMip(asset.data.minFilter);
+        });
+        evtUpdateMinMip.call(asset.data.minFilter);
 
         // ui > data
         var updateAssetMinMip = function() {
@@ -121,11 +172,6 @@ editor.once('load', function() {
         };
         fieldMinFilter.on('change', updateAssetMinMip);
         fieldMipFilter.on('change', updateAssetMinMip);
-
-        // clear binding
-        paramsPanel.on('destroy', function() {
-            asset.unbind('data.minFilter:set', updateMinMip);
-        });
 
 
         // magFilter
@@ -220,65 +266,15 @@ editor.once('load', function() {
             name: 'Preview'
         });
 
+        // preview canvas
+        previewPanel.append(preview.canvas);
+        preview.resize();
+        preview.load(asset);
 
+        // clear bindings
         previewPanel.on('destroy', function() {
-            asset.unbind('*:set', reloadImage);
-
-            if (! canvas.parentNode)
-                return;
-
-            canvas.parentNode.removeChild(canvas);
+            evtUpdateMinMip.unbind();
+            preview.unparent();
         });
-
-        previewPanel.append(canvas);
-        canvasResize();
-        canvasLoadImages(asset);
-        draw();
-
-        var reloadImage = function(path, value) {
-            if (path.indexOf('data.textures.') !== 0)
-                return;
-
-            var ind = parseInt(path.slice('data.textures.'.length), 10);
-            canvasReloadImage(ind, value);
-            draw();
-        };
-        asset.on('*:set', reloadImage);
-
-
-
-
-        // var posX = asset.get('data.textures.0');
-        // if (posX) {
-        //     assetPosX = editor.call('assets:get', posX);
-        //     if (assetPosX) {
-        //         var url = assetPosX.get('file.url');
-        //         var imgPosX =
-        //     }
-        // }
-
-
-
-        // // preview
-        // var image = editor.call('attributes:addField', {
-        //     parent: previewPanel,
-        //     type: 'image',
-        //     src: config.url.api + '/' + asset.file.url
-        // });
-
-        // image.style.backgroundImage = 'url("/editor/img/asset-placeholder-texture.png")';
-        // image.style.backgroundRepeat = 'repeat';
-        // image.style.margin = '0 auto';
-
-        // image.onload = function() {
-        //     fieldDimensions.text = image.naturalWidth + ' x ' + image.naturalHeight;
-        // };
-
-        // pos_x
-        // neg_x
-        // pos_y
-        // neg_y
-        // pos_z
-        // neg_z
     });
 });
