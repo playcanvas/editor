@@ -71,7 +71,7 @@ editor.once('load', function() {
     });
 
 
-    // selecting item
+    // selecting item (toggle)
     editor.hook('selector:toggle', function(type, item) {
         if (selector.length && selector.type !== type) {
             selector.clear();
@@ -82,6 +82,32 @@ editor.once('load', function() {
             selector.remove(item);
         } else {
             selector.add(item);
+        }
+    });
+
+
+    // selecting list of items
+    editor.hook('selector:set', function(type, items) {
+        if (! type || ! items.length) {
+            selector.clear();
+            return;
+        }
+
+        if (selector.type !== type) {
+            selector.clear();
+            selector.type = type;
+        }
+
+        // remove
+        selector.find(function(item) {
+            return items.indexOf(item) === -1;
+        }).forEach(function(item) {
+            selector.remove(item);
+        });
+
+        // add
+        for(var i = 0; i < items.length; i++) {
+            selector.add(items[i]);
         }
     });
 

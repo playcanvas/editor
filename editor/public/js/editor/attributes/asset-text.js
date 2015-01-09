@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     editor.on('attributes:inspect[asset]', function(assets) {
-        if (assets.length !== 1 || assets[0].type !== 'json')
+        if (assets.length !== 1 || assets[0].type !== 'text')
             return;
 
         var asset = assets[0];
@@ -18,9 +18,10 @@ editor.once('load', function() {
         var panelRaw = editor.call('attributes:addPanel', {
             name: 'Raw Data'
         });
+        panelRaw.hidden = true;
 
         // code
-        var fieldCode = editor.call('attributes:addField', {
+        var fieldText = editor.call('attributes:addField', {
             parent: panelRaw,
             type: 'code'
         });
@@ -29,7 +30,8 @@ editor.once('load', function() {
         Ajax
         .get('{{url.api}}/' + asset.file.url)
         .on('load', function(status, data) {
-            fieldCode.text = JSON.stringify(data, null, 4);
+            fieldText.text = JSON.stringify(data, null, 4);
+            panelRaw.hidden = false;
             loading.progress = 1;
         })
         .on('progress', function(progress) {

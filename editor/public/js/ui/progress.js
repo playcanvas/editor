@@ -26,6 +26,8 @@ function Progress(args) {
     this._now = Date.now();
     this._animating = false;
 
+    this._failed = false;
+
     var self = this;
     this._animateHandler = function() {
         self._animate();
@@ -69,6 +71,22 @@ Object.defineProperty(Progress.prototype, 'speed', {
     },
     set: function(value) {
         this._speed = Math.max(0, Math.min(1, value));
+    }
+});
+
+
+Object.defineProperty(Progress.prototype, 'failed', {
+    get: function() {
+        return this._failed;
+    },
+    set: function(value) {
+        this._failed = !! value;
+
+        if (this._failed) {
+            this.class.add('failed');
+        } else {
+            this.class.remove('failed');
+        }
     }
 });
 

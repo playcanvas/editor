@@ -25,6 +25,11 @@ editor.once('load', function() {
         root.header = 'Attributes (' + title + ')';
     });
 
+    // return root panel
+    editor.hook('attributes.rootPanel', function() {
+        return root;
+    });
+
     // add panel
     editor.hook('attributes:addPanel', function(args) {
         args = args || { };
