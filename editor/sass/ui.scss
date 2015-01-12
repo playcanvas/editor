@@ -77,6 +77,17 @@
             overflow: auto;
         }
     }
+    &.flexible {
+        display: flex;
+        display: -webkit-flex;
+
+    }
+    &.flex {
+        > .content {
+            display: flex;
+            display: -webkit-flex;
+        }
+    }
     &.foldable {
         overflow: hidden;
         transition: height 100ms, width 100ms;
@@ -170,7 +181,9 @@
 .ui-grid {
     @extend .noSelect;
 
+    display: -webkit-flex;
     display: flex;
+    -webkit-flex-wrap: wrap;
     flex-wrap: wrap;
     // justify-content: space-between;
     list-style: none;
@@ -322,8 +335,9 @@
         cursor: default;
     }
     &.active {
-        z-index: 1;
         > ul {
+            z-index: 1;
+            position: fixed;
             display: block;
         }
     }

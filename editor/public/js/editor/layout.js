@@ -5,6 +5,7 @@ editor.on('load', function() {
     var root = new ui.Panel();
     root.enabled = false;
     root.element.id = 'ui-root';
+    root.flex = true;
     root.flexDirection = 'column';
     root.flexWrap = 'nowrap';
     root.scroll = true;
@@ -28,6 +29,7 @@ editor.on('load', function() {
     // middle
     var middle = new ui.Panel();
     middle.element.id = 'ui-middle';
+    middle.flexible = true;
     middle.flexGrow = true;
     root.append(middle);
 
@@ -59,12 +61,14 @@ editor.on('load', function() {
 
     // center
     var center = new ui.Panel();
+    center.flexible = true;
     center.flexGrow = true;
     center.flexDirection = 'column';
     middle.append(center);
 
     // viewport
     var viewport = new ui.Panel();
+    viewport.flexible = true;
     viewport.flexGrow = true;
     viewport.innerElement.style.backgroundImage = 'url("https://i.imgur.com/0zVgGIk.jpg")';
     viewport.innerElement.style.backgroundPosition = 'center center';

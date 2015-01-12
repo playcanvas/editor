@@ -83,16 +83,36 @@ ContainerElement.prototype.clear = function() {
 };
 
 
-Object.defineProperty(ContainerElement.prototype, 'flex', {
+Object.defineProperty(ContainerElement.prototype, 'flexible', {
     get: function() {
-        return this._element.style.display === 'flex';
+        return this._element.classList.contains('flexible');
     },
     set: function(value) {
-        if (this._element.style.display === 'flex')
+        if (this._element.classList.contains('flexible') === !! value)
             return;
 
-        this._element.style.display = value ? 'flex' : 'block';
-        this._innerElement.style.display = this._element.style.display;
+        if (value) {
+            this._element.classList.add('flexible');
+        } else {
+            this._element.classList.remove('flexible');
+        }
+    }
+});
+
+
+Object.defineProperty(ContainerElement.prototype, 'flex', {
+    get: function() {
+        return this._element.classList.contains('flex');
+    },
+    set: function(value) {
+        if (this._element.classList.contains('flex') === !! value)
+            return;
+
+        if (value) {
+            this._element.classList.add('flex');
+        } else {
+            this._element.classList.remove('flex');
+        }
     }
 });
 
@@ -103,17 +123,19 @@ Object.defineProperty(ContainerElement.prototype, 'flexDirection', {
     },
     set: function(value) {
         this._innerElement.style.flexDirection = value;
+        this._innerElement.style.WebkitFlexDirection = value;
     }
 });
 
 
 Object.defineProperty(ContainerElement.prototype, 'flexWrap', {
     get: function() {
-        return this.innerElement.style.flexWrap;
+        return this._innerElement.style.flexWrap;
     },
     set: function(value) {
         this.flex = true;
-        this.innerElement.style.flexWrap = value;
+        this._innerElement.style.flexWrap = value;
+        this._innerElement.style.WebkitFlexWrap = value;
     }
 });
 
@@ -126,7 +148,9 @@ Object.defineProperty(ContainerElement.prototype, 'flexGrow', {
             this.flex = true;
 
         this._element.style.flexGrow = !! value ? 1 : 0;
+        this._element.style.WebkitFlexGrow = !! value ? 1 : 0;
         this._innerElement.style.flexGrow = this._element.style.flexGrow;
+        this._innerElement.style.WebkitFlexGrow = this._element.style.flexGrow;
     }
 });
 
@@ -140,7 +164,9 @@ Object.defineProperty(ContainerElement.prototype, 'flexShrink', {
             this.flex = true;
 
         this._element.style.flexShrink = !! value ? 1 : 0;
+        this._element.style.WebkitFlexShrink = !! value ? 1 : 0;
         this._innerElement.style.flexShrink = this._element.style.flexShrink;
+        this._innerElement.style.WebkitFlexShrink = this._element.style.flexShrink;
     }
 });
 

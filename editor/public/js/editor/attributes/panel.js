@@ -50,6 +50,7 @@ editor.once('load', function() {
     editor.hook('attributes:addField', function(args) {
         var panel = new ui.Panel();
         panel.flexWrap = 'nowrap';
+        panel.WebkitFlexWrap = 'nowrap';
         panel.style.display = '';
 
         if (args.type)
@@ -110,7 +111,6 @@ editor.once('load', function() {
             case 'checkbox':
                 var field = new ui.Checkbox();
                 field.value = args.value || 0;
-                // field.flexGrow = 1;
 
                 if (args.link)
                     field.link(args.link, args.path);

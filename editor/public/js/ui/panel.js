@@ -80,9 +80,9 @@ Panel.prototype._reflow = function() {
     } else if (this.foldable) {
         if (this.horizontal) {
             this.style.height = '';
-            this.style.width = this.innerElement.clientWidth + 'px';
+            this.style.width = this._innerElement.clientWidth + 'px';
         } else {
-            this.style.height = (32 + this.innerElement.clientHeight) + 'px';
+            this.style.height = (32 + this._innerElement.clientHeight) + 'px';
         }
     }
 };

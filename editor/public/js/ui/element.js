@@ -218,6 +218,7 @@ Object.defineProperty(Element.prototype, 'flexGrow', {
     },
     set: function(value) {
         this._element.style.flexGrow = value;
+        this._element.style.WebkitFlexGrow = value;
     }
 });
 
@@ -228,6 +229,7 @@ Object.defineProperty(Element.prototype, 'flexShrink', {
     },
     set: function(value) {
         this._element.style.flexShrink = value;
+        this._element.style.WebkitFlexShrink = value;
     }
 });
 
