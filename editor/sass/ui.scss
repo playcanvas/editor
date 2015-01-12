@@ -92,12 +92,6 @@
         overflow: hidden;
         transition: height 100ms, width 100ms;
 
-        &.noAnimation {
-            transition: none;
-            > .content {
-                transition: none;
-            }
-        }
         &.folded {
             > .content {
                 visibility: hidden;
@@ -126,6 +120,76 @@
         }
         > .content {
             transition: visibility 100ms;
+        }
+    }
+    &.resizable {
+        &.foldable.folded {
+            > .handle {
+                display: none;
+            }
+        }
+        &.resizable-left {
+            > .handle {
+                top: 0;
+                left: 0;
+                bottom: 0;
+                width: 4px;
+                height: auto;
+                cursor: ew-resize;
+            }
+        }
+        &.resizable-right {
+            > .handle {
+                top: 0;
+                right: 0;
+                bottom: 0;
+                width: 4px;
+                height: auto;
+                cursor: ew-resize;
+            }
+        }
+        &.resizable-top {
+            > .handle {
+                top: 0;
+                left: 0;
+                right: 0;
+                width: auto;
+                height: 4px;
+                cursor: ns-resize;
+            }
+        }
+        &.resizable-bottom {
+            > .handle {
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: auto;
+                height: 4px;
+                cursor: ns-resize;
+            }
+        }
+        &:hover > .handle {
+            display: block;
+        }
+        &.resizing > .handle {
+            display: block;
+            background-color: #444;
+        }
+        > .handle {
+            @extend .noSelect;
+            display: none;
+            position: absolute;
+            // background-color: #000;
+
+            &:hover {
+                background-color: #444;
+            }
+        }
+    }
+    &.noAnimation {
+        transition: none;
+        > .content {
+            transition: none;
         }
     }
     > header {
@@ -187,10 +251,11 @@
     flex-wrap: wrap;
     // justify-content: space-between;
     list-style: none;
-    padding: 4px;
+    // padding: 4px;
+    padding: 0;
     margin: 0;
     font-size: 0;
-    border: 1px solid #1a1a1a;
+    // border: 1px solid #1a1a1a;
 }
 
 .ui-grid-item {
@@ -198,7 +263,7 @@
     width: 96px;
     height: 96px;
     margin: 4px;
-    border: 1px solid #1a1a1a;
+    border: 1px solid transparent;
     background-position: center center;
     background-repeat: no-repeat;
     background-size: cover;

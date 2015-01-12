@@ -48,11 +48,12 @@ editor.on('load', function() {
     var hierarchyPanel = new ui.Panel('Hierarchy');
     hierarchyPanel.class.add('hierarchy');
     hierarchyPanel.flexShrink = false;
-    hierarchyPanel.style.width = '384px';
-    hierarchyPanel.innerElement.style.width = '384px';
+    hierarchyPanel.style.width = '320px';
+    hierarchyPanel.innerElement.style.width = '320px';
     hierarchyPanel.foldable = true;
     hierarchyPanel.horizontal = true;
     hierarchyPanel.scroll = true;
+    hierarchyPanel.resizable = 'right';
     middle.append(hierarchyPanel);
     // expose
     editor.hook('layout.left', function() { return hierarchyPanel; });
@@ -83,6 +84,7 @@ editor.on('load', function() {
     assetsPanel.flexShrink = false;
     assetsPanel.innerElement.style.height = '256px';
     assetsPanel.scroll = true;
+    assetsPanel.resizable = 'top';
     center.append(assetsPanel);
     // expose
     editor.hook('layout.assets', function() { return assetsPanel; });
@@ -92,12 +94,13 @@ editor.on('load', function() {
     var attributesPanel = new ui.Panel('Attributes');
     attributesPanel.class.add('attributes');
     attributesPanel.flexShrink = false;
-    attributesPanel.style.width = '384px';
-    attributesPanel.innerElement.style.width = '384px';
+    attributesPanel.style.width = '320px';
+    attributesPanel.innerElement.style.width = '320px';
     attributesPanel.horizontal = true;
     attributesPanel.foldable = true;
-    attributesPanel.folded = true;
+    // attributesPanel.folded = true;
     attributesPanel.scroll = true;
+    attributesPanel.resizable = 'left';
     middle.append(attributesPanel);
     // expose
     editor.hook('layout.right', function() { return attributesPanel; });
