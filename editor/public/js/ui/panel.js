@@ -235,8 +235,8 @@ Panel.prototype._resizeMove = function(evt) {
 
             var height = Math.max(this._resizeLimits.min, Math.min(this._resizeLimits.max, (this._resizeData.height + offsetY)));
 
-            this.style.height = height + 'px';
-            this._innerElement.style.height = (height - 32) + 'px';
+            this.style.height = (height + 32) + 'px';
+            this._innerElement.style.height = height + 'px';
         }
     }
 
