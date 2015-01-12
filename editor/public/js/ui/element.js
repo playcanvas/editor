@@ -139,6 +139,8 @@ Object.defineProperty(Element.prototype, 'parent', {
             this.class.add('disabled');
             this.emit('disable');
         }
+
+        this.emit('parent');
     }
 });
 

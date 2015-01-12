@@ -13,17 +13,33 @@ function SelectField(args) {
     this.elementValue.classList.add('value');
     this.element.appendChild(this.elementValue);
 
+    this._oldValue = null;
+    this._value = null;
+    this._number = !! args.number;
+
     this.elementValue.addEventListener('click', function(evt) {
         if (this.element.classList.contains('active')) {
             this.element.classList.remove('active');
         } else {
             this.element.classList.add('active');
 
+            var rect = this.element.getBoundingClientRect();
+
+            // top
+            var top = (rect.top + 1);
             if (this.optionElements[this._value]) {
-                this.elementOptions.style.top = '-' + (this.optionElements[this._value].offsetTop + 1) + 'px';
-            } else {
-                this.elementOptions.style.top = '-1px';
+                top -= this.optionElements[this._value].offsetTop + 1;
             }
+            // limit to bottom of screen
+            if (top + this.elementOptions.clientHeight > window.innerHeight) {
+                top = window.innerHeight - this.elementOptions.clientHeight;
+            }
+            this.elementOptions.style.top = top + 'px';
+            // left
+            this.elementOptions.style.left = rect.left + 'px';
+            // right
+            this.elementOptions.style.width = (this.element.clientWidth + 2) + 'px';
+
 
             setTimeout(function() {
                 var looseActive = function() {
@@ -43,6 +59,9 @@ function SelectField(args) {
 
     if (args.default !== undefined && this.options[args.default] !== undefined) {
         this._value = args.default;
+        if (this._number)
+            this._value = parseInt(this._value, 10);
+        this._oldValue = this._value;
     }
 
     this._optionSelectHandler = null;
@@ -92,10 +111,13 @@ SelectField.prototype._onOptionSelect = function() {
 };
 
 SelectField.prototype._onLinkChange = function(value) {
-    if (this.optionElements[this._value])
-        this.optionElements[this._value].classList.remove('selected');
+    if (this.optionElements[this._oldValue]) {
+        this.optionElements[this._oldValue].classList.remove('selected');
+    }
 
     this._value = value;
+    if (this._number)
+        this._value = parseInt(this._value, 10);
     this.elementValue.textContent = this.options[value];
     this.optionElements[value].classList.add('selected');
     this.emit('change', value);
@@ -110,20 +132,30 @@ Object.defineProperty(SelectField.prototype, 'value', {
         }
     },
     set: function(value) {
+        if (this._number)
+            value = parseInt(value, 10);
+
         if (this._link) {
-            this._value = value;
+            this._oldValue = this._value;
             this.emit('change:before', value);
-            if (! this._link.set(this.path, this._value)) {
-                this._value = this._link.get(this.path);
-                this.elementValue.textContent = this.options[this._value];
-            }
+            this._link.set(this.path, value);
         } else {
             if (this._value === value) return;
             if (this.options[value] === undefined) return;
 
+            // deselect old one
+            if (this.optionElements[this._oldValue]) {
+                this.optionElements[this._oldValue].classList.remove('selected');
+            }
+
             this._value = value;
+            if (this._number)
+                this._value = parseInt(this._value, 10);
+
             this.emit('change:before', this._value);
+            this._oldValue = this._value;
             this.elementValue.textContent = this.options[this._value];
+            this.optionElements[this._value].classList.add('selected');
             this.emit('change', this._value);
         }
     }

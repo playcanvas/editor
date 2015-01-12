@@ -33,8 +33,16 @@ editor.once('load', function() {
     // add panel
     editor.hook('attributes:addPanel', function(args) {
         args = args || { };
+
+        // panel
         var panel = new ui.Panel(args.name || '');
+        // parent
         (args.parent || root).append(panel);
+
+        // folding
+        panel.foldable = args.foldable || args.folded;
+        panel.folded = args.folded;
+
         return panel;
     });
 
@@ -63,17 +71,12 @@ editor.once('load', function() {
 
         if (args.enum) {
             var field = new ui.SelectField({
-                options: args.enum
+                options: args.enum,
+                number: args.type === 'number'
             });
             field.value == args.value || '';
             field.flexGrow = 1;
             panel.append(field);
-
-            if (args.type === 'number') {
-                field.on('change:before', function(value) {
-                    field._value = parseInt(value, 10);
-                });
-            }
 
             if (args.link)
                 field.link(args.link, args.path);

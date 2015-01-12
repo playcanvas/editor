@@ -1,6 +1,9 @@
 editor.on('start', function() {
     'use strict';
 
+    if (typeof(Messenger) === 'undefined')
+        return;
+
     var messenger = new Messenger();
 
     messenger.connect(config.url.messenger.ws);

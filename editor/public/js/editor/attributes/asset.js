@@ -13,6 +13,11 @@
         if (assets.length !== 1)
             return;
 
+        // unfold panel
+        var panel = editor.call('attributes.rootPanel');
+        if (panel.folded)
+            panel.folded = false;
+
         var asset = assets[0];
 
         editor.call('attributes:header', 'asset, ' + asset.type);

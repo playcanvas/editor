@@ -77,11 +77,53 @@
             overflow: auto;
         }
     }
+    &.foldable {
+        overflow: hidden;
+        transition: height 100ms, width 100ms;
+
+        &.noAnimation {
+            transition: none;
+            > .content {
+                transition: none;
+            }
+        }
+        &.folded {
+            > .content {
+                visibility: hidden;
+            }
+            &.horizontal {
+                background-color: #000;
+
+                > header {
+                    position: absolute;
+                    top: -32px;
+                    width: 2048px;
+
+                    -webkit-transform: rotate(90deg);
+                    transform: rotate(90deg);
+                    -webkit-transform-origin: 0% 100%;
+                    transform-origin: 0% 100%;
+                }
+                > .content {
+                    transition: none;
+                }
+            }
+        }
+        > header {
+            @extend .noSelect;
+            cursor: pointer;
+        }
+        > .content {
+            transition: visibility 100ms;
+        }
+    }
     > header {
         height: 32px;
         line-height: 32px;
         padding: 0 8px;
         background-color: #111;
+        white-space: nowrap;
+        cursor: default;
     }
     > .content {
         position: relative;
@@ -291,7 +333,7 @@
     }
     > ul {
         display: none;
-        position: absolute;
+        position: fixed;
         top: 0;
         left: -1px;
         right: -1px;
@@ -303,7 +345,7 @@
         background-color: #000;
         // z-index: 1;
 
-        box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+        box-shadow: 0 0 8px rgba(0, 0, 0, .5);
 
         > li {
             padding: 1px 8px 1px 9px;

@@ -289,6 +289,8 @@ editor.once('load', function() {
         // ambient
         var ambientPanel = editor.call('attributes:addPanel', {
             parent: paramsPanel,
+            foldable: true,
+            folded: ! asset.get('data.aoMap'),
             name: 'Ambient'
         });
 
@@ -339,6 +341,8 @@ editor.once('load', function() {
         // diffuse
         var diffusePanel = editor.call('attributes:addPanel', {
             parent: paramsPanel,
+            foldable: true,
+            folded: ! asset.get('data.diffuseMap'),
             name: 'Diffuse'
         });
 
@@ -410,6 +414,8 @@ editor.once('load', function() {
         // specular
         var specularPanel = editor.call('attributes:addPanel', {
             parent: paramsPanel,
+            foldable: true,
+            folded: ! asset.get('data.specularMap') || ! asset.get('data.glossMap'),
             name: 'Specular'
         });
 
@@ -534,6 +540,8 @@ editor.once('load', function() {
         // emissive
         var emissivePanel = editor.call('attributes:addPanel', {
             parent: paramsPanel,
+            foldable: true,
+            folded: ! asset.get('data.emissiveMap'),
             name: 'Emissive'
         });
 
@@ -614,6 +622,8 @@ editor.once('load', function() {
         // normals
         var normalPanel = editor.call('attributes:addPanel', {
             parent: paramsPanel,
+            foldable: true,
+            folded: ! asset.get('data.normalMap'),
             name: 'Normals'
         });
 
@@ -666,6 +676,8 @@ editor.once('load', function() {
         // parallax
         var parallaxPanel = editor.call('attributes:addPanel', {
             parent: paramsPanel,
+            foldable: true,
+            folded: ! asset.get('data.heightMap'),
             name: 'Parallax'
         });
 
@@ -720,6 +732,8 @@ editor.once('load', function() {
         // reflection
         var reflectionPanel = editor.call('attributes:addPanel', {
             parent: paramsPanel,
+            foldable: true,
+            folded: ! (asset.get('data.sphereMap') || asset.get('data.cubeMap')),
             name: 'Reflection'
         });
 
@@ -735,6 +749,7 @@ editor.once('load', function() {
             fieldReflectionStrength.parent.hidden = ! fieldReflectionSphere.value && ! fieldReflectionCubeMap.value;
             fieldReflectionCubeMap.parent.hidden = !! value;
         });
+        fieldReflectionSphere.parent.hidden = !! asset.get('data.cubeMap');
 
         // cubemap
         var fieldReflectionCubeMap = editor.call('attributes:addField', {
@@ -748,6 +763,7 @@ editor.once('load', function() {
             fieldReflectionStrength.parent.hidden = ! fieldReflectionSphere.value && ! fieldReflectionCubeMap.value;
             fieldReflectionSphere.parent.hidden = !! value;
         });
+        fieldReflectionCubeMap.parent.hidden = !! asset.get('data.sphereMap');
 
         // reflectivity
         var fieldReflectionStrength = editor.call('attributes:addField', {
@@ -764,6 +780,8 @@ editor.once('load', function() {
         // lightmap
         var lightmapPanel = editor.call('attributes:addPanel', {
             parent: paramsPanel,
+            foldable: true,
+            folded: ! asset.get('data.lightMap'),
             name: 'LightMap'
         });
 
@@ -781,6 +799,7 @@ editor.once('load', function() {
         // render states
         var renderStatesPanel = editor.call('attributes:addPanel', {
             parent: paramsPanel,
+            foldable: true,
             name: 'Render States'
         });
 

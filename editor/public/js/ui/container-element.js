@@ -3,17 +3,18 @@
 function ContainerElement() {
     ui.Element.call(this);
     this._innerElement = null;
+
+    this._observerChanged = false;
     this._observer = new MutationObserver(this._onMutations.bind(this));
-    // this.container = true;
 }
 ContainerElement.prototype = Object.create(ui.Element.prototype);
 
 
 ContainerElement.prototype._observerOptions = {
     childList: true,
-    attributes: false,
+    attributes: true,
     characterData: false,
-    subtree: false,
+    subtree: true,
     attributeOldValue: false,
     characterDataOldValue: false
 };
@@ -155,21 +156,15 @@ Object.defineProperty(ContainerElement.prototype, 'scroll', {
 
 
 ContainerElement.prototype._onMutations = function(mutations) {
-    // var i, node, n;
-    // for(i = 0; i < mutations.length; i++) {
-    //     if (mutations[i].type !== 'childList' || ! mutations[i].removedNodes.length)
-    //         continue;
+    if (this._observerChanged)
+        return;
 
-    //     n = mutations[i].removedNodes.length;
-    //     while(n--) {
-    //         node = mutations[i].removedNodes[n];
+    this._observerChanged = true;
 
-    //         if (! node.ui)
-    //             continue;
-
-    //         node.ui.destroy();
-    //     }
-    // }
+    setTimeout(function() {
+        this._observerChanged = false;
+        this.emit('nodesChanged');
+    }.bind(this), 0);
 };
 
 

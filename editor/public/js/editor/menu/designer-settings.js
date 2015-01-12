@@ -10,7 +10,10 @@ editor.once('load', function() {
     header.append(button);
 
     button.on('click', function() {
-        editor.call('selector:clear');
-        editor.call('attributes:inspect', 'designerSettings', editor.call('designerSettings'));
+        editor.call('selector:set', 'designerSettings', [ editor.call('designerSettings') ]);
+    });
+
+    editor.on('attributes:inspect[designerSettings]', function() {
+        editor.call('attributes.rootPanel').folded = false;
     });
 });
