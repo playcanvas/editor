@@ -123,6 +123,8 @@
         }
     }
     &.resizable {
+        $handle-size: 4px;
+
         &.foldable.folded {
             > .handle {
                 display: none;
@@ -133,7 +135,7 @@
                 top: 0;
                 left: 0;
                 bottom: 0;
-                width: 4px;
+                width: $handle-size;
                 height: auto;
                 cursor: ew-resize;
             }
@@ -143,7 +145,7 @@
                 top: 0;
                 right: 0;
                 bottom: 0;
-                width: 4px;
+                width: $handle-size;
                 height: auto;
                 cursor: ew-resize;
             }
@@ -154,7 +156,7 @@
                 left: 0;
                 right: 0;
                 width: auto;
-                height: 4px;
+                height: $handle-size;
                 cursor: ns-resize;
             }
         }
@@ -164,7 +166,7 @@
                 left: 0;
                 right: 0;
                 width: auto;
-                height: 4px;
+                height: $handle-size;
                 cursor: ns-resize;
             }
         }
@@ -179,7 +181,6 @@
             @extend .noSelect;
             display: none;
             position: absolute;
-            // background-color: #000;
 
             &:hover {
                 background-color: #444;

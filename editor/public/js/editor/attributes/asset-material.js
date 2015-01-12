@@ -357,31 +357,31 @@ editor.once('load', function() {
 
         // map, hide/show offset and tiling, as well as color
         fieldDiffuseMap.on('change', function(value) {
-            fieldDiffuseOffset[0].parent.hidden = value === 0;
-            fieldDiffuseTiling[0].parent.hidden = value === 0;
+            // fieldDiffuseOffset[0].parent.hidden = value === 0;
+            // fieldDiffuseTiling[0].parent.hidden = value === 0;
             fieldDiffuseTint.parent.hidden = ! value;
             fieldDiffuseColor.parent.hidden = ! (fieldDiffuseTint.value || value === 0);
         });
 
-        // offset
-        var fieldDiffuseOffset = editor.call('attributes:addField', {
-            parent: diffusePanel,
-            type: 'vec2',
-            name: 'Offset',
-            link: asset,
-            path: 'data.diffuseMapOffset'
-        });
-        fieldDiffuseOffset[0].parent.hidden = ! fieldDiffuseMap.value;
+        // // offset
+        // var fieldDiffuseOffset = editor.call('attributes:addField', {
+        //     parent: diffusePanel,
+        //     type: 'vec2',
+        //     name: 'Offset',
+        //     link: asset,
+        //     path: 'data.diffuseMapOffset'
+        // });
+        // fieldDiffuseOffset[0].parent.hidden = ! fieldDiffuseMap.value;
 
-        // tiling
-        var fieldDiffuseTiling = editor.call('attributes:addField', {
-            parent: diffusePanel,
-            type: 'vec2',
-            name: 'Tiling',
-            link: asset,
-            path: 'data.diffuseMapTiling'
-        });
-        fieldDiffuseTiling[0].parent.hidden = ! fieldDiffuseMap.value;
+        // // tiling
+        // var fieldDiffuseTiling = editor.call('attributes:addField', {
+        //     parent: diffusePanel,
+        //     type: 'vec2',
+        //     name: 'Tiling',
+        //     link: asset,
+        //     path: 'data.diffuseMapTiling'
+        // });
+        // fieldDiffuseTiling[0].parent.hidden = ! fieldDiffuseMap.value;
 
         // tint
         var fieldDiffuseTint = editor.call('attributes:addField', {
@@ -430,31 +430,31 @@ editor.once('load', function() {
 
         // map, hide/show offset and tiling, as well as color
         fieldSpecularMap.on('change', function(value) {
-            fieldSpecularOffset[0].parent.hidden = value === 0;
-            fieldSpecularTiling[0].parent.hidden = value === 0;
+            // fieldSpecularOffset[0].parent.hidden = value === 0;
+            // fieldSpecularTiling[0].parent.hidden = value === 0;
             fieldSpecularTint.parent.hidden = ! value;
             fieldSpecularColor.parent.hidden = ! (fieldSpecularTint.value || value === 0);
         });
 
-        // offset
-        var fieldSpecularOffset = editor.call('attributes:addField', {
-            parent: specularPanel,
-            type: 'vec2',
-            name: 'Offset',
-            link: asset,
-            path: 'data.specularMapOffset'
-        });
-        fieldSpecularOffset[0].parent.hidden = ! fieldSpecularMap.value;
+        // // offset
+        // var fieldSpecularOffset = editor.call('attributes:addField', {
+        //     parent: specularPanel,
+        //     type: 'vec2',
+        //     name: 'Offset',
+        //     link: asset,
+        //     path: 'data.specularMapOffset'
+        // });
+        // fieldSpecularOffset[0].parent.hidden = ! fieldSpecularMap.value;
 
-        // tiling
-        var fieldSpecularTiling = editor.call('attributes:addField', {
-            parent: specularPanel,
-            type: 'vec2',
-            name: 'Tiling',
-            link: asset,
-            path: 'data.specularMapTiling'
-        });
-        fieldSpecularTiling[0].parent.hidden = ! fieldSpecularMap.value;
+        // // tiling
+        // var fieldSpecularTiling = editor.call('attributes:addField', {
+        //     parent: specularPanel,
+        //     type: 'vec2',
+        //     name: 'Tiling',
+        //     link: asset,
+        //     path: 'data.specularMapTiling'
+        // });
+        // fieldSpecularTiling[0].parent.hidden = ! fieldSpecularMap.value;
 
         // tint
         var fieldSpecularTint = editor.call('attributes:addField', {
@@ -500,31 +500,31 @@ editor.once('load', function() {
             path: 'data.glossMap'
         });
 
-        // map, hide/show offset and tiling, as well as color
-        fieldGlossMap.on('change', function(value) {
-            fieldGlossOffset[0].parent.hidden = value === 0;
-            fieldGlossTiling[0].parent.hidden = value === 0;
-        });
+        // // map, hide/show offset and tiling, as well as color
+        // fieldGlossMap.on('change', function(value) {
+        //     fieldGlossOffset[0].parent.hidden = value === 0;
+        //     fieldGlossTiling[0].parent.hidden = value === 0;
+        // });
 
-        // offset
-        var fieldGlossOffset = editor.call('attributes:addField', {
-            parent: specularPanel,
-            type: 'vec2',
-            name: 'Offset',
-            link: asset,
-            path: 'data.glossMapOffset'
-        });
-        fieldGlossOffset[0].parent.hidden = ! fieldGlossMap.value;
+        // // offset
+        // var fieldGlossOffset = editor.call('attributes:addField', {
+        //     parent: specularPanel,
+        //     type: 'vec2',
+        //     name: 'Offset',
+        //     link: asset,
+        //     path: 'data.glossMapOffset'
+        // });
+        // fieldGlossOffset[0].parent.hidden = ! fieldGlossMap.value;
 
-        // tiling
-        var fieldGlossTiling = editor.call('attributes:addField', {
-            parent: specularPanel,
-            type: 'vec2',
-            name: 'Tiling',
-            link: asset,
-            path: 'data.glossMapTiling'
-        });
-        fieldGlossTiling[0].parent.hidden = ! fieldGlossMap.value;
+        // // tiling
+        // var fieldGlossTiling = editor.call('attributes:addField', {
+        //     parent: specularPanel,
+        //     type: 'vec2',
+        //     name: 'Tiling',
+        //     link: asset,
+        //     path: 'data.glossMapTiling'
+        // });
+        // fieldGlossTiling[0].parent.hidden = ! fieldGlossMap.value;
 
         // conserve energy
         var fieldConserveEnergy = editor.call('attributes:addField', {
@@ -556,31 +556,31 @@ editor.once('load', function() {
 
         // map, hide/show offset and tiling, as well as color
         fieldEmissiveMap.on('change', function(value) {
-            fieldEmissiveOffset[0].parent.hidden = value === 0;
-            fieldEmissiveTiling[0].parent.hidden = value === 0;
+            // fieldEmissiveOffset[0].parent.hidden = value === 0;
+            // fieldEmissiveTiling[0].parent.hidden = value === 0;
             fieldEmissiveTint.parent.hidden = ! value;
             fieldEmissiveColor.parent.hidden = ! (fieldEmissiveTint.value || value === 0);
         });
 
-        // offset
-        var fieldEmissiveOffset = editor.call('attributes:addField', {
-            parent: emissivePanel,
-            type: 'vec2',
-            name: 'Offset',
-            link: asset,
-            path: 'data.emissiveMapOffset'
-        });
-        fieldEmissiveOffset[0].parent.hidden = ! fieldEmissiveMap.value;
+        // // offset
+        // var fieldEmissiveOffset = editor.call('attributes:addField', {
+        //     parent: emissivePanel,
+        //     type: 'vec2',
+        //     name: 'Offset',
+        //     link: asset,
+        //     path: 'data.emissiveMapOffset'
+        // });
+        // fieldEmissiveOffset[0].parent.hidden = ! fieldEmissiveMap.value;
 
-        // tiling
-        var fieldEmissiveTiling = editor.call('attributes:addField', {
-            parent: emissivePanel,
-            type: 'vec2',
-            name: 'Tiling',
-            link: asset,
-            path: 'data.emissiveMapTiling'
-        });
-        fieldEmissiveTiling[0].parent.hidden = ! fieldEmissiveMap.value;
+        // // tiling
+        // var fieldEmissiveTiling = editor.call('attributes:addField', {
+        //     parent: emissivePanel,
+        //     type: 'vec2',
+        //     name: 'Tiling',
+        //     link: asset,
+        //     path: 'data.emissiveMapTiling'
+        // });
+        // fieldEmissiveTiling[0].parent.hidden = ! fieldEmissiveMap.value;
 
         // tint
         var fieldEmissiveTint = editor.call('attributes:addField', {
@@ -645,31 +645,31 @@ editor.once('load', function() {
             path: 'data.normalMap'
         });
         fieldNormalMap.on('change', function(value) {
-            fieldNormalsOffset[0].parent.hidden = ! value;
-            fieldNormalsTiling[0].parent.hidden = ! value;
+            // fieldNormalsOffset[0].parent.hidden = ! value;
+            // fieldNormalsTiling[0].parent.hidden = ! value;
             fieldBumpiness.parent.hidden = ! value;
         })
         fieldBumpiness.parent.hidden = ! fieldNormalMap.value;
 
-        // offset
-        var fieldNormalsOffset = editor.call('attributes:addField', {
-            parent: normalPanel,
-            type: 'vec2',
-            name: 'Offset',
-            link: asset,
-            path: 'data.normalMapOffset'
-        });
-        fieldNormalsOffset[0].parent.hidden = ! fieldNormalMap.value;
+        // // offset
+        // var fieldNormalsOffset = editor.call('attributes:addField', {
+        //     parent: normalPanel,
+        //     type: 'vec2',
+        //     name: 'Offset',
+        //     link: asset,
+        //     path: 'data.normalMapOffset'
+        // });
+        // fieldNormalsOffset[0].parent.hidden = ! fieldNormalMap.value;
 
-        // tiling
-        var fieldNormalsTiling = editor.call('attributes:addField', {
-            parent: normalPanel,
-            type: 'vec2',
-            name: 'Tiling',
-            link: asset,
-            path: 'data.normalMapTiling'
-        });
-        fieldNormalsTiling[0].parent.hidden = ! fieldNormalMap.value;
+        // // tiling
+        // var fieldNormalsTiling = editor.call('attributes:addField', {
+        //     parent: normalPanel,
+        //     type: 'vec2',
+        //     name: 'Tiling',
+        //     link: asset,
+        //     path: 'data.normalMapTiling'
+        // });
+        // fieldNormalsTiling[0].parent.hidden = ! fieldNormalMap.value;
 
 
 
@@ -692,30 +692,30 @@ editor.once('load', function() {
 
         // map, hide/show offset and tiling, as well as color
         fieldHeightMap.on('change', function(value) {
-            fieldHeightMapOffset[0].parent.hidden = value === 0;
-            fieldHeightMapTiling[0].parent.hidden = value === 0;
+            // fieldHeightMapOffset[0].parent.hidden = value === 0;
+            // fieldHeightMapTiling[0].parent.hidden = value === 0;
             fieldHeightMapFactor.parent.hidden = value === 0;
         });
 
-        // offset
-        var fieldHeightMapOffset = editor.call('attributes:addField', {
-            parent: parallaxPanel,
-            type: 'vec2',
-            name: 'Offset',
-            link: asset,
-            path: 'data.heightMapOffset'
-        });
-        fieldHeightMapOffset[0].parent.hidden = ! fieldHeightMap.value;
+        // // offset
+        // var fieldHeightMapOffset = editor.call('attributes:addField', {
+        //     parent: parallaxPanel,
+        //     type: 'vec2',
+        //     name: 'Offset',
+        //     link: asset,
+        //     path: 'data.heightMapOffset'
+        // });
+        // fieldHeightMapOffset[0].parent.hidden = ! fieldHeightMap.value;
 
-        // tiling
-        var fieldHeightMapTiling = editor.call('attributes:addField', {
-            parent: parallaxPanel,
-            type: 'vec2',
-            name: 'Tiling',
-            link: asset,
-            path: 'data.heightMapTiling'
-        });
-        fieldHeightMapTiling[0].parent.hidden = ! fieldHeightMap.value;
+        // // tiling
+        // var fieldHeightMapTiling = editor.call('attributes:addField', {
+        //     parent: parallaxPanel,
+        //     type: 'vec2',
+        //     name: 'Tiling',
+        //     link: asset,
+        //     path: 'data.heightMapTiling'
+        // });
+        // fieldHeightMapTiling[0].parent.hidden = ! fieldHeightMap.value;
 
         // strength
         var fieldHeightMapFactor = editor.call('attributes:addField', {
