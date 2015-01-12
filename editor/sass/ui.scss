@@ -409,6 +409,8 @@
     > .value {
         min-height: 24px;
         line-height: 24px;
+        white-space: nowrap;
+        overflow: hidden;
     }
     > ul {
         display: none;
@@ -422,13 +424,14 @@
         list-style: none;
         padding: 0;
         background-color: #000;
-        // z-index: 1;
 
         box-shadow: 0 0 8px rgba(0, 0, 0, .5);
 
         > li {
             padding: 1px 8px 1px 9px;
             line-height: 24px;
+            white-space: nowrap;
+            overflow: hidden;
 
             &:hover {
                 background-color: #333;

@@ -271,8 +271,22 @@ editor.once('load', function() {
         preview.resize();
         preview.load(asset);
 
+        // periodical redraw on resizing
+        var resizing = false;
+        var resizedRedraw = function() {
+            resizing = false;
+            preview.resize();
+            preview.draw();
+        };
+        var evtResize = editor.call('attributes.rootPanel').on('resize', function() {
+            if (resizing) return;
+            resizing = true;
+            setTimeout(resizedRedraw, 200);
+        });
+
         // clear bindings
         previewPanel.on('destroy', function() {
+            evtResize.unbind();
             evtUpdateMinMip.unbind();
             preview.unparent();
         });

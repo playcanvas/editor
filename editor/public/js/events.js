@@ -24,7 +24,7 @@ Events.prototype.on = function(name, fn) {
             this.emit('event:on', fn);
         }
     }
-    return new EventHandle(this, 'event:on', fn);
+    return new EventHandle(this, name, fn);
     // return this;
 };
 
@@ -40,7 +40,7 @@ Events.prototype.once = function(name, fn) {
             this.emit('event:once', fn);
         }
     }
-    return new EventHandle(this, 'event:on', fn);
+    return new EventHandle(this, name, fn);
     // return this;
 };
 
