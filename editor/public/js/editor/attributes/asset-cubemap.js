@@ -143,6 +143,7 @@ editor.once('load', function() {
             },
             name: 'Min Filter'
         });
+        fieldMinFilter.renderChanges = false;
 
 
         // mipFilter
@@ -156,6 +157,7 @@ editor.once('load', function() {
             },
             name: 'Mip Filter'
         });
+        fieldMipFilter.renderChanges = false;
 
         // data > ui
         var evtUpdateMinMip = asset.on('data.minFilter:set', function(value) {
@@ -172,6 +174,9 @@ editor.once('load', function() {
         };
         fieldMinFilter.on('change', updateAssetMinMip);
         fieldMipFilter.on('change', updateAssetMinMip);
+
+        fieldMinFilter.renderChanges = true;
+        fieldMipFilter.renderChanges = true;
 
 
         // magFilter
