@@ -17,6 +17,7 @@ editor.once('load', function() {
             name: 'Dimensions',
             value: '...'
         });
+        fieldDimensions.renderChanges = false;
 
         // minfilter
         editor.call('attributes:addField', {

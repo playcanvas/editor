@@ -11,11 +11,14 @@ function GridItem(args) {
     this.element.classList.add('ui-grid-item');
     this.element.innerHTML = this._text;
 
-    this.on('click', function() {
-        this.selected = ! this.selected;
-    });
+    this.on('click', this._onClick);
 }
 GridItem.prototype = Object.create(ui.Element.prototype);
+
+
+GridItem.prototype._onClick = function() {
+    this.selected = ! this.selected;
+};
 
 
 Object.defineProperty(GridItem.prototype, 'text', {

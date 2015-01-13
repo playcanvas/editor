@@ -11,8 +11,24 @@ function Checkbox(args) {
     // this.element.innerHTML = this._text;
 
     this.on('click', this._onClick.bind(this));
+
+    this.renderChanges = false;
+
+    this.on('change', function() {
+        if (! this.renderChanges)
+            return;
+
+        this.class.add('changed');
+        setTimeout(this._onChangeDelay.bind(this), 200);
+    });
 }
 Checkbox.prototype = Object.create(ui.Element.prototype);
+
+
+Checkbox.prototype._onChangeDelay = function() {
+    this.class.remove('changed');
+};
+
 
 Checkbox.prototype._onLinkChange = function(value) {
     if (value) {
@@ -23,9 +39,11 @@ Checkbox.prototype._onLinkChange = function(value) {
     this.emit('change', value);
 };
 
+
 Checkbox.prototype._onClick = function(evt) {
     this.value = ! this.value;
 };
+
 
 Object.defineProperty(Checkbox.prototype, 'value', {
     get: function() {

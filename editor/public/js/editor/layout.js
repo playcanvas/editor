@@ -20,7 +20,6 @@ editor.on('load', function() {
     var header = new ui.Panel();
     header.element.id = 'ui-top';
     header.flexShrink = false;
-    // header.innerElement.textContent = 'menu';
     root.append(header);
     // expose
     editor.hook('layout.header', function() { return header; });
@@ -54,6 +53,8 @@ editor.on('load', function() {
     hierarchyPanel.horizontal = true;
     hierarchyPanel.scroll = true;
     hierarchyPanel.resizable = 'right';
+    hierarchyPanel.resizeMin = 128;
+    hierarchyPanel.resizeMax = 512;
     middle.append(hierarchyPanel);
     // expose
     editor.hook('layout.left', function() { return hierarchyPanel; });
@@ -82,12 +83,15 @@ editor.on('load', function() {
     var assetsPanel = new ui.Panel('Assets');
     assetsPanel.foldable = true;
     assetsPanel.flexShrink = false;
-    assetsPanel.innerElement.style.height = '256px';
+    assetsPanel.innerElement.style.height = '212px';
     assetsPanel.scroll = true;
     assetsPanel.resizable = 'top';
+    assetsPanel.resizeMin = 106;
+    assetsPanel.resizeMax = 106 * 6;
     center.append(assetsPanel);
     // expose
     editor.hook('layout.assets', function() { return assetsPanel; });
+
 
 
     // attributes
@@ -101,6 +105,8 @@ editor.on('load', function() {
     // attributesPanel.folded = true;
     attributesPanel.scroll = true;
     attributesPanel.resizable = 'left';
+    attributesPanel.resizeMin = 256;
+    attributesPanel.resizeMax = 768;
     middle.append(attributesPanel);
     // expose
     editor.hook('layout.right', function() { return attributesPanel; });

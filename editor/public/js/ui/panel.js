@@ -54,7 +54,7 @@ function Panel(header) {
     this._handle = null;
     this._resizeData = null;
     this._resizeLimits = {
-        min: 4,
+        min: 0,
         max: Infinity
     };
 }
@@ -190,6 +190,26 @@ Object.defineProperty(Panel.prototype, 'resizable', {
 });
 
 
+Object.defineProperty(Panel.prototype, 'resizeMin', {
+    get: function() {
+        return this._resizeLimits.min;
+    },
+    set: function(value) {
+        this._resizeLimits.min = Math.max(0, Math.min(this._resizeLimits.max, value));
+    }
+});
+
+
+Object.defineProperty(Panel.prototype, 'resizeMax', {
+    get: function() {
+        return this._resizeLimits.max;
+    },
+    set: function(value) {
+        this._resizeLimits.max = Math.max(this._resizeLimits.min, value);
+    }
+});
+
+
 Panel.prototype._resizeStart = function(evt) {
     if (! this._handle)
         return;
@@ -224,8 +244,10 @@ Panel.prototype._resizeMove = function(evt) {
             if (this._handle === 'right')
                 offsetX = -offsetX;
 
-            this.style.width = Math.max(this._resizeLimits.min, Math.min(this._resizeLimits.max, (this._resizeData.width + offsetX))) + 'px';
-            this._innerElement.style.width = this.style.width;
+            var width = Math.max(this._resizeLimits.min, Math.min(this._resizeLimits.max, (this._resizeData.width + offsetX)));
+
+            this.style.width = (width + 4) + 'px';
+            this._innerElement.style.width = (width + 4) + 'px';
         } else {
             // vertical
             var offsetY = this._resizeData.y - evt.clientY;

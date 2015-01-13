@@ -1,0 +1,297 @@
+$bcg-primary: #323f42;
+$bcg-secondary: #364346;
+$bcg-dark: #293538;
+$bcg-darker: #20292b;
+$bcg-light: #5f6f72;
+
+$text-dark: #97aeb2;
+$text-primary: #eee;
+$text-light: #fff;
+$text-active: #6bc26f;
+
+body {
+    color: $text-primary;
+}
+
+::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+::-webkit-scrollbar-track {
+    background: $bcg-dark;
+}
+::-webkit-scrollbar-thumb {
+    background: $bcg-light;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: $text-active;
+}
+::-webkit-scrollbar-corner {
+    background: $bcg-dark;
+}
+
+.ui-panel {
+    background-color: $bcg-primary;
+
+    &.disabled {
+        > header {
+            background-color: mix($bcg-primary, $bcg-dark, 50%);
+        }
+    }
+    > header {
+        background-color: $bcg-dark;
+        color: $text-dark;
+    }
+    &.foldable {
+        > header {
+            &:hover {
+                color: $text-active;
+            }
+            // fold icon
+            &:after {
+                background-color: #07f;
+            }
+        }
+    }
+    &.resizable {
+        &.resizing > .handle {
+            background-color: $text-active;
+        }
+        > .handle {
+            background-color: $bcg-dark;
+
+            &:hover {
+                background-color: $text-active;
+            }
+        }
+    }
+}
+
+.ui-tree-item {
+    $line-color: $bcg-light;
+
+    &.container {
+        // plus icon
+        > .title:before {
+            background-color: #07f;
+        }
+        // minus icon
+        &.open {
+            > .title:before {
+                background-color: #07f;
+            }
+        }
+    }
+    > .title {
+        &:hover {
+            border-color: transparent;
+            background-color: mix($bcg-primary, $bcg-dark, 50%);
+        }
+        > .icon {
+            // line-left
+            &:before {
+                background-color: $line-color;
+            }
+            // icon
+            &:after {
+                background-color: #07f;
+            }
+        }
+    }
+    &.selected {
+        > .title {
+            background-color: $bcg-dark;
+            color: $text-light;
+        }
+    }
+    // line-top
+    &:before {
+        background-color: $line-color;
+    }
+    // line-top, single item
+    &.single {
+        &:before {
+            background-color: $line-color;
+        }
+    }
+}
+
+.ui-grid-item {
+    &.disabled.selected {
+        background-color: #07f;
+    }
+    &:hover {
+        background-color: mix($bcg-primary, $bcg-dark, 50%);
+    }
+    &.selected {
+        background-color: $bcg-dark;
+    }
+}
+
+.ui-label {
+    color: $text-dark;
+
+    &.changed {
+        outline: 1px solid $text-active;
+        -webkit-animation: ui-field-changed 200ms ease-in-out forwards;
+        animation: ui-field-changed 200ms ease-in-out forwards;
+    }
+}
+
+.ui-text-field {
+    border: 1px solid $bcg-darker;
+    background-color: $bcg-dark;
+
+    &.active,
+    &:focus,
+    &:hover {
+        color: $text-active;
+        border-color: $bcg-darker;
+        box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+    }
+
+    &.changed {
+        outline: 1px solid $text-active;
+        -webkit-animation: ui-field-changed 200ms ease-in-out forwards;
+        animation: ui-field-changed 200ms ease-in-out forwards;
+    }
+}
+
+.ui-number-field {
+    border: 1px solid $bcg-darker;
+    background-color: $bcg-dark;
+
+    &.active,
+    &:focus,
+    &:hover {
+        color: $text-active;
+        border-color: $bcg-darker;
+        box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+    }
+
+    &.changed {
+        outline: 1px solid $text-active;
+        -webkit-animation: ui-field-changed 200ms ease-in-out forwards;
+        animation: ui-field-changed 200ms ease-in-out forwards;
+    }
+}
+
+.ui-checkbox {
+    position: relative;
+    border: 1px solid $bcg-darker;
+    background-color: $bcg-dark;
+
+    &:hover {
+        border-color: $bcg-darker;
+        box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+        &:after {
+            background-color: rgba($text-active, .2);
+        }
+    }
+    &:after {
+        content: '\00a0';
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        width: 12px;
+        height: 12px;
+        background-color: transparent;
+    }
+    &.checked {
+        background-color: $bcg-dark;
+
+        &:after {
+            background-color: $text-primary;
+        }
+        &:hover:after {
+            background-color: $text-active;
+        }
+    }
+    &.changed {
+        outline: 1px solid $text-active;
+        -webkit-animation: ui-field-changed 200ms ease-in-out forwards;
+        animation: ui-field-changed 200ms ease-in-out forwards;
+    }
+}
+
+.ui-select-field {
+    border: 1px solid $bcg-darker;
+    background-color: $bcg-dark;
+
+    &:hover {
+        color: $text-active;
+        border-color: $bcg-darker;
+        box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+    }
+    &.active {
+        box-shadow: 0 0 0 transparent;
+    }
+    > ul {
+        color: $text-primary;
+        background-color: $bcg-darker;
+
+        > li {
+            &:hover {
+                color: $text-active;
+                background-color: $bcg-dark;
+            }
+            &.selected {
+                color: $text-primary;
+                background-color: $bcg-dark;
+                cursor: default;
+            }
+        }
+    }
+    &.changed {
+        outline: 1px solid $text-active;
+        -webkit-animation: ui-field-changed 200ms ease-in-out forwards;
+        animation: ui-field-changed 200ms ease-in-out forwards;
+    }
+}
+
+.ui-button {
+    border: 1px solid $bcg-darker;
+    background-color: $bcg-dark;
+    color: $text-primary;
+
+    &:hover {
+        border-color: $bcg-darker;
+        box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+    }
+}
+
+.ui-code {
+    color: $text-active;
+    background-color: $bcg-dark;
+}
+
+
+.ui-progress {
+    background-color: $bcg-darker;
+
+    > .inner {
+        $first: rgba($text-active, 1);
+        $second: rgba(darken($text-active, 17%), 1);
+
+        background: $text-active;
+        background: -webkit-gradient(left top, right bottom, color-stop(0%, $first), color-stop(25%, $first), color-stop(26%, $second), color-stop(50%, $second), color-stop(51%, $first), color-stop(75%, $first), color-stop(76%, $second), color-stop(100%, $second));
+        background: -webkit-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+        background: -moz-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+        background: -ms-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+        background: -o-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+        background: linear-gradient(135deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+        background-position: 0px 0px;
+        background-size: 24px 24px;
+        background-repeat: repeat;
+    }
+}
+
+// ui-text-field changed animation
+@-webkit-keyframes ui-field-changed {
+    from { outline-color: $text-active; }
+    to { outline-color: rgba($text-active, 0); }
+}
+@keyframes ui-field-changed {
+    from { outline-color: $text-active; }
+    to { outline-color: rgba($text-active, 0); }
+}

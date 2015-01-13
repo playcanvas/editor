@@ -20,8 +20,22 @@ function TextField(args) {
     this.on('enable', function() {
         this.element.disabled = false;
     });
+
+    this.renderChanges = false;
+
+    this.on('change', function() {
+        if (! this.renderChanges)
+            return;
+
+        this.class.add('changed');
+        setTimeout(this._onChangeDelay.bind(this), 200);
+    });
 }
 TextField.prototype = Object.create(ui.Element.prototype);
+
+TextField.prototype._onChangeDelay = function() {
+    this.class.remove('changed');
+};
 
 TextField.prototype._onLinkChange = function(value) {
     this.element.value = value;

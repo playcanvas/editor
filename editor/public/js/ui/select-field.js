@@ -75,6 +75,16 @@ function SelectField(args) {
     });
 
     this._updateOptions();
+
+    this.renderChanges = false;
+
+    this.on('change', function() {
+        if (! this.renderChanges)
+            return;
+
+        this.class.add('changed');
+        setTimeout(this._onChangeDelay.bind(this), 200);
+    });
 }
 SelectField.prototype = Object.create(ui.Element.prototype);
 
@@ -121,6 +131,10 @@ SelectField.prototype._onLinkChange = function(value) {
     this.elementValue.textContent = this.options[value];
     this.optionElements[value].classList.add('selected');
     this.emit('change', value);
+};
+
+SelectField.prototype._onChangeDelay = function() {
+    this.class.remove('changed');
 };
 
 Object.defineProperty(SelectField.prototype, 'value', {

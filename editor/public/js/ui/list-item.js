@@ -11,11 +11,14 @@ function ListItem(args) {
     this.element.classList.add('ui-list-item');
     this.element.innerHTML = this._text;
 
-    this.on('click', function() {
-        this.selected = ! this.selected;
-    });
+    this.on('click', this._onClick);
 }
 ListItem.prototype = Object.create(ui.Element.prototype);
+
+
+ListItem.prototype._onClick = function() {
+    this.selected = ! this.selected;
+};
 
 
 Object.defineProperty(ListItem.prototype, 'text', {

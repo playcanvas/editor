@@ -9,8 +9,23 @@ function Label(text) {
     this.element.classList.add('ui-label');
     this.element.innerHTML = this._text;
     this.element.title = this._text;
+
+    this.renderChanges = false;
+
+    this.on('change', function() {
+        if (! this.renderChanges)
+            return;
+
+        this.class.add('changed');
+        setTimeout(this._onChangeDelay.bind(this), 200);
+    });
 }
 Label.prototype = Object.create(ui.Element.prototype);
+
+
+Label.prototype._onChangeDelay = function() {
+    this.class.remove('changed');
+};
 
 
 Label.prototype._onLinkChange = function(value) {

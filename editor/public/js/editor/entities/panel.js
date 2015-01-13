@@ -2,10 +2,11 @@ editor.once('load', function() {
     'use strict'
 
     // hierarchy index
-    var listItemsByEntity = { };
+    var uiItemIndex = { };
+    var awaitingParent = { };
 
     // list
-    var hierarchy = new ui.List();
+    var hierarchy = new ui.Tree();
     editor.call('layout.left').append(hierarchy);
 
 
@@ -24,20 +25,20 @@ editor.once('load', function() {
         if (type !== 'entity')
             return;
 
-        listItemsByEntity[entity.resource_id].selected = true;
+        uiItemIndex[entity.resource_id].selected = true;
     });
     // selector remove
     editor.on('selector:remove', function(entity, type) {
         if (type !== 'entity')
             return;
 
-        listItemsByEntity[entity.resource_id].selected = false;
+        uiItemIndex[entity.resource_id].selected = false;
     });
 
 
     // entity removed
     editor.on('entities:remove', function(entity) {
-        var element = listItemsByEntity[entity.resource_id];
+        var element = uiItemIndex[entity.resource_id];
 
         if (element.nameChange)
             entity.unbind('name:set', element.nameChange);
@@ -48,14 +49,38 @@ editor.once('load', function() {
 
     // entity added
     editor.on('entities:add', function(entity) {
-        var element = new ui.ListItem({
+        var element = new ui.TreeItem({
             text: entity.name
         });
         element.entity = entity;
-        hierarchy.append(element);
+        if (! entity.parent) {
+            // root
+            hierarchy.append(element);
+            element.open = true;
+        } else {
+            if (uiItemIndex[entity.parent]) {
+                // has parent already
+                uiItemIndex[entity.parent].append(element);
+            } else {
+                // need to wait for parent
+                if (! awaitingParent[entity.parent]) {
+                    awaitingParent[entity.parent] = [ ];
+                }
+                awaitingParent[entity.parent].push(element);
+            }
+        }
+
+        // if there are children waiting?
+        var children = awaitingParent[entity.resource_id];
+        if (children) {
+            for(var i = 0; i < children.length; i++) {
+                element.append(children[i]);
+            }
+            delete awaitingParent[entity.resource_id];
+        }
 
         // index
-        listItemsByEntity[entity.resource_id] = element;
+        uiItemIndex[entity.resource_id] = element;
 
         // name change
         element.nameChange = function(value) {

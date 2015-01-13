@@ -26,8 +26,10 @@ ContainerElement.prototype.append = function(element) {
 
     this._innerElement.appendChild(node);
 
-    if (! html)
+    if (! html) {
         element.parent = this;
+        this.emit('append', element);
+    }
 };
 
 
@@ -42,8 +44,10 @@ ContainerElement.prototype.prepend = function(element) {
         this._innerElement.appendChild(node);
     }
 
-    if (! html)
+    if (! html) {
         element.parent = this;
+        this.emit('append', element);
+    }
 };
 
 

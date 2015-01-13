@@ -24,7 +24,8 @@ body {
 #ui-top {
     height: 48px;
     line-height: 48px;
-    background-color: #111;
+    background-color: #293538;
+    // background-color: #111;
 
     > .content {
         overflow: hidden;
@@ -35,7 +36,8 @@ body {
 #ui-bottom {
     height: 24px;
     line-height: 24px;
-    background-color: #111;
+    background-color: #293538;
+    // background-color: #111;
 
     > .content {
         padding: 0 8px;
@@ -55,7 +57,7 @@ body {
         left: 0;
         width: auto;
         height: auto;
-        background-color: #222;
+        background-color: #293538;
 
         opacity: 1;
         visibility: visible;
@@ -77,6 +79,36 @@ body {
                 top: 50%;
                 left: 50%;
                 margin: -2px 0 0 -64px;
+            }
+        }
+    }
+}
+
+.ui-panel.attributes {
+    .ui-panel {
+        // // &:hover {
+        //     &.foldable {
+        //         > header {
+        //             padding-left: 4px;
+        //             border-left: 4px solid #6bc26f;
+        //         }
+        //         &.folded {
+        //             > header {
+        //                 border-left-color: transparent;
+        //             }
+        //         }
+        //     }
+        // // }
+        &.field {
+            > .content {
+                > .ui-label:nth-child(2) {
+                    padding: 0 8px;
+                    font-size: 11px;
+                    font-family: 'Lucida Grande';
+                    border: 1px solid #293538;
+                    background-color: #293538;
+                    // color: #eee;
+                }
             }
         }
     }
@@ -132,7 +164,7 @@ body {
         &.selected {
             > .icon,
             > .label {
-                background-color: #07f;
+                background-color: #293538;
             }
         }
         > .icon {
@@ -142,7 +174,7 @@ body {
             top: 0;
             right: 0;
             padding: 4px;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(#293538, 0.8);
             background-image: url("/editor/img/asset-icons/unknown.png");
             background-size: 16px 16px;
             background-repeat: no-repeat;
@@ -160,7 +192,7 @@ body {
             text-overflow: ellipsis;
             text-align: right;
             overflow: hidden;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(#293538, 0.8);
         }
     }
 }

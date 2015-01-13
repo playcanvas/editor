@@ -336,6 +336,12 @@ editor.once('load', function() {
         });
         fieldAmbientUVSet.parent.hidden = ! fieldAmbientMap.value;
 
+        // unfold panel
+        fieldAmbientTint.on('change', function() { ambientPanel.folded = false; });
+        fieldAmbientColor.on('change', function() { ambientPanel.folded = false; });
+        fieldAmbientMap.on('change', function() { ambientPanel.folded = false; });
+        fieldAmbientUVSet.on('change', function() { ambientPanel.folded = false; });
+
 
 
         // diffuse
@@ -408,6 +414,11 @@ editor.once('load', function() {
         });
 
         fieldDiffuseColor.parent.hidden = ! (fieldDiffuseTint.value || ! fieldDiffuseMap.value);
+
+        // unfold panel
+        fieldDiffuseMap.on('change', function() { diffusePanel.folded = false; });
+        fieldDiffuseTint.on('change', function() { diffusePanel.folded = false; });
+        fieldDiffuseColor.on('change', function() { diffusePanel.folded = false; });
 
 
 
@@ -535,6 +546,14 @@ editor.once('load', function() {
             path: 'data.conserveEnergy'
         });
 
+        // unfold panel
+        fieldSpecularMap.on('change', function() { specularPanel.folded = false; });
+        fieldSpecularTint.on('change', function() { specularPanel.folded = false; });
+        fieldSpecularColor.on('change', function() { specularPanel.folded = false; });
+        fieldShininess.on('change', function() { specularPanel.folded = false; });
+        fieldGlossMap.on('change', function() { specularPanel.folded = false; });
+        fieldConserveEnergy.on('change', function() { specularPanel.folded = false; });
+
 
 
         // emissive
@@ -617,6 +636,12 @@ editor.once('load', function() {
             path: 'data.emissiveIntensity'
         });
 
+        // unfold panel
+        fieldEmissiveMap.on('change', function() { emissivePanel.folded = false; });
+        fieldEmissiveTint.on('change', function() { emissivePanel.folded = false; });
+        fieldEmissiveColor.on('change', function() { emissivePanel.folded = false; });
+        fieldEmissiveIntensity.on('change', function() { emissivePanel.folded = false; });
+
 
 
         // normals
@@ -670,6 +695,10 @@ editor.once('load', function() {
         //     path: 'data.normalMapTiling'
         // });
         // fieldNormalsTiling[0].parent.hidden = ! fieldNormalMap.value;
+
+        // unfold panel
+        fieldNormalMap.on('change', function() { normalPanel.folded = false; });
+        fieldBumpiness.on('change', function() { normalPanel.folded = false; });
 
 
 
@@ -727,6 +756,10 @@ editor.once('load', function() {
         });
         fieldHeightMapFactor.parent.hidden = ! fieldHeightMap.value;
 
+        // unfold panel
+        fieldHeightMap.on('change', function() { parallaxPanel.folded = false; });
+        fieldHeightMapFactor.on('change', function() { parallaxPanel.folded = false; });
+
 
 
         // reflection
@@ -775,6 +808,11 @@ editor.once('load', function() {
         });
         fieldReflectionStrength.parent.hidden = ! fieldReflectionSphere.value && ! fieldReflectionCubeMap.value;
 
+        // unfold panel
+        fieldReflectionSphere.on('change', function() { reflectionPanel.folded = false; });
+        fieldReflectionCubeMap.on('change', function() { reflectionPanel.folded = false; });
+        fieldReflectionStrength.on('change', function() { reflectionPanel.folded = false; });
+
 
 
         // lightmap
@@ -794,12 +832,16 @@ editor.once('load', function() {
             path: 'data.lightMap'
         });
 
+        // unfold panel
+        fieldLightMap.on('change', function() { lightmapPanel.folded = false; });
+
 
 
         // render states
         var renderStatesPanel = editor.call('attributes:addPanel', {
             parent: paramsPanel,
             foldable: true,
+            folded: true,
             name: 'Render States'
         });
 
@@ -840,5 +882,11 @@ editor.once('load', function() {
             link: asset,
             path: 'data.blendType'
         });
+
+        // unfold panel
+        fieldDepthTest.on('change', function() { renderStatesPanel.folded = false; });
+        fieldDepthWrite.on('change', function() { renderStatesPanel.folded = false; });
+        fieldCull.on('change', function() { renderStatesPanel.folded = false; });
+        fieldBlendType.on('change', function() { renderStatesPanel.folded = false; });
     });
 });

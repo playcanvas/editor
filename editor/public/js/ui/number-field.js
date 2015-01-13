@@ -34,8 +34,22 @@ function NumberField(args) {
     this.on('enable', function() {
         this.element.disabled = false;
     });
+
+    this.renderChanges = false;
+
+    this.on('change', function() {
+        if (! this.renderChanges)
+            return;
+
+        this.class.add('changed');
+        setTimeout(this._onChangeDelay.bind(this), 200);
+    });
 }
 NumberField.prototype = Object.create(ui.Element.prototype);
+
+NumberField.prototype._onChangeDelay = function() {
+    this.class.remove('changed');
+};
 
 NumberField.prototype._onLinkChange = function(value) {
     this.element.value = value || 0;

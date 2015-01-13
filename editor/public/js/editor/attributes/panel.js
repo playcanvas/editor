@@ -53,8 +53,11 @@ editor.once('load', function() {
         panel.WebkitFlexWrap = 'nowrap';
         panel.style.display = '';
 
-        if (args.type)
+        if (args.type) {
             panel.class.add('field-' + args.type);
+        } else {
+            panel.class.add('field');
+        }
 
         (args.parent || root).append(panel);
 
@@ -82,6 +85,8 @@ editor.once('load', function() {
             if (args.link)
                 field.link(args.link, args.path);
 
+            field.renderChanges = true;
+
             return field;
         }
 
@@ -94,6 +99,8 @@ editor.once('load', function() {
                 if (args.link)
                     field.link(args.link, args.path);
 
+                field.renderChanges = true;
+
                 panel.append(field);
 
                 return field;
@@ -105,6 +112,8 @@ editor.once('load', function() {
                 if (args.link)
                     field.link(args.link, args.path);
 
+                field.renderChanges = true;
+
                 panel.append(field);
 
                 return field;
@@ -114,6 +123,8 @@ editor.once('load', function() {
 
                 if (args.link)
                     field.link(args.link, args.path);
+
+                field.renderChanges = true;
 
                 panel.append(field);
 
@@ -135,6 +146,9 @@ editor.once('load', function() {
                     field0.link(args.link, args.path + '.0');
                     field1.link(args.link, args.path + '.1');
                 }
+
+                field0.renderChanges = true;
+                field1.renderChanges = true;
 
                 return [ field0, field1 ];
             case 'vec3':
@@ -161,6 +175,10 @@ editor.once('load', function() {
                     field1.link(args.link, args.path + '.1');
                     field2.link(args.link, args.path + '.2');
                 }
+
+                field0.renderChanges = true;
+                field1.renderChanges = true;
+                field2.renderChanges = true;
 
                 return [ field0, field1, field2 ];
             case 'vec4':
@@ -195,6 +213,11 @@ editor.once('load', function() {
                     field3.link(args.link, args.path + '.3');
                 }
 
+                field0.renderChanges = true;
+                field1.renderChanges = true;
+                field2.renderChanges = true;
+                field3.renderChanges = true;
+
                 return [ field0, field1, field2, field3 ];
             case 'rgb':
                 var field = new ui.TextField();
@@ -208,14 +231,10 @@ editor.once('load', function() {
                         field.value = ((1 << 24) + (Math.floor(value[0] * 255) << 16) + (Math.floor(value[1] * 255) << 8) + Math.floor(value[2] * 255)).toString(16).slice(1);
                     };
 
-                    args.link.on(args.path + '.0:set', updateField);
-                    args.link.on(args.path + '.1:set', updateField);
-                    args.link.on(args.path + '.2:set', updateField);
+                    var evtColor = args.link.on(args.path + ':set', updateField);
 
                     field.once('destroy', function() {
-                        args.link.unbind(args.path + '.0:set', updateField);
-                        args.link.unbind(args.path + '.1:set', updateField);
-                        args.link.unbind(args.path + '.2:set', updateField);
+                        evtColor.unbind();
                     });
 
                     updateField();
@@ -248,6 +267,8 @@ editor.once('load', function() {
                     button.style.backgroundColor = '#' + value;
                 });
                 panel.append(button);
+
+                field.renderChanges = true;
 
                 return field;
             case 'image':
@@ -286,17 +307,14 @@ editor.once('load', function() {
             default:
                 var field = new ui.Label();
                 field.flexGrow = 1;
-                field.style.padding = '0 8px'
-                field.style.backgroundColor = '#000';
-                field.style.fontSize = '11px';
-                field.style.fontFamily = '"Lucida Grande"';
-                field.style.border = '1px solid #000';
                 field.text = args.value || '';
 
                 if (args.link)
                     field.link(args.link, args.path);
 
                 panel.append(field);
+
+                field.renderChanges = true;
 
                 return field;
         }
