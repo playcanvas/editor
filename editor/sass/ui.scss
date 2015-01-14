@@ -45,6 +45,19 @@
     background: #000;
 }
 
+
+a {
+    color: #07f;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+a:visited {
+    color: #07f;
+}
+
+
 .ui-panel {
     position: relative;
     background-color: #222;
@@ -247,15 +260,26 @@
 
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin: 4px;
+    font-size: 11px;
+    font-family: 'Lucida Grande';
+    border: 1px solid #1a1a1a;
+
+    &.disabled {
+        opacity: .5;
+    }
 }
 
 .ui-list-item {
     cursor: pointer;
     padding: 0 8px;
-    height: 31px;
-    line-height: 31px;
+    height: 24px;
+    line-height: 24px;
     border-bottom: 1px solid #1a1a1a;
+
+    &:last-child {
+        border-bottom: none;
+    }
 
     &.disabled {
         cursor: default;

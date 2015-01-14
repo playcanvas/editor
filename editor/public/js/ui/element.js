@@ -14,7 +14,8 @@ function Element() {
     this._element = null;
     this._link = null;
     this.path = '';
-    this._linkChange = null;
+    this._linkSet = null;
+    this._linkUnset = null;
 
     this._disabled = false;
     this._disabledParent = false;
@@ -53,10 +54,9 @@ Element.prototype.link = function(link, path) {
 
     // add :set link
     if (this._onLinkChange) {
-        this._linkChange = this._onLinkChange.bind(this);
-        this._link.on(this.path + ':set', this._linkChange);
-        this._link.on(this.path + ':unset', this._linkChange);
-        this._linkChange(this._link.get(this.path));
+        this._linkOnSet = this._link.on(this.path + ':set', this._onLinkChange.bind(this));
+        this._linkOnUnset = this._link.on(this.path + ':unset', this._onLinkChange.bind(this));
+        this._onLinkChange(this._link.get(this.path));
     }
 };
 
@@ -66,10 +66,12 @@ Element.prototype.unlink = function() {
     this.emit('unlink', this.path);
 
     // remove :set link
-    if (this._linkChange) {
-        this._link.unbind(this.path + ':set', this._linkChange);
-        this._link.unbind(this.path + ':unset', this._linkChange);
-        this._linkChange = null;
+    if (this._linkOnSet) {
+        this._linkOnSet.unbind();
+        this._linkOnSet = null;
+
+        this._linkOnUnset.unbind();
+        this._linkOnUnset = null;
     }
 
     this._link = null;

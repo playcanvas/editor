@@ -228,6 +228,8 @@ editor.once('load', function() {
                 if (args.link) {
                     var updateField = function() {
                         var value = args.link.get(args.path);
+                        if (! value)
+                            return;
                         field.value = ((1 << 24) + (Math.floor(value[0] * 255) << 16) + (Math.floor(value[1] * 255) << 8) + Math.floor(value[2] * 255)).toString(16).slice(1);
                     };
 
@@ -304,6 +306,9 @@ editor.once('load', function() {
                 field.text = args.text || 'Button';
                 panel.append(field);
                 return field;
+            case 'element':
+                panel.append(args.element);
+                return args.element;
             default:
                 var field = new ui.Label();
                 field.flexGrow = 1;

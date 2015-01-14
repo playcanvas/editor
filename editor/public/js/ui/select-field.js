@@ -17,40 +17,7 @@ function SelectField(args) {
     this._value = null;
     this._number = !! args.number;
 
-    this.elementValue.addEventListener('click', function(evt) {
-        if (this.element.classList.contains('active')) {
-            this.element.classList.remove('active');
-        } else {
-            this.element.classList.add('active');
-
-            var rect = this.element.getBoundingClientRect();
-
-            // top
-            var top = (rect.top + 1);
-            if (this.optionElements[this._value]) {
-                top -= this.optionElements[this._value].offsetTop + 1;
-            }
-            // limit to bottom of screen
-            if (top + this.elementOptions.clientHeight > window.innerHeight) {
-                top = window.innerHeight - this.elementOptions.clientHeight;
-            }
-            this.elementOptions.style.top = top + 'px';
-            // left
-            this.elementOptions.style.left = rect.left + 'px';
-            // right
-            this.elementOptions.style.width = (this.element.clientWidth + 2) + 'px';
-
-
-            setTimeout(function() {
-                var looseActive = function() {
-                    this.element.classList.remove('active');
-                    window.removeEventListener('click', looseActive);
-                }.bind(this);
-
-                window.addEventListener('click', looseActive);
-            }.bind(this), 0);
-        }
-    }.bind(this));
+    this.elementValue.addEventListener('click', this._onClick.bind(this));
 
     this.elementOptions = document.createElement('ul');
     this.element.appendChild(this.elementOptions);
@@ -88,6 +55,44 @@ function SelectField(args) {
 }
 SelectField.prototype = Object.create(ui.Element.prototype);
 
+SelectField.prototype._onClick = function() {
+    if (this.disabled)
+        return;
+
+    if (this.element.classList.contains('active')) {
+        this.element.classList.remove('active');
+    } else {
+        this.element.classList.add('active');
+
+        var rect = this.element.getBoundingClientRect();
+
+        // top
+        var top = (rect.top + 1);
+        if (this.optionElements[this._value]) {
+            top -= this.optionElements[this._value].offsetTop + 1;
+        }
+        // limit to bottom of screen
+        if (top + this.elementOptions.clientHeight > window.innerHeight) {
+            top = window.innerHeight - this.elementOptions.clientHeight;
+        }
+        this.elementOptions.style.top = top + 'px';
+        // left
+        this.elementOptions.style.left = rect.left + 'px';
+        // right
+        this.elementOptions.style.width = (this.element.clientWidth + 2) + 'px';
+
+
+        setTimeout(function() {
+            var looseActive = function() {
+                this.element.classList.remove('active');
+                window.removeEventListener('click', looseActive);
+            }.bind(this);
+
+            window.addEventListener('click', looseActive);
+        }.bind(this), 0);
+    }
+};
+
 SelectField.prototype._updateOptions = function(options) {
     if (options !== undefined)
         this.options = options;
@@ -121,6 +126,9 @@ SelectField.prototype._onOptionSelect = function() {
 };
 
 SelectField.prototype._onLinkChange = function(value) {
+    if (this.optionElements[value] === undefined)
+        return;
+
     if (this.optionElements[this._oldValue]) {
         this.optionElements[this._oldValue].classList.remove('selected');
     }

@@ -48,7 +48,7 @@ Observer.prototype._prepare = function(target, key, value) {
 
                 item.on('*:set', function(path, value, oldValue) {
                     path = (parent.__path ? parent.__path + '.' : '') + key + '.' + index + '.' + path;
-                    self.emit(path, value, oldValue);
+                    self.emit(path + ':set', value, oldValue);
                     self.emit('*:set', path, value, oldValue);
                 });
             }.bind({

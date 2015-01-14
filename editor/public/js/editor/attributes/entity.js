@@ -1,11 +1,20 @@
-(function() {
+editor.once('load', function() {
     'use strict';
+
+    var panelComponents;
+
+    editor.hook('attributes:entity.panelComponents', function() {
+        return panelComponents;
+    });
+
 
     editor.on('attributes:inspect[entity]', function(entities) {
         if (entities.length !== 1)
             return;
 
         var entity = entities[0];
+
+        // var attributesPanel = editor.call('attributes.rootPanel');
 
         // name
         editor.call('attributes:addField', {
@@ -14,6 +23,15 @@
             link: entity,
             path: 'name'
         });
+
+        // enabled
+        editor.call('attributes:addField', {
+            name: 'Enabled',
+            type: 'checkbox',
+            link: entity,
+            path: 'enabled'
+        });
+
 
         // position
         editor.call('attributes:addField', {
@@ -38,5 +56,33 @@
             link: entity,
             path: 'scale'
         });
+
+
+
+        // components
+        panelComponents = editor.call('attributes:addPanel');
+
+
+
+        var panelJson = editor.call('attributes:addPanel', {
+            name: 'JSON'
+        });
+
+        // code
+        var fieldJson = editor.call('attributes:addField', {
+            parent: panelJson,
+            type: 'code'
+        });
+
+        fieldJson.text = JSON.stringify(entity.json(), null, 4);
+
+        // changes
+        var evt = entity.on('*:set', function() {
+            fieldJson.text = JSON.stringify(entity.json(), null, 4);
+        });
+
+        fieldJson.on('destroy', function() {
+            evt.unbind();
+        });
     });
-})();
+});

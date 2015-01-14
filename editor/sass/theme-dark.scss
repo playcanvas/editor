@@ -30,6 +30,20 @@ body {
     background: $bcg-dark;
 }
 
+
+a {
+    color: $text-active;
+    text-decoration: none;
+}
+a:hover {
+    color: saturate(lighten($text-active, 10%), 10%);
+    text-decoration: underline;
+}
+a:visited {
+    color: $text-active;
+}
+
+
 .ui-panel {
     background-color: $bcg-primary;
 
@@ -113,6 +127,35 @@ body {
         &:before {
             background-color: $line-color;
         }
+    }
+}
+
+.ui-list {
+    background-color: $bcg-dark;
+    border-color: $bcg-darker;
+
+    &.changed {
+        outline: 1px solid $text-active;
+        -webkit-animation: ui-field-changed 200ms ease-in-out forwards;
+        animation: ui-field-changed 200ms ease-in-out forwards;
+    }
+    &:hover {
+        color: $text-active;
+        border-color: $bcg-darker;
+        box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+    }
+}
+
+.ui-list-item {
+    background-color: $bcg-dark;
+    border-color: $bcg-darker;
+
+    &:hover {
+        color: $text-active;
+        background-color: mix($bcg-primary, $bcg-dark, 50%);
+    }
+    &.selected {
+        background-color: $bcg-dark;
     }
 }
 
