@@ -2,6 +2,11 @@ editor.once('load', function() {
     'use strict';
 
     var updateOrCreate = function(data) {
+        // if (asset.syncTimeout) {
+        //     clearTimeout(asset.syncTimeout);
+        //     asset.syncTimeout = null;
+        // }
+
         var assetId = null;
 
         if (data.asset.source) {
@@ -19,21 +24,36 @@ editor.once('load', function() {
         if (! assetId)
             return;
 
-        Ajax({
+        var asset = editor.call('assets:get', assetId);
+
+        if (asset && asset.loadAjax) {
+            asset.loadAjax.abort();
+            asset.loadAjax = null;
+        }
+
+        var xhr = Ajax({
             url: '{{url.api}}/assets/' + assetId,
             query: {
                 access_token: '{{accessToken}}'
             }
-        })
-        .on('load', function(status, data) {
+        });
+
+        xhr.on('load', function(status, data) {
             data = data.response[0];
 
             if (data.type == 'material') {
                 data.data = editor.call('material:listToMap', data.data);
             }
 
-            var asset = editor.call('assets:get', data.id);
+            if (! asset)
+                asset = editor.call('assets:get', data.id);
+
             if (asset) {
+                asset.loadAjax = null;
+
+                if (asset.syncing)
+                    return;
+
                 asset.sync = false;
                 asset.patch(data);
                 asset.sync = true;
@@ -42,6 +62,9 @@ editor.once('load', function() {
                 editor.call('assets:add', asset);
             }
         });
+
+        if (asset)
+            asset.loadAjax = xhr;
     };
 
     // create or update

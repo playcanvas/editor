@@ -152,3 +152,8 @@ AjaxRequest.prototype._onProgress = function(evt) {
         this.emit('progress', this._progress);
     }
 };
+
+
+AjaxRequest.prototype.abort = function() {
+    this._xhr.abort();
+};

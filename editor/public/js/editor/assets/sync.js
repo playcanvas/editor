@@ -47,8 +47,7 @@ editor.once('load', function() {
     // hook sync to new assets
     editor.on('assets:add', function(asset) {
         asset.sync = true;
-
-        var updating = false;
+        asset.syncing = false;
 
         var update = function() {
             var json = asset.json();
@@ -75,18 +74,25 @@ editor.once('load', function() {
             // TODO
             // do we update with data from response?
 
-            updating = false;
+            asset.syncing = false;
+            // updating = false;
         };
 
         asset.on('*:set', function(path) {
-            if (! asset.sync || updating)
+            if (! asset.sync || asset.syncing)
                 return;
 
             if (path !== 'name' && path.indexOf('data.') !== 0)
                 return;
 
-            updating = true;
-            setTimeout(function() {
+            if (asset.loadAjax) {
+                asset.loadAjax.abort();
+                asset.loadAjax = null;
+            }
+
+            // updating = true;
+            asset.syncing = true;
+            asset.syncTimeout = setTimeout(function() {
                 update();
             }, 50);
         });
