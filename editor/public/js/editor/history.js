@@ -43,6 +43,8 @@ editor.once('load', function() {
         // add action
         actions.push(action);
 
+        editor.call('status:text', action.name);
+
         // current action state
         current = actions.length - 1;
 
@@ -59,18 +61,11 @@ editor.once('load', function() {
         actions[current].undo();
         current--;
 
-        // var action = actions[current];
-        // var name = action.name;
-        // while(action) {
-        //     action.undo();
-        //     current--;
-
-        //     if (action.combine && actions[current] && actions[current].name === name) {
-        //         action = actions[current];
-        //     } else {
-        //         action = null;
-        //     }
-        // }
+        if (current >= 0) {
+            editor.call('status:text', actions[current].name);
+        } else {
+            editor.call('status:text', '');
+        }
 
         editor.emit('history:undo', name);
         checkCanUndoRedo();
@@ -84,18 +79,7 @@ editor.once('load', function() {
 
         current++;
         actions[current].redo();
-        // var action = actions[current];
-        // var name = action.name;
-        // while(action) {
-        //     action.redo();
-
-        //     if (action.combine && actions[current + 1] && actions[current + 1].name === name) {
-        //         current++;
-        //         action = actions[current];
-        //     } else {
-        //         action = null;
-        //     }
-        // }
+        editor.call('status:text', actions[current].name);
 
         editor.emit('history:redo', name);
         checkCanUndoRedo();

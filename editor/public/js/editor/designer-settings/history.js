@@ -9,7 +9,7 @@ editor.once('load', function() {
             return;
 
         editor.call('history:add', {
-            name: 'designer-settings:set[' + path + ']',
+            name: 'change designerSettings ' + path,
             undo: function() {
                 obj.history = false;
                 obj.set(path, oldValue);

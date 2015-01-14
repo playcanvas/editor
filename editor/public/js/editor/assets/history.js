@@ -9,7 +9,7 @@ editor.once('load', function() {
                 return;
 
             editor.call('history:add', {
-                name: 'asset[' + asset.id + ']:set[' + path + ']',
+                name: 'change ' + asset.type + ' ' + path,
                 undo: function() {
                     asset.history = false;
                     asset.set(path, oldValue);

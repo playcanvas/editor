@@ -1,8 +1,6 @@
 editor.once('load', function() {
     'use strict';
 
-    var i = 0;
-
     var selectorHistory = true;
     var changing = false;
 
@@ -22,7 +20,7 @@ editor.once('load', function() {
         newItems = items;
 
         editor.call('history:add', {
-            name: 'selector:set.' + ++i,
+            name: (items.length === 0) ? 'deselect' : ('select ' + type),
             undo: function() {
                 selectorHistory = false;
                 editor.call('selector:set', oldType, oldItems);
