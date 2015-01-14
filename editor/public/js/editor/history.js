@@ -37,7 +37,7 @@ editor.once('load', function() {
     editor.hook('history:add', function(action) {
         // some history needs erasing
         if (current !== actions.length - 1) {
-            actions = actions.slice(0, current);
+            actions = actions.slice(0, current + 1);
         }
 
         // add action
@@ -56,18 +56,21 @@ editor.once('load', function() {
         if (current === -1)
             return;
 
-        var action = actions[current];
-        var name = action.name;
-        while(action) {
-            action.undo();
-            current--;
+        actions[current].undo();
+        current--;
 
-            if (action.combine && actions[current] && actions[current].name === name) {
-                action = actions[current];
-            } else {
-                action = null;
-            }
-        }
+        // var action = actions[current];
+        // var name = action.name;
+        // while(action) {
+        //     action.undo();
+        //     current--;
+
+        //     if (action.combine && actions[current] && actions[current].name === name) {
+        //         action = actions[current];
+        //     } else {
+        //         action = null;
+        //     }
+        // }
 
         editor.emit('history:undo', name);
         checkCanUndoRedo();
@@ -80,18 +83,19 @@ editor.once('load', function() {
             return;
 
         current++;
-        var action = actions[current];
-        var name = action.name;
-        while(action) {
-            action.redo();
+        actions[current].redo();
+        // var action = actions[current];
+        // var name = action.name;
+        // while(action) {
+        //     action.redo();
 
-            if (action.combine && actions[current + 1] && actions[current + 1].name === name) {
-                current++;
-                action = actions[current];
-            } else {
-                action = null;
-            }
-        }
+        //     if (action.combine && actions[current + 1] && actions[current + 1].name === name) {
+        //         current++;
+        //         action = actions[current];
+        //     } else {
+        //         action = null;
+        //     }
+        // }
 
         editor.emit('history:redo', name);
         checkCanUndoRedo();

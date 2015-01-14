@@ -75,7 +75,6 @@ editor.once('load', function() {
             // do we update with data from response?
 
             asset.syncing = false;
-            // updating = false;
         };
 
         asset.on('*:set', function(path) {
@@ -85,16 +84,14 @@ editor.once('load', function() {
             if (path !== 'name' && path.indexOf('data.') !== 0)
                 return;
 
+            // loading in progress - cancel
             if (asset.loadAjax) {
                 asset.loadAjax.abort();
                 asset.loadAjax = null;
             }
 
-            // updating = true;
             asset.syncing = true;
-            asset.syncTimeout = setTimeout(function() {
-                update();
-            }, 50);
+            asset.syncTimeout = setTimeout(update, 50);
         });
     });
 });

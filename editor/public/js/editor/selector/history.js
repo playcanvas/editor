@@ -1,6 +1,8 @@
 editor.once('load', function() {
     'use strict';
 
+    var i = 0;
+
     var selectorHistory = true;
     var changing = false;
 
@@ -20,7 +22,7 @@ editor.once('load', function() {
         newItems = items;
 
         editor.call('history:add', {
-            name: 'selector:set',
+            name: 'selector:set.' + ++i,
             undo: function() {
                 selectorHistory = false;
                 editor.call('selector:set', oldType, oldItems);
@@ -35,7 +37,15 @@ editor.once('load', function() {
     };
 
     editor.on('selector:change', function(items) {
-        if (changing || ! selectorHistory) return;
+        if (! selectorHistory) {
+            newType = editor.call('selector:type');
+            newItems = editor.call('selector:items');
+            return;
+        }
+
+        if (changing)
+            return;
+
         changing = true;
         setTimeout(onSelectorChange, 0);
     });
