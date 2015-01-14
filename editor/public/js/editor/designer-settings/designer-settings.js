@@ -47,6 +47,8 @@ editor.once('load', function() {
         Ajax
         .get('{{url.api}}/{{owner.username}}/{{project.name}}/packs/{{pack.resource_id}}/designer_settings/{{self.username}}?access_token={{accessToken}}')
         .on('load', function(status, data) {
+            designerSettings.history = false;
+
             for(var i = 0; i < designerSettings.__keys.length; i++) {
                 var key = designerSettings.__keys[i];
                 var value = data.response[0][key];
@@ -55,6 +57,7 @@ editor.once('load', function() {
                     designerSettings.set(key, value);
             }
 
+            designerSettings.history = true;
             designerSettings.sync = true;
         });
     });
