@@ -146,6 +146,12 @@ editor.once('load', function() {
 
         filter();
 
-        sceneSettings.on('*:set', filter);
+        // filter fields when scene settings change
+        var evtFilter = sceneSettings.on('*:set', filter);
+
+        // clean up filter event when one of the panels is destroyed
+        physicsPanel.on('destroy', function () {
+            evtFilter.unbind();
+        });
     });
 });
