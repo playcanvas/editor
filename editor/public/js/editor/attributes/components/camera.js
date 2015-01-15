@@ -117,7 +117,6 @@ editor.once('load', function() {
             path: 'components.camera.orthoHeight'
         });
 
-        // var panelClip = new ui.Panel();
         // camera near/far clip
         var panelClip = editor.call('attributes:addField', {
             parent: panel,
@@ -139,24 +138,6 @@ editor.once('load', function() {
         fieldFarClip.flexGrow = 1;
         fieldFarClip.link(entity, 'components.camera.farClip');
         panelClip.append(fieldFarClip);
-
-        // // camera.nearClip
-        // editor.call('attributes:addField', {
-        //     parent: panel,
-        //     name: 'Near Clip',
-        //     type: 'number',
-        //     link: entity,
-        //     path: 'components.camera.nearClip'
-        // });
-
-        // // camera.farClip
-        // editor.call('attributes:addField', {
-        //     parent: panel,
-        //     name: 'Far Clip',
-        //     type: 'number',
-        //     link: entity,
-        //     path: 'components.camera.farClip'
-        // });
 
         // camera.priority
         editor.call('attributes:addField', {
