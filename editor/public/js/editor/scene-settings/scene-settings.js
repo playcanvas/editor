@@ -12,11 +12,7 @@ editor.once('load', function() {
         sceneSettings.sync = false;
         sceneSettings.history = false;
 
-        for (var key in pack.settings) {
-            if (pack.settings.hasOwnProperty(key)) {
-                sceneSettings.set(key, pack.settings[key]);
-            }
-        }
+        sceneSettings.patch(pack.settings);
 
         sceneSettings.history = true;
         sceneSettings.sync = true;
