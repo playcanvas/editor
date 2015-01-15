@@ -3,27 +3,27 @@ editor.once('load', function() {
 
     var sceneSettings = editor.call('scene-settings');
 
-    var filteredFields = [];
-
-    var addFiltered = function (field, filter) {
-        filteredFields.push({
-            element: field.length ? field[0].parent : field.parent,
-            filter: filter
-        });
-    };
-
-    var filter = function () {
-        filteredFields.forEach(function (f) {
-            f.element.hidden = !f.filter();
-        });
-    };
-
-    var fogFilter = function () {
-        return sceneSettings.render.fog !== 'none';
-    };
-
     // inspecting
     editor.on('attributes:inspect[sceneSettings]', function() {
+        var filteredFields = [];
+
+        var addFiltered = function (field, filter) {
+            filteredFields.push({
+                element: field.length ? field[0].parent : field.parent,
+                filter: filter
+            });
+        };
+
+        var filter = function () {
+            filteredFields.forEach(function (f) {
+                f.element.hidden = !f.filter();
+            });
+        };
+
+        var fogFilter = function () {
+            return sceneSettings.render.fog !== 'none';
+        };
+
         // physics settings
         var physicsPanel = editor.call('attributes:addPanel', {
             name: 'Physics Settings'
