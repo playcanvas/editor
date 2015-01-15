@@ -34,13 +34,16 @@ editor.once('load', function() {
             evtComponentUnset.unbind();
         });
 
+
         // model.enabled
-        editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Enabled',
-            type: 'checkbox',
-            link: entity,
-            path: 'components.model.enabled'
+        var fieldEnabled = new ui.Checkbox();
+        fieldEnabled.style.float = 'left';
+        fieldEnabled.style.backgroundColor = '#323f42';
+        fieldEnabled.style.margin = '3px 4px 3px -5px';
+        fieldEnabled.link(entity, 'components.model.enabled');
+        panel.headerElement.appendChild(fieldEnabled.element);
+        panel.on('destroy', function() {
+            fieldEnabled.destroy();
         });
 
         // model.type

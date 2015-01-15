@@ -18,4 +18,4 @@ utils.deepCopy = function deepCopy(data) {
         }
         return obj;
     }
-}
+};

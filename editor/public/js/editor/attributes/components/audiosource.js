@@ -34,13 +34,16 @@ editor.once('load', function() {
             evtComponentUnset.unbind();
         });
 
-        // audiosource.enabled
-        editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Enabled',
-            type: 'checkbox',
-            link: entity,
-            path: 'components.audiosource.enabled'
+
+        // enabled
+        var fieldEnabled = new ui.Checkbox();
+        fieldEnabled.style.float = 'left';
+        fieldEnabled.style.backgroundColor = '#323f42';
+        fieldEnabled.style.margin = '3px 4px 3px -5px';
+        fieldEnabled.link(entity, 'components.audiosource.enabled');
+        panel.headerElement.appendChild(fieldEnabled.element);
+        panel.on('destroy', function() {
+            fieldEnabled.destroy();
         });
 
         // audiosource.assets

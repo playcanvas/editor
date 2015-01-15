@@ -38,15 +38,17 @@ editor.once('load', function() {
             evtComponentUnset.unbind();
         });
 
-        // camera.enabled
-        editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Enabled',
-            type: 'checkbox',
-            link: entity,
-            path: 'components.camera.enabled'
-        });
 
+        // enabled
+        var fieldEnabled = new ui.Checkbox();
+        fieldEnabled.style.float = 'left';
+        fieldEnabled.style.backgroundColor = '#323f42';
+        fieldEnabled.style.margin = '3px 4px 3px -5px';
+        fieldEnabled.link(entity, 'components.camera.enabled');
+        panel.headerElement.appendChild(fieldEnabled.element);
+        panel.on('destroy', function() {
+            fieldEnabled.destroy();
+        });
 
         // camera.clear
         var panelClear = new ui.Panel();

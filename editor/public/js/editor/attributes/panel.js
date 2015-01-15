@@ -65,7 +65,7 @@ editor.once('load', function() {
             var label = new ui.Label(args.name);
             label.flexShrink = 0;
             label.style.width = '78px';
-            label.style.textAlign = 'right';
+            // label.style.textAlign = 'right';
             label.style.fontSize = '12px';
             label.style.overflow = 'hidden';
             label.style.textOverflow = 'ellipsis';
@@ -108,6 +108,8 @@ editor.once('load', function() {
                 var field = new ui.NumberField();
                 field.value = args.value || 0;
                 field.flexGrow = 1;
+                if (args.placeholder)
+                    field.placeholder = args.placeholder;
 
                 if (args.link)
                     field.link(args.link, args.path);

@@ -22,29 +22,43 @@ editor.once('load', function() {
         if (! panelComponents)
             return;
 
-
-        // scripts
-        var panelScripts = editor.call('attributes:addPanel', {
+        // script
+        var panel = editor.call('attributes:addPanel', {
             parent: panelComponents,
             name: 'Scripts'
         });
         if (! entity.get('components.script')) {
-            panelScripts.disabled = true;
-            panelScripts.hidden = true;
+            panel.disabled = true;
+            panel.hidden = true;
         }
+        var evtComponentSet = entity.on('components.script:set', function(value) {
+            panel.disabled = ! value;
+            panel.hidden = ! value;
+        });
+        var evtComponentUnset = entity.on('components.script:unset', function() {
+            panel.disabled = true;
+            panel.hidden = true;
+        });
+        panel.on('destroy', function() {
+            evtComponentSet.unbind();
+            evtComponentUnset.unbind();
+        });
 
-        // scripts.enabled
-        var fieldScriptsEnabled = editor.call('attributes:addField', {
-            parent: panelScripts,
-            name: 'Enabled',
-            type: 'checkbox',
-            link: entity,
-            path: 'components.script.enabled'
+
+        // enabled
+        var fieldEnabled = new ui.Checkbox();
+        fieldEnabled.style.float = 'left';
+        fieldEnabled.style.backgroundColor = '#323f42';
+        fieldEnabled.style.margin = '3px 4px 3px -5px';
+        fieldEnabled.link(entity, 'components.script.enabled');
+        panel.headerElement.appendChild(fieldEnabled.element);
+        panel.on('destroy', function() {
+            fieldEnabled.destroy();
         });
 
         // scripts list
         var panelScriptsList = editor.call('attributes:addPanel', {
-            parent: panelScripts
+            parent: panel
         });
 
         // scripts.add

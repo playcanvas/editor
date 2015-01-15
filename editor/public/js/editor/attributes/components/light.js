@@ -34,13 +34,16 @@ editor.once('load', function() {
             evtComponentUnset.unbind();
         });
 
+
         // enabled
-        editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Enabled',
-            type: 'checkbox',
-            link: entity,
-            path: 'components.light.enabled'
+        var fieldEnabled = new ui.Checkbox();
+        fieldEnabled.style.float = 'left';
+        fieldEnabled.style.backgroundColor = '#323f42';
+        fieldEnabled.style.margin = '3px 4px 3px -5px';
+        fieldEnabled.link(entity, 'components.light.enabled');
+        panel.headerElement.appendChild(fieldEnabled.element);
+        panel.on('destroy', function() {
+            fieldEnabled.destroy();
         });
 
         // type
@@ -182,23 +185,47 @@ editor.once('load', function() {
             path: 'components.light.shadowResolution'
         });
 
-        // shadowBias
-        editor.call('attributes:addField', {
+
+        // shadow bias
+        var panelShadowBias = editor.call('attributes:addField', {
             parent: panelShadows,
-            name: 'Shadow Bias',
-            type: 'number',
-            link: entity,
-            path: 'components.light.shadowBias'
+            name: 'Shadow Bias'
         });
 
-        // normalOffsetBias
-        editor.call('attributes:addField', {
-            parent: panelShadows,
-            name: 'Normal Offset Shadow Bias',
-            type: 'number',
-            link: entity,
-            path: 'components.light.normalOffsetBias'
-        });
+        var label = panelShadowBias;
+        panelShadowBias = panelShadowBias.parent;
+        label.destroy();
+
+        var fieldShadowBias = new ui.NumberField();
+        fieldShadowBias.style.width = '32px';
+        fieldShadowBias.flexGrow = 1;
+        fieldShadowBias.link(entity, 'components.light.shadowBias');
+        panelShadowBias.append(fieldShadowBias);
+
+        var fieldShadowBiasNormalOffset = new ui.NumberField();
+        fieldShadowBiasNormalOffset.placeholder = 'Normal Offset';
+        fieldShadowBiasNormalOffset.style.width = '32px';
+        fieldShadowBiasNormalOffset.flexGrow = 2;
+        fieldShadowBiasNormalOffset.link(entity, 'components.light.normalOffsetBias');
+        panelShadowBias.append(fieldShadowBiasNormalOffset);
+
+        // // shadowBias
+        // editor.call('attributes:addField', {
+        //     parent: panelShadows,
+        //     name: 'Shadow Bias',
+        //     type: 'number',
+        //     link: entity,
+        //     path: 'components.light.shadowBias'
+        // });
+
+        // // normalOffsetBias
+        // editor.call('attributes:addField', {
+        //     parent: panelShadows,
+        //     name: 'Normal Offset Shadow Bias',
+        //     type: 'number',
+        //     link: entity,
+        //     path: 'components.light.normalOffsetBias'
+        // });
 
     });
 });

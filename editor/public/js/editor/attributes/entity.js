@@ -14,7 +14,13 @@ editor.once('load', function() {
 
         var entity = entities[0];
 
-        // var attributesPanel = editor.call('attributes.rootPanel');
+        // enabled
+        editor.call('attributes:addField', {
+            name: 'Enabled',
+            type: 'checkbox',
+            link: entity,
+            path: 'enabled'
+        });
 
         // name
         editor.call('attributes:addField', {
@@ -24,44 +30,42 @@ editor.once('load', function() {
             path: 'name'
         });
 
-        // enabled
-        editor.call('attributes:addField', {
-            name: 'Enabled',
-            type: 'checkbox',
-            link: entity,
-            path: 'enabled'
-        });
-
-
         // position
-        editor.call('attributes:addField', {
+        var fieldPosition = editor.call('attributes:addField', {
             name: 'Position',
             type: 'vec3',
             link: entity,
             path: 'position'
         });
+        fieldPosition[0].placeholder = 'X';
+        fieldPosition[1].placeholder = 'Y';
+        fieldPosition[2].placeholder = 'Z';
 
         // rotation
-        editor.call('attributes:addField', {
+        var fieldRotation = editor.call('attributes:addField', {
             name: 'Rotation',
             type: 'vec3',
             link: entity,
             path: 'rotation'
         });
+        fieldRotation[0].placeholder = 'X';
+        fieldRotation[1].placeholder = 'Y';
+        fieldRotation[2].placeholder = 'Z';
 
         // scale
-        editor.call('attributes:addField', {
+        var fieldScale = editor.call('attributes:addField', {
             name: 'Scale',
             type: 'vec3',
             link: entity,
             path: 'scale'
         });
-
+        fieldScale[0].placeholder = 'X';
+        fieldScale[1].placeholder = 'Y';
+        fieldScale[2].placeholder = 'Z';
 
 
         // components
         panelComponents = editor.call('attributes:addPanel');
-
 
 
         var panelJson = editor.call('attributes:addPanel', {

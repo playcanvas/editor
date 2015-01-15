@@ -10,15 +10,20 @@ function NumberField(args) {
     this.max = (args.max !== null) ? args.max : null;
     this.min = (args.min !== null) ? args.min : null;
 
-    this.element = document.createElement('input');
+    this.element = document.createElement('div');
     this.element.classList.add('ui-number-field');
-    this.element.type = 'text';
 
-    if (args.default !== undefined) {
+    this.elementInput = document.createElement('input');
+    this.elementInput.classList.add('field');
+    this.elementInput.type = 'text';
+    this.elementInput.addEventListener('focus', this._onInputFocus.bind(this), false);
+    this.elementInput.addEventListener('blur', this._onInputBlur.bind(this), false);
+    this.element.appendChild(this.elementInput);
+
+    if (args.default !== undefined)
         this.value = args.default;
-    }
 
-    this.element.addEventListener('change', this._onChange.bind(this), false);
+    this.elementInput.addEventListener('change', this._onChange.bind(this), false);
     // this.element.addEventListener('mousedown', this._onMouseDown.bind(this), false);
     // this.element.addEventListener('mousewheel', this._onMouseDown.bind(this), false);
 
@@ -29,10 +34,10 @@ function NumberField(args) {
     this._dragStart = 0;
 
     this.on('disable', function() {
-        this.element.disabled = true;
+        this.elementInput.disabled = true;
     });
     this.on('enable', function() {
-        this.element.disabled = false;
+        this.elementInput.disabled = false;
     });
 
     this.renderChanges = false;
@@ -44,6 +49,9 @@ function NumberField(args) {
         this.class.add('changed');
         setTimeout(this._onChangeDelay.bind(this), 200);
     });
+
+    if (args.placeholder)
+        this.placeholder = args.placeholder;
 }
 NumberField.prototype = Object.create(ui.Element.prototype);
 
@@ -52,14 +60,22 @@ NumberField.prototype._onChangeDelay = function() {
 };
 
 NumberField.prototype._onLinkChange = function(value) {
-    this.element.value = value || 0;
+    this.elementInput.value = value || 0;
     this.emit('change', value || 0);
 };
 
 NumberField.prototype._onChange = function() {
-    var value = parseFloat(this.element.value, 10) || 0;
-    this.element.value = value;
+    var value = parseFloat(this.elementInput.value, 10) || 0;
+    this.elementInput.value = value;
     this.value = value;
+};
+
+NumberField.prototype._onInputFocus = function() {
+    this.class.add('focus');
+};
+
+NumberField.prototype._onInputBlur = function() {
+    this.class.remove('focus');
 };
 
 // NumberField.prototype._onMouseDown = function(evt) {
@@ -132,13 +148,13 @@ Object.defineProperty(NumberField.prototype, 'value', {
         if (this._link) {
             return this._link.get(this.path);
         } else {
-            return parseFloat(this.element.value, 10);
+            return parseFloat(this.elementInput.value, 10);
         }
     },
     set: function(value) {
         if (this._link) {
             if (! this._link.set(this.path, value)) {
-                this.element.value = this._link.get(this.path);
+                this.elementInput.value = this._link.get(this.path);
             }
         } else {
             if (this.max !== null && this.max < value)
@@ -148,13 +164,23 @@ Object.defineProperty(NumberField.prototype, 'value', {
                 value = this.min;
 
             value = (this.precision !== null) ? parseFloat(value.toFixed(this.precision), 10) : value;
-            this.element.value = value;
+            this.elementInput.value = value;
 
             if (this._lastValue !== value) {
                 this._lastValue = value;
                 this.emit('change', parseFloat(value, 10));
             }
         }
+    }
+});
+
+
+Object.defineProperty(NumberField.prototype, 'placeholder', {
+    get: function() {
+        return this.element.getAttribute('placeholder');
+    },
+    set: function(value) {
+        this.element.setAttribute('placeholder', value);
     }
 });
 

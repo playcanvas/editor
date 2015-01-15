@@ -242,7 +242,7 @@ a:visited {
     > header {
         height: 32px;
         line-height: 32px;
-        padding: 0 8px;
+        padding: 0 0 0 8px;
         background-color: #111;
         white-space: nowrap;
         cursor: default;
@@ -540,27 +540,67 @@ a:visited {
     }
 }
 
+
 .ui-number-field {
+    display: inline-block;
     border: 1px solid #666;
-    width: 112px;
-    padding: 0 8px;
-    line-height: 24px;
+    width: 128px;
+    height: 24px;
     margin: 4px;
     background-color: #000;
-    color: #fff;
     vertical-align: top;
 
     &.disabled {
         opacity: .5;
     }
+    > input.field {
+        // width: 90%;
+        // padding: 0 5%;
+        width: calc(100% - 16px);
+        padding: 0 8px;
+        line-height: 24px;
+        color: #fff;
+        background: transparent;
+        border: none;
+    }
 }
 
-.ui-number-field.active,
-.ui-number-field:focus {
+// active/focused
+.ui-number-field.active > input.field,
+.ui-number-field > input.field:focus {
     outline: none;
     border-color: #7f7;
     box-shadow: 0 0 4px #7f7;
 }
+
+// placeholder
+.ui-number-field[placeholder] {
+    position: relative;
+
+    &:after {
+        content: attr(placeholder);
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 0 8px;
+        line-height: 24px;
+        font-size: 12px;
+        font-weight: 100;
+        white-space: nowrap;
+        color: #999;
+        background-color: rgba(0, 0, 0, .7);
+    }
+    &:hover,
+    &.focus {
+        &:after {
+            content: none;
+        }
+    }
+    > input.field {
+        // position: relative;
+    }
+}
+
 
 .ui-text-field {
     border: 1px solid #666;
