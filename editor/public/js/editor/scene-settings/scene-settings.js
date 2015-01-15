@@ -17,10 +17,6 @@ editor.once('load', function() {
         sceneSettings.history = true;
         sceneSettings.sync = true;
 
-        // unflatten pack hierarchy for now because otherwise the pack
-        // cannot be saved
-        pack.hierarchy = unflatten(pack.hierarchy[pack.resource_id], pack.hierarchy);
-
         // sync
         sceneSettings.on('*:set', function(field, value) {
             if (!this.sync) {
@@ -30,7 +26,6 @@ editor.once('load', function() {
             var data = {
                 application_data: pack.application_data,
                 resource_id: pack.resource_id,
-                hierarchy: pack.hierarchy,
                 settings: this.json()
             };
 
@@ -65,18 +60,4 @@ editor.once('load', function() {
         });
     });
 
-    // Convert a root entity and list of all entities into a hierarchy
-    var unflatten = function (entity, entities) {
-        var i, len = entity.children.length;
-        var children = [];
-
-        for (i = 0; i < len; i++) {
-            children.push(entities[entity.children[i]]);
-            unflatten(entities[entity.children[i]], entities);
-        }
-
-        entity.children = children;
-
-        return entity;
-    };
 });
