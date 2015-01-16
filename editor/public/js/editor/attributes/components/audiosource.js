@@ -70,23 +70,6 @@ editor.once('load', function() {
             }
         }
 
-        // audiosource.volume
-        editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Volume',
-            type: 'number',
-            link: entity,
-            path: 'components.audiosource.volume'
-        });
-
-        // audiosource.pitch
-        editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Pitch',
-            type: 'number',
-            link: entity,
-            path: 'components.audiosource.pitch'
-        });
 
         // audiosource.playback
         var panelPlayback = new ui.Panel();
@@ -113,37 +96,74 @@ editor.once('load', function() {
         panelPlayback.append(fieldLoop);
         var label = new ui.Label('Loop');
         label.style.verticalAlign = 'top';
-        label.style.paddingRight = '12px';
         label.style.fontSize = '12px';
         label.style.lineHeight = '26px';
         panelPlayback.append(label);
 
         // audiosource.3d
-        editor.call('attributes:addField', {
+        var fieldLoop = new ui.Checkbox();
+        fieldLoop.link(entity, 'components.audiosource.3d');
+        panelPlayback.append(fieldLoop);
+        var label = new ui.Label('3D');
+        label.style.verticalAlign = 'top';
+        label.style.fontSize = '12px';
+        label.style.lineHeight = '26px';
+        panelPlayback.append(label);
+
+
+        // sound
+        var panelSound = editor.call('attributes:addField', {
             parent: panel,
-            name: '3D',
-            type: 'checkbox',
-            link: entity,
-            path: 'components.audiosource.3d'
+            name: 'Sound'
         });
 
-        // audiosource.minDistance
-        editor.call('attributes:addField', {
+        var label = panelSound;
+        panelSound = panelSound.parent;
+        label.destroy();
+
+        // minDistance
+        var fieldVolume = new ui.NumberField();
+        fieldVolume.placeholder = 'Volume';
+        fieldVolume.style.width = '32px';
+        fieldVolume.flexGrow = 1;
+        fieldVolume.link(entity, 'components.audiosource.volume');
+        panelSound.append(fieldVolume);
+
+        // maxDistance
+        var fieldPitch = new ui.NumberField();
+        fieldPitch.placeholder = 'Pitch';
+        fieldPitch.style.width = '32px';
+        fieldPitch.flexGrow = 1;
+        fieldPitch.link(entity, 'components.audiosource.pitch');
+        panelSound.append(fieldPitch);
+
+
+        // distance
+        var panelDistance = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Min Distance',
-            type: 'number',
-            link: entity,
-            path: 'components.audiosource.minDistance'
+            name: 'Distance'
         });
 
-        // audiosource.maxDistance
-        editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Max Distance',
-            type: 'number',
-            link: entity,
-            path: 'components.audiosource.maxDistance'
-        });
+        var label = panelDistance;
+        panelDistance = panelDistance.parent;
+        label.destroy();
+
+        // minDistance
+        var fieldMinDistance = new ui.NumberField();
+        fieldMinDistance.placeholder = 'Min';
+        fieldMinDistance.style.width = '32px';
+        fieldMinDistance.flexGrow = 1;
+        fieldMinDistance.link(entity, 'components.audiosource.minDistance');
+        panelDistance.append(fieldMinDistance);
+
+        // maxDistance
+        var fieldMaxDistance = new ui.NumberField();
+        fieldMaxDistance.placeholder = 'Max';
+        fieldMaxDistance.style.width = '32px';
+        fieldMaxDistance.flexGrow = 1;
+        fieldMaxDistance.link(entity, 'components.audiosource.maxDistance');
+        panelDistance.append(fieldMaxDistance);
+
 
         // audiosource.rollOffFactor
         editor.call('attributes:addField', {

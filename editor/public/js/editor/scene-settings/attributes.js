@@ -5,7 +5,7 @@ editor.once('load', function() {
 
     // inspecting
     editor.on('attributes:inspect[sceneSettings]', function() {
-        var filteredFields = [];
+        var filteredFields = [ ];
 
         var addFiltered = function (field, filter) {
             filteredFields.push({
@@ -30,13 +30,16 @@ editor.once('load', function() {
         });
 
         // gravity
-        editor.call('attributes:addField', {
+        var fieldGravity = editor.call('attributes:addField', {
             parent: physicsPanel,
             name: 'Gravity',
             type: 'vec3',
             link: sceneSettings,
             path: 'physics.gravity'
         });
+        fieldGravity[0].placeholder = 'X';
+        fieldGravity[1].placeholder = 'Y';
+        fieldGravity[2].placeholder = 'Z';
 
         // render settings
         var renderPanel = editor.call('attributes:addPanel', {
@@ -44,10 +47,10 @@ editor.once('load', function() {
         });
 
         // global ambient
-        editor.call('attributes:addField', {
+        var fieldGlobalAmbient = editor.call('attributes:addField', {
             parent: renderPanel,
             name: 'Global Ambient',
-            type: 'vec3',
+            type: 'rgb',
             link: sceneSettings,
             path: 'render.global_ambient'
         });

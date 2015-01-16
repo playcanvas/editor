@@ -43,8 +43,6 @@ function SelectField(args) {
 
     this._updateOptions();
 
-    this.renderChanges = false;
-
     this.on('change', function() {
         if (! this.renderChanges)
             return;

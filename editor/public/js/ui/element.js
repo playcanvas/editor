@@ -16,6 +16,12 @@ function Element() {
     this.path = '';
     this._linkSet = null;
     this._linkUnset = null;
+    this.renderChanges = null;
+    // render changes only from next ticks
+    setTimeout(function() {
+        if (this.renderChanges === null)
+            this.renderChanges = true;
+    }.bind(this), 0);
 
     this._disabled = false;
     this._disabledParent = false;
@@ -54,9 +60,12 @@ Element.prototype.link = function(link, path) {
 
     // add :set link
     if (this._onLinkChange) {
+        var renderChanges = this.renderChanges;
+        this.renderChanges = false;
         this._linkOnSet = this._link.on(this.path + ':set', this._onLinkChange.bind(this));
         this._linkOnUnset = this._link.on(this.path + ':unset', this._onLinkChange.bind(this));
         this._onLinkChange(this._link.get(this.path));
+        this.renderChanges = renderChanges;
     }
 };
 

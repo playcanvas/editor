@@ -12,8 +12,6 @@ function Checkbox(args) {
 
     this.on('click', this._onClick.bind(this));
 
-    this.renderChanges = false;
-
     this.on('change', function() {
         if (! this.renderChanges)
             return;

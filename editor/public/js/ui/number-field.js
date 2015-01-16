@@ -40,9 +40,8 @@ function NumberField(args) {
         this.elementInput.disabled = false;
     });
 
-    this.renderChanges = false;
-
     this.on('change', function() {
+        console.log("!")
         if (! this.renderChanges)
             return;
 

@@ -122,7 +122,7 @@ editor.once('load', function() {
         // camera near/far clip
         var panelClip = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Near/Far Clip'
+            name: 'Clip'
         });
 
         var label = panelClip;
@@ -130,12 +130,14 @@ editor.once('load', function() {
         label.destroy();
 
         var fieldNearClip = new ui.NumberField();
+        fieldNearClip.placeholder = 'Near';
         fieldNearClip.style.width = '32px';
         fieldNearClip.flexGrow = 1;
         fieldNearClip.link(entity, 'components.camera.nearClip');
         panelClip.append(fieldNearClip);
 
         var fieldFarClip = new ui.NumberField();
+        fieldFarClip.placeholder = 'Far';
         fieldFarClip.style.width = '32px';
         fieldFarClip.flexGrow = 1;
         fieldFarClip.link(entity, 'components.camera.farClip');
@@ -151,12 +153,16 @@ editor.once('load', function() {
         });
 
         // camera.rect
-        editor.call('attributes:addField', {
+        var fieldViewport = editor.call('attributes:addField', {
             parent: panel,
             name: 'Viewport',
             type: 'vec4',
             link: entity,
             path: 'components.camera.rect'
         });
+        fieldViewport[0].placeholder = 'X';
+        fieldViewport[1].placeholder = 'Y';
+        fieldViewport[2].placeholder = 'W';
+        fieldViewport[3].placeholder = 'H';
     });
 });

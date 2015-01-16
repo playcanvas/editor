@@ -845,23 +845,39 @@ editor.once('load', function() {
             name: 'Render States'
         });
 
-        // depthTest
-        var fieldDepthTest = editor.call('attributes:addField', {
+
+        // depth
+        var panelDepth = new ui.Panel();
+        editor.call('attributes:addField', {
             parent: renderStatesPanel,
-            type: 'checkbox',
-            name: 'Depth Test',
-            link: asset,
-            path: 'data.depthTest'
+            name: 'Depth',
+            type: 'element',
+            element: panelDepth
         });
 
+        // depthTest
+        var fieldDepthTest = new ui.Checkbox();
+        fieldDepthTest.link(asset, 'data.depthTest');
+        panelDepth.append(fieldDepthTest);
+        // label
+        var label = new ui.Label('Test');
+        label.style.verticalAlign = 'top';
+        label.style.paddingRight = '12px';
+        label.style.fontSize = '12px';
+        label.style.lineHeight = '26px';
+        panelDepth.append(label);
+
         // depthWrite
-        var fieldDepthWrite = editor.call('attributes:addField', {
-            parent: renderStatesPanel,
-            type: 'checkbox',
-            name: 'Depth Write',
-            link: asset,
-            path: 'data.depthWrite'
-        });
+        var fieldDepthWrite = new ui.Checkbox();
+        fieldDepthWrite.link(asset, 'data.depthWrite');
+        panelDepth.append(fieldDepthWrite);
+        // label
+        var label = new ui.Label('Write');
+        label.style.verticalAlign = 'top';
+        label.style.fontSize = '12px';
+        label.style.lineHeight = '26px';
+        panelDepth.append(label);
+
 
         // culling
         var fieldCull = editor.call('attributes:addField', {

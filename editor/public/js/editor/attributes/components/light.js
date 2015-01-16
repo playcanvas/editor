@@ -208,24 +208,5 @@ editor.once('load', function() {
         fieldShadowBiasNormalOffset.flexGrow = 2;
         fieldShadowBiasNormalOffset.link(entity, 'components.light.normalOffsetBias');
         panelShadowBias.append(fieldShadowBiasNormalOffset);
-
-        // // shadowBias
-        // editor.call('attributes:addField', {
-        //     parent: panelShadows,
-        //     name: 'Shadow Bias',
-        //     type: 'number',
-        //     link: entity,
-        //     path: 'components.light.shadowBias'
-        // });
-
-        // // normalOffsetBias
-        // editor.call('attributes:addField', {
-        //     parent: panelShadows,
-        //     name: 'Normal Offset Shadow Bias',
-        //     type: 'number',
-        //     link: entity,
-        //     path: 'components.light.normalOffsetBias'
-        // });
-
     });
 });

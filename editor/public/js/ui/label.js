@@ -10,8 +10,6 @@ function Label(text) {
     this.element.innerHTML = this._text;
     this.element.title = this._text;
 
-    this.renderChanges = false;
-
     this.on('change', function() {
         if (! this.renderChanges)
             return;

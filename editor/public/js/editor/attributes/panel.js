@@ -85,8 +85,6 @@ editor.once('load', function() {
             if (args.link)
                 field.link(args.link, args.path);
 
-            field.renderChanges = true;
-
             return field;
         }
 
@@ -98,8 +96,6 @@ editor.once('load', function() {
 
                 if (args.link)
                     field.link(args.link, args.path);
-
-                field.renderChanges = true;
 
                 panel.append(field);
 
@@ -114,8 +110,6 @@ editor.once('load', function() {
                 if (args.link)
                     field.link(args.link, args.path);
 
-                field.renderChanges = true;
-
                 panel.append(field);
 
                 return field;
@@ -125,8 +119,6 @@ editor.once('load', function() {
 
                 if (args.link)
                     field.link(args.link, args.path);
-
-                field.renderChanges = true;
 
                 panel.append(field);
 
@@ -148,9 +140,6 @@ editor.once('load', function() {
                     field0.link(args.link, args.path + '.0');
                     field1.link(args.link, args.path + '.1');
                 }
-
-                field0.renderChanges = true;
-                field1.renderChanges = true;
 
                 return [ field0, field1 ];
             case 'vec3':
@@ -177,10 +166,6 @@ editor.once('load', function() {
                     field1.link(args.link, args.path + '.1');
                     field2.link(args.link, args.path + '.2');
                 }
-
-                field0.renderChanges = true;
-                field1.renderChanges = true;
-                field2.renderChanges = true;
 
                 return [ field0, field1, field2 ];
             case 'vec4':
@@ -214,11 +199,6 @@ editor.once('load', function() {
                     field2.link(args.link, args.path + '.2');
                     field3.link(args.link, args.path + '.3');
                 }
-
-                field0.renderChanges = true;
-                field1.renderChanges = true;
-                field2.renderChanges = true;
-                field3.renderChanges = true;
 
                 return [ field0, field1, field2, field3 ];
             case 'rgb':
@@ -272,8 +252,6 @@ editor.once('load', function() {
                 });
                 panel.append(button);
 
-                field.renderChanges = true;
-
                 return field;
             case 'image':
                 panel.flex = false;
@@ -320,8 +298,6 @@ editor.once('load', function() {
                     field.link(args.link, args.path);
 
                 panel.append(field);
-
-                field.renderChanges = true;
 
                 return field;
         }

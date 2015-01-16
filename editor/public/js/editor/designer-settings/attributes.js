@@ -5,73 +5,86 @@ editor.once('load', function() {
 
     // inspecting
     editor.on('attributes:inspect[designerSettings]', function() {
-        // grid settings
-        var gridPanel = editor.call('attributes:addPanel', {
-            name: 'Grid Settings'
+
+        var panel = editor.call('attributes:addPanel');
+
+
+        // grid
+        var panelClip = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Grid'
         });
 
-        // divisions
-        editor.call('attributes:addField', {
-            parent: gridPanel,
-            name: 'Divisions',
-            type: 'number',
-            link: designerSettings,
-            path: 'grid_divisions'
-        });
+        var label = panelClip;
+        panelClip = panelClip.parent;
+        label.destroy();
 
-        // division size
-        editor.call('attributes:addField', {
-            parent: gridPanel,
-            name: 'Division Size',
-            type: 'number',
-            link: designerSettings,
-            path: 'grid_division_size'
-        });
+        var fieldNearClip = new ui.NumberField();
+        fieldNearClip.renderChanges = true;
+        fieldNearClip.placeholder = 'Divisions';
+        fieldNearClip.style.width = '32px';
+        fieldNearClip.flexGrow = 1;
+        fieldNearClip.link(designerSettings, 'grid_divisions');
+        panelClip.append(fieldNearClip);
 
-        // snap settings
-        var snapPanel = editor.call('attributes:addPanel', {
-            name: 'Snap Settings'
-        });
+        var fieldFarClip = new ui.NumberField();
+        fieldFarClip.renderChanges = true;
+        fieldFarClip.placeholder = 'Size';
+        fieldFarClip.style.width = '32px';
+        fieldFarClip.flexGrow = 1;
+        fieldFarClip.link(designerSettings, 'grid_division_size');
+        panelClip.append(fieldFarClip);
+
 
         // snap increment
         editor.call('attributes:addField', {
-            parent: snapPanel,
-            name: 'Snap Increment',
+            parent: panel,
+            name: 'Snap',
             type: 'number',
+            placeholder: 'Increment',
             link: designerSettings,
             path: 'snap_increment'
         });
 
-        // camera settings
-        var cameraPanel = editor.call('attributes:addPanel', {
-            name: 'Camera Settings'
+
+        // camera near/far clip
+        var panelClip = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Camera Clip'
         });
 
-        // near clip
-        editor.call('attributes:addField', {
-            parent: cameraPanel,
-            name: 'Near Clip',
-            type: 'number',
-            link: designerSettings,
-            path: 'camera_near_clip'
-        });
+        var label = panelClip;
+        panelClip = panelClip.parent;
+        label.destroy();
 
-        // far clip
-        editor.call('attributes:addField', {
-            parent: cameraPanel,
-            name: 'Far Clip',
-            type: 'number',
-            link: designerSettings,
-            path: 'camera_far_clip'
-        });
+        var fieldNearClip = new ui.NumberField();
+        fieldNearClip.renderChanges = true;
+        fieldNearClip.placeholder = 'Near';
+        fieldNearClip.style.width = '32px';
+        fieldNearClip.flexGrow = 1;
+        fieldNearClip.link(designerSettings, 'camera_near_clip');
+        panelClip.append(fieldNearClip);
+
+        var fieldFarClip = new ui.NumberField();
+        fieldFarClip.renderChanges = true;
+        fieldFarClip.placeholder = 'Far';
+        fieldFarClip.style.width = '32px';
+        fieldFarClip.flexGrow = 1;
+        fieldFarClip.link(designerSettings, 'camera_far_clip');
+        panelClip.append(fieldFarClip);
+
 
         // clear color
-        editor.call('attributes:addField', {
-            parent: cameraPanel,
+        var fieldClearColor = editor.call('attributes:addField', {
+            parent: panel,
             name: 'Clear Color',
             type: 'vec4',
             link: designerSettings,
             path: 'camera_clear_color'
         });
+        fieldClearColor[0].placeholder = 'R';
+        fieldClearColor[1].placeholder = 'G';
+        fieldClearColor[2].placeholder = 'B';
+        fieldClearColor[3].placeholder = 'A';
     });
 });

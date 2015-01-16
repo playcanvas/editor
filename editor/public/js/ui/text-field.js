@@ -21,8 +21,6 @@ function TextField(args) {
         this.element.disabled = false;
     });
 
-    this.renderChanges = false;
-
     this.on('change', function() {
         if (! this.renderChanges)
             return;
