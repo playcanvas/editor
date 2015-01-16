@@ -94,7 +94,7 @@ editor.once('load', function() {
         fieldShadowCast.link(entity, 'components.model.castShadows');
         fieldShadowOptions.append(fieldShadowCast);
         // label
-        var label = new ui.Label('Cast');
+        var label = new ui.Label({ text: 'Cast' });
         label.style.verticalAlign = 'top';
         label.style.paddingRight = '12px';
         label.style.fontSize = '12px';
@@ -106,7 +106,7 @@ editor.once('load', function() {
         fieldShadowReceive.link(entity, 'components.model.receiveShadows');
         fieldShadowOptions.append(fieldShadowReceive);
         // label
-        var label = new ui.Label('Receive');
+        var label = new ui.Label({ text: 'Receive' });
         label.style.verticalAlign = 'top';
         label.style.fontSize = '12px';
         label.style.lineHeight = '26px';

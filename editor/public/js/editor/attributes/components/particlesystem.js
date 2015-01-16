@@ -12,5 +12,487 @@ editor.once('load', function() {
             return;
 
 
+        // particlesystem
+        var panel = editor.call('attributes:addPanel', {
+            parent: panelComponents,
+            name: 'Particles'
+        });
+        if (! entity.get('components.particlesystem')) {
+            panel.disabled = true;
+            panel.hidden = true;
+        }
+        var evtComponentSet = entity.on('components.particlesystem:set', function(value) {
+            panel.disabled = ! value;
+            panel.hidden = ! value;
+        });
+        var evtComponentUnset = entity.on('components.particlesystem:unset', function() {
+            panel.disabled = true;
+            panel.hidden = true;
+        });
+        panel.on('destroy', function() {
+            evtComponentSet.unbind();
+            evtComponentUnset.unbind();
+        });
+
+
+        // enabled
+        var fieldEnabled = new ui.Checkbox();
+        fieldEnabled.style.float = 'left';
+        fieldEnabled.style.backgroundColor = '#323f42';
+        fieldEnabled.style.margin = '3px 4px 3px -5px';
+        fieldEnabled.link(entity, 'components.particlesystem.enabled');
+        panel.headerElement.appendChild(fieldEnabled.element);
+        panel.on('destroy', function() {
+            fieldEnabled.destroy();
+        });
+
+
+        // autoPlay
+        editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Auto Play',
+            type: 'checkbox',
+            link: entity,
+            path: 'components.particlesystem.autoPlay'
+        });
+
+
+        // numParticles
+        editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Particle Count',
+            type: 'number',
+            link: entity,
+            path: 'components.particlesystem.numParticles'
+        });
+
+
+        // lifetime
+        editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Lifetime',
+            placeholder: 'Seconds',
+            type: 'number',
+            link: entity,
+            path: 'components.particlesystem.lifetime'
+        });
+
+
+        // emission rate
+        var panelEmissionRate = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Emission Rate'
+        });
+
+        var label = panelEmissionRate;
+        panelEmissionRate = panelEmissionRate.parent;
+        label.destroy();
+
+        // emission rate from
+        var fieldEmissionRateFrom = new ui.NumberField();
+        fieldEmissionRateFrom.placeholder = 'From';
+        fieldEmissionRateFrom.style.width = '32px';
+        fieldEmissionRateFrom.flexGrow = 1;
+        fieldEmissionRateFrom.link(entity, 'components.particlesystem.rate');
+        panelEmissionRate.append(fieldEmissionRateFrom);
+
+        // emission rate to
+        var fieldEmissionRateTo = new ui.NumberField();
+        fieldEmissionRateTo.placeholder = 'To';
+        fieldEmissionRateTo.style.width = '32px';
+        fieldEmissionRateTo.flexGrow = 1;
+        fieldEmissionRateTo.link(entity, 'components.particlesystem.rate2');
+        panelEmissionRate.append(fieldEmissionRateTo);
+
+
+        // start angle
+        var panelStartAngle = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Start Angle'
+        });
+
+        var label = panelStartAngle;
+        panelStartAngle = panelStartAngle.parent;
+        label.destroy();
+
+        // emission rate from
+        var fieldStartAngleFrom = new ui.NumberField();
+        fieldStartAngleFrom.placeholder = 'From';
+        fieldStartAngleFrom.style.width = '32px';
+        fieldStartAngleFrom.flexGrow = 1;
+        fieldStartAngleFrom.link(entity, 'components.particlesystem.startAngle');
+        panelStartAngle.append(fieldStartAngleFrom);
+
+        // emission rate to
+        var fieldStartAngleTo = new ui.NumberField();
+        fieldStartAngleTo.placeholder = 'To';
+        fieldStartAngleTo.style.width = '32px';
+        fieldStartAngleTo.flexGrow = 1;
+        fieldStartAngleTo.link(entity, 'components.particlesystem.startAngle2');
+        panelStartAngle.append(fieldStartAngleTo);
+
+
+        // playback
+        var panelPlayback = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Playback'
+        });
+
+        var label = panelPlayback;
+        panelPlayback = panelPlayback.parent;
+        label.destroy();
+
+        // loop
+        var fieldLoop = new ui.Checkbox();
+        fieldLoop.link(entity, 'components.particlesystem.loop');
+        panelPlayback.append(fieldLoop);
+        // label
+        var label = new ui.Label({ text: 'Loop' });
+        label.style.verticalAlign = 'top';
+        label.style.paddingRight = '12px';
+        label.style.fontSize = '12px';
+        label.style.lineHeight = '26px';
+        panelPlayback.append(label);
+
+
+        // preWarm
+        var fieldPreWarm = new ui.Checkbox();
+        fieldPreWarm.link(entity, 'components.particlesystem.preWarm');
+        panelPlayback.append(fieldPreWarm);
+        // label
+        var labelPreWarm = new ui.Label({ text: 'Pre Warm' });
+        labelPreWarm.style.verticalAlign = 'top';
+        labelPreWarm.style.paddingRight = '12px';
+        labelPreWarm.style.fontSize = '12px';
+        labelPreWarm.style.lineHeight = '26px';
+        panelPlayback.append(labelPreWarm);
+
+        fieldPreWarm.hidden = ! entity.get('components.particlesystem.loop');
+        labelPreWarm.hidden = fieldPreWarm.hidden;
+        fieldLoop.on('change', function(value) {
+            fieldPreWarm.hidden = ! value;
+            labelPreWarm.hidden = fieldPreWarm.hidden;
+        });
+
+
+
+        // lighting
+        var panelLighting = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Lighting'
+        });
+
+        var label = panelLighting;
+        panelLighting = panelLighting.parent;
+        label.destroy();
+
+        // lighting
+        var fieldLighting = new ui.Checkbox();
+        fieldLighting.link(entity, 'components.particlesystem.lighting');
+        panelLighting.append(fieldLighting);
+        // label
+        var label = new ui.Label({ text: 'Enabled' });
+        label.style.verticalAlign = 'top';
+        label.style.paddingRight = '12px';
+        label.style.fontSize = '12px';
+        label.style.lineHeight = '26px';
+        panelLighting.append(label);
+
+
+        // halfLambert
+        var fieldHalfLambert = new ui.Checkbox();
+        fieldHalfLambert.link(entity, 'components.particlesystem.halfLambert');
+        panelLighting.append(fieldHalfLambert);
+        // label
+        var labelHalfLambert = new ui.Label({ text: 'Half Lambert' });
+        labelHalfLambert.style.verticalAlign = 'top';
+        labelHalfLambert.style.paddingRight = '12px';
+        labelHalfLambert.style.fontSize = '12px';
+        labelHalfLambert.style.lineHeight = '26px';
+        panelLighting.append(labelHalfLambert);
+
+        fieldHalfLambert.hidden = ! entity.get('components.particlesystem.halfLambert');
+        labelHalfLambert.hidden = fieldHalfLambert.hidden;
+        fieldLighting.on('change', function(value) {
+            fieldHalfLambert.hidden = ! value;
+            labelHalfLambert.hidden = fieldHalfLambert.hidden;
+        });
+
+
+        // intensity
+        editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Intensity',
+            type: 'number',
+            link: entity,
+            path: 'components.particlesystem.intensity'
+        });
+
+
+        // depth
+        var panelDepth = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Depth'
+        });
+
+        var label = panelDepth;
+        panelDepth = panelDepth.parent;
+        label.destroy();
+
+        // depthWrite
+        var fieldDepthWrite = new ui.Checkbox();
+        fieldDepthWrite.link(entity, 'components.particlesystem.depthWrite');
+        panelDepth.append(fieldDepthWrite);
+        // label
+        var label = new ui.Label({ text: 'Write' });
+        label.style.verticalAlign = 'top';
+        label.style.paddingRight = '12px';
+        label.style.fontSize = '12px';
+        label.style.lineHeight = '26px';
+        panelDepth.append(label);
+
+        // depthSoftening
+        var fieldDepthSoftening = new ui.NumberField();
+        fieldDepthSoftening.flexGrow = 1;
+        fieldDepthSoftening.placeholder = 'Softening';
+        fieldDepthSoftening.link(entity, 'components.particlesystem.depthSoftening');
+        panelDepth.append(fieldDepthSoftening);
+
+
+        // sort
+        editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Sort',
+            type: 'number',
+            enum: {
+                0: 'None',
+                1: 'Camera Distance',
+                2: 'Newest First',
+                3: 'Oldest First'
+            },
+            link: entity,
+            path: 'components.particlesystem.sort'
+        });
+
+
+        // blendType
+        editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Blend Type',
+            type: 'number',
+            enum: {
+                2: 'Alpha',
+                1: 'Additive',
+                5: 'Multiply'
+            },
+            link: entity,
+            path: 'components.particlesystem.blendType'
+        });
+
+
+        // stretch
+        editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Stretch',
+            type: 'number',
+            link: entity,
+            path: 'components.particlesystem.stretch'
+        });
+
+
+        // alignToMotion
+        editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Align To Motion',
+            type: 'checkbox',
+            link: entity,
+            path: 'components.particlesystem.alignToMotion'
+        });
+
+
+        // spawnBounds
+        var fieldSpawnBounds = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Spawn Bounds',
+            placeholder: [ 'X', 'Y', 'Z' ],
+            type: 'vec3',
+            link: entity,
+            path: 'components.particlesystem.spawnBounds'
+        });
+
+
+        // wrap
+        var fieldWrap = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Wrap',
+            type: 'checkbox',
+            link: entity,
+            path: 'components.particlesystem.wrap'
+        });
+
+
+        // wrapBounds
+        var fieldWrapBounds = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Wrap Bounds',
+            placeholder: [ 'X', 'Y', 'Z' ],
+            type: 'vec3',
+            link: entity,
+            path: 'components.particlesystem.wrapBounds'
+        });
+        fieldWrapBounds[0].parent.hidden = ! entity.get('components.particlesystem.wrap');
+        fieldWrap.on('change', function(value) {
+            fieldWrapBounds[0].parent.hidden = ! value;
+        });
+
+
+        // colorMapAsset
+        editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Color Map',
+            type: 'number',
+            link: entity,
+            path: 'components.particlesystem.colorMapAsset'
+        });
+
+
+        // normalMapAsset
+        editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Normal Map',
+            type: 'number',
+            link: entity,
+            path: 'components.particlesystem.normalMapAsset'
+        });
+
+
+        // mesh
+        editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Mesh',
+            type: 'number',
+            link: entity,
+            path: 'components.particlesystem.mesh'
+        });
+
+
+        // // localVelocityGraph
+        // editor.call('attributes:addField', {
+        //     parent: panel,
+        //     name: 'Local Velocity',
+        //     type: 'curveset',
+        //     link: entity,
+        //     path: 'components.particlesystem.localVelocityGraph'
+        // });
+
+
+        // // localVelocityGraph2
+        // editor.call('attributes:addField', {
+        //     parent: panel,
+        //     name: 'Local Velocity 2',
+        //     type: 'curveset',
+        //     link: entity,
+        //     path: 'components.particlesystem.localVelocityGraph2'
+        // });
+
+
+        // // velocityGraph
+        // editor.call('attributes:addField', {
+        //     parent: panel,
+        //     name: 'Velocity',
+        //     type: 'curveset',
+        //     link: entity,
+        //     path: 'components.particlesystem.velocityGraph'
+        // });
+
+
+        // // velocityGraph2
+        // editor.call('attributes:addField', {
+        //     parent: panel,
+        //     name: 'Velocity 2',
+        //     type: 'curveset',
+        //     link: entity,
+        //     path: 'components.particlesystem.velocityGraph2'
+        // });
+
+
+        // // rotationSpeedGraph
+        // editor.call('attributes:addField', {
+        //     parent: panel,
+        //     name: 'Rotation Speed',
+        //     type: 'curveset',
+        //     link: entity,
+        //     path: 'components.particlesystem.rotationSpeedGraph'
+        // });
+
+
+        // // rotationSpeedGraph2
+        // editor.call('attributes:addField', {
+        //     parent: panel,
+        //     name: 'Rotation Speed 2',
+        //     type: 'curveset',
+        //     link: entity,
+        //     path: 'components.particlesystem.rotationSpeedGraph2'
+        // });
+
+
+        // // scaleGraph
+        // editor.call('attributes:addField', {
+        //     parent: panel,
+        //     name: 'Scale',
+        //     type: 'curveset',
+        //     link: entity,
+        //     path: 'components.particlesystem.scaleGraph'
+        // });
+
+
+        // // scaleGraph2
+        // editor.call('attributes:addField', {
+        //     parent: panel,
+        //     name: 'Scale 2',
+        //     type: 'curveset',
+        //     link: entity,
+        //     path: 'components.particlesystem.scaleGraph2'
+        // });
+
+
+        // // colorGraph
+        // editor.call('attributes:addField', {
+        //     parent: panel,
+        //     name: 'Color',
+        //     type: 'curveset',
+        //     link: entity,
+        //     path: 'components.particlesystem.colorGraph'
+        // });
+
+
+        // // colorGraph2
+        // editor.call('attributes:addField', {
+        //     parent: panel,
+        //     name: 'Color 2',
+        //     type: 'curveset',
+        //     link: entity,
+        //     path: 'components.particlesystem.colorGraph2'
+        // });
+
+
+        // // alphaGraph
+        // editor.call('attributes:addField', {
+        //     parent: panel,
+        //     name: 'Alpha',
+        //     type: 'curveset',
+        //     link: entity,
+        //     path: 'components.particlesystem.alphaGraph'
+        // });
+
+
+        // // alphaGraph2
+        // editor.call('attributes:addField', {
+        //     parent: panel,
+        //     name: 'Alpha 2',
+        //     type: 'curveset',
+        //     link: entity,
+        //     path: 'components.particlesystem.alphaGraph2'
+        // });
     });
 });

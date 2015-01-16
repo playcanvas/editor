@@ -39,6 +39,12 @@ editor.once('load', function() {
         editor.call('attributes:addField', {
             parent: paramsPanel,
             name: 'Address U',
+            type: 'string',
+            enum: {
+                'repeat': 'Repeat',
+                'clamp': 'Clamp',
+                'mirror': 'Mirror Repeat'
+            },
             link: asset,
             path: 'data.addressu'
         });
@@ -47,6 +53,12 @@ editor.once('load', function() {
         editor.call('attributes:addField', {
             parent: paramsPanel,
             name: 'Address V',
+            type: 'string',
+            enum: {
+                'repeat': 'Repeat',
+                'clamp': 'Clamp',
+                'mirror': 'Mirror Repeat'
+            },
             link: asset,
             path: 'data.addressv'
         });

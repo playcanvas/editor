@@ -24,6 +24,7 @@ editor.once('load', function() {
             return sceneSettings.render.fog !== 'none';
         };
 
+
         // physics settings
         var physicsPanel = editor.call('attributes:addPanel', {
             name: 'Physics Settings'
@@ -33,32 +34,89 @@ editor.once('load', function() {
         var fieldGravity = editor.call('attributes:addField', {
             parent: physicsPanel,
             name: 'Gravity',
+            placeholder: [ 'X', 'Y', 'Z' ],
             type: 'vec3',
             link: sceneSettings,
             path: 'physics.gravity'
         });
-        fieldGravity[0].placeholder = 'X';
-        fieldGravity[1].placeholder = 'Y';
-        fieldGravity[2].placeholder = 'Z';
 
-        // render settings
-        var renderPanel = editor.call('attributes:addPanel', {
-            name: 'Render Settings'
+
+        // environment
+        var panelEnvironment = editor.call('attributes:addPanel', {
+            name: 'Environment'
         });
 
-        // global ambient
+        // ambient
         var fieldGlobalAmbient = editor.call('attributes:addField', {
-            parent: renderPanel,
-            name: 'Global Ambient',
+            parent: panelEnvironment,
+            name: 'Ambient Color',
             type: 'rgb',
             link: sceneSettings,
             path: 'render.global_ambient'
         });
 
+        // skybox
+        editor.call('attributes:addField', {
+            parent: panelEnvironment,
+            name: 'Skybox',
+            type: 'number',
+            link: sceneSettings,
+            path: 'render.skybox'
+        });
+
+
+        // camera
+        var panelCamera = editor.call('attributes:addPanel', {
+            name: 'Camera'
+        });
+
+        // tonemapping
+        editor.call('attributes:addField', {
+            parent: panelCamera,
+            name: 'Tonemapping',
+            type: 'number',
+            enum: {
+                0: 'Linear',
+                1: 'Filmic'
+            },
+            link: sceneSettings,
+            path: 'render.tonemapping'
+        });
+
+        // exposure
+        editor.call('attributes:addField', {
+            parent: panelCamera,
+            name: 'Exposure',
+            type: 'number',
+            min: 0,
+            link: sceneSettings,
+            path: 'render.exposure'
+        });
+
+        // gamma correction
+        var fieldGammaCorrection = editor.call('attributes:addField', {
+            parent: panelCamera,
+            name: ' ',
+            type: 'checkbox',
+            link: sceneSettings,
+            path: 'render.gamma_correction'
+        });
+
+        var label = new ui.Label({ text: 'Gamma Correction' });
+        label.style.fontSize = '12px';
+        fieldGammaCorrection.parent.append(label);
+        // fieldGammaCorrection.parent.innerElement.childNodes[0].style.width = 'auto';
+
+
+        // fog
+        var panelFog = editor.call('attributes:addPanel', {
+            name: 'Fog'
+        });
+
         // fog type
         editor.call('attributes:addField', {
-            parent: renderPanel,
-            name: 'Fog Type',
+            parent: panelFog,
+            name: 'Type',
             type: 'string',
             enum: {
                 'none': 'None',
@@ -72,80 +130,47 @@ editor.once('load', function() {
 
         // fog density
         addFiltered(editor.call('attributes:addField', {
-            parent: renderPanel,
-            name: 'Fog Density',
+            parent: panelFog,
+            name: 'Density',
             type: 'number',
             link: sceneSettings,
             path: 'render.fog_density',
         }), fogFilter);
 
-        // fog start
-        addFiltered(editor.call('attributes:addField', {
-            parent: renderPanel,
-            name: 'Fog Start',
-            type: 'number',
-            link: sceneSettings,
-            path: 'render.fog_start'
-        }), fogFilter);
+        // fog distance
+        var panelFogDistance = editor.call('attributes:addField', {
+            parent: panelFog,
+            name: 'Distance'
+        });
+        addFiltered(panelFogDistance, fogFilter);
 
-        // fog end
-        addFiltered(editor.call('attributes:addField', {
-            parent: renderPanel,
-            name: 'Fog End',
-            type: 'number',
-            link: sceneSettings,
-            path: 'render.fog_end'
-        }), fogFilter);
+        var label = panelFogDistance;
+        panelFogDistance = panelFogDistance.parent;
+        label.destroy();
+
+        var fieldFogStart = new ui.NumberField();
+        fieldFogStart.placeholder = 'Start';
+        fieldFogStart.style.width = '32px';
+        fieldFogStart.flexGrow = 1;
+        fieldFogStart.link(sceneSettings, 'render.fog_start');
+        panelFogDistance.append(fieldFogStart);
+
+        var fieldFogEnd = new ui.NumberField();
+        fieldFogEnd.placeholder = 'End';
+        fieldFogEnd.style.width = '32px';
+        fieldFogEnd.flexGrow = 1;
+        fieldFogEnd.link(sceneSettings, 'render.fog_end');
+        panelFogDistance.append(fieldFogEnd);
 
         // fog color
         addFiltered(editor.call('attributes:addField', {
-            parent: renderPanel,
-            name: 'Fog Color',
-            type: 'vec3',
+            parent: panelFog,
+            name: 'Color',
+            type: 'rgb',
             link: sceneSettings,
             path: 'render.fog_color'
         }), fogFilter);
 
-        // gamma correction
-        editor.call('attributes:addField', {
-            parent: renderPanel,
-            name: 'Gamma Correction',
-            type: 'checkbox',
-            link: sceneSettings,
-            path: 'render.gamma_correction'
-        });
-
-        // tonemapping
-        editor.call('attributes:addField', {
-            parent: renderPanel,
-            name: 'Tonemapping',
-            type: 'number',
-            enum: {
-                0: 'Linear',
-                1: 'Filmic'
-            },
-            link: sceneSettings,
-            path: 'render.tonemapping'
-        });
-
-        // exposure
-        editor.call('attributes:addField', {
-            parent: renderPanel,
-            name: 'Exposure',
-            type: 'number',
-            min: 0,
-            link: sceneSettings,
-            path: 'render.exposure'
-        });
-
-        // skybox
-        editor.call('attributes:addField', {
-            parent: renderPanel,
-            name: 'Skybox',
-            type: 'number',
-            link: sceneSettings,
-            path: 'render.skybox'
-        });
 
         filter();
 

@@ -110,25 +110,21 @@ editor.once('load', function() {
         var fieldLinearFactor = editor.call('attributes:addField', {
             parent: panelDynamic,
             name: 'Linear Factor',
+            placeholder: [ 'X', 'Y', 'Z' ],
             type: 'vec3',
             link: entity,
             path: 'components.rigidbody.linearFactor'
         });
-        fieldLinearFactor[0].placeholder = 'X';
-        fieldLinearFactor[1].placeholder = 'Y';
-        fieldLinearFactor[2].placeholder = 'Z';
 
         // angularFactor
         var fieldAngularFactor = editor.call('attributes:addField', {
             parent: panelDynamic,
             name: 'Angular Factor',
+            placeholder: [ 'X', 'Y', 'Z' ],
             type: 'vec3',
             link: entity,
             path: 'components.rigidbody.angularFactor'
         });
-        fieldAngularFactor[0].placeholder = 'X';
-        fieldAngularFactor[1].placeholder = 'Y';
-        fieldAngularFactor[2].placeholder = 'Z';
 
 
         // linear/angular damping

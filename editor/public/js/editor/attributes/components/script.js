@@ -9,7 +9,7 @@ editor.once('load', function() {
         'rgb': 'rgb',
         'rgba': 'rgb', // TEMP
         'vector': 'vec3',
-        'enumeraton': 'number'
+        'enumeration': 'number'
     }
 
     editor.on('attributes:inspect[entity]', function(entities) {
@@ -90,11 +90,11 @@ editor.once('load', function() {
                     var attribute = items.get(i).attributes.get(a);
 
                     var choices = null;
-                    if (attribute.type === 'enumeraton') {
+                    if (attribute.type === 'enumeration') {
                         choices = { };
                         try {
-                            for(var e = 0; e < attribute.enumeratons.length; e++) {
-                                choices[attribute.enumeratons[e].value] = attribute.enumeratons[e].name;
+                            for(var e = 0; e < attribute.options.enumerations.length; e++) {
+                                choices[attribute.options.enumerations.get(e).value] = attribute.options.enumerations.get(e).name;
                             }
                         } catch(ex) {
                             console.log('could not recreate enumeration for script attribute, ' + items.get(i).url);

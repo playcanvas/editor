@@ -545,6 +545,7 @@ editor.once('load', function() {
             link: asset,
             path: 'data.conserveEnergy'
         });
+        fieldConserveEnergy.parent.innerElement.childNodes[0].style.width = 'auto';
 
         // unfold panel
         fieldSpecularMap.on('change', function() { specularPanel.folded = false; });
@@ -652,15 +653,6 @@ editor.once('load', function() {
             name: 'Normals'
         });
 
-        // bumpiness
-        var fieldBumpiness = editor.call('attributes:addField', {
-            parent: normalPanel,
-            type: 'number',
-            name: 'Bumpiness',
-            link: asset,
-            path: 'data.bumpMapFactor'
-        });
-
         // map (normals)
         var fieldNormalMap = editor.call('attributes:addField', {
             parent: normalPanel,
@@ -668,6 +660,15 @@ editor.once('load', function() {
             name: 'Texture',
             link: asset,
             path: 'data.normalMap'
+        });
+
+        // bumpiness
+        var fieldBumpiness = editor.call('attributes:addField', {
+            parent: normalPanel,
+            type: 'number',
+            name: 'Bumpiness',
+            link: asset,
+            path: 'data.bumpMapFactor'
         });
         fieldNormalMap.on('change', function(value) {
             // fieldNormalsOffset[0].parent.hidden = ! value;
@@ -860,7 +861,7 @@ editor.once('load', function() {
         fieldDepthTest.link(asset, 'data.depthTest');
         panelDepth.append(fieldDepthTest);
         // label
-        var label = new ui.Label('Test');
+        var label = new ui.Label({ text: 'Test' });
         label.style.verticalAlign = 'top';
         label.style.paddingRight = '12px';
         label.style.fontSize = '12px';
@@ -872,7 +873,7 @@ editor.once('load', function() {
         fieldDepthWrite.link(asset, 'data.depthWrite');
         panelDepth.append(fieldDepthWrite);
         // label
-        var label = new ui.Label('Write');
+        var label = new ui.Label({ text: 'Write' });
         label.style.verticalAlign = 'top';
         label.style.fontSize = '12px';
         label.style.lineHeight = '26px';

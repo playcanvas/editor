@@ -39,7 +39,7 @@ editor.once('load', function() {
             loading.failed = true;
             panelRaw.destroy();
 
-            var error = new ui.Label('failed loading data');
+            var error = new ui.Label({ text: 'failed loading data' });
             error.textContent = 'failed loading data';
             error.style.display = 'block';
             error.style.textAlign = 'center';

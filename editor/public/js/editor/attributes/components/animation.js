@@ -93,7 +93,7 @@ editor.once('load', function() {
         fieldActivate.link(entity, 'components.animation.activate');
         panelPlayback.append(fieldActivate);
         // label
-        var label = new ui.Label('Activate');
+        var label = new ui.Label({ text: 'Activate' });
         label.style.verticalAlign = 'top';
         label.style.paddingRight = '12px';
         label.style.fontSize = '12px';
@@ -105,7 +105,7 @@ editor.once('load', function() {
         fieldLoop.link(entity, 'components.animation.loop');
         panelPlayback.append(fieldLoop);
         // label
-        var label = new ui.Label('Loop');
+        var label = new ui.Label({ text: 'Loop' });
         label.style.verticalAlign = 'top';
         label.style.fontSize = '12px';
         label.style.lineHeight = '26px';

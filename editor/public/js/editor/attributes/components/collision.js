@@ -67,13 +67,11 @@ editor.once('load', function() {
         var fieldHalfExtents = editor.call('attributes:addField', {
             parent: panel,
             name: 'Half Extents',
+            placeholder: [ 'X', 'Y', 'Z' ],
             type: 'vec3',
             link: entity,
             path: 'components.collision.halfExtents'
         });
-        fieldHalfExtents[0].placeholder = 'X';
-        fieldHalfExtents[1].placeholder = 'Y';
-        fieldHalfExtents[2].placeholder = 'Z';
 
         fieldHalfExtents[0].parent.hidden = entity.get('components.collision.type') !== 'box';
         fieldType.on('change', function(value) {

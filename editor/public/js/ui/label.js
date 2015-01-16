@@ -1,9 +1,10 @@
 "use strict";
 
-function Label(text) {
+function Label(args) {
     ui.Element.call(this);
+    args = args || { };
 
-    this._text = text || '';
+    this._text = args.text || '';
 
     this.element = document.createElement('label');
     this.element.classList.add('ui-label');
@@ -17,6 +18,9 @@ function Label(text) {
         this.class.add('changed');
         setTimeout(this._onChangeDelay.bind(this), 200);
     });
+
+    if (args.placeholder)
+        this.placeholder = args.placeholder;
 }
 Label.prototype = Object.create(ui.Element.prototype);
 
@@ -53,6 +57,15 @@ Object.defineProperty(Label.prototype, 'text', {
             this.element.title = this._text;
             this.emit('change', value);
         }
+    }
+});
+
+Object.defineProperty(Label.prototype, 'placeholder', {
+    get: function() {
+        return this.element.getAttribute('placeholder');
+    },
+    set: function(value) {
+        this.element.setAttribute('placeholder', value);
     }
 });
 

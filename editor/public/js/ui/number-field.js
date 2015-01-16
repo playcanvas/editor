@@ -41,7 +41,6 @@ function NumberField(args) {
     });
 
     this.on('change', function() {
-        console.log("!")
         if (! this.renderChanges)
             return;
 

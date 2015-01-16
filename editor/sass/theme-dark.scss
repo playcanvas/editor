@@ -140,7 +140,6 @@ a:visited {
         animation: ui-field-changed 200ms ease-in-out forwards;
     }
     &:hover {
-        color: $text-active;
         border-color: $bcg-darker;
         box-shadow: 0 0 4px rgba(0, 0, 0, .5);
     }
@@ -180,14 +179,20 @@ a:visited {
         animation: ui-field-changed 200ms ease-in-out forwards;
     }
 }
+.ui-label[placeholder] {
+    &:after {
+        color: $text-dark;
+        background-color: $bcg-dark;
+    }
+}
 
 .ui-text-field {
     border: 1px solid $bcg-darker;
     background-color: $bcg-dark;
 
     &.active,
-    &:focus,
-    &:hover {
+    > input.field:focus,
+    > input.field:hover {
         color: $text-active;
         border-color: $bcg-darker;
         box-shadow: 0 0 4px rgba(0, 0, 0, .5);
@@ -197,6 +202,12 @@ a:visited {
         outline: 1px solid $text-active;
         -webkit-animation: ui-field-changed 200ms ease-in-out forwards;
         animation: ui-field-changed 200ms ease-in-out forwards;
+    }
+}
+.ui-text-field[placeholder] {
+    &:after {
+        color: $text-dark;
+        background-color: $bcg-dark;
     }
 }
 

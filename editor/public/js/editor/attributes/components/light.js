@@ -103,15 +103,15 @@ editor.once('load', function() {
             link: entity,
             path: 'components.light.falloffMode'
         });
-        fieldFalloffMode.hidden = entity.get('components.light.type') === 'directional';
+        fieldFalloffMode.parent.hidden = entity.get('components.light.type') === 'directional';
         fieldType.on('change', function(value) {
             fieldFalloffMode.parent.hidden = value === 'directional';
         });
 
-        // light inner/outer cone
+        // light cone
         var panelClip = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Inner/Outer Cone Angles'
+            name: 'Cone Angles'
         });
 
         var label = panelClip;
@@ -125,6 +125,7 @@ editor.once('load', function() {
 
         // innerConeAngle
         var fieldInnerConeAngle = new ui.NumberField();
+        fieldInnerConeAngle.placeholder = 'Inner';
         fieldInnerConeAngle.style.width = '32px';
         fieldInnerConeAngle.flexGrow = 1;
         fieldInnerConeAngle.link(entity, 'components.camera.innerConeAngle');
@@ -132,6 +133,7 @@ editor.once('load', function() {
 
         // outerConeAngle
         var fieldOuterConeAngle = new ui.NumberField();
+        fieldOuterConeAngle.placeholder = 'Outer';
         fieldOuterConeAngle.style.width = '32px';
         fieldOuterConeAngle.flexGrow = 1;
         fieldOuterConeAngle.link(entity, 'components.camera.outerConeAngle');

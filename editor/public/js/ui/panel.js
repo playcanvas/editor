@@ -6,22 +6,27 @@ function Panel(header) {
     ui.ContainerElement.call(this);
 
     this.element = document.createElement('div');
-    this.element.classList.add('ui-panel', 'noAnimation');
+    this.element.classList.add('ui-panel', 'noHeader', 'noAnimation');
 
     // header
-    this.headerElement = document.createElement('header');
-    this.headerElement.classList.add('ui-header');
-    this.headerElement.textContent = header || '';
-    if (! this.headerElement.textContent) {
-        this.class.add('noHeader');
-    }
-    this.element.appendChild(this.headerElement);
+    // this.headerElement = document.createElement('header');
+    // this.headerElement.classList.add('ui-header');
+    // this.headerElement.textContent = header || '';
+    // if (! this.headerElement.textContent) {
+    //     this.class.add('noHeader');
+    // }
+    // this.element.appendChild(this.headerElement);
 
-    // folding
-    this.headerElement.addEventListener('click', function() {
-        if (! self.foldable) return;
-        self.folded = ! self.folded;
-    }, false);
+    this.headerElement = null;
+
+    if (header)
+        this.header = header;
+
+    // // folding
+    // this.headerElement.addEventListener('click', function() {
+    //     if (! self.foldable) return;
+    //     self.folded = ! self.folded;
+    // }, false);
 
     this.on('nodesChanged', function() {
         if (! this.foldable || this.folded || this.horizontal)
@@ -63,14 +68,36 @@ Panel.prototype = Object.create(ui.ContainerElement.prototype);
 
 Object.defineProperty(Panel.prototype, 'header', {
     get: function() {
-        return this.headerElement.textContent;
+        return (this.headerElement && this.headerElement.textContent) || '';
     },
     set: function(value) {
-        this.headerElement.textContent = value || '';
+        if (! this.headerElement && value) {
+            this.headerElement = document.createElement('header');
+            this.headerElement.classList.add('ui-header');
+            this.headerElement.textContent = value;
 
-        if (! this.headerElement.textContent) {
+            var first = this.element.firstChild;
+            if (first) {
+                this.element.insertBefore(this.headerElement, first);
+            } else {
+                this.element.appendChild(this.headerElement);
+            }
+
+            this.class.remove('noHeader');
+
+            var self = this;
+
+            // folding
+            this.headerElement.addEventListener('click', function() {
+                if (! self.foldable) return;
+                self.folded = ! self.folded;
+            }, false);
+        } else if (! value && this.headerElement) {
+            this.headerElement.parentNode.removeChild(this.headerElement);
+            this.headerElement = null;
             this.class.add('noHeader');
         } else {
+            this.headerElement.textContent = value || '';
             this.class.remove('noHeader');
         }
     }

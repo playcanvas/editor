@@ -540,6 +540,31 @@ a:visited {
     }
 }
 
+// placeholder
+.ui-label[placeholder] {
+    position: relative;
+
+    &:after {
+        content: attr(placeholder);
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 0 8px;
+        line-height: 24px;
+        font-size: 12px;
+        font-weight: 100;
+        font-family: Helvetica;
+        white-space: nowrap;
+        color: #999;
+        background-color: rgba(0, 0, 0, .7);
+    }
+    &:hover,
+    &.focus {
+        &:after {
+            content: none;
+        }
+    }
+}
 
 .ui-number-field {
     display: inline-block;
@@ -554,8 +579,6 @@ a:visited {
         opacity: .5;
     }
     > input.field {
-        // width: 90%;
-        // padding: 0 5%;
         width: calc(100% - 16px);
         padding: 0 8px;
         line-height: 24px;
@@ -596,32 +619,60 @@ a:visited {
             content: none;
         }
     }
-    > input.field {
-        // position: relative;
-    }
 }
 
-
 .ui-text-field {
+    display: inline-block;
     border: 1px solid #666;
-    width: 112px;
-    padding: 0 8px;
-    line-height: 24px;
+    width: 128px;
+    height: 24px;
     margin: 4px;
     background-color: #000;
-    color: #fff;
     vertical-align: top;
 
     &.disabled {
         opacity: .5;
     }
+    > input.field {
+        width: calc(100% - 16px);
+        padding: 0 8px;
+        line-height: 24px;
+        color: #fff;
+        background: transparent;
+        border: none;
+    }
 }
 
-.ui-text-field.active,
-.ui-text-field:focus {
+.ui-text-field.active > input.field,
+.ui-text-field > input.field:focus {
     outline: none;
     border-color: #7f7;
     box-shadow: 0 0 4px #7f7;
+}
+
+// placeholder
+.ui-text-field[placeholder] {
+    position: relative;
+
+    &:after {
+        content: attr(placeholder);
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 0 8px;
+        line-height: 24px;
+        font-size: 12px;
+        font-weight: 100;
+        white-space: nowrap;
+        color: #999;
+        background-color: rgba(0, 0, 0, .7);
+    }
+    &:hover,
+    &.focus {
+        &:after {
+            content: none;
+        }
+    }
 }
 
 .ui-button {
@@ -673,15 +724,37 @@ a:visited {
     font-size: 12px;
     cursor: pointer;
 
+    &:after {
+        content: '\00a0';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 16px;
+        height: 16px;
+        margin: 4px;
+        background-color: #07f;
+    }
+    &:hover {
+        &:after {
+            content: none;
+        }
+    }
     &.disabled {
         opacity: .5;
         cursor: default;
+
+        &:after {
+            content: none;
+        }
     }
     &.active {
         > ul {
             z-index: 1;
             position: fixed;
             display: block;
+        }
+        &:after {
+            content: none;
         }
     }
     > .value {

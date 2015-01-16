@@ -1,11 +1,6 @@
 editor.once('load', function() {
     'use strict';
 
-    var projections = {
-        0: 'Perspective',
-        1: 'Orthographic'
-    };
-
     editor.on('attributes:inspect[entity]', function(entities) {
         if (entities.length !== 1)
             return;
@@ -50,7 +45,7 @@ editor.once('load', function() {
             fieldEnabled.destroy();
         });
 
-        // camera.clear
+        // clear
         var panelClear = new ui.Panel();
         editor.call('attributes:addField', {
             parent: panel,
@@ -59,64 +54,80 @@ editor.once('load', function() {
             element: panelClear
         });
 
-        // camera.clearColorBuffer
+        // clearColorBuffer
         var fieldClearColorBuffer = new ui.Checkbox();
         fieldClearColorBuffer.link(entity, 'components.camera.clearColorBuffer');
         panelClear.append(fieldClearColorBuffer);
         // label
-        var label = new ui.Label('Color');
+        var label = new ui.Label({ text: 'Color' });
         label.style.verticalAlign = 'top';
         label.style.paddingRight = '12px';
         label.style.fontSize = '12px';
         label.style.lineHeight = '26px';
         panelClear.append(label);
 
-        // camera.clearDepthBuffer
+        // clearDepthBuffer
         var fieldClearDepthBuffer = new ui.Checkbox();
         fieldClearDepthBuffer.link(entity, 'components.camera.clearDepthBuffer');
         panelClear.append(fieldClearDepthBuffer);
         // label
-        var label = new ui.Label('Depth');
+        var label = new ui.Label({ text: 'Depth' });
         label.style.verticalAlign = 'top';
         label.style.fontSize = '12px';
         label.style.lineHeight = '26px';
         panelClear.append(label);
 
         // camera.clearColor
-        editor.call('attributes:addField', {
+        var fieldClearColor = editor.call('attributes:addField', {
             parent: panel,
             name: 'Clear Color',
             type: 'rgb', // TODO rgba
             link: entity,
             path: 'components.camera.clearColor'
         });
+        fieldClearColor.parent.hidden = ! entity.get('components.camera.clearColorBuffer');
+        fieldClearColorBuffer.on('change', function(value) {
+            fieldClearColor.parent.hidden = ! value;
+        });
 
         // camera.projection
-        editor.call('attributes:addField', {
+        var fieldProjection = editor.call('attributes:addField', {
             parent: panel,
             name: 'Projection',
             type: 'number',
-            enum: projections,
+            enum: {
+                0: 'Perspective',
+                1: 'Orthographic'
+            },
             link: entity,
             path: 'components.camera.projection'
         });
 
         // camera.fov
-        editor.call('attributes:addField', {
+        var fieldFov = editor.call('attributes:addField', {
             parent: panel,
             name: 'Field of View',
+            placeholder: '\u00B0',
             type: 'number',
             link: entity,
             path: 'components.camera.fov'
         });
+        fieldFov.parent.hidden = entity.get('components.camera.projection') !== 0;
+        fieldProjection.on('change', function(value) {
+            fieldFov.parent.hidden = value !== 0;
+        });
 
         // camera.orthoHeight
-        editor.call('attributes:addField', {
+        var fieldOrthoHeight = editor.call('attributes:addField', {
             parent: panel,
             name: 'Ortho Height',
             type: 'number',
             link: entity,
             path: 'components.camera.orthoHeight'
+        });
+        fieldOrthoHeight.parent.hidden = entity.get('components.camera.projection') !== 1;
+        fieldProjection.on('change', function(value) {
+            fieldOrthoHeight.parent.hidden = value !== 1;
         });
 
         // camera near/far clip
@@ -156,13 +167,10 @@ editor.once('load', function() {
         var fieldViewport = editor.call('attributes:addField', {
             parent: panel,
             name: 'Viewport',
+            placeholder: [ 'X', 'Y', 'W', 'H' ],
             type: 'vec4',
             link: entity,
             path: 'components.camera.rect'
         });
-        fieldViewport[0].placeholder = 'X';
-        fieldViewport[1].placeholder = 'Y';
-        fieldViewport[2].placeholder = 'W';
-        fieldViewport[3].placeholder = 'H';
     });
 });

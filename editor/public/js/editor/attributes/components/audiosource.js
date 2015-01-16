@@ -84,7 +84,7 @@ editor.once('load', function() {
         var fieldActivate = new ui.Checkbox();
         fieldActivate.link(entity, 'components.audiosource.activate');
         panelPlayback.append(fieldActivate);
-        var label = new ui.Label('Activate');
+        var label = new ui.Label({ text: 'Activate' });
         label.style.verticalAlign = 'top';
         label.style.fontSize = '12px';
         label.style.lineHeight = '26px';
@@ -94,7 +94,7 @@ editor.once('load', function() {
         var fieldLoop = new ui.Checkbox();
         fieldLoop.link(entity, 'components.audiosource.loop');
         panelPlayback.append(fieldLoop);
-        var label = new ui.Label('Loop');
+        var label = new ui.Label({ text: 'Loop' });
         label.style.verticalAlign = 'top';
         label.style.fontSize = '12px';
         label.style.lineHeight = '26px';
@@ -104,7 +104,7 @@ editor.once('load', function() {
         var fieldLoop = new ui.Checkbox();
         fieldLoop.link(entity, 'components.audiosource.3d');
         panelPlayback.append(fieldLoop);
-        var label = new ui.Label('3D');
+        var label = new ui.Label({ text: '3D' });
         label.style.verticalAlign = 'top';
         label.style.fontSize = '12px';
         label.style.lineHeight = '26px';

@@ -62,7 +62,7 @@ editor.once('load', function() {
         (args.parent || root).append(panel);
 
         if (args.name) {
-            var label = new ui.Label(args.name);
+            var label = new ui.Label({ text: args.name });
             label.flexShrink = 0;
             label.style.width = '78px';
             // label.style.textAlign = 'right';
@@ -93,6 +93,8 @@ editor.once('load', function() {
                 var field = new ui.TextField();
                 field.value = args.value || '';
                 field.flexGrow = 1;
+                if (args.placeholder)
+                    field.placeholder = args.placeholder;
 
                 if (args.link)
                     field.link(args.link, args.path);
@@ -161,6 +163,12 @@ editor.once('load', function() {
                 field2.value = (args.value && args.value[2]) || 0;
                 panel.append(field2);
 
+                if (args.placeholder) {
+                    field0.placeholder = args.placeholder[0];
+                    field1.placeholder = args.placeholder[1];
+                    field2.placeholder = args.placeholder[2];
+                }
+
                 if (args.link) {
                     field0.link(args.link, args.path + '.0');
                     field1.link(args.link, args.path + '.1');
@@ -192,6 +200,13 @@ editor.once('load', function() {
                 field3.style.width = '24px';
                 field3.value = (args.value && args.value[3]) || 0;
                 panel.append(field3);
+
+                if (args.placeholder) {
+                    field0.placeholder = args.placeholder[0];
+                    field1.placeholder = args.placeholder[1];
+                    field2.placeholder = args.placeholder[2];
+                    field3.placeholder = args.placeholder[3];
+                }
 
                 if (args.link) {
                     field0.link(args.link, args.path + '.0');
@@ -293,6 +308,8 @@ editor.once('load', function() {
                 var field = new ui.Label();
                 field.flexGrow = 1;
                 field.text = args.value || '';
+                if (args.placeholder)
+                    field.placeholder = args.placeholder;
 
                 if (args.link)
                     field.link(args.link, args.path);
@@ -314,7 +331,7 @@ editor.once('load', function() {
 
         // nothing selected
         if (items.length === 0) {
-            var label = new ui.Label('Select anything to Inspect');
+            var label = new ui.Label({ text: 'Select anything to Inspect' });
             label.style.display = 'block';
             label.style.textAlign = 'center';
             root.append(label);

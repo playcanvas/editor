@@ -33,35 +33,29 @@ editor.once('load', function() {
         // position
         var fieldPosition = editor.call('attributes:addField', {
             name: 'Position',
+            placeholder: [ 'X', 'Y', 'Z' ],
             type: 'vec3',
             link: entity,
             path: 'position'
         });
-        fieldPosition[0].placeholder = 'X';
-        fieldPosition[1].placeholder = 'Y';
-        fieldPosition[2].placeholder = 'Z';
 
         // rotation
         var fieldRotation = editor.call('attributes:addField', {
             name: 'Rotation',
+            placeholder: [ 'X', 'Y', 'Z' ],
             type: 'vec3',
             link: entity,
             path: 'rotation'
         });
-        fieldRotation[0].placeholder = 'X';
-        fieldRotation[1].placeholder = 'Y';
-        fieldRotation[2].placeholder = 'Z';
 
         // scale
         var fieldScale = editor.call('attributes:addField', {
             name: 'Scale',
+            placeholder: [ 'X', 'Y', 'Z' ],
             type: 'vec3',
             link: entity,
             path: 'scale'
         });
-        fieldScale[0].placeholder = 'X';
-        fieldScale[1].placeholder = 'Y';
-        fieldScale[2].placeholder = 'Z';
 
 
         // components

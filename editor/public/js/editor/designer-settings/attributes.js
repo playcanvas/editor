@@ -20,7 +20,6 @@ editor.once('load', function() {
         label.destroy();
 
         var fieldNearClip = new ui.NumberField();
-        fieldNearClip.renderChanges = true;
         fieldNearClip.placeholder = 'Divisions';
         fieldNearClip.style.width = '32px';
         fieldNearClip.flexGrow = 1;
@@ -28,7 +27,6 @@ editor.once('load', function() {
         panelClip.append(fieldNearClip);
 
         var fieldFarClip = new ui.NumberField();
-        fieldFarClip.renderChanges = true;
         fieldFarClip.placeholder = 'Size';
         fieldFarClip.style.width = '32px';
         fieldFarClip.flexGrow = 1;
@@ -47,7 +45,7 @@ editor.once('load', function() {
         });
 
 
-        // camera near/far clip
+        // camera clip
         var panelClip = editor.call('attributes:addField', {
             parent: panel,
             name: 'Camera Clip'
@@ -58,7 +56,6 @@ editor.once('load', function() {
         label.destroy();
 
         var fieldNearClip = new ui.NumberField();
-        fieldNearClip.renderChanges = true;
         fieldNearClip.placeholder = 'Near';
         fieldNearClip.style.width = '32px';
         fieldNearClip.flexGrow = 1;
@@ -66,7 +63,6 @@ editor.once('load', function() {
         panelClip.append(fieldNearClip);
 
         var fieldFarClip = new ui.NumberField();
-        fieldFarClip.renderChanges = true;
         fieldFarClip.placeholder = 'Far';
         fieldFarClip.style.width = '32px';
         fieldFarClip.flexGrow = 1;
@@ -78,13 +74,10 @@ editor.once('load', function() {
         var fieldClearColor = editor.call('attributes:addField', {
             parent: panel,
             name: 'Clear Color',
+            placeholder: [ 'R', 'G', 'B', 'A' ],
             type: 'vec4',
             link: designerSettings,
             path: 'camera_clear_color'
         });
-        fieldClearColor[0].placeholder = 'R';
-        fieldClearColor[1].placeholder = 'G';
-        fieldClearColor[2].placeholder = 'B';
-        fieldClearColor[3].placeholder = 'A';
     });
 });
