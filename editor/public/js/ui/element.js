@@ -136,19 +136,28 @@ Object.defineProperty(Element.prototype, 'parent', {
         return this._parent;
     },
     set: function(value) {
-        if (this._parent || ! value)
-            return;
+        // if (! value)
+            // return;
 
-        this._parent = value;
-        this._parent.once('destroy', this._parentDestroy);
+        if (this._parent) {
+            this._parent = null;
+            this._evtParentDestroy.unbind();
+            this._evtParentDisable.unbind();
+            this._evtParentEnable.unbind();
+        }
 
-        this._parent.on('disable', this._parentDisable);
-        this._parent.on('enable', this._parentEnable);
+        if (value) {
+            this._parent = value;
+            this._evtParentDestroy = this._parent.once('destroy', this._parentDestroy);
 
-        this._disabledParent = this._parent.disabled;
-        if (this._disabledParent) {
-            this.class.add('disabled');
-            this.emit('disable');
+            this._evtParentDisable = this._parent.on('disable', this._parentDisable);
+            this._evtParentEnable = this._parent.on('enable', this._parentEnable);
+
+            this._disabledParent = this._parent.disabled;
+            if (this._disabledParent) {
+                this.class.add('disabled');
+                this.emit('disable');
+            }
         }
 
         this.emit('parent');

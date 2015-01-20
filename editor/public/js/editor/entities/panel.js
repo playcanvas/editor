@@ -20,6 +20,12 @@ editor.once('load', function() {
     });
 
 
+    // reparenting
+    hierarchy.on('reparent', function(item, oldParent) {
+        console.log('reparent', item.entity.resource_id, 'from', oldParent.entity.resource_id, 'to', item.parent.entity.resource_id);
+    });
+
+
     // selector add
     editor.on('selector:add', function(entity, type) {
         if (type !== 'entity')

@@ -81,6 +81,18 @@ a:visited {
     }
 }
 
+.ui-tree {
+    &.dragging {
+        > .drag-handle {
+            &.before,
+            &.inside,
+            &.after {
+                border-color: $text-active;
+            }
+        }
+    }
+}
+
 .ui-tree-item {
     $line-color: $bcg-light;
 
@@ -98,6 +110,7 @@ a:visited {
     }
     > .title {
         &:hover {
+            color: $text-active;
             border-color: transparent;
             background-color: mix($bcg-primary, $bcg-dark, 50%);
         }
@@ -115,7 +128,13 @@ a:visited {
     &.selected {
         > .title {
             background-color: $bcg-dark;
-            color: $text-light;
+            color: $text-active;
+        }
+    }
+    &.dragged {
+        > .title {
+            background-color: $bcg-dark;
+            color: $text-active;
         }
     }
     // line-top

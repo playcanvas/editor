@@ -4,13 +4,14 @@ function TreeItem(args) {
     ui.Element.call(this);
     args = args || { };
 
-    this._tree = null;
+    this.tree = null;
 
     this.element = document.createElement('div');
     this.element.classList.add('ui-tree-item');
 
     this.elementTitle = document.createElement('div');
     this.elementTitle.classList.add('title');
+    this.elementTitle.draggable = true;
     this.element.appendChild(this.elementTitle);
 
     this.elementIcon = document.createElement('span');
@@ -27,30 +28,58 @@ function TreeItem(args) {
     this._onClickEvt = this._onClick.bind(this);
     this.elementTitle.addEventListener('click', this._onClickEvt, false);
 
+    this._dragRelease = null;
+    this._dragging = false;
+    this.elementTitle.addEventListener('dragstart', this._onDragStart.bind(this), false);
+    // this.element.addEventListener('dragenter', this._onDragEnter.bind(this), false);
+    this.elementTitle.addEventListener('mouseover', this._onMouseOver.bind(this), false);
+    // this.element.addEventListener('dragend', this._onDragEnd.bind(this), false);
+    // this.element.addEventListener('mouseup', this._onMouseUp.bind(this), false);
+
     this.on('destroy', this._onDestroy);
     this.on('append', this._onAppend);
+    this.on('remove', this._onRemove);
 }
 TreeItem.prototype = Object.create(ui.Element.prototype);
 
 
-TreeItem.prototype.append = function(item) {
-    this.element.appendChild(item.element);
-    this._children++;
-    item.tree = this.tree;
+TreeItem.prototype.reparent = function(parent) {
+    if (this.parent)
+        this.parent.remove(this);
 
-    if (this._children === 1) {
-        item.class.add('single');
-        this.class.add('container');
-    } else if (this._children === 2) {
-        this.element.childNodes[1].classList.remove('single');
-    }
-
-    this.emit('append', item);
+    parent.append(this);
 };
 
 
-TreeItem.prototype.appendBefore = function(item, reference) {
-    this.element.insertBefore(item.element, reference);
+TreeItem.prototype.append = function(item) {
+    item.parent = this;
+    this.element.appendChild(item.element);
+    this._children++;
+    // item.tree = this.tree;
+
+    if (this._children === 1) {
+        item.class.add('single');
+        this.class.add('container');
+    } else if (this._children === 2) {
+        this.element.childNodes[1].classList.remove('single');
+    }
+
+    var appendChildren = function(treeItem) {
+        treeItem.emit('append', treeItem);
+
+        if (treeItem._children) {
+            for(var i = 1; i < treeItem.element.childNodes.length; i++) {
+                appendChildren(treeItem.element.childNodes[i].ui);
+            }
+        }
+    };
+    appendChildren(item);
+};
+
+
+TreeItem.prototype.appendBefore = function(item, referenceItem) {
+    item.parent = this;
+    this.element.insertBefore(item.element, referenceItem.element);
     this._children++;
 
     if (this._children === 1) {
@@ -59,6 +88,48 @@ TreeItem.prototype.appendBefore = function(item, reference) {
     } else if (this._children === 2) {
         this.element.childNodes[1].classList.remove('single');
     }
+
+    var appendChildren = function(treeItem) {
+        treeItem.emit('append', treeItem);
+
+        if (treeItem._children) {
+            for(var i = 1; i < treeItem.element.childNodes.length; i++) {
+                appendChildren(treeItem.element.childNodes[i].ui);
+            }
+        }
+    };
+    appendChildren(item);
+};
+
+
+TreeItem.prototype.appendAfter = function(item, referenceItem) {
+    item.parent = this;
+    referenceItem = referenceItem.element.nextSibling;
+
+    // might be last
+    if (! referenceItem)
+        this.append(item);
+
+    this.element.insertBefore(item.element, referenceItem);
+    this._children++;
+
+    if (this._children === 1) {
+        item.class.add('single');
+        this.class.add('container');
+    } else if (this._children === 2) {
+        this.element.childNodes[1].classList.remove('single');
+    }
+
+    var appendChildren = function(treeItem) {
+        treeItem.emit('append', treeItem);
+
+        if (treeItem._children) {
+            for(var i = 1; i < treeItem.element.childNodes.length; i++) {
+                appendChildren(treeItem.element.childNodes[i].ui);
+            }
+        }
+    };
+    appendChildren(item);
 };
 
 
@@ -74,6 +145,17 @@ TreeItem.prototype.remove = function(item) {
     } else if (this._children === 1) {
         this.element.childNodes[1].classList.add('single');
     }
+
+    var removeChildren = function(treeItem) {
+        treeItem.emit('remove', treeItem);
+
+        if (treeItem._children) {
+            for(var i = 1; i < treeItem.element.childNodes.length; i++) {
+                removeChildren(treeItem.element.childNodes[i].ui);
+            }
+        }
+    };
+    removeChildren(item);
 };
 
 
@@ -85,6 +167,12 @@ TreeItem.prototype._onDestroy = function() {
 TreeItem.prototype._onAppend = function(item) {
     if (this.parent)
         this.parent.emit('append', item);
+};
+
+
+TreeItem.prototype._onRemove = function(item) {
+    if (this.parent)
+        this.parent.emit('remove', item);
 };
 
 
@@ -100,6 +188,40 @@ TreeItem.prototype._onClick = function(evt) {
         this.selected = ! this.selected;
         evt.stopPropagation();
     }
+};
+
+
+TreeItem.prototype._onDragStart = function(evt) {
+    this._dragging = true;
+
+    if (this._dragRelease)
+        window.removeEventListener('mouseup', this._dragRelease);
+
+    this._dragRelease = this._onMouseUp.bind(this);
+    window.addEventListener('mouseup', this._dragRelease, false);
+
+    evt.stopPropagation();
+    evt.preventDefault();
+
+    this.emit('dragstart');
+};
+
+
+TreeItem.prototype._onMouseOver = function(evt) {
+    evt.stopPropagation();
+
+    this.emit('mouseover', evt);
+};
+
+TreeItem.prototype._onMouseUp = function(evt) {
+    window.removeEventListener('mouseup', this._dragRelease);
+    this._dragRelease = null;
+
+    evt.preventDefault();
+    evt.stopPropagation();
+
+    this._dragging = false;
+    this.emit('dragend');
 };
 
 
@@ -129,23 +251,23 @@ Object.defineProperty(TreeItem.prototype, 'selected', {
 });
 
 
-Object.defineProperty(TreeItem.prototype, 'tree', {
-    get: function() {
-        return this._tree;
-    },
-    set: function(value) {
-        if (this._tree === value)
-            return;
+// Object.defineProperty(TreeItem.prototype, 'tree', {
+//     get: function() {
+//         return this._tree;
+//     },
+//     set: function(value) {
+//         if (this._tree)
+//             return;
 
-        this._tree = value;
+//         this._tree = value;
 
-        if (this._children) {
-            for(var i = 1; i < this.element.childNodes.length; i++) {
-                this.element.childNodes[i].ui.tree = this._tree;
-            }
-        }
-    }
-});
+//         // if (this._children) {
+//         //     for(var i = 1; i < this.element.childNodes.length; i++) {
+//         //         this.element.childNodes[i].ui.tree = this._tree;
+//         //     }
+//         // }
+//     }
+// });
 
 
 Object.defineProperty(TreeItem.prototype, 'text', {

@@ -354,7 +354,42 @@ a:visited {
     // padding-top: 2px;
     padding: 2px;
     overflow: visible;
+    font-size: 12px;
+    font-family: 'Lucida Grande';
 
+    > .drag-handle {
+        display: none;
+    }
+    &.dragging {
+        > .drag-handle {
+            display: block;
+            position: fixed;
+            width: 32px;
+            height: 20px;
+            top: 0;
+            bottom: 0;
+            z-index: 4;
+            margin-top: -1px;
+            margin-left: -1px;
+
+            &.hidden {
+                visibility: hidden;
+            }
+            &.before {
+                border-top: 4px solid #f60;
+                padding-right: 8px;
+                height: 24px;
+            }
+            &.inside {
+                border: 4px solid #f60;
+            }
+            &.after {
+                border-bottom: 4px solid #f60;
+                padding-right: 8px;
+                height: 24px;
+            }
+        }
+    }
     > .ui-tree-item {
         display: block;
         padding-left: 0;
@@ -493,7 +528,29 @@ a:visited {
     }
     &.selected {
         > .title {
+            background-color: #f70;
+        }
+    }
+    &.dragged {
+        &:hover {
+            > .title {
+                > .icon:before {
+                    content: '\00a0';
+                }
+                > .text {
+                    opacity: 1;
+                }
+            }
+        }
+        > .title {
             background-color: #07f;
+
+            > .icon:before {
+                opacity: 0.5;
+            }
+            > .text {
+                opacity: 0.5;
+            }
         }
     }
 

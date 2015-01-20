@@ -96,8 +96,8 @@ editor.once('load', function() {
             name: 'Projection',
             type: 'number',
             enum: {
-                0: 'Perspective',
-                1: 'Orthographic'
+                0: 'Perspective', // pc.PROJECTION_PERSPECTIVE
+                1: 'Orthographic' // pc.PROJECTION_ORTHOGRAPHIC
             },
             link: entity,
             path: 'components.camera.projection'
