@@ -80,7 +80,8 @@ editor.once('load', function() {
                 var link = document.createElement('a');
                 link.textContent = items.get(i).url;
                 link.target = '_blank';
-                link.href = '/' + config.owner.username + '/' + config.project.name + '/editor/' + items.get(i).url;
+                // link.href = '/' + config.owner.username + '/' + config.project.name + '/editor/' + items.get(i).url;
+                link.href = '#';
                 script.headerElement.textContent = '';
                 script.headerElement.appendChild(link);
 

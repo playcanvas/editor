@@ -31,7 +31,7 @@ editor.on('load', function() {
 
     editor.on('start', function() {
         Ajax({
-            url: '{{url.api}}/{{owner.username}}/{{project.name}}/packs/{{pack.resource_id}}',
+            url: '{{url.api}}/scenes/{{scene.id}}',
             query: {
                 access_token: '{{accessToken}}',
                 flat: 1

@@ -8,11 +8,11 @@ editor.once('load', function() {
         return sceneSettings;
     });
 
-    var loaded = function (pack) {
+    var loaded = function (scene) {
         sceneSettings.sync = false;
         sceneSettings.history = false;
 
-        sceneSettings.patch(pack.settings);
+        sceneSettings.patch(scene.settings);
 
         sceneSettings.history = true;
         sceneSettings.sync = true;
@@ -24,13 +24,13 @@ editor.once('load', function() {
             }
 
             var data = {
-                application_data: pack.application_data,
-                resource_id: pack.resource_id,
+                application_data: scene.application_data,
+                resource_id: scene.resource_id,
                 settings: this.json()
             };
 
             Ajax({
-                url: '{{url.api}}/{{owner.username}}/{{project.name}}/packs/{{pack.resource_id}}',
+                url: '{{url.api}}/scenes/{{scene.id}}',
                 method: 'PUT',
                 query: {
                     access_token: '{{accessToken}}'
@@ -43,10 +43,10 @@ editor.once('load', function() {
         });
     };
 
-    // load pack
+    // load scene
     editor.on('start', function() {
         Ajax({
-            url: '{{url.api}}/{{owner.username}}/{{project.name}}/packs/{{pack.resource_id}}',
+            url: '{{url.api}}/scenes/{{scene.id}}',
             query: {
                 access_token: '{{accessToken}}',
                 flat: 1

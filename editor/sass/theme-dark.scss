@@ -129,6 +129,7 @@ a:visited {
         > .title {
             background-color: $bcg-dark;
             color: $text-active;
+            border-color: $text-active;
         }
     }
     &.dragged {
@@ -182,10 +183,13 @@ a:visited {
         background-color: #07f;
     }
     &:hover {
+        color: $text-active;
         background-color: mix($bcg-primary, $bcg-dark, 50%);
     }
     &.selected {
+        color: $text-active;
         background-color: $bcg-dark;
+        outline: 1px solid $text-active;
     }
 }
 

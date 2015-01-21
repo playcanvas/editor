@@ -27,7 +27,7 @@ editor.once('load', function() {
             return;
 
         Ajax({
-            url: '{{url.api}}/{{owner.username}}/{{project.name}}/packs/{{pack.resource_id}}/designer_settings/{{self.username}}',
+            url: '{{url.api}}/scenes/{{scene.id}}/designer_settings/{{self.id}}',
             method: 'PUT',
             query: {
                 access_token: '{{accessToken}}'
@@ -45,7 +45,7 @@ editor.once('load', function() {
     // load designer settings
     editor.once('start', function() {
         Ajax
-        .get('{{url.api}}/{{owner.username}}/{{project.name}}/packs/{{pack.resource_id}}/designer_settings/{{self.username}}?access_token={{accessToken}}')
+        .get('{{url.api}}/scenes/{{scene.id}}/designer_settings/{{self.id}}?access_token={{accessToken}}')
         .on('load', function(status, data) {
             designerSettings.history = false;
 
