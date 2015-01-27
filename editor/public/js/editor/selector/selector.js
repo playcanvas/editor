@@ -72,7 +72,7 @@ editor.once('load', function() {
 
 
     // selecting item (toggle)
-    editor.hook('selector:toggle', function(type, item) {
+    editor.method('selector:toggle', function(type, item) {
         if (selector.length && selector.type !== type) {
             selector.clear();
         }
@@ -87,7 +87,7 @@ editor.once('load', function() {
 
 
     // selecting list of items
-    editor.hook('selector:set', function(type, items) {
+    editor.method('selector:set', function(type, items) {
         if (! type || ! items.length) {
             selector.clear();
             return;
@@ -113,7 +113,7 @@ editor.once('load', function() {
 
 
     // selecting item
-    editor.hook('selector:add', function(type, item) {
+    editor.method('selector:add', function(type, item) {
         if (selector.has(item))
             return;
 
@@ -126,7 +126,7 @@ editor.once('load', function() {
 
 
     // deselecting item
-    editor.hook('selector:remove', function(item) {
+    editor.method('selector:remove', function(item) {
         if (! selector.has(item))
             return;
 
@@ -135,31 +135,31 @@ editor.once('load', function() {
 
 
     // deselecting
-    editor.hook('selector:clear', function(item) {
+    editor.method('selector:clear', function(item) {
         selector.clear();
     });
 
 
     // return select type
-    editor.hook('selector:type', function() {
+    editor.method('selector:type', function() {
         return selector.type;
     });
 
 
     // return selected count
-    editor.hook('selector:count', function() {
+    editor.method('selector:count', function() {
         return selector.length;
     });
 
 
     // return selected items
-    editor.hook('selector:items', function() {
+    editor.method('selector:items', function() {
         return selector.array();
     });
 
 
     // return if it has item
-    editor.hook('selector:has', function(item) {
+    editor.method('selector:has', function(item) {
         return selector.has(item);
     });
 });

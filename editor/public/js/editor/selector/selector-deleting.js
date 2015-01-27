@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    editor.hook('selector:delete', function() {
+    editor.method('selector:delete', function() {
         var type = editor.call('selector:type');
         var items = editor.call('selector:items');
 

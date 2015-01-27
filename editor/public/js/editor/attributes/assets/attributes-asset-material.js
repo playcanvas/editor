@@ -223,7 +223,7 @@ editor.once('load', function() {
         },
     };
 
-    editor.hook('material:listToMap', function(data) {
+    editor.method('material:listToMap', function(data) {
         var obj = {
             model: data.shader
         };
@@ -241,7 +241,7 @@ editor.once('load', function() {
         return obj;
     });
 
-    editor.hook('material:mapToList', function(data) {
+    editor.method('material:mapToList', function(data) {
         var obj = {
             name: data.name,
             shader: data.data.model,
@@ -266,14 +266,14 @@ editor.once('load', function() {
         var asset = assets[0];
 
         // properties panel
-        var paramsPanel = editor.call('attributes:addPanel', {
+        var panelParams = editor.call('attributes:addPanel', {
             name: 'Material Properties'
         });
 
 
         // model
         var fieldModel = editor.call('attributes:addField', {
-            parent: paramsPanel,
+            parent: panelParams,
             type: 'string',
             enum: {
                 'phong': 'Phong',
@@ -287,8 +287,8 @@ editor.once('load', function() {
 
 
         // ambient
-        var ambientPanel = editor.call('attributes:addPanel', {
-            parent: paramsPanel,
+        var panelAmbiend = editor.call('attributes:addPanel', {
+            parent: panelParams,
             foldable: true,
             folded: ! asset.get('data.aoMap'),
             name: 'Ambient'
@@ -296,7 +296,7 @@ editor.once('load', function() {
 
         // tint
         var fieldAmbientTint = editor.call('attributes:addField', {
-            parent: ambientPanel,
+            parent: panelAmbiend,
             type: 'checkbox',
             name: 'Tint',
             link: asset,
@@ -309,7 +309,7 @@ editor.once('load', function() {
 
         // color
         var fieldAmbientColor = editor.call('attributes:addField', {
-            parent: ambientPanel,
+            parent: panelAmbiend,
             type: 'rgb',
             name: 'Color',
             link: asset,
@@ -319,7 +319,7 @@ editor.once('load', function() {
 
         // map
         var fieldAmbientMap = editor.call('attributes:addField', {
-            parent: ambientPanel,
+            parent: panelAmbiend,
             type: 'number',
             name: 'Texture',
             link: asset,
@@ -328,7 +328,7 @@ editor.once('load', function() {
 
         // color
         var fieldAmbientUVSet = editor.call('attributes:addField', {
-            parent: ambientPanel,
+            parent: panelAmbiend,
             type: 'number',
             name: 'UV Set',
             link: asset,
@@ -337,16 +337,16 @@ editor.once('load', function() {
         fieldAmbientUVSet.parent.hidden = ! fieldAmbientMap.value;
 
         // unfold panel
-        fieldAmbientTint.on('change', function() { ambientPanel.folded = false; });
-        fieldAmbientColor.on('change', function() { ambientPanel.folded = false; });
-        fieldAmbientMap.on('change', function() { ambientPanel.folded = false; });
-        fieldAmbientUVSet.on('change', function() { ambientPanel.folded = false; });
+        fieldAmbientTint.on('change', function() { panelAmbiend.folded = false; });
+        fieldAmbientColor.on('change', function() { panelAmbiend.folded = false; });
+        fieldAmbientMap.on('change', function() { panelAmbiend.folded = false; });
+        fieldAmbientUVSet.on('change', function() { panelAmbiend.folded = false; });
 
 
 
         // diffuse
-        var diffusePanel = editor.call('attributes:addPanel', {
-            parent: paramsPanel,
+        var panelDiffuse = editor.call('attributes:addPanel', {
+            parent: panelParams,
             foldable: true,
             folded: ! asset.get('data.diffuseMap'),
             name: 'Diffuse'
@@ -354,7 +354,7 @@ editor.once('load', function() {
 
         // map
         var fieldDiffuseMap = editor.call('attributes:addField', {
-            parent: diffusePanel,
+            parent: panelDiffuse,
             type: 'number',
             name: 'Texture',
             link: asset,
@@ -371,7 +371,7 @@ editor.once('load', function() {
 
         // // offset
         // var fieldDiffuseOffset = editor.call('attributes:addField', {
-        //     parent: diffusePanel,
+        //     parent: panelDiffuse,
         //     type: 'vec2',
         //     name: 'Offset',
         //     link: asset,
@@ -381,7 +381,7 @@ editor.once('load', function() {
 
         // // tiling
         // var fieldDiffuseTiling = editor.call('attributes:addField', {
-        //     parent: diffusePanel,
+        //     parent: panelDiffuse,
         //     type: 'vec2',
         //     name: 'Tiling',
         //     link: asset,
@@ -391,7 +391,7 @@ editor.once('load', function() {
 
         // tint
         var fieldDiffuseTint = editor.call('attributes:addField', {
-            parent: diffusePanel,
+            parent: panelDiffuse,
             type: 'checkbox',
             name: 'Tint',
             link: asset,
@@ -406,7 +406,7 @@ editor.once('load', function() {
 
         // color
         var fieldDiffuseColor = editor.call('attributes:addField', {
-            parent: diffusePanel,
+            parent: panelDiffuse,
             type: 'rgb',
             name: 'Color',
             link: asset,
@@ -416,23 +416,23 @@ editor.once('load', function() {
         fieldDiffuseColor.parent.hidden = ! (fieldDiffuseTint.value || ! fieldDiffuseMap.value);
 
         // unfold panel
-        fieldDiffuseMap.on('change', function() { diffusePanel.folded = false; });
-        fieldDiffuseTint.on('change', function() { diffusePanel.folded = false; });
-        fieldDiffuseColor.on('change', function() { diffusePanel.folded = false; });
+        fieldDiffuseMap.on('change', function() { panelDiffuse.folded = false; });
+        fieldDiffuseTint.on('change', function() { panelDiffuse.folded = false; });
+        fieldDiffuseColor.on('change', function() { panelDiffuse.folded = false; });
 
 
 
         // specular
-        var specularPanel = editor.call('attributes:addPanel', {
-            parent: paramsPanel,
+        var panelSpecular = editor.call('attributes:addPanel', {
+            parent: panelParams,
             foldable: true,
-            folded: ! asset.get('data.specularMap') || ! asset.get('data.glossMap'),
+            folded: ! asset.get('data.specularMap') && ! asset.get('data.glossMap'),
             name: 'Specular'
         });
 
         // map
         var fieldSpecularMap = editor.call('attributes:addField', {
-            parent: specularPanel,
+            parent: panelSpecular,
             type: 'number',
             name: 'Specular',
             link: asset,
@@ -449,7 +449,7 @@ editor.once('load', function() {
 
         // // offset
         // var fieldSpecularOffset = editor.call('attributes:addField', {
-        //     parent: specularPanel,
+        //     parent: panelSpecular,
         //     type: 'vec2',
         //     name: 'Offset',
         //     link: asset,
@@ -459,7 +459,7 @@ editor.once('load', function() {
 
         // // tiling
         // var fieldSpecularTiling = editor.call('attributes:addField', {
-        //     parent: specularPanel,
+        //     parent: panelSpecular,
         //     type: 'vec2',
         //     name: 'Tiling',
         //     link: asset,
@@ -469,7 +469,7 @@ editor.once('load', function() {
 
         // tint
         var fieldSpecularTint = editor.call('attributes:addField', {
-            parent: specularPanel,
+            parent: panelSpecular,
             type: 'checkbox',
             name: 'Tint',
             link: asset,
@@ -484,7 +484,7 @@ editor.once('load', function() {
 
         // color
         var fieldSpecularColor = editor.call('attributes:addField', {
-            parent: specularPanel,
+            parent: panelSpecular,
             type: 'rgb',
             name: 'Color',
             link: asset,
@@ -495,7 +495,7 @@ editor.once('load', function() {
 
         // shininess
         var fieldShininess = editor.call('attributes:addField', {
-            parent: specularPanel,
+            parent: panelSpecular,
             type: 'number',
             name: 'Shininess',
             link: asset,
@@ -504,7 +504,7 @@ editor.once('load', function() {
 
         // map (gloss)
         var fieldGlossMap = editor.call('attributes:addField', {
-            parent: specularPanel,
+            parent: panelSpecular,
             type: 'number',
             name: 'Glossiness',
             link: asset,
@@ -519,7 +519,7 @@ editor.once('load', function() {
 
         // // offset
         // var fieldGlossOffset = editor.call('attributes:addField', {
-        //     parent: specularPanel,
+        //     parent: panelSpecular,
         //     type: 'vec2',
         //     name: 'Offset',
         //     link: asset,
@@ -529,7 +529,7 @@ editor.once('load', function() {
 
         // // tiling
         // var fieldGlossTiling = editor.call('attributes:addField', {
-        //     parent: specularPanel,
+        //     parent: panelSpecular,
         //     type: 'vec2',
         //     name: 'Tiling',
         //     link: asset,
@@ -539,7 +539,7 @@ editor.once('load', function() {
 
         // conserve energy
         var fieldConserveEnergy = editor.call('attributes:addField', {
-            parent: specularPanel,
+            parent: panelSpecular,
             type: 'checkbox',
             name: 'Conserve Energy',
             link: asset,
@@ -548,18 +548,18 @@ editor.once('load', function() {
         fieldConserveEnergy.parent.innerElement.childNodes[0].style.width = 'auto';
 
         // unfold panel
-        fieldSpecularMap.on('change', function() { specularPanel.folded = false; });
-        fieldSpecularTint.on('change', function() { specularPanel.folded = false; });
-        fieldSpecularColor.on('change', function() { specularPanel.folded = false; });
-        fieldShininess.on('change', function() { specularPanel.folded = false; });
-        fieldGlossMap.on('change', function() { specularPanel.folded = false; });
-        fieldConserveEnergy.on('change', function() { specularPanel.folded = false; });
+        fieldSpecularMap.on('change', function() { panelSpecular.folded = false; });
+        fieldSpecularTint.on('change', function() { panelSpecular.folded = false; });
+        fieldSpecularColor.on('change', function() { panelSpecular.folded = false; });
+        fieldShininess.on('change', function() { panelSpecular.folded = false; });
+        fieldGlossMap.on('change', function() { panelSpecular.folded = false; });
+        fieldConserveEnergy.on('change', function() { panelSpecular.folded = false; });
 
 
 
         // emissive
-        var emissivePanel = editor.call('attributes:addPanel', {
-            parent: paramsPanel,
+        var panelEmissive = editor.call('attributes:addPanel', {
+            parent: panelParams,
             foldable: true,
             folded: ! asset.get('data.emissiveMap'),
             name: 'Emissive'
@@ -567,7 +567,7 @@ editor.once('load', function() {
 
         // map
         var fieldEmissiveMap = editor.call('attributes:addField', {
-            parent: emissivePanel,
+            parent: panelEmissive,
             type: 'number',
             name: 'Texture',
             link: asset,
@@ -584,7 +584,7 @@ editor.once('load', function() {
 
         // // offset
         // var fieldEmissiveOffset = editor.call('attributes:addField', {
-        //     parent: emissivePanel,
+        //     parent: panelEmissive,
         //     type: 'vec2',
         //     name: 'Offset',
         //     link: asset,
@@ -594,7 +594,7 @@ editor.once('load', function() {
 
         // // tiling
         // var fieldEmissiveTiling = editor.call('attributes:addField', {
-        //     parent: emissivePanel,
+        //     parent: panelEmissive,
         //     type: 'vec2',
         //     name: 'Tiling',
         //     link: asset,
@@ -604,7 +604,7 @@ editor.once('load', function() {
 
         // tint
         var fieldEmissiveTint = editor.call('attributes:addField', {
-            parent: emissivePanel,
+            parent: panelEmissive,
             type: 'checkbox',
             name: 'Tint',
             link: asset,
@@ -619,7 +619,7 @@ editor.once('load', function() {
 
         // color
         var fieldEmissiveColor = editor.call('attributes:addField', {
-            parent: emissivePanel,
+            parent: panelEmissive,
             type: 'rgb',
             name: 'Color',
             link: asset,
@@ -630,7 +630,7 @@ editor.once('load', function() {
 
         // intensity
         var fieldEmissiveIntensity = editor.call('attributes:addField', {
-            parent: emissivePanel,
+            parent: panelEmissive,
             type: 'number',
             name: 'Intensity',
             link: asset,
@@ -638,16 +638,16 @@ editor.once('load', function() {
         });
 
         // unfold panel
-        fieldEmissiveMap.on('change', function() { emissivePanel.folded = false; });
-        fieldEmissiveTint.on('change', function() { emissivePanel.folded = false; });
-        fieldEmissiveColor.on('change', function() { emissivePanel.folded = false; });
-        fieldEmissiveIntensity.on('change', function() { emissivePanel.folded = false; });
+        fieldEmissiveMap.on('change', function() { panelEmissive.folded = false; });
+        fieldEmissiveTint.on('change', function() { panelEmissive.folded = false; });
+        fieldEmissiveColor.on('change', function() { panelEmissive.folded = false; });
+        fieldEmissiveIntensity.on('change', function() { panelEmissive.folded = false; });
 
 
 
         // normals
-        var normalPanel = editor.call('attributes:addPanel', {
-            parent: paramsPanel,
+        var panelNormal = editor.call('attributes:addPanel', {
+            parent: panelParams,
             foldable: true,
             folded: ! asset.get('data.normalMap'),
             name: 'Normals'
@@ -655,7 +655,7 @@ editor.once('load', function() {
 
         // map (normals)
         var fieldNormalMap = editor.call('attributes:addField', {
-            parent: normalPanel,
+            parent: panelNormal,
             type: 'number',
             name: 'Texture',
             link: asset,
@@ -664,7 +664,7 @@ editor.once('load', function() {
 
         // bumpiness
         var fieldBumpiness = editor.call('attributes:addField', {
-            parent: normalPanel,
+            parent: panelNormal,
             type: 'number',
             name: 'Bumpiness',
             link: asset,
@@ -679,7 +679,7 @@ editor.once('load', function() {
 
         // // offset
         // var fieldNormalsOffset = editor.call('attributes:addField', {
-        //     parent: normalPanel,
+        //     parent: panelNormal,
         //     type: 'vec2',
         //     name: 'Offset',
         //     link: asset,
@@ -689,7 +689,7 @@ editor.once('load', function() {
 
         // // tiling
         // var fieldNormalsTiling = editor.call('attributes:addField', {
-        //     parent: normalPanel,
+        //     parent: panelNormal,
         //     type: 'vec2',
         //     name: 'Tiling',
         //     link: asset,
@@ -698,14 +698,14 @@ editor.once('load', function() {
         // fieldNormalsTiling[0].parent.hidden = ! fieldNormalMap.value;
 
         // unfold panel
-        fieldNormalMap.on('change', function() { normalPanel.folded = false; });
-        fieldBumpiness.on('change', function() { normalPanel.folded = false; });
+        fieldNormalMap.on('change', function() { panelNormal.folded = false; });
+        fieldBumpiness.on('change', function() { panelNormal.folded = false; });
 
 
 
         // parallax
-        var parallaxPanel = editor.call('attributes:addPanel', {
-            parent: paramsPanel,
+        var panelParallax = editor.call('attributes:addPanel', {
+            parent: panelParams,
             foldable: true,
             folded: ! asset.get('data.heightMap'),
             name: 'Parallax'
@@ -713,7 +713,7 @@ editor.once('load', function() {
 
         // map
         var fieldHeightMap = editor.call('attributes:addField', {
-            parent: parallaxPanel,
+            parent: panelParallax,
             type: 'number',
             name: 'Texture',
             link: asset,
@@ -729,7 +729,7 @@ editor.once('load', function() {
 
         // // offset
         // var fieldHeightMapOffset = editor.call('attributes:addField', {
-        //     parent: parallaxPanel,
+        //     parent: panelParallax,
         //     type: 'vec2',
         //     name: 'Offset',
         //     link: asset,
@@ -739,7 +739,7 @@ editor.once('load', function() {
 
         // // tiling
         // var fieldHeightMapTiling = editor.call('attributes:addField', {
-        //     parent: parallaxPanel,
+        //     parent: panelParallax,
         //     type: 'vec2',
         //     name: 'Tiling',
         //     link: asset,
@@ -749,7 +749,7 @@ editor.once('load', function() {
 
         // strength
         var fieldHeightMapFactor = editor.call('attributes:addField', {
-            parent: parallaxPanel,
+            parent: panelParallax,
             type: 'number',
             name: 'Strength',
             link: asset,
@@ -758,14 +758,14 @@ editor.once('load', function() {
         fieldHeightMapFactor.parent.hidden = ! fieldHeightMap.value;
 
         // unfold panel
-        fieldHeightMap.on('change', function() { parallaxPanel.folded = false; });
-        fieldHeightMapFactor.on('change', function() { parallaxPanel.folded = false; });
+        fieldHeightMap.on('change', function() { panelParallax.folded = false; });
+        fieldHeightMapFactor.on('change', function() { panelParallax.folded = false; });
 
 
 
         // reflection
-        var reflectionPanel = editor.call('attributes:addPanel', {
-            parent: paramsPanel,
+        var panelReflection = editor.call('attributes:addPanel', {
+            parent: panelParams,
             foldable: true,
             folded: ! (asset.get('data.sphereMap') || asset.get('data.cubeMap')),
             name: 'Reflection'
@@ -773,7 +773,7 @@ editor.once('load', function() {
 
         // spheremap
         var fieldReflectionSphere = editor.call('attributes:addField', {
-            parent: reflectionPanel,
+            parent: panelReflection,
             type: 'number',
             name: 'Sphere Map',
             link: asset,
@@ -787,7 +787,7 @@ editor.once('load', function() {
 
         // cubemap
         var fieldReflectionCubeMap = editor.call('attributes:addField', {
-            parent: reflectionPanel,
+            parent: panelReflection,
             type: 'number',
             name: 'Cube Map',
             link: asset,
@@ -801,7 +801,7 @@ editor.once('load', function() {
 
         // reflectivity
         var fieldReflectionStrength = editor.call('attributes:addField', {
-            parent: reflectionPanel,
+            parent: panelReflection,
             type: 'number',
             name: 'Reflectivity',
             link: asset,
@@ -810,15 +810,15 @@ editor.once('load', function() {
         fieldReflectionStrength.parent.hidden = ! fieldReflectionSphere.value && ! fieldReflectionCubeMap.value;
 
         // unfold panel
-        fieldReflectionSphere.on('change', function() { reflectionPanel.folded = false; });
-        fieldReflectionCubeMap.on('change', function() { reflectionPanel.folded = false; });
-        fieldReflectionStrength.on('change', function() { reflectionPanel.folded = false; });
+        fieldReflectionSphere.on('change', function() { panelReflection.folded = false; });
+        fieldReflectionCubeMap.on('change', function() { panelReflection.folded = false; });
+        fieldReflectionStrength.on('change', function() { panelReflection.folded = false; });
 
 
 
         // lightmap
-        var lightmapPanel = editor.call('attributes:addPanel', {
-            parent: paramsPanel,
+        var panelLightMap = editor.call('attributes:addPanel', {
+            parent: panelParams,
             foldable: true,
             folded: ! asset.get('data.lightMap'),
             name: 'LightMap'
@@ -826,7 +826,7 @@ editor.once('load', function() {
 
         // map
         var fieldLightMap = editor.call('attributes:addField', {
-            parent: lightmapPanel,
+            parent: panelLightMap,
             type: 'number',
             name: 'Texture',
             link: asset,
@@ -834,13 +834,13 @@ editor.once('load', function() {
         });
 
         // unfold panel
-        fieldLightMap.on('change', function() { lightmapPanel.folded = false; });
+        fieldLightMap.on('change', function() { panelLightMap.folded = false; });
 
 
 
         // render states
-        var renderStatesPanel = editor.call('attributes:addPanel', {
-            parent: paramsPanel,
+        var panelRenderStates = editor.call('attributes:addPanel', {
+            parent: panelParams,
             foldable: true,
             folded: true,
             name: 'Render States'
@@ -850,7 +850,7 @@ editor.once('load', function() {
         // depth
         var panelDepth = new ui.Panel();
         editor.call('attributes:addField', {
-            parent: renderStatesPanel,
+            parent: panelRenderStates,
             name: 'Depth',
             type: 'element',
             element: panelDepth
@@ -882,7 +882,7 @@ editor.once('load', function() {
 
         // culling
         var fieldCull = editor.call('attributes:addField', {
-            parent: renderStatesPanel,
+            parent: panelRenderStates,
             type: 'number',
             enum: mapping.cull.enum,
             name: 'Cull Mode',
@@ -892,7 +892,7 @@ editor.once('load', function() {
 
         // blend type
         var fieldBlendType = editor.call('attributes:addField', {
-            parent: renderStatesPanel,
+            parent: panelRenderStates,
             type: 'number',
             enum: mapping.blendType.enum,
             name: 'Blend Type',
@@ -901,9 +901,9 @@ editor.once('load', function() {
         });
 
         // unfold panel
-        fieldDepthTest.on('change', function() { renderStatesPanel.folded = false; });
-        fieldDepthWrite.on('change', function() { renderStatesPanel.folded = false; });
-        fieldCull.on('change', function() { renderStatesPanel.folded = false; });
-        fieldBlendType.on('change', function() { renderStatesPanel.folded = false; });
+        fieldDepthTest.on('change', function() { panelRenderStates.folded = false; });
+        fieldDepthWrite.on('change', function() { panelRenderStates.folded = false; });
+        fieldCull.on('change', function() { panelRenderStates.folded = false; });
+        fieldBlendType.on('change', function() { panelRenderStates.folded = false; });
     });
 });

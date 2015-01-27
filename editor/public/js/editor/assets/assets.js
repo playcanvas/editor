@@ -24,29 +24,29 @@ editor.once('load', function() {
 
 
     // allow adding assets
-    editor.hook('assets:add', function(asset) {
+    editor.method('assets:add', function(asset) {
         assets.add(asset);
     });
 
     // allow removing assets
-    editor.hook('assets:remove', function(asset) {
+    editor.method('assets:remove', function(asset) {
         assets.remove(asset);
         asset.destroy();
     });
 
 
     // get asset by id
-    editor.hook('assets:get', function(id) {
+    editor.method('assets:get', function(id) {
         return assets.get(id);
     });
 
     // find assets by function
-    editor.hook('assets:find', function(fn) {
+    editor.method('assets:find', function(fn) {
         return assets.find(fn);
     });
 
     // find one asset by function
-    editor.hook('assets:findOne', function(fn) {
+    editor.method('assets:findOne', function(fn) {
         return assets.findOne(fn);
     });
 

@@ -183,6 +183,12 @@ Object.defineProperty(Element.prototype, 'disabled', {
     }
 });
 
+Object.defineProperty(Element.prototype, 'disabledSelf', {
+    get: function() {
+        return this._disabled;
+    }
+});
+
 Object.defineProperty(Element.prototype, 'enabled', {
     get: function() {
         return ! this._disabled;

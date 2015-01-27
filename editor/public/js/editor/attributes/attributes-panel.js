@@ -5,13 +5,14 @@ editor.once('load', function() {
 
     var clearPanel = function() {
         root.clear();
+        editor.emit('attributes:clear');
     };
 
     // clearing
-    editor.hook('attributes:clear', clearPanel);
+    editor.method('attributes:clear', clearPanel);
 
     // get current inspected items
-    editor.hook('attributes:items', function() {
+    editor.method('attributes:items', function() {
         var type = editor.call('selector:type');
         var items = editor.call('selector:items');
         return {
@@ -21,17 +22,17 @@ editor.once('load', function() {
     });
 
     // set header
-    editor.hook('attributes:header', function(title) {
+    editor.method('attributes:header', function(title) {
         root.header = 'Attributes (' + title + ')';
     });
 
     // return root panel
-    editor.hook('attributes.rootPanel', function() {
+    editor.method('attributes.rootPanel', function() {
         return root;
     });
 
     // add panel
-    editor.hook('attributes:addPanel', function(args) {
+    editor.method('attributes:addPanel', function(args) {
         args = args || { };
 
         // panel
@@ -47,7 +48,7 @@ editor.once('load', function() {
     });
 
     // add field
-    editor.hook('attributes:addField', function(args) {
+    editor.method('attributes:addField', function(args) {
         var panel = new ui.Panel();
         panel.flexWrap = 'nowrap';
         panel.WebkitFlexWrap = 'nowrap';
@@ -320,8 +321,23 @@ editor.once('load', function() {
         }
     });
 
-    editor.hook('attributes:inspect', function(type, item) {
+    var inspectedItems = [ ];
+
+    editor.on('attributes:clear', function() {
+        for(var i = 0; i < inspectedItems.length; i++) {
+            inspectedItems[i].unbind();
+        }
+        inspectedItems = [ ];
+    });
+
+    editor.method('attributes:inspect', function(type, item) {
         clearPanel();
+
+        // clear if destroyed
+        inspectedItems.push(item.onnce('destroy', function() {
+            editor.call('attributes:clear');
+        }));
+
         root.header = 'Attributes (' + type + ')';
         editor.emit('attributes:inspect[' + type + ']', item);
     });
@@ -339,6 +355,13 @@ editor.once('load', function() {
             root.header = 'Attributes';
 
             return;
+        }
+
+        // clear if destroyed
+        for(var i = 0; i < items.length; i++) {
+            inspectedItems.push(items[i].once('destroy', function() {
+                editor.call('attributes:clear');
+            }));
         }
 
         var type = editor.call('selector:type');

@@ -65,8 +65,7 @@ editor.once('load', function() {
         });
         fieldType.on('change', function(value) {
             fieldAsset.parent.hidden = value !== 'asset';
-            if (value !== 'asset')
-                fieldAsset.value = null;
+            fieldMaterial.parent.hidden = value === 'asset';
         });
 
         // model.asset
@@ -79,6 +78,15 @@ editor.once('load', function() {
         });
         fieldAsset.parent.hidden = entity.get('components.model.type') !== 'asset';
 
+
+        var fieldMaterial = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Material',
+            type: 'number',
+            link: entity,
+            path: 'components.model.materialAsset'
+        });
+        fieldMaterial.parent.hidden = entity.get('components.model.type') === 'asset';
 
         // model.shadows
         var fieldShadowOptions = new ui.Panel();

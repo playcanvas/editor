@@ -43,25 +43,20 @@ function TreeItem(args) {
 TreeItem.prototype = Object.create(ui.Element.prototype);
 
 
-TreeItem.prototype.reparent = function(parent) {
-    if (this.parent)
-        this.parent.remove(this);
-
-    parent.append(this);
-};
-
-
 TreeItem.prototype.append = function(item) {
+    if (this._children === 1) {
+        this.element.childNodes[1].classList.remove('single');
+    }
+
     item.parent = this;
     this.element.appendChild(item.element);
     this._children++;
-    // item.tree = this.tree;
 
     if (this._children === 1) {
         item.class.add('single');
         this.class.add('container');
-    } else if (this._children === 2) {
-        this.element.childNodes[1].classList.remove('single');
+    } else if (this._children > 1) {
+        item.class.remove('single');
     }
 
     var appendChildren = function(treeItem) {
@@ -78,6 +73,10 @@ TreeItem.prototype.append = function(item) {
 
 
 TreeItem.prototype.appendBefore = function(item, referenceItem) {
+    if (this._children === 1) {
+        this.element.childNodes[1].classList.remove('single');
+    }
+
     item.parent = this;
     this.element.insertBefore(item.element, referenceItem.element);
     this._children++;
@@ -85,8 +84,8 @@ TreeItem.prototype.appendBefore = function(item, referenceItem) {
     if (this._children === 1) {
         item.class.add('single');
         this.class.add('container');
-    } else if (this._children === 2) {
-        this.element.childNodes[1].classList.remove('single');
+    } else if (this._children > 1) {
+        item.class.remove('single');
     }
 
     var appendChildren = function(treeItem) {
@@ -299,7 +298,23 @@ Object.defineProperty(TreeItem.prototype, 'open', {
             this.emit('close');
         }
     }
-})
+});
+
+
+Object.defineProperty(TreeItem.prototype, 'prev', {
+    get: function() {
+        return this.element.previousSibling && this.element.previousSibling.ui || null;
+    }
+});
+
+
+Object.defineProperty(TreeItem.prototype, 'next', {
+    get: function() {
+        return this.element.nextSibling && this.element.nextSibling.ui || null;
+    }
+});
+
+
 
 
 window.ui.TreeItem = TreeItem;

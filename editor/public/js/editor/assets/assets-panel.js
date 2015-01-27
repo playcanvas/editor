@@ -14,7 +14,7 @@ editor.once('load', function() {
     });
     overlay.append(loading);
 
-    editor.hook('assets:progress', function(progress) {
+    editor.method('assets:progress', function(progress) {
         loading.progress = progress;
     });
 

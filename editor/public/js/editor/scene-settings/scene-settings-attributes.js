@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var sceneSettings = editor.call('scene-settings');
+    var sceneSettings = editor.call('sceneSettings');
 
     // inspecting
     editor.on('attributes:inspect[sceneSettings]', function() {

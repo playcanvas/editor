@@ -25,16 +25,16 @@ editor.once('load', function() {
         }
     };
 
-    editor.hook('history:canUndo', function() {
+    editor.method('history:canUndo', function() {
         return canUndo;
     });
-    editor.hook('history:canRedo', function() {
+    editor.method('history:canRedo', function() {
         return canRedo;
     });
 
 
     // add action
-    editor.hook('history:add', function(action) {
+    editor.method('history:add', function(action) {
         // some history needs erasing
         if (current !== actions.length - 1) {
             actions = actions.slice(0, current + 1);
@@ -53,7 +53,7 @@ editor.once('load', function() {
 
 
     // undo
-    editor.hook('history:undo', function() {
+    editor.method('history:undo', function() {
         // no history
         if (current === -1)
             return;
@@ -73,7 +73,7 @@ editor.once('load', function() {
 
 
     // redo
-    editor.hook('history:redo', function() {
+    editor.method('history:redo', function() {
         if (current === actions.length - 1)
             return;
 

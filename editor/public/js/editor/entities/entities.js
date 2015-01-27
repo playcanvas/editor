@@ -21,12 +21,24 @@ editor.once('load', function() {
 
 
     // allow adding entity
-    editor.hook('entities:add', function(entity) {
+    editor.method('entities:add', function(entity) {
         entities.add(entity);
     });
 
     // allow remove entity
-    editor.hook('entities:remove', function(entity) {
+    editor.method('entities:remove', function(entity) {
         entities.remove(entity);
+    });
+
+
+    // get entity
+    editor.method('entities:get', function(resourceId) {
+        return entities.get(resourceId);
+    });
+
+
+    // list entities
+    editor.method('entities:list', function() {
+        return entities.array();
     });
 });

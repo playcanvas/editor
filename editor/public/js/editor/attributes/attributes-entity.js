@@ -3,7 +3,7 @@ editor.once('load', function() {
 
     var panelComponents;
 
-    editor.hook('attributes:entity.panelComponents', function() {
+    editor.method('attributes:entity.panelComponents', function() {
         return panelComponents;
     });
 

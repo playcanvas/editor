@@ -5,7 +5,7 @@ editor.once('load', function() {
     var panel = editor.call('layout.bottom');
 
 
-    editor.hook('status:text', function(text) {
+    editor.method('status:text', function(text) {
         panel.innerElement.textContent = text;
     });
 });

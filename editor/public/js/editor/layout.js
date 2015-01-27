@@ -12,7 +12,7 @@ editor.on('load', function() {
     root.innerElement.style.overflow = 'hidden';
     document.body.appendChild(root.element);
     // expose
-    editor.hook('layout.root', function() { return root; });
+    editor.method('layout.root', function() { return root; });
 
 
 
@@ -22,7 +22,7 @@ editor.on('load', function() {
     header.flexShrink = false;
     root.append(header);
     // expose
-    editor.hook('layout.header', function() { return header; });
+    editor.method('layout.header', function() { return header; });
 
 
     // middle
@@ -39,7 +39,7 @@ editor.on('load', function() {
     bottom.innerElement.textContent = 'status';
     root.append(bottom);
     // expose
-    editor.hook('layout.bottom', function() { return bottom; });
+    editor.method('layout.bottom', function() { return bottom; });
 
 
 
@@ -57,7 +57,7 @@ editor.on('load', function() {
     hierarchyPanel.resizeMax = 512;
     middle.append(hierarchyPanel);
     // expose
-    editor.hook('layout.left', function() { return hierarchyPanel; });
+    editor.method('layout.left', function() { return hierarchyPanel; });
 
 
 
@@ -77,7 +77,7 @@ editor.on('load', function() {
     viewport.innerElement.style.backgroundSize = 'cover';
     center.append(viewport);
     // expose
-    editor.hook('layout.viewport', function() { return viewport; });
+    editor.method('layout.viewport', function() { return viewport; });
 
     // assets
     var assetsPanel = new ui.Panel('Assets');
@@ -90,7 +90,7 @@ editor.on('load', function() {
     assetsPanel.resizeMax = 106 * 6;
     center.append(assetsPanel);
     // expose
-    editor.hook('layout.assets', function() { return assetsPanel; });
+    editor.method('layout.assets', function() { return assetsPanel; });
 
 
 
@@ -109,5 +109,5 @@ editor.on('load', function() {
     attributesPanel.resizeMax = 768;
     middle.append(attributesPanel);
     // expose
-    editor.hook('layout.right', function() { return attributesPanel; });
+    editor.method('layout.right', function() { return attributesPanel; });
 });

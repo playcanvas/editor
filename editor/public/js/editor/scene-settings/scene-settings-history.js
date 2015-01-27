@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var obj = editor.call('scene-settings');
+    var obj = editor.call('sceneSettings');
     obj.history = true;
 
     obj.on('*:set', function(path, value, oldValue) {

@@ -128,10 +128,25 @@ Observer.prototype._defineProperty = function(target, key) {
             if (value === this.__data[key])
                 return;
 
-            var oldValue = this.__data[key];
-            this.__data[key] = value;
-            self.emit(path + ':set', value, oldValue);
-            self.emit('*:set', path, value, oldValue);
+            if (typeof(this.__data[key]) === 'object' && (this.__data[key] instanceof Array)) {
+                var oldValue = this.__data[key].slice(0);
+                this.__data[key] = value;
+
+                for(var i = 0; i < this.__data[key].length; i++) {
+                    if(this.__data[key][i] !== oldValue[i]) {
+                        self.emit(path + '.' + i + ':set', this.__data[key][i], oldValue[i]);
+                        self.emit('*:set', path + '.' + i, this.__data[key][i], oldValue[i]);
+                    }
+                }
+
+                self.emit(path + ':set', value, oldValue);
+                self.emit('*:set', path, value, oldValue);
+            } else {
+                var oldValue = this.__data[key];
+                this.__data[key] = value;
+                self.emit(path + ':set', value, oldValue);
+                self.emit('*:set', path, value, oldValue);
+            }
         }
     });
 };
@@ -238,6 +253,69 @@ Observer.prototype.unset = function(path) {
 
     this.emit(path + ':unset');
     this.emit('*:unset', path);
+
+    return true;
+};
+
+
+Observer.prototype.remove = function(path, value) {
+    var keys = path.split('.');
+    var key = keys[keys.length - 1];
+    var node = this;
+
+    for(var i = 0; i < keys.length - 1; i++) {
+        if (node.__data && node.hasOwnProperty(keys[i])) {
+            node = node.__data[keys[i]];
+        } else {
+            return false;
+        }
+    }
+
+    if (! node.__data || ! node.hasOwnProperty(key) || ! (node.__data[key] instanceof Array))
+        return false;
+
+    var arr = node.__data[key];
+    var ind = arr.indexOf(value);
+
+    if (ind === -1)
+        return false;
+
+    arr.splice(ind, 1);
+
+    this.emit(path + ':remove', value, ind);
+    this.emit('*:remove', path, value, ind);
+
+    return true;
+};
+
+
+Observer.prototype.insert = function(path, value, ind) {
+    var keys = path.split('.');
+    var key = keys[keys.length - 1];
+    var node = this;
+
+    for(var i = 0; i < keys.length - 1; i++) {
+        if (node.__data && node.hasOwnProperty(keys[i])) {
+            node = node.__data[keys[i]];
+        } else {
+            return false;
+        }
+    }
+
+    if (! node.__data || ! node.hasOwnProperty(key) || ! (node.__data[key] instanceof Array))
+        return false;
+
+    var arr = node.__data[key];
+
+    if (ind === undefined) {
+        arr.push(value);
+        ind = arr.length - 1;
+    } else {
+        arr.splice(ind, 0, value);
+    }
+
+    this.emit(path + ':insert', value, ind);
+    this.emit('*:insert', path, value, ind);
 
     return true;
 };

@@ -122,6 +122,11 @@ editor.once('load', function() {
         fieldAxis.link(entity, 'components.collision.axis');
         panelHeight.append(fieldAxis);
 
+        panelHeight.hidden = [ 'capsule', 'cylinder' ].indexOf(entity.get('components.collision.type')) === -1;
+        fieldType.on('change', function(value) {
+            panelHeight.hidden = [ 'capsule', 'cylinder' ].indexOf(value) === -1;
+        });
+
 
         // asset
         var fieldAsset = editor.call('attributes:addField', {

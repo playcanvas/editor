@@ -9,7 +9,7 @@
     Editor.prototype = Object.create(Events.prototype);
 
 
-    Editor.prototype.hook = function(name, fn) {
+    Editor.prototype.method = function(name, fn) {
         if (this._hooks[name] !== undefined) {
             throw new Error('can\'t override hook: ' + name);
         }
@@ -17,7 +17,7 @@
     };
 
 
-    Editor.prototype.unhook = function(name) {
+    Editor.prototype.methodRemove = function(name) {
         delete this._hooks[name];
     };
 

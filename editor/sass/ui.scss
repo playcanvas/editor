@@ -444,23 +444,14 @@ a:visited {
     &.container {
         > .title {
             &:before {
-                // font-family: 'ui-font-solid';
                 content: '\00a0';
                 position: absolute;
                 top: 0;
                 left: -24px;
                 width: 18px;
                 height: 18px;
-                // line-height: 16px;
                 margin: 2px;
-                // text-align: center;
-                // border: none;
-                // background-color: #475a5d;
                 background-color: #f60;
-                // background-color: transparent;
-                // font-size: 10px;
-                // font-weight: 100;
-                // color: #7d8688;
                 cursor: pointer;
                 z-index: 1;
             }
@@ -469,11 +460,18 @@ a:visited {
     &.open {
         > .title {
             &:before {
-                // background-color: #f00;
+                background-color: #f00;
             }
         }
         > .ui-tree-item {
             display: block;
+        }
+    }
+    &.disabled {
+        > .title {
+            > .text {
+                opacity: .5;
+            }
         }
     }
     > .title {
