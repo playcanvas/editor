@@ -57,7 +57,12 @@ Events.prototype.emit = function(name) {
         if (! events[i])
             continue;
 
-        events[i].apply(this, args);
+        try {
+            events[i].apply(this, args);
+        } catch(ex) {
+            console.info('%c%s %c(event error)', 'color: #06f', name, 'color: #f00');
+            console.log(ex.stack);
+        }
 
         if (events[i] && events[i].once && this._events[name]) {
             this._events[name].splice(this._events[name].indexOf(events[i]), 1);

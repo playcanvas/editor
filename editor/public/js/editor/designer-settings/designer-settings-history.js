@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var obj = editor.call('designer-settings');
+    var obj = editor.call('designerSettings');
     obj.history = true;
 
     obj.on('*:set', function(path, value, oldValue) {

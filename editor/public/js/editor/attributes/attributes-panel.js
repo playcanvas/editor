@@ -231,10 +231,14 @@ editor.once('load', function() {
                         field.value = ((1 << 24) + (Math.floor(value[0] * 255) << 16) + (Math.floor(value[1] * 255) << 8) + Math.floor(value[2] * 255)).toString(16).slice(1);
                     };
 
-                    var evtColor = args.link.on(args.path + ':set', updateField);
+                    var evtColor0 = args.link.on(args.path + '.0:set', updateField);
+                    var evtColor1 = args.link.on(args.path + '.1:set', updateField);
+                    var evtColor2 = args.link.on(args.path + '.2:set', updateField);
 
                     field.once('destroy', function() {
-                        evtColor.unbind();
+                        evtColor0.unbind();
+                        evtColor1.unbind();
+                        evtColor2.unbind();
                     });
 
                     updateField();

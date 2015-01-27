@@ -73,7 +73,7 @@ Observer.prototype._prepare = function(target, key, value) {
             } else {
                 // different length, update whole array
                 changed = true;
-                target.__data[key] = value;
+                target.__data[key] = value.slice(0);
                 for(var i = 0; i < value.length; i++) {
                     this.emit(path + '.' + i + ':set', value[i], oldData[i]);
                     this.emit('*:set', path + '.' + i, value[i], oldData[i]);
@@ -190,10 +190,19 @@ Observer.prototype.set = function(path, value) {
         }
     }
 
-    if (! node.hasOwnProperty(key)) {
+    if (node instanceof Array) {
+        var ind = parseInt(key, 10);
+        if (node[ind] === value)
+            return;
+
+        var oldValue = node[ind];
+
+        node[ind] = value;
+        this.emit(path + ':set', value, oldValue);
+        this.emit('*:set', path, value, oldValue);
+    } else if (! node.hasOwnProperty(key)) {
         this._prepare(node, key, value);
     } else {
-
         if (typeof(value) === 'object' && (value instanceof Array)) {
             if (value.equals(node[key]))
                 return;
@@ -316,6 +325,43 @@ Observer.prototype.insert = function(path, value, ind) {
 
     this.emit(path + ':insert', value, ind);
     this.emit('*:insert', path, value, ind);
+
+    return true;
+};
+
+
+Observer.prototype.move = function(path, value, indNew) {
+    var keys = path.split('.');
+    var key = keys[keys.length - 1];
+    var node = this;
+
+    for(var i = 0; i < keys.length - 1; i++) {
+        if (node.__data && node.hasOwnProperty(keys[i])) {
+            node = node.__data[keys[i]];
+        } else {
+            return false;
+        }
+    }
+
+    if (! node.__data || ! node.hasOwnProperty(key) || ! (node.__data[key] instanceof Array))
+        return false;
+
+    var arr = node.__data[key];
+    var ind = arr.indexOf(value);
+    if (ind === -1)
+        return false;
+
+    arr.splice(ind, 1);
+
+    if (indNew === undefined || indNew === -1) {
+        arr.push(value);
+        indNew = arr.length - 1;
+    } else {
+        arr.splice(indNew, 0, value);
+    }
+
+    this.emit(path + ':move', value, indNew, ind);
+    this.emit('*:move', path, value, indNew, ind);
 
     return true;
 };

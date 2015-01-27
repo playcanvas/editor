@@ -1,134 +1,160 @@
-// editor.once('load', function() {
-//     'use strict';
+editor.once('load', function() {
+    'use strict';
 
-//     var syncPaths = [
-//         'name',
-//         'parent',
-//         'children',
-//         'position',
-//         'rotations',
-//         'scale',
-//         'enabled',
-//         'components'
-//     ];
+    var syncPaths = [
+        'name',
+        'parent',
+        'children',
+        'position',
+        'rotations',
+        'scale',
+        'enabled',
+        'components'
+    ];
 
-//     editor.on('entities:add', function(entity) {
-//         entity.sync.persist = true;
 
-//         entity.on('*:set', function(path, value) {
-//             if (! this.sync.persist)
-//                 return;
+    // client > server
+    editor.on('entities:add', function(entity) {
+        entity.sync = true;
 
-//             console.log('set', path);
+        // object set
+        entity.on('*:set', function(path, value, valueOld) {
+            if (! this.sync)
+                return;
 
-//             // find if field should be sync
-//             var i = syncPaths.length;
-//             while(i--) {
-//                 if (path.indexOf(syncPaths) === 0)
-//                     break;
-//             }
+            var allowedPath = false;
+            for(var i = 0; i < syncPaths.length; i++) {
+                if (path.indexOf(syncPaths[i]) !== -1) {
+                    allowedPath = true;
+                    break;
+                }
+            }
 
-//             // path not for sync
-//             if (i === 0)
-//                 return;
+            // path is not allowed
+            if (! allowedPath)
+                return;
 
-//             // array
-//             var ind = path.lastIndexOf('.');
-//             if (ind !== -1) {
-//                 var subPath = path.slice(0, ind);
-//                 var subInd = parseInt(path.slice(subPath.length + 1), 10);
-//                 var arr = entity.get(subPath);
-//                 if (arr instanceof Array) {
-//                     // if (subPath === 'children') {
-//                     //     console.log('!!!!', subPath.split('.').concat([ subInd ]), value);
-//                     //     this.sync.at(subPath.split('.').concat([ subInd ])).set(value);
-//                     // } else {
-//                         this.sync.at(subPath.split('.')).set(arr);
-//                     // }
+            // operation
+            var op;
 
-//                     // if (! isNaN(subInd)) {
-//                     //     this.sync.at(subPath.split('.').concat([ subInd ])).set(value);
-//                     //     return;
-//                     // }
-//                 }
-//             }
+            // full path
+            var p = [ 'entities', this.resource_id ].concat(path.split('.'));
 
-//             // single value
-//             this.sync.at(path.split('.')).set(value);
-//         });
+            // can be array value
+            var ind = path.lastIndexOf('.');
+            if (ind !== -1 && (entity.get(path.slice(0, ind)) instanceof Array)) {
+                // array index should be int
+                p[p.length - 1] = parseInt(p[p.length - 1], 10);
 
-//         entity.on('children:remove', function(value, ind) {
-//             if (! this.sync.persist)
-//                 return;
+                // list item set
+                op = {
+                    p: p,
+                    li: value,
+                    ld: valueOld
+                };
+            } else {
+                // object item set
+                op = {
+                    p: p,
+                    oi: value,
+                    od: valueOld
+                };
+            }
 
-//             console.log(this.sync.path, "remove", value, ind);
-//             this.sync.at([ 'children', ind ]).remove();
-//         });
+            // send operation
+            editor.call('realtime:op', op);
+        });
 
-//         entity.on('children:insert', function(value, ind) {
-//             if (! this.sync.persist)
-//                 return;
+        // list move
+        entity.on('*:move', function(path, value, ind, indOld) {
+            if (! this.sync) return;
 
-//             console.log(this.sync.path, "insert", value, ind);
-//             this.sync.at([ 'children' ]).insert(ind, value);
-//         });
-//     });
+            editor.call('realtime:op', {
+                p: [ 'entities', this.resource_id ].concat(path.split('.')).concat([ indOld ]),
+                lm: ind
+            });
+        });
 
-//     editor.on('realtime:hierarchy', function(op, doc) {
-//         var entity = editor.call('entities:get', op.p[1]);
+        // list remove
+        entity.on('*:remove', function(path, value, ind) {
+            if (! this.sync) return;
 
-//         if (entity) {
-//             entity.sync.persist = false;
+            editor.call('realtime:op', {
+                p: [ 'entities', this.resource_id ].concat(path.split('.')).concat([ ind ]),
+                ld: value
+            });
+        });
 
-//             if (op.p[2] === undefined) {
-//                 if (op.hasOwnProperty('od') && op.hasOwnProperty('oi')) {
-//                     // update entity
-//                     entity.patch(op.oi);
+        // list insert
+        entity.on('*:insert', function(path, value, ind) {
+            if (! this.sync) return;
 
-//                 } else if (op.hasOwnProperty('od')) {
-//                     // remove entity
-//                     entity.destroy();
-//                 }
+            editor.call('realtime:op', {
+                p: [ 'entities', this.resource_id ].concat(path.split('.')).concat([ ind ]),
+                li: value
+            });
+        });
 
-//             } else if (op.hasOwnProperty('oi')) {
-//                 // set field
-//                 var path = op.p.slice(2).join('.');
-//                 entity.set(path, op.oi);
+    });
 
-//             } else if (op.hasOwnProperty('ld')) {
-//                 // children remove
-//                 if (op.p[2] === 'children') {
-//                     var child = editor.call('entities:get', op.ld);
-//                     if (child) {
-//                         entity.remove('children', child.resource_id);
-//                     }
-//                 }
 
-//             } else if (op.hasOwnProperty('li')) {
-//                 // children insert
-//                 if (op.p[2] === 'children') {
-//                     var child = editor.call('entities:get', op.li);
-//                     if (child) {
-//                         entity.insert('children', child.resource_id, op.p[3]);
-//                     }
-//                 }
+    // server > client
+    editor.on('realtime:op:entities', function(op) {
+        var entity = null;
+        if (op.p[1])
+            entity = editor.call('entities:get', op.p[1]);
 
-//             } else {
-//                 // unknown remoteop
-//                 console.log('remoteop, unknown', op.p.join('.'), op);
-//             }
+        if (! entity)
+            return;
 
-//             entity.sync.persist = true;
+        if (op.hasOwnProperty('od') && op.hasOwnProperty('oi')) {
+            // set key value
+            var path = op.p.slice(2).join('.');
 
-//         } else if (op.p[2] === undefined && op.hasOwnProperty('oi')) {
-//             // new entity
-//             entity = new Observer(op.oi);
-//             entity.sync = doc.at([ 'hierarchy', entity.resource_id ]);
-//             editor.call('entities:add', entity);
+            entity.sync = false;
+            entity.set(path, op.oi);
+            entity.sync = true;
 
-//         } else {
-//             // unknown remoteop
-//             console.log('remoteop, unknown', op.p.join('.'), op);
-//         }
-//     });
-// });
+
+        } else if (op.hasOwnProperty('ld') && op.hasOwnProperty('li')) {
+            // set array value
+            var path = op.p.slice(2).join('.');
+
+            entity.sync = false;
+            entity.set(path, op.li);
+            entity.sync = true;
+
+
+        } else if (op.hasOwnProperty('ld')) {
+            // delete item
+            var path = op.p.slice(2, -1).join('.');
+
+            entity.sync = false;
+            entity.remove(path, op.ld);
+            entity.sync = true;
+
+
+        } else if (op.hasOwnProperty('li')) {
+            // add item
+            var path = op.p.slice(2, -1).join('.');
+            var ind = op.p[op.p.length - 1];
+
+            entity.sync = false;
+            entity.insert(path, op.li, ind);
+            entity.sync = true;
+
+
+        } else if (op.hasOwnProperty('lm')) {
+            // item moved
+            var path = op.p.slice(2, -1).join('.');
+            var indOld = op.p[op.p.length - 1];
+            var ind = op.lm;
+
+            entity.sync = false;
+            entity.move(path, entity.get(path + '.' + indOld), ind);
+            entity.sync = true;
+        } else {
+            console.log('entity unknown operation', op);
+        }
+    });
+});

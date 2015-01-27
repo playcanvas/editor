@@ -10,41 +10,25 @@ editor.on('load', function() {
     hierarchyOverlay.append(p);
 
 
-    var loaded = function(doc) {
-        p.progress = .5;
-
+    editor.on('scene:raw', function(data) {
         var start = Date.now();
 
-        var hierarchy = doc.snapshot.hierarchy;
+        var total = Object.keys(data.entities).length;
+        var i = 0;
 
         // list
-        var total = Object.keys(hierarchy).length;
-        var i = 0;
-        for(var key in hierarchy) {
-            var entity = new Observer(hierarchy[key]);
-            entity.sync = doc.at([ 'hierarchy', key ]);
-
+        for(var key in data.entities) {
+            var entity = new Observer(data.entities[key]);
             editor.call('entities:add', entity);
-            p.progress = (++i / total) * .5 + .5;
+
+            p.progress = (++i / total) * .8 + .1;
         }
 
         console.log('entities loaded ' + (Date.now() - start));
 
-        editor.emit('entities:load');
-
         p.progress = 1;
-    };
 
-    editor.on('realtime:connecting', function() {
-        p.progress = .3;
-    });
-
-    editor.on('realtime:loading', function() {
-        p.progress = .5;
-    });
-
-    editor.on('realtime:load', function(doc) {
-        loaded(doc);
+        editor.emit('entities:load');
     });
 
 

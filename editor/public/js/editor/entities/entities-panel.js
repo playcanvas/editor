@@ -34,27 +34,31 @@ editor.once('load', function() {
 
         // relative entity
         var nextInd = -1;
-        if (item.next && item.next.entity) {
+        if (item.next && item.next.entity)
             nextInd = parent.children.indexOf(item.next.entity.resource_id);
 
-            if (parent.children.indexOf(entity.resource_id) < nextInd)
-                nextInd--;
-        }
+        if (parentOld === parent) {
+            // move
+            parent.move('children', entity.resource_id, nextInd);
 
-        // remove from old parent
-        parentOld.remove('children', entity.resource_id);
-
-        // add to new parent children
-        if (nextInd !== -1) {
-            // before other item
-            parent.insert('children', entity.resource_id, nextInd);
         } else {
-            // at the end
-            parent.insert('children', entity.resource_id);
-        }
+            // reparenting
 
-        // set parent
-        entity.parent = parent.resource_id;
+            // remove from old parent
+            parentOld.remove('children', entity.resource_id);
+
+            // add to new parent children
+            if (nextInd !== -1) {
+                // before other item
+                parent.insert('children', entity.resource_id, nextInd);
+            } else {
+                // at the end
+                parent.insert('children', entity.resource_id);
+            }
+
+            // set parent
+            entity.parent = parent.resource_id;
+        }
 
         entity.reparenting = false;
     });
@@ -103,6 +107,24 @@ editor.once('load', function() {
 
         entity.on('enabled:set', function(value) {
             element.enabled = value;
+        });
+
+        entity.on('children:move', function(value, ind, indOld) {
+            var item = uiItemIndex[value];
+            if (! item || item.entity.reparenting)
+                return;
+
+            element.remove(item);
+
+            if (item.parent)
+                item.parent.remove(item);
+
+            var next = uiItemIndex[entity.children[ind + 1]];
+            if (next) {
+                element.appendBefore(item, next);
+            } else {
+                element.append(item);
+            }
         });
 
         // remove children

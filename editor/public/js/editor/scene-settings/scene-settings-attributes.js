@@ -21,7 +21,7 @@ editor.once('load', function() {
         };
 
         var fogFilter = function () {
-            return sceneSettings.render.fog !== 'none';
+            return sceneSettings.render && sceneSettings.render.fog !== 'none';
         };
 
 

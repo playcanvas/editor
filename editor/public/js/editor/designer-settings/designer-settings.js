@@ -17,7 +17,7 @@ editor.once('load', function() {
     designerSettings.sync = false;
 
     // get designer settings
-    editor.method('designer-settings', function() {
+    editor.method('designerSettings', function() {
         return designerSettings;
     });
 

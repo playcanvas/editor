@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var designerSettings = editor.call('designer-settings');
+    var designerSettings = editor.call('designerSettings');
 
     // inspecting
     editor.on('attributes:inspect[designerSettings]', function() {
