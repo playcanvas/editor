@@ -330,7 +330,7 @@ Observer.prototype.insert = function(path, value, ind) {
 };
 
 
-Observer.prototype.move = function(path, value, indNew) {
+Observer.prototype.move = function(path, value, ind) {
     var keys = path.split('.');
     var key = keys[keys.length - 1];
     var node = this;
@@ -347,21 +347,24 @@ Observer.prototype.move = function(path, value, indNew) {
         return false;
 
     var arr = node.__data[key];
-    var ind = arr.indexOf(value);
-    if (ind === -1)
+    var indOld = arr.indexOf(value);
+    if (indOld === -1)
         return false;
 
-    arr.splice(ind, 1);
+    if (indOld === ind)
+        return;
 
-    if (indNew === undefined || indNew === -1) {
+    arr.splice(indOld, 1);
+
+    if (ind === undefined || ind === -1) {
         arr.push(value);
-        indNew = arr.length - 1;
+        ind = arr.length - 1;
     } else {
-        arr.splice(indNew, 0, value);
+        arr.splice(ind, 0, value);
     }
 
-    this.emit(path + ':move', value, indNew, ind);
-    this.emit('*:move', path, value, indNew, ind);
+    this.emit(path + ':move', value, ind, indOld);
+    this.emit('*:move', path, value, ind, indOld);
 
     return true;
 };

@@ -1,25 +1,14 @@
 editor.once('load', function() {
     'use strict';
 
-    var obj = editor.call('sceneSettings');
-    obj.history = true;
+    editor.once('sceneSettings:load', function(settings) {
+        settings.history = new ObserverHistory({
+            item: settings
+        });
 
-    obj.on('*:set', function(path, value, oldValue) {
-        if (!this.history)
-            return;
-
-        editor.call('history:add', {
-            name: 'change sceneSettings ' + path,
-            undo: function() {
-                obj.history = false;
-                obj.set(path, oldValue);
-                obj.history = true;
-            },
-            redo: function() {
-                obj.history = false;
-                obj.set(path, value);
-                obj.history = true;
-            }
+        // register history action
+        settings.history.on('add', function(data) {
+            editor.call('history:add', data);
         });
     });
 });
