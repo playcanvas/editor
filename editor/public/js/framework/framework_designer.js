@@ -467,18 +467,29 @@ pc.extend(pc.designer, function() {
         }.bind(this));
 
         function openEntityHierarchy (entity) {
+            // if the entity has a parent or children
+            // entities then it's already been patched up so skip it
+            if (entity.getParent() || entity.getChildren().length) {
+                return;
+            }
+
+            // add entity under defined parent
             if (entity.__parent) {
                 hierarchy[entity.__parent].addChild(entity);
-            } else {
+            }
+            // if there is no parent add it under root
+            else {
                 context.root.addChild(entity);
             }
 
+            // do the same for children
             if (entity.__children) {
                 for (var i = 0, len = entity.__children.length; i < len; i++) {
                     openEntityHierarchy(hierarchy[entity.__children[i]]);
                 }
             }
 
+            // we no longer need these
             delete entity.__parent;
             delete entity.__children;
 
@@ -490,6 +501,10 @@ pc.extend(pc.designer, function() {
             var systems = context.systems.list();
             var i, len = systems.length;
             var data = entity.__components;
+
+            // we no longer need this
+            delete entity.__components;
+
             if (data) {
                 for (i = 0; i < len; i++) {
                     var componentData = data[systems[i].id];
@@ -511,10 +526,7 @@ pc.extend(pc.designer, function() {
         for (var guid in hierarchy) {
             if (hierarchy.hasOwnProperty(guid)) {
                 var entity = hierarchy[guid];
-                if (!entity.getParent() && !entity.getChildren().length) {
-
-                    openEntityHierarchy(entity);
-                }
+                openEntityHierarchy(entity);
             }
         }
 

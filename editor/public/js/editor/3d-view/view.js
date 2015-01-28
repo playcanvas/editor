@@ -9,7 +9,7 @@ editor.once('load', function() {
 
     var container = editor.call('layout.viewport');
 
-    var settings = editor.call('designer-settings');
+    var settings = editor.call('designerSettings');
 
     // create designer framework
     var framework = new pc.designer.Designer(canvas.element, {
