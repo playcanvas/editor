@@ -14,7 +14,7 @@ editor.once('load', function() {
         });
 
 
-        var scene = connection.get('scene', '' + config.scene.id);
+        var scene = connection.get('scenes', '' + config.scene.id);
 
 
         scene.on('error', function(err) {
