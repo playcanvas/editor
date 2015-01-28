@@ -5,7 +5,7 @@ editor.once('load', function() {
         editor.emit('realtime:connecting');
 
 
-        var socket = new SockJS(config.url.realtime.http + '/socket');
+        var socket = new SockJS(config.url.realtime.http);
         var connection = new sharejs.Connection(socket);
 
 
