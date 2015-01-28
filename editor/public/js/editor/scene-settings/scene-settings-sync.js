@@ -1,17 +1,20 @@
-// editor.once('load', function() {
-//     'use strict';
+editor.once('load', function() {
+    'use strict';
 
-//     var obj = editor.call('sceneSettings');
+    editor.on('sceneSettings:load', function(settings) {
+        settings.sync = new ObserverSync({
+            item: settings,
+            prefix: [ 'settings' ]
+        });
 
-//     editor.on('realtime:settings', function(op) {
-//         if (op.od && op.oi) {
-//             // patch
-//             obj.history = false;
-//             obj.patch(op.oi);
-//             obj.history = true;
-//         } else {
-//             // unknown
-//             console.log('unknown settings operation', op);
-//         }
-//     });
-// });
+        // client > server
+        settings.sync.on('op', function(op) {
+            editor.call('realtime:op', op);
+        });
+
+        // server > client
+        editor.on('realtime:op:settings', function(op) {
+            settings.sync.write(op);
+        });
+    });
+});

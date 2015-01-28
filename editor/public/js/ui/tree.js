@@ -102,21 +102,30 @@ Tree.prototype._onDragMove = function(evt) {
         return;
 
     var rect = this.elementDrag.getBoundingClientRect();
-    var area = Math.floor((evt.clientY - rect.top) / rect.height * 4);
+    var area = Math.floor((evt.clientY - rect.top) / rect.height * 5);
 
     var oldArea = this._dragArea;
+    var oldDragOver = this._dragOver;
 
     if (this._dragOver.parent === this) {
-        this._dragArea = 'inside';
-    } else if (area === 0) {
+        if (this._dragItems[0].parent === this._dragOver) {
+            this._dragOver = null;
+        } else {
+            this._dragArea = 'inside';
+        }
+    } else if (area <= 1 && this._dragOver.prev !== this._dragItems[0]) {
         this._dragArea = 'before';
-    } else if (area === 3 && (this._dragOver._children === 0 || ! this._dragOver.open)) {
+    } else if (area >= 4 && this._dragOver.next !== this._dragItems[0] && (this._dragOver._children === 0 || ! this._dragOver.open)) {
         this._dragArea = 'after';
     } else {
-        this._dragArea = 'inside';
+        if (this._dragOver === this._dragItems[0].parent && this._dragOver.open) {
+            this._dragArea = 'before';
+        } else {
+            this._dragArea = 'inside';
+        }
     }
 
-    if (oldArea !== this._dragArea)
+    if (oldArea !== this._dragArea || oldDragOver !== this._dragOver)
         this._updateDragHandle();
 };
 

@@ -315,6 +315,10 @@ Object.defineProperty(TreeItem.prototype, 'next', {
 });
 
 
+TreeItem.prototype.child = function(ind) {
+    return this.element.childNodes[ind + 1];
+};
+
 
 
 window.ui.TreeItem = TreeItem;

@@ -33,13 +33,19 @@ editor.once('load', function() {
         entity.reparenting = true;
 
         // relative entity
-        var nextInd = -1;
-        if (item.next && item.next.entity)
-            nextInd = parent.children.indexOf(item.next.entity.resource_id);
+        var ind = parent.children.indexOf(entity.resource_id);
+        var indNew = -1;
 
-        if (parentOld === parent) {
+        if (item.next && item.next.entity) {
+            indNew = parent.children.indexOf(item.next.entity.resource_id);
+
+            if (parent === parentOld && ind < indNew)
+                indNew--;
+        }
+
+        if (parent === parentOld) {
             // move
-            parent.move('children', entity.resource_id, nextInd);
+            parent.move('children', entity.resource_id, indNew);
 
         } else {
             // reparenting
@@ -48,9 +54,9 @@ editor.once('load', function() {
             parentOld.remove('children', entity.resource_id);
 
             // add to new parent children
-            if (nextInd !== -1) {
+            if (indNew !== -1) {
                 // before other item
-                parent.insert('children', entity.resource_id, nextInd);
+                parent.insert('children', entity.resource_id, indNew);
             } else {
                 // at the end
                 parent.insert('children', entity.resource_id);
@@ -116,12 +122,22 @@ editor.once('load', function() {
 
             element.remove(item);
 
+            var next = uiItemIndex[entity.children[ind + 1]];
+            var after = null;
+            if (next === item) {
+                next = null;
+
+                if (ind > 0)
+                    after = uiItemIndex[entity.children[ind]]
+            }
+
             if (item.parent)
                 item.parent.remove(item);
 
-            var next = uiItemIndex[entity.children[ind + 1]];
             if (next) {
                 element.appendBefore(item, next);
+            } else if (after) {
+                element.appendAfter(item, after);
             } else {
                 element.append(item);
             }
