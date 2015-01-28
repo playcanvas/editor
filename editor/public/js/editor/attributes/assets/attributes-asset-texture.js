@@ -86,6 +86,7 @@ editor.once('load', function() {
 
         image.style.backgroundImage = 'url("/editor/img/asset-placeholder-texture.png")';
         image.style.backgroundRepeat = 'repeat';
+        image.style.backgroundPosition = 'center center';
         image.style.margin = '0 auto';
 
         image.onload = function() {
