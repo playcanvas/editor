@@ -31,17 +31,13 @@
 
         this.coordinateSystem = 'world';
         this.snap = false;
+        this.overrideSnap = false;
         this.snapIncrement = 1;
 
         // holds indices of picker shapes that are considered disabled
         this.disabledShapes = [];
 
         this.isDragging = false;
-        this.overrideSnap = false;
-
-        this.dragFromX = 0;
-        this.dragFromY = 0;
-        this.dragInitialTransform = null;
     }
 
     pc.Gizmo.prototype = {
@@ -288,9 +284,17 @@
                     // prevent default event which causes selection of text
                     e.event.preventDefault();
 
-                    this.dragFromX = e.x;
-                    this.dragFromY = e.y;
-                    this.dragInitialTransform = this.entity.getWorldTransform().clone();
+                    this._startDrag(e);
+                    this.isDragging = true;
+                }
+            }
+        },
+
+        handleMouseUp: function (e) {
+            if(e.button === pc.input.MOUSEBUTTON_LEFT) {
+                if(this.isDragging) {
+                    this.isDragging = false;
+                    this._endDrag();
                 }
             }
         },
@@ -307,7 +311,19 @@
 
         _handleDragging: function (e) {
             this.overrideSnap = e.shiftKey;
-            this.dragGizmo(e.x, e.y);
+            this._drag(e);
+        },
+
+        _startDrag: function (e) {
+            // implemented by derived
+        },
+
+        _endDrag: function (e) {
+            // implemented by derived
+        },
+
+        _drag: function (e) {
+            // implemented by derived
         },
 
         _handleHovering: function (e) {
@@ -363,8 +379,53 @@
             }
         },
 
-        handleMouseUp: function (e) {
+        _setEntityAttribute: function (attribute, value, undo) {
+            var entity = editor.call('entities:get', this.entity.getGuid());
+            if (entity) {
+                entity.history.combine = !undo;
+                entity.set(attribute, value);
+            }
+        },
 
+        _screenToNearClipCoord: function (x, y) {
+            var cameraEntity = this.cameraEntity;
+            var camera = cameraEntity.camera.camera;
+            var vp = camera.getRect();
+            var gd = this.context.graphicsDevice;
+            var dw = gd.width;
+            var dh = gd.height;
+            var vpx = vp.x * dw;
+            var vpy = vp.y * dh;
+            var vpw = vp.width * dw;
+            var vph = vp.height * dh;
+
+            var nearClip = cameraEntity.camera.nearClip;
+
+            var viewWindow = new pc.Vec2();
+            switch (cameraEntity.camera.projection) {
+                case pc.scene.PROJECTION_ORTHOGRAPHIC:
+                    viewWindow.x = cameraEntity.camera.orthoHeight * cameraEntity.camera.aspectRatio;
+                    viewWindow.y = cameraEntity.camera.orthoHeight;
+                    break;
+                case pc.scene.PROJECTION_PERSPECTIVE:
+                    var fov = cameraEntity.camera.fov;
+                    viewWindow.y = nearClip * Math.tan(fov * 0.5 * Math.PI / 180);
+                    viewWindow.x = viewWindow.y * vpw / vph;
+                    break;
+                default:
+                    break;
+            }
+
+            var eye = cameraEntity.getPosition().clone();
+            var lookDir = cameraEntity.forward.scale(nearClip);
+
+            var scaleX = viewWindow.x * (((vpw - x) / vpw) * 2 - 1);
+            var xOffset = cameraEntity.right.scale(-scaleX);
+
+            var scaleY = viewWindow.y * (((vph - y) / vph) * 2 - 1);
+            var yOffset = cameraEntity.up.scale(scaleY);
+
+            return eye.add(lookDir).add(xOffset).add(yOffset);
         }
     };
 })();

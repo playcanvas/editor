@@ -15,6 +15,10 @@
         this.selectedPlaneMaterial = this._createTransparentMaterial(new pc.Color(1, 1, 0, 0.3));
 
         this.setSnapIncrement(1);
+
+        this.startX = 0;
+        this.startY = 0;
+        this.startTransform = null;
     }
 
     pc.GizmoTranslate = pc.inherits(pc.GizmoTranslate, pc.Gizmo);
@@ -232,6 +236,135 @@
             shapes.forEach(function (s) {
                 s.model.graph.getWorldTransform().copy(s.shape.transform);
             })
+        },
+
+        _startDrag: function (e) {
+            this.startX = e.x;
+            this.startY = e.y;
+            this.startTransform = this.entity.getWorldTransform().clone();
+        },
+
+        _endDrag: function (e) {
+            var position = this.entity.getPosition();
+            this._setEntityAttribute('position', position.data, true);
+        },
+
+        _drag: function (e) {
+            var x = e.x;
+            var y = e.y;
+            var cameraEntity = this.cameraEntity;
+            var entityWtm = this.startTransform;
+            var snapIncrement = this.snapIncrement;
+
+            // Calculate the world space coordinate of the click coordinate in the camera's projection plane
+            var currentNearClipCoord = this._screenToNearClipCoord(x, y);
+            var initialNearClipCoord = this._screenToNearClipCoord(this.startX, this.startY);
+
+            // Setup our axes depending on the current coordinate system
+            var refWorld = (this.coordinateSystem === 'world');
+            var axes = [];
+            if (refWorld) {
+                axes[0] = pc.Vec3.RIGHT;
+                axes[1] = pc.Vec3.UP;
+                axes[2] = pc.Vec3.BACK;
+            } else {
+                axes[0] = entityWtm.getX().normalize();
+                axes[1] = entityWtm.getY().normalize();
+                axes[2] = entityWtm.getZ().normalize();
+            }
+
+            var planeNormal;
+            var lookDir = cameraEntity.forward;
+
+            // Get the normal for the plane that constitutes the plane of movement for the gizmo
+            var axis = this.activeAxis;
+            if (axis == 0) {
+                planeNormal = (Math.abs(axes[1].dot(lookDir)) > Math.abs(axes[2].dot(lookDir))) ? axes[1] : axes[2];
+            } else if (axis == 1) {
+                planeNormal = (Math.abs(axes[0].dot(lookDir)) > Math.abs(axes[2].dot(lookDir))) ? axes[0] : axes[2];
+            } else if (axis == 2) {
+                planeNormal = (Math.abs(axes[0].dot(lookDir)) > Math.abs(axes[1].dot(lookDir))) ? axes[0] : axes[1];
+            } else if (axis == 3) {
+                planeNormal = axes[2];
+            } else if (axis == 4) {
+                planeNormal = axes[0];
+            } else if (axis == 5) {
+                planeNormal = axes[1];
+            }
+
+            var entityPosition = entityWtm.getTranslation();
+
+            var plane = new pc.shape.Plane(entityPosition, planeNormal);
+
+            // Find the intersection point from the camera position to the plane for the initial mouse position and the current position
+            var eyePosition = cameraEntity.getPosition();
+            if (cameraEntity.camera.projection === pc.scene.PROJECTION_PERSPECTIVE) {
+                var currentIntersection = plane.intersectPosition(eyePosition, currentNearClipCoord);
+                var initialIntersection = plane.intersectPosition(eyePosition, initialNearClipCoord);
+            } else {
+                var temp = currentNearClipCoord.clone().add(lookDir);
+                var currentIntersection = plane.intersectPosition(currentNearClipCoord, temp);
+                temp.add2(initialNearClipCoord, lookDir);
+                var initialIntersection = plane.intersectPosition(initialNearClipCoord, temp);
+            }
+
+            // the difference of those two points is the translation that we want to apply
+            var translate = currentIntersection.clone().sub(initialIntersection);
+
+            // if we're only moving on one axis then project the translation vector on that axis
+            if (axis <= 2) {
+                translate.project(axes[axis]);
+            }
+
+            // Snap the translation to the closest increment if necessary
+            if (this.snap && !this.overrideSnap && snapIncrement > 0) {
+                // if we're only moving on 1 axis then snap the length of the translation vector
+                if (axis <= 2) {
+                    var amount = translate.length();
+
+                    if (amount > 0) {
+                        var scale = Math.round(amount / snapIncrement) * snapIncrement / amount;
+                        translate.scale(scale);
+                    }
+                } else {
+                    // if we're moving on multiple axes then snap to
+                    // the horizontal and vertical components of the active axes
+                    var horizontal, vertical;
+                    switch (axis) {
+                        case 3:
+                            horizontal = axes[0]; vertical = axes[1];
+                            break;
+                        case 4:
+                            horizontal = axes[1]; vertical = axes[2];
+                            break;
+                        case 5:
+                            horizontal = axes[0]; vertical = axes[2];
+                            break;
+                    }
+
+                    var h = translate.clone().project(horizontal);
+                    var amount = h.length();
+                    if (amount > 0) {
+                        h.scale(Math.round(amount / snapIncrement) * snapIncrement / amount);
+                    }
+
+                    var v = translate.clone().project(vertical);
+                    amount = v.length();
+                    if (amount > 0) {
+                        v.scale(Math.round(amount / snapIncrement) * snapIncrement / amount);
+                    }
+
+                    translate.add2(h, v);
+                }
+            }
+
+            var updatedTransform = new pc.Mat4().setTranslate(translate.x, translate.y, translate.z).mul(this.startTransform);
+            var inverseParentWtm = this.entity.getParent().getWorldTransform().clone().invert();
+            updatedTransform.mul2(inverseParentWtm, updatedTransform);
+
+            var newValue = updatedTransform.getTranslation();
+
+            this._setEntityAttribute('position', newValue.data, false);
         }
 
     });

@@ -53,6 +53,24 @@ editor.once('load', function() {
         // create entity
         var entity = data.entity = loadEntity(data);
 
+        // subscribe to events
+        data.on('*:set', function(path, value) {
+            if (path === 'name') {
+                entity.setName(value);
+            } else if (path.indexOf('position') === 0) {
+                var position = data.get('position');
+                entity.setPosition(new pc.Vec3(position[0], position[1], position[2]));
+            } else if (path.indexOf('rotation') === 0) {
+                var angles = data.get('rotation');
+                entity.setEulerAngles(new pc.Vec3(angles[0], angles[1], angles[2]));
+            } else if (path.indexOf('scale') === 0) {
+                var scale = data.get('scale');
+                entity.setLocalScale(new pc.Vec3(scale[0], scale[1], scale[2]));
+            }
+
+            editor.call('3d:render');
+        });
+
         // add components
         var components = data.json().components;
         for(var key in components)
