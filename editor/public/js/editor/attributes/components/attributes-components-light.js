@@ -73,9 +73,13 @@ editor.once('load', function() {
         var fieldColor = new ui.ColorField();
         fieldColor.link(entity, 'components.light.color');
         fieldColor.on('click', function() {
-            editor.call('picker:color', function(value) {
+            editor.call('picker:color', fieldColor.value, function(value) {
                 fieldColor.value = value;
             });
+
+            var rectPicker = editor.call('picker:color:rect');
+            var rectField = fieldColor.element.getBoundingClientRect();
+            editor.call('picker:color:position', rectField.right - rectPicker.width, rectField.bottom);
         });
         panelColor.append(fieldColor);
 

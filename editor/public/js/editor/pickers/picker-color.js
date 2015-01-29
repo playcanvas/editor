@@ -1,8 +1,143 @@
 editor.once('load', function() {
     'use strict';
 
+    var size = 144;
+    var hueUpdate = true;
+    var colorHSV = [ 0, 0, 0 ];
+    var channels = [ ];
+    var channelsNumber = 4;
+    var callback = null;
+
+
+    // rect drag
+    var pickRectMouseMove = function(evt) {
+        var rect = pickRect.getBoundingClientRect();
+        var x = Math.max(0, Math.min(size, Math.floor(evt.clientX - rect.left)));
+        var y = Math.max(0, Math.min(size, Math.floor(evt.clientY - rect.top)));
+
+        colorHSV[1] = x / size;
+        colorHSV[2] = 1.0 - (y / size);
+
+        hueUpdate = false;
+        var rgb = hsv2rgb([ colorHSV[0], colorHSV[1], colorHSV[2] ]);
+        for(var i = 0; i < 3; i++) {
+            channels[i].value = rgb[i];
+        }
+        hueUpdate = true;
+
+        pickRectHandle.style.left = Math.max(4, Math.min(size - 4, x)) + 'px';
+        pickRectHandle.style.top = Math.max(4, Math.min(size - 4, y)) + 'px';
+    };
+
+    // rect drag stop
+    var pickRectMouseUp = function() {
+        window.removeEventListener('mousemove', pickRectMouseMove, false);
+        window.removeEventListener('mouseup', pickRectMouseUp, false);
+    };
+
+    // hue drag
+    var pickHueMouseMove = function(evt) {
+        var rect = pickHue.getBoundingClientRect();
+        var y = Math.max(0, Math.min(size, Math.floor(evt.clientY - rect.top)));
+        var h = y / size;
+
+        var rgb = hsv2rgb([ h, colorHSV[1], colorHSV[2] ]);
+        colorHSV[0] = h;
+
+        hueUpdate = false;
+        for(var i = 0; i < 3; i++) {
+            channels[i].value = rgb[i];
+        }
+        updateRects();
+        hueUpdate = true;
+    };
+
+    // hue drag stop
+    var pickHueMouseUp = function() {
+        window.removeEventListener('mousemove', pickHueMouseMove, false);
+        window.removeEventListener('mouseup', pickHueMouseUp, false);
+    };
+
+    // opacity drag
+    var pickOpacityMouseMove = function(evt) {
+        var rect = pickHue.getBoundingClientRect();
+        var y = Math.max(0, Math.min(size, Math.floor(evt.clientY - rect.top)));
+        var o = 1.0 - y / size;
+
+        fieldA.value = Math.max(0, Math.min(255, Math.round(o * 255)));
+    };
+
+    // opacity drag stop
+    var pickOpacityMouseUp = function() {
+        window.removeEventListener('mousemove', pickOpacityMouseMove, false);
+        window.removeEventListener('mouseup', pickOpacityMouseUp, false);
+    };
+
+
+    // update rgb
+    var updateRects = function() {
+        var color = channels.map(function(channel) {
+            return channel.value || 0;
+        }).slice(0, channelsNumber);
+
+        var hsv = rgb2hsv(color);
+        if (hueUpdate) {
+            var sum = color[0] + color[1] + color[2];
+            if (sum !== 765 && sum !== 0)
+                colorHSV[0] = hsv[0];
+
+            colorHSV[1] = hsv[1];
+            colorHSV[2] = hsv[2];
+        }
+
+        // hue position
+        pickHueHandle.style.top = Math.floor(size * colorHSV[0]) + 'px'; // h
+
+        // rect position
+        pickRectHandle.style.left = Math.max(4, Math.min(size - 4, size * colorHSV[1])) + 'px'; // s
+        pickRectHandle.style.top = Math.max(4, Math.min(size - 4, size * (1.0 - colorHSV[2]))) + 'px'; // v
+
+        if (channelsNumber >= 3) {
+            var plainColor = hsv2rgb([ colorHSV[0], 1, 1 ]).join(',');
+
+            // rect background color
+            pickRect.style.backgroundColor = 'rgb(' + plainColor + ')';
+
+            // rect handle color
+            pickRectHandle.style.backgroundColor = 'rgb(' + color.slice(0, 3).join(',') + ')';
+
+            // hue handle color
+            pickHueHandle.style.backgroundColor = 'rgb(' + plainColor + ')';
+        }
+
+        if (callback)
+            callback(color);
+    };
+
+    // update alpha handle
+    var updateRectAlpha = function(value) {
+        if (channelsNumber !== 4)
+            return;
+
+        // position
+        pickOpacityHandle.style.top = Math.floor(size * (1.0 - (Math.max(0, Math.min(255, value)) / 255))) + 'px';
+
+        // color
+        pickOpacityHandle.style.backgroundColor = 'rgb(' + [ value, value, value ].join(',') + ')';
+
+        if (callback) {
+            callback(channels.map(function(channel) {
+                return channel.value || 0;
+            }));
+        }
+    };
+
+
+    // overlay
     var overlay = new ui.Overlay();
     overlay.class.add('picker-color');
+    overlay.center = false;
+    overlay.transparent = true;
     overlay.hidden = true;
 
 
@@ -11,32 +146,16 @@ editor.once('load', function() {
     pickRect.classList.add('pick-rect');
     overlay.append(pickRect);
 
-    var pickRectMouseMove = function(evt) {
-        var rect = pickRect.getBoundingClientRect();
-        var x = Math.max(0, Math.min(pickRect.clientWidth, Math.floor(evt.clientX - rect.left)));
-        var y = Math.max(0, Math.min(pickRect.clientHeight, Math.floor(evt.clientY - rect.top)));
-
-        pickRectHandle.style.left = x + 'px';
-        pickRectHandle.style.top = y + 'px';
-
-        var s = x / pickRect.clientWidth;
-        var l = 1.0 - (y / pickRect.clientHeight);
-
-        console.log(s, l)
-    };
-
-    var pickRectMouseUp = function() {
-        window.removeEventListener('mousemove', pickRectMouseMove, false);
-        window.removeEventListener('mouseup', pickRectMouseUp, false);
-    };
-
+    // rect drag start
     pickRect.addEventListener('mousedown', function(evt) {
+        pickRectMouseMove(evt);
+
         window.addEventListener('mousemove', pickRectMouseMove, false);
         window.addEventListener('mouseup', pickRectMouseUp, false);
+
         evt.stopPropagation();
         evt.preventDefault();
     });
-
 
     // white
     var pickRectWhite = document.createElement('div');
@@ -59,11 +178,43 @@ editor.once('load', function() {
     pickHue.classList.add('pick-hue');
     overlay.append(pickHue);
 
+    // hue drag start
+    pickHue.addEventListener('mousedown', function(evt) {
+        pickHueMouseMove(evt);
+
+        window.addEventListener('mousemove', pickHueMouseMove, false);
+        window.addEventListener('mouseup', pickHueMouseUp, false);
+
+        evt.stopPropagation();
+        evt.preventDefault();
+    });
+
+    // handle
+    var pickHueHandle = document.createElement('div');
+    pickHueHandle.classList.add('handle');
+    pickHue.appendChild(pickHueHandle);
+
 
     // opacity (gradient) picker
     var pickOpacity = document.createElement('div');
     pickOpacity.classList.add('pick-opacity');
     overlay.append(pickOpacity);
+
+    // opacoty drag start
+    pickOpacity.addEventListener('mousedown', function(evt) {
+        pickOpacityMouseMove(evt);
+
+        window.addEventListener('mousemove', pickOpacityMouseMove, false);
+        window.addEventListener('mouseup', pickOpacityMouseUp, false);
+
+        evt.stopPropagation();
+        evt.preventDefault();
+    });
+
+    // handle
+    var pickOpacityHandle = document.createElement('div');
+    pickOpacityHandle.classList.add('handle');
+    pickOpacity.appendChild(pickOpacityHandle);
 
 
 
@@ -73,42 +224,50 @@ editor.once('load', function() {
     overlay.append(panelFields);
 
 
-    var channels = [ ];
-
-
     // R
     var fieldR = new ui.NumberField();
     channels.push(fieldR);
+    fieldR.renderChanges = false;
     fieldR.placeholder = 'r';
     fieldR.flexGrow = 1;
-    fieldR.class.add('field');
+    fieldR.class.add('field', 'field-r');
+    fieldR.on('change', updateRects);
     panelFields.appendChild(fieldR.element);
 
     // G
     var fieldG = new ui.NumberField();
     channels.push(fieldG);
+    fieldG.renderChanges = false;
     fieldG.placeholder = 'g';
-    fieldG.class.add('field');
+    fieldG.class.add('field', 'field-g');
+    fieldG.on('change', updateRects);
     panelFields.appendChild(fieldG.element);
 
     // B
     var fieldB = new ui.NumberField();
     channels.push(fieldB);
+    fieldB.renderChanges = false;
     fieldB.placeholder = 'b';
-    fieldB.class.add('field');
+    fieldB.class.add('field', 'field-b');
+    fieldB.on('change', updateRects);
     panelFields.appendChild(fieldB.element);
+
 
     // A
     var fieldA = new ui.NumberField();
     channels.push(fieldA);
+    fieldA.renderChanges = false;
     fieldA.placeholder = 'a';
-    fieldA.class.add('field');
+    fieldA.class.add('field', 'field-a');
+    fieldA.on('change', updateRectAlpha);
     panelFields.appendChild(fieldA.element);
+
 
     // HEX
     var fieldHex = new ui.TextField();
+    fieldHex.renderChanges = false;
     fieldHex.placeholder = '#';
-    fieldHex.class.add('field');
+    fieldHex.class.add('field', 'field-hex');
     panelFields.appendChild(fieldHex.element);
 
 
@@ -116,18 +275,51 @@ editor.once('load', function() {
     root.append(overlay);
 
 
+    overlay.on('hide', function() {
+        callback = null;
+    });
+
+
     // call picker
     editor.method('picker:color', function(color, fn) {
-        fieldG.hidden = color.length < 2;
-        fieldB.hidden = color.length < 3;
-        fieldA.hidden = color.length < 4;
+        // class for channels
+        for(var i = 0; i < 4; i++) {
+            if (color.length - 1 < i) {
+                overlay.class.remove('c-' + (i + 1));
+            } else {
+                overlay.class.add('c-' + (i + 1));
+            }
+        }
 
+        // number of channels
+        channelsNumber = color.length;
+
+        if (channelsNumber >= 3) {
+            var hsv = rgb2hsv(color);
+            colorHSV[0] = hsv[0];
+            colorHSV[1] = hsv[1];
+            colorHSV[2] = hsv[2];
+        }
+
+        // set fields
+        hueUpdate = false;
         for(var i = 0; i < color.length; i++) {
             channels[i].value = color[i];
         }
+        hueUpdate = true;
 
+        // show overlay
         overlay.hidden = false;
+
+        callback = fn;
     });
 
-    editor.call('picker:color', [ 255, 128, 0, 1 ]);
+    editor.method('picker:color:rect', function() {
+        return overlay.rect;
+    });
+
+    // position color picker
+    editor.method('picker:color:position', function(x, y) {
+        overlay.position(x, y);
+    });
 });

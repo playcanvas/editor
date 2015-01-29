@@ -215,10 +215,15 @@ Object.defineProperty(Element.prototype, 'hidden', {
         return this._element.classList.contains('hidden');
     },
     set: function(value) {
+        if (this._element.classList.contains('hidden') === !! value)
+            return;
+
         if (value) {
             this._element.classList.add('hidden');
+            this.emit('hide');
         } else {
             this._element.classList.remove('hidden');
+            this.emit('show');
         }
     }
 });

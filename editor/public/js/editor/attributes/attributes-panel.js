@@ -225,7 +225,13 @@ editor.once('load', function() {
                 }
 
                 field.on('click', function() {
-                    console.log("!");
+                    editor.call('picker:color', field.value, function(value) {
+                        field.value = value;
+                    });
+
+                    var rectPicker = editor.call('picker:color:rect');
+                    var rectField = field.element.getBoundingClientRect();
+                    editor.call('picker:color:position', rectField.right - rectPicker.width, rectField.bottom);
                 });
 
                 panel.append(field);

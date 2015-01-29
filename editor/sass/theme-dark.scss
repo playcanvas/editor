@@ -87,6 +87,12 @@ a:visited {
     }
 }
 
+.ui-overlay {
+    > .overlay {
+        background-color: rgba($bcg-darker, .7);
+    }
+}
+
 .ui-tree {
     &.dragging {
         > .drag-handle {
@@ -242,7 +248,6 @@ a:visited {
 
 .ui-color-field {
     border: 1px solid $bcg-darker;
-    background-color: $bcg-dark;
 
     > .icon {
         background-color: $bcg-dark;

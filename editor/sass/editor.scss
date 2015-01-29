@@ -207,18 +207,60 @@ body {
 }
 
 .picker-color {
+    &.c-1 > .content {
+        > .pick-opacity {
+            display: block;
+        }
+        > .fields > .field-r {
+            display: block;
+        }
+    }
+    &.c-2 > .content {
+        > .fields > .field-hex {
+            // display: block;
+        }
+    }
+    &.c-3 > .content {
+        width: 298px;
+
+        > .pick-rect {
+            display: block;
+        }
+        > .pick-hue {
+            display: block;
+        }
+        > .pick-opacity {
+            display: none;
+        }
+        > .fields {
+            > .field-g,
+            > .field-b {
+                display: block;
+            }
+        }
+    }
+    &.c-4 > .content {
+        width: 320px;
+
+        > .pick-opacity {
+            display: block;
+        }
+        > .fields > .field-a {
+            display: block;
+        }
+    }
     > .content {
         border: 1px solid #000;
         width: 320px;
         height: 162px;
-        margin-left: calc(-322px / 2);
-        margin-top: calc(-164px / 2);
         background-color: #333;
         white-space: nowrap;
+        transition: none;
 
         > .pick-rect {
             @extend .noSelect;
             position: relative;
+            display: none;
             float: left;
             width: 144px;
             height: 144px;
@@ -258,8 +300,8 @@ body {
                 position: absolute;
                 top: 0;
                 left: 0;
-                width: 8px;
-                height: 8px;
+                width: 12px;
+                height: 12px;
                 margin: -7px 0 0 -7px;
                 border: 1px solid #000;
                 outline: 1px solid #fff;
@@ -267,6 +309,8 @@ body {
         }
         > .pick-hue {
             @extend .noSelect;
+            position: relative;
+            display: none;
             float: left;
             width: 12px;
             height: 144px;
@@ -322,9 +366,22 @@ body {
                 rgba(0, 0, 255, 1) 66.67%,
                 rgba(255, 0, 255, 1) 83.33%,
                 rgba(255, 0, 0, 1) 100%);
+
+            > .handle {
+                position: absolute;
+                top: 0;
+                left: -3px;
+                width: 16px;
+                height: 4px;
+                margin: -3px 0 0 0;
+                border: 1px solid #000;
+                outline: 1px solid #fff;
+            }
         }
         > .pick-opacity {
             @extend .noSelect;
+            position: relative;
+            display: none;
             float: left;
             width: 12px;
             height: 144px;
@@ -338,15 +395,27 @@ body {
             background: -o-linear-gradient(top,  #ffffff 0%,#000000 100%); /* Opera 11.10+ */
             background: -ms-linear-gradient(top,  #ffffff 0%,#000000 100%); /* IE10+ */
             background: linear-gradient(to bottom,  #ffffff 0%,#000000 100%); /* W3C */
+
+            > .handle {
+                position: absolute;
+                top: 0;
+                left: -3px;
+                width: 16px;
+                height: 4px;
+                margin: -3px 0 0 0;
+                border: 1px solid #000;
+                outline: 1px solid #fff;
+            }
         }
         > .fields {
             float: left;
             width: 106px;
+            height: 154px;
             margin: 0 0 0 8px;
             padding: 4px;
 
             > .field {
-                display: block;
+                display: none;
                 width: calc(106px - 10px);
             }
         }
