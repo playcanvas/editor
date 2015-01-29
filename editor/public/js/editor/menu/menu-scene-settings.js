@@ -7,6 +7,7 @@ editor.once('load', function() {
     var button = new ui.Button({
         text: 'Scene Settings'
     });
+    button.disabled = true;
     header.append(button);
 
     button.on('click', function() {
@@ -15,5 +16,9 @@ editor.once('load', function() {
 
     editor.on('attributes:inspect[sceneSettings]', function() {
         editor.call('attributes.rootPanel').folded = false;
+    });
+
+    editor.once('sceneSettings:load', function() {
+        button.enabled = true;
     });
 });
