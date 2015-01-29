@@ -6,7 +6,6 @@ editor.once('load', function() {
     });
     canvas.style.width = '100%';
 
-    // var container = editor.call('layout.viewport');
     var settings = editor.call('designerSettings');
 
     // create designer framework
@@ -32,22 +31,22 @@ editor.once('load', function() {
     // methods
 
     // get canvas
-    editor.method('3d:canvas', function() {
+    editor.method('viewport:canvas', function() {
         return canvas;
     });
 
     // get framework
-    editor.method('3d:framework', function() {
+    editor.method('viewport:framework', function() {
         return framework;
     });
 
-    // re-render 3d view
-    editor.method('3d:render', function () {
+    // re-render viewport
+    editor.method('viewport:render', function () {
         framework.redraw = true;
     });
 
     // update user camera transform
-    editor.method('3d:saveCamera', function (options) {
+    editor.method('viewport:saveCamera', function (options) {
         // TODO
     });
 
@@ -65,6 +64,4 @@ editor.once('load', function() {
 
     // start framework
     framework.start();
-
-    editor.emit('3d:start');
 });

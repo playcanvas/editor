@@ -176,7 +176,7 @@
 
         setActiveAxis: function (axis) {
             this.activeAxis = axis;
-            editor.call('3d:render');
+            editor.call('viewport:render');
         },
 
         // Sets current coordinate system. Can be 'world' or 'local'

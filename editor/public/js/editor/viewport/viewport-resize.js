@@ -1,16 +1,16 @@
-editor.once('3d:start', function() {
+editor.once('load', function() {
     'use strict'
 
     var container = editor.call('layout.viewport');
-    var canvas = editor.call('3d:canvas');
-    var framework = editor.call('3d:framework');
+    var canvas = editor.call('viewport:canvas');
+    var framework = editor.call('viewport:framework');
 
 
     // once canvas resized
     // notify framework
     canvas.on('resize', function(width, height) {
         framework.resize(width, height);
-        editor.call('3d:render');
+        editor.call('viewport:render');
     });
 
 

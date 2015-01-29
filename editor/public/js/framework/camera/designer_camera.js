@@ -136,7 +136,7 @@ pc.script.create( "designer_camera", function (context) {
 
         // The next line may seem redundant. However, we're forcing the script's render
         // function to be fired, thereby allowing the next animation step to be scheduled.
-        editor.call('3d:render');
+        editor.call('viewport:render');
     };
 
     DesignerCamera.prototype.pan = function(movement) {
@@ -160,11 +160,11 @@ pc.script.create( "designer_camera", function (context) {
 
         this.entity.setLocalPosition(position);
 
-        editor.call('3d:saveCamera', {
+        editor.call('viewport:saveCamera', {
             position: this.entity.getLocalPosition()
         });
 
-        editor.call('3d:render');
+        editor.call('viewport:render');
     };
 
     /**
@@ -206,11 +206,11 @@ pc.script.create( "designer_camera", function (context) {
 
         this.entity.setLocalPosition(position);
 
-        editor.call('3d:saveCamera', {
+        editor.call('viewport:saveCamera', {
             position: this.entity.getLocalPosition()
         });
 
-        editor.call('3d:render');
+        editor.call('viewport:render');
     };
 
     DesignerCamera.prototype.orbit = function (rotation) {
@@ -232,12 +232,12 @@ pc.script.create( "designer_camera", function (context) {
         var angles = this.entity.getLocalEulerAngles();
         var position = this.entity.getLocalPosition();
 
-        editor.call('3d:saveCamera', {
+        editor.call('viewport:saveCamera', {
             position: position,
             rotation: angles
         });
 
-        editor.call('3d:render');
+        editor.call('viewport:render');
     };
 
     DesignerCamera.prototype.updateViewWindow = function (delta) {
@@ -246,11 +246,11 @@ pc.script.create( "designer_camera", function (context) {
             newHeight = 1;
         }
 
-        editor.call('3d:saveCamera', {
+        editor.call('viewport:saveCamera', {
             orthoHeight: newHeight
         });
 
-        editor.call('3d:render');
+        editor.call('viewport:render');
     };
 
     DesignerCamera.prototype.onMouseWheel = function (event) {
@@ -423,12 +423,12 @@ pc.script.create( "designer_camera", function (context) {
 
             this.entity.setPosition(eyePos);
 
-            editor.call('3d:saveCamera', {
+            editor.call('viewport:saveCamera', {
                 position: this.entity.getLocalPosition()
             });
 
 
-            editor.call('3d:render');
+            editor.call('viewport:render');
         }
     };
 
