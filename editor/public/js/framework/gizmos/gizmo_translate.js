@@ -245,7 +245,7 @@
         },
 
         _endDrag: function (e) {
-            var position = this.entity.getPosition();
+            var position = this.entity.getLocalPosition();
             this._setEntityAttribute('position', [position.x, position.y, position.z], true);
         },
 
@@ -298,7 +298,7 @@
 
             // Find the intersection point from the camera position to the plane for the initial mouse position and the current position
             var eyePosition = cameraEntity.getPosition();
-            if (cameraEntity.camera.projection === pc.scene.PROJECTION_PERSPECTIVE) {
+            if (cameraEntity.camera.projection === pc.PROJECTION_PERSPECTIVE) {
                 var currentIntersection = plane.intersectPosition(eyePosition, currentNearClipCoord);
                 var initialIntersection = plane.intersectPosition(eyePosition, initialNearClipCoord);
             } else {
