@@ -382,7 +382,7 @@
         _setEntityAttribute: function (attribute, value, undo) {
             var entity = editor.call('entities:get', this.entity.getGuid());
             if (entity) {
-                entity.history.combine = !undo;
+                entity.history.combine = ! undo;
                 entity.set(attribute, value);
             }
         },
