@@ -32,7 +32,7 @@ editor.once('load', function() {
             data.name = 'entity.' + entity.resource_id + '.' + data.name;
 
             // check if path is within combineFields list and last history operation is for same field
-            if (combineFields.indexOf(path) !== -1 && editor.call('history:canUndo') && editor.call('history:current').combine && editor.call('history:current').name === data.name) {
+            if (data.combine && combineFields.indexOf(path) !== -1 && editor.call('history:canUndo') && editor.call('history:current').name === data.name) {
                 // then update last history operation
                 editor.call('history:update', data);
             } else {

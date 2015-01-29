@@ -19,7 +19,7 @@
         this.startX = 0;
         this.startY = 0;
         this.startTransform = null;
-        this.startPosition = null;
+        this.started = false;
     }
 
     pc.GizmoTranslate = pc.inherits(pc.GizmoTranslate, pc.Gizmo);
@@ -243,39 +243,12 @@
             this.startX = e.x;
             this.startY = e.y;
             this.startTransform = this.entity.getWorldTransform().clone();
-
-            var observer = this._getObserver();
-            if (observer) {
-                this.startPosition = this.entity.getLocalPosition().clone();
-                observer.history.enabled = false;
-            }
+            this.started = true;
         },
 
         _endDrag: function (e) {
-            var position = this.entity.getLocalPosition();
-            this._setEntityAttribute('position', [position.x, position.y, position.z], true);
-
-            var observer = this._getObserver();
-            if (observer) {
-                var startPosition = this.startPosition;
-                var endPosition = position.clone();
-
-                observer.history.enabled = true;
-
-                observer.history.emit('add', {
-                    name: 'position',
-                    undo: function() {
-                        observer.history._enabled = false;
-                        observer.set('position', [ startPosition.x, startPosition.y, startPosition.z ]);
-                        observer.history._enabled = true;
-                    },
-                    redo: function() {
-                        observer.history._enabled = false;
-                        observer.set('position', [ endPosition.x, endPosition.y, endPosition.z ]);
-                        observer.history._enabled = true;
-                    }
-                });
-            }
+            // var position = this.entity.getLocalPosition();
+            // this._setEntityAttribute('position', [position.x, position.y, position.z], true);
         },
 
         _drag: function (e) {
@@ -393,7 +366,8 @@
 
             var newValue = updatedTransform.getTranslation();
 
-            this._setEntityAttribute('position', [newValue.x, newValue.y, newValue.z], false);
+            this._setEntityAttribute('position', [newValue.x, newValue.y, newValue.z], this.started);
+            this.started = false;
         }
 
     });

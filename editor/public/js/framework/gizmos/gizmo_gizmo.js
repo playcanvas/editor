@@ -379,16 +379,12 @@
             }
         },
 
-        _getObserver: function() {
-            return editor.call('entities:get', this.entity.getGuid());
-        },
-
         _setEntityAttribute: function (attribute, value, undo) {
             var entity = editor.call('entities:get', this.entity.getGuid());
             if (entity) {
-                entity.history.enabled = false;
+                entity.history.combine = ! undo;
                 entity.set(attribute, value);
-                entity.history.enabled = true;
+                entity.history.combine = false;
             }
         },
 
