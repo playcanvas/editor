@@ -21,7 +21,7 @@ editor.once('load', function() {
 
         // blank image
         this.imageBlank = new Image();
-        this.imageBlank.src = '/editor/img/asset-placeholder-texture.png';
+        this.imageBlank.src = '/editor/scene/img/asset-placeholder-texture.png';
 
         // images
         this.images = [ ];

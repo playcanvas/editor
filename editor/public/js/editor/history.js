@@ -33,6 +33,15 @@ editor.once('load', function() {
     });
 
 
+    // current
+    editor.method('history:current', function(action) {
+        if (current === -1)
+            return null;
+
+        return actions[current];
+    });
+
+
     // add action
     editor.method('history:add', function(action) {
         // some history needs erasing
@@ -49,6 +58,17 @@ editor.once('load', function() {
         current = actions.length - 1;
 
         checkCanUndoRedo();
+    });
+
+
+    // update action
+    editor.method('history:update', function(action) {
+        if (current === -1 || actions[current].name !== action.name)
+            return;
+
+        actions[current].redo = action.redo;
+
+        editor.call('status:text', action.name);
     });
 
 

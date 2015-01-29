@@ -119,45 +119,45 @@ body {
         position: relative;
 
         &.type-animation {
-            background-image: url("/editor/img/asset-placeholder-animation.png");
+            background-image: url("/editor/scene/img/asset-placeholder-animation.png");
             > .icon {
-                background-image: url("/editor/img/asset-icons/animation.png");
+                background-image: url("/editor/scene/img/asset-icons/animation.png");
             }
         }
         &.type-audio {
-            background-image: url("/editor/img/asset-placeholder-audio.png");
+            background-image: url("/editor/scene/img/asset-placeholder-audio.png");
             > .icon {
-                background-image: url("/editor/img/asset-icons/audio.png");
+                background-image: url("/editor/scene/img/asset-icons/audio.png");
             }
         }
         &.type-json {
-            background-image: url("/editor/img/asset-placeholder-json.png");
+            background-image: url("/editor/scene/img/asset-placeholder-json.png");
             > .icon {
-                background-image: url("/editor/img/asset-icons/json.png");
+                background-image: url("/editor/scene/img/asset-icons/json.png");
             }
         }
         &.type-material {
-            background-image: url("/editor/img/asset-placeholder-material.png");
+            background-image: url("/editor/scene/img/asset-placeholder-material.png");
             > .icon {
-                background-image: url("/editor/img/asset-icons/material.png");
+                background-image: url("/editor/scene/img/asset-icons/material.png");
             }
         }
         &.type-model {
-            background-image: url("/editor/img/asset-placeholder-model.png");
+            background-image: url("/editor/scene/img/asset-placeholder-model.png");
             > .icon {
-                background-image: url("/editor/img/asset-icons/model.png");
+                background-image: url("/editor/scene/img/asset-icons/model.png");
             }
         }
         &.type-scene {
-            background-image: url("/editor/img/asset-placeholder-scene.png");
+            background-image: url("/editor/scene/img/asset-placeholder-scene.png");
             > .icon {
-                background-image: url("/editor/img/asset-icons/scene.png");
+                background-image: url("/editor/scene/img/asset-icons/scene.png");
             }
         }
         &.type-texture {
-            background-image: url("/editor/img/asset-placeholder-texture.png");
+            background-image: url("/editor/scene/img/asset-placeholder-texture.png");
             > .icon {
-                background-image: url("/editor/img/asset-icons/texture.png");
+                background-image: url("/editor/scene/img/asset-icons/texture.png");
             }
         }
 
@@ -175,7 +175,7 @@ body {
             right: 0;
             padding: 4px;
             background-color: rgba(#293538, 0.8);
-            background-image: url("/editor/img/asset-icons/unknown.png");
+            background-image: url("/editor/scene/img/asset-icons/unknown.png");
             background-size: 16px 16px;
             background-repeat: no-repeat;
             background-position: center center;
