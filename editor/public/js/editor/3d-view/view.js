@@ -4,11 +4,9 @@ editor.once('load', function() {
     var canvas = new ui.Canvas({
         id: 'canvas-3d'
     });
+    canvas.style.width = '100%';
 
-    canvas.style.width = "100%";
-
-    var container = editor.call('layout.viewport');
-
+    // var container = editor.call('layout.viewport');
     var settings = editor.call('designerSettings');
 
     // create designer framework
@@ -22,34 +20,9 @@ editor.once('load', function() {
         framework.setDesignerSettings(settings);
     });
 
-    function resize () {
-        setTimeout(function () {
-            var w = container.element.offsetWidth;
-            var h = container.element.offsetHeight;
-            canvas.element.setAttribute('width', w);
-            canvas.element.setAttribute('height', h);
-            framework.resize(w, h);
-            framework.redraw = true;
-        }, 125);
-    }
-
-
-    // resize canvas if any of the side panels are resized...
-    var sidePanels = ['layout.right', 'layout.left', 'layout.assets'];
-    sidePanels.forEach(function (panel) {
-        panel = editor.call(panel);
-        if (panel) {
-            panel.on('resize', resize);
-            panel.on('fold', resize);
-            panel.on('unfold', resize);
-        }
-    });
-
-    // ... or the window is resized
-    window.addEventListener('resize', resize);
 
     // add canvas
-    container.append(canvas);
+    editor.call('layout.viewport').append(canvas);
 
     // handle mouse / keyboard
     canvas.element.addEventListener('mousedown', framework.handleMouseDown.bind(framework));
@@ -57,6 +30,16 @@ editor.once('load', function() {
     canvas.element.addEventListener('mousemove', framework.handleMouseMove.bind(framework));
 
     // methods
+
+    // get canvas
+    editor.method('3d:canvas', function() {
+        return canvas;
+    });
+
+    // get framework
+    editor.method('3d:framework', function() {
+        return framework;
+    });
 
     // re-render 3d view
     editor.method('3d:render', function () {
@@ -68,12 +51,8 @@ editor.once('load', function() {
         // TODO
     });
 
-    editor.method('3d:framework', function() {
-        return framework;
-    });
-
     // start framework
     framework.start();
 
-    resize();
+    editor.emit('3d:start');
 });

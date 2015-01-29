@@ -4,35 +4,60 @@ function Canvas(args) {
     ui.Element.call(this);
     args = args || { };
 
-    this._text = args.text || '';
-
     this.element = document.createElement('canvas');
+    this.class.add('ui-canvas');
 
-    if (args.id !== undefined) {
-        this.element.setAttribute('id', args.id);
-    }
+    if (args.id !== undefined)
+        this.element.id = args.id;
 
-    if (args.tabindex !== undefined) {
+    if (args.tabindex !== undefined)
         this.element.setAttribute('tabindex', args.tabindex);
-    }
 
     // Disable I-bar cursor on click+drag
-    this.element.onselectstart = function () { return false; };
-
-    this.element.classList.add('ui-canvas');
+    this.element.onselectstart = function () {
+        return false;
+    };
 }
 
 Canvas.prototype = Object.create(ui.Element.prototype);
 
 
-Canvas.prototype._onChangeDelay = function() {
-    this.class.remove('changed');
-};
+Object.defineProperty(Canvas.prototype, 'width', {
+    get: function() {
+        return this.element.width;
+    },
+    set: function(value) {
+        if (this.element.width === value)
+            return;
+
+        this.element.width = value;
+        this.emit('resize', this.element.width, this.element.height);
+    }
+});
 
 
-Canvas.prototype._onLinkChange = function(value) {
-    this.text = value;
-    this.emit('change', value);
+Object.defineProperty(Canvas.prototype, 'height', {
+    get: function() {
+        return this.element.height;
+    },
+    set: function(value) {
+        if (this.element.height === value)
+            return;
+
+        this.element.height = value;
+        this.emit('resize', this.element.width, this.element.height);
+    }
+});
+
+
+Canvas.prototype.resize = function(width, height) {
+    if (this.element.width === width && this.element.height === height)
+        return;
+
+    this.element.width = width;
+    this.element.height = height;
+    this.emit('resize', this.element.width, this.element.height);
 };
+
 
 window.ui.Canvas = Canvas;

@@ -255,6 +255,10 @@ a:visited {
     }
 }
 
+.ui-canvas {
+    display: block;
+}
+
 .ui-list {
     @extend .noSelect;
 
