@@ -196,3 +196,43 @@ body {
         }
     }
 }
+
+.picker-color {
+    > .content {
+        width: 512px;
+        height: 162px;
+        margin-left: -256px;
+
+        > .pick-rect {
+            float: left;
+            width: 144px;
+            height: 144px;
+            border: 1px solid #000;
+            margin: 8px 0 8px 8px;
+        }
+        > .pick-hue {
+            float: left;
+            width: 12px;
+            height: 144px;
+            margin: 8px 0 8px 8px;
+            border: 1px solid #000;
+        }
+        > .pick-opacity {
+            float: left;
+            width: 12px;
+            height: 144px;
+            margin: 8px 0 8px 8px;
+            border: 1px solid #000;
+        }
+        > .fields {
+            float: left;
+            width: 106px;
+            margin: 4px 0 4px 4px;
+
+            > .field {
+                display: block;
+                width: calc(100% - 8px);
+            }
+        }
+    }
+}

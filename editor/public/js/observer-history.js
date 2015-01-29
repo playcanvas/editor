@@ -4,6 +4,7 @@ function ObserverHistory(args) {
 
     this.item = args.item;
     this._enabled = args.enabled || true;
+    this._combine = args._combine || false;
 
     this._initialize();
 }
@@ -18,6 +19,7 @@ ObserverHistory.prototype._initialize = function() {
 
         self.emit('add', {
             name: path,
+            combine: self._combine,
             undo: function() {
                 self._enabled = false;
                 self.item.set(path, valueOld);
@@ -51,5 +53,15 @@ Object.defineProperty(ObserverHistory.prototype, 'enabled', {
     },
     set: function(value) {
         this._enabled = !! value;
+    }
+});
+
+
+Object.defineProperty(ObserverHistory.prototype, 'combine', {
+    get: function() {
+        return this._combine;
+    },
+    set: function(value) {
+        this._combine = !! value;
     }
 });
