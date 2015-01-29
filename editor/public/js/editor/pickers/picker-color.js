@@ -3,7 +3,7 @@ editor.once('load', function() {
 
     var overlay = new ui.Overlay();
     overlay.class.add('picker-color');
-    // overlay.hidden = true;
+    overlay.hidden = true;
 
 
     // rectangular picker
@@ -41,8 +41,12 @@ editor.once('load', function() {
     overlay.append(panelFields);
 
 
+    var channels = [ ];
+
+
     // R
     var fieldR = new ui.NumberField();
+    channels.push(fieldR);
     fieldR.placeholder = 'r';
     fieldR.flexGrow = 1;
     fieldR.class.add('field');
@@ -50,18 +54,21 @@ editor.once('load', function() {
 
     // G
     var fieldG = new ui.NumberField();
+    channels.push(fieldG);
     fieldG.placeholder = 'g';
     fieldG.class.add('field');
     panelFields.appendChild(fieldG.element);
 
     // B
     var fieldB = new ui.NumberField();
+    channels.push(fieldB);
     fieldB.placeholder = 'b';
     fieldB.class.add('field');
     panelFields.appendChild(fieldB.element);
 
     // A
     var fieldA = new ui.NumberField();
+    channels.push(fieldA);
     fieldA.placeholder = 'a';
     fieldA.class.add('field');
     panelFields.appendChild(fieldA.element);
@@ -78,7 +85,17 @@ editor.once('load', function() {
 
 
     // call picker
-    editor.method('picker:color', function(fn) {
+    editor.method('picker:color', function(color, fn) {
+        fieldG.hidden = color.length < 2;
+        fieldB.hidden = color.length < 3;
+        fieldA.hidden = color.length < 4;
+
+        for(var i = 0; i < color.length; i++) {
+            channels[i].value = color[i];
+        }
+
         overlay.hidden = false;
     });
+
+    editor.call('picker:color', [ 255, 128, 0, 1 ]);
 });
