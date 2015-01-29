@@ -31,35 +31,45 @@ editor.once('load', function() {
 
 
     // fields
-    var panelFields = new ui.Panel();
-    panelFields.class.add('fields');
+    var panelFields = document.createElement('div');
+    panelFields.classList.add('fields');
     overlay.append(panelFields);
 
 
     // R
     var fieldR = new ui.NumberField();
-    fieldR.class.add('field-r');
-    panelFields.append(fieldR);
+    fieldR.placeholder = 'r';
+    fieldR.flexGrow = 1;
+    fieldR.class.add('field');
+    panelFields.appendChild(fieldR.element);
 
     // G
     var fieldG = new ui.NumberField();
-    fieldG.class.add('field-g');
-    panelFields.append(fieldG);
+    fieldG.placeholder = 'g';
+    fieldG.flexGrow = 1;
+    fieldG.class.add('field');
+    panelFields.appendChild(fieldG.element);
 
     // B
     var fieldB = new ui.NumberField();
-    fieldB.class.add('field-b');
-    panelFields.append(fieldB);
+    fieldB.placeholder = 'b';
+    fieldB.flexGrow = 1;
+    fieldB.class.add('field');
+    panelFields.appendChild(fieldB.element);
 
     // A
     var fieldA = new ui.NumberField();
-    fieldA.class.add('field-a');
-    panelFields.append(fieldA);
+    fieldA.placeholder = 'a';
+    fieldA.flexGrow = 1;
+    fieldA.class.add('field');
+    panelFields.appendChild(fieldA.element);
 
     // HEX
     var fieldHex = new ui.TextField();
-    fieldHex.class.add('field-hex');
-    panelFields.append(fieldHex);
+    fieldHex.placeholder = '#';
+    fieldHex.flexGrow = 1;
+    fieldHex.class.add('field');
+    panelFields.appendChild(fieldHex.element);
 
 
     var root = editor.call('layout.root');
