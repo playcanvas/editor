@@ -255,8 +255,44 @@ a:visited {
     }
 }
 
-.ui-canvas {
-    display: block;
+.ui-overlay {
+    position: absolute;
+    width: auto;
+    height: auto;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 101;
+    transition: opacity 100ms, visibility 100ms;
+
+    &.hidden {
+        display: block;
+        opacity: 0;
+        visibility: hidden;
+    }
+    > .overlay {
+        position: absolute;
+        width: auto;
+        height: auto;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, .7);
+        cursor: pointer;
+    }
+    > .content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-left: -64px;
+        margin-top: -64px;
+        width: 128px;
+        height: 128px;
+        background-color: #07f;
+        transition: width 100ms, height 100ms, margin-left 100ms, margin-top 100ms;
+    }
 }
 
 .ui-list {
@@ -741,6 +777,63 @@ a:visited {
     }
 }
 
+.ui-color-field {
+    @extend .noSelect;
+    position: relative;
+    display: inline-block;
+    border: 1px solid #666;
+    width: 48px;
+    height: 24px;
+    margin: 4px;
+    vertical-align: top;
+    cursor: pointer;
+    transition: opacity 100ms;
+
+    background-color: #000;
+    background-image:
+          -moz-linear-gradient(45deg, #000 25%, transparent 25%),
+          -moz-linear-gradient(-45deg, #000 25%, transparent 25%),
+          -moz-linear-gradient(45deg, transparent 75%, #000 75%),
+          -moz-linear-gradient(-45deg, transparent 75%, #000 75%);
+    background-image:
+      -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, #000), color-stop(.25, transparent)),
+      -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #000), color-stop(.25, transparent)),
+      -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, #000)),
+      -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, transparent), color-stop(.75, #000));
+
+    background-size: 8px 8px;
+    -moz-background-size: 8px 8px;
+    -webkit-background-size: 8px 8px;
+    background-position: 0 0, 4px 0, 4px -4px, 0px 4px;
+
+    &.disabled {
+        opacity: .5;
+    }
+    > .color {
+        display: block;
+        width: 48px;
+        height: 24px;
+        background-color: #000;
+    }
+    > .icon {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 7px;
+        height: 7px;
+        background-color: #06f;
+        border-top: 1px solid #666;
+        border-left: 1px solid #666;
+    }
+}
+
+.ui-color-field:hover,
+.ui-color-field:focus {
+    outline: none;
+    border-color: #7f7;
+    box-shadow: 0 0 4px #7f7;
+}
+
 .ui-button {
     @extend .noSelect;
     display: inline-block;
@@ -762,6 +855,7 @@ a:visited {
 
 .ui-checkbox {
     display: inline-block;
+    vertical-align: text-bottom;
     border: 1px solid #666;
     background-color: #000;
     color: #fff;

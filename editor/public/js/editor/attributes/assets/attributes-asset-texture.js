@@ -84,7 +84,7 @@ editor.once('load', function() {
             src: config.url.api + '/' + asset.file.url
         });
 
-        image.style.backgroundImage = 'url("/editor/img/asset-placeholder-texture.png")';
+        image.style.backgroundImage = 'url("/editor/scene/img/asset-placeholder-texture.png")';
         image.style.backgroundRepeat = 'repeat';
         image.style.backgroundPosition = 'center center';
         image.style.margin = '0 auto';

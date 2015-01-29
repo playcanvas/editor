@@ -215,7 +215,7 @@ pc.extend(pc.designer, function() {
         if (!camera.script) {
             this.context.systems.script.addComponent(camera, {
                 scripts: [{
-                    url: '/editor/js/framework/camera/designer_camera.js'
+                    url: '/editor/scene/js/framework/camera/designer_camera.js'
                 }],
                 runInTools: true
             });

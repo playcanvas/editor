@@ -11,7 +11,6 @@ editor.once('load', function() {
         if (! panelComponents)
             return;
 
-
         // light
         var panel = editor.call('attributes:addPanel', {
             parent: panelComponents,
@@ -60,23 +59,33 @@ editor.once('load', function() {
             path: 'components.light.type'
         });
 
-        // color
-        editor.call('attributes:addField', {
+        // color, intensity
+        var panelColor = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Color',
-            type: 'rgb',
-            link: entity,
-            path: 'components.light.color'
+            name: 'Color'
         });
 
-        // intensity
-        editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Intensity',
-            type: 'number',
-            link: entity,
-            path: 'components.light.intensity'
+        var label = panelColor;
+        panelColor = panelColor.parent;
+        label.destroy();
+
+        // color
+        var fieldColor = new ui.ColorField();
+        fieldColor.link(entity, 'components.light.color');
+        fieldColor.on('click', function() {
+            editor.call('picker:color', function(value) {
+                fieldColor.value = value;
+            });
         });
+        panelColor.append(fieldColor);
+
+        // intensity
+        var fieldIntensity = new ui.NumberField();
+        fieldIntensity.placeholder = 'Intensity';
+        fieldIntensity.style.width = '32px';
+        fieldIntensity.flexGrow = 1;
+        fieldIntensity.link(entity, 'components.light.intensity');
+        panelColor.append(fieldIntensity);
 
         // range
         var fieldRange = editor.call('attributes:addField', {

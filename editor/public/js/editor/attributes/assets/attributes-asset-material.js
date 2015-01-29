@@ -294,28 +294,39 @@ editor.once('load', function() {
             name: 'Ambient'
         });
 
-        // tint
-        var fieldAmbientTint = editor.call('attributes:addField', {
+
+
+        // color, tint
+        var panelAmbientColor = editor.call('attributes:addField', {
             parent: panelAmbiend,
-            type: 'checkbox',
-            name: 'Tint',
-            link: asset,
-            path: 'data.ambientTint'
+            name: 'Color'
         });
 
-        fieldAmbientTint.on('change', function(value) {
-            fieldAmbientColor.parent.hidden = ! value;
-        });
+        var label = panelAmbientColor;
+        panelAmbientColor = panelAmbientColor.parent;
+        label.destroy();
+
+        // tint
+        var fieldAmbientTint = new ui.Checkbox();
+        fieldAmbientTint.link(asset, 'data.ambientTint');
+        panelAmbientColor.append(fieldAmbientTint);
+
+        var labelAmbientTint = new ui.Label({ text: 'Tint' });
+        labelAmbientTint.style.verticalAlign = 'top';
+        labelAmbientTint.style.paddingRight = '12px';
+        labelAmbientTint.style.fontSize = '12px';
+        labelAmbientTint.style.lineHeight = '26px';
+        panelAmbientColor.append(labelAmbientTint);
 
         // color
-        var fieldAmbientColor = editor.call('attributes:addField', {
-            parent: panelAmbiend,
-            type: 'rgb',
-            name: 'Color',
-            link: asset,
-            path: 'data.ambient'
+        var fieldAmbientColor = new ui.ColorField();
+        fieldAmbientColor.link(asset, 'data.ambient');
+        panelAmbientColor.append(fieldAmbientColor);
+        fieldAmbientColor.hidden = ! asset.get('data.ambientTint');
+        fieldAmbientTint.on('change', function(value) {
+            fieldAmbientColor.hidden = ! value;
         });
-        fieldAmbientColor.parent.hidden = ! fieldAmbientTint.value;
+
 
         // map
         var fieldAmbientMap = editor.call('attributes:addField', {
@@ -365,8 +376,9 @@ editor.once('load', function() {
         fieldDiffuseMap.on('change', function(value) {
             // fieldDiffuseOffset[0].parent.hidden = value === 0;
             // fieldDiffuseTiling[0].parent.hidden = value === 0;
-            fieldDiffuseTint.parent.hidden = ! value;
-            fieldDiffuseColor.parent.hidden = ! (fieldDiffuseTint.value || value === 0);
+            fieldDiffuseTint.hidden = ! value;
+            labelDiffuseTint.hidden = ! value;
+            fieldDiffuseColor.hidden = ! (asset.get('data.diffuseMapTint') || value === 0);
         });
 
         // // offset
@@ -389,31 +401,46 @@ editor.once('load', function() {
         // });
         // fieldDiffuseTiling[0].parent.hidden = ! fieldDiffuseMap.value;
 
-        // tint
-        var fieldDiffuseTint = editor.call('attributes:addField', {
+
+        // color, tint
+        var panelDiffuseColor = editor.call('attributes:addField', {
             parent: panelDiffuse,
-            type: 'checkbox',
-            name: 'Tint',
-            link: asset,
-            path: 'data.diffuseMapTint'
+            name: 'Color'
         });
-        fieldDiffuseTint.parent.hidden = ! fieldDiffuseMap.value;
+
+        var label = panelDiffuseColor;
+        panelDiffuseColor = panelDiffuseColor.parent;
+        label.destroy();
+
+        // tint
+        var fieldDiffuseTint = new ui.Checkbox();
+        fieldDiffuseTint.link(asset, 'data.diffuseMapTint');
+        fieldDiffuseTint.hidden = ! asset.get('data.diffuseMap');
+        panelDiffuseColor.append(fieldDiffuseTint);
 
         // tint, hide/show color
         fieldDiffuseTint.on('change', function(value) {
-            fieldDiffuseColor.parent.hidden = ! (value || ! fieldDiffuseMap.value);
+            fieldDiffuseColor.hidden = ! (value || ! asset.get('data.diffuseMap'));
         });
+
+        var labelDiffuseTint = new ui.Label({ text: 'Tint' });
+        labelDiffuseTint.style.verticalAlign = 'top';
+        labelDiffuseTint.style.paddingRight = '12px';
+        labelDiffuseTint.style.fontSize = '12px';
+        labelDiffuseTint.style.lineHeight = '26px';
+        labelDiffuseTint.hidden = ! asset.get('data.diffuseMap');
+        panelDiffuseColor.append(labelDiffuseTint);
 
         // color
-        var fieldDiffuseColor = editor.call('attributes:addField', {
-            parent: panelDiffuse,
-            type: 'rgb',
-            name: 'Color',
-            link: asset,
-            path: 'data.diffuse'
+        var fieldDiffuseColor = new ui.ColorField();
+        fieldDiffuseColor.link(asset, 'data.diffuse');
+        panelDiffuseColor.append(fieldDiffuseColor);
+        fieldDiffuseColor.hidden = ! asset.get('data.diffuseMapTint');
+        fieldDiffuseColor.hidden = ! (asset.get('data.diffuseMapTint') || ! asset.get('data.diffuseMap'));
+        fieldDiffuseTint.on('change', function(value) {
+            fieldDiffuseColor.hidden = ! value;
         });
 
-        fieldDiffuseColor.parent.hidden = ! (fieldDiffuseTint.value || ! fieldDiffuseMap.value);
 
         // unfold panel
         fieldDiffuseMap.on('change', function() { panelDiffuse.folded = false; });
@@ -443,8 +470,9 @@ editor.once('load', function() {
         fieldSpecularMap.on('change', function(value) {
             // fieldSpecularOffset[0].parent.hidden = value === 0;
             // fieldSpecularTiling[0].parent.hidden = value === 0;
-            fieldSpecularTint.parent.hidden = ! value;
-            fieldSpecularColor.parent.hidden = ! (fieldSpecularTint.value || value === 0);
+            fieldSpecularTint.hidden = ! value;
+            labelSpecularTint.hidden = ! value;
+            fieldSpecularColor.hidden = ! (asset.get('data.specularMapTint') || value === 0);
         });
 
         // // offset
@@ -467,31 +495,46 @@ editor.once('load', function() {
         // });
         // fieldSpecularTiling[0].parent.hidden = ! fieldSpecularMap.value;
 
-        // tint
-        var fieldSpecularTint = editor.call('attributes:addField', {
+
+        // color, tint
+        var panelSpecularColor = editor.call('attributes:addField', {
             parent: panelSpecular,
-            type: 'checkbox',
-            name: 'Tint',
-            link: asset,
-            path: 'data.specularMapTint'
+            name: 'Color'
         });
-        fieldSpecularTint.parent.hidden = ! fieldSpecularMap.value;
+
+        var label = panelSpecularColor;
+        panelSpecularColor = panelSpecularColor.parent;
+        label.destroy();
+
+        // tint
+        var fieldSpecularTint = new ui.Checkbox();
+        fieldSpecularTint.link(asset, 'data.specularMapTint');
+        fieldSpecularTint.hidden = ! asset.get('data.specularMap');
+        panelSpecularColor.append(fieldSpecularTint);
 
         // tint, hide/show color
         fieldSpecularTint.on('change', function(value) {
-            fieldSpecularColor.parent.hidden = ! (value || ! fieldSpecularMap.value);
+            fieldSpecularColor.hidden = ! (value || ! asset.get('data.specularMap'));
         });
+
+        var labelSpecularTint = new ui.Label({ text: 'Tint' });
+        labelSpecularTint.style.verticalAlign = 'top';
+        labelSpecularTint.style.paddingRight = '12px';
+        labelSpecularTint.style.fontSize = '12px';
+        labelSpecularTint.style.lineHeight = '26px';
+        labelSpecularTint.hidden = ! asset.get('data.specularMap');
+        panelSpecularColor.append(labelSpecularTint);
 
         // color
-        var fieldSpecularColor = editor.call('attributes:addField', {
-            parent: panelSpecular,
-            type: 'rgb',
-            name: 'Color',
-            link: asset,
-            path: 'data.specular'
+        var fieldSpecularColor = new ui.ColorField();
+        fieldSpecularColor.link(asset, 'data.specular');
+        panelSpecularColor.append(fieldSpecularColor);
+        fieldSpecularColor.hidden = ! asset.get('data.specularMapTint');
+        fieldSpecularColor.hidden = ! (asset.get('data.specularMapTint') || ! asset.get('data.specularMap'));
+        fieldSpecularTint.on('change', function(value) {
+            fieldSpecularColor.hidden = ! value;
         });
 
-        fieldSpecularColor.parent.hidden = ! (fieldSpecularTint.value || ! fieldSpecularMap.value);
 
         // shininess
         var fieldShininess = editor.call('attributes:addField', {
@@ -578,8 +621,9 @@ editor.once('load', function() {
         fieldEmissiveMap.on('change', function(value) {
             // fieldEmissiveOffset[0].parent.hidden = value === 0;
             // fieldEmissiveTiling[0].parent.hidden = value === 0;
-            fieldEmissiveTint.parent.hidden = ! value;
-            fieldEmissiveColor.parent.hidden = ! (fieldEmissiveTint.value || value === 0);
+            fieldEmissiveTint.hidden = ! value;
+            labelEmissiveTint.hidden = ! value;
+            fieldEmissiveColor.hidden = ! (asset.get('emissiveMapTint') || value === 0);
         });
 
         // // offset
@@ -602,40 +646,54 @@ editor.once('load', function() {
         // });
         // fieldEmissiveTiling[0].parent.hidden = ! fieldEmissiveMap.value;
 
-        // tint
-        var fieldEmissiveTint = editor.call('attributes:addField', {
+
+        // color, tint, intensity
+        var panelEmissiveColor = editor.call('attributes:addField', {
             parent: panelEmissive,
-            type: 'checkbox',
-            name: 'Tint',
-            link: asset,
-            path: 'data.emissiveMapTint'
+            name: 'Color'
         });
-        fieldEmissiveTint.parent.hidden = ! fieldEmissiveMap.value;
+
+        var label = panelEmissiveColor;
+        panelEmissiveColor = panelEmissiveColor.parent;
+        label.destroy();
+
+        // tint
+        var fieldEmissiveTint = new ui.Checkbox();
+        fieldEmissiveTint.link(asset, 'data.emissiveMapTint');
+        fieldEmissiveTint.hidden = ! asset.get('data.emissiveMap');
+        panelEmissiveColor.append(fieldEmissiveTint);
 
         // tint, hide/show color
         fieldEmissiveTint.on('change', function(value) {
-            fieldEmissiveColor.parent.hidden = ! (value || ! fieldEmissiveMap.value);
+            fieldEmissiveColor.hidden = ! (value || ! asset.get('data.emissiveMap'));
         });
+
+        var labelEmissiveTint = new ui.Label({ text: 'Tint' });
+        labelEmissiveTint.style.verticalAlign = 'top';
+        labelEmissiveTint.style.paddingRight = '12px';
+        labelEmissiveTint.style.fontSize = '12px';
+        labelEmissiveTint.style.lineHeight = '26px';
+        labelEmissiveTint.hidden = ! asset.get('data.emissiveMap');
+        panelEmissiveColor.append(labelEmissiveTint);
 
         // color
-        var fieldEmissiveColor = editor.call('attributes:addField', {
-            parent: panelEmissive,
-            type: 'rgb',
-            name: 'Color',
-            link: asset,
-            path: 'data.emissive'
+        var fieldEmissiveColor = new ui.ColorField();
+        fieldEmissiveColor.link(asset, 'data.emissive');
+        panelEmissiveColor.append(fieldEmissiveColor);
+        fieldEmissiveColor.hidden = ! asset.get('data.emissiveMapTint');
+        fieldEmissiveColor.hidden = ! (asset.get('data.emissiveMapTint') || ! asset.get('data.emissiveMap'));
+        fieldEmissiveTint.on('change', function(value) {
+            fieldEmissiveColor.hidden = ! value;
         });
-
-        fieldEmissiveColor.parent.hidden = ! (fieldEmissiveTint.value || ! fieldEmissiveMap.value);
 
         // intensity
-        var fieldEmissiveIntensity = editor.call('attributes:addField', {
-            parent: panelEmissive,
-            type: 'number',
-            name: 'Intensity',
-            link: asset,
-            path: 'data.emissiveIntensity'
-        });
+        var fieldEmissiveIntensity = new ui.NumberField();
+        fieldEmissiveIntensity.placeholder = 'Intensity';
+        fieldEmissiveIntensity.style.width = '32px';
+        fieldEmissiveIntensity.flexGrow = 1;
+        fieldEmissiveIntensity.link(asset, 'data.emissiveIntensity');
+        panelEmissiveColor.append(fieldEmissiveIntensity);
+
 
         // unfold panel
         fieldEmissiveMap.on('change', function() { panelEmissive.folded = false; });
