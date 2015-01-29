@@ -253,7 +253,16 @@ body {
                 background: -o-linear-gradient(top,  rgba(0,0,0,0.01) 0%,rgba(0,0,0,1) 100%); /* Opera 11.10+ */
                 background: -ms-linear-gradient(top,  rgba(0,0,0,0.01) 0%,rgba(0,0,0,1) 100%); /* IE10+ */
                 background: linear-gradient(to bottom,  rgba(0,0,0,0.01) 0%,rgba(0,0,0,1) 100%); /* W3C */
-
+            }
+            > .handle {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 8px;
+                height: 8px;
+                margin: -7px 0 0 -7px;
+                border: 1px solid #000;
+                outline: 1px solid #fff;
             }
         }
         > .pick-hue {
