@@ -45,21 +45,7 @@ pc.extend(pc.designer, function() {
         this.picker = new pc.scene.Picker(this.graphicsDevice, 1, 1);
         this.shading = pc.RENDERSTYLE_SOLID;
 
-        this.cameraEntity = new pc.Entity();
-        this.context.systems.camera.addComponent(this.cameraEntity, {
-            fov: 45,
-            orthoHeight: 100,
-            projection: 0,
-            enabled: true,
-            nearClip: 0.1,
-            farClip: 10000,
-            priority: 0
-        });
-
-        this.context.root.addChild(this.cameraEntity);
-        this.cameraEntity.setPosition(100, 50, 100);
-        this.cameraEntity.setEulerAngles(-20, 45, 0);
-
+        this.cameraEntity = this._createCamera();
         this._activateCamera();
 
         // Draw immediately
@@ -70,11 +56,24 @@ pc.extend(pc.designer, function() {
 
     Designer = pc.inherits(Designer, pc.Application);
 
-    Designer.prototype.init = function () {
-    };
 
-    Designer.prototype.createCamera = function () {
+    Designer.prototype._createCamera = function () {
+        var camera = new pc.Entity();
+        this.context.systems.camera.addComponent(camera, {
+            fov: 45,
+            orthoHeight: 100,
+            projection: 0,
+            enabled: true,
+            nearClip: 0.1,
+            farClip: 10000,
+            priority: 0
+        });
 
+        this.context.root.addChild(camera);
+        camera.setPosition(100, 50, 100);
+        camera.setEulerAngles(-20, 45, 0);
+
+        return camera;
     };
 
     Designer.prototype.getCamera = function (pathOrGuid) {
