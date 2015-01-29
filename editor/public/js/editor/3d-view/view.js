@@ -68,19 +68,12 @@ editor.once('load', function() {
         // TODO
     });
 
+    editor.method('3d:framework', function() {
+        return framework;
+    });
+
     // start framework
     framework.start();
 
     resize();
-
-    editor.on('entity:add', function (entity) {
-        framework.loadEntity(entity);
-        framework.redraw = true;
-    });
-
-    editor.on('entities:load', function () {
-        var entities = editor.call('entities:list');
-        framework.loadScene(entities);
-        framework.redraw = true;
-    });
 });
