@@ -24,7 +24,6 @@ editor.once('load', function() {
 
         // client > server
         entity.sync.on('op', function(op) {
-            console.log(op)
             editor.call('realtime:op', op);
         });
     });

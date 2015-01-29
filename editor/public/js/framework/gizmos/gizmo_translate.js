@@ -246,7 +246,7 @@
 
         _endDrag: function (e) {
             var position = this.entity.getPosition();
-            this._setEntityAttribute('position', position.data, true);
+            this._setEntityAttribute('position', [position.x, position.y, position.z], true);
         },
 
         _drag: function (e) {
@@ -364,7 +364,7 @@
 
             var newValue = updatedTransform.getTranslation();
 
-            this._setEntityAttribute('position', newValue.data, false);
+            this._setEntityAttribute('position', [newValue.x, newValue.y, newValue.z], false);
         }
 
     });
