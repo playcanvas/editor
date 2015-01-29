@@ -3,31 +3,36 @@ editor.once('load', function() {
 
     var overlay = new ui.Overlay();
     overlay.class.add('picker-color');
-    overlay.hidden = true;
+    // overlay.hidden = true;
 
 
     // rectangular picker
-    var pickRect = document.createElement('canvas');
+    var pickRect = document.createElement('div');
     pickRect.classList.add('pick-rect');
-    pickRect.width = 128;
-    pickRect.height = 128;
     overlay.append(pickRect);
+
+    // white
+    var pickRectWhite = document.createElement('div');
+    pickRectWhite.classList.add('white');
+    pickRect.appendChild(pickRectWhite);
+
+    // black
+    var pickRectBlack = document.createElement('div');
+    pickRectBlack.classList.add('black');
+    pickRect.appendChild(pickRectBlack);
 
 
     // hue (rainbow) picker
-    var pickHue = document.createElement('canvas');
+    var pickHue = document.createElement('div');
     pickHue.classList.add('pick-hue');
-    pickHue.width = 8;
-    pickHue.height = 128;
     overlay.append(pickHue);
 
 
-    // hue (rainbow) picker
-    var pickOpacity = document.createElement('canvas');
+    // opacity (gradient) picker
+    var pickOpacity = document.createElement('div');
     pickOpacity.classList.add('pick-opacity');
-    pickOpacity.width = 8;
-    pickOpacity.height = 128;
     overlay.append(pickOpacity);
+
 
 
     // fields
@@ -46,28 +51,24 @@ editor.once('load', function() {
     // G
     var fieldG = new ui.NumberField();
     fieldG.placeholder = 'g';
-    fieldG.flexGrow = 1;
     fieldG.class.add('field');
     panelFields.appendChild(fieldG.element);
 
     // B
     var fieldB = new ui.NumberField();
     fieldB.placeholder = 'b';
-    fieldB.flexGrow = 1;
     fieldB.class.add('field');
     panelFields.appendChild(fieldB.element);
 
     // A
     var fieldA = new ui.NumberField();
     fieldA.placeholder = 'a';
-    fieldA.flexGrow = 1;
     fieldA.class.add('field');
     panelFields.appendChild(fieldA.element);
 
     // HEX
     var fieldHex = new ui.TextField();
     fieldHex.placeholder = '#';
-    fieldHex.flexGrow = 1;
     fieldHex.class.add('field');
     panelFields.appendChild(fieldHex.element);
 

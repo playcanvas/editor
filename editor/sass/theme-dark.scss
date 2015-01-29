@@ -410,3 +410,20 @@ a:visited {
     from { outline-color: $text-active; }
     to { outline-color: rgba($text-active, 0); }
 }
+
+
+.picker-color {
+    > .content {
+        border: 1px solid $bcg-darker;
+        background-color: $bcg-dark;
+
+        > .pick-rect,
+        > .pick-hue,
+        > .pick-opacity {
+            border: 1px solid $bcg-darker;
+        }
+        > .fields {
+            background-color: $bcg-darker;
+        }
+    }
+}
