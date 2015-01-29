@@ -24,10 +24,6 @@ editor.once('load', function() {
             item: entity
         });
 
-        entity.on('*:set', function(path, value) {
-            console.log(path, value);
-        });
-
         // register history action
         entity.history.on('add', function(data) {
             // get path

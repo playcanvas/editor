@@ -19,6 +19,7 @@
         this.startX = 0;
         this.startY = 0;
         this.startTransform = null;
+        this.startPosition = null;
     }
 
     pc.GizmoTranslate = pc.inherits(pc.GizmoTranslate, pc.Gizmo);
@@ -242,11 +243,39 @@
             this.startX = e.x;
             this.startY = e.y;
             this.startTransform = this.entity.getWorldTransform().clone();
+
+            var observer = this._getObserver();
+            if (observer) {
+                this.startPosition = this.entity.getLocalPosition().clone();
+                observer.history.enabled = false;
+            }
         },
 
         _endDrag: function (e) {
-            var position = this.entity.getPosition();
+            var position = this.entity.getLocalPosition();
             this._setEntityAttribute('position', [position.x, position.y, position.z], true);
+
+            var observer = this._getObserver();
+            if (observer) {
+                var startPosition = this.startPosition;
+                var endPosition = position.clone();
+
+                observer.history.enabled = true;
+
+                observer.history.emit('add', {
+                    name: 'position',
+                    undo: function() {
+                        observer.history._enabled = false;
+                        observer.set('position', [ startPosition.x, startPosition.y, startPosition.z ]);
+                        observer.history._enabled = true;
+                    },
+                    redo: function() {
+                        observer.history._enabled = false;
+                        observer.set('position', [ endPosition.x, endPosition.y, endPosition.z ]);
+                        observer.history._enabled = true;
+                    }
+                });
+            }
         },
 
         _drag: function (e) {
@@ -298,7 +327,7 @@
 
             // Find the intersection point from the camera position to the plane for the initial mouse position and the current position
             var eyePosition = cameraEntity.getPosition();
-            if (cameraEntity.camera.projection === pc.scene.PROJECTION_PERSPECTIVE) {
+            if (cameraEntity.camera.projection === pc.PROJECTION_PERSPECTIVE) {
                 var currentIntersection = plane.intersectPosition(eyePosition, currentNearClipCoord);
                 var initialIntersection = plane.intersectPosition(eyePosition, initialNearClipCoord);
             } else {

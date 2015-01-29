@@ -59,10 +59,10 @@ editor.once('load', function() {
                 entity.setName(value);
             } else if (path.indexOf('position') === 0) {
                 var position = data.get('position');
-                entity.setPosition(new pc.Vec3(position[0], position[1], position[2]));
+                entity.setLocalPosition(new pc.Vec3(position[0], position[1], position[2]));
             } else if (path.indexOf('rotation') === 0) {
                 var angles = data.get('rotation');
-                entity.setEulerAngles(new pc.Vec3(angles[0], angles[1], angles[2]));
+                entity.setLocalEulerAngles(new pc.Vec3(angles[0], angles[1], angles[2]));
             } else if (path.indexOf('scale') === 0) {
                 var scale = data.get('scale');
                 entity.setLocalScale(new pc.Vec3(scale[0], scale[1], scale[2]));

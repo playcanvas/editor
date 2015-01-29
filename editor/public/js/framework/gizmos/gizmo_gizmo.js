@@ -379,6 +379,10 @@
             }
         },
 
+        _getObserver: function() {
+            return editor.call('entities:get', this.entity.getGuid());
+        },
+
         _setEntityAttribute: function (attribute, value, undo) {
             var entity = editor.call('entities:get', this.entity.getGuid());
             if (entity) {
