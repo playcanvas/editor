@@ -9,7 +9,6 @@ editor.once('3d:start', function() {
     // once canvas resized
     // notify framework
     canvas.on('resize', function(width, height) {
-        console.log('resize');
         framework.resize(width, height);
         editor.call('3d:render');
     });

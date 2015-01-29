@@ -21,11 +21,37 @@ editor.once('load', function() {
         editor.call('3d:render');
     };
 
+    var loadEntity = function (data) {
+        var entity = new pc.Entity();
+
+        var p = data.position;
+        var r = data.rotation;
+        var s = data.scale;
+
+        entity.setName(data.name);
+        entity.setGuid(data.resource_id);
+        entity.setLocalPosition(p[0], p[1], p[2]);
+        entity.setLocalEulerAngles(r[0], r[1], r[2]);
+        entity.setLocalScale(s[0], s[1], s[2]);
+        entity._enabled = data.enabled !== undefined ? data.enabled : true;
+        entity._enabledInHierarchy = entity._enabled;
+
+        if (data.labels) {
+            data.labels.forEach(function (label) {
+                entity.addLabel(label);
+            });
+        }
+
+        entity.template = data.template;
+
+        return entity;
+    };
+
 
     // new entity created
     editor.on('entities:add', function (data) {
         // create entity
-        var entity = data.entity = framework.loadEntity(data);
+        var entity = data.entity = loadEntity(data);
 
         // add components
         var components = data.json().components;

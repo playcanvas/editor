@@ -21,20 +21,29 @@ pc.extend(pc.designer, function() {
      * @private
      */
     var Designer = function (canvas, options) {
-        var gizmo;
-
         this._inTools = true;
 
-        // Create systems that are only used by the Designer
-        gizmo = new pc.designer.GizmoComponentSystem(this.context);
+        var context = this.context;
 
-        for (var key in this.context.systems) {
-            if (this.context.systems.hasOwnProperty(key)) {
-                this.context.systems[key]._inTools = true;
+        this.gizmos = {
+            translate: new pc.GizmoTranslate(context),
+            rotate: new pc.GizmoTranslate(context),
+            scale: new pc.GizmoTranslate(context)
+        };
+
+        for (var key in this.gizmos) {
+            this.gizmos[key].initialize();
+        }
+
+        this.activeGizmo = this.gizmos.translate;
+
+        for (var key in context.systems) {
+            if (context.systems.hasOwnProperty(key)) {
+                context.systems[key]._inTools = true;
             }
         }
 
-        this.context.designer = {
+        context.designer = {
             livelink: this._link,
             selection: [] // Currently selected entities
         };
@@ -47,6 +56,15 @@ pc.extend(pc.designer, function() {
 
         this.cameraEntity = this._createCamera();
         this._activateCamera();
+
+        // Insert a command into the draw call queue to clear the depth buffer immediately before the gizmos are rendered
+        var clearOptions = {
+            flags: pc.gfx.CLEARFLAG_DEPTH
+        };
+        var command = new pc.scene.Command(pc.LAYER_GIZMO, pc.BLEND_NONE, function () {
+            context.graphicsDevice.clear(clearOptions);
+        });
+        context.scene.drawCalls.push(command);
 
         // Draw immediately
         this.redraw = true;
@@ -149,11 +167,14 @@ pc.extend(pc.designer, function() {
         if (this.redraw) {
             if (this.lastMouseEvent) {
                 // pass mousemove on to gizmo system
-                this.context.systems.gizmo.handleMouseMove(this.lastMouseEvent);
+                this.activeGizmo.handleMouseMove(this.lastMouseEvent);
                 this.lastMouseEvent = null;
             }
 
             pc.ComponentSystem.update(0, this.context, true);
+
+            this.activeGizmo.render();
+
             this.render();
             this.redraw = false;
         }
@@ -200,41 +221,35 @@ pc.extend(pc.designer, function() {
             });
         }
 
-        this.context.systems.gizmo.setCamera(camera);
+        for (var key in this.gizmos) {
+            this.gizmos[key].setCamera(camera);
+        }
 
         this.context.scene.removeModel(camera.camera.model);
     };
 
 
-    /**
-     * @name pc.designer.Designer#setActiveGizmoType
-     * @description Sets the currently active gizmo type to either translate, rotate or scale.
-     */
     Designer.prototype.setActiveGizmoType = function (gizmoType) {
-        this.context.systems.gizmo.setCurrentGizmoType(gizmoType);
+        this.activeGizmo = this.gizmos[gizmoType];
     };
 
-    /**
-     * @name pc.designer.Designer#setActiveGizmoCoordSys
-     * @description Sets the currently active gizmo type to either translate, rotate or scale.
-     */
-    Designer.prototype.setActiveGizmoCoordSys = function (coordSys) {
-        this.context.systems.gizmo.setCurrentGizmoCoordSys(coordSys);
+    Designer.prototype.setGizmoCoordinateSystem = function (system) {
+        for (var key in this.gizmos) {
+            this.gizmos.setCoordinateSystem(system);
+        }
     };
 
-    /**
-     * @name pc.designer.Designer#setSnapToClosestIncrement
-     * @description Enables / disables snap to closest increment mode for gizmos
-     */
     Designer.prototype.setSnapToClosestIncrement = function (snap) {
-        this.context.systems.gizmo.setSnapToClosestIncrement(snap);
+        for (var key in this.gizmos) {
+            this.gizmos.setSnap(snap);
+        }
     };
 
     Designer.prototype.setDesignerSettings = function (settings) {
         this.designerSettings = settings;
 
-        this.context.systems.gizmo.setTranslationSnapIncrement(settings.snap_increment);
-        this.context.systems.gizmo.setScalingSnapIncrement(settings.snap_increment);
+        this.gizmos.translate.setSnapIncrement(settings.snap_increment);
+        this.gizmos.scale.setSnapIncrement(settings.snap_increment);
 
         if (this.grid) {
             this.context.scene.removeModel(this.grid.model);
@@ -247,25 +262,18 @@ pc.extend(pc.designer, function() {
         this.redraw = true;
     };
 
-    /**
-     * Called when one or more entities are selected
-     * @param {Object} entities List of entity guids
-     * @private
-     */
-    Designer.prototype.select = function (entities) {
-        var index, length = entities.length;
-        var selection = [];
+    Designer.prototype.selectEntity = function (resourceId) {
+        var actualEntity = this.context.root.findByGuid(resourceId);
+        if (actualEntity) {
+            this.activeGizmo.activate(actualEntity);
+        }
 
-        for (index = 0; index < length; index++) {
-            var e = this.context.root.findByGuid(entities[index]);
-            if (e) {
-                selection.push(e);
-            }
-        }
-        if (!pc.config.readOnly) {
-            this.context.systems.gizmo.setSelection(selection);
-        }
-        this.context.designer.selection = selection;
+        this.redraw = true;
+    };
+
+    Designer.prototype.deselectEntity = function () {
+        this.activeGizmo.deactivate();
+        this.redraw = true;
     };
 
     Designer.prototype.frameSelection = function () {
@@ -295,11 +303,10 @@ pc.extend(pc.designer, function() {
         var meshSelection;
 
         if (!e.altKey) {
-            // Pass mousedown on to Gizmo system
-            this.context.systems.gizmo.handleMouseDown(e);
+            // Pass mousedown on to Gizmo
+            this.activeGizmo.handleMouseDown(e);
 
-            // Probably better to add a function to the gizmo component to query current dragging state
-            if (!this.context.systems.gizmo.draggingState) {
+            if (!this.activeGizmo.isDragging) {
                 var picker = this.picker;
                 picker.prepare(this.cameraEntity.camera.camera, this.context.scene);
 
@@ -356,6 +363,8 @@ pc.extend(pc.designer, function() {
                 }
             }
         }
+
+        this.redraw = true;
     };
 
     Designer.prototype._getMeshInstanceSelection = function (selectedNode, pickedInstances) {
@@ -409,8 +418,9 @@ pc.extend(pc.designer, function() {
         // wrap mouseevent wiht PlayCanvas version which adds cross-browser properties
         var e = new pc.input.MouseEvent(this.context.mouse, event);
 
-        // pass mouseup on to gizmo system
-        this.context.systems.gizmo.handleMouseUp(e);
+        // pass mouseup on to the gizmo
+        this.activeGizmo.handleMouseUp(e);
+        this.redraw = true;
     };
 
     /**
@@ -421,119 +431,9 @@ pc.extend(pc.designer, function() {
     Designer.prototype.handleMouseMove = function (event) {
         // wrap mouseevent wiht PlayCanvas version which adds cross-browser properties
         this.lastMouseEvent = new pc.input.MouseEvent(this.context.mouse, event);
+        this.redraw = true;
     };
 
-    Designer.prototype.loadEntity = function (data) {
-        var entity = new pc.Entity();
-
-        var p = data.position;
-        var r = data.rotation;
-        var s = data.scale;
-
-        entity.setName(data.name);
-        entity.setGuid(data.resource_id);
-        entity.setLocalPosition(p[0], p[1], p[2]);
-        entity.setLocalEulerAngles(r[0], r[1], r[2]);
-        entity.setLocalScale(s[0], s[1], s[2]);
-        entity._enabled = data.enabled !== undefined ? data.enabled : true;
-        entity._enabledInHierarchy = entity._enabled;
-
-        if (data.labels) {
-            data.labels.forEach(function (label) {
-                entity.addLabel(label);
-            });
-        }
-
-        // set additional properties to
-        // patch the hierarchy later
-        entity.__parent = data.parent;
-        entity.__children = data.children;
-        entity.__components = data.components;
-
-        entity.template = data.template;
-
-        return entity;
-    };
-
-    Designer.prototype.loadScene = function (entities) {
-        var e;
-        var hierarchy = {};
-        var context = this.context;
-
-        entities.forEach(function (data) {
-            e = this.loadEntity(data);
-            hierarchy[data.resource_id] = e;
-        }.bind(this));
-
-        function openEntityHierarchy (entity) {
-            // if the entity has a parent or children
-            // entities then it's already been patched up so skip it
-            if (entity.getParent() || entity.getChildren().length) {
-                return;
-            }
-
-            // add entity under defined parent
-            if (entity.__parent) {
-                hierarchy[entity.__parent].addChild(entity);
-            }
-            // if there is no parent add it under root
-            else {
-                context.root.addChild(entity);
-            }
-
-            // do the same for children
-            if (entity.__children) {
-                for (var i = 0, len = entity.__children.length; i < len; i++) {
-                    openEntityHierarchy(hierarchy[entity.__children[i]]);
-                }
-            }
-
-            // we no longer need these
-            delete entity.__parent;
-            delete entity.__children;
-
-            return entity;
-        }
-
-        function openComponentData (entity) {
-            // Create Components in order
-            var systems = context.systems.list();
-            var i, len = systems.length;
-            var data = entity.__components;
-
-            // we no longer need this
-            delete entity.__components;
-
-            if (data) {
-                for (i = 0; i < len; i++) {
-                    var componentData = data[systems[i].id];
-                    if (componentData) {
-                        context.systems[systems[i].id].addComponent(entity, componentData);
-                    }
-                }
-            }
-
-            // Recurse for children
-            var children = entity.getChildren();
-            var length = children.length;
-            for (i = 0; i < length; i++) {
-                openComponentData(children[i]);
-            }
-        }
-
-        // initialize hierarchy
-        for (var guid in hierarchy) {
-            if (hierarchy.hasOwnProperty(guid)) {
-                var entity = hierarchy[guid];
-                openEntityHierarchy(entity);
-            }
-        }
-
-        context.root.syncHierarchy();
-
-        // initialize components
-        openComponentData(context.root);
-    };
 
     /**
      * @private

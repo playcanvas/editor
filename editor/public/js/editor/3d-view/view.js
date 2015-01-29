@@ -51,6 +51,18 @@ editor.once('load', function() {
         // TODO
     });
 
+    editor.on('selector:add', function(entity, type) {
+        if (type === 'entity') {
+            framework.selectEntity(entity.resource_id);
+        }
+    });
+
+    editor.on('selector:remove', function(entity, type) {
+        if (type === 'entity') {
+            framework.deselectEntity();
+        }
+    });
+
     // start framework
     framework.start();
 
