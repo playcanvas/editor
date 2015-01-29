@@ -80,6 +80,13 @@ editor.once('load', function() {
             var rectPicker = editor.call('picker:color:rect');
             var rectField = fieldColor.element.getBoundingClientRect();
             editor.call('picker:color:position', rectField.right - rectPicker.width, rectField.bottom);
+
+            var evtColor = fieldColor.on('change', function() {
+                editor.call('picker:color:set', this.value);
+            });
+            editor.once('picker:color:close', function() {
+                evtColor.unbind();
+            });
         });
         panelColor.append(fieldColor);
 

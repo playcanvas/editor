@@ -7,10 +7,12 @@ editor.once('load', function() {
     var channels = [ ];
     var channelsNumber = 4;
     var callback = null;
+    var changing = false;
 
 
     // rect drag
     var pickRectMouseMove = function(evt) {
+        changing = true;
         var rect = pickRect.getBoundingClientRect();
         var x = Math.max(0, Math.min(size, Math.floor(evt.clientX - rect.left)));
         var y = Math.max(0, Math.min(size, Math.floor(evt.clientY - rect.top)));
@@ -27,6 +29,7 @@ editor.once('load', function() {
 
         pickRectHandle.style.left = Math.max(4, Math.min(size - 4, x)) + 'px';
         pickRectHandle.style.top = Math.max(4, Math.min(size - 4, y)) + 'px';
+        changing = false;
     };
 
     // rect drag stop
@@ -37,6 +40,7 @@ editor.once('load', function() {
 
     // hue drag
     var pickHueMouseMove = function(evt) {
+        changing = true;
         var rect = pickHue.getBoundingClientRect();
         var y = Math.max(0, Math.min(size, Math.floor(evt.clientY - rect.top)));
         var h = y / size;
@@ -50,6 +54,7 @@ editor.once('load', function() {
         }
         updateRects();
         hueUpdate = true;
+        changing = false;
     };
 
     // hue drag stop
@@ -60,11 +65,13 @@ editor.once('load', function() {
 
     // opacity drag
     var pickOpacityMouseMove = function(evt) {
+        changing = true;
         var rect = pickHue.getBoundingClientRect();
         var y = Math.max(0, Math.min(size, Math.floor(evt.clientY - rect.top)));
         var o = 1.0 - y / size;
 
         fieldA.value = Math.max(0, Math.min(255, Math.round(o * 255)));
+        changing = false;
     };
 
     // opacity drag stop
@@ -277,6 +284,7 @@ editor.once('load', function() {
 
     overlay.on('hide', function() {
         callback = null;
+        editor.emit('picker:color:close');
     });
 
 
@@ -321,5 +329,25 @@ editor.once('load', function() {
     // position color picker
     editor.method('picker:color:position', function(x, y) {
         overlay.position(x, y);
+    });
+
+    // position color picker
+    editor.method('picker:color:set', function(color) {
+        if (changing)
+            return;
+
+        if (channelsNumber >= 3) {
+            var hsv = rgb2hsv(color);
+            colorHSV[0] = hsv[0];
+            colorHSV[1] = hsv[1];
+            colorHSV[2] = hsv[2];
+        }
+
+        // set fields
+        hueUpdate = false;
+        for(var i = 0; i < color.length; i++) {
+            channels[i].value = color[i];
+        }
+        hueUpdate = true;
     });
 });
