@@ -69,7 +69,9 @@ Object.defineProperty(ColorField.prototype, 'value', {
     },
     set: function(value) {
         if (this._link) {
-            this._link.set(this.path, value);
+            this._link.set(this.path, value.map(function(channel) {
+                return channel / 255;
+            }));
         } else {
             this._setValue(value);
         }
