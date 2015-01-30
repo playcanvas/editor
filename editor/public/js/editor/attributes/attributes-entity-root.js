@@ -3,8 +3,21 @@ editor.once('load', function() {
 
     var sceneSettings = editor.call('sceneSettings');
 
-    // inspecting
-    editor.on('attributes:inspect[sceneSettings]', function() {
+    editor.on('attributes:inspect[entity]', function(entities) {
+        if (entities.length !== 1)
+            return;
+
+        var entity = entities[0];
+
+        // not root
+        if (entity.parent)
+            return;
+
+        var panelComponents = editor.call('attributes:entity.panelComponents');
+        if (! panelComponents)
+            return;
+
+
         var filteredFields = [ ];
 
         var addFiltered = function (field, filter) {
@@ -27,6 +40,7 @@ editor.once('load', function() {
 
         // physics settings
         var physicsPanel = editor.call('attributes:addPanel', {
+            parent: panelComponents,
             name: 'Physics Settings'
         });
 
@@ -43,6 +57,7 @@ editor.once('load', function() {
 
         // environment
         var panelEnvironment = editor.call('attributes:addPanel', {
+            parent: panelComponents,
             name: 'Environment'
         });
 
@@ -67,6 +82,7 @@ editor.once('load', function() {
 
         // camera
         var panelCamera = editor.call('attributes:addPanel', {
+            parent: panelComponents,
             name: 'Camera'
         });
 
@@ -96,20 +112,17 @@ editor.once('load', function() {
         // gamma correction
         var fieldGammaCorrection = editor.call('attributes:addField', {
             parent: panelCamera,
-            name: ' ',
+            name: 'Gamma Correction',
             type: 'checkbox',
             link: sceneSettings,
             path: 'render.gamma_correction'
         });
-
-        var label = new ui.Label({ text: 'Gamma Correction' });
-        label.style.fontSize = '12px';
-        fieldGammaCorrection.parent.append(label);
-        // fieldGammaCorrection.parent.innerElement.childNodes[0].style.width = 'auto';
+        fieldGammaCorrection.parent.innerElement.childNodes[0].style.width = 'auto';
 
 
         // fog
         var panelFog = editor.call('attributes:addPanel', {
+            parent: panelComponents,
             name: 'Fog'
         });
 

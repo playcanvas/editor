@@ -1,38 +1,40 @@
 editor.once('load', function() {
     'use strict';
 
-    editor.on('assets:add', function (asset) {
-        if (asset.source) {
-            return;
-        }
+    var framework = editor.call('viewport:framework');
+    var assetRegistry = framework.context.assets;
 
+
+    editor.on('assets:add', function (asset) {
+        // do only for target assets
+        if (asset.source)
+            return;
+
+        // raw json data
         asset = asset.json();
 
-        var assetData = asset.data;
+        // map for material
+        if (asset.type === 'material')
+            asset.data = editor.call('material:mapToList', asset);
 
-        if (asset.type === 'material') {
-            assetData = editor.call('material:mapToList', asset);
-        }
+        // engine material data
+        var data = {
+            id: asset.id,
+            name: asset.name,
+            file: asset.file ? {
+                filename: asset.file.filename,
+                url: asset.file.url,
+                hash: asset.file.hash,
+                size: asset.file.size
+            } : null,
+            data: asset.data,
+            type: asset.type
+        };
 
-        var framework = editor.call('viewport:framework');
-        if (framework) {
-            var assetRegistry = framework.context.assets;
-            var data = {
-                id: asset.id,
-                name: asset.name,
-                file: asset.file ? {
-                    filename: asset.file.filename,
-                    url: asset.file.url,
-                    hash: asset.file.hash,
-                    size: asset.file.size
-                } : null,
-                data: assetData,
-                type: asset.type
-            }
+        // add to registry
+        assetRegistry.createAndAddAsset(asset.id, data);
 
-            assetRegistry.createAndAddAsset(asset.id, data);
-
-            framework.redraw = true;
-        }
+        // render
+        editor.call('viewport:render');
     });
 });

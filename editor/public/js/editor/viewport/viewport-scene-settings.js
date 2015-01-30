@@ -2,25 +2,26 @@ editor.once('load', function() {
     'use strict';
 
     var sceneSettings = editor.call('sceneSettings');
+    var framework = editor.call('viewport:framework');
+    var updating;
 
-    var timeout;
+    // queue settings apply
+    var queueApplySettings = function() {
+        if (updating)
+            return;
 
-    function updateSettings () {
-        if (timeout) {
-            clearTimeout(timeout);
-        }
+        updating = true;
 
-        timeout = setTimeout(function () {
-            var framework = editor.call('viewport:framework');
-            if (framework) {
-                framework._linkUpdatePackSettings(sceneSettings);
-                framework.redraw = true;
-            }
+        setTimeout(applySettings, 1000 / 30);
+    };
 
-            timeout = null;
-        }, 25);
-    }
+    // apply settings
+    var applySettings = function() {
+        updating = false;
+        framework._linkUpdatePackSettings(sceneSettings);
+        editor.call('viewport:render');
+    };
 
-    sceneSettings.on('*:set', updateSettings);
-
+    // on settings change
+    sceneSettings.on('*:set', queueApplySettings);
 });
