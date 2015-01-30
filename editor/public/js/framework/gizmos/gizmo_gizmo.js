@@ -20,13 +20,6 @@
         // create a scene which will only contain the gizmo shapes used to intersect with the cursor
         this.scene = new pc.scene.Scene();
 
-        this.blockerMaterial = new pc.scene.BasicMaterial();
-        this.blockerMaterial.redWrite = false;
-        this.blockerMaterial.greenWrite = false;
-        this.blockerMaterial.blueWrite = false;
-        this.blockerMaterial.alphaWrite = false;
-        this.blockerMaterial.update();
-
         this.invisibleMaterial = this._createTransparentMaterial(new pc.Color(0, 0, 0, 0));
 
         this.coordinateSystem = 'world';
@@ -395,8 +388,6 @@
             var gd = this.context.graphicsDevice;
             var dw = gd.width;
             var dh = gd.height;
-            var vpx = vp.x * dw;
-            var vpy = vp.y * dh;
             var vpw = vp.width * dw;
             var vph = vp.height * dh;
 

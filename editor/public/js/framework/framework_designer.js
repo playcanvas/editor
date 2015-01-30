@@ -27,7 +27,7 @@ pc.extend(pc.designer, function() {
 
         this.gizmos = {
             translate: new pc.GizmoTranslate(context),
-            rotate: new pc.GizmoTranslate(context),
+            rotate: new pc.GizmoRotate(context),
             scale: new pc.GizmoTranslate(context)
         };
 
@@ -35,7 +35,7 @@ pc.extend(pc.designer, function() {
             this.gizmos[key].initialize();
         }
 
-        this.activeGizmo = this.gizmos.translate;
+        this.activeGizmo = this.gizmos.rotate;
 
         for (var key in context.systems) {
             if (context.systems.hasOwnProperty(key)) {
