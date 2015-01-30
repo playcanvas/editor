@@ -1,11 +1,8 @@
-var A;
 editor.once('load', function() {
     'use strict';
 
     var entities = new ObserverList();
     entities.index = 'resource_id';
-
-    A = entities;
 
 
     // on adding

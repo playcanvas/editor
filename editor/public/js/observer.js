@@ -132,12 +132,21 @@ Observer.prototype._defineProperty = function(target, key) {
                 var oldValue = this.__data[key].slice(0);
                 this.__data[key] = value;
 
+                // history hook to prevent array values to be recorded
+                var historyState = this.history && this.history.enabled;
+                if (historyState)
+                    this.history.enabled = false;
+
                 for(var i = 0; i < this.__data[key].length; i++) {
                     if(this.__data[key][i] !== oldValue[i]) {
                         self.emit(path + '.' + i + ':set', this.__data[key][i], oldValue[i]);
                         self.emit('*:set', path + '.' + i, this.__data[key][i], oldValue[i]);
                     }
                 }
+
+                // bring back history state
+                if (historyState)
+                    this.history.enabled = true;
 
                 self.emit(path + ':set', value, oldValue);
                 self.emit('*:set', path, value, oldValue);

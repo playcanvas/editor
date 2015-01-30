@@ -72,9 +72,6 @@ editor.on('load', function() {
     var viewport = new ui.Panel();
     viewport.flexible = true;
     viewport.flexGrow = true;
-    viewport.innerElement.style.backgroundImage = 'url("https://i.imgur.com/0zVgGIk.jpg")';
-    viewport.innerElement.style.backgroundPosition = 'center center';
-    viewport.innerElement.style.backgroundSize = 'cover';
     center.append(viewport);
     // expose
     editor.method('layout.viewport', function() { return viewport; });
