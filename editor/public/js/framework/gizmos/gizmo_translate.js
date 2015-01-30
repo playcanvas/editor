@@ -359,9 +359,9 @@
             var inverseParentWtm = this.entity.getParent().getWorldTransform().clone().invert();
             updatedTransform.mul2(inverseParentWtm, updatedTransform);
 
-            var newValue = updatedTransform.getTranslation();
+            var newLocalPosition = updatedTransform.getTranslation();
 
-            this._setEntityAttribute('position', [newValue.x, newValue.y, newValue.z], this.undoDrag);
+            this._setEntityAttribute('position', [newLocalPosition.x, newLocalPosition.y, newLocalPosition.z], this.undoDrag);
             this.undoDrag = false;
         }
 
