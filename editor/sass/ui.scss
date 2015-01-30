@@ -412,11 +412,10 @@ a:visited {
 
 .ui-tree {
     @extend .noSelect;
-    // padding-top: 2px;
+    @extend .fieldFont;
     padding: 2px;
     overflow: visible;
     font-size: 12px;
-    font-family: 'Lucida Grande';
 
     > .drag-handle {
         display: none;

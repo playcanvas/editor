@@ -6,9 +6,9 @@ body {
     overflow: hidden;
     margin: 0;
     background-color: #333;
-    font-size: 14px;
+    font-size: 13px;
     color: #eee;
-    font-family: Helvetica;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
 }
 
 .noSelect {
@@ -120,6 +120,15 @@ body {
                     // color: #eee;
                 }
             }
+        }
+        .ui-label.label-field {
+            -webkit-flex-shrink: 0;
+            flex-shrink: 0;
+            width: 78px;
+            font-size: 11px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
     }
 }

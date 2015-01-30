@@ -63,14 +63,10 @@ editor.once('load', function() {
         (args.parent || root).append(panel);
 
         if (args.name) {
-            var label = new ui.Label({ text: args.name });
-            label.flexShrink = 0;
-            label.style.width = '78px';
-            // label.style.textAlign = 'right';
-            label.style.fontSize = '12px';
-            label.style.overflow = 'hidden';
-            label.style.textOverflow = 'ellipsis';
-            label.style.whiteSpace = 'nowrap';
+            var label = new ui.Label({
+                text: args.name
+            });
+            label.class.add('label-field');
             panel.append(label);
         }
 
