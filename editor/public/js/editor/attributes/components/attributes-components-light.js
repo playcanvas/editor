@@ -45,6 +45,7 @@ editor.once('load', function() {
             fieldEnabled.destroy();
         });
 
+
         // type
         var fieldType = editor.call('attributes:addField', {
             parent: panel,
@@ -59,36 +60,16 @@ editor.once('load', function() {
             path: 'components.light.type'
         });
 
-        // color, intensity
-        var panelColor = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Color'
-        });
-
-        var label = panelColor;
-        panelColor = panelColor.parent;
-        label.destroy();
 
         // color
-        var fieldColor = new ui.ColorField();
-        fieldColor.link(entity, 'components.light.color');
-        fieldColor.on('click', function() {
-            editor.call('picker:color', fieldColor.value, function(value) {
-                fieldColor.value = value;
-            });
-
-            var rectPicker = editor.call('picker:color:rect');
-            var rectField = fieldColor.element.getBoundingClientRect();
-            editor.call('picker:color:position', rectField.right - rectPicker.width, rectField.bottom);
-
-            var evtColor = fieldColor.on('change', function() {
-                editor.call('picker:color:set', this.value);
-            });
-            editor.once('picker:color:close', function() {
-                evtColor.unbind();
-            });
+        var fieldColor = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Color',
+            type: 'rgb',
+            link: entity,
+            path: 'components.light.color'
         });
-        panelColor.append(fieldColor);
+
 
         // intensity
         var fieldIntensity = new ui.NumberField();
@@ -96,7 +77,8 @@ editor.once('load', function() {
         fieldIntensity.style.width = '32px';
         fieldIntensity.flexGrow = 1;
         fieldIntensity.link(entity, 'components.light.intensity');
-        panelColor.append(fieldIntensity);
+        fieldColor.parent.append(fieldIntensity);
+
 
         // range
         var fieldRange = editor.call('attributes:addField', {
@@ -110,6 +92,7 @@ editor.once('load', function() {
         fieldType.on('change', function(value) {
             fieldRange.parent.hidden = value === 'directional';
         });
+
 
         // falloffMode
         var fieldFalloffMode = editor.call('attributes:addField', {
@@ -128,36 +111,32 @@ editor.once('load', function() {
             fieldFalloffMode.parent.hidden = value === 'directional';
         });
 
-        // light cone
-        var panelClip = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Cone Angles'
-        });
-
-        var label = panelClip;
-        panelClip = panelClip.parent;
-        label.destroy();
-
-        panelClip.hidden = entity.get('components.light.type') !== 'spot';
-        fieldType.on('change', function(value) {
-            panelClip.hidden = value !== 'spot';
-        });
 
         // innerConeAngle
-        var fieldInnerConeAngle = new ui.NumberField();
-        fieldInnerConeAngle.placeholder = 'Inner';
+        var fieldInnerConeAngle = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Cone Angles',
+            placeholder: 'Inner',
+            type: 'number',
+            link: entity,
+            path: 'components.lught.innerConeAngle'
+        });
         fieldInnerConeAngle.style.width = '32px';
-        fieldInnerConeAngle.flexGrow = 1;
-        fieldInnerConeAngle.link(entity, 'components.camera.innerConeAngle');
-        panelClip.append(fieldInnerConeAngle);
+
+
+        fieldInnerConeAngle.parent.hidden = entity.get('components.light.type') !== 'spot';
+        fieldType.on('change', function(value) {
+            fieldInnerConeAngle.parent.hidden = value !== 'spot';
+        });
+
 
         // outerConeAngle
         var fieldOuterConeAngle = new ui.NumberField();
         fieldOuterConeAngle.placeholder = 'Outer';
         fieldOuterConeAngle.style.width = '32px';
         fieldOuterConeAngle.flexGrow = 1;
-        fieldOuterConeAngle.link(entity, 'components.camera.outerConeAngle');
-        panelClip.append(fieldOuterConeAngle);
+        fieldOuterConeAngle.link(entity, 'components.light.outerConeAngle');
+        fieldInnerConeAngle.parent.append(fieldOuterConeAngle);
 
 
         // castShadows
@@ -169,6 +148,7 @@ editor.once('load', function() {
             path: 'components.light.castShadows'
         });
 
+
         // shadows panel
         var panelShadows = editor.call('attributes:addPanel', {
             parent: panel
@@ -177,6 +157,7 @@ editor.once('load', function() {
         fieldCastShadows.on('change', function(value) {
             panelShadows.hidden = ! value;
         });
+
 
         // shadowDistance
         var fieldShadowDistance = editor.call('attributes:addField', {
@@ -190,6 +171,7 @@ editor.once('load', function() {
         fieldType.on('change', function(value) {
             fieldShadowDistance.parent.hidden = value !== 'directional';
         });
+
 
         // shadowResolution
         editor.call('attributes:addField', {
@@ -208,27 +190,23 @@ editor.once('load', function() {
         });
 
 
-        // shadow bias
-        var panelShadowBias = editor.call('attributes:addField', {
+        // shadowBias
+        var fieldShadowBias = editor.call('attributes:addField', {
             parent: panelShadows,
-            name: 'Shadow Bias'
+            name: 'Shadow Bias',
+            type: 'number',
+            link: entity,
+            path: 'components.link.shadowBias'
         });
-
-        var label = panelShadowBias;
-        panelShadowBias = panelShadowBias.parent;
-        label.destroy();
-
-        var fieldShadowBias = new ui.NumberField();
         fieldShadowBias.style.width = '32px';
-        fieldShadowBias.flexGrow = 1;
-        fieldShadowBias.link(entity, 'components.light.shadowBias');
-        panelShadowBias.append(fieldShadowBias);
 
+
+        // normalOffsetBias
         var fieldShadowBiasNormalOffset = new ui.NumberField();
         fieldShadowBiasNormalOffset.placeholder = 'Normal Offset';
         fieldShadowBiasNormalOffset.style.width = '32px';
         fieldShadowBiasNormalOffset.flexGrow = 2;
         fieldShadowBiasNormalOffset.link(entity, 'components.light.normalOffsetBias');
-        panelShadowBias.append(fieldShadowBiasNormalOffset);
+        fieldShadowBias.parent.append(fieldShadowBiasNormalOffset);
     });
 });

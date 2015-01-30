@@ -2,25 +2,19 @@ editor.once('load', function() {
     'use strict';
 
     editor.on('assets:add', function(asset) {
-        asset.history = true;
+        if (asset.history)
+            return;
 
-        asset.on('*:set', function(path, value, oldValue) {
-            if (! this.history || (path !== 'name' && path.indexOf('data.') === -1))
-                return;
+        asset.history = new ObserverHistory({
+            item: asset,
+            prefix: 'asset.' + asset.id + '.',
+            // TODO
+            // allowed paths
+        });
 
-            editor.call('history:add', {
-                name: 'change ' + asset.type + ' ' + path,
-                undo: function() {
-                    asset.history = false;
-                    asset.set(path, oldValue);
-                    asset.history = true;
-                },
-                redo: function() {
-                    asset.history = false;
-                    asset.set(path, value);
-                    asset.history = true;
-                }
-            });
+        // record history
+        asset.history.on('record', function(action, data) {
+            editor.call('history:' + action, data);
         });
     });
 });

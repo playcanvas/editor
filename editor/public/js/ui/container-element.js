@@ -33,6 +33,37 @@ ContainerElement.prototype.append = function(element) {
 };
 
 
+ContainerElement.prototype.appendBefore = function(element, reference) {
+    var html = (element instanceof HTMLElement);
+    var node = html ? element : element.element;
+
+    if (reference instanceof ui.Element)
+        reference = reference.element;
+
+    this._innerElement.insertBefore(node, reference);
+
+    if (! html) {
+        element.parent = this;
+        this.emit('append', element);
+    }
+};
+
+ContainerElement.prototype.appendAfter = function(element, reference) {
+    var html = (element instanceof HTMLElement);
+    var node = html ? element : element.element;
+
+    if (reference instanceof ui.Element)
+        reference = reference.element;
+
+    this._innerElement.insertBefore(node, reference);
+
+    if (! html) {
+        element.parent = this;
+        this.emit('append', element);
+    }
+};
+
+
 ContainerElement.prototype.prepend = function(element) {
     var first = this._innerElement.firstChild;
     var html = (element instanceof HTMLElement);

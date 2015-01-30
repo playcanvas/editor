@@ -25,7 +25,9 @@ function ColorField(args) {
         } else if (this._channels === 3) {
             this.elementColor.style.backgroundColor = 'rgb(' + this._values.slice(0, 3).join(',') + ')';
         } else if (this._channels === 4) {
-            this.elementColor.style.backgroundColor = 'rgba(' + this._values.slice(0, 4).join(',') + ')';
+            var rgba = this._values.slice(0, 4);
+            rgba[3] /= 255;
+            this.elementColor.style.backgroundColor = 'rgba(' + rgba.join(',') + ')';
         } else {
             console.log('unknown channels', color);
         }

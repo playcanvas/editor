@@ -5,6 +5,7 @@ function ObserverHistory(args) {
     this.item = args.item;
     this._enabled = args.enabled || true;
     this._combine = args._combine || false;
+    this._prefix = args.prefix || '';
 
     this._initialize();
 }
@@ -17,8 +18,9 @@ ObserverHistory.prototype._initialize = function() {
     this.item.on('*:set', function(path, value, valueOld) {
         if (! self._enabled) return;
 
-        self.emit('add', {
-            name: path,
+        // action
+        var data = {
+            name: this._prefix + path,
             combine: self._combine,
             undo: function() {
                 self._enabled = false;
@@ -30,7 +32,15 @@ ObserverHistory.prototype._initialize = function() {
                 self.item.set(path, value);
                 self._enabled = true;
             }
-        });
+        };
+
+        if (data.combine && editor.call('history:canUndo') && editor.call('history:current').name === data.name) {
+            // update
+            self.emit('record', 'update', data);
+        } else {
+            // add
+            self.emit('record', 'add', data);
+        }
     });
 
     this.item.on('*:insert', function(path, value, ind) {
@@ -53,6 +63,16 @@ Object.defineProperty(ObserverHistory.prototype, 'enabled', {
     },
     set: function(value) {
         this._enabled = !! value;
+    }
+});
+
+
+Object.defineProperty(ObserverHistory.prototype, 'prefix', {
+    get: function() {
+        return this._prefix;
+    },
+    set: function(value) {
+        this._prefix = value || '';
     }
 });
 

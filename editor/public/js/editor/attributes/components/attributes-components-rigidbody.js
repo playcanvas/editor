@@ -46,6 +46,7 @@ editor.once('load', function() {
             fieldEnabled.destroy();
         });
 
+
         // type
         var fieldType = editor.call('attributes:addField', {
             parent: panel,
@@ -81,29 +82,25 @@ editor.once('load', function() {
         fieldMass.placeholder = 'Kg';
 
 
-        // linear/angular damping
-        var panelDamping = editor.call('attributes:addField', {
+        // linearDamping
+        var fieldLinearDamping = editor.call('attributes:addField', {
             parent: panelDynamic,
-            name: 'Damping'
+            name: 'Damping',
+            placeholder: 'Linear',
+            type: 'number',
+            link: entity,
+            path: 'components.rigidbody.linearDamping'
         });
-
-        var label = panelDamping;
-        panelDamping = panelDamping.parent;
-        label.destroy();
-
-        var fieldLinearDamping = new ui.NumberField();
-        fieldLinearDamping.placeholder = 'Linear';
         fieldLinearDamping.style.width = '32px';
-        fieldLinearDamping.flexGrow = 1;
-        fieldLinearDamping.link(entity, 'components.rigidbody.linearDamping');
-        panelDamping.append(fieldLinearDamping);
 
+
+        // angularDamping
         var fieldAngularDamping = new ui.NumberField();
         fieldAngularDamping.placeholder = 'Angular';
         fieldAngularDamping.style.width = '32px';
         fieldAngularDamping.flexGrow = 1;
         fieldAngularDamping.link(entity, 'components.rigidbody.angularDamping');
-        panelDamping.append(fieldAngularDamping);
+        fieldLinearDamping.parent.append(fieldAngularDamping);
 
 
         // linearFactor
@@ -116,6 +113,7 @@ editor.once('load', function() {
             path: 'components.rigidbody.linearFactor'
         });
 
+
         // angularFactor
         var fieldAngularFactor = editor.call('attributes:addField', {
             parent: panelDynamic,
@@ -127,28 +125,24 @@ editor.once('load', function() {
         });
 
 
-        // linear/angular damping
-        var panelParams = editor.call('attributes:addField', {
-            parent: panelDynamic,
-            name: 'Properties'
+        // friction
+        var fieldFriction = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Properties',
+            placeholder: 'Friction',
+            type: 'number',
+            link: entity,
+            path: 'components.rigidbody.friction'
         });
-
-        var label = panelParams;
-        panelParams = panelParams.parent;
-        label.destroy();
-
-        var fieldFriction = new ui.NumberField();
-        fieldFriction.placeholder = 'Friction';
         fieldFriction.style.width = '32px';
-        fieldFriction.flexGrow = 1;
-        fieldFriction.link(entity, 'components.rigidbody.friction');
-        panelParams.append(fieldFriction);
 
+
+        // restitution
         var fieldRestitution = new ui.NumberField();
         fieldRestitution.placeholder = 'Restitution';
         fieldRestitution.style.width = '32px';
         fieldRestitution.flexGrow = 1;
         fieldRestitution.link(entity, 'components.rigidbody.restitution');
-        panelParams.append(fieldRestitution);
+        fieldFriction.parent.append(fieldRestitution);
     });
 });

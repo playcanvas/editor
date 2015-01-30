@@ -3,6 +3,7 @@ function ObserverSync(args) {
     args = args || { };
 
     this.item = args.item;
+    this._enabled = args.enabled || true;
     this._prefix = args.prefix || [ ];
     this._paths = args.paths || null;
     this._sync = args.sync || true;
@@ -18,7 +19,7 @@ ObserverSync.prototype._initialize = function() {
 
     // object/array set
     item.on('*:set', function(path, value, valueOld) {
-        if (! self._sync) return;
+        if (! self._enabled) return;
 
         // check if path is allowed
         if (this._paths) {
@@ -60,9 +61,19 @@ ObserverSync.prototype._initialize = function() {
         }
     });
 
+    // unset
+    item.on('*:unset', function(path, value) {
+        if (! self._enabled) return;
+
+        self.emit('op', {
+            p: self._prefix.concat(path.split('.')),
+            od: null
+        });
+    });
+
     // list move
     item.on('*:move', function(path, value, ind, indOld) {
-        if (! self._sync) return;
+        if (! self._enabled) return;
         self.emit('op', {
             p: self._prefix.concat(path.split('.')).concat([ indOld ]),
             lm: ind
@@ -71,7 +82,7 @@ ObserverSync.prototype._initialize = function() {
 
     // list remove
     item.on('*:remove', function(path, value, ind) {
-        if (! self._sync) return;
+        if (! self._enabled) return;
         self.emit('op', {
             p: self._prefix.concat(path.split('.')).concat([ ind ]),
             ld: value
@@ -80,7 +91,7 @@ ObserverSync.prototype._initialize = function() {
 
     // list insert
     item.on('*:insert', function(path, value, ind) {
-        if (! self._sync) return;
+        if (! self._enabled) return;
         self.emit('op', {
             p: self._prefix.concat(path.split('.')).concat([ ind ]),
             li: value
@@ -101,27 +112,27 @@ ObserverSync.prototype.write = function(op) {
         // set key value
         var path = op.p.slice(this._prefix.length).join('.');
 
-        this._sync = false;
+        this._enabled = false;
         this.item.set(path, op.oi);
-        this._sync = true;
+        this._enabled = true;
 
 
     } else if (op.hasOwnProperty('ld') && op.hasOwnProperty('li')) {
         // set array value
         var path = op.p.slice(this._prefix.length).join('.');
 
-        this._sync = false;
+        this._enabled = false;
         this.item.set(path, op.li);
-        this._sync = true;
+        this._enabled = true;
 
 
     } else if (op.hasOwnProperty('ld')) {
         // delete item
         var path = op.p.slice(this._prefix.length, -1).join('.');
 
-        this._sync = false;
+        this._enabled = false;
         this.item.remove(path, op.ld);
-        this._sync = true;
+        this._enabled = true;
 
 
     } else if (op.hasOwnProperty('li')) {
@@ -129,9 +140,9 @@ ObserverSync.prototype.write = function(op) {
         var path = op.p.slice(this._prefix.length, -1).join('.');
         var ind = op.p[op.p.length - 1];
 
-        this._sync = false;
+        this._enabled = false;
         this.item.insert(path, op.li, ind);
-        this._sync = true;
+        this._enabled = true;
 
 
     } else if (op.hasOwnProperty('lm')) {
@@ -140,9 +151,9 @@ ObserverSync.prototype.write = function(op) {
         var indOld = op.p[op.p.length - 1];
         var ind = op.lm;
 
-        this._sync = false;
+        this._enabled = false;
         this.item.move(path, this.item.get(path + '.' + indOld), ind);
-        this._sync = true;
+        this._enabled = true;
 
 
     } else {
@@ -156,13 +167,12 @@ ObserverSync.prototype.write = function(op) {
     this.emit('sync', op);
 };
 
-
-Object.defineProperty(ObserverSync.prototype, 'sync', {
+Object.defineProperty(ObserverSync.prototype, 'enabled', {
     get: function() {
-        return this._sync;
+        return this._enabled;
     },
     set: function(value) {
-        this._sync = !! value;
+        this._enabled = !! value;
     }
 });
 

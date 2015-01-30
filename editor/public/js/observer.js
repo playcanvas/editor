@@ -133,10 +133,34 @@ Observer.prototype._defineProperty = function(target, key) {
                 this.__data[key] = value;
 
                 // history hook to prevent array values to be recorded
-                var historyState = this.history && this.history.enabled;
+                var historyState = self.history && self.history.enabled;
                 if (historyState)
-                    this.history.enabled = false;
+                    self.history.enabled = false;
 
+                // sync hook to prevent array values to be recorded as array root already did
+                var syncState = self.sync && self.sync.enabled;
+                var syncSingle = -1;
+                if (syncState) {
+                    self.sync.enabled = false;
+
+                    // check if single value set
+                    for(var i = 0; i < this.__data[key].length; i++) {
+                        if(this.__data[key][i] !== oldValue[i] && syncSingle !== -2) {
+                            if (syncSingle === -1) {
+                                syncSingle = i;
+                            } else {
+                                syncSingle = -2;
+                                break;
+                            }
+                        }
+                    }
+
+                    // if so, then allow sync of that single value
+                    if (syncSingle >= 0)
+                        self.sync.enabled = true;
+                }
+
+                // emit each value set event
                 for(var i = 0; i < this.__data[key].length; i++) {
                     if(this.__data[key][i] !== oldValue[i]) {
                         self.emit(path + '.' + i + ':set', this.__data[key][i], oldValue[i]);
@@ -146,10 +170,18 @@ Observer.prototype._defineProperty = function(target, key) {
 
                 // bring back history state
                 if (historyState)
-                    this.history.enabled = true;
+                    self.history.enabled = true;
+
+                // bring back sync state if not a single value update
+                if (syncState)
+                    self.sync.enabled = syncSingle < 0;
 
                 self.emit(path + ':set', value, oldValue);
                 self.emit('*:set', path, value, oldValue);
+
+                // bring back sync state
+                if (syncState)
+                    self.sync.enabled = true;
             } else {
                 var oldValue = this.__data[key];
                 this.__data[key] = value;
@@ -258,12 +290,30 @@ Observer.prototype.unset = function(path) {
     if (! node.__data || ! node.hasOwnProperty(key))
         return false;
 
+    // history hook to prevent array values to be recorded
+    var historyState = this.history && this.history.enabled;
+    if (historyState)
+        this.history.enabled = false;
+
+    // sync hook to prevent array values to be recorded as array root already did
+    var syncState = this.sync && this.sync.enabled;
+    if (syncState)
+        this.sync.enabled = false;
+
     // recursive
     if (node.__data[key] && node.__data[key].__data) {
         for(var i = 0; i < node.__data[key].__keys.length; i++) {
             this.unset(path + '.' + node.__data[key].__keys[i]);
         }
     }
+
+    // bring back history state
+    if (historyState)
+        this.history.enabled = true;
+
+    // bring back sync state if not a single value update
+    if (syncState)
+        this.sync.enabled = true
 
     node.__keys.splice(node.__keys.indexOf(key), 1);
     delete node.__data[key];

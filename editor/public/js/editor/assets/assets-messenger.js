@@ -55,9 +55,9 @@ editor.once('load', function() {
                     return;
 
                 asset.sync = false;
-                asset.history = false;
+                asset.history.enabled = false;
                 asset.patch(data);
-                asset.history = true;
+                asset.history.enabled = true;
                 asset.sync = true;
             } else {
                 asset = new Observer(data);

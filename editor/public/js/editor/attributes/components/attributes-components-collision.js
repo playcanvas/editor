@@ -46,6 +46,7 @@ editor.once('load', function() {
             fieldEnabled.destroy();
         });
 
+
         // type
         var fieldType = editor.call('attributes:addField', {
             parent: panel,
@@ -94,21 +95,21 @@ editor.once('load', function() {
 
 
         // height
-        var panelHeight = editor.call('attributes:addField', {
+        var fieldHeight = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Height'
+            name: 'Height',
+            type: 'number',
+            link: entity,
+            path: 'components.collision.height'
+        });
+        // show/hide
+        fieldHeight.parent.hidden = [ 'capsule', 'cylinder' ].indexOf(entity.get('components.collision.type')) === -1;
+        fieldType.on('change', function(value) {
+            fieldHeight.parent.hidden = [ 'capsule', 'cylinder' ].indexOf(value) === -1;
         });
 
-        var label = panelHeight;
-        panelHeight = panelHeight.parent;
-        label.destroy();
 
-        var fieldHeight = new ui.NumberField();
-        fieldHeight.style.width = '32px';
-        fieldHeight.flexGrow = 1;
-        fieldHeight.link(entity, 'components.collision.height');
-        panelHeight.append(fieldHeight);
-
+        // axis
         var fieldAxis = new ui.SelectField({
             number: true,
             options: {
@@ -120,12 +121,7 @@ editor.once('load', function() {
         fieldAxis.style.width = '32px';
         fieldAxis.flexGrow = 1;
         fieldAxis.link(entity, 'components.collision.axis');
-        panelHeight.append(fieldAxis);
-
-        panelHeight.hidden = [ 'capsule', 'cylinder' ].indexOf(entity.get('components.collision.type')) === -1;
-        fieldType.on('change', function(value) {
-            panelHeight.hidden = [ 'capsule', 'cylinder' ].indexOf(value) === -1;
-        });
+        fieldHeight.parent.append(fieldAxis);
 
 
         // asset

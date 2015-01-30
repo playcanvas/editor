@@ -3,12 +3,13 @@ editor.once('load', function() {
 
     editor.once('sceneSettings:load', function(settings) {
         settings.history = new ObserverHistory({
-            item: settings
+            item: settings,
+            prefix: 'settings.'
         });
 
-        // register history action
-        settings.history.on('add', function(data) {
-            editor.call('history:add', data);
+        // record history
+        settings.history.on('record', function(action, data) {
+            editor.call('history:' + action, data);
         });
     });
 });

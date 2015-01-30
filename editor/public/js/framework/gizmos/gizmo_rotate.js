@@ -7,7 +7,7 @@
         this.startX = 0;
         this.startY = 0;
         this.startTransform = null;
-        this.undoDrag = true;
+        this.undoDrag = false;
 
         this.blockerMaterial = new pc.scene.BasicMaterial();
         this.blockerMaterial.redWrite = false;

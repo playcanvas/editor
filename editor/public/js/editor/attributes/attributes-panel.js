@@ -224,14 +224,54 @@ editor.once('load', function() {
                     field.link(args.link, args.path);
                 }
 
+                var colorPickerOn = false;
                 field.on('click', function() {
-                    editor.call('picker:color', field.value, function(value) {
-                        field.value = value;
+                    colorPickerOn = true;
+                    var first = true;
+
+                    // set picker color
+                    editor.call('picker:color', field.value);
+
+                    // picking starts
+                    var evtColorPickStart = editor.on('picker:color:start', function() {
+                        first = true;
                     });
 
+                    // picked color
+                    var evtColorPick = editor.on('picker:color', function(color) {
+                        if (field._link && field._link.history)
+                            field._link.history.combine = ! first;
+
+                        first = false;
+                        field.value = color;
+
+                        if (field._link && field._link.history)
+                            field._link.history.combine = false;
+                    });
+
+                    // position picker
                     var rectPicker = editor.call('picker:color:rect');
                     var rectField = field.element.getBoundingClientRect();
                     editor.call('picker:color:position', rectField.right - rectPicker.width, rectField.bottom);
+
+                    // color changed, update picker
+                    var evtColorToPicker = field.on('change', function() {
+                        editor.call('picker:color:set', this.value);
+                    });
+
+                    // picker closed
+                    editor.once('picker:color:close', function() {
+                        evtColorPick.unbind();
+                        evtColorPickStart.unbind();
+                        evtColorToPicker.unbind();
+                        colorPickerOn = false;
+                    });
+                });
+
+                // close picker if field destroyed
+                field.on('destroy', function() {
+                    if (colorPickerOn)
+                        editor.call('picker:color:close');
                 });
 
                 panel.append(field);

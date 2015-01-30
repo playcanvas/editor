@@ -35,7 +35,7 @@ editor.once('load', function() {
         });
 
 
-        // model.enabled
+        // enabled
         var fieldEnabled = new ui.Checkbox();
         fieldEnabled.style.float = 'left';
         fieldEnabled.style.backgroundColor = '#323f42';
@@ -46,7 +46,8 @@ editor.once('load', function() {
             fieldEnabled.destroy();
         });
 
-        // model.type
+
+        // type
         var fieldType = editor.call('attributes:addField', {
             parent: panel,
             name: 'Type',
@@ -68,7 +69,8 @@ editor.once('load', function() {
             fieldMaterial.parent.hidden = value === 'asset';
         });
 
-        // model.asset
+
+        // asset
         var fieldAsset = editor.call('attributes:addField', {
             parent: panel,
             name: 'Asset',
@@ -79,6 +81,7 @@ editor.once('load', function() {
         fieldAsset.parent.hidden = entity.get('components.model.type') !== 'asset';
 
 
+        // material
         var fieldMaterial = editor.call('attributes:addField', {
             parent: panel,
             name: 'Material',
@@ -88,36 +91,33 @@ editor.once('load', function() {
         });
         fieldMaterial.parent.hidden = entity.get('components.model.type') === 'asset';
 
-        // model.shadows
-        var fieldShadowOptions = new ui.Panel();
-        editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Shadows',
-            type: 'element',
-            element: fieldShadowOptions
-        });
 
-        // model.castShadows
-        var fieldShadowCast = new ui.Checkbox();
-        fieldShadowCast.link(entity, 'components.model.castShadows');
-        fieldShadowOptions.append(fieldShadowCast);
+        // castShadows
+        var fieldCastShadows = editor.call('attributes:addField', {
+            parent: panel,
+            type: 'checkbox',
+            name: 'Shadows',
+            link: entity,
+            path: 'components.model.castShadows'
+        });
         // label
         var label = new ui.Label({ text: 'Cast' });
         label.style.verticalAlign = 'top';
         label.style.paddingRight = '12px';
         label.style.fontSize = '12px';
         label.style.lineHeight = '26px';
-        fieldShadowOptions.append(label);
+        fieldCastShadows.parent.append(label);
 
-        // model.receiveShadows
-        var fieldShadowReceive = new ui.Checkbox();
-        fieldShadowReceive.link(entity, 'components.model.receiveShadows');
-        fieldShadowOptions.append(fieldShadowReceive);
+
+        // receiveShadows
+        var fieldReceiveShadows = new ui.Checkbox();
+        fieldReceiveShadows.link(entity, 'components.model.receiveShadows');
+        fieldCastShadows.parent.append(fieldReceiveShadows);
         // label
         var label = new ui.Label({ text: 'Receive' });
         label.style.verticalAlign = 'top';
         label.style.fontSize = '12px';
         label.style.lineHeight = '26px';
-        fieldShadowOptions.append(label);
+        fieldCastShadows.parent.append(label);
     });
 });

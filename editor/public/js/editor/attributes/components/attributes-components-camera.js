@@ -45,37 +45,35 @@ editor.once('load', function() {
             fieldEnabled.destroy();
         });
 
-        // clear
-        var panelClear = new ui.Panel();
-        editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Clear Buffers',
-            type: 'element',
-            element: panelClear
-        });
 
         // clearColorBuffer
-        var fieldClearColorBuffer = new ui.Checkbox();
-        fieldClearColorBuffer.link(entity, 'components.camera.clearColorBuffer');
-        panelClear.append(fieldClearColorBuffer);
+        var fieldClearColorBuffer = editor.call('attributes:addField', {
+            parent: panel,
+            type: 'checkbox',
+            name: 'Clear Buffers',
+            link: entity,
+            path: 'components.camera.clearColorBuffer'
+        });
         // label
         var label = new ui.Label({ text: 'Color' });
         label.style.verticalAlign = 'top';
         label.style.paddingRight = '12px';
         label.style.fontSize = '12px';
         label.style.lineHeight = '26px';
-        panelClear.append(label);
+        fieldClearColorBuffer.parent.append(label);
+
 
         // clearDepthBuffer
         var fieldClearDepthBuffer = new ui.Checkbox();
         fieldClearDepthBuffer.link(entity, 'components.camera.clearDepthBuffer');
-        panelClear.append(fieldClearDepthBuffer);
+        fieldClearColorBuffer.parent.append(fieldClearDepthBuffer);
         // label
         var label = new ui.Label({ text: 'Depth' });
         label.style.verticalAlign = 'top';
         label.style.fontSize = '12px';
         label.style.lineHeight = '26px';
-        panelClear.append(label);
+        fieldClearColorBuffer.parent.append(label);
+
 
         // camera.clearColor
         var fieldClearColor = editor.call('attributes:addField', {
@@ -90,6 +88,7 @@ editor.once('load', function() {
             fieldClearColor.parent.hidden = ! value;
         });
 
+
         // camera.projection
         var fieldProjection = editor.call('attributes:addField', {
             parent: panel,
@@ -102,6 +101,7 @@ editor.once('load', function() {
             link: entity,
             path: 'components.camera.projection'
         });
+
 
         // camera.fov
         var fieldFov = editor.call('attributes:addField', {
@@ -117,6 +117,7 @@ editor.once('load', function() {
             fieldFov.parent.hidden = value !== 0;
         });
 
+
         // camera.orthoHeight
         var fieldOrthoHeight = editor.call('attributes:addField', {
             parent: panel,
@@ -130,29 +131,27 @@ editor.once('load', function() {
             fieldOrthoHeight.parent.hidden = value !== 1;
         });
 
-        // camera near/far clip
-        var panelClip = editor.call('attributes:addField', {
+
+        // nearClip
+        var fieldNearClip = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Clip'
+            name: 'Clip',
+            placeholder: 'Near',
+            type: 'number',
+            link: entity,
+            path: 'components.camera.nearClip'
         });
-
-        var label = panelClip;
-        panelClip = panelClip.parent;
-        label.destroy();
-
-        var fieldNearClip = new ui.NumberField();
-        fieldNearClip.placeholder = 'Near';
         fieldNearClip.style.width = '32px';
-        fieldNearClip.flexGrow = 1;
-        fieldNearClip.link(entity, 'components.camera.nearClip');
-        panelClip.append(fieldNearClip);
 
+
+        // farClip
         var fieldFarClip = new ui.NumberField();
         fieldFarClip.placeholder = 'Far';
         fieldFarClip.style.width = '32px';
         fieldFarClip.flexGrow = 1;
         fieldFarClip.link(entity, 'components.camera.farClip');
-        panelClip.append(fieldFarClip);
+        fieldNearClip.parent.append(fieldFarClip);
+
 
         // camera.priority
         editor.call('attributes:addField', {
@@ -163,8 +162,9 @@ editor.once('load', function() {
             path: 'components.camera.priority'
         });
 
+
         // camera.rect
-        var fieldViewport = editor.call('attributes:addField', {
+        editor.call('attributes:addField', {
             parent: panel,
             name: 'Viewport',
             placeholder: [ 'X', 'Y', 'W', 'H' ],

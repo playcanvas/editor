@@ -2,11 +2,10 @@ editor.once('load', function() {
     'use strict';
 
     var size = 144;
-    var hueUpdate = true;
+    var directInput = true;
     var colorHSV = [ 0, 0, 0 ];
     var channels = [ ];
     var channelsNumber = 4;
-    var callback = null;
     var changing = false;
 
 
@@ -20,12 +19,12 @@ editor.once('load', function() {
         colorHSV[1] = x / size;
         colorHSV[2] = 1.0 - (y / size);
 
-        hueUpdate = false;
+        directInput = false;
         var rgb = hsv2rgb([ colorHSV[0], colorHSV[1], colorHSV[2] ]);
         for(var i = 0; i < 3; i++) {
             channels[i].value = rgb[i];
         }
-        hueUpdate = true;
+        directInput = true;
 
         pickRectHandle.style.left = Math.max(4, Math.min(size - 4, x)) + 'px';
         pickRectHandle.style.top = Math.max(4, Math.min(size - 4, y)) + 'px';
@@ -36,6 +35,7 @@ editor.once('load', function() {
     var pickRectMouseUp = function() {
         window.removeEventListener('mousemove', pickRectMouseMove, false);
         window.removeEventListener('mouseup', pickRectMouseUp, false);
+        editor.emit('picker:color:end');
     };
 
     // hue drag
@@ -48,12 +48,12 @@ editor.once('load', function() {
         var rgb = hsv2rgb([ h, colorHSV[1], colorHSV[2] ]);
         colorHSV[0] = h;
 
-        hueUpdate = false;
+        directInput = false;
         for(var i = 0; i < 3; i++) {
             channels[i].value = rgb[i];
         }
         updateRects();
-        hueUpdate = true;
+        directInput = true;
         changing = false;
     };
 
@@ -61,6 +61,7 @@ editor.once('load', function() {
     var pickHueMouseUp = function() {
         window.removeEventListener('mousemove', pickHueMouseMove, false);
         window.removeEventListener('mouseup', pickHueMouseUp, false);
+        editor.emit('picker:color:end');
     };
 
     // opacity drag
@@ -78,6 +79,7 @@ editor.once('load', function() {
     var pickOpacityMouseUp = function() {
         window.removeEventListener('mousemove', pickOpacityMouseMove, false);
         window.removeEventListener('mouseup', pickOpacityMouseUp, false);
+        editor.emit('picker:color:end');
     };
 
 
@@ -88,13 +90,15 @@ editor.once('load', function() {
         }).slice(0, channelsNumber);
 
         var hsv = rgb2hsv(color);
-        if (hueUpdate) {
+        if (directInput) {
             var sum = color[0] + color[1] + color[2];
             if (sum !== 765 && sum !== 0)
                 colorHSV[0] = hsv[0];
 
             colorHSV[1] = hsv[1];
             colorHSV[2] = hsv[2];
+
+            editor.emit('picker:color:start');
         }
 
         // hue position
@@ -117,8 +121,7 @@ editor.once('load', function() {
             pickHueHandle.style.backgroundColor = 'rgb(' + plainColor + ')';
         }
 
-        if (callback)
-            callback(color);
+        callCallback();
     };
 
     // update alpha handle
@@ -132,11 +135,24 @@ editor.once('load', function() {
         // color
         pickOpacityHandle.style.backgroundColor = 'rgb(' + [ value, value, value ].join(',') + ')';
 
-        if (callback) {
-            callback(channels.map(function(channel) {
-                return channel.value || 0;
-            }));
-        }
+        callCallback();
+    };
+
+
+    var callingCallaback = false;
+    var callbackHandle = function() {
+        callingCallaback = false;
+
+        editor.emit('picker:color', channels.map(function(channel) {
+            return channel.value || 0;
+        }).slice(0, channelsNumber));
+    };
+    var callCallback = function() {
+        if (callingCallaback)
+            return;
+
+        callingCallaback = true;
+        setTimeout(callbackHandle, 1000 / 60);
     };
 
 
@@ -162,6 +178,7 @@ editor.once('load', function() {
 
         evt.stopPropagation();
         evt.preventDefault();
+        editor.emit('picker:color:start');
     });
 
     // white
@@ -194,6 +211,7 @@ editor.once('load', function() {
 
         evt.stopPropagation();
         evt.preventDefault();
+        editor.emit('picker:color:start');
     });
 
     // handle
@@ -216,6 +234,7 @@ editor.once('load', function() {
 
         evt.stopPropagation();
         evt.preventDefault();
+        editor.emit('picker:color:start');
     });
 
     // handle
@@ -283,13 +302,12 @@ editor.once('load', function() {
 
 
     overlay.on('hide', function() {
-        callback = null;
         editor.emit('picker:color:close');
     });
 
 
     // call picker
-    editor.method('picker:color', function(color, fn) {
+    editor.method('picker:color', function(color) {
         // class for channels
         for(var i = 0; i < 4; i++) {
             if (color.length - 1 < i) {
@@ -310,16 +328,18 @@ editor.once('load', function() {
         }
 
         // set fields
-        hueUpdate = false;
+        directInput = false;
         for(var i = 0; i < color.length; i++) {
             channels[i].value = color[i];
         }
-        hueUpdate = true;
+        directInput = true;
 
         // show overlay
         overlay.hidden = false;
+    });
 
-        callback = fn;
+    editor.method('picker:color:close', function() {
+        overlay.hidden = true;
     });
 
     editor.method('picker:color:rect', function() {
@@ -344,10 +364,10 @@ editor.once('load', function() {
         }
 
         // set fields
-        hueUpdate = false;
+        directInput = false;
         for(var i = 0; i < color.length; i++) {
             channels[i].value = color[i];
         }
-        hueUpdate = true;
+        directInput = true;
     });
 });
