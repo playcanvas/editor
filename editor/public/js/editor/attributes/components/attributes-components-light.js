@@ -196,7 +196,7 @@ editor.once('load', function() {
             name: 'Shadow Bias',
             type: 'number',
             link: entity,
-            path: 'components.link.shadowBias'
+            path: 'components.light.shadowBias'
         });
         fieldShadowBias.style.width = '32px';
 
