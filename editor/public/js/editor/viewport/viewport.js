@@ -28,6 +28,8 @@ editor.once('load', function() {
     canvas.element.addEventListener('mouseup', framework.handleMouseUp.bind(framework));
     canvas.element.addEventListener('mousemove', framework.handleMouseMove.bind(framework));
 
+    var frameSelection = false;
+
     // methods
 
     // get canvas
@@ -49,6 +51,37 @@ editor.once('load', function() {
     editor.method('viewport:saveCamera', function (options) {
         // TODO
     });
+
+    editor.method('viewport:frameSelectionStart', function () {
+        frameSelection = true;
+    });
+
+    editor.method('viewport:frameSelectionEnd', function () {
+        frameSelection = false;
+    });
+
+    // returns true if the viewport should continuously render
+    editor.method('viewport:keepRendering', function () {
+        // return true if we are in the middle of framing a selection
+        if (frameSelection) {
+            return true;
+        }
+
+        return false;
+    });
+
+    // Returns true if an entity with the specifid component is selected
+    editor.method('selector:hasComponent', function (component) {
+        var selection = editor.call('selector:items');
+        if (selection.filter(function (item) {
+            return  item.components &&
+                    item.components[component] &&
+                    item.components[component].enabled &&
+                    item.enabled;
+        }).length) {
+            return true;
+        }
+    })
 
     editor.on('selector:add', function(entity, type) {
         if (type === 'entity') {

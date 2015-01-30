@@ -36,18 +36,38 @@ editor.once('load', function() {
         });
     });
 
-    // create shortcuts
-    var shortcuts = {
-        87: 'translate',
-        69: 'rotate',
-        82: 'scale'
-    }
+    // frame selection
+    button = new ui.Button({
+        text: 'Frame'
+    });
 
+    header.append(button);
+
+    button.on('click', function () {
+        var framework = editor.call('viewport:framework');
+        if (framework) {
+            framework.frameSelection();
+        }
+    });
+
+
+    // shortcuts
     window.addEventListener('keyup', function (e) {
-        if (shortcuts[e.keyCode]) {
-            var framework = editor.call('viewport:framework');
-            if (framework) {
-                framework.setActiveGizmoType(shortcuts[e.keyCode]);
+        var framework = editor.call('viewport:framework');
+        if (framework) {
+            switch (e.keyCode) {
+                case 87: // W:
+                    framework.setActiveGizmoType('translate');
+                    break;
+                case 69: // E:
+                    framework.setActiveGizmoType('rotate');
+                    break;
+                case 82: // R:
+                    framework.setActiveGizmoType('scale');
+                    break;
+                case 70: // F:
+                    framework.frameSelection();
+                    break;
             }
         }
     });

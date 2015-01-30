@@ -83,12 +83,7 @@ pc.script.create( "designer_camera", function (context) {
         this.mouse.detach();
     };
 
-    DesignerCamera.prototype.frameSelection = function () {
-        var selection = context.designer.selection[0];
-        if (!selection) {
-            return;
-        }
-
+    DesignerCamera.prototype.frameSelection = function (selection) {
         var model;
         if (selection.model) {
             model = selection.model.model;
@@ -129,6 +124,7 @@ pc.script.create( "designer_camera", function (context) {
 
         transition.startTime = pc.time.now();
         transition.active = true;
+        editor.call('viewport:frameSelectionStart')
 
         this.frameScale = averageExtent * 50;
 
@@ -406,7 +402,7 @@ pc.script.create( "designer_camera", function (context) {
         }
     };
 
-    DesignerCamera.prototype.toolsUpdate = function () {
+    DesignerCamera.prototype.toolsUpdate = function (dt) {
         // Ideally this would be done in an update function but udpate isn't called in the Designer
         var transition = this.transition;
         if (transition.active) {
@@ -414,6 +410,7 @@ pc.script.create( "designer_camera", function (context) {
             if (elapsed > transition.duration) {
                 transition.active = false;
                 elapsed = transition.duration;
+                editor.call('viewport:frameSelectionEnd')
             }
 
             var eyePos = new pc.Vec3();

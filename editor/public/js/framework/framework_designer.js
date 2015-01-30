@@ -9,6 +9,9 @@
  */
 pc.designer = pc.designer || {};
 pc.extend(pc.designer, function() {
+
+    var time;
+
     // Private members
 
     // Public Interface
@@ -160,6 +163,14 @@ pc.extend(pc.designer, function() {
         }
     };
 
+    Designer.prototype.getDt = function () {
+        var now = (window.performance && window.performance.now) ? performance.now() : Date.now();
+        var dt = (now - (time || now)) / 1000.0;
+        dt = pc.math.clamp(dt, 0, 0.1); // Maximum delta is 0.1s or 10 fps.
+        time = now;
+        return dt;
+    };
+
     /**
      * @name pc.designer.Designer#tick
      * @description Custom tick function that constantly checks to see if the app has invalidated the 3d view.
@@ -172,12 +183,24 @@ pc.extend(pc.designer, function() {
                 this.lastMouseEvent = null;
             }
 
-            pc.ComponentSystem.update(0, this.context, true);
+            var dt = this.getDt();
+            var keepRendering = editor.call('viewport:keepRendering');
+
+            // Perform ComponentSystem update
+            pc.ComponentSystem.fire('toolsUpdate', dt);
+
+            // update particle system if particles are selected
+            if (editor.call('selector:hasComponent', 'particlesystem')) {
+                // TODO: needs small engine change to create emitter no matter what. Disabling for now
+                //this.context.systems.particlesystem.onUpdate(dt);
+                //keepRendering = true;
+            }
 
             this.activeGizmo.render();
 
             this.render();
-            this.redraw = false;
+
+            this.redraw = keepRendering;
         }
 
         // Submit a request to queue up a new animation frame immediately
@@ -288,10 +311,9 @@ pc.extend(pc.designer, function() {
     };
 
     Designer.prototype.frameSelection = function () {
-        var cameraName = this.quadView[this.activeViewport.name].cameraName;
-        var cameraEntity = this.getCamera(cameraName);
-        if (cameraEntity && cameraEntity.script) {
-            cameraEntity.script.designer_camera.frameSelection();
+        if (this.activeGizmo.entity) {
+            this.cameraEntity.script.designer_camera.frameSelection(this.activeGizmo.entity);
+            this.redraw = true;
         }
     };
 
