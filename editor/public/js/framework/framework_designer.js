@@ -24,6 +24,7 @@ pc.extend(pc.designer, function() {
         this._inTools = true;
 
         var context = this.context;
+        context.assets._prefix = '../../api/';
 
         this.gizmos = {
             translate: new pc.GizmoTranslate(context),
@@ -445,116 +446,6 @@ pc.extend(pc.designer, function() {
         // wrap mouseevent wiht PlayCanvas version which adds cross-browser properties
         this.lastMouseEvent = new pc.input.MouseEvent(this.context.mouse, event);
         this.redraw = true;
-    };
-
-
-    /**
-     * @private
-     * @name pc.designer.Designer#_handleMessage
-     * @description Handle an incoming LiveLink message from a window (usually the current window)
-     */
-    Designer.prototype._handleMessage = function (msg) {
-        // Call parent message handler
-        pc.designer.Designer._super._handleMessage.call(this, msg);
-
-        switch(msg.type) {
-            case pc.LiveLinkMessageType.UPDATE_ENTITY_TRANSFORM:
-                var entity = this.context.root.findByGuid(msg.content.id);
-                if (entity) {
-                    entity._$position = msg.content.position;
-                    entity._$rotation = msg.content.rotation;
-                    entity._$scale = msg.content.scale;
-                }
-                break;
-            case pc.LiveLinkMessageType.OPEN_PACK:
-                var patch = function (entity, data) {
-                    if (entity) {
-                        entity._$position = data['position'];
-                        entity._$rotation = data['rotation'];
-                        entity._$scale = data['scale'];
-                    }
-                    var i, entities = entity.getChildren();
-                    var children = data['children'];
-                    var len = children.length;
-                    for (i = 0; i < len; i++) {
-                        patch(entities[i], children[i]);
-                    }
-                }
-                var root = this.context.root.findByGuid(msg.content.pack.hierarchy['resource_id']);
-                patch(root, msg.content.pack.hierarchy);
-                this._linkUpdatePackSettings(msg.content.pack.settings);
-                break;
-            case pc.LiveLinkMessageType.OPEN_ENTITY:
-                // Add translate, rotate, scale properties to all the entities for the gizmos, while in the designer,
-                if (msg.content.entity) {
-                    var patch = function (entity, data) {
-                        if (entity) {
-                            entity._$position = data['position'];
-                            entity._$rotation = data['rotation'];
-                            entity._$scale = data['scale'];
-                        }
-                        var i, entities = entity.getChildren();
-                        var children = data['children'];
-                        var len = children.length;
-                        for (i = 0; i < len; i++) {
-                            patch(entities[i], children[i]);
-                        }
-                    }
-                    var root = this.context.root.findByGuid(msg.content.entity['resource_id']);
-                    patch(root, msg.content.entity);
-
-                } else {
-                    var models = msg.content.models;
-                    if (!models) {
-                        models = [msg.content.model];
-                    }
-
-                    var i, len = models.length;
-                    for (i = 0; i < len; i++) {
-                        var entity = this.context.root.findByGuid(models[i]['resource_id']);
-                        if (entity) {
-                            entity._$position = models[i]['position'];
-                            entity._$rotation = models[i]['rotation'];
-                            entity._$scale = models[i]['scale'];
-                        }
-                    }
-                }
-                break;
-            case pc.LiveLinkMessageType.CLOSE_ENTITY:
-                var cameraEntity = this.getCamera(this.quadView[this.activeViewport.name].cameraName);
-                // if the camera no longer exists then activate the perspective camera
-                if (!cameraEntity) {
-                    this.setActiveViewportCamera(this.designerCamerasPath + 'Perspective');
-                }
-                break;
-            case pc.LiveLinkMessageType.REPARENT_ENTITY:
-                // if the active camera is reparented then reset it
-                if (this.cameraEntity && this.cameraEntity.getGuid() === msg.content.id) {
-                    var newPath = this.context.root.findByGuid(msg.content.id).getPath();
-                    this.setActiveViewportCamera(newPath);
-                }
-                break;
-            case pc.LiveLinkMessageType.UPDATE_COMPONENT:
-                // if the script component of the active camera
-                // has changed then reactive the camera - this will remove / re-add the
-                // script component only with the designer camera script
-                if (this.cameraEntity &&
-                    this.cameraEntity.getGuid() === msg.content.id &&
-                    msg.content.component === 'script') {
-                    this._activateCamera();
-                }
-                break;
-            case pc.LiveLinkMessageType.SELECTION_UPDATED:
-                this.select(msg.content.guids);
-                break;
-            case pc.LiveLinkMessageType.UPDATE_ASSETCACHE:
-                // Removed as this is done in framework_application.js - DWE 29/6
-                // this.context.assets.update(msg.content);
-                break;
-            case pc.LiveLinkMessageType.UPDATE_DESIGNER_SETTINGS:
-                this.setDesignerSettings(msg.content.settings);
-                break;
-        }
     };
 
     return {

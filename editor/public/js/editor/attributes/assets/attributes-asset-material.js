@@ -110,7 +110,7 @@ editor.once('load', function() {
             'type': 'boolean',
         },
         emissiveIntensity: {
-            'defailt': 1,
+            'default': 1,
             'min': 0,
             'max': 10,
             'type': 'float'
