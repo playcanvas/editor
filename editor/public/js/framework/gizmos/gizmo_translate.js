@@ -19,7 +19,7 @@
         this.startX = 0;
         this.startY = 0;
         this.startTransform = null;
-        this.started = false;
+        this.undoDrag = true;
     }
 
     pc.GizmoTranslate = pc.inherits(pc.GizmoTranslate, pc.Gizmo);
@@ -243,12 +243,7 @@
             this.startX = e.x;
             this.startY = e.y;
             this.startTransform = this.entity.getWorldTransform().clone();
-            this.started = true;
-        },
-
-        _endDrag: function (e) {
-            // var position = this.entity.getLocalPosition();
-            // this._setEntityAttribute('position', [position.x, position.y, position.z], true);
+            this.undoDrag = true;
         },
 
         _drag: function (e) {
@@ -366,8 +361,8 @@
 
             var newValue = updatedTransform.getTranslation();
 
-            this._setEntityAttribute('position', [newValue.x, newValue.y, newValue.z], this.started);
-            this.started = false;
+            this._setEntityAttribute('position', [newValue.x, newValue.y, newValue.z], this.undoDrag);
+            this.undoDrag = false;
         }
 
     });
