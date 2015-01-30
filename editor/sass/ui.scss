@@ -7,6 +7,14 @@
     user-select: none;
 }
 
+.fieldFont {
+    font-family: "Lucida Console", Monaco, monospace;
+    font-weight: normal;
+
+    // -webkit-font-smoothing: antialiased;
+    // -webkit-text-stroke: 0.35px;
+}
+
 // scrollbar
 // ::-webkit-scrollbar {
 //     background: #000;
@@ -321,6 +329,7 @@ a:visited {
 }
 
 .ui-list-item {
+    @extend .fieldFont;
     cursor: pointer;
     padding: 0 8px;
     height: 24px;
@@ -654,13 +663,14 @@ a:visited {
     position: relative;
 
     &:after {
+        @extend .fieldFont;
         content: attr(placeholder);
         position: absolute;
         top: 0;
         right: 0;
         padding: 0 8px;
         line-height: 24px;
-        font-size: 12px;
+        font-size: 10px;
         font-weight: 100;
         font-family: Helvetica;
         white-space: nowrap;
@@ -689,6 +699,7 @@ a:visited {
         opacity: .5;
     }
     > input.field {
+        @extend .fieldFont;
         width: calc(100% - 16px);
         padding: 0 8px;
         line-height: 24px;
@@ -711,13 +722,14 @@ a:visited {
     position: relative;
 
     &:after {
+        @extend .fieldFont;
         content: attr(placeholder);
         position: absolute;
         top: 0;
         right: 0;
         padding: 0 8px;
         line-height: 24px;
-        font-size: 12px;
+        font-size: 10px;
         font-weight: 100;
         white-space: nowrap;
         color: #999;
@@ -745,6 +757,7 @@ a:visited {
         opacity: .5;
     }
     > input.field {
+        @extend .fieldFont;
         width: calc(100% - 16px);
         padding: 0 8px;
         line-height: 24px;
@@ -766,13 +779,14 @@ a:visited {
     position: relative;
 
     &:after {
+        @extend .fieldFont;
         content: attr(placeholder);
         position: absolute;
         top: 0;
         right: 0;
         padding: 0 8px;
         line-height: 24px;
-        font-size: 12px;
+        font-size: 10px;
         font-weight: 100;
         white-space: nowrap;
         color: #999;
@@ -930,6 +944,7 @@ a:visited {
         }
     }
     > .value {
+        @extend .fieldFont;
         min-height: 24px;
         line-height: 24px;
         white-space: nowrap;
@@ -951,6 +966,7 @@ a:visited {
         box-shadow: 0 0 8px rgba(0, 0, 0, .5);
 
         > li {
+            @extend .fieldFont;
             padding: 1px 8px 1px 9px;
             line-height: 24px;
             white-space: nowrap;
@@ -967,10 +983,11 @@ a:visited {
 }
 
 .ui-code {
+    @extend .fieldFont;
     display: block;
     margin: 0;
     padding: 4px;
-    font-size: 11px;
+    font-size: 10px;
     color: #f8f4f0;
     background-color: #1d292c;
     overflow: auto;

@@ -9,6 +9,15 @@ editor.once('load', function() {
     var changing = false;
 
 
+    // make hex out of channels
+    var getHex = function() {
+        var hex = '';
+        for(var i = 0; i < channelsNumber; i++) {
+            hex += ('00' + channels[i].value.toString(16)).slice(-2).toUpperCase();
+        }
+        return hex;
+    };
+
     // rect drag
     var pickRectMouseMove = function(evt) {
         changing = true;
@@ -24,6 +33,7 @@ editor.once('load', function() {
         for(var i = 0; i < 3; i++) {
             channels[i].value = rgb[i];
         }
+        fieldHex.value = getHex();
         directInput = true;
 
         pickRectHandle.style.left = Math.max(4, Math.min(size - 4, x)) + 'px';
@@ -52,6 +62,7 @@ editor.once('load', function() {
         for(var i = 0; i < 3; i++) {
             channels[i].value = rgb[i];
         }
+        fieldHex.value = getHex();
         updateRects();
         directInput = true;
         changing = false;
@@ -71,7 +82,10 @@ editor.once('load', function() {
         var y = Math.max(0, Math.min(size, Math.floor(evt.clientY - rect.top)));
         var o = 1.0 - y / size;
 
+        directInput = false;
         fieldA.value = Math.max(0, Math.min(255, Math.round(o * 255)));
+        fieldHex.value = getHex();
+        directInput = true;
         changing = false;
     };
 
@@ -332,6 +346,7 @@ editor.once('load', function() {
         for(var i = 0; i < color.length; i++) {
             channels[i].value = color[i];
         }
+        fieldHex.value = getHex();
         directInput = true;
 
         // show overlay
@@ -368,6 +383,7 @@ editor.once('load', function() {
         for(var i = 0; i < color.length; i++) {
             channels[i].value = color[i];
         }
+        fieldHex.value = getHex();
         directInput = true;
     });
 });
