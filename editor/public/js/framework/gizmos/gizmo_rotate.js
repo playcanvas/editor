@@ -51,7 +51,7 @@
                 iterator.end();
             }
 
-            var node = new pc.GraphNode();
+            var node = this.node;
             var mesh, meshInstance;
 
             var meshInstances = [];
