@@ -35,7 +35,7 @@ pc.extend(pc.designer, function() {
             this.gizmos[key].initialize();
         }
 
-        this.activeGizmo = this.gizmos.rotate;
+        this.activeGizmo = this.gizmos.translate;
 
         for (var key in context.systems) {
             if (context.systems.hasOwnProperty(key)) {
@@ -230,13 +230,23 @@ pc.extend(pc.designer, function() {
 
 
     Designer.prototype.setActiveGizmoType = function (gizmoType) {
+        var entity = this.activeGizmo.entity;
+        this.activeGizmo.deactivate();
+
         this.activeGizmo = this.gizmos[gizmoType];
+        if (entity) {
+            this.activeGizmo.activate(entity);
+        }
+
+        this.redraw = true;
     };
 
     Designer.prototype.setGizmoCoordinateSystem = function (system) {
         for (var key in this.gizmos) {
-            this.gizmos.setCoordinateSystem(system);
+            this.gizmos[key].setCoordinateSystem(system);
         }
+
+        this.redraw = true;
     };
 
     Designer.prototype.setSnapToClosestIncrement = function (snap) {
