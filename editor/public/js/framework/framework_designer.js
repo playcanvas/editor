@@ -256,7 +256,7 @@ pc.extend(pc.designer, function() {
             this.grid.destroy();
         }
 
-        this.grid = new pc.designer.graphics.Grid(this.graphicsDevice, settings.grid_divisions * settings.grid_division_size, settings.grid_divisions);
+        this.grid = new pc.Grid(this.graphicsDevice, settings.grid_divisions * settings.grid_division_size, settings.grid_divisions);
         this.context.scene.addModel(this.grid.model);
 
         this.redraw = true;
