@@ -28,7 +28,7 @@
         _createModel: function () {
             var device = this.context.graphicsDevice;
             var node = this.node;
-            var meshInstances = this.axisMeshes;
+            var meshInstances = this._createAxisMeshes();
             var meshInstance;
 
             // Create the tip mesh instances
@@ -104,6 +104,23 @@
                 // tip meshes
                 meshInstances[i + 6].material = this.axisMaterials[i];
             }
+        },
+
+        _getWorldTransform: function () {
+            var entity = this.entity;
+            var position = entity.getPosition();
+            var rotation = entity.getRotation();
+            var worldTransform = new pc.Mat4();
+
+            // calculate world transform for gizmo based
+            // on current coordinate system
+            if (this.coordinateSystem === 'world') {
+                worldTransform.setTRS(position, pc.Quat.IDENTITY, pc.Vec3.ONE);
+            } else {
+                worldTransform.setTRS(position, rotation, pc.Vec3.ONE);
+            }
+
+            return worldTransform;
         },
 
         _render: function (worldTransform, scaleFactor) {

@@ -108,6 +108,23 @@
             meshInstances[3].material = this.blockerMaterial;
         },
 
+        _getWorldTransform: function () {
+            var entity = this.entity;
+            var position = entity.getPosition();
+            var rotation = entity.getRotation();
+            var worldTransform = new pc.Mat4();
+
+            // calculate world transform for gizmo based
+            // on current coordinate system
+            if (this.coordinateSystem === 'world') {
+                worldTransform.setTRS(position, pc.Quat.IDENTITY, pc.Vec3.ONE);
+            } else {
+                worldTransform.setTRS(position, rotation, pc.Vec3.ONE);
+            }
+
+            return worldTransform;
+        },
+
         _render: function (worldTransform, scaleFactor) {
             this._highlightActiveAxis();
             this._renderAxesAndPlanes(worldTransform, scaleFactor);
@@ -122,16 +139,6 @@
                     this.model.meshInstances[activeAxis].material = this.selectedAxisMaterial;
                 }
             }
-        },
-
-        _setAxisMaterial: function (axis, material) {
-            var meshInstances = this.model.meshInstances;
-            meshInstances[axis].material = material;
-            meshInstances[axis+6].material = material;
-        },
-
-        _setPlaneMaterial: function (axis, material) {
-            this.model.meshInstances[axis].material = material;
         },
 
         _renderAxesAndPlanes: function (worldTransform, scaleFactor) {

@@ -9,7 +9,6 @@
         ]);
 
         this.axisMaterials = this._createAxisMaterials();
-        this.axisMeshes = this._createAxisMeshes();
         this.entity = null;
         this.cameraEntity = null;
         this.activeAxis = null;
@@ -197,17 +196,7 @@
             var entity = this.entity;
 
             // Get the world transformation matrix of the gizmo
-            var position = entity.getPosition();
-            var rotation = entity.getRotation();
-            var worldTransform = new pc.Mat4();
-
-            // calculate world transform for gizmo based
-            // on current coordinate system
-            if (this.coordinateSystem === 'world') {
-                worldTransform.setTRS(position, pc.Quat.IDENTITY, pc.Vec3.ONE);
-            } else {
-                worldTransform.setTRS(position, rotation, pc.Vec3.ONE);
-            }
+            var worldTransform = this._getWorldTransform();
 
             // Update the gizmo scale to stay a constant size on screen
             var scaleFactor = this._calculateScale();
@@ -222,6 +211,10 @@
 
             // disable shapes that correspond to disabled gizmo meshes
             this._disableInvisibleShapes();
+        },
+
+        _getWorldTransform: function () {
+            // implemented by derived
         },
 
         _resetMaterials: function () {

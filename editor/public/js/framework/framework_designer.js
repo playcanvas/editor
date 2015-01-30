@@ -28,7 +28,7 @@ pc.extend(pc.designer, function() {
         this.gizmos = {
             translate: new pc.GizmoTranslate(context),
             rotate: new pc.GizmoRotate(context),
-            scale: new pc.GizmoTranslate(context)
+            scale: new pc.GizmoScale(context)
         };
 
         for (var key in this.gizmos) {
@@ -323,6 +323,9 @@ pc.extend(pc.designer, function() {
 
                     if (selectedNode) {
                         var selectedEntity = editor.call('entities:get', selectedNode.getGuid());
+                        if (!selectedEntity) {
+                            return;
+                        }
 
                         if (e.button !== pc.input.MOUSEBUTTON_RIGHT) {
                             if (this.context.designer.selection.indexOf(selectedNode) < 0) {
