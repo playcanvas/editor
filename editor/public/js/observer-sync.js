@@ -22,10 +22,10 @@ ObserverSync.prototype._initialize = function() {
         if (! self._enabled) return;
 
         // check if path is allowed
-        if (this._paths) {
+        if (self._paths) {
             var allowedPath = false;
-            for(var i = 0; i < syncPaths.length; i++) {
-                if (path.indexOf(syncPaths[i]) !== -1) {
+            for(var i = 0; i < self._paths.length; i++) {
+                if (path.indexOf(self._paths[i]) !== -1) {
                     allowedPath = true;
                     break;
                 }
@@ -53,12 +53,16 @@ ObserverSync.prototype._initialize = function() {
             });
         } else {
             // emit operation: object item set
-            console.log(value);
-            self.emit('op', {
+            var obj = {
                 p: p,
-                oi: value,
-                od: valueOld
-            });
+                oi: value
+            };
+
+            if (valueOld !== undefined) {
+                obj.od = valueOld;
+            }
+
+            self.emit('op', obj);
         }
     });
 
@@ -109,7 +113,7 @@ ObserverSync.prototype.write = function(op) {
         this.item.history.enabled = false;
     }
 
-    if (op.hasOwnProperty('od') && op.hasOwnProperty('oi')) {
+    if (op.hasOwnProperty('oi')) {
         // set key value
         var path = op.p.slice(this._prefix.length).join('.');
 
@@ -155,7 +159,6 @@ ObserverSync.prototype.write = function(op) {
         this._enabled = false;
         this.item.move(path, this.item.get(path + '.' + indOld), ind);
         this._enabled = true;
-
 
     } else {
         console.log('unknown operation', op);

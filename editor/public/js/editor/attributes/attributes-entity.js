@@ -97,12 +97,28 @@ editor.once('load', function() {
         fieldJson.text = JSON.stringify(entity.json(), null, 4);
 
         // changes
-        var evt = entity.on('*:set', function() {
+        var evtSet = entity.on('*:set', function() {
+            fieldJson.text = JSON.stringify(entity.json(), null, 4);
+        });
+        var evtUnset = entity.on('*:unset', function() {
+            fieldJson.text = JSON.stringify(entity.json(), null, 4);
+        });
+        var evtInsert = entity.on('*:insert', function() {
+            fieldJson.text = JSON.stringify(entity.json(), null, 4);
+        });
+        var evtRemove = entity.on('*:remove', function() {
+            fieldJson.text = JSON.stringify(entity.json(), null, 4);
+        });
+        var evtMove = entity.on('*:move', function() {
             fieldJson.text = JSON.stringify(entity.json(), null, 4);
         });
 
         fieldJson.on('destroy', function() {
-            evt.unbind();
+            evtSet.unbind();
+            evtUnset.unbind();
+            evtInsert.unbind();
+            evtRemove.unbind();
+            evtMove.unbind();
         });
     });
 });

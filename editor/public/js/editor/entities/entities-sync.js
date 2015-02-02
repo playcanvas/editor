@@ -16,6 +16,9 @@ editor.once('load', function() {
 
 
     editor.on('entities:add', function(entity) {
+        if (entity.sync)
+            return;
+
         entity.sync = new ObserverSync({
             item: entity,
             prefix: [ 'entities', entity.resource_id ],
@@ -24,7 +27,6 @@ editor.once('load', function() {
 
         // client > server
         entity.sync.on('op', function(op) {
-            //console.log(op.p.slice(2).join('.'))
             editor.call('realtime:op', op);
         });
     });
@@ -36,9 +38,26 @@ editor.once('load', function() {
         if (op.p[1])
             entity = editor.call('entities:get', op.p[1]);
 
-        if (! entity)
-            return;
-
-        entity.sync.write(op);
+        if (op.p.length === 2) {
+            if (op.hasOwnProperty('od')) {
+                // delete entity
+                if (entity) {
+                    editor.call('entities:remove', entity);
+                } else {
+                    console.log('delete operation entity not found', op);
+                }
+            } else if (op.hasOwnProperty('oi')) {
+                // new entity
+                entity = new Observer(op.oi);
+                editor.call('entities:add', entity);
+            } else {
+                console.log('unknown operation', op);
+            }
+        } else if (entity) {
+            // write operation
+            entity.sync.write(op);
+        } else {
+            console.log('unknown operation', op);
+        }
     });
 });

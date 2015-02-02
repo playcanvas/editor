@@ -101,7 +101,6 @@ Observer.prototype._prepare = function(target, key, value) {
 
         // sync hook to prevent array values to be recorded as array root already did
         var syncState = this.sync && this.sync.enabled;
-        var syncSingle = -1;
         if (syncState)
             this.sync.enabled = false;
 
@@ -307,6 +306,8 @@ Observer.prototype.unset = function(path) {
     if (! node.__data || ! node.hasOwnProperty(key))
         return false;
 
+    var valueOld = this.json(node.__data[key]);
+
     // history hook to prevent array values to be recorded
     var historyState = this.history && this.history.enabled;
     if (historyState)
@@ -330,14 +331,14 @@ Observer.prototype.unset = function(path) {
 
     // bring back sync state if not a single value update
     if (syncState)
-        this.sync.enabled = true
+        this.sync.enabled = true;
 
     node.__keys.splice(node.__keys.indexOf(key), 1);
     delete node.__data[key];
     delete node[key];
 
-    this.emit(path + ':unset');
-    this.emit('*:unset', path);
+    this.emit(path + ':unset', valueOld);
+    this.emit('*:unset', path, valueOld);
 
     return true;
 };
@@ -462,24 +463,35 @@ Observer.prototype.patch = function(data) {
 
 Observer.prototype.json = function(target) {
     var obj = { };
-    var node = target || this;
+    var node = target === undefined ? this : target;
 
     if (node instanceof ObserverList)
         return node.json();
 
-    var keys = node.__keys;
+    if (node instanceof Object && node.__keys) {
+        for (var i = 0; i < node.__keys.length; i++) {
+            var key = node.__keys[i];
+            var value = node.__data[key];
+            var type = typeof(value);
 
-    for (var i = 0; i < keys.length; i++) {
-        var key = keys[i];
-        var value = node.__data[key];
-        var type = typeof(value);
-
-        if (type === 'object' && (value instanceof Array)) {
-            obj[key] = value;
-        } else if (type === 'object' && (value instanceof Object)) {
-            obj[key] = this.json(value);
+            if (type === 'object' && (value instanceof Array)) {
+                obj[key] = value;
+            } else if (type === 'object' && (value instanceof Object)) {
+                obj[key] = this.json(value);
+            } else {
+                obj[key] = value;
+            }
+        }
+    } else {
+        if (typeof(node) === 'object' && (node instanceof Array)) {
+            obj = node.slice(0);
+        } else if (typeof(node) === 'object') {
+            for(var key in node) {
+                if (node.hasOwnProperty(key))
+                    obj[key] = node;
+            }
         } else {
-            obj[key] = value;
+            obj = node;
         }
     }
     return obj;

@@ -48,7 +48,7 @@ editor.once('load', function() {
         setTimeout(onSelectorChange, 0);
     });
 
-    editor.method('selector:toggleHistory', function (toggle) {
+    editor.method('selector:history', function (toggle) {
         selectorHistory = toggle;
     });
 });

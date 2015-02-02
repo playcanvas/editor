@@ -24,14 +24,25 @@ ObserverHistory.prototype._initialize = function() {
             combine: self._combine,
             undo: function() {
                 self._enabled = false;
-                console.log(path, valueOld);
+
+                if (valueOld === undefined) {
+                    self.item.unset(path);
+                } else {
+                    self.item.set(path, valueOld);
+                }
+
                 self.item.set(path, valueOld);
                 self._enabled = true;
             },
             redo: function() {
                 self._enabled = false;
-                console.log(path, value);
-                self.item.set(path, value);
+
+                if (value === undefined) {
+                    self.item.unset(path);
+                } else {
+                    self.item.set(path, value);
+                }
+
                 self._enabled = true;
             }
         };
@@ -43,6 +54,10 @@ ObserverHistory.prototype._initialize = function() {
             // add
             self.emit('record', 'add', data);
         }
+    });
+
+    this.item.on('*:unset', function(path, value) {
+        if (! self._enabled) return;
     });
 
     this.item.on('*:insert', function(path, value, ind) {
