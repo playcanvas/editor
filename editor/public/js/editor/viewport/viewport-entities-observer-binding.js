@@ -41,6 +41,13 @@ editor.once('load', function() {
         obj.on('delete', function () {
             entity.destroy();
         });
+    });
 
+    editor.on('entities:remove', function (obj) {
+        var entity = obj.entity;
+        if (entity) {
+            entity.destroy();
+            obj.entity = null;
+        }
     });
 });
