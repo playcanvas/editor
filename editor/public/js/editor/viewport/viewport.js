@@ -70,19 +70,6 @@ editor.once('load', function() {
         return false;
     });
 
-    // Returns true if an entity with the specifid component is selected
-    editor.method('selector:hasComponent', function (component) {
-        var selection = editor.call('selector:items');
-        if (selection.filter(function (item) {
-            return  item.components &&
-                    item.components[component] &&
-                    item.components[component].enabled &&
-                    item.enabled;
-        }).length) {
-            return true;
-        }
-    })
-
     editor.on('selector:add', function(entity, type) {
         if (type === 'entity') {
             framework.selectEntity(entity.resource_id);

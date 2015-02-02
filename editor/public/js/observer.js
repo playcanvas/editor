@@ -94,12 +94,29 @@ Observer.prototype._prepare = function(target, key, value) {
             };
         }
 
+        // history hook to prevent array values to be recorded
+        var historyState = this.history && this.history.enabled;
+        if (historyState)
+            this.history.enabled = false;
+
+        // sync hook to prevent array values to be recorded as array root already did
+        var syncState = this.sync && this.sync.enabled;
+        var syncSingle = -1;
+        if (syncState)
+            this.sync.enabled = false;
+
         for(var i in value) {
             this._prepare(target.__data[key], i, value[i]);
         }
 
-        this.emit(path + ':set', target.__data[key]);
-        this.emit('*:set', path, target.__data[key]);
+        if (syncState)
+            this.sync.enabled = true;
+
+        if (historyState)
+            this.history.enabled = true;
+
+        this.emit(path + ':set', value);
+        this.emit('*:set', path, value);
     } else {
         if (target.__data[key] === value)
             return;

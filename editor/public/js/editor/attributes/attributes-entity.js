@@ -61,6 +61,28 @@ editor.once('load', function() {
         // components
         panelComponents = editor.call('attributes:addPanel');
 
+        var addComponent = editor.call('attributes:addField', {
+            parent: panelComponents,
+            name: 'Add Component',
+            type: 'string',
+            enum: {
+                '': '',
+                'animation': 'Animation',
+                'light': 'Light'
+            }
+        });
+
+        addComponent.on('change', function (value) {
+            editor.call('entities:addComponent', entity, value);
+            // addComponent._updateOptions(
+            //     {
+            //         '': '',
+            //         'animation': 'asdfsd'
+            //     }
+            // );
+
+            // addComponent.value = ''
+        });
 
         var panelJson = editor.call('attributes:addPanel', {
             name: 'JSON'

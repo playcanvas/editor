@@ -12,6 +12,7 @@ editor.once('load', function() {
 
         // record history
         entity.history.on('record', function(action, data) {
+            console.log(data.name);
             editor.call('history:' + action, data);
         });
     });

@@ -53,6 +53,7 @@ ObserverSync.prototype._initialize = function() {
             });
         } else {
             // emit operation: object item set
+            console.log(value);
             self.emit('op', {
                 p: p,
                 oi: value,

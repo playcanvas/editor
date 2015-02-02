@@ -24,11 +24,13 @@ ObserverHistory.prototype._initialize = function() {
             combine: self._combine,
             undo: function() {
                 self._enabled = false;
+                console.log(path, valueOld);
                 self.item.set(path, valueOld);
                 self._enabled = true;
             },
             redo: function() {
                 self._enabled = false;
+                console.log(path, value);
                 self.item.set(path, value);
                 self._enabled = true;
             }
