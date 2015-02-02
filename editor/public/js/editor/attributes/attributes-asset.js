@@ -9,6 +9,7 @@
         return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
     };
 
+
     editor.on('attributes:inspect[asset]', function(assets) {
         if (assets.length !== 1)
             return;
