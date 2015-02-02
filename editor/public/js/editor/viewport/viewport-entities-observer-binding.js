@@ -34,8 +34,26 @@ editor.once('load', function() {
             editor.call('viewport:render');
         });
 
+        var reparent = function (child, index) {
+            var childEntity = editor.call('entities:get', child);
+            if (childEntity && childEntity.entity) {
+                childEntity.entity.reparent(entity, index);
+            }
+        };
+
+        obj.on('children:insert', reparent);
+        obj.on('children:move', reparent);
+
         obj.on('delete', function () {
             entity.destroy();
         });
+    });
+
+    editor.on('entities:remove', function (obj) {
+        var entity = obj.entity;
+        if (entity) {
+            entity.destroy();
+            obj.entity = null;
+        }
     });
 });
