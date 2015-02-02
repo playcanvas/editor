@@ -7,7 +7,7 @@ editor.once('load', function() {
         'parent',
         'children',
         'position',
-        'rotations',
+        'rotation',
         'scale',
         'enabled',
         'components'
@@ -28,7 +28,6 @@ editor.once('load', function() {
             editor.call('realtime:op', op);
         });
     });
-
 
 
     // server > client
