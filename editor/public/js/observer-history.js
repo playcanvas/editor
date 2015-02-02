@@ -20,7 +20,7 @@ ObserverHistory.prototype._initialize = function() {
 
         // action
         var data = {
-            name: this._prefix + path,
+            name: self._prefix + path,
             combine: self._combine,
             undo: function() {
                 self._enabled = false;
