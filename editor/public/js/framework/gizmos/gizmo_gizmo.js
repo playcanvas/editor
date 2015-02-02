@@ -146,7 +146,7 @@
                     return shape.model;
                 }).forEach(function (model) {
                     this.scene.removeModel(model);
-                }.bind(this))
+                }.bind(this));
 
                 // remove all picker shapes from pick component
                 this.entity.pick.deleteShapes();
