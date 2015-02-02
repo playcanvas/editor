@@ -100,64 +100,60 @@ editor.once('load', function() {
         });
     };
 
-    // // duplicate entity
-    // editor.method('entities:duplicate', function (entity) {
-    //     var duplicatedEntities = {};
+    // duplicate entity
+    editor.method('entities:duplicate', function (entity) {
+        var duplicatedEntities = {};
 
-    //     function duplicate (resourceId, parentId, select) {
-    //         var source = editor.call('entities:get', resourceId);
-    //         var parent = editor.call('entities:get', parentId);
+        function duplicate (resourceId, parentId, select) {
+            var source = editor.call('entities:get', resourceId);
+            var parent = editor.call('entities:get', parentId);
 
-    //         var newChildren = [];
+            var newChildren = [];
 
-    //         // remember the entity that was duplicated using the resource id
-    //         // of the source entity as the key, so that when we undo / redo
-    //         // we re-add the same entities in the hierarchy
-    //         if (!duplicatedEntities[source.resource_id]) {
-    //             // create new Entity data
-    //             var data = source.json();
-    //             data.resource_id = pc.guid.create();
-    //             data.parent = parentId;
-    //             data.children = newChildren;
-    //             duplicatedEntities[source.resource_id] = new Observer(data);
-    //         }
+            // remember the entity that was duplicated using the resource id
+            // of the source entity as the key, so that when we undo / redo
+            // we re-add the same entities in the hierarchy
+            if (!duplicatedEntities[source.resource_id]) {
+                // create new Entity data
+                var data = source.json();
+                data.resource_id = pc.guid.create();
+                data.parent = parentId;
+                data.children = newChildren;
+                duplicatedEntities[source.resource_id] = new Observer(data);
+            }
 
-    //         var duplicated = duplicatedEntities[source.resource_id];
+            var duplicated = duplicatedEntities[source.resource_id];
 
-    //         addEntity(duplicated, parent, select);
+            addEntity(duplicated, parent, select);
 
-    //         source.children.forEach(function (child) {
-    //             var c = duplicate(child, duplicated.resource_id, false);
-    //             newChildren.push(c.resource_id);
-    //         });
+            source.children.forEach(function (child) {
+                var c = duplicate(child, duplicated.resource_id, false);
+                newChildren.push(c.resource_id);
+            });
 
-    //         duplicated.history.enabled = false;
-    //         duplicated.children = newChildren;
-    //         duplicated.history.enabled = true;
+            duplicated.history.enabled = false;
+            duplicated.children = newChildren;
+            duplicated.history.enabled = true;
 
-    //         return duplicated;
-    //     }
+            return duplicated;
+        }
 
-    //     var duplicated = duplicate(entity.resource_id, entity.parent, true);
-    //     var parent = editor.call('entities:get', duplicated.parent);
+        var duplicated = duplicate(entity.resource_id, entity.parent, true);
+        var parent = editor.call('entities:get', duplicated.parent);
 
-    //     // history
-    //     if (history) {
-    //         editor.call('history:add', {
-    //             name: 'duplicate entity ' + entity.resource_id,
-    //             undo: function() {
-    //                 history = false;
-    //                 removeEntity(duplicated, parent);
-    //                 history = true;
-    //             },
-    //             redo: function() {
-    //                 history = false;
-    //                 duplicated = duplicate(entity.resource_id, parent.resource_id, true);
-    //                 history = true;
-    //             }
-    //         });
-    //     }
-    // });
+        // history
+        if (history) {
+            editor.call('history:add', {
+                name: 'duplicate entity ' + entity.resource_id,
+                undo: function() {
+                    removeEntity(duplicated, parent);
+                },
+                redo: function() {
+                    duplicated = duplicate(entity.resource_id, parent.resource_id, true);
+                }
+            });
+        }
+    });
 
     // delete entity
     editor.method('entities:delete', function (entity) {
