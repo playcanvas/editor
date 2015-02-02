@@ -23,10 +23,19 @@ editor.once('load', function() {
 
         addEntity(entity, parent, true);
 
-        return entity;
+        // history
+        editor.call('history:add', {
+            name: 'new entity ' + entity.resource_id,
+            undo: function() {
+                removeEntity(entity, parent);
+            },
+            redo: function() {
+                addEntity(entity, parent, true);
+            }
+        });
     });
 
-    var addEntity = function (entity, parent, undo) {
+    var addEntity = function (entity, parent, select) {
         // call add event
         editor.call('entities:add', entity);
 
@@ -41,34 +50,27 @@ editor.once('load', function() {
             oi: entity.json()
         });
 
-        // disable selector history
-        editor.call('selector:toggleHistory', false);
-
-        // select new entity
-        editor.call('selector:add', 'entity', entity);
-
-        // re-enable selector history
-        editor.call('selector:toggleHistory', true);
-
-        // history
-        if (undo) {
-            editor.call('history:add', {
-                name: 'new entity ' + entity.resource_id,
-                undo: function() {
-                    parent.history.enabled = false;
-                    removeEntity(entity, parent);
-                    parent.history.enabled = true;
-                },
-                redo: function() {
-                    parent.history.enabled = false;
-                    addEntity(entity, parent);
-                    parent.history.enabled = true;
-                }
-            });
+        if (select) {
+            // disable selector history
+            editor.call('selector:toggleHistory', false);
+            // select new entity
+            editor.call('selector:add', 'entity', entity);
+            // re-enable selector history
+            editor.call('selector:toggleHistory', true);
         }
+
+        // do the same for children
+        entity.children.forEach(function (child) {
+            addEntity(editor.call('entities:get', child), entity, false);
+        });
     };
 
     var removeEntity = function (entity, parent) {
+        // start from children
+        entity.children.forEach(function (child) {
+            removeEntity(editor.call('entities:get', child), entity);
+        });
+
         // disable selector history
         editor.call('selector:toggleHistory', false);
         // deselect entity
@@ -78,7 +80,9 @@ editor.once('load', function() {
 
         // remove from parent
         if (parent) {
+            parent.history.enabled = false;
             parent.remove('children', entity.resource_id);
+            parent.history.enabled = true;
         }
 
         // call remove method
@@ -93,16 +97,55 @@ editor.once('load', function() {
 
     // duplicate entity
     editor.method('entities:duplicate', function (entity) {
-        var parent = editor.call('entities:get', entity.parent);
+        var duplicatedEntities = {};
 
-        // create new Entity data
-        var data = entity.json();
-        data.resource_id = pc.guid.create();
-        var duplicate = new Observer(data);
+        function duplicate (resourceId, parentId, select) {
+            var source = editor.call('entities:get', resourceId);
+            var parent = editor.call('entities:get', parentId);
 
-        addEntity(duplicate, parent, true);
+            var newChildren = [];
 
-        return duplicate;
+            // remember the entity that was duplicated using the resource id
+            // of the source entity as the key, so that when we undo / redo
+            // we re-add the same entities in the hierarchy
+            if (!duplicatedEntities[source.resource_id]) {
+                // create new Entity data
+                var data = source.json();
+                data.resource_id = pc.guid.create();
+                data.parent = parentId;
+                data.children = newChildren;
+                duplicatedEntities[source.resource_id] = new Observer(data);
+            }
+
+            var duplicated = duplicatedEntities[source.resource_id];
+
+            addEntity(duplicated, parent, select);
+
+            source.children.forEach(function (child) {
+                var c = duplicate(child, duplicated.resource_id, false);
+                newChildren.push(c.resource_id);
+            });
+
+            duplicated.history.enabled = false;
+            duplicated.children = newChildren;
+            duplicated.history.enabled = true;
+
+            return duplicated;
+        }
+
+        var duplicated = duplicate(entity.resource_id, entity.parent, true);
+        var parent = editor.call('entities:get', duplicated.parent);
+
+        // history
+        editor.call('history:add', {
+            name: 'duplicate entity ' + entity.resource_id,
+            undo: function() {
+                removeEntity(duplicated, parent);
+            },
+            redo: function() {
+                duplicated = duplicate(entity.resource_id, parent.resource_id, true);
+            }
+        });
     });
 
     // delete entity
@@ -115,14 +158,10 @@ editor.once('load', function() {
         editor.call('history:add', {
             name: 'delete entity ' + entity.resource_id,
             undo: function() {
-                parent.history.enabled = false;
-                addEntity(entity, parent);
-                parent.history.enabled = true;
+                addEntity(entity, parent, true);
             },
             redo: function() {
-                parent.history.enabled = false;
                 removeEntity(entity, parent);
-                parent.history.enabled = true;
             }
         });
     });

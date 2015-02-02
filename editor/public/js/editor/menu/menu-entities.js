@@ -3,12 +3,6 @@ editor.once('load', function() {
 
     var header = editor.call('layout.header');
 
-    // New Entity button
-    var button = new ui.Button({
-        text: 'New Entity'
-    });
-    header.append(button);
-
     var getEntitySelection = function () {
         var entity = null;
         var selection = editor.call('selector:items');
@@ -24,34 +18,50 @@ editor.once('load', function() {
         return entity;
     };
 
-    button.on('click', function() {
+    var newEntity = function () {
         var parent = getEntitySelection();
         editor.call('entities:new', parent);
-    });
+    };
 
-    // Duplicate Entity button
-    button = new ui.Button({
-        text: 'Duplicate Entity'
-    });
-    header.append(button);
-
-    button.on('click', function() {
+    var duplicateEntity = function () {
         var entity = getEntitySelection();
         if (entity) {
             editor.call('entities:duplicate', entity);
         }
-    });
+    };
 
-    // Delete Entity button
-    button = new ui.Button({
-        text: 'Delete Entity'
-    });
-    header.append(button);
-
-    button.on('click', function() {
+    var deleteEntity = function () {
         var entity = getEntitySelection();
         if (entity) {
             editor.call('entities:delete', entity);
+        }
+    };
+
+    [{
+        text: 'New Entity',
+        handler: newEntity
+    }, {
+        text: 'Duplicate Entity',
+        handler: duplicateEntity
+    }, {
+        text: 'Delete Entity',
+        handler: deleteEntity
+    }].forEach(function (item) {
+        // Duplicate Entity button
+        var button = new ui.Button({
+            text: item.text
+        });
+        header.append(button);
+
+        button.on('click', item.handler);
+    });
+
+
+    // shortcuts
+    window.addEventListener('keyup', function (e) {
+        // D key
+        if (e.keyCode === 68) {
+            duplicateEntity();
         }
     });
 
