@@ -16,6 +16,9 @@ editor.once('load', function() {
 
 
     editor.on('entities:add', function(entity) {
+        if (entity.sync)
+            return;
+
         entity.sync = new ObserverSync({
             item: entity,
             prefix: [ 'entities', entity.resource_id ],
