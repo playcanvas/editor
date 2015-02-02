@@ -189,13 +189,6 @@ pc.extend(pc.designer, function() {
             // Perform ComponentSystem update
             pc.ComponentSystem.fire('toolsUpdate', dt);
 
-            // update particle system if particles are selected
-            if (editor.call('selector:hasComponent', 'particlesystem')) {
-                // TODO: needs small engine change to create emitter no matter what. Disabling for now
-                //this.context.systems.particlesystem.onUpdate(dt);
-                //keepRendering = true;
-            }
-
             this.activeGizmo.render();
 
             this.render();

@@ -3,35 +3,20 @@ editor.once('load', function() {
 
     var header = editor.call('layout.header');
 
-    var getEntitySelection = function () {
-        var entity = null;
-        var selection = editor.call('selector:items');
-        if (selection) {
-            for (var i = 0; i < selection.length; i++) {
-                if (selection[i].components) {
-                    entity = selection[i];
-                    break;
-                }
-            }
-        }
-
-        return entity;
-    };
-
     var newEntity = function () {
-        var parent = getEntitySelection();
+        var parent = editor.call('entities:selectedFirst');
         editor.call('entities:new', parent);
     };
 
     var duplicateEntity = function () {
-        var entity = getEntitySelection();
+        var entity = editor.call('entities:selectedFirst');
         if (entity) {
             editor.call('entities:duplicate', entity);
         }
     };
 
     var deleteEntity = function () {
-        var entity = getEntitySelection();
+        var entity = editor.call('entities:selectedFirst');
         if (entity) {
             editor.call('entities:delete', entity);
         }

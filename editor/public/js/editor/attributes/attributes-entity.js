@@ -61,6 +61,28 @@ editor.once('load', function() {
         // components
         panelComponents = editor.call('attributes:addPanel');
 
+        var addComponent = editor.call('attributes:addField', {
+            parent: panelComponents,
+            name: 'Add Component',
+            type: 'string',
+            enum: {
+                '': '',
+                'animation': 'Animation',
+                'light': 'Light'
+            }
+        });
+
+        addComponent.on('change', function (value) {
+            editor.call('entities:addComponent', entity, value);
+            // addComponent._updateOptions(
+            //     {
+            //         '': '',
+            //         'animation': 'asdfsd'
+            //     }
+            // );
+
+            // addComponent.value = ''
+        });
 
         var panelJson = editor.call('attributes:addPanel', {
             name: 'JSON'
@@ -75,12 +97,28 @@ editor.once('load', function() {
         fieldJson.text = JSON.stringify(entity.json(), null, 4);
 
         // changes
-        var evt = entity.on('*:set', function() {
+        var evtSet = entity.on('*:set', function() {
+            fieldJson.text = JSON.stringify(entity.json(), null, 4);
+        });
+        var evtUnset = entity.on('*:unset', function() {
+            fieldJson.text = JSON.stringify(entity.json(), null, 4);
+        });
+        var evtInsert = entity.on('*:insert', function() {
+            fieldJson.text = JSON.stringify(entity.json(), null, 4);
+        });
+        var evtRemove = entity.on('*:remove', function() {
+            fieldJson.text = JSON.stringify(entity.json(), null, 4);
+        });
+        var evtMove = entity.on('*:move', function() {
             fieldJson.text = JSON.stringify(entity.json(), null, 4);
         });
 
         fieldJson.on('destroy', function() {
-            evt.unbind();
+            evtSet.unbind();
+            evtUnset.unbind();
+            evtInsert.unbind();
+            evtRemove.unbind();
+            evtMove.unbind();
         });
     });
 });

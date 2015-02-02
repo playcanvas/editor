@@ -4,7 +4,7 @@ editor.once('load', function() {
     var entities = new ObserverList();
     entities.index = 'resource_id';
 
-    var root = null;
+    var entityRoot = null;
 
     // on adding
     entities.on('add', function(entity) {
@@ -21,7 +21,7 @@ editor.once('load', function() {
     // allow adding entity
     editor.method('entities:add', function(entity) {
         if (! entity.parent)
-            root = entity;
+            entityRoot = entity;
 
         entities.add(entity);
     });
@@ -46,7 +46,7 @@ editor.once('load', function() {
 
     // get root entity
     editor.method('entities:root', function () {
-        return root;
+        return entityRoot;
     });
 
 });

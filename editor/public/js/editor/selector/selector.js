@@ -27,8 +27,12 @@ editor.once('load', function() {
         var ind = index[type][item[key]] = {
             item: item,
             onDestroy: function() {
+                editor.call('selector:history', false);
+
                 selector.remove(item);
                 delete index[type][item[key]];
+
+                editor.call('selector:history', true);
             }
         };
 

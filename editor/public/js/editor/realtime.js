@@ -31,7 +31,7 @@ editor.once('load', function() {
                 for (var i = 0; i < ops.length; i++) {
                     var op = ops[i];
 
-                    // console.log(op.p.join('.'), '-', Object.keys(op).filter(function(key) { return key !== 'p' }).join(', '));
+                    // console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
 
                     if (op.p[0])
                         editor.emit('realtime:op:' + op.p[0], op);
@@ -48,6 +48,9 @@ editor.once('load', function() {
 
         // method to send operations
         editor.method('realtime:op', function(op) {
+
+            // console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
+
             scene.submitOp([ op ]);
         });
     });

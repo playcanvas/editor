@@ -7,8 +7,7 @@ editor.once('load', function() {
         if (! parent)
             parent = editor.call('entities:root');
 
-        // create new Entity data
-        var entity = new Observer({
+        var data = {
             name: 'New Entity',
             resource_id: pc.guid.create(),
             parent: parent.resource_id,
@@ -18,11 +17,15 @@ editor.once('load', function() {
             scale: [1, 1, 1],
             enabled: true,
             components: {}
-        });
+        };
 
+        // create new Entity data
+        var entity = new Observer(data);
         addEntity(entity, parent, true);
 
         // history
+        var resource_id = entity.resource_id;
+
         editor.call('history:add', {
             name: 'new entity ' + entity.resource_id,
             undo: function() {
@@ -35,6 +38,8 @@ editor.once('load', function() {
     });
 
     var addEntity = function (entity, parent, select) {
+        entity.__destroyed = false;
+
         // call add event
         editor.call('entities:add', entity);
 
@@ -58,10 +63,10 @@ editor.once('load', function() {
             editor.call('selector:history', true);
         }
 
-        // do the same for children
-        entity.children.forEach(function (child) {
-            addEntity(editor.call('entities:get', child), entity, false);
-        });
+        // // do the same for children
+        // entity.children.forEach(function (child) {
+        //     addEntity(editor.call('entities:get', child), entity, false);
+        // });
     };
 
     var removeEntity = function (entity, parent) {
@@ -86,6 +91,7 @@ editor.once('load', function() {
 
         // call remove method
         editor.call('entities:remove', entity);
+
 
         // sharejs
         editor.call('realtime:op', {
@@ -136,15 +142,17 @@ editor.once('load', function() {
         var parent = editor.call('entities:get', duplicated.parent);
 
         // history
-        editor.call('history:add', {
-            name: 'duplicate entity ' + entity.resource_id,
-            undo: function() {
-                removeEntity(duplicated, parent);
-            },
-            redo: function() {
-                duplicated = duplicate(entity.resource_id, parent.resource_id, true);
-            }
-        });
+        if (history) {
+            editor.call('history:add', {
+                name: 'duplicate entity ' + entity.resource_id,
+                undo: function() {
+                    removeEntity(duplicated, parent);
+                },
+                redo: function() {
+                    duplicated = duplicate(entity.resource_id, parent.resource_id, true);
+                }
+            });
+        }
     });
 
     // delete entity
@@ -153,7 +161,6 @@ editor.once('load', function() {
 
         removeEntity(entity, parent);
 
-        // history
         editor.call('history:add', {
             name: 'delete entity ' + entity.resource_id,
             undo: function() {
