@@ -20,8 +20,14 @@ editor.once('load', function() {
 
             } else if (path.indexOf('scale') === 0) {
                 entity.setLocalScale(new pc.Vec3(obj.scale[0], obj.scale[1], obj.scale[2]));
+
             } else if (path.indexOf('enabled') === 0) {
                 entity.enabled = obj.enabled;
+
+            } else if (path.indexOf('parent') === 0) {
+                var parent = editor.call('entities:get', obj.parent);
+                if (parent && parent.entity)
+                    entity.reparent(parent.entity);
             }
 
             // render
