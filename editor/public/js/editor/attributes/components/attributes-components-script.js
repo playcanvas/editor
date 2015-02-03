@@ -56,6 +56,22 @@ editor.once('load', function() {
             fieldEnabled.destroy();
         });
 
+        // remove
+        var fieldRemove = new ui.Checkbox();
+        fieldRemove.style.float = 'right';
+        fieldRemove.style.backgroundColor = '#323f42';
+        fieldRemove.style.margin = '3px 4px 3px -5px';
+        fieldRemove.on('change', function (value) {
+            if (value) {
+                entity.unset('components.script');
+                fieldRemove.value = false;
+            }
+        });
+        panel.headerElement.appendChild(fieldRemove.element);
+        panel.on('destroy', function() {
+            fieldRemove.destroy();
+        });
+
         // scripts list
         var panelScriptsList = editor.call('attributes:addPanel', {
             parent: panel

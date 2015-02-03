@@ -31,7 +31,6 @@ ObserverHistory.prototype._initialize = function() {
                     self.item.set(path, valueOld);
                 }
 
-                self.item.set(path, valueOld);
                 self._enabled = true;
             },
             redo: function() {
@@ -56,8 +55,25 @@ ObserverHistory.prototype._initialize = function() {
         }
     });
 
-    this.item.on('*:unset', function(path, value) {
+    this.item.on('*:unset', function(path, valueOld) {
         if (! self._enabled) return;
+
+        // action
+        var data = {
+            name: self._prefix + path,
+            undo: function() {
+                self._enabled = false;
+                self.item.set(path, valueOld);
+                self._enabled = true;
+            },
+            redo: function() {
+                self._enabled = false;
+                self.item.unset(path);
+                self._enabled = true;
+            }
+        };
+
+        self.emit('record', 'add', data);
     });
 
     this.item.on('*:insert', function(path, value, ind) {

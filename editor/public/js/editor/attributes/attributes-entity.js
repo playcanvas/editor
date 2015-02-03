@@ -61,27 +61,45 @@ editor.once('load', function() {
         // components
         panelComponents = editor.call('attributes:addPanel');
 
+        // get all components and make an enum out of them
+        var allComponents = editor.call('components:list');
+
+        // return an enum for a select field showing all the
+        // components that are not currently added to the entity
+        var createComponentEnum = function () {
+            var result = {'': ''};
+
+            allComponents.filter(function (component) {
+                return !entity.components[component];
+            })
+            .forEach(function (component) {
+                result[component] = component;
+            });
+
+            return result;
+        };
+
+        // show components in a select field
         var addComponent = editor.call('attributes:addField', {
             parent: panelComponents,
             name: 'Add Component',
             type: 'string',
-            enum: {
-                '': '',
-                'animation': 'Animation',
-                'light': 'Light'
-            }
+            enum: createComponentEnum()
         });
 
-        addComponent.on('change', function (value) {
-            editor.call('entities:addComponent', entity, value);
-            // addComponent._updateOptions(
-            //     {
-            //         '': '',
-            //         'animation': 'asdfsd'
-            //     }
-            // );
+        // refresh available components on click
+        addComponent.on('click', function () {
+            addComponent._updateOptions(createComponentEnum());
+        });
 
-            // addComponent.value = ''
+        // add component
+        addComponent.on('change', function (value) {
+            if (!value) return;
+
+            var componentData = editor.call('components:getDefault', value);
+            entity.set('components.' + value, componentData);
+            // reset displayed value
+            addComponent.value = '';
         });
 
         var panelJson = editor.call('attributes:addPanel', {
