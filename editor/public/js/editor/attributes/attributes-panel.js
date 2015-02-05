@@ -273,6 +273,34 @@ editor.once('load', function() {
                 panel.append(field);
 
                 return field;
+            case 'texture':
+                var field = new ui.ImageField();
+
+                field.on('change', function(value) {
+                    if (! value)
+                        return field.image = '';
+
+                    var asset = editor.call('assets:get', value);
+
+                    if (! asset)
+                        return field.image = '';
+
+                    if (asset.thumbnails) {
+                        field.image = config.url.home + asset.thumbnails.m;
+                    } else {
+                        field.image = '';
+                    }
+                });
+
+                if (args.value)
+                    field.value = args.value;
+
+                if (args.link)
+                    field.link(args.link, args.path)
+
+                panel.append(field)
+
+                return field;
             case 'image':
                 panel.flex = false;
 

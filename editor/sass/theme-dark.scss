@@ -249,7 +249,7 @@ a:visited {
 .ui-color-field {
     border: 1px solid $bcg-darker;
 
-    > .icon {
+    &:after {
         background-color: $bcg-dark;
         border-color: $bcg-darker;
     }
@@ -258,7 +258,32 @@ a:visited {
     &:focus {
         border-color: $bcg-darker;
         box-shadow: 0 0 4px rgba(0, 0, 0, .5);
-        > .icon {
+        &:after {
+            background-color: $text-active;
+            border-color: $bcg-darker;
+        }
+    }
+
+    &.changed {
+        outline: 1px solid $text-active;
+        -webkit-animation: ui-field-changed 200ms ease-in-out forwards;
+        animation: ui-field-changed 200ms ease-in-out forwards;
+    }
+}
+
+.ui-image-field {
+    border: 1px solid $bcg-darker;
+
+    &:after {
+        background-color: $bcg-dark;
+        border-color: $bcg-darker;
+    }
+
+    &:hover,
+    &:focus {
+        border-color: $bcg-darker;
+        box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+        &:after {
             background-color: $text-active;
             border-color: $bcg-darker;
         }

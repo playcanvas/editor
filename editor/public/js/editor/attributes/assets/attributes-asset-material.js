@@ -285,7 +285,6 @@ editor.once('load', function() {
         });
 
 
-
         // ambient
         var panelAmbiend = editor.call('attributes:addPanel', {
             parent: panelParams,
@@ -363,7 +362,7 @@ editor.once('load', function() {
         // map
         var fieldDiffuseMap = editor.call('attributes:addField', {
             parent: panelDiffuse,
-            type: 'number',
+            type: 'texture',
             name: 'Texture',
             link: asset,
             path: 'data.diffuseMap'
@@ -445,7 +444,7 @@ editor.once('load', function() {
         // map
         var fieldSpecularMap = editor.call('attributes:addField', {
             parent: panelSpecular,
-            type: 'number',
+            type: 'texture',
             name: 'Specular',
             link: asset,
             path: 'data.specularMap'
@@ -521,7 +520,7 @@ editor.once('load', function() {
         // map (gloss)
         var fieldGlossMap = editor.call('attributes:addField', {
             parent: panelSpecular,
-            type: 'number',
+            type: 'texture',
             name: 'Glossiness',
             link: asset,
             path: 'data.glossMap'
@@ -584,7 +583,7 @@ editor.once('load', function() {
         // map
         var fieldEmissiveMap = editor.call('attributes:addField', {
             parent: panelEmissive,
-            type: 'number',
+            type: 'texture',
             name: 'Texture',
             link: asset,
             path: 'data.emissiveMap'
@@ -676,7 +675,7 @@ editor.once('load', function() {
         // map (normals)
         var fieldNormalMap = editor.call('attributes:addField', {
             parent: panelNormal,
-            type: 'number',
+            type: 'texture',
             name: 'Texture',
             link: asset,
             path: 'data.normalMap'
@@ -734,7 +733,7 @@ editor.once('load', function() {
         // map
         var fieldHeightMap = editor.call('attributes:addField', {
             parent: panelParallax,
-            type: 'number',
+            type: 'texture',
             name: 'Texture',
             link: asset,
             path: 'data.heightMap'
@@ -794,7 +793,7 @@ editor.once('load', function() {
         // spheremap
         var fieldReflectionSphere = editor.call('attributes:addField', {
             parent: panelReflection,
-            type: 'number',
+            type: 'texture',
             name: 'Sphere Map',
             link: asset,
             path: 'data.sphereMap'
@@ -847,7 +846,7 @@ editor.once('load', function() {
         // map
         var fieldLightMap = editor.call('attributes:addField', {
             parent: panelLightMap,
-            type: 'number',
+            type: 'texture',
             name: 'Texture',
             link: asset,
             path: 'data.lightMap'

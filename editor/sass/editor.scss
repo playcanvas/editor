@@ -117,6 +117,13 @@ body {
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+        &.field-texture {
+            > .content > .ui-image-field {
+                background-image: url("http://playcanvas.dev/editor/scene/img/asset-placeholder-texture.png");
+                background-size: 64px 64px;
+                background-repeat: no-repeat;
+            }
+        }
     }
 }
 

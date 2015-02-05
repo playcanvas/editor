@@ -213,7 +213,7 @@ editor.once('load', function() {
         // pos_x
         var fieldPosX = editor.call('attributes:addField', {
             parent: texturesPanel,
-            type: 'number',
+            type: 'texture',
             name: 'Right',
             link: asset,
             path: 'data.textures.0'
@@ -222,7 +222,7 @@ editor.once('load', function() {
         // neg_x
         var fieldNegX = editor.call('attributes:addField', {
             parent: texturesPanel,
-            type: 'number',
+            type: 'texture',
             name: 'Left',
             link: asset,
             path: 'data.textures.1'
@@ -231,7 +231,7 @@ editor.once('load', function() {
         // pos_y
         var fieldPosY = editor.call('attributes:addField', {
             parent: texturesPanel,
-            type: 'number',
+            type: 'texture',
             name: 'Top',
             link: asset,
             path: 'data.textures.2'
@@ -240,7 +240,7 @@ editor.once('load', function() {
         // pos_x
         var fieldNegY = editor.call('attributes:addField', {
             parent: texturesPanel,
-            type: 'number',
+            type: 'texture',
             name: 'Bottom',
             link: asset,
             path: 'data.textures.3'
@@ -249,7 +249,7 @@ editor.once('load', function() {
         // pos_z
         var fieldPosZ = editor.call('attributes:addField', {
             parent: texturesPanel,
-            type: 'number',
+            type: 'texture',
             name: 'Front',
             link: asset,
             path: 'data.textures.4'
@@ -258,7 +258,7 @@ editor.once('load', function() {
         // neg_z
         var fieldNegZ = editor.call('attributes:addField', {
             parent: texturesPanel,
-            type: 'number',
+            type: 'texture',
             name: 'Back',
             link: asset,
             path: 'data.textures.5'

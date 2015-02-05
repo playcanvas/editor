@@ -838,7 +838,8 @@ a:visited {
         height: 24px;
         background-color: #000;
     }
-    > .icon {
+    &:after {
+        content: '\00a0';
         position: absolute;
         bottom: 0;
         right: 0;
@@ -855,6 +856,38 @@ a:visited {
     outline: none;
     border-color: #7f7;
     box-shadow: 0 0 4px #7f7;
+}
+
+.ui-image-field {
+    @extend .noSelect;
+    position: relative;
+    width: 64px;
+    min-height: 24px;
+    margin: 4px;
+    border: 1px solid #666;
+    cursor: pointer;
+
+    &.empty {
+        > .preview {
+            display: none;
+        }
+    }
+    > .preview {
+        display: block;
+        width: 64px;
+        height: 64px;
+    }
+    &:after {
+        content: '\00a0';
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 7px;
+        height: 7px;
+        background-color: #06f;
+        border-top: 1px solid #666;
+        border-left: 1px solid #666;
+    }
 }
 
 .ui-button {

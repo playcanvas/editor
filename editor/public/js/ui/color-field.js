@@ -11,10 +11,6 @@ function ColorField(args) {
     this.elementColor.classList.add('color');
     this.element.appendChild(this.elementColor);
 
-    this.elementIcon = document.createElement('span');
-    this.elementIcon.classList.add('icon');
-    this.element.appendChild(this.elementIcon);
-
     this._channels = args.channels || 3;
     this._values = [ 0, 0, 0, 0 ];
 
