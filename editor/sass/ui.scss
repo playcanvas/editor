@@ -7,6 +7,8 @@
     user-select: none;
 }
 
+$disabled-opacity: .4;
+
 .fieldFont {
     font-family: "Lucida Console", Monaco, monospace;
     font-weight: normal;
@@ -73,7 +75,7 @@ a:visited {
     &.disabled {
         > header {
             color: #999;
-            background-color: mix(#111, #222, 50%);
+            background-color: mix(#111, #222, $disabled-opacity);
         }
     }
     &.noHeader {
@@ -324,7 +326,7 @@ a:visited {
     transition: opacity 100ms;
 
     &.disabled {
-        opacity: .5;
+        opacity: $disabled-opacity;
     }
 }
 
@@ -343,7 +345,7 @@ a:visited {
 
     &.disabled {
         cursor: default;
-        opacity: .5;
+        opacity: $disabled-opacity;
 
         &:hover {
             background-color: transparent;
@@ -390,7 +392,7 @@ a:visited {
 
     &.disabled {
         cursor: default;
-        opacity: .5;
+        opacity: $disabled-opacity;
 
         &:hover {
             background-color: transparent;
@@ -531,7 +533,7 @@ a:visited {
     &.disabled {
         > .title {
             > .text {
-                opacity: .5;
+                opacity: $disabled-opacity;
             }
         }
     }
@@ -654,7 +656,7 @@ a:visited {
     transition: opacity 100ms;
 
     &.disabled {
-        opacity: .5;
+        opacity: $disabled-opacity;
     }
 }
 
@@ -696,7 +698,7 @@ a:visited {
     transition: opacity 100ms;
 
     &.disabled {
-        opacity: .5;
+        opacity: $disabled-opacity;
     }
     > input.field {
         @extend .fieldFont;
@@ -754,7 +756,7 @@ a:visited {
     transition: opacity 100ms;
 
     &.disabled {
-        opacity: .5;
+        opacity: $disabled-opacity;
     }
     > input.field {
         @extend .fieldFont;
@@ -830,7 +832,7 @@ a:visited {
     background-position: 0 0, 4px 0, 4px -4px, 0px 4px;
 
     &.disabled {
-        opacity: .5;
+        opacity: $disabled-opacity;
     }
     > .color {
         display: block;
@@ -923,7 +925,7 @@ a:visited {
     transition: opacity 100ms;
 
     &.disabled {
-        opacity: .5;
+        opacity: $disabled-opacity;
         cursor: default;
     }
 }
@@ -944,7 +946,7 @@ a:visited {
         background-color: #fff;
     }
     &.disabled {
-        opacity: .5;
+        opacity: $disabled-opacity;
         cursor: default;
     }
 }
@@ -978,7 +980,7 @@ a:visited {
         }
     }
     &.disabled {
-        opacity: .5;
+        opacity: $disabled-opacity;
         cursor: default;
 
         &:after {
@@ -1046,7 +1048,7 @@ a:visited {
     transition: opacity 100ms;
 
     &.disabled {
-        opacity: .5;
+        opacity: $disabled-opacity;
         cursor: default;
     }
 }
@@ -1058,7 +1060,7 @@ a:visited {
     transition: opacity 100ms;
 
     &.disabled {
-        opacity: .5;
+        opacity: $disabled-opacity;
     }
     &.failed {
         > .inner {
