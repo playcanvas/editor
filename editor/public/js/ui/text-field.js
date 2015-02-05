@@ -31,8 +31,7 @@ function TextField(args) {
         if (! this.renderChanges)
             return;
 
-        this.class.add('changed');
-        setTimeout(this._onChangeDelay.bind(this), 200);
+        this.flash();
     });
 
     if (args.placeholder)
@@ -40,9 +39,6 @@ function TextField(args) {
 }
 TextField.prototype = Object.create(ui.Element.prototype);
 
-TextField.prototype._onChangeDelay = function() {
-    this.class.remove('changed');
-};
 
 TextField.prototype._onLinkChange = function(value) {
     this.elementInput.value = value;

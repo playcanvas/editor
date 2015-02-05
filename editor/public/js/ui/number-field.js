@@ -44,8 +44,7 @@ function NumberField(args) {
         if (! this.renderChanges)
             return;
 
-        this.class.add('changed');
-        setTimeout(this._onChangeDelay.bind(this), 200);
+        this.flash();
     });
 
     if (args.placeholder)
@@ -53,9 +52,6 @@ function NumberField(args) {
 }
 NumberField.prototype = Object.create(ui.Element.prototype);
 
-NumberField.prototype._onChangeDelay = function() {
-    this.class.remove('changed');
-};
 
 NumberField.prototype._onLinkChange = function(value) {
     this.elementInput.value = value || 0;

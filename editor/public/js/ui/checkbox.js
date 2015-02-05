@@ -16,16 +16,10 @@ function Checkbox(args) {
         if (! this.renderChanges)
             return;
 
-        this.class.add('changed');
-        setTimeout(this._onChangeDelay.bind(this), 200);
+        this.flash();
     });
 }
 Checkbox.prototype = Object.create(ui.Element.prototype);
-
-
-Checkbox.prototype._onChangeDelay = function() {
-    this.class.remove('changed');
-};
 
 
 Checkbox.prototype._onLinkChange = function(value) {

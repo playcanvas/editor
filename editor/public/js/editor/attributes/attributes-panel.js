@@ -285,11 +285,13 @@ editor.once('load', function() {
                         field.value = asset.id;
                         evtPick = null;
                     });
-                });
 
-                field.once('destroy', function() {
-                    if (evtPick)
-                        evtPick.unbind();
+                    editor.once('picker:texture:close', function() {
+                        if (evtPick) {
+                            evtPick.unbind();
+                            evtPick = null;
+                        }
+                    });
                 });
 
                 field.on('change', function(value) {

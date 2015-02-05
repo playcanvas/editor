@@ -47,8 +47,7 @@ function SelectField(args) {
         if (! this.renderChanges)
             return;
 
-        this.class.add('changed');
-        setTimeout(this._onChangeDelay.bind(this), 200);
+        this.flash();
     });
 }
 SelectField.prototype = Object.create(ui.Element.prototype);
@@ -139,9 +138,6 @@ SelectField.prototype._onLinkChange = function(value) {
     this.emit('change', value);
 };
 
-SelectField.prototype._onChangeDelay = function() {
-    this.class.remove('changed');
-};
 
 Object.defineProperty(SelectField.prototype, 'value', {
     get: function() {

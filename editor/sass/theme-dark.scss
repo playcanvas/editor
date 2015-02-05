@@ -44,6 +44,12 @@ a:visited {
     color: $text-active;
 }
 
+.ui-flash {
+    outline: 1px solid $text-active;
+    -webkit-animation: ui-flash-animation 200ms ease-in-out forwards;
+    animation: ui-flash-animation 200ms ease-in-out forwards;
+}
+
 
 .ui-panel {
     background-color: $bcg-primary;
@@ -84,6 +90,9 @@ a:visited {
                 background-color: $text-active;
             }
         }
+    }
+    &.flash {
+        @extend .ui-flash;
     }
 }
 
@@ -166,10 +175,8 @@ a:visited {
     background-color: $bcg-dark;
     border-color: $bcg-darker;
 
-    &.changed {
-        outline: 1px solid $text-active;
-        -webkit-animation: ui-field-changed 200ms ease-in-out forwards;
-        animation: ui-field-changed 200ms ease-in-out forwards;
+    &.flash {
+        @extend .ui-flash;
     }
     &:hover {
         border-color: $bcg-darker;
@@ -187,6 +194,12 @@ a:visited {
     }
     &.selected {
         background-color: $bcg-dark;
+    }
+}
+
+.ui-grid {
+    &.flash {
+        @extend .ui-flash;
     }
 }
 
@@ -208,10 +221,8 @@ a:visited {
 .ui-label {
     color: $text-dark;
 
-    &.changed {
-        outline: 1px solid $text-active;
-        -webkit-animation: ui-field-changed 200ms ease-in-out forwards;
-        animation: ui-field-changed 200ms ease-in-out forwards;
+    &.flash {
+        @extend .ui-flash;
     }
 }
 .ui-label[placeholder] {
@@ -233,10 +244,8 @@ a:visited {
         box-shadow: 0 0 4px rgba(0, 0, 0, .5);
     }
 
-    &.changed {
-        outline: 1px solid $text-active;
-        -webkit-animation: ui-field-changed 200ms ease-in-out forwards;
-        animation: ui-field-changed 200ms ease-in-out forwards;
+    &.flash {
+        @extend .ui-flash;
     }
 }
 .ui-text-field[placeholder] {
@@ -264,10 +273,8 @@ a:visited {
         }
     }
 
-    &.changed {
-        outline: 1px solid $text-active;
-        -webkit-animation: ui-field-changed 200ms ease-in-out forwards;
-        animation: ui-field-changed 200ms ease-in-out forwards;
+    &.flash {
+        @extend .ui-flash;
     }
 }
 
@@ -289,10 +296,12 @@ a:visited {
         }
     }
 
-    &.changed {
-        outline: 1px solid $text-active;
-        -webkit-animation: ui-field-changed 200ms ease-in-out forwards;
-        animation: ui-field-changed 200ms ease-in-out forwards;
+    > .clear {
+        border-color: $bcg-dark;
+    }
+
+    &.flash {
+        @extend .ui-flash;
     }
 }
 
@@ -308,10 +317,8 @@ a:visited {
         box-shadow: 0 0 4px rgba(0, 0, 0, .5);
     }
 
-    &.changed {
-        outline: 1px solid $text-active;
-        -webkit-animation: ui-field-changed 200ms ease-in-out forwards;
-        animation: ui-field-changed 200ms ease-in-out forwards;
+    &.flash {
+        @extend .ui-flash;
     }
 }
 .ui-number-field[placeholder] {
@@ -352,10 +359,8 @@ a:visited {
             background-color: $text-active;
         }
     }
-    &.changed {
-        outline: 1px solid $text-active;
-        -webkit-animation: ui-field-changed 200ms ease-in-out forwards;
-        animation: ui-field-changed 200ms ease-in-out forwards;
+    &.flash {
+        @extend .ui-flash;
     }
 }
 
@@ -387,10 +392,8 @@ a:visited {
             }
         }
     }
-    &.changed {
-        outline: 1px solid $text-active;
-        -webkit-animation: ui-field-changed 200ms ease-in-out forwards;
-        animation: ui-field-changed 200ms ease-in-out forwards;
+    &.flash {
+        @extend .ui-flash;
     }
 }
 
@@ -432,11 +435,11 @@ a:visited {
 }
 
 // ui-text-field changed animation
-@-webkit-keyframes ui-field-changed {
+@-webkit-keyframes ui-flash-animation {
     from { outline-color: $text-active; }
     to { outline-color: rgba($text-active, 0); }
 }
-@keyframes ui-field-changed {
+@keyframes ui-flash-animation {
     from { outline-color: $text-active; }
     to { outline-color: rgba($text-active, 0); }
 }

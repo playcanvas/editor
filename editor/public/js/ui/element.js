@@ -265,4 +265,15 @@ Object.defineProperty(Element.prototype, 'flexShrink', {
 });
 
 
+Element.prototype.flash = function() {
+    this.class.add('flash');
+    setTimeout(this._onFlashDelay.bind(this), 200);
+};
+
+
+Element.prototype._onFlashDelay = function() {
+    this.class.remove('flash');
+};
+
+
 window.ui.Element = Element;

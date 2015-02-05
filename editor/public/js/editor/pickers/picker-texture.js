@@ -86,6 +86,8 @@ editor.once('load', function() {
             assetsPanel.folded = false;
         // show overlay
         overlay.hidden = false;
+        // flash assets panel
+        assetsPanel.flash();
     });
 
 

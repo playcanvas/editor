@@ -1,6 +1,7 @@
 "use strict";
 
 function ImageField(args) {
+    var self = this;
     ui.Element.call(this);
     args = args || { };
 
@@ -11,22 +12,24 @@ function ImageField(args) {
     this.elementImage.classList.add('preview');
     this.element.appendChild(this.elementImage);
 
+    this.elementClear = document.createElement('span');
+    this.elementClear.classList.add('clear');
+    this.elementClear.addEventListener('click', function(evt) {
+        self.value = 0;
+        evt.stopPropagation();
+    }, false);
+    this.element.appendChild(this.elementClear);
+
     this._value = 0;
 
     this.on('change', function() {
         if (! this.renderChanges)
             return;
 
-        this.class.add('changed');
-        setTimeout(this._onChangeDelay.bind(this), 200);
+        this.flash();
     });
 }
 ImageField.prototype = Object.create(ui.Element.prototype);
-
-
-ImageField.prototype._onChangeDelay = function() {
-    this.class.remove('changed');
-};
 
 
 ImageField.prototype._onLinkChange = function(value) {

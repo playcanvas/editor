@@ -867,8 +867,16 @@ a:visited {
     border: 1px solid #666;
     cursor: pointer;
 
+    &:hover {
+        > .clear {
+            display: block;
+        }
+    }
     &.empty {
         > .preview {
+            display: none;
+        }
+        > .clear {
             display: none;
         }
     }
@@ -876,6 +884,17 @@ a:visited {
         display: block;
         width: 64px;
         height: 64px;
+    }
+    > .clear {
+        display: none;
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        top: 0;
+        right: 0;
+        background-color: #07f;
+        border-bottom: 1px solid #666;
+        border-left: 1px solid #666;
     }
     &:after {
         content: '\00a0';
