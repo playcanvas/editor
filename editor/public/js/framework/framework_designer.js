@@ -74,6 +74,7 @@ pc.extend(pc.designer, function() {
         this.redraw = true;
 
         this.lastMouseEvent = null;
+        this.selectedEntity = null;
     };
 
     Designer = pc.inherits(Designer, pc.Application);
@@ -290,22 +291,22 @@ pc.extend(pc.designer, function() {
     };
 
     Designer.prototype.selectEntity = function (resourceId) {
-        var actualEntity = this.context.root.findByGuid(resourceId);
-        if (actualEntity) {
-            this.activeGizmo.activate(actualEntity);
-        }
+        this.selectedEntity = this.context.root.findByGuid(resourceId);
+        if (this.selectedEntity && editor.call('permissions:write'))
+            this.activeGizmo.activate(this.selectedEntity);
 
         this.redraw = true;
     };
 
     Designer.prototype.deselectEntity = function () {
+        this.selectedEntity = null;
         this.activeGizmo.deactivate();
         this.redraw = true;
     };
 
     Designer.prototype.frameSelection = function () {
-        if (this.activeGizmo.entity) {
-            this.cameraEntity.script.designer_camera.frameSelection(this.activeGizmo.entity);
+        if (this.selectedEntity) {
+            this.cameraEntity.script.designer_camera.frameSelection(this.selectedEntity);
             this.redraw = true;
         }
     };

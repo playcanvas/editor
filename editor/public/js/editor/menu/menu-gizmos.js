@@ -54,21 +54,22 @@ editor.once('load', function() {
     // shortcuts
     window.addEventListener('keyup', function (e) {
         var framework = editor.call('viewport:framework');
-        if (framework) {
-            switch (e.keyCode) {
-                case 87: // W:
-                    framework.setActiveGizmoType('translate');
-                    break;
-                case 69: // E:
-                    framework.setActiveGizmoType('rotate');
-                    break;
-                case 82: // R:
-                    framework.setActiveGizmoType('scale');
-                    break;
-                case 70: // F:
-                    framework.frameSelection();
-                    break;
-            }
+        if (! framework || (e.target && e.target.tagName.toLowerCase() === 'input'))
+            return;
+
+        switch (e.keyCode) {
+            case 87: // W:
+                framework.setActiveGizmoType('translate');
+                break;
+            case 69: // E:
+                framework.setActiveGizmoType('rotate');
+                break;
+            case 82: // R:
+                framework.setActiveGizmoType('scale');
+                break;
+            case 70: // F:
+                framework.frameSelection();
+                break;
         }
     });
 

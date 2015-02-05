@@ -1,5 +1,7 @@
 var utils = { };
 
+
+// utils.deepCopy
 utils.deepCopy = function deepCopy(data) {
     if (data == null || typeof(data) !== 'object')
         return data;
@@ -19,3 +21,20 @@ utils.deepCopy = function deepCopy(data) {
         return obj;
     }
 };
+
+
+// String.startsWith
+if (! String.prototype.startsWith) {
+    Object.defineProperty(String.prototype, 'startsWith', {
+        enumerable: false,
+        configurable: false,
+        writable: false,
+        value: function(str) {
+            var that = this;
+            var ceil = str.length;
+            for(var i = 0; i < ceil; i++)
+                if(that[i] !== str[i]) return false;
+            return true;
+        }
+    });
+}

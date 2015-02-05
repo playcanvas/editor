@@ -107,4 +107,9 @@ editor.on('load', function() {
     middle.append(attributesPanel);
     // expose
     editor.method('layout.right', function() { return attributesPanel; });
+
+
+    editor.on('permissions:write', function(allowed) {
+        root.enabled = allowed;
+    });
 });

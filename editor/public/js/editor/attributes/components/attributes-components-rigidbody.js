@@ -37,18 +37,17 @@ editor.once('load', function() {
 
         // enabled
         var fieldEnabled = new ui.Checkbox();
+        fieldEnabled.parent = panel;
         fieldEnabled.style.float = 'left';
         fieldEnabled.style.backgroundColor = '#323f42';
         fieldEnabled.style.margin = '3px 4px 3px -5px';
         fieldEnabled.link(entity, 'components.rigidbody.enabled');
         panel.headerElement.appendChild(fieldEnabled.element);
-        panel.on('destroy', function() {
-            fieldEnabled.destroy();
-        });
 
 
         // remove
         var fieldRemove = new ui.Checkbox();
+        fieldRemove.parent = panel;
         fieldRemove.style.float = 'right';
         fieldRemove.style.backgroundColor = '#323f42';
         fieldRemove.style.margin = '3px 4px 3px -5px';
@@ -59,9 +58,6 @@ editor.once('load', function() {
             }
         });
         panel.headerElement.appendChild(fieldRemove.element);
-        panel.on('destroy', function() {
-            fieldRemove.destroy();
-        });
 
         // type
         var fieldType = editor.call('attributes:addField', {
