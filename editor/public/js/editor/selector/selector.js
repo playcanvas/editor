@@ -1,8 +1,10 @@
 editor.once('load', function() {
     'use strict';
 
+    var enabled = true;
     var selector = new ObserverList();
     selector.type = null;
+
 
 
     var index = { };
@@ -77,6 +79,9 @@ editor.once('load', function() {
 
     // selecting item (toggle)
     editor.method('selector:toggle', function(type, item) {
+        if (! enabled)
+            return;
+
         if (selector.length && selector.type !== type) {
             selector.clear();
         }
@@ -92,6 +97,9 @@ editor.once('load', function() {
 
     // selecting list of items
     editor.method('selector:set', function(type, items) {
+        if (! enabled)
+            return;
+
         if (! type || ! items.length) {
             selector.clear();
             return;
@@ -118,6 +126,9 @@ editor.once('load', function() {
 
     // selecting item
     editor.method('selector:add', function(type, item) {
+        if (! enabled)
+            return;
+
         if (selector.has(item))
             return;
 
@@ -131,6 +142,9 @@ editor.once('load', function() {
 
     // deselecting item
     editor.method('selector:remove', function(item) {
+        if (! enabled)
+            return;
+
         if (! selector.has(item))
             return;
 
@@ -140,6 +154,9 @@ editor.once('load', function() {
 
     // deselecting
     editor.method('selector:clear', function(item) {
+        if (! enabled)
+            return;
+
         selector.clear();
     });
 
@@ -165,5 +182,10 @@ editor.once('load', function() {
     // return if it has item
     editor.method('selector:has', function(item) {
         return selector.has(item);
+    });
+
+
+    editor.method('selector:enabled', function(state) {
+        enabled = state;
     });
 });

@@ -275,6 +275,22 @@ editor.once('load', function() {
                 return field;
             case 'texture':
                 var field = new ui.ImageField();
+                var evtPick;
+
+                field.on('click', function() {
+                    var asset = editor.call('assets:get', this.value);
+                    editor.call('picker:texture', asset);
+
+                    evtPick = editor.once('picker:texture', function(asset) {
+                        field.value = asset.id;
+                        evtPick = null;
+                    });
+                });
+
+                field.once('destroy', function() {
+                    if (evtPick)
+                        evtPick.unbind();
+                });
 
                 field.on('change', function(value) {
                     if (! value)

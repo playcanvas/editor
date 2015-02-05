@@ -23,6 +23,7 @@ editor.once('load', function() {
     assetsPanel.append(grid);
 
     var assetsIndex = { };
+    grid.assetsIndex = assetsIndex;
 
 
     grid.on('select', function(item) {
@@ -46,6 +47,23 @@ editor.once('load', function() {
             return;
 
         assetsIndex[asset.id].selected = false;
+    });
+
+
+    // return grid
+    editor.method('assets:grid', function() {
+        return grid;
+    });
+
+
+    // filter assets in grid
+    editor.method('assets:panel:filter', function(fn) {
+        grid.forEach(function(gridItem) {
+            if (! gridItem.asset)
+                return;
+
+            gridItem.enabled = fn(gridItem.asset);
+        });
     });
 
 
@@ -84,6 +102,7 @@ editor.once('load', function() {
             label.textContent = (this.file && this.file.filename) || this.name;
         });
     });
+
 
     editor.on('assets:remove', function(asset) {
         assetsIndex[asset.id].destroy();

@@ -25,6 +25,24 @@ Grid.prototype._onSelect = function(item) {
 };
 
 
+Grid.prototype.filter = function(fn) {
+    this.forEach(function(item) {
+        item.hidden = ! fn(item);
+    });
+};
+
+
+Grid.prototype.forEach = function(fn) {
+    var child = this.element.firstChild;
+    while(child) {
+        if (child.ui)
+            fn(child.ui);
+
+        child = child.nextSibling;
+    };
+};
+
+
 Object.defineProperty(Grid.prototype, 'selected', {
     get: function() {
         var items = [ ];
@@ -40,10 +58,13 @@ Object.defineProperty(Grid.prototype, 'selected', {
         // deselecting
         var items = this.selected;
         for(var i = 0; i < items.length; i++) {
-            if (value.indexOf(items[i]) !== -1)
+            if (value && value.indexOf(items[i]) !== -1)
                 continue;
             items[i].selected = false;
         }
+
+        if (! value)
+            return;
 
         // selecting
         for(var i = 0; i < value.length; i++) {

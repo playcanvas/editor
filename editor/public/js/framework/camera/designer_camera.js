@@ -51,7 +51,7 @@ pc.script.create( "designer_camera", function (context) {
             focusStart: new pc.Vec3(),
             focusEnd: new pc.Vec3(),
             startTime: 0,
-            duration: 0.5,
+            duration: 0.3,
             active: false
         };
 
@@ -124,7 +124,7 @@ pc.script.create( "designer_camera", function (context) {
 
         transition.startTime = pc.time.now();
         transition.active = true;
-        editor.call('viewport:frameSelectionStart')
+        editor.call('viewport:frameSelectionStart');
 
         this.frameScale = averageExtent * 50;
 
