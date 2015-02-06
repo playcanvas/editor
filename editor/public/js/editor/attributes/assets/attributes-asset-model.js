@@ -7,140 +7,148 @@ editor.once('load', function() {
 
         var asset = assets[0];
 
-        // nodes panel
-        var panelNodes = editor.call('attributes:addPanel', {
-            name: 'Nodes'
-        });
-        // panelNodes.hidden = true;
-
-        // nodes list
-        var nodesList = new ui.List();
-        nodesList.selectable = false;
-        nodesList.class.add('model-nodes');
-        panelNodes.append(nodesList);
-
-
-        var pickMaterial = function(assetId, fn) {
-            var asset = editor.call('assets:get', assetId);
-            editor.call('picker:asset', 'material', asset);
-
-            var evtPick = editor.once('picker:asset', function(asset) {
-                fn(asset.id);
-                evtPick = null;
+        if (asset.data.mapping.length) {
+            // nodes panel
+            var panelNodes = editor.call('attributes:addPanel', {
+                name: 'Nodes'
             });
 
-            editor.once('picker:asset:close', function() {
-                if (evtPick) {
-                    evtPick.unbind();
+            // nodes list
+            var nodesList = new ui.List();
+            nodesList.selectable = false;
+            nodesList.class.add('model-nodes');
+            panelNodes.append(nodesList);
+
+            var pickMaterial = function(assetId, fn) {
+                var asset = editor.call('assets:get', assetId);
+                editor.call('picker:asset', 'material', asset);
+
+                var evtPick = editor.once('picker:asset', function(asset) {
+                    fn(asset.id);
                     evtPick = null;
-                }
-            });
-        };
-
-        var nodeItems = [ ];
-
-        for(var i = 0; i < asset.data.mapping.length; i++) {
-            var fieldNode = new ui.ListItem({
-                text: 'node ' + i
-            });
-            nodeItems[i] = fieldNode;
-
-            // material picker
-            var fieldMaterial = new ui.ImageField();
-
-            fieldMaterial.on('change', function(value) {
-                if (! value)
-                    return this.empty = true;
-
-                this.empty = false;
-
-                var asset = editor.call('assets:get', value);
-
-                if (! asset)
-                    return this.image = '';
-
-                if (asset.thumbnails) {
-                    this.image = config.url.home + asset.thumbnails.m;
-                } else {
-                    this.image = '';
-                }
-            });
-
-            fieldMaterial.on('click', function() {
-                pickMaterial(fieldMaterial.value, function(assetId) {
-                    fieldMaterial.value = assetId;
                 });
-            });
 
-            fieldMaterial.link(asset, 'data.mapping.' + i + '.material');
-            fieldMaterial.parent = fieldNode;
-            fieldNode.element.appendChild(fieldMaterial.element);
+                editor.once('picker:asset:close', function() {
+                    if (evtPick) {
+                        evtPick.unbind();
+                        evtPick = null;
+                    }
+                });
+            };
 
-            nodesList.append(fieldNode);
-        }
+            var nodeItems = [ ];
 
+            var createNodeField = function(ind) {
+                var fieldNode = new ui.ListItem({
+                    text: 'node ' + i
+                });
+                nodeItems[i] = fieldNode;
 
-        // template nodes
-        var nodesTemplate = function() {
-            asset.nodes.forEach(function(nodeName, i) {
-                if (! nodeItems[i])
-                    return;
+                // material picker
+                var fieldMaterial = new ui.ImageField();
 
-                nodeItems[i].text = nodeName;
-            });
-            // panelNodes.hidden = false;
-        };
+                // once changed, update thumbnail
+                fieldMaterial.on('change', function(value) {
+                    if (! value)
+                        return this.empty = true;
 
-        if (asset.nodes) {
-            // already loaded
-            nodesTemplate();
-        } else {
-            // loading
-            var loading = editor.call('attributes:addField', {
-                type: 'progress'
-            });
-            loading.on('progress:100', function() {
-                this.destroy();
-            });
+                    this.empty = false;
 
-            // once loaded
-            asset.once('nodes:set', nodesTemplate);
+                    var asset = editor.call('assets:get', value);
 
-            // load data
-            Ajax
-            .get('{{url.api}}/' + asset.file.url)
-            .on('load', function(status, data) {
-                var nodes = [ ];
-                for(var i = 0; i < data.model.nodes.length; i++) {
-                    if (data.model.nodes[i].name === 'RootNode')
-                        continue;
+                    if (! asset)
+                        return this.image = '';
 
-                    nodes.push(data.model.nodes[i].name);
-                }
-                asset.set('nodes', nodes);
+                    if (asset.thumbnails) {
+                        this.image = config.url.home + asset.thumbnails.m;
+                    } else {
+                        this.image = '';
+                    }
+                });
 
-                loading.progress = 1;
-            })
-            .on('progress', function(progress) {
-                loading.progress = .1 + progress * .8;
-            })
-            .on('error', function() {
-                loading.failed = true;
-                panelNodes.destroy();
+                // call picker
+                fieldMaterial.on('click', function() {
+                    pickMaterial(fieldMaterial.value, function(assetId) {
+                        fieldMaterial.value = assetId;
+                    });
+                });
 
-                var error = new ui.Label({ text: 'failed loading data' });
-                error.textContent = 'failed loading data';
-                error.style.display = 'block';
-                error.style.textAlign = 'center';
-                error.style.fontWeight = '100';
-                error.style.fontSize = '12px';
-                error.style.color = '#f66';
-                editor.call('attributes.rootPanel').append(error);
+                // link field
+                fieldMaterial.link(asset, 'data.mapping.' + i + '.material');
+                fieldMaterial.parent = fieldNode;
+                fieldNode.element.appendChild(fieldMaterial.element);
 
-                loading.progress = 1;
-            })
+                // append to list
+                nodesList.append(fieldNode);
+            };
 
-            loading.progress = .1;
+            // create node fields
+            for(var i = 0; i < asset.data.mapping.length; i++) {
+                createNodeField(i);
+            }
+
+            // template nodes
+            var nodesTemplate = function() {
+                asset.nodes.forEach(function(nodeName, i) {
+                    if (! nodeItems[i])
+                        return;
+
+                    nodeItems[i].text = nodeName;
+                });
+                // panelNodes.hidden = false;
+            };
+
+            if (asset.nodes) {
+                // already loaded
+                nodesTemplate();
+            } else {
+                // loading
+                var loading = editor.call('attributes:addField', {
+                    type: 'progress'
+                });
+                loading.on('progress:100', function() {
+                    this.destroy();
+                });
+
+                // once loaded
+                asset.once('nodes:set', nodesTemplate);
+
+                // load data
+                Ajax
+                .get('{{url.api}}/' + asset.file.url)
+                .on('load', function(status, data) {
+                    var nodes = [ ];
+                    for(var i = 0; i < data.model.nodes.length; i++) {
+                        if (data.model.nodes[i].name === 'RootNode')
+                            continue;
+
+                        nodes.push(data.model.nodes[i].name);
+                    }
+                    asset.set('nodes', nodes);
+
+                    loading.progress = 1;
+                })
+                .on('progress', function(progress) {
+                    loading.progress = .1 + progress * .8;
+                })
+                .on('error', function() {
+                    loading.failed = true;
+                    panelNodes.destroy();
+
+                    var error = new ui.Label({ text: 'failed loading data' });
+                    error.textContent = 'failed loading data';
+                    error.style.display = 'block';
+                    error.style.textAlign = 'center';
+                    error.style.fontWeight = '100';
+                    error.style.fontSize = '12px';
+                    error.style.color = '#f66';
+                    editor.call('attributes.rootPanel').append(error);
+
+                    loading.progress = 1;
+                })
+
+                loading.progress = .1;
+            }
         }
     });
 });

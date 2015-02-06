@@ -183,12 +183,14 @@ a:visited {
     &.selectable {
         &:hover {
             border-color: $bcg-darker;
-            box-shadow: 0 0 4px rgba(0, 0, 0, .5);
         }
         > .ui-list-item {
             &:hover {
                 color: $text-active;
+                box-shadow: 0 0 4px rgba(0, 0, 0, .5);
                 background-color: mix($bcg-primary, $bcg-dark, 50%);
+                position: relative;
+                z-index: 1;
             }
         }
     }

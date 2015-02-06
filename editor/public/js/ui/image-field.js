@@ -22,7 +22,7 @@ function ImageField(args) {
     }, false);
     this.element.appendChild(this.elementClear);
 
-    this._value = 0;
+    this._value = null;
 
     this.on('change', function() {
         if (! this.renderChanges)
@@ -84,7 +84,7 @@ Object.defineProperty(ImageField.prototype, 'value', {
             if (! this._link.set(this.path, value))
                 this._value = this._link.get(this.path)
         } else {
-            value = parseInt(value, 10) || 0;
+            value = (value && parseInt(value, 10)) || null;
             if (this._value === value)
                 return;
 

@@ -62,6 +62,7 @@ editor.once('load', function() {
         // TODO
         // ability to add new assets
         var fieldAssetsList = new ui.List();
+        // fieldAssetsList.selectable = false;
         fieldAssetsList.flexGrow = 1;
 
         var fieldAssets = editor.call('attributes:addField', {
@@ -70,17 +71,102 @@ editor.once('load', function() {
             type: 'element',
             element: fieldAssetsList
         });
+        fieldAssets.class.add('animation-assets');
+
+        // assets list
+        var itemAdd = new ui.ListItem({
+            text: 'Add Animation'
+        });
+        itemAdd.class.add('add-asset');
+        fieldAssetsList.append(itemAdd);
+
+        // add asset icon
+        var iconAdd = document.createElement('span');
+        iconAdd.classList.add('icon');
+        itemAdd.element.appendChild(iconAdd);
+
+        // index list items by asset id
+        var animationAssetItems = { };
+
+        // add asset
+        var addAsset = function(assetId, after) {
+            var assetAnimation = editor.call('assets:get', assetId);
+            var item = new ui.ListItem({
+                text: (assetAnimation && assetAnimation.name) || assetId
+            });
+
+            if (after) {
+                fieldAssetsList.appendAfter(item, after);
+            } else {
+                fieldAssetsList.append(item);
+            }
+
+            animationAssetItems[assetId] = item;
+
+            // remove button
+            var btnRemove = new ui.Button();
+            btnRemove.class.add('remove');
+            btnRemove.on('click', function() {
+                entity.remove('components.animation.assets', assetId);
+            });
+            btnRemove.parent = item;
+            item.element.appendChild(btnRemove.element);
+        };
+
+        // on adding new animation
+        itemAdd.on('click', function() {
+            // call picker
+            editor.call('picker:asset', 'animation', null);
+
+            // on pick
+            var evtPick = editor.once('picker:asset', function(asset) {
+                // already in list
+                if (entity.components.animation.assets.indexOf(asset.id) !== -1)
+                    return;
+
+                // add to component
+                entity.insert('components.animation.assets', asset.id, 0);
+                evtPick = null;
+            });
+
+            editor.once('picker:asset:close', function() {
+                if (evtPick) {
+                    evtPick.unbind();
+                    evtPick = null;
+                }
+            });
+        });
 
         // animation.assets.list
         var assets = entity.get('components.animation.assets');
         if (assets) {
             for(var i = 0; i < assets.length; i++) {
-                var item = new ui.ListItem({
-                    text: assets[i]
-                });
-                fieldAssetsList.append(item);
+                addAsset(assets[i]);
             }
         }
+        // on asset insert
+        var evtAssetInsert = entity.on('components.animation.assets:insert', function(assetId, ind) {
+            var before;
+            if (ind === 0) {
+                before = itemAdd;
+            } else {
+                before = animationAssetItems[entity.get('components.animation.assets.' + ind)];
+            }
+            addAsset(assetId, before);
+        });
+        // on asset remove
+        var evtAssetRemove = entity.on('components.animation.assets:remove', function(assetId) {
+            if (! animationAssetItems[assetId])
+                return;
+
+            animationAssetItems[assetId].destroy();
+        });
+
+        // clear events
+        fieldAssetsList.once('destroy', function() {
+            evtAssetInsert.unbind();
+            evtAssetRemove.unbind();
+        });
 
         // animation.speed
         var fieldSpeed = editor.call('attributes:addField', {

@@ -77,11 +77,45 @@ ObserverHistory.prototype._initialize = function() {
     });
 
     this.item.on('*:insert', function(path, value, ind) {
+        if (! self._enabled) return;
 
+        // action
+        var data = {
+            name: self._prefix + path,
+            undo: function() {
+                self._enabled = false;
+                self.item.remove(path, value);
+                self._enabled = true;
+            },
+            redo: function() {
+                self._enabled = false;
+                self.item.insert(path, value, ind);
+                self._enabled = true;
+            }
+        };
+
+        self.emit('record', 'add', data);
     });
 
     this.item.on('*:remove', function(path, value, ind) {
+        if (! self._enabled) return;
 
+        // action
+        var data = {
+            name: self._prefix + path,
+            undo: function() {
+                self._enabled = false;
+                self.item.insert(path, value, ind);
+                self._enabled = true;
+            },
+            redo: function() {
+                self._enabled = false;
+                self.item.remove(path, value);
+                self._enabled = true;
+            }
+        };
+
+        self.emit('record', 'add', data);
     });
 
     this.item.on('*:move', function(path, value, ind, indOld) {

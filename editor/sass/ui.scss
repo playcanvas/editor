@@ -68,6 +68,11 @@ a:visited {
 }
 
 
+.ui-canvas {
+    @extend .noSelect;
+}
+
+
 .ui-panel {
     position: relative;
     background-color: #222;

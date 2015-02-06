@@ -393,6 +393,9 @@ Observer.prototype.insert = function(path, value, ind) {
 
     var arr = node.__data[key];
 
+    if (arr.indexOf(value) !== -1)
+        return false;
+
     if (ind === undefined) {
         arr.push(value);
         ind = arr.length - 1;

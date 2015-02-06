@@ -55,7 +55,13 @@ ContainerElement.prototype.appendAfter = function(element, reference) {
     if (reference instanceof ui.Element)
         reference = reference.element;
 
-    this._innerElement.insertBefore(node, reference);
+    reference = reference.nextSibling;
+
+    if (reference) {
+        this._innerElement.insertBefore(node, reference);
+    } else {
+        this._innerElement.appendChild(node);
+    }
 
     if (! html) {
         element.parent = this;

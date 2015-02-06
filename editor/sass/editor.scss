@@ -141,6 +141,36 @@ body {
                 }
             }
         }
+        &.animation-assets {
+            > .add-asset {
+                position: relative;
+
+                > .icon {
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    width: 16px;
+                    height: 16px;
+                    margin: 4px;
+                    background-color: #07f;
+                }
+            }
+            > .ui-list-item {
+                position: relative;
+
+                > .remove {
+                    position: absolute;
+                    display: block;
+                    top: 0;
+                    right: 0;
+                    width: 16px;
+                    height: 16px;
+                    margin: 3px;
+                    padding: 0;
+                    background-color: #07f;
+                }
+            }
+        }
     }
 }
 
@@ -158,6 +188,12 @@ body {
             background-image: url("/editor/scene/img/asset-placeholder-audio.png");
             > .icon {
                 background-image: url("/editor/scene/img/asset-icons/audio.png");
+            }
+        }
+        &.type-cubemap {
+            background-image: url("/editor/scene/img/asset-placeholder-cubemap.png");
+            > .icon {
+                background-image: url("/editor/scene/img/asset-icons/cubemap.png");
             }
         }
         &.type-json {
