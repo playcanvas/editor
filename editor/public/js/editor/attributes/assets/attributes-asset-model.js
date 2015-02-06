@@ -11,21 +11,84 @@ editor.once('load', function() {
         var panelNodes = editor.call('attributes:addPanel', {
             name: 'Nodes'
         });
-        panelNodes.hidden = true;
+        // panelNodes.hidden = true;
 
         // nodes list
         var nodesList = new ui.List();
+        nodesList.selectable = false;
+        nodesList.class.add('model-nodes');
         panelNodes.append(nodesList);
+
+
+        var pickMaterial = function(assetId, fn) {
+            var asset = editor.call('assets:get', assetId);
+            editor.call('picker:asset', 'material', asset);
+
+            var evtPick = editor.once('picker:asset', function(asset) {
+                fn(asset.id);
+                evtPick = null;
+            });
+
+            editor.once('picker:asset:close', function() {
+                if (evtPick) {
+                    evtPick.unbind();
+                    evtPick = null;
+                }
+            });
+        };
+
+        var nodeItems = [ ];
+
+        for(var i = 0; i < asset.data.mapping.length; i++) {
+            var fieldNode = new ui.ListItem({
+                text: 'node ' + i
+            });
+            nodeItems[i] = fieldNode;
+
+            // material picker
+            var fieldMaterial = new ui.ImageField();
+
+            fieldMaterial.on('change', function(value) {
+                if (! value)
+                    return this.empty = true;
+
+                this.empty = false;
+
+                var asset = editor.call('assets:get', value);
+
+                if (! asset)
+                    return this.image = '';
+
+                if (asset.thumbnails) {
+                    this.image = config.url.home + asset.thumbnails.m;
+                } else {
+                    this.image = '';
+                }
+            });
+
+            fieldMaterial.on('click', function() {
+                pickMaterial(fieldMaterial.value, function(assetId) {
+                    fieldMaterial.value = assetId;
+                });
+            });
+
+            fieldMaterial.link(asset, 'data.mapping.' + i + '.material');
+            fieldMaterial.parent = fieldNode;
+            fieldNode.element.appendChild(fieldMaterial.element);
+
+            nodesList.append(fieldNode);
+        }
+
 
         // template nodes
         var nodesTemplate = function() {
-            asset.nodes.forEach(function(nodeName) {
-                var item = new ui.ListItem({
-                    text: nodeName
-                });
-                nodesList.append(item);
+            asset.nodes.forEach(function(nodeName, i) {
+                if (! nodeItems[i])
+                    return;
+
+                nodeItems[i].text = nodeName;
             });
-            panelNodes.hidden = false;
+            // panelNodes.hidden = false;
         };
 
         if (asset.nodes) {

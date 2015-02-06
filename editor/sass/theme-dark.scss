@@ -180,9 +180,17 @@ a:visited {
     &.flash {
         @extend .ui-flash;
     }
-    &:hover {
-        border-color: $bcg-darker;
-        box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+    &.selectable {
+        &:hover {
+            border-color: $bcg-darker;
+            box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+        }
+        > .ui-list-item {
+            &:hover {
+                color: $text-active;
+                background-color: mix($bcg-primary, $bcg-dark, 50%);
+            }
+        }
     }
 }
 
@@ -190,10 +198,6 @@ a:visited {
     background-color: $bcg-dark;
     border-color: $bcg-darker;
 
-    &:hover {
-        color: $text-active;
-        background-color: mix($bcg-primary, $bcg-dark, 50%);
-    }
     &.selected {
         background-color: $bcg-dark;
     }

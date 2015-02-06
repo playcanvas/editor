@@ -9,7 +9,10 @@ function ListItem(args) {
 
     this.element = document.createElement('li');
     this.element.classList.add('ui-list-item');
-    this.element.innerHTML = this._text;
+
+    this.elementText = document.createElement('span');
+    this.elementText.textContent = this._text;
+    this.element.appendChild(this.elementText);
 
     this.on('click', this._onClick);
 }
@@ -28,7 +31,7 @@ Object.defineProperty(ListItem.prototype, 'text', {
     set: function(value) {
         if (this._text === value) return;
         this._text = value;
-        this.element.innerHTML = this._text;
+        this.elementText.textContent = this._text;
     }
 });
 

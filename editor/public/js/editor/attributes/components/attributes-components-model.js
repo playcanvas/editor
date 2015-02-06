@@ -86,7 +86,8 @@ editor.once('load', function() {
         var fieldAsset = editor.call('attributes:addField', {
             parent: panel,
             name: 'Asset',
-            type: 'number',
+            type: 'asset',
+            kind: 'model',
             link: entity,
             path: 'components.model.asset'
         });

@@ -62,7 +62,7 @@ editor.once('load', function() {
             if (! gridItem.asset)
                 return true;
 
-            gridItem.enabled = fn(gridItem.asset);
+            gridItem.hidden = ! fn(gridItem.asset);
         });
     });
 

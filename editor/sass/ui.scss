@@ -328,11 +328,26 @@ a:visited {
     &.disabled {
         opacity: $disabled-opacity;
     }
+
+    &.selectable {
+        > .ui-list-item {
+            cursor: pointer;
+
+            &.disabled {
+                &:hover {
+                    background-color: transparent;
+                }
+            }
+            &:hover {
+                background-color: rgba(#07f, 0.1);
+            }
+        }
+    }
 }
 
 .ui-list-item {
     @extend .fieldFont;
-    cursor: pointer;
+    cursor: default;
     padding: 0 8px;
     height: 24px;
     line-height: 24px;
@@ -347,15 +362,9 @@ a:visited {
         cursor: default;
         opacity: $disabled-opacity;
 
-        &:hover {
-            background-color: transparent;
-        }
         &.selected {
             background-color: #07f;
         }
-    }
-    &:hover {
-        background-color: rgba(#07f, 0.1);
     }
     &.selected {
         background-color: #07f;

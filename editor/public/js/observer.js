@@ -32,7 +32,7 @@ Observer.prototype._prepare = function(target, key, value) {
 
     if (type === 'object' && (value instanceof Array)) {
         var changed = false;
-        var oldData = target.__data[key] && target.__data[key].slice(0) || [ ];
+        var oldData = (target.__data[key] && ((target.__data[key] instanceof ObserverList && target.__data[key].json()) || target.__data[key].slice(0))) || [ ];
 
         if (value.length === 0) {
             if (! target.__data[key] || target.__data[key].length !== 0) {

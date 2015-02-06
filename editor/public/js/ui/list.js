@@ -1,10 +1,12 @@
 "use strict";
 
-function List() {
+function List(args) {
+    args = args || { };
     ui.ContainerElement.call(this);
 
     this.element = document.createElement('ul');
     this.element.classList.add('ui-list');
+    this.selectable = args.selectable !== undefined ? args.selectable : true;
 
     this.on('select', this._onSelect);
 }
@@ -23,6 +25,24 @@ List.prototype._onSelect = function(item) {
         }
     }
 };
+
+
+Object.defineProperty(List.prototype, 'selectable', {
+    get: function() {
+        return this._selectable;
+    },
+    set: function(value) {
+        if (this._selectable === !! value)
+            return;
+
+        this._selectable = value;
+        if (this._selectable) {
+            this.class.add('selectable');
+        } else {
+            this.class.remove('selectable');
+        }
+    }
+})
 
 
 Object.defineProperty(List.prototype, 'selected', {

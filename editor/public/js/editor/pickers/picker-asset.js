@@ -5,7 +5,7 @@ editor.once('load', function() {
     var selectorList = null;
 
     var overlay = new ui.Overlay();
-    overlay.class.add('picker-texture');
+    overlay.class.add('picker-asset');
     overlay.center = false;
     // overlay.transparent = true;
     overlay.hidden = true;
@@ -14,8 +14,9 @@ editor.once('load', function() {
     root.append(overlay);
 
     // initial select state
+    var currentType = '';
+    var currentAsset = null;
     var gridSelected = null;
-    var currentTexture = null;
     var assetsPanelFolded = false;
     // elements
     var assetsGrid = editor.call('assets:grid');
@@ -23,7 +24,7 @@ editor.once('load', function() {
 
 
     assetsGrid.on('deselect', function(item) {
-        if (overlay.hidden || ! item.asset || item.asset !== currentTexture)
+        if (overlay.hidden || ! item.asset || item.asset !== currentAsset)
             return;
 
         this.selected = [ item ];
@@ -31,18 +32,18 @@ editor.once('load', function() {
 
     // picked asset
     assetsGrid.on('select', function(item) {
-        if (overlay.hidden || ! item.asset || item.asset.type !== 'texture' || item.asset === currentTexture)
+        if (overlay.hidden || ! item.asset || item.asset.type !== currentType || item.asset === currentAsset)
             return;
 
         // emit event
-        editor.emit('picker:texture', item.asset);
+        editor.emit('picker:asset', item.asset);
 
         // hide picker
         overlay.hidden = true;
     });
 
 
-    // on close texture picker
+    // on close asset picker
     overlay.on('hide', function() {
         // show all assets back
         editor.call('assets:panel:filter', function(asset) {
@@ -56,29 +57,30 @@ editor.once('load', function() {
         // disable selector
         editor.call('selector:enabled', true);
         // emit event
-        editor.emit('picker:texture:close');
+        editor.emit('picker:asset:close');
     });
 
 
-    // open texture picker
-    editor.method('picker:texture', function(asset) {
-        // show only texture assets
+    // open asset picker
+    editor.method('picker:asset', function(type, asset) {
+        // show only asset assets
         editor.call('assets:panel:filter', function(item) {
-            return item.type === 'texture';
+            return item.type === type;
         });
         // disable selector
         editor.call('selector:enabled', false);
         // initial grid selected items
         gridSelected = assetsGrid.selected;
-        // find current texture
-        currentTexture = asset;
-        if (currentTexture) {
-            var gridItem = assetsGrid.assetsIndex[currentTexture.id];
+        // find current asset
+        currentType = type;
+        currentAsset = asset;
+        if (currentAsset) {
+            var gridItem = assetsGrid.assetsIndex[currentAsset.id];
             // select in grid
             if (gridItem)
                 assetsGrid.selected = [ gridItem ];
         }
-        // show texture panel in front
+        // show asset panel in front
         assetsPanel.style.zIndex = 102;
         // if panel folded?
         assetsPanelFolded = assetsPanel.folded;
@@ -91,8 +93,8 @@ editor.once('load', function() {
     });
 
 
-    // close texture picker
-    editor.method('picker:texture:close', function() {
+    // close asset picker
+    editor.method('picker:asset:close', function() {
         // hide overlay
         overlay.hidden = true;
     });

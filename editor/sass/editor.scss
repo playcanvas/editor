@@ -117,11 +117,28 @@ body {
             text-overflow: ellipsis;
             white-space: nowrap;
         }
-        &.field-texture {
+        &.field-asset {
             > .content > .ui-image-field {
                 background-image: url("http://playcanvas.dev/editor/scene/img/asset-placeholder-texture.png");
                 background-size: 64px 64px;
                 background-repeat: no-repeat;
+            }
+        }
+    }
+    .ui-list {
+        &.model-nodes {
+            > .ui-list-item {
+                height: auto;
+                line-height: 34px;
+                padding-right: 0;
+                overflow: hidden;
+
+                > .ui-image-field {
+                    float: right;
+                    background-image: url("http://playcanvas.dev/editor/scene/img/asset-placeholder-texture.png");
+                    background-size: 64px 64px;
+                    background-repeat: no-repeat;
+                }
             }
         }
     }

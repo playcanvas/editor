@@ -48,13 +48,25 @@ Object.defineProperty(ImageField.prototype, 'image', {
         if (this.elementImage.src === value)
             return;
 
-        if (! value) {
+        this.elementImage.src = value;
+    }
+});
+
+
+Object.defineProperty(ImageField.prototype, 'empty', {
+    get: function() {
+        return this.class.contains('empty');
+    },
+    set: function(value) {
+        if (this.class.contains('empty') === !! value)
+            return;
+
+        if (value) {
             this.class.add('empty');
+            this.image = '';
         } else {
             this.class.remove('empty');
         }
-
-        this.elementImage.src = value;
     }
 });
 

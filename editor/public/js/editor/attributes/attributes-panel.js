@@ -273,20 +273,20 @@ editor.once('load', function() {
                 panel.append(field);
 
                 return field;
-            case 'texture':
+            case 'asset':
                 var field = new ui.ImageField();
                 var evtPick;
 
                 field.on('click', function() {
                     var asset = editor.call('assets:get', this.value);
-                    editor.call('picker:texture', asset);
+                    editor.call('picker:asset', args.kind, asset);
 
-                    evtPick = editor.once('picker:texture', function(asset) {
+                    evtPick = editor.once('picker:asset', function(asset) {
                         field.value = asset.id;
                         evtPick = null;
                     });
 
-                    editor.once('picker:texture:close', function() {
+                    editor.once('picker:asset:close', function() {
                         if (evtPick) {
                             evtPick.unbind();
                             evtPick = null;
@@ -296,7 +296,9 @@ editor.once('load', function() {
 
                 field.on('change', function(value) {
                     if (! value)
-                        return field.image = '';
+                        return field.empty = true;
+
+                    field.empty = false;
 
                     var asset = editor.call('assets:get', value);
 
