@@ -833,6 +833,7 @@ a:visited {
 
     &.disabled {
         opacity: $disabled-opacity;
+        cursor: default;
     }
     > .color {
         display: block;
@@ -869,6 +870,10 @@ a:visited {
     border: 1px solid #666;
     cursor: pointer;
 
+    &.disabled {
+        opacity: $disabled-opacity;
+        cursor: default;
+    }
     &:hover {
         > .clear {
             display: block;
@@ -897,6 +902,11 @@ a:visited {
         background-color: #07f;
         border-bottom: 1px solid #666;
         border-left: 1px solid #666;
+    }
+    &.disabled {
+        > .clear {
+            display: none;
+        }
     }
     &:after {
         content: '\00a0';

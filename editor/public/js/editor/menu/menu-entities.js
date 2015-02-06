@@ -44,6 +44,9 @@ editor.once('load', function() {
 
     // shortcuts
     window.addEventListener('keyup', function (e) {
+        if (e.target && e.target.tagName.toLowerCase() === 'input' || ! editor.call('permissions:write'))
+            return;
+
         // D key
         if (e.keyCode === 68) {
             duplicateEntity();

@@ -191,6 +191,12 @@ TreeItem.prototype._onClick = function(evt) {
 
 
 TreeItem.prototype._onDragStart = function(evt) {
+    if (this.disabled) {
+        evt.stopPropagation();
+        evt.preventDefault();
+        return;
+    }
+
     this._dragging = true;
 
     if (this._dragRelease)

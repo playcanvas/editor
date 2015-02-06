@@ -322,14 +322,28 @@ editor.once('load', function() {
         });
 
 
-        // spawnBounds
+        // emitterShape
+        var fieldEmitterShape = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Emmiter Shape',
+            type: 'number',
+            enum: {
+                0: 'Box',
+                1: 'Sphere'
+            },
+            link: entity,
+            path: 'components.particlesystem.emitterShape'
+        });
+
+
+        // emitterExtents
         var fieldSpawnBounds = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Spawn Bounds',
+            name: 'Emmiter Extents',
             placeholder: [ 'X', 'Y', 'Z' ],
             type: 'vec3',
             link: entity,
-            path: 'components.particlesystem.spawnBounds'
+            path: 'components.particlesystem.emitterExtents'
         });
 
 

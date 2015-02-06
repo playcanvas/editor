@@ -58,11 +58,11 @@ editor.once('load', function() {
 
     // filter assets in grid
     editor.method('assets:panel:filter', function(fn) {
-        grid.filter(function(gridItem) {
+        grid.forEach(function(gridItem) {
             if (! gridItem.asset)
                 return true;
 
-            return fn(gridItem.asset);
+            gridItem.enabled = fn(gridItem.asset);
         });
     });
 

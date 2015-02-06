@@ -15,6 +15,8 @@ function ImageField(args) {
     this.elementClear = document.createElement('span');
     this.elementClear.classList.add('clear');
     this.elementClear.addEventListener('click', function(evt) {
+        if (self.disabled)
+            return;
         self.value = 0;
         evt.stopPropagation();
     }, false);
