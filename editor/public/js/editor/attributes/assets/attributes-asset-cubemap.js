@@ -91,13 +91,7 @@ editor.once('load', function() {
         previewPanel.class.add('cubemap-viewport');
 
 
-        // // cubemap viewport element
-        // var cubemapViewport = document.createElement('div');
-        // cubemapViewport.classList.add('cubemap-viewport');
-        // previewPanel.append(cubemapViewport);
-
-        var faces = [ ];
-
+        // faces
         var sides = {
             2: 'top',
             1: 'left',
@@ -107,6 +101,7 @@ editor.once('load', function() {
             3: 'bottom'
         };
         var side = [ 2, 1, 4, 0, 5, 3 ];
+        var faces = [ ];
 
         // set face texture
         var setTexture = function(face, assetId) {

@@ -133,9 +133,8 @@ editor.once('load', function() {
                 })
                 .on('error', function() {
                     loading.failed = true;
-                    panelNodes.destroy();
 
-                    var error = new ui.Label({ text: 'failed loading data' });
+                    var error = new ui.Label({ text: 'failed loading detailed data' });
                     error.textContent = 'failed loading data';
                     error.style.display = 'block';
                     error.style.textAlign = 'center';
