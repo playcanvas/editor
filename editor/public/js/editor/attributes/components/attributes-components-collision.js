@@ -139,13 +139,16 @@ editor.once('load', function() {
         var fieldAsset = editor.call('attributes:addField', {
             parent: panel,
             name: 'Asset',
-            type: 'number',
+            type: 'asset',
+            kind: 'model',
             link: entity,
             path: 'components.collision.asset'
         });
         fieldAsset.parent.hidden = entity.get('components.collision.type') !== 'mesh';
         fieldType.on('change', function(value) {
             fieldAsset.parent.hidden = value !== 'mesh';
+            if (fieldAsset.parent.hidden)
+                fieldAsset.value = null;
         });
     });
 });

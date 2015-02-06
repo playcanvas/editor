@@ -78,7 +78,12 @@ editor.once('load', function() {
         });
         fieldType.on('change', function(value) {
             fieldAsset.parent.hidden = value !== 'asset';
+            if (fieldAsset.parent.hidden)
+                fieldAsset.value = null;
+
             fieldMaterial.parent.hidden = value === 'asset';
+            if (fieldMaterial.parent.hidden)
+                fieldMaterial.value = null;
         });
 
 
@@ -98,7 +103,8 @@ editor.once('load', function() {
         var fieldMaterial = editor.call('attributes:addField', {
             parent: panel,
             name: 'Material',
-            type: 'number',
+            type: 'asset',
+            kind: 'material',
             link: entity,
             path: 'components.model.materialAsset'
         });
