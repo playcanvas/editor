@@ -132,7 +132,7 @@ editor.once('load', function() {
             placeholder: 'Inner',
             type: 'number',
             link: entity,
-            path: 'components.lught.innerConeAngle'
+            path: 'components.light.innerConeAngle'
         });
         fieldInnerConeAngle.style.width = '32px';
 
