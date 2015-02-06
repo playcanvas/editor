@@ -157,12 +157,11 @@ Object.defineProperty(SelectField.prototype, 'value', {
             this._link.set(this.path, value);
         } else {
             if (this._value === value) return;
-            if (this.options[value] === undefined) return;
+            if (value !== null && this.options[value] === undefined) return;
 
             // deselect old one
-            if (this.optionElements[this._oldValue]) {
+            if (this.optionElements[this._oldValue])
                 this.optionElements[this._oldValue].classList.remove('selected');
-            }
 
             this._value = value;
             if (this._number)
@@ -170,8 +169,12 @@ Object.defineProperty(SelectField.prototype, 'value', {
 
             this.emit('change:before', this._value);
             this._oldValue = this._value;
-            this.elementValue.textContent = this.options[this._value];
-            this.optionElements[this._value].classList.add('selected');
+            if (this.options[this._value]) {
+                this.elementValue.textContent = this.options[this._value];
+                this.optionElements[this._value].classList.add('selected');
+            } else {
+                this.elementValue.textContent = '';
+            }
             this.emit('change', this._value);
         }
     }

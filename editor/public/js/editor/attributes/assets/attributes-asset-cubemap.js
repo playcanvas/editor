@@ -2,126 +2,6 @@ editor.once('load', function() {
     'use strict';
 
 
-    // reusable cubemap preview class
-    // use single instance instead of recreating it
-    function CubeMapPreview() {
-        this.canvas = document.createElement('canvas');
-
-        // styling
-        this.canvas.style.backgroundColor = '#000';
-        this.canvas.style.display = 'block';
-        this.canvas.style.width = '100%';
-        this.canvas.style.minHeight = '32px';
-
-        // size of image
-        this.imageSize = 32;
-
-        // context
-        this.ctx = this.canvas.getContext('2d');
-
-        // blank image
-        this.imageBlank = new Image();
-        this.imageBlank.src = '/editor/scene/img/asset-placeholder-texture.png';
-
-        // images
-        this.images = [ ];
-        for(var i = 0; i < 6; i++) {
-            this.images[i] = new Image();
-            this.images[i].onload = this.draw.bind(this);
-        }
-
-        // asset
-        this.assetOnSet = null;
-
-        // positions
-        this.positions = [
-            [ 2, 1 ], // right
-            [ 0, 1 ], // left
-            [ 1, 0 ], // top
-            [ 1, 2 ], // bottom
-            [ 1, 1 ], // front
-            [ 3, 1 ] // back
-        ];
-    }
-
-    // remove bindings and from DOM
-    CubeMapPreview.prototype.unparent = function() {
-        if (this.assetOnSet)
-            this.assetOnSet.unbind();
-
-        if (this.canvas.parentNode)
-            this.canvas.parentNode.removeChild(this.canvas);
-
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        for(var i = 0; i < 6; i++) {
-            this.images[i].src = '';
-        }
-    };
-
-    // draw canvas
-    CubeMapPreview.prototype.draw = function() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        for(var i = 0; i < 6; i++) {
-            this.ctx.drawImage(this.imageBlank, this.positions[i][0] * this.imageSize, this.positions[i][1] * this.imageSize, this.imageSize, this.imageSize);
-            this.ctx.drawImage(this.images[i], this.positions[i][0] * this.imageSize, this.positions[i][1] * this.imageSize, this.imageSize, this.imageSize);
-        }
-    };
-
-    // resize
-    CubeMapPreview.prototype.resize = function() {
-        this.imageSize = Math.floor(this.canvas.clientWidth / 4);
-        this.canvas.width = this.imageSize * 4;
-        this.canvas.height = this.imageSize * 3;
-    };
-
-    // load data from asset and bind to changes
-    CubeMapPreview.prototype.load = function(asset) {
-        if (this.assetOnSet)
-            this.assetOnSet.unbind();
-
-        this.assetOnSet = asset.on('*:set', function(path, value) {
-            if (path.indexOf('data.textures.') !== 0)
-                return;
-
-            var ind = parseInt(path.slice('data.textures.'.length), 10);
-            this.loadImage(ind, value);
-            this.draw();
-        }.bind(this));
-
-        for(var i = 0; i < 6; i++) {
-            var id = asset.get('data.textures.' + i);
-            // no texture set
-            if (! id) {
-                this.images[i].src = '';
-                continue;
-            }
-
-            this.loadImage(i, id);
-        }
-
-        this.draw();
-    };
-
-    // load specific image
-    CubeMapPreview.prototype.loadImage = function(i, id) {
-        var texture = editor.call('assets:get', id);
-        // no texture found
-        if (! texture || texture.type !== 'texture' || ! texture.get('file.url')) {
-            this.images[i].src = '';
-            return;
-        }
-        // set image src
-        this.images[i].src = config.url.api + '/' + texture.file.url;
-    };
-
-
-    // preview instance
-    var preview = new CubeMapPreview();
-
-
-
     editor.on('attributes:inspect[asset]', function(assets) {
         if (assets.length !== 1 || assets[0].type !== 'cubemap')
             return;
@@ -203,103 +83,104 @@ editor.once('load', function() {
         });
 
 
-        // textures
-        var texturesPanel = editor.call('attributes:addPanel', {
-            parent: paramsPanel,
-            name: 'Textures'
-        });
-
-
-        // pos_x
-        var fieldPosX = editor.call('attributes:addField', {
-            parent: texturesPanel,
-            type: 'asset',
-            kind: 'texture',
-            name: 'Right',
-            link: asset,
-            path: 'data.textures.0'
-        });
-
-        // neg_x
-        var fieldNegX = editor.call('attributes:addField', {
-            parent: texturesPanel,
-            type: 'asset',
-            kind: 'texture',
-            name: 'Left',
-            link: asset,
-            path: 'data.textures.1'
-        });
-
-        // pos_y
-        var fieldPosY = editor.call('attributes:addField', {
-            parent: texturesPanel,
-            type: 'asset',
-            kind: 'texture',
-            name: 'Top',
-            link: asset,
-            path: 'data.textures.2'
-        });
-
-        // pos_x
-        var fieldNegY = editor.call('attributes:addField', {
-            parent: texturesPanel,
-            type: 'asset',
-            kind: 'texture',
-            name: 'Bottom',
-            link: asset,
-            path: 'data.textures.3'
-        });
-
-        // pos_z
-        var fieldPosZ = editor.call('attributes:addField', {
-            parent: texturesPanel,
-            type: 'asset',
-            kind: 'texture',
-            name: 'Front',
-            link: asset,
-            path: 'data.textures.4'
-        });
-
-        // neg_z
-        var fieldNegZ = editor.call('attributes:addField', {
-            parent: texturesPanel,
-            type: 'asset',
-            kind: 'texture',
-            name: 'Back',
-            link: asset,
-            path: 'data.textures.5'
-        });
-
-
         // preview
         var previewPanel = editor.call('attributes:addPanel', {
             parent: paramsPanel,
             name: 'Preview'
         });
+        previewPanel.class.add('cubemap-viewport');
 
-        // preview canvas
-        previewPanel.append(preview.canvas);
-        preview.resize();
-        preview.load(asset);
 
-        // periodical redraw on resizing
-        var resizing = false;
-        var resizedRedraw = function() {
-            resizing = false;
-            preview.resize();
-            preview.draw();
+        // // cubemap viewport element
+        // var cubemapViewport = document.createElement('div');
+        // cubemapViewport.classList.add('cubemap-viewport');
+        // previewPanel.append(cubemapViewport);
+
+        var faces = [ ];
+
+        var sides = {
+            2: 'top',
+            1: 'left',
+            4: 'front',
+            0: 'right',
+            5: 'back',
+            3: 'bottom'
         };
-        var evtResize = editor.call('attributes.rootPanel').on('resize', function() {
-            if (resizing) return;
-            resizing = true;
-            setTimeout(resizedRedraw, 200);
-        });
+        var side = [ 2, 1, 4, 0, 5, 3 ];
 
-        // clear bindings
+        // set face texture
+        var setTexture = function(face, assetId) {
+            if (! assetId) {
+                face.style.backgroundImage = '';
+                face.classList.add('empty');
+            } else {
+                var texture = editor.call('assets:get', assetId);
+                if (texture && texture.type === 'texture' && texture.get('file.url')) {
+                    face.classList.remove('empty');
+                    face.style.backgroundImage = 'url("' + config.url.api + '/' + texture.file.url + '")';
+                } else {
+                    face.classList.add('empty');
+                    face.style.backgroundImage = '';
+                }
+            }
+        };
+
+        // create eface
+        var createFace = function(ind) {
+            // create face element
+            var face = faces[ind] = document.createElement('div');
+            face.classList.add('face', 'face-' + sides[ind]);
+            previewPanel.append(face);
+
+            // on face click
+            face.addEventListener('click', function() {
+
+                var texture = asset.get('data.textures.' + ind);
+                editor.call('picker:asset', 'texture', texture);
+
+                var evtPick = editor.once('picker:asset', function(texture) {
+                    asset.set('data.textures.' + ind, texture.id);
+                    evtPick = null;
+                });
+
+                editor.once('picker:asset:close', function() {
+                    if (evtPick) {
+                        evtPick.unbind();
+                        evtPick = null;
+                    }
+                });
+            }, false);
+
+            // clear button
+            var faceClear = document.createElement('div');
+            faceClear.classList.add('clear');
+            face.appendChild(faceClear);
+
+            // on clear click
+            faceClear.addEventListener('click', function(evt) {
+                evt.stopPropagation();
+                asset.set('data.textures.' + ind, null);
+                face.classList.add('empty');
+            }, false);
+
+            // load texture asset
+            setTexture(face, asset.get('data.textures.' + ind));
+
+            // bind to changes
+            face.evt = asset.on('data.textures.' + ind + ':set', function(value) {
+                setTexture(face, value);
+            });
+        }
+
+        // create all faces
+        for(var i = 0; i < side.length; i++)
+            createFace(side[i]);
+
+        // on destroy
         previewPanel.on('destroy', function() {
-            evtResize.unbind();
-            evtUpdateMinMip.unbind();
-            preview.unparent();
+            // unbind events
+            for(var i = 0; i < faces.length; i++)
+                faces[i].evt.unbind();
         });
     });
 });

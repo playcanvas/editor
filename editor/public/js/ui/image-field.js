@@ -17,7 +17,7 @@ function ImageField(args) {
     this.elementClear.addEventListener('click', function(evt) {
         if (self.disabled)
             return;
-        self.value = 0;
+        self.value = null;
         evt.stopPropagation();
     }, false);
     this.element.appendChild(this.elementClear);

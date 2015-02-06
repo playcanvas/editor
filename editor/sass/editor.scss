@@ -1,8 +1,10 @@
 html {
     height: 100%;
+    overflow: hidden;
 }
 body {
     min-height: 100%;
+    height: 100%;
     overflow: hidden;
     margin: 0;
     background-color: #333;
@@ -10,6 +12,19 @@ body {
     color: #eee;
     font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
 }
+
+$bcg-primary: #323f42;
+$bcg-secondary: #364346;
+$bcg-dark: #293538;
+$bcg-darker: #20292b;
+$bcg-light: #5f6f72;
+
+$text-dark: #97aeb2;
+$text-primary: #eee;
+$text-light: #fff;
+$text-active: #6bc26f;
+
+$disabled-opacity: .4;
 
 .noSelect {
     -webkit-touch-callout: none;
@@ -169,6 +184,61 @@ body {
                     padding: 0;
                     background-color: #07f;
                 }
+            }
+        }
+    }
+    .cubemap-viewport {
+        > .content {
+            padding: 4px;
+            overflow: hidden;
+            background-color: $bcg-darker;
+
+            > .face {
+                position: relative;
+                float: left;
+                width: 25%;
+                height: 0px;
+                cursor: pointer;
+                padding-bottom: 25%;
+
+                background-image: url("http://playcanvas.dev/editor/scene/img/asset-placeholder-texture.png");
+                background-position: center center;
+                background-repeat: no-repeat;
+                background-size: 100% 100%;
+                background-color: #07f;
+
+                &:hover {
+                    outline: $text-active 1px solid;
+                    box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+                    z-index: 1;
+
+                    > .clear {
+                        display: block;
+                    }
+                }
+                &.empty {
+                    > .clear {
+                        display: none;
+                    }
+                }
+                > .clear {
+                    display: none;
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    width: 16px;
+                    height: 16px;
+                    background-color: #07f;
+                    cursor: pointer;
+                }
+            }
+            > .face-top {
+                margin-left: 25%;
+                margin-right: 50%;
+            }
+            > .face-bottom {
+                margin-left: 25%;
+                margin-right: 50%;
             }
         }
     }

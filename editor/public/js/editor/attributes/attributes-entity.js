@@ -67,13 +67,13 @@ editor.once('load', function() {
         // return an enum for a select field showing all the
         // components that are not currently added to the entity
         var createComponentEnum = function () {
-            var result = {'': ''};
+            var result = { };
 
-            allComponents.filter(function (component) {
-                return !entity.components[component];
+            allComponents.filter(function (item) {
+                return ! entity.components[item];
             })
-            .forEach(function (component) {
-                result[component] = component;
+            .forEach(function (item) {
+                result[item] = item;
             });
 
             return result;
@@ -94,12 +94,12 @@ editor.once('load', function() {
 
         // add component
         addComponent.on('change', function (value) {
-            if (!value) return;
+            if (! value) return;
 
             var componentData = editor.call('components:getDefault', value);
             entity.set('components.' + value, componentData);
             // reset displayed value
-            addComponent.value = '';
+            addComponent.value = null;
         });
 
         var panelJson = editor.call('attributes:addPanel', {

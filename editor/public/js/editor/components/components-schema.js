@@ -160,8 +160,17 @@ editor.once('load', function() {
                 scripts: []
             }
         }
-
     };
+
+    var list = Object.keys(schema).sort(function(a, b) {
+        if (a > b) {
+            return 1;
+        } else if (a < b) {
+            return -1;
+        } else {
+            return 0;
+        }
+    });
 
     editor.method('components:convertValue', function (component, property, value) {
         var result = value;
@@ -189,7 +198,7 @@ editor.once('load', function() {
     });
 
     editor.method('components:list', function () {
-        return Object.keys(schema);
+        return list.slice(0);
     });
 
     editor.method('components:getDefault', function (component) {
