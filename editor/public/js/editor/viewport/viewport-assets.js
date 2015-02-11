@@ -4,37 +4,70 @@ editor.once('load', function() {
     var framework = editor.call('viewport:framework');
     var assetRegistry = framework.context.assets;
 
-
+    // add assets to asset registry
     editor.on('assets:add', function (asset) {
         // do only for target assets
         if (asset.source)
             return;
 
         // raw json data
-        asset = asset.json();
+        var assetJson = asset.json();
 
         // map for material
-        if (asset.type === 'material')
-            asset.data = editor.call('material:mapToList', asset);
+        if (assetJson.type === 'material')
+            assetJson.data = editor.call('material:mapToList', assetJson);
 
         // engine material data
         var data = {
-            id: asset.id,
-            name: asset.name,
-            file: asset.file ? {
-                filename: asset.file.filename,
-                url: asset.file.url,
-                hash: asset.file.hash,
-                size: asset.file.size
+            id: assetJson.id,
+            name: assetJson.name,
+            file: assetJson.file ? {
+                filename: assetJson.file.filename,
+                url: assetJson.file.url,
+                hash: assetJson.file.hash,
+                size: assetJson.file.size
             } : null,
-            data: asset.data,
-            type: asset.type
+            data: assetJson.data,
+            type: assetJson.type
         };
 
         // add to registry
-        assetRegistry.createAndAddAsset(asset.id, data);
+        assetRegistry.createAndAddAsset(assetJson.id, data);
+
+        // attach update handler
+        asset.on('*:set', function (path, value) {
+            var realtimeAsset = assetRegistry.getAssetById(asset.id);
+            var parts = path.split('.');
+            if (parts[0] in realtimeAsset) {
+
+                var data = asset.json();
+
+                if (asset.type === 'material' && parts[0] === 'data') {
+                    data.data = editor.call('material:mapToList', data);
+                }
+
+                // this will trigger the 'update' event on the asset in the engine
+                // handling all resource loading automatically
+                realtimeAsset[parts[0]] = data[parts[0]];
+
+                // re-render
+                editor.call('viewport:render');
+            }
+        });
 
         // render
         editor.call('viewport:render');
     });
+
+    // remove assets from asset registry
+    editor.on('assets:remove', function (asset) {
+        var realtimeAsset = assetRegistry.getAssetById(asset.id);
+        if (realtimeAsset) {
+            assetRegistry.removeAsset(realtimeAsset);
+
+            // re-render
+            editor.call('viewport:render');
+        }
+    });
+
 });
