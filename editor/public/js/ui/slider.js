@@ -78,6 +78,9 @@ Slider.prototype._onMouseDown = function(evt) {
     this.class.add('active');
 
     this._handleEvt(evt);
+
+    if (this._link && this._link.history)
+        this._link.history.combine = true;
 };
 
 
@@ -95,6 +98,9 @@ Slider.prototype._onMouseUp = function(evt) {
 
     window.removeEventListener('mousemove', this.evtMouseMove);
     window.removeEventListener('mouseup', this.evtMouseUp);
+
+    if (this._link && this._link.history)
+        this._link.history.combine = false;
 };
 
 
