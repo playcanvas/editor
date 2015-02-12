@@ -24,6 +24,7 @@ editor.once('load', function() {
         }
 
         editor.call('assets:progress', 1);
+        editor.emit('assets:load');
     };
 
     // load all assets
