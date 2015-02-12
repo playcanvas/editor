@@ -54,6 +54,10 @@ $disabled-opacity: .4;
     > .content {
         overflow: hidden;
         padding: 0 8px;
+
+        > .ui-button {
+            font-size: 12px;
+        }
     }
 }
 
