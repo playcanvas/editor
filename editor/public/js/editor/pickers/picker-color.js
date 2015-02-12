@@ -97,6 +97,23 @@ editor.once('load', function() {
     };
 
 
+    var updateHex = function() {
+        if (! directInput)
+            return;
+
+        changing = true;
+
+        var hex = fieldHex.value.trim().toLowerCase();
+        if (/^([0-9a-f]{2}){3,4}$/.test(hex)) {
+            for(var i = 0; i < channelsNumber; i++) {
+                channels[i].value = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+            }
+        }
+
+        changing = false;
+    };
+
+
     // update rgb
     var updateRects = function() {
         var color = channels.map(function(channel) {
@@ -308,6 +325,9 @@ editor.once('load', function() {
     fieldHex.renderChanges = false;
     fieldHex.placeholder = '#';
     fieldHex.class.add('field', 'field-hex');
+    fieldHex.on('change', function() {
+        updateHex();
+    });
     panelFields.appendChild(fieldHex.element);
 
 

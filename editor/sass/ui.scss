@@ -816,6 +816,37 @@ a:visited {
     }
 }
 
+.ui-slider {
+    @extend .noSelect;
+    display: inline-block;
+    height: 26px;
+    margin: 4px;
+    cursor: pointer;
+
+    &.active {
+        cursor: ew-resize;
+    }
+    > .bar {
+        position: relative;
+        width: calc(100% - 18px);
+        height: 4px;
+        margin: 10px 8px;
+        background: #07f;
+        border: 1px solid #000;
+
+        > .handle {
+            position: absolute;
+            top: -7px;
+            left: 0;
+            margin-left: -9px;
+            width: 16px;
+            height: 16px;
+            background: #07f;
+            border: 1px solid #000;
+        }
+    }
+}
+
 .ui-color-field {
     @extend .noSelect;
     position: relative;

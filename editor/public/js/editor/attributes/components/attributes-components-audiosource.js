@@ -61,26 +61,138 @@ editor.once('load', function() {
         // audiosource.assets
         // TODO
         // ability to add new assets
+
+
+
+
+        // assets
         var fieldAssetsList = new ui.List();
         fieldAssetsList.flexGrow = 1;
 
-        editor.call('attributes:addField', {
+        var fieldAssets = editor.call('attributes:addField', {
             parent: panel,
             name: 'Assets',
             type: 'element',
             element: fieldAssetsList
         });
+        fieldAssets.class.add('assets');
 
-        // animation.assets.list
+        // assets list
+        var itemAdd = new ui.ListItem({
+            text: 'Add Audio'
+        });
+        itemAdd.class.add('add-asset');
+        fieldAssetsList.append(itemAdd);
+
+        // add asset icon
+        var iconAdd = document.createElement('span');
+        iconAdd.classList.add('icon');
+        itemAdd.element.appendChild(iconAdd);
+
+        // index list items by asset id
+        var audioAssetItems = { };
+
+        // add asset
+        var addAsset = function(assetId, after) {
+            var assetAudio = editor.call('assets:get', assetId);
+            var item = new ui.ListItem({
+                text: (assetAudio && assetAudio.name) || assetId
+            });
+
+            if (after) {
+                fieldAssetsList.appendAfter(item, after);
+            } else {
+                fieldAssetsList.append(item);
+            }
+
+            audioAssetItems[assetId] = item;
+
+            // remove button
+            var btnRemove = new ui.Button();
+            btnRemove.class.add('remove');
+            btnRemove.on('click', function() {
+                entity.remove('components.audiosource.assets', assetId);
+            });
+            btnRemove.parent = item;
+            item.element.appendChild(btnRemove.element);
+        };
+
+        // on adding new audio
+        itemAdd.on('click', function() {
+            // call picker
+            editor.call('picker:asset', 'audio', null);
+
+            // on pick
+            var evtPick = editor.once('picker:asset', function(asset) {
+                // already in list
+                if (entity.components.audiosource.assets.indexOf(asset.id) !== -1)
+                    return;
+
+                // add to component
+                entity.insert('components.audiosource.assets', asset.id, 0);
+                evtPick = null;
+            });
+
+            editor.once('picker:asset:close', function() {
+                if (evtPick) {
+                    evtPick.unbind();
+                    evtPick = null;
+                }
+            });
+        });
+
+        // audiosource.assets.list
         var assets = entity.get('components.audiosource.assets');
         if (assets) {
             for(var i = 0; i < assets.length; i++) {
-                var item = new ui.ListItem({
-                    text: assets[i]
-                });
-                fieldAssetsList.append(item);
+                addAsset(assets[i]);
             }
         }
+        // on asset insert
+        var evtAssetInsert = entity.on('components.audiosource.assets:insert', function(assetId, ind) {
+            var before;
+            if (ind === 0) {
+                before = itemAdd;
+            } else {
+                before = audioAssetItems[entity.get('components.audiosource.assets.' + ind)];
+            }
+            addAsset(assetId, before);
+        });
+        // on asset remove
+        var evtAssetRemove = entity.on('components.audiosource.assets:remove', function(assetId) {
+            if (! audioAssetItems[assetId])
+                return;
+
+            audioAssetItems[assetId].destroy();
+        });
+
+
+
+
+
+
+
+
+        // var fieldAssetsList = new ui.List();
+        // fieldAssetsList.flexGrow = 1;
+
+        // editor.call('attributes:addField', {
+        //     parent: panel,
+        //     name: 'Assets',
+        //     type: 'element',
+        //     element: fieldAssetsList
+        // });
+
+        // // animation.assets.list
+        // var assets = entity.get('components.audiosource.assets');
+        // if (assets) {
+        //     for(var i = 0; i < assets.length; i++) {
+        //         var item = new ui.ListItem({
+        //             text: assets[i]
+        //         });
+        //         fieldAssetsList.append(item);
+        //     }
+        // }
 
 
         // audiosource.playback
@@ -123,31 +235,35 @@ editor.once('load', function() {
         panelPlayback.append(label);
 
 
-        // sound
-        var panelSound = editor.call('attributes:addField', {
+        // volume
+        var fieldVolume = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Sound'
+            type: 'number',
+            name: 'Volume',
+            link: entity,
+            path: 'components.audiosource.volume'
         });
-
-        var label = panelSound;
-        panelSound = panelSound.parent;
-        label.destroy();
-
-        // minDistance
-        var fieldVolume = new ui.NumberField();
-        fieldVolume.placeholder = 'Volume';
         fieldVolume.style.width = '32px';
-        fieldVolume.flexGrow = 1;
-        fieldVolume.link(entity, 'components.audiosource.volume');
-        panelSound.append(fieldVolume);
 
-        // maxDistance
-        var fieldPitch = new ui.NumberField();
-        fieldPitch.placeholder = 'Pitch';
-        fieldPitch.style.width = '32px';
-        fieldPitch.flexGrow = 1;
-        fieldPitch.link(entity, 'components.audiosource.pitch');
-        panelSound.append(fieldPitch);
+        // volume slider
+        var fieldVolumeSlider = new ui.Slider({
+            min: 0,
+            max: 1,
+            precision: 3
+        });
+        fieldVolumeSlider.flexGrow = 4;
+        fieldVolumeSlider.link(entity, 'components.audiosource.volume');
+        fieldVolume.parent.append(fieldVolumeSlider);
+
+
+        // pitch
+        var fieldVolume = editor.call('attributes:addField', {
+            parent: panel,
+            type: 'number',
+            name: 'Pitch',
+            link: entity,
+            path: 'components.audiosource.pitch'
+        });
 
 
         // distance

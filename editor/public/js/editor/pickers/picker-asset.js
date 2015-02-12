@@ -58,6 +58,8 @@ editor.once('load', function() {
         editor.call('selector:enabled', true);
         // emit event
         editor.emit('picker:asset:close');
+        // z-index
+        assetsPanel.style.zIndex = '';
     });
 
 

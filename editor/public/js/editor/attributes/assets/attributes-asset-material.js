@@ -324,7 +324,8 @@ editor.once('load', function() {
         // map
         var fieldAmbientMap = editor.call('attributes:addField', {
             parent: panelAmbiend,
-            type: 'number',
+            type: 'asset',
+            kind: 'texture',
             name: 'Texture',
             link: asset,
             path: 'data.aoMap'
@@ -488,7 +489,7 @@ editor.once('load', function() {
             name: 'Color',
             type: 'rgb',
             link: asset,
-            path: 'data.diffuse'
+            path: 'data.specular'
         });
         fieldSpecularColor.hidden = ! (asset.get('data.specularMapTint') || ! asset.get('data.specularMap'));
 
@@ -518,6 +519,17 @@ editor.once('load', function() {
             link: asset,
             path: 'data.shininess'
         });
+        fieldShininess.style.width = '32px';
+
+        // shininess slider
+        var fieldShininessSlider = new ui.Slider({
+            min: 0,
+            max: 100,
+            precision: 2
+        });
+        fieldShininessSlider.flexGrow = 4;
+        fieldShininessSlider.link(asset, 'data.shininess');
+        fieldShininess.parent.append(fieldShininessSlider);
 
         // map (gloss)
         var fieldGlossMap = editor.call('attributes:addField', {
@@ -652,13 +664,25 @@ editor.once('load', function() {
 
 
         // intensity
-        var fieldEmissiveIntensity = new ui.NumberField();
-        fieldEmissiveIntensity.placeholder = 'Intensity';
+        var fieldEmissiveIntensity = editor.call('attributes:addField', {
+            parent: panelEmissive,
+            name: 'Intensity',
+            type: 'number',
+            link: asset,
+            path: 'data.emissiveIntensity'
+        });
         fieldEmissiveIntensity.style.width = '32px';
         fieldEmissiveIntensity.flexGrow = 1;
-        fieldEmissiveIntensity.link(asset, 'data.emissiveIntensity');
-        fieldEmissiveColor.parent.append(fieldEmissiveIntensity);
 
+        // intensity slider
+        var fieldEmissiveIntensitySlider = new ui.Slider({
+            min: 0,
+            max: 10,
+            precision: 2
+        });
+        fieldEmissiveIntensitySlider.flexGrow = 4;
+        fieldEmissiveIntensitySlider.link(asset, 'data.emissiveIntensity');
+        fieldEmissiveIntensity.parent.append(fieldEmissiveIntensitySlider);
 
         // unfold panel
         fieldEmissiveMap.on('change', function() { panelEmissive.folded = false; });
@@ -694,6 +718,18 @@ editor.once('load', function() {
             link: asset,
             path: 'data.bumpMapFactor'
         });
+        fieldBumpiness.style.width = '32px';
+
+        // bumpiness slider
+        var fieldBumpinessSlider = new ui.Slider({
+            min: 0,
+            max: 2,
+            precision: 3
+        });
+        fieldBumpinessSlider.flexGrow = 4;
+        fieldBumpinessSlider.link(asset, 'data.bumpMapFactor');
+        fieldBumpiness.parent.append(fieldBumpinessSlider);
+
         fieldNormalMap.on('change', function(value) {
             // fieldNormalsOffset[0].parent.hidden = ! value;
             // fieldNormalsTiling[0].parent.hidden = ! value;
@@ -780,7 +816,18 @@ editor.once('load', function() {
             link: asset,
             path: 'data.heightMapFactor'
         });
+        fieldHeightMapFactor.style.width = '32px';
         fieldHeightMapFactor.parent.hidden = ! fieldHeightMap.value;
+
+        // strength slider
+        var fieldHeightMapFactorSlider = new ui.Slider({
+            min: 0,
+            max: 2,
+            precision: 3
+        });
+        fieldHeightMapFactorSlider.flexGrow = 4;
+        fieldHeightMapFactorSlider.link(asset, 'data.heightMapFactor');
+        fieldHeightMapFactor.parent.append(fieldHeightMapFactorSlider);
 
         // unfold panel
         fieldHeightMap.on('change', function() { panelParallax.folded = false; });
@@ -834,7 +881,16 @@ editor.once('load', function() {
             link: asset,
             path: 'data.reflectivity'
         });
+        fieldReflectionStrength.style.width = '32px';
         fieldReflectionStrength.parent.hidden = ! fieldReflectionSphere.value && ! fieldReflectionCubeMap.value;
+
+        // reflectivity slider
+        var fieldReflectionStrengthSlider = new ui.Slider({
+            precision: 3
+        });
+        fieldReflectionStrengthSlider.flexGrow = 4;
+        fieldReflectionStrengthSlider.link(asset, 'data.reflectivity');
+        fieldReflectionStrength.parent.append(fieldReflectionStrengthSlider);
 
         // unfold panel
         fieldReflectionSphere.on('change', function() { panelReflection.folded = false; });

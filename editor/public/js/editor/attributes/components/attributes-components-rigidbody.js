@@ -140,7 +140,7 @@ editor.once('load', function() {
         // friction
         var fieldFriction = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Properties',
+            name: '',
             placeholder: 'Friction',
             type: 'number',
             link: entity,
@@ -156,5 +156,35 @@ editor.once('load', function() {
         fieldRestitution.flexGrow = 1;
         fieldRestitution.link(entity, 'components.rigidbody.restitution');
         fieldFriction.parent.append(fieldRestitution);
+
+
+        var panelFrictionRestitution = editor.call('attributes:addField', {
+            parent: panel,
+            name: ''
+        });
+
+        var label = panelFrictionRestitution;
+        panelFrictionRestitution = panelFrictionRestitution.parent;
+        label.destroy();
+
+        // friction slider
+        var fieldFrictionSlider = new ui.Slider({
+            min: 0,
+            max: 1,
+            precision: 3
+        });
+        fieldFrictionSlider.flexGrow = 1;
+        fieldFrictionSlider.link(entity, 'components.rigidbody.friction');
+        panelFrictionRestitution.append(fieldFrictionSlider);
+
+        // restitution slider
+        var fieldRestitutionSlider = new ui.Slider({
+            min: 0,
+            max: 1,
+            precision: 3
+        });
+        fieldRestitutionSlider.flexGrow = 1;
+        fieldRestitutionSlider.link(entity, 'components.rigidbody.restitution');
+        panelFrictionRestitution.append(fieldRestitutionSlider);
     });
 });

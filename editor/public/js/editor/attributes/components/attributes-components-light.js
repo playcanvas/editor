@@ -85,12 +85,24 @@ editor.once('load', function() {
 
 
         // intensity
-        var fieldIntensity = new ui.NumberField();
-        fieldIntensity.placeholder = 'Intensity';
+        var fieldIntensity = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Intensity',
+            type: 'number',
+            link: entity,
+            path: 'components.light.intensity'
+        });
         fieldIntensity.style.width = '32px';
-        fieldIntensity.flexGrow = 1;
-        fieldIntensity.link(entity, 'components.light.intensity');
-        fieldColor.parent.append(fieldIntensity);
+
+        // intensity slider
+        var fieldIntensitySlider = new ui.Slider({
+            min: 0,
+            max: 32,
+            precision: 2
+        });
+        fieldIntensitySlider.flexGrow = 4;
+        fieldIntensitySlider.link(entity, 'components.light.intensity');
+        fieldIntensity.parent.append(fieldIntensitySlider);
 
 
         // range
@@ -150,6 +162,7 @@ editor.once('load', function() {
         fieldOuterConeAngle.flexGrow = 1;
         fieldOuterConeAngle.link(entity, 'components.light.outerConeAngle');
         fieldInnerConeAngle.parent.append(fieldOuterConeAngle);
+
 
 
         // castShadows

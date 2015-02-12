@@ -235,13 +235,13 @@ editor.once('load', function() {
 
                     // picked color
                     var evtColorPick = editor.on('picker:color', function(color) {
-                        if (field._link && field._link.history)
+                        if (field._link && typeof(field._link.history) === 'object')
                             field._link.history.combine = ! first;
 
                         first = false;
                         field.value = color;
 
-                        if (field._link && field._link.history)
+                        if (field._link && typeof(field._link.history) === 'object')
                             field._link.history.combine = false;
                     });
 

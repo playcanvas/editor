@@ -74,7 +74,8 @@ editor.once('load', function() {
         editor.call('attributes:addField', {
             parent: panelEnvironment,
             name: 'Skybox',
-            type: 'number',
+            type: 'asset',
+            kind: 'cubemap',
             link: sceneSettings,
             path: 'render.skybox'
         });
@@ -100,7 +101,7 @@ editor.once('load', function() {
         });
 
         // exposure
-        editor.call('attributes:addField', {
+        var fieldExposure = editor.call('attributes:addField', {
             parent: panelCamera,
             name: 'Exposure',
             type: 'number',
@@ -108,6 +109,17 @@ editor.once('load', function() {
             link: sceneSettings,
             path: 'render.exposure'
         });
+        fieldExposure.style.width = '32px';
+
+        // exposure slider
+        var fieldExposureSlider = new ui.Slider({
+            min: 0,
+            max: 1024,
+            precision: 2
+        });
+        fieldExposureSlider.flexGrow = 4;
+        fieldExposureSlider.link(sceneSettings, 'render.exposure');
+        fieldExposure.parent.append(fieldExposureSlider);
 
         // gamma correction
         var fieldGammaCorrection = editor.call('attributes:addField', {

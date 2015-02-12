@@ -124,10 +124,21 @@ editor.once('load', function() {
             link: entity,
             path: 'components.camera.fov'
         });
+        fieldFov.style.width = '32px';
         fieldFov.parent.hidden = entity.get('components.camera.projection') !== 0;
         fieldProjection.on('change', function(value) {
             fieldFov.parent.hidden = value !== 0;
         });
+
+        // fov slider
+        var fieldFovSlider = new ui.Slider({
+            min: 0,
+            max: 90,
+            precision: 1
+        });
+        fieldFovSlider.flexGrow = 4;
+        fieldFovSlider.link(entity, 'components.camera.fov');
+        fieldFov.parent.append(fieldFovSlider);
 
 
         // camera.orthoHeight

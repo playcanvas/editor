@@ -74,8 +74,8 @@ editor.once('load', function() {
         var fieldClearColor = editor.call('attributes:addField', {
             parent: panel,
             name: 'Clear Color',
-            placeholder: [ 'R', 'G', 'B', 'A' ],
-            type: 'vec4',
+            // placeholder: [ 'R', 'G', 'B', 'A' ],
+            type: 'rgb',
             link: designerSettings,
             path: 'camera_clear_color'
         });

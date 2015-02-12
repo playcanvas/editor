@@ -59,10 +59,7 @@ editor.once('load', function() {
         panel.headerElement.appendChild(fieldRemove.element);
 
         // animation.assets
-        // TODO
-        // ability to add new assets
         var fieldAssetsList = new ui.List();
-        // fieldAssetsList.selectable = false;
         fieldAssetsList.flexGrow = 1;
 
         var fieldAssets = editor.call('attributes:addField', {
@@ -71,7 +68,7 @@ editor.once('load', function() {
             type: 'element',
             element: fieldAssetsList
         });
-        fieldAssets.class.add('animation-assets');
+        fieldAssets.class.add('assets');
 
         // assets list
         var itemAdd = new ui.ListItem({

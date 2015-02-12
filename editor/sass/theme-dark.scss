@@ -240,6 +240,32 @@ a:visited {
     }
 }
 
+.ui-slider {
+    &:hover,
+    &.active {
+        > .bar {
+            > .handle {
+                background-color: $text-active;
+                box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+            }
+        }
+    }
+    &.flash {
+        > .bar {
+            @extend .ui-flash;
+        }
+    }
+    > .bar {
+        background-color: $bcg-dark;
+        border-color: $bcg-darker;
+
+        > .handle {
+            background-color: $text-primary;
+            border-color: $bcg-darker;
+        }
+    }
+}
+
 .ui-text-field {
     border: 1px solid $bcg-darker;
     background-color: $bcg-dark;
