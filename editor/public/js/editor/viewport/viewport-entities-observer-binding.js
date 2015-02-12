@@ -36,8 +36,8 @@ editor.once('load', function() {
 
         var reparent = function (child, index) {
             var childEntity = editor.call('entities:get', child);
-            if (childEntity && childEntity.entity) {
-                childEntity.entity.reparent(entity, index);
+            if (childEntity && childEntity.entity && obj.entity) {
+                childEntity.entity.reparent(obj.entity, index);
             }
         };
 
