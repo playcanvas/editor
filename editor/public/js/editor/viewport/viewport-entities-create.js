@@ -1,8 +1,9 @@
-editor.once('load', function() {
+(function () {
+
+var createEntities = function () {
     'use strict'
 
     var framework = editor.call('viewport:framework');
-
 
     // entities awaiting parent
     var awaitingParent = { };
@@ -47,9 +48,7 @@ editor.once('load', function() {
         return entity;
     };
 
-
-    // new entity created
-    editor.on('entities:add', function (obj) {
+    var processEntity = function (obj) {
         // create entity
         var entity = obj.entity = createEntity(obj);
 
@@ -97,5 +96,39 @@ editor.once('load', function() {
             awaitingResyncHierarchy = true;
             setTimeout(resyncHierarchy, 0);
         }
+    };
+
+    // new entity created
+    editor.on('entities:add', function (obj) {
+        processEntity(obj);
     });
+
+    var entities = editor.call('entities:list');
+    entities.forEach(processEntity);
+
+};
+
+// handle synchronization - all assets must be loaded
+// before creating entities in the engine
+var assetsLoaded = false;
+var entitiesLoaded = false;
+
+editor.once('assets:load', function () {
+    assetsLoaded = true;
+    // if entities already loaded then create them
+    if (entitiesLoaded) {
+        createEntities();
+    }
 });
+
+editor.once('entities:load', function() {
+    entitiesLoaded = true;
+    // if assets already loaded then create entities
+    if (assetsLoaded) {
+        createEntities();
+    }
+});
+
+})();
+
+

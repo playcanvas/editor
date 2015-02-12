@@ -24,6 +24,7 @@ editor.once('load', function() {
         }
 
         editor.call('assets:progress', 1);
+        editor.emit('assets:load');
     };
 
     // load all assets
@@ -43,6 +44,14 @@ editor.once('load', function() {
 
     editor.call('assets:progress', .1);
 
+    // method to create asset
+    editor.method('assets:create', function (data) {
+        Ajax
+        .post('{{url.api}}/assets?access_token={{accessToken}}', data)
+        .on('error', function(status, evt) {
+            console.log(status, evt);
+        });
+    });
 
     // hook sync to new assets
     editor.on('assets:add', function(asset) {

@@ -14,15 +14,16 @@ editor.once('load', function() {
     };
 
     editor.on('entities:add', function (obj) {
-        var entity = obj.entity;
         var framework;
-
-        if (!entity)
-            return;
 
         // subscribe to changes
         obj.on('*:set', function(path, value) {
             if (path.indexOf('components') !== 0) {
+                return;
+            }
+
+            var entity = obj.entity;
+            if (!entity) {
                 return;
             }
 
@@ -53,6 +54,11 @@ editor.once('load', function() {
 
         obj.on('*:unset', function (path) {
             if (path.indexOf('components') !== 0) {
+                return;
+            }
+
+            var entity = obj.entity;
+            if (!entity) {
                 return;
             }
 

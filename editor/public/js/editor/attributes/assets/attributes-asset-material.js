@@ -211,7 +211,7 @@ editor.once('load', function() {
             'type': 'int',
         },
         blendType: {
-            'default': 1,
+            'default': 3,
             'enum': {
                 3: 'None',
                 2: 'Normal',
