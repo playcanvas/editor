@@ -3,7 +3,7 @@ editor.once('load', function() {
 
     var header = editor.call('layout.header');
 
-    // settings button
+    // new material button
     var button = new ui.Button({
         text: 'New Material'
     });
@@ -11,5 +11,15 @@ editor.once('load', function() {
 
     button.on('click', function() {
         editor.call('assets:createMaterial');
+    });
+
+    // new cubemap button
+    button = new ui.Button({
+        text: 'New Cubemap'
+    });
+    header.append(button);
+
+    button.on('click', function() {
+        editor.call('assets:createCubemap');
     });
 });

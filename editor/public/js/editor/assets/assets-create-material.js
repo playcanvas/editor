@@ -20,10 +20,6 @@ editor.once('load', function() {
             }
         };
 
-        Ajax
-        .post('{{url.api}}/assets?access_token={{accessToken}}', asset)
-        .on('error', function(status, evt) {
-            console.log(status, evt);
-        });
+        editor.call('assets:create', asset);
     });
 });
