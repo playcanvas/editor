@@ -2,13 +2,13 @@ editor.once('load', function() {
     'use strict';
 
     editor.on('entities:add', function (obj) {
-        var entity = obj.entity;
-
-        if (! entity)
-            return;
-
         // subscribe to changes
         obj.on('*:set', function(path, value) {
+            var entity = obj.entity;
+            if (!entity) {
+                return;
+            }
+
             if (path === 'name') {
                 entity.setName(obj.name);
 
@@ -45,7 +45,9 @@ editor.once('load', function() {
         obj.on('children:move', reparent);
 
         obj.on('delete', function () {
-            entity.destroy();
+            if (obj.entity) {
+                obj.entity.destroy();
+            }
         });
     });
 
