@@ -126,7 +126,7 @@ AjaxRequest.prototype._onLoad = function() {
     }
 
     if (json) {
-        this.emit(this._xhr.status === 200 ? 'load' : 'error', this._xhr.status, json);
+        this.emit(this._xhr.status === 200  || this._xhr.status === 201 ? 'load' : 'error', this._xhr.status, json);
     }
 };
 
