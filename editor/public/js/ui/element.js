@@ -26,6 +26,8 @@ function Element() {
     this._disabled = false;
     this._disabledParent = false;
 
+    this._evtClick = null;
+
     this._parentDisable = function() {
         if (self._disabledParent)
             return;
@@ -121,10 +123,12 @@ Object.defineProperty(Element.prototype, 'element', {
         this._element = value;
         this._element.ui = this;
 
-        this._element.addEventListener('click', function(evt) {
-            if (this.disabled) return;
-            this.emit('click', evt);
-        }.bind(this), false);
+        var self = this;
+        this._evtClick = function(evt) {
+            if (self.disabled) return;
+            self.emit('click', evt);
+        };
+        this._element.addEventListener('click', this._evtClick, false);
 
         if (! this.innerElement)
             this.innerElement = this._element;

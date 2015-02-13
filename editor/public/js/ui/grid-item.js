@@ -13,7 +13,7 @@ function GridItem(args) {
     this.element.classList.add('ui-grid-item');
     this.element.innerHTML = this._text;
 
-    this.element.removeEventListener('click');
+    this.element.removeEventListener('click', this._evtClick);
     this.element.addEventListener('click', this._onClick.bind(this), false);
 
     // space > click
