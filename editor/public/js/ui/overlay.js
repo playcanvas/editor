@@ -65,6 +65,13 @@ Object.defineProperty(Overlay.prototype, 'rect', {
 
 
 Overlay.prototype.position = function(x, y) {
+
+    var area = this.elementOverlay.getBoundingClientRect();
+    var rect = this.innerElement.getBoundingClientRect();
+
+    x = Math.max(0, Math.min(area.width - rect.width, x));
+    y = Math.max(0, Math.min(area.height - rect.height, y));
+
     this.innerElement.style.left = x + 'px';
     this.innerElement.style.top = y + 'px';
 };

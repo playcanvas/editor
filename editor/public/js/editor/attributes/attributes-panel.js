@@ -248,7 +248,7 @@ editor.once('load', function() {
                     // position picker
                     var rectPicker = editor.call('picker:color:rect');
                     var rectField = field.element.getBoundingClientRect();
-                    editor.call('picker:color:position', rectField.right - rectPicker.width, rectField.bottom);
+                    editor.call('picker:color:position', rectField.left - rectPicker.width, rectField.top);
 
                     // color changed, update picker
                     var evtColorToPicker = field.on('change', function() {
