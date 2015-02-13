@@ -24,8 +24,6 @@ editor.on('load', function() {
             p.progress = (++i / total) * .8 + .1;
         }
 
-        console.log('entities loaded ' + (Date.now() - start));
-
         p.progress = 1;
 
         editor.emit('entities:load');

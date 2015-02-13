@@ -20,5 +20,5 @@ editor.once('load', function() {
     setInterval(function() {
         var rect = container.element.getBoundingClientRect();
         canvas.resize(rect.width, rect.height);
-    }, 1000 / 20);
+    }, 1000 / 60);
 });
