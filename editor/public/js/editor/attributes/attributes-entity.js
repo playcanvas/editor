@@ -34,6 +34,8 @@ editor.once('load', function() {
         var fieldPosition = editor.call('attributes:addField', {
             name: 'Position',
             placeholder: [ 'X', 'Y', 'Z' ],
+            precision: 3,
+            step: .005,
             type: 'vec3',
             link: entity,
             path: 'position'
@@ -43,6 +45,8 @@ editor.once('load', function() {
         var fieldRotation = editor.call('attributes:addField', {
             name: 'Rotation',
             placeholder: [ 'X', 'Y', 'Z' ],
+            precision: 2,
+            step: .1,
             type: 'vec3',
             link: entity,
             path: 'rotation'
@@ -52,6 +56,8 @@ editor.once('load', function() {
         var fieldScale = editor.call('attributes:addField', {
             name: 'Scale',
             placeholder: [ 'X', 'Y', 'Z' ],
+            precision: 3,
+            step: .01,
             type: 'vec3',
             link: entity,
             path: 'scale'

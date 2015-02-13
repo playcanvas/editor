@@ -170,6 +170,9 @@ editor.once('load', function() {
             parent: panel,
             name: 'Speed',
             type: 'number',
+            precision: 2,
+            step: .1,
+            min: 0,
             link: entity,
             path: 'components.animation.speed'
         });

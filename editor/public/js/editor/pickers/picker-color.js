@@ -282,7 +282,12 @@ editor.once('load', function() {
 
 
     // R
-    var fieldR = new ui.NumberField();
+    var fieldR = new ui.NumberField({
+        precision: 1,
+        step: 1,
+        min: 0,
+        max: 255
+    });
     channels.push(fieldR);
     fieldR.renderChanges = false;
     fieldR.placeholder = 'r';
@@ -292,7 +297,12 @@ editor.once('load', function() {
     panelFields.appendChild(fieldR.element);
 
     // G
-    var fieldG = new ui.NumberField();
+    var fieldG = new ui.NumberField({
+        precision: 1,
+        step: 1,
+        min: 0,
+        max: 255
+    });
     channels.push(fieldG);
     fieldG.renderChanges = false;
     fieldG.placeholder = 'g';
@@ -301,7 +311,12 @@ editor.once('load', function() {
     panelFields.appendChild(fieldG.element);
 
     // B
-    var fieldB = new ui.NumberField();
+    var fieldB = new ui.NumberField({
+        precision: 1,
+        step: 1,
+        min: 0,
+        max: 255
+    });
     channels.push(fieldB);
     fieldB.renderChanges = false;
     fieldB.placeholder = 'b';
@@ -311,7 +326,12 @@ editor.once('load', function() {
 
 
     // A
-    var fieldA = new ui.NumberField();
+    var fieldA = new ui.NumberField({
+        precision: 1,
+        step: 1,
+        min: 0,
+        max: 255
+    });
     channels.push(fieldA);
     fieldA.renderChanges = false;
     fieldA.placeholder = 'a';

@@ -80,6 +80,9 @@ editor.once('load', function() {
             parent: panel,
             name: 'Half Extents',
             placeholder: [ 'X', 'Y', 'Z' ],
+            precision: 2,
+            step: 0.1,
+            min: 0,
             type: 'vec3',
             link: entity,
             path: 'components.collision.halfExtents'
@@ -96,6 +99,9 @@ editor.once('load', function() {
             parent: panel,
             name: 'Radius',
             type: 'number',
+            precision: 2,
+            step: 0.1,
+            min: 0,
             link: entity,
             path: 'components.collision.radius'
         });
@@ -110,6 +116,9 @@ editor.once('load', function() {
             parent: panel,
             name: 'Height',
             type: 'number',
+            precision: 2,
+            step: 0.1,
+            min: 0,
             link: entity,
             path: 'components.collision.height'
         });

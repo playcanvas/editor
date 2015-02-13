@@ -390,6 +390,10 @@ a:visited {
     margin: 0;
     font-size: 0;
     // border: 1px solid #1a1a1a;
+
+    &:focus {
+        outline: none;
+    }
 }
 
 .ui-grid-item {

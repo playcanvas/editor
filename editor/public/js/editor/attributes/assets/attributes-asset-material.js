@@ -515,6 +515,10 @@ editor.once('load', function() {
         var fieldShininess = editor.call('attributes:addField', {
             parent: panelSpecular,
             type: 'number',
+            precision: 2,
+            step: 0.5,
+            min: 0,
+            max: 100,
             name: 'Shininess',
             link: asset,
             path: 'data.shininess'
@@ -668,6 +672,9 @@ editor.once('load', function() {
             parent: panelEmissive,
             name: 'Intensity',
             type: 'number',
+            precision: 2,
+            step: .1,
+            min: 0,
             link: asset,
             path: 'data.emissiveIntensity'
         });
@@ -715,6 +722,10 @@ editor.once('load', function() {
             parent: panelNormal,
             type: 'number',
             name: 'Bumpiness',
+            precision: 3,
+            step: 0.05,
+            min: 0,
+            max: 2,
             link: asset,
             path: 'data.bumpMapFactor'
         });
@@ -812,6 +823,9 @@ editor.once('load', function() {
         var fieldHeightMapFactor = editor.call('attributes:addField', {
             parent: panelParallax,
             type: 'number',
+            min: 0,
+            precision: 3,
+            step: 0.01,
             name: 'Strength',
             link: asset,
             path: 'data.heightMapFactor'
@@ -877,6 +891,10 @@ editor.once('load', function() {
         var fieldReflectionStrength = editor.call('attributes:addField', {
             parent: panelReflection,
             type: 'number',
+            precision: 3,
+            step: 0.01,
+            min: 0,
+            max: 1,
             name: 'Reflectivity',
             link: asset,
             path: 'data.reflectivity'

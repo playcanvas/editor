@@ -121,6 +121,10 @@ editor.once('load', function() {
             name: 'Field of View',
             placeholder: '\u00B0',
             type: 'number',
+            precision: 2,
+            step: 1,
+            min: 0,
+            max: 90,
             link: entity,
             path: 'components.camera.fov'
         });
@@ -161,6 +165,9 @@ editor.once('load', function() {
             name: 'Clip',
             placeholder: 'Near',
             type: 'number',
+            precision: 2,
+            step: .1,
+            min: 0,
             link: entity,
             path: 'components.camera.nearClip'
         });
@@ -168,7 +175,11 @@ editor.once('load', function() {
 
 
         // farClip
-        var fieldFarClip = new ui.NumberField();
+        var fieldFarClip = new ui.NumberField({
+            precision: 2,
+            step: 1,
+            min: 0,
+        });
         fieldFarClip.placeholder = 'Far';
         fieldFarClip.style.width = '32px';
         fieldFarClip.flexGrow = 1;
@@ -181,6 +192,9 @@ editor.once('load', function() {
             parent: panel,
             name: 'Priority',
             type: 'number',
+            precision: 1,
+            step: 1,
+            min: 0,
             link: entity,
             path: 'components.camera.priority'
         });
@@ -192,6 +206,10 @@ editor.once('load', function() {
             name: 'Viewport',
             placeholder: [ 'X', 'Y', 'W', 'H' ],
             type: 'vec4',
+            precision: 3,
+            step: 0.01,
+            min: 0,
+            max: 1,
             link: entity,
             path: 'components.camera.rect'
         });

@@ -238,8 +238,12 @@ editor.once('load', function() {
         // volume
         var fieldVolume = editor.call('attributes:addField', {
             parent: panel,
-            type: 'number',
             name: 'Volume',
+            type: 'number',
+            precision: 2,
+            step: 0.01,
+            min: 0,
+            max: 1,
             link: entity,
             path: 'components.audiosource.volume'
         });
@@ -259,8 +263,11 @@ editor.once('load', function() {
         // pitch
         var fieldVolume = editor.call('attributes:addField', {
             parent: panel,
-            type: 'number',
             name: 'Pitch',
+            type: 'number',
+            precision: 2,
+            step: 0.1,
+            min: 0,
             link: entity,
             path: 'components.audiosource.pitch'
         });
@@ -277,7 +284,11 @@ editor.once('load', function() {
         label.destroy();
 
         // minDistance
-        var fieldMinDistance = new ui.NumberField();
+        var fieldMinDistance = new ui.NumberField({
+            precision: 2,
+            step: 1,
+            min: 0
+        });
         fieldMinDistance.placeholder = 'Min';
         fieldMinDistance.style.width = '32px';
         fieldMinDistance.flexGrow = 1;
@@ -285,7 +296,11 @@ editor.once('load', function() {
         panelDistance.append(fieldMinDistance);
 
         // maxDistance
-        var fieldMaxDistance = new ui.NumberField();
+        var fieldMaxDistance = new ui.NumberField({
+            precision: 2,
+            step: 1,
+            min: 0
+        });
         fieldMaxDistance.placeholder = 'Max';
         fieldMaxDistance.style.width = '32px';
         fieldMaxDistance.flexGrow = 1;
@@ -298,6 +313,9 @@ editor.once('load', function() {
             parent: panel,
             name: 'Roll-off factor',
             type: 'number',
+            precision: 2,
+            step: 0.1,
+            min: 0,
             link: entity,
             path: 'components.audiosource.rollOffFactor'
         });

@@ -106,6 +106,18 @@ editor.once('load', function() {
                 if (args.placeholder)
                     field.placeholder = args.placeholder;
 
+                if (args.precision != null)
+                    field.precision = args.precision;
+
+                if (args.step != null)
+                    field.step = args.step;
+
+                if (args.min != null)
+                    field.min = args.min;
+
+                if (args.max != null)
+                    field.max = args.max;
+
                 if (args.link)
                     field.link(args.link, args.path);
 
@@ -123,96 +135,38 @@ editor.once('load', function() {
 
                 return field;
             case 'vec2':
-                var field0 = new ui.NumberField();
-                field0.flexGrow = 1;
-                field0.style.width = '24px';
-                field0.value = (args.value && args.value[0]) || 0;
-                panel.append(field0);
-
-                var field1 = new ui.NumberField();
-                field1.flexGrow = 1;
-                field1.style.width = '24px';
-                field1.value = (args.value && args.value[1]) || 0;
-                panel.append(field1);
-
-                if (args.link) {
-                    field0.link(args.link, args.path + '.0');
-                    field1.link(args.link, args.path + '.1');
-                }
-
-                return [ field0, field1 ];
             case 'vec3':
-                var field0 = new ui.NumberField();
-                field0.flexGrow = 1;
-                field0.style.width = '24px';
-                field0.value = (args.value && args.value[0]) || 0;
-                panel.append(field0);
-
-                var field1 = new ui.NumberField();
-                field1.flexGrow = 1;
-                field1.style.width = '24px';
-                field1.value = (args.value && args.value[1]) || 0;
-                panel.append(field1);
-
-                var field2 = new ui.NumberField();
-                field2.flexGrow = 1;
-                field2.style.width = '24px';
-                field2.value = (args.value && args.value[2]) || 0;
-                panel.append(field2);
-
-                if (args.placeholder) {
-                    field0.placeholder = args.placeholder[0];
-                    field1.placeholder = args.placeholder[1];
-                    field2.placeholder = args.placeholder[2];
-                }
-
-                if (args.link) {
-                    field0.link(args.link, args.path + '.0');
-                    field1.link(args.link, args.path + '.1');
-                    field2.link(args.link, args.path + '.2');
-                }
-
-                return [ field0, field1, field2 ];
             case 'vec4':
-                var field0 = new ui.NumberField();
-                field0.flexGrow = 1;
-                field0.style.width = '24px';
-                field0.value = (args.value && args.value[0]) || 0;
-                panel.append(field0);
+                var channels = parseInt(args.type[3], 10);
+                var fields = [ ];
 
-                var field1 = new ui.NumberField();
-                field1.flexGrow = 1;
-                field1.style.width = '24px';
-                field1.value = (args.value && args.value[1]) || 0;
-                panel.append(field1);
+                for(var i = 0; i < channels; i++) {
+                    fields[i] = new ui.NumberField();
+                    fields[i].flexGrow = 1;
+                    fields[i].style.width = '24px';
+                    fields[i].value = (args.value && args.value[i]) || 0;
+                    panel.append(fields[i]);
 
-                var field2 = new ui.NumberField();
-                field2.flexGrow = 1;
-                field2.style.width = '24px';
-                field2.value = (args.value && args.value[2]) || 0;
-                panel.append(field2);
+                    if (args.placeholder)
+                        fields[i].placeholder = args.placeholder[i];
 
-                var field3 = new ui.NumberField();
-                field3.flexGrow = 1;
-                field3.style.width = '24px';
-                field3.value = (args.value && args.value[3]) || 0;
-                panel.append(field3);
+                    if (args.precision != null)
+                        fields[i].precision = args.precision;
 
-                if (args.placeholder) {
-                    field0.placeholder = args.placeholder[0];
-                    field1.placeholder = args.placeholder[1];
-                    field2.placeholder = args.placeholder[2];
-                    field3.placeholder = args.placeholder[3];
+                    if (args.step != null)
+                        fields[i].step = args.step;
+
+                    if (args.min != null)
+                        fields[i].min = args.min;
+
+                    if (args.max != null)
+                        fields[i].max = args.max;
+
+                    if (args.link)
+                        fields[i].link(args.link, args.path + '.' + i);
                 }
 
-                if (args.link) {
-                    field0.link(args.link, args.path + '.0');
-                    field1.link(args.link, args.path + '.1');
-                    field2.link(args.link, args.path + '.2');
-                    field3.link(args.link, args.path + '.3');
-                }
-
-                return [ field0, field1, field2, field3 ];
+                return fields;
             case 'rgb':
                 var field = new ui.ColorField();
 

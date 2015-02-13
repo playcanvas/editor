@@ -89,6 +89,10 @@ editor.once('load', function() {
             parent: panel,
             name: 'Intensity',
             type: 'number',
+            precision: 2,
+            step: .1,
+            min: 0,
+            max: 32,
             link: entity,
             path: 'components.light.intensity'
         });
@@ -110,6 +114,9 @@ editor.once('load', function() {
             parent: panel,
             name: 'Range',
             type: 'number',
+            precision: 2,
+            step: .1,
+            min: 0,
             link: entity,
             path: 'components.light.range'
         });
@@ -143,6 +150,10 @@ editor.once('load', function() {
             name: 'Cone Angles',
             placeholder: 'Inner',
             type: 'number',
+            precision: 2,
+            step: 1,
+            min: 0,
+            max: 90,
             link: entity,
             path: 'components.light.innerConeAngle'
         });
@@ -156,7 +167,12 @@ editor.once('load', function() {
 
 
         // outerConeAngle
-        var fieldOuterConeAngle = new ui.NumberField();
+        var fieldOuterConeAngle = new ui.NumberField({
+            precision: 2,
+            step: 1,
+            min: 0,
+            max: 90
+        });
         fieldOuterConeAngle.placeholder = 'Outer';
         fieldOuterConeAngle.style.width = '32px';
         fieldOuterConeAngle.flexGrow = 1;
@@ -190,6 +206,9 @@ editor.once('load', function() {
             parent: panelShadows,
             name: 'Shadow Distance',
             type: 'number',
+            precision: 2,
+            step: 1,
+            min: 0,
             link: entity,
             path: 'components.light.shadowDistance'
         });
@@ -221,6 +240,10 @@ editor.once('load', function() {
             parent: panelShadows,
             name: 'Shadow Bias',
             type: 'number',
+            precision: 3,
+            step: .001,
+            min: 0,
+            max: 1,
             link: entity,
             path: 'components.light.shadowBias'
         });
@@ -228,7 +251,12 @@ editor.once('load', function() {
 
 
         // normalOffsetBias
-        var fieldShadowBiasNormalOffset = new ui.NumberField();
+        var fieldShadowBiasNormalOffset = new ui.NumberField({
+            precision: 3,
+            step: .001,
+            min: 0,
+            max: 1
+        });
         fieldShadowBiasNormalOffset.placeholder = 'Normal Offset';
         fieldShadowBiasNormalOffset.style.width = '32px';
         fieldShadowBiasNormalOffset.flexGrow = 2;

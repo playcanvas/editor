@@ -49,6 +49,8 @@ editor.once('load', function() {
             parent: physicsPanel,
             name: 'Gravity',
             placeholder: [ 'X', 'Y', 'Z' ],
+            precision: 2,
+            step: .1,
             type: 'vec3',
             link: sceneSettings,
             path: 'physics.gravity'
@@ -105,7 +107,10 @@ editor.once('load', function() {
             parent: panelCamera,
             name: 'Exposure',
             type: 'number',
+            precision: 2,
+            step: .1,
             min: 0,
+            max: 1024,
             link: sceneSettings,
             path: 'render.exposure'
         });
@@ -138,6 +143,7 @@ editor.once('load', function() {
             name: 'Fog'
         });
 
+
         // fog type
         editor.call('attributes:addField', {
             parent: panelFog,
@@ -153,39 +159,47 @@ editor.once('load', function() {
             path: 'render.fog'
         });
 
+
         // fog density
         addFiltered(editor.call('attributes:addField', {
             parent: panelFog,
             name: 'Density',
             type: 'number',
+            precision: 3,
+            step: .01,
+            min: 0,
             link: sceneSettings,
             path: 'render.fog_density',
         }), fogFilter);
 
-        // fog distance
-        var panelFogDistance = editor.call('attributes:addField', {
+
+        // fog distance near
+        var fieldFogStart = editor.call('attributes:addField', {
             parent: panelFog,
-            name: 'Distance'
+            name: 'Distance',
+            placeholder: 'Start',
+            type: 'number',
+            precision: 2,
+            step: 1,
+            min: 0,
+            link: sceneSettings,
+            path: 'render.fog_start',
         });
-        addFiltered(panelFogDistance, fogFilter);
-
-        var label = panelFogDistance;
-        panelFogDistance = panelFogDistance.parent;
-        label.destroy();
-
-        var fieldFogStart = new ui.NumberField();
-        fieldFogStart.placeholder = 'Start';
         fieldFogStart.style.width = '32px';
-        fieldFogStart.flexGrow = 1;
-        fieldFogStart.link(sceneSettings, 'render.fog_start');
-        panelFogDistance.append(fieldFogStart);
+        addFiltered(fieldFogStart, fogFilter);
 
-        var fieldFogEnd = new ui.NumberField();
+
+        // fog dinstance far
+        var fieldFogEnd = new ui.NumberField({
+            precision: 2,
+            step: 1,
+            min: 0
+        });
         fieldFogEnd.placeholder = 'End';
         fieldFogEnd.style.width = '32px';
         fieldFogEnd.flexGrow = 1;
         fieldFogEnd.link(sceneSettings, 'render.fog_end');
-        panelFogDistance.append(fieldFogEnd);
+        fieldFogStart.parent.append(fieldFogEnd);
 
         // fog color
         addFiltered(editor.call('attributes:addField', {

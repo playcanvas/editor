@@ -88,6 +88,9 @@ editor.once('load', function() {
             parent: panelDynamic,
             name: 'Mass',
             type: 'number',
+            precision: 2,
+            step: .1,
+            min: 0,
             link: entity,
             path: 'components.rigidbody.mass'
         });
@@ -100,6 +103,10 @@ editor.once('load', function() {
             name: 'Damping',
             placeholder: 'Linear',
             type: 'number',
+            precision: 2,
+            step: .01,
+            min: 0,
+            max: 1,
             link: entity,
             path: 'components.rigidbody.linearDamping'
         });
@@ -107,7 +114,12 @@ editor.once('load', function() {
 
 
         // angularDamping
-        var fieldAngularDamping = new ui.NumberField();
+        var fieldAngularDamping = new ui.NumberField({
+            precision: 2,
+            step: .01,
+            min: 0,
+            max: 1
+        });
         fieldAngularDamping.placeholder = 'Angular';
         fieldAngularDamping.style.width = '32px';
         fieldAngularDamping.flexGrow = 1;
@@ -120,6 +132,10 @@ editor.once('load', function() {
             parent: panelDynamic,
             name: 'Linear Factor',
             placeholder: [ 'X', 'Y', 'Z' ],
+            precision: 2,
+            step: .01,
+            min: 0,
+            max: 1,
             type: 'vec3',
             link: entity,
             path: 'components.rigidbody.linearFactor'
@@ -131,6 +147,10 @@ editor.once('load', function() {
             parent: panelDynamic,
             name: 'Angular Factor',
             placeholder: [ 'X', 'Y', 'Z' ],
+            precision: 2,
+            step: .01,
+            min: 0,
+            max: 1,
             type: 'vec3',
             link: entity,
             path: 'components.rigidbody.angularFactor'
@@ -143,6 +163,10 @@ editor.once('load', function() {
             name: '',
             placeholder: 'Friction',
             type: 'number',
+            precision: 2,
+            step: .01,
+            min: 0,
+            max: 1,
             link: entity,
             path: 'components.rigidbody.friction'
         });
@@ -150,7 +174,12 @@ editor.once('load', function() {
 
 
         // restitution
-        var fieldRestitution = new ui.NumberField();
+        var fieldRestitution = new ui.NumberField({
+            precision: 2,
+            step: .01,
+            min: 0,
+            max: 1
+        });
         fieldRestitution.placeholder = 'Restitution';
         fieldRestitution.style.width = '32px';
         fieldRestitution.flexGrow = 1;

@@ -19,6 +19,7 @@ function NumberField(args) {
     this.elementInput.type = 'text';
     this.elementInput.addEventListener('focus', this._onInputFocus.bind(this), false);
     this.elementInput.addEventListener('blur', this._onInputBlur.bind(this), false);
+    this.elementInput.addEventListener('keydown', this._onKeyDown.bind(this), false);
     this.element.appendChild(this.elementInput);
 
     if (args.default !== undefined)
@@ -71,6 +72,30 @@ NumberField.prototype._onInputFocus = function() {
 
 NumberField.prototype._onInputBlur = function() {
     this.class.remove('focus');
+};
+
+NumberField.prototype._onKeyDown = function(evt) {
+    if (this.disabled || [ 38, 40 ].indexOf(evt.keyCode) === -1)
+        return;
+
+    var inc = evt.keyCode === 40 ? -1 : 1;
+
+    if (evt.shiftKey)
+        inc *= 10;
+
+    var value = this.value + (this.step || 1) * inc;
+
+    if (this.max != null)
+        value = Math.min(this.max, value);
+
+    if (this.min != null)
+        value = Math.max(this.min, value);
+
+    if (this.precision != null)
+        value = parseFloat(value.toFixed(this.precision), 10);
+
+    this.elementInput.value = value;
+    this.value = value;
 };
 
 // NumberField.prototype._onMouseDown = function(evt) {
