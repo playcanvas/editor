@@ -1,6 +1,7 @@
 "use strict";
 
 function GridItem(args) {
+    var self = this;
     ui.Element.call(this);
     args = args || { };
 
@@ -8,17 +9,28 @@ function GridItem(args) {
     this._selected = args.selected || false;
 
     this.element = document.createElement('li');
+    this.element.tabIndex = 0;
     this.element.classList.add('ui-grid-item');
     this.element.innerHTML = this._text;
 
     this.element.removeEventListener('click');
     this.element.addEventListener('click', this._onClick.bind(this), false);
+
+    // space > click
+    this.element.addEventListener('keydown', function(evt) {
+        if (evt.keyCode !== 32 || self.disabled)
+            return;
+
+        evt.stopPropagation();
+        evt.preventDefault();
+        self._onClick();
+    }, false);
 }
 GridItem.prototype = Object.create(ui.Element.prototype);
 
 
 GridItem.prototype._onClick = function() {
-    this.emit('click', this._onClick);
+    this.emit('click');
     this.selected = ! this.selected;
 };
 

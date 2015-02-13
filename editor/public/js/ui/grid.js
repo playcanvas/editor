@@ -4,6 +4,7 @@ function Grid() {
     ui.ContainerElement.call(this);
 
     this.element = document.createElement('ul');
+    this.element.tabIndex = 0;
     this.element.classList.add('ui-grid');
 
     this.on('select', this._onSelect);

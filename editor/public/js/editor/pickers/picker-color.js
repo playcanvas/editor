@@ -335,6 +335,15 @@ editor.once('load', function() {
     root.append(overlay);
 
 
+    // esc to close
+    overlay.element.addEventListener('keydown', function(evt) {
+        if (evt.keyCode !== 27 || overlay.hidden)
+            return;
+
+        overlay.hidden = true;
+    }, false);
+
+
     overlay.on('hide', function() {
         editor.emit('picker:color:close');
     });
@@ -371,6 +380,14 @@ editor.once('load', function() {
 
         // show overlay
         overlay.hidden = false;
+
+        // focus on hex field
+        fieldHex.elementInput.focus();
+
+        setTimeout(function() {
+            fieldHex.elementInput.focus();
+            fieldHex.elementInput.select();
+        }, 100);
     });
 
     editor.method('picker:color:close', function() {

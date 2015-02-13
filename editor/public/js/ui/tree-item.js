@@ -1,6 +1,7 @@
 "use strict";
 
 function TreeItem(args) {
+    var self = this;
     ui.Element.call(this);
     args = args || { };
 
@@ -12,6 +13,7 @@ function TreeItem(args) {
     this.elementTitle = document.createElement('div');
     this.elementTitle.classList.add('title');
     this.elementTitle.draggable = true;
+    this.elementTitle.tabIndex = 0;
     this.element.appendChild(this.elementTitle);
 
     this.elementIcon = document.createElement('span');
@@ -39,6 +41,103 @@ function TreeItem(args) {
     this.on('destroy', this._onDestroy);
     this.on('append', this._onAppend);
     this.on('remove', this._onRemove);
+
+    this.on('select', function() {
+        this.elementTitle.focus();
+    });
+
+    this.elementTitle.addEventListener('keydown', function(evt) {
+        if ([ 9, 38, 40, 37, 39 ].indexOf(evt.keyCode) === -1)
+            return;
+
+        evt.preventDefault();
+        evt.stopPropagation();
+
+        switch(evt.keyCode) {
+            case 9: // tab
+                break;
+            case 40: // down
+                var item = self.element.nextSibling;
+                if (item)
+                    item = item.ui;
+
+                if (self._children && self.open) {
+                    var first = self.element.firstChild.nextSibling;
+                    if (first && first.ui) {
+                        first.ui.selected = true;
+                    } else if (item) {
+                        item.selected = true;
+                    }
+                } else if (item) {
+                    item.selected = true;
+                } else if (self.parent && self.parent instanceof TreeItem) {
+                    var parent = self.parent;
+
+                    var findNext = function(from) {
+                        var next = from.next;
+                        if (next) {
+                            next.selected = true;
+                        } else if (from.parent instanceof TreeItem) {
+                            return from.parent;
+                        }
+                        return false;
+                    };
+
+                    while(parent = findNext(parent)) { }
+                }
+                break;
+            case 38: // up
+                var item = self.element.previousSibling;
+                if (item)
+                    item = item.ui;
+
+                if (item) {
+                    if (item._children && item.open) {
+                        var last = item.element.lastChild;
+                        if (last.ui)
+                            last = last.ui;
+
+                        if (last) {
+                            var findLast = function(inside) {
+                                if (inside._children && inside.open) {
+                                    return inside.element.lastChild.ui || null;
+                                } else {
+                                    return null;
+                                }
+                            }
+
+                            var found = false;
+                            while(! found) {
+                                var deeper = findLast(last);
+                                if (deeper) {
+                                    last = deeper
+                                } else {
+                                    found = true;
+                                }
+                            }
+
+                            last.selected = true;
+                        } else {
+                            item.selected = true;
+                        }
+                    } else {
+                        item.selected = true;
+                    }
+                } else if (self.parent && self.parent instanceof TreeItem) {
+                    self.parent.selected = true;
+                }
+
+                break;
+            case 37: // left (close)
+                if (self.parent !== self.tree && self.open)
+                    self.open = false;
+                break;
+            case 39: // right (open)
+                if (self._children && ! self.open)
+                    self.open = true;
+                break;
+        }
+    }, false);
 }
 TreeItem.prototype = Object.create(ui.Element.prototype);
 

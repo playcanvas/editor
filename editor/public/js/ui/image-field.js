@@ -6,6 +6,7 @@ function ImageField(args) {
     args = args || { };
 
     this.element = document.createElement('div');
+    this.element.tabIndex = 0;
     this.element.classList.add('ui-image-field', 'empty');
 
     this.elementImage = new Image();
@@ -30,6 +31,16 @@ function ImageField(args) {
 
         this.flash();
     });
+
+    // space > click
+    this.element.addEventListener('keydown', function(evt) {
+        if (evt.keyCode !== 32 || self.disabled)
+            return;
+
+        evt.stopPropagation();
+        evt.preventDefault();
+        self.emit('click');
+    }, false);
 }
 ImageField.prototype = Object.create(ui.Element.prototype);
 

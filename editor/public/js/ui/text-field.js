@@ -10,6 +10,7 @@ function TextField(args) {
     this.elementInput = document.createElement('input');
     this.elementInput.classList.add('field');
     this.elementInput.type = 'text';
+    this.elementInput.tabIndex = 0;
     this.elementInput.addEventListener('focus', this._onInputFocus.bind(this), false);
     this.elementInput.addEventListener('blur', this._onInputBlur.bind(this), false);
     this.element.appendChild(this.elementInput);

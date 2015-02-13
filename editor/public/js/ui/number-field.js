@@ -14,6 +14,7 @@ function NumberField(args) {
     this.element.classList.add('ui-number-field');
 
     this.elementInput = document.createElement('input');
+    this.elementInput.tabIndex = 0;
     this.elementInput.classList.add('field');
     this.elementInput.type = 'text';
     this.elementInput.addEventListener('focus', this._onInputFocus.bind(this), false);

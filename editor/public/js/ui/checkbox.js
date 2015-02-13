@@ -8,7 +8,18 @@ function Checkbox(args) {
 
     this.element = document.createElement('div');
     this.element.classList.add('ui-checkbox', 'noSelect');
-    // this.element.innerHTML = this._text;
+
+    var self = this;
+    this.element.addEventListener('keydown', function(evt) {
+        if (evt.keyCode !== 32 || self.disabled)
+            return;
+
+        evt.stopPropagation();
+        evt.preventDefault();
+        self.value = ! self.value;
+    }, false);
+
+    this.element.tabIndex = 0;
 
     this.on('click', this._onClick.bind(this));
 

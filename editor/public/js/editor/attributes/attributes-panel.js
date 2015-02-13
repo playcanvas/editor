@@ -261,6 +261,7 @@ editor.once('load', function() {
                         evtColorPickStart.unbind();
                         evtColorToPicker.unbind();
                         colorPickerOn = false;
+                        field.element.focus();
                     });
                 });
 
@@ -291,6 +292,7 @@ editor.once('load', function() {
                             evtPick.unbind();
                             evtPick = null;
                         }
+                        field.element.focus();
                     });
                 });
 

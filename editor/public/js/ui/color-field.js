@@ -1,10 +1,12 @@
 "use strict"
 
 function ColorField(args) {
+    var self = this;
     ui.Element.call(this);
     args = args || { };
 
     this.element = document.createElement('div');
+    this.element.tabIndex = 0;
     this.element.classList.add('ui-color-field', 'rgb');
 
     this.elementColor = document.createElement('span');
@@ -13,6 +15,16 @@ function ColorField(args) {
 
     this._channels = args.channels || 3;
     this._values = [ 0, 0, 0, 0 ];
+
+    // space > click
+    this.element.addEventListener('keydown', function(evt) {
+        if (evt.keyCode !== 32 || self.disabled)
+            return;
+
+        evt.stopPropagation();
+        evt.preventDefault();
+        self.emit('click');
+    }, false);
 
     // render color back
     this.on('change', function(color) {

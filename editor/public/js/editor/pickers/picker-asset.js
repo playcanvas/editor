@@ -23,6 +23,15 @@ editor.once('load', function() {
     var assetsPanel = editor.call('layout.assets');
 
 
+    // esc to close
+    assetsPanel.element.addEventListener('keydown', function(evt) {
+        if (evt.keyCode !== 27 || overlay.hidden)
+            return;
+
+        overlay.hidden = true;
+    }, false);
+
+
     assetsGrid.on('deselect', function(item) {
         if (overlay.hidden || ! item.asset || item.asset !== currentAsset)
             return;
@@ -92,6 +101,14 @@ editor.once('load', function() {
         overlay.hidden = false;
         // flash assets panel
         assetsPanel.flash();
+        // focus on panel
+        setTimeout(function() {
+            if (assetsGrid.selected && assetsGrid.selected.length) {
+                assetsGrid.selected[0].element.focus();
+            } else {
+                assetsGrid.element.focus();
+            }
+        }, 100);
     });
 
 

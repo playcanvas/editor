@@ -1,12 +1,14 @@
 "use strict";
 
 function SelectField(args) {
+    var self = this;
     ui.Element.call(this);
     args = args || { };
 
     this.options = args.options || { };
 
     this.element = document.createElement('div');
+    this.element.tabIndex = 0;
     this.element.classList.add('ui-select-field', 'noSelect');
 
     this.elementValue = document.createElement('div');
@@ -49,6 +51,31 @@ function SelectField(args) {
 
         this.flash();
     });
+
+    // arrows - change
+    this.element.addEventListener('keydown', function(evt) {
+        if (self.disabled || [ 38, 40 ].indexOf(evt.keyCode) === -1)
+            return;
+
+        evt.stopPropagation();
+        evt.preventDefault();
+
+        var keys = Object.keys(self.options);
+        var ind = keys.indexOf(self.value !== undefined ? self.value.toString() : null);
+
+        var y = evt.keyCode === 38 ? -1 : 1;
+
+        // already first item
+        if (y === -1 && ind <= 0)
+            return;
+
+        // already last item
+        if (y === 1 && ind === (keys.length - 1))
+            return
+
+        // set new item
+        self.value = keys[ind + y];
+    }, false);
 }
 SelectField.prototype = Object.create(ui.Element.prototype);
 

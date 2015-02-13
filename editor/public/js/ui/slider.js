@@ -1,6 +1,7 @@
 "use strict";
 
 function Slider(args) {
+    var self = this;
     ui.Element.call(this);
     args = args || { };
 
@@ -18,6 +19,7 @@ function Slider(args) {
     this.element.appendChild(this.elementBar);
 
     this.elementHandle = document.createElement('div');
+    this.elementHandle.tabIndex = 0;
     this.elementHandle.classList.add('handle');
     this.elementBar.appendChild(this.elementHandle);
 
@@ -31,6 +33,30 @@ function Slider(args) {
 
         this.flash();
     });
+
+    // arrows - change
+    this.element.addEventListener('keydown', function(evt) {
+        if (self.disabled || [ 37, 39 ].indexOf(evt.keyCode) === -1)
+            return;
+
+        evt.stopPropagation();
+        evt.preventDefault();
+
+        var x = evt.keyCode === 37 ? -1 : 1;
+
+        if (evt.shiftKey)
+            x *= 10;
+
+        var rect = self.element.getBoundingClientRect();
+        var step = (self.max - self.min) / rect.width;
+        var value = Math.max(self.min, Math.min(self.max, self.value + x * step));
+        value = parseFloat(value.toFixed(self.precision), 10);
+
+        self.renderChanges = false;
+        self._updateHandle(value);
+        self.value = value;
+        self.renderChanges = true;
+    }, false);
 }
 Slider.prototype = Object.create(ui.Element.prototype);
 
@@ -66,6 +92,8 @@ Slider.prototype._handleEvt = function(evt) {
 Slider.prototype._onMouseDown = function(evt) {
     if (evt.button !== 0)
         return;
+
+    this.elementHandle.focus();
 
     this.renderChanges = false;
 

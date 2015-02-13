@@ -1,6 +1,7 @@
 "use strict";
 
 function Button(args) {
+    var self = this;
     ui.Element.call(this);
     args = args || { };
 
@@ -9,6 +10,18 @@ function Button(args) {
     this.element = document.createElement('div');
     this.element.classList.add('ui-button');
     this.element.innerHTML = this._text;
+
+    this.element.tabIndex = 0;
+
+    // space > click
+    this.element.addEventListener('keydown', function(evt) {
+        if (evt.keyCode !== 32 || self.disabled)
+            return;
+
+        evt.stopPropagation();
+        evt.preventDefault();
+        self.emit('click');
+    }, false);
 }
 Button.prototype = Object.create(ui.Element.prototype);
 
