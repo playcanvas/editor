@@ -99,29 +99,31 @@ editor.once('load', function() {
 
                 var attributes = new ui.Panel();
                 script.append(attributes);
-                for(var a = 0; a < items.get(i).attributes.length; a++) {
-                    var attribute = items.get(i).attributes.get(a);
+                if (items.get(i).attributes) {
+                    for(var a = 0; a < items.get(i).attributes.length; a++) {
+                        var attribute = items.get(i).attributes.get(a);
 
-                    var choices = null;
-                    if (attribute.type === 'enumeration') {
-                        choices = { };
-                        try {
-                            for(var e = 0; e < attribute.options.enumerations.length; e++) {
-                                choices[attribute.options.enumerations.get(e).value] = attribute.options.enumerations.get(e).name;
+                        var choices = null;
+                        if (attribute.type === 'enumeration') {
+                            choices = { };
+                            try {
+                                for(var e = 0; e < attribute.options.enumerations.length; e++) {
+                                    choices[attribute.options.enumerations.get(e).value] = attribute.options.enumerations.get(e).name;
+                                }
+                            } catch(ex) {
+                                console.log('could not recreate enumeration for script attribute, ' + items.get(i).url);
                             }
-                        } catch(ex) {
-                            console.log('could not recreate enumeration for script attribute, ' + items.get(i).url);
                         }
-                    }
 
-                    editor.call('attributes:addField', {
-                        parent: attributes,
-                        name: attribute.displayName,
-                        type: scriptAttributeTypes[attribute.type],
-                        enum: choices,
-                        link: entity,
-                        path: 'components.script.scripts.' + i + '.attributes.' + a + '.value'
-                    });
+                        editor.call('attributes:addField', {
+                            parent: attributes,
+                            name: attribute.displayName,
+                            type: scriptAttributeTypes[attribute.type],
+                            enum: choices,
+                            link: entity,
+                            path: 'components.script.scripts.' + i + '.attributes.' + a + '.value'
+                        });
+                    }
                 }
             }
         }
