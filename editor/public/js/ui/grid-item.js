@@ -25,6 +25,14 @@ function GridItem(args) {
         evt.preventDefault();
         self._onClick();
     }, false);
+
+    this.on('select', function() {
+        this.element.focus();
+    });
+
+    this.on('deselect', function() {
+        this.element.blur();
+    });
 }
 GridItem.prototype = Object.create(ui.Element.prototype);
 

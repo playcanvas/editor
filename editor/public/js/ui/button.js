@@ -22,6 +22,10 @@ function Button(args) {
         evt.preventDefault();
         self.emit('click');
     }, false);
+
+    this.on('click', function() {
+        this.element.blur();
+    });
 }
 Button.prototype = Object.create(ui.Element.prototype);
 

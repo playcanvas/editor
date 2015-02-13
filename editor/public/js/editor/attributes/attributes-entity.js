@@ -35,7 +35,7 @@ editor.once('load', function() {
             name: 'Position',
             placeholder: [ 'X', 'Y', 'Z' ],
             precision: 3,
-            step: .005,
+            step: .05,
             type: 'vec3',
             link: entity,
             path: 'position'
@@ -57,7 +57,7 @@ editor.once('load', function() {
             name: 'Scale',
             placeholder: [ 'X', 'Y', 'Z' ],
             precision: 3,
-            step: .01,
+            step: .05,
             type: 'vec3',
             link: entity,
             path: 'scale'

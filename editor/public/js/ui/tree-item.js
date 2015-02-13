@@ -46,6 +46,10 @@ function TreeItem(args) {
         this.elementTitle.focus();
     });
 
+    this.on('deselect', function() {
+        this.elementTitle.blur();
+    });
+
     this.elementTitle.addEventListener('keydown', function(evt) {
         if ([ 9, 38, 40, 37, 39 ].indexOf(evt.keyCode) === -1)
             return;
