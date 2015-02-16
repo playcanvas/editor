@@ -230,6 +230,14 @@ editor.once('load', function() {
             createAnchor(selectedCurve, 0, 0);
             updateFields([0, 0]);
             setSelected(selectedCurve, null);
+
+            // reset secondary curve too
+            var otherCurve = getOtherCurve(selectedCurve);
+            if (otherCurve) {
+                otherCurve.keys.length = 0;
+                createAnchor(otherCurve, 0, 0);
+            }
+
             render();
 
             changing = false;
