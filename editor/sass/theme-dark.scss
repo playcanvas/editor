@@ -402,6 +402,10 @@ a:visited {
     &.flash {
         @extend .ui-flash;
     }
+
+    &:hover, &:focus, &.active {
+        border-color: $text-active;
+    }
 }
 
 .ui-checkbox {

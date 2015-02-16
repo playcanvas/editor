@@ -326,8 +326,8 @@ editor.once('load', function() {
 
                 var curvePickerOn = false;
 
-                field.on('click', function () {
-                    if (!field.class.contains('disabled')) {
+                var toggleCurvePicker = function () {
+                    if (!field.class.contains('disabled') && !curvePickerOn) {
                         editor.call('picker:curve', field.value, args);
 
                         curvePickerOn = true;
@@ -376,6 +376,22 @@ editor.once('load', function() {
                             editor.unbind('picker:curve:change', onPickerChanged);
                             curvePickerOn = false;
                         });
+                    }
+                };
+
+                // open curve editor on click
+                field.on('click', toggleCurvePicker);
+
+                // open curve editor on space
+                field.element.addEventListener('keydown', function (e) {
+                    if (e.which === 32) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        if (!curvePickerOn) {
+                            toggleCurvePicker();
+                        } else {
+                            editor.call('picker:curve:close');
+                        }
                     }
                 });
 

@@ -10,10 +10,7 @@ function CurveField(args) {
 
     // canvas to render mini version of curves
     this.canvas = new ui.Canvas();
-    this.canvas.class.add('ui-canvas');
-
     this.element.appendChild(this.canvas.element);
-
     this.canvas.on('resize', this._render.bind(this));
 
     this._value = null;
