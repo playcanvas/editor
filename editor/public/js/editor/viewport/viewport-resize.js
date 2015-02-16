@@ -13,12 +13,11 @@ editor.once('load', function() {
         editor.call('viewport:render');
     });
 
-
     // handle canvas resizing
     // 20 times a second
     // if size is already same, nothing will happen
     setInterval(function() {
         var rect = container.element.getBoundingClientRect();
-        canvas.resize(rect.width, rect.height);
+        canvas.resize(Math.floor(rect.width), Math.floor(rect.height));
     }, 1000 / 60);
 });
