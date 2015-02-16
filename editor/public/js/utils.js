@@ -16,7 +16,7 @@ utils.deepCopy = function deepCopy(data) {
         var obj = { };
         for(var key in data) {
             if (data.hasOwnProperty(key))
-                temp[key] = deepCopy(data[key]);
+                obj[key] = deepCopy(data[key]);
         }
         return obj;
     }

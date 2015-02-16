@@ -402,123 +402,73 @@ editor.once('load', function() {
         });
 
 
-        // // localVelocityGraph
-        // editor.call('attributes:addField', {
-        //     parent: panel,
-        //     name: 'Local Velocity',
-        //     type: 'curveset',
-        //     link: entity,
-        //     path: 'components.particlesystem.localVelocityGraph'
-        // });
+        // localVelocityGraph
+        editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Local Velocity',
+            type: 'curveset',
+            link: entity,
+            paths: ['components.particlesystem.localVelocityGraph', 'components.particlesystem.localVelocityGraph2'],
+            curves: ['X', 'Y', 'Z']
+        });
 
+        // velocityGraph
+        editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Velocity',
+            type: 'curveset',
+            link: entity,
+            paths: ['components.particlesystem.velocityGraph', 'components.particlesystem.velocityGraph2'],
+            curves: ['X', 'Y', 'Z']
+        });
 
-        // // localVelocityGraph2
-        // editor.call('attributes:addField', {
-        //     parent: panel,
-        //     name: 'Local Velocity 2',
-        //     type: 'curveset',
-        //     link: entity,
-        //     path: 'components.particlesystem.localVelocityGraph2'
-        // });
+        // rotationSpeedGraph
+        editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Rotation Speed',
+            type: 'curveset',
+            link: entity,
+            paths: ['components.particlesystem.rotationSpeedGraph', 'components.particlesystem.rotationSpeedGraph2'],
+            curves: ['Angle'],
+            verticalValue: 180
+        });
 
+        // scaleGraph
+        editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Scale',
+            type: 'curveset',
+            link: entity,
+            paths: ['components.particlesystem.scaleGraph', 'components.particlesystem.scaleGraph2'],
+            curves: ['Scale'],
+            verticalValue: 1,
+            min: 0
+        });
 
-        // // velocityGraph
-        // editor.call('attributes:addField', {
-        //     parent: panel,
-        //     name: 'Velocity',
-        //     type: 'curveset',
-        //     link: entity,
-        //     path: 'components.particlesystem.velocityGraph'
-        // });
+        // colorGraph
+        editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Color',
+            type: 'curveset',
+            link: entity,
+            path: 'components.particlesystem.colorGraph',
+            gradient: true,
+            curves: ['R', 'G', 'B'],
+            max: 1,
+            min: 0
+        });
 
+        // alphaGraph
+        editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Opacity',
+            type: 'curveset',
+            link: entity,
+            paths: ['components.particlesystem.alphaGraph', 'components.particlesystem.alphaGraph2'],
+            curves: ['Opacity'],
+            min: 0,
+            max: 1
+        });
 
-        // // velocityGraph2
-        // editor.call('attributes:addField', {
-        //     parent: panel,
-        //     name: 'Velocity 2',
-        //     type: 'curveset',
-        //     link: entity,
-        //     path: 'components.particlesystem.velocityGraph2'
-        // });
-
-
-        // // rotationSpeedGraph
-        // editor.call('attributes:addField', {
-        //     parent: panel,
-        //     name: 'Rotation Speed',
-        //     type: 'curveset',
-        //     link: entity,
-        //     path: 'components.particlesystem.rotationSpeedGraph'
-        // });
-
-
-        // // rotationSpeedGraph2
-        // editor.call('attributes:addField', {
-        //     parent: panel,
-        //     name: 'Rotation Speed 2',
-        //     type: 'curveset',
-        //     link: entity,
-        //     path: 'components.particlesystem.rotationSpeedGraph2'
-        // });
-
-
-        // // scaleGraph
-        // editor.call('attributes:addField', {
-        //     parent: panel,
-        //     name: 'Scale',
-        //     type: 'curveset',
-        //     link: entity,
-        //     path: 'components.particlesystem.scaleGraph'
-        // });
-
-
-        // // scaleGraph2
-        // editor.call('attributes:addField', {
-        //     parent: panel,
-        //     name: 'Scale 2',
-        //     type: 'curveset',
-        //     link: entity,
-        //     path: 'components.particlesystem.scaleGraph2'
-        // });
-
-
-        // // colorGraph
-        // editor.call('attributes:addField', {
-        //     parent: panel,
-        //     name: 'Color',
-        //     type: 'curveset',
-        //     link: entity,
-        //     path: 'components.particlesystem.colorGraph'
-        // });
-
-
-        // // colorGraph2
-        // editor.call('attributes:addField', {
-        //     parent: panel,
-        //     name: 'Color 2',
-        //     type: 'curveset',
-        //     link: entity,
-        //     path: 'components.particlesystem.colorGraph2'
-        // });
-
-
-        // // alphaGraph
-        // editor.call('attributes:addField', {
-        //     parent: panel,
-        //     name: 'Alpha',
-        //     type: 'curveset',
-        //     link: entity,
-        //     path: 'components.particlesystem.alphaGraph'
-        // });
-
-
-        // // alphaGraph2
-        // editor.call('attributes:addField', {
-        //     parent: panel,
-        //     name: 'Alpha 2',
-        //     type: 'curveset',
-        //     link: entity,
-        //     path: 'components.particlesystem.alphaGraph2'
-        // });
     });
 });

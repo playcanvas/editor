@@ -313,6 +313,97 @@ editor.once('load', function() {
             case 'element':
                 panel.append(args.element);
                 return args.element;
+            case 'curveset':
+                var field = new ui.CurveField(args);
+                field.flexGrow = 1;
+                field.text = args.text || '';
+
+                if (args.value)
+                    field.value = args.value;
+
+                if (args.link)
+                    field.link(args.link, args.paths || [args.path]);
+
+                var curvePickerOn = false;
+
+                var toggleCurvePicker = function () {
+                    if (!field.class.contains('disabled') && !curvePickerOn) {
+                        editor.call('picker:curve', field.value, args);
+
+                        curvePickerOn = true;
+
+                        var first = true;
+
+                        // position picker
+                        var rectPicker = editor.call('picker:curve:rect');
+                        var rectField = field.element.getBoundingClientRect();
+                        editor.call('picker:curve:position', rectField.right - rectPicker.width, rectField.bottom);
+
+                        var onPickerStartChange = function () {
+                            first = true;
+                        };
+
+                        editor.on('picker:curve:change:start', onPickerStartChange);
+
+                        var onPickerChanged = function (value) {
+                            var combine;
+                            if (field._link) {
+                                combine = field._link.history.combine;
+                                field._link.history.combine = !first;
+                            }
+
+                            field.value = value;
+
+                            if (field._link) {
+                                field._link.history.combine = combine;
+                            }
+
+                            first = false;
+                        };
+
+                        editor.on('picker:curve:change', onPickerChanged);
+
+                        var refreshPicker = function (value) {
+                            editor.call('picker:curve:set', value, args);
+                        };
+
+                        field.on('change', refreshPicker);
+
+
+                        editor.once('picker:curve:close', function () {
+                            field.unbind('change', refreshPicker);
+                            editor.unbind('picker:curve:change:start', onPickerStartChange);
+                            editor.unbind('picker:curve:change', onPickerChanged);
+                            curvePickerOn = false;
+                        });
+                    }
+                };
+
+                // open curve editor on click
+                field.on('click', toggleCurvePicker);
+
+                // open curve editor on space
+                field.element.addEventListener('keydown', function (e) {
+                    if (e.which === 32) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        if (!curvePickerOn) {
+                            toggleCurvePicker();
+                        } else {
+                            editor.call('picker:curve:close');
+                        }
+                    }
+                });
+
+                // close picker if field destroyed
+                field.on('destroy', function() {
+                    if (curvePickerOn) {
+                        editor.call('picker:curve:close');
+                    }
+                });
+
+                panel.append(field);
+                return field;
             default:
                 var field = new ui.Label();
                 field.flexGrow = 1;

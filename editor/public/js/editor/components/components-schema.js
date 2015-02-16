@@ -129,7 +129,57 @@ editor.once('load', function() {
                 wrapBounds: [0,0,0],
                 colorMapAsset: null,
                 normalMapAsset: null,
-                mesh: null
+                mesh: null,
+                localVelocityGraph: {
+                    type: 1,
+                    keys: [[0, 0], [0, 0], [0, 0]],
+                    betweenCurves: false
+                },
+                localVelocityGraph2: {
+                    type: 1,
+                    keys: [[0, 0], [0, 0], [0, 0]]
+                },
+                velocityGraph: {
+                    type: 1,
+                    keys: [[0, -1], [0, -1], [0, -1]],
+                    betweenCurves: true
+                },
+                velocityGraph2: {
+                    type: 1,
+                    keys: [[0, 1], [0, 1], [0, 1]]
+                },
+                rotationSpeedGraph: {
+                    type: 1,
+                    keys: [0, 0],
+                    betweenCurves: false
+                },
+                rotationSpeedGraph2: {
+                    type: 1,
+                    keys: [0, 0]
+                },
+                scaleGraph: {
+                    type: 1,
+                    keys: [0, 0.1],
+                    betweenCurves: false
+                },
+                scaleGraph2: {
+                    type: 1,
+                    keys: [0, 0.1]
+                },
+                colorGraph: {
+                    type: 1,
+                    keys: [[0, 1], [0, 1], [0, 1]],
+                    betweenCurves: false
+                },
+                alphaGraph: {
+                    type: 1,
+                    keys: [0, 1],
+                    betweenCurves: false
+                },
+                alphaGraph2: {
+                    type: 1,
+                    keys: [0, 1]
+                }
             },
             types: {
                 emitterExtents: 'vec3'
