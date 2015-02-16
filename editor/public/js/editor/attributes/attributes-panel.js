@@ -352,8 +352,6 @@ editor.once('load', function() {
                                 field._link.history.combine = !first;
                             }
 
-                            console.log('Setting value')
-                            console.log(value);
                             field.value = value;
 
                             if (field._link) {

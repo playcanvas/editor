@@ -114,16 +114,14 @@ CurveField.prototype._onLinkChange = function () {
     if (this._suspendEvents) return;
 
     // gather values of all paths and set new value
-    var values;
+    var values = [];
 
     for (var i = 0; i < this._paths.length; i++) {
         var value = this._link.get(this._paths[i]);
         if (value !== undefined) {
-            values = values || [];
             values.push(value);
         } else {
             values.push(null);
-            break;
         }
     }
 
@@ -227,7 +225,7 @@ CurveField.prototype._renderCurves = function () {
     var minMax = this._getMinMaxValues(value);
 
     // draw curves
-    if (value) {
+    if (value && value[0]) {
         var primaryCurves = this._valueToCurves(value[0]);
         var secondaryCurves = value.length > 1 ? this._valueToCurves(value[1]) : null;
 
@@ -316,7 +314,7 @@ CurveField.prototype._getMinMaxValues = function (curves) {
         }
 
         curves.forEach(function (value) {
-            if (value.keys && value.keys.length) {
+            if (value && value.keys && value.keys.length) {
                 if (value.keys[0].length !== undefined) {
                     value.keys.forEach(function (data) {
 
@@ -366,9 +364,10 @@ CurveField.prototype._getMinMaxValues = function (curves) {
 };
 
 CurveField.prototype._valueToCurves = function (value) {
-    var curves = [];
+    var curves = null;
 
     if (value && value.keys.length) {
+        curves = [];
         var curve;
         if (value.keys[0].length !== undefined) {
             value.keys.forEach(function (data, index) {
