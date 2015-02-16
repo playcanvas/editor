@@ -141,8 +141,10 @@ Object.defineProperty(CurveField.prototype, 'value', {
             this._link.history.enabled = false;
 
             this._paths.forEach(function (path, index) {
+                // remember old values so that we can undo later
                 var oldValue = this._link.get(path);
                 if (oldValue) {
+                    // deep copy data to prevent editing the same fields
                     oldValue = utils.deepCopy(oldValue.__data);
                 }
                 oldValues.push(oldValue);
@@ -158,24 +160,34 @@ Object.defineProperty(CurveField.prototype, 'value', {
                 name: 'entity.' + this._link.resource_id + '.components.particlesystem.' + this._name,
                 combine: this._link.history.combine,
                 undo: function () {
+                    // temporarily disable history
                     var enabled = this._link.history.enabled;
                     this._link.history.enabled = false;
                     this._suspendEvents = true;
+
+                    // set old values
                     this._paths.forEach(function (path, index) {
                         this._link.set(path, oldValues[index]);
                     }.bind(this));
+
+                    // re-enable history
                     this._suspendEvents = false;
                     this._link.history.enabled = enabled;
 
                     this._setValue(oldValues);
                 }.bind(this),
                 redo: function () {
+                    // disable history
                     var enabled = this._link.history.enabled;
                     this._link.history.enabled = false;
                     this._suspendEvents = true;
+
+                    // re-set values
                     this._paths.forEach(function (path, index) {
                         this._link.set(path, value ? value[index] : null);
                     }.bind(this));
+
+                    // re-enable history
                     this._suspendEvents = false;
                     this._link.history.enabled = enabled;
 
@@ -183,6 +195,7 @@ Object.defineProperty(CurveField.prototype, 'value', {
                 }.bind(this)
             };
 
+            // raise history event
             if (action.combine) {
                 this._link.history.emit('record', 'update', action);
             } else {
