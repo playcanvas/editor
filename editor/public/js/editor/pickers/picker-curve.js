@@ -182,24 +182,13 @@ editor.once('load', function() {
         var newAnchorTime = fieldTime.value;
         var newAnchorValue = fieldValue.value;
 
-        // if there is another point with the same time
-        // then make the two points have the same values
-        var keys = selectedCurve.keys;
-        for (var i = 0, len = keys.length; i < len; i++) {
-            if (keys[i] !== selectedAnchor && keys[i][0] === newAnchorTime) {
-                newAnchorValue = keys[i][1];
-
-                suspendEvents = true;
-                fieldValue.value = newAnchorValue;
-                suspendEvents = false;
-            }
-        }
-
         // start editing
         editor.emit('picker:curve:change:start');
 
         // set time for the selected anchor
         updateAnchor(selectedCurve, selectedAnchor, newAnchorTime, newAnchorValue);
+
+        collapseAnchors();
 
         if (newAnchorValue > verticalTopValue || newAnchorValue < verticalBottomValue) {
             resetZoom();
@@ -771,7 +760,7 @@ editor.once('load', function() {
             for (var i = curve.keys.length - 1; i > 0; i--) {
                 var key = curve.keys[i];
                 var prevKey = curve.keys[i-1];
-                if (key[0] === prevKey[0]) {
+                if (key[0].toFixed(2) === prevKey[0].toFixed(2)) {
                     curve.keys.splice(i, 1);
                     dirty = true;
                     if (selectedAnchor === key) {
@@ -784,6 +773,10 @@ editor.once('load', function() {
                 }
             }
         });
+
+        if (dirty) {
+            editor.emit('picker:curve:change', getValue());
+        }
 
         return dirty;
     }
@@ -800,6 +793,12 @@ editor.once('load', function() {
         anchor[0] = time;
         anchor[1] = value;
         curve.sort();
+
+        // reset selected anchor index because it
+        // might have changed after sorting the curve keys
+        if (selectedCurve === curve && selectedAnchor) {
+            selectedAnchorIndex = curve.keys.indexOf(selectedAnchor);
+        }
 
         editor.emit('picker:curve:change', getValue());
     }
@@ -1004,9 +1003,7 @@ editor.once('load', function() {
         // collapse anchors on mouse down because we might
         // have placed another anchor on top of another by directly
         // editing its time through the input fields
-        if (collapseAnchors()) {
-            editor.emit('picker:curve:change', getValue());
-        }
+        collapseAnchors();
 
         // select or add anchor on left click
         if (e.button === 0) {
@@ -1093,9 +1090,7 @@ editor.once('load', function() {
         if (changing) {
             // collapse anchors on mouse up because we might have
             // placed an anchor on top of another one
-            if (collapseAnchors()) {
-                editor.emit('picker:curve:change', getValue());
-            }
+            collapseAnchors();
 
             dragging = false;
             changing = false;
