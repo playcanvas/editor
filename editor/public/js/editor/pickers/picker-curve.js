@@ -55,6 +55,8 @@ editor.once('load', function() {
     fieldType.on('change', function (value) {
         if (suspendEvents) return;
 
+        changing = true;
+
         curveType = value;
 
         // set type for each curve
@@ -66,6 +68,8 @@ editor.once('load', function() {
         editor.emit('picker:curve:change', getValue());
 
         render();
+
+        changing = false;
     });
 
     header.append(fieldType);
@@ -81,6 +85,8 @@ editor.once('load', function() {
     var fieldRandomize = new ui.Checkbox();
     fieldRandomize.on('change', function (value) {
         if (suspendEvents) return;
+
+        changing = true;
 
         betweenCurves = value;
 
@@ -103,7 +109,9 @@ editor.once('load', function() {
         editor.emit('picker:curve:change:start');
         editor.emit('picker:curve:change', getValue());
 
+        changing = false;
     });
+
     header.append(fieldRandomize);
 
     // curve toggles
@@ -149,6 +157,7 @@ editor.once('load', function() {
         step: 0.1
     });
 
+    fieldTime.renderChanges = false;
     fieldTime.value = 0;
     fieldTime.on('change', onFieldChanged);
     fieldTime.flexGrow = 1;
@@ -157,6 +166,7 @@ editor.once('load', function() {
 
     // value input field
     var fieldValue = new ui.NumberField();
+    fieldValue.renderChanges = false    ;
     fieldValue.value = 0;
     fieldValue.on('change', onFieldChanged);
     fieldValue.flexGrow = 1;
@@ -211,6 +221,8 @@ editor.once('load', function() {
         // reset keys of selected curve
         if (selectedCurve) {
 
+            changing = true;
+
             // start editing
             editor.emit('picker:curve:change:start');
 
@@ -219,6 +231,8 @@ editor.once('load', function() {
             updateFields([0, 0]);
             setSelected(selectedCurve, null);
             render();
+
+            changing = false;
         }
     });
     btnResetCurve.style['font-size'] = '11px';
@@ -965,16 +979,11 @@ editor.once('load', function() {
         return false;
     }
 
-
-
     // Handles mouse down
     canvas.element.addEventListener('mousedown', function (e) {
         if (e.target !== canvas.element) {
             return;
         }
-
-        e.preventDefault();
-        e.stopPropagation();
 
         dragging = true;
         changing = true;
@@ -1038,9 +1047,6 @@ editor.once('load', function() {
 
     // Handles mouse move
     canvas.element.addEventListener('mousemove', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-
         var coords = getTargetCoords(e);
 
         // if we are dragging the selected anchor
@@ -1091,7 +1097,6 @@ editor.once('load', function() {
     // Disables context menu
     canvas.element.addEventListener('contextmenu', function (e) {
         e.preventDefault();
-        e.stopPropagation();
     });
 
 
