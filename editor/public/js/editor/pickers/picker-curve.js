@@ -44,8 +44,7 @@ editor.once('load', function() {
         options: {
             0: 'Linear',
             1: 'Smooth Step',
-            2: 'Catmull Rom',
-            3: 'Cardinal'
+            2: 'Spline'
         },
         number: true
     });
