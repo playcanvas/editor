@@ -138,7 +138,7 @@ $disabled-opacity: .4;
         }
         &.field-asset {
             > .content > .ui-image-field {
-                background-image: url("http://playcanvas.dev/editor/scene/img/asset-placeholder-texture.png");
+                background-image: url("/editor/scene/img/asset-placeholder-texture.png");
                 background-size: 64px 64px;
                 background-repeat: no-repeat;
             }
@@ -154,7 +154,7 @@ $disabled-opacity: .4;
 
                 > .ui-image-field {
                     float: right;
-                    background-image: url("http://playcanvas.dev/editor/scene/img/asset-placeholder-texture.png");
+                    background-image: url("/editor/scene/img/asset-placeholder-texture.png");
                     background-size: 64px 64px;
                     background-repeat: no-repeat;
                 }
@@ -205,7 +205,7 @@ $disabled-opacity: .4;
                 cursor: pointer;
                 padding-bottom: 25%;
 
-                background-image: url("http://playcanvas.dev/editor/scene/img/asset-placeholder-texture.png");
+                background-image: url("/editor/scene/img/asset-placeholder-texture.png");
                 background-position: center center;
                 background-repeat: no-repeat;
                 background-size: 100% 100%;
