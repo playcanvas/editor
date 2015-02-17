@@ -388,6 +388,26 @@ a:visited {
     }
 }
 
+.ui-curve-field {
+    border: 1px solid $bcg-darker;
+    background-color: $bcg-dark;
+
+    &.active,
+    > .ui-canvas:focus,
+    > .ui-canvas:hover {
+        border-color: $bcg-darker;
+        box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+    }
+
+    &.flash {
+        @extend .ui-flash;
+    }
+
+    &:hover, &:focus, &.active {
+        border-color: $text-active;
+    }
+}
+
 .ui-checkbox {
     position: relative;
     border: 1px solid $bcg-darker;
@@ -522,5 +542,19 @@ a:visited {
         > .fields {
             background-color: $bcg-darker;
         }
+    }
+}
+
+.picker-curve {
+    > .content {
+        border: 1px solid $bcg-darker;
+        background-color: $bcg-dark;
+    }
+
+    .ui-checkbox.picker-curve-toggle {
+        &.checked {
+            border-color: $text-active;
+        }
+
     }
 }

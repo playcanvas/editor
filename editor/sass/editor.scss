@@ -538,6 +538,7 @@ $disabled-opacity: .4;
                 outline: 1px solid #fff;
             }
         }
+
         > .fields {
             float: left;
             width: 106px;
@@ -551,4 +552,32 @@ $disabled-opacity: .4;
             }
         }
     }
+}
+
+.picker-curve {
+    > .content {
+        border: 1px solid #000;
+        width: 470px;
+        background-color: transparent;
+        white-space: nowrap;
+        transition: none;
+    }
+
+    .ui-checkbox.picker-curve-toggle {
+        text-align: center;
+        line-height: 24px;
+        width: auto;
+        min-width: 14px;
+        padding-left: 5px;
+        padding-right: 5px;
+
+        &:after {
+            content: none;
+        }
+
+        &:focus, &.active {
+            border-color: transparent;
+        }
+    }
+
 }
