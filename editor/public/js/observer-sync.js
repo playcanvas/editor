@@ -160,6 +160,15 @@ ObserverSync.prototype.write = function(op) {
         this.item.move(path, this.item.get(path + '.' + indOld), ind);
         this._enabled = true;
 
+
+    } else if (op.hasOwnProperty('od')) {
+        // unset key value
+        var path = op.p.slice(this._prefix.length).join('.');
+        this._enabled = false;
+        this.item.unset(path);
+        this._enabled = true;
+
+
     } else {
         console.log('unknown operation', op);
     }

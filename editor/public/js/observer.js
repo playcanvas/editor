@@ -46,7 +46,7 @@ Observer.prototype._prepare = function(target, key, value) {
             target.__data[key].on('add', function(item, index) {
                 var parent = this.parent;
 
-                item.on('*:set', function(path, value, oldValue) {
+                item.___evtObserverListSet = item.on('*:set', function(path, value, oldValue) {
                     path = (parent.__path ? parent.__path + '.' : '') + key + '.' + index + '.' + path;
                     self.emit(path + ':set', value, oldValue);
                     self.emit('*:set', path, value, oldValue);
@@ -54,6 +54,12 @@ Observer.prototype._prepare = function(target, key, value) {
             }.bind({
                 parent: target
             }));
+
+            target.__data[key].on('remove', function(item) {
+                if (! item.___evtObserverListSet)
+                    return;
+                item.___evtObserverListSet.unbind();
+            });
 
             for(var i = 0; i < value.length; i++) {
                 target.__data[key].add(new Observer(value[i]));
@@ -81,8 +87,12 @@ Observer.prototype._prepare = function(target, key, value) {
             }
         }
         if (changed) {
-            this.emit(path + ':set', target.__data[key], oldData);
-            this.emit('*:set', path, target.__data[key], oldData);
+            var data = target.__data[key];
+            if (data instanceof ObserverList)
+                data = data.json();
+
+            this.emit(path + ':set', data, oldData);
+            this.emit('*:set', path, data, oldData);
         }
     } else if (type === 'object' && (value instanceof Object)) {
         var changed = false;
@@ -261,10 +271,20 @@ Observer.prototype.set = function(path, value) {
         this._prepare(node, key, value);
     } else {
         if (typeof(value) === 'object' && (value instanceof Array)) {
-            if (value.equals(node[key]))
-                return;
+            if (node[key] instanceof ObserverList) {
+                node[key].clear();
+                for(var i = 0; i < value.length; i++) {
+                    node[key].add(new Observer(value[i]));
+                }
+            } else if (value.length && typeof(value[0]) === 'object') {
+                this.unset(node.__path + '.' + key);
+                this._prepare(node, key, value);
+            } else {
+                if (value.equals(node[key]))
+                    return;
 
-            node[key] = value;
+                node[key] = value;
+            }
         } else if (typeof(value) === 'object' && (value instanceof Object)) {
             this._prepare(node, key, value);
 
