@@ -80,12 +80,12 @@ ObserverList.prototype.remove = function(item) {
     if (this.index)
         index = item[this.index];
 
-    if (this.index) {
+    if (this.index)
         delete this._indexed[item[this.index]];
-    }
+
     this.data.splice(ind, 1);
 
-    this.emit('remove', item);
+    this.emit('remove', item, index);
 };
 
 
@@ -101,14 +101,16 @@ ObserverList.prototype.removeByKey = function(index) {
 
         delete this._indexed[index];
 
-        this.emit('remove', item);
+        this.emit('remove', item, ind);
     } else {
         if (this.data.length < index)
             return;
 
+        var item = this.data[index];
+
         this.data.splice(index, 1);
 
-        this.emit('remove', this.data[index]);
+        this.emit('remove', item, index);
     }
 };
 

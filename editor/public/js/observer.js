@@ -42,28 +42,41 @@ Observer.prototype._prepare = function(target, key, value) {
         } else if(value[0] && typeof(value[0]) === 'object' && ! (value[0] instanceof Array)) {
             changed = true;
             target.__data[key] = new ObserverList();
+            var reportInsert = false;
 
             target.__data[key].on('add', function(item, index) {
-                var parent = this.parent;
+                if (! (item instanceof Observer)) {
+                    item = new Observer(item);
+                    this.__data[index] = item;
+                }
 
-                item.___evtObserverListSet = item.on('*:set', function(path, value, oldValue) {
-                    path = (parent.__path ? parent.__path + '.' : '') + key + '.' + index + '.' + path;
+                item.___evtObserverList = item.on('*:set', function(path, value, oldValue) {
+                    path = (target.__path ? target.__path + '.' : '') + key + '.' + index + '.' + path;
                     self.emit(path + ':set', value, oldValue);
                     self.emit('*:set', path, value, oldValue);
                 });
-            }.bind({
-                parent: target
-            }));
 
-            target.__data[key].on('remove', function(item) {
-                if (! item.___evtObserverListSet)
-                    return;
-                item.___evtObserverListSet.unbind();
+                if (reportInsert) {
+                    var path = (target.__path ? target.__path + '.' : '') + key;
+                    self.emit(path + ':insert', item.json(), index);
+                    self.emit('*:insert', path, item.json(), index);
+                }
+            });
+
+            target.__data[key].on('remove', function(item, index) {
+                if (item.___evtObserverList)
+                    item.___evtObserverList.unbind();
+
+                var path = (target.__path ? target.__path + '.' : '') + key;
+                var data = item.json();
+                self.emit(path + ':remove', data, index);
+                self.emit('*:remove', path, data, index);
             });
 
             for(var i = 0; i < value.length; i++) {
                 target.__data[key].add(new Observer(value[i]));
             }
+            reportInsert = true;
         } else {
             if (target.__data[key] && target.__data[key].length === value.length) {
                 // same length, update carefully
@@ -94,6 +107,43 @@ Observer.prototype._prepare = function(target, key, value) {
             this.emit(path + ':set', data, oldData);
             this.emit('*:set', path, data, oldData);
         }
+    } else if (type === 'function' && value === ObserverList) {
+        target.__data[key] = new ObserverList();
+
+        target.__data[key].on('add', function(item, index) {
+            if (typeof(item) === 'object' && ! (item instanceof Observer)) {
+                item = new Observer(item);
+                this.data[index] = item;
+            }
+
+            item.on('*:set', function(path, value, oldValue) {
+                path = (target.__path ? target.__path + '.' : '') + key + '.' + index + '.' + path;
+                self.emit(path + ':set', value, oldValue);
+                self.emit('*:set', path, value, oldValue);
+            });
+
+            var path = (target.__path ? target.__path + '.' : '') + key;
+            self.emit(path + ':insert', item.json(), index);
+            self.emit('*:insert', path, item.json(), index);
+        });
+
+        target.__data[key].on('remove', function(item, index) {
+            console.log("!!!", item);
+            // if (! item.___evtObserverListSet)
+                // return;
+            // item.___evtObserverListSet.unbind();
+
+            var path = (target.__path ? target.__path + '.' : '') + key;
+
+            console.log(path);
+
+            self.emit(path + ':remove', item, index);
+            self.emit('*:remove', path, item, index);
+        });
+        this.emit(path + ':set', [ ], null);
+        this.emit('*:set', path, [ ], null);
+
+        return [ ];
     } else if (type === 'object' && (value instanceof Object)) {
         var changed = false;
         if (! target.__data[key] || ! target.__data[key].__data) {
@@ -115,7 +165,9 @@ Observer.prototype._prepare = function(target, key, value) {
             this.sync.enabled = false;
 
         for(var i in value) {
-            this._prepare(target.__data[key], i, value[i]);
+            var newValue = this._prepare(target.__data[key], i, value[i]);
+            if (newValue)
+                value[i] = newValue;
         }
 
         if (syncState)

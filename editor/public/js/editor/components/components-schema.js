@@ -207,7 +207,7 @@ editor.once('load', function() {
         script: {
             default: {
                 enabled: true,
-                scripts: []
+                scripts: ObserverList
             }
         }
     };

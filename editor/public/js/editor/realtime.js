@@ -72,7 +72,6 @@ editor.once('load', function() {
         };
 
 
-
         // method to send operations
         editor.method('realtime:op', function(op) {
             if (! editor.call('permissions:write') || ! scene)
