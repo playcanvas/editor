@@ -104,6 +104,24 @@ a:visited {
     &.flash {
         @extend .ui-flash;
     }
+
+    &.panel-components-script {
+        a {
+            color: white;
+        }
+
+        &.panel-components-script {
+            border-top: 1px solid $bcg-darker;
+
+            &:last-child {
+                border-bottom: 1px solid $bcg-darker;
+            }
+
+            > .content {
+                border-top: 1px solid $bcg-darker;
+            }
+        }
+    }
 }
 
 .ui-overlay {
@@ -527,7 +545,6 @@ a:visited {
     from { outline-color: $text-active; }
     to { outline-color: rgba($text-active, 0); }
 }
-
 
 .picker-color {
     > .content {

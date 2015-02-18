@@ -224,6 +224,7 @@ editor.once('load', function() {
 
         function createScriptPanel (script) {
             var panel = new ui.Panel(script.url);
+            panel.class.add('panel-components-script');
 
             var link = document.createElement('a');
 
