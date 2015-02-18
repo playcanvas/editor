@@ -298,9 +298,6 @@ Observer.prototype.set = function(path, value) {
     var nodePath = '';
     var node = this;
 
-    console.log(this);
-    console.log(path);
-
     for(var i = 0; i < keys.length - 1; i++) {
         if (! node.hasOwnProperty(keys[i])) {
             if (node instanceof ObserverList) {
