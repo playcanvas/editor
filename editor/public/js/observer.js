@@ -116,7 +116,7 @@ Observer.prototype._prepare = function(target, key, value) {
                 this.data[index] = item;
             }
 
-            item.on('*:set', function(path, value, oldValue) {
+            item.___evtObserverList = item.on('*:set', function(path, value, oldValue) {
                 path = (target.__path ? target.__path + '.' : '') + key + '.' + index + '.' + path;
                 self.emit(path + ':set', value, oldValue);
                 self.emit('*:set', path, value, oldValue);
@@ -128,17 +128,13 @@ Observer.prototype._prepare = function(target, key, value) {
         });
 
         target.__data[key].on('remove', function(item, index) {
-            console.log("!!!", item);
-            // if (! item.___evtObserverListSet)
-                // return;
-            // item.___evtObserverListSet.unbind();
+            if (item.___evtObserverList)
+                item.___evtObserverList.unbind();
 
             var path = (target.__path ? target.__path + '.' : '') + key;
-
-            console.log(path);
-
-            self.emit(path + ':remove', item, index);
-            self.emit('*:remove', path, item, index);
+            var data = item.json();
+            self.emit(path + ':remove', data, index);
+            self.emit('*:remove', path, data, index);
         });
         this.emit(path + ':set', [ ], null);
         this.emit('*:set', path, [ ], null);
