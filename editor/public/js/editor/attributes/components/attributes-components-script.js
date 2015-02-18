@@ -22,6 +22,9 @@ editor.once('load', function() {
         if (! panelComponents)
             return;
 
+        // holds each script panel
+        var scriptPanels = [];
+
         // script
         var panel = editor.call('attributes:addPanel', {
             parent: panelComponents,
@@ -38,6 +41,12 @@ editor.once('load', function() {
         var evtComponentUnset = entity.on('components.script:unset', function() {
             panel.disabled = true;
             panel.hidden = true;
+
+            scriptPanels.forEach(function (p) {
+                p.destroy();
+            });
+
+            scriptPanels.length = 0;
         });
         panel.on('destroy', function() {
             evtComponentSet.unbind();
@@ -73,58 +82,169 @@ editor.once('load', function() {
             parent: panel
         });
 
+        var urlRegex = new RegExp(/^http(s)?:/);
+        var jsRegex = new RegExp(/\.js$/);
+        var scriptNameRegex = new RegExp(/^(?:[\w\d\.-]+\/)*[\w\d\.-]+(?:\.[j|J][s|S](?:[o|O][n|N])?)?$/);
+
         // scripts.add
-        // TODO
         var fieldScriptsAdd = editor.call('attributes:addField', {
             parent: panelScriptsList,
             name: 'Add',
-            value: 'not implemented'
+            type: 'string',
+            placeholder: 'Script URL'
         });
 
+        var suspendEvents = false;
+        fieldScriptsAdd.on('change', function (value) {
+            if (suspendEvents) return;
+            if (value) {
+                suspendEvents = true;
+                if (addScript(value)) {
+                    fieldScriptsAdd.value = '';
+                } else {
+                    fieldScriptsAdd.elementInput.select();
+                }
+                suspendEvents = false;
+            }
+        });
+
+        function addScript (url) {
+            var result = true;
+            if (urlRegex.test(url)) {
+                scanAndAddScript(url, url);
+            } else {
+                if (!jsRegex.test(url)) {
+                    url += '.js';
+                }
+
+                if (!scriptNameRegex.test(url)) {
+                    result = false;
+                } else {
+                    var fullUrl = editor.call('sourcefiles:url', url);
+                    // try to get the script and if it doesn't exist create it
+                    Ajax
+                    .get(fullUrl)
+                    .on('load', function(status, data) {
+                        scanAndAddScript(url, fullUrl);
+                    })
+                    .on('error', function (status) {
+                        // script does not exist so create it
+                        if (status === 404) {
+                            editor.call('sourcefiles:create', url, function () {
+                                scanAndAddScript(url, fullUrl);
+                            });
+                        } else if (status === 0) {
+                            // invalid json which is fine because the response is text.
+                            // TODO: fix this it's not really an error
+                            scanAndAddScript(url, fullUrl);
+                        }
+                    });
+                }
+            }
+
+            return result;
+        }
+
+        function scanAndAddScript (url, fullUrl) {
+            editor.call('sourcefiles:scan', fullUrl, function (data) {
+
+                var script = {
+                    name: data.name,
+                    url: url,
+                    attributes: data.attributes,
+                    attributesOrder: data.attributesOrder
+                };
+
+                var scripts = entity.get('components.script.scripts');
+
+                var scriptObserver = new Observer(script);
+                scripts.add(scriptObserver);
+
+                addExistingScript(scriptObserver);
+            });
+        }
+
+        function addExistingScript (script) {
+            var panel = new ui.Panel(script.url);
+            panelScriptsList.append(panel);
+            scriptPanels.push(panel);
+
+            var link = document.createElement('a');
+
+            var url = script.url;
+            var lowerUrl = url.toLowerCase();
+            var isExternalUrl = urlRegex.test(lowerUrl);
+            if (!isExternalUrl && !jsRegex.test(url)) {
+                url += '.js';
+            }
+
+            var title = script.name || getFilenameFromUrl(url);
+            link.textContent = title;
+            link.target = title;
+            link.href = isExternalUrl ? url : '/editor/code/' + config.project.id + '/' + url;
+            panel.headerElement.textContent = '';
+            panel.headerElement.appendChild(link);
+
+            var fieldRemoveScript = new ui.Checkbox();
+            fieldRemoveScript.parent = panel;
+            fieldRemoveScript.style.float = 'right';
+            fieldRemoveScript.style.backgroundColor = '#323f42';
+            fieldRemoveScript.style.margin = '3px 4px 3px -5px';
+            fieldRemoveScript.on('change', function (value) {
+                if (value) {
+                    var scripts = entity.get('components.script.scripts');
+                    scripts.remove(script);
+                    panel.destroy();
+                }
+            });
+
+            panel.headerElement.appendChild(fieldRemoveScript.element);
+
+            var attributes = new ui.Panel();
+            panel.append(attributes);
+            if (script.attributesOrder) {
+                for(var a = 0; a < script.attributesOrder.length; a++) {
+                    var attribute = script.attributes[script.attributesOrder[a]];
+
+                    var choices = null;
+                    if (attribute.type === 'enumeration') {
+                        choices = { };
+                        try {
+                            for(var e = 0; e < attribute.options.enumerations.length; e++) {
+                                choices[attribute.options.enumerations.get(e).value] = attribute.options.enumerations.get(e).name;
+                            }
+                        } catch(ex) {
+                            console.log('could not recreate enumeration for script attribute, ' + script.url);
+                        }
+                    }
+
+                    editor.call('attributes:addField', {
+                        parent: attributes,
+                        name: attribute.displayName,
+                        type: scriptAttributeTypes[attribute.type],
+                        enum: choices,
+                        link: entity,
+                        path: 'components.script.scripts.' + i + '.attributes.' + attribute.name + '.value'
+                    });
+                }
+            }
+        }
+
+        function getFilenameFromUrl (url) {
+            var filename = url;
+            var lastIndexOfSlash = url.lastIndexOf('/');
+            if (lastIndexOfSlash >= 0) {
+                filename = url.substring(lastIndexOfSlash + 1, url.length);
+            }
+
+            return filename;
+        }
 
         // scripts.list
         var items = entity.get('components.script.scripts');
         if (items) {
             for(var i = 0; i < items.length; i++) {
-                var script = new ui.Panel(items.get(i).url);
-                panelScriptsList.append(script);
-
-                var link = document.createElement('a');
-                link.textContent = items.get(i).url;
-                link.target = '_blank';
-                // link.href = '/' + config.owner.username + '/' + config.project.name + '/editor/' + items.get(i).url;
-                link.href = '#';
-                script.headerElement.textContent = '';
-                script.headerElement.appendChild(link);
-
-                var attributes = new ui.Panel();
-                script.append(attributes);
-                if (items.get(i).attributes) {
-                    for(var a = 0; a < items.get(i).attributes.length; a++) {
-                        var attribute = items.get(i).attributes.get(a);
-
-                        var choices = null;
-                        if (attribute.type === 'enumeration') {
-                            choices = { };
-                            try {
-                                for(var e = 0; e < attribute.options.enumerations.length; e++) {
-                                    choices[attribute.options.enumerations.get(e).value] = attribute.options.enumerations.get(e).name;
-                                }
-                            } catch(ex) {
-                                console.log('could not recreate enumeration for script attribute, ' + items.get(i).url);
-                            }
-                        }
-
-                        editor.call('attributes:addField', {
-                            parent: attributes,
-                            name: attribute.displayName,
-                            type: scriptAttributeTypes[attribute.type],
-                            enum: choices,
-                            link: entity,
-                            path: 'components.script.scripts.' + i + '.attributes.' + a + '.value'
-                        });
-                    }
-                }
+                addExistingScript(items.get(i));
             }
         }
     });

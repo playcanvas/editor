@@ -12,8 +12,6 @@ editor.once('load', function() {
         if (entities.length !== 1)
             return;
 
-        window.A = entities[0];
-
         var entity = entities[0];
 
         // enabled
