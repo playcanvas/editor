@@ -22,20 +22,14 @@ editor.once('load', function() {
             entitiesWithScripts[entity.resource_id] = entity;
         }
 
-        entity.on('*:set', function (path) {
-            if (path.indexOf('components.script') === 0) {
-                if (entity.get('components.script')) {
-                    entitiesWithScripts[entity.resource_id] = entity;
-                }
+        entity.on('components.script:set', function (value) {
+            if (value) {
+                entitiesWithScripts[entity.resource_id] = entity;
             }
         });
 
-        entity.on('*:unset', function (path) {
-            if (path.indexOf('components.script') === 0) {
-                if (!entity.get('components.script')) {
-                    delete entitiesWithScripts[entity.resource_id];
-                }
-            }
+        entity.on('components.script:unset', function () {
+            delete entitiesWithScripts[entity.resource_id];
         });
     });
 
