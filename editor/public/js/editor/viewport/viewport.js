@@ -12,11 +12,11 @@ editor.once('load', function() {
     var framework = new pc.designer.Designer(canvas.element, {
         mouse: new pc.input.Mouse(canvas.element),
         touch: !!('ontouchstart' in window) ? new pc.input.TouchDevice(canvas.element) : null,
-        designerSettings: settings
+        designerSettings: settings.json()
     });
 
     settings.on('*:set', function() {
-        framework.setDesignerSettings(settings);
+        framework.setDesignerSettings(settings.json());
     });
 
 
@@ -72,7 +72,7 @@ editor.once('load', function() {
 
     editor.on('selector:add', function(entity, type) {
         if (type === 'entity') {
-            framework.selectEntity(entity.resource_id);
+            framework.selectEntity(entity.get('resource_id'));
         }
     });
 

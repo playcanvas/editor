@@ -20,7 +20,7 @@ editor.once('load', function() {
 
     // allow adding entity
     editor.method('entities:add', function(entity) {
-        if (! entity.parent)
+        if (! entity.get('parent'))
             entityRoot = entity;
 
         entities.add(entity);

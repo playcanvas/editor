@@ -33,11 +33,11 @@ editor.once('load', function() {
         entity.reparenting = true;
 
         // relative entity
-        var ind = parent.children.indexOf(entity.resource_id);
+        var ind = parent.get('children').indexOf(entity.get('resource_id'));
         var indNew = -1;
 
         if (item.next && item.next.entity) {
-            indNew = parent.children.indexOf(item.next.entity.resource_id);
+            indNew = parent.get('children').indexOf(item.next.entity.get('resource_id'));
 
             if (parent === parentOld && ind < indNew)
                 indNew--;
@@ -45,25 +45,25 @@ editor.once('load', function() {
 
         if (parent === parentOld) {
             // move
-            parent.move('children', entity.resource_id, indNew);
+            parent.move('children', ind, indNew);
 
         } else {
             // reparenting
 
             // remove from old parent
-            parentOld.remove('children', entity.resource_id);
+            parentOld.removeValue('children', entity.get('resource_id'));
 
             // add to new parent children
             if (indNew !== -1) {
                 // before other item
-                parent.insert('children', entity.resource_id, indNew);
+                parent.insert('children', entity.get('resource_id'), indNew);
             } else {
                 // at the end
-                parent.insert('children', entity.resource_id);
+                parent.insert('children', entity.get('resource_id'));
             }
 
             // set parent
-            entity.parent = parent.resource_id;
+            entity.set('parent', parent.get('resource_id'));
         }
 
         entity.reparenting = false;
@@ -75,36 +75,36 @@ editor.once('load', function() {
         if (type !== 'entity')
             return;
 
-        uiItemIndex[entity.resource_id].selected = true;
+        uiItemIndex[entity.get('resource_id')].selected = true;
     });
     // selector remove
     editor.on('selector:remove', function(entity, type) {
         if (type !== 'entity')
             return;
 
-        uiItemIndex[entity.resource_id].selected = false;
+        uiItemIndex[entity.get('resource_id')].selected = false;
     });
 
 
     // entity removed
     editor.on('entities:remove', function(entity) {
-        uiItemIndex[entity.resource_id].destroy();
+        uiItemIndex[entity.get('resource_id')].destroy();
     });
 
 
     // entity added
     editor.on('entities:add', function(entity) {
         var element = new ui.TreeItem({
-            text: entity.name
+            text: entity.get('name')
         });
 
         element.entity = entity;
-        element.enabled = entity.enabled;
+        element.enabled = entity.get('enabled');
 
         entity.reparenting = false;
 
         // index
-        uiItemIndex[entity.resource_id] = element;
+        uiItemIndex[entity.get('resource_id')] = element;
 
         // name change
         entity.on('name:set', function(value) {
@@ -122,13 +122,13 @@ editor.once('load', function() {
 
             element.remove(item);
 
-            var next = uiItemIndex[entity.children[ind + 1]];
+            var next = uiItemIndex[entity.get('children.' + (ind + 1))];
             var after = null;
             if (next === item) {
                 next = null;
 
                 if (ind > 0)
-                    after = uiItemIndex[entity.children[ind]]
+                    after = uiItemIndex[entity.get('children.' + ind)]
             }
 
             if (item.parent)
@@ -162,7 +162,7 @@ editor.once('load', function() {
             if (item.parent)
                 item.parent.remove(item);
 
-            var next = uiItemIndex[entity.children[ind + 1]];
+            var next = uiItemIndex[entity.get('children.' + (ind + 1))];
             if (next) {
                 element.appendBefore(item, next);
             } else {
@@ -178,17 +178,18 @@ editor.once('load', function() {
 
         for(var i = 0; i < entities.length; i++) {
             var entity = entities[i];
-            var element = uiItemIndex[entity.resource_id];
+            var element = uiItemIndex[entity.get('resource_id')];
 
-            if (! entity.parent) {
+            if (! entity.get('parent')) {
                 // root
                 hierarchy.append(element);
                 element.open = true;
             }
 
-            if (entity.children.length) {
-                for(var c = 0; c < entity.children.length; c++) {
-                    var child = uiItemIndex[entity.children[c]];
+            var children = entity.get('children');
+            if (children.length) {
+                for(var c = 0; c < children.length; c++) {
+                    var child = uiItemIndex[children[c]];
                     element.append(child);
                 }
             }

@@ -243,8 +243,7 @@ editor.once('load', function () {
             if (e.data) {
                 if (typeof e.data.error !== 'undefined') {
                     console.error(pc.string.format("Could not parse {0} - {1}", url, e.data.error));
-                }
-                else {
+                } else {
                     success(validateScriptAttributes(url, e.data));
                 }
             }

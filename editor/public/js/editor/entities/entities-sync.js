@@ -21,7 +21,7 @@ editor.once('load', function() {
 
         entity.sync = new ObserverSync({
             item: entity,
-            prefix: [ 'entities', entity.resource_id ],
+            prefix: [ 'entities', entity.get('resource_id') ],
             paths: syncPaths
         });
 
@@ -48,8 +48,7 @@ editor.once('load', function() {
                 }
             } else if (op.hasOwnProperty('oi')) {
                 // new entity
-                entity = new Observer(op.oi);
-                editor.call('entities:add', entity);
+                editor.call('entities:add', new Observer(op.oi));
             } else {
                 console.log('unknown operation', op);
             }

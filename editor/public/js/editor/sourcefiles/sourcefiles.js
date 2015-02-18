@@ -9,9 +9,9 @@ editor.once('repositories:load', function (repositories) {
             'code',
             config.project.id,
             'master',
-            repositories.current,
-            repositories[repositories.current].username,
-            repositories[repositories.current].repo,
+            repositories.get('current'),
+            repositories.get(repositories.get('current') + '.username'),
+            repositories.get(repositories.get('current') + '.repo'),
             relativeUrl
         ].join('/');
 
@@ -24,7 +24,7 @@ editor.once('repositories:load', function (repositories) {
             content: editor.call('sourcefiles:skeleton', url)
         };
 
-        var createUrl = [config.url.api, 'projects', config.project.id, 'repositories', repositories.current, 'sourcefiles', url].join('/');
+        var createUrl = [config.url.api, 'projects', config.project.id, 'repositories', repositories.get('current'), 'sourcefiles', url].join('/');
         createUrl += '?access_token=' + config.accessToken;
 
         Ajax

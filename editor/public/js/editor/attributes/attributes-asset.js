@@ -21,7 +21,7 @@
 
         var asset = assets[0];
 
-        editor.call('attributes:header', 'asset, ' + asset.type);
+        editor.call('attributes:header', 'asset, ' + asset.get('type'));
 
         // id
         editor.call('attributes:addField', {
@@ -56,10 +56,10 @@
         });
 
         // size
-        if (asset.file) {
+        if (asset.has('file')) {
             var fieldSize = editor.call('attributes:addField', {
                 name: 'Size',
-                value: bytesToHuman(asset.file.size)
+                value: bytesToHuman(asset.get('file.size'))
             });
             asset.on('file.size:set', function(value) {
                 fieldSize.text = bytesToHuman(value);
@@ -95,7 +95,7 @@
             });
 
             Ajax({
-                url: '{{url.api}}/assets/' + asset.id,
+                url: '{{url.api}}/assets/' + asset.get('id'),
                 query: {
                     access_token: '{{accessToken}}'
                 }

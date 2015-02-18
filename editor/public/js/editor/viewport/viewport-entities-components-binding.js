@@ -48,7 +48,7 @@ editor.once('load', function() {
                 }
             } else if (property) {
                 // edit component property
-                value = obj.components[component][property];
+                value = obj.get('components.' + component + '.' + property);
                 entity[component][property] = editor.call('components:convertValue', component, property, value);
 
                 // render
@@ -63,9 +63,8 @@ editor.once('load', function() {
             }
 
             var entity = obj.entity;
-            if (!entity) {
+            if (!entity)
                 return;
-            }
 
             var parts = path.split('.');
             var component = parts[1];

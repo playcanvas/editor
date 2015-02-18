@@ -148,23 +148,23 @@ editor.once('load', function() {
         function scanAndAddScript (url, fullUrl) {
             editor.call('sourcefiles:scan', fullUrl, function (data) {
                 data.url = url;
-                entity.get('components.script.scripts').add(data);
+                entity.insert('components.script.scripts', new Observer(data));
             });
         }
 
         function createScriptPanel (script) {
-            var panel = new ui.Panel(script.url);
+            var panel = new ui.Panel(script.get('url'));
 
             var link = document.createElement('a');
 
-            var url = script.url;
+            var url = script.get('url');
             var lowerUrl = url.toLowerCase();
             var isExternalUrl = urlRegex.test(lowerUrl);
             if (!isExternalUrl && !jsRegex.test(url)) {
                 url += '.js';
             }
 
-            var title = script.name || getFilenameFromUrl(url);
+            var title = script.get('name') || getFilenameFromUrl(url);
             link.textContent = title;
             link.target = title;
             link.href = isExternalUrl ? url : '/editor/code/' + config.project.id + '/' + url;
@@ -179,7 +179,7 @@ editor.once('load', function() {
             fieldRemoveScript.on('change', function (value) {
                 if (value) {
                     // remove script
-                    entity.get('components.script.scripts').remove(script);
+                    entity.removeValue('components.script.scripts', script);
                 }
             });
 
@@ -187,19 +187,20 @@ editor.once('load', function() {
 
             var attributes = new ui.Panel();
             panel.append(attributes);
-            if (script.attributesOrder) {
-                for(var a = 0; a < script.attributesOrder.length; a++) {
-                    var attribute = script.attributes[script.attributesOrder[a]];
+            var order = script.get('attributesOrder');
+            if (order && order.length) {
+                for(var a = 0; a < order.length; a++) {
+                    var attribute = script.get('attributes.' + order[a]);
 
                     var choices = null;
                     if (attribute.type === 'enumeration') {
                         choices = { };
                         try {
                             for(var e = 0; e < attribute.options.enumerations.length; e++) {
-                                choices[attribute.options.enumerations.get(e).value] = attribute.options.enumerations.get(e).name;
+                                choices[attribute.options.enumerations[e].value] = attribute.options.enumerations[e].name;
                             }
                         } catch(ex) {
-                            console.log('could not recreate enumeration for script attribute, ' + script.url);
+                            console.log('could not recreate enumeration for script attribute, ' + script.get('url'));
                         }
                     }
 
@@ -228,7 +229,7 @@ editor.once('load', function() {
         }
 
         // add existing scripts and subscribe to scripts Observer list
-        var items = entity.get('components.script.scripts');
+        var items = entity.get('components.script.scripts', true);
         if (items) {
             for(var i = 0; i < items.length; i++) {
                 var scriptPanel = createScriptPanel(items.get(i));
@@ -241,7 +242,7 @@ editor.once('load', function() {
         // subscribe to scripts:insert
         entity.on('components.script.scripts:insert', function (script, index) {
             // TEMP: find observer because currently the 'script' argument is not the observer
-            var observer = entity.components.script.scripts.get(index);
+            var observer = entity.get('components.script.scripts.' + index, true);
             var scriptPanel = createScriptPanel(observer);
             scriptPanels.splice(index, 0, scriptPanel);
             if (index === scriptPanels.length - 1) {

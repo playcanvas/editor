@@ -10,7 +10,7 @@ editor.once('load', function() {
         var entity = entities[0];
 
         // not root
-        if (entity.parent)
+        if (entity.get('parent'))
             return;
 
         var panelComponents = editor.call('attributes:entity.panelComponents');
@@ -34,7 +34,7 @@ editor.once('load', function() {
         };
 
         var fogFilter = function () {
-            return sceneSettings.render && sceneSettings.render.fog !== 'none';
+            return sceneSettings.get('render') && sceneSettings.get('render.fog') !== 'none';
         };
 
 

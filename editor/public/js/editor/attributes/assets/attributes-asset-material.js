@@ -260,7 +260,7 @@ editor.once('load', function() {
     });
 
     editor.on('attributes:inspect[asset]', function(assets) {
-        if (assets.length !== 1 || assets[0].type !== 'material')
+        if (assets.length !== 1 || assets[0].get('type') !== 'material')
             return;
 
         var asset = assets[0];

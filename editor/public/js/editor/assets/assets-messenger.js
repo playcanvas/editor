@@ -11,12 +11,12 @@ editor.once('load', function() {
 
         if (data.asset.source) {
             var asset = editor.call('assets:findOne', function(asset) {
-                return asset.source_asset_id === data.asset.id;
+                return asset.get('source_asset_id') === data.asset.id;
             })
             if (! asset)
                 return;
 
-            assetId = asset[1].id;
+            assetId = asset[1].get('id');
         }
         if (! data.asset.source)
             assetId = data.asset.id;

@@ -7,7 +7,7 @@ editor.once('load', function() {
 
         asset.history = new ObserverHistory({
             item: asset,
-            prefix: 'asset.' + asset.id + '.',
+            prefix: 'asset.' + asset.get('id') + '.',
             // TODO
             // allowed paths
         });

@@ -40,13 +40,13 @@ editor.once('load', function() {
         if (type !== 'asset')
             return;
 
-        assetsIndex[asset.id].selected = true;
+        assetsIndex[asset.get('id')].selected = true;
     });
     editor.on('selector:remove', function(asset, type) {
         if (type !== 'asset')
             return;
 
-        assetsIndex[asset.id].selected = false;
+        assetsIndex[asset.get('id')].selected = false;
     });
 
 
@@ -70,13 +70,13 @@ editor.once('load', function() {
     editor.on('assets:add', function(asset) {
         var item = new ui.GridItem();
         item.asset = asset;
-        item.class.add('type-' + asset.type);
+        item.class.add('type-' + asset.get('type'));
         grid.append(item);
 
-        assetsIndex[asset.id] = item;
+        assetsIndex[asset.get('id')] = item;
 
-        if (asset.thumbnails) {
-            item.style.backgroundImage = 'url("' + config.url.home + asset.thumbnails.m + '")';
+        if (asset.has('thumbnails')) {
+            item.style.backgroundImage = 'url("' + config.url.home + asset.get('thumbnails.m') + '")';
         }
 
         // update thumbnails change
@@ -90,21 +90,21 @@ editor.once('load', function() {
 
         var label = document.createElement('div');
         label.classList.add('label');
-        label.textContent = (asset.file && asset.file.filename) || asset.name;
+        label.textContent = asset.get('file.filename') || asset.get('name');
         item.element.appendChild(label);
 
         // update name/filename change
         asset.on('name:set', function() {
-            label.textContent = (this.file && this.file.filename) || this.name;
-            this.set('data.name', this.name);
+            label.textContent = this.get('file.filename') || this.get('name');
+            this.set('data.name', this.get('name'));
         });
         asset.on('file.filename:set', function() {
-            label.textContent = (this.file && this.file.filename) || this.name;
+            label.textContent = this.get('file.filename') || this.get('name');
         });
     });
 
 
     editor.on('assets:remove', function(asset) {
-        assetsIndex[asset.id].destroy();
+        assetsIndex[asset.get('id')].destroy();
     });
 });
