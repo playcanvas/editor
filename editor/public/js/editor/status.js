@@ -7,5 +7,12 @@ editor.once('load', function() {
 
     editor.method('status:text', function(text) {
         panel.innerElement.textContent = text;
+        panel.innerElement.classList.remove('error');
+    });
+
+
+    editor.method('status:error', function(text) {
+        panel.innerElement.textContent = text;
+        panel.innerElement.classList.add('error');
     });
 });

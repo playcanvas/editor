@@ -72,6 +72,10 @@ $disabled-opacity: .4;
         overflow: hidden;
         font-size: 12px;
         color: #aaa;
+
+        &.error {
+            color: #fb222f;
+        }
     }
 }
 
