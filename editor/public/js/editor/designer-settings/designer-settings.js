@@ -49,8 +49,8 @@ editor.once('load', function() {
         .on('load', function(status, data) {
             designerSettings.history = false;
 
-            for(var i = 0; i < designerSettings.__keys.length; i++) {
-                var key = designerSettings.__keys[i];
+            for(var i = 0; i < designerSettings._keys.length; i++) {
+                var key = designerSettings._keys[i];
                 var value = data.response[0][key];
 
                 if (value !== undefined)

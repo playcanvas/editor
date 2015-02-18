@@ -26,13 +26,13 @@ editor.once('load', function() {
         if (! index[type])
             index[type] = { };
 
-        var ind = index[type][item[key]] = {
+        var ind = index[type][item.get[key]] = {
             item: item,
             onDestroy: function() {
                 editor.call('selector:history', false);
 
                 selector.remove(item);
-                delete index[type][item[key]];
+                delete index[type][item.get[key]];
 
                 editor.call('selector:history', true);
             }
@@ -47,7 +47,7 @@ editor.once('load', function() {
         var key = keyByType(type);
         if (! key) return;
 
-        var ind = index[type][item[key]];
+        var ind = index[type][item.get[key]];
         if (! ind) return;
 
         ind.item.unbind('destroy', ind.onDestroy);

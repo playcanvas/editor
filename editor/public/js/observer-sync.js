@@ -136,7 +136,7 @@ ObserverSync.prototype.write = function(op) {
         var path = op.p.slice(this._prefix.length, -1).join('.');
 
         this._enabled = false;
-        this.item.remove(path, op.ld);
+        this.item.remove(path, op.p[op.p.length - 1]);
         this._enabled = true;
 
 

@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     editor.on('attributes:inspect[asset]', function(assets) {
-        if (assets.length !== 1 || assets[0].type !== 'text')
+        if (assets.length !== 1 || assets[0].get('type') !== 'text')
             return;
 
         var asset = assets[0];
@@ -28,7 +28,7 @@ editor.once('load', function() {
 
         // load data
         Ajax
-        .get('{{url.api}}/' + asset.file.url)
+        .get('{{url.api}}/' + asset.get('file.url'))
         .on('load', function(status, data) {
             fieldText.text = JSON.stringify(data, null, 4);
             panelRaw.hidden = false;

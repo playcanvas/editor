@@ -18,7 +18,7 @@ editor.once('load', function() {
     // apply settings
     var applySettings = function() {
         updating = false;
-        framework._linkUpdatePackSettings(sceneSettings);
+        framework._linkUpdatePackSettings(sceneSettings.json());
         editor.call('viewport:render');
     };
 

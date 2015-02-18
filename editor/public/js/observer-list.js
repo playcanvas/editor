@@ -39,7 +39,8 @@ ObserverList.prototype.set = function(index, value) {
 
 ObserverList.prototype.indexOf = function(item) {
     if (this.index) {
-        return (this._indexed[item[this.index]] && item[this.index]) || null;
+        var index = (item instanceof Observer && item.get(this.index)) || item[this.index]
+        return (this._indexed[index] && index) || null;
     } else {
         var ind = this.data.indexOf(item);
         return ind !== -1 ? ind : null;
@@ -49,7 +50,8 @@ ObserverList.prototype.indexOf = function(item) {
 
 ObserverList.prototype.has = function(item) {
     if (this.index) {
-        return !! this._indexed[item[this.index]];
+        var index = (item instanceof Observer && item.get(this.index)) || item[this.index]
+        return !! this._indexed[index];
     } else {
         return this.data.indexOf(item) !== -1;
     }
@@ -62,8 +64,8 @@ ObserverList.prototype.add = function(item) {
 
     var index = this.data.length;
     if (this.index) {
-        this._indexed[item[this.index]] = item;
-        index = item[this.index];
+        index = (item instanceof Observer && item.get(this.index)) || item[this.index];
+        this._indexed[index] = item;
     }
     this.data.push(item);
     this.emit('add', item, index);
@@ -77,11 +79,10 @@ ObserverList.prototype.remove = function(item) {
     var ind = this.data.indexOf(item);
 
     var index = ind;
-    if (this.index)
-        index = item[this.index];
-
-    if (this.index)
-        delete this._indexed[item[this.index]];
+    if (this.index) {
+        index = (item instanceof Observer && item.get(this.index)) || item[this.index];
+        delete this._indexed[index];
+    }
 
     this.data.splice(ind, 1);
 

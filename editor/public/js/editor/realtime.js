@@ -78,7 +78,8 @@ editor.once('load', function() {
                 return;
 
             // console.trace();
-            // console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
+            console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
+            console.log(op)
 
             scene.submitOp([ op ]);
         });

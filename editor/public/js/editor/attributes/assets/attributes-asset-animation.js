@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     editor.on('attributes:inspect[asset]', function(assets) {
-        if (assets.length !== 1 || assets[0].type !== 'animation')
+        if (assets.length !== 1 || assets[0].get('type') !== 'animation')
             return;
 
         var asset = assets[0];

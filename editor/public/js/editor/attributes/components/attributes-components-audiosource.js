@@ -111,7 +111,7 @@ editor.once('load', function() {
             var btnRemove = new ui.Button();
             btnRemove.class.add('remove');
             btnRemove.on('click', function() {
-                entity.remove('components.audiosource.assets', assetId);
+                entity.removeValue('components.audiosource.assets', assetId);
             });
             btnRemove.parent = item;
             item.element.appendChild(btnRemove.element);
@@ -125,7 +125,7 @@ editor.once('load', function() {
             // on pick
             var evtPick = editor.once('picker:asset', function(asset) {
                 // already in list
-                if (entity.components.audiosource.assets.indexOf(asset.id) !== -1)
+                if (entity.get('components.audiosource.assets').indexOf(asset.id) !== -1)
                     return;
 
                 // add to component

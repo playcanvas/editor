@@ -10,7 +10,7 @@ editor.once('load', function() {
         var data = {
             name: 'New Entity',
             resource_id: pc.guid.create(),
-            parent: parent.resource_id,
+            parent: parent.get('resource_id'),
             children: [],
             position: [0, 0, 0],
             rotation: [0, 0, 0],
@@ -24,10 +24,10 @@ editor.once('load', function() {
         addEntity(entity, parent, true);
 
         // history
-        var resource_id = entity.resource_id;
+        var resource_id = entity.get('resource_id');
 
         editor.call('history:add', {
-            name: 'new entity ' + entity.resource_id,
+            name: 'new entity ' + entity.get('resource_id'),
             undo: function() {
                 removeEntity(entity, parent);
             },
@@ -45,13 +45,13 @@ editor.once('load', function() {
 
         // sharejs
         editor.call('realtime:op', {
-            p: [ 'entities', entity.resource_id ],
+            p: [ 'entities', entity.get('resource_id') ],
             oi: entity.json()
         });
 
         // this is necessary for the entity to be added to the tree view
         parent.history.enabled = false;
-        parent.insert('children', entity.resource_id);
+        parent.insert('children', entity.get('resource_id'));
         parent.history.enabled = true;
 
         if (select) {
@@ -71,7 +71,7 @@ editor.once('load', function() {
 
     var removeEntity = function (entity, parent) {
         // start from children
-        entity.children.forEach(function (child) {
+        entity.get('children').forEach(function (child) {
             removeEntity(editor.call('entities:get', child), entity);
         });
 
@@ -85,7 +85,7 @@ editor.once('load', function() {
         // remove from parent
         if (parent) {
             parent.history.enabled = false;
-            parent.remove('children', entity.resource_id);
+            parent.removeValue('children', entity.get('resource_id'));
             parent.history.enabled = true;
         }
 
@@ -95,7 +95,7 @@ editor.once('load', function() {
 
         // sharejs
         editor.call('realtime:op', {
-            p: [ 'entities', entity.resource_id ],
+            p: [ 'entities', entity.get('resource_id') ],
             od: { }
         });
     };
@@ -113,22 +113,22 @@ editor.once('load', function() {
             // remember the entity that was duplicated using the resource id
             // of the source entity as the key, so that when we undo / redo
             // we re-add the same entities in the hierarchy
-            if (!duplicatedEntities[source.resource_id]) {
+            if (!duplicatedEntities[source.get('resource_id')]) {
                 // create new Entity data
                 var data = source.json();
                 data.resource_id = pc.guid.create();
                 data.parent = parentId;
                 data.children = newChildren;
-                duplicatedEntities[source.resource_id] = new Observer(data);
+                duplicatedEntities[source.get('resource_id')] = new Observer(data);
             }
 
-            var duplicated = duplicatedEntities[source.resource_id];
+            var duplicated = duplicatedEntities[source.get('resource_id')];
 
             addEntity(duplicated, parent, select);
 
-            source.children.forEach(function (child) {
-                var c = duplicate(child, duplicated.resource_id, false);
-                newChildren.push(c.resource_id);
+            source.get('children').forEach(function (child) {
+                var c = duplicate(child, duplicated.get('resource_id'), false);
+                newChildren.push(c.get('resource_id'));
             });
 
             duplicated.history.enabled = false;
@@ -138,18 +138,18 @@ editor.once('load', function() {
             return duplicated;
         }
 
-        var duplicated = duplicate(entity.resource_id, entity.parent, true);
-        var parent = editor.call('entities:get', duplicated.parent);
+        var duplicated = duplicate(entity.get('resource_id'), entity.get('parent'), true);
+        var parent = editor.call('entities:get', duplicated.get('parent'));
 
         // history
         if (history) {
             editor.call('history:add', {
-                name: 'duplicate entity ' + entity.resource_id,
+                name: 'duplicate entity ' + entity.get('resource_id'),
                 undo: function() {
                     removeEntity(duplicated, parent);
                 },
                 redo: function() {
-                    duplicated = duplicate(entity.resource_id, parent.resource_id, true);
+                    duplicated = duplicate(entity.get('resource_id'), parent.get('resource_id'), true);
                 }
             });
         }
@@ -157,12 +157,12 @@ editor.once('load', function() {
 
     // delete entity
     editor.method('entities:delete', function (entity) {
-        var parent = editor.call('entities:get', entity.parent);
+        var parent = editor.call('entities:get', entity.get('parent'));
 
         removeEntity(entity, parent);
 
         editor.call('history:add', {
-            name: 'delete entity ' + entity.resource_id,
+            name: 'delete entity ' + entity.get('resource_id'),
             undo: function() {
                 addEntity(entity, parent, true);
             },

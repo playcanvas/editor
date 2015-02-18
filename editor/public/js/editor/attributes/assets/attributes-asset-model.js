@@ -2,12 +2,12 @@ editor.once('load', function() {
     'use strict';
 
     editor.on('attributes:inspect[asset]', function(assets) {
-        if (assets.length !== 1 || assets[0].type !== 'model')
+        if (assets.length !== 1 || assets[0].get('type') !== 'model')
             return;
 
         var asset = assets[0];
 
-        if (asset.data.mapping.length) {
+        if (asset.get('data.mapping').length) {
             // nodes panel
             var panelNodes = editor.call('attributes:addPanel', {
                 name: 'Nodes'
@@ -24,7 +24,7 @@ editor.once('load', function() {
                 editor.call('picker:asset', 'material', asset);
 
                 var evtPick = editor.once('picker:asset', function(asset) {
-                    fn(asset.id);
+                    fn(asset.get('id'));
                     evtPick = null;
                 });
 
@@ -59,8 +59,8 @@ editor.once('load', function() {
                     if (! asset)
                         return this.image = '';
 
-                    if (asset.thumbnails) {
-                        this.image = config.url.home + asset.thumbnails.m;
+                    if (asset.has('thumbnails')) {
+                        this.image = config.url.home + asset.get('thumbnails.m');
                     } else {
                         this.image = '';
                     }
@@ -83,13 +83,13 @@ editor.once('load', function() {
             };
 
             // create node fields
-            for(var i = 0; i < asset.data.mapping.length; i++) {
+            for(var i = 0; i < asset.get('data.mapping').length; i++) {
                 createNodeField(i);
             }
 
             // template nodes
             var nodesTemplate = function() {
-                asset.nodes.forEach(function(nodeName, i) {
+                asset.get('nodes').forEach(function(nodeName, i) {
                     if (! nodeItems[i])
                         return;
 
@@ -98,7 +98,7 @@ editor.once('load', function() {
                 // panelNodes.hidden = false;
             };
 
-            if (asset.nodes) {
+            if (asset.has('nodes')) {
                 // already loaded
                 nodesTemplate();
             } else {
@@ -115,7 +115,7 @@ editor.once('load', function() {
 
                 // load data
                 Ajax
-                .get('{{url.api}}/' + asset.file.url)
+                .get('{{url.api}}/' + asset.get('file.url'))
                 .on('load', function(status, data) {
                     var nodes = [ ];
                     for(var i = 0; i < data.model.nodes.length; i++) {
