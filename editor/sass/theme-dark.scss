@@ -116,10 +116,6 @@ a:visited {
             &:last-child {
                 border-bottom: 1px solid $bcg-darker;
             }
-
-            > .content {
-                border-top: 1px solid $bcg-darker;
-            }
         }
     }
 }
