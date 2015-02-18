@@ -117,7 +117,7 @@ editor.once('load', function() {
                     url += '.js';
                 }
 
-                if (!scriptNameRegex.test(url)) {
+                if (!scriptNameRegex.test(url) || url.indexOf('..') >= 0) {
                     result = false;
                 } else {
                     var fullUrl = editor.call('sourcefiles:url', url);
@@ -159,15 +159,11 @@ editor.once('load', function() {
 
                 var scriptObserver = new Observer(script);
                 scripts.add(scriptObserver);
-
-                addExistingScript(scriptObserver);
             });
         }
 
-        function addExistingScript (script, index) {
+        function createScriptPanel (script) {
             var panel = new ui.Panel(script.url);
-            panelScriptsList.append(panel);
-            scriptPanels.push(panel);
 
             var link = document.createElement('a');
 
@@ -192,9 +188,8 @@ editor.once('load', function() {
             fieldRemoveScript.style.margin = '3px 4px 3px -5px';
             fieldRemoveScript.on('change', function (value) {
                 if (value) {
-                    var scripts = entity.get('components.script.scripts');
-                    scripts.remove(script);
-                    panel.destroy();
+                    // remove script
+                    entity.get('components.script.scripts').remove(script);
                 }
             });
 
@@ -228,6 +223,8 @@ editor.once('load', function() {
                     });
                 }
             }
+
+            return panel;
         }
 
         function getFilenameFromUrl (url) {
@@ -240,12 +237,36 @@ editor.once('load', function() {
             return filename;
         }
 
-        // scripts.list
+        // add existing scripts and subscribe to scripts Observer list
         var items = entity.get('components.script.scripts');
         if (items) {
             for(var i = 0; i < items.length; i++) {
-                addExistingScript(items.get(i));
+                var scriptPanel = createScriptPanel(items.get(i));
+                scriptPanels.push(scriptPanel);
+                panelScriptsList.append(scriptPanel);
             }
         }
+
+
+        // subscribe to scripts:insert
+        entity.on('components.script.scripts:insert', function (script, index) {
+            var scriptPanel = createScriptPanel(new Observer(script));
+            scriptPanels.splice(index, 0, scriptPanel);
+            if (index === scriptPanels.length - 1) {
+                // append at the end
+                panelScriptsList.append(scriptPanel);
+            } else {
+                // append before panel at next index
+                panelScriptsList.appendBefore(scriptPanels[index+1]);
+            }
+        });
+
+        // subscribe to scripts:remove
+        entity.on('components.script.scripts:remove', function (script, index) {
+            if (scriptPanels[index]) {
+                scriptPanels[index].destroy();
+                scriptPanels.splice(index, 1);
+            }
+        });
     });
 });
