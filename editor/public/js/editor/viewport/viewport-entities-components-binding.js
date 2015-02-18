@@ -31,6 +31,11 @@ editor.once('load', function() {
             var component = parts[1];
             var property = parts[2];
 
+            // ignore script component
+            if (component === 'script') {
+                return;
+            }
+
             if (!entity[component]) {
                 if (!property) {
                     // add component
@@ -43,7 +48,7 @@ editor.once('load', function() {
                 }
             } else if (property) {
                 // edit component property
-                value = obj.components[component][property];
+                value = obj.get('components.' + component + '.' + property);
                 entity[component][property] = editor.call('components:convertValue', component, property, value);
 
                 // render
@@ -58,9 +63,8 @@ editor.once('load', function() {
             }
 
             var entity = obj.entity;
-            if (!entity) {
+            if (!entity)
                 return;
-            }
 
             var parts = path.split('.');
             var component = parts[1];

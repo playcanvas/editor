@@ -81,7 +81,7 @@ editor.once('load', function() {
         var image = editor.call('attributes:addField', {
             parent: previewPanel,
             type: 'image',
-            src: config.url.api + '/' + asset.file.url
+            src: config.url.api + '/' + asset.get('file.url')
         });
 
         image.style.backgroundImage = 'url("/editor/scene/img/asset-placeholder-texture.png")';

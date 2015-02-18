@@ -7,7 +7,7 @@ editor.once('load', function() {
     // add assets to asset registry
     editor.on('assets:add', function (asset) {
         // do only for target assets
-        if (asset.source)
+        if (asset.get('source'))
             return;
 
         // raw json data
@@ -36,13 +36,13 @@ editor.once('load', function() {
 
         // attach update handler
         asset.on('*:set', function (path, value) {
-            var realtimeAsset = assetRegistry.getAssetById(asset.id);
+            var realtimeAsset = assetRegistry.getAssetById(asset.get('id'));
             var parts = path.split('.');
             if (parts[0] in realtimeAsset) {
 
                 var data = asset.json();
 
-                if (asset.type === 'material' && parts[0] === 'data') {
+                if (asset.get('type') === 'material' && parts[0] === 'data') {
                     data.data = editor.call('material:mapToList', data);
                 }
 
@@ -61,7 +61,7 @@ editor.once('load', function() {
 
     // remove assets from asset registry
     editor.on('assets:remove', function (asset) {
-        var realtimeAsset = assetRegistry.getAssetById(asset.id);
+        var realtimeAsset = assetRegistry.getAssetById(asset.get('id'));
         if (realtimeAsset) {
             assetRegistry.removeAsset(realtimeAsset);
 

@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     editor.on('attributes:inspect[asset]', function(assets) {
-        if (assets.length !== 1 || assets[0].type !== 'json')
+        if (assets.length !== 1 || assets[0].get('type') !== 'json')
             return;
 
         var asset = assets[0];
@@ -27,7 +27,7 @@ editor.once('load', function() {
 
         // load data
         Ajax
-        .get('{{url.api}}/' + asset.file.url)
+        .get('{{url.api}}/' + asset.get('file.url'))
         .on('load', function(status, data) {
             fieldCode.text = JSON.stringify(data, null, 4);
             loading.progress = 1;

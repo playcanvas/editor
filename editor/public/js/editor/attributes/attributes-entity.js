@@ -12,8 +12,6 @@ editor.once('load', function() {
         if (entities.length !== 1)
             return;
 
-        window.A = entities[0];
-
         var entity = entities[0];
 
         // enabled
@@ -78,7 +76,7 @@ editor.once('load', function() {
             var result = { };
 
             allComponents.filter(function (item) {
-                return ! entity.components[item];
+                return ! entity.get('components.' + item);
             })
             .forEach(function (item) {
                 result[item] = item;
@@ -124,18 +122,23 @@ editor.once('load', function() {
 
         // changes
         var evtSet = entity.on('*:set', function() {
+            // console.log('set', arguments)
             fieldJson.text = JSON.stringify(entity.json(), null, 4);
         });
         var evtUnset = entity.on('*:unset', function() {
+            // console.log('unset', arguments)
             fieldJson.text = JSON.stringify(entity.json(), null, 4);
         });
         var evtInsert = entity.on('*:insert', function() {
+            // console.log('insert', arguments)
             fieldJson.text = JSON.stringify(entity.json(), null, 4);
         });
         var evtRemove = entity.on('*:remove', function() {
+            // console.log('remove', arguments)
             fieldJson.text = JSON.stringify(entity.json(), null, 4);
         });
         var evtMove = entity.on('*:move', function() {
+            // console.log('move', arguments)
             fieldJson.text = JSON.stringify(entity.json(), null, 4);
         });
 

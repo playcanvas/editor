@@ -7,7 +7,7 @@ editor.once('load', function() {
 
         entity.history = new ObserverHistory({
             item: entity,
-            prefix: 'entity.' + entity.resource_id + '.'
+            prefix: 'entity.' + entity.get('resource_id') + '.'
         });
 
         // record history

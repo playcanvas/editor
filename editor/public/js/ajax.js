@@ -119,14 +119,19 @@ AjaxRequest.prototype._onLoad = function() {
 
     var json;
 
-    try {
-        json = JSON.parse(this._xhr.responseText);
-    } catch(ex) {
-        this.emit('error', 0, new Error('invalid json'));
+    if (this._xhr.status === 200 || this._xhr.status === 201) {
+        try {
+            json = JSON.parse(this._xhr.responseText);
+        } catch(ex) {
+            this.emit('error', 0, new Error('invalid json'));
+            return;
+        }
     }
 
     if (json) {
-        this.emit(this._xhr.status === 200  || this._xhr.status === 201 ? 'load' : 'error', this._xhr.status, json);
+        this.emit('load', this._xhr.status, json);
+    } else {
+        this.emit('error', this._xhr.status);
     }
 };
 

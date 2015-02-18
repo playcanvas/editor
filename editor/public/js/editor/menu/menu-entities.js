@@ -10,16 +10,14 @@ editor.once('load', function() {
 
     var duplicateEntity = function () {
         var entity = editor.call('entities:selectedFirst');
-        if (entity) {
+        if (entity)
             editor.call('entities:duplicate', entity);
-        }
     };
 
     var deleteEntity = function () {
         var entity = editor.call('entities:selectedFirst');
-        if (entity) {
+        if (entity)
             editor.call('entities:delete', entity);
-        }
     };
 
     [{

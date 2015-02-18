@@ -3,7 +3,7 @@ editor.once('load', function() {
 
 
     editor.on('attributes:inspect[asset]', function(assets) {
-        if (assets.length !== 1 || assets[0].type !== 'cubemap')
+        if (assets.length !== 1 || assets[0].get('type') !== 'cubemap')
             return;
 
         var asset = assets[0];
@@ -44,13 +44,13 @@ editor.once('load', function() {
             fieldMinFilter.value = [ 1, 4, 5 ].indexOf(value) === -1 ? 0 : 1;
             fieldMipFilter.value = (value < 2) ? 0 : (value % 2 + 1);
         });
-        evtUpdateMinMip.call(asset.data.minFilter);
+        evtUpdateMinMip.call(asset.get('data.minFilter'));
 
         // ui > data
         var updateAssetMinMip = function() {
             var a = fieldMinFilter.value;
             var b = fieldMipFilter.value;
-            asset.data.minFilter = (a && b) ? (2 + a + b) : (b ? (1 + b) : a);
+            asset.set('data.minFilter', (a && b) ? (2 + a + b) : (b ? (1 + b) : a));
         };
         fieldMinFilter.on('change', updateAssetMinMip);
         fieldMipFilter.on('change', updateAssetMinMip);

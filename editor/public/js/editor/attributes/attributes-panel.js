@@ -433,7 +433,7 @@ editor.once('load', function() {
         clearPanel();
 
         // clear if destroyed
-        inspectedItems.push(item.onnce('destroy', function() {
+        inspectedItems.push(item.once('destroy', function() {
             editor.call('attributes:clear');
         }));
 

@@ -92,7 +92,7 @@ ObserverHistory.prototype._initialize = function() {
             name: self._prefix + path,
             undo: function() {
                 self._enabled = false;
-                self.item.remove(path, value);
+                self.item.removeValue(path, value);
                 self._enabled = true;
             },
             redo: function() {
@@ -122,7 +122,7 @@ ObserverHistory.prototype._initialize = function() {
             },
             redo: function() {
                 self._enabled = false;
-                self.item.remove(path, value);
+                self.item.removeValue(path, value);
                 self._enabled = true;
             }
         };

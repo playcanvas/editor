@@ -4,14 +4,10 @@ editor.once('load', function() {
 
     // returns all selected entities
     editor.method('entities:selection', function () {
-        var selection = editor.call('selector:items');
-        if (selection) {
-            return selection.filter(function (s) {
-                return s.components;
-            });
-        }
+        if (editor.call('selector:type') !== 'entity')
+            return [ ];
 
-        return [];
+        return editor.call('selector:items').slice(0);
     });
 
     // returns first selected entity
