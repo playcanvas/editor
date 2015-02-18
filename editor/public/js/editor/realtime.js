@@ -72,16 +72,16 @@ editor.once('load', function() {
         };
 
 
-        // // method to send operations
-        // editor.method('realtime:op', function(op) {
-        //     if (! editor.call('permissions:write') || ! scene)
-        //         return;
+        // method to send operations
+        editor.method('realtime:op', function(op) {
+            if (! editor.call('permissions:write') || ! scene)
+                return;
 
-        //     // console.trace();
-        //     console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
-        //     console.log(op)
+            // console.trace();
+            console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
+            console.log(op)
 
-        //     scene.submitOp([ op ]);
-        // });
+            scene.submitOp([ op ]);
+        });
     });
 });

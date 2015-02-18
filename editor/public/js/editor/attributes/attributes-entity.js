@@ -122,23 +122,23 @@ editor.once('load', function() {
 
         // changes
         var evtSet = entity.on('*:set', function() {
-            console.log('set', arguments)
+            // console.log('set', arguments)
             fieldJson.text = JSON.stringify(entity.json(), null, 4);
         });
         var evtUnset = entity.on('*:unset', function() {
-            console.log('unset', arguments)
+            // console.log('unset', arguments)
             fieldJson.text = JSON.stringify(entity.json(), null, 4);
         });
         var evtInsert = entity.on('*:insert', function() {
-            console.log('insert', arguments)
+            // console.log('insert', arguments)
             fieldJson.text = JSON.stringify(entity.json(), null, 4);
         });
         var evtRemove = entity.on('*:remove', function() {
-            console.log('remove', arguments)
+            // console.log('remove', arguments)
             fieldJson.text = JSON.stringify(entity.json(), null, 4);
         });
         var evtMove = entity.on('*:move', function() {
-            console.log('move', arguments)
+            // console.log('move', arguments)
             fieldJson.text = JSON.stringify(entity.json(), null, 4);
         });
 

@@ -71,15 +71,13 @@ editor.once('load', function() {
     });
 
     editor.on('selector:add', function(entity, type) {
-        if (type === 'entity') {
+        if (type === 'entity')
             framework.selectEntity(entity.get('resource_id'));
-        }
     });
 
     editor.on('selector:remove', function(entity, type) {
-        if (type === 'entity') {
+        if (type === 'entity')
             framework.deselectEntity();
-        }
     });
 
     // start framework
