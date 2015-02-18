@@ -152,6 +152,28 @@ editor.once('load', function() {
             });
         }
 
+        function refreshScriptAttributes (script) {
+            var fullUrl = urlRegex.test(script.url) ? script.url : editor.call('sourcefiles:url', script.url);
+            editor.call('sourcefiles:scan', fullUrl, function (data) {
+                data.url = script.url;
+
+                // merge old attributes with new attributes
+                var oldAttributes = script.attributes;
+                for (var key in data.attributes) {
+                    if (data.attributes.hasOwnProperty(key)) {
+                        var value = data.attributes[key].defaultValue;
+                        if (key in oldAttributes && oldAttributes[key].type === data.attributes[key].type) {
+                            value = oldAttributes[key].value !== oldAttributes[key].defaultValue ? oldAttributes[key].value : value;
+                        }
+
+                        data.attributes[key].value = value;
+                    }
+                }
+
+                script.patch(data);
+            });
+        }
+
         function createScriptPanel (script) {
             var panel = new ui.Panel(script.url);
 
@@ -185,36 +207,106 @@ editor.once('load', function() {
 
             panel.headerElement.appendChild(fieldRemoveScript.element);
 
+            var fieldRefreshAttributes = new ui.Button({
+                text: '<img src="https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/icons/fa/16x16/refresh.png" />'
+            });
+            fieldRefreshAttributes.style.float = 'right';
+            fieldRefreshAttributes.style['margin-right'] = '10px';
+            fieldRefreshAttributes.style['line-height'] = '28px';
+            fieldRefreshAttributes.style.height = '22px';
+            fieldRefreshAttributes.element.title = "Refresh script attributes";
+            panel.headerElement.appendChild(fieldRefreshAttributes.element);
+
+            fieldRefreshAttributes.on('click', function () {
+                refreshScriptAttributes(script);
+            });
+
             var attributes = new ui.Panel();
             panel.append(attributes);
             if (script.attributesOrder) {
+                var attributeFields = [];
+
                 for(var a = 0; a < script.attributesOrder.length; a++) {
                     var attribute = script.attributes[script.attributesOrder[a]];
 
-                    var choices = null;
-                    if (attribute.type === 'enumeration') {
-                        choices = { };
-                        try {
-                            for(var e = 0; e < attribute.options.enumerations.length; e++) {
-                                choices[attribute.options.enumerations.get(e).value] = attribute.options.enumerations.get(e).name;
-                            }
-                        } catch(ex) {
-                            console.log('could not recreate enumeration for script attribute, ' + script.url);
-                        }
-                    }
+                    var field = createAttributeField(attribute, script, attributes);
 
-                    editor.call('attributes:addField', {
-                        parent: attributes,
-                        name: attribute.displayName,
-                        type: scriptAttributeTypes[attribute.type],
-                        enum: choices,
-                        link: script,
-                        path: 'attributes.' + attribute.name + '.value'
+                    attributeFields.push({
+                        name: attribute.name,
+                        field: field
                     });
                 }
+
+                // script.on('attributes:set', function (newAttributes, oldAttributes) {
+                //     // Remove attributes that do not exist any more.
+                //     // Rest will be handled be attributesOrder handler
+                //     for (var key in oldAttributes) {
+                //         if (oldAttributes.hasOwnProperty(key)) {
+                //             if (!(key in newAttributes)) {
+                //                 console.log('removing ' + key);
+                //             }
+                //         }
+                //     }
+                // });
+
+                script.on('attributesOrder:set', function (order, oldOrder) {
+                    // do this in a timeout to make sure attributes have been set first
+                    setTimeout(function () {
+                        for (var o = 0; o < order.length; o++) {
+                            var name = order[o];
+                            var oldIndex = oldOrder.indexOf(name);
+                            if (oldIndex < 0) {
+                                // create new attribute field
+                                var field = createAttributeField(script.attributes[name], script, attributes);
+                                attributeFields.splice(o, 0, {
+                                    name: name,
+                                    field: field
+                                });
+
+                            } else {
+                                // if wrong order then just re-order attribute fields
+                                if (oldIndex !== o && attributeFields[o].name !== name) {
+                                    var record = attributeFields[oldIndex];
+                                    attributeFields.splice(oldIndex);
+                                    attributeFields.splice(o, 0, record);
+                                    attributes.appendBefore(record.field.parent, o < order.length - 1 ? attributeFields[o+1].field.parent : null);
+                                    attributeFields[o].field.value = script.attributes[name].value;
+                                }
+                            }
+                        }
+                    }, 0);
+                });
+
             }
 
             return panel;
+        }
+
+        function createAttributeField (attribute, script, parent) {
+            var choices = null;
+            if (attribute.type === 'enumeration') {
+                choices = { };
+                try {
+                    for(var e = 0; e < attribute.options.enumerations.length; e++) {
+                        choices[attribute.options.enumerations.get(e).value] = attribute.options.enumerations.get(e).name;
+                    }
+                } catch(ex) {
+                    console.log('could not recreate enumeration for script attribute, ' + script.url);
+                }
+            }
+
+            var field = editor.call('attributes:addField', {
+                parent: parent,
+                name: attribute.displayName,
+                type: scriptAttributeTypes[attribute.type],
+                enum: choices,
+                link: script,
+                path: 'attributes.' + attribute.name + '.value'
+            });
+
+            field.value = attribute.value;
+
+            return field;
         }
 
         function getFilenameFromUrl (url) {
