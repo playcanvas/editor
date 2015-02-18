@@ -31,6 +31,11 @@ editor.once('load', function() {
             var component = parts[1];
             var property = parts[2];
 
+            // ignore script component
+            if (component === 'script') {
+                return;
+            }
+
             if (!entity[component]) {
                 if (!property) {
                     // add component
