@@ -147,18 +147,8 @@ editor.once('load', function() {
 
         function scanAndAddScript (url, fullUrl) {
             editor.call('sourcefiles:scan', fullUrl, function (data) {
-
-                var script = {
-                    name: data.name,
-                    url: url,
-                    attributes: data.attributes,
-                    attributesOrder: data.attributesOrder
-                };
-
-                var scripts = entity.get('components.script.scripts');
-
-                var scriptObserver = new Observer(script);
-                scripts.add(scriptObserver);
+                data.url = url;
+                entity.get('components.script.scripts').add(data);
             });
         }
 
@@ -250,7 +240,9 @@ editor.once('load', function() {
 
         // subscribe to scripts:insert
         entity.on('components.script.scripts:insert', function (script, index) {
-            var scriptPanel = createScriptPanel(new Observer(script));
+            // TEMP: find observer because currently the 'script' argument is not the observer
+            var observer = entity.components.script.scripts.get(index);
+            var scriptPanel = createScriptPanel(observer);
             scriptPanels.splice(index, 0, scriptPanel);
             if (index === scriptPanels.length - 1) {
                 // append at the end
