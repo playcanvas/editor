@@ -1,25 +1,18 @@
 app.once('load', function() {
     'use strict';
 
-    // var canvas = document.createElement('canvas');
-    // canvas.style.width = '100%';
 
-    // // create designer framework
-    // // var framework = new pc.designer.Designer(canvas, {
-    // //     mouse: new pc.input.Mouse(canvas),
-    // //     touch: !!('ontouchstart' in window) ? new pc.input.TouchDevice(canvas) : null
-    // //     // designerSettings: settings
-    // // });
-
-    // document.body.appendChild(canvas);
-
+    // canvas element
     var canvas = document.createElement('canvas');
-    var canvas.setAttribute('id', 'application-canvas');
-    // var canvas.setAttribute('tabindex', 0);
-    // var canvas.style.visibility = 'hidden';
+    canvas.id = 'application-canvas';
+    canvas.classList.add('fill-mode-FILL_WINDOW');
+    document.body.appendChild(canvas);
 
+
+    // playcanvas application
     var application = new pc.fw.Application(canvas, {
-        content: content,
+        mouse: new pc.input.Mouse(canvas),
+        touch: !!('ontouchstart' in window) ? new pc.input.TouchDevice(canvas) : null
         // depot: this.depot,
         // keyboard: this.keyboard,
         // mouse: this.mouse,
@@ -28,5 +21,27 @@ app.once('load', function() {
         // displayLoader: this.displayLoader,
         // libraries: content.appProperties['libraries'],
         // scriptPrefix: this.scriptPrefix
+    });
+
+    // start
+    application.start();
+
+
+    // resize
+    setInterval(function() {
+        var rect = canvas.getBoundingClientRect();
+        var width = Math.floor(rect.width);
+        var height = Math.floor(rect.height);
+
+        if (canvas.width !== width || canvas.height !== height) {
+            canvas.width = width;
+            canvas.height = height;
+        }
+    }, 1000 / 60);
+
+
+    // get application
+    app.method('viewport', function() {
+        return application;
     });
 });

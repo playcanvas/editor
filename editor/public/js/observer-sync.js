@@ -39,6 +39,10 @@ ObserverSync.prototype._initialize = function() {
         // full path
         var p = self._prefix.concat(path.split('.'));
 
+        // need jsonify
+        if (value instanceof Observer || value instanceof ObserverList)
+            value = value.json();
+
         // can be array value
         var ind = path.lastIndexOf('.');
         if (ind !== -1 && (this.get(path.slice(0, ind)) instanceof Array)) {
@@ -88,6 +92,11 @@ ObserverSync.prototype._initialize = function() {
     // list remove
     item.on('*:remove', function(path, value, ind) {
         if (! self._enabled) return;
+
+        // need jsonify
+        if (value instanceof Observer || value instanceof ObserverList)
+            value = value.json();
+
         self.emit('op', {
             p: self._prefix.concat(path.split('.')).concat([ ind ]),
             ld: value
@@ -97,6 +106,11 @@ ObserverSync.prototype._initialize = function() {
     // list insert
     item.on('*:insert', function(path, value, ind) {
         if (! self._enabled) return;
+
+        // need jsonify
+        if (value instanceof Observer || value instanceof ObserverList)
+            value = value.json();
+
         self.emit('op', {
             p: self._prefix.concat(path.split('.')).concat([ ind ]),
             li: value

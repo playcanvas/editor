@@ -32,7 +32,7 @@ Observer.prototype._prepare = function(target, key, value) {
 
     if (type === 'object' && (value instanceof Array)) {
         var changed = false;
-        var oldData = (target.__data[key] && ((target.__data[key] instanceof ObserverList && target.__data[key].json()) || target.__data[key].slice(0))) || [ ];
+        var oldData = (target.__data[key] && ((target.__data[key] instanceof ObserverList && target.__data[key]) || target.__data[key].slice(0))) || [ ];
 
         if (value.length === 0) {
             if (! target.__data[key] || target.__data[key].length !== 0) {
@@ -58,8 +58,8 @@ Observer.prototype._prepare = function(target, key, value) {
 
                 if (reportInsert) {
                     var path = (target.__path ? target.__path + '.' : '') + key;
-                    self.emit(path + ':insert', item.json(), index);
-                    self.emit('*:insert', path, item.json(), index);
+                    self.emit(path + ':insert', item, index);
+                    self.emit('*:insert', path, item, index);
                 }
             });
 
@@ -68,9 +68,8 @@ Observer.prototype._prepare = function(target, key, value) {
                     item.___evtObserverList.unbind();
 
                 var path = (target.__path ? target.__path + '.' : '') + key;
-                var data = item.json();
-                self.emit(path + ':remove', data, index);
-                self.emit('*:remove', path, data, index);
+                self.emit(path + ':remove', item, index);
+                self.emit('*:remove', path, item, index);
             });
 
             for(var i = 0; i < value.length; i++) {
@@ -100,12 +99,8 @@ Observer.prototype._prepare = function(target, key, value) {
             }
         }
         if (changed) {
-            var data = target.__data[key];
-            if (data instanceof ObserverList)
-                data = data.json();
-
-            this.emit(path + ':set', data, oldData);
-            this.emit('*:set', path, data, oldData);
+            this.emit(path + ':set', target.__data[key], oldData);
+            this.emit('*:set', path, target.__data[key], oldData);
         }
     } else if (type === 'function' && value === ObserverList) {
         target.__data[key] = new ObserverList();
@@ -123,8 +118,8 @@ Observer.prototype._prepare = function(target, key, value) {
             });
 
             var path = (target.__path ? target.__path + '.' : '') + key;
-            self.emit(path + ':insert', item.json(), index);
-            self.emit('*:insert', path, item.json(), index);
+            self.emit(path + ':insert', item, index);
+            self.emit('*:insert', path, item, index);
         });
 
         target.__data[key].on('remove', function(item, index) {
@@ -132,9 +127,8 @@ Observer.prototype._prepare = function(target, key, value) {
                 item.___evtObserverList.unbind();
 
             var path = (target.__path ? target.__path + '.' : '') + key;
-            var data = item.json();
-            self.emit(path + ':remove', data, index);
-            self.emit('*:remove', path, data, index);
+            self.emit(path + ':remove', item, index);
+            self.emit('*:remove', path, item, index);
         });
         this.emit(path + ':set', [ ], null);
         this.emit('*:set', path, [ ], null);
@@ -374,7 +368,7 @@ Observer.prototype.unset = function(path) {
     if (! node.__data || ! node.hasOwnProperty(key))
         return false;
 
-    var valueOld = this.json(node.__data[key]);
+    var valueOld = node.__data[key];
 
     // history hook to prevent array values to be recorded
     var historyState = this.history && this.history.enabled;
