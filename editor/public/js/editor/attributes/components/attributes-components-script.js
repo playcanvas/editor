@@ -10,7 +10,38 @@ editor.once('load', function() {
         'rgba': 'rgb', // TEMP
         'vector': 'vec3',
         'enumeration': 'number'
-    }
+    };
+
+    // index entities with script components
+    // so we can easily find them when we need
+    // to refresh script attributes
+    var entitiesWithScripts = {};
+
+    editor.on('entities:add', function (entity) {
+        if (entity.get('components.script')) {
+            entitiesWithScripts[entity.resource_id] = entity;
+        }
+
+        entity.on('*:set', function (path) {
+            if (path.indexOf('components.script') === 0) {
+                if (entity.get('components.script')) {
+                    entitiesWithScripts[entity.resource_id] = entity;
+                }
+            }
+        });
+
+        entity.on('*:unset', function (path) {
+            if (path.indexOf('components.script') === 0) {
+                if (!entity.get('components.script')) {
+                    delete entitiesWithScripts[entity.resource_id];
+                }
+            }
+        });
+    });
+
+    editor.on('entities:remove', function (entity) {
+        delete entitiesWithScripts[entity.resource_id];
+    });
 
     editor.on('attributes:inspect[entity]', function(entities) {
         if (entities.length !== 1)
@@ -34,11 +65,14 @@ editor.once('load', function() {
             panel.disabled = true;
             panel.hidden = true;
         }
-        var evtComponentSet = entity.on('components.script:set', function(value) {
+
+        var events = [];
+        events.push(entity.on('components.script:set', function(value) {
             panel.disabled = ! value;
             panel.hidden = ! value;
-        });
-        var evtComponentUnset = entity.on('components.script:unset', function() {
+        }));
+
+        events.push(entity.on('components.script:unset', function() {
             panel.disabled = true;
             panel.hidden = true;
 
@@ -47,10 +81,12 @@ editor.once('load', function() {
             });
 
             scriptPanels.length = 0;
-        });
+        }));
+
         panel.on('destroy', function() {
-            evtComponentSet.unbind();
-            evtComponentUnset.unbind();
+            events.forEach(function (e) {
+                e.unbind();
+            });
         });
 
 
@@ -157,20 +193,38 @@ editor.once('load', function() {
             editor.call('sourcefiles:scan', fullUrl, function (data) {
                 data.url = script.url;
 
-                // merge old attributes with new attributes
-                var oldAttributes = script.attributes;
-                for (var key in data.attributes) {
-                    if (data.attributes.hasOwnProperty(key)) {
-                        var value = data.attributes[key].defaultValue;
-                        if (key in oldAttributes && oldAttributes[key].type === data.attributes[key].type) {
-                            value = oldAttributes[key].value !== oldAttributes[key].defaultValue ? oldAttributes[key].value : value;
+                // get all entities with the same script
+                var scriptComponents = [];
+                console.log(entitiesWithScripts)
+                for (var key in entitiesWithScripts) {
+                    var scripts = entitiesWithScripts[key].get('components.script.scripts');
+                    if (scripts) {
+                        for (var i = 0; i < scripts.length; i++) {
+                            if (scripts.get(i).url === script.url) {
+                                scriptComponents.push(scripts.get(i));
+                                break;
+                            }
                         }
-
-                        data.attributes[key].value = value;
                     }
                 }
 
-                script.patch(data);
+                // merge old attributes with new attributes for all script components with this script
+                scriptComponents.forEach(function (script) {
+                    var oldAttributes = script.attributes;
+                    for (var key in data.attributes) {
+                        if (data.attributes.hasOwnProperty(key)) {
+                            var value = data.attributes[key].defaultValue;
+                            if (key in oldAttributes && oldAttributes[key].type === data.attributes[key].type) {
+                                value = oldAttributes[key].value !== oldAttributes[key].defaultValue ? oldAttributes[key].value : value;
+                            }
+
+                            data.attributes[key].value = value;
+                        }
+                    }
+
+                    script.patch(data);
+                });
+
             });
         }
 
@@ -249,7 +303,7 @@ editor.once('load', function() {
                 //     }
                 // });
 
-                script.on('attributesOrder:set', function (order, oldOrder) {
+                events.push(script.on('attributesOrder:set', function (order, oldOrder) {
                     // do this in a timeout to make sure attributes have been set first
                     setTimeout(function () {
                         for (var o = 0; o < order.length; o++) {
@@ -275,7 +329,7 @@ editor.once('load', function() {
                             }
                         }
                     }, 0);
-                });
+                }));
 
             }
 
@@ -331,7 +385,7 @@ editor.once('load', function() {
 
 
         // subscribe to scripts:insert
-        entity.on('components.script.scripts:insert', function (script, index) {
+        events.push(entity.on('components.script.scripts:insert', function (script, index) {
             // TEMP: find observer because currently the 'script' argument is not the observer
             var observer = entity.components.script.scripts.get(index);
             var scriptPanel = createScriptPanel(observer);
@@ -343,14 +397,14 @@ editor.once('load', function() {
                 // append before panel at next index
                 panelScriptsList.appendBefore(scriptPanels[index+1]);
             }
-        });
+        }));
 
         // subscribe to scripts:remove
-        entity.on('components.script.scripts:remove', function (script, index) {
+        events.push(entity.on('components.script.scripts:remove', function (script, index) {
             if (scriptPanels[index]) {
                 scriptPanels[index].destroy();
                 scriptPanels.splice(index, 1);
             }
-        });
+        }));
     });
 });
