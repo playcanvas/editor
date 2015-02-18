@@ -198,7 +198,8 @@ pc.extend(pc.designer, function() {
         }
 
         // Submit a request to queue up a new animation frame immediately
-        requestAnimationFrame(this.tick.bind(this), this.canvas);
+        requestAnimationFrame(this.tick.bind(this), this.graphicsDevice.canvas);
+
     };
 
     /**
@@ -339,7 +340,7 @@ pc.extend(pc.designer, function() {
 
                 var picked = picker.getSelection({
                     x: x,
-                    y: this.canvas.height - y
+                    y: this.graphicsDevice.canvas.height - y
                 });
 
                 if (picked.length > 0) {
