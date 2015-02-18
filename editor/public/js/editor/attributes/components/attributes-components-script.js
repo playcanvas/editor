@@ -164,7 +164,7 @@ editor.once('load', function() {
             });
         }
 
-        function addExistingScript (script) {
+        function addExistingScript (script, index) {
             var panel = new ui.Panel(script.url);
             panelScriptsList.append(panel);
             scriptPanels.push(panel);
@@ -223,8 +223,8 @@ editor.once('load', function() {
                         name: attribute.displayName,
                         type: scriptAttributeTypes[attribute.type],
                         enum: choices,
-                        link: entity,
-                        path: 'components.script.scripts.' + i + '.attributes.' + attribute.name + '.value'
+                        link: script,
+                        path: 'attributes.' + attribute.name + '.value'
                     });
                 }
             }
