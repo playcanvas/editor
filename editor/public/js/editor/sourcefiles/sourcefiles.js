@@ -30,7 +30,9 @@ editor.once('repositories:load', function (repositories) {
         Ajax
         .put(createUrl, data)
         .on('load', function (status, data) {
-            callback(data.response[0]);
+            if (callback) {
+                callback(data.response[0]);
+            }
         });
     });
 });

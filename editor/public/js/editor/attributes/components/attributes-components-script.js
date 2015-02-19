@@ -175,9 +175,7 @@ editor.once('load', function() {
                     .on('error', function (status) {
                         // script does not exist so create it
                         if (status === 404) {
-                            editor.call('sourcefiles:create', url, function () {
-                                refreshScriptAttributes(script);
-                            });
+                            editor.call('sourcefiles:create', url);
                         } else if (status === 0) {
                             // invalid json which is fine because the response is text.
                             // TODO: fix this it's not really an error
