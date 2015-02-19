@@ -139,9 +139,17 @@ editor.once('load', function() {
         });
 
         function addScript (url) {
+            var script;
             var result = true;
+
             if (urlRegex.test(url)) {
-                scanAndAddScript(url, url);
+                script = new Observer({
+                    url: url
+                });
+
+                entity.insert('components.script.scripts', script);
+
+                refreshScriptAttributes(script);
             } else {
                 if (!jsRegex.test(url)) {
                     url += '.js';
@@ -151,35 +159,35 @@ editor.once('load', function() {
                     result = false;
                 } else {
                     var fullUrl = editor.call('sourcefiles:url', url);
+
+                    script = new Observer({
+                        url: url
+                    });
+
+                    entity.insert('components.script.scripts', script);
+
                     // try to get the script and if it doesn't exist create it
                     Ajax
                     .get(fullUrl)
                     .on('load', function(status, data) {
-                        scanAndAddScript(url, fullUrl);
+                        refreshScriptAttributes(script);
                     })
                     .on('error', function (status) {
                         // script does not exist so create it
                         if (status === 404) {
                             editor.call('sourcefiles:create', url, function () {
-                                scanAndAddScript(url, fullUrl);
+                                refreshScriptAttributes(script);
                             });
                         } else if (status === 0) {
                             // invalid json which is fine because the response is text.
                             // TODO: fix this it's not really an error
-                            scanAndAddScript(url, fullUrl);
+                            refreshScriptAttributes(script);
                         }
                     });
                 }
             }
 
             return result;
-        }
-
-        function scanAndAddScript (url, fullUrl) {
-            editor.call('sourcefiles:scan', fullUrl, function (data) {
-                data.url = url;
-                entity.insert('components.script.scripts', new Observer(data));
-            });
         }
 
         function refreshScriptAttributes (script) {
@@ -203,7 +211,7 @@ editor.once('load', function() {
 
                 // merge old attributes with new attributes for all script components with this script
                 scriptComponents.forEach(function (script) {
-                    var oldAttributes = script.get('attributes');
+                    var oldAttributes = script.get('attributes') || {};
                     for (var key in data.attributes) {
                         if (data.attributes.hasOwnProperty(key)) {
                             var value = data.attributes[key].defaultValue;
@@ -241,8 +249,13 @@ editor.once('load', function() {
             panel.headerElement.textContent = '';
             panel.headerElement.appendChild(link);
 
+            events.push(script.on('name:set', function (value) {
+                link.textContent = value;
+            }));
+
             // button to remove script
             var fieldRemoveScript = new ui.Checkbox();
+            fieldRemoveScript.element.title = "Remove script";
             fieldRemoveScript.parent = panel;
             fieldRemoveScript.class.add('remove');
             fieldRemoveScript.on('change', function (value) {
@@ -295,12 +308,12 @@ editor.once('load', function() {
             panel.append(attributes);
 
             var order = script.get('attributesOrder');
-            if (order && order.length) {
-                // holds all attribute fields in order
-                var fieldsInOrder = [];
-                // holds all attributes fields indexed by attribute name
-                var fieldsIndex = {};
+            // holds all attribute fields in order
+            var fieldsInOrder = [];
+            // holds all attributes fields indexed by attribute name
+            var fieldsIndex = {};
 
+            if (order) {
                 for(var a = 0; a < order.length; a++) {
                     var attribute = script.get('attributes.' + order[a]);
 
@@ -314,100 +327,99 @@ editor.once('load', function() {
 
                     fieldsIndex[attribute.name] = fieldsInOrder[fieldsInOrder.length-1];
                 }
+            }
 
-                // Handle setting different attributes
-                events.push(script.on('attributes:set', function (newAttributes) {
-                    for (var key in fieldsIndex) {
-                        // remove attributes that no longer exist
-                        if (!(key in newAttributes)) {
-                            for (var i = 0; i < fieldsInOrder.length; i++) {
-                                if (fieldsInOrder[i] === fieldsIndex[key]) {
-                                    fieldsInOrder[i].field.parent.destroy();
-                                    fieldsInOrder.splice(i, 1);
-                                    delete fieldsIndex[key];
-                                    break;
-                                }
+            // Handle setting different attributes
+            events.push(script.on('attributes:set', function (newAttributes) {
+                for (var key in fieldsIndex) {
+                    // remove attributes that no longer exist
+                    if (!(key in newAttributes)) {
+                        for (var i = 0; i < fieldsInOrder.length; i++) {
+                            if (fieldsInOrder[i] === fieldsIndex[key]) {
+                                fieldsInOrder[i].field.parent.destroy();
+                                fieldsInOrder.splice(i, 1);
+                                delete fieldsIndex[key];
+                                break;
+                            }
+                        }
+
+                    }
+                    // recreate attribute fields that changed type
+                    else if (fieldsIndex[key].type !== newAttributes[key].type) {
+                        var field = fieldsIndex[key].field;
+                        // remember sibling
+                        var sibling = field.parent.element.nextSibling;
+                        // destroy old field
+                        field.parent.destroy();
+
+                        // create new field
+                        var newField = createAttributeField(newAttributes[key], script, attributes);
+                        // append before last sibling
+                        attributes.appendBefore(newField.parent, sibling);
+                        // set new value
+                        newField.value = newAttributes[key].value;
+
+                        // update index
+                        fieldsIndex[key].field = newField;
+                        fieldsIndex[key].type = newAttributes[key].type;
+                    }
+                }
+            }));
+
+            events.push(script.on('attributesOrder:set', function (order) {
+                // do this in a timeout to make sure attributes have been set first
+                setTimeout(function () {
+                    var field;
+
+                    for (var index = 0; index < order.length; index++) {
+                        var attr = script.get('attributes.' + order[index]);
+                        var oldIndex = -1;
+
+                        // find previous index of attribute
+                        for (var i = 0; i < fieldsInOrder.length; i++) {
+                            if (fieldsInOrder[i].name == attr.name) {
+                                oldIndex = i;
+                                break;
+                            }
+                        }
+
+                        if (oldIndex < 0) {
+                            // creaete new attribute field
+                            field = createAttributeField(attr, script, attributes);
+
+                            var entry = {
+                                name: attr.name,
+                                type: attr.type,
+                                field: field
+                            };
+
+                            fieldsIndex[attr.name] = entry;
+
+                            fieldsInOrder.splice(index, 0, entry);
+
+                            // append it at the right spot
+                            if (index > 0) {
+                                attributes.appendAfter(field.parent, fieldsInOrder[index-1].field.parent);
+                            } else {
+                                attributes.appendBefore(field.parent, fieldsInOrder[index+1] ? fieldsInOrder[index+1].field.parent : null);
                             }
 
-                        }
-                        // recreate attribute fields that changed type
-                        else if (fieldsIndex[key].type !== newAttributes[key].type) {
-                            var field = fieldsIndex[key].field;
-                            // remember sibling
-                            var sibling = field.parent.element.nextSibling;
-                            // destroy old field
-                            field.parent.destroy();
+                        } else {
+                            var record = fieldsInOrder[oldIndex];
 
-                            // create new field
-                            var newField = createAttributeField(newAttributes[key], script, attributes);
-                            // append before last sibling
-                            attributes.appendBefore(newField.parent, sibling);
-                            // set new value
-                            newField.value = newAttributes[key].value;
+                            // if wrong order then just re-order attribute fields
+                            if (oldIndex !== index && fieldsInOrder[index].name !== attr.name) {
+                                fieldsInOrder.splice(oldIndex);
+                                fieldsInOrder.splice(index, 0, record);
+                                attributes.appendBefore(record.field.parent, index < order.length - 1 ? fieldsInOrder[index+1].field.parent : null);
+                            }
 
-                            // update index
-                            fieldsIndex[key].field = newField;
-                            fieldsIndex[key].type = newAttributes[key].type;
+                            // set new value to field
+                            record.field.value = attr.value;
                         }
                     }
-                }));
-
-                events.push(script.on('attributesOrder:set', function (order) {
-                    // do this in a timeout to make sure attributes have been set first
-                    setTimeout(function () {
-                        var field;
-
-                        for (var index = 0; index < order.length; index++) {
-                            var attr = script.get('attributes.' + order[index]);
-                            var oldIndex = -1;
-
-                            // find previous index of attribute
-                            for (var i = 0; i < fieldsInOrder.length; i++) {
-                                if (fieldsInOrder[i].name == attr.name) {
-                                    oldIndex = i;
-                                    break;
-                                }
-                            }
-
-                            if (oldIndex < 0) {
-                                // creaete new attribute field
-                                field = createAttributeField(attr, script, attributes);
-
-                                var entry = {
-                                    name: attr.name,
-                                    type: attr.type,
-                                    field: field
-                                };
-
-                                fieldsIndex[attr.name] = entry;
-
-                                fieldsInOrder.splice(index, 0, entry);
-
-                                // append it at the right spot
-                                if (index > 0) {
-                                    attributes.appendAfter(field.parent, fieldsInOrder[index-1].field.parent);
-                                } else {
-                                    attributes.appendBefore(field.parent, fieldsInOrder[index+1] ? fieldsInOrder[index+1].field.parent : null);
-                                }
-
-                            } else {
-                                var record = fieldsInOrder[oldIndex];
-
-                                // if wrong order then just re-order attribute fields
-                                if (oldIndex !== index && fieldsInOrder[index].name !== attr.name) {
-                                    fieldsInOrder.splice(oldIndex);
-                                    fieldsInOrder.splice(index, 0, record);
-                                    attributes.appendBefore(record.field.parent, index < order.length - 1 ? fieldsInOrder[index+1].field.parent : null);
-                                }
-
-                                // set new value to field
-                                record.field.value = attr.value;
-                            }
-                        }
-                    }, 0);
-                }));
-
-            }
+                }, 0);
+            }));
 
             return panel;
         }
@@ -443,9 +455,14 @@ editor.once('load', function() {
         // Converts URL to script name
         function getFilenameFromUrl (url) {
             var filename = url;
-            var lastIndexOfSlash = url.lastIndexOf('/');
+
+            if (jsRegex.test(filename)) {
+                filename = filename.substring(0, filename.length - 3);
+            }
+
+            var lastIndexOfSlash = filename.lastIndexOf('/');
             if (lastIndexOfSlash >= 0) {
-                filename = url.substring(lastIndexOfSlash + 1, url.length);
+                filename = filename.substring(lastIndexOfSlash + 1, filename.length);
             }
 
             return filename;
