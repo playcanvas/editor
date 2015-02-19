@@ -505,6 +505,10 @@ Observer.prototype.move = function(path, indOld, indNew, silent) {
     var value = arr[indOld];
 
     arr.splice(indOld, 1);
+
+    if (indNew === -1)
+        indNew = arr.length;
+
     arr.splice(indNew, 0, value);
 
     if (! (value instanceof Observer))

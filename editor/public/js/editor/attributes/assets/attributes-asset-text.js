@@ -28,7 +28,7 @@ editor.once('load', function() {
 
         // load data
         Ajax
-        .get('{{url.api}}/' + asset.get('file.url'))
+        .get('{{url.home}}/' + asset.get('file.url'))
         .on('load', function(status, data) {
             fieldText.text = JSON.stringify(data, null, 4);
             panelRaw.hidden = false;

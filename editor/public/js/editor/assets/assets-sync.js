@@ -74,7 +74,7 @@ editor.once('load', function() {
 
             Ajax({
                 method: 'PUT',
-                url: '{{url.api}}/assets/' + asset.id,
+                url: '{{url.api}}/assets/' + asset.get('id'),
                 query: {
                     access_token: '{{accessToken}}'
                 },

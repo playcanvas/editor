@@ -110,9 +110,9 @@ editor.once('load', function() {
                 face.classList.add('empty');
             } else {
                 var texture = editor.call('assets:get', assetId);
-                if (texture && texture.type === 'texture' && texture.get('file.url')) {
+                if (texture && texture.get('type') === 'texture' && texture.get('file.url')) {
                     face.classList.remove('empty');
-                    face.style.backgroundImage = 'url("' + config.url.api + '/' + texture.file.url + '")';
+                    face.style.backgroundImage = 'url("' + config.url.home + '/' + texture.get('file.url') + '")';
                 } else {
                     face.classList.add('empty');
                     face.style.backgroundImage = '';
@@ -134,7 +134,7 @@ editor.once('load', function() {
                 editor.call('picker:asset', 'texture', texture);
 
                 var evtPick = editor.once('picker:asset', function(texture) {
-                    asset.set('data.textures.' + ind, texture.id);
+                    asset.set('data.textures.' + ind, texture.get('id'));
                     evtPick = null;
                 });
 

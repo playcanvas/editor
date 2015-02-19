@@ -30,7 +30,7 @@ editor.once('load', function() {
             });
 
             Ajax
-            .get('{{url.api}}/' + asset.file.url)
+            .get('{{url.home}}/' + asset.file.url)
             .on('load', function(status, data) {
                 if (data.animation && data.animation.duration !== undefined) {
                     asset._duration = data.animation.duration;

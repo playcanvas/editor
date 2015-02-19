@@ -41,7 +41,7 @@ editor.once('load', function() {
 
     // picked asset
     assetsGrid.on('select', function(item) {
-        if (overlay.hidden || ! item.asset || item.asset.type !== currentType || item.asset === currentAsset)
+        if (overlay.hidden || ! item.asset || item.asset.get('type') !== currentType || item.asset === currentAsset)
             return;
 
         // emit event
@@ -76,7 +76,7 @@ editor.once('load', function() {
     editor.method('picker:asset', function(type, asset) {
         // show only asset assets
         editor.call('assets:panel:filter', function(item) {
-            return item.type === type;
+            return item.get('type') === type;
         });
         // disable selector
         editor.call('selector:enabled', false);
@@ -86,7 +86,7 @@ editor.once('load', function() {
         currentType = type;
         currentAsset = asset;
         if (currentAsset) {
-            var gridItem = assetsGrid.assetsIndex[currentAsset.id];
+            var gridItem = assetsGrid.assetsIndex[currentAsset];
             // select in grid
             if (gridItem)
                 assetsGrid.selected = [ gridItem ];

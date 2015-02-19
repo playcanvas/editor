@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     editor.on('attributes:inspect[asset]', function(assets) {
-        if (assets.length !== 1 || assets[0].type !== 'texture')
+        if (assets.length !== 1 || assets[0].get('type') !== 'texture')
             return;
 
         var asset = assets[0];
@@ -81,7 +81,7 @@ editor.once('load', function() {
         var image = editor.call('attributes:addField', {
             parent: previewPanel,
             type: 'image',
-            src: config.url.api + '/' + asset.get('file.url')
+            src: config.url.home + '/' + asset.get('file.url')
         });
 
         image.style.backgroundImage = 'url("/editor/scene/img/asset-placeholder-texture.png")';
