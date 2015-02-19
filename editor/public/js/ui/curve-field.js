@@ -139,12 +139,7 @@ Object.defineProperty(CurveField.prototype, 'value', {
 
             this._paths.forEach(function (path, index) {
                 // remember old values so that we can undo later
-                var oldValue = this._link.get(path);
-                if (oldValue) {
-                    // deep copy data to prevent editing the same fields
-                    oldValue = utils.deepCopy(oldValue.__data);
-                }
-                oldValues.push(oldValue);
+                oldValues.push(this._link.get(path));
 
                 //this._link.set(path, value ? value[index] : null);
                 if (value) {
