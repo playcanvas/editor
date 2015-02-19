@@ -198,8 +198,12 @@ editor.once('load', function () {
             var dict = {};
             var order = [];
             validAttributes.forEach(function (attr) {
-                order.push(attr.name);
-                dict[attr.name] = attr;
+                if (dict[attr.name]) {
+                    console.error('Duplicate script attributes: ' + attr.name);
+                } else {
+                    order.push(attr.name);
+                    dict[attr.name] = attr;
+                }
             });
 
             validated = {
