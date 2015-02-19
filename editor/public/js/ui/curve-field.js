@@ -146,7 +146,12 @@ Object.defineProperty(CurveField.prototype, 'value', {
                 }
                 oldValues.push(oldValue);
 
-                this._link.set(path, value ? value[index] : null);
+                //this._link.set(path, value ? value[index] : null);
+                if (value) {
+                    this._link.set(path + '.type', value[index].type);
+                } else {
+                    this._link.set(path, null);
+                }
             }.bind(this));
 
             this._suspendEvents = false;

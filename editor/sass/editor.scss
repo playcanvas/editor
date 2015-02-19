@@ -558,6 +558,41 @@ $disabled-opacity: .4;
     }
 }
 
+.ui-panel.panel-components-script {
+    > .ui-header {
+        > .move-down, > .move-up, > .refresh {
+            width: 10px;
+            height: 24px;
+            background-repeat: no-repeat;
+            background-position-x: 6px;
+            background-position-y: 4px;
+            float: right;
+            margin-top: 3px;
+        }
+
+        > .move-down {
+            margin-right: 10px;
+            background-image: url("https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/icons/fa/16x16/arrow-down.png");
+        }
+
+        > .move-up {
+            margin-right: 1px;
+            background-image: url("https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/icons/fa/16x16/arrow-up.png");
+        }
+
+        > .refresh {
+            margin-right: 1px;
+            background-image: url("https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/icons/fa/16x16/refresh.png");
+        }
+
+        > .remove {
+            float: right;
+            background-color: transparent;
+            margin: 3px 4px 3px -5px;
+        }
+    }
+}
+
 .picker-curve {
     > .content {
         border: 1px solid #000;

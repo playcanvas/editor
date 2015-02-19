@@ -241,11 +241,10 @@ editor.once('load', function() {
             panel.headerElement.textContent = '';
             panel.headerElement.appendChild(link);
 
+            // button to remove script
             var fieldRemoveScript = new ui.Checkbox();
             fieldRemoveScript.parent = panel;
-            fieldRemoveScript.style.float = 'right';
-            fieldRemoveScript.style.backgroundColor = '#323f42';
-            fieldRemoveScript.style.margin = '3px 4px 3px -5px';
+            fieldRemoveScript.class.add('remove');
             fieldRemoveScript.on('change', function (value) {
                 if (value) {
                     // remove script
@@ -255,19 +254,42 @@ editor.once('load', function() {
 
             panel.headerElement.appendChild(fieldRemoveScript.element);
 
-            var fieldRefreshAttributes = new ui.Button({
-                text: '<img src="https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/icons/fa/16x16/refresh.png" />'
+            // buttons to reorder scripts
+            var fieldMoveDown = new ui.Button();
+            fieldMoveDown.class.add('move-down');
+            fieldMoveDown.element.title = 'Move script down';
+            fieldMoveDown.on('click', function () {
+                var scripts = entity.getRaw('components.script.scripts');
+                var index = scripts.indexOf(script);
+                if (index < scripts.length - 1) {
+                    entity.move('components.script.scripts', index, index + 1);
+                }
             });
-            fieldRefreshAttributes.style.float = 'right';
-            fieldRefreshAttributes.style['margin-right'] = '10px';
-            fieldRefreshAttributes.style['line-height'] = '28px';
-            fieldRefreshAttributes.style.height = '22px';
+
+            panel.headerElement.appendChild(fieldMoveDown.element);
+
+            var fieldMoveUp = new ui.Button();
+            fieldMoveUp.class.add('move-up');
+            fieldMoveUp.element.title = 'Move script up';
+            fieldMoveUp.on('click', function () {
+                var scripts = entity.getRaw('components.script.scripts');
+                var index = scripts.indexOf(script);
+                if (index > 0) {
+                    entity.move('components.script.scripts', index, index - 1);
+                }
+            });
+            panel.headerElement.appendChild(fieldMoveUp.element);
+
+            // button to refresh script attributes
+            var fieldRefreshAttributes = new ui.Button();
+            fieldRefreshAttributes.class.add('refresh');
             fieldRefreshAttributes.element.title = "Refresh script attributes";
             panel.headerElement.appendChild(fieldRefreshAttributes.element);
 
             fieldRefreshAttributes.on('click', function () {
                 refreshScriptAttributes(script);
             });
+
 
             var attributes = new ui.Panel();
             panel.append(attributes);
@@ -451,6 +473,13 @@ editor.once('load', function() {
                 // append before panel at next index
                 panelScriptsList.appendBefore(scriptPanels[index+1]);
             }
+        }));
+
+        events.push(entity.on('components.script.scripts:move', function (value, idxNew, idxOld) {
+            panelScriptsList.appendBefore(scriptPanels[idxOld], scriptPanels[idxNew > idxOld ? idxNew + 1 : idxNew]);
+            var temp = scriptPanels[idxOld];
+            scriptPanels[idxOld] = scriptPanels[idxNew];
+            scriptPanels[idxNew] = temp;
         }));
 
         // subscribe to scripts:remove
