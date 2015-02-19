@@ -121,6 +121,12 @@ Observer.prototype.get = function(path, raw) {
     }
 };
 
+
+Observer.prototype.getRaw = function(path) {
+    return this.get(path, true);
+};
+
+
 Observer.prototype.has = function(path) {
     var keys = path.split('.');
     var node = this;
