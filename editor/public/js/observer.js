@@ -16,6 +16,8 @@ function Observer(data, options) {
     this._parentField = options.parentField || null;
     this._parentKey = options.parentKey || null;
 
+
+    // propagate set
     this.on('*:set', function(path, value, valueOld) {
         if (! this._parent)
             return;
@@ -28,13 +30,36 @@ function Observer(data, options) {
                 return;
         }
 
-        this._parent.emit('*:set', this._parentPath + '.' + key + '.' + path, value, valueOld);
+        path = this._parentPath + '.' + key + '.' + path;
+
+        this._parent.emit(path + ':set', value, valueOld);
+        this._parent.emit('*:set', path, value, valueOld);
+    });
+
+
+    // propagate unset
+    this.on('*:unset', function(path, value, valueOld) {
+        if (! this._parent)
+            return;
+
+        var key = this._parentKey;
+        if (! key && (this._parentField instanceof Array)) {
+            key = this._parentField.indexOf(this);
+
+            if (key === -1)
+                return;
+        }
+
+        path = this._parentPath + '.' + key + '.' + path;
+
+        this._parent.emit(path + ':unset', value, valueOld);
+        this._parent.emit('*:unset', path, value, valueOld);
     });
 }
 Observer.prototype = Object.create(Events.prototype);
 
 
-Observer.prototype._prepare = function(target, key, value) {
+Observer.prototype._prepare = function(target, key, value, silent) {
     var self = this;
     var path = (target._path ? (target._path + '.') : '') + key;
     var type = typeof(value);
@@ -55,8 +80,10 @@ Observer.prototype._prepare = function(target, key, value) {
             }
         }
 
-        this.emit(path + ':set', target._data[key], null);
-        this.emit('*:set', path, target._data[key], null);
+        if (! silent) {
+            this.emit(path + ':set', target._data[key], null);
+            this.emit('*:set', path, target._data[key], null);
+        }
     } else if (type === 'object' && (value instanceof Object)) {
         target._data[key] = {
             _path: path,
@@ -76,12 +103,15 @@ Observer.prototype._prepare = function(target, key, value) {
 
         for(var i in value) {
             if (typeof(value[i]) === 'object') {
-                this._prepare(target._data[key], i, value[i]);
+                this._prepare(target._data[key], i, value[i], true);
             } else {
                 target._data[key]._data[i] = value[i];
                 target._data[key]._keys.push(i);
-                this.emit(path + '.' + i + ':set', value[i], null);
-                this.emit('*:set', path + '.' + i, value[i], null);
+
+                if (! silent) {
+                    this.emit(path + '.' + i + ':set', value[i], null);
+                    this.emit('*:set', path + '.' + i, value[i], null);
+                }
             }
         }
 
@@ -91,8 +121,10 @@ Observer.prototype._prepare = function(target, key, value) {
         if (historyState)
             this.history.enabled = true;
 
-        this.emit(path + ':set', value);
-        this.emit('*:set', path, value);
+        if (! silent) {
+            this.emit(path + ':set', value);
+            this.emit('*:set', path, value);
+        }
     }
 };
 
@@ -145,7 +177,7 @@ Observer.prototype.has = function(path) {
 }
 
 
-Observer.prototype.set = function(path, value) {
+Observer.prototype.set = function(path, value, silent) {
     var keys = path.split('.');
     var key = keys[keys.length - 1];
     var node = this;
@@ -198,16 +230,21 @@ Observer.prototype.set = function(path, value) {
             value._parentKey = null;
         }
 
-        obj.emit(path + ':set', value, valueOld);
-        obj.emit('*:set', path, value, valueOld);
+        if (! silent) {
+            obj.emit(path + ':set', value, valueOld);
+            obj.emit('*:set', path, value, valueOld);
+        }
     } else if (node._data && ! node._data.hasOwnProperty(key)) {
         if (typeof(value) === 'object') {
             obj._prepare(node, key, value);
         } else {
             node._data[key] = value;
             node._keys.push(key);
-            obj.emit(path + ':set', value, null);
-            obj.emit('*:set', path, value, null);
+
+            if (! silent) {
+                obj.emit(path + ':set', value, null);
+                obj.emit('*:set', path, value, null);
+            }
         }
     } else {
         if (typeof(value) === 'object' && (value instanceof Array)) {
@@ -220,8 +257,10 @@ Observer.prototype.set = function(path, value) {
 
             node._data[key] = value;
 
-            obj.emit(path + ':set', value, valueOld);
-            obj.emit('*:set', path, value, valueOld);
+            if (! silent) {
+                obj.emit(path + ':set', value, valueOld);
+                obj.emit('*:set', path, value, valueOld);
+            }
         } else if (typeof(value) === 'object' && (value instanceof Object)) {
             obj._prepare(node, key, value);
         } else {
@@ -234,8 +273,10 @@ Observer.prototype.set = function(path, value) {
 
             node._data[key] = value;
 
-            obj.emit(path + ':set', value, valueOld);
-            obj.emit('*:set', path, value, valueOld);
+            if (! silent) {
+                obj.emit(path + ':set', value, valueOld);
+                obj.emit('*:set', path, value, valueOld);
+            }
         }
     }
 
@@ -243,7 +284,7 @@ Observer.prototype.set = function(path, value) {
 };
 
 
-Observer.prototype.unset = function(path) {
+Observer.prototype.unset = function(path, silent) {
     var keys = path.split('.');
     var key = keys[keys.length - 1];
     var node = this;
@@ -292,14 +333,16 @@ Observer.prototype.unset = function(path) {
     delete node._data[key];
     // delete node[key];
 
-    this.emit(path + ':unset', valueOld);
-    this.emit('*:unset', path, valueOld);
+    if (! silent) {
+        this.emit(path + ':unset', valueOld);
+        this.emit('*:unset', path, valueOld);
+    }
 
     return true;
 };
 
 
-Observer.prototype.remove = function(path, ind) {
+Observer.prototype.remove = function(path, ind, silent) {
     var keys = path.split('.');
     var key = keys[keys.length - 1];
     var node = this;
@@ -328,14 +371,16 @@ Observer.prototype.remove = function(path, ind) {
 
     arr.splice(ind, 1);
 
-    this.emit(path + ':remove', value, ind);
-    this.emit('*:remove', path, value, ind);
+    if (! silent) {
+        this.emit(path + ':remove', value, ind);
+        this.emit('*:remove', path, value, ind);
+    }
 
     return true;
 };
 
 
-Observer.prototype.removeValue = function(path, value) {
+Observer.prototype.removeValue = function(path, value, silent) {
     var keys = path.split('.');
     var key = keys[keys.length - 1];
     var node = this;
@@ -369,14 +414,16 @@ Observer.prototype.removeValue = function(path, value) {
 
     arr.splice(ind, 1);
 
-    this.emit(path + ':remove', value, ind);
-    this.emit('*:remove', path, value, ind);
+    if (! silent) {
+        this.emit(path + ':remove', value, ind);
+        this.emit('*:remove', path, value, ind);
+    }
 
     return true;
 };
 
 
-Observer.prototype.insert = function(path, value, ind) {
+Observer.prototype.insert = function(path, value, ind, silent) {
     var keys = path.split('.');
     var key = keys[keys.length - 1];
     var node = this;
@@ -416,14 +463,16 @@ Observer.prototype.insert = function(path, value, ind) {
         value = this.json(value);
     }
 
-    this.emit(path + ':insert', value, ind);
-    this.emit('*:insert', path, value, ind);
+    if (! silent) {
+        this.emit(path + ':insert', value, ind);
+        this.emit('*:insert', path, value, ind);
+    }
 
     return true;
 };
 
 
-Observer.prototype.move = function(path, indOld, indNew) {
+Observer.prototype.move = function(path, indOld, indNew, silent) {
     var keys = path.split('.');
     var key = keys[keys.length - 1];
     var node = this;
@@ -452,8 +501,10 @@ Observer.prototype.move = function(path, indOld, indNew) {
     if (! (value instanceof Observer))
         value = this.json(value);
 
-    this.emit(path + ':move', value, indNew, indOld);
-    this.emit('*:move', path, value, indNew, indOld);
+    if (! silent) {
+        this.emit(path + ':move', value, indNew, indOld);
+        this.emit('*:move', path, value, indNew, indOld);
+    }
 
     return true;
 };

@@ -56,7 +56,8 @@ editor.once('load', function() {
                     for (var i = 0; i < ops.length; i++) {
                         var op = ops[i];
 
-                        // console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
+                        console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
+                        console.log(op)
 
                         if (op.p[0])
                             editor.emit('realtime:op:' + op.p[0], op);
@@ -78,8 +79,8 @@ editor.once('load', function() {
                 return;
 
             // console.trace();
-            // console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
-            // console.log(op)
+            console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
+            console.log(op)
 
             scene.submitOp([ op ]);
         });
