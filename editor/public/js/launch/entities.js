@@ -6,32 +6,29 @@ app.once('load', function() {
 
     // on adding
     entities.on('add', function(obj) {
-        // app.emit('entities:add', entity);
-
         // subscribe to changes
         obj.on('*:set', function(path, value) {
             var entity = obj.entity;
-            if (!entity) {
+            if (! entity)
                 return;
-            }
 
             if (path === 'name') {
-                entity.setName(obj.name);
+                entity.setName(obj.get('name'));
 
             } else if (path.indexOf('position') === 0) {
-                entity.setLocalPosition(new pc.Vec3(obj.position[0], obj.position[1], obj.position[2]));
+                entity.setLocalPosition(new pc.Vec3(obj.get('position.0'), obj.get('position.1'), obj.get('position.2')));
 
             } else if (path.indexOf('rotation') === 0) {
-                entity.setLocalEulerAngles(new pc.Vec3(obj.rotation[0], obj.rotation[1], obj.rotation[2]));
+                entity.setLocalEulerAngles(new pc.Vec3(obj.get('rotation.0'), obj.get('rotation.1'), obj.get('rotation.2')));
 
             } else if (path.indexOf('scale') === 0) {
-                entity.setLocalScale(new pc.Vec3(obj.scale[0], obj.scale[1], obj.scale[2]));
+                entity.setLocalScale(new pc.Vec3(obj.get('scale.0'), obj.get('scale.1'), obj.get('scale.2')));
 
             } else if (path.indexOf('enabled') === 0) {
-                entity.enabled = obj.enabled;
+                entity.enabled = obj.get('enabled');
 
             } else if (path.indexOf('parent') === 0) {
-                var parent = editor.call('entities:get', obj.parent);
+                var parent = editor.call('entities:get', obj.get('parent'));
                 if (parent && parent.entity)
                     entity.reparent(parent.entity);
             }
@@ -73,10 +70,6 @@ app.once('load', function() {
 
     app.once('scene:raw', function(data) {
         for(var key in data.entities) {
-            // components.script.scripts > ObserverList
-            if (data.entities[key].components.script && data.entities[key].components.script.scripts.length === 0)
-                data.entities[key].components.script.scripts = ObserverList;
-
             entities.add(new Observer(data.entities[key]));
         }
     });
