@@ -345,16 +345,20 @@ editor.once('load', function() {
 
                         editor.on('picker:curve:change:start', onPickerStartChange);
 
-                        var onPickerChanged = function (value) {
+                        var onPickerChanged = function (path, value) {
                             var combine;
                             if (field._link) {
                                 combine = field._link.history.combine;
                                 field._link.history.combine = !first;
-                            }
 
-                            field.value = value;
+                                if (args.paths) {
+                                    path = args.paths[parseInt(path[0])] + path.substring(1);
+                                } else {
+                                    path = args.path + path.substring(1);
+                                }
 
-                            if (field._link) {
+                                field._link.set(path, value);
+
                                 field._link.history.combine = combine;
                             }
 

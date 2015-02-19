@@ -19,7 +19,6 @@ function CurveField(args) {
     this._paths = [];
 
     this._linkSetHandlers = [];
-    this._linkUnsetHandlers = [];
     this._resizeInterval = null;
     this._suspendEvents = false;
 
@@ -70,10 +69,16 @@ CurveField.prototype.link = function(link, paths) {
     if (this._onLinkChange) {
         var renderChanges = this.renderChanges;
         this.renderChanges = false;
-        this._paths.forEach(function (path) {
-            this._linkSetHandlers.push(this._link.on(path + ':set', this._onLinkChange.bind(this)));
-            this._linkUnsetHandlers.push(this._link.on(path + ':unset', this._onLinkChange.bind(this)));
-        }.bind(this));
+        this._linkSetHandlers.push(this._link.on('*:set', function (path) {
+            var paths = this._paths;
+            var len = paths.length;
+            for (var i = 0; i < len; i++) {
+                if (path.indexOf(paths[i]) === 0) {
+                    this._onLinkChange();
+                    break;
+                }
+            }
+        }.bind(this)));
 
         this._onLinkChange();
 
@@ -92,12 +97,6 @@ CurveField.prototype.unlink = function() {
     });
 
     this._linkSetHandlers.length = 0;
-
-    this._linkUnsetHandlers.forEach(function (handler) {
-        handler.unbind();
-    });
-
-    this._linkUnsetHandlers.length = 0;
 
     clearInterval(this._resizeInterval);
 
@@ -232,7 +231,7 @@ CurveField.prototype._renderCurves = function () {
     // draw curves
     if (value && value[0]) {
         var primaryCurves = this._valueToCurves(value[0]);
-        var secondaryCurves = value.length > 1 ? this._valueToCurves(value[1]) : null;
+        var secondaryCurves = value[0].betweenCurves && value.length > 1 ? this._valueToCurves(value[1]) : null;
 
         var minValue = minMax[0];
         var maxValue = minMax[1];

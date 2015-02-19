@@ -59,13 +59,14 @@ editor.once('load', function() {
 
         curveType = value;
 
-        // set type for each curve
-        curves.forEach(function (curve) {
-            curve.type = value;
-        });
-
         editor.emit('picker:curve:change:start');
-        editor.emit('picker:curve:change', getValue());
+
+        // set type for each curve
+        curves.forEach(function (curve, i) {
+            curve.type = value;
+            var path = i.toString() + '.type';
+            editor.emit('picker:curve:change', path, value);
+        });
 
         render();
 
@@ -75,16 +76,18 @@ editor.once('load', function() {
     header.append(fieldType);
 
     // randomize
-    var label = new ui.Label({
+    var labelRandomize = new ui.Label({
         text: 'Randomize'
     });
 
-    label.style['margin-left'] = '25px';
-    header.append(label);
+    labelRandomize.style['margin-left'] = '25px';
+    header.append(labelRandomize);
 
     var fieldRandomize = new ui.Checkbox();
     fieldRandomize.on('change', function (value) {
         if (suspendEvents) return;
+
+        var i;
 
         changing = true;
 
@@ -106,8 +109,15 @@ editor.once('load', function() {
             }
         }
 
+
         editor.emit('picker:curve:change:start');
-        editor.emit('picker:curve:change', getValue());
+
+        if (!gradient) {
+            editor.emit('picker:curve:change', '0.betweenCurves', betweenCurves);
+            editor.emit('picker:curve:change', '1.betweenCurves', betweenCurves);
+        } else {
+            editor.emit('picker:curve:change', '0.betweenCurves', betweenCurves);
+        }
 
         changing = false;
     });
@@ -315,6 +325,7 @@ editor.once('load', function() {
         gradient = args.gradient !== undefined ? args.gradient : false;
         gradientCanvas.style.display = gradient ? 'block' : 'none';
         fieldRandomize.hidden = gradient;
+        labelRandomize.hidden = gradient;
 
         maxVertical = args.max;
         fieldValue.max = args.max;
@@ -605,7 +616,17 @@ editor.once('load', function() {
 
         ctx.lineWidth = gradientCanvas.height;
 
-        var curveset = new pc.CurveSet(getValue()[0].keys);
+        var keys = [];
+        for (var i = 0; i < 3; i++) {
+            var k = curves[i].keys;
+            var ka = [];
+            for (var j = 0, len = k.length; j < len; j++ ) {
+                ka.push(k[j][0], k[j][1]);
+            }
+            keys.push(ka);
+        }
+
+        var curveset = new pc.CurveSet(keys);
         curveset.type = curveType;
 
         for (t = precision; t < gradientCanvas.width; t += precision) {
@@ -617,45 +638,6 @@ editor.once('load', function() {
             ctx.lineTo(t, gradientCanvas.height * 0.5);
             ctx.strokeStyle = color.toString();
             ctx.stroke();
-        }
-    }
-
-    // Serializes all the curves and returns the result
-    function getValue () {
-        function serialize (offset) {
-            var result = {
-                type: curveType,
-                keys: []
-            };
-
-            for (var i = 0; i < numCurves; i++) {
-                var keys = [];
-                var curveKeys = curves[i + offset].keys;
-                for (var j = 0; j < curveKeys.length; j++) {
-                    keys.push(curveKeys[j][0], curveKeys[j][1]);
-                }
-
-                if (numCurves > 1) {
-                    result.keys.push(keys);
-                } else {
-                    result.keys = keys;
-                }
-            }
-
-            return result;
-        }
-
-        var primaryCurves = serialize(0);
-        primaryCurves.betweenCurves = betweenCurves;
-
-        if (!gradient) {
-            if (betweenCurves) {
-                return [primaryCurves, serialize(numCurves)];
-            } else {
-                return [primaryCurves, primaryCurves];
-            }
-        } else {
-            return [primaryCurves];
         }
     }
 
@@ -754,7 +736,7 @@ editor.once('load', function() {
 
     // If there are any anchors with the same time, collapses them to one
     function collapseAnchors () {
-        var dirty = false;
+        var changedCurves = {};
 
         enabledCurves.forEach(function (curve) {
             for (var i = curve.keys.length - 1; i > 0; i--) {
@@ -762,7 +744,9 @@ editor.once('load', function() {
                 var prevKey = curve.keys[i-1];
                 if (key[0].toFixed(2) === prevKey[0].toFixed(2)) {
                     curve.keys.splice(i, 1);
-                    dirty = true;
+
+                    changedCurves[i] = true;
+
                     if (selectedAnchor === key) {
                         setSelected(selectedCurve, prevKey);
                     }
@@ -774,17 +758,21 @@ editor.once('load', function() {
             }
         });
 
-        if (dirty) {
-            editor.emit('picker:curve:change', getValue());
-        }
 
-        return dirty;
+        for (var index in changedCurves) {
+            var curve = curves[parseInt(index)];
+            if (curve) {
+                editor.emit('picker:curve:change', getKeysPath(curve), serializeCurveKeys(curve));
+            }
+        }
     }
 
     // Creates and returns an anchor and fires change event
     function createAnchor (curve, time, value) {
         var anchor = curve.add(time, value);
-        editor.emit('picker:curve:change', getValue());
+
+        editor.emit('picker:curve:change', getKeysPath(curve), serializeCurveKeys(curve));
+
         return anchor;
     }
 
@@ -800,7 +788,7 @@ editor.once('load', function() {
             selectedAnchorIndex = curve.keys.indexOf(selectedAnchor);
         }
 
-        editor.emit('picker:curve:change', getValue());
+        editor.emit('picker:curve:change', getKeysPath(curve), serializeCurveKeys(curve));
     }
 
     // Deletes an anchor from the curve and fires change event
@@ -810,7 +798,24 @@ editor.once('load', function() {
             curve.keys.splice(index, 1);
         }
 
-        editor.emit('picker:curve:change', getValue());
+        editor.emit('picker:curve:change', getKeysPath(curve), serializeCurveKeys(curve));
+    }
+
+    function getKeysPath (curve) {
+        var curveIndex = curves.indexOf(curve);
+        if (numCurves > 1) {
+            return curveIndex >= numCurves ? '1.keys.' + (curveIndex - numCurves) : '0.keys.' + curveIndex;
+        } else {
+            return curveIndex === 0 ? '0.keys' : '1.keys';
+        }
+    }
+
+    function serializeCurveKeys (curve) {
+        var result = [];
+        curve.keys.forEach(function (k) {
+            result.push(k[0], k[1]);
+        });
+        return result;
     }
 
     // Make the specified curve appear in front of the others
@@ -943,7 +948,7 @@ editor.once('load', function() {
                     selectedCurveIndex = curves.indexOf(selectedCurve);
 
                     // make sure we select the primary curve
-                    if (betweenCurves && selectedCurveIndex > numCurves) {
+                    if (betweenCurves && selectedCurveIndex >= numCurves) {
                         selectedCurveIndex -= numCurves;
                         selectedCurve = curves[selectedCurveIndex];
                     }
