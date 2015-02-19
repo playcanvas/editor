@@ -124,25 +124,31 @@ editor.once('load', function() {
             placeholder: 'Script URL'
         });
 
-        var suspendEvents = false;
-        fieldScriptsAdd.on('change', function (value) {
-            if (suspendEvents) return;
-            if (value) {
-                suspendEvents = true;
-                if (addScript(value)) {
-                    fieldScriptsAdd.value = '';
-                } else {
-                    fieldScriptsAdd.elementInput.select();
+        fieldScriptsAdd.element.addEventListener('keydown', function (e) {
+            if (e.which === 13)  {
+                if (fieldScriptsAdd.value) {
+                    if (addScript(fieldScriptsAdd.value)) {
+                        fieldScriptsAdd.value = '';
+                    } else {
+                        fieldScriptsAdd.elementInput.select();
+                    }
                 }
-                suspendEvents = false;
             }
         });
 
         function addScript (url) {
-            var script;
-            var result = true;
+            var script, scripts;
 
             if (urlRegex.test(url)) {
+
+                // check if url already exists first
+                scripts = entity.getRaw('components.script.scripts');
+                for (var i = 0; i < scripts.length; i++) {
+                    if (scripts[i].get('url') === url) {
+                        return false;
+                    }
+                }
+
                 script = new Observer({
                     url: url
                 });
@@ -156,8 +162,17 @@ editor.once('load', function() {
                 }
 
                 if (!scriptNameRegex.test(url) || url.indexOf('..') >= 0) {
-                    result = false;
+                    return false;
                 } else {
+
+                    // check if url already exists first
+                    scripts = entity.getRaw('components.script.scripts');
+                    for (var i = 0; i < scripts.length; i++) {
+                        if (scripts[i].get('url') === url) {
+                            return false;
+                        }
+                    }
+
                     var fullUrl = editor.call('sourcefiles:url', url);
 
                     script = new Observer({
@@ -185,7 +200,7 @@ editor.once('load', function() {
                 }
             }
 
-            return result;
+            return true;
         }
 
         function refreshScriptAttributes (script) {
