@@ -18,6 +18,10 @@ ObserverHistory.prototype._initialize = function() {
     this.item.on('*:set', function(path, value, valueOld) {
         if (! self._enabled) return;
 
+        // need jsonify
+        if (value instanceof Observer || value instanceof ObserverList)
+            value = value.json();
+
         // action
         var data = {
             name: self._prefix + path,
@@ -79,6 +83,10 @@ ObserverHistory.prototype._initialize = function() {
     this.item.on('*:insert', function(path, value, ind) {
         if (! self._enabled) return;
 
+        // need jsonify
+        if (value instanceof Observer || value instanceof ObserverList)
+            value = value.json();
+
         // action
         var data = {
             name: self._prefix + path,
@@ -99,6 +107,10 @@ ObserverHistory.prototype._initialize = function() {
 
     this.item.on('*:remove', function(path, value, ind) {
         if (! self._enabled) return;
+
+        // need jsonify
+        if (value instanceof Observer || value instanceof ObserverList)
+            value = value.json();
 
         // action
         var data = {
