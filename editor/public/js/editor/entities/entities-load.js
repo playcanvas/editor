@@ -18,10 +18,6 @@ editor.on('load', function() {
 
         // list
         for(var key in data.entities) {
-            // components.script.scripts > ObserverList
-            // if (data.entities[key].components.script && data.entities[key].components.script.scripts.length === 0)
-            //     data.entities[key].components.script.scripts = ObserverList
-
             editor.call('entities:add', new Observer(data.entities[key]));
 
             p.progress = (++i / total) * .8 + .1;
