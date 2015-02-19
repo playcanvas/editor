@@ -547,7 +547,8 @@ Observer.prototype.json = function(target) {
                 obj[key] = value.slice(0);
 
                 for(var n = 0; n < obj[key].length; n++) {
-                    obj[key][n] = this.json(obj[key][n]);
+                    if (typeof(obj[key][n]) === 'object')
+                        obj[key][n] = this.json(obj[key][n]);
                 }
             } else if (type === 'object' && (value instanceof Object)) {
                 obj[key] = this.json(value);
