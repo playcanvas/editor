@@ -111,13 +111,7 @@ editor.once('load', function() {
 
 
         editor.emit('picker:curve:change:start');
-
-        if (!gradient) {
-            editor.emit('picker:curve:change', '0.betweenCurves', betweenCurves);
-            editor.emit('picker:curve:change', '1.betweenCurves', betweenCurves);
-        } else {
-            editor.emit('picker:curve:change', '0.betweenCurves', betweenCurves);
-        }
+        editor.emit('picker:curve:change', '0.betweenCurves', betweenCurves);
 
         changing = false;
     });
