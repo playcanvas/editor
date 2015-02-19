@@ -361,7 +361,7 @@ editor.once('load', function() {
         var items = entity.get('components.script.scripts', true);
         if (items) {
             for(var i = 0; i < items.length; i++) {
-                var scriptPanel = createScriptPanel(items.get(i));
+                var scriptPanel = createScriptPanel(items[i]);
                 scriptPanels.push(scriptPanel);
                 panelScriptsList.append(scriptPanel);
             }
