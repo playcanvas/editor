@@ -193,7 +193,7 @@ editor.once('load', function() {
                     var scripts = entitiesWithScripts[key].get('components.script.scripts', true);
                     if (scripts) {
                         for (var i = 0; i < scripts.length; i++) {
-                            if (scripts[i].url === script.get('url')) {
+                            if (scripts[i].get('url') === script.get('url')) {
                                 scriptComponents.push(scripts[i]);
                                 break;
                             }
@@ -371,8 +371,7 @@ editor.once('load', function() {
         // subscribe to scripts:insert
         events.push(entity.on('components.script.scripts:insert', function (script, index) {
             // TEMP: find observer because currently the 'script' argument is not the observer
-            var observer = entity.get('components.script.scripts.' + index, true);
-            var scriptPanel = createScriptPanel(observer);
+            var scriptPanel = createScriptPanel(script);
             scriptPanels.splice(index, 0, scriptPanel);
             if (index === scriptPanels.length - 1) {
                 // append at the end
