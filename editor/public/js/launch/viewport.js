@@ -23,6 +23,12 @@ app.once('load', function() {
         // scriptPrefix: this.scriptPrefix
     });
 
+
+    // resolution mode
+    application.setCanvasFillMode(pc.FILLMODE_FILL_WINDOW);
+    application.setCanvasResolution(pc.RESOLUTION_AUTO);
+
+
     // start
     application.start();
 

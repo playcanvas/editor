@@ -71,12 +71,16 @@ Observer.prototype._prepare = function(target, key, value, silent) {
 
         for(var i = 0; i < target._data[key].length; i++) {
             if (typeof(target._data[key][i]) === 'object') {
-                target._data[key][i] = new Observer(target._data[key][i], {
-                    parent: this,
-                    parentPath: path,
-                    parentField: target._data[key],
-                    parentKey: null
-                });
+                if (target._data[key][i] instanceof Array) {
+                    target._data[key][i].slice(0);
+                } else {
+                    target._data[key][i] = new Observer(target._data[key][i], {
+                        parent: this,
+                        parentPath: path,
+                        parentField: target._data[key],
+                        parentKey: null
+                    });
+                }
             }
         }
 
@@ -441,8 +445,13 @@ Observer.prototype.insert = function(path, value, ind, silent) {
 
     var arr = node._data[key];
 
-    if (typeof(value) === 'object' && ! (value instanceof Observer))
-        value = new Observer(value);
+    if (typeof(value) === 'object' && ! (value instanceof Observer)) {
+        if (value instanceof Array) {
+            value = value.slice(0);
+        } else {
+            value = new Observer(value);
+        }
+    }
 
     if (arr.indexOf(value) !== -1)
         return;
