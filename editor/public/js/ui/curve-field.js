@@ -141,12 +141,7 @@ Object.defineProperty(CurveField.prototype, 'value', {
                 // remember old values so that we can undo later
                 oldValues.push(this._link.get(path));
 
-                //this._link.set(path, value ? value[index] : null);
-                if (value) {
-                    this._link.set(path + '.type', value[index].type);
-                } else {
-                    this._link.set(path, null);
-                }
+                this._link.set(path, value ? value[index] : null);
             }.bind(this));
 
             this._suspendEvents = false;
