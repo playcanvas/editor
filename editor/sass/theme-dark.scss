@@ -104,18 +104,22 @@ a:visited {
     &.flash {
         @extend .ui-flash;
     }
+}
 
-    &.panel-components-script {
+.ui-panel.panel-components-script {
+    border-top: 1px solid $bcg-darker;
+
+    &:last-child {
+        border-bottom: 1px solid $bcg-darker;
+    }
+
+    > .ui-header {
         a {
             color: white;
         }
 
-        &.panel-components-script {
-            border-top: 1px solid $bcg-darker;
-
-            &:last-child {
-                border-bottom: 1px solid $bcg-darker;
-            }
+        > .remove {
+            background-color: $bcg-primary;
         }
     }
 }
