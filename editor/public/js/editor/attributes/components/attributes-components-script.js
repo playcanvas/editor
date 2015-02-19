@@ -258,11 +258,26 @@ editor.once('load', function() {
             var fieldMoveDown = new ui.Button();
             fieldMoveDown.class.add('move-down');
             fieldMoveDown.element.title = 'Move script down';
+            fieldMoveDown.on('click', function () {
+                var scripts = entity.getRaw('components.script.scripts');
+                var index = scripts.indexOf(script);
+                if (index < scripts.length - 1) {
+                    entity.move('components.script.scripts', index, index + 1);
+                }
+            });
+
             panel.headerElement.appendChild(fieldMoveDown.element);
 
             var fieldMoveUp = new ui.Button();
             fieldMoveUp.class.add('move-up');
             fieldMoveUp.element.title = 'Move script up';
+            fieldMoveUp.on('click', function () {
+                var scripts = entity.getRaw('components.script.scripts');
+                var index = scripts.indexOf(script);
+                if (index > 0) {
+                    entity.move('components.script.scripts', index, index - 1);
+                }
+            });
             panel.headerElement.appendChild(fieldMoveUp.element);
 
             // button to refresh script attributes
@@ -458,6 +473,13 @@ editor.once('load', function() {
                 // append before panel at next index
                 panelScriptsList.appendBefore(scriptPanels[index+1]);
             }
+        }));
+
+        events.push(entity.on('components.script.scripts:move', function (value, idxNew, idxOld) {
+            panelScriptsList.appendBefore(scriptPanels[idxOld], scriptPanels[idxNew > idxOld ? idxNew + 1 : idxNew]);
+            var temp = scriptPanels[idxOld];
+            scriptPanels[idxOld] = scriptPanels[idxNew];
+            scriptPanels[idxNew] = temp;
         }));
 
         // subscribe to scripts:remove
