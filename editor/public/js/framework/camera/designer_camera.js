@@ -1,7 +1,7 @@
-pc.script.create( "designer_camera", function (context) {
+pc.script.create( "designer_camera", function (app) {
     // Cache systems
-    var camsys = context.systems.camera;
-    var modelsys = context.systems.model;
+    var camsys = app.systems.camera;
+    var modelsys = app.systems.model;
 
     // shared vectors
     var x = new pc.Vec3();
@@ -23,16 +23,16 @@ pc.script.create( "designer_camera", function (context) {
     var DesignerCamera = function (entity) {
         this.entity = entity;
 
-        this.mouse = new pc.input.Mouse();
+        this.mouse = new pc.Mouse();
 
-        this.mouse.attach(context.graphicsDevice.canvas);
+        this.mouse.attach(app.graphicsDevice.canvas);
 
-        this.mouse.bind(pc.input.EVENT_MOUSEMOVE, this.onMouseMove.bind(this));
-        this.mouse.bind(pc.input.EVENT_MOUSEWHEEL, this.onMouseWheel.bind(this));
-        this.mouse.bind(pc.input.EVENT_MOUSEUP, this.onMouseUp.bind(this));
+        this.mouse.bind(pc.EVENT_MOUSEMOVE, this.onMouseMove.bind(this));
+        this.mouse.bind(pc.EVENT_MOUSEWHEEL, this.onMouseWheel.bind(this));
+        this.mouse.bind(pc.EVENT_MOUSEUP, this.onMouseUp.bind(this));
 
         // init touch controls if they are available
-        this.touch = context.touch;
+        this.touch = app.touch;
         if (this.touch) {
             this.touch.bind('touchstart', this.onTouchStart.bind(this));
             this.touch.bind('touchmove', this.onTouch.bind(this));
@@ -66,17 +66,17 @@ pc.script.create( "designer_camera", function (context) {
     };
 
     DesignerCamera.prototype.initFocus = function () {
-        // Global var context.designer.cameraFocus is used to store camera focus between script instances
+        // Global var app.designer.cameraFocus is used to store camera focus between script instances
         // A new script instance is created whenever we switch between cameras.
-        if (!context.designer.cameraFocus) {
-            context.designer.cameraFocus = new pc.Vec3();
+        if (!app.designer.cameraFocus) {
+            app.designer.cameraFocus = new pc.Vec3();
 
             //var offset = new pc.Vec3();
             //v3.scale(this.entity.forwards, -50, offset);
-            //v3.add(this.entity.getPosition(), offset, context.designer.cameraFocus);
+            //v3.add(this.entity.getPosition(), offset, app.designer.cameraFocus);
         }
 
-        this.focus = context.designer.cameraFocus;
+        this.focus = app.designer.cameraFocus;
     };
 
     DesignerCamera.prototype.destroy = function () {
@@ -94,10 +94,10 @@ pc.script.create( "designer_camera", function (context) {
         if (model) {
             var meshInstances = model.meshInstances;
             if (meshInstances.length > 0) {
-                meshInstances[0].syncAabb()
+                meshInstances[0].syncAabb();
                 aabb.copy(meshInstances[0].aabb);
                 for (var i = 1; i < meshInstances.length; i++) {
-                    meshInstances[i].syncAabb()
+                    meshInstances[i].syncAabb();
                     aabb.add(meshInstances[i].aabb);
                 }
             }
@@ -122,6 +122,13 @@ pc.script.create( "designer_camera", function (context) {
         lookDir.normalize().scale(offset * 1.5);
         transition.eyeEnd.add2(transition.focusEnd, lookDir);
 
+        if (this.entity.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
+            transition.orthoHeightStart = this.entity.camera.orthoHeight;
+            transition.orthoHeightEnd = averageExtent * 1.1;
+            transition.eyeEnd.add2(transition.focusEnd, lookDir.normalize().scale(1000));
+        }
+
+
         transition.startTime = pc.time.now();
         transition.active = true;
         editor.call('viewport:frameSelectionStart');
@@ -144,7 +151,13 @@ pc.script.create( "designer_camera", function (context) {
 
         offset.sub2(this.focus, position);
 
-        var factor = offset.length() * 0.0022;
+        var factor;
+        if (this.entity.camera.projection === pc.PROJECTION_PERSPECTIVE) {
+            factor = offset.length() * 0.0022;
+        } else {
+            factor = offset.length() * this.entity.camera.orthoHeight * 0.0000075;
+        }
+
         var factorX = pc.math.clamp(movement[0], -100.0, 100.0) * factor;
         var factorY = pc.math.clamp(movement[1], -100.0, 100.0) * factor;
 
@@ -242,6 +255,8 @@ pc.script.create( "designer_camera", function (context) {
             newHeight = 1;
         }
 
+        this.entity.camera.orthoHeight = newHeight;
+
         editor.call('viewport:saveCamera', {
             orthoHeight: newHeight
         });
@@ -251,11 +266,11 @@ pc.script.create( "designer_camera", function (context) {
 
     DesignerCamera.prototype.onMouseWheel = function (event) {
         switch (this.entity.camera.projection) {
-            case pc.scene.Projection.ORTHOGRAPHIC:
+            case pc.PROJECTION_ORTHOGRAPHIC:
                 var delta = event.wheel * 10;
                 this.updateViewWindow(delta);
                 break;
-            case pc.scene.Projection.PERSPECTIVE:
+            case pc.PROJECTION_PERSPECTIVE:
                 this.dolly(event.wheel);
                 break;
             default:
@@ -268,16 +283,16 @@ pc.script.create( "designer_camera", function (context) {
     };
 
     DesignerCamera.prototype.onMouseMove = function (event) {
-        if (event.buttons[pc.input.MOUSEBUTTON_LEFT] && event.buttons[pc.input.MOUSEBUTTON_MIDDLE]) {
+        if (event.buttons[pc.MOUSEBUTTON_LEFT] && event.buttons[pc.MOUSEBUTTON_MIDDLE]) {
             var distance = event.dy;
             this.dolly(distance);
         }
-        else if ((event.altKey && event.buttons[pc.input.MOUSEBUTTON_MIDDLE]) ||
-                (event.altKey && (event.metaKey || event.shiftKey) && event.buttons[pc.input.MOUSEBUTTON_LEFT])) {
+        else if ((event.altKey && event.buttons[pc.MOUSEBUTTON_MIDDLE]) ||
+                (event.altKey && (event.metaKey || event.shiftKey) && event.buttons[pc.MOUSEBUTTON_LEFT])) {
             var movement = [event.dx, event.dy];
             this.pan(movement);
         }
-        else if (event.altKey && event.buttons[pc.input.MOUSEBUTTON_LEFT] && this.entity.camera.projection !== pc.scene.Projection.ORTHOGRAPHIC) {
+        else if (event.altKey && event.buttons[pc.MOUSEBUTTON_LEFT] && this.entity.camera.projection !== pc.scene.Projection.ORTHOGRAPHIC) {
             var rotation = [pc.math.RAD_TO_DEG*event.dx/300.0, pc.math.RAD_TO_DEG*event.dy/300.0];
             this.orbit(rotation);
         }
@@ -410,7 +425,7 @@ pc.script.create( "designer_camera", function (context) {
             if (elapsed > transition.duration) {
                 transition.active = false;
                 elapsed = transition.duration;
-                editor.call('viewport:frameSelectionEnd')
+                editor.call('viewport:frameSelectionEnd');
             }
 
             var eyePos = new pc.Vec3();
@@ -420,8 +435,13 @@ pc.script.create( "designer_camera", function (context) {
 
             this.entity.setPosition(eyePos);
 
+            if (this.entity.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
+                this.entity.camera.orthoHeight = pc.math.lerp(transition.orthoHeightStart, transition.orthoHeightEnd, alpha);
+            }
+
             editor.call('viewport:saveCamera', {
-                position: this.entity.getLocalPosition()
+                position: this.entity.getLocalPosition(),
+                orthoHeight: this.entity.camera.orthoHeight
             });
 
 

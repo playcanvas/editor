@@ -26,7 +26,7 @@ pc.extend(pc.designer, function() {
     var Designer = function (canvas, options) {
         this._inTools = true;
 
-        var context = this.context;
+        var context = this;
         context.assets._prefix = '../../api/';
 
         this.gizmos = {
@@ -58,12 +58,13 @@ pc.extend(pc.designer, function() {
         this.picker = new pc.scene.Picker(this.graphicsDevice, 1, 1);
         this.shading = pc.RENDERSTYLE_SOLID;
 
-        this.cameraEntity = this._createCamera();
-        this._activateCamera();
+        this.cameras = this._createCameras();
+        this.activeCamera = null;
+        this.setActiveCamera(0);
 
         // Insert a command into the draw call queue to clear the depth buffer immediately before the gizmos are rendered
         var clearOptions = {
-            flags: pc.gfx.CLEARFLAG_DEPTH
+            flags: pc.CLEARFLAG_DEPTH
         };
         var command = new pc.scene.Command(pc.LAYER_GIZMO, pc.BLEND_NONE, function () {
             context.graphicsDevice.clear(clearOptions);
@@ -79,10 +80,139 @@ pc.extend(pc.designer, function() {
 
     Designer = pc.inherits(Designer, pc.Application);
 
+    Designer.prototype._createCameras = function () {
+        // perspective
+        var perspective = new pc.Entity();
+        perspective.addComponent('camera', {
+            fov: 45,
+            orthoHeight: 100,
+            projection: 0,
+            enabled: true,
+            nearClip: 0.1,
+            farClip: 10000,
+            priority: 0,
+            clearColorBuffer: true,
+            clearDepthBuffer: true
+        });
+        this.root.addChild(perspective);
+        perspective.setPosition(100, 50, 100);
+        perspective.setEulerAngles(-20, 45, 0);
+
+        // top
+        var top = new pc.Entity();
+        top.addComponent('camera', {
+            fov: 45,
+            orthoHeight: 80,
+            projection: 1,
+            farClip: 100000,
+            nearClip: 0.1,
+            enabled: true,
+            priority: 0,
+            clearColorBuffer: true,
+            clearDepthBuffer: true
+        });
+        this.root.addChild(top);
+        top.setPosition(0, 1000, 0);
+        top.setEulerAngles(-90, 0, 0);
+        top.enabled = false;
+
+        // bottom
+        var bottom = new pc.Entity();
+        bottom.addComponent('camera', {
+            fov: 45,
+            orthoHeight: 80,
+            projection: 1,
+            farClip: 100000,
+            nearClip: 0.1,
+            enabled: true,
+            priority: 0,
+            clearColorBuffer: true,
+            clearDepthBuffer: true
+        });
+        this.root.addChild(bottom);
+        bottom.setPosition(0, -1000, 0);
+        bottom.setEulerAngles(90, 0, 0);
+        bottom.enabled = false;
+
+        // front
+        var front = new pc.Entity();
+        front.addComponent('camera', {
+            fov: 45,
+            orthoHeight: 80,
+            projection: 1,
+            farClip: 100000,
+            nearClip: 0.1,
+            enabled: true,
+            priority: 0,
+            clearColorBuffer: true,
+            clearDepthBuffer: true
+        });
+        this.root.addChild(front);
+        front.setPosition(0, 0, 1000);
+        front.setEulerAngles(0, 0, 0);
+        front.enabled = false;
+
+        // back
+        var back = new pc.Entity();
+        back.addComponent('camera', {
+            fov: 45,
+            orthoHeight: 80,
+            projection: 1,
+            farClip: 100000,
+            nearClip: 0.1,
+            enabled: true,
+            priority: 0,
+            clearColorBuffer: true,
+            clearDepthBuffer: true
+        });
+        this.root.addChild(back);
+        back.setPosition(0, 0, -1000);
+        back.setEulerAngles(-180, 0, -180);
+        back.enabled = false;
+
+        // left
+        var left = new pc.Entity();
+        left.addComponent('camera', {
+            fov: 45,
+            orthoHeight: 80,
+            projection: 1,
+            farClip: 100000,
+            nearClip: 0.1,
+            enabled: true,
+            priority: 0,
+            clearColorBuffer: true,
+            clearDepthBuffer: true
+        });
+        this.root.addChild(left);
+        left.setPosition(-1000, 0, 0);
+        left.setEulerAngles(0, -90, 0);
+        left.enabled = false;
+
+        // right
+        var right = new pc.Entity();
+        right.addComponent('camera', {
+            fov: 45,
+            orthoHeight: 80,
+            projection: 1,
+            farClip: 100000,
+            nearClip: 0.1,
+            enabled: true,
+            priority: 0,
+            clearColorBuffer: true,
+            clearDepthBuffer: true
+        });
+        this.root.addChild(right);
+        right.setPosition(1000, 0, 0);
+        right.setEulerAngles(0, 90, 0);
+        right.enabled = false;
+
+        return [perspective, top, bottom, front, back, left, right];
+    };
 
     Designer.prototype._createCamera = function () {
         var camera = new pc.Entity();
-        this.context.systems.camera.addComponent(camera, {
+
+        camera.addComponent('camera', {
             fov: 45,
             orthoHeight: 100,
             projection: 0,
@@ -92,7 +222,7 @@ pc.extend(pc.designer, function() {
             priority: 0
         });
 
-        this.context.root.addChild(camera);
+        this.root.addChild(camera);
         camera.setPosition(100, 50, 100);
         camera.setEulerAngles(-20, 45, 0);
 
@@ -100,7 +230,7 @@ pc.extend(pc.designer, function() {
     };
 
     Designer.prototype.getCamera = function (pathOrGuid) {
-        return this.context.root.findByPath(pathOrGuid) || this.context.root.findByGuid(pathOrGuid);
+        return this.root.findByPath(pathOrGuid) || this.root.findByGuid(pathOrGuid);
     };
 
     /**
@@ -110,7 +240,7 @@ pc.extend(pc.designer, function() {
     Designer.prototype.render = function () {
         var self = this;
 
-        var context = this.context;
+        var context = this;
         var renderer = this.renderer;
 
         var root = context.root;
@@ -144,7 +274,7 @@ pc.extend(pc.designer, function() {
         };
 
         // FIXME: This breaks if the user has created entities with the same names as the default cameras
-        var cameraEntity = this.cameraEntity;
+        var cameraEntity = this.activeCamera;
         if (cameraEntity) {
             var camera = cameraEntity.camera.camera;
             // Link the named camera to the relevant viewport
@@ -222,17 +352,26 @@ pc.extend(pc.designer, function() {
         this.redraw = true;
     };
 
-    Designer.prototype._deactivateCurrentCamera = function () {
-        if (this.cameraEntity.script) {
-            this.context.systems.script.removeComponent(this.cameraEntity);
-        }
+    Designer.prototype.setActiveCamera = function (index) {
+        this._activateCamera(this.cameras[index]);
+        this.redraw = true;
     };
 
-    Designer.prototype._activateCamera = function () {
-        var camera = this.cameraEntity;
+    Designer.prototype._activateCamera = function (cameraEntity) {
+        if (this.activeCamera && this.activeCamera !== cameraEntity) {
+            if (this.activeCamera.script) {
+                this.activeCamera.removeComponent('script');
+            }
 
-        if (!camera.script) {
-            this.context.systems.script.addComponent(camera, {
+            this.activeCamera.enabled = false;
+        }
+
+        this.activeCamera = cameraEntity;
+
+        cameraEntity.enabled = true;
+
+        if (!cameraEntity.script) {
+            cameraEntity.addComponent('script', {
                 scripts: [{
                     url: '/editor/scene/js/framework/camera/designer_camera.js'
                 }],
@@ -241,10 +380,10 @@ pc.extend(pc.designer, function() {
         }
 
         for (var key in this.gizmos) {
-            this.gizmos[key].setCamera(camera);
+            this.gizmos[key].setCamera(cameraEntity);
         }
 
-        this.context.scene.removeModel(camera.camera.model);
+        this.scene.removeModel(cameraEntity.camera.model);
     };
 
 
@@ -281,18 +420,18 @@ pc.extend(pc.designer, function() {
         this.gizmos.scale.setSnapIncrement(settings.snap_increment);
 
         if (this.grid) {
-            this.context.scene.removeModel(this.grid.model);
+            this.scene.removeModel(this.grid.model);
             this.grid.destroy();
         }
 
         this.grid = new pc.Grid(this.graphicsDevice, settings.grid_divisions * settings.grid_division_size, settings.grid_divisions);
-        this.context.scene.addModel(this.grid.model);
+        this.scene.addModel(this.grid.model);
 
         this.redraw = true;
     };
 
     Designer.prototype.selectEntity = function (resourceId) {
-        this.selectedEntity = this.context.root.findByGuid(resourceId);
+        this.selectedEntity = this.root.findByGuid(resourceId);
         if (this.selectedEntity && editor.call('permissions:write'))
             this.activeGizmo.activate(this.selectedEntity);
 
@@ -307,7 +446,7 @@ pc.extend(pc.designer, function() {
 
     Designer.prototype.frameSelection = function () {
         if (this.selectedEntity) {
-            this.cameraEntity.script.designer_camera.frameSelection(this.selectedEntity);
+            this.activeCamera.script.designer_camera.frameSelection(this.selectedEntity);
             this.redraw = true;
         }
     };
@@ -322,7 +461,7 @@ pc.extend(pc.designer, function() {
         event.preventDefault();
 
         // wrap mouseevent with PlayCanvas version which adds cross-browser properties
-        var e = new pc.input.MouseEvent(this.context.mouse, event);
+        var e = new pc.input.MouseEvent(this.mouse, event);
 
         // Mouse click XY with reference to top left corner of canvas
         var x = e.x;
@@ -336,7 +475,7 @@ pc.extend(pc.designer, function() {
 
             if (!this.activeGizmo.isDragging) {
                 var picker = this.picker;
-                picker.prepare(this.cameraEntity.camera.camera, this.context.scene);
+                picker.prepare(this.activeCamera.camera.camera, this.scene);
 
                 var picked = picker.getSelection({
                     x: x,
@@ -356,7 +495,7 @@ pc.extend(pc.designer, function() {
                         }
 
                         if (e.button !== pc.input.MOUSEBUTTON_RIGHT) {
-                            if (this.context.designer.selection.indexOf(selectedNode) < 0) {
+                            if (this.designer.selection.indexOf(selectedNode) < 0) {
                                 // We've selected a new entity
                                 editor.call('selector:add', 'entity', selectedEntity);
                             } else {
@@ -411,7 +550,7 @@ pc.extend(pc.designer, function() {
                     // got the instance
                     // get the material with the same index
                     if (selectedNode.model.type === 'asset') {
-                        var modelAsset = this.context.assets.getAssetById(selectedNode.model.asset);
+                        var modelAsset = this.assets.getAssetById(selectedNode.model.asset);
                         if (modelAsset.data.mapping) {
                             materialId = modelAsset.data.mapping[i].material;
                         }
@@ -447,7 +586,7 @@ pc.extend(pc.designer, function() {
      */
     Designer.prototype.handleMouseUp = function (event) {
         // wrap mouseevent wiht PlayCanvas version which adds cross-browser properties
-        var e = new pc.input.MouseEvent(this.context.mouse, event);
+        var e = new pc.input.MouseEvent(this.mouse, event);
 
         // pass mouseup on to the gizmo
         this.activeGizmo.handleMouseUp(e);
@@ -461,7 +600,7 @@ pc.extend(pc.designer, function() {
      */
     Designer.prototype.handleMouseMove = function (event) {
         // wrap mouseevent wiht PlayCanvas version which adds cross-browser properties
-        this.lastMouseEvent = new pc.input.MouseEvent(this.context.mouse, event);
+        this.lastMouseEvent = new pc.input.MouseEvent(this.mouse, event);
         this.redraw = true;
     };
 
