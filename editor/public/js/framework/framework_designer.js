@@ -270,7 +270,7 @@ pc.extend(pc.designer, function() {
 
     Designer.prototype.setSnapToClosestIncrement = function (snap) {
         for (var key in this.gizmos) {
-            this.gizmos.setSnap(snap);
+            this.gizmos[key].setSnap(snap);
         }
     };
 

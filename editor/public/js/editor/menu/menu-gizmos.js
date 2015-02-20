@@ -36,6 +36,22 @@ editor.once('load', function() {
         });
     });
 
+    // toggle grid snap
+    button = new ui.Button({
+        text: 'Snap'
+    });
+
+    header.append(button);
+
+    var snap = false;
+    button.on('click', function () {
+        var framework = editor.call('viewport:framework');
+        if (framework) {
+            snap = !snap;
+            framework.setSnapToClosestIncrement(snap);
+        }
+    });
+
     // frame selection
     button = new ui.Button({
         text: 'Frame'
