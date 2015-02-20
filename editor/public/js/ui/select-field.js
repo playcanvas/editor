@@ -95,10 +95,14 @@ SelectField.prototype._onClick = function() {
         if (this.optionElements[this._value]) {
             top -= this.optionElements[this._value].offsetTop + 1;
         }
-        // limit to bottom of screen
+
+        // limit to bottom / top of screen
         if (top + this.elementOptions.clientHeight > window.innerHeight) {
             top = window.innerHeight - this.elementOptions.clientHeight;
+        } else if (top < 0) {
+            top = rect.top + 1;
         }
+
         this.elementOptions.style.top = top + 'px';
         // left
         this.elementOptions.style.left = rect.left + 'px';
