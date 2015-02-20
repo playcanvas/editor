@@ -282,8 +282,10 @@ pc.extend(pc.designer, function() {
             // set camera properties defined in designer settings
             var clearColor = this.designerSettings.camera_clear_color;
             cameraEntity.camera.clearColor = new pc.Color(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
-            cameraEntity.camera.nearClip = this.designerSettings.camera_near_clip;
-            cameraEntity.camera.farClip = this.designerSettings.camera_far_clip;
+            if (cameraEntity === this.cameras[0]) {
+                cameraEntity.camera.nearClip = this.designerSettings.camera_near_clip;
+                cameraEntity.camera.farClip = this.designerSettings.camera_far_clip;
+            }
 
             camera.setRect(0, 0, 1, 1);
 
