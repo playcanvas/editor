@@ -3,42 +3,37 @@ editor.once('load', function () {
 
     var validators = {
         'number': function (url, attribute) {
-            return validateValue(url, attribute, 'number', 0);
+            validateValue(url, attribute, 'number', 0);
         },
 
         'string': function (url, attribute) {
-            if (validateValue(url, attribute, 'string', '')) {
-                if (attribute.defaultValue.length > 512) {
-                    reportAttributeError(url, attribute, "Value exceeds 512 characters");
-                    return false;
-                }
+            validateValue(url, attribute, 'string', '');
 
-                return true;
-            } else {
-                return false;
+            if (attribute.defaultValue.length > 512) {
+                throw attributeErrorMsg(url, attribute, "Value exceeds 512 characters");
             }
         },
 
 
         'boolean': function (url, attribute) {
-            return validateValue(url, attribute, 'boolean', false);
+            validateValue(url, attribute, 'boolean', false);
         },
 
         'asset': function (url, attribute) {
             // TODO check max array length
-            return validateArrayValue(url, attribute, [], -1, 'number');
+            validateArrayValue(url, attribute, [], -1, 'number');
         },
 
         'vector': function (url, attribute) {
-            return validateArrayValue(url, attribute, [0,0,0], 3, 'number');
+            validateArrayValue(url, attribute, [0,0,0], 3, 'number');
         },
 
         'rgb': function (url, attribute) {
-            return validateArrayValue(url, attribute, [0,0,0], 3, 'number');
+            validateArrayValue(url, attribute, [0,0,0], 3, 'number');
         },
 
         'rgba': function (url, attribute) {
-            return validateArrayValue(url, attribute, [0,0,0,1], 4, 'number');
+            validateArrayValue(url, attribute, [0,0,0,1], 4, 'number');
         },
 
         'enumeration': function (url, attribute) {
@@ -52,48 +47,40 @@ editor.once('load', function () {
                 // TODO check enumerations max length
                 for (var i=0; i<enumerations.length; i++) {
                     if (pc.type(enumerations[i]) !== 'object') {
-                        reportAttributeError(url, attribute, "Each enumeration must be an object with this form: {name: '...', value: ...}");
-                        return false;
+                        throw attributeErrorMsg(url, attribute, "Each enumeration must be an object with this form: {name: '...', value: ...}");
                     } else {
                         if (pc.type(enumerations[i].name) !== 'string' ||
                             enumerations[i].name.length === 0 ||
                             pc.type(enumerations[i].value) === 'undefined') {
 
-                            reportAttributeError(url, attribute, "Each enumeration must be an object with this form: {name: '...', value: ...}");
-                            return false;
+                            throw attributeErrorMsg(url, attribute, "Each enumeration must be an object with this form: {name: '...', value: ...}");
                         } else {
                             if (!valueType) {
                                 valueType = pc.type(enumerations[i].value);
                             } else {
                                 if (valueType !== pc.type(enumerations[i].value)) {
-                                    reportAttributeError(url, attribute, "All enumerations values must be the same type");
-                                    return false;
+                                    throw attributeErrorMsg(url, attribute, "All enumerations values must be the same type");
                                 }
                             }
                         }
                     }
                 }
 
-                if (validateValue(url, attribute, valueType, enumerations[0].value)) {
-                    var isValueInEnumerations = false;
-                    for (var i = 0; i < enumerations.length; i++) {
-                        if (enumerations[i].value === attribute.defaultValue) {
-                            isValueInEnumerations = true;
-                            break;
-                        }
-                    }
+                validateValue(url, attribute, valueType, enumerations[0].value);
 
-                    if (!isValueInEnumerations) {
-                        reportAttributeError(url, attribute, "Value is not one of the possible enumerations");
+                var isValueInEnumerations = false;
+                for (var i = 0; i < enumerations.length; i++) {
+                    if (enumerations[i].value === attribute.defaultValue) {
+                        isValueInEnumerations = true;
+                        break;
                     }
+                }
 
-                    return isValueInEnumerations;
-                } else {
-                    return false;
+                if (!isValueInEnumerations) {
+                    throw attributeErrorMsg(url, attribute, "Value is not one of the possible enumerations");
                 }
             } else {
-                reportAttributeError(url, attribute, "Missing enumerations from attribute options");
-                return false;
+                throw attributeErrorMsg(url, attribute, "Missing enumerations from attribute options");
             }
         }
     };
@@ -103,80 +90,76 @@ editor.once('load', function () {
         if (type === 'undefined') {
             attribute.defaultValue = valueIfUndefined;
         } else if (type !== correctType) {
-            reportAttributeError(url, attribute, 'Value is not of type ' + correctType);
-            return false;
+            throw attributeErrorMsg(url, attribute, 'Value is not of type ' + correctType);
         }
-
-        return true;
     };
 
     var validateArrayValue = function (url, attribute, valueIfUndefined, correctLength, typeofElements) {
-        if (validateValue(url, attribute, 'array', valueIfUndefined)) {
-            if (correctLength >= 0 && attribute.defaultValue.length !== correctLength) {
-                reportAttributeError(url, attribute, pc.string.format('Value must be an array with {0} elements of type {1}', correctLength, typeofElements));
-                return false;
-            } else {
-                for (var i=0; i<attribute.defaultValue.length; i++) {
-                    if (typeof attribute.defaultValue[i] !== typeofElements) {
-                        reportAttributeError(url, attribute, pc.string.format('Value must be an array with elements of type {0}', typeofElements));
-                        return false;
-                    }
+        validateValue(url, attribute, 'array', valueIfUndefined);
+
+        if (correctLength >= 0 && attribute.defaultValue.length !== correctLength) {
+            throw attributeErrorMsg(url, attribute, pc.string.format('Value must be an array with {0} elements of type {1}', correctLength, typeofElements));
+        } else {
+            for (var i=0; i<attribute.defaultValue.length; i++) {
+                if (typeof attribute.defaultValue[i] !== typeofElements) {
+                    throw attributeErrorMsg(url, attribute, pc.string.format('Value must be an array with elements of type {0}', typeofElements));
                 }
             }
-
-            return true;
-        } else {
-            return false;
         }
     };
 
-    var reportAttributeError = function (url, attribute, error) {
-        console.error(pc.string.format("Attribute '{0}' of script {1} is invalid: {2}", attribute.name, url, error));
+    var attributeErrorMsg = function (url, attribute, error) {
+        return pc.string.format("Attribute '{0}' of script {1} is invalid: {2}", attribute.name, url, error);
     };
 
     var validateScriptAttributes = function (url, data) {
-        var validated = {};
-        try {
-            var validAttributes = data.values.filter(function (attr) {
+        var hasErrors = false;
+        var validated = {
+            name: data.name,
+            attributes: {},
+            attributesOrder: []
+        };
+
+        data.values.forEach(function (attr) {
+            try {
                 // check if name is valid
                 if (typeof attr.name !== 'string' || !attr.name) {
-                    console.error(pc.string.format("Validation error in {0}: Missing attribute name", url));
-                    return false;
+                    throw pc.string.format("Validation error in {0}: Missing attribute name", url);
                 }
 
                 if (attr.name.length > 128) {
-                    console.error(pc.string.format("Validation error in {0}: Attribute name exceeds 128 characters", url));
-                    return false;
+                    throw pc.string.format(pc.string.format("Validation error in {0}: Attribute name exceeds 128 characters", url));
                 }
 
                 // check if type is valid
                 if (typeof attr.type === 'undefined') {
-                    reportAttributeError(url, attr, "Missing attribute type");
-                    return false;
+                    throw attributeErrorMsg(url, attr, "Missing attribute type");
                 }
 
                 if (VALID_TYPES.indexOf(attr.type) < 0) {
-                    reportAttributeError(url, attr, pc.string.format("{0} is not a valid attribute type", attr.type));
-                    return false;
+                    throw attributeErrorMsg(url, attr, pc.string.format("{0} is not a valid attribute type", attr.type));
                 }
 
                 if (attr.options && attr.options.displayName) {
                     if (typeof attr.options.displayName !== 'string') {
-                        reportAttributeError(url, attr, "Display name of attribute must be a string");
-                        return false;
+                        throw attributeErrorMsg(url, attr, "Display name of attribute must be a string");
                     }
 
                     if (attr.options.displayName.length > 128) {
-                        reportAttributeError(url, attr, "Display name of attribute cannot exceed 128 characters");
-                        return false;
+                        throw attributeErrorMsg(url, attr, "Display name of attribute cannot exceed 128 characters");
                     }
                 }
 
                 // type-specific validations
-                return validators[attr.type](url, attr);
-            }).map(function (attr) {
-                // Only allowed options
-                return {
+                validators[attr.type](url, attr);
+
+                if (validated.attributes[attr.name]) {
+                    throw attributeErrorMsg(url, attr, 'Duplicate attribute');
+                }
+
+                validated.attributesOrder.push(attr.name);
+
+                validated.attributes[attr.name] = {
                     name: attr.name,
                     displayName: attr.options && attr.options.displayName ? attr.options.displayName : attr.name,
                     defaultValue: attr.defaultValue,
@@ -193,27 +176,15 @@ editor.once('load', function () {
                         enumerations: attr.options.enumerations
                     } : {}
                 };
-            });
+            } catch (e) {
+                hasErrors = true;
+                console.error(e);
+            }
+        });
 
-            var dict = {};
-            var order = [];
-            validAttributes.forEach(function (attr) {
-                if (dict[attr.name]) {
-                    console.error('Duplicate script attributes: ' + attr.name);
-                } else {
-                    order.push(attr.name);
-                    dict[attr.name] = attr;
-                }
-            });
-
-            validated = {
-                name: data.name,
-                attributesOrder: order,
-                attributes: dict
-            };
-        } catch (error) {
-            console.error('Invalid script attributes');
-            console.error(error);
+        if (hasErrors) {
+            editor.call('status:error', 'Error while parsing script attributes. Open browser console for details.');
+            validated = null;
         }
 
         return validated;
@@ -246,9 +217,12 @@ editor.once('load', function () {
         worker.onmessage = function (e) {
             if (e.data) {
                 if (typeof e.data.error !== 'undefined') {
-                    console.error(pc.string.format("Could not parse {0} - {1}", url, e.data.error));
+                    editor.call('status:error', pc.string.format("Could not parse {0} - {1}", url, e.data.error));
                 } else {
-                    success(validateScriptAttributes(url, e.data));
+                    var result = validateScriptAttributes(url, e.data);
+                    if (result) {
+                        success(result);
+                    }
                 }
             }
         };
