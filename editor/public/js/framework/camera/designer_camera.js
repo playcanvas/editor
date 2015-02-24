@@ -332,11 +332,11 @@ pc.script.create( "designer_camera", function (app) {
                 this.flyModeKeys[event.which] = true;
             }
 
-            this.calculateFlySpeed();
+            this.calculateFlySpeed(event);
         }
     };
 
-    DesignerCamera.prototype.calculateFlySpeed = function () {
+    DesignerCamera.prototype.calculateFlySpeed = function (event) {
         var right = 0;
         var forward = 0;
 
@@ -367,7 +367,7 @@ pc.script.create( "designer_camera", function (app) {
         }
 
         if (this.flyMode) {
-            this.calculateFlySpeed();
+            this.calculateFlySpeed(event);
         }
     };
 
