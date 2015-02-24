@@ -46,7 +46,7 @@ editor.once('load', function() {
             return;
 
         // D key
-        if (e.keyCode === 68) {
+        if (e.keyCode === 68 && !editor.call('viewport:flyMode')) {
             duplicateEntity();
         }
     });

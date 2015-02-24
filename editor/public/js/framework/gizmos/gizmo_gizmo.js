@@ -30,7 +30,7 @@
         this.disabledShapes = [];
 
         this.isDragging = false;
-    }
+    };
 
     pc.Gizmo.prototype = {
         initialize: function () {
@@ -160,6 +160,8 @@
                 this.context.scene.removeModel(this.model);
                 this.context.root.removeChild(this.model.graph);
             }
+
+            this.isDragging = false;
         },
 
         setCamera: function (cameraEntity) {
@@ -169,6 +171,10 @@
         setActiveAxis: function (axis) {
             this.activeAxis = axis;
             editor.call('viewport:render');
+        },
+
+        hasActiveAxis: function () {
+            return this.activeAxis !== null;
         },
 
         // Sets current coordinate system. Can be 'world' or 'local'
@@ -397,7 +403,7 @@
                     viewWindow.y = cameraEntity.camera.orthoHeight;
                     break;
                 case pc.scene.PROJECTION_PERSPECTIVE:
-                    var fov = cameraEntity.camera.fov;
+                    var fov = 45;
                     viewWindow.y = nearClip * Math.tan(fov * 0.5 * Math.PI / 180);
                     viewWindow.x = viewWindow.y * vpw / vph;
                     break;

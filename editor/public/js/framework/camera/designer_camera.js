@@ -30,9 +30,13 @@ pc.script.create( "designer_camera", function (app) {
 
         this.mouse.attach(app.graphicsDevice.canvas);
 
+        this.mouse.bind(pc.EVENT_MOUSEDOWN, this.onMouseDown.bind(this));
         this.mouse.bind(pc.EVENT_MOUSEMOVE, this.onMouseMove.bind(this));
         this.mouse.bind(pc.EVENT_MOUSEWHEEL, this.onMouseWheel.bind(this));
         this.mouse.bind(pc.EVENT_MOUSEUP, this.onMouseUp.bind(this));
+
+        window.addEventListener('keydown', this.onKeyDown.bind(this));
+        window.addEventListener('keyup', this.onKeyUp.bind(this));
 
         // init touch controls if they are available
         this.touch = app.touch;
@@ -60,6 +64,16 @@ pc.script.create( "designer_camera", function (app) {
 
         this.frameScale = 10; // This is used to scale dollying to prevent zooming past the object that is framed
 
+        this.flySpeed = new pc.Vec3();
+        this.flySpeedModifier = 1;
+        this.flyMode = false;
+        this.flyModeKeys = {
+            65: false,
+            68: false,
+            83: false,
+            87: false
+        };
+
         this.undoTimeout = null;
         this.combineHistory = false;
     };
@@ -69,10 +83,6 @@ pc.script.create( "designer_camera", function (app) {
         // A new script instance is created whenever we switch between cameras.
         if (!app.designer.cameraFocus) {
             app.designer.cameraFocus = new pc.Vec3();
-
-            //var offset = new pc.Vec3();
-            //v3.scale(this.entity.forwards, -50, offset);
-            //v3.add(this.entity.getPosition(), offset, app.designer.cameraFocus);
         }
 
         this.focus = app.designer.cameraFocus;
@@ -83,7 +93,9 @@ pc.script.create( "designer_camera", function (app) {
     };
 
     DesignerCamera.prototype.frameSelection = function (selection) {
-        this.combineHistory = false;
+        if (!this.flyMode) {
+            this.combineHistory = false;
+        }
 
         var model;
         if (selection.model) {
@@ -247,6 +259,27 @@ pc.script.create( "designer_camera", function (app) {
         editor.call('viewport:render');
     };
 
+    DesignerCamera.prototype.lookAt = function (rotation) {
+
+        quatY.setFromAxisAngle(pc.Vec3.UP, -rotation[0]);
+        quatX.setFromAxisAngle(this.entity.right, -rotation[1]);
+        quatY.mul(quatX);
+
+        quatY.mul2(quatY, this.entity.getRotation());
+
+        var targetToEye = new pc.Vec3().sub2(this.focus, this.entity.getPosition());
+        var dist = targetToEye.length();
+        this.focus.add2(this.entity.getPosition(), this.entity.forward.scale(dist));
+
+        tempRot.copy(this.entity.getParent().getRotation()).invert().mul(quatY);
+
+        this.setCameraProperties({
+            rotation: tempRot.getEulerAngles()
+        });
+
+        editor.call('viewport:render');
+    };
+
     DesignerCamera.prototype.updateViewWindow = function (delta) {
         var newHeight = this.entity.camera.orthoHeight - delta;
         if (newHeight < 1) {
@@ -285,6 +318,68 @@ pc.script.create( "designer_camera", function (app) {
 
     DesignerCamera.prototype.onMouseUp = function (event) {
         this.combineHistory = false;
+        if (event.button === pc.MOUSEBUTTON_RIGHT) {
+            if (this.flyMode) {
+                this.flyMode = false;
+                editor.call('viewport:flyModeEnd');
+            }
+        }
+    };
+
+    DesignerCamera.prototype.onKeyDown = function (event) {
+        if (this.flyMode) {
+            if (this.flyModeKeys[event.which] !== undefined) {
+                this.flyModeKeys[event.which] = true;
+            }
+
+            this.calculateFlySpeed();
+        }
+    };
+
+    DesignerCamera.prototype.calculateFlySpeed = function () {
+        var right = 0;
+        var forward = 0;
+
+        if (this.flyModeKeys['A'.charCodeAt(0)]) {
+            right = -1;
+        } else if (this.flyModeKeys['D'.charCodeAt(0)]) {
+            right = 1;
+        }
+
+        if (this.flyModeKeys['W'.charCodeAt(0)]) {
+            forward = 1;
+        } else if (this.flyModeKeys['S'.charCodeAt(0)]) {
+            forward = -1;
+        }
+
+        if (event.shiftKey) {
+            this.flySpeedModifier = 1;
+        } else {
+            this.flySpeedModifier = 0.2;
+        }
+
+        this.flySpeed.add2(this.entity.forward.scale(forward), this.entity.right.scale(right));
+    };
+
+    DesignerCamera.prototype.onKeyUp = function (event) {
+        if (this.flyModeKeys[event.which] !== undefined) {
+            this.flyModeKeys[event.which] = false;
+        }
+
+        if (this.flyMode) {
+            this.calculateFlySpeed();
+        }
+    };
+
+    DesignerCamera.prototype.onMouseDown = function (event) {
+        if (event.button === pc.MOUSEBUTTON_RIGHT) {
+            if (!this.flyMode) {
+                this.flyMode = true;
+                this.flySpeed.set(0, 0, 0);
+                editor.call('viewport:flyModeStart');
+                editor.call('viewport:render');
+            }
+        }
     };
 
     DesignerCamera.prototype.onMouseMove = function (event) {
@@ -292,14 +387,15 @@ pc.script.create( "designer_camera", function (app) {
             var distance = event.dy;
             this.dolly(distance);
         }
-        else if ((event.altKey && event.buttons[pc.MOUSEBUTTON_MIDDLE]) ||
-                (event.altKey && (event.metaKey || event.shiftKey) && event.buttons[pc.MOUSEBUTTON_LEFT])) {
-            var movement = [event.dx, event.dy];
-            this.pan(movement);
+        else if (event.buttons[pc.MOUSEBUTTON_MIDDLE] || (event.buttons[pc.MOUSEBUTTON_LEFT] && event.shiftKey)) {
+            this.pan([event.dx, event.dy]);
         }
-        else if (event.altKey && event.buttons[pc.MOUSEBUTTON_LEFT] && this.entity.camera.projection !== pc.scene.Projection.ORTHOGRAPHIC) {
-            var rotation = [pc.math.RAD_TO_DEG*event.dx/300.0, pc.math.RAD_TO_DEG*event.dy/300.0];
-            this.orbit(rotation);
+        else if (event.buttons[pc.MOUSEBUTTON_LEFT] && this.entity.camera.projection !== pc.scene.Projection.ORTHOGRAPHIC) {
+            if (!app.activeGizmo.hasActiveAxis()) {
+                this.orbit([pc.math.RAD_TO_DEG*event.dx/300.0, pc.math.RAD_TO_DEG*event.dy/300.0]);
+            }
+        } else if (event.buttons[pc.MOUSEBUTTON_RIGHT]) {
+            this.lookAt([pc.math.RAD_TO_DEG*event.dx/300.0, pc.math.RAD_TO_DEG*event.dy/300.0]);
         }
     };
 
@@ -454,6 +550,19 @@ pc.script.create( "designer_camera", function (app) {
 
             if (!transition.active) {
                 this.combineHistory = false;
+            }
+        } else {
+            if (this.flyMode) {
+                var pos = this.entity.getLocalPosition();
+                offset.copy(this.flySpeed).scale(this.flySpeedModifier);
+                pos.add(offset);
+                this.focus.add(offset);
+
+                this.setCameraProperties({
+                    position: pos
+                });
+
+                editor.call('viewport:render');
             }
         }
     };

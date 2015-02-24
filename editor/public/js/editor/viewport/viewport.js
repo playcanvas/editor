@@ -30,7 +30,13 @@ editor.once('load', function() {
     canvas.element.addEventListener('mouseup', framework.handleMouseUp.bind(framework));
     canvas.element.addEventListener('mousemove', framework.handleMouseMove.bind(framework));
 
+    // prevent right click menu
+    canvas.element.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+    });
+
     var frameSelection = false;
+    var flyMode = false;
 
     // methods
 
@@ -57,14 +63,23 @@ editor.once('load', function() {
         frameSelection = false;
     });
 
+    editor.method('viewport:flyModeStart', function () {
+        console.log('fly mode start');
+        flyMode = true;
+    });
+
+    editor.method('viewport:flyModeEnd', function () {
+        console.log('fly mode end');
+        flyMode = false;
+    });
+
     // returns true if the viewport should continuously render
     editor.method('viewport:keepRendering', function () {
-        // return true if we are in the middle of framing a selection
-        if (frameSelection) {
-            return true;
-        }
+        return frameSelection || flyMode;
+    });
 
-        return false;
+    editor.method('viewport:flyMode', function () {
+        return flyMode;
     });
 
     editor.on('selector:add', function(entity, type) {
