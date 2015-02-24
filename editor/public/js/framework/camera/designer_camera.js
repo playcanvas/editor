@@ -11,6 +11,9 @@ pc.script.create( "designer_camera", function (app) {
 
     var quatX = new pc.Quat();
     var quatY = new pc.Quat();
+    var tempRot = new pc.Quat();
+
+    var tempMat = new pc.Mat4();
 
     // touch constants
     var PAN_TRIGGER_DISTANCE = 6;
@@ -57,12 +60,8 @@ pc.script.create( "designer_camera", function (app) {
 
         this.frameScale = 10; // This is used to scale dollying to prevent zooming past the object that is framed
 
-        // These values are used to send undoable transforms to the designer
-        // only for user cameras
-        this.positionDirty = false;
-        this.rotationDirty = false;
-        this.originalPosition = new pc.Vec3();
-        this.originalRotation = new pc.Vec3();
+        this.undoTimeout = null;
+        this.combineHistory = false;
     };
 
     DesignerCamera.prototype.initFocus = function () {
@@ -84,6 +83,8 @@ pc.script.create( "designer_camera", function (app) {
     };
 
     DesignerCamera.prototype.frameSelection = function (selection) {
+        this.combineHistory = false;
+
         var model;
         if (selection.model) {
             model = selection.model.model;
@@ -114,6 +115,11 @@ pc.script.create( "designer_camera", function (app) {
         vec.sub2(transition.focusEnd, transition.focusStart);
         transition.eyeEnd.add2(transition.eyeStart, vec);
 
+        // convert eyeStart and eyeEnd to local coordinates
+        tempMat.copy(this.entity.getParent().getWorldTransform()).invert();
+        tempMat.transformPoint(transition.eyeStart, transition.eyeStart);
+        tempMat.transformPoint(transition.eyeEnd, transition.eyeEnd);
+
         var averageExtent = (aabb.halfExtents.x + aabb.halfExtents.y + aabb.halfExtents.z) / 3;
         var offset = averageExtent / Math.tan(0.5 * this.entity.camera.fov * Math.PI / 180.0);
 
@@ -128,14 +134,11 @@ pc.script.create( "designer_camera", function (app) {
             transition.eyeEnd.add2(transition.focusEnd, lookDir.normalize().scale(1000));
         }
 
-
         transition.startTime = pc.time.now();
         transition.active = true;
         editor.call('viewport:frameSelectionStart');
 
         this.frameScale = averageExtent * 50;
-
-        this.entity.setPosition(transition.eyeStart);
 
         // The next line may seem redundant. However, we're forcing the script's render
         // function to be fired, thereby allowing the next animation step to be scheduled.
@@ -167,10 +170,8 @@ pc.script.create( "designer_camera", function (app) {
         position.add(y).add(x);
         this.focus.add(x).add(y);
 
-        this.entity.setLocalPosition(position);
-
-        editor.call('viewport:saveCamera', {
-            position: this.entity.getLocalPosition()
+        this.setCameraProperties({
+            position: position
         });
 
         editor.call('viewport:render');
@@ -213,10 +214,8 @@ pc.script.create( "designer_camera", function (app) {
         var position = this.entity.getLocalPosition();
         position.add(z);
 
-        this.entity.setLocalPosition(position);
-
-        editor.call('viewport:saveCamera', {
-            position: this.entity.getLocalPosition()
+        this.setCameraProperties({
+            position: position
         });
 
         editor.call('viewport:render');
@@ -232,18 +231,17 @@ pc.script.create( "designer_camera", function (app) {
 
         quatY.transformVector(targetToEye, targetToEye);
         eyePos.add2(this.focus, targetToEye);
-        this.entity.setPosition(eyePos);
+
+        tempMat.copy(this.entity.getParent().getWorldTransform()).invert();
+        tempMat.transformPoint(eyePos, eyePos);
 
         quatY.mul(this.entity.getRotation());
 
-        this.entity.setRotation(quatY);
+        tempRot.copy(this.entity.getParent().getRotation()).invert().mul(quatY);
 
-        var angles = this.entity.getLocalEulerAngles();
-        var position = this.entity.getLocalPosition();
-
-        editor.call('viewport:saveCamera', {
-            position: position,
-            rotation: angles
+        this.setCameraProperties({
+            position: eyePos,
+            rotation: tempRot.getEulerAngles()
         });
 
         editor.call('viewport:render');
@@ -255,9 +253,7 @@ pc.script.create( "designer_camera", function (app) {
             newHeight = 1;
         }
 
-        this.entity.camera.orthoHeight = newHeight;
-
-        editor.call('viewport:saveCamera', {
+        this.setCameraProperties({
             orthoHeight: newHeight
         });
 
@@ -276,10 +272,19 @@ pc.script.create( "designer_camera", function (app) {
             default:
                 break;
         }
+
+        // reset combineHistory flag after a while
+        if (this.undoTimeout) {
+            clearTimeout(this.undoTimeout);
+        }
+
+        this.undoTimeout = setTimeout(function () {
+            this.combineHistory = false;
+        }.bind(this), 250);
     };
 
     DesignerCamera.prototype.onMouseUp = function (event) {
-
+        this.combineHistory = false;
     };
 
     DesignerCamera.prototype.onMouseMove = function (event) {
@@ -414,6 +419,8 @@ pc.script.create( "designer_camera", function (app) {
         if (event.touches.length === 1) {
             // if a finger was raised then reset the previous touch
             this.previousTouch = event.touches[0];
+        } else if (event.touches.length === 0) {
+            this.combineHistory = false;
         }
     };
 
@@ -433,19 +440,107 @@ pc.script.create( "designer_camera", function (app) {
             eyePos.lerp(transition.eyeStart, transition.eyeEnd, alpha);
             this.focus.lerp(transition.focusStart, transition.focusEnd, alpha);
 
-            this.entity.setPosition(eyePos);
+            var data = {
+                position: eyePos
+            };
 
             if (this.entity.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
-                this.entity.camera.orthoHeight = pc.math.lerp(transition.orthoHeightStart, transition.orthoHeightEnd, alpha);
+                data.orthoHeight = pc.math.lerp(transition.orthoHeightStart, transition.orthoHeightEnd, alpha);
             }
 
-            editor.call('viewport:saveCamera', {
-                position: this.entity.getLocalPosition(),
-                orthoHeight: this.entity.camera.orthoHeight
-            });
-
+            this.setCameraProperties(data);
 
             editor.call('viewport:render');
+
+            if (!transition.active) {
+                this.combineHistory = false;
+            }
+        }
+    };
+
+    DesignerCamera.prototype.setCameraProperties = function (data) {
+        if (this.undoTimeout) {
+            clearTimeout(this.undoTimeout);
+            this.undoTimeout = null;
+        }
+
+        if (app.isUserCamera(this.entity)) {
+            var entity = editor.call('entities:get', this.entity.getGuid());
+            if (entity) {
+                var pos = this.entity.getLocalPosition();
+                var oldPosition = [pos.x, pos.y, pos.z];
+
+                var rot = this.entity.getLocalEulerAngles();
+                var oldRotation = [rot.x, rot.y, rot.z];
+
+                var oldOrthoHeight = this.entity.camera.orthoHeight;
+
+                var newPosition = data.position ? [data.position.x, data.position.y, data.position.z] : oldPosition;
+                var newRotation = data.rotation ? [data.rotation.x, data.rotation.y, data.rotation.z] : oldRotation;
+                var newOrthoHeight = data.orthoHeight !== undefined ? data.orthoHeight : oldOrthoHeight;
+
+                // set entity position / rotation / orthoHeight as one undoable action
+                var action = {
+                    name: 'entity.' + this.entity.getGuid() + '.designercamera',
+                    combine: this.combineHistory,
+                    undo: function () {
+                        var historyEnabled = entity.history.enabled;
+                        entity.history.enabled = false;
+                        entity.set('position', oldPosition);
+                        entity.set('rotation', oldRotation);
+                        entity.set('components.camera.orthoHeight', oldOrthoHeight);
+                        entity.history.enabled = historyEnabled;
+                    }.bind(this),
+                    redo: function () {
+                        var historyEnabled = entity.history.enabled;
+                        entity.history.enabled = false;
+                        entity.set('position', newPosition);
+                        entity.set('rotation', newRotation);
+                        entity.set('components.camera.orthoHeight', newOrthoHeight);
+                        entity.history.enabled = historyEnabled;
+
+                    }.bind(this)
+                };
+
+                // raise history event
+                if (this.combineHistory) {
+                    entity.history.emit('record', 'update', action);
+                } else {
+                    entity.history.emit('record', 'add', action);
+                }
+
+                var historyEnabled = entity.history.enabled;
+                entity.history.enabled = false;
+
+                // set the properties to the camera entity
+                if (data.position !== undefined) {
+                    entity.set('position', newPosition);
+                }
+
+                if (data.rotation !== undefined) {
+                    entity.set('rotation', newRotation);
+                }
+
+                if (data.orthoHeight !== undefined) {
+                    entity.set('components.camera.orthoHeight', newOrthoHeight);
+                }
+                entity.history.enabled = historyEnabled;
+
+                // combine events from now on until this becomes false again
+                this.combineHistory = true;
+            }
+        } else {
+            if (data.position !== undefined) {
+                this.entity.setLocalPosition(data.position);
+            }
+
+            if (data.rotation !== undefined) {
+                this.entity.setLocalEulerAngles(data.rotation);
+            }
+
+            if (data.orthoHeight !== undefined) {
+                this.entity.camera.orthoHeight = data.orthoHeight;
+            }
         }
     };
 

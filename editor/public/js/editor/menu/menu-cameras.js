@@ -1,22 +1,19 @@
-editor.once('load', function() {
+editor.once('viewport:load', function(framework) {
     'use strict';
 
     var header = editor.call('layout.header');
 
-    var combo = new ui.SelectField({
-        options: {
-            0: 'Perspective',
-            1: 'Top',
-            2: 'Bottom',
-            3: 'Front',
-            4: 'Back',
-            5: 'Left',
-            6: 'Right'
-        },
-        number: true
+    var options = {};
+
+    framework.cameras.forEach(function (camera) {
+        options[camera.getGuid()] = camera.name;
     });
 
-    combo.value = 0;
+    var combo = new ui.SelectField({
+        options: options
+    });
+
+    combo.value = framework.cameras[0].getGuid();
 
     combo.style.float = 'right';
     combo.style['margin-top'] = '12px';
@@ -30,4 +27,43 @@ editor.once('load', function() {
         }
     });
 
+    function refreshOptions () {
+        combo._updateOptions(options);
+    }
+
+    // look for entities with camera components and
+    // add those to the list as well
+    editor.on('entities:add', function (entity) {
+        if (entity.get('components.camera')) {
+            options[entity.get('resource_id')] = entity.get('name');
+            refreshOptions();
+        }
+
+        entity.on('components.camera:set', function (value) {
+            if (value) {
+                options[entity.get('resource_id')] = entity.get('name');
+                refreshOptions();
+            }
+        });
+
+        entity.on('components.camera:unset', function () {
+            // reset active camera if the current one is deleted
+            if (framework.activeCamera.getGuid() === entity.get('resource_id')) {
+                combo.value = framework.cameras[0].getGuid();
+            }
+
+            delete options[entity.get('resource_id')];
+            refreshOptions();
+        });
+    });
+
+    editor.on('entities:remove', function (entity) {
+        // reset active camera if the current one is deleted
+        if (framework.activeCamera.getGuid() === entity.get('resource_id')) {
+            combo.value = framework.cameras[0].getGuid();
+        }
+
+        delete options[entity.get('resource_id')];
+        refreshOptions();
+    });
 });

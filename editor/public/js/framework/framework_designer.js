@@ -60,7 +60,7 @@ pc.extend(pc.designer, function() {
 
         this.cameras = this._createCameras();
         this.activeCamera = null;
-        this.setActiveCamera(0);
+        this.setActiveCamera(this.cameras[0].getGuid());
 
         // Insert a command into the draw call queue to clear the depth buffer immediately before the gizmos are rendered
         var clearOptions = {
@@ -83,6 +83,7 @@ pc.extend(pc.designer, function() {
     Designer.prototype._createCameras = function () {
         // perspective
         var perspective = new pc.Entity();
+        perspective.name = 'Perspective';
         perspective.addComponent('camera', {
             fov: 45,
             orthoHeight: 100,
@@ -100,6 +101,7 @@ pc.extend(pc.designer, function() {
 
         // top
         var top = new pc.Entity();
+        top.name = 'Top';
         top.addComponent('camera', {
             fov: 45,
             orthoHeight: 80,
@@ -118,6 +120,7 @@ pc.extend(pc.designer, function() {
 
         // bottom
         var bottom = new pc.Entity();
+        bottom.name = 'Bottom';
         bottom.addComponent('camera', {
             fov: 45,
             orthoHeight: 80,
@@ -136,6 +139,7 @@ pc.extend(pc.designer, function() {
 
         // front
         var front = new pc.Entity();
+        front.name = 'Front';
         front.addComponent('camera', {
             fov: 45,
             orthoHeight: 80,
@@ -154,6 +158,7 @@ pc.extend(pc.designer, function() {
 
         // back
         var back = new pc.Entity();
+        back.name = 'Back';
         back.addComponent('camera', {
             fov: 45,
             orthoHeight: 80,
@@ -172,6 +177,7 @@ pc.extend(pc.designer, function() {
 
         // left
         var left = new pc.Entity();
+        left.name = 'Left';
         left.addComponent('camera', {
             fov: 45,
             orthoHeight: 80,
@@ -190,6 +196,7 @@ pc.extend(pc.designer, function() {
 
         // right
         var right = new pc.Entity();
+        right.name = 'Right';
         right.addComponent('camera', {
             fov: 45,
             orthoHeight: 80,
@@ -273,18 +280,20 @@ pc.extend(pc.designer, function() {
             }
         };
 
-        // FIXME: This breaks if the user has created entities with the same names as the default cameras
         var cameraEntity = this.activeCamera;
-        if (cameraEntity) {
+        if (cameraEntity && cameraEntity.camera) {
             var camera = cameraEntity.camera.camera;
             // Link the named camera to the relevant viewport
             camera.setRenderTarget(null);
+
             // set camera properties defined in designer settings
-            var clearColor = this.designerSettings.camera_clear_color;
-            cameraEntity.camera.clearColor = new pc.Color(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
-            if (cameraEntity === this.cameras[0]) {
-                cameraEntity.camera.nearClip = this.designerSettings.camera_near_clip;
-                cameraEntity.camera.farClip = this.designerSettings.camera_far_clip;
+            if (!this.isUserCamera(cameraEntity)) {
+                var clearColor = this.designerSettings.camera_clear_color;
+                cameraEntity.camera.clearColor = new pc.Color(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
+                if (cameraEntity === this.cameras[0]) {
+                    cameraEntity.camera.nearClip = this.designerSettings.camera_near_clip;
+                    cameraEntity.camera.farClip = this.designerSettings.camera_far_clip;
+                }
             }
 
             camera.setRect(0, 0, 1, 1);
@@ -354,18 +363,35 @@ pc.extend(pc.designer, function() {
         this.redraw = true;
     };
 
-    Designer.prototype.setActiveCamera = function (index) {
-        this._activateCamera(this.cameras[index]);
-        this.redraw = true;
+    Designer.prototype.setActiveCamera = function (guid) {
+        var camera = this.root.findByGuid(guid);
+        if (camera) {
+            this._activateCamera(camera);
+            this.redraw = true;
+        }
+    };
+
+    Designer.prototype.isUserCamera = function (camera) {
+        return this.cameras && this.cameras.indexOf(camera) < 0;
     };
 
     Designer.prototype._activateCamera = function (cameraEntity) {
+        var prev = this.activeCamera;
         if (this.activeCamera && this.activeCamera !== cameraEntity) {
             if (this.activeCamera.script) {
                 this.activeCamera.removeComponent('script');
             }
 
-            this.activeCamera.enabled = false;
+            // re-add the camera's debug shape if needed
+            if (this.isUserCamera(this.activeCamera) && this.activeCamera.camera) {
+                var entity = editor.call('entities:get', this.activeCamera.getGuid());
+                if (entity) {
+                    this.activeCamera.enabled = entity.get('enabled');
+                    if (this.activeCamera.enabled && !this.scene.containsModel(this.activeCamera.camera.model)) {
+                        this.scene.addModel(this.activeCamera.camera.model);
+                    }
+                }
+            }
         }
 
         this.activeCamera = cameraEntity;
@@ -385,6 +411,9 @@ pc.extend(pc.designer, function() {
             this.gizmos[key].setCamera(cameraEntity);
         }
 
+        // remove the active camera's debug shape
+        // TODO: fix issue in engine where disabling/re-enabling active camera
+        // re-adds the debug shape
         this.scene.removeModel(cameraEntity.camera.model);
     };
 

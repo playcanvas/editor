@@ -15,6 +15,8 @@ editor.once('load', function() {
         designerSettings: settings.json()
     });
 
+    editor.emit('viewport:load', framework);
+
     settings.on('*:set', function() {
         framework.setDesignerSettings(settings.json());
     });
@@ -45,11 +47,6 @@ editor.once('load', function() {
     // re-render viewport
     editor.method('viewport:render', function () {
         framework.redraw = true;
-    });
-
-    // update user camera transform
-    editor.method('viewport:saveCamera', function (options) {
-        // TODO
     });
 
     editor.method('viewport:frameSelectionStart', function () {
