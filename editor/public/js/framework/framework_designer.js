@@ -76,7 +76,6 @@ pc.extend(pc.designer, function() {
 
         this.lastMouseEvent = null;
         this.selectedEntity = null;
-        this.madeSelection = false;
         this.lastMouseX = -1;
         this.lastMouseY = -1;
     };
@@ -498,66 +497,13 @@ pc.extend(pc.designer, function() {
         var e = new pc.input.MouseEvent(this.mouse, event);
 
         // Mouse click XY with reference to top left corner of canvas
-        var x = e.x;
-        var y = e.y;
-
-        var meshSelection;
-
-        this.madeSelection = false;
-        this.lastMouseX = event.x;
-        this.lastMouseY = event.y;
+        this.lastMouseX = e.x;
+        this.lastMouseY = e.y;
 
         // Pass mousedown on to Gizmo
         this.activeGizmo.handleMouseDown(e);
 
-        if (!this.activeGizmo.isDragging) {
-            var picker = this.picker;
-            picker.prepare(this.activeCamera.camera.camera, this.scene);
-
-            var picked = picker.getSelection({
-                x: x,
-                y: this.graphicsDevice.canvas.height - y
-            });
-
-            if (picked.length > 0) {
-                var selectedNode = picked[0].node;
-                while (!(selectedNode instanceof pc.Entity) && (selectedNode !== null)) {
-                    selectedNode = selectedNode.getParent();
-                }
-
-                if (selectedNode) {
-                    var selectedEntity = editor.call('entities:get', selectedNode.getGuid());
-                    if (!selectedEntity) {
-                        return;
-                    }
-
-                    if (e.button !== pc.input.MOUSEBUTTON_RIGHT) {
-                        if (this.designer.selection.indexOf(selectedNode) < 0) {
-                            // We've selected a new entity
-                            editor.call('selector:add', 'entity', selectedEntity);
-                            this.madeSelection = true;
-                        } else {
-                            // We've selected the same entity again so try to find the selected mesh instance
-                            // TODO: fix this
-                            meshSelection = this._getMeshInstanceSelection(selectedNode, picked);
-                            if (meshSelection) {
-                                // pc.designer.api.setMeshInstanceSelection(
-                                //     meshSelection.model,
-                                //     meshSelection.material,
-                                //     meshSelection.meshInstanceIndex,
-                                //     meshSelection.entityId
-                                // );
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-
-        }
-
         this.redraw = true;
-
     };
 
     Designer.prototype._getMeshInstanceSelection = function (selectedNode, pickedInstances) {
@@ -608,12 +554,58 @@ pc.extend(pc.designer, function() {
      * @param {MouseEvent} A DOM MouseEvent
      */
     Designer.prototype.handleMouseUp = function (event) {
+        var meshSelection;
+
         // wrap mouseevent wiht PlayCanvas version which adds cross-browser properties
         var e = new pc.input.MouseEvent(this.mouse, event);
 
-        if (!this.madeSelection) {
-            if (Math.abs(this.lastMouseX - event.x) < 5 && Math.abs(this.lastMouseY -= event.y) < 5) {
-                editor.call('selector:clear');
+        var x = e.x;
+        var y = e.y;
+
+        if (Math.abs(this.lastMouseX - x) < 5 && Math.abs(this.lastMouseY -= y) < 5) {
+            if (!this.activeGizmo.isDragging) {
+                var picker = this.picker;
+                picker.prepare(this.activeCamera.camera.camera, this.scene);
+
+                var picked = picker.getSelection({
+                    x: x,
+                    y: this.graphicsDevice.canvas.height - y
+                });
+
+                if (picked.length > 0) {
+                    var selectedNode = picked[0].node;
+                    while (!(selectedNode instanceof pc.Entity) && (selectedNode !== null)) {
+                        selectedNode = selectedNode.getParent();
+                    }
+
+                    if (selectedNode) {
+                        var selectedEntity = editor.call('entities:get', selectedNode.getGuid());
+                        if (!selectedEntity) {
+                            return;
+                        }
+
+                        if (e.button !== pc.input.MOUSEBUTTON_RIGHT) {
+                            if (this.designer.selection.indexOf(selectedNode) < 0) {
+                                // We've selected a new entity
+                                editor.call('selector:add', 'entity', selectedEntity);
+                            } else {
+                                // We've selected the same entity again so try to find the selected mesh instance
+                                // TODO: fix this
+                                meshSelection = this._getMeshInstanceSelection(selectedNode, picked);
+                                if (meshSelection) {
+                                    // pc.designer.api.setMeshInstanceSelection(
+                                    //     meshSelection.model,
+                                    //     meshSelection.material,
+                                    //     meshSelection.meshInstanceIndex,
+                                    //     meshSelection.entityId
+                                    // );
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    editor.call('selector:clear');
+                }
             }
         }
 
