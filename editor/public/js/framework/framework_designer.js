@@ -549,23 +549,6 @@ pc.extend(pc.designer, function() {
                                 // );
                             }
                         }
-                    } else {
-                        // select the entity
-                        editor.call('selector:add', 'entity', selectedEntity);
-                        this.madeSelection = true;
-
-                        // set the selected mesh instance
-                        meshSelection = this._getMeshInstanceSelection(selectedNode, picked);
-                        if (meshSelection) {
-                            // pc.designer.api.setContextMeshInstanceSelection(
-                            //     meshSelection.model,
-                            //     meshSelection.material,
-                            //     meshSelection.meshInstanceIndex,
-                            //     meshSelection.entityId
-                            // );
-
-                        }
-
                     }
                 }
             }
