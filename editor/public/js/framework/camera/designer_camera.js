@@ -75,7 +75,10 @@ pc.script.create( "designer_camera", function (app) {
             83: false, // S
             87: false  // W
         };
-        this.disableFly = false;
+
+        this.isPanning = false;
+        this.isOrbiting = false;
+        this.isLookingAround = false;
 
         this.undoTimeout = null;
         this.combineHistory = false;
@@ -324,13 +327,29 @@ pc.script.create( "designer_camera", function (app) {
     };
 
     DesignerCamera.prototype.onMouseUp = function (e) {
-        this.combineHistory = false;
-        this.canvasFocused = false;
+        var left = e.buttons[pc.MOUSEBUTTON_LEFT];
+        var middle = e.buttons[pc.MOUSEBUTTON_MIDDLE];
+        var right = e.buttons[pc.MOUSEBUTTON_RIGHT];
 
-        // re-enable gizmo interaction if all buttons are released and we don't have fly mode enabled
-        if (!this.flyMode && !e.buttons[pc.MOUSEBUTTON_LEFT] && !e.buttons[pc.MOUSEBUTTON_RIGHT] && !e.buttons[pc.MOUSEBUTTON_MIDDLE]) {
-            app.toggleGizmoInteraction(true);
-            this.disableFly = false;
+        if (!left) {
+            this.isOrbiting = false;
+        }
+
+        if (!left && !middle) {
+            this.isPanning = false;
+        }
+
+        if (!right) {
+            this.isLookingAround = false;
+        }
+
+        if (!left && !middle && !right) {
+            this.combineHistory = false;
+            this.canvasFocused = false;
+
+            if (!this.flyMode) {
+                app.toggleGizmoInteraction(true);
+            }
         }
     };
 
@@ -339,7 +358,7 @@ pc.script.create( "designer_camera", function (app) {
             return;
         }
 
-        if (this.disableFly) {
+        if (this.isOrbiting || this.isPanning) {
             return;
         }
 
@@ -430,16 +449,17 @@ pc.script.create( "designer_camera", function (app) {
             return;
         }
 
-        if (!this.flyMode && (e.buttons[pc.MOUSEBUTTON_MIDDLE] || (e.buttons[pc.MOUSEBUTTON_LEFT] && e.shiftKey))) {
+        if (!this.flyMode && !this.isOrbiting && !this.isLookingAround && (e.buttons[pc.MOUSEBUTTON_MIDDLE] || (e.buttons[pc.MOUSEBUTTON_LEFT] && e.shiftKey))) {
             this.pan([e.dx, e.dy]);
-            this.disableFly = true;
+            this.isPanning = true;
             app.toggleGizmoInteraction(false);
-        } else if (!this.flyMode && e.buttons[pc.MOUSEBUTTON_LEFT] && this.entity.camera.projection !== pc.scene.Projection.ORTHOGRAPHIC) {
+        } else if (!this.flyMode && !this.isPanning && !this.isLookingAround && e.buttons[pc.MOUSEBUTTON_LEFT] && this.entity.camera.projection !== pc.scene.Projection.ORTHOGRAPHIC) {
             this.orbit([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);
-            this.disableFly = true;
+            this.isOrbiting = true;
             app.toggleGizmoInteraction(false);
-        } else if (e.buttons[pc.MOUSEBUTTON_RIGHT]) {
+        } else if (!this.isOrbiting && !this.isPanning && e.buttons[pc.MOUSEBUTTON_RIGHT]) {
             this.lookAt([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);
+            this.isLookingAround = true;
             app.toggleGizmoInteraction(false);
         }
     };
