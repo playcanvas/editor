@@ -432,6 +432,12 @@ pc.extend(pc.designer, function() {
         this.redraw = true;
     };
 
+    Designer.prototype.toggleGizmoInteraction = function (toggle) {
+        for (var key in this.gizmos) {
+            this.gizmos[key].disableInteraction = !toggle;
+        }
+    };
+
     Designer.prototype.setGizmoCoordinateSystem = function (system) {
         for (var key in this.gizmos) {
             this.gizmos[key].setCoordinateSystem(system);

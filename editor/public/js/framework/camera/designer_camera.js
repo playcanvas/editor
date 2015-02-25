@@ -325,6 +325,11 @@ pc.script.create( "designer_camera", function (app) {
     DesignerCamera.prototype.onMouseUp = function (e) {
         this.combineHistory = false;
         this.canvasFocused = false;
+
+        // re-enable gizmo interaction if all buttons are released and we don't have fly mode enabled
+        if (!this.flyMode && !e.buttons[pc.MOUSEBUTTON_LEFT] && !e.buttons[pc.MOUSEBUTTON_RIGHT] && !e.buttons[pc.MOUSEBUTTON_MIDDLE]) {
+            app.toggleGizmoInteraction(true);
+        }
     };
 
     DesignerCamera.prototype.onKeyDown = function (e) {
@@ -339,6 +344,8 @@ pc.script.create( "designer_camera", function (app) {
                 this.flyMode = true;
                 editor.call('viewport:flyModeStart');
                 editor.call('viewport:render');
+
+                app.toggleGizmoInteraction(false);
             }
         }
 
@@ -391,6 +398,7 @@ pc.script.create( "designer_camera", function (app) {
 
                 if (disableFlyMode) {
                     this.flyMode = false;
+                    app.toggleGizmoInteraction(true);
                     editor.call('viewport:flyModeEnd');
                 }
             }
@@ -410,17 +418,15 @@ pc.script.create( "designer_camera", function (app) {
             return;
         }
 
-        if (!this.flyMode && e.buttons[pc.MOUSEBUTTON_LEFT] && e.buttons[pc.MOUSEBUTTON_MIDDLE]) {
-            var distance = e.dy;
-            this.dolly(distance);
-        }
-        else if (!this.flyMode && (e.buttons[pc.MOUSEBUTTON_MIDDLE] || (e.buttons[pc.MOUSEBUTTON_LEFT] && e.shiftKey))) {
+        if (!this.flyMode && (e.buttons[pc.MOUSEBUTTON_MIDDLE] || (e.buttons[pc.MOUSEBUTTON_LEFT] && e.shiftKey))) {
             this.pan([e.dx, e.dy]);
-        }
-        else if (!this.flyMode && e.buttons[pc.MOUSEBUTTON_LEFT] && this.entity.camera.projection !== pc.scene.Projection.ORTHOGRAPHIC) {
+            app.toggleGizmoInteraction(false);
+        } else if (!this.flyMode && e.buttons[pc.MOUSEBUTTON_LEFT] && this.entity.camera.projection !== pc.scene.Projection.ORTHOGRAPHIC) {
             this.orbit([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);
+            app.toggleGizmoInteraction(false);
         } else if (e.buttons[pc.MOUSEBUTTON_RIGHT]) {
             this.lookAt([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);
+            app.toggleGizmoInteraction(false);
         }
     };
 

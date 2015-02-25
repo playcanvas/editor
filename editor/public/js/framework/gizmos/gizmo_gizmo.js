@@ -25,6 +25,7 @@
         this.snap = false;
         this.overrideSnap = false;
         this.snapIncrement = 1;
+        this.disableInteraction = false;
 
         // holds indices of picker shapes that are considered disabled
         this.disabledShapes = [];
@@ -271,7 +272,7 @@
         },
 
         handleMouseDown: function (e) {
-            if (this.entity) {
+            if (this.entity && !this.disableInteraction) {
                 if(e.button === pc.MOUSEBUTTON_LEFT) {
                     if (this.activeAxis !== null) {
                         // prevent default event which causes selection of text
@@ -285,7 +286,7 @@
         },
 
         handleMouseUp: function (e) {
-            if (this.entity) {
+            if (this.entity && !this.disableInteraction) {
                 if(e.button === pc.input.MOUSEBUTTON_LEFT) {
                     if(this.isDragging) {
                         this.isDragging = false;
@@ -296,7 +297,7 @@
         },
 
         handleMouseMove: function (e) {
-            if (this.entity) {
+            if (this.entity && !this.disableInteraction) {
                 if (this.isDragging) {
                     this._handleDragging(e);
                 } else if (e.event) {
