@@ -620,7 +620,7 @@ pc.extend(pc.designer, function() {
      * @param {MouseEvent} A DOM MouseEvent
      */
     Designer.prototype.handleMouseMove = function (event) {
-        // wrap mouseevent wiht PlayCanvas version which adds cross-browser properties
+        // wrap mouseevent with PlayCanvas version which adds cross-browser properties
         this.lastMouseEvent = new pc.input.MouseEvent(this.mouse, event);
         this.redraw = true;
     };

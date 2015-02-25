@@ -28,7 +28,7 @@ pc.script.create( "designer_camera", function (app) {
 
         this.mouse = new pc.Mouse();
 
-        this.mouse.attach(app.graphicsDevice.canvas);
+        this.mouse.attach(document.body);
 
         this.mouse.bind(pc.EVENT_MOUSEDOWN, this.onMouseDown.bind(this));
         this.mouse.bind(pc.EVENT_MOUSEMOVE, this.onMouseMove.bind(this));
@@ -37,6 +37,8 @@ pc.script.create( "designer_camera", function (app) {
 
         window.addEventListener('keydown', this.onKeyDown.bind(this));
         window.addEventListener('keyup', this.onKeyUp.bind(this));
+
+        this.canvasFocused = false;
 
         // init touch controls if they are available
         this.touch = app.touch;
@@ -293,14 +295,18 @@ pc.script.create( "designer_camera", function (app) {
         editor.call('viewport:render');
     };
 
-    DesignerCamera.prototype.onMouseWheel = function (event) {
+    DesignerCamera.prototype.onMouseWheel = function (e) {
+        if (e.event.target !== app.graphicsDevice.canvas) {
+            return;
+        }
+
         switch (this.entity.camera.projection) {
             case pc.PROJECTION_ORTHOGRAPHIC:
-                var delta = event.wheel * 10;
+                var delta = e.wheel * 10;
                 this.updateViewWindow(delta);
                 break;
             case pc.PROJECTION_PERSPECTIVE:
-                this.dolly(event.wheel);
+                this.dolly(e.wheel);
                 break;
             default:
                 break;
@@ -316,9 +322,10 @@ pc.script.create( "designer_camera", function (app) {
         }.bind(this), 250);
     };
 
-    DesignerCamera.prototype.onMouseUp = function (event) {
+    DesignerCamera.prototype.onMouseUp = function (e) {
         this.combineHistory = false;
-        if (event.button === pc.MOUSEBUTTON_RIGHT) {
+        this.canvasFocused = false;
+        if (e.button === pc.MOUSEBUTTON_RIGHT) {
             if (this.flyMode) {
                 this.flyMode = false;
                 editor.call('viewport:flyModeEnd');
@@ -326,17 +333,17 @@ pc.script.create( "designer_camera", function (app) {
         }
     };
 
-    DesignerCamera.prototype.onKeyDown = function (event) {
+    DesignerCamera.prototype.onKeyDown = function (e) {
         if (this.flyMode) {
-            if (this.flyModeKeys[event.which] !== undefined) {
-                this.flyModeKeys[event.which] = true;
+            if (this.flyModeKeys[e.which] !== undefined) {
+                this.flyModeKeys[e.which] = true;
             }
 
-            this.calculateFlySpeed(event);
+            this.calculateFlySpeed(e);
         }
     };
 
-    DesignerCamera.prototype.calculateFlySpeed = function (event) {
+    DesignerCamera.prototype.calculateFlySpeed = function (e) {
         var right = 0;
         var forward = 0;
 
@@ -352,7 +359,7 @@ pc.script.create( "designer_camera", function (app) {
             forward = -1;
         }
 
-        if (event.shiftKey) {
+        if (e.shiftKey) {
             this.flySpeedModifier = 1;
         } else {
             this.flySpeedModifier = 0.2;
@@ -361,18 +368,19 @@ pc.script.create( "designer_camera", function (app) {
         this.flySpeed.add2(this.entity.forward.scale(forward), this.entity.right.scale(right));
     };
 
-    DesignerCamera.prototype.onKeyUp = function (event) {
-        if (this.flyModeKeys[event.which] !== undefined) {
-            this.flyModeKeys[event.which] = false;
+    DesignerCamera.prototype.onKeyUp = function (e) {
+        if (this.flyModeKeys[e.which] !== undefined) {
+            this.flyModeKeys[e.which] = false;
         }
 
         if (this.flyMode) {
-            this.calculateFlySpeed(event);
+            this.calculateFlySpeed(e);
         }
     };
 
-    DesignerCamera.prototype.onMouseDown = function (event) {
-        if (event.button === pc.MOUSEBUTTON_RIGHT) {
+    DesignerCamera.prototype.onMouseDown = function (e) {
+        this.canvasFocused = e.event.target === app.graphicsDevice.canvas;
+        if (this.canvasFocused && e.button === pc.MOUSEBUTTON_RIGHT) {
             if (!this.flyMode) {
                 this.flyMode = true;
                 this.flySpeed.set(0, 0, 0);
@@ -382,34 +390,38 @@ pc.script.create( "designer_camera", function (app) {
         }
     };
 
-    DesignerCamera.prototype.onMouseMove = function (event) {
-        if (event.buttons[pc.MOUSEBUTTON_LEFT] && event.buttons[pc.MOUSEBUTTON_MIDDLE]) {
-            var distance = event.dy;
+    DesignerCamera.prototype.onMouseMove = function (e) {
+        if (!this.canvasFocused) {
+            return;
+        }
+
+        if (e.buttons[pc.MOUSEBUTTON_LEFT] && e.buttons[pc.MOUSEBUTTON_MIDDLE]) {
+            var distance = e.dy;
             this.dolly(distance);
         }
-        else if (event.buttons[pc.MOUSEBUTTON_MIDDLE] || (event.buttons[pc.MOUSEBUTTON_LEFT] && event.shiftKey)) {
-            this.pan([event.dx, event.dy]);
+        else if (e.buttons[pc.MOUSEBUTTON_MIDDLE] || (e.buttons[pc.MOUSEBUTTON_LEFT] && e.shiftKey)) {
+            this.pan([e.dx, e.dy]);
         }
-        else if (event.buttons[pc.MOUSEBUTTON_LEFT] && this.entity.camera.projection !== pc.scene.Projection.ORTHOGRAPHIC) {
-            if (!app.activeGizmo.hasActiveAxis()) {
-                this.orbit([pc.math.RAD_TO_DEG*event.dx/300.0, pc.math.RAD_TO_DEG*event.dy/300.0]);
+        else if (e.buttons[pc.MOUSEBUTTON_LEFT] && this.entity.camera.projection !== pc.scene.Projection.ORTHOGRAPHIC) {
+            if (!app.activeGizmo.isDragging) {
+                this.orbit([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);
             }
-        } else if (event.buttons[pc.MOUSEBUTTON_RIGHT]) {
-            this.lookAt([pc.math.RAD_TO_DEG*event.dx/300.0, pc.math.RAD_TO_DEG*event.dy/300.0]);
+        } else if (e.buttons[pc.MOUSEBUTTON_RIGHT]) {
+            this.lookAt([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);
         }
     };
 
 
-    DesignerCamera.prototype.onTouchStart = function (event) {
-        if (event.touches.length === 2) {
-            this.initialFingerDistance = this.calculateDistanceBetweenTouches(event.touches[0], event.touches[1]);
+    DesignerCamera.prototype.onTouchStart = function (e) {
+        if (e.touches.length === 2) {
+            this.initialFingerDistance = this.calculateDistanceBetweenTouches(e.touches[0], e.touches[1]);
             this.previousFingerDistance = 0;
-            this.calculateCenterOfTouches(event.touches[0], event.touches[1], this.initialCenter);
+            this.calculateCenterOfTouches(e.touches[0], e.touches[1], this.initialCenter);
             this.copyCenter(this.initialCenter, this.previousCenter);
             this.isZooming = false;
             this.isPanning = false;
-        } else if (event.touches.length === 1) {
-            this.previousTouch = event.touches[0];
+        } else if (e.touches.length === 1) {
+            this.previousTouch = e.touches[0];
         }
     };
 
@@ -435,18 +447,18 @@ pc.script.create( "designer_camera", function (app) {
         to[1] = from[1];
     };
 
-    DesignerCamera.prototype.onTouch = function (event) {
-        if (event.touches.length == 2) {
-            this.handleTwoFingerTouch(event);
-        } else if (event.touches.length == 1) {
-            this.handleOneFingerTouch(event);
+    DesignerCamera.prototype.onTouch = function (e) {
+        if (e.touches.length == 2) {
+            this.handleTwoFingerTouch(e);
+        } else if (e.touches.length == 1) {
+            this.handleOneFingerTouch(e);
         }
     };
 
-    DesignerCamera.prototype.handleOneFingerTouch = function (event) {
+    DesignerCamera.prototype.handleOneFingerTouch = function (e) {
         var dx = 0; dy = 0;
         var fingerDistance = 0;
-        var touch = event.touches[0];
+        var touch = e.touches[0];
 
         fingerDistance = this.calculateDistanceBetweenTouches(touch, this.previousTouch);
 
@@ -461,15 +473,15 @@ pc.script.create( "designer_camera", function (app) {
 
         this.previousTouch = touch;
 
-        event.event.preventDefault();
-        event.event.stopPropagation();
+        e.event.preventDefault();
+        e.event.stopPropagation();
     };
 
-    DesignerCamera.prototype.handleTwoFingerTouch = function (event) {
+    DesignerCamera.prototype.handleTwoFingerTouch = function (e) {
         var i;
         var dx = 0; dy = 0, ds = 0;
-        var touch1 = event.touches[0];
-        var touch2 = event.touches[1];
+        var touch1 = e.touches[0];
+        var touch2 = e.touches[1];
 
         // calculate center point of all touches for pan
         var center = [];
@@ -477,10 +489,10 @@ pc.script.create( "designer_camera", function (app) {
         var centerDistance = this.calculateCenterDistance(center, this.initialCenter);
 
         // calculate finger distance for pinch zoom
-        var fingerDistance = this.calculateDistanceBetweenTouches(event.touches[0], event.touches[1]);
+        var fingerDistance = this.calculateDistanceBetweenTouches(e.touches[0], e.touches[1]);
         var fingerDistanceSinceStart = Math.abs(fingerDistance - this.initialFingerDistance);
 
-        // if we are already zooming or if the fingers have separated enough since the beginning of the touch event
+        // if we are already zooming or if the fingers have separated enough since the beginning of the touch e
         // then scale
         if (this.isZooming || fingerDistanceSinceStart > SCALE_TRIGGER_DISTANCE) {
             ds = fingerDistance - this.previousFingerDistance;
@@ -507,15 +519,15 @@ pc.script.create( "designer_camera", function (app) {
         this.copyCenter(center, this.previousCenter);
         this.previousFingerDistance = fingerDistance;
 
-        event.event.preventDefault();
-        event.event.stopPropagation();
+        e.event.preventDefault();
+        e.event.stopPropagation();
     };
 
-    DesignerCamera.prototype.onTouchEnd = function (event) {
-        if (event.touches.length === 1) {
+    DesignerCamera.prototype.onTouchEnd = function (e) {
+        if (e.touches.length === 1) {
             // if a finger was raised then reset the previous touch
-            this.previousTouch = event.touches[0];
-        } else if (event.touches.length === 0) {
+            this.previousTouch = e.touches[0];
+        } else if (e.touches.length === 0) {
             this.combineHistory = false;
         }
     };
@@ -652,6 +664,11 @@ pc.script.create( "designer_camera", function (app) {
             }
         }
     };
+
+    DesignerCamera.prototype.destroy = function () {
+        window.removeEventListener('keydown', this.onKeyDown);
+        window.removeEventListener('keyup', this.onKeyUp);
+    }
 
     return DesignerCamera;
 });
