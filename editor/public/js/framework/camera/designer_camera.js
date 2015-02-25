@@ -75,6 +75,7 @@ pc.script.create( "designer_camera", function (app) {
             83: false, // S
             87: false  // W
         };
+        this.disableFly = false;
 
         this.undoTimeout = null;
         this.combineHistory = false;
@@ -329,6 +330,7 @@ pc.script.create( "designer_camera", function (app) {
         // re-enable gizmo interaction if all buttons are released and we don't have fly mode enabled
         if (!this.flyMode && !e.buttons[pc.MOUSEBUTTON_LEFT] && !e.buttons[pc.MOUSEBUTTON_RIGHT] && !e.buttons[pc.MOUSEBUTTON_MIDDLE]) {
             app.toggleGizmoInteraction(true);
+            this.disableFly = false;
         }
     };
 
@@ -337,20 +339,29 @@ pc.script.create( "designer_camera", function (app) {
             return;
         }
 
-        if (this.flyModeKeys[e.which] !== undefined) {
-            this.flyModeKeys[e.which] = true;
-
-            if (!this.flyMode) {
-                this.flyMode = true;
-                editor.call('viewport:flyModeStart');
-                editor.call('viewport:render');
-
-                app.toggleGizmoInteraction(false);
-            }
+        if (this.disableFly) {
+            return;
         }
 
-        if (this.flyMode && (e.which in this.flyModeKeys || e.which === 16 /* shift */)) {
+        if (this.flyModeKeys[e.which] !== undefined) {
+            this.flyModeKeys[e.which] = true;
+            this.toggleFlyMode(true);
+        }
+
+        if (this.flyMode && (e.which in this.flyModeKeys || e.shiftKey || e.altKey || e.ctrlKey)) {
             this.calculateFlySpeed(e);
+        }
+    };
+
+    DesignerCamera.prototype.toggleFlyMode = function (toggle) {
+        if (this.flyMode !== toggle) {
+            this.flyMode = toggle;
+            if (toggle) {
+                editor.call('viewport:flyModeStart');
+                editor.call('viewport:render');
+            } else {
+                editor.call('viewport:flyModeEnd');
+            }
         }
     };
 
@@ -370,7 +381,9 @@ pc.script.create( "designer_camera", function (app) {
             forward = -1;
         }
 
-        if (e.shiftKey) {
+        if (e.ctrlKey || e.altKey) {
+            this.flySpeedModifier = 0;
+        } else if (e.shiftKey) {
             this.flySpeedModifier = 1;
         } else {
             this.flySpeedModifier = 0.2;
@@ -397,14 +410,13 @@ pc.script.create( "designer_camera", function (app) {
                 }
 
                 if (disableFlyMode) {
-                    this.flyMode = false;
-                    app.toggleGizmoInteraction(true);
-                    editor.call('viewport:flyModeEnd');
+                    this.toggleFlyMode(false);
                 }
             }
         }
 
-        if (this.flyMode && (e.which in this.flyModeKeys || e.which === 16 /* shift */)) {
+        // 16, 17, 18: shift / ctrl / alt keys
+        if (this.flyMode && (e.which in this.flyModeKeys || e.which === 16 || e.which === 17 || e.which === 18)) {
             this.calculateFlySpeed(e);
         }
     };
@@ -420,9 +432,11 @@ pc.script.create( "designer_camera", function (app) {
 
         if (!this.flyMode && (e.buttons[pc.MOUSEBUTTON_MIDDLE] || (e.buttons[pc.MOUSEBUTTON_LEFT] && e.shiftKey))) {
             this.pan([e.dx, e.dy]);
+            this.disableFly = true;
             app.toggleGizmoInteraction(false);
         } else if (!this.flyMode && e.buttons[pc.MOUSEBUTTON_LEFT] && this.entity.camera.projection !== pc.scene.Projection.ORTHOGRAPHIC) {
             this.orbit([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);
+            this.disableFly = true;
             app.toggleGizmoInteraction(false);
         } else if (e.buttons[pc.MOUSEBUTTON_RIGHT]) {
             this.lookAt([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);
