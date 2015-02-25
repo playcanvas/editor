@@ -237,7 +237,7 @@ editor.once('load', function() {
                     editor.call('picker:asset', args.kind, asset);
 
                     evtPick = editor.once('picker:asset', function(asset) {
-                        field.value = asset.id;
+                        field.value = asset.get('id');
                         evtPick = null;
                     });
 
@@ -261,8 +261,8 @@ editor.once('load', function() {
                     if (! asset)
                         return field.image = '';
 
-                    if (asset.thumbnails) {
-                        field.image = config.url.home + asset.thumbnails.m;
+                    if (asset.has('thumbnails.m')) {
+                        field.image = config.url.home + asset.get('thumbnails.m');
                     } else {
                         field.image = '';
                     }
