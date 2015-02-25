@@ -391,7 +391,7 @@ pc.script.create( "designer_camera", function (app) {
     };
 
     DesignerCamera.prototype.onMouseMove = function (e) {
-        if (!this.canvasFocused) {
+        if (!this.canvasFocused || app.activeGizmo.isDragging) {
             return;
         }
 
@@ -403,9 +403,7 @@ pc.script.create( "designer_camera", function (app) {
             this.pan([e.dx, e.dy]);
         }
         else if (e.buttons[pc.MOUSEBUTTON_LEFT] && this.entity.camera.projection !== pc.scene.Projection.ORTHOGRAPHIC) {
-            if (!app.activeGizmo.isDragging) {
-                this.orbit([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);
-            }
+            this.orbit([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);
         } else if (e.buttons[pc.MOUSEBUTTON_RIGHT]) {
             this.lookAt([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);
         }
