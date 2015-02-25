@@ -43,6 +43,7 @@ editor.once('load', function() {
             parent: panelComponents,
             name: 'Physics Settings'
         });
+        physicsPanel.class.add('component');
 
         // gravity
         var fieldGravity = editor.call('attributes:addField', {
@@ -62,6 +63,7 @@ editor.once('load', function() {
             parent: panelComponents,
             name: 'Environment'
         });
+        panelEnvironment.class.add('component');
 
         // ambient
         var fieldGlobalAmbient = editor.call('attributes:addField', {
@@ -88,6 +90,7 @@ editor.once('load', function() {
             parent: panelComponents,
             name: 'Camera'
         });
+        panelCamera.class.add('component');
 
         // tonemapping
         editor.call('attributes:addField', {
@@ -142,7 +145,7 @@ editor.once('load', function() {
             parent: panelComponents,
             name: 'Fog'
         });
-
+        panelFog.class.add('component');
 
         // fog type
         editor.call('attributes:addField', {

@@ -271,9 +271,16 @@ editor.once('load', function() {
         });
 
 
+        // ambient
+        var panelProperties = editor.call('attributes:addPanel', {
+            parent: panelParams
+        });
+        panelProperties.class.add('component');
+
+
         // model
         var fieldModel = editor.call('attributes:addField', {
-            parent: panelParams,
+            parent: panelProperties,
             type: 'string',
             enum: {
                 'phong': 'Phong',
@@ -292,6 +299,7 @@ editor.once('load', function() {
             folded: ! asset.get('data.aoMap'),
             name: 'Ambient'
         });
+        panelAmbiend.class.add('component');
 
 
         // color
@@ -359,6 +367,7 @@ editor.once('load', function() {
             folded: ! asset.get('data.diffuseMap'),
             name: 'Diffuse'
         });
+        panelDiffuse.class.add('component');
 
         // map
         var fieldDiffuseMap = editor.call('attributes:addField', {
@@ -442,6 +451,7 @@ editor.once('load', function() {
             folded: ! asset.get('data.specularMap') && ! asset.get('data.glossMap'),
             name: 'Specular'
         });
+        panelSpecular.class.add('component');
 
         // map
         var fieldSpecularMap = editor.call('attributes:addField', {
@@ -598,6 +608,7 @@ editor.once('load', function() {
             folded: ! asset.get('data.emissiveMap'),
             name: 'Emissive'
         });
+        panelEmissive.class.add('component');
 
         // map
         var fieldEmissiveMap = editor.call('attributes:addField', {
@@ -706,6 +717,7 @@ editor.once('load', function() {
             folded: ! asset.get('data.normalMap'),
             name: 'Normals'
         });
+        panelNormal.class.add('component');
 
         // map (normals)
         var fieldNormalMap = editor.call('attributes:addField', {
@@ -781,6 +793,7 @@ editor.once('load', function() {
             folded: ! asset.get('data.heightMap'),
             name: 'Parallax'
         });
+        panelParallax.class.add('component');
 
         // map
         var fieldHeightMap = editor.call('attributes:addField', {
@@ -856,6 +869,7 @@ editor.once('load', function() {
             folded: ! (asset.get('data.sphereMap') || asset.get('data.cubeMap')),
             name: 'Reflection'
         });
+        panelReflection.class.add('component');
 
         // spheremap
         var fieldReflectionSphere = editor.call('attributes:addField', {
@@ -924,6 +938,7 @@ editor.once('load', function() {
             folded: ! asset.get('data.lightMap'),
             name: 'LightMap'
         });
+        panelLightMap.class.add('component');
 
         // map
         var fieldLightMap = editor.call('attributes:addField', {
@@ -947,6 +962,7 @@ editor.once('load', function() {
             folded: true,
             name: 'Render States'
         });
+        panelRenderStates.class.add('component');
 
 
         // depth

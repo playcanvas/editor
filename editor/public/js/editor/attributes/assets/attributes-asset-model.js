@@ -12,6 +12,7 @@ editor.once('load', function() {
             var panelNodes = editor.call('attributes:addPanel', {
                 name: 'Nodes'
             });
+            panelNodes.class.add('component');
 
             // nodes list
             var nodesList = new ui.List();

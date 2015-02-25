@@ -7,8 +7,13 @@ editor.once('load', function() {
 
         var asset = assets[0];
 
+        // panel
+        var panel = editor.call('attributes:addPanel');
+        panel.class.add('component');
+
         // loading
         var loading = editor.call('attributes:addField', {
+            parent: panel,
             type: 'progress'
         });
         loading.on('progress:100', function() {
@@ -18,6 +23,7 @@ editor.once('load', function() {
         var panelRaw = editor.call('attributes:addPanel', {
             name: 'Raw Data'
         });
+        panelRaw.class.add('component');
         panelRaw.hidden = true;
 
         // code

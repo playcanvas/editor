@@ -10,7 +10,10 @@ editor.once('load', function() {
 
 
         // properties panel
-        var paramsPanel = editor.call('attributes:addPanel');
+        var paramsPanel = editor.call('attributes:addPanel', {
+            name: 'Properties'
+        });
+        paramsPanel.class.add('component');
 
 
         // minFilter
@@ -85,7 +88,6 @@ editor.once('load', function() {
 
         // preview
         var previewPanel = editor.call('attributes:addPanel', {
-            parent: paramsPanel,
             name: 'Preview'
         });
         previewPanel.class.add('cubemap-viewport');

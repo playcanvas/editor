@@ -12,8 +12,8 @@ $text-active: #40d47e;
 $disabled-opacity: .4;
 
 body {
-    color: #f00;
-    background-color: #0f0;
+    color: $text-secondary;
+    background-color: $bcg-darker;
 }
 
 ::-webkit-scrollbar {

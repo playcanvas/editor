@@ -23,8 +23,15 @@
 
         editor.call('attributes:header', 'asset, ' + asset.get('type'));
 
+
+        // panel
+        var panel = editor.call('attributes:addPanel');
+        panel.class.add('component');
+
+
         // id
         editor.call('attributes:addField', {
+            parent: panel,
             name: 'ID',
             link: asset,
             path: 'id'
@@ -33,6 +40,7 @@
         if (asset.get('file.filename')) {
             // filename
             editor.call('attributes:addField', {
+                parent: panel,
                 name: 'Filename',
                 type: 'string',
                 link: asset,
@@ -41,6 +49,7 @@
         } else {
             // name
             editor.call('attributes:addField', {
+                parent: panel,
                 name: 'Name',
                 type: 'string',
                 link: asset,
@@ -50,6 +59,7 @@
 
         // type
         editor.call('attributes:addField', {
+            parent: panel,
             name: 'Type',
             link: asset,
             path: 'type'
@@ -58,6 +68,7 @@
         // size
         if (asset.has('file')) {
             var fieldSize = editor.call('attributes:addField', {
+                parent: panel,
                 name: 'Size',
                 value: bytesToHuman(asset.get('file.size'))
             });
@@ -69,6 +80,7 @@
         // TEMP
         // load raw
         var button = editor.call('attributes:addField', {
+            parent: panel,
             type: 'button',
             text: 'Load raw'
         });
@@ -83,6 +95,7 @@
 
             // loading
             var fieldLoading = editor.call('attributes:addField', {
+                parent: panel,
                 type: 'progress'
             });
             fieldLoading.on('progress:100', function() {
@@ -91,6 +104,7 @@
 
             // code
             var fieldData = editor.call('attributes:addField', {
+                parent: panel,
                 type: 'code'
             });
 

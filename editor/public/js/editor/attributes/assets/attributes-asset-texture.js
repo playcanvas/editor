@@ -9,7 +9,10 @@ editor.once('load', function() {
 
 
         // properties panel
-        var paramsPanel = editor.call('attributes:addPanel');
+        var paramsPanel = editor.call('attributes:addPanel', {
+            name: 'Properties'
+        });
+        paramsPanel.class.add('component');
 
         // dimensions
         var fieldDimensions = editor.call('attributes:addField', {
@@ -73,7 +76,6 @@ editor.once('load', function() {
         });
 
         var previewPanel = editor.call('attributes:addPanel', {
-            parent: paramsPanel,
             name: 'Preview'
         });
 

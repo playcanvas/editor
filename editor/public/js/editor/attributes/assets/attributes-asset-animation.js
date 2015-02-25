@@ -7,22 +7,24 @@ editor.once('load', function() {
 
         var asset = assets[0];
 
+        // panel
+        var panel = editor.call('attributes:addPanel');
+        panel.class.add('component');
+
+        // duration
         var fieldDuration = editor.call('attributes:addField', {
+            parent: panel,
             name: 'Duration',
             placeholder: 'Seconds'
         });
         if (asset._duration != undefined)
             fieldDuration.text = asset._duration;
 
-        // // panel
-        // var panelRaw = editor.call('attributes:addPanel', {
-        //     name: 'Raw Data'
-        // });
-
         // load data
         if (asset._duration == undefined) {
             // loading
             var fieldLoading = editor.call('attributes:addField', {
+                parent: panel,
                 type: 'progress'
             });
             fieldLoading.on('progress:100', function() {
@@ -47,11 +49,5 @@ editor.once('load', function() {
 
             fieldLoading.progress = .1;
         }
-
-        // // code
-        // var fieldData = editor.call('attributes:addField', {
-        //     parent: panelRaw,
-        //     type: 'code'
-        // });
     });
 });
