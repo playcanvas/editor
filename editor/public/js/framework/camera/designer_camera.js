@@ -70,10 +70,10 @@ pc.script.create( "designer_camera", function (app) {
         this.flySpeedModifier = 1;
         this.flyMode = false;
         this.flyModeKeys = {
-            65: false,
-            68: false,
-            83: false,
-            87: false
+            65: false, // A
+            68: false, // D
+            83: false, // S
+            87: false  // W
         };
 
         this.undoTimeout = null;
@@ -325,20 +325,24 @@ pc.script.create( "designer_camera", function (app) {
     DesignerCamera.prototype.onMouseUp = function (e) {
         this.combineHistory = false;
         this.canvasFocused = false;
-        if (e.button === pc.MOUSEBUTTON_RIGHT) {
-            if (this.flyMode) {
-                this.flyMode = false;
-                editor.call('viewport:flyModeEnd');
-            }
-        }
     };
 
     DesignerCamera.prototype.onKeyDown = function (e) {
-        if (this.flyMode) {
-            if (this.flyModeKeys[e.which] !== undefined) {
-                this.flyModeKeys[e.which] = true;
-            }
+        if (e.target && e.target.tagName.toLowerCase() === 'input') {
+            return;
+        }
 
+        if (this.flyModeKeys[e.which] !== undefined) {
+            this.flyModeKeys[e.which] = true;
+
+            if (!this.flyMode) {
+                this.flyMode = true;
+                editor.call('viewport:flyModeStart');
+                editor.call('viewport:render');
+            }
+        }
+
+        if (this.flyMode && (e.which in this.flyModeKeys || e.which === 16 /* shift */)) {
             this.calculateFlySpeed(e);
         }
     };
@@ -369,25 +373,36 @@ pc.script.create( "designer_camera", function (app) {
     };
 
     DesignerCamera.prototype.onKeyUp = function (e) {
-        if (this.flyModeKeys[e.which] !== undefined) {
-            this.flyModeKeys[e.which] = false;
+        if (e.target && e.target.tagName.toLowerCase() === 'input') {
+            return;
         }
 
-        if (this.flyMode) {
+        if (this.flyModeKeys[e.which] !== undefined) {
+            this.flyModeKeys[e.which] = false;
+
+            if (this.flyMode) {
+                var disableFlyMode = true;
+                for (var key in this.flyModeKeys) {
+                    if (this.flyModeKeys[key]) {
+                        disableFlyMode = false;
+                        break;
+                    }
+                }
+
+                if (disableFlyMode) {
+                    this.flyMode = false;
+                    editor.call('viewport:flyModeEnd');
+                }
+            }
+        }
+
+        if (this.flyMode && (e.which in this.flyModeKeys || e.which === 16 /* shift */)) {
             this.calculateFlySpeed(e);
         }
     };
 
     DesignerCamera.prototype.onMouseDown = function (e) {
         this.canvasFocused = e.event.target === app.graphicsDevice.canvas;
-        if (this.canvasFocused && e.button === pc.MOUSEBUTTON_RIGHT) {
-            if (!this.flyMode) {
-                this.flyMode = true;
-                this.flySpeed.set(0, 0, 0);
-                editor.call('viewport:flyModeStart');
-                editor.call('viewport:render');
-            }
-        }
     };
 
     DesignerCamera.prototype.onMouseMove = function (e) {
@@ -395,14 +410,14 @@ pc.script.create( "designer_camera", function (app) {
             return;
         }
 
-        if (e.buttons[pc.MOUSEBUTTON_LEFT] && e.buttons[pc.MOUSEBUTTON_MIDDLE]) {
+        if (!this.flyMode && e.buttons[pc.MOUSEBUTTON_LEFT] && e.buttons[pc.MOUSEBUTTON_MIDDLE]) {
             var distance = e.dy;
             this.dolly(distance);
         }
-        else if (e.buttons[pc.MOUSEBUTTON_MIDDLE] || (e.buttons[pc.MOUSEBUTTON_LEFT] && e.shiftKey)) {
+        else if (!this.flyMode && (e.buttons[pc.MOUSEBUTTON_MIDDLE] || (e.buttons[pc.MOUSEBUTTON_LEFT] && e.shiftKey))) {
             this.pan([e.dx, e.dy]);
         }
-        else if (e.buttons[pc.MOUSEBUTTON_LEFT] && this.entity.camera.projection !== pc.scene.Projection.ORTHOGRAPHIC) {
+        else if (!this.flyMode && e.buttons[pc.MOUSEBUTTON_LEFT] && this.entity.camera.projection !== pc.scene.Projection.ORTHOGRAPHIC) {
             this.orbit([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);
         } else if (e.buttons[pc.MOUSEBUTTON_RIGHT]) {
             this.lookAt([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);

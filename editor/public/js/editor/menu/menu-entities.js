@@ -45,8 +45,8 @@ editor.once('load', function() {
         if (e.target && e.target.tagName.toLowerCase() === 'input' || ! editor.call('permissions:write'))
             return;
 
-        // D key
-        if (e.keyCode === 68 && !editor.call('viewport:flyMode')) {
+        // Ctrl+D
+        if (e.keyCode === 68 && e.ctrlKey) {
             duplicateEntity();
         }
     });
