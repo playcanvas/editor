@@ -70,11 +70,15 @@ pc.script.create( "designer_camera", function (app) {
         this.flySpeedModifier = 1;
         this.flyMode = false;
         this.flyModeKeys = {
-            65: false,
-            68: false,
-            83: false,
-            87: false
+            65: false, // A
+            68: false, // D
+            83: false, // S
+            87: false  // W
         };
+
+        this.isPanning = false;
+        this.isOrbiting = false;
+        this.isLookingAround = false;
 
         this.undoTimeout = null;
         this.combineHistory = false;
@@ -323,23 +327,60 @@ pc.script.create( "designer_camera", function (app) {
     };
 
     DesignerCamera.prototype.onMouseUp = function (e) {
-        this.combineHistory = false;
-        this.canvasFocused = false;
-        if (e.button === pc.MOUSEBUTTON_RIGHT) {
-            if (this.flyMode) {
-                this.flyMode = false;
-                editor.call('viewport:flyModeEnd');
+        var left = e.buttons[pc.MOUSEBUTTON_LEFT];
+        var middle = e.buttons[pc.MOUSEBUTTON_MIDDLE];
+        var right = e.buttons[pc.MOUSEBUTTON_RIGHT];
+
+        if (!left) {
+            this.isOrbiting = false;
+        }
+
+        if (!left && !middle) {
+            this.isPanning = false;
+        }
+
+        if (!right) {
+            this.isLookingAround = false;
+        }
+
+        if (!left && !middle && !right) {
+            this.combineHistory = false;
+            this.canvasFocused = false;
+
+            if (!this.flyMode) {
+                app.toggleGizmoInteraction(true);
             }
         }
     };
 
     DesignerCamera.prototype.onKeyDown = function (e) {
-        if (this.flyMode) {
-            if (this.flyModeKeys[e.which] !== undefined) {
-                this.flyModeKeys[e.which] = true;
-            }
+        if (e.target && e.target.tagName.toLowerCase() === 'input') {
+            return;
+        }
 
+        if (this.isOrbiting || this.isPanning) {
+            return;
+        }
+
+        if (this.flyModeKeys[e.which] !== undefined) {
+            this.flyModeKeys[e.which] = true;
+            this.toggleFlyMode(true);
+        }
+
+        if (this.flyMode && (e.which in this.flyModeKeys || e.shiftKey || e.altKey || e.ctrlKey)) {
             this.calculateFlySpeed(e);
+        }
+    };
+
+    DesignerCamera.prototype.toggleFlyMode = function (toggle) {
+        if (this.flyMode !== toggle) {
+            this.flyMode = toggle;
+            if (toggle) {
+                editor.call('viewport:flyModeStart');
+                editor.call('viewport:render');
+            } else {
+                editor.call('viewport:flyModeEnd');
+            }
         }
     };
 
@@ -359,7 +400,9 @@ pc.script.create( "designer_camera", function (app) {
             forward = -1;
         }
 
-        if (e.shiftKey) {
+        if (e.ctrlKey || e.altKey) {
+            this.flySpeedModifier = 0;
+        } else if (e.shiftKey) {
             this.flySpeedModifier = 1;
         } else {
             this.flySpeedModifier = 0.2;
@@ -369,45 +412,55 @@ pc.script.create( "designer_camera", function (app) {
     };
 
     DesignerCamera.prototype.onKeyUp = function (e) {
-        if (this.flyModeKeys[e.which] !== undefined) {
-            this.flyModeKeys[e.which] = false;
+        if (e.target && e.target.tagName.toLowerCase() === 'input') {
+            return;
         }
 
-        if (this.flyMode) {
+        if (this.flyModeKeys[e.which] !== undefined) {
+            this.flyModeKeys[e.which] = false;
+
+            if (this.flyMode) {
+                var disableFlyMode = true;
+                for (var key in this.flyModeKeys) {
+                    if (this.flyModeKeys[key]) {
+                        disableFlyMode = false;
+                        break;
+                    }
+                }
+
+                if (disableFlyMode) {
+                    this.toggleFlyMode(false);
+                }
+            }
+        }
+
+        // 16, 17, 18: shift / ctrl / alt keys
+        if (this.flyMode && (e.which in this.flyModeKeys || e.which === 16 || e.which === 17 || e.which === 18)) {
             this.calculateFlySpeed(e);
         }
     };
 
     DesignerCamera.prototype.onMouseDown = function (e) {
         this.canvasFocused = e.event.target === app.graphicsDevice.canvas;
-        if (this.canvasFocused && e.button === pc.MOUSEBUTTON_RIGHT) {
-            if (!this.flyMode) {
-                this.flyMode = true;
-                this.flySpeed.set(0, 0, 0);
-                editor.call('viewport:flyModeStart');
-                editor.call('viewport:render');
-            }
-        }
     };
 
     DesignerCamera.prototype.onMouseMove = function (e) {
-        if (!this.canvasFocused) {
+        if (!this.canvasFocused || app.activeGizmo.isDragging) {
             return;
         }
 
-        if (e.buttons[pc.MOUSEBUTTON_LEFT] && e.buttons[pc.MOUSEBUTTON_MIDDLE]) {
-            var distance = e.dy;
-            this.dolly(distance);
-        }
-        else if (e.buttons[pc.MOUSEBUTTON_MIDDLE] || (e.buttons[pc.MOUSEBUTTON_LEFT] && e.shiftKey)) {
+        if (!this.flyMode && !this.isOrbiting && !this.isLookingAround && (e.buttons[pc.MOUSEBUTTON_MIDDLE] || (e.buttons[pc.MOUSEBUTTON_LEFT] && e.shiftKey))) {
             this.pan([e.dx, e.dy]);
-        }
-        else if (e.buttons[pc.MOUSEBUTTON_LEFT] && this.entity.camera.projection !== pc.scene.Projection.ORTHOGRAPHIC) {
-            if (!app.activeGizmo.isDragging) {
-                this.orbit([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);
-            }
-        } else if (e.buttons[pc.MOUSEBUTTON_RIGHT]) {
+            this.isPanning = true;
+            app.toggleGizmoInteraction(false);
+        } else if (!this.flyMode && !this.isPanning && !this.isLookingAround && e.buttons[pc.MOUSEBUTTON_LEFT] && this.entity.camera.projection !== pc.scene.Projection.ORTHOGRAPHIC) {
+            this.orbit([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);
+            this.isOrbiting = true;
+            app.toggleGizmoInteraction(false);
+        } else if (!this.isOrbiting && !this.isPanning && e.buttons[pc.MOUSEBUTTON_RIGHT]) {
             this.lookAt([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);
+            this.isLookingAround = true;
+            app.toggleGizmoInteraction(false);
         }
     };
 

@@ -74,13 +74,13 @@ editor.once('load', function() {
             return;
 
         switch (e.keyCode) {
-            case 87: // W:
+            case 49: // 1:
                 framework.setActiveGizmoType('translate');
                 break;
-            case 69: // E:
+            case 50: // 2:
                 framework.setActiveGizmoType('rotate');
                 break;
-            case 82: // R:
+            case 51: // 3:
                 framework.setActiveGizmoType('scale');
                 break;
             case 70: // F:
