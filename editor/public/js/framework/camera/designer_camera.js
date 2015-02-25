@@ -37,6 +37,7 @@ pc.script.create( "designer_camera", function (app) {
 
         window.addEventListener('keydown', this.onKeyDown.bind(this));
         window.addEventListener('keyup', this.onKeyUp.bind(this));
+        window.addEventListener('contextmenu', this.onContextMenu.bind(this));
 
         this.canvasFocused = false;
 
@@ -82,6 +83,8 @@ pc.script.create( "designer_camera", function (app) {
 
         this.undoTimeout = null;
         this.combineHistory = false;
+
+        this.contextMenuFired = false;
     };
 
     DesignerCamera.prototype.initFocus = function () {
@@ -341,6 +344,7 @@ pc.script.create( "designer_camera", function (app) {
 
         if (!right) {
             this.isLookingAround = false;
+            this.contextMenuFired = false;
         }
 
         if (!left && !middle && !right) {
@@ -351,6 +355,11 @@ pc.script.create( "designer_camera", function (app) {
                 app.toggleGizmoInteraction(true);
             }
         }
+    };
+
+    DesignerCamera.prototype.onContextMenu = function (e) {
+        // set to true - handles issue when contextmenu event is fired but mouseup is not fired after
+        this.contextMenuFired = true;
     };
 
     DesignerCamera.prototype.onKeyDown = function (e) {
@@ -441,7 +450,10 @@ pc.script.create( "designer_camera", function (app) {
     };
 
     DesignerCamera.prototype.onMouseDown = function (e) {
-        this.canvasFocused = e.event.target === app.graphicsDevice.canvas;
+        this.canvasFocused = (e.event.target === app.graphicsDevice.canvas);
+        if (e.button === pc.MOUSEBUTTON_RIGHT) {
+            this.contextMenuFired = false;
+        }
     };
 
     DesignerCamera.prototype.onMouseMove = function (e) {
@@ -449,15 +461,19 @@ pc.script.create( "designer_camera", function (app) {
             return;
         }
 
-        if (!this.flyMode && !this.isOrbiting && !this.isLookingAround && (e.buttons[pc.MOUSEBUTTON_MIDDLE] || (e.buttons[pc.MOUSEBUTTON_LEFT] && e.shiftKey))) {
+        var left = e.buttons[pc.MOUSEBUTTON_LEFT];
+        var middle = e.buttons[pc.MOUSEBUTTON_MIDDLE];
+        var right = e.buttons[pc.MOUSEBUTTON_RIGHT] && !this.contextMenuFired;
+
+        if (!this.flyMode && !this.isOrbiting && !this.isLookingAround && (middle || (left && e.shiftKey))) {
             this.pan([e.dx, e.dy]);
             this.isPanning = true;
             app.toggleGizmoInteraction(false);
-        } else if (!this.flyMode && !this.isPanning && !this.isLookingAround && e.buttons[pc.MOUSEBUTTON_LEFT] && this.entity.camera.projection !== pc.scene.Projection.ORTHOGRAPHIC) {
+        } else if (!this.flyMode && !this.isPanning && !this.isLookingAround && left && this.entity.camera.projection !== pc.scene.Projection.ORTHOGRAPHIC) {
             this.orbit([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);
             this.isOrbiting = true;
             app.toggleGizmoInteraction(false);
-        } else if (!this.isOrbiting && !this.isPanning && e.buttons[pc.MOUSEBUTTON_RIGHT]) {
+        } else if (!this.isOrbiting && !this.isPanning && right) {
             this.lookAt([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);
             this.isLookingAround = true;
             app.toggleGizmoInteraction(false);
@@ -721,6 +737,7 @@ pc.script.create( "designer_camera", function (app) {
     DesignerCamera.prototype.destroy = function () {
         window.removeEventListener('keydown', this.onKeyDown);
         window.removeEventListener('keyup', this.onKeyUp);
+        window.removeEventListener('contextmenu', this.onContextMenu);
     }
 
     return DesignerCamera;

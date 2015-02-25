@@ -33,6 +33,9 @@ editor.once('load', function() {
     // prevent right click menu
     canvas.element.addEventListener('contextmenu', function (e) {
         e.preventDefault();
+
+        // important do not remove as it will break look at function in 3d view
+        e.stopPropagation();
     });
 
     var frameSelection = false;
