@@ -582,6 +582,9 @@ a:visited {
             > .text {
                 opacity: $disabled-opacity;
             }
+            > .icon:after {
+                opacity: $disabled-opacity;
+            }
         }
     }
     > .title {

@@ -14,8 +14,13 @@ editor.once('load', function() {
 
         var entity = entities[0];
 
+        // panel
+        var panel = editor.call('attributes:addPanel');
+        panel.class.add('component');
+
         // enabled
         editor.call('attributes:addField', {
+            parent: panel,
             name: 'Enabled',
             type: 'checkbox',
             link: entity,
@@ -24,6 +29,7 @@ editor.once('load', function() {
 
         // name
         editor.call('attributes:addField', {
+            parent: panel,
             name: 'Name',
             type: 'string',
             link: entity,
@@ -32,6 +38,7 @@ editor.once('load', function() {
 
         // position
         var fieldPosition = editor.call('attributes:addField', {
+            parent: panel,
             name: 'Position',
             placeholder: [ 'X', 'Y', 'Z' ],
             precision: 3,
@@ -43,6 +50,7 @@ editor.once('load', function() {
 
         // rotation
         var fieldRotation = editor.call('attributes:addField', {
+            parent: panel,
             name: 'Rotation',
             placeholder: [ 'X', 'Y', 'Z' ],
             precision: 2,
@@ -54,6 +62,7 @@ editor.once('load', function() {
 
         // scale
         var fieldScale = editor.call('attributes:addField', {
+            parent: panel,
             name: 'Scale',
             placeholder: [ 'X', 'Y', 'Z' ],
             precision: 3,
@@ -87,7 +96,7 @@ editor.once('load', function() {
 
         // show components in a select field
         var addComponent = editor.call('attributes:addField', {
-            parent: panelComponents,
+            parent: panel,
             name: 'Add Component',
             type: 'string',
             enum: createComponentEnum()
@@ -108,46 +117,46 @@ editor.once('load', function() {
             addComponent.value = null;
         });
 
-        var panelJson = editor.call('attributes:addPanel', {
-            name: 'JSON'
-        });
+        // var panelJson = editor.call('attributes:addPanel', {
+        //     name: 'JSON'
+        // });
 
-        // code
-        var fieldJson = editor.call('attributes:addField', {
-            parent: panelJson,
-            type: 'code'
-        });
+        // // code
+        // var fieldJson = editor.call('attributes:addField', {
+        //     parent: panelJson,
+        //     type: 'code'
+        // });
 
-        fieldJson.text = JSON.stringify(entity.json(), null, 4);
+        // fieldJson.text = JSON.stringify(entity.json(), null, 4);
 
-        // changes
-        var evtSet = entity.on('*:set', function() {
-            // console.log('set', arguments)
-            fieldJson.text = JSON.stringify(entity.json(), null, 4);
-        });
-        var evtUnset = entity.on('*:unset', function() {
-            // console.log('unset', arguments)
-            fieldJson.text = JSON.stringify(entity.json(), null, 4);
-        });
-        var evtInsert = entity.on('*:insert', function() {
-            // console.log('insert', arguments)
-            fieldJson.text = JSON.stringify(entity.json(), null, 4);
-        });
-        var evtRemove = entity.on('*:remove', function() {
-            // console.log('remove', arguments)
-            fieldJson.text = JSON.stringify(entity.json(), null, 4);
-        });
-        var evtMove = entity.on('*:move', function() {
-            // console.log('move', arguments)
-            fieldJson.text = JSON.stringify(entity.json(), null, 4);
-        });
+        // // changes
+        // var evtSet = entity.on('*:set', function() {
+        //     // console.log('set', arguments)
+        //     fieldJson.text = JSON.stringify(entity.json(), null, 4);
+        // });
+        // var evtUnset = entity.on('*:unset', function() {
+        //     // console.log('unset', arguments)
+        //     fieldJson.text = JSON.stringify(entity.json(), null, 4);
+        // });
+        // var evtInsert = entity.on('*:insert', function() {
+        //     // console.log('insert', arguments)
+        //     fieldJson.text = JSON.stringify(entity.json(), null, 4);
+        // });
+        // var evtRemove = entity.on('*:remove', function() {
+        //     // console.log('remove', arguments)
+        //     fieldJson.text = JSON.stringify(entity.json(), null, 4);
+        // });
+        // var evtMove = entity.on('*:move', function() {
+        //     // console.log('move', arguments)
+        //     fieldJson.text = JSON.stringify(entity.json(), null, 4);
+        // });
 
-        fieldJson.on('destroy', function() {
-            evtSet.unbind();
-            evtUnset.unbind();
-            evtInsert.unbind();
-            evtRemove.unbind();
-            evtMove.unbind();
-        });
+        // fieldJson.on('destroy', function() {
+        //     evtSet.unbind();
+        //     evtUnset.unbind();
+        //     evtInsert.unbind();
+        //     evtRemove.unbind();
+        //     evtMove.unbind();
+        // });
     });
 });

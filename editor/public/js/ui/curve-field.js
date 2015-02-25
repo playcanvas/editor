@@ -216,12 +216,13 @@ CurveField.prototype._render = function () {
 // Renders all curves
 CurveField.prototype._renderCurves = function () {
     var canvas = this.canvas.element;
-    var context = canvas.getContext('2d');
+    var context = canvas.ctx = canvas.ctx || canvas.getContext('2d');
     var value = this.value;
 
     // draw background
-    context.fillStyle = '#293538';
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    // context.fillStyle = '#293538';
+    // context.fillRect(0, 0, canvas.width, canvas.height);
 
     var curveColors = ['rgb(255, 0, 0)', 'rgb(0, 255, 0)', 'rgb(133, 133, 252)'];
     var fillColors = ['rgba(255, 0, 0, 0.5)', 'rgba(0, 255, 0, 0.5)', 'rgba(133, 133, 252, 0.5)'];
@@ -272,7 +273,7 @@ CurveField.prototype._renderCurves = function () {
 // Renders color-type graph as a gradient
 CurveField.prototype._renderGradient = function () {
     var canvas = this.canvas.element;
-    var context = canvas.getContext('2d');
+    var context = canvas.ctx = canvas.cxt || canvas.getContext('2d');
     var value = this.value && this.value.length ? this.value[0] : null;
 
     context.clearRect(0, 0, canvas.width, canvas.height);

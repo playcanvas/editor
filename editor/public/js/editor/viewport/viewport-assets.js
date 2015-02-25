@@ -40,15 +40,14 @@ editor.once('load', function() {
             var parts = path.split('.');
             if (parts[0] in realtimeAsset) {
 
-                var data = asset.json();
+                var raw = asset.json();
 
-                if (asset.get('type') === 'material' && parts[0] === 'data') {
-                    data.data = editor.call('material:mapToList', data);
-                }
+                if (asset.get('type') === 'material' && parts[0] === 'data')
+                    raw.data = editor.call('material:mapToList', raw);
 
                 // this will trigger the 'update' event on the asset in the engine
                 // handling all resource loading automatically
-                realtimeAsset[parts[0]] = data[parts[0]];
+                realtimeAsset[parts[0]] = raw.data;
 
                 // re-render
                 editor.call('viewport:render');

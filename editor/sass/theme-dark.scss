@@ -1,19 +1,19 @@
-$bcg-primary: #323f42;
-$bcg-secondary: #364346;
-$bcg-dark: #293538;
-$bcg-darker: #20292b;
-$bcg-light: #5f6f72;
+$bcg-darkest: #20292b;
+$bcg-darker: #293538;
+$bcg-dark: #2c393c;
+$bcg-primary: #364346;
 
-$text-dark: #97aeb2;
-$text-primary: #eee;
-$text-light: #fff;
-$text-active: #6bc26f;
+$text-darkest: #5b7073;
+$text-dark: #9ba1a3;
+$text-secondary: #b1b8ba;
+$text-primary: #ffffff;
+$text-active: #40d47e;
 
 $disabled-opacity: .4;
 
 body {
-    color: $text-primary;
-    background-color: $bcg-dark;
+    color: #f00;
+    background-color: #0f0;
 }
 
 ::-webkit-scrollbar {
@@ -21,10 +21,10 @@ body {
     height: 4px;
 }
 ::-webkit-scrollbar-track {
-    background: $bcg-dark;
+    background: $bcg-primary;
 }
 ::-webkit-scrollbar-thumb {
-    background: $bcg-light;
+    background: $bcg-dark;
 }
 ::-webkit-scrollbar-thumb:hover {
     background: $text-active;
@@ -35,11 +35,11 @@ body {
 
 ::-moz-selection {
     color: $text-active;
-    background-color: #000;
+    background-color: $bcg-darkest;
 }
 ::selection {
     color: $text-active;
-    background-color: #000;
+    background-color: $bcg-darkest;
 }
 
 a {
@@ -66,17 +66,17 @@ a:visited {
 
     &.disabled {
         > header {
-            background-color: mix($bcg-primary, $bcg-dark, $disabled-opacity);
+            background-color: mix($bcg-darker, $bcg-primary, $disabled-opacity);
         }
     }
     > header {
-        background-color: $bcg-dark;
-        color: $text-dark;
+        background-color: $bcg-darker;
+        color: $text-primary;
     }
     &.foldable {
         &.folded {
             &.horizontal {
-                background-color: $bcg-dark;
+                background-color: $bcg-darker;
             }
         }
         > header {
@@ -106,27 +106,9 @@ a:visited {
     }
 }
 
-.ui-panel.panel-components-script {
-    border-top: 1px solid $bcg-darker;
-
-    &:last-child {
-        border-bottom: 1px solid $bcg-darker;
-    }
-
-    > .ui-header {
-        a {
-            color: white;
-        }
-
-        > .remove {
-            background-color: $bcg-primary;
-        }
-    }
-}
-
 .ui-overlay {
     > .overlay {
-        background-color: rgba($bcg-darker, .7);
+        background-color: rgba($bcg-darkest, .7);
     }
 }
 
@@ -143,26 +125,52 @@ a:visited {
 }
 
 .ui-tree-item {
-    $line-color: $bcg-light;
+    $line-color: $bcg-dark;
 
     &.container {
         // plus icon
         > .title:before {
-            background-color: #07f;
+            content: '+';
+            color: $text-secondary;
+            text-align: center;
+            line-height: 16px;
+            background: transparent;
+            font-size: 18px;
+            font-weight: bold;
+            background-color: $bcg-dark;
+        }
+        > .title:hover:before {
+            color: $text-active;
         }
         // minus icon
         &.open {
             > .title:before {
-                background-color: #07f;
+                content: '-';
+                // background-color: #07f;
+            }
+            > .title:hover:before {
+                color: $text-secondary;
             }
         }
     }
+    &.disabled {
+        > .title > .icon:after {
+            background-color: mix($text-darkest, $bcg-primary, 50%);
+            opacity: 1;
+        }
+    }
     > .title {
+        color: $text-secondary;
+
         &:hover,
         &:focus {
-            color: $text-active;
+            color: $text-primary;
             border-color: transparent;
-            background-color: mix($bcg-primary, $bcg-dark, 50%);
+            background-color: rgba($bcg-dark, .5);
+
+            > .icon:after {
+                background-color: mix($text-darkest, $text-active, 50%);
+            }
         }
         > .icon {
             // line-left
@@ -171,21 +179,25 @@ a:visited {
             }
             // icon
             &:after {
-                background-color: #07f;
+                background-color: $text-darkest;
             }
         }
     }
     &.selected {
         > .title {
-            background-color: $bcg-dark;
-            color: $text-active;
-            border-color: $text-active;
+            background-color: $bcg-darker;
+            color: $text-primary;
+            border-color: transparent;
+
+            > .icon:after {
+                background-color: $text-active;
+            }
         }
     }
     &.dragged {
         > .title {
-            background-color: $bcg-dark;
-            color: $text-active;
+            background-color: rgba($bcg-dark, .5);
+            color: $text-primary;
         }
     }
     // line-top
@@ -208,14 +220,11 @@ a:visited {
         @extend .ui-flash;
     }
     &.selectable {
-        &:hover {
-            border-color: $bcg-darker;
-        }
         > .ui-list-item {
             &:hover {
-                color: $text-active;
-                box-shadow: 0 0 4px rgba(0, 0, 0, .5);
-                background-color: mix($bcg-primary, $bcg-dark, 50%);
+                color: $text-primary;
+                background-color: $bcg-darkest;
+                border-color: $bcg-darkest;
                 position: relative;
                 z-index: 1;
             }
@@ -224,39 +233,54 @@ a:visited {
 }
 
 .ui-list-item {
-    background-color: $bcg-dark;
+    // background-color: #0f0;
     border-color: $bcg-darker;
+    color: $text-secondary;
 
     &.selected {
-        background-color: $bcg-dark;
+        color: $text-primary;
+        background-color: $bcg-darker;
     }
 }
 
 .ui-grid {
+    border-left: 1px solid $bcg-dark;
+
     &.flash {
         @extend .ui-flash;
     }
 }
 
 .ui-grid-item {
+    color: $text-secondary;
+    margin: 0;
+    border-right: 1px solid $bcg-dark;
+    border-bottom: 1px solid $bcg-dark;
+    outline: none;
+
+    background-size: 50% 50%;
+    // outline: 1px solid $bcg-dark;
+
     &.disabled.selected {
         background-color: #07f;
     }
     &:hover,
     &:focus {
-        color: $text-active;
-        background-color: mix($bcg-primary, $bcg-dark, 50%);
-        outline-color: $text-active;
+        color: $text-primary;
+        background-color: $bcg-dark;
+        outline: none;
+        // outline-color: #f00;
     }
     &.selected {
-        color: $text-active;
-        background-color: $bcg-dark;
-        outline: 1px solid $text-active;
+        color: $text-primary;
+        background-color: $bcg-darker;
+        outline: none;
+        // outline: 1px solid $bcg-darkest;
     }
 }
 
 .ui-label {
-    color: $text-dark;
+    color: $text-secondary;
 
     &.flash {
         @extend .ui-flash;
@@ -264,8 +288,8 @@ a:visited {
 }
 .ui-label[placeholder] {
     &:after {
-        color: $text-dark;
-        background-color: $bcg-dark;
+        color: #f00;
+        background-color: #0f0;
     }
 }
 
@@ -273,10 +297,13 @@ a:visited {
     &:hover,
     &.active {
         > .bar {
+            border-color: $bcg-darkest;
+            background-color: $bcg-darkest;
+
             > .handle {
-                border-color: $text-active;
-                background-color: $bcg-dark;
-                box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+                border-color: $bcg-darkest;
+                background-color: $text-primary;
+                transition: none;
             }
         }
     }
@@ -288,15 +315,19 @@ a:visited {
     > .bar {
         background-color: $bcg-dark;
         border-color: $bcg-darker;
+        width: calc(100% - 10px);
+        margin: 10px 4px;
 
         > .handle {
-            background-color: $text-primary;
             border-color: $bcg-darker;
+            background-color: $text-darkest;
+            width: 8px;
+            margin-left: -5px;
+            transition: left 100ms ease;
 
             &:focus {
-                border-color: $text-active;
-                background-color: $bcg-dark;
-                box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+                border-color: $bcg-darkest;
+                background-color: $text-primary;
             }
         }
     }
@@ -306,16 +337,22 @@ a:visited {
     border: 1px solid $bcg-darker;
     background-color: $bcg-dark;
 
+    > input.field {
+        color: $text-secondary;
+    }
     &.active,
     &:hover,
     &:focus,
     &.focus {
-        box-shadow: 0 0 4px rgba(0, 0, 0, .5);
-        border-color: $text-active;
+        border-color: $bcg-darkest;
+        background-color: $bcg-darkest;
     }
     > input.field:focus,
     > input.field:hover {
-        color: $text-active;
+        box-shadow: none;
+        color: $text-primary;
+        outline: none;
+        border: none;
     }
 
     &.flash {
@@ -324,7 +361,7 @@ a:visited {
 }
 .ui-text-field[placeholder] {
     &:after {
-        color: $text-dark;
+        color: $text-darkest;
         background-color: $bcg-dark;
     }
 }
@@ -333,17 +370,18 @@ a:visited {
     border: 1px solid $bcg-darker;
 
     &:after {
-        background-color: $bcg-dark;
+        background-color: $bcg-darker;
         border-color: $bcg-darker;
     }
 
     &:hover,
     &:focus {
         border-color: $text-active;
-        box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+        box-shadow: none;
+        // box-shadow: 0 0 4px rgba(0, 0, 0, .5);
         &:after {
             background-color: $text-active;
-            border-color: $bcg-darker;
+            border-color: $text-active;
         }
     }
 
@@ -356,22 +394,22 @@ a:visited {
     border: 1px solid $bcg-darker;
 
     &:after {
-        background-color: $bcg-dark;
+        background-color: $bcg-darker;
         border-color: $bcg-darker;
     }
 
     &:hover,
     &:focus {
         border-color: $text-active;
-        box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+        box-shadow: none;
         &:after {
             background-color: $text-active;
-            border-color: $bcg-darker;
+            border-color: $text-active;
         }
     }
 
     > .clear {
-        border-color: $bcg-dark;
+        border-color: #0f0;
     }
 
     &.flash {
@@ -383,16 +421,23 @@ a:visited {
     border: 1px solid $bcg-darker;
     background-color: $bcg-dark;
 
+    > input.field {
+        color: $text-secondary;
+    }
     &.active,
     &:hover,
     &:focus,
     &.focus {
-        box-shadow: 0 0 4px rgba(0, 0, 0, .5);
-        border-color: $text-active;
+        border-color: $bcg-darkest;
+        background-color: $bcg-darkest;
     }
     > input.field:focus,
     > input.field:hover {
-        color: $text-active;
+        // color: #f00;
+        box-shadow: none;
+        color: $text-primary;
+        outline: none;
+        border: none;
     }
 
     &.flash {
@@ -401,7 +446,7 @@ a:visited {
 }
 .ui-number-field[placeholder] {
     &:after {
-        color: $text-dark;
+        color: $text-darkest;
         background-color: $bcg-dark;
     }
 }
@@ -410,56 +455,62 @@ a:visited {
     border: 1px solid $bcg-darker;
     background-color: $bcg-dark;
 
-    &.active,
-    > .ui-canvas:focus,
-    > .ui-canvas:hover {
-        border-color: $bcg-darker;
-        box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+    &.active, &:hover, &:focus, &.active {
+        border-color: $text-active;
+
+        > .ui-canvas {
+            background-color: $bcg-darkest;
+        }
     }
 
     &.flash {
         @extend .ui-flash;
-    }
-
-    &:hover, &:focus, &.active {
-        border-color: $text-active;
     }
 }
 
 .ui-checkbox {
     position: relative;
-    border: 1px solid $bcg-darker;
-    background-color: $bcg-dark;
+    border: none;
+    border: 1px solid $text-darkest;
+    background-color: $text-darkest;
+    border-radius: 12px;
+    width: 24px;
+    height: 14px;
+    margin-top: 8px;
+    transition: background-color 100ms ease, border-color 100ms ease;
 
     &:hover,
     &:focus {
-        border-color: $text-active;
-        box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+        border-color: $text-darkest;
         &:after {
-            background-color: rgba($text-active, .2);
+            background-color: $bcg-darkest;
         }
     }
     &:after {
         content: '\00a0';
         position: absolute;
-        top: 6px;
-        left: 6px;
+        top: 1px;
+        left: 1px;
         width: 12px;
         height: 12px;
-        background-color: transparent;
+        border-radius: 6px;
+        background-color: $bcg-darker;
+        transition: left 100ms ease;
     }
     &.checked {
-        background-color: $bcg-dark;
+        border-color: $text-active;
+        background-color: $text-active;
 
         &:after {
-            background-color: $text-primary;
+            left: 11px;
+            background-color: $bcg-darker;
         }
-        &:hover:after {
-            background-color: $text-active;
+        &:hover {
+            border-color: $text-active;
+            &:after {
+                background-color: $bcg-darkest;
+            }
         }
-    }
-    &.flash {
-        @extend .ui-flash;
     }
 }
 
@@ -469,26 +520,29 @@ a:visited {
 
     &:hover,
     &:focus {
-        color: $text-active;
-        border-color: $text-active;
-        box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+        border-color: $bcg-darkest;
+        background-color: $bcg-darkest;
+
+        > .value {
+            color: $text-primary;
+        }
     }
-    &.active {
-        box-shadow: 0 0 0 transparent;
+    > .value {
+        color: $text-secondary;
     }
     > ul {
-        color: $text-primary;
-        background-color: $bcg-darker;
-        outline: 1px solid $text-active;
+        color: $text-secondary;
+        background-color: $bcg-darkest;
+        outline: 1px solid $bcg-darkest;
 
         > li {
             &:hover {
-                color: $text-active;
+                color: $text-primary;
                 background-color: $bcg-dark;
             }
             &.selected {
                 color: $text-primary;
-                background-color: $bcg-dark;
+                background-color: $bcg-darker;
                 cursor: default;
             }
         }
@@ -501,23 +555,24 @@ a:visited {
 .ui-button {
     border: 1px solid $bcg-darker;
     background-color: $bcg-dark;
-    color: $text-primary;
+    color: $text-secondary;
 
     &:hover,
     &:focus {
-        border-color: $text-active;
-        box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+        color: $text-primary;
+        border-color: $bcg-darkest;
+        background-color: $bcg-darkest;
     }
 }
 
 .ui-code {
     color: $text-active;
-    background-color: $bcg-dark;
+    background-color: $bcg-darkest;
 }
 
 
 .ui-progress {
-    background-color: $bcg-darker;
+    background-color: $bcg-darkest;
 
     > .inner {
         $first: rgba($text-active, 1);
@@ -548,7 +603,7 @@ a:visited {
 
 .picker-color {
     > .content {
-        border: 1px solid $bcg-darker;
+        border: 1px solid $bcg-darkest;
         background-color: $bcg-dark;
 
         > .pick-rect,
@@ -557,21 +612,20 @@ a:visited {
             border: 1px solid $bcg-darker;
         }
         > .fields {
-            background-color: $bcg-darker;
+            background-color: $bcg-primary;
         }
     }
 }
 
 .picker-curve {
     > .content {
-        border: 1px solid $bcg-darker;
+        border: 1px solid $bcg-darkest;
         background-color: $bcg-dark;
     }
 
-    .ui-checkbox.picker-curve-toggle {
-        &.checked {
-            border-color: $text-active;
-        }
-
-    }
+    // .ui-checkbox.picker-curve-toggle {
+    //     &.checked {
+    //         border-color: #f00;
+    //     }
+    // }
 }

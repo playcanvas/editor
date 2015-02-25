@@ -13,19 +13,6 @@ body {
     font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
 }
 
-$bcg-primary: #323f42;
-$bcg-secondary: #364346;
-$bcg-dark: #293538;
-$bcg-darker: #20292b;
-$bcg-light: #5f6f72;
-
-$text-dark: #97aeb2;
-$text-primary: #eee;
-$text-light: #fff;
-$text-active: #6bc26f;
-
-$disabled-opacity: .4;
-
 .noSelect {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -48,7 +35,7 @@ $disabled-opacity: .4;
 #ui-top {
     height: 48px;
     line-height: 48px;
-    background-color: #293538;
+    // background-color: #293538;
     // background-color: #111;
 
     > .content {
@@ -89,7 +76,7 @@ $disabled-opacity: .4;
         left: 0;
         width: auto;
         height: auto;
-        background-color: #293538;
+        // background-color: #293538;
 
         opacity: 1;
         visibility: visible;
@@ -117,6 +104,9 @@ $disabled-opacity: .4;
 }
 
 .ui-panel.attributes {
+    > .content {
+        background-color: #293538;
+    }
     .ui-panel {
         &.field {
             > .content {
@@ -125,8 +115,8 @@ $disabled-opacity: .4;
                     font-family: "Lucida Console", Monaco, monospace;
                     font-weight: normal;
                     font-size: 11px;
-                    border: 1px solid #293538;
-                    background-color: #293538;
+                    // border: 1px solid #293538;
+                    // background-color: #293538;
                     // color: #eee;
                 }
             }
@@ -199,7 +189,7 @@ $disabled-opacity: .4;
         > .content {
             padding: 4px;
             overflow: hidden;
-            background-color: $bcg-darker;
+            background-color: #ff0;
 
             > .face {
                 position: relative;
@@ -216,7 +206,7 @@ $disabled-opacity: .4;
                 background-color: #07f;
 
                 &:hover {
-                    outline: $text-active 1px solid;
+                    outline: #f0f 1px solid;
                     box-shadow: 0 0 4px rgba(0, 0, 0, .5);
                     z-index: 1;
 
@@ -247,6 +237,79 @@ $disabled-opacity: .4;
             > .face-bottom {
                 margin-left: 25%;
                 margin-right: 50%;
+            }
+        }
+    }
+    .ui-panel.panel-components-script {
+        border-top: 1px solid #0f0;
+
+        &:last-child {
+            border-bottom: 1px solid #0f0;
+        }
+
+        > .ui-header {
+            a {
+                color: white;
+            }
+            > .remove {
+                background-color: #0f0;
+            }
+        }
+    }
+    .ui-panel.component {
+        > .ui-header {
+            > .ui-checkbox.component-toggle {
+                float: left;
+                margin-left: 0;
+                margin-right: 8px;
+            }
+            > .ui-button.component-remove {
+                float: right;
+                width: 22px;
+                height: 22px;
+                padding: 0;
+                background-color: #07f;
+            }
+        }
+        > .content {
+            padding: 8px 6px;
+        }
+
+        .ui-panel.component-script {
+            border-top: 1px solid #293538;
+            border-left: 1px solid #293538;
+            border-right: 1px solid #293538;
+
+            &:last-child {
+                border-bottom: 1px solid #293538;
+            }
+            > .ui-header {
+                background-color: #2c393c;
+                overflow: hidden;
+
+                > .move-down, > .move-up, > .refresh, > .remove {
+                    width: 24px;
+                    height: 24px;
+                    padding: 0;
+                    background-repeat: no-repeat;
+                    background-position: center center;
+                    float: right;
+                    // margin-top: 3px;
+                    margin: 3px 2px;
+                }
+
+                > .move-down {
+                    background-image: url("https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/icons/fa/16x16/arrow-down.png");
+                }
+                > .move-up {
+                    background-image: url("https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/icons/fa/16x16/arrow-up.png");
+                }
+                > .refresh {
+                    background-image: url("https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/icons/fa/16x16/refresh.png");
+                }
+                > .remove {
+                    margin-right: 3px;
+                }
             }
         }
     }
@@ -308,17 +371,18 @@ $disabled-opacity: .4;
         &.selected {
             > .icon,
             > .label {
-                background-color: #293538;
+                // background-color: #293538;
             }
         }
         > .icon {
             position: absolute;
             width: 16px;
             height: 16px;
-            top: 0;
-            right: 0;
+            top: 4px;
+            left: 4px;
             padding: 4px;
-            background-color: rgba(#293538, 0.8);
+            opacity: .5;
+            // background-color: rgba(#293538, 0.8);
             background-image: url("/editor/scene/img/asset-icons/unknown.png");
             background-size: 16px 16px;
             background-repeat: no-repeat;
@@ -327,16 +391,18 @@ $disabled-opacity: .4;
         > .label {
             position: absolute;
             right: 0;
+            left: 0;
             bottom: 0;
-            max-width: 88px;
-            line-height: 16px;
+            width: auto;
+            max-width: 92px;
+            line-height: 14px;
             margin: 0px;
-            padding: 2px 4px;
+            padding: 2px;
             font-size: 10px;
             text-overflow: ellipsis;
-            text-align: right;
+            text-align: center;
             overflow: hidden;
-            background-color: rgba(#293538, 0.8);
+            background-color: rgba(#364346, 0.8);
         }
     }
 }
@@ -388,7 +454,7 @@ $disabled-opacity: .4;
         border: 1px solid #000;
         width: 320px;
         height: 162px;
-        background-color: #333;
+        // background-color: #333;
         white-space: nowrap;
         transition: none;
 
@@ -554,41 +620,6 @@ $disabled-opacity: .4;
                 display: none;
                 width: calc(106px - 10px);
             }
-        }
-    }
-}
-
-.ui-panel.panel-components-script {
-    > .ui-header {
-        > .move-down, > .move-up, > .refresh {
-            width: 10px;
-            height: 24px;
-            background-repeat: no-repeat;
-            background-position-x: 6px;
-            background-position-y: 4px;
-            float: right;
-            margin-top: 3px;
-        }
-
-        > .move-down {
-            margin-right: 10px;
-            background-image: url("https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/icons/fa/16x16/arrow-down.png");
-        }
-
-        > .move-up {
-            margin-right: 1px;
-            background-image: url("https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/icons/fa/16x16/arrow-up.png");
-        }
-
-        > .refresh {
-            margin-right: 1px;
-            background-image: url("https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/icons/fa/16x16/refresh.png");
-        }
-
-        > .remove {
-            float: right;
-            background-color: transparent;
-            margin: 3px 4px 3px -5px;
         }
     }
 }

@@ -55,6 +55,8 @@ editor.once('load', function() {
             parent: panelComponents,
             name: 'Scripts'
         });
+        panel.class.add('component');
+
         if (! entity.get('components.script')) {
             panel.disabled = true;
             panel.hidden = true;
@@ -87,30 +89,19 @@ editor.once('load', function() {
         // enabled
         var fieldEnabled = new ui.Checkbox();
         fieldEnabled.parent = panel;
-        fieldEnabled.style.float = 'left';
-        fieldEnabled.style.backgroundColor = '#323f42';
-        fieldEnabled.style.margin = '3px 4px 3px -5px';
+        fieldEnabled.class.add('component-toggle');
         fieldEnabled.link(entity, 'components.script.enabled');
         panel.headerElement.appendChild(fieldEnabled.element);
 
         // remove
-        var fieldRemove = new ui.Checkbox();
+        var fieldRemove = new ui.Button();
         fieldRemove.parent = panel;
-        fieldRemove.style.float = 'right';
-        fieldRemove.style.backgroundColor = '#323f42';
-        fieldRemove.style.margin = '3px 4px 3px -5px';
-        fieldRemove.on('change', function (value) {
-            if (value) {
-                entity.unset('components.script');
-                fieldRemove.value = false;
-            }
+        fieldRemove.class.add('component-remove');
+        fieldRemove.on('click', function(value) {
+            entity.unset('components.script');
         });
         panel.headerElement.appendChild(fieldRemove.element);
 
-        // scripts list
-        var panelScriptsList = editor.call('attributes:addPanel', {
-            parent: panel
-        });
 
         var urlRegex = new RegExp(/^http(s)?:/);
         var jsRegex = new RegExp(/\.js$/);
@@ -118,21 +109,21 @@ editor.once('load', function() {
 
         // scripts.add
         var fieldScriptsAdd = editor.call('attributes:addField', {
-            parent: panelScriptsList,
+            parent: panel,
             name: 'Add',
             type: 'string',
             placeholder: 'Script URL'
         });
+        fieldScriptsAdd.parent.style.marginBottom = '8px';
 
         fieldScriptsAdd.element.addEventListener('keydown', function (e) {
-            if (e.which === 13)  {
-                if (fieldScriptsAdd.value) {
-                    if (addScript(fieldScriptsAdd.value)) {
-                        fieldScriptsAdd.value = '';
-                    } else {
-                        fieldScriptsAdd.elementInput.select();
-                    }
-                }
+            if (e.which !== 13 || ! fieldScriptsAdd.value)
+                return;
+
+            if (addScript(fieldScriptsAdd.value)) {
+                fieldScriptsAdd.value = '';
+            } else {
+                fieldScriptsAdd.elementInput.select();
             }
         });
 
@@ -244,7 +235,7 @@ editor.once('load', function() {
 
         function createScriptPanel (script) {
             var panel = new ui.Panel(script.get('url'));
-            panel.class.add('panel-components-script');
+            panel.class.add('component-script');
 
             var link = document.createElement('a');
 
@@ -267,15 +258,11 @@ editor.once('load', function() {
             }));
 
             // button to remove script
-            var fieldRemoveScript = new ui.Checkbox();
-            fieldRemoveScript.element.title = "Remove script";
+            var fieldRemoveScript = new ui.Button();
             fieldRemoveScript.parent = panel;
             fieldRemoveScript.class.add('remove');
-            fieldRemoveScript.on('change', function (value) {
-                if (value) {
-                    // remove script
-                    entity.removeValue('components.script.scripts', script);
-                }
+            fieldRemoveScript.on('click', function (value) {
+                entity.removeValue('components.script.scripts', script);
             });
 
             panel.headerElement.appendChild(fieldRemoveScript.element);
@@ -487,7 +474,7 @@ editor.once('load', function() {
             for(var i = 0; i < items.length; i++) {
                 var scriptPanel = createScriptPanel(items[i]);
                 scriptPanels.push(scriptPanel);
-                panelScriptsList.append(scriptPanel);
+                panel.append(scriptPanel);
             }
         }
 
@@ -498,15 +485,15 @@ editor.once('load', function() {
             scriptPanels.splice(index, 0, scriptPanel);
             if (index === scriptPanels.length - 1) {
                 // append at the end
-                panelScriptsList.append(scriptPanel);
+                panel.append(scriptPanel);
             } else {
                 // append before panel at next index
-                panelScriptsList.appendBefore(scriptPanels[index+1]);
+                panel.appendBefore(scriptPanels[index+1]);
             }
         }));
 
         events.push(entity.on('components.script.scripts:move', function (value, idxNew, idxOld) {
-            panelScriptsList.appendBefore(scriptPanels[idxOld], scriptPanels[idxNew > idxOld ? idxNew + 1 : idxNew]);
+            panel.appendBefore(scriptPanels[idxOld], scriptPanels[idxNew > idxOld ? idxNew + 1 : idxNew]);
             var temp = scriptPanels[idxOld];
             scriptPanels[idxOld] = scriptPanels[idxNew];
             scriptPanels[idxNew] = temp;

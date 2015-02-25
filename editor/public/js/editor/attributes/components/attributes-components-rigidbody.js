@@ -17,6 +17,8 @@ editor.once('load', function() {
             parent: panelComponents,
             name: 'Rigid Body'
         });
+        panel.class.add('component');
+
         if (! entity.get('components.rigidbody')) {
             panel.disabled = true;
             panel.hidden = true;
@@ -38,26 +40,19 @@ editor.once('load', function() {
         // enabled
         var fieldEnabled = new ui.Checkbox();
         fieldEnabled.parent = panel;
-        fieldEnabled.style.float = 'left';
-        fieldEnabled.style.backgroundColor = '#323f42';
-        fieldEnabled.style.margin = '3px 4px 3px -5px';
+        fieldEnabled.class.add('component-toggle');
         fieldEnabled.link(entity, 'components.rigidbody.enabled');
         panel.headerElement.appendChild(fieldEnabled.element);
 
-
         // remove
-        var fieldRemove = new ui.Checkbox();
+        var fieldRemove = new ui.Button();
         fieldRemove.parent = panel;
-        fieldRemove.style.float = 'right';
-        fieldRemove.style.backgroundColor = '#323f42';
-        fieldRemove.style.margin = '3px 4px 3px -5px';
-        fieldRemove.on('change', function (value) {
-            if (value) {
-                entity.unset('components.rigidbody');
-                fieldRemove.value = false;
-            }
+        fieldRemove.class.add('component-remove');
+        fieldRemove.on('click', function(value) {
+            entity.unset('components.rigidbody');
         });
         panel.headerElement.appendChild(fieldRemove.element);
+
 
         // type
         var fieldType = editor.call('attributes:addField', {

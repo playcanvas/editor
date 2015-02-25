@@ -36,10 +36,13 @@ Object.defineProperty(List.prototype, 'selectable', {
             return;
 
         this._selectable = value;
+
         if (this._selectable) {
             this.class.add('selectable');
         } else {
+            console.log(this.element.className);
             this.class.remove('selectable');
+            console.log(this.element.className);
         }
     }
 })
