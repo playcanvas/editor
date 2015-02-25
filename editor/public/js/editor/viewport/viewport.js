@@ -64,12 +64,10 @@ editor.once('load', function() {
     });
 
     editor.method('viewport:flyModeStart', function () {
-        console.log('fly mode start');
         flyMode = true;
     });
 
     editor.method('viewport:flyModeEnd', function () {
-        console.log('fly mode end');
         flyMode = false;
     });
 
