@@ -78,6 +78,7 @@ editor.once('load', function() {
         var previewPanel = editor.call('attributes:addPanel', {
             name: 'Preview'
         });
+        previewPanel.class.add('component');
 
         // preview
         var image = editor.call('attributes:addField', {

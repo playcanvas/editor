@@ -39,18 +39,18 @@ editor.once('load', function() {
 
         // enabled
         var fieldEnabled = new ui.Checkbox();
-        fieldEnabled.parent = panel;
         fieldEnabled.class.add('component-toggle');
         fieldEnabled.link(entity, 'components.audiolistener.enabled');
         panel.headerElement.appendChild(fieldEnabled.element);
+        panel.headerAppend(fieldEnabled);
 
         // remove
         var fieldRemove = new ui.Button();
-        fieldRemove.parent = panel;
         fieldRemove.class.add('component-remove');
         fieldRemove.on('click', function(value) {
             entity.unset('components.audiolistener');
         });
         panel.headerElement.appendChild(fieldRemove.element);
+        panel.headerAppend(fieldRemove);
     });
 });

@@ -88,19 +88,17 @@ editor.once('load', function() {
 
         // enabled
         var fieldEnabled = new ui.Checkbox();
-        fieldEnabled.parent = panel;
         fieldEnabled.class.add('component-toggle');
         fieldEnabled.link(entity, 'components.script.enabled');
-        panel.headerElement.appendChild(fieldEnabled.element);
+        panel.headerAppend(fieldEnabled);
 
         // remove
         var fieldRemove = new ui.Button();
-        fieldRemove.parent = panel;
         fieldRemove.class.add('component-remove');
         fieldRemove.on('click', function(value) {
             entity.unset('components.script');
         });
-        panel.headerElement.appendChild(fieldRemove.element);
+        panel.headerAppend(fieldRemove);
 
 
         var urlRegex = new RegExp(/^http(s)?:/);
@@ -250,8 +248,8 @@ editor.once('load', function() {
             link.textContent = title;
             link.target = title;
             link.href = isExternalUrl ? url : '/editor/code/' + config.project.id + '/' + url;
-            panel.headerElement.textContent = '';
-            panel.headerElement.appendChild(link);
+            panel.headerElementTitle.textContent = '';
+            panel.headerElementTitle.appendChild(link);
 
             events.push(script.on('name:set', function (value) {
                 link.textContent = value;

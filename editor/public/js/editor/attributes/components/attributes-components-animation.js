@@ -39,19 +39,17 @@ editor.once('load', function() {
 
         // enabled
         var fieldEnabled = new ui.Checkbox();
-        fieldEnabled.parent = panel;
         fieldEnabled.class.add('component-toggle');
         fieldEnabled.link(entity, 'components.animation.enabled');
-        panel.headerElement.appendChild(fieldEnabled.element);
+        panel.headerAppend(fieldEnabled);
 
         // remove
         var fieldRemove = new ui.Button();
-        fieldRemove.parent = panel;
         fieldRemove.class.add('component-remove');
         fieldRemove.on('click', function(value) {
             entity.unset('components.animation');
         });
-        panel.headerElement.appendChild(fieldRemove.element);
+        panel.headerAppend(fieldRemove);
 
 
         // animation.assets
@@ -114,11 +112,11 @@ editor.once('load', function() {
             // on pick
             var evtPick = editor.once('picker:asset', function(asset) {
                 // already in list
-                if (entity.get('components.animation.assets').indexOf(asset.id) !== -1)
+                if (entity.get('components.animation.assets').indexOf(asset.get('id')) !== -1)
                     return;
 
                 // add to component
-                entity.insert('components.animation.assets', asset.id, 0);
+                entity.insert('components.animation.assets', asset.get('id'), 0);
                 evtPick = null;
             });
 

@@ -11,6 +11,21 @@ $text-active: #40d47e;
 
 $disabled-opacity: .4;
 
+@font-face {
+    font-family: 'ui-font-solid';
+    src: url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/uifont-solid.eot');
+    src: url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/uifont-solid.eot?#iefix') format('embedded-opentype'),
+         url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/uifont-solid.ttf') format('truetype'),
+         url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/uifont-solid.svg') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.font-icon {
+    font-family: 'ui-font-solid';
+}
+
+
 body {
     color: $text-secondary;
     background-color: $bcg-darker;
@@ -69,23 +84,64 @@ a:visited {
             background-color: mix($bcg-darker, $bcg-primary, $disabled-opacity);
         }
     }
+    &.scrollable {
+        > .content {
+            top: 36px;
+        }
+    }
     > header {
         background-color: $bcg-darker;
         color: $text-primary;
+        height: 36px;
+        line-height: 36px;
     }
     &.foldable {
         &.folded {
             &.horizontal {
                 background-color: $bcg-darker;
+
+                > header {
+                    top: -36px;
+                }
+            }
+            > header:after {
+                transform: rotate(0deg);
             }
         }
         > header {
             &:hover {
                 color: $text-active;
+
+                &:after {
+                    color: $text-active;
+                }
             }
             // fold icon
             &:after {
-                background-color: #07f;
+                content: '\E113';
+                font-family: 'ui-font-solid';
+                font-size: 22px;
+                text-align: center;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                font-smoothing: antialiased;
+                margin: 0;
+                padding: 0;
+                width: 36px;
+                height: 36px;
+                line-height: 32px;
+                color: $text-darkest;
+                background-color: transparent;
+                transform: rotate(90deg);
+                transition: transform 100ms ease;
+            }
+        }
+        &.horizontal {
+            > header:after {
+                transform: rotate(0deg);
+            }
+            &.resizable-right > header:after {
+                transform: rotate(180deg);
             }
         }
     }
@@ -93,10 +149,37 @@ a:visited {
         &.resizing > .handle {
             background-color: $text-active;
         }
+        &.resizable-left {
+            padding-left: 0;
+
+            &.scrollable > .content {
+                left: 0;
+            }
+        }
+        &.resizable-right {
+            padding-right: 0;
+        }
+        &.resizable-top {
+            padding-top: 0;
+
+            &.scrollable {
+                > .content {
+                    top: 36px;
+                }
+            }
+        }
+        &.resizable-bottom {
+            padding-bottom: 0;
+        }
+        &.resizing > .handle {
+            opacity: 1;
+        }
         > .handle {
-            background-color: $bcg-dark;
+            opacity: 0;
+            background-color: $text-active;
 
             &:hover {
+                opacity: 1;
                 background-color: $text-active;
             }
         }
@@ -146,7 +229,6 @@ a:visited {
         &.open {
             > .title:before {
                 content: '-';
-                // background-color: #07f;
             }
             > .title:hover:before {
                 color: $text-secondary;
@@ -186,7 +268,7 @@ a:visited {
     &.selected {
         > .title {
             background-color: $bcg-darker;
-            color: $text-primary;
+            color: $text-active;
             border-color: transparent;
 
             > .icon:after {
@@ -259,23 +341,20 @@ a:visited {
     outline: none;
 
     background-size: 50% 50%;
-    // outline: 1px solid $bcg-dark;
 
     &.disabled.selected {
-        background-color: #07f;
+        background-color: $bcg-darkest;
     }
     &:hover,
     &:focus {
         color: $text-primary;
         background-color: $bcg-dark;
         outline: none;
-        // outline-color: #f00;
     }
     &.selected {
-        color: $text-primary;
+        color: $text-active;
         background-color: $bcg-darker;
         outline: none;
-        // outline: 1px solid $bcg-darkest;
     }
 }
 
@@ -376,6 +455,7 @@ a:visited {
 
     &:hover,
     &:focus {
+        outline: 1px solid $text-active;
         border-color: $text-active;
         box-shadow: none;
         // box-shadow: 0 0 4px rgba(0, 0, 0, .5);
@@ -391,6 +471,7 @@ a:visited {
 }
 
 .ui-image-field {
+    content: '';
     border: 1px solid $bcg-darker;
 
     &:after {
@@ -400,6 +481,7 @@ a:visited {
 
     &:hover,
     &:focus {
+        outline: 1px solid $text-active;
         border-color: $text-active;
         box-shadow: none;
         &:after {
@@ -410,6 +492,28 @@ a:visited {
 
     > .clear {
         border-color: #0f0;
+
+        width: 24px;
+        height: 24px;
+        padding: 0;
+        margin: 0;
+        line-height: 22px;
+        background-color: #364346;
+        border: none;
+        font-family: 'ui-font-solid';
+        font-size: 22px;
+        text-align: center;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-smoothing: antialiased;
+
+        &:hover {
+            color: #d34141;
+            background-color: #20292b;
+        }
+        &:after {
+            content: '\E521';
+        }
     }
 
     &.flash {
@@ -471,19 +575,20 @@ a:visited {
 .ui-checkbox {
     position: relative;
     border: none;
-    border: 1px solid $text-darkest;
-    background-color: $text-darkest;
+    border: 1px solid $bcg-darker;
+    background-color: $bcg-dark;
     border-radius: 12px;
     width: 24px;
     height: 14px;
     margin-top: 8px;
-    transition: background-color 100ms ease, border-color 100ms ease;
 
     &:hover,
     &:focus {
-        border-color: $text-darkest;
+        border-color: $bcg-darkest;
+        background-color: $bcg-darkest;
+
         &:after {
-            background-color: $bcg-darkest;
+            background-color: #d34141;
         }
     }
     &:after {
@@ -494,21 +599,23 @@ a:visited {
         width: 12px;
         height: 12px;
         border-radius: 6px;
-        background-color: $bcg-darker;
-        transition: left 100ms ease;
+        background-color: $text-secondary;
+        transition: left 100ms ease, background-color 100ms ease;
     }
     &.checked {
-        border-color: $text-active;
-        background-color: $text-active;
+        border-color: $bcg-darker;
+        background-color: $bcg-dark;
 
         &:after {
             left: 11px;
-            background-color: $bcg-darker;
         }
-        &:hover {
-            border-color: $text-active;
+        &:hover,
+        &:focus {
+            border-color: $bcg-darkest;
+            background-color: $bcg-darkest;
+
             &:after {
-                background-color: $bcg-darkest;
+                background-color: $text-active;
             }
         }
     }
@@ -523,9 +630,30 @@ a:visited {
         border-color: $bcg-darkest;
         background-color: $bcg-darkest;
 
+        &:after {
+            content: '\E113';
+            color: $text-active;
+        }
         > .value {
             color: $text-primary;
         }
+    }
+    &:after {
+        content: '\E113';
+        width: 24px;
+        height: 24px;
+        line-height: 22px;
+        padding: 0;
+        margin: 0;
+        font-family: 'ui-font-solid';
+        font-size: 22px;
+        text-align: center;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-smoothing: antialiased;
+        color: $text-darkest;
+        background-color: transparent;
+        transform: rotate(90deg);
     }
     > .value {
         color: $text-secondary;

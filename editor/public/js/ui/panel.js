@@ -8,31 +8,17 @@ function Panel(header) {
     this.element = document.createElement('div');
     this.element.classList.add('ui-panel', 'noHeader', 'noAnimation');
 
-    // header
-    // this.headerElement = document.createElement('header');
-    // this.headerElement.classList.add('ui-header');
-    // this.headerElement.textContent = header || '';
-    // if (! this.headerElement.textContent) {
-    //     this.class.add('noHeader');
-    // }
-    // this.element.appendChild(this.headerElement);
-
     this.headerElement = null;
+    this.headerElementTitle = null;
 
     if (header)
         this.header = header;
-
-    // // folding
-    // this.headerElement.addEventListener('click', function() {
-    //     if (! self.foldable) return;
-    //     self.folded = ! self.folded;
-    // }, false);
 
     this.on('nodesChanged', function() {
         if (! this.foldable || this.folded || this.horizontal)
             return;
 
-        this.style.height = (32 + this.innerElement.clientHeight) + 'px';
+        this.style.height = ((this.headerSize || 32) + this.innerElement.clientHeight) + 'px';
     });
 
     // content
@@ -62,19 +48,25 @@ function Panel(header) {
         min: 0,
         max: Infinity
     };
+
+    this.headerSize = 0;
 }
 Panel.prototype = Object.create(ui.ContainerElement.prototype);
 
 
 Object.defineProperty(Panel.prototype, 'header', {
     get: function() {
-        return (this.headerElement && this.headerElement.textContent) || '';
+        return (this.headerElement && this.headerElementTitle.textContent) || '';
     },
     set: function(value) {
         if (! this.headerElement && value) {
             this.headerElement = document.createElement('header');
             this.headerElement.classList.add('ui-header');
-            this.headerElement.textContent = value;
+
+            this.headerElementTitle = document.createElement('span');
+            this.headerElementTitle.classList.add('title');
+            this.headerElementTitle.textContent = value;
+            this.headerElement.appendChild(this.headerElementTitle);
 
             var first = this.element.firstChild;
             if (first) {
@@ -95,29 +87,44 @@ Object.defineProperty(Panel.prototype, 'header', {
         } else if (! value && this.headerElement) {
             this.headerElement.parentNode.removeChild(this.headerElement);
             this.headerElement = null;
+            this.headerElementTitle = null;
             this.class.add('noHeader');
         } else {
-            this.headerElement.textContent = value || '';
+            this.headerElementTitle.textContent = value || '';
             this.class.remove('noHeader');
         }
     }
 });
 
 
+Panel.prototype.headerAppend = function(element) {
+    if (! this.headerElement)
+        return;
+
+    var html = (element instanceof HTMLElement);
+    var node = html ? element : element.element;
+
+    this.headerElement.insertBefore(node, this.headerElementTitle);
+
+    if (! html)
+        element.parent = this;
+};
+
+
 Panel.prototype._reflow = function() {
     if (this.folded) {
         if (this.horizontal) {
             this.style.height = '';
-            this.style.width = '32px';
+            this.style.width = (this.headerSize || 32) + 'px';
         } else {
-            this.style.height = '32px';
+            this.style.height = (this.headerSize || 32) + 'px';
         }
     } else if (this.foldable) {
         if (this.horizontal) {
             this.style.height = '';
             this.style.width = this._innerElement.clientWidth + 'px';
         } else {
-            this.style.height = (32 + this._innerElement.clientHeight) + 'px';
+            this.style.height = ((this.headerSize || 32) + this._innerElement.clientHeight) + 'px';
         }
     }
 };
@@ -150,6 +157,9 @@ Object.defineProperty(Panel.prototype, 'folded', {
         return this.class.contains('foldable') && this.class.contains('folded');
     },
     set: function(value) {
+        if (this.headerElement && this.headerSize === 0)
+            this.headerSize = this.headerElement.clientHeight;
+
         if (value) {
             this.class.add('folded');
 
@@ -284,7 +294,7 @@ Panel.prototype._resizeMove = function(evt) {
 
             var height = Math.max(this._resizeLimits.min, Math.min(this._resizeLimits.max, (this._resizeData.height + offsetY)));
 
-            this.style.height = (height + 32) + 'px';
+            this.style.height = (height + (this.headerSize || 32)) + 'px';
             this._innerElement.style.height = height + 'px';
         }
     }

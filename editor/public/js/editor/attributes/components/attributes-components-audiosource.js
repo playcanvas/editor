@@ -39,19 +39,17 @@ editor.once('load', function() {
 
         // enabled
         var fieldEnabled = new ui.Checkbox();
-        fieldEnabled.parent = panel;
         fieldEnabled.class.add('component-toggle');
         fieldEnabled.link(entity, 'components.audiosource.enabled');
-        panel.headerElement.appendChild(fieldEnabled.element);
+        panel.headerAppend(fieldEnabled);
 
         // remove
         var fieldRemove = new ui.Button();
-        fieldRemove.parent = panel;
         fieldRemove.class.add('component-remove');
         fieldRemove.on('click', function(value) {
             entity.unset('components.audiosource');
         });
-        panel.headerElement.appendChild(fieldRemove.element);
+        panel.headerAppend(fieldRemove);
 
 
         // assets
@@ -114,11 +112,11 @@ editor.once('load', function() {
             // on pick
             var evtPick = editor.once('picker:asset', function(asset) {
                 // already in list
-                if (entity.get('components.audiosource.assets').indexOf(asset.id) !== -1)
+                if (entity.get('components.audiosource.assets').indexOf(asset.get('id')) !== -1)
                     return;
 
                 // add to component
-                entity.insert('components.audiosource.assets', asset.id, 0);
+                entity.insert('components.audiosource.assets', asset.get('id'), 0);
                 evtPick = null;
             });
 
@@ -154,34 +152,6 @@ editor.once('load', function() {
 
             audioAssetItems[assetId].destroy();
         });
-
-
-
-
-
-
-
-
-        // var fieldAssetsList = new ui.List();
-        // fieldAssetsList.flexGrow = 1;
-
-        // editor.call('attributes:addField', {
-        //     parent: panel,
-        //     name: 'Assets',
-        //     type: 'element',
-        //     element: fieldAssetsList
-        // });
-
-        // // animation.assets.list
-        // var assets = entity.get('components.audiosource.assets');
-        // if (assets) {
-        //     for(var i = 0; i < assets.length; i++) {
-        //         var item = new ui.ListItem({
-        //             text: assets[i]
-        //         });
-        //         fieldAssetsList.append(item);
-        //     }
-        // }
 
 
         // audiosource.playback

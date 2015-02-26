@@ -289,6 +289,10 @@ a:visited {
         background-color: #111;
         white-space: nowrap;
         cursor: default;
+
+        > span.title {
+            float: left;
+        }
     }
     > .content {
         position: relative;
@@ -903,6 +907,7 @@ a:visited {
     margin: 4px;
     vertical-align: top;
     cursor: pointer;
+    overflow: hidden;
     transition: opacity 100ms;
 
     background-image:
@@ -959,6 +964,7 @@ a:visited {
     min-height: 24px;
     margin: 4px;
     border: 1px solid #666;
+    overflow: hidden;
     cursor: pointer;
 
     &.disabled {

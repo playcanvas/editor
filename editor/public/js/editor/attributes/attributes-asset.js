@@ -77,53 +77,53 @@
             });
         }
 
-        // TEMP
-        // load raw
-        var button = editor.call('attributes:addField', {
-            parent: panel,
-            type: 'button',
-            text: 'Load raw'
-        });
+        // // TEMP
+        // // load raw
+        // var button = editor.call('attributes:addField', {
+        //     parent: panel,
+        //     type: 'button',
+        //     text: 'Load raw'
+        // });
 
-        button.style.position = 'fixed';
-        button.style.right = '0';
-        button.style.bottom = '24px';
-        button.style.zIndex = 1;
+        // button.style.position = 'fixed';
+        // button.style.right = '0';
+        // button.style.bottom = '24px';
+        // button.style.zIndex = 1;
 
-        button.on('click', function() {
-            this.destroy();
+        // button.on('click', function() {
+        //     this.destroy();
 
-            // loading
-            var fieldLoading = editor.call('attributes:addField', {
-                parent: panel,
-                type: 'progress'
-            });
-            fieldLoading.on('progress:100', function() {
-                this.destroy();
-            });
+        //     // loading
+        //     var fieldLoading = editor.call('attributes:addField', {
+        //         parent: panel,
+        //         type: 'progress'
+        //     });
+        //     fieldLoading.on('progress:100', function() {
+        //         this.destroy();
+        //     });
 
-            // code
-            var fieldData = editor.call('attributes:addField', {
-                parent: panel,
-                type: 'code'
-            });
+        //     // code
+        //     var fieldData = editor.call('attributes:addField', {
+        //         parent: panel,
+        //         type: 'code'
+        //     });
 
-            Ajax({
-                url: '{{url.api}}/assets/' + asset.get('id'),
-                query: {
-                    access_token: '{{accessToken}}'
-                }
-            })
-            .on('load', function(status, data) {
-                fieldData.text = JSON.stringify(data.response[0], null, 4);
-                fieldLoading.progress = 1;
-            })
-            .on('progress', function(progress) {
-                fieldLoading.progress = .1 + progress * .8;
-            });
+        //     Ajax({
+        //         url: '{{url.api}}/assets/' + asset.get('id'),
+        //         query: {
+        //             access_token: '{{accessToken}}'
+        //         }
+        //     })
+        //     .on('load', function(status, data) {
+        //         fieldData.text = JSON.stringify(data.response[0], null, 4);
+        //         fieldLoading.progress = 1;
+        //     })
+        //     .on('progress', function(progress) {
+        //         fieldLoading.progress = .1 + progress * .8;
+        //     });
 
-            fieldLoading.progress = .1;
-        });
+        //     fieldLoading.progress = .1;
+        // });
     });
 
 })();

@@ -7,6 +7,7 @@ editor.once('load', function() {
 
     // list
     var hierarchy = new ui.Tree();
+    hierarchy.class.add('hierarchy');
     editor.call('layout.left').append(hierarchy);
 
 
@@ -100,6 +101,11 @@ editor.once('load', function() {
 
         element.entity = entity;
         element.enabled = entity.get('enabled');
+
+        var components = Object.keys(entity.get('components'));
+        for(var i = 0; i < components.length; i++) {
+            element.class.add('c-' + components[i]);
+        }
 
         entity.reparenting = false;
 

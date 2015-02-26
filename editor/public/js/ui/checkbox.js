@@ -45,6 +45,7 @@ Checkbox.prototype._onLinkChange = function(value) {
 
 Checkbox.prototype._onClick = function(evt) {
     this.value = ! this.value;
+    this.element.blur();
 };
 
 
