@@ -4,7 +4,6 @@ editor.once('load', function() {
     var canvas = new ui.Canvas({
         id: 'canvas-3d'
     });
-    canvas.style.width = '100%';
 
     var settings = editor.call('designerSettings');
 

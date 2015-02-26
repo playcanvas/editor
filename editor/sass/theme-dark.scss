@@ -97,18 +97,34 @@ a:visited {
     }
     &.foldable {
         &.folded {
+            > header {
+                color: $text-secondary;
+
+                &:after {
+                    transform: rotate(0deg);
+                }
+            }
             &.horizontal {
                 background-color: $bcg-darker;
 
                 > header {
                     top: -36px;
+
+                    &:after {
+                        transform: rotate(90deg);
+                    }
+                }
+                &.resizable-right > header:after {
+                    transform: rotate(-90deg);
                 }
             }
-            > header:after {
-                transform: rotate(0deg);
+            &.resizable-top > header:after {
+                transform: rotate(-90deg);
             }
         }
         > header {
+            padding-left: 36px;
+
             &:hover {
                 color: $text-active;
 
@@ -118,9 +134,11 @@ a:visited {
             }
             // fold icon
             &:after {
+                right: auto;
+                left: -2px;
                 content: '\E113';
                 font-family: 'ui-font-solid';
-                font-size: 22px;
+                font-size: 18px;
                 text-align: center;
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
@@ -162,10 +180,8 @@ a:visited {
         &.resizable-top {
             padding-top: 0;
 
-            &.scrollable {
-                > .content {
-                    top: 36px;
-                }
+            &.scrollable > .content {
+                top: 36px;
             }
         }
         &.resizable-bottom {

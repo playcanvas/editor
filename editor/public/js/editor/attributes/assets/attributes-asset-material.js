@@ -269,18 +269,11 @@ editor.once('load', function() {
         var panelParams = editor.call('attributes:addPanel', {
             name: 'Material Properties'
         });
-
-
-        // ambient
-        var panelProperties = editor.call('attributes:addPanel', {
-            parent: panelParams
-        });
-        panelProperties.class.add('component');
-
+        panelParams.class.add('component');
 
         // model
         var fieldModel = editor.call('attributes:addField', {
-            parent: panelProperties,
+            parent: panelParams,
             type: 'string',
             enum: {
                 'phong': 'Phong',
@@ -294,7 +287,6 @@ editor.once('load', function() {
 
         // ambient
         var panelAmbiend = editor.call('attributes:addPanel', {
-            parent: panelParams,
             foldable: true,
             folded: ! asset.get('data.aoMap'),
             name: 'Ambient'
@@ -362,7 +354,6 @@ editor.once('load', function() {
 
         // diffuse
         var panelDiffuse = editor.call('attributes:addPanel', {
-            parent: panelParams,
             foldable: true,
             folded: ! asset.get('data.diffuseMap'),
             name: 'Diffuse'
@@ -446,7 +437,6 @@ editor.once('load', function() {
 
         // specular
         var panelSpecular = editor.call('attributes:addPanel', {
-            parent: panelParams,
             foldable: true,
             folded: ! asset.get('data.specularMap') && ! asset.get('data.glossMap'),
             name: 'Specular'
@@ -603,7 +593,6 @@ editor.once('load', function() {
 
         // emissive
         var panelEmissive = editor.call('attributes:addPanel', {
-            parent: panelParams,
             foldable: true,
             folded: ! asset.get('data.emissiveMap'),
             name: 'Emissive'
@@ -712,7 +701,6 @@ editor.once('load', function() {
 
         // normals
         var panelNormal = editor.call('attributes:addPanel', {
-            parent: panelParams,
             foldable: true,
             folded: ! asset.get('data.normalMap'),
             name: 'Normals'
@@ -788,7 +776,6 @@ editor.once('load', function() {
 
         // parallax
         var panelParallax = editor.call('attributes:addPanel', {
-            parent: panelParams,
             foldable: true,
             folded: ! asset.get('data.heightMap'),
             name: 'Parallax'
@@ -864,7 +851,6 @@ editor.once('load', function() {
 
         // reflection
         var panelReflection = editor.call('attributes:addPanel', {
-            parent: panelParams,
             foldable: true,
             folded: ! (asset.get('data.sphereMap') || asset.get('data.cubeMap')),
             name: 'Reflection'
@@ -933,7 +919,6 @@ editor.once('load', function() {
 
         // lightmap
         var panelLightMap = editor.call('attributes:addPanel', {
-            parent: panelParams,
             foldable: true,
             folded: ! asset.get('data.lightMap'),
             name: 'LightMap'
@@ -957,7 +942,6 @@ editor.once('load', function() {
 
         // render states
         var panelRenderStates = editor.call('attributes:addPanel', {
-            parent: panelParams,
             foldable: true,
             folded: true,
             name: 'Render States'

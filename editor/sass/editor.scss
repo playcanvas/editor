@@ -289,7 +289,18 @@ body {
         }
     }
     .ui-panel.component {
-        box-shadow: 0 0 16px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+
+        > header {
+            border-left: 4px solid #40d47e;
+        }
+        &.foldable {
+            &.folded {
+                > header {
+                    border-left-color: #5b7073;
+                }
+            }
+        }
 
         > .ui-header {
             > .ui-checkbox.component-toggle {

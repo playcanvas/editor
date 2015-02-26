@@ -90,7 +90,7 @@ editor.once('load', function() {
         var previewPanel = editor.call('attributes:addPanel', {
             name: 'Preview'
         });
-        previewPanel.class.add('cubemap-viewport');
+        previewPanel.class.add('cubemap-viewport', 'component');
 
 
         // faces

@@ -7,6 +7,7 @@ editor.once('load', function() {
     editor.on('attributes:inspect[designerSettings]', function() {
 
         var panel = editor.call('attributes:addPanel');
+        panel.class.add('component');
 
 
         // grid divisions
