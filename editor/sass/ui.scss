@@ -1151,7 +1151,8 @@ a:visited {
             white-space: nowrap;
             overflow: hidden;
 
-            &:hover {
+            &:hover,
+            &.hover {
                 background-color: #333;
             }
             &.selected {

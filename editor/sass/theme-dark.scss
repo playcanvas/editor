@@ -680,7 +680,8 @@ a:visited {
         outline: 1px solid $bcg-darkest;
 
         > li {
-            &:hover {
+            &:hover,
+            &.hover {
                 color: $text-primary;
                 background-color: $bcg-dark;
             }
