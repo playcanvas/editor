@@ -116,6 +116,7 @@ body {
 .ui-panel.attributes {
     > .content {
         background-color: #293538;
+        border-left: 1px solid #20292b;
     }
     .ui-panel {
         &.field {
@@ -310,8 +311,8 @@ body {
             > .ui-checkbox.component-toggle {
                 float: left;
                 margin-left: 0;
-                margin-right: 8px;
-                margin-top: 10px;
+                margin-right: 7px;
+                margin-top: 8px;
 
                 border: 1px solid #5b7073;
                 background-color: #5b7073;
@@ -326,9 +327,9 @@ body {
             }
             > .ui-button.component-remove {
                 float: right;
-                width: 36px;
-                height: 36px;
-                line-height: 34px;
+                width: 32px;
+                height: 32px;
+                line-height: 30px;
                 margin: 0;
                 padding: 0;
                 border: none;
@@ -413,6 +414,9 @@ body {
                         content: '\E521';
                     }
                 }
+            }
+            > .content {
+                padding: 0 3px;
             }
         }
     }

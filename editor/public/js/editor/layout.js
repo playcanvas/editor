@@ -44,7 +44,7 @@ editor.on('load', function() {
 
 
     // hierarchy
-    var hierarchyPanel = new ui.Panel('Hierarchy');
+    var hierarchyPanel = new ui.Panel('HIERARCHY');
     hierarchyPanel.class.add('hierarchy');
     hierarchyPanel.flexShrink = false;
     hierarchyPanel.style.width = '320px';
@@ -77,7 +77,7 @@ editor.on('load', function() {
     editor.method('layout.viewport', function() { return viewport; });
 
     // assets
-    var assetsPanel = new ui.Panel('Assets');
+    var assetsPanel = new ui.Panel('ASSETS');
     assetsPanel.foldable = true;
     assetsPanel.flexShrink = false;
     assetsPanel.innerElement.style.height = '212px';
@@ -92,7 +92,7 @@ editor.on('load', function() {
 
 
     // attributes
-    var attributesPanel = new ui.Panel('Attributes');
+    var attributesPanel = new ui.Panel('INSPECTOR');
     attributesPanel.class.add('attributes');
     attributesPanel.flexShrink = false;
     attributesPanel.style.width = '320px';
