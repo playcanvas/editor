@@ -1,7 +1,9 @@
 editor.once('load', function() {
     'use strict';
 
+    var title = 'INSPECTOR';
     var root = editor.call('layout.right');
+    root.header = title;
 
     var clearPanel = function() {
         root.clear();
@@ -22,8 +24,8 @@ editor.once('load', function() {
     });
 
     // set header
-    editor.method('attributes:header', function(title) {
-        root.header = 'Attributes (' + title + ')';
+    editor.method('attributes:header', function(text) {
+        root.header = title + ' (' + text + ')';
     });
 
     // return root panel
@@ -441,7 +443,7 @@ editor.once('load', function() {
             editor.call('attributes:clear');
         }));
 
-        root.header = 'Attributes (' + type + ')';
+        root.header = title + ' (' + type + ')';
         editor.emit('attributes:inspect[' + type + ']', item);
     });
 
@@ -455,7 +457,7 @@ editor.once('load', function() {
             label.style.textAlign = 'center';
             root.append(label);
 
-            root.header = 'Attributes';
+            root.header = title;
 
             return;
         }
@@ -468,7 +470,7 @@ editor.once('load', function() {
         }
 
         var type = editor.call('selector:type');
-        root.header = 'Attributes (' + type + ')';
+        root.header = title + ' (' + type + ')';
         editor.emit('attributes:inspect[' + type + ']', items);
     });
 });

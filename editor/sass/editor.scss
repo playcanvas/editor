@@ -293,12 +293,16 @@ body {
 
         > header {
             border-left: 4px solid #40d47e;
+            text-transform: uppercase;
         }
         &.foldable {
             &.folded {
                 > header {
                     border-left-color: #5b7073;
                 }
+            }
+            > header:hover {
+                border-left-color: #fff;
             }
         }
 
@@ -639,6 +643,7 @@ body {
             border: 1px solid #000;
             margin: 8px 0 8px 8px;
             background-color: #f00;
+            cursor: crosshair;
 
             > .white {
                 position: absolute;
@@ -688,6 +693,7 @@ body {
             height: 144px;
             margin: 8px 0 8px 8px;
             border: 1px solid #000;
+            cursor: crosshair;
 
             background: #000;
             background: -moz-linear-gradient(top, /* FF3.6+ */
@@ -759,6 +765,7 @@ body {
             height: 144px;
             margin: 8px 0 8px 8px;
             border: 1px solid #000;
+            cursor: crosshair;
 
             background: #000;
             background: -moz-linear-gradient(top,  #ffffff 0%, #000000 100%); /* FF3.6+ */

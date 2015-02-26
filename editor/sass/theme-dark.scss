@@ -94,14 +94,20 @@ a:visited {
         color: $text-primary;
         height: 36px;
         line-height: 36px;
+        font-size: 12px;
+        font-weight: 100;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-smoothing: antialiased;
     }
     &.foldable {
         &.folded {
             > header {
-                color: $text-secondary;
+                color: $text-dark;
 
                 &:after {
                     transform: rotate(0deg);
+                    color: $text-dark;
                 }
             }
             &.horizontal {
@@ -126,10 +132,10 @@ a:visited {
             padding-left: 36px;
 
             &:hover {
-                color: $text-active;
+                color: $text-primary;
 
                 &:after {
-                    color: $text-active;
+                    color: $text-primary;
                 }
             }
             // fold icon
@@ -148,7 +154,7 @@ a:visited {
                 width: 36px;
                 height: 36px;
                 line-height: 32px;
-                color: $text-darkest;
+                color: $text-active;
                 background-color: transparent;
                 transform: rotate(90deg);
                 transition: transform 100ms ease;
@@ -471,13 +477,12 @@ a:visited {
 
     &:hover,
     &:focus {
-        outline: 1px solid $text-active;
-        border-color: $text-active;
+        outline: 1px solid $text-primary;
+        border-color: $text-primary;
         box-shadow: none;
-        // box-shadow: 0 0 4px rgba(0, 0, 0, .5);
         &:after {
-            background-color: $text-active;
-            border-color: $text-active;
+            background-color: $text-primary;
+            border-color: $text-primary;
         }
     }
 
@@ -497,12 +502,12 @@ a:visited {
 
     &:hover,
     &:focus {
-        outline: 1px solid $text-active;
-        border-color: $text-active;
+        outline: 1px solid $text-primary;
+        border-color: $text-primary;
         box-shadow: none;
         &:after {
-            background-color: $text-active;
-            border-color: $text-active;
+            background-color: $text-primary;
+            border-color: $text-primary;
         }
     }
 
