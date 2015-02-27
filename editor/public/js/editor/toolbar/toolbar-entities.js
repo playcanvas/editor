@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var header = editor.call('layout.header');
+    var toolbar = editor.call('layout.toolbar');
 
     var newEntity = function () {
         var parent = editor.call('entities:selectedFirst');
@@ -21,20 +21,25 @@ editor.once('load', function() {
     };
 
     [{
-        text: 'New Entity',
+        icon: '&#57873;',
+        tooltip: 'New Entity',
         handler: newEntity
     }, {
-        text: 'Duplicate Entity',
+        icon: '&#57908;',
+        tooltip: 'Duplicate',
         handler: duplicateEntity
     }, {
-        text: 'Delete Entity',
+        icon: '&#58657;',
+        tooltip: 'Delete',
         handler: deleteEntity
     }].forEach(function (item) {
         // Duplicate Entity button
         var button = new ui.Button({
-            text: item.text
+            text: item.icon
         });
-        header.append(button);
+        button.class.add('icon');
+        button.element.title = item.tooltip;
+        toolbar.append(button);
 
         button.on('click', item.handler);
     });

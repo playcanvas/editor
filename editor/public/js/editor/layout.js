@@ -15,16 +15,6 @@ editor.on('load', function() {
     editor.method('layout.root', function() { return root; });
 
 
-
-    // top (header)
-    var header = new ui.Panel();
-    header.element.id = 'ui-top';
-    header.flexShrink = false;
-    root.append(header);
-    // expose
-    editor.method('layout.header', function() { return header; });
-
-
     // middle
     var middle = new ui.Panel();
     middle.element.id = 'ui-middle';
@@ -41,6 +31,15 @@ editor.on('load', function() {
     // expose
     editor.method('layout.bottom', function() { return bottom; });
 
+
+    // toolbar (elft)
+    var toolbar = new ui.Panel();
+    toolbar.element.id = 'ui-toolbar';
+    toolbar.flexShrink = false;
+    toolbar.style.width = '48px';
+    middle.append(toolbar);
+    // expose
+    editor.method('layout.toolbar', function() { return toolbar; });
 
 
     // hierarchy
