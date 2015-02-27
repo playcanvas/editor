@@ -243,15 +243,20 @@ pc.script.create( "designer_camera", function (app) {
     };
 
     DesignerCamera.prototype.orbit = function (rotation) {
-        var eyePos = this.entity.getPosition();
-        var targetToEye = new pc.Vec3().sub2(eyePos, this.focus);
+        // orbit around focus point but if a transition is active orbit around
+        // transition.focusEnd and change transition.eyeEnd so that we end up at the right place
+        // after the transition ends
+        var eyePos = this.transition.active ? this.transition.eyeEnd : this.entity.getPosition();
+        var focus = this.transition.active ? this.transition.focusEnd : this.focus;
+        var targetToEye = new pc.Vec3().sub2(eyePos, focus);
 
         quatX.setFromAxisAngle(this.entity.right, -rotation[1]);
         quatY.setFromAxisAngle(pc.Vec3.UP, -rotation[0]);
         quatY.mul(quatX);
 
         quatY.transformVector(targetToEye, targetToEye);
-        eyePos.add2(this.focus, targetToEye);
+
+        eyePos.add2(focus, targetToEye);
 
         tempMat.copy(this.entity.getParent().getWorldTransform()).invert();
         tempMat.transformPoint(eyePos, eyePos);
@@ -739,7 +744,7 @@ pc.script.create( "designer_camera", function (app) {
         window.removeEventListener('keydown', this.onKeyDown);
         window.removeEventListener('keyup', this.onKeyUp);
         window.removeEventListener('contextmenu', this.onContextMenu);
-    }
+    };
 
     return DesignerCamera;
 });
