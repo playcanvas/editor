@@ -80,8 +80,10 @@ Object.defineProperty(Panel.prototype, 'header', {
             var self = this;
 
             // folding
-            this.headerElement.addEventListener('click', function() {
-                if (! self.foldable) return;
+            this.headerElement.addEventListener('click', function(evt) {
+                if (! self.foldable || (evt.target !== self.headerElement && evt.target !== self.headerElementTitle))
+                    return;
+
                 self.folded = ! self.folded;
             }, false);
         } else if (! value && this.headerElement) {

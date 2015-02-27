@@ -98,9 +98,9 @@ a:visited {
         // line-height: 36px;
         font-size: 12px;
         font-weight: 100;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        font-smoothing: antialiased;
+        // -webkit-font-smoothing: antialiased;
+        // -moz-osx-font-smoothing: grayscale;
+        // font-smoothing: antialiased;
     }
     &.foldable {
         &.folded {
@@ -240,7 +240,7 @@ a:visited {
             content: '+';
             color: $text-secondary;
             text-align: center;
-            line-height: 16px;
+            line-height: 19px;
             background: transparent;
             font-size: 18px;
             font-weight: bold;
@@ -428,7 +428,7 @@ a:visited {
         background-color: $bcg-dark;
         border-color: $bcg-darker;
         width: calc(100% - 10px);
-        margin: 8px 4px;
+        margin: 9px 4px;
 
         > .handle {
             border-color: $bcg-darker;
@@ -528,15 +528,15 @@ a:visited {
     > .clear {
         border-color: #0f0;
 
-        width: 24px;
-        height: 24px;
+        width: 22px;
+        height: 22px;
         padding: 0;
         margin: 0;
-        line-height: 22px;
+        line-height: 20px;
         background-color: #364346;
         border: none;
         font-family: 'ui-font-solid';
-        font-size: 22px;
+        font-size: 18px;
         text-align: center;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
@@ -683,13 +683,13 @@ a:visited {
 
         &:after {
             content: '\E113';
-            width: 24px;
-            height: 24px;
-            line-height: 22px;
+            width: 22px;
+            height: 22px;
+            line-height: 20px;
             padding: 0;
             margin: 0;
             font-family: 'ui-font-solid';
-            font-size: 22px;
+            font-size: 18px;
             text-align: center;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;

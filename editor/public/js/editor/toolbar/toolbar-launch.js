@@ -38,6 +38,6 @@ editor.once('load', function() {
     panel.append(buttonLaunch);
 
     buttonLaunch.on('click', function() {
-        console.log('launch')
+        window.open(config.scene.id + '/launch');
     });
 });

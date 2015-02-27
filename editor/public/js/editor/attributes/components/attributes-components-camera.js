@@ -80,7 +80,7 @@ editor.once('load', function() {
         var fieldClearColor = editor.call('attributes:addField', {
             parent: panel,
             name: 'Clear Color',
-            type: 'rgb', // TODO rgba
+            type: 'rgb',
             link: entity,
             path: 'components.camera.clearColor'
         });

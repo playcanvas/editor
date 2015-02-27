@@ -53,6 +53,7 @@ editor.once('load', function() {
 
     // publish added asset
     assets.on('add', function(asset) {
+        editor.emit('assets:add[' + asset.get('id') + ']', asset);
         editor.emit('assets:add', asset);
     });
 

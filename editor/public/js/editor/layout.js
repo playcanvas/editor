@@ -77,6 +77,7 @@ editor.on('load', function() {
 
     // assets
     var assetsPanel = new ui.Panel('ASSETS');
+    assetsPanel.class.add('assets');
     assetsPanel.foldable = true;
     assetsPanel.flexShrink = false;
     assetsPanel.innerElement.style.height = '212px';

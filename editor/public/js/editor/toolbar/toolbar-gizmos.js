@@ -94,6 +94,7 @@ editor.once('load', function() {
     var buttonFocus = new ui.Button({
         text: '&#58756;'
     });
+    buttonFocus.disabled = true;
     buttonFocus.element.title = 'Focus on Selection';
     buttonFocus.class.add('icon');
     buttonFocus.on('click', function() {
@@ -102,6 +103,13 @@ editor.once('load', function() {
             framework.frameSelection();
     });
     toolbar.append(buttonFocus);
+
+    editor.on('attributes:clear', function() {
+        buttonFocus.disabled = true;
+    });
+    editor.on('attributes:inspect[*]', function(type) {
+        buttonFocus.disabled = type !== 'entity';
+    });
 
 
     // shortcuts
