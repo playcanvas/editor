@@ -40,6 +40,7 @@ pc.script.create( "designer_camera", function (app) {
         window.addEventListener('contextmenu', this.onContextMenu.bind(this));
 
         this.canvasFocused = false;
+        this.rightClickOnCanvas = false;
 
         // init touch controls if they are available
         this.touch = app.touch;
@@ -243,15 +244,20 @@ pc.script.create( "designer_camera", function (app) {
     };
 
     DesignerCamera.prototype.orbit = function (rotation) {
-        var eyePos = this.entity.getPosition();
-        var targetToEye = new pc.Vec3().sub2(eyePos, this.focus);
+        // orbit around focus point but if a transition is active orbit around
+        // transition.focusEnd and change transition.eyeEnd so that we end up at the right place
+        // after the transition ends
+        var eyePos = this.transition.active ? this.transition.eyeEnd : this.entity.getPosition();
+        var focus = this.transition.active ? this.transition.focusEnd : this.focus;
+        var targetToEye = new pc.Vec3().sub2(eyePos, focus);
 
         quatX.setFromAxisAngle(this.entity.right, -rotation[1]);
         quatY.setFromAxisAngle(pc.Vec3.UP, -rotation[0]);
         quatY.mul(quatX);
 
         quatY.transformVector(targetToEye, targetToEye);
-        eyePos.add2(this.focus, targetToEye);
+
+        eyePos.add2(focus, targetToEye);
 
         tempMat.copy(this.entity.getParent().getWorldTransform()).invert();
         tempMat.transformPoint(eyePos, eyePos);
@@ -334,6 +340,12 @@ pc.script.create( "designer_camera", function (app) {
         var middle = e.buttons[pc.MOUSEBUTTON_MIDDLE];
         var right = e.buttons[pc.MOUSEBUTTON_RIGHT];
 
+        // remember that we started a right click from inside the canvas
+        // to prevent context menu on Windows later
+        if (e.button === pc.MOUSEBUTTON_RIGHT && this.canvasFocused) {
+            this.rightClickOnCanvas = true;
+        }
+
         if (!left) {
             this.isOrbiting = false;
         }
@@ -355,11 +367,17 @@ pc.script.create( "designer_camera", function (app) {
                 app.toggleGizmoInteraction(true);
             }
         }
+
     };
 
     DesignerCamera.prototype.onContextMenu = function (e) {
-        // set to true - handles issue when contextmenu event is fired but mouseup is not fired after
-        this.contextMenuFired = true;
+        // prevent context menu if we first clicked inside the canvas (only seems to happen on Windows)
+        if (this.rightClickOnCanvas && e.target !== app.graphicsDevice.canvas) {
+            e.preventDefault();
+        } else {
+            // set to true - handles issue when contextmenu event is fired but mouseup is not fired after
+            this.contextMenuFired = true;
+        }
     };
 
     DesignerCamera.prototype.onKeyDown = function (e) {
@@ -451,6 +469,7 @@ pc.script.create( "designer_camera", function (app) {
 
     DesignerCamera.prototype.onMouseDown = function (e) {
         this.canvasFocused = (e.event.target === app.graphicsDevice.canvas);
+        this.rightClickOnCanvas = false;
         if (e.button === pc.MOUSEBUTTON_RIGHT) {
             this.contextMenuFired = false;
         }
@@ -735,10 +754,11 @@ pc.script.create( "designer_camera", function (app) {
     };
 
     DesignerCamera.prototype.destroy = function () {
+        this.mouse.detach(document.body);
         window.removeEventListener('keydown', this.onKeyDown);
         window.removeEventListener('keyup', this.onKeyUp);
         window.removeEventListener('contextmenu', this.onContextMenu);
-    }
+    };
 
     return DesignerCamera;
 });
