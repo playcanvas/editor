@@ -9,6 +9,8 @@ $text-secondary: #b1b8ba;
 $text-primary: #ffffff;
 $text-active: #40d47e;
 
+$field-padding: 3px;
+
 $disabled-opacity: .4;
 
 @font-face {
@@ -86,14 +88,14 @@ a:visited {
     }
     &.scrollable {
         > .content {
-            top: 36px;
+            top: 32px;
         }
     }
     > header {
         background-color: $bcg-darker;
         color: $text-primary;
-        height: 36px;
-        line-height: 36px;
+        // height: 36px;
+        // line-height: 36px;
         font-size: 12px;
         font-weight: 100;
         -webkit-font-smoothing: antialiased;
@@ -114,7 +116,7 @@ a:visited {
                 background-color: $bcg-darker;
 
                 > header {
-                    top: -36px;
+                    top: -32px;
 
                     &:after {
                         transform: rotate(90deg);
@@ -129,7 +131,7 @@ a:visited {
             }
         }
         > header {
-            padding-left: 36px;
+            padding-left: 32px;
 
             &:hover {
                 color: $text-primary;
@@ -141,7 +143,7 @@ a:visited {
             // fold icon
             &:after {
                 right: auto;
-                left: -2px;
+                left: 0;
                 content: '\E113';
                 font-family: 'ui-font-solid';
                 font-size: 18px;
@@ -151,9 +153,9 @@ a:visited {
                 font-smoothing: antialiased;
                 margin: 0;
                 padding: 0;
-                width: 36px;
-                height: 36px;
-                line-height: 32px;
+                width: 32px;
+                height: 32px;
+                line-height: 30px;
                 color: $text-active;
                 background-color: transparent;
                 transform: rotate(90deg);
@@ -187,7 +189,7 @@ a:visited {
             padding-top: 0;
 
             &.scrollable > .content {
-                top: 36px;
+                top: 32px;
             }
         }
         &.resizable-bottom {
@@ -270,7 +272,7 @@ a:visited {
         &:focus {
             color: $text-primary;
             border-color: transparent;
-            background-color: rgba($bcg-dark, .5);
+            background-color: $bcg-dark;
 
             > .icon:after {
                 background-color: mix($text-darkest, $text-active, 50%);
@@ -289,12 +291,17 @@ a:visited {
     }
     &.selected {
         > .title {
-            background-color: $bcg-darker;
+            background-color: $bcg-darkest;
             color: $text-active;
             border-color: transparent;
 
-            > .icon:after {
-                background-color: $text-active;
+            > .icon {
+                &:before {
+                    background-color: $bcg-darkest;
+                }
+                &:after {
+                    background-color: $text-active;
+                }
             }
         }
     }
@@ -319,6 +326,7 @@ a:visited {
 .ui-list {
     background-color: $bcg-dark;
     border-color: $bcg-darker;
+    margin: $field-padding;
 
     &.flash {
         @extend .ui-flash;
@@ -375,13 +383,14 @@ a:visited {
     }
     &.selected {
         color: $text-active;
-        background-color: $bcg-darker;
+        background-color: $bcg-darkest;
         outline: none;
     }
 }
 
 .ui-label {
     color: $text-secondary;
+    margin: $field-padding;
 
     &.flash {
         @extend .ui-flash;
@@ -395,6 +404,8 @@ a:visited {
 }
 
 .ui-slider {
+    margin: $field-padding;
+
     &:hover,
     &.active {
         > .bar {
@@ -437,6 +448,7 @@ a:visited {
 .ui-text-field {
     border: 1px solid $bcg-darker;
     background-color: $bcg-dark;
+    margin: $field-padding;
 
     > input.field {
         color: $text-secondary;
@@ -469,6 +481,7 @@ a:visited {
 
 .ui-color-field {
     border: 1px solid $bcg-darker;
+    margin: $field-padding;
 
     &:after {
         background-color: $bcg-darker;
@@ -494,6 +507,7 @@ a:visited {
 .ui-image-field {
     content: '';
     border: 1px solid $bcg-darker;
+    margin: $field-padding;
 
     &:after {
         background-color: $bcg-darker;
@@ -545,6 +559,7 @@ a:visited {
 .ui-number-field {
     border: 1px solid $bcg-darker;
     background-color: $bcg-dark;
+    margin: $field-padding;
 
     > input.field {
         color: $text-secondary;
@@ -579,6 +594,7 @@ a:visited {
 .ui-curve-field {
     border: 1px solid $bcg-darker;
     background-color: $bcg-dark;
+    margin: $field-padding;
 
     &.active, &:hover, &:focus, &.active {
         border-color: $text-active;
@@ -601,7 +617,8 @@ a:visited {
     border-radius: 12px;
     width: 24px;
     height: 14px;
-    margin-top: 8px;
+    margin: $field-padding;
+    margin-top: 7px;
 
     &:hover,
     &:focus {
@@ -645,6 +662,7 @@ a:visited {
 .ui-select-field {
     border: 1px solid $bcg-darker;
     background-color: $bcg-dark;
+    margin: $field-padding;
 
     &:hover,
     &:focus {
@@ -706,6 +724,7 @@ a:visited {
     border: 1px solid $bcg-darker;
     background-color: $bcg-dark;
     color: $text-secondary;
+    margin: $field-padding;
 
     &:hover,
     &:focus {

@@ -1,14 +1,16 @@
 editor.once('load', function() {
     'use strict';
 
-    var panelMenu = editor.call('layout.header');
+    var toolbar = editor.call('layout.toolbar');
 
     // undo
     var buttonUndo = new ui.Button({
-        text: 'undo'
+        text: '&#57654;'
     });
+    buttonUndo.element.title = 'Undo';
+    buttonUndo.class.add('icon');
     buttonUndo.enabled = editor.call('history:canUndo');
-    panelMenu.append(buttonUndo);
+    toolbar.append(buttonUndo);
 
     editor.on('history:canUndo', function(state) {
         buttonUndo.enabled = state;
@@ -20,10 +22,12 @@ editor.once('load', function() {
 
     // redo
     var buttonRedo = new ui.Button({
-        text: 'redo'
+        text: '&#57655;'
     });
+    buttonRedo.element.title = 'Redo';
+    buttonRedo.class.add('icon');
     buttonRedo.enabled = editor.call('history:canRedo');
-    panelMenu.append(buttonRedo);
+    toolbar.append(buttonRedo);
 
     editor.on('history:canRedo', function(state) {
         buttonRedo.enabled = state;

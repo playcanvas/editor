@@ -1,13 +1,13 @@
 editor.once('load', function() {
     'use strict';
 
-    var header = editor.call('layout.header');
+    var toolbar = editor.call('layout.toolbar');
 
     // new material button
     var button = new ui.Button({
         text: 'New Material'
     });
-    header.append(button);
+    toolbar.append(button);
 
     button.on('click', function() {
         editor.call('assets:createMaterial');
@@ -17,7 +17,7 @@ editor.once('load', function() {
     button = new ui.Button({
         text: 'New Cubemap'
     });
-    header.append(button);
+    toolbar.append(button);
 
     button.on('click', function() {
         editor.call('assets:createCubemap');

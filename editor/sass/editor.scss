@@ -32,18 +32,71 @@ body {
     height: auto;
 }
 
-#ui-top {
-    height: 48px;
-    line-height: 48px;
-    // background-color: #293538;
-    // background-color: #111;
+#ui-toolbar {
+    border-right: 1px solid #20292b;
 
     > .content {
-        overflow: hidden;
-        padding: 0 8px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 48px;
+        height: auto;
+        background-color: #293538;
 
         > .ui-button {
-            font-size: 12px;
+            display: block;
+            margin: 0;
+            padding: 0;
+            width: 48px;
+            height: 48px;
+            border: none;
+            overflow: hidden;
+
+            &.logo {
+                background-color: #f70;
+                background-image: url("https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/platform/images/logo/playcanvas-icon-80.png");
+                background-size: 14px 32px;
+                background-repeat: no-repeat;
+                background-position: center center;
+            }
+            &.icon {
+                color: #9ba1a3;
+                line-height: 46px;
+                font-family: 'ui-font-solid';
+                font-size: 24px;
+                text-align: center;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                font-smoothing: antialiased;
+                background-color: #364346;
+
+                &.active {
+                    color: #40d47e;
+                    background-color: #2c393c;
+                }
+                &.disabled {
+                    opacity: 1;
+                    color: mix(#9ba1a3, #364346, 30%);
+
+                    &:hover,
+                    &:focus {
+                        color: mix(#9ba1a3, #364346, 30%);
+                        background-color: #364346;
+                    }
+                }
+                &:hover,
+                &:focus {
+                    color: #fff;
+                    background-color: #20292b;
+                }
+            }
+            &.designer-settings {
+                position: absolute;
+                left: 0;
+                bottom: 0;
+            }
         }
     }
 }
@@ -116,6 +169,7 @@ body {
 .ui-panel.attributes {
     > .content {
         background-color: #293538;
+        border-left: 1px solid #20292b;
     }
     .ui-panel {
         &.field {
@@ -310,8 +364,8 @@ body {
             > .ui-checkbox.component-toggle {
                 float: left;
                 margin-left: 0;
-                margin-right: 8px;
-                margin-top: 10px;
+                margin-right: 7px;
+                margin-top: 8px;
 
                 border: 1px solid #5b7073;
                 background-color: #5b7073;
@@ -326,9 +380,9 @@ body {
             }
             > .ui-button.component-remove {
                 float: right;
-                width: 36px;
-                height: 36px;
-                line-height: 34px;
+                width: 32px;
+                height: 32px;
+                line-height: 30px;
                 margin: 0;
                 padding: 0;
                 border: none;
@@ -413,6 +467,9 @@ body {
                         content: '\E521';
                     }
                 }
+            }
+            > .content {
+                padding: 0 3px;
             }
         }
     }
@@ -541,7 +598,7 @@ body {
         }
         &.selected {
             > .label {
-                background-color: #293538;
+                background-color: #20292b;
             }
         }
         > .icon {
@@ -580,6 +637,13 @@ body {
             background-color: rgba(#364346, 0.8);
         }
     }
+}
+
+.ui-select-field.viewport-camera {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
 }
 
 .picker-color {
