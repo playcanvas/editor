@@ -470,19 +470,16 @@ pc.script.create( "designer_camera", function (app) {
     DesignerCamera.prototype.onMouseDown = function (e) {
         this.canvasFocused = (e.event.target === app.graphicsDevice.canvas);
         this.rightClickOnCanvas = false;
-        if (e.button === pc.MOUSEBUTTON_RIGHT) {
-            this.contextMenuFired = false;
-        }
     };
 
     DesignerCamera.prototype.onMouseMove = function (e) {
-        if (!this.canvasFocused || app.activeGizmo.isDragging) {
+        if (!this.canvasFocused || this.contextMenuFired || app.activeGizmo.isDragging) {
             return;
         }
 
         var left = e.buttons[pc.MOUSEBUTTON_LEFT];
         var middle = e.buttons[pc.MOUSEBUTTON_MIDDLE];
-        var right = e.buttons[pc.MOUSEBUTTON_RIGHT] && !this.contextMenuFired;
+        var right = e.buttons[pc.MOUSEBUTTON_RIGHT];
 
         if (!this.flyMode && !this.isOrbiting && !this.isLookingAround && (middle || (left && e.shiftKey))) {
             this.pan([e.dx, e.dy]);
