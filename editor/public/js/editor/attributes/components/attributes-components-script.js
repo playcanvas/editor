@@ -445,8 +445,6 @@ editor.once('load', function() {
                 path: 'attributes.' + attribute.name + '.value'
             });
 
-            field.value = attribute.value;
-
             return field;
         }
 
