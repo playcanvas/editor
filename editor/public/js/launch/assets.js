@@ -39,8 +39,6 @@ app.once('load', function() {
             app.emit('assets:load');
         });
 
-
-
         // editor.call('assets:progress', 1);
         // editor.emit('assets:load');
     };
