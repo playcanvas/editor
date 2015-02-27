@@ -365,6 +365,11 @@ pc.script.create( "designer_camera", function (app) {
     DesignerCamera.prototype.onContextMenu = function (e) {
         // set to true - handles issue when contextmenu event is fired but mouseup is not fired after
         this.contextMenuFired = true;
+
+        // prevent context menu if we first clicked inside the canvas (only seems to happen on Windows)
+        if (this.canvasFocused && e.target !== app.graphicsDevice.canvas) {
+            e.preventDefault();
+        }
     };
 
     DesignerCamera.prototype.onKeyDown = function (e) {
