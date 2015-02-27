@@ -735,6 +735,7 @@ pc.script.create( "designer_camera", function (app) {
     };
 
     DesignerCamera.prototype.destroy = function () {
+        this.mouse.detach(document.body);
         window.removeEventListener('keydown', this.onKeyDown);
         window.removeEventListener('keyup', this.onKeyUp);
         window.removeEventListener('contextmenu', this.onContextMenu);
