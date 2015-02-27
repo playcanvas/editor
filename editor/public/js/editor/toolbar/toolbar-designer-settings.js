@@ -1,19 +1,27 @@
 editor.once('load', function() {
     'use strict';
 
-    var header = editor.call('layout.header');
+    var toolbar = editor.call('layout.toolbar');
 
     // settings button
     var button = new ui.Button({
-        text: 'Designer Settings'
+        text: '&#58152;'
     });
-    header.append(button);
+    button.element.title = 'Designer Settings';
+    button.class.add('icon', 'designer-settings');
+    toolbar.append(button);
 
     button.on('click', function() {
         editor.call('selector:set', 'designerSettings', [ editor.call('designerSettings') ]);
     });
 
+    editor.on('attributes:clear', function() {
+        button.class.remove('active');
+    });
+
     editor.on('attributes:inspect[designerSettings]', function() {
         editor.call('attributes.rootPanel').folded = false;
+
+        button.class.add('active');
     });
 });

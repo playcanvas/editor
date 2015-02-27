@@ -15,16 +15,6 @@ editor.on('load', function() {
     editor.method('layout.root', function() { return root; });
 
 
-
-    // top (header)
-    var header = new ui.Panel();
-    header.element.id = 'ui-top';
-    header.flexShrink = false;
-    root.append(header);
-    // expose
-    editor.method('layout.header', function() { return header; });
-
-
     // middle
     var middle = new ui.Panel();
     middle.element.id = 'ui-middle';
@@ -42,9 +32,18 @@ editor.on('load', function() {
     editor.method('layout.bottom', function() { return bottom; });
 
 
+    // toolbar (elft)
+    var toolbar = new ui.Panel();
+    toolbar.element.id = 'ui-toolbar';
+    toolbar.flexShrink = false;
+    toolbar.style.width = '48px';
+    middle.append(toolbar);
+    // expose
+    editor.method('layout.toolbar', function() { return toolbar; });
+
 
     // hierarchy
-    var hierarchyPanel = new ui.Panel('Hierarchy');
+    var hierarchyPanel = new ui.Panel('HIERARCHY');
     hierarchyPanel.class.add('hierarchy');
     hierarchyPanel.flexShrink = false;
     hierarchyPanel.style.width = '320px';
@@ -77,7 +76,7 @@ editor.on('load', function() {
     editor.method('layout.viewport', function() { return viewport; });
 
     // assets
-    var assetsPanel = new ui.Panel('Assets');
+    var assetsPanel = new ui.Panel('ASSETS');
     assetsPanel.foldable = true;
     assetsPanel.flexShrink = false;
     assetsPanel.innerElement.style.height = '212px';
@@ -92,7 +91,7 @@ editor.on('load', function() {
 
 
     // attributes
-    var attributesPanel = new ui.Panel('Attributes');
+    var attributesPanel = new ui.Panel('INSPECTOR');
     attributesPanel.class.add('attributes');
     attributesPanel.flexShrink = false;
     attributesPanel.style.width = '320px';

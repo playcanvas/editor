@@ -473,4 +473,6 @@ editor.once('load', function() {
         root.header = title + ' (' + type + ')';
         editor.emit('attributes:inspect[' + type + ']', items);
     });
+
+    editor.emit('selector:change', [ ]);
 });

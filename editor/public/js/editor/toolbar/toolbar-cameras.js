@@ -1,7 +1,7 @@
 editor.once('viewport:load', function(framework) {
     'use strict';
 
-    var header = editor.call('layout.header');
+    var viewport = editor.call('layout.viewport');
 
     var options = {};
 
@@ -12,13 +12,13 @@ editor.once('viewport:load', function(framework) {
     var combo = new ui.SelectField({
         options: options
     });
-
+    combo.class.add('viewport-camera');
     combo.value = framework.cameras[0].getGuid();
 
-    combo.style.float = 'right';
-    combo.style['margin-top'] = '12px';
+    // combo.style.float = 'right';
+    // combo.style.marginTop = '12px';
 
-    header.append(combo);
+    viewport.append(combo);
 
     combo.on('change', function (value) {
         var framework = editor.call('viewport:framework') ;

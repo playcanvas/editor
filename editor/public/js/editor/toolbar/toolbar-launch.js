@@ -1,13 +1,13 @@
 editor.once('load', function() {
     'use strict';
 
-    var panelMenu = editor.call('layout.header');
+    var toolbar = editor.call('layout.toolbar');
 
     // undo
     var button = new ui.Button({
         text: 'launch'
     });
-    panelMenu.append(button);
+    toolbar.append(button);
 
     button.on('click', function() {
         console.log('launch')
