@@ -40,6 +40,7 @@ pc.script.create( "designer_camera", function (app) {
         window.addEventListener('contextmenu', this.onContextMenu.bind(this));
 
         this.canvasFocused = false;
+        this.rightClickOnCanvas = false;
 
         // init touch controls if they are available
         this.touch = app.touch;
@@ -339,6 +340,12 @@ pc.script.create( "designer_camera", function (app) {
         var middle = e.buttons[pc.MOUSEBUTTON_MIDDLE];
         var right = e.buttons[pc.MOUSEBUTTON_RIGHT];
 
+        // remember that we started a right click from inside the canvas
+        // to prevent context menu on Windows later
+        if (e.button === pc.MOUSEBUTTON_RIGHT && this.canvasFocused) {
+            this.rightClickOnCanvas = true;
+        }
+
         if (!left) {
             this.isOrbiting = false;
         }
@@ -360,15 +367,16 @@ pc.script.create( "designer_camera", function (app) {
                 app.toggleGizmoInteraction(true);
             }
         }
+
     };
 
     DesignerCamera.prototype.onContextMenu = function (e) {
-        // set to true - handles issue when contextmenu event is fired but mouseup is not fired after
-        this.contextMenuFired = true;
-
         // prevent context menu if we first clicked inside the canvas (only seems to happen on Windows)
-        if (this.canvasFocused && e.target !== app.graphicsDevice.canvas) {
+        if (this.rightClickOnCanvas && e.target !== app.graphicsDevice.canvas) {
             e.preventDefault();
+        } else {
+            // set to true - handles issue when contextmenu event is fired but mouseup is not fired after
+            this.contextMenuFired = true;
         }
     };
 
@@ -461,6 +469,7 @@ pc.script.create( "designer_camera", function (app) {
 
     DesignerCamera.prototype.onMouseDown = function (e) {
         this.canvasFocused = (e.event.target === app.graphicsDevice.canvas);
+        this.rightClickOnCanvas = false;
         if (e.button === pc.MOUSEBUTTON_RIGHT) {
             this.contextMenuFired = false;
         }
