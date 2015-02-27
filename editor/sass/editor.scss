@@ -102,31 +102,6 @@ body {
     }
 }
 
-#user-a,
-#user-b {
-    position: absolute;
-    z-index: 1;
-    width: 48px;
-    height: 48px;
-    border: 2px solid #fff;
-    top: 4px;
-    background-size: 48px 48px;
-    background-position: center center;
-    background-repeat: no-repeat;
-}
-
-#user-a {
-    right: 60px;
-    background-image: url("https://playcanvas.com/api/7/thumbnail?size=65");
-    border-color: #7f7;
-}
-
-#user-b {
-    right: 4px;
-    background-image: url("https://playcanvas.com/api/458/thumbnail?size=65");
-    border-color: #f70;
-}
-
 #ui-bottom {
     height: 24px;
     line-height: 24px;
