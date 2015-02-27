@@ -8,15 +8,28 @@ editor.once('load', function() {
 
     var expanded = false;
 
+
+    editor.method('viewport:expand', function(state) {
+        if (state === undefined)
+            state = ! expanded;
+
+        if (expanded === state)
+            return;
+
+        expanded = state;
+
+        for(var i = 0; i < panels.length; i++)
+            panels[i].hidden = expanded;
+
+        editor.emit('viewport:expand', state);
+    });
+
+
+    // space key
     window.addEventListener('keydown', function(evt) {
         if ((evt.target && evt.target.tagName.toLowerCase() === 'input') || evt.keyCode !== 32) // SPACE key
             return;
 
-        expanded = ! expanded;
-
-        for(var i = 0; i < panels.length; i++) {
-            // panels[i].folded = expanded;
-            panels[i].hidden = expanded;
-        }
+        editor.call('viewport:expand');
     });
 });

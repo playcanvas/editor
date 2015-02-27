@@ -186,10 +186,8 @@ editor.once('load', function() {
         panelPlayback.append(fieldActivate);
         // label
         var label = new ui.Label({ text: 'Activate' });
-        label.style.verticalAlign = 'top';
+        label.class.add('label-infield');
         label.style.paddingRight = '12px';
-        label.style.fontSize = '12px';
-        label.style.lineHeight = '26px';
         panelPlayback.append(label);
 
         // animation.loop
@@ -198,9 +196,7 @@ editor.once('load', function() {
         panelPlayback.append(fieldLoop);
         // label
         var label = new ui.Label({ text: 'Loop' });
-        label.style.verticalAlign = 'top';
-        label.style.fontSize = '12px';
-        label.style.lineHeight = '26px';
+        label.class.add('label-infield');
         panelPlayback.append(label);
     });
 });

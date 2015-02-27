@@ -8,9 +8,10 @@ body {
     overflow: hidden;
     margin: 0;
     background-color: #333;
-    font-size: 13px;
+    font-size: 14px;
     color: #eee;
-    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    font-family: inconsolatamedium;
+    // font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
 }
 
 .noSelect {
@@ -101,10 +102,36 @@ body {
     }
 }
 
+#user-a,
+#user-b {
+    position: absolute;
+    z-index: 1;
+    width: 48px;
+    height: 48px;
+    border: 2px solid #fff;
+    top: 4px;
+    background-size: 48px 48px;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+#user-a {
+    right: 60px;
+    background-image: url("https://playcanvas.com/api/7/thumbnail?size=65");
+    border-color: #7f7;
+}
+
+#user-b {
+    right: 4px;
+    background-image: url("https://playcanvas.com/api/458/thumbnail?size=65");
+    border-color: #f70;
+}
+
 #ui-bottom {
     height: 24px;
     line-height: 24px;
     background-color: #293538;
+    border-top: 1px solid #20292b;
     // background-color: #111;
 
     > .content {
@@ -166,10 +193,69 @@ body {
     }
 }
 
+.ui-panel.assets {
+    > .ui-header {
+        > .filters {
+            float: right;
+            background-color: transparent;
+
+            > .content {
+                > .ui-label.label {
+                    margin: 0;
+                    height: 32px;
+                    line-height: 32px;
+                    font-size: 12px;
+                    margin-right: 8px;
+                    vertical-align: top;
+                    text-transform: uppercase;
+                }
+                > .ui-select-field.options {
+                    margin: 0;
+                    height: 32px;
+                    line-height: 32px;
+                    border: none;
+                    font-size: 12px;
+                    vertical-align: top;
+
+                    > .value {
+                        line-height: 32px;
+
+                        &:after {
+                            width: 32px;
+                            height: 32px;
+                            line-height: 30px;
+                        }
+                    }
+                    > ul > li {
+                        line-height: 32px;
+                    }
+                }
+                > .ui-text-field.search {
+                    margin: 0;
+                    width: 192px;
+                    height: 32px;
+                    border: none;
+                    // border-left: 1px solid #20292b;
+                    background-color: #293538;
+
+                    > input.field {
+                        line-height: 32px;
+                    }
+                    &:after {
+                        line-height: 32px;
+                        background-color: #293538;
+                    }
+                }
+            }
+        }
+    }
+}
+
 .ui-panel.attributes {
+    border-left: 1px solid #20292b;
+
     > .content {
         background-color: #293538;
-        border-left: 1px solid #20292b;
     }
     .ui-panel {
         &.field {
@@ -186,10 +272,15 @@ body {
             -webkit-flex-shrink: 0;
             flex-shrink: 0;
             width: 78px;
-            font-size: 11px;
+            font-size: 12px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+        }
+        .ui-label.label-infield {
+            font-size: 10px;
+            line-height: 24px;
+            vertical-align: top;
         }
         &.field-asset {
             > .content > .ui-image-field {
@@ -224,14 +315,14 @@ body {
                     position: absolute;
                     top: 0;
                     right: 0;
-                    width: 24px;
-                    height: 24px;
-                    line-height: 22px;
+                    width: 22px;
+                    height: 22px;
+                    line-height: 20px;
                     margin: 0;
                     padding: 0;
                     border: none;
                     font-family: 'ui-font-solid';
-                    font-size: 22px;
+                    font-size: 18px;
                     text-align: center;
                     -webkit-font-smoothing: antialiased;
                     -moz-osx-font-smoothing: grayscale;
@@ -250,14 +341,14 @@ body {
                     display: block;
                     top: 0;
                     right: 0;
-                    width: 24px;
-                    height: 24px;
-                    line-height: 22px;
+                    width: 22px;
+                    height: 22px;
+                    line-height: 20px;
                     margin: 0;
                     padding: 0;
                     border: none;
                     font-family: 'ui-font-solid';
-                    font-size: 22px;
+                    font-size: 18px;
                     text-align: center;
                     -webkit-font-smoothing: antialiased;
                     -moz-osx-font-smoothing: grayscale;
@@ -311,13 +402,13 @@ body {
                     position: absolute;
                     top: 0;
                     right: 0;
-                    width: 24px;
-                    height: 24px;
-                    line-height: 22px;
+                    width: 22px;
+                    height: 22px;
+                    line-height: 20px;
                     background-color: #364346;
                     cursor: pointer;
                     font-family: 'ui-font-solid';
-                    font-size: 22px;
+                    font-size: 18px;
                     text-align: center;
                     -webkit-font-smoothing: antialiased;
                     -moz-osx-font-smoothing: grayscale;
@@ -387,7 +478,7 @@ body {
                 padding: 0;
                 border: none;
                 font-family: 'ui-font-solid';
-                font-size: 22px;
+                font-size: 18px;
                 text-align: center;
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
@@ -431,7 +522,7 @@ body {
                     background-color: transparent;
                     border: none;
                     font-family: 'ui-font-solid';
-                    font-size: 22px;
+                    font-size: 18px;
                     text-align: center;
                     -webkit-font-smoothing: antialiased;
                     -moz-osx-font-smoothing: grayscale;
@@ -444,7 +535,7 @@ body {
                 }
 
                 > .refresh {
-                    font-size: 26px;
+                    font-size: 20px;
                     line-height: 28px;
                     &:after {
                         content: '\E145';
@@ -475,13 +566,17 @@ body {
     }
 }
 
+.ui-panel.hierarchy {
+    border-right: 1px solid #20292b;
+}
+
 .ui-tree.hierarchy {
     .ui-tree-item {
         > .title > .icon:after {
-            content: '\E211';
+            content: '\E243';
             line-height: 21px;
             font-family: 'ui-font-solid';
-            font-size: 22px;
+            font-size: 18px;
             text-align: center;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
@@ -499,10 +594,11 @@ body {
             }
         }
         &.c-script > .title > .icon:after {
-            content: '\E167';
+            content: '\E284';
         }
         &.c-model > .title > .icon:after {
             content: '\E417';
+            font-size: 16px;
         }
         &.c-animation > .title > .icon:after {
             content: '\E274';
@@ -603,14 +699,14 @@ body {
         }
         > .icon {
             position: absolute;
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             top: 4px;
             left: 4px;
             font-family: 'ui-font-solid';
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 100;
-            line-height: 22px;
+            line-height: 20px;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             font-smoothing: antialiased;
@@ -630,7 +726,7 @@ body {
             line-height: 14px;
             margin: 0px;
             padding: 2px;
-            font-size: 10px;
+            font-size: 12px;
             text-overflow: ellipsis;
             text-align: center;
             overflow: hidden;
@@ -644,6 +740,40 @@ body {
     top: 0;
     left: 0;
     z-index: 1;
+}
+
+.ui-panel.top-controls {
+    position: absolute;
+    $width: (32px + 4px) * 2;
+    left: calc(50% - #{$width / 2});
+    top: 0;
+    width: $width;
+    z-index: 1;
+    background-color: transparent;
+
+    > .content {
+        > .ui-button.icon {
+            width: 32px;
+            height: 32px;
+            margin: 2px;
+            padding: 0;
+            border: none;
+
+            font-family: 'ui-font-solid';
+            font-size: 24px;
+            font-weight: 100;
+            line-height: 28px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-smoothing: antialiased;
+            text-align: center;
+
+            &.active {
+                color: #40d47e;
+                background-color: #2c393c;
+            }
+        }
+    }
 }
 
 .picker-color {
@@ -877,7 +1007,7 @@ body {
 
     .ui-checkbox.picker-curve-toggle {
         text-align: center;
-        line-height: 24px;
+        line-height: 22px;
         width: auto;
         min-width: 14px;
         padding-left: 5px;

@@ -153,10 +153,8 @@ editor.once('load', function() {
         panelPlayback.append(fieldLoop);
         // label
         var label = new ui.Label({ text: 'Loop' });
-        label.style.verticalAlign = 'top';
+        label.class.add('label-infield');
         label.style.paddingRight = '12px';
-        label.style.fontSize = '12px';
-        label.style.lineHeight = '26px';
         panelPlayback.append(label);
 
 
@@ -166,10 +164,8 @@ editor.once('load', function() {
         panelPlayback.append(fieldPreWarm);
         // label
         var labelPreWarm = new ui.Label({ text: 'Pre Warm' });
-        labelPreWarm.style.verticalAlign = 'top';
+        labelPreWarm.class.add('label-infield');
         labelPreWarm.style.paddingRight = '12px';
-        labelPreWarm.style.fontSize = '12px';
-        labelPreWarm.style.lineHeight = '26px';
         panelPlayback.append(labelPreWarm);
 
         fieldPreWarm.hidden = ! entity.get('components.particlesystem.loop');
@@ -197,10 +193,9 @@ editor.once('load', function() {
         panelLighting.append(fieldLighting);
         // label
         var label = new ui.Label({ text: 'Enabled' });
-        label.style.verticalAlign = 'top';
+        label.class.add('label-infield');
         label.style.paddingRight = '12px';
-        label.style.fontSize = '12px';
-        label.style.lineHeight = '26px';
+        label.class.add('label-infield');
         panelLighting.append(label);
 
 
@@ -210,10 +205,8 @@ editor.once('load', function() {
         panelLighting.append(fieldHalfLambert);
         // label
         var labelHalfLambert = new ui.Label({ text: 'Half Lambert' });
-        labelHalfLambert.style.verticalAlign = 'top';
+        labelHalfLambert.class.add('label-infield');
         labelHalfLambert.style.paddingRight = '12px';
-        labelHalfLambert.style.fontSize = '12px';
-        labelHalfLambert.style.lineHeight = '26px';
         panelLighting.append(labelHalfLambert);
 
         fieldHalfLambert.hidden = ! entity.get('components.particlesystem.halfLambert');
@@ -250,10 +243,8 @@ editor.once('load', function() {
         panelDepth.append(fieldDepthWrite);
         // label
         var label = new ui.Label({ text: 'Write' });
-        label.style.verticalAlign = 'top';
+        label.class.add('label-infield');
         label.style.paddingRight = '12px';
-        label.style.fontSize = '12px';
-        label.style.lineHeight = '26px';
         panelDepth.append(label);
 
         // depthSoftening

@@ -44,10 +44,41 @@ editor.once('load', function() {
 
     editor.call('assets:progress', .1);
 
-    // method to create asset
+    // create asset
     editor.method('assets:create', function (data) {
         Ajax
         .post('{{url.api}}/assets?access_token={{accessToken}}', data)
+        .on('load', function(status, data) {
+            var id = data.response[0].id;
+
+            // once asset created
+            var evtAssetAdd = editor.once('assets:add[' + id + ']', function(asset) {
+                evtAssetAdd = null;
+                // need small delay
+                setTimeout(function() {
+                    // select asset
+                    editor.call('selector:clear');
+                    editor.call('selector:add', 'asset', asset);
+                }, 0);
+            });
+
+            // selector might be changed, then don't autoselect
+            editor.once('selector:change', function() {
+                if (evtAssetAdd)
+                    evtAssetAdd.unbind();
+            });
+        })
+        .on('error', function(status, evt) {
+            console.log(status, evt);
+        });
+    });
+
+    // delete asset
+    editor.method('assets:delete', function(asset) {
+        editor.call('assets:remove', asset);
+
+        Ajax
+        .delete('{{url.api}}/assets/' + asset.get('id') + '?access_token={{accessToken}}')
         .on('error', function(status, evt) {
             console.log(status, evt);
         });

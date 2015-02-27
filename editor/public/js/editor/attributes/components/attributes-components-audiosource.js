@@ -168,9 +168,7 @@ editor.once('load', function() {
         fieldActivate.link(entity, 'components.audiosource.activate');
         panelPlayback.append(fieldActivate);
         var label = new ui.Label({ text: 'Activate' });
-        label.style.verticalAlign = 'top';
-        label.style.fontSize = '12px';
-        label.style.lineHeight = '26px';
+        label.class.add('label-infield');
         panelPlayback.append(label);
 
         // audiosource.loop
@@ -178,9 +176,7 @@ editor.once('load', function() {
         fieldLoop.link(entity, 'components.audiosource.loop');
         panelPlayback.append(fieldLoop);
         var label = new ui.Label({ text: 'Loop' });
-        label.style.verticalAlign = 'top';
-        label.style.fontSize = '12px';
-        label.style.lineHeight = '26px';
+        label.class.add('label-infield');
         panelPlayback.append(label);
 
         // audiosource.3d
@@ -188,9 +184,7 @@ editor.once('load', function() {
         fieldLoop.link(entity, 'components.audiosource.3d');
         panelPlayback.append(fieldLoop);
         var label = new ui.Label({ text: '3D' });
-        label.style.verticalAlign = 'top';
-        label.style.fontSize = '12px';
-        label.style.lineHeight = '26px';
+        label.class.add('label-infield');
         panelPlayback.append(label);
 
 

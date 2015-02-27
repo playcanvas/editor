@@ -30,6 +30,13 @@ function TreeItem(args) {
     this._onClickEvt = this._onClick.bind(this);
     this.elementTitle.addEventListener('click', this._onClickEvt, false);
 
+    // this.elementTitle.addEventListener('dblclick', function() {
+    //     if (self.open) {
+    //         self.open = false;
+    //         self.selected = true;
+    //     }
+    // }, false);
+
     this._dragRelease = null;
     this._dragging = false;
     this.elementTitle.addEventListener('dragstart', this._onDragStart.bind(this), false);
@@ -294,7 +301,7 @@ TreeItem.prototype._onClick = function(evt) {
 
 
 TreeItem.prototype._onDragStart = function(evt) {
-    if (this.disabled) {
+    if (this.tree.disabled) {
         evt.stopPropagation();
         evt.preventDefault();
         return;

@@ -99,7 +99,7 @@ function AjaxRequest(args) {
     this._xhr.open(args.method || 'GET', url, true);
 
     // header for PUT/POST
-    if (args.method === 'PUT' || args.method === 'POST')
+    if (args.method === 'PUT' || args.method === 'POST' || args.method === 'DELETE')
         this._xhr.setRequestHeader('Content-Type', 'application/json');
 
     // stringify data if needed
