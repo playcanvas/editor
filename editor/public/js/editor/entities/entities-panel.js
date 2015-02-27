@@ -13,6 +13,13 @@ editor.once('load', function() {
 
     // list item selected
     hierarchy.on('select', function(item) {
+        // open items till parent
+        var parent = item;
+        while(parent) {
+            parent.open = true;
+            parent = ((parent.parent instanceof ui.TreeItem) && parent.parent) || null;
+        }
+        // add selection
         editor.call('selector:add', 'entity', item.entity);
     });
     // list item deselected
