@@ -1096,12 +1096,6 @@ editor.once('load', function() {
         }
     });
 
-    // Disables context menu
-    canvas.element.addEventListener('contextmenu', function (e) {
-        e.preventDefault();
-    });
-
-
     // call picker
     editor.method('picker:curve', function (value, args) {
         // show overlay

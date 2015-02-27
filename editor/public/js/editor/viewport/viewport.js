@@ -29,14 +29,6 @@ editor.once('load', function() {
     canvas.element.addEventListener('mouseup', framework.handleMouseUp.bind(framework));
     canvas.element.addEventListener('mousemove', framework.handleMouseMove.bind(framework));
 
-    // prevent right click menu
-    canvas.element.addEventListener('contextmenu', function (e) {
-        e.preventDefault();
-
-        // important do not remove as it will break look at function in 3d view
-        e.stopPropagation();
-    });
-
     var frameSelection = false;
     var flyMode = false;
 

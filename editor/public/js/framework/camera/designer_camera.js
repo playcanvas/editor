@@ -37,7 +37,6 @@ pc.script.create( "designer_camera", function (app) {
 
         window.addEventListener('keydown', this.onKeyDown.bind(this));
         window.addEventListener('keyup', this.onKeyUp.bind(this));
-        window.addEventListener('contextmenu', this.onContextMenu.bind(this));
 
         this.canvasFocused = false;
         this.rightClickOnCanvas = false;
@@ -84,8 +83,6 @@ pc.script.create( "designer_camera", function (app) {
 
         this.undoTimeout = null;
         this.combineHistory = false;
-
-        this.contextMenuFired = false;
     };
 
     DesignerCamera.prototype.initFocus = function () {
@@ -356,7 +353,7 @@ pc.script.create( "designer_camera", function (app) {
 
         if (!right) {
             this.isLookingAround = false;
-            this.contextMenuFired = false;
+            this.mouse._buttons[pc.MOUSEBUTTON_RIGHT] = false;
         }
 
         if (!left && !middle && !right) {
@@ -368,16 +365,6 @@ pc.script.create( "designer_camera", function (app) {
             }
         }
 
-    };
-
-    DesignerCamera.prototype.onContextMenu = function (e) {
-        // prevent context menu if we first clicked inside the canvas (only seems to happen on Windows)
-        if (this.rightClickOnCanvas && e.target !== app.graphicsDevice.canvas) {
-            e.preventDefault();
-        } else {
-            // set to true - handles issue when contextmenu event is fired but mouseup is not fired after
-            this.contextMenuFired = true;
-        }
     };
 
     DesignerCamera.prototype.onKeyDown = function (e) {
@@ -470,9 +457,6 @@ pc.script.create( "designer_camera", function (app) {
     DesignerCamera.prototype.onMouseDown = function (e) {
         this.canvasFocused = (e.event.target === app.graphicsDevice.canvas);
         this.rightClickOnCanvas = false;
-        if (e.button === pc.MOUSEBUTTON_RIGHT) {
-            this.contextMenuFired = false;
-        }
     };
 
     DesignerCamera.prototype.onMouseMove = function (e) {
@@ -482,7 +466,7 @@ pc.script.create( "designer_camera", function (app) {
 
         var left = e.buttons[pc.MOUSEBUTTON_LEFT];
         var middle = e.buttons[pc.MOUSEBUTTON_MIDDLE];
-        var right = e.buttons[pc.MOUSEBUTTON_RIGHT] && !this.contextMenuFired;
+        var right = e.buttons[pc.MOUSEBUTTON_RIGHT];
 
         if (!this.flyMode && !this.isOrbiting && !this.isLookingAround && (middle || (left && e.shiftKey))) {
             this.pan([e.dx, e.dy]);
@@ -757,7 +741,6 @@ pc.script.create( "designer_camera", function (app) {
         this.mouse.detach(document.body);
         window.removeEventListener('keydown', this.onKeyDown);
         window.removeEventListener('keyup', this.onKeyUp);
-        window.removeEventListener('contextmenu', this.onContextMenu);
     };
 
     return DesignerCamera;
