@@ -428,7 +428,7 @@ a:visited {
         background-color: $bcg-dark;
         border-color: $bcg-darker;
         width: calc(100% - 10px);
-        margin: 10px 4px;
+        margin: 8px 4px;
 
         > .handle {
             border-color: $bcg-darker;
@@ -669,33 +669,35 @@ a:visited {
         border-color: $bcg-darkest;
         background-color: $bcg-darkest;
 
-        &:after {
-            content: '\E113';
-            color: $text-active;
-        }
         > .value {
             color: $text-primary;
+
+            &:after {
+                content: '\E113';
+                color: $text-active;
+            }
         }
-    }
-    &:after {
-        content: '\E113';
-        width: 24px;
-        height: 24px;
-        line-height: 22px;
-        padding: 0;
-        margin: 0;
-        font-family: 'ui-font-solid';
-        font-size: 22px;
-        text-align: center;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        font-smoothing: antialiased;
-        color: $text-darkest;
-        background-color: transparent;
-        transform: rotate(90deg);
     }
     > .value {
         color: $text-secondary;
+
+        &:after {
+            content: '\E113';
+            width: 24px;
+            height: 24px;
+            line-height: 22px;
+            padding: 0;
+            margin: 0;
+            font-family: 'ui-font-solid';
+            font-size: 22px;
+            text-align: center;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-smoothing: antialiased;
+            color: $text-darkest;
+            background-color: transparent;
+            transform: rotate(90deg);
+        }
     }
     > ul {
         color: $text-secondary;

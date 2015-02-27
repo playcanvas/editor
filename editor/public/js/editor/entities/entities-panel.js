@@ -14,14 +14,15 @@ editor.once('load', function() {
     // list item selected
     hierarchy.on('select', function(item) {
         // open items till parent
-        var parent = item;
-        while(parent) {
+        var parent = item.parent;
+        while(parent && parent instanceof ui.TreeItem) {
             parent.open = true;
-            parent = ((parent.parent instanceof ui.TreeItem) && parent.parent) || null;
+            parent = parent.parent;
         }
         // add selection
         editor.call('selector:add', 'entity', item.entity);
     });
+
     // list item deselected
     hierarchy.on('deselect', function(item) {
         editor.call('selector:remove', item.entity);
@@ -73,6 +74,9 @@ editor.once('load', function() {
             // set parent
             entity.set('parent', parent.get('resource_id'));
         }
+
+        // select reparented entity
+        item.selected = true;
 
         entity.reparenting = false;
     });

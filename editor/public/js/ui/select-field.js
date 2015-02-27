@@ -145,6 +145,7 @@ SelectField.prototype.open = function() {
     this.timerClickAway = setTimeout(function() {
         var looseActive = function() {
             self.element.classList.remove('active');
+            self.element.blur();
             window.removeEventListener('click', looseActive);
         };
 

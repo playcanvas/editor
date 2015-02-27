@@ -9,10 +9,23 @@
 
 $disabled-opacity: .4;
 
-.fieldFont {
-    font-family: "Lucida Console", Monaco, monospace;
+@font-face {
+    font-family: 'inconsolatamedium';
+    src: url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/Inconsolata-webfont.eot');
+    src: url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/Inconsolata-webfont.eot?#iefix') format('embedded-opentype'),
+         url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/Inconsolata-webfont.woff2') format('woff2'),
+         url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/Inconsolata-webfont.woff') format('woff'),
+         url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/Inconsolata-webfont.ttf') format('truetype'),
+         url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/Inconsolata-webfont.svg#inconsolatamedium') format('svg');
     font-weight: normal;
+    font-style: normal;
+}
 
+.fieldFont {
+    // font-family: Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
+    font-family: inconsolatamedium, Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
+    font-weight: normal;
+    font-size: 12px;
     // -webkit-font-smoothing: antialiased;
     // -webkit-text-stroke: 0.35px;
 }
@@ -358,7 +371,7 @@ a:visited {
     padding: 0;
     margin: 4px;
     font-size: 11px;
-    font-family: 'Lucida Grande';
+    // font-family: 'Lucida Grande';
     border: 1px solid #1a1a1a;
     transition: opacity 100ms;
 
@@ -386,8 +399,9 @@ a:visited {
     @extend .fieldFont;
     cursor: default;
     padding: 0 8px;
-    height: 24px;
-    line-height: 24px;
+    height: 22px;
+    font-size: 12px;
+    line-height: 22px;
     border-bottom: 1px solid #1a1a1a;
     transition: opacity 100ms;
 
@@ -595,6 +609,7 @@ a:visited {
         position: relative;
         cursor: pointer;
         // padding-left: 4px;
+        font-size: 14px;
         margin-left: 3px;
         line-height: 22px;
         border: 1px solid transparent;
@@ -708,7 +723,7 @@ a:visited {
 
 .ui-label {
     display: inline-block;
-    line-height: 24px;
+    line-height: 22px;
     margin: 4px;
     vertical-align: bottom;
     transition: opacity 100ms;
@@ -729,8 +744,8 @@ a:visited {
         top: 0;
         right: 0;
         padding: 0 8px;
-        line-height: 24px;
-        font-size: 10px;
+        line-height: 22px;
+        font-size: 12px;
         font-weight: 100;
         font-family: Helvetica;
         white-space: nowrap;
@@ -749,7 +764,7 @@ a:visited {
     display: inline-block;
     border: 1px solid #666;
     width: 128px;
-    height: 24px;
+    height: 22px;
     margin: 4px;
     background-color: #000;
     vertical-align: top;
@@ -762,7 +777,7 @@ a:visited {
         @extend .fieldFont;
         width: calc(100% - 16px);
         padding: 0 8px;
-        line-height: 24px;
+        line-height: 22px;
         color: #fff;
         background: transparent;
         border: none;
@@ -789,7 +804,7 @@ a:visited {
         right: 0;
         padding: 0 8px;
         line-height: 24px;
-        font-size: 10px;
+        font-size: 12px;
         font-weight: 100;
         white-space: nowrap;
         color: #999;
@@ -807,7 +822,7 @@ a:visited {
     display: inline-block;
     border: 1px solid #666;
     width: 128px;
-    height: 24px;
+    height: 22px;
     margin: 4px;
     background-color: #000;
     vertical-align: top;
@@ -820,7 +835,7 @@ a:visited {
         @extend .fieldFont;
         width: calc(100% - 16px);
         padding: 0 8px;
-        line-height: 24px;
+        line-height: 22px;
         color: #fff;
         background: transparent;
         border: none;
@@ -846,7 +861,7 @@ a:visited {
         right: 0;
         padding: 0 8px;
         line-height: 24px;
-        font-size: 10px;
+        font-size: 12px;
         font-weight: 100;
         white-space: nowrap;
         color: #999;
@@ -863,7 +878,7 @@ a:visited {
 .ui-slider {
     @extend .noSelect;
     display: inline-block;
-    height: 26px;
+    height: 24px;
     margin: 4px;
     cursor: pointer;
 
@@ -874,7 +889,7 @@ a:visited {
         position: relative;
         width: calc(100% - 18px);
         height: 4px;
-        margin: 10px 8px;
+        margin: 9px 8px;
         background: #07f;
         border: 1px solid #000;
 
@@ -904,7 +919,7 @@ a:visited {
     display: inline-block;
     border: 1px solid #666;
     width: 48px;
-    height: 24px;
+    height: 22px;
     margin: 4px;
     vertical-align: top;
     cursor: pointer;
@@ -935,7 +950,7 @@ a:visited {
     > .color {
         display: block;
         width: 48px;
-        height: 24px;
+        height: 22px;
         background-color: #000;
     }
     &:after {
@@ -962,7 +977,7 @@ a:visited {
     @extend .noSelect;
     position: relative;
     width: 64px;
-    min-height: 24px;
+    min-height: 22px;
     margin: 4px;
     border: 1px solid #666;
     overflow: hidden;
@@ -1075,7 +1090,7 @@ a:visited {
     display: inline-block;
     width: 112px;
     margin: 4px;
-    line-height: 24px;
+    line-height: 22px;
     background-color: #000;
     border: 1px solid #666;
     padding: 0 8px;
@@ -1083,25 +1098,15 @@ a:visited {
     cursor: pointer;
     transition: opacity 100ms;
 
-    &:after {
-        content: '\00a0';
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 16px;
-        height: 16px;
-        margin: 4px;
-        background-color: #07f;
-    }
     &:hover {
-        &:after {
+        > .value:after {
             content: none;
         }
     }
     &:focus {
         outline: none;
         border-color: #07f;
-        &:after {
+        > .value:after {
             content: none;
         }
     }
@@ -1109,7 +1114,7 @@ a:visited {
         opacity: $disabled-opacity;
         cursor: default;
 
-        &:after {
+        > .value:after {
             content: none;
         }
     }
@@ -1119,16 +1124,27 @@ a:visited {
             position: fixed;
             display: block;
         }
-        &:after {
+        > .value:after {
             content: none;
         }
     }
     > .value {
         @extend .fieldFont;
-        min-height: 24px;
-        line-height: 24px;
+        min-height: 22px;
+        line-height: 22px;
         white-space: nowrap;
         overflow: hidden;
+
+        &:after {
+            content: '\00a0';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 16px;
+            height: 16px;
+            margin: 4px;
+            background-color: #07f;
+        }
     }
     > ul {
         display: none;
@@ -1148,7 +1164,7 @@ a:visited {
         > li {
             @extend .fieldFont;
             padding: 1px 8px 1px 9px;
-            line-height: 24px;
+            line-height: 22px;
             white-space: nowrap;
             overflow: hidden;
 

@@ -157,10 +157,16 @@ Object.defineProperty(Element.prototype, 'parent', {
             this._evtParentDisable = this._parent.on('disable', this._parentDisable);
             this._evtParentEnable = this._parent.on('enable', this._parentEnable);
 
-            this._disabledParent = this._parent.disabled;
-            if (this._disabledParent) {
-                this.class.add('disabled');
-                this.emit('disable');
+            if (this._disabledParent !== this._parent.disabled) {
+                this._disabledParent = this._parent.disabled;
+
+                if (this._disabledParent) {
+                    this.class.add('disabled');
+                    this.emit('disable');
+                } else {
+                    this.class.remove('disabled');
+                    this.emit('enable');
+                }
             }
         }
 

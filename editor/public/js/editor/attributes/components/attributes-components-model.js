@@ -114,10 +114,8 @@ editor.once('load', function() {
         });
         // label
         var label = new ui.Label({ text: 'Cast' });
-        label.style.verticalAlign = 'top';
+        label.class.add('label-infield');
         label.style.paddingRight = '12px';
-        label.style.fontSize = '12px';
-        label.style.lineHeight = '26px';
         fieldCastShadows.parent.append(label);
 
 
@@ -127,9 +125,7 @@ editor.once('load', function() {
         fieldCastShadows.parent.append(fieldReceiveShadows);
         // label
         var label = new ui.Label({ text: 'Receive' });
-        label.style.verticalAlign = 'top';
-        label.style.fontSize = '12px';
-        label.style.lineHeight = '26px';
+        label.class.add('label-infield');
         fieldCastShadows.parent.append(label);
     });
 });

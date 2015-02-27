@@ -61,10 +61,8 @@ editor.once('load', function() {
         });
         // label
         var label = new ui.Label({ text: 'Color' });
-        label.style.verticalAlign = 'top';
+        label.class.add('label-infield');
         label.style.paddingRight = '12px';
-        label.style.fontSize = '12px';
-        label.style.lineHeight = '26px';
         fieldClearColorBuffer.parent.append(label);
 
 
@@ -74,9 +72,7 @@ editor.once('load', function() {
         fieldClearColorBuffer.parent.append(fieldClearDepthBuffer);
         // label
         var label = new ui.Label({ text: 'Depth' });
-        label.style.verticalAlign = 'top';
-        label.style.fontSize = '12px';
-        label.style.lineHeight = '26px';
+        label.class.add('label-infield');
         fieldClearColorBuffer.parent.append(label);
 
 
