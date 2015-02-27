@@ -1,6 +1,8 @@
 app.once('load', function() {
     'use strict';
 
+    var framework = app.call('viewport');
+
     var entities = new ObserverList();
     entities.index = 'resource_id';
 
@@ -72,5 +74,26 @@ app.once('load', function() {
         for(var key in data.entities) {
             entities.add(new Observer(data.entities[key]));
         }
+
+        // Global value where PackResourceHandler loads pack data from
+        pc.content = {
+            packs: {}
+        }
+        pc.content.packs[config.scene.id] = {
+            hierarchy: data.entities
+        };
+
+        if (framework.content) {
+
+        } else {
+            framework.content = {
+                toc: {}
+            };
+            framework.content.toc[config.scene.id] = {
+                packs: [config.scene.id]
+            }
+        }
+
+        app.emit('entities:load');
     });
 });

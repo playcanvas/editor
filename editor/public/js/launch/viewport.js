@@ -12,25 +12,18 @@ app.once('load', function() {
     // playcanvas application
     var application = new pc.fw.Application(canvas, {
         mouse: new pc.input.Mouse(canvas),
-        touch: !!('ontouchstart' in window) ? new pc.input.TouchDevice(canvas) : null
-        // depot: this.depot,
-        // keyboard: this.keyboard,
-        // mouse: this.mouse,
-        // touch: this.touch,
+        touch: !!('ontouchstart' in window) ? new pc.input.TouchDevice(canvas) : null,
+        keyboard: new pc.input.Keyboard(window),
         // gamepads: this.gamepads,
         // displayLoader: this.displayLoader,
         // libraries: content.appProperties['libraries'],
-        // scriptPrefix: this.scriptPrefix
+        scriptPrefix: config.project.repository_url
     });
 
 
     // resolution mode
-    application.setCanvasFillMode(pc.FILLMODE_FILL_WINDOW);
-    application.setCanvasResolution(pc.RESOLUTION_AUTO);
-
-
-    // start
-    application.start();
+    application.setCanvasFillMode(config.project.settings.fillMode, config.project.settings.width, config.project.settings.height);
+    application.setCanvasResolution(config.project.settings.resolutionMode, config.project.settings.width, config.project.settings.height);
 
 
     // resize
@@ -50,4 +43,34 @@ app.once('load', function() {
     app.method('viewport', function() {
         return application;
     });
+
+    // Wait for assets, hierarchy and settings to load before initializing application and starting.
+    var hierarchy = false;
+    var assets  = false;
+    var settings = false;
+
+    var init = function () {
+        if (assets && hierarchy && settings) {
+            application.loadFromToc(config.scene.id, function () {
+                console.log("engine loaded resources");
+
+                application.start();
+            });
+        }
+    };
+
+    app.on('entities:load', function () {
+        hierarchy = true;
+        init();
+    });
+
+    app.on('assets:load', function () {
+        assets = true;
+        init();
+    });
+
+    app.on('sceneSettings:load', function () {
+        settings = true;
+        init();
+    })
 });
