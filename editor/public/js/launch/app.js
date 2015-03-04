@@ -40,6 +40,8 @@
     // app
     window.app = new App();
 
+    // set editor to be the same as app so we can include files from the editor
+    window.editor = window.app;
 
     // first load
     document.addEventListener('DOMContentLoaded', function() {

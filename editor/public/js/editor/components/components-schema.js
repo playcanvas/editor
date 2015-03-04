@@ -182,7 +182,18 @@ editor.once('load', function() {
                 }
             },
             types: {
-                emitterExtents: 'vec3'
+                emitterExtents: 'vec3',
+                localVelocityGraph: 'curveset',
+                localVelocityGraph2: 'curveset',
+                velocityGraph: 'curveset',
+                velocityGraph2: 'curveset',
+                rotationSpeedGraph: 'curve',
+                rotationSpeedGraph2: 'curve',
+                scaleGraph: 'curve',
+                scaleGraph2: 'curve',
+                colorGraph: 'curveset',
+                alphaGraph: 'curve',
+                alphaGraph2: 'curve'
             }
         },
 
@@ -240,6 +251,14 @@ editor.once('load', function() {
                     break;
                 case 'vec4':
                     result = new pc.Vec4(value[0], value[1], value[2], value[3]);
+                    break;
+                case 'curveset':
+                    result = new pc.CurveSet(value.keys);
+                    result.type = value.type;
+                    break;
+                case 'curve':
+                    result = new pc.Curve(value.keys);
+                    result.type = value.type;
                     break;
             }
         }
