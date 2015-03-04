@@ -115,6 +115,11 @@ editor.once('load', function() {
             entity.set('components.' + value, componentData);
             // reset displayed value
             addComponent.value = null;
+
+            // if it's a collision or rigidbody component then enable physics
+            if (value === 'collision' || value === 'rigidbody') {
+                editor.call('project:enablePhysics');
+            }
         });
 
         // var panelJson = editor.call('attributes:addPanel', {
