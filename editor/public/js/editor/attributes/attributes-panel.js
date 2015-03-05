@@ -239,7 +239,7 @@ editor.once('load', function() {
                     editor.call('picker:asset', args.kind, asset);
 
                     evtPick = editor.once('picker:asset', function(asset) {
-                        field.value = asset.get('id');
+                        args.link.set(args.path, asset.get('id'))
                         evtPick = null;
                     });
 
