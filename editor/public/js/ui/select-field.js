@@ -87,6 +87,12 @@ function SelectField(args) {
 
     // arrows - change
     this.element.addEventListener('keydown', function(evt) {
+        if (evt.keyCode === 27) {
+            self.close();
+            self.element.blur();
+            return;
+        }
+
         if (self.disabled || [ 38, 40 ].indexOf(evt.keyCode) === -1)
             return;
 
@@ -151,6 +157,8 @@ SelectField.prototype.open = function() {
 
         window.addEventListener('click', looseActive);
     }, 300);
+
+    this.emit('open');
 };
 
 
@@ -165,6 +173,8 @@ SelectField.prototype.close = function() {
     }
 
     this.element.classList.remove('active');
+
+    this.emit('close');
 };
 
 

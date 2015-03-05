@@ -34,6 +34,9 @@ function ImageField(args) {
 
     // space > click
     this.element.addEventListener('keydown', function(evt) {
+        if (evt.keyCode === 27)
+            return self.element.blur();
+
         if (evt.keyCode !== 32 || self.disabled)
             return;
 

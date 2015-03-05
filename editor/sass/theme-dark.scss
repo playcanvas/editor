@@ -597,7 +597,8 @@ a:visited {
     margin: $field-padding;
 
     &.active, &:hover, &:focus, &.active {
-        border-color: $text-active;
+        border-color: $text-primary;
+        outline: 1px solid $text-primary;
 
         > .ui-canvas {
             background-color: $bcg-darkest;

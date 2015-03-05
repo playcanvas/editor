@@ -7,6 +7,7 @@ function CurveField(args) {
     this.element = document.createElement('div');
     this.element.classList.add('ui-curve-field');
     this.element.tabIndex = 0;
+    this.element.addEventListener('keydown', this._onKeyDown.bind(this), false);
 
     // canvas to render mini version of curves
     this.canvas = new ui.Canvas();
@@ -26,8 +27,12 @@ function CurveField(args) {
 
     this._gradientRendering = !!(args.gradient);
 }
-
 CurveField.prototype = Object.create(ui.Element.prototype);
+
+CurveField.prototype._onKeyDown = function(evt) {
+    if (evt.keyCode === 27)
+        return this.element.blur();
+};
 
 CurveField.prototype._resize = function(width, height) {
     var changed = false;
@@ -41,9 +46,8 @@ CurveField.prototype._resize = function(width, height) {
         changed = true;
     }
 
-    if (changed) {
+    if (changed)
         this._render();
-    }
 };
 
 // Override link method to use multiple paths instead of one
@@ -57,9 +61,8 @@ CurveField.prototype.link = function(link, paths) {
     // handle canvas resizing
     // 20 times a second
     // if size is already same, nothing will happen
-    if (this._resizeInterval) {
+    if (this._resizeInterval)
         clearInterval(this._resizeInterval);
-    }
 
     this._resizeInterval = setInterval(function() {
         var rect = this.element.getBoundingClientRect();
@@ -232,6 +235,10 @@ CurveField.prototype._renderCurves = function () {
     // draw curves
     if (value && value[0]) {
         var primaryCurves = this._valueToCurves(value[0]);
+
+        if (! primaryCurves)
+            return;
+
         var secondaryCurves = value[0].betweenCurves && value.length > 1 ? this._valueToCurves(value[1]) : null;
 
         var minValue = minMax[0];
@@ -371,7 +378,7 @@ CurveField.prototype._getMinMaxValues = function (curves) {
 CurveField.prototype._valueToCurves = function (value) {
     var curves = null;
 
-    if (value && value.keys.length) {
+    if (value && value.keys && value.keys.length) {
         curves = [];
         var curve;
         if (value.keys[0].length !== undefined) {

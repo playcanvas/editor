@@ -39,6 +39,15 @@ editor.once('load', function() {
     }));
 
 
+    // esc to close
+    window.addEventListener('keydown', function(evt) {
+        if (evt.keyCode !== 27 || overlay.hidden)
+            return;
+
+        overlay.hidden = true;
+    }, false);
+
+
     // type selector
     var fieldType = new ui.SelectField({
         options: {
