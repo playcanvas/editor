@@ -4,8 +4,30 @@ app.once('load', function() {
     var framework = app.call('viewport');
     var assetRegistry = framework.context.assets;
 
+    var attachSetHandler = function (asset) {
+        // do only for target assets
+        if (asset.get('source'))
+            return;
+
+        // attach update handler
+        asset.on('*:set', function (path, value) {
+            var realtimeAsset = assetRegistry.getAssetById(asset.get('id'));
+            var parts = path.split('.');
+
+            var raw = asset.get(parts[0]);
+
+            // this will trigger the 'update' event on the asset in the engine
+            // handling all resource loading automatically
+            realtimeAsset[parts[0]] = raw;
+        });
+    };
+
     // after all initial assets are loaded...
     app.on('assets:load', function () {
+
+        var assets = editor.call('assets:list');
+        assets.forEach(attachSetHandler);
+
         // add assets to asset registry
         app.on('assets:add', function (asset) {
             // do only for target assets
@@ -32,19 +54,7 @@ app.once('load', function() {
             // add to registry
             assetRegistry.createAndAddAsset(assetJson.id, data);
 
-            // attach update handler
-            asset.on('*:set', function (path, value) {
-                var realtimeAsset = assetRegistry.getAssetById(asset.get('id'));
-                var parts = path.split('.');
-                if (parts[0] in realtimeAsset) {
-
-                    var raw = asset.json();
-
-                    // this will trigger the 'update' event on the asset in the engine
-                    // handling all resource loading automatically
-                    realtimeAsset[parts[0]] = raw.data;
-                }
-            });
+            attachSetHandler(asset);
         });
 
         // remove assets from asset registry

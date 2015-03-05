@@ -39,6 +39,7 @@ app.once('load', function() {
             }
         });
 
+
         xhr.on('load', function(status, data) {
             data = data.response[0];
 
@@ -47,10 +48,16 @@ app.once('load', function() {
 
             if (asset) {
                 asset.loadAjax = null;
+
+                if (asset.syncing)
+                    return;
+
+                asset.set('modified_at', data.modified_at);
                 asset.set('data', data.data);
+                asset.set('file', data.file);
             } else {
                 asset = new Observer(data);
-                app.call('assets:add', asset);
+                editor.call('assets:add', asset);
             }
         });
 

@@ -6,6 +6,11 @@ app.once('load', function() {
     var assets = new ObserverList();
     assets.index = 'id';
 
+    // list assets
+    app.method('assets:list', function () {
+        return assets.array();
+    });
+
     // allow adding assets
     app.method('assets:add', function(asset) {
         assets.add(asset);
@@ -56,17 +61,17 @@ app.once('load', function() {
                 continue;
 
             var asset = new Observer(data[i]);
+
+            editor.call('assets:add', asset);
             assets.add(asset);
 
             toc.assets[asset.get("id")] = asset.json();
         }
 
+
         framework.assets.addGroup(config.scene.id, toc);
 
-        var assetList = framework.assets.list(config.scene.id);
-        framework.assets.load(assetList).then(function () {
-            app.emit('assets:load');
-        });
+        app.emit('assets:load');
     };
 
     // load assets
