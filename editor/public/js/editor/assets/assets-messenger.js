@@ -41,9 +41,8 @@ editor.once('load', function() {
         xhr.on('load', function(status, data) {
             data = data.response[0];
 
-            if (data.type == 'material') {
+            if (data.type == 'material')
                 data.data = editor.call('material:listToMap', data.data);
-            }
 
             if (! asset)
                 asset = editor.call('assets:get', data.id);
@@ -56,7 +55,9 @@ editor.once('load', function() {
 
                 asset.sync = false;
                 asset.history.enabled = false;
+                asset.set('modified_at', data.modified_at);
                 asset.set('data', data.data);
+                asset.set('file', data.file);
                 asset.history.enabled = true;
                 asset.sync = true;
             } else {
