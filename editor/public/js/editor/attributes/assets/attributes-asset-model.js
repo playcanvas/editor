@@ -1,6 +1,23 @@
 editor.once('load', function() {
     'use strict';
 
+    var pickMaterial = function(assetId, fn) {
+        var asset = editor.call('assets:get', assetId);
+        editor.call('picker:asset', 'material', asset);
+
+        var evtPick = editor.once('picker:asset', function(asset) {
+            fn(asset.get('id'));
+            evtPick = null;
+        });
+
+        editor.once('picker:asset:close', function() {
+            if (evtPick) {
+                evtPick.unbind();
+                evtPick = null;
+            }
+        });
+    };
+
     editor.on('attributes:inspect[asset]', function(assets) {
         if (assets.length !== 1 || assets[0].get('type') !== 'model')
             return;
@@ -19,23 +36,6 @@ editor.once('load', function() {
             nodesList.selectable = false;
             nodesList.class.add('model-nodes');
             panelNodes.append(nodesList);
-
-            var pickMaterial = function(assetId, fn) {
-                var asset = editor.call('assets:get', assetId);
-                editor.call('picker:asset', 'material', asset);
-
-                var evtPick = editor.once('picker:asset', function(asset) {
-                    fn(asset.get('id'));
-                    evtPick = null;
-                });
-
-                editor.once('picker:asset:close', function() {
-                    if (evtPick) {
-                        evtPick.unbind();
-                        evtPick = null;
-                    }
-                });
-            };
 
             var nodeItems = [ ];
 
@@ -152,4 +152,21 @@ editor.once('load', function() {
             }
         }
     });
+
+    // selects the specified node index for the specified model
+    // - once the user select a material it reselect the entity
+    editor.method('attributes:assets:model:select-node', function (modelId, nodeIndex, materialId, entity) {
+        var asset = editor.call('assets:get', modelId);
+        if (asset) {
+            pickMaterial(materialId, function(assetId) {
+                // set to mapping observer
+                asset.set('data.mapping.' + nodeIndex + '.material', assetId);
+            });
+
+            editor.once('picker:asset:close', function() {
+                editor.call('selector:add', 'entity', entity);
+            });
+        }
+    });
+
 });
