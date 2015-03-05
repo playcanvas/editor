@@ -38,20 +38,16 @@ editor.once('load', function() {
         asset.on('*:set', function (path, value) {
             var realtimeAsset = assetRegistry.getAssetById(asset.get('id'));
             var parts = path.split('.');
-            if (parts[0] in realtimeAsset) {
 
-                var raw = asset.json();
+            var raw = asset.get(parts[0]);
+            if (asset.get('type') === 'material' && parts[0] === 'data')
+                raw = editor.call('material:mapToList', { data: raw });
 
-                if (asset.get('type') === 'material' && parts[0] === 'data')
-                    raw.data = editor.call('material:mapToList', raw);
+            // this will trigger the 'update' event on the asset in the engine
+            // handling all resource loading automatically
+            realtimeAsset[parts[0]] = raw;
 
-                // this will trigger the 'update' event on the asset in the engine
-                // handling all resource loading automatically
-                realtimeAsset[parts[0]] = raw.data;
-
-                // re-render
-                editor.call('viewport:render');
-            }
+            editor.call('viewport:render');
         });
 
         // render
