@@ -220,6 +220,32 @@ body {
                         line-height: 32px;
                         background-color: #293538;
                     }
+                    &.not-empty {
+                        > .clear {
+                            display: block;
+                        }
+                        &:after {
+                            content: '';
+                        }
+                    }
+                    > .clear {
+                        display: none;
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+                        width: 32px;
+                        height: 32px;
+                        line-height: 32px;
+                        text-align: center;
+                        color: #d34141;
+                        font-family: 'ui-font-solid';
+                        font-size: 18px;
+                        text-align: center;
+                        -webkit-font-smoothing: antialiased;
+                        -moz-osx-font-smoothing: grayscale;
+                        font-smoothing: antialiased;
+                        cursor: pointer;
+                    }
                 }
             }
         }

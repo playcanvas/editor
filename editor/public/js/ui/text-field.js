@@ -15,11 +15,11 @@ function TextField(args) {
     this.elementInput.addEventListener('blur', this._onInputBlur.bind(this), false);
     this.element.appendChild(this.elementInput);
 
-    if (args.default !== undefined) {
+    if (args.default !== undefined)
         this.value = args.default;
-    }
 
     this.elementInput.addEventListener('change', this._onChange.bind(this), false);
+    this.evtKeyChange = false;
 
     this.on('disable', function() {
         this.elementInput.disabled = true;
@@ -46,6 +46,7 @@ TextField.prototype._onLinkChange = function(value) {
     this.emit('change', value);
 };
 
+
 TextField.prototype._onChange = function() {
     this.value = this.elementInput.value || '';
 
@@ -53,13 +54,16 @@ TextField.prototype._onChange = function() {
         this.emit('change', this.value);
 };
 
+
 TextField.prototype._onInputFocus = function() {
     this.class.add('focus');
 };
 
+
 TextField.prototype._onInputBlur = function() {
     this.class.remove('focus');
 };
+
 
 Object.defineProperty(TextField.prototype, 'value', {
     get: function() {
@@ -84,12 +88,35 @@ Object.defineProperty(TextField.prototype, 'value', {
     }
 });
 
+
 Object.defineProperty(TextField.prototype, 'placeholder', {
     get: function() {
         return this.element.getAttribute('placeholder');
     },
     set: function(value) {
         this.element.setAttribute('placeholder', value);
+    }
+});
+
+
+Object.defineProperty(TextField.prototype, 'keyChange', {
+    get: function() {
+        return !! this.evtKeyChange;
+    },
+    set: function(value) {
+        if (!! this.evtKeyChange === !! value)
+            return;
+
+        if (value) {
+            var self = this;
+            this.evtKeyChange = function() {
+                self._onChange();
+            };
+            this.elementInput.addEventListener('keyup', this.evtKeyChange, false);
+        } else {
+            this.elementInput.removeEventListener('keyup', this.evtKeyChange);
+            this.evtKeyChange = null;
+        }
     }
 });
 
