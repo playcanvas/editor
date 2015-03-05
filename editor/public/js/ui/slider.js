@@ -36,6 +36,9 @@ function Slider(args) {
 
     // arrows - change
     this.element.addEventListener('keydown', function(evt) {
+        if (evt.keyCode === 27)
+            return self.elementHandle.blur();
+
         if (self.disabled || [ 37, 39 ].indexOf(evt.keyCode) === -1)
             return;
 

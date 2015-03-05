@@ -75,6 +75,9 @@ NumberField.prototype._onInputBlur = function() {
 };
 
 NumberField.prototype._onKeyDown = function(evt) {
+    if (evt.keyCode === 27)
+        return this.elementInput.blur();
+
     if (this.disabled || [ 38, 40 ].indexOf(evt.keyCode) === -1)
         return;
 
@@ -184,10 +187,10 @@ Object.defineProperty(NumberField.prototype, 'value', {
                 value = this.min;
 
             value = (this.precision !== null) ? parseFloat(value.toFixed(this.precision), 10) : value;
-            this.elementInput.value = value;
 
             if (this._lastValue !== value) {
                 this._lastValue = value;
+                this.elementInput.value = value;
                 this.emit('change', parseFloat(value, 10));
             }
         }

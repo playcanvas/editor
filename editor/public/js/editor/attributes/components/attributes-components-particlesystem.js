@@ -360,7 +360,8 @@ editor.once('load', function() {
         editor.call('attributes:addField', {
             parent: panel,
             name: 'Color Map',
-            type: 'number',
+            type: 'asset',
+            kind: 'texture',
             link: entity,
             path: 'components.particlesystem.colorMapAsset'
         });
@@ -370,7 +371,8 @@ editor.once('load', function() {
         editor.call('attributes:addField', {
             parent: panel,
             name: 'Normal Map',
-            type: 'number',
+            type: 'asset',
+            kind: 'texture',
             link: entity,
             path: 'components.particlesystem.normalMapAsset'
         });
@@ -380,7 +382,8 @@ editor.once('load', function() {
         editor.call('attributes:addField', {
             parent: panel,
             name: 'Mesh',
-            type: 'number',
+            type: 'asset',
+            kind: 'model',
             link: entity,
             path: 'components.particlesystem.mesh'
         });

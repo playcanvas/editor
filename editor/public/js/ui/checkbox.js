@@ -8,9 +8,13 @@ function Checkbox(args) {
 
     this.element = document.createElement('div');
     this.element.classList.add('ui-checkbox', 'noSelect');
+    this.element.tabIndex = 0;
 
     var self = this;
     this.element.addEventListener('keydown', function(evt) {
+        if (evt.keyCode === 27)
+            return self.element.blur();
+
         if (evt.keyCode !== 32 || self.disabled)
             return;
 
@@ -18,8 +22,6 @@ function Checkbox(args) {
         evt.preventDefault();
         self.value = ! self.value;
     }, false);
-
-    this.element.tabIndex = 0;
 
     this.on('click', this._onClick.bind(this));
 

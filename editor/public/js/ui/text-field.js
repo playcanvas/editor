@@ -19,6 +19,7 @@ function TextField(args) {
         this.value = args.default;
 
     this.elementInput.addEventListener('change', this._onChange.bind(this), false);
+    this.elementInput.addEventListener('keydown', this._onKeyDown.bind(this), false);
     this.evtKeyChange = false;
 
     this.on('disable', function() {
@@ -52,6 +53,12 @@ TextField.prototype._onChange = function() {
 
     if (! this._link)
         this.emit('change', this.value);
+};
+
+
+TextField.prototype._onKeyDown = function(evt) {
+    if (evt.keyCode === 27)
+        this.elementInput.blur();
 };
 
 

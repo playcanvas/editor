@@ -85,7 +85,7 @@ editor.once('load', function() {
             var result = { };
 
             allComponents.filter(function (item) {
-                return ! entity.get('components.' + item);
+                return ! entity.has('components.' + item);
             })
             .forEach(function (item) {
                 result[item] = item;
@@ -103,7 +103,7 @@ editor.once('load', function() {
         });
 
         // refresh available components on click
-        addComponent.on('click', function () {
+        addComponent.on('open', function () {
             addComponent._updateOptions(createComponentEnum());
         });
 

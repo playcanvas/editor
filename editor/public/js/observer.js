@@ -259,23 +259,35 @@ Observer.prototype.set = function(path, value, silent) {
             if (! (valueOld instanceof Observer))
                 valueOld = obj.json(valueOld);
 
-            node._data[key] = value;
+            if (node._data[key] && node._data[key].length === value.length) {
+                for(var i = 0; i < node._data[key].length; i++) {
+                    if (node._data[key][i] instanceof Observer) {
+                        node._data[key][i].patch(value[i]);
+                    } else if (node._data[key][i] !== value[i]) {
+                        node._data[key][i] = value[i];
+                        obj.emit(path + '.' + i + ':set', node._data[key][i], valueOld[i] || null);
+                        obj.emit('*:set', path + '.' + i, node._data[key][i], valueOld[i] || null);
+                    }
+                }
+            } else {
+                node._data[key] = value;
 
-            state = this.silence();
-            for(var i = 0; i < node._data[key].length; i++) {
-                obj.emit(path + '.' + i + ':set', node._data[key][i], valueOld[i] || null);
-                obj.emit('*:set', path + '.' + i, node._data[key][i], valueOld[i] || null);
-            }
-            this.silenceRestore(state);
-
-            if (silent)
                 state = this.silence();
-
-            obj.emit(path + ':set', value, valueOld);
-            obj.emit('*:set', path, value, valueOld);
-
-            if (silent)
+                for(var i = 0; i < node._data[key].length; i++) {
+                    obj.emit(path + '.' + i + ':set', node._data[key][i], valueOld[i] || null);
+                    obj.emit('*:set', path + '.' + i, node._data[key][i], valueOld[i] || null);
+                }
                 this.silenceRestore(state);
+
+                if (silent)
+                    state = this.silence();
+
+                obj.emit(path + ':set', value, valueOld);
+                obj.emit('*:set', path, value, valueOld);
+
+                if (silent)
+                    this.silenceRestore(state);
+            }
         } else if (typeof(value) === 'object' && (value instanceof Object)) {
             var keys = Object.keys(value);
 

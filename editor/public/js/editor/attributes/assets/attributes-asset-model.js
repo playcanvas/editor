@@ -41,9 +41,9 @@ editor.once('load', function() {
 
             var createNodeField = function(ind) {
                 var fieldNode = new ui.ListItem({
-                    text: 'node ' + i
+                    text: 'node ' + ind
                 });
-                nodeItems[i] = fieldNode;
+                nodeItems[ind] = fieldNode;
 
                 // material picker
                 var fieldMaterial = new ui.ImageField();
@@ -67,19 +67,16 @@ editor.once('load', function() {
                     }
                 });
 
-                // get mapping observer
-                var mapping = asset.get('data.mapping.' + i, true);
-
                 // call picker
                 fieldMaterial.on('click', function() {
-                    pickMaterial(mapping.get('material'), function(assetId) {
+                    pickMaterial(fieldMaterial.value, function(assetId) {
                         // set to mapping observer
-                        mapping.set('material', assetId);
+                        asset.set('data.mapping.' + ind + '.material', assetId);
                     });
                 });
 
                 // link field
-                fieldMaterial.link(mapping, 'material');
+                fieldMaterial.link(asset, 'data.mapping.' + ind + '.material');
                 fieldMaterial.parent = fieldNode;
                 fieldNode.element.appendChild(fieldMaterial.element);
 

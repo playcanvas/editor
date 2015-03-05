@@ -569,6 +569,15 @@ body {
 
 .ui-panel.hierarchy {
     border-right: 1px solid #20292b;
+
+    > .content {
+        bottom: 32px;
+    }
+    &.folded {
+        > .hierarchy-controls {
+            display: none;
+        }
+    }
 }
 
 .ui-tree.hierarchy {
@@ -624,6 +633,63 @@ body {
         }
         &.c-camera > .title > .icon:after {
             content: '\E584';
+        }
+    }
+}
+
+.ui-panel.hierarchy-controls {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    width: auto;
+    border-top: 1px solid #293538;
+
+    > .content {
+        background-color: #2c393c;
+        min-width: 96px;
+        height: 32px;
+        overflow: hidden;
+
+        > .ui-button {
+            float: right;
+            margin: 0;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            border: none;
+            padding: 0;
+            color: #9ba1a3;
+            font-family: 'ui-font-solid';
+            font-size: 18px;
+            text-align: center;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-smoothing: antialiased;
+            background-color: #364346;
+
+            &.add {
+                float: left;
+            }
+            &.active {
+                color: #40d47e;
+                background-color: #2c393c;
+            }
+            &.disabled {
+                opacity: 1;
+                color: mix(#9ba1a3, #364346, 30%);
+
+                &:hover,
+                &:focus {
+                    color: mix(#9ba1a3, #364346, 30%);
+                    background-color: #364346;
+                }
+            }
+            &:hover,
+            &:focus {
+                color: #fff;
+                background-color: #20292b;
+            }
         }
     }
 }
