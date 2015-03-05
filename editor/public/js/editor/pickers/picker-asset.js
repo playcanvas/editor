@@ -18,6 +18,7 @@ editor.once('load', function() {
     var currentAsset = null;
     var gridSelected = null;
     var assetsPanelFolded = false;
+    var assetsPanelFilter = '';
     // elements
     var assetsGrid = editor.call('assets:grid');
     var assetsPanel = editor.call('layout.assets');
@@ -55,44 +56,46 @@ editor.once('load', function() {
     // on close asset picker
     overlay.on('hide', function() {
         // show all assets back
-        editor.call('assets:panel:filter', function(asset) {
-            return true;
-        });
-        // select what was selected
-        assetsGrid.selected = gridSelected;
+        editor.call('assets:filter:type:disabled', false);
+        editor.call('assets:filter:type', assetsPanelFilter);
         // fold back assets panel if needed
         if (assetsPanelFolded)
             assetsPanel.folded = true;
-        // disable selector
+        // enable selector
         editor.call('selector:enabled', true);
+        // select what was selected
+        assetsGrid.selected = gridSelected;
         // emit event
         editor.emit('picker:asset:close');
-        // z-index
+        // styling
         assetsPanel.style.zIndex = '';
+        assetsPanel.style.overflow = '';
     });
 
 
     // open asset picker
     editor.method('picker:asset', function(type, asset) {
         // show only asset assets
-        editor.call('assets:panel:filter', function(item) {
-            return item.get('type') === type;
-        });
-        // disable selector
-        editor.call('selector:enabled', false);
+        assetsPanelFilter = editor.call('assets:filter:type');
         // initial grid selected items
         gridSelected = assetsGrid.selected;
+        // filters
+        editor.call('assets:filter:type', type);
+        editor.call('assets:filter:type:disabled', true);
+        // disable selector
+        editor.call('selector:enabled', false);
         // find current asset
         currentType = type;
         currentAsset = asset;
         if (currentAsset) {
-            var gridItem = assetsGrid.assetsIndex[currentAsset];
+            var gridItem = assetsGrid.assetsIndex[currentAsset.get('id')];
             // select in grid
             if (gridItem)
                 assetsGrid.selected = [ gridItem ];
         }
         // show asset panel in front
         assetsPanel.style.zIndex = 102;
+        assetsPanel.style.overflow = 'visible';
         // if panel folded?
         assetsPanelFolded = assetsPanel.folded;
         if (assetsPanelFolded)

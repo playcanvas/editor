@@ -107,44 +107,4 @@ editor.once('load', function() {
     editor.on('assets:remove', function(asset) {
         assetsIndex[asset.get('id')].destroy();
     });
-
-
-    // filters
-    var panelFilters = new ui.Panel();
-    panelFilters.class.add('filters');
-    assetsPanel.headerAppend(panelFilters);
-
-    // label
-    var filterLabel = new ui.Label({
-        text: 'Filter:'
-    });
-    filterLabel.class.add('label');
-    panelFilters.append(filterLabel);
-
-    // options
-    var filterField = new ui.SelectField({
-        options: {
-            all: 'All',
-            animation: 'Animation',
-            audio: 'Audio',
-            cubemap: 'Cubemap',
-            json: 'Json',
-            material: 'Material',
-            model: 'Model',
-            text: 'Text',
-            texture: 'Texture'
-        }
-    });
-    filterField.class.add('options');
-    filterField.value = 'all';
-    filterField.renderChanges = false;
-    panelFilters.append(filterField);
-
-    // search
-    var search = new ui.TextField({
-        placeholder: 'Search'
-    });
-    search.class.add('search');
-    search.renderChanges = false;
-    panelFilters.append(search);
 });
