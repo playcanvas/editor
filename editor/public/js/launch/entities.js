@@ -78,7 +78,7 @@ app.once('load', function() {
         // Global value where PackResourceHandler loads pack data from
         pc.content = {
             packs: {}
-        }
+        };
 
         // convert to hierarchy data format
         var hierarchy = null;
@@ -104,7 +104,7 @@ app.once('load', function() {
             };
             framework.content.toc[config.scene.id] = {
                 packs: [config.scene.id]
-            }
+            };
         }
 
         app.emit('entities:load');

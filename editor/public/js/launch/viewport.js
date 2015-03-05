@@ -8,6 +8,17 @@ app.once('load', function() {
     canvas.classList.add('fill-mode-FILL_WINDOW');
     document.body.appendChild(canvas);
 
+    var libraries = config.project.settings.libraries;
+    var libraryUrls = [];
+    if (libraries) {
+        for (var i = 0; i < libraries.length; i++) {
+            if (libraries[i] === 'physics-engine-3d') {
+                libraryUrls.push(config.url.physics);
+            } else {
+                libraryUrls.push(libraries[i]);
+            }
+        }
+    }
 
     // playcanvas application
     var application = new pc.fw.Application(canvas, {
@@ -16,7 +27,7 @@ app.once('load', function() {
         keyboard: new pc.input.Keyboard(window),
         // gamepads: this.gamepads,
         // displayLoader: this.displayLoader,
-        // libraries: content.appProperties['libraries'],
+        libraries: libraryUrls,
         scriptPrefix: config.project.repository_url
     });
 
@@ -72,5 +83,5 @@ app.once('load', function() {
     app.on('sceneSettings:load', function () {
         settings = true;
         init();
-    })
+    });
 });
