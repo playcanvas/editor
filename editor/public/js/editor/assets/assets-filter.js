@@ -15,6 +15,24 @@ editor.once('load', function() {
     filterLabel.class.add('label');
     panelFilters.append(filterLabel);
 
+    var filter = function(asset) {
+        var visible = true;
+
+        // type
+        if (filterField.value !== 'all')
+            visible = asset.get('type') === filterField.value;
+
+        // query
+        if (visible && search.value)
+            visible = asset.get('name').indexOf(search.value) !== -1;
+
+        // deselect
+        if (! visible)
+            editor.call('selector:remove', asset);
+
+        return visible;
+    };
+
     // options
     var filterField = new ui.SelectField({
         options: {
@@ -35,17 +53,7 @@ editor.once('load', function() {
     panelFilters.append(filterField);
 
     filterField.on('change', function(value) {
-        editor.call('assets:panel:filter', function(asset) {
-            if (value === 'all') {
-                return true;
-            } else {
-                var visible = asset.get('type') === value;
-                if (! visible)
-                    editor.call('selector:remove', asset);
-
-                return visible;
-            }
-        });
+        editor.call('assets:panel:filter', filter);
     });
 
     editor.method('assets:filter:type', function(type) {
@@ -86,16 +94,6 @@ editor.once('load', function() {
             search.class.remove('not-empty');
         }
 
-        editor.call('assets:panel:filter', function(asset) {
-            if (! value) {
-                return true;
-            } else {
-                var visible = asset.get('name').indexOf(value) !== -1;
-                if (! visible)
-                    editor.call('selector:remove', asset);
-
-                return visible;
-            }
-        });
+        editor.call('assets:panel:filter', filter);
     });
 });
