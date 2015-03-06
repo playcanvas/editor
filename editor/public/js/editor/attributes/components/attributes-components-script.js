@@ -484,7 +484,7 @@ editor.once('load', function() {
                 panel.append(scriptPanel);
             } else {
                 // append before panel at next index
-                panel.appendBefore(scriptPanels[index+1]);
+                panel.appendBefore(scriptPanel, scriptPanels[index+1]);
             }
         }));
 
