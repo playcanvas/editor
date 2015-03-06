@@ -204,6 +204,11 @@ body {
                     > ul > li {
                         line-height: 32px;
                     }
+                    &.not-empty {
+                        > .value {
+                            color: #40d47e;
+                        }
+                    }
                 }
                 > .ui-text-field.search {
                     margin: 0;
@@ -221,6 +226,9 @@ body {
                         background-color: #293538;
                     }
                     &.not-empty {
+                        > input.field {
+                            color: #40d47e;
+                        }
                         > .clear {
                             display: block;
                         }
@@ -668,9 +676,6 @@ body {
             font-smoothing: antialiased;
             background-color: #364346;
 
-            &.add {
-                float: left;
-            }
             &.active {
                 color: #40d47e;
                 background-color: #2c393c;
