@@ -276,6 +276,22 @@ editor.once('load', function() {
                 if (args.link)
                     field.link(args.link, args.path)
 
+                var dropRef = editor.call('drop:target', {
+                    ref: field.element,
+                    filter: function(type, data) {
+                        return type === 'asset.' + args.kind && data.id !== field.value;
+                    },
+                    drop: function(type, data) {
+                        if (type !== 'asset.' + args.kind)
+                            return;
+
+                        field.value = data.id;
+                    }
+                });
+                field.on('destroy', function() {
+                    dropRef.unregister();
+                });
+
                 panel.append(field)
 
                 return field;

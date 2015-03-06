@@ -53,6 +53,11 @@ editor.once('load', function() {
     panelFilters.append(filterField);
 
     filterField.on('change', function(value) {
+        if (value !== 'all') {
+            filterField.class.add('not-empty');
+        } else {
+            filterField.class.remove('not-empty');
+        }
         editor.call('assets:panel:filter', filter);
     });
 

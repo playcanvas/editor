@@ -11,6 +11,7 @@ pc.designer = pc.designer || {};
 pc.extend(pc.designer, function() {
 
     var time;
+    var rect = new pc.Vec4(0, 0, 1, 1);
 
     // Private members
 
@@ -284,9 +285,9 @@ pc.extend(pc.designer, function() {
 
         var cameraEntity = this.activeCamera;
         if (cameraEntity && cameraEntity.camera) {
-            var camera = cameraEntity.camera.camera;
+            var cameraNode = cameraEntity.camera.camera;
             // Link the named camera to the relevant viewport
-            camera.setRenderTarget(null);
+            cameraNode.setRenderTarget(null);
 
             // set camera properties defined in designer settings
             if (!this.isUserCamera(cameraEntity)) {
@@ -298,11 +299,11 @@ pc.extend(pc.designer, function() {
                 }
             }
 
-            camera.setRect(0, 0, 1, 1);
+            cameraEntity.camera.rect = rect;
 
             cameraEntity.camera.frameBegin();
             setRenderStyle(this.shading);
-            renderer.render(context.scene, camera);
+            renderer.render(context.scene, cameraNode);
             cameraEntity.camera.frameEnd();
         }
     };
@@ -515,36 +516,23 @@ pc.extend(pc.designer, function() {
     Designer.prototype._getMeshInstanceSelection = function (selectedNode, pickedInstances) {
         var result = null;
 
-        if (selectedNode.model && selectedNode.model.model) {
+        if (selectedNode.model && selectedNode.model.type === 'asset' && selectedNode.model.model) {
             var meshInstances = selectedNode.model.model.meshInstances;
             for (var i = 0; i < meshInstances.length; i++) {
                 var instance = meshInstances[i];
                 if (instance === pickedInstances[0]) {
+
                     var materialId = null;
-
-                    // got the instance
-                    // get the material with the same index
-                    if (selectedNode.model.type === 'asset') {
-                        var modelAsset = this.assets.getAssetById(selectedNode.model.asset);
-                        if (modelAsset.data.mapping) {
-                            materialId = modelAsset.data.mapping[i].material;
-                        }
-
-                        result = {
-                            model: selectedNode.model.asset,
-                            material: materialId,
-                            meshInstanceIndex: i,
-                            entityId: selectedNode.getGuid()
-                        };
-
-                    } else {
-                        result = {
-                            model: null,
-                            material: selectedNode.model.data.materialAsset,
-                            meshInstanceIndex: i,
-                            entityId: selectedNode.getGuid()
-                        };
+                    var modelAsset = this.assets.getAssetById(selectedNode.model.asset);
+                    if (modelAsset.data.mapping) {
+                        materialId = modelAsset.data.mapping[i].material;
                     }
+
+                    result = {
+                        modelId: selectedNode.model.asset,
+                        meshInstanceIndex: i,
+                        materialId: materialId
+                    };
 
                     break;
                 }
@@ -591,7 +579,7 @@ pc.extend(pc.designer, function() {
                         }
 
                         if (e.button !== pc.input.MOUSEBUTTON_RIGHT) {
-                            if (this.designer.selection.indexOf(selectedNode) < 0) {
+                            if (this.selectedEntity !== selectedNode) {
                                 // We've selected a new entity
                                 editor.call('selector:add', 'entity', selectedEntity);
                             } else {
@@ -599,12 +587,16 @@ pc.extend(pc.designer, function() {
                                 // TODO: fix this
                                 meshSelection = this._getMeshInstanceSelection(selectedNode, picked);
                                 if (meshSelection) {
-                                    // pc.designer.api.setMeshInstanceSelection(
-                                    //     meshSelection.model,
-                                    //     meshSelection.material,
-                                    //     meshSelection.meshInstanceIndex,
-                                    //     meshSelection.entityId
-                                    // );
+                                    // deselect entity and select model
+                                    editor.call('selector:add', 'asset', editor.call('assets:get', meshSelection.modelId));
+                                    // select mesh instance
+                                    editor.call(
+                                        'attributes:assets:model:select-node',
+                                        meshSelection.modelId,
+                                        meshSelection.meshInstanceIndex,
+                                        meshSelection.materialId,
+                                        selectedEntity
+                                    );
                                 }
                             }
                         }

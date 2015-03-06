@@ -56,6 +56,48 @@ editor.once('load', function() {
         var fieldAssetsList = new ui.List();
         fieldAssetsList.flexGrow = 1;
 
+        // drop
+        var dropRef = editor.call('drop:target', {
+            ref: fieldAssetsList.element,
+            type: 'asset.audio',
+            filter: function(type, data) {
+                return type === 'asset.audio' && entity.get('components.audiosource.assets').indexOf(data.id) === -1;
+            },
+            drop: function(type, data) {
+                if (type !== 'asset.audio')
+                    return;
+
+                // already in list
+                if (entity.get('components.audiosource.assets').indexOf(data.id) !== -1)
+                    return;
+
+                // add to component
+                entity.insert('components.audiosource.assets', data.id, 0);
+            }
+        });
+        dropRef.disabled = ! entity.has('components.audiosource');
+        var evtDropRefSet = entity.on('components.audiosource:set', function(value) {
+            dropRef.disabled = false;
+        });
+        var evtDropRefUnset = entity.on('components.audiosource:unset', function(value) {
+            dropRef.disabled = true;
+
+            // clear list item
+            var items = fieldAssetsList.element.children;
+            var i = items.length;
+            while(i-- > 1) {
+                if (! items[i].ui || ! (items[i].ui instanceof ui.ListItem))
+                    continue;
+
+                items[i].ui.destroy();
+            }
+        });
+        fieldAssetsList.on('destroy', function() {
+            dropRef.unregister();
+            evtDropRefSet.unbind();
+            evtDropRefUnset.unbind();
+        });
+
         var fieldAssets = editor.call('attributes:addField', {
             parent: panel,
             name: 'Assets',

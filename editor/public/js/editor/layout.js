@@ -1,6 +1,7 @@
 editor.on('load', function() {
     'use strict';
 
+
     // main container
     var root = new ui.Panel();
     root.enabled = false;
