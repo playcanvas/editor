@@ -5,7 +5,6 @@ app.once('load', function() {
     // canvas element
     var canvas = document.createElement('canvas');
     canvas.id = 'application-canvas';
-    canvas.classList.add('fill-mode-FILL_WINDOW');
     document.body.appendChild(canvas);
 
     var libraries = config.project.settings.libraries;
@@ -31,24 +30,47 @@ app.once('load', function() {
         scriptPrefix: config.project.repository_url
     });
 
+    if (canvas.classList) {
+        canvas.classList.add('fill-mode-' + config.project.settings.fillMode);
+    }
 
-    // resolution mode
-    application.setCanvasFillMode(config.project.settings.fillMode, config.project.settings.width, config.project.settings.height);
     application.setCanvasResolution(config.project.settings.resolutionMode, config.project.settings.width, config.project.settings.height);
+    application.setCanvasFillMode(config.project.settings.fillMode, config.project.settings.width, config.project.settings.height);
 
+    // css media query for aspect ratio changes
+    var css  = "@media screen and (min-aspect-ratio: " + config.project.settings.width + "/" + config.project.settings.height + ") {";
+        css += "    #application-canvas.fill-mode-KEEP_ASPECT {";
+        css += "        width: auto;";
+        css += "        height: 100%;";
+        css += "        margin: 0 auto;";
+        css += "    }";
+        css += "}";
 
-    // resize
-    setInterval(function() {
-        var rect = canvas.getBoundingClientRect();
-        var width = Math.floor(rect.width);
-        var height = Math.floor(rect.height);
+    // append css to style
+    if (document.head.querySelector) {
+        document.head.querySelector('style').innerHTML += css;
+    }
 
-        if (canvas.width !== width || canvas.height !== height) {
-            canvas.width = width;
-            canvas.height = height;
+    var reflow = function () {
+        var size = application.resizeCanvas(canvas.width, canvas.height);
+        canvas.style.width = '';
+        canvas.style.height = '';
+
+        var fillMode = application.fillMode;
+
+        if (fillMode == pc.fw.FillMode.NONE || fillMode == pc.fw.FillMode.KEEP_ASPECT) {
+            if ((fillMode == pc.fw.FillMode.NONE && canvas.clientHeight < window.innerHeight) || (canvas.clientWidth / canvas.clientHeight >= window.innerWidth / window.innerHeight)) {
+                canvas.style.marginTop = Math.floor((window.innerHeight - canvas.clientHeight) / 2) + 'px';
+            } else {
+                canvas.style.marginTop = '';
+            }
         }
-    }, 1000 / 60);
+    };
 
+    window.addEventListener('resize', reflow, false);
+    window.addEventListener('orientationchange', reflow, false);
+
+    reflow();
 
     // get application
     app.method('viewport', function() {
