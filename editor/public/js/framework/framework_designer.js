@@ -11,6 +11,7 @@ pc.designer = pc.designer || {};
 pc.extend(pc.designer, function() {
 
     var time;
+    var rect = new pc.Vec4(0, 0, 1, 1);
 
     // Private members
 
@@ -284,9 +285,9 @@ pc.extend(pc.designer, function() {
 
         var cameraEntity = this.activeCamera;
         if (cameraEntity && cameraEntity.camera) {
-            var camera = cameraEntity.camera.camera;
+            var cameraNode = cameraEntity.camera.camera;
             // Link the named camera to the relevant viewport
-            camera.setRenderTarget(null);
+            cameraNode.setRenderTarget(null);
 
             // set camera properties defined in designer settings
             if (!this.isUserCamera(cameraEntity)) {
@@ -298,11 +299,11 @@ pc.extend(pc.designer, function() {
                 }
             }
 
-            camera.setRect(0, 0, 1, 1);
+            cameraEntity.camera.rect = rect;
 
             cameraEntity.camera.frameBegin();
             setRenderStyle(this.shading);
-            renderer.render(context.scene, camera);
+            renderer.render(context.scene, cameraNode);
             cameraEntity.camera.frameEnd();
         }
     };
