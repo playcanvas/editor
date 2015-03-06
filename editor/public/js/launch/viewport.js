@@ -48,7 +48,17 @@ app.once('load', function() {
 
     // append css to style
     if (document.head.querySelector) {
-        document.head.querySelector('style').innerHTML += css;
+        var appendCss = function () {
+            var style = document.head.querySelector('style');
+            if (style) {
+                style.innerHTML += css;
+            } else {
+                // try again
+                setTimeout(appendCss, 25);
+            }
+        };
+
+        appendCss();
     }
 
     var reflow = function () {
