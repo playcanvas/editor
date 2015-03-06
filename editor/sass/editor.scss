@@ -14,6 +14,10 @@ body {
     // font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
 }
 
+[draggable=true] {
+    -khtml-user-drag: element;
+}
+
 .noSelect {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -256,6 +260,59 @@ body {
                     }
                 }
             }
+        }
+    }
+}
+
+.drop-ref-highlight {
+    z-index: 210;
+}
+.drop-overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: auto;
+    height: auto;
+    z-index: 201;
+    background-color: rgba(#20292b, .7);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 100ms, visibility 100ms;
+
+    &.active {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+.drop-areas {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: auto;
+    height: auto;
+    z-index: 220;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 100ms, visibility 100ms;
+
+    &.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    > .drop-area {
+        position: absolute;
+        margin: -2px 0 0 -2px;
+        width: auto;
+        height: auto;
+        border: 2px dotted #40d47e;
+        background-color: rgba(#40d47e, .1);
+
+        &.over {
+            background-color: rgba(#40d47e, .5);
         }
     }
 }

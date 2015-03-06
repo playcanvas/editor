@@ -132,7 +132,7 @@ editor.once('load', function() {
             // on face click
             face.addEventListener('click', function() {
 
-                var texture = asset.get('data.textures.' + ind);
+                var texture = editor.call('assets:get', asset.get('data.textures.' + ind));
                 editor.call('picker:asset', 'texture', texture);
 
                 var evtPick = editor.once('picker:asset', function(texture) {
@@ -147,6 +147,20 @@ editor.once('load', function() {
                     }
                 });
             }, false);
+
+            var dropRef = editor.call('drop:target', {
+                ref: face,
+                type: 'asset.texture',
+                drop: function(type, data) {
+                    if (type !== 'asset.texture')
+                        return;
+
+                    asset.set('data.textures.' + ind, data.id);
+                }
+            });
+            previewPanel.on('destroy', function() {
+                dropRef.unregister();
+            });
 
             // clear button
             var faceClear = document.createElement('div');

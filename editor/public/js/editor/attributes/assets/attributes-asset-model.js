@@ -80,6 +80,20 @@ editor.once('load', function() {
                 fieldMaterial.parent = fieldNode;
                 fieldNode.element.appendChild(fieldMaterial.element);
 
+                var dropRef = editor.call('drop:target', {
+                    ref: fieldMaterial.element,
+                    type: 'asset.material',
+                    drop: function(type, data) {
+                        if (type !== 'asset.material')
+                            return;
+
+                        fieldMaterial.value = data.id;
+                    }
+                });
+                fieldMaterial.on('destroy', function() {
+                    dropRef.unregister();
+                });
+
                 // append to list
                 nodesList.append(fieldNode);
             };
