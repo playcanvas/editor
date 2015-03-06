@@ -20,6 +20,8 @@ editor.once('load', function() {
             parent.open = true;
             parent = parent.parent;
         }
+        // focus
+        item.elementTitle.focus();
         // add selection
         editor.call('selector:add', 'entity', item.entity);
     });

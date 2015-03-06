@@ -7,7 +7,7 @@ $text-darkest: #5b7073;
 $text-dark: #9ba1a3;
 $text-secondary: #b1b8ba;
 $text-primary: #ffffff;
-$text-active: #40d47e;
+$text-active: #f60;
 
 $field-padding: 3px;
 
@@ -232,7 +232,8 @@ a:visited {
 }
 
 .ui-tree-item {
-    $line-color: $bcg-dark;
+    $line-color: mix($bcg-dark, $bcg-primary, 50%);
+    // $line-color: $bcg-dark;
 
     &.container {
         // plus icon
@@ -292,7 +293,7 @@ a:visited {
     &.selected {
         > .title {
             background-color: $bcg-darkest;
-            color: $text-active;
+            color: $text-primary;
             border-color: transparent;
 
             > .icon {
@@ -385,6 +386,10 @@ a:visited {
         color: $text-active;
         background-color: $bcg-darkest;
         outline: none;
+
+        > .label {
+            color: $text-primary;
+        }
     }
 }
 

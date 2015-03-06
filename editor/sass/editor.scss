@@ -1,3 +1,14 @@
+$bcg-darkest: #20292b;
+$bcg-darker: #293538;
+$bcg-dark: #2c393c;
+$bcg-primary: #364346;
+
+$text-darkest: #5b7073;
+$text-dark: #9ba1a3;
+$text-secondary: #b1b8ba;
+$text-primary: #ffffff;
+$text-active: #f60;
+
 html {
     height: 100%;
     overflow: hidden;
@@ -38,7 +49,7 @@ body {
 }
 
 #ui-toolbar {
-    border-right: 1px solid #20292b;
+    border-right: 1px solid $bcg-dark;
 
     > .content {
         position: absolute;
@@ -78,8 +89,8 @@ body {
                 background-color: #364346;
 
                 &.active {
-                    color: #40d47e;
-                    background-color: #2c393c;
+                    color: $text-primary;
+                    background-color: $bcg-darkest;
                 }
                 &.disabled {
                     opacity: 1;
@@ -94,13 +105,14 @@ body {
                 &:hover,
                 &:focus {
                     color: #fff;
-                    background-color: #20292b;
+                    background-color: $bcg-dark;
                 }
             }
             &.designer-settings {
                 position: absolute;
                 left: 0;
                 bottom: 0;
+                background-color: $bcg-darker;
             }
         }
     }
@@ -210,8 +222,9 @@ body {
                     }
                     &.not-empty {
                         > .value {
-                            color: #40d47e;
+                            color: $text-active;
                         }
+                        background-color: $bcg-darkest;
                     }
                 }
                 > .ui-text-field.search {
@@ -219,9 +232,16 @@ body {
                     width: 192px;
                     height: 32px;
                     border: none;
-                    // border-left: 1px solid #20292b;
+                    border-left: 1px solid $bcg-dark;
                     background-color: #293538;
 
+                    &.active,
+                    &:hover,
+                    &:focus,
+                    &.focus {
+                        border-color: $bcg-darkest;
+                        background-color: $bcg-darkest;
+                    }
                     > input.field {
                         line-height: 32px;
                     }
@@ -230,8 +250,9 @@ body {
                         background-color: #293538;
                     }
                     &.not-empty {
+                        background-color: $bcg-darkest;
                         > input.field {
-                            color: #40d47e;
+                            color: $text-active;
                         }
                         > .clear {
                             display: block;
@@ -308,17 +329,17 @@ body {
         margin: -2px 0 0 -2px;
         width: auto;
         height: auto;
-        border: 2px dotted #40d47e;
-        background-color: rgba(#40d47e, .1);
+        border: 2px dotted $text-active;
+        background-color: rgba($text-active, .1);
 
         &.over {
-            background-color: rgba(#40d47e, .5);
+            background-color: rgba($text-active, .5);
         }
     }
 }
 
 .ui-panel.attributes {
-    border-left: 1px solid #20292b;
+    border-left: 1px solid $bcg-dark;
 
     > .content {
         background-color: #293538;
@@ -375,7 +396,7 @@ body {
                 position: relative;
 
                 &:hover > .icon {
-                    color: #40d47e;
+                    color: $text-active;
                 }
                 > .icon {
                     position: absolute;
@@ -451,7 +472,7 @@ body {
                 background-color: #07f;
 
                 &:hover {
-                    outline: #40d47e 2px solid;
+                    outline: $text-active 2px solid;
                     z-index: 1;
 
                     > .clear {
@@ -500,11 +521,15 @@ body {
         }
     }
     .ui-panel.component {
-        box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+        // box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
 
         > header {
-            border-left: 4px solid #40d47e;
+            // border-left: 4px solid $text-active;
             text-transform: uppercase;
+
+            &:hover {
+                background-color: $bcg-darkest;
+            }
         }
         &.foldable {
             &.folded {
@@ -595,7 +620,7 @@ body {
                     font-smoothing: antialiased;
 
                     &:hover {
-                        color: #40d47e;
+                        color: $text-active;
                         background-color: #20292b;
                     }
                 }
@@ -633,7 +658,7 @@ body {
 }
 
 .ui-panel.hierarchy {
-    border-right: 1px solid #20292b;
+    border-right: 1px solid $bcg-dark;
 
     > .content {
         bottom: 32px;
@@ -665,7 +690,7 @@ body {
         }
         &.selected {
             > .title > .icon:after {
-                color: #40d47e;
+                color: $text-active;
             }
         }
         &.c-script > .title > .icon:after {
@@ -711,7 +736,7 @@ body {
     border-top: 1px solid #293538;
 
     > .content {
-        background-color: #2c393c;
+        background-color: transparent;
         min-width: 96px;
         height: 32px;
         overflow: hidden;
@@ -731,10 +756,10 @@ body {
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             font-smoothing: antialiased;
-            background-color: #364346;
+            background-color: transparent;
 
             &.active {
-                color: #40d47e;
+                color: $text-active;
                 background-color: #2c393c;
             }
             &.disabled {
@@ -750,7 +775,7 @@ body {
             &:hover,
             &:focus {
                 color: #fff;
-                background-color: #20292b;
+                background-color: $bcg-dark;
             }
         }
     }
@@ -898,7 +923,7 @@ body {
             text-align: center;
 
             &.active {
-                color: #40d47e;
+                color: $text-active;
                 background-color: #2c393c;
             }
         }
