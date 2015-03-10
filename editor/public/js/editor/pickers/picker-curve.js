@@ -994,6 +994,16 @@ editor.once('load', function() {
         return false;
     }
 
+    function toggleTextSelection (enable) {
+        if (enable) {
+            document.body.classList.remove('noSelect');
+        } else {
+            if (!document.body.classList.contains('noSelect')) {
+                document.body.classList.add('noSelect');
+            }
+        }
+    }
+
     // Handles mouse down
     canvas.element.addEventListener('mousedown', function (e) {
         if (e.target !== canvas.element) {
@@ -1002,6 +1012,8 @@ editor.once('load', function() {
 
         dragging = true;
         changing = true;
+
+        toggleTextSelection(false);
 
         var point = getTargetCoords(e);
         var inGrid = areCoordsInGrid(point);
@@ -1059,7 +1071,12 @@ editor.once('load', function() {
     });
 
     // Handles mouse move
-    canvas.element.addEventListener('mousemove', function (e) {
+    panel.addEventListener('mousemove', function (e) {
+        if (dragging && e.target !== canvas.element) {
+            e.preventDefault();
+            return false;
+        }
+
         var coords = getTargetCoords(e);
 
         // if we are dragging the selected anchor
@@ -1095,6 +1112,8 @@ editor.once('load', function() {
 
     // Handles mouse up
     panel.addEventListener('mouseup', function (e) {
+        toggleTextSelection(true);
+
         if (changing) {
             // collapse anchors on mouse up because we might have
             // placed an anchor on top of another one
@@ -1122,6 +1141,8 @@ editor.once('load', function() {
     editor.method('picker:curve:close', function () {
         overlay.hidden = true;
         cleanup();
+
+        toggleTextSelection(true);
     });
 
     editor.method('picker:curve:rect', function () {
