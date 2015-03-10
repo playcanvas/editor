@@ -53,6 +53,12 @@ editor.once('load', function() {
     editor.on('entities:remove', function (obj) {
         var entity = obj.entity;
         if (entity) {
+
+            var framework = editor.call('viewport:framework');
+            if (framework && framework.selectedEntity === entity) {
+                framework.deselectEntity();
+            }
+
             entity.destroy();
             obj.entity = null;
         }

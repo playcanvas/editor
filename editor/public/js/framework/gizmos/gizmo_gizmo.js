@@ -140,7 +140,7 @@
         },
 
         deactivate: function () {
-            if (this.entity) {
+            if (this.entity && this.entity.pick) {
                 // remove all picker models from the scene
                 // add picker shapes to the current scene
                 this.entity.pick.shapes.map(function (shape) {
