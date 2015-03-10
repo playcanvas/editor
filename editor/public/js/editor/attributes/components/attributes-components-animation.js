@@ -124,8 +124,12 @@ editor.once('load', function() {
         // add asset
         var addAsset = function(assetId, after) {
             var assetAnimation = editor.call('assets:get', assetId);
+            var text = assetId;
+            if (assetAnimation && assetAnimation.get('name'))
+                text = assetAnimation.get('name');
+
             var item = new ui.ListItem({
-                text: (assetAnimation && assetAnimation.name) || assetId
+                text: text
             });
 
             if (after) {
