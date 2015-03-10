@@ -53,11 +53,15 @@ editor.once('load', function() {
                 if (asset.syncing)
                     return;
 
+                var fields = [ 'modified_at', 'data', 'file', 'thumbnails', 'name' ];
+
                 asset.sync = false;
                 asset.history.enabled = false;
-                asset.set('modified_at', data.modified_at);
-                asset.set('data', data.data);
-                asset.set('file', data.file);
+
+                for(var i = 0; i < fields.length; i++) {
+                    asset.set(fields[i], data[fields[i]]);
+                }
+
                 asset.history.enabled = true;
                 asset.sync = true;
             } else {

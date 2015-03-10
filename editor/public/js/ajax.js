@@ -56,10 +56,11 @@ function AjaxRequest(args) {
     this._xhr = new XMLHttpRequest();
 
     // events
-    this._xhr.addEventListener('load', this._onLoad.bind(this));
-    this._xhr.addEventListener('progress', this._onProgress.bind(this));
-    this._xhr.addEventListener('error', this._onError.bind(this));
-    this._xhr.addEventListener('abort', this._onAbort.bind(this));
+    this._xhr.addEventListener('load', this._onLoad.bind(this), false);
+    // this._xhr.addEventListener('progress', this._onProgress.bind(this), false);
+    this._xhr.upload.addEventListener('progress', this._onProgress.bind(this), false);
+    this._xhr.addEventListener('error', this._onError.bind(this), false);
+    this._xhr.addEventListener('abort', this._onAbort.bind(this), false);
 
     // url
     var url = args.url;
@@ -99,11 +100,16 @@ function AjaxRequest(args) {
     this._xhr.open(args.method || 'GET', url, true);
 
     // header for PUT/POST
-    if (args.method === 'PUT' || args.method === 'POST' || args.method === 'DELETE')
+    if (! args.ignoreContentType && (args.method === 'PUT' || args.method === 'POST' || args.method === 'DELETE'))
         this._xhr.setRequestHeader('Content-Type', 'application/json');
 
+    if (args.headers) {
+        for (var key in args.headers)
+            this._xhr.setRequestHeader(key, args.headers[key]);
+    }
+
     // stringify data if needed
-    if (args.data && typeof(args.data) !== 'string') {
+    if (args.data && typeof(args.data) !== 'string' && ! (args.data instanceof FormData)) {
         args.data = JSON.stringify(args.data);
     }
 

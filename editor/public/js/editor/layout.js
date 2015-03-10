@@ -27,7 +27,6 @@ editor.on('load', function() {
     var bottom = new ui.Panel();
     bottom.element.id = 'ui-bottom';
     bottom.flexShrink = false;
-    bottom.innerElement.textContent = 'status';
     root.append(bottom);
     // expose
     editor.method('layout.bottom', function() { return bottom; });
