@@ -19,6 +19,8 @@ app.once('load', function() {
         }
     }
 
+    var queryParams = (new pc.URI(window.location.href)).getQuery();
+
     // playcanvas application
     var application = new pc.fw.Application(canvas, {
         mouse: new pc.input.Mouse(canvas),
@@ -27,7 +29,7 @@ app.once('load', function() {
         // gamepads: this.gamepads,
         // displayLoader: this.displayLoader,
         libraries: libraryUrls,
-        scriptPrefix: config.project.repository_url
+        scriptPrefix: queryParams.local ? 'http://localhost:51000' : config.project.repository_url
     });
 
     if (canvas.classList) {
