@@ -265,8 +265,6 @@ Observer.prototype.set = function(path, value, silent) {
                         node._data[key][i].patch(value[i]);
                     } else if (node._data[key][i] !== value[i]) {
                         node._data[key][i] = value[i];
-                        obj.emit(path + '.' + i + ':set', node._data[key][i], valueOld[i] || null);
-                        obj.emit('*:set', path + '.' + i, node._data[key][i], valueOld[i] || null);
                     }
                 }
             } else {
@@ -278,16 +276,16 @@ Observer.prototype.set = function(path, value, silent) {
                     obj.emit('*:set', path + '.' + i, node._data[key][i], valueOld[i] || null);
                 }
                 this.silenceRestore(state);
-
-                if (silent)
-                    state = this.silence();
-
-                obj.emit(path + ':set', value, valueOld);
-                obj.emit('*:set', path, value, valueOld);
-
-                if (silent)
-                    this.silenceRestore(state);
             }
+
+            if (silent)
+                state = this.silence();
+
+            obj.emit(path + ':set', value, valueOld);
+            obj.emit('*:set', path, value, valueOld);
+
+            if (silent)
+                this.silenceRestore(state);
         } else if (typeof(value) === 'object' && (value instanceof Object)) {
             var keys = Object.keys(value);
 

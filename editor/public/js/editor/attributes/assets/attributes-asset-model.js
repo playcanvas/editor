@@ -24,6 +24,8 @@ editor.once('load', function() {
 
         var asset = assets[0];
 
+        console.log(asset.json())
+
         if (asset.get('data.mapping').length) {
             // nodes panel
             var panelNodes = editor.call('attributes:addPanel', {

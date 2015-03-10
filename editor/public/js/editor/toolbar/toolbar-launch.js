@@ -38,6 +38,6 @@ editor.once('load', function() {
     panel.append(buttonLaunch);
 
     buttonLaunch.on('click', function() {
-        window.open(config.scene.id + '/launch');
+        window.open('http://playcanvas.dev/editor/scene/' + config.scene.id + '/launch');
     });
 });

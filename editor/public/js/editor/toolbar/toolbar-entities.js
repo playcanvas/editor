@@ -114,7 +114,7 @@ editor.once('load', function() {
 
     // shortcut Ctrl + D
     window.addEventListener('keyup', function (e) {
-        if (e.target && e.target.tagName.toLowerCase() === 'input' || ! editor.call('permissions:write') || ! e.keyCode === 68 || ! e.ctrlKey)
+        if (e.target && e.target.tagName.toLowerCase() === 'input' || ! editor.call('permissions:write') || e.keyCode !== 68 || ! e.ctrlKey)
             return;
             btnDuplicate.emit('click');
     });
