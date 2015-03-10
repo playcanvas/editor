@@ -275,9 +275,6 @@
             if (this.entity && !this.disableInteraction) {
                 if(e.button === pc.MOUSEBUTTON_LEFT) {
                     if (this.activeAxis !== null) {
-                        // prevent default event which causes selection of text
-                        e.event.preventDefault();
-
                         this._startDrag(e);
                         this.isDragging = true;
                     }
