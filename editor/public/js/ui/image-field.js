@@ -23,6 +23,17 @@ function ImageField(args) {
     }, false);
     this.element.appendChild(this.elementClear);
 
+    this.elementView = document.createElement('span');
+    this.elementView.classList.add('view');
+    this.elementView.addEventListener('click', function(evt) {
+        if (! self.value)
+            return;
+
+        self.emit('view', self.value);
+        evt.stopPropagation();
+    }, false);
+    this.element.appendChild(this.elementView);
+
     this._value = null;
 
     this.on('change', function() {

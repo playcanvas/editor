@@ -75,6 +75,12 @@ editor.once('load', function() {
                     });
                 });
 
+                fieldMaterial.on('view', function() {
+                    var asset = editor.call('assets:get', this.value);
+                    if (! asset) return;
+                    editor.call('selector:set', 'asset', [ asset ]);
+                });
+
                 // link field
                 fieldMaterial.link(asset, 'data.mapping.' + ind + '.material');
                 fieldMaterial.parent = fieldNode;

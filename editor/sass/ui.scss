@@ -998,9 +998,8 @@ a:visited {
         border-color: #07f;
     }
     &.empty {
-        > .preview {
-            display: none;
-        }
+        > .preview,
+        > .view,
         > .clear {
             display: none;
         }
@@ -1010,16 +1009,23 @@ a:visited {
         width: 64px;
         height: 64px;
     }
+    > .view,
     > .clear {
-        display: none;
         position: absolute;
         width: 16px;
         height: 16px;
         top: 0;
-        right: 0;
         background-color: #07f;
         border-bottom: 1px solid #666;
+    }
+    > .clear {
+        display: none;
+        right: 0;
         border-left: 1px solid #666;
+    }
+    > .view {
+        left: 0;
+        border-right: 1px solid #666;
     }
     &.disabled {
         > .clear {

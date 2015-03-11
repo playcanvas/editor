@@ -530,7 +530,8 @@ a:visited {
         }
     }
 
-    > .clear {
+    > .clear,
+    > .view {
         border-color: #0f0;
 
         width: 22px;
@@ -548,11 +549,24 @@ a:visited {
         font-smoothing: antialiased;
 
         &:hover {
+            background-color: $bcg-darkest;
+        }
+    }
+
+    > .clear {
+        &:hover {
             color: #d34141;
-            background-color: #20292b;
         }
         &:after {
             content: '\E521';
+        }
+    }
+    > .view {
+        &:hover {
+            color: $text-primary;
+        }
+        &:after {
+            content: '\E584';
         }
     }
 
