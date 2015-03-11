@@ -339,6 +339,10 @@ editor.once('load', function() {
                 link.textContent = value;
             }));
 
+            events.push(script.on('*:set', function(path) {
+                console.log("!!!", path)
+            }));
+
             // remove
             var fieldRemoveScript = new ui.Button();
             fieldRemoveScript.parent = panel;
