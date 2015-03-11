@@ -222,8 +222,105 @@ editor.once('load', function() {
 
                     script.patch(data);
                 });
+
+                // updateAttributeFields(script, scr);
             });
         }
+
+        function updateAttributeFields(script, parent) {
+            var attributes = script.get('attributesOrder');
+            var children = parent.innerElement.childNodes;
+            var list = [ ];
+            var index = { };
+            var toDestroy = [ ];
+            var toCreate = [ ];
+
+            console.log("!")
+
+            for(var i = 0; i < children.length; i++) {
+                var attribute = children[i].ui.attribute;
+                if (attributes.indexOf(attribute) === -1) {
+                    toDestroy.push(children[i].ui);
+                } else {
+                    list.push(attribute);
+                    index[attribute] = children[i].ui;
+                }
+            }
+
+            var i = toDestroy.length;
+            while(i--) {
+                toDestroy[i].destroy();
+            }
+
+            console.log(attributes, list);
+
+            for(var i = 0; i < attributes.length; i++) {
+                var ind = list.indexOf(attributes[i]);
+                if (ind === -1) {
+                    // new attibute
+                    var panel = createAttributeField(script, attributes[i], parent).parent;
+
+                    if (i === 0 && list.length > 0) {
+                        parent.innerElement.removeChild(panel.element);
+                        parent.innerElement.insertBefore(panel.element, parent.innerElement.firstChild);
+                    } else if (i > 0) {
+                        parent.innerElement.removeChild(panel.element);
+
+                        var next = index[list[i - 1]].element.nextSibling;
+                        if (next) {
+                            parent.innerElement.insertBefore(panel.element, next);
+                        } else {
+                            parent.innerElement.appendChild(panel.element);
+                        }
+                    }
+
+                    list.splice(ind, 0, attributes[i]);
+                    index[attributes[i]] = panel;
+                } else if (ind !== i) {
+                    // needs to be moved
+                    console.log('move', attributes[i])
+                }
+            }
+        };
+
+        function createAttributeField(script, attribute, parent) {
+            var choices = null;
+            attribute = script.get('attributes.' + attribute);
+
+            if (attribute.type === 'enumeration') {
+                choices = { };
+                try {
+                    for(var e = 0; e < attribute.options.enumerations.length; e++) {
+                        choices[attribute.options.enumerations[e].value] = attribute.options.enumerations[e].name;
+                    }
+                } catch(ex) {
+                    console.log('could not recreate enumeration for script attribute, ' + script.get('url'));
+                }
+            }
+
+            var field = editor.call('attributes:addField', {
+                parent: parent,
+                name: attribute.displayName,
+                type: scriptAttributeTypes[attribute.type],
+                enum: choices,
+                link: script,
+                path: 'attributes.' + attribute.name + '.value'
+            });
+
+            // var evtRemove = script.once('attributes.' + attribute.name + ':unset', function() {
+            //     field.parent.destroy();
+            // });
+
+            // events.push(evtRemove);
+
+            // field.parent.on('destroy', function() {
+            //     evtRemove.unbind();
+            // });
+
+            field.parent.attribute = attribute.name;
+
+            return field;
+        };
 
         function createScriptPanel(script) {
             var panel = new ui.Panel(script.get('url'));
@@ -248,6 +345,10 @@ editor.once('load', function() {
             events.push(script.on('name:set', function(value) {
                 link.textContent = value;
             }));
+
+            // events.push(script.on('*:unset', function(path) {
+            //     console.log('unset', path);
+            // }))
 
             // remove
             var fieldRemoveScript = new ui.Button();
@@ -292,12 +393,32 @@ editor.once('load', function() {
             });
 
 
-            // var attributes = new ui.Panel();
-        //     panel.append(attributes);
+            var attributes = new ui.Panel();
+            panel.append(attributes);
 
-        //     var order = script.get('attributesOrder');
-        //     // holds all attribute fields in order
-        //     var fieldsInOrder = [];
+            var order = script.get('attributesOrder');
+            // holds all attribute fields in order
+
+            for(var i = 0; i < order.length; i++) {
+                createAttributeField(script, order[i], attributes);
+                // attributes.append(attributeField);
+            }
+
+            var timerUpdateAttributes = null;
+
+            events.push(script.on('attributesOrder:set', function() {
+                if (timerUpdateAttributes)
+                    return;
+
+                console.log('!!!!!!');
+
+                timerUpdateAttributes = setTimeout(function() {
+                    timerUpdateAttributes = null;
+                    updateAttributeFields(script, attributes);
+                }, 0);
+            }));
+
+            // var fieldsInOrder = [];
         //     // holds all attributes fields indexed by attribute name
         //     var fieldsIndex = {};
 
