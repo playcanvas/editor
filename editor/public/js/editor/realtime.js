@@ -8,6 +8,7 @@ editor.once('load', function() {
         var socket = new SockJS(config.url.realtime.http);
         var connection = new sharejs.Connection(socket);
         var scene = null;
+        var userData = null;
 
         var sharejsMessage = connection.socket.onmessage;
         connection.socket.onmessage = function(msg) {
@@ -18,6 +19,10 @@ editor.once('load', function() {
                 // load scene
                 if (! scene)
                     loadScene();
+
+                // load user data
+                if (! userData)
+                   loadUserData();
 
             } else if (msg.data.startsWith('permissions')) {
                 var data = JSON.parse(msg.data.slice('permissions'.length));
@@ -56,8 +61,8 @@ editor.once('load', function() {
                     for (var i = 0; i < ops.length; i++) {
                         var op = ops[i];
 
-                        // console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
-                        // console.log(op)
+                         //console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
+                         //console.log(op)
 
                         if (op.p[0])
                             editor.emit('realtime:op:' + op.p[0], op);
@@ -72,6 +77,39 @@ editor.once('load', function() {
             scene.subscribe();
         };
 
+        var loadUserData = function () {
+            userData = connection.get('user_data', '' + config.scene.id + '_' + config.self.id);
+
+            // error
+            userData.on('error', function (err) {
+                console.log('error', err);
+            });
+
+            // ready to sync
+            userData.on('ready', function() {
+                // notify of operations
+                userData.on('after op', function(ops, local) {
+                    if (local)
+                        return;
+
+                    for (var i = 0; i < ops.length; i++) {
+                        var op = ops[i];
+
+                         console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
+                         console.log(op);
+
+                        //if (op.p[0])
+                          //  editor.emit('realtime:op:' + op.p[0], op);
+                    }
+                });
+
+                // notify of scene load
+                editor.emit('userdata:raw', userData.getSnapshot());
+            });
+
+            // subscribe for realtime events
+            userData.subscribe();
+        };
 
         // method to send operations
         editor.method('realtime:op', function(op) {
@@ -79,8 +117,8 @@ editor.once('load', function() {
                 return;
 
             // console.trace();
-            // console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
-            // console.log(op)
+             //console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
+             //console.log(op)
 
             scene.submitOp([ op ]);
         });
