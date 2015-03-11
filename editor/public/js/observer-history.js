@@ -19,7 +19,7 @@ ObserverHistory.prototype._initialize = function() {
         if (! self._enabled) return;
 
         // need jsonify
-        if (value instanceof Observer || value instanceof ObserverList)
+        if (value instanceof Observer)
             value = value.json();
 
         // action
@@ -84,8 +84,8 @@ ObserverHistory.prototype._initialize = function() {
         if (! self._enabled) return;
 
         // need jsonify
-        if (value instanceof Observer || value instanceof ObserverList)
-            value = value.json();
+        // if (value instanceof Observer)
+        //     value = value.json();
 
         // action
         var data = {
@@ -109,8 +109,8 @@ ObserverHistory.prototype._initialize = function() {
         if (! self._enabled) return;
 
         // need jsonify
-        if (value instanceof Observer || value instanceof ObserverList)
-            value = value.json();
+        // if (value instanceof Observer)
+        //     value = value.json();
 
         // action
         var data = {
@@ -131,7 +131,28 @@ ObserverHistory.prototype._initialize = function() {
     });
 
     this.item.on('*:move', function(path, value, ind, indOld) {
+        if (! self._enabled) return;
 
+        // need jsonify
+        if (value instanceof Observer)
+            value = value.json();
+
+        // action
+        var data = {
+            name: self._prefix + path,
+            undo: function() {
+                self._enabled = false;
+                self.item.move(path, ind, indOld);
+                self._enabled = true;
+            },
+            redo: function() {
+                self._enabled = false;
+                self.item.move(path, indOld, ind);
+                self._enabled = true;
+            }
+        };
+
+        self.emit('record', 'add', data);
     });
 };
 

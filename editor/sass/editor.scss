@@ -618,6 +618,21 @@ body {
             padding: 8px 6px;
         }
 
+        .ui-panel.components-scripts > .content {
+            > .ui-panel.component-script {
+                &:first-child {
+                    > .ui-header > .move-up {
+                        visibility: hidden;
+                    }
+                }
+                &:last-child {
+                    > .ui-header > .move-down {
+                        visibility: hidden;
+                    }
+                }
+            }
+        }
+
         .ui-panel.component-script {
             border-top: 1px solid #293538;
             border-left: 1px solid #293538;

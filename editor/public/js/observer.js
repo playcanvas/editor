@@ -260,13 +260,19 @@ Observer.prototype.set = function(path, value, silent) {
                 valueOld = obj.json(valueOld);
 
             if (node._data[key] && node._data[key].length === value.length) {
+                state = this.silence();
+
                 for(var i = 0; i < node._data[key].length; i++) {
                     if (node._data[key][i] instanceof Observer) {
                         node._data[key][i].patch(value[i]);
                     } else if (node._data[key][i] !== value[i]) {
                         node._data[key][i] = value[i];
+                        obj.emit(path + '.' + i + ':set', node._data[key][i], valueOld[i] || null);
+                        obj.emit('*:set', path + '.' + i, node._data[key][i], valueOld[i] || null);
                     }
                 }
+
+                this.silenceRestore(state);
             } else {
                 node._data[key] = value;
 
