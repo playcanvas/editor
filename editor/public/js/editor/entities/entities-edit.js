@@ -44,7 +44,7 @@ editor.once('load', function() {
         editor.call('entities:add', entity);
 
         // sharejs
-        editor.call('realtime:op', {
+        editor.call('realtime:scene:op', {
             p: [ 'entities', entity.get('resource_id') ],
             oi: entity.json()
         });
@@ -94,7 +94,7 @@ editor.once('load', function() {
 
 
         // sharejs
-        editor.call('realtime:op', {
+        editor.call('realtime:scene:op', {
             p: [ 'entities', entity.get('resource_id') ],
             od: { }
         });
