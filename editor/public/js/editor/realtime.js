@@ -65,7 +65,7 @@ editor.once('load', function() {
                          //console.log(op)
 
                         if (op.p[0])
-                            editor.emit('realtime:op:' + op.p[0], op);
+                            editor.emit('realtime:scene:op:' + op.p[0], op);
                     }
                 });
 
@@ -98,8 +98,8 @@ editor.once('load', function() {
                          console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
                          console.log(op);
 
-                        //if (op.p[0])
-                          //  editor.emit('realtime:op:' + op.p[0], op);
+                        if (op.p[0])
+                            editor.emit('realtime:userdata:op:' + op.p[0], op);
                     }
                 });
 
@@ -111,8 +111,8 @@ editor.once('load', function() {
             userData.subscribe();
         };
 
-        // method to send operations
-        editor.method('realtime:op', function(op) {
+        // method to send scene related operations
+        editor.method('realtime:scene:op', function(op) {
             if (! editor.call('permissions:write') || ! scene)
                 return;
 
@@ -121,6 +121,18 @@ editor.once('load', function() {
              //console.log(op)
 
             scene.submitOp([ op ]);
+        });
+
+        // method to send scene related operations
+        editor.method('realtime:userdata:op', function(op) {
+            if (! editor.call('permissions:write') || ! userData)
+                return;
+
+            // console.trace();
+             //console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
+             //console.log(op)
+
+            userData.submitOp([ op ]);
         });
     });
 });

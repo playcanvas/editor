@@ -27,13 +27,13 @@ editor.once('load', function() {
 
         // client > server
         entity.sync.on('op', function(op) {
-            editor.call('realtime:op', op);
+            editor.call('realtime:scene:op', op);
         });
     });
 
 
     // server > client
-    editor.on('realtime:op:entities', function(op) {
+    editor.on('realtime:scene:op:entities', function(op) {
         var entity = null;
         if (op.p[1])
             entity = editor.call('entities:get', op.p[1]);

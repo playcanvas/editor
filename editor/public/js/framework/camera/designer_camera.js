@@ -53,7 +53,7 @@ pc.script.create( "designer_camera", function (app) {
             this.previousTouch = null; // the one-finger touch in the previous frame
         }
 
-        this.initFocus();
+        this.focus = this.entity.focus || new pc.Vec3();
 
         this.transition = {
             eyeStart: new pc.Vec3(),
@@ -83,16 +83,8 @@ pc.script.create( "designer_camera", function (app) {
 
         this.undoTimeout = null;
         this.combineHistory = false;
-    };
 
-    DesignerCamera.prototype.initFocus = function () {
-        // Global var app.designer.cameraFocus is used to store camera focus between script instances
-        // A new script instance is created whenever we switch between cameras.
-        if (!app.designer.cameraFocus) {
-            app.designer.cameraFocus = new pc.Vec3();
-        }
-
-        this.focus = app.designer.cameraFocus;
+        this.lowerCaseName = this.entity.getName().toLowerCase();
     };
 
     DesignerCamera.prototype.destroy = function () {
@@ -190,7 +182,8 @@ pc.script.create( "designer_camera", function (app) {
         this.focus.add(x).add(y);
 
         this.setCameraProperties({
-            position: position
+            position: position,
+            focus: this.focus
         });
 
         editor.call('viewport:render');
@@ -286,7 +279,8 @@ pc.script.create( "designer_camera", function (app) {
         tempRot.copy(this.entity.getParent().getRotation()).invert().mul(quatY);
 
         this.setCameraProperties({
-            rotation: tempRot.getEulerAngles()
+            rotation: tempRot.getEulerAngles(),
+            focus: this.focus
         });
 
         editor.call('viewport:render');
@@ -621,7 +615,8 @@ pc.script.create( "designer_camera", function (app) {
             this.focus.lerp(transition.focusStart, transition.focusEnd, alpha);
 
             var data = {
-                position: eyePos
+                position: eyePos,
+                focus: this.focus
             };
 
             if (this.entity.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
@@ -643,7 +638,8 @@ pc.script.create( "designer_camera", function (app) {
                 this.focus.add(offset);
 
                 this.setCameraProperties({
-                    position: pos
+                    position: pos,
+                    focus: this.focus
                 });
 
                 editor.call('viewport:render');
@@ -723,16 +719,24 @@ pc.script.create( "designer_camera", function (app) {
                 this.combineHistory = true;
             }
         } else {
+            var userdata = editor.call('userdata');
             if (data.position !== undefined) {
                 this.entity.setLocalPosition(data.position);
+                userdata.set('cameras.' + this.lowerCaseName + '.position', [data.position.x.toFixed(4), data.position.y.toFixed(4), data.position.z.toFixed(4)]);
             }
 
             if (data.rotation !== undefined) {
                 this.entity.setLocalEulerAngles(data.rotation);
+                userdata.set('cameras.' + this.lowerCaseName + '.rotation', [data.rotation.x.toFixed(4), data.rotation.y.toFixed(4), data.rotation.z.toFixed(4)]);
             }
 
             if (data.orthoHeight !== undefined) {
                 this.entity.camera.orthoHeight = data.orthoHeight;
+                userdata.set('cameras.' + this.lowerCaseName + '.orthoHeight', data.orthoHeight.toFixed(4));
+            }
+
+            if (data.focus !== undefined) {
+                userdata.set('cameras.' + this.lowerCaseName + '.focus', [data.focus.x.toFixed(4), data.focus.y.toFixed(4), data.focus.z.toFixed(4)]);
             }
         }
     };

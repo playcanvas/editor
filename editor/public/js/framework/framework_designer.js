@@ -48,10 +48,7 @@ pc.extend(pc.designer, function() {
             }
         }
 
-        context.designer = {
-            livelink: this._link,
-            selection: [] // Currently selected entities
-        };
+        context.designer = {}; // TODO: remove this it should not be required by the engine
 
         this.grid = null;
         this.setDesignerSettings(options.designerSettings);
