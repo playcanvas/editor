@@ -403,8 +403,8 @@ a:visited {
 }
 .ui-label[placeholder] {
     &:after {
-        color: #f00;
-        background-color: #0f0;
+        color: $text-darkest;
+        background-color: transparent;
     }
 }
 
