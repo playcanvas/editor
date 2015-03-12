@@ -29,15 +29,20 @@ editor.once('load', function() {
             } else if (msg.data.startsWith('permissions')) {
                 data = JSON.parse(msg.data.slice('permissions'.length));
                 editor.call('permissions:set', data.write);
-            } else if (msg.data.startsWith('whoisonline:set:')) {
-                data = JSON.parse(msg.data.slice('whoisonline:set:'.length));
-                editor.call('whoisonline:set', data);
-            } else if (msg.data.startsWith('whoisonline:add:')) {
-                data = parseInt(msg.data.slice('whoisonline:add:'.length), 10);
-                editor.call('whoisonline:add', data);
-            } else if (msg.data.startsWith('whoisonline:remove:')) {
-                data = parseInt(msg.data.slice('whoisonline:remove:'.length), 10);
-                editor.call('whoisonline:remove', data);
+            } else if (msg.data.startsWith('whoisonline:')) {
+                data = msg.data.slice('whoisonline:'.length);
+                var ind = data.indexOf(':');
+                if (ind !== -1) {
+                    var op = data.slice(0, ind);
+                    if (op === 'set') {
+                        data = JSON.parse(data.slice(ind + 1));
+                    } else if (op === 'add' || op === 'remove') {
+                        data = parseInt(data.slice(ind + 1), 10);
+                    }
+                    editor.call('whoisonline:' + op, data);
+                } else {
+                    sharejsMessage(msg);
+                }
             } else {
                 sharejsMessage(msg);
             }
