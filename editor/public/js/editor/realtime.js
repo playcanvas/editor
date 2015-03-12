@@ -23,12 +23,9 @@ editor.once('load', function() {
                     loadScene();
 
                 // load user data
-                if (! userData)
-                   loadUserData();
+                if (! userData && editor.call('permissions:write'))
+                    userData = editor.call('realtime:subscribe:userdata', config.scene.id, config.self.id);
 
-            } else if (msg.data.startsWith('permissions')) {
-                data = JSON.parse(msg.data.slice('permissions'.length));
-                editor.call('permissions:set', data.write);
             } else if (msg.data.startsWith('whoisonline:')) {
                 data = msg.data.slice('whoisonline:'.length);
                 var ind = data.indexOf(':');
@@ -59,8 +56,9 @@ editor.once('load', function() {
         });
 
         var emitOp = function(type, op) {
-            // console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
-            // console.log(op);
+            //console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
+            //console.log(op);
+
 
             if (op.p[0])
                 editor.emit('realtime:' + type + ':op:' + op.p[0], op);
@@ -92,31 +90,37 @@ editor.once('load', function() {
             scene.subscribe();
         };
 
-        var loadUserData = function () {
-            userData = connection.get('user_data', '' + config.scene.id + '_' + config.self.id);
+        editor.method('realtime:subscribe:userdata', function (sceneId, userId) {
+            var data = connection.get('user_data', '' + sceneId + '_' + userId);
 
             // error
-            userData.on('error', function (err) {
-                console.log('error', err);
+            data.on('error', function (err) {
+                editor.emit('userdata:' + userId + ':error', err);
             });
 
             // ready to sync
-            userData.on('ready', function() {
+            data.on('ready', function() {
                 // notify of operations
-                userData.on('after op', function(ops, local) {
+                data.on('after op', function(ops, local) {
                     if (local) return;
 
                     for (var i = 0; i < ops.length; i++)
-                        emitOp('scene', ops[i]);
+                        emitOp('userdata:' + userId, ops[i]);
                 });
 
                 // notify of scene load
-                editor.emit('userdata:raw', userData.getSnapshot());
+                editor.emit('userdata:' + userId + ':raw', data.getSnapshot());
             });
 
             // subscribe for realtime events
-            userData.subscribe();
-        };
+            data.subscribe();
+
+            if (data.state === 'ready') {
+                editor.emit('userdata:' + userId + ':raw', data.getSnapshot());
+            }
+
+            return data;
+        });
 
         // write scene operations
         editor.method('realtime:scene:op', function(op) {
@@ -140,6 +144,20 @@ editor.once('load', function() {
             // console.log(op)
 
             userData.submitOp([ op ]);
+        });
+
+        // subscribe to permission changes for userdata
+        editor.on('permissions:set:' + config.self.id, function () {
+            if (editor.call('permissions:write')) {
+                if (! userData) {
+                    userData = editor.call('realtime:subscribe:userdata', config.scene.id, config.self.id);
+                }
+            } else {
+                if (userData) {
+                    userData.unsubscribe();
+                    userData = null;
+                }
+            }
         });
     });
 });

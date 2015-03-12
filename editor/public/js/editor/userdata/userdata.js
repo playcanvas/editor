@@ -3,7 +3,7 @@ editor.once('load', function() {
 
     var userdata = new Observer();
 
-    editor.on('userdata:raw', function (data) {
+    editor.on('userdata:' + config.self.id + ':raw', function (data) {
         userdata.patch(data);
 
         if (!userdata.sync) {
@@ -21,14 +21,7 @@ editor.once('load', function() {
         editor.emit('userdata:load', userdata);
     });
 
-    // server > client
-    editor.on('realtime:userdata:op', function(op) {
-        console.log(op);
-    });
-
-    // Gets userdata
     editor.method('userdata', function () {
         return userdata;
     });
-
 });
