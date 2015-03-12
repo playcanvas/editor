@@ -11,6 +11,7 @@ editor.once('load', function() {
         var userData = null;
 
         var sharejsMessage = connection.socket.onmessage;
+
         connection.socket.onmessage = function(msg) {
             if (! auth && msg.data.startsWith('auth')) {
                 auth = true;
@@ -42,6 +43,13 @@ editor.once('load', function() {
             console.log('realtime error:', msg);
         });
 
+        var emitOp = function(type, op) {
+            // console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
+            // console.log(op);
+
+            if (op.p[0])
+                editor.emit('realtime:' + type + ':op:' + op.p[0], op);
+        };
 
         var loadScene = function() {
             scene = connection.get('scenes', '' + config.scene.id);
@@ -55,18 +63,10 @@ editor.once('load', function() {
             scene.on('ready', function() {
                 // notify of operations
                 scene.on('after op', function(ops, local) {
-                    if (local)
-                        return;
+                    if (local) return;
 
-                    for (var i = 0; i < ops.length; i++) {
-                        var op = ops[i];
-
-                        console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
-                        console.log(op)
-
-                        if (op.p[0])
-                            editor.emit('realtime:scene:op:' + op.p[0], op);
-                    }
+                    for (var i = 0; i < ops.length; i++)
+                        emitOp('scene', ops[i]);
                 });
 
                 // notify of scene load
@@ -89,18 +89,10 @@ editor.once('load', function() {
             userData.on('ready', function() {
                 // notify of operations
                 userData.on('after op', function(ops, local) {
-                    if (local)
-                        return;
+                    if (local) return;
 
-                    for (var i = 0; i < ops.length; i++) {
-                        var op = ops[i];
-
-                         console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
-                         console.log(op);
-
-                        if (op.p[0])
-                            editor.emit('realtime:userdata:op:' + op.p[0], op);
-                    }
+                    for (var i = 0; i < ops.length; i++)
+                        emitOp('scene', ops[i]);
                 });
 
                 // notify of scene load
@@ -111,26 +103,26 @@ editor.once('load', function() {
             userData.subscribe();
         };
 
-        // method to send scene related operations
+        // write scene operations
         editor.method('realtime:scene:op', function(op) {
             if (! editor.call('permissions:write') || ! scene)
                 return;
 
             // console.trace();
-             //console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
-             //console.log(op)
+            // console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
+            // console.log(op)
 
             scene.submitOp([ op ]);
         });
 
-        // method to send scene related operations
+        // write userdata operations
         editor.method('realtime:userdata:op', function(op) {
             if (! editor.call('permissions:write') || ! userData)
                 return;
 
             // console.trace();
-             //console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
-             //console.log(op)
+            // console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
+            // console.log(op)
 
             userData.submitOp([ op ]);
         });
