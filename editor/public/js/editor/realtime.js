@@ -9,12 +9,13 @@ editor.once('load', function() {
         var connection = new sharejs.Connection(socket);
         var scene = null;
         var userData = null;
+        var data;
 
         var sharejsMessage = connection.socket.onmessage;
         connection.socket.onmessage = function(msg) {
             if (! auth && msg.data.startsWith('auth')) {
                 auth = true;
-                var data = JSON.parse(msg.data.slice(4));
+                data = JSON.parse(msg.data.slice(4));
 
                 // load scene
                 if (! scene)
@@ -25,8 +26,17 @@ editor.once('load', function() {
                    loadUserData();
 
             } else if (msg.data.startsWith('permissions')) {
-                var data = JSON.parse(msg.data.slice('permissions'.length));
+                data = JSON.parse(msg.data.slice('permissions'.length));
                 editor.call('permissions:set', data.write);
+            } else if (msg.data.startsWith('whoisonline:set:')) {
+                data = JSON.parse(msg.data.slice('whoisonline:set:'.length));
+                editor.call('whoisonline:set', data);
+            } else if (msg.data.startsWith('whoisonline:add:')) {
+                data = parseInt(msg.data.slice('whoisonline:add:'.length), 10);
+                editor.call('whoisonline:add', data);
+            } else if (msg.data.startsWith('whoisonline:remove:')) {
+                data = parseInt(msg.data.slice('whoisonline:remove:'.length), 10);
+                editor.call('whoisonline:remove', data);
             } else {
                 sharejsMessage(msg);
             }
