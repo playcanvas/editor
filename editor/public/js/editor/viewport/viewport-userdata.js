@@ -5,6 +5,8 @@ editor.once('load', function() {
 
     editor.on('userdata:load', function (userdata) {
         var cameras = framework ? framework.cameras : null;
+        // get framework cameras and restore transforms and camera data
+        // from userdata
         if (cameras && cameras.length) {
             cameras.forEach(function (camera) {
                 var name = camera.getName().toLowerCase();
