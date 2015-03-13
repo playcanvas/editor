@@ -67,14 +67,14 @@ editor.once('load', function() {
         // ignore the logged in user
         if (userId === config.self.id) return;
 
-        // do not add users without write access
-        if (editor.call('permissions:write', userId)) {
+        // do not add users without read access
+        if (editor.call('permissions:read', userId)) {
             addUser(userId);
         }
 
         // subscribe to project permission changes
         editor.on('permissions:set:' + userId, function () {
-            if (editor.call('permissions:write', userId)) {
+            if (editor.call('permissions:read', userId)) {
                 if (!userdataDocs[userId]) {
                     // wait a bit before adding, for userdata to be created at sharejs
                     setTimeout(function () {

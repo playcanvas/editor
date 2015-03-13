@@ -3,7 +3,7 @@ editor.once('load', function() {
 
     var framework = editor.call('viewport:framework');
 
-    if (editor.call('permissions:write')) {
+    if (editor.call('permissions:read')) {
         editor.once('userdata:load', function (userdata) {
             var cameras = framework ? framework.cameras : null;
             // get framework cameras and restore transforms and camera data

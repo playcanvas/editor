@@ -4,7 +4,7 @@ editor.once('load', function() {
     var userData = null;
 
     editor.once('scene:raw', function () {
-        if (editor.call('permissions:write'))
+        if (editor.call('permissions:read'))
             loadUserData();
     });
 
@@ -51,7 +51,7 @@ editor.once('load', function() {
 
     // write userdata operations
     editor.method('realtime:userdata:op', function(op) {
-        if (! editor.call('permissions:write') || ! userData)
+        if (! editor.call('permissions:read') || ! userData)
             return;
 
         // console.trace();
@@ -63,7 +63,7 @@ editor.once('load', function() {
 
     // subscribe to permission changes for userdata
     editor.on('permissions:set:' + config.self.id, function () {
-        if (editor.call('permissions:write')) {
+        if (editor.call('permissions:read')) {
             loadUserData();
         } else {
             if (userData) {
