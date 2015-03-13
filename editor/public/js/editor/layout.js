@@ -108,8 +108,7 @@ editor.on('load', function() {
     // expose
     editor.method('layout.right', function() { return attributesPanel; });
 
-
-    editor.on('permissions:write', function(allowed) {
-        root.enabled = allowed;
+    editor.on('permissions:set:' + config.self.id, function () {
+        root.enabled = editor.call('permissions:write');
     });
 });

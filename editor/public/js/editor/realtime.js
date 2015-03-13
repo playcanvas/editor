@@ -8,7 +8,6 @@ editor.once('load', function() {
         var socket = new SockJS(config.url.realtime.http);
         var connection = new sharejs.Connection(socket);
         var scene = null;
-        var userData = null;
         var data;
 
         var sharejsMessage = connection.socket.onmessage;
@@ -22,13 +21,6 @@ editor.once('load', function() {
                 if (! scene)
                     loadScene();
 
-                // load user data
-                if (! userData)
-                   loadUserData();
-
-            } else if (msg.data.startsWith('permissions')) {
-                data = JSON.parse(msg.data.slice('permissions'.length));
-                editor.call('permissions:set', data.write);
             } else if (msg.data.startsWith('whoisonline:')) {
                 data = msg.data.slice('whoisonline:'.length);
                 var ind = data.indexOf(':');
@@ -52,15 +44,22 @@ editor.once('load', function() {
             this.socket.send('auth' + JSON.stringify({
                 accessToken: config.accessToken
             }));
+            editor.emit('realtime:connected');
         });
 
         connection.on('error', function(msg) {
             console.log('realtime error:', msg);
+            editor.emit('realtime:error', msg);
+        });
+
+        editor.method('realtime:connection', function () {
+            return connection;
         });
 
         var emitOp = function(type, op) {
-            // console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
-            // console.log(op);
+            //console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
+            //console.log(op);
+
 
             if (op.p[0])
                 editor.emit('realtime:' + type + ':op:' + op.p[0], op);
@@ -92,32 +91,6 @@ editor.once('load', function() {
             scene.subscribe();
         };
 
-        var loadUserData = function () {
-            userData = connection.get('user_data', '' + config.scene.id + '_' + config.self.id);
-
-            // error
-            userData.on('error', function (err) {
-                console.log('error', err);
-            });
-
-            // ready to sync
-            userData.on('ready', function() {
-                // notify of operations
-                userData.on('after op', function(ops, local) {
-                    if (local) return;
-
-                    for (var i = 0; i < ops.length; i++)
-                        emitOp('scene', ops[i]);
-                });
-
-                // notify of scene load
-                editor.emit('userdata:raw', userData.getSnapshot());
-            });
-
-            // subscribe for realtime events
-            userData.subscribe();
-        };
-
         // write scene operations
         editor.method('realtime:scene:op', function(op) {
             if (! editor.call('permissions:write') || ! scene)
@@ -128,18 +101,6 @@ editor.once('load', function() {
             // console.log(op)
 
             scene.submitOp([ op ]);
-        });
-
-        // write userdata operations
-        editor.method('realtime:userdata:op', function(op) {
-            if (! editor.call('permissions:write') || ! userData)
-                return;
-
-            // console.trace();
-            // console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
-            // console.log(op)
-
-            userData.submitOp([ op ]);
         });
     });
 });
