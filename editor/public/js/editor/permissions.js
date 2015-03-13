@@ -1,6 +1,15 @@
 editor.once('load', function() {
     'use strict';
 
+    var permissions = {};
+
+    // cache permissions in a dictionary
+    ['read', 'write', 'admin'].forEach(function (access) {
+        config.project.permissions[access].forEach(function (id) {
+            permissions[id] = access;
+        });
+    });
+
     editor.method('permissions', function () {
         return config.project.permissions;
     });
@@ -8,22 +17,19 @@ editor.once('load', function() {
     editor.method('permissions:read', function (userId) {
         if (!userId) userId = config.self.id;
 
-        return config.project.permissions.read.indexOf(userId) >= 0 ||
-               config.project.permissions.write.indexOf(userId) >= 0 ||
-               config.project.permissions.admin.indexOf(userId) >= 0;
+        return userId in permissions;
     });
 
     editor.method('permissions:write', function (userId) {
         if (!userId) userId = config.self.id;
 
-        return config.project.permissions.write.indexOf(userId) >= 0 ||
-               config.project.permissions.admin.indexOf(userId) >= 0;
+        return permissions[userId] === 'write' || permissions[userId] === 'admin';
     });
 
     editor.method('permissions:admin', function (userId) {
         if (!userId) userId = config.self.id;
 
-        return config.project.permissions.admin.indexOf(userId) >= 0;
+        return permissions[userId] === 'admin';
     });
 
     // subscribe to messenger
@@ -47,11 +53,14 @@ editor.once('load', function() {
             config.project.permissions.admin.splice(ind, 1);
         }
 
+        delete permissions[userId];
+
         var accessLevel = msg.user.permission;
 
         // add new permission
         if (accessLevel) {
             config.project.permissions[accessLevel].push(userId);
+            permissions[userId] = accessLevel;
         }
 
         editor.emit('permissions:set:' + userId, accessLevel);
