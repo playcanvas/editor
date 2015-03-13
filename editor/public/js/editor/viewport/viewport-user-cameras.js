@@ -4,7 +4,7 @@ editor.once('load', function() {
     var framework = editor.call('viewport:framework');
 
     var userCameras = {};
-    var userData = {};
+    var userdataDocs = {};
 
     // Subscribes to user data of specified user
     var addUser = function (userId) {
@@ -12,7 +12,7 @@ editor.once('load', function() {
             loadUserData(userId, data);
         });
 
-        userData[userId] = editor.call('realtime:subscribe:userdata', config.scene.id, userId);
+        userdataDocs[userId] = editor.call('realtime:subscribe:userdata', config.scene.id, userId);
     };
 
     // Creates user camera and binds to real time events
@@ -75,7 +75,7 @@ editor.once('load', function() {
         // subscribe to project permission changes
         editor.on('permissions:set:' + userId, function () {
             if (editor.call('permissions:write', userId)) {
-                if (!userData[userId]) {
+                if (!userdataDocs[userId]) {
                     // wait a bit before adding, for userdata to be created at sharejs
                     setTimeout(function () {
                         addUser(userId);
@@ -92,9 +92,9 @@ editor.once('load', function() {
         if (userId === config.self.id) return;
 
         // unsubscribe from realtime userdata
-        if (userData[userId]) {
-            userData[userId].unsubscribe();
-            delete userData[userId];
+        if (userdataDocs[userId]) {
+            userdataDocs[userId].unsubscribe();
+            delete userdataDocs[userId];
             editor.unbind('realtime:userdata:' + userId + ':op:cameras');
         }
 
