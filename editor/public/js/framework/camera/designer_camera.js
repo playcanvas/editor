@@ -366,7 +366,7 @@ pc.script.create( "designer_camera", function (app) {
             return;
         }
 
-        if (this.isOrbiting || this.isPanning) {
+        if (this.isOrbiting || this.isPanning || this.entity.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
             return;
         }
 
@@ -420,7 +420,7 @@ pc.script.create( "designer_camera", function (app) {
     };
 
     DesignerCamera.prototype.onKeyUp = function (e) {
-        if (e.target && e.target.tagName.toLowerCase() === 'input') {
+        if (e.target && e.target.tagName.toLowerCase() === 'input' || this.entity.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
             return;
         }
 
@@ -461,19 +461,22 @@ pc.script.create( "designer_camera", function (app) {
         var left = e.buttons[pc.MOUSEBUTTON_LEFT];
         var middle = e.buttons[pc.MOUSEBUTTON_MIDDLE];
         var right = e.buttons[pc.MOUSEBUTTON_RIGHT];
+        var isOrtho = (this.entity.camera.projection === pc.PROJECTION_ORTHOGRAPHIC);
 
-        if (!this.flyMode && !this.isOrbiting && !this.isLookingAround && (middle || (left && e.shiftKey))) {
+        if (!this.flyMode && !this.isOrbiting && !this.isLookingAround && (middle || (left && (e.shiftKey || isOrtho)))) {
             this.pan([e.dx, e.dy]);
             this.isPanning = true;
             app.toggleGizmoInteraction(false);
-        } else if (!this.flyMode && !this.isPanning && !this.isLookingAround && left && this.entity.camera.projection !== pc.scene.Projection.ORTHOGRAPHIC) {
-            this.orbit([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);
-            this.isOrbiting = true;
-            app.toggleGizmoInteraction(false);
-        } else if (!this.isOrbiting && !this.isPanning && right) {
-            this.lookAt([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);
-            this.isLookingAround = true;
-            app.toggleGizmoInteraction(false);
+        } else if (!isOrtho) {
+            if (!this.flyMode && !this.isPanning && !this.isLookingAround && left) {
+                this.orbit([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);
+                this.isOrbiting = true;
+                app.toggleGizmoInteraction(false);
+            } else if (!this.isOrbiting && !this.isPanning && right) {
+                this.lookAt([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);
+                this.isLookingAround = true;
+                app.toggleGizmoInteraction(false);
+            }
         }
     };
 
