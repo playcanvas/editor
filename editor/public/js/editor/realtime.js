@@ -2,59 +2,109 @@ editor.once('load', function() {
     'use strict';
 
     editor.once('start', function() {
-        editor.emit('realtime:connecting');
-
         var auth = false;
         var socket = new SockJS(config.url.realtime.http);
         var connection = new sharejs.Connection(socket);
         var scene = null;
         var data;
-
-        var sharejsMessage = connection.socket.onmessage;
-
-        connection.socket.onmessage = function(msg) {
-            if (! auth && msg.data.startsWith('auth')) {
-                auth = true;
-                data = JSON.parse(msg.data.slice(4));
-
-                // load scene
-                if (! scene)
-                    loadScene();
-
-            } else if (msg.data.startsWith('whoisonline:')) {
-                data = msg.data.slice('whoisonline:'.length);
-                var ind = data.indexOf(':');
-                if (ind !== -1) {
-                    var op = data.slice(0, ind);
-                    if (op === 'set') {
-                        data = JSON.parse(data.slice(ind + 1));
-                    } else if (op === 'add' || op === 'remove') {
-                        data = parseInt(data.slice(ind + 1), 10);
-                    }
-                    editor.call('whoisonline:' + op, data);
-                } else {
-                    sharejsMessage(msg);
-                }
-            } else {
-                sharejsMessage(msg);
-            }
-        };
-
-        connection.on('connected', function() {
-            this.socket.send('auth' + JSON.stringify({
-                accessToken: config.accessToken
-            }));
-            editor.emit('realtime:connected');
-        });
-
-        connection.on('error', function(msg) {
-            console.log('realtime error:', msg);
-            editor.emit('realtime:error', msg);
-        });
+        var reconnectAttempts = 0;
+        var reconnectInterval = 1;
 
         editor.method('realtime:connection', function () {
             return connection;
         });
+
+        var connect = function () {
+            if (reconnectAttempts > 8) {
+                editor.emit('realtime:cannotConnect');
+                return;
+            }
+
+            reconnectAttempts++;
+            editor.emit('realtime:connecting', reconnectAttempts);
+
+            var sharejsMessage = connection.socket.onmessage;
+
+            connection.socket.onmessage = function(msg) {
+                try {
+                    if (msg.data.startsWith('auth')) {
+                        if (!auth) {
+                            auth = true;
+                            data = JSON.parse(msg.data.slice(4));
+
+                            // load scene
+                            if (! scene)
+                                loadScene();
+                        }
+                    } else if (msg.data.startsWith('whoisonline:')) {
+                        data = msg.data.slice('whoisonline:'.length);
+                        var ind = data.indexOf(':');
+                        if (ind !== -1) {
+                            var op = data.slice(0, ind);
+                            if (op === 'set') {
+                                data = JSON.parse(data.slice(ind + 1));
+                            } else if (op === 'add' || op === 'remove') {
+                                data = parseInt(data.slice(ind + 1), 10);
+                            }
+                            editor.call('whoisonline:' + op, data);
+                        } else {
+                            sharejsMessage(msg);
+                        }
+                    } else {
+                        sharejsMessage(msg);
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+
+            };
+
+            connection.on('connected', function() {
+                reconnectAttempts = 0;
+                reconnectInterval = 1;
+
+                this.socket.send('auth' + JSON.stringify({
+                    accessToken: config.accessToken
+                }));
+
+                editor.emit('realtime:connected');
+            });
+
+            connection.on('error', function(msg) {
+                editor.emit('realtime:error', msg);
+            });
+
+            var onConnectionClosed = connection.socket.onclose;
+            connection.socket.onclose = function (reason) {
+                auth = false;
+
+                if (scene) {
+                    scene.destroy();
+                    scene = null;
+                }
+
+                editor.emit('realtime:disconnected', reason);
+                onConnectionClosed(reason);
+
+                // try to reconnect after a while
+                editor.emit('realtime:nextAttempt', reconnectInterval);
+
+                setTimeout(reconnect, reconnectInterval * 1000);
+
+                reconnectInterval++;
+            };
+        };
+
+        var reconnect = function () {
+            // create new socket...
+            socket = new SockJS(config.url.realtime.http);
+            // ... and new sharejs connection
+            connection = new sharejs.Connection(socket);
+            // connect again
+            connect();
+        };
+
+        connect();
 
         var emitOp = function(type, op) {
             //console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
@@ -70,7 +120,7 @@ editor.once('load', function() {
 
             // error
             scene.on('error', function(err) {
-                console.log('error', err);
+                editor.emit('realtime:scene:error', err);
             });
 
             // ready to sync
@@ -100,7 +150,12 @@ editor.once('load', function() {
             // console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
             // console.log(op)
 
-            scene.submitOp([ op ]);
+            try {
+                scene.submitOp([ op ]);
+            } catch (e) {
+                console.error(e);
+                editor.emit('realtime:scene:error', e);
+            }
         });
     });
 });

@@ -31,6 +31,10 @@ editor.once('load', function() {
         entities.remove(entity);
     });
 
+    // remove all entities
+    editor.method('entities:clear', function () {
+        entities.clear();
+    });
 
     // get entity
     editor.method('entities:get', function(resourceId) {

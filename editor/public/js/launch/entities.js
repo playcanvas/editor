@@ -29,7 +29,7 @@ app.once('load', function() {
         return entities.get(resourceId);
     });
 
-    app.once('scene:raw', function(data) {
+    app.on('scene:raw', function(data) {
         for(var key in data.entities) {
             entities.add(new Observer(data.entities[key]));
         }

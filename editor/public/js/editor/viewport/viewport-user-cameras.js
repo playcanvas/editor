@@ -93,7 +93,7 @@ editor.once('load', function() {
 
         // unsubscribe from realtime userdata
         if (userdataDocs[userId]) {
-            userdataDocs[userId].unsubscribe();
+            userdataDocs[userId].destroy();
             delete userdataDocs[userId];
             editor.unbind('realtime:userdata:' + userId + ':op:cameras');
         }

@@ -42,4 +42,9 @@ editor.once('load', function() {
         editor.emit('whoisonline:remove', id, index);
     });
 
+    // remove all users when disconnected
+    editor.on('realtime:disconnected', function () {
+        whoisonline.clear();
+    });
+
 });

@@ -11,16 +11,20 @@ function Overlay(args) {
     this.elementOverlay.classList.add('overlay');
     this.element.appendChild(this.elementOverlay);
 
-    this.elementOverlay.addEventListener('mousedown', function() {
-        // some field might be in focus
-        document.body.blur();
+    if (args.clickable !== false) {
+        this.elementOverlay.classList.add('clickable');
 
-        // wait till blur takes in account
-        setTimeout(function() {
-            // hide overlay
-            this.hidden = true;
-        }.bind(this), 0);
-    }.bind(this), false);
+        this.elementOverlay.addEventListener('mousedown', function() {
+            // some field might be in focus
+            document.body.blur();
+
+            // wait till blur takes in account
+            setTimeout(function() {
+                // hide overlay
+                this.hidden = true;
+            }.bind(this), 0);
+        }.bind(this), false);
+    }
 
     this.innerElement = document.createElement('div');
     this.innerElement.classList.add('content');

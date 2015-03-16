@@ -974,6 +974,45 @@ body {
     }
 }
 
+.connection-overlay {
+    > .content {
+        width: 400px;
+        height: 64px;
+        position: absolute;
+        top: 0;
+        bottom: 32px;
+        left: 0;
+        right: 0;
+        margin: auto;
+        display: table;
+
+        > .connection-icon {
+            display: table-cell;
+            width: 64px;
+            height: 64px;
+            line-height: 64px;
+            font-family: 'ui-font-solid';
+            font-size: 34px;
+            font-weight: 100;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-smoothing: antialiased;
+            text-align: center;
+
+            &.error:before {
+                content: '\E462';
+            }
+        }
+
+        > .connection-content {
+            display: table-cell;
+            padding-left: 20px;
+            width: 400px - 64px - 20px;
+            vertical-align: middle;
+        }
+    }
+}
+
 .picker-color {
     &.c-1 > .content {
         > .pick-opacity {
