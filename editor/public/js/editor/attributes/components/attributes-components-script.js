@@ -300,6 +300,7 @@ editor.once('load', function() {
                         choices[attribute.options.enumerations[e].value] = attribute.options.enumerations[e].name;
                     }
                 } catch(ex) {
+                    console.log(ex)
                     console.log('could not recreate enumeration for script attribute, ' + script.get('url'));
                 }
             }
@@ -349,12 +350,15 @@ editor.once('load', function() {
                 });
                 events.push(evtMaxUnset);
 
-                field.on('destroy', function() {
+                events.push(field.once('destroy', function() {
+                    evtType.unbind();
                     evtMin.unbind();
                     evtMax.unbind();
                     evtMinUnset.unbind();
                     evtMaxUnset.unbind();
-                });
+                }));
+            } else if (scriptAttributeTypes[attribute.type] === 'asset') {
+
             }
 
             var fieldParent;
@@ -363,6 +367,17 @@ editor.once('load', function() {
             } else {
                 fieldParent = field.parent;
             }
+
+            var evtType = script.on('attributes.' + attribute.name + '.type:set', function(value) {
+                setTimeout(function() {
+                    updateAttributeFields(script, parent);
+                }, 0);
+            });
+            events.push(evtType);
+
+            events.push(fieldParent.once('destroy', function() {
+                evtType.unbind();
+            }));
 
             fieldParent.attribute = attribute.name;
             fieldParent.attributeType = scriptAttributeTypes[attribute.type];
