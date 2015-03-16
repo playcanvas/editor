@@ -5,7 +5,7 @@ editor.once('load', function() {
         'number': 'number',
         'string': 'string',
         'boolean': 'checkbox',
-        'asset': 'string', // TEMP
+        'asset': 'assets', // TEMP
         'rgb': 'rgb',
         'rgba': 'rgb', // TEMP
         'vector': 'vec3',
@@ -357,8 +357,137 @@ editor.once('load', function() {
                     evtMinUnset.unbind();
                     evtMaxUnset.unbind();
                 }));
-            } else if (scriptAttributeTypes[attribute.type] === 'asset') {
+            } else if (scriptAttributeTypes[attribute.type] === 'assets') {
+                field.unlink();
 
+                // assets
+                var fieldAssetsList = new ui.List();
+                fieldAssetsList.class.add('assets');
+                fieldAssetsList.flexGrow = 1;
+                field.parent.append(fieldAssetsList);
+                field.destroy();
+                field = fieldAssetsList;
+
+                // drop
+                var dropRef = editor.call('drop:target', {
+                    ref: fieldAssetsList.element,
+                    type: 'asset.audio',
+                    filter: function(type, data) {
+                        return script.get('attributes.' + attribute.name + '.value').indexOf(data.id) === -1;
+                    },
+                    drop: function(type, data) {
+                        // already in list
+                        if (script.get('attributes.' + attribute.name + '.value').indexOf(data.id) !== -1)
+                            return;
+
+                        // add to component
+                        script.insert('attributes.' + attribute.name + '.value', data.id, 0);
+                    }
+                });
+                events.push(fieldAssetsList.on('destroy', function() {
+                    dropRef.unregister();
+                }));
+
+                // assets list
+                var itemAdd = new ui.ListItem({
+                    text: 'Add Asset'
+                });
+                itemAdd.class.add('add-asset');
+                fieldAssetsList.append(itemAdd);
+
+                // add asset icon
+                var iconAdd = document.createElement('span');
+                iconAdd.classList.add('icon');
+                itemAdd.element.appendChild(iconAdd);
+
+                // index list items by asset id
+                var assetItems = { };
+
+                // add asset
+                var addAsset = function(assetId, after) {
+                    var asset = editor.call('assets:get', assetId);
+                    var text = assetId;
+                    if (asset && asset.get('name'))
+                        text = asset.get('name');
+
+                    var item = new ui.ListItem({
+                        text: text
+                    });
+
+                    if (after) {
+                        fieldAssetsList.appendAfter(item, after);
+                    } else {
+                        fieldAssetsList.append(item);
+                    }
+
+                    assetItems[assetId] = item;
+
+                    // remove button
+                    var btnRemove = new ui.Button();
+                    btnRemove.class.add('remove');
+                    btnRemove.on('click', function() {
+                        script.removeValue('attributes.' + attribute.name + '.value', assetId);
+                    });
+                    btnRemove.parent = item;
+                    item.element.appendChild(btnRemove.element);
+                };
+
+                // on adding new audio
+                itemAdd.on('click', function() {
+                    // call picker
+                    editor.call('picker:asset', '*', null);
+
+                    // on pick
+                    var evtPick = editor.once('picker:asset', function(asset) {
+                        // already in list
+                        if (script.get('attributes.' + attribute.name + '.value').indexOf(asset.get('id')) !== -1)
+                            return;
+
+                        // add to component
+                        script.insert('attributes.' + attribute.name + '.value', asset.get('id'), 0);
+                        evtPick = null;
+                    });
+
+                    editor.once('picker:asset:close', function() {
+                        if (evtPick) {
+                            evtPick.unbind();
+                            evtPick = null;
+                        }
+                    });
+                });
+
+                // assets
+                var assets = script.get('attributes.' + attribute.name + '.value');
+                if (assets) {
+                    for(var i = 0; i < assets.length; i++) {
+                        addAsset(assets[i]);
+                    }
+                }
+                // on asset insert
+                var evtAssetInsert = script.on('attributes.' + attribute.name + '.value:insert', function(assetId, ind) {
+                    var before;
+                    if (ind === 0) {
+                        before = itemAdd;
+                    } else {
+                        before = assetItems[script.get('attributes.' + attribute.name + '.value.' + ind)];
+                    }
+                    addAsset(assetId, before);
+                });
+                events.push(evtAssetInsert);
+
+                // on asset remove
+                var evtAssetRemove = script.on('attributes.' + attribute.name + '.value:remove', function(assetId) {
+                    if (! assetItems[assetId])
+                        return;
+
+                    assetItems[assetId].destroy();
+                });
+                events.push(evtAssetRemove);
+
+                events.push(field.parent.once('destroy', function() {
+                    evtAssetInsert.unbind();
+                    evtAssetRemove.unbind();
+                }));
             }
 
             var fieldParent;

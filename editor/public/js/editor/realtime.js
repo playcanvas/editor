@@ -107,9 +107,8 @@ editor.once('load', function() {
         connect();
 
         var emitOp = function(type, op) {
-            //console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
-            //console.log(op);
-
+            // console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
+            // console.log(op);
 
             if (op.p[0])
                 editor.emit('realtime:' + type + ':op:' + op.p[0], op);

@@ -42,7 +42,7 @@ editor.once('load', function() {
 
     // picked asset
     assetsGrid.on('select', function(item) {
-        if (overlay.hidden || ! item.asset || item.asset.get('type') !== currentType || item.asset === currentAsset)
+        if (overlay.hidden || ! item.asset || (currentType !== '*' && item.asset.get('type') !== currentType) || item.asset === currentAsset)
             return;
 
         // emit event
