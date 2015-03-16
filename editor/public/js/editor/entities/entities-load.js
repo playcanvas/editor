@@ -15,6 +15,7 @@ editor.on('load', function() {
 
         // check if we're reloading the scene
         if (loadedEntities) {
+            editor.call('selector:clear');
             editor.call('entities:clear');
         }
 
