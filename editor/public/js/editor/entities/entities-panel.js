@@ -193,7 +193,7 @@ editor.once('load', function() {
 
 
     // append all treeItems according to child order
-    editor.once('entities:load', function() {
+    editor.on('entities:load', function() {
         var entities = editor.call('entities:list');
 
         for(var i = 0; i < entities.length; i++) {

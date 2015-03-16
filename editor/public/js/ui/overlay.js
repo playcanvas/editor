@@ -8,10 +8,13 @@ function Overlay(args) {
     this.element.classList.add('ui-overlay', 'center');
 
     this.elementOverlay = document.createElement('div');
-    this.elementOverlay.classList.add('overlay');
+    this.elementOverlay.classList.add('overlay', 'clickable');
     this.element.appendChild(this.elementOverlay);
 
     this.elementOverlay.addEventListener('mousedown', function() {
+        if (!this.clickable)
+            return false;
+
         // some field might be in focus
         document.body.blur();
 
@@ -52,6 +55,19 @@ Object.defineProperty(Overlay.prototype, 'transparent', {
             this._element.classList.add('transparent');
         } else {
             this._element.classList.remove('transparent');
+        }
+    }
+});
+
+Object.defineProperty(Overlay.prototype, 'clickable', {
+    get: function() {
+        return this.elementOverlay.classList.contains('clickable');
+    },
+    set: function(value) {
+        if (value) {
+            this.elementOverlay.classList.add('clickable');
+        } else {
+            this.elementOverlay.classList.remove('clickable');
         }
     }
 });

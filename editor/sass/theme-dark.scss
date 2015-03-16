@@ -792,6 +792,24 @@ a:visited {
     to { outline-color: rgba($text-active, 0); }
 }
 
+.connection-overlay {
+    > .content {
+        background-color: $bcg-darkest;
+
+        > .connection-icon {
+            color: $bcg-darkest;
+
+            &.error {
+                background-color: red;
+            }
+        }
+
+        > .connection-content {
+            color: white;
+        }
+    }
+}
+
 .picker-color {
     > .content {
         border: 1px solid $bcg-darkest;

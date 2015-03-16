@@ -3,7 +3,7 @@ editor.once('load', function() {
 
     var userData = null;
 
-    editor.once('scene:raw', function () {
+    editor.on('scene:raw', function () {
         if (editor.call('permissions:read'))
             loadUserData();
     });
@@ -67,9 +67,16 @@ editor.once('load', function() {
             loadUserData();
         } else {
             if (userData) {
-                userData.unsubscribe();
+                userData.destroy();
                 userData = null;
             }
+        }
+    });
+
+    editor.on('realtime:disconnected', function () {
+        if (userData) {
+            userData.destroy();
+            userData = null;
         }
     });
 });

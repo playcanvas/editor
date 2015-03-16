@@ -108,7 +108,21 @@ editor.on('load', function() {
     // expose
     editor.method('layout.right', function() { return attributesPanel; });
 
+    var isConnected = function () {
+        var connection = editor.call('realtime:connection');
+        return connection && connection.state === 'connected';
+    }
+
     editor.on('permissions:set:' + config.self.id, function () {
+        root.enabled = editor.call('permissions:write') && isConnected();
+    });
+
+    editor.on('realtime:disconnected', function () {
+        root.enabled = false;
+    });
+
+    editor.on('realtime:connected', function () {
         root.enabled = editor.call('permissions:write');
     });
+
 });

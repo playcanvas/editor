@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    editor.on('sceneSettings:load', function(settings) {
+    editor.once('sceneSettings:load', function(settings) {
         settings.sync = new ObserverSync({
             item: settings,
             prefix: [ 'settings' ]
