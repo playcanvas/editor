@@ -27,6 +27,11 @@ editor.once('load', function() {
         whoisonline.remove(id);
     });
 
+    // Returns true if specified user id is online
+    editor.method('whoisonline:find', function (id) {
+        return whoisonline.indexOf(id) >= 0;
+    });
+
     // 'add' event
     whoisonline.on('add', function (id) {
         editor.emit('whoisonline:add', id);
