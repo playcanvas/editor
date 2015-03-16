@@ -8,8 +8,8 @@ function Slider(args) {
     this._value = 0;
 
     this.precision = isNaN(args.precision) ? 2 : args.precision;
-    this.min = isNaN(args.min) ? 0 : args.min;
-    this.max = isNaN(args.max) ? 1 : args.max;
+    this._min = isNaN(args.min) ? 0 : args.min;
+    this._max = isNaN(args.max) ? 1 : args.max;
 
     this.element = document.createElement('div');
     this.element.classList.add('ui-slider');
@@ -51,8 +51,8 @@ function Slider(args) {
             x *= 10;
 
         var rect = self.element.getBoundingClientRect();
-        var step = (self.max - self.min) / rect.width;
-        var value = Math.max(self.min, Math.min(self.max, self.value + x * step));
+        var step = (self._max - self._min) / rect.width;
+        var value = Math.max(self._min, Math.min(self._max, self.value + x * step));
         value = parseFloat(value.toFixed(self.precision), 10);
 
         self.renderChanges = false;
@@ -72,7 +72,7 @@ Slider.prototype._onLinkChange = function(value) {
 
 
 Slider.prototype._updateHandle = function(value) {
-    this.elementHandle.style.left = (Math.max(0, Math.min(1, value / (this.max - this.min))) * 100) + '%';
+    this.elementHandle.style.left = (Math.max(0, Math.min(1, value / (this._max - this._min))) * 100) + '%';
 };
 
 
@@ -83,7 +83,7 @@ Slider.prototype._handleEvt = function(evt) {
     var rect = this.element.getBoundingClientRect();
     var x = Math.max(0, Math.min(1, (evt.clientX - rect.left) / rect.width));
 
-    var range = this.max - this.min;
+    var range = this._max - this._min;
     var value = (x * range);
     value = parseFloat(value.toFixed(this.precision), 10);
 
@@ -135,6 +135,33 @@ Slider.prototype._onMouseUp = function(evt) {
 };
 
 
+Object.defineProperty(Slider.prototype, 'min', {
+    get: function() {
+        return this._min;
+    },
+    set: function(value) {
+        if (this._min === value)
+            return;
+
+        this._min = value;
+        this._updateHandle(this._value);
+    }
+});
+
+
+Object.defineProperty(Slider.prototype, 'max', {
+    get: function() {
+        return this._max;
+    },
+    set: function(value) {
+        if (this._max === value)
+            return;
+
+        this._max = value;
+        this._updateHandle(this._value);
+    }
+});
+
 
 Object.defineProperty(Slider.prototype, 'value', {
     get: function() {
@@ -149,11 +176,11 @@ Object.defineProperty(Slider.prototype, 'value', {
             if (! this._link.set(this.path, value))
                 this._updateHandle(this._link.get(this.path));
         } else {
-            if (this.max !== null && this.max < value)
-                value = this.max;
+            if (this._max !== null && this._max < value)
+                value = this._max;
 
-            if (this.min !== null && this.min > value)
-                value = this.min;
+            if (this._min !== null && this._min > value)
+                value = this._min;
 
             value = (this.precision !== null) ? parseFloat(value.toFixed(this.precision), 10) : value;
             this._updateHandle(value);

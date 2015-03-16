@@ -197,33 +197,34 @@ editor.once('load', function() {
                 var scriptComponents = [];
                 for (var key in entitiesWithScripts) {
                     var scripts = entitiesWithScripts[key].getRaw('components.script.scripts');
-                    if (scripts) {
-                        for (var i = 0; i < scripts.length; i++) {
-                            if (scripts[i].get('url') === script.get('url')) {
-                                scriptComponents.push(scripts[i]);
-                                break;
-                            }
-                        }
+                    if (! scripts)
+                        continue;
+
+                    for (var i = 0; i < scripts.length; i++) {
+                        if (scripts[i].get('url') !== script.get('url'))
+                            continue;
+
+                        scriptComponents.push(scripts[i]);
+                        break;
                     }
                 }
 
                 // merge old attributes with new attributes for all script components with this script
                 scriptComponents.forEach(function (script) {
-                    var oldAttributes = script.get('attributes') || {};
+                    var oldAttributes = script.get('attributes') || { };
                     for (var key in data.attributes) {
-                        if (data.attributes.hasOwnProperty(key)) {
-                            var value = data.attributes[key].defaultValue;
-                            if (key in oldAttributes && oldAttributes[key].type === data.attributes[key].type) {
-                                value = oldAttributes[key].value !== oldAttributes[key].defaultValue ? oldAttributes[key].value : value;
-                            }
-                            data.attributes[key].value = value;
+                        if (! data.attributes.hasOwnProperty(key))
+                            continue;
+
+                        var value = data.attributes[key].defaultValue;
+                        if (key in oldAttributes && oldAttributes[key].type === data.attributes[key].type) {
+                            value = oldAttributes[key].value !== oldAttributes[key].defaultValue ? oldAttributes[key].value : value;
                         }
+                        data.attributes[key].value = value;
                     }
 
                     script.patch(data);
                 });
-
-                // updateAttributeFields(script, scr);
             });
         }
 
@@ -237,7 +238,9 @@ editor.once('load', function() {
 
             for(var i = 0; i < children.length; i++) {
                 var attribute = children[i].ui.attribute;
-                if (attributes.indexOf(attribute) === -1) {
+                var attributeType = children[i].ui.attributeType;
+
+                if (attributes.indexOf(attribute) === -1 || attributeType !== scriptAttributeTypes[script.get('attributes.' + attribute + '.type')]) {
                     toDestroy.push(children[i].ui);
                 } else {
                     list.push(attribute);
@@ -256,7 +259,7 @@ editor.once('load', function() {
 
                 if (ind === -1) {
                     // new attibute
-                    panel = createAttributeField(script, attributes[i], parent).parent;
+                    panel = createAttributeField(script, attributes[i], parent);
                     list.splice(i, 0, attributes[i]);
                     index[attributes[i]] = panel;
                 } else if (ind !== i) {
@@ -310,9 +313,61 @@ editor.once('load', function() {
                 path: 'attributes.' + attribute.name + '.value'
             });
 
-            field.parent.attribute = attribute.name;
+            if (scriptAttributeTypes[attribute.type] === 'number') {
+                field.flexGrow = 1;
+                field.style.width = '32px';
 
-            return field;
+                var slider = new ui.Slider({
+                    min: attribute.options.min || 0,
+                    max: attribute.options.max || 1
+                });
+                slider.hidden = isNaN(attribute.options.min) || isNaN(attribute.options.max);
+                slider.flexGrow = 4;
+                slider.style.width = '32px';
+                slider.link(script, 'attributes.' + attribute.name + '.value');
+                field.parent.append(slider);
+
+                var evtMin = script.on('attributes.' + attribute.name + '.options.min:set', function(value) {
+                    slider.min = value;
+                    slider.hidden = isNaN(script.get('attributes.' + attribute.name + '.options.min')) || isNaN(script.get('attributes.' + attribute.name + '.options.max'));
+                });
+                events.push(evtMin);
+
+                var evtMax = script.on('attributes.' + attribute.name + '.options.max:set', function(value) {
+                    slider.max = value;
+                    slider.hidden = isNaN(script.get('attributes.' + attribute.name + '.options.min')) || isNaN(script.get('attributes.' + attribute.name + '.options.max'));
+                });
+                events.push(evtMax);
+
+                var evtMinUnset = script.on('attributes.' + attribute.name + '.options.min:unset', function() {
+                    slider.hidden = true;
+                });
+                events.push(evtMinUnset);
+
+                var evtMaxUnset = script.on('attributes.' + attribute.name + '.options.max:unset', function() {
+                    slider.hidden = true;
+                });
+                events.push(evtMaxUnset);
+
+                field.on('destroy', function() {
+                    evtMin.unbind();
+                    evtMax.unbind();
+                    evtMinUnset.unbind();
+                    evtMaxUnset.unbind();
+                });
+            }
+
+            var fieldParent;
+            if (field instanceof Array) {
+                fieldParent = field[0].parent;
+            } else {
+                fieldParent = field.parent;
+            }
+
+            fieldParent.attribute = attribute.name;
+            fieldParent.attributeType = scriptAttributeTypes[attribute.type];
+
+            return fieldParent;
         };
 
         function createScriptPanel(script) {

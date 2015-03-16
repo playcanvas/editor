@@ -105,6 +105,7 @@ Observer.prototype.silenceRestore = function(state) {
 
 Observer.prototype._prepare = function(target, key, value, silent) {
     var self = this;
+    var state;
     var path = (target._path ? (target._path + '.') : '') + key;
     var type = typeof(value);
 
@@ -128,7 +129,6 @@ Observer.prototype._prepare = function(target, key, value, silent) {
             }
         }
 
-        var state;
         if (silent)
             state = this.silence();
 
@@ -137,6 +137,8 @@ Observer.prototype._prepare = function(target, key, value, silent) {
 
         if (silent)
             this.silenceRestore(state);
+
+        return true;
     } else if (type === 'object' && (value instanceof Object)) {
         target._data[key] = {
             _path: path,
@@ -144,21 +146,21 @@ Observer.prototype._prepare = function(target, key, value, silent) {
             _data: { }
         };
 
-        var state = this.silence();
-
         for(var i in value) {
             if (typeof(value[i]) === 'object') {
                 this._prepare(target._data[key], i, value[i], true);
             } else {
+                state = this.silence();
+
                 target._data[key]._data[i] = value[i];
                 target._data[key]._keys.push(i);
 
                 this.emit(path + '.' + i + ':set', value[i], null);
                 this.emit('*:set', path + '.' + i, value[i], null);
+
+                this.silenceRestore(state);
             }
         }
-
-        this.silenceRestore(state);
 
         if (silent)
             state = this.silence();
@@ -168,7 +170,11 @@ Observer.prototype._prepare = function(target, key, value, silent) {
 
         if (silent)
             this.silenceRestore(state);
+
+        return true;
     }
+
+    return false;
 };
 
 
@@ -234,9 +240,11 @@ Observer.prototype.set = function(path, value, silent) {
 
         if (silent)
             obj.silenceRestore(state);
+
+        return true;
     } else if (node._data && ! node._data.hasOwnProperty(key)) {
         if (typeof(value) === 'object') {
-            obj._prepare(node, key, value);
+            return obj._prepare(node, key, value);
         } else {
             node._data[key] = value;
             node._keys.push(key);
@@ -249,11 +257,13 @@ Observer.prototype.set = function(path, value, silent) {
 
             if (silent)
                 obj.silenceRestore(state);
+
+            return true;
         }
     } else {
         if (typeof(value) === 'object' && (value instanceof Array)) {
             if (value.equals(node._data[key]))
-                return;
+                return false;
 
             var valueOld = node._data[key];
             if (! (valueOld instanceof Observer))
@@ -292,23 +302,78 @@ Observer.prototype.set = function(path, value, silent) {
 
             if (silent)
                 obj.silenceRestore(state);
+
+            return true;
         } else if (typeof(value) === 'object' && (value instanceof Object)) {
+            var changed = false;
+            var valueOld = node._data[key];
+            if (! (valueOld instanceof Observer))
+                valueOld = obj.json(valueOld);
+
             var keys = Object.keys(value);
 
             for(var n in node._data[key]._data) {
                 if (! value.hasOwnProperty(n)) {
-                    obj.unset(path + '.' + n);
+                    var c = obj.unset(path + '.' + n, true);
+                    if (c) changed = true;
                 } else if (node._data[key]._data.hasOwnProperty(n)) {
-                    if (! obj._equals(node._data[key]._data[n], value[n]))
-                        obj.set(path + '.' + n, value[n]);
+                    if (! obj._equals(node._data[key]._data[n], value[n])) {
+                        var c = obj.set(path + '.' + n, value[n], true);
+                        if (c) changed = true;
+                    }
                 } else {
-                    obj._prepare(node._data[key], n, value[n]);
+                    var c = obj._prepare(node._data[key], n, value[n], true);
+                    if (c) changed = true;
                 }
             }
 
             for(var i = 0; i < keys.length; i++) {
-                if (! node._data[key]._data.hasOwnProperty(keys[i]))
-                    obj._prepare(node._data[key], keys[i], value[keys[i]]);
+                if (value[keys[i]] === undefined && node._data[key]._data.hasOwnProperty(keys[i])) {
+                    var c = obj.unset(path + '.' + keys[i], true);
+                    if (c) changed = true;
+                } else if (typeof(value[keys[i]]) === 'object') {
+                    if (node._data[key]._data.hasOwnProperty(keys[i])) {
+                        var c = obj.set(path + '.' + keys[i], value[keys[i]], true);
+                        if (c) changed = true;
+                    } else {
+                        var c = obj._prepare(node._data[key], keys[i], value[keys[i]], true);
+                        if (c) changed = true;
+                    }
+                } else if (! obj._equals(node._data[key]._data[keys[i]], value[keys[i]])) {
+                    if (typeof(value[keys[i]]) === 'object') {
+                        var c = obj.set(node._data[key]._path + '.' + keys[i], value[keys[i]], true);
+                        if (c) changed = true;
+                    } else if (node._data[key]._data[keys[i]] !== value[keys[i]]) {
+                        changed = true;
+
+                        if (node._data[key]._keys.indexOf(keys[i]) === -1)
+                            node._data[key]._keys.push(keys[i]);
+
+                        node._data[key]._data[keys[i]] = value[keys[i]];
+
+                        state = obj.silence();
+                        obj.emit(node._data[key]._path + '.' + keys[i] + ':set', node._data[key]._data[keys[i]], null);
+                        obj.emit('*:set', node._data[key]._path + '.' + keys[i], node._data[key]._data[keys[i]], null);
+                        obj.silenceRestore(state);
+                    }
+                }
+            }
+
+            if (changed) {
+                if (silent)
+                    state = obj.silence();
+
+                var val = obj.json(node._data[key]);
+
+                obj.emit(node._data[key]._path + ':set', val, valueOld);
+                obj.emit('*:set', node._data[key]._path, val, valueOld);
+
+                if (silent)
+                    obj.silenceRestore(state);
+
+                return true;
+            } else {
+                return false;
             }
         } else {
             if (node._data[key] === value)
@@ -328,10 +393,12 @@ Observer.prototype.set = function(path, value, silent) {
 
             if (silent)
                 obj.silenceRestore(state);
+
+            return true;
         }
     }
 
-    return true;
+    return false;
 };
 
 
@@ -647,7 +714,7 @@ Observer.prototype.patch = function(data) {
     for(var key in data) {
         if (typeof(data[key]) === 'object' && ! this._data.hasOwnProperty(key)) {
             this._prepare(this, key, data[key]);
-        } else {
+        } else if (this._data[key] !== data[key]) {
             this.set(key, data[key]);
         }
     }
