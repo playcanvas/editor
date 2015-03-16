@@ -4,10 +4,11 @@ editor.once('load', function() {
     var interval;
 
     // overlay
-    var overlay = new ui.Overlay({clickable: false});
+    var overlay = new ui.Overlay();
     overlay.class.add('connection-overlay');
     overlay.center = false;
     overlay.transparent = false;
+    overlay.clickable = false;
     overlay.hidden = true;
 
     var root = editor.call('layout.root');
