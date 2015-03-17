@@ -632,31 +632,31 @@ editor.once('load', function() {
         }
 
         // subscribe to scripts:insert
-        events.push(entity.on('components.script.scripts:insert', function (script, index) {
+        events.push(entity.on('components.script.scripts:insert', function (script, ind) {
             var scriptPanel = createScriptPanel(script);
-            scriptPanels.splice(index, 0, scriptPanel);
+            scriptPanels.splice(ind, 0, scriptPanel);
 
-            if (index === scriptPanels.length - 1) {
+            if (ind === scriptPanels.length - 1) {
                 // append at the end
                 panelScripts.append(scriptPanel);
             } else {
                 // append before panel at next index
-                panelScripts.appendBefore(scriptPanel, scriptPanels[index + 1]);
+                panelScripts.appendBefore(scriptPanel, scriptPanels[ind + 1]);
             }
         }));
 
-        events.push(entity.on('components.script.scripts:move', function (value, idxNew, idxOld) {
-            panelScripts.appendBefore(scriptPanels[idxOld], scriptPanels[idxNew > idxOld ? idxNew + 1 : idxNew]);
-            var temp = scriptPanels[idxOld];
-            scriptPanels[idxOld] = scriptPanels[idxNew];
-            scriptPanels[idxNew] = temp;
+        events.push(entity.on('components.script.scripts:move', function (value, indNew, indOld) {
+            panelScripts.appendBefore(scriptPanels[indOld], scriptPanels[indNew > indOld ? indNew + 1 : indNew]);
+            var temp = scriptPanels[indOld];
+            scriptPanels[indOld] = scriptPanels[indNew];
+            scriptPanels[indNew] = temp;
         }));
 
         // subscribe to scripts:remove
-        events.push(entity.on('components.script.scripts:remove', function (script, index) {
-            if (scriptPanels[index]) {
-                scriptPanels[index].destroy();
-                scriptPanels.splice(index, 1);
+        events.push(entity.on('components.script.scripts:remove', function (script, ind) {
+            if (scriptPanels[ind]) {
+                scriptPanels[ind].destroy();
+                scriptPanels.splice(ind, 1);
             }
             script.destroy();
         }));
