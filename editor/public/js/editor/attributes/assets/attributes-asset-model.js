@@ -24,9 +24,7 @@ editor.once('load', function() {
 
         var asset = assets[0];
 
-        console.log(asset.json())
-
-        if (asset.get('data.mapping').length) {
+        if (asset.has('data.mapping') && asset.get('data.mapping').length) {
             // nodes panel
             var panelNodes = editor.call('attributes:addPanel', {
                 name: 'Nodes'
@@ -75,6 +73,12 @@ editor.once('load', function() {
                         // set to mapping observer
                         asset.set('data.mapping.' + ind + '.material', assetId);
                     });
+                });
+
+                fieldMaterial.on('view', function() {
+                    var asset = editor.call('assets:get', this.value);
+                    if (! asset) return;
+                    editor.call('selector:set', 'asset', [ asset ]);
                 });
 
                 // link field

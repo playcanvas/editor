@@ -15,3 +15,16 @@ Array.prototype.equals = function(array) {
     }
     return true;
 };
+
+
+Array.prototype.match = function(pattern) {
+    if (this.length !== pattern.length)
+        return;
+
+    for(var i = 0, l = this.length; i < l; i++) {
+        if (pattern[i] !== '*' && pattern[i] !== this[i])
+            return false;
+    }
+
+    return true;
+};

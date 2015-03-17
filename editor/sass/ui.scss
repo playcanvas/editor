@@ -354,7 +354,10 @@ a:visited {
         bottom: 0;
         left: 0;
         background-color: rgba(0, 0, 0, .7);
-        cursor: pointer;
+
+        &.clickable {
+            cursor: pointer;
+        }
     }
     > .content {
         position: relative;
@@ -722,6 +725,112 @@ a:visited {
     }
 }
 
+.ui-menu {
+    @extend .noSelect;
+    display: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: auto;
+    height: auto;
+    z-index: 401;
+
+    &.open {
+        display: block;
+    }
+    > .overlay {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: auto;
+        height: auto;
+        // background-color: rgba(0, 0, 0, .5);
+    }
+    > .inner {
+        position: fixed;
+        top: 0;
+        left: 0;
+    }
+}
+
+.ui-menu-item {
+    position: relative;
+    background-color: #333;
+
+    &.disabled {
+        > .title {
+            opacity: $disabled-opacity;
+            cursor: default;
+
+            &:hover {
+                background-color: transparent;
+            }
+        }
+    }
+    &.container {
+        > .title {
+            min-width: 158px - 32px;
+            padding-right: 24px;
+
+            &:after {
+                content: '\00a0';
+                position: absolute;
+                right: 8px;
+                top: 8px;
+                width: 16px;
+                height: 16px;
+                background-color: #07f;
+            }
+        }
+        &.hover {
+            > .title {
+                background-color: #f60;
+            }
+            > .content {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+    }
+    > .title {
+        position: relative;
+        min-width: 158px;
+        line-height: 32px;
+        cursor: pointer;
+        white-space: nowrap;
+        color: #fff;
+
+        &:hover {
+            background-color: #f60;
+        }
+        > .text {
+            padding: 0 16px 0 8px;
+        }
+        > .icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            line-height: 16px;
+            text-align: center;
+            margin: 8px 0 8px 8px;
+            vertical-align: top;
+            background-color: #07f;
+        }
+    }
+    > .content {
+        position: absolute;
+        left: 100%;
+        top: 0;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 100ms, visibility 100ms;
+    }
+}
+
 .ui-label {
     display: inline-block;
     line-height: 22px;
@@ -998,9 +1107,8 @@ a:visited {
         border-color: #07f;
     }
     &.empty {
-        > .preview {
-            display: none;
-        }
+        > .preview,
+        > .view,
         > .clear {
             display: none;
         }
@@ -1010,16 +1118,23 @@ a:visited {
         width: 64px;
         height: 64px;
     }
+    > .view,
     > .clear {
-        display: none;
         position: absolute;
         width: 16px;
         height: 16px;
         top: 0;
-        right: 0;
         background-color: #07f;
         border-bottom: 1px solid #666;
+    }
+    > .clear {
+        display: none;
+        right: 0;
         border-left: 1px solid #666;
+    }
+    > .view {
+        left: 0;
+        border-right: 1px solid #666;
     }
     &.disabled {
         > .clear {

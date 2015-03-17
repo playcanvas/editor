@@ -23,19 +23,84 @@ editor.once('load', function() {
         fieldDimensions.renderChanges = false;
 
         // minfilter
-        editor.call('attributes:addField', {
+        var minFilterField = editor.call('attributes:addField', {
             parent: paramsPanel,
             name: 'Min Filter',
-            link: asset,
-            path: 'data.minfilter'
+            enum: {
+                'nearest': 'Nearest',
+                'linear': 'Linear'
+            }
+        });
+
+        // mipfilter
+        var mipFilterField = editor.call('attributes:addField', {
+            parent: paramsPanel,
+            name: 'Mip Filter',
+            enum: {
+                'none': 'None',
+                'nearest': 'Nearest',
+                'linear': 'Linear'
+            }
+        });
+
+        var suspendEvents = false;
+
+        // convert minFilter value to min field and mip field values
+        var setMinMipFields = function (minFilter) {
+            suspendEvents = true;
+
+            var parts = minFilter.split('_');
+            if (parts.length === 1) {
+                minFilterField.value = minFilter;
+                mipFilterField.value = 'none';
+            } else if (parts.length === 3) {
+                minFilterField.value = parts[0];
+                mipFilterField.value = parts[2];
+            }
+
+            suspendEvents = false;
+        };
+
+        minFilterField.on('change', function (value) {
+            if (suspendEvents) return;
+
+            var finalValue = mipFilterField.value === 'none' ? value : value + '_mip_' + mipFilterField.value;
+            suspendEvents = true;
+            asset.set('data.minfilter', finalValue);
+            suspendEvents = false;
+        });
+
+        mipFilterField.on('change', function (value) {
+            if (suspendEvents) return;
+
+            var finalValue = value === 'none' ? minFilterField.value : minFilterField.value + '_mip_' + value;
+            suspendEvents = true;
+            asset.set('data.minfilter', finalValue);
+            suspendEvents = false;
+        });
+
+        setMinMipFields(asset.get('data.minfilter'));
+
+        var onMinFilterChanged = function (value) {
+            setMinMipFields(value);
+        };
+
+        asset.on('data.minfilter:set', onMinFilterChanged);
+
+        paramsPanel.once('destroy', function () {
+            asset.unbind('data.minfilter:set', onMinFilterChanged);
         });
 
         // magfilter
-        editor.call('attributes:addField', {
+        var magFilterField = editor.call('attributes:addField', {
             parent: paramsPanel,
             name: 'Mag Filter',
             link: asset,
-            path: 'data.magfilter'
+            path: 'data.magfilter',
+            enum: {
+                'nearest': 'Nearest',
+                'linear': 'Linear'
+            }
         });
 
         // addressu

@@ -252,6 +252,12 @@ editor.once('load', function() {
                     });
                 });
 
+                field.on('view', function() {
+                    var asset = editor.call('assets:get', this.value);
+                    if (! asset) return;
+                    editor.call('selector:set', 'asset', [ asset ]);
+                });
+
                 field.on('change', function(value) {
                     if (! value)
                         return field.empty = true;

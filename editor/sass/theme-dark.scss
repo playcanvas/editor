@@ -324,6 +324,78 @@ a:visited {
     }
 }
 
+.ui-menu {
+
+}
+
+.ui-menu-item {
+    background-color: $bcg-darkest;
+
+    &.disabled > .title:hover {
+        color: $text-dark;
+
+        > .icon {
+            color: $text-dark;
+        }
+    }
+    &.container {
+        > .title:after {
+            content: '\E113';
+            font-family: 'ui-font-solid';
+            font-size: 14px;
+            text-align: center;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-smoothing: antialiased;
+            background-color: transparent;
+            color: $text-dark;
+            line-height: 16px;
+        }
+        &.hover > .title {
+            color: $text-primary;
+            background-color: $text-darkest;
+
+            &:after {
+                color: $text-primary;
+            }
+            > .icon {
+                color: $text-primary;
+            }
+        }
+    }
+    &:last-child {
+        > .title {
+            border-bottom: none;
+        }
+    }
+    > .title {
+        color: $text-dark;
+        border-bottom: 1px solid mix($bcg-darkest, $bcg-dark, 50%);
+
+        &:hover {
+            color: $text-primary;
+            background-color: $text-darkest;
+
+            > .icon {
+                color: $text-primary;
+            }
+        }
+        > .icon {
+            font-family: 'ui-font-solid';
+            font-size: 14px;
+            text-align: center;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-smoothing: antialiased;
+            background-color: transparent;
+            color: $text-dark;
+        }
+    }
+    > .content {
+        box-shadow: 0 0 8px rgba(0, 0, 0, .3);
+    }
+}
+
 .ui-list {
     background-color: $bcg-dark;
     border-color: $bcg-darker;
@@ -403,8 +475,8 @@ a:visited {
 }
 .ui-label[placeholder] {
     &:after {
-        color: #f00;
-        background-color: #0f0;
+        color: $text-darkest;
+        background-color: transparent;
     }
 }
 
@@ -530,7 +602,8 @@ a:visited {
         }
     }
 
-    > .clear {
+    > .clear,
+    > .view {
         border-color: #0f0;
 
         width: 22px;
@@ -548,11 +621,24 @@ a:visited {
         font-smoothing: antialiased;
 
         &:hover {
+            background-color: $bcg-darkest;
+        }
+    }
+
+    > .clear {
+        &:hover {
             color: #d34141;
-            background-color: #20292b;
         }
         &:after {
             content: '\E521';
+        }
+    }
+    > .view {
+        &:hover {
+            color: $text-primary;
+        }
+        &:after {
+            content: '\E584';
         }
     }
 
@@ -776,6 +862,24 @@ a:visited {
 @keyframes ui-flash-animation {
     from { outline-color: $text-active; }
     to { outline-color: rgba($text-active, 0); }
+}
+
+.connection-overlay {
+    > .content {
+        background-color: $bcg-darkest;
+
+        > .connection-icon {
+            color: $bcg-darkest;
+
+            &.error {
+                background-color: red;
+            }
+        }
+
+        > .connection-content {
+            color: white;
+        }
+    }
 }
 
 .picker-color {

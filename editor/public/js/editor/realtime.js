@@ -2,66 +2,134 @@ editor.once('load', function() {
     'use strict';
 
     editor.once('start', function() {
-        editor.emit('realtime:connecting');
-
         var auth = false;
         var socket = new SockJS(config.url.realtime.http);
         var connection = new sharejs.Connection(socket);
         var scene = null;
+        var data;
+        var reconnectAttempts = 0;
+        var reconnectInterval = 1;
 
-        var sharejsMessage = connection.socket.onmessage;
-        connection.socket.onmessage = function(msg) {
-            if (! auth && msg.data.startsWith('auth')) {
-                auth = true;
-                var data = JSON.parse(msg.data.slice(4));
+        editor.method('realtime:connection', function () {
+            return connection;
+        });
 
-                // load scene
-                if (! scene)
-                    loadScene();
-
-            } else if (msg.data.startsWith('permissions')) {
-                var data = JSON.parse(msg.data.slice('permissions'.length));
-                editor.call('permissions:set', data.write);
-            } else {
-                sharejsMessage(msg);
+        var connect = function () {
+            if (reconnectAttempts > 8) {
+                editor.emit('realtime:cannotConnect');
+                return;
             }
+
+            reconnectAttempts++;
+            editor.emit('realtime:connecting', reconnectAttempts);
+
+            var sharejsMessage = connection.socket.onmessage;
+
+            connection.socket.onmessage = function(msg) {
+                try {
+                    if (msg.data.startsWith('auth')) {
+                        if (!auth) {
+                            auth = true;
+                            data = JSON.parse(msg.data.slice(4));
+
+                            // load scene
+                            if (! scene)
+                                loadScene();
+                        }
+                    } else if (msg.data.startsWith('whoisonline:')) {
+                        data = msg.data.slice('whoisonline:'.length);
+                        var ind = data.indexOf(':');
+                        if (ind !== -1) {
+                            var op = data.slice(0, ind);
+                            if (op === 'set') {
+                                data = JSON.parse(data.slice(ind + 1));
+                            } else if (op === 'add' || op === 'remove') {
+                                data = parseInt(data.slice(ind + 1), 10);
+                            }
+                            editor.call('whoisonline:' + op, data);
+                        } else {
+                            sharejsMessage(msg);
+                        }
+                    } else {
+                        sharejsMessage(msg);
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+
+            };
+
+            connection.on('connected', function() {
+                reconnectAttempts = 0;
+                reconnectInterval = 1;
+
+                this.socket.send('auth' + JSON.stringify({
+                    accessToken: config.accessToken
+                }));
+
+                editor.emit('realtime:connected');
+            });
+
+            connection.on('error', function(msg) {
+                editor.emit('realtime:error', msg);
+            });
+
+            var onConnectionClosed = connection.socket.onclose;
+            connection.socket.onclose = function (reason) {
+                auth = false;
+
+                if (scene) {
+                    scene.destroy();
+                    scene = null;
+                }
+
+                editor.emit('realtime:disconnected', reason);
+                onConnectionClosed(reason);
+
+                // try to reconnect after a while
+                editor.emit('realtime:nextAttempt', reconnectInterval);
+
+                setTimeout(reconnect, reconnectInterval * 1000);
+
+                reconnectInterval++;
+            };
         };
 
-        connection.on('connected', function() {
-            this.socket.send('auth' + JSON.stringify({
-                accessToken: config.accessToken
-            }));
-        });
+        var reconnect = function () {
+            // create new socket...
+            socket = new SockJS(config.url.realtime.http);
+            // ... and new sharejs connection
+            connection = new sharejs.Connection(socket);
+            // connect again
+            connect();
+        };
 
-        connection.on('error', function(msg) {
-            console.log('realtime error:', msg);
-        });
+        connect();
 
+        var emitOp = function(type, op) {
+            // console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
+            // console.log(op);
+
+            if (op.p[0])
+                editor.emit('realtime:' + type + ':op:' + op.p[0], op);
+        };
 
         var loadScene = function() {
             scene = connection.get('scenes', '' + config.scene.id);
 
             // error
             scene.on('error', function(err) {
-                console.log('error', err);
+                editor.emit('realtime:scene:error', err);
             });
 
             // ready to sync
             scene.on('ready', function() {
                 // notify of operations
                 scene.on('after op', function(ops, local) {
-                    if (local)
-                        return;
+                    if (local) return;
 
-                    for (var i = 0; i < ops.length; i++) {
-                        var op = ops[i];
-
-                        // console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
-                        // console.log(op)
-
-                        if (op.p[0])
-                            editor.emit('realtime:op:' + op.p[0], op);
-                    }
+                    for (var i = 0; i < ops.length; i++)
+                        emitOp('scene', ops[i]);
                 });
 
                 // notify of scene load
@@ -72,9 +140,8 @@ editor.once('load', function() {
             scene.subscribe();
         };
 
-
-        // method to send operations
-        editor.method('realtime:op', function(op) {
+        // write scene operations
+        editor.method('realtime:scene:op', function(op) {
             if (! editor.call('permissions:write') || ! scene)
                 return;
 
@@ -82,7 +149,12 @@ editor.once('load', function() {
             // console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
             // console.log(op)
 
-            scene.submitOp([ op ]);
+            try {
+                scene.submitOp([ op ]);
+            } catch (e) {
+                console.error(e);
+                editor.emit('realtime:scene:error', e);
+            }
         });
     });
 });

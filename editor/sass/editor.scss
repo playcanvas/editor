@@ -618,6 +618,21 @@ body {
             padding: 8px 6px;
         }
 
+        .ui-panel.components-scripts > .content {
+            > .ui-panel.component-script {
+                &:first-child {
+                    > .ui-header > .move-up {
+                        visibility: hidden;
+                    }
+                }
+                &:last-child {
+                    > .ui-header > .move-down {
+                        visibility: hidden;
+                    }
+                }
+            }
+        }
+
         .ui-panel.component-script {
             border-top: 1px solid #293538;
             border-left: 1px solid #293538;
@@ -955,6 +970,60 @@ body {
                 color: $text-active;
                 background-color: #2c393c;
             }
+        }
+    }
+}
+
+.ui-panel.whoisonline {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1;
+    background-color: transparent;
+    padding: 2px;
+
+    > .content {
+        > a {
+            margin-right: 5px;
+        }
+    }
+}
+
+.connection-overlay {
+    > .content {
+        width: 400px;
+        height: 64px;
+        position: absolute;
+        top: 0;
+        bottom: 32px;
+        left: 0;
+        right: 0;
+        margin: auto;
+        display: table;
+
+        > .connection-icon {
+            display: table-cell;
+            width: 64px;
+            height: 64px;
+            line-height: 64px;
+            font-family: 'ui-font-solid';
+            font-size: 34px;
+            font-weight: 100;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-smoothing: antialiased;
+            text-align: center;
+
+            &.error:before {
+                content: '\E462';
+            }
+        }
+
+        > .connection-content {
+            display: table-cell;
+            padding-left: 20px;
+            width: 400px - 64px - 20px;
+            vertical-align: middle;
         }
     }
 }

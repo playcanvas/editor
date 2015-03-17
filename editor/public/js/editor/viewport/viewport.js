@@ -24,11 +24,6 @@ editor.once('load', function() {
     // add canvas
     editor.call('layout.viewport').append(canvas);
 
-    // handle mouse / keyboard
-    canvas.element.addEventListener('mousedown', framework.handleMouseDown.bind(framework));
-    canvas.element.addEventListener('mouseup', framework.handleMouseUp.bind(framework));
-    canvas.element.addEventListener('mousemove', framework.handleMouseMove.bind(framework));
-
     var frameSelection = false;
     var flyMode = false;
 

@@ -8,7 +8,9 @@ editor.once('load', function() {
         var asset = assets[0];
 
         // panel
-        var panel = editor.call('attributes:addPanel');
+        var panel = editor.call('attributes:addPanel', {
+            name: 'Properties'
+        });
         panel.class.add('component');
 
         // duration
@@ -32,7 +34,7 @@ editor.once('load', function() {
             });
 
             Ajax
-            .get('{{url.home}}/' + asset.file.url)
+            .get('{{url.home}}/' + asset.get('file.url'))
             .on('load', function(status, data) {
                 if (data.animation && data.animation.duration !== undefined) {
                     asset._duration = data.animation.duration;

@@ -3,6 +3,7 @@ editor.once('load', function() {
 
     var schema = {
         animation: {
+            title: 'Animation',
             default: {
                 enabled: true,
                 assets: [],
@@ -13,6 +14,7 @@ editor.once('load', function() {
         },
 
         light: {
+            title: 'Light',
             default: {
                 enabled: true,
                 type: 'directional',
@@ -34,12 +36,14 @@ editor.once('load', function() {
         },
 
         audiolistener: {
+            title: 'Audio Listener',
             default: {
                 enabled: true
             }
         },
 
         audiosource: {
+            title: 'Audio Source',
             default: {
                 enabled: true,
                 assets: [],
@@ -55,6 +59,7 @@ editor.once('load', function() {
         },
 
         camera: {
+            title: 'Camera',
             default: {
                 enabled: true,
                 clearColorBuffer: true,
@@ -75,6 +80,7 @@ editor.once('load', function() {
         },
 
         collision: {
+            title: 'Collision',
             default: {
                 enabled: true,
                 type: 'box',
@@ -90,6 +96,7 @@ editor.once('load', function() {
         },
 
         model: {
+            title: 'Model',
             default: {
                 enabled: true,
                 type: 'asset',
@@ -101,6 +108,7 @@ editor.once('load', function() {
         },
 
         particlesystem: {
+            title: 'Particle System',
             default: {
                 enabled: true,
                 autoPlay: true,
@@ -182,11 +190,23 @@ editor.once('load', function() {
                 }
             },
             types: {
-                emitterExtents: 'vec3'
+                emitterExtents: 'vec3',
+                localVelocityGraph: 'curveset',
+                localVelocityGraph2: 'curveset',
+                velocityGraph: 'curveset',
+                velocityGraph2: 'curveset',
+                rotationSpeedGraph: 'curve',
+                rotationSpeedGraph2: 'curve',
+                scaleGraph: 'curve',
+                scaleGraph2: 'curve',
+                colorGraph: 'curveset',
+                alphaGraph: 'curve',
+                alphaGraph2: 'curve'
             }
         },
 
         rigidbody: {
+            title: 'Rigid Body',
             default: {
                 enabled: true,
                 type: 'static',
@@ -205,6 +225,7 @@ editor.once('load', function() {
         },
 
         script: {
+            title: 'Script',
             default: {
                 enabled: true,
                 scripts: [ ]
@@ -241,6 +262,14 @@ editor.once('load', function() {
                 case 'vec4':
                     result = new pc.Vec4(value[0], value[1], value[2], value[3]);
                     break;
+                case 'curveset':
+                    result = new pc.CurveSet(value.keys);
+                    result.type = value.type;
+                    break;
+                case 'curve':
+                    result = new pc.Curve(value.keys);
+                    result.type = value.type;
+                    break;
             }
         }
 
@@ -249,6 +278,10 @@ editor.once('load', function() {
 
     editor.method('components:list', function () {
         return list.slice(0);
+    });
+
+    editor.method('components:schema', function () {
+        return schema;
     });
 
     editor.method('components:getDefault', function (component) {

@@ -124,8 +124,12 @@ editor.once('load', function() {
         // add asset
         var addAsset = function(assetId, after) {
             var assetAudio = editor.call('assets:get', assetId);
+            var text = assetId;
+            if (assetAudio && assetAudio.get('name'))
+                text = assetAudio.get('name');
+
             var item = new ui.ListItem({
-                text: (assetAudio && assetAudio.name) || assetId
+                text: text
             });
 
             if (after) {

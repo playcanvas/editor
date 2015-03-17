@@ -1,12 +1,38 @@
 app.once('load', function() {
     'use strict';
 
-
     // canvas element
     var canvas = document.createElement('canvas');
     canvas.id = 'application-canvas';
-    canvas.classList.add('fill-mode-FILL_WINDOW');
     document.body.appendChild(canvas);
+
+    // splash
+    var splash = document.createElement('div');
+    splash.id = 'application-splash';
+    document.body.appendChild(splash);
+
+    var logoLink = document.createElement('a');
+    logoLink.href = 'https://games.playcanvas.com';
+    logoLink.target = '_blank';
+    splash.appendChild(logoLink);
+
+    var logo = document.createElement('img');
+    logo.src = 'https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/logo/PLAY_FLAT_ORANGE3.png';
+    logoLink.appendChild(logo);
+
+    // progress bar
+    var container = document.createElement('div');
+    container.id = 'progress-container';
+    splash.appendChild(container);
+
+    var bar = document.createElement('div');
+    bar.id = 'progress-bar';
+    container.appendChild(bar);
+
+    var setProgress = function (value) {
+        value = Math.min(1, Math.max(0, value));
+        bar.style.width = value * 100 + '%';
+    }
 
     var libraries = config.project.settings.libraries;
     var libraryUrls = [];
@@ -20,35 +46,69 @@ app.once('load', function() {
         }
     }
 
+    var queryParams = (new pc.URI(window.location.href)).getQuery();
+
     // playcanvas application
-    var application = new pc.fw.Application(canvas, {
+    var application = new pc.Application(canvas, {
         mouse: new pc.input.Mouse(canvas),
         touch: !!('ontouchstart' in window) ? new pc.input.TouchDevice(canvas) : null,
         keyboard: new pc.input.Keyboard(window),
-        // gamepads: this.gamepads,
-        // displayLoader: this.displayLoader,
+        gamepads: new pc.input.GamePads(),
         libraries: libraryUrls,
-        scriptPrefix: config.project.repository_url
+        scriptPrefix: queryParams.local ? 'http://localhost:51000' : config.project.repository_url
     });
 
+    if (canvas.classList) {
+        canvas.classList.add('fill-mode-' + config.project.settings.fillMode);
+    }
 
-    // resolution mode
-    application.setCanvasFillMode(config.project.settings.fillMode, config.project.settings.width, config.project.settings.height);
     application.setCanvasResolution(config.project.settings.resolutionMode, config.project.settings.width, config.project.settings.height);
+    application.setCanvasFillMode(config.project.settings.fillMode, config.project.settings.width, config.project.settings.height);
 
+    // css media query for aspect ratio changes
+    var css  = "@media screen and (min-aspect-ratio: " + config.project.settings.width + "/" + config.project.settings.height + ") {";
+        css += "    #application-canvas.fill-mode-KEEP_ASPECT {";
+        css += "        width: auto;";
+        css += "        height: 100%;";
+        css += "        margin: 0 auto;";
+        css += "    }";
+        css += "}";
 
-    // resize
-    setInterval(function() {
-        var rect = canvas.getBoundingClientRect();
-        var width = Math.floor(rect.width);
-        var height = Math.floor(rect.height);
+    // append css to style
+    if (document.head.querySelector) {
+        var appendCss = function () {
+            var style = document.head.querySelector('style');
+            if (style) {
+                style.innerHTML += css;
+            } else {
+                // try again
+                setTimeout(appendCss, 25);
+            }
+        };
 
-        if (canvas.width !== width || canvas.height !== height) {
-            canvas.width = width;
-            canvas.height = height;
+        appendCss();
+    }
+
+    var reflow = function () {
+        var size = application.resizeCanvas(canvas.width, canvas.height);
+        canvas.style.width = '';
+        canvas.style.height = '';
+
+        var fillMode = application.fillMode;
+
+        if (fillMode == pc.fw.FillMode.NONE || fillMode == pc.fw.FillMode.KEEP_ASPECT) {
+            if ((fillMode == pc.fw.FillMode.NONE && canvas.clientHeight < window.innerHeight) || (canvas.clientWidth / canvas.clientHeight >= window.innerWidth / window.innerHeight)) {
+                canvas.style.marginTop = Math.floor((window.innerHeight - canvas.clientHeight) / 2) + 'px';
+            } else {
+                canvas.style.marginTop = '';
+            }
         }
-    }, 1000 / 60);
+    };
 
+    window.addEventListener('resize', reflow, false);
+    window.addEventListener('orientationchange', reflow, false);
+
+    reflow();
 
     // get application
     app.method('viewport', function() {
@@ -66,6 +126,13 @@ app.once('load', function() {
                 console.log("engine loaded resources");
 
                 application.start();
+
+                splash.remove();
+            }, function (errors) {
+                splash.remove();
+                console.error(errors);
+            }, function (progress) {
+                setProgress(progress);
             });
         }
     };

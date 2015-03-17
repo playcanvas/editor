@@ -10,6 +10,10 @@ app.once('load', function() {
         // set the global value of settings
         pc.content.packs[config.scene.id].settings = sceneSettings.json();
 
-        app.emit("sceneSettings:load");
+        app.emit("sceneSettings:load", sceneSettings);
+    });
+
+    app.method('sceneSettings', function () {
+        return sceneSettings;
     });
 });

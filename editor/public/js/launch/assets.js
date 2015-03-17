@@ -3,11 +3,51 @@ app.once('load', function() {
 
     var framework = app.call('viewport');
 
-
     var assets = new ObserverList();
-    assets.on('add', function (asset) {
-        // framework.assets.createAndAdd(asset._id, asset);
+    assets.index = 'id';
+
+    // list assets
+    app.method('assets:list', function () {
+        return assets.array();
     });
+
+    // allow adding assets
+    app.method('assets:add', function(asset) {
+        assets.add(asset);
+    });
+
+    // allow removing assets
+    app.method('assets:remove', function(asset) {
+        assets.remove(asset);
+        asset.destroy();
+    });
+
+    // get asset by id
+    app.method('assets:get', function(id) {
+        return assets.get(id);
+    });
+
+    // find assets by function
+    app.method('assets:find', function(fn) {
+        return assets.find(fn);
+    });
+
+    // find one asset by function
+    app.method('assets:findOne', function(fn) {
+        return assets.findOne(fn);
+    });
+
+    // publish added asset
+    assets.on('add', function(asset) {
+        app.emit('assets:add[' + asset.get('id') + ']', asset);
+        app.emit('assets:add', asset);
+    });
+
+    // publish remove asset
+    assets.on('remove', function(asset) {
+        app.emit('assets:remove', asset);
+    });
+
 
     // loaded all assets
     var onLoad = function(data) {
@@ -20,36 +60,24 @@ app.once('load', function() {
             if (data[i].source)
                 continue;
 
-            // TODO
-            // this is workaround to convert from array to key-value material properties
-            // if (data[i].type == 'material') {
-            //     data[i].data = editor.call('material:listToMap', data[i].data);
-            // }
-
             var asset = new Observer(data[i]);
+
+            editor.call('assets:add', asset);
             assets.add(asset);
 
             toc.assets[asset.get("id")] = asset.json();
         }
 
+
         framework.assets.addGroup(config.scene.id, toc);
 
-        var assetList = framework.assets.list(config.scene.id);
-        framework.assets.load(assetList).then(function () {
-            app.emit('assets:load');
-        });
-
-        // editor.call('assets:progress', 1);
-        // editor.emit('assets:load');
+        app.emit('assets:load');
     };
 
     // load assets
     Ajax.get('{{url.api}}/projects/{{project.id}}/assets?view=designer&access_token={{accessToken}}')
         .on('load', function(status, data) {
             onLoad(data);
-        })
-        .on('progress', function(progress) {
-            // editor.call('assets:progress', .1 + progress * .4);
         })
         .on('error', function(status, evt) {
             console.log(status, evt);

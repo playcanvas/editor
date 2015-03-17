@@ -171,7 +171,7 @@ ObserverSync.prototype.write = function(op) {
         var ind = op.lm;
 
         this._enabled = false;
-        this.item.move(path, this.item.get(path + '.' + indOld), ind);
+        this.item.move(path, indOld, ind);
         this._enabled = true;
 
 

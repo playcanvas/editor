@@ -9,8 +9,16 @@ editor.on('load', function() {
     });
     hierarchyOverlay.append(p);
 
+    var loadedEntities = false;
 
     editor.on('scene:raw', function(data) {
+
+        // check if we're reloading the scene
+        if (loadedEntities) {
+            editor.call('selector:clear');
+            editor.call('entities:clear');
+        }
+
         var start = Date.now();
 
         var total = Object.keys(data.entities).length;
@@ -25,6 +33,7 @@ editor.on('load', function() {
 
         p.progress = 1;
 
+        loadedEntities = true;
         editor.emit('entities:load');
     });
 

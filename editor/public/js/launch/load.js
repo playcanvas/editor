@@ -16,10 +16,7 @@ app.once('load', function() {
             if (! scene)
                 loadScene();
 
-        } else if (msg.data.startsWith('permissions')) {
-            // var data = JSON.parse(msg.data.slice('permissions'.length));
-            // console.log(data);
-            // editor.call('permissions:set', data.write);
+        } else if (msg.data.startsWith('permissions') || msg.data.startsWith('whoisonline')) {
         } else {
             sharejsMessage(msg);
         }
@@ -32,7 +29,7 @@ app.once('load', function() {
     });
 
     connection.on('error', function(msg) {
-        console.log('realtime error:', msg);
+        console.error('realtime error:', msg);
     });
 
 
@@ -41,7 +38,7 @@ app.once('load', function() {
 
         // error
         scene.on('error', function(err) {
-            console.log('error', err);
+            console.error('error', err);
         });
 
         // ready to sync

@@ -5,7 +5,7 @@ editor.once('load', function() {
         'number': 'number',
         'string': 'string',
         'boolean': 'checkbox',
-        'asset': 'string', // TEMP
+        'asset': 'assets', // TEMP
         'rgb': 'rgb',
         'rgba': 'rgb', // TEMP
         'vector': 'vec3',
@@ -62,7 +62,7 @@ editor.once('load', function() {
             panel.hidden = true;
         }
 
-        var events = [];
+        var events = [ ];
         events.push(entity.on('components.script:set', function(value) {
             panel.disabled = ! value;
             panel.hidden = ! value;
@@ -72,7 +72,7 @@ editor.once('load', function() {
             panel.disabled = true;
             panel.hidden = true;
 
-            scriptPanels.forEach(function (p) {
+            scriptPanels.forEach(function(p) {
                 p.destroy();
             });
 
@@ -84,7 +84,6 @@ editor.once('load', function() {
                 e.unbind();
             });
         });
-
 
         // enabled
         var fieldEnabled = new ui.Checkbox();
@@ -101,9 +100,9 @@ editor.once('load', function() {
         panel.headerAppend(fieldRemove);
 
 
-        var urlRegex = new RegExp(/^http(s)?:/);
-        var jsRegex = new RegExp(/\.js$/);
-        var scriptNameRegex = new RegExp(/^(?:[\w\d\.-]+\/)*[\w\d\.-]+(?:\.[j|J][s|S](?:[o|O][n|N])?)?$/);
+        var urlRegex = /^http(s)?:/;
+        var jsRegex = /\.js$/;
+        var scriptNameRegex = /^(?:[\w\d\.-]+\/)*[\w\d\.-]+(?:\.[j|J][s|S](?:[o|O][n|N])?)?$/;
 
         // scripts.add
         var fieldScriptsAdd = editor.call('attributes:addField', {
@@ -125,68 +124,64 @@ editor.once('load', function() {
             }
         });
 
+        var panelScripts = new ui.Panel();
+        panelScripts.class.add('components-scripts');
+        panel.append(panelScripts);
+
         function addScript (url) {
             var script, scripts;
 
             if (urlRegex.test(url)) {
-
                 // check if url already exists first
                 scripts = entity.getRaw('components.script.scripts');
                 for (var i = 0; i < scripts.length; i++) {
-                    if (scripts[i].get('url') === url) {
+                    if (scripts[i].get('url') === url)
                         return false;
-                    }
                 }
 
                 script = new Observer({
                     url: url
                 });
-
                 entity.insert('components.script.scripts', script);
 
                 refreshScriptAttributes(script);
             } else {
-                if (!jsRegex.test(url)) {
+                if (! jsRegex.test(url))
                     url += '.js';
-                }
 
-                if (!scriptNameRegex.test(url) || url.indexOf('..') >= 0) {
+                if (! scriptNameRegex.test(url) || url.indexOf('..') >= 0)
                     return false;
-                } else {
 
-                    // check if url already exists first
-                    scripts = entity.getRaw('components.script.scripts');
-                    for (var i = 0; i < scripts.length; i++) {
-                        if (scripts[i].get('url') === url) {
-                            return false;
-                        }
-                    }
-
-                    var fullUrl = editor.call('sourcefiles:url', url);
-
-                    script = new Observer({
-                        url: url
-                    });
-
-                    entity.insert('components.script.scripts', script);
-
-                    // try to get the script and if it doesn't exist create it
-                    Ajax
-                    .get(fullUrl)
-                    .on('load', function(status, data) {
-                        refreshScriptAttributes(script);
-                    })
-                    .on('error', function (status) {
-                        // script does not exist so create it
-                        if (status === 404) {
-                            editor.call('sourcefiles:create', url);
-                        } else if (status === 0) {
-                            // invalid json which is fine because the response is text.
-                            // TODO: fix this it's not really an error
-                            refreshScriptAttributes(script);
-                        }
-                    });
+                // check if url already exists first
+                scripts = entity.getRaw('components.script.scripts');
+                for (var i = 0; i < scripts.length; i++) {
+                    if (scripts[i].get('url') === url)
+                        return false;
                 }
+
+                var fullUrl = editor.call('sourcefiles:url', url);
+
+                script = new Observer({
+                    url: url
+                });
+                entity.insert('components.script.scripts', script);
+
+                // try to get the script and if it doesn't exist create it
+                Ajax
+                .get(fullUrl)
+                .on('load', function(status, data) {
+                    refreshScriptAttributes(script);
+                })
+                .on('error', function (status) {
+                    // script does not exist so create it
+                    if (status === 404) {
+                        editor.call('sourcefiles:create', url);
+                    } else if (status === 0) {
+                        // invalid json which is fine because the response is text.
+                        // TODO: fix this it's not really an error
+                        refreshScriptAttributes(script);
+                    }
+                });
             }
 
             return true;
@@ -194,6 +189,7 @@ editor.once('load', function() {
 
         function refreshScriptAttributes (script) {
             var fullUrl = urlRegex.test(script.get('url')) ? script.get('url') : editor.call('sourcefiles:url', script.get('url'));
+
             editor.call('sourcefiles:scan', fullUrl, function (data) {
                 data.url = script.get('url');
 
@@ -201,230 +197,102 @@ editor.once('load', function() {
                 var scriptComponents = [];
                 for (var key in entitiesWithScripts) {
                     var scripts = entitiesWithScripts[key].getRaw('components.script.scripts');
-                    if (scripts) {
-                        for (var i = 0; i < scripts.length; i++) {
-                            if (scripts[i].get('url') === script.get('url')) {
-                                scriptComponents.push(scripts[i]);
-                                break;
-                            }
-                        }
+                    if (! scripts)
+                        continue;
+
+                    for (var i = 0; i < scripts.length; i++) {
+                        if (scripts[i].get('url') !== script.get('url'))
+                            continue;
+
+                        scriptComponents.push(scripts[i]);
+                        break;
                     }
                 }
 
                 // merge old attributes with new attributes for all script components with this script
                 scriptComponents.forEach(function (script) {
-                    var oldAttributes = script.get('attributes') || {};
+                    var oldAttributes = script.get('attributes') || { };
                     for (var key in data.attributes) {
-                        if (data.attributes.hasOwnProperty(key)) {
-                            var value = data.attributes[key].defaultValue;
-                            if (key in oldAttributes && oldAttributes[key].type === data.attributes[key].type) {
-                                value = oldAttributes[key].value !== oldAttributes[key].defaultValue ? oldAttributes[key].value : value;
-                            }
+                        if (! data.attributes.hasOwnProperty(key))
+                            continue;
 
-                            data.attributes[key].value = value;
+                        var value = data.attributes[key].defaultValue;
+                        if (key in oldAttributes && oldAttributes[key].type === data.attributes[key].type) {
+                            value = oldAttributes[key].value !== oldAttributes[key].defaultValue ? oldAttributes[key].value : value;
                         }
+                        data.attributes[key].value = value;
                     }
 
                     script.patch(data);
                 });
-
             });
         }
 
-        function createScriptPanel (script) {
-            var panel = new ui.Panel(script.get('url'));
-            panel.class.add('component-script');
+        function updateAttributeFields(script, parent) {
+            var attributes = script.get('attributesOrder');
+            var children = parent.innerElement.childNodes;
+            var list = [ ];
+            var index = { };
+            var toDestroy = [ ];
+            var toCreate = [ ];
 
-            var link = document.createElement('a');
+            for(var i = 0; i < children.length; i++) {
+                var attribute = children[i].ui.attribute;
+                var attributeType = children[i].ui.attributeType;
 
-            var url = script.get('url');
-            var lowerUrl = url.toLowerCase();
-            var isExternalUrl = urlRegex.test(lowerUrl);
-            if (!isExternalUrl && !jsRegex.test(url)) {
-                url += '.js';
-            }
-
-            var title = script.get('name') || getFilenameFromUrl(url);
-            link.textContent = title;
-            link.target = title;
-            link.href = isExternalUrl ? url : '/editor/code/' + config.project.id + '/' + url;
-            panel.headerElementTitle.textContent = '';
-            panel.headerElementTitle.appendChild(link);
-
-            events.push(script.on('name:set', function (value) {
-                link.textContent = value;
-            }));
-
-            // button to remove script
-            var fieldRemoveScript = new ui.Button();
-            fieldRemoveScript.parent = panel;
-            fieldRemoveScript.class.add('remove');
-            fieldRemoveScript.on('click', function (value) {
-                entity.removeValue('components.script.scripts', script);
-            });
-
-            panel.headerElement.appendChild(fieldRemoveScript.element);
-
-            // buttons to reorder scripts
-            var fieldMoveDown = new ui.Button();
-            fieldMoveDown.class.add('move-down');
-            fieldMoveDown.element.title = 'Move script down';
-            fieldMoveDown.on('click', function () {
-                var scripts = entity.getRaw('components.script.scripts');
-                var index = scripts.indexOf(script);
-                if (index < scripts.length - 1) {
-                    entity.move('components.script.scripts', index, index + 1);
-                }
-            });
-
-            panel.headerElement.appendChild(fieldMoveDown.element);
-
-            var fieldMoveUp = new ui.Button();
-            fieldMoveUp.class.add('move-up');
-            fieldMoveUp.element.title = 'Move script up';
-            fieldMoveUp.on('click', function () {
-                var scripts = entity.getRaw('components.script.scripts');
-                var index = scripts.indexOf(script);
-                if (index > 0) {
-                    entity.move('components.script.scripts', index, index - 1);
-                }
-            });
-            panel.headerElement.appendChild(fieldMoveUp.element);
-
-            // button to refresh script attributes
-            var fieldRefreshAttributes = new ui.Button();
-            fieldRefreshAttributes.class.add('refresh');
-            fieldRefreshAttributes.element.title = "Refresh script attributes";
-            panel.headerElement.appendChild(fieldRefreshAttributes.element);
-
-            fieldRefreshAttributes.on('click', function () {
-                refreshScriptAttributes(script);
-            });
-
-
-            var attributes = new ui.Panel();
-            panel.append(attributes);
-
-            var order = script.get('attributesOrder');
-            // holds all attribute fields in order
-            var fieldsInOrder = [];
-            // holds all attributes fields indexed by attribute name
-            var fieldsIndex = {};
-
-            if (order) {
-                for(var a = 0; a < order.length; a++) {
-                    var attribute = script.get('attributes.' + order[a]);
-
-                    var field = createAttributeField(attribute, script, attributes);
-
-                    fieldsInOrder.push({
-                        name: attribute.name,
-                        type: attribute.type,
-                        field: field
-                    });
-
-                    fieldsIndex[attribute.name] = fieldsInOrder[fieldsInOrder.length-1];
+                if (attributes.indexOf(attribute) === -1 || attributeType !== scriptAttributeTypes[script.get('attributes.' + attribute + '.type')]) {
+                    toDestroy.push(children[i].ui);
+                } else {
+                    list.push(attribute);
+                    index[attribute] = children[i].ui;
                 }
             }
 
-            // Handle setting different attributes
-            events.push(script.on('attributes:set', function (newAttributes) {
-                for (var key in fieldsIndex) {
-                    // remove attributes that no longer exist
-                    if (!(key in newAttributes)) {
-                        for (var i = 0; i < fieldsInOrder.length; i++) {
-                            if (fieldsInOrder[i] === fieldsIndex[key]) {
-                                fieldsInOrder[i].field.parent.destroy();
-                                fieldsInOrder.splice(i, 1);
-                                delete fieldsIndex[key];
-                                break;
-                            }
-                        }
+            var i = toDestroy.length;
+            while(i--) {
+                toDestroy[i].destroy();
+            }
 
-                    }
-                    // recreate attribute fields that changed type
-                    else if (fieldsIndex[key].type !== newAttributes[key].type) {
-                        var field = fieldsIndex[key].field;
-                        // remember sibling
-                        var sibling = field.parent.element.nextSibling;
-                        // destroy old field
-                        field.parent.destroy();
+            for(var i = 0; i < attributes.length; i++) {
+                var ind = list.indexOf(attributes[i]);
+                var panel = null;
 
-                        // create new field
-                        var newField = createAttributeField(newAttributes[key], script, attributes);
-                        // append before last sibling
-                        attributes.appendBefore(newField.parent, sibling);
-                        // set new value
-                        newField.value = newAttributes[key].value;
-
-                        // update index
-                        fieldsIndex[key].field = newField;
-                        fieldsIndex[key].type = newAttributes[key].type;
-                    }
+                if (ind === -1) {
+                    // new attibute
+                    panel = createAttributeField(script, attributes[i], parent);
+                    list.splice(i, 0, attributes[i]);
+                    index[attributes[i]] = panel;
+                } else if (ind !== i) {
+                    // moved attribute
+                    panel = index[attributes[i]];
+                    list.splice(ind, 1);
+                    list.splice(i, 0, attributes[i]);
                 }
-            }));
 
-            events.push(script.on('attributesOrder:set', function (order) {
-                // do this in a timeout to make sure attributes have been set first
-                setTimeout(function () {
-                    var field;
+                if (! panel)
+                    continue;
 
-                    for (var index = 0; index < order.length; index++) {
-                        var attr = script.get('attributes.' + order[index]);
-                        var oldIndex = -1;
+                parent.innerElement.removeChild(panel.element);
 
-                        // find previous index of attribute
-                        for (var i = 0; i < fieldsInOrder.length; i++) {
-                            if (fieldsInOrder[i].name == attr.name) {
-                                oldIndex = i;
-                                break;
-                            }
-                        }
+                var ref = null;
+                if (i === 0) {
+                    ref = parent.innerElement.firstChild;
+                } else {
+                    ref = index[list[i - 1]].element.nextSibling;
+                }
 
-                        if (oldIndex < 0) {
-                            // creaete new attribute field
-                            field = createAttributeField(attr, script, attributes);
+                if (ref) {
+                    parent.innerElement.insertBefore(panel.element, ref);
+                } else {
+                    parent.innerElement.appendChild(panel.element);
+                }
+            }
+        };
 
-                            var entry = {
-                                name: attr.name,
-                                type: attr.type,
-                                field: field
-                            };
-
-                            fieldsIndex[attr.name] = entry;
-
-                            fieldsInOrder.splice(index, 0, entry);
-
-                            // append it at the right spot
-                            if (index > 0) {
-                                attributes.appendAfter(field.parent, fieldsInOrder[index-1].field.parent);
-                            } else {
-                                attributes.appendBefore(field.parent, fieldsInOrder[index+1] ? fieldsInOrder[index+1].field.parent : null);
-                            }
-
-                        } else {
-                            var record = fieldsInOrder[oldIndex];
-
-                            // if wrong order then just re-order attribute fields
-                            if (oldIndex !== index && fieldsInOrder[index].name !== attr.name) {
-                                fieldsInOrder.splice(oldIndex);
-                                fieldsInOrder.splice(index, 0, record);
-                                attributes.appendBefore(record.field.parent, index < order.length - 1 ? fieldsInOrder[index+1].field.parent : null);
-                            }
-
-                            // set new value to field
-                            record.field.value = attr.value;
-                        }
-                    }
-                }, 0);
-            }));
-
-            return panel;
-        }
-
-        // Creates new field for script attribute
-        function createAttributeField (attribute, script, parent) {
+        function createAttributeField(script, attribute, parent) {
             var choices = null;
+            attribute = script.get('attributes.' + attribute);
+
             if (attribute.type === 'enumeration') {
                 choices = { };
                 try {
@@ -432,6 +300,7 @@ editor.once('load', function() {
                         choices[attribute.options.enumerations[e].value] = attribute.options.enumerations[e].name;
                     }
                 } catch(ex) {
+                    console.log(ex)
                     console.log('could not recreate enumeration for script attribute, ' + script.get('url'));
                 }
             }
@@ -445,21 +314,308 @@ editor.once('load', function() {
                 path: 'attributes.' + attribute.name + '.value'
             });
 
-            return field;
+            if (scriptAttributeTypes[attribute.type] === 'number') {
+                field.flexGrow = 1;
+                field.style.width = '32px';
+
+                var slider = new ui.Slider({
+                    min: attribute.options.min || 0,
+                    max: attribute.options.max || 1
+                });
+                slider.hidden = isNaN(attribute.options.min) || isNaN(attribute.options.max);
+                slider.flexGrow = 4;
+                slider.style.width = '32px';
+                slider.link(script, 'attributes.' + attribute.name + '.value');
+                field.parent.append(slider);
+
+                var evtMin = script.on('attributes.' + attribute.name + '.options.min:set', function(value) {
+                    slider.min = value;
+                    slider.hidden = isNaN(script.get('attributes.' + attribute.name + '.options.min')) || isNaN(script.get('attributes.' + attribute.name + '.options.max'));
+                });
+                events.push(evtMin);
+
+                var evtMax = script.on('attributes.' + attribute.name + '.options.max:set', function(value) {
+                    slider.max = value;
+                    slider.hidden = isNaN(script.get('attributes.' + attribute.name + '.options.min')) || isNaN(script.get('attributes.' + attribute.name + '.options.max'));
+                });
+                events.push(evtMax);
+
+                var evtMinUnset = script.on('attributes.' + attribute.name + '.options.min:unset', function() {
+                    slider.hidden = true;
+                });
+                events.push(evtMinUnset);
+
+                var evtMaxUnset = script.on('attributes.' + attribute.name + '.options.max:unset', function() {
+                    slider.hidden = true;
+                });
+                events.push(evtMaxUnset);
+
+                events.push(field.once('destroy', function() {
+                    evtType.unbind();
+                    evtMin.unbind();
+                    evtMax.unbind();
+                    evtMinUnset.unbind();
+                    evtMaxUnset.unbind();
+                }));
+            } else if (scriptAttributeTypes[attribute.type] === 'assets') {
+                field.unlink();
+
+                // assets
+                var fieldAssetsList = new ui.List();
+                fieldAssetsList.class.add('assets');
+                fieldAssetsList.flexGrow = 1;
+                field.parent.append(fieldAssetsList);
+                field.destroy();
+                field = fieldAssetsList;
+
+                // drop
+                var dropRef = editor.call('drop:target', {
+                    ref: fieldAssetsList.element,
+                    filter: function(type, data) {
+                        return type.startsWith('asset') && script.get('attributes.' + attribute.name + '.value').indexOf(data.id) === -1;
+                    },
+                    drop: function(type, data) {
+                        // already in list
+                        if (script.get('attributes.' + attribute.name + '.value').indexOf(data.id) !== -1)
+                            return;
+
+                        // add to component
+                        script.insert('attributes.' + attribute.name + '.value', data.id, 0);
+                    }
+                });
+                events.push(fieldAssetsList.on('destroy', function() {
+                    dropRef.unregister();
+                }));
+
+                // assets list
+                var itemAdd = new ui.ListItem({
+                    text: 'Add Asset'
+                });
+                itemAdd.class.add('add-asset');
+                fieldAssetsList.append(itemAdd);
+
+                // add asset icon
+                var iconAdd = document.createElement('span');
+                iconAdd.classList.add('icon');
+                itemAdd.element.appendChild(iconAdd);
+
+                // index list items by asset id
+                var assetItems = { };
+
+                // add asset
+                var addAsset = function(assetId, after) {
+                    var asset = editor.call('assets:get', assetId);
+                    var text = assetId;
+                    if (asset && asset.get('name'))
+                        text = asset.get('name');
+
+                    var item = new ui.ListItem({
+                        text: text
+                    });
+
+                    if (after) {
+                        fieldAssetsList.appendAfter(item, after);
+                    } else {
+                        fieldAssetsList.append(item);
+                    }
+
+                    assetItems[assetId] = item;
+
+                    // remove button
+                    var btnRemove = new ui.Button();
+                    btnRemove.class.add('remove');
+                    btnRemove.on('click', function() {
+                        script.removeValue('attributes.' + attribute.name + '.value', assetId);
+                    });
+                    btnRemove.parent = item;
+                    item.element.appendChild(btnRemove.element);
+                };
+
+                // on adding new audio
+                itemAdd.on('click', function() {
+                    // call picker
+                    editor.call('picker:asset', '*', null);
+
+                    // on pick
+                    var evtPick = editor.once('picker:asset', function(asset) {
+                        // already in list
+                        if (script.get('attributes.' + attribute.name + '.value').indexOf(asset.get('id')) !== -1)
+                            return;
+
+                        // add to component
+                        script.insert('attributes.' + attribute.name + '.value', asset.get('id'), 0);
+                        evtPick = null;
+                    });
+
+                    editor.once('picker:asset:close', function() {
+                        if (evtPick) {
+                            evtPick.unbind();
+                            evtPick = null;
+                        }
+                    });
+                });
+
+                // assets
+                var assets = script.get('attributes.' + attribute.name + '.value');
+                if (assets) {
+                    for(var i = 0; i < assets.length; i++) {
+                        addAsset(assets[i]);
+                    }
+                }
+                // on asset insert
+                var evtAssetInsert = script.on('attributes.' + attribute.name + '.value:insert', function(assetId, ind) {
+                    var before;
+                    if (ind === 0) {
+                        before = itemAdd;
+                    } else {
+                        before = assetItems[script.get('attributes.' + attribute.name + '.value.' + ind)];
+                    }
+                    addAsset(assetId, before);
+                });
+                events.push(evtAssetInsert);
+
+                // on asset remove
+                var evtAssetRemove = script.on('attributes.' + attribute.name + '.value:remove', function(assetId) {
+                    if (! assetItems[assetId])
+                        return;
+
+                    assetItems[assetId].destroy();
+                });
+                events.push(evtAssetRemove);
+
+                events.push(field.parent.once('destroy', function() {
+                    evtAssetInsert.unbind();
+                    evtAssetRemove.unbind();
+                }));
+            }
+
+            var fieldParent;
+            if (field instanceof Array) {
+                fieldParent = field[0].parent;
+            } else {
+                fieldParent = field.parent;
+            }
+
+            var evtType = script.on('attributes.' + attribute.name + '.type:set', function(value) {
+                setTimeout(function() {
+                    updateAttributeFields(script, parent);
+                }, 0);
+            });
+            events.push(evtType);
+
+            events.push(fieldParent.once('destroy', function() {
+                evtType.unbind();
+            }));
+
+            fieldParent.attribute = attribute.name;
+            fieldParent.attributeType = scriptAttributeTypes[attribute.type];
+
+            return fieldParent;
+        };
+
+        function createScriptPanel(script) {
+            var panel = new ui.Panel(script.get('url'));
+            panel.class.add('component-script');
+
+            var link = document.createElement('a');
+
+            var url = script.get('url');
+            var lowerUrl = url.toLowerCase();
+            var isExternalUrl = urlRegex.test(lowerUrl);
+            if (! isExternalUrl && ! jsRegex.test(url))
+                url += '.js';
+
+            var title = script.get('name') || getFilenameFromUrl(url);
+            link.textContent = title;
+            link.target = '_blank';
+            link.href = isExternalUrl ? url : '/editor/code/' + config.project.id + '/' + url;
+            panel.headerElementTitle.textContent = '';
+            panel.headerElementTitle.appendChild(link);
+
+            // name change
+            events.push(script.on('name:set', function(value) {
+                link.textContent = value;
+            }));
+
+            // remove
+            var fieldRemoveScript = new ui.Button();
+            fieldRemoveScript.parent = panel;
+            fieldRemoveScript.class.add('remove');
+            fieldRemoveScript.on('click', function (value) {
+                entity.removeValue('components.script.scripts', script);
+            });
+            panel.headerElement.appendChild(fieldRemoveScript.element);
+
+            // move down
+            var fieldMoveDown = new ui.Button();
+            fieldMoveDown.class.add('move-down');
+            fieldMoveDown.element.title = 'Move script down';
+            fieldMoveDown.on('click', function () {
+                var scripts = entity.getRaw('components.script.scripts');
+                var ind = scripts.indexOf(script);
+                if (ind < scripts.length - 1)
+                    entity.move('components.script.scripts', ind, ind + 1);
+            });
+            panel.headerElement.appendChild(fieldMoveDown.element);
+
+            // move up
+            var fieldMoveUp = new ui.Button();
+            fieldMoveUp.class.add('move-up');
+            fieldMoveUp.element.title = 'Move script up';
+            fieldMoveUp.on('click', function () {
+                var ind = entity.getRaw('components.script.scripts').indexOf(script);
+                if (ind > 0)
+                    entity.move('components.script.scripts', ind, ind - 1);
+            });
+            panel.headerElement.appendChild(fieldMoveUp.element);
+
+            // refresh attributes
+            var fieldRefreshAttributes = new ui.Button();
+            fieldRefreshAttributes.class.add('refresh');
+            fieldRefreshAttributes.element.title = "Refresh script attributes";
+            panel.headerElement.appendChild(fieldRefreshAttributes.element);
+
+            fieldRefreshAttributes.on('click', function () {
+                refreshScriptAttributes(script);
+            });
+
+            // attributes panel
+            var attributes = new ui.Panel();
+            panel.append(attributes);
+
+            if (script.has('attributesOrder')) {
+                // add attributes if has any
+                var order = script.get('attributesOrder');
+                for(var i = 0; i < order.length; i++) {
+                    createAttributeField(script, order[i], attributes);
+                }
+            }
+
+            var timerUpdateAttributes = null;
+            // when attributes order changed, schedule update
+            events.push(script.on('attributesOrder:set', function() {
+                if (timerUpdateAttributes)
+                    return;
+
+                timerUpdateAttributes = setTimeout(function() {
+                    timerUpdateAttributes = null;
+                    updateAttributeFields(script, attributes);
+                }, 0);
+            }));
+
+            return panel;
         }
 
         // Converts URL to script name
         function getFilenameFromUrl (url) {
             var filename = url;
 
-            if (jsRegex.test(filename)) {
+            if (jsRegex.test(filename))
                 filename = filename.substring(0, filename.length - 3);
-            }
 
             var lastIndexOfSlash = filename.lastIndexOf('/');
-            if (lastIndexOfSlash >= 0) {
+            if (lastIndexOfSlash >= 0)
                 filename = filename.substring(lastIndexOfSlash + 1, filename.length);
-            }
 
             return filename;
         }
@@ -470,37 +626,38 @@ editor.once('load', function() {
             for(var i = 0; i < items.length; i++) {
                 var scriptPanel = createScriptPanel(items[i]);
                 scriptPanels.push(scriptPanel);
-                panel.append(scriptPanel);
+                panelScripts.append(scriptPanel);
             }
         }
 
-
         // subscribe to scripts:insert
-        events.push(entity.on('components.script.scripts:insert', function (script, index) {
+        events.push(entity.on('components.script.scripts:insert', function (script, ind) {
             var scriptPanel = createScriptPanel(script);
-            scriptPanels.splice(index, 0, scriptPanel);
-            if (index === scriptPanels.length - 1) {
+            scriptPanels.splice(ind, 0, scriptPanel);
+
+            if (ind === scriptPanels.length - 1) {
                 // append at the end
-                panel.append(scriptPanel);
+                panelScripts.append(scriptPanel);
             } else {
                 // append before panel at next index
-                panel.appendBefore(scriptPanel, scriptPanels[index+1]);
+                panelScripts.appendBefore(scriptPanel, scriptPanels[ind + 1]);
             }
         }));
 
-        events.push(entity.on('components.script.scripts:move', function (value, idxNew, idxOld) {
-            panel.appendBefore(scriptPanels[idxOld], scriptPanels[idxNew > idxOld ? idxNew + 1 : idxNew]);
-            var temp = scriptPanels[idxOld];
-            scriptPanels[idxOld] = scriptPanels[idxNew];
-            scriptPanels[idxNew] = temp;
+        events.push(entity.on('components.script.scripts:move', function (value, indNew, indOld) {
+            panelScripts.appendBefore(scriptPanels[indOld], scriptPanels[indNew > indOld ? indNew + 1 : indNew]);
+            var temp = scriptPanels[indOld];
+            scriptPanels[indOld] = scriptPanels[indNew];
+            scriptPanels[indNew] = temp;
         }));
 
         // subscribe to scripts:remove
-        events.push(entity.on('components.script.scripts:remove', function (script, index) {
-            if (scriptPanels[index]) {
-                scriptPanels[index].destroy();
-                scriptPanels.splice(index, 1);
+        events.push(entity.on('components.script.scripts:remove', function (script, ind) {
+            if (scriptPanels[ind]) {
+                scriptPanels[ind].destroy();
+                scriptPanels.splice(ind, 1);
             }
+            script.destroy();
         }));
     });
 });

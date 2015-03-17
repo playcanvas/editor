@@ -140,7 +140,7 @@
         },
 
         deactivate: function () {
-            if (this.entity) {
+            if (this.entity && this.entity.pick) {
                 // remove all picker models from the scene
                 // add picker shapes to the current scene
                 this.entity.pick.shapes.map(function (shape) {
@@ -275,9 +275,6 @@
             if (this.entity && !this.disableInteraction) {
                 if(e.button === pc.MOUSEBUTTON_LEFT) {
                     if (this.activeAxis !== null) {
-                        // prevent default event which causes selection of text
-                        e.event.preventDefault();
-
                         this._startDrag(e);
                         this.isDragging = true;
                     }
