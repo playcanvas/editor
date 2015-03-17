@@ -1,11 +1,39 @@
 app.once('load', function() {
     'use strict';
 
-
     // canvas element
     var canvas = document.createElement('canvas');
     canvas.id = 'application-canvas';
     document.body.appendChild(canvas);
+
+    // splash
+    var splash = document.createElement('div');
+    splash.id = 'application-splash';
+    document.body.appendChild(splash);
+
+    var logoLink = document.createElement('a');
+    logoLink.href = 'https://games.playcanvas.com';
+    logoLink.target = '_blank';
+    splash.appendChild(logoLink);
+
+    var logo = document.createElement('img');
+    logo.src = 'https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/logo/PLAY_FLAT_ORANGE3.png';
+    logoLink.appendChild(logo);
+
+    // progress bar
+    var container = document.createElement('div');
+    container.id = 'progress-container';
+    splash.appendChild(container);
+
+    var bar = document.createElement('div');
+    bar.id = 'progress-bar';
+    container.appendChild(bar);
+
+    var setProgress = function (value) {
+        console.log(value);
+        value = Math.min(1, Math.max(0, value));
+        bar.style.width = value * 100 + '%';
+    }
 
     var libraries = config.project.settings.libraries;
     var libraryUrls = [];
@@ -22,12 +50,11 @@ app.once('load', function() {
     var queryParams = (new pc.URI(window.location.href)).getQuery();
 
     // playcanvas application
-    var application = new pc.fw.Application(canvas, {
+    var application = new pc.Application(canvas, {
         mouse: new pc.input.Mouse(canvas),
         touch: !!('ontouchstart' in window) ? new pc.input.TouchDevice(canvas) : null,
         keyboard: new pc.input.Keyboard(window),
-        // gamepads: this.gamepads,
-        // displayLoader: this.displayLoader,
+        gamepads: new pc.input.GamePads(),
         libraries: libraryUrls,
         scriptPrefix: queryParams.local ? 'http://localhost:51000' : config.project.repository_url
     });
@@ -100,6 +127,12 @@ app.once('load', function() {
                 console.log("engine loaded resources");
 
                 application.start();
+
+                splash.remove();
+            }, function (errors) {
+                console.error(errors);
+            }, function (progress) {
+                setProgress(progress);
             });
         }
     };

@@ -35,25 +35,41 @@ body {
 canvas:focus {
     outline: none;
 }
-// #application-splash {
-//     position: absolute;
-//     top: 40%;
-//     width: 30%;
-//     left: 35%;
-// }
-// #application-splash img {
-//     width: 100%;
-// }
-// @media (min-width: 768px) {
-//     #application-splash {
-//         width: 20%;
-//         left: 40%;
-//     }
-// }
-// @media (min-width: 992px) {
-//     #application-splash {
-//         width: 10%;
-//         left: 45%;
-//     }
-// }
+
+#application-splash {
+    position: absolute;
+    top: 40%;
+    width: 30%;
+    left: 35%;
+
+    img {
+        width: 100%;
+    }
+
+    #progress-container {
+        width: 100%;
+        height: 2px;
+        position: absolute;
+        background-color: #444;
+
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: white;
+        }
+    }
+}
+
+@media (min-width: 768px) {
+    #application-splash {
+        width: 20%;
+        left: 40%;
+    }
+}
+@media (min-width: 992px) {
+    #application-splash {
+        width: 10%;
+        left: 45%;
+    }
+}
 
