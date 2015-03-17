@@ -29,7 +29,7 @@ app.once('load', function() {
     });
 
     connection.on('error', function(msg) {
-        console.log('realtime error:', msg);
+        console.error('realtime error:', msg);
     });
 
 
@@ -38,7 +38,7 @@ app.once('load', function() {
 
         // error
         scene.on('error', function(err) {
-            console.log('error', err);
+            console.error('error', err);
         });
 
         // ready to sync
