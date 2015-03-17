@@ -30,7 +30,6 @@ app.once('load', function() {
     container.appendChild(bar);
 
     var setProgress = function (value) {
-        console.log(value);
         value = Math.min(1, Math.max(0, value));
         bar.style.width = value * 100 + '%';
     }
@@ -130,6 +129,7 @@ app.once('load', function() {
 
                 splash.remove();
             }, function (errors) {
+                splash.remove();
                 console.error(errors);
             }, function (progress) {
                 setProgress(progress);
