@@ -1,76 +1,151 @@
 "use strict";
 
 function Menu(args) {
+    var self = this;
+
     args = args || { };
     ui.ContainerElement.call(this);
 
-    this.element = document.createElement('ul');
+    this.element = document.createElement('div');
     this.element.classList.add('ui-menu');
 
-    this.on('select', this._onSelect);
+    this.elementOverlay = document.createElement('div');
+    this.elementOverlay.classList.add('overlay');
+    this.elementOverlay.addEventListener('click', function() {
+        self.open = false;
+    }, false);
+    this.element.appendChild(this.elementOverlay);
+
+    this.innerElement = document.createElement('div');
+    this.innerElement.classList.add('inner');
+    this.element.appendChild(this.innerElement);
+
+    this.on('select-propagate', function(path) {
+        this.open = false;
+        this.emit(path.join('.') + ':select', path);
+        this.emit('select', path);
+    });
+
+    this._index = { };
+    this.on('append', function(item) {
+        this._index[item._value] = item;
+
+        item.on('value', function(value, valueOld) {
+           delete self._index[this.valueOld];
+           self._index[value] = item;
+        });
+        item.once('destroy', function() {
+            delete self._index[this._value];
+        });
+    });
+
+    this._hovered = [ ];
+    this.on('hover', function(path) {
+        this._updatePath(path);
+    });
+    this.on('open', function(state) {
+        if (state) return;
+        this._updatePath([ ]);
+    });
 }
 Menu.prototype = Object.create(ui.ContainerElement.prototype);
 
 
-// Menu.prototype._onSelect = function(item) {
-//     var items = this.element.querySelectorAll('.ui-menu-item.selected');
+Object.defineProperty(Menu.prototype, 'open', {
+    get: function() {
+        return this.class.contains('open');
+    },
+    set: function(value) {
+        if (this.class.contains('open') === !! value)
+            return;
 
-//     if (items.length > 1) {
-//         for(var i = 0; i < items.length; i++) {
-//             if (items[i].ui === item)
-//                 continue;
+        if (value) {
+            this.class.add('open');
+        } else {
+            this.class.remove('open');
+        }
 
-//             items[i].ui.selected = false;
-//         }
-//     }
-// };
-
-
-// Object.defineProperty(Menu.prototype, 'selectable', {
-//     get: function() {
-//         return this._selectable;
-//     },
-//     set: function(value) {
-//         if (this._selectable === !! value)
-//             return;
-
-//         this._selectable = value;
-
-//         if (this._selectable) {
-//             this.class.add('selectable');
-//         } else {
-//             this.class.remove('selectable');
-//         }
-//     }
-// })
+        this.emit('open', !! value);
+    }
+});
 
 
-// Object.defineProperty(Menu.prototype, 'selected', {
-//     get: function() {
-//         var items = [ ];
-//         var elements = this.element.querySelectorAll('.ui-menu-item.selected');
+Menu.prototype.findByPath = function(path) {
+    path = path.split('.');
+    var item = this;
 
-//         for(var i = 0; i < elements.length; i++) {
-//             items.push(elements[i].ui);
-//         }
+    for(var i = 0; i < path.length; i++) {
+        item = item._index[path[i]];
+        if (! item)
+            return null;
+    }
 
-//         return items;
-//     },
-//     set: function(value) {
-//         // deselecting
-//         var items = this.selected;
-//         for(var i = 0; i < items.length; i++) {
-//             if (value.indexOf(items[i]) !== -1)
-//                 continue;
-//             items[i].selected = false;
-//         }
+    return item;
+};
 
-//         // selecting
-//         for(var i = 0; i < value.length; i++) {
-//             value[i].selected = true;
-//         }
-//     }
-// });
+
+Menu.prototype._updatePath = function(path) {
+    var node = this;
+
+    for(var i = 0; i < this._hovered.length; i++) {
+        node = node._index[this._hovered[i]];
+        if (! node) break;
+        if (path.length <= i || path[i] !== this._hovered[i])
+            node.class.remove('hover');
+    }
+
+    this._hovered = path;
+    node = this;
+
+    for(var i = 0; i < this._hovered.length; i++) {
+        node = node._index[this._hovered[i]];
+        if (! node) break;
+        node.class.add('hover');
+    }
+};
+
+
+Menu.prototype.position = function(x, y) {
+    this.innerElement.style.left = (x || 0) + 'px';
+    this.innerElement.style.top = (y || 0) + 'px';
+};
+
+
+Menu.fromData = function(data) {
+    var menu = new ui.Menu();
+
+    var addItem = function(key, data) {
+        var item = new ui.MenuItem({
+            text: data.title || key,
+            value: key,
+            icon: data.icon
+        });
+
+        if (data.select)
+            item.on('select', data.select);
+
+        if (data.filter)
+            menu.on('open', function() {
+                item.enabled = data.filter();
+            });
+
+        return item;
+    };
+
+    var listItems = function(data, parent) {
+        for(var key in data) {
+            var item = addItem(key, data[key]);
+            parent.append(item);
+
+            if (data[key].items)
+                listItems(data[key].items, item);
+        }
+    };
+
+    listItems(data, menu);
+
+    return menu;
+};
 
 
 window.ui.Menu = Menu;

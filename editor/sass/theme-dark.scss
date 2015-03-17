@@ -324,6 +324,78 @@ a:visited {
     }
 }
 
+.ui-menu {
+
+}
+
+.ui-menu-item {
+    background-color: $bcg-darkest;
+
+    &.disabled > .title:hover {
+        color: $text-dark;
+
+        > .icon {
+            color: $text-dark;
+        }
+    }
+    &.container {
+        > .title:after {
+            content: '\E113';
+            font-family: 'ui-font-solid';
+            font-size: 14px;
+            text-align: center;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-smoothing: antialiased;
+            background-color: transparent;
+            color: $text-dark;
+            line-height: 16px;
+        }
+        &.hover > .title {
+            color: $text-primary;
+            background-color: $text-darkest;
+
+            &:after {
+                color: $text-primary;
+            }
+            > .icon {
+                color: $text-primary;
+            }
+        }
+    }
+    &:last-child {
+        > .title {
+            border-bottom: none;
+        }
+    }
+    > .title {
+        color: $text-dark;
+        border-bottom: 1px solid mix($bcg-darkest, $bcg-dark, 50%);
+
+        &:hover {
+            color: $text-primary;
+            background-color: $text-darkest;
+
+            > .icon {
+                color: $text-primary;
+            }
+        }
+        > .icon {
+            font-family: 'ui-font-solid';
+            font-size: 14px;
+            text-align: center;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-smoothing: antialiased;
+            background-color: transparent;
+            color: $text-dark;
+        }
+    }
+    > .content {
+        box-shadow: 0 0 8px rgba(0, 0, 0, .3);
+    }
+}
+
 .ui-list {
     background-color: $bcg-dark;
     border-color: $bcg-darker;

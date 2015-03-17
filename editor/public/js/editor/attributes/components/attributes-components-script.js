@@ -371,9 +371,8 @@ editor.once('load', function() {
                 // drop
                 var dropRef = editor.call('drop:target', {
                     ref: fieldAssetsList.element,
-                    type: 'asset.audio',
                     filter: function(type, data) {
-                        return script.get('attributes.' + attribute.name + '.value').indexOf(data.id) === -1;
+                        return type.startsWith('asset') && script.get('attributes.' + attribute.name + '.value').indexOf(data.id) === -1;
                     },
                     drop: function(type, data) {
                         // already in list
