@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var interval;
+    var timeout;
 
     // overlay
     var overlay = new ui.Overlay();
@@ -43,24 +43,35 @@ editor.once('load', function() {
             content.innerHTML = 'Disconnected. Reconnecting in ' + remaining + ' seconds...';
         }
 
+        var before = new Date();
+
+        function renderTime () {
+            var now = new Date();
+            var elapsed = now.getTime() - before.getTime();
+            before = now;
+            time -= Math.round(elapsed / 1000);
+            if (time < 0) {
+                time = 0;
+            } else {
+                timeout = setTimeout(renderTime, 1000);
+            }
+
+            setText(time);
+        }
+
         setText(time);
 
-        interval = setInterval(function () {
-            time -= 1;
-            setText(time);
-            if (time <= 0) {
-                clearInterval(interval);
-            }
-        }, 1000);
+        timeout = setTimeout(renderTime, 1000);
     });
 
     editor.on('realtime:connecting', function (attempt) {
         overlay.hidden = true;
+        clearTimeout(timeout);
     });
 
     editor.on('realtime:cannotConnect', function () {
         overlay.hidden = false;
-        clearInterval(interval);
+        clearTimeout(timeout);
         setIconClass('error');
         content.innerHTML = 'Cannot connect to the server. Please try again later.';
     });
