@@ -16,10 +16,7 @@ app.once('load', function() {
             if (! scene)
                 loadScene();
 
-        } else if (msg.data.startsWith('permissions')) {
-            // var data = JSON.parse(msg.data.slice('permissions'.length));
-            // console.log(data);
-            // editor.call('permissions:set', data.write);
+        } else if (msg.data.startsWith('permissions') || msg.data.startsWith('whoisonline')) {
         } else {
             sharejsMessage(msg);
         }
