@@ -127,7 +127,7 @@ ObserverList.prototype.removeBy = function(fn) {
         }
         this.data.splice(i, 1);
 
-        this.emit('remove', this.data[i]);
+        this.emit('remove', this.data[i], i);
     }
 };
 
@@ -140,7 +140,7 @@ ObserverList.prototype.clear = function() {
 
     var i = items.length;
     while(i--) {
-        this.emit('remove', items[i]);
+        this.emit('remove', items[i], i);
     }
 };
 

@@ -974,6 +974,21 @@ body {
     }
 }
 
+.ui-panel.whoisonline {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1;
+    background-color: transparent;
+    padding: 2px;
+
+    > .content {
+        > a {
+            margin-right: 5px;
+        }
+    }
+}
+
 .connection-overlay {
     > .content {
         width: 400px;
