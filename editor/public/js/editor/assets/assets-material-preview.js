@@ -26,7 +26,9 @@ editor.once('load', function () {
     // set up light
     var light = new pc.Light();
     light.setEnabled(true);
+    light.setColor(1, 1, 1);
     var lightNode = new pc.GraphNode();
+    lightNode.setPosition(5, 5, 5);
     lightNode.rotate(45, 45, 0);
     light._node = lightNode;
 
@@ -47,24 +49,24 @@ editor.once('load', function () {
     scene.addModel(model);
     scene.addLight(light);
 
-    // function updateSettings (settings) {
-    //     var ambient = settings.get('render.global_ambient');
-    //     scene.ambientLight.set(ambient[0], ambient[1], ambient[2]);
+    function updateSettings (settings) {
+        var ambient = settings.get('render.global_ambient');
+        scene.ambientLight.set(ambient[0], ambient[1], ambient[2]);
 
-    //     scene.gammaCorrection = settings.get('render.gamma_correction');
-    //     scene.toneMapping = settings.get('render.tonemapping');
-    //     scene.exposure = settings.get('render.exposure');
+        scene.gammaCorrection = settings.get('render.gamma_correction');
+        scene.toneMapping = settings.get('render.tonemapping');
+        scene.exposure = settings.get('render.exposure');
 
-    //     editor.emit('material:preview:sceneChanged');
-    // }
+        editor.emit('material:preview:sceneChanged');
+    }
 
-    // editor.on('sceneSettings:load', function (settings) {
-    //     updateSettings(settings);
+    editor.on('sceneSettings:load', function (settings) {
+        updateSettings(settings);
 
-    //     settings.on('*:set', function () {
-    //         updateSettings(settings);
-    //     });
-    // });
+        settings.on('*:set', function () {
+            updateSettings(settings);
+        });
+    });
 
     // register resource handlers
     loader.registerHandler(pc.resources.TextureRequest, new pc.resources.TextureResourceHandler(device, assets));
@@ -89,6 +91,12 @@ editor.once('load', function () {
             device.resizeCanvas(width, height);
             canvas.resize(width, height);
             camera.setAspectRatio(width / height);
+
+            if (scene.updateShaders) {
+                scene._updateShaders(device);
+                scene.updateShaders = false;
+            }
+
             renderer.render(scene, camera);
             editor.emit('material:preview:' + materialId, canvas.element.toDataURL());
         }
@@ -97,7 +105,7 @@ editor.once('load', function () {
             // if the asset no longer exists then stop re-rendering
             if (! editor.call('assets:get', materialId)) {
                 material.update = material.oldUpdate;
-                // editor.unbind('material:preview:sceneChanged', delayedRender);
+                editor.unbind('material:preview:sceneChanged', delayedRender);
             } else  {
                 if (timeout)
                     clearTimeout(timeout);
@@ -115,8 +123,8 @@ editor.once('load', function () {
             if (!material.oldUpdate) {
                 material.oldUpdate = material.update;
 
-                // // re-render when scene settings change
-                // editor.on('material:preview:sceneChanged', delayedRender);
+                // re-render when scene settings change
+                editor.on('material:preview:sceneChanged', delayedRender);
             }
 
             // change update function of material
