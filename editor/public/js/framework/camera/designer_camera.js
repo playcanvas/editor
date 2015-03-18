@@ -431,7 +431,7 @@ pc.script.create( "designer_camera", function (app) {
             this.flyFast = false;
         }
 
-        this.flySpeed.add2(this.entity.forward.scale(forward), this.entity.right.scale(right)).add(this.entity.up.scale(up));
+        this.flySpeed.set(right, up, -forward).normalize();
     };
 
     DesignerCamera.prototype.onKeyUp = function (e) {
@@ -652,6 +652,11 @@ pc.script.create( "designer_camera", function (app) {
             if (this.flyMode) {
                 var pos = this.entity.getLocalPosition();
 
+                offset.copy(this.flySpeed);
+
+                // transform offset with camera transform
+                this.entity.getWorldTransform().transformVector(offset, offset);
+
                 // increase speed while keys are held down
                 if (this.flySpeedModifier > 0) {
                     this.flyDuration += dt;
@@ -660,10 +665,12 @@ pc.script.create( "designer_camera", function (app) {
                     }
                 }
 
-                offset.copy(this.flySpeed).scale(this.flySpeedModifier);
+                offset.scale(this.flySpeedModifier);
                 if (this.flyFast) {
                     offset.scale(3);
                 }
+
+
                 pos.add(offset);
                 this.focus.add(offset);
 
