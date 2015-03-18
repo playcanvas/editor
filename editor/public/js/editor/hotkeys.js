@@ -71,8 +71,6 @@ editor.once('load', function() {
         if (! keyIndex[args.index])
             keyIndex[args.index] = [ ];
 
-        console.log('hotkey', name, args.index)
-
         keyIndex[args.index].push(name);
     });
 
