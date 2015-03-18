@@ -73,6 +73,8 @@ pc.script.create( "designer_camera", function (app) {
         this.flyModeKeys = {
             65: false, // A
             68: false, // D
+            69: false, // E
+            81: false, // Q
             83: false, // S
             87: false  // W
         };
@@ -395,6 +397,7 @@ pc.script.create( "designer_camera", function (app) {
     DesignerCamera.prototype.calculateFlySpeed = function (e) {
         var right = 0;
         var forward = 0;
+        var up = 0;
 
         if (this.flyModeKeys['A'.charCodeAt(0)]) {
             right = -1;
@@ -408,6 +411,12 @@ pc.script.create( "designer_camera", function (app) {
             forward = -1;
         }
 
+        if (this.flyModeKeys['Q'.charCodeAt(0)]) {
+            up = -1;
+        } else if (this.flyModeKeys['E'.charCodeAt(0)]) {
+            up = 1;
+        }
+
         if (e.ctrlKey || e.altKey) {
             this.flySpeedModifier = 0;
         } else if (e.shiftKey) {
@@ -416,7 +425,7 @@ pc.script.create( "designer_camera", function (app) {
             this.flySpeedModifier = 0.2;
         }
 
-        this.flySpeed.add2(this.entity.forward.scale(forward), this.entity.right.scale(right));
+        this.flySpeed.add2(this.entity.forward.scale(forward), this.entity.right.scale(right)).add(this.entity.up.scale(up));
     };
 
     DesignerCamera.prototype.onKeyUp = function (e) {
