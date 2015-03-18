@@ -14,6 +14,9 @@ function Menu(args) {
     this.elementOverlay.addEventListener('click', function() {
         self.open = false;
     }, false);
+    this.elementOverlay.addEventListener('contextmenu', function() {
+        self.open = false;
+    }, false);
     this.element.appendChild(this.elementOverlay);
 
     this.innerElement = document.createElement('div');

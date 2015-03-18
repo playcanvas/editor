@@ -67,6 +67,12 @@ editor.once('load', function() {
     });
 
 
+    // get grid item by id
+    editor.method('assets:panel:get', function(id) {
+        return assetsIndex[id];
+    });
+
+
     editor.on('assets:add', function(asset) {
         var item = new ui.GridItem();
         item.asset = asset;
