@@ -48,8 +48,7 @@ editor.once('load', function() {
             items: {
                 'new-entity': {
                     title: 'New Entity',
-                    icon: '&#58468;',
-                    select: function() {
+                    select: function () {
                         newEntity();
                     },
                     items: {
@@ -60,13 +59,15 @@ editor.once('load', function() {
                                 newEntity();
                             }
                         },
-                        'add-new-audiolistener': {
+                        'add-new-listener': {
                             title: 'Audio Listener',
                             icon: componentsLogos.audiolistener,
                             select: function() {
                                 var entity = newEntity();
-                                entity.set('name', 'New Audio Listener');
+                                entity.history.enabled = false;
+                                entity.set('name', 'Audio Listener');
                                 addComponent(entity, 'audiolistener');
+                                entity.history.enabled = true;
                             }
                         },
                         'add-new-audiosource': {
@@ -74,8 +75,10 @@ editor.once('load', function() {
                             icon: componentsLogos.audiosource,
                             select: function() {
                                 var entity = newEntity();
+                                entity.history.enabled = false;
                                 entity.set('name', 'New Audio Source');
                                 addComponent(entity, 'audiosource');
+                                entity.history.enabled = true;
                             }
                         },
                         'add-new-camera': {
@@ -83,18 +86,10 @@ editor.once('load', function() {
                             icon: componentsLogos.camera,
                             select: function() {
                                 var entity = newEntity();
+                                entity.history.enabled = false;
                                 entity.set('name', 'New Camera');
                                 addComponent(entity, 'camera');
-                            }
-                        },
-                        'add-new-model': {
-                            title: 'Model',
-                            icon: componentsLogos.model,
-                            select: function() {
-                                var entity = newEntity();
-                                entity.set('name', 'New Model');
-                                addComponent(entity, 'model');
-                                entity.set('components.model.type', 'asset');
+                                entity.history.enabled = true;
                             }
                         },
                         'add-new-box': {
@@ -102,9 +97,11 @@ editor.once('load', function() {
                             icon: componentsLogos.model,
                             select: function() {
                                 var entity = newEntity();
+                                entity.history.enabled = false;
                                 entity.set('name', 'New Box');
                                 addComponent(entity, 'model');
                                 entity.set('components.model.type', 'box');
+                                entity.history.enabled = true;
                             }
                         },
                         'add-new-capsule': {
@@ -112,9 +109,11 @@ editor.once('load', function() {
                             icon: componentsLogos.model,
                             select: function() {
                                 var entity = newEntity();
+                                entity.history.enabled = false;
                                 entity.set('name', 'New Capsule');
                                 addComponent(entity, 'model');
                                 entity.set('components.model.type', 'capsule');
+                                entity.history.enabled = true;
                             }
                         },
                         'add-new-cone': {
@@ -122,9 +121,11 @@ editor.once('load', function() {
                             icon: componentsLogos.model,
                             select: function() {
                                 var entity = newEntity();
+                                entity.history.enabled = false;
                                 entity.set('name', 'New Cone');
                                 addComponent(entity, 'model');
                                 entity.set('components.model.type', 'cone');
+                                entity.history.enabled = true;
                             }
                         },
                         'add-new-cylinder': {
@@ -132,9 +133,23 @@ editor.once('load', function() {
                             icon: componentsLogos.model,
                             select: function() {
                                 var entity = newEntity();
+                                entity.history.enabled = false;
                                 entity.set('name', 'New Cylinder');
                                 addComponent(entity, 'model');
                                 entity.set('components.model.type', 'cylinder');
+                                entity.history.enabled = true;
+                            }
+                        },
+                        'add-new-model': {
+                            title: 'Model',
+                            icon: componentsLogos.model,
+                            select: function() {
+                                var entity = newEntity();
+                                entity.history.enabled = false;
+                                entity.set('name', 'New Model');
+                                addComponent(entity, 'model');
+                                entity.set('components.model.type', 'asset');
+                                entity.history.enabled = true;
                             }
                         },
                         'add-new-plane': {
@@ -142,9 +157,11 @@ editor.once('load', function() {
                             icon: componentsLogos.model,
                             select: function() {
                                 var entity = newEntity();
+                                entity.history.enabled = false;
                                 entity.set('name', 'New Plane');
                                 addComponent(entity, 'model');
                                 entity.set('components.model.type', 'plane');
+                                entity.history.enabled = true;
                             }
                         },
                         'add-new-sphere': {
@@ -152,9 +169,11 @@ editor.once('load', function() {
                             icon: componentsLogos.model,
                             select: function() {
                                 var entity = newEntity();
+                                entity.history.enabled = false;
                                 entity.set('name', 'New Sphere');
                                 addComponent(entity, 'model');
                                 entity.set('components.model.type', 'sphere');
+                                entity.history.enabled = true;
                             }
                         },
                         'add-new-directional': {
@@ -162,9 +181,11 @@ editor.once('load', function() {
                             icon: componentsLogos.light,
                             select: function() {
                                 var entity = newEntity();
+                                entity.history.enabled = false;
                                 entity.set('name', 'New Directional Light');
                                 addComponent(entity, 'light');
                                 entity.set('components.light.type', 'directional');
+                                entity.history.enabled = true;
                             }
                         },
                         'add-new-point': {
@@ -172,9 +193,11 @@ editor.once('load', function() {
                             icon: componentsLogos.light,
                             select: function() {
                                 var entity = newEntity();
+                                entity.history.enabled = false;
                                 entity.set('name', 'New Point Light');
                                 addComponent(entity, 'light');
                                 entity.set('components.light.type', 'point');
+                                entity.history.enabled = true;
                             }
                         },
                         'add-new-spot': {
@@ -182,9 +205,11 @@ editor.once('load', function() {
                             icon: componentsLogos.light,
                             select: function() {
                                 var entity = newEntity();
+                                entity.history.enabled = false;
                                 entity.set('name', 'New Spot Light');
                                 addComponent(entity, 'light');
                                 entity.set('components.light.type', 'spot');
+                                entity.history.enabled = true;
                             }
                         },
                         'add-new-particles': {
@@ -192,10 +217,13 @@ editor.once('load', function() {
                             icon: componentsLogos.particlesystem,
                             select: function() {
                                 var entity = newEntity();
+                                entity.history.enabled = false;
                                 entity.set('name', 'New Particle System');
                                 addComponent(entity, 'particlesystem');
+                                entity.history.enabled = true;
                             }
                         }
+
                     }
                 },
                 'add-component': {
