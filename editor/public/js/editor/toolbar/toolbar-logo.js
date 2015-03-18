@@ -228,7 +228,6 @@ editor.once('load', function() {
                 },
                 'add-component': {
                     title: 'Add Component',
-                    icon: '&#58468;',
                     filter: function() {
                         return editor.call('selector:type') === 'entity';
                     },
@@ -345,4 +344,9 @@ editor.once('load', function() {
     var menu = ui.Menu.fromData(menuData);
     menu.position(48, 0);
     root.append(menu);
+
+    // get part of menu data
+    editor.method('menu:get', function (name) {
+        return menuData[name];
+    });
 });

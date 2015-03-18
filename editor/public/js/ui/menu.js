@@ -104,13 +104,31 @@ Menu.prototype._updatePath = function(path) {
         node = node._index[this._hovered[i]];
         if (! node) break;
         node.class.add('hover');
+
+        // limit to bottom / top of screen
+        var top = node.parent.innerElement.offsetTop + node.element.offsetTop;
+        if (top + node.innerElement.clientHeight > window.innerHeight) {
+            node.innerElement.style.top = window.innerHeight - (top + node.innerElement.clientHeight) + 'px';
+        } else {
+            node.innerElement.style.top = 0;
+        }
     }
 };
 
 
 Menu.prototype.position = function(x, y) {
-    this.innerElement.style.left = (x || 0) + 'px';
-    this.innerElement.style.top = (y || 0) + 'px';
+    var left = (x || 0);
+    var top = (y || 0);
+
+    // limit to bottom / top of screen
+    if (top + this.innerElement.clientHeight > window.innerHeight) {
+        top = window.innerHeight - this.innerElement.clientHeight;
+    } else if (top < 0) {
+        top = 0;
+    }
+
+    this.innerElement.style.left = left + 'px';
+    this.innerElement.style.top = top + 'px';
 };
 
 

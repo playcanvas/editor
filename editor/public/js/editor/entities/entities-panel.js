@@ -222,4 +222,9 @@ editor.once('load', function() {
         editor.call('entities:remove', entity);
     });
 
+    // get entity item
+    editor.method('entities:panel:get', function (resourceId) {
+        return uiItemIndex[resourceId];
+    });
+
 });

@@ -44,9 +44,11 @@ editor.once('load', function() {
 
         // attach contextmenu event
         item.element.addEventListener('contextmenu', function(evt) {
+            if (!editor.call('permissions:write')) return;
+
             currentAsset = asset;
-            menu.position(evt.clientX, evt.clientY);
             menu.open = true;
+            menu.position(evt.clientX + 1, evt.clientY);
         });
     });
 });
