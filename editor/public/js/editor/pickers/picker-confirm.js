@@ -44,19 +44,27 @@ editor.once('load', function() {
     root.append(overlay);
 
 
-    // keyboard controlls
-    window.addEventListener('keydown', function(evt) {
-        if (overlay.hidden || [ 13, 27 ].indexOf(evt.keyCode) === -1)
-            return;
+    // esc > no
+    editor.call('hotkey:register', 'picker:confirm:no', {
+        key: 'esc',
+        callback: function() {
+            if (overlay.hidden)
+                return;
 
-        if (evt.keyCode === 13) {
-            // yes
-            btnYes.emit('click');
-        } else {
-            // no
             btnNo.emit('click');
         }
-    }, false);
+    });
+
+    // enter > yes
+    editor.call('hotkey:register', 'picker:confirm:yes', {
+        key: 'enter',
+        callback: function() {
+            if (overlay.hidden)
+                return;
+
+            btnYes.emit('click');
+        }
+    });
 
 
     // on overlay hide

@@ -356,12 +356,15 @@ editor.once('load', function() {
 
 
     // esc to close
-    overlay.element.addEventListener('keydown', function(evt) {
-        if (evt.keyCode !== 27 || overlay.hidden)
-            return;
+    editor.call('hotkey:register', 'picker:color:close', {
+        key: 'esc',
+        callback: function() {
+            if (overlay.hidden)
+                return;
 
-        overlay.hidden = true;
-    }, false);
+            overlay.hidden = true;
+        }
+    });
 
 
     overlay.on('hide', function() {

@@ -59,7 +59,6 @@ editor.once('load', function() {
 
             evt.preventDefault();
             evt.stopPropagation();
-
         });
     });
 });

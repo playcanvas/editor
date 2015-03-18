@@ -112,29 +112,27 @@ editor.once('load', function() {
     });
 
 
-    // shortcuts
-    window.addEventListener('keydown', function (e) {
-        var framework = editor.call('viewport:framework');
-        if (! framework || (e.target && e.target.tagName.toLowerCase() === 'input'))
-            return;
-
-        switch (e.keyCode) {
-            case 49: // 1:
-                gizmoButtons['translate'].emit('click');
-                // framework.setActiveGizmoType('translate');
-                break;
-            case 50: // 2:
-                gizmoButtons['rotate'].emit('click');
-                // framework.setActiveGizmoType('rotate');
-                break;
-            case 51: // 3:
-                gizmoButtons['scale'].emit('click');
-                // framework.setActiveGizmoType('scale');
-                break;
-            case 70: // F:
-                framework.frameSelection();
-                break;
+    // translate hotkey
+    editor.call('hotkey:register', 'gizmo:translate', {
+        key: '1',
+        callback: function() {
+            gizmoButtons['translate'].emit('click');
         }
     });
 
+    // rotate hotkey
+    editor.call('hotkey:register', 'gizmo:rotate', {
+        key: '2',
+        callback: function() {
+            gizmoButtons['rotate'].emit('click');
+        }
+    });
+
+    // scale hotkey
+    editor.call('hotkey:register', 'gizmo:scale', {
+        key: '3',
+        callback: function() {
+            gizmoButtons['scale'].emit('click');
+        }
+    });
 });
