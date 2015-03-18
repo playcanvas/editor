@@ -39,13 +39,32 @@ editor.once('load', function () {
     clearOptions.color[3] = 0;
 
     var cameraNode = new pc.GraphNode();
-    cameraNode.setPosition(0, 0, 1.5);
+    cameraNode.setPosition(0, 0, 1.3);
     camera._node = cameraNode;
 
     // set up scene
     scene.ambientLight.set(0.2, 0.2, 0.2);
     scene.addModel(model);
     scene.addLight(light);
+
+    // function updateSettings (settings) {
+    //     var ambient = settings.get('render.global_ambient');
+    //     scene.ambientLight.set(ambient[0], ambient[1], ambient[2]);
+
+    //     scene.gammaCorrection = settings.get('render.gamma_correction');
+    //     scene.toneMapping = settings.get('render.tonemapping');
+    //     scene.exposure = settings.get('render.exposure');
+
+    //     editor.emit('material:preview:sceneChanged');
+    // }
+
+    // editor.on('sceneSettings:load', function (settings) {
+    //     updateSettings(settings);
+
+    //     settings.on('*:set', function () {
+    //         updateSettings(settings);
+    //     });
+    // });
 
     // register resource handlers
     loader.registerHandler(pc.resources.TextureRequest, new pc.resources.TextureResourceHandler(device, assets));
@@ -56,6 +75,7 @@ editor.once('load', function () {
     // with canvas.toDataURL() as argument
     editor.method('material:preview', function (asset, width, height, callback) {
         var materialId = asset.get('id');
+        var material;
 
         var asset = assets.getAssetById(materialId);
         if (!asset)
@@ -64,7 +84,7 @@ editor.once('load', function () {
         var timeout;
 
         // render with specified material
-        function render (material) {
+        function render () {
             model.meshInstances[0].material = material;
             device.resizeCanvas(width, height);
             canvas.resize(width, height);
@@ -73,11 +93,30 @@ editor.once('load', function () {
             editor.emit('material:preview:' + materialId, canvas.element.toDataURL());
         }
 
+        function delayedRender () {
+            // if the asset no longer exists then stop re-rendering
+            if (! editor.call('assets:get', materialId)) {
+                material.update = material.oldUpdate;
+                // editor.unbind('material:preview:sceneChanged', delayedRender);
+            } else  {
+                if (timeout)
+                    clearTimeout(timeout);
+
+                timeout = setTimeout(function() {
+                    render();
+                    timeout = null;
+                }, 100);
+            }
+        }
+
         // called when material resource is loaded
-        function onLoaded (material) {
+        function onLoaded () {
             // remember old update
             if (!material.oldUpdate) {
                 material.oldUpdate = material.update;
+
+                // // re-render when scene settings change
+                // editor.on('material:preview:sceneChanged', delayedRender);
             }
 
             // change update function of material
@@ -85,22 +124,10 @@ editor.once('load', function () {
             // material is updated
             material.update = function () {
                 material.oldUpdate.call(material);
-
-                // if the asset no longer exists then stop re-rendering
-                if (! editor.call('assets:get', materialId)) {
-                    material.update = material.oldUpdate;
-                } else  {
-                    if (timeout)
-                        clearTimeout(timeout);
-
-                    timeout = setTimeout(function() {
-                        render(material);
-                        timeout = null;
-                    }, 100);
-                }
+                delayedRender();
             };
 
-            render(material);
+            render();
 
             if (callback)
                 callback();
@@ -111,10 +138,10 @@ editor.once('load', function () {
         if (!material) {
             assets.load(asset).then(function (resources) {
                 material = resources[0];
-                onLoaded(material);
+                onLoaded();
             }.bind(this));
         } else {
-            onLoaded(material);
+            onLoaded();
         }
     });
 
