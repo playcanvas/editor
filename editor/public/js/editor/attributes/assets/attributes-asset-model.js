@@ -68,14 +68,15 @@ editor.once('load', function() {
                 });
 
                 // call picker
-                fieldMaterial.on('click', function() {
+                fieldMaterial.on('pick', function() {
                     pickMaterial(fieldMaterial.value, function(assetId) {
                         // set to mapping observer
                         asset.set('data.mapping.' + ind + '.material', assetId);
                     });
                 });
 
-                fieldMaterial.on('view', function() {
+                fieldMaterial.on('click', function() {
+                    if (! this.value) return;
                     var asset = editor.call('assets:get', this.value);
                     if (! asset) return;
                     editor.call('selector:set', 'asset', [ asset ]);

@@ -234,7 +234,7 @@ editor.once('load', function() {
                 var field = new ui.ImageField();
                 var evtPick;
 
-                field.on('click', function() {
+                field.on('pick', function() {
                     var asset = editor.call('assets:get', this.value);
                     editor.call('picker:asset', args.kind, asset);
 
@@ -252,7 +252,8 @@ editor.once('load', function() {
                     });
                 });
 
-                field.on('view', function() {
+                field.on('click', function() {
+                    if (! this.value) return;
                     var asset = editor.call('assets:get', this.value);
                     if (! asset) return;
                     editor.call('selector:set', 'asset', [ asset ]);

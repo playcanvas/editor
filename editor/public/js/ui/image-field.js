@@ -23,16 +23,15 @@ function ImageField(args) {
     }, false);
     this.element.appendChild(this.elementClear);
 
-    this.elementView = document.createElement('span');
-    this.elementView.classList.add('view');
-    this.elementView.addEventListener('click', function(evt) {
-        if (! self.value)
+    this.elementPick = document.createElement('span');
+    this.elementPick.classList.add('pick');
+    this.elementPick.addEventListener('click', function(evt) {
+        if (self.disabled)
             return;
-
-        self.emit('view', self.value);
+        self.emit('pick');
         evt.stopPropagation();
     }, false);
-    this.element.appendChild(this.elementView);
+    this.element.appendChild(this.elementPick);
 
     this._value = null;
 
@@ -53,7 +52,7 @@ function ImageField(args) {
 
         evt.stopPropagation();
         evt.preventDefault();
-        self.emit('click');
+        self.emit('pick');
     }, false);
 }
 ImageField.prototype = Object.create(ui.Element.prototype);
