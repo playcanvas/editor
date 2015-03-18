@@ -53,139 +53,177 @@ editor.once('load', function() {
                     },
                     items: {
                         'add-new-entity': {
-                            title: 'New Entity',
+                            title: 'Entity',
                             icon: '&#58468;',
                             select: function() {
                                 newEntity();
                             }
                         },
-                        'add-new-camera': {
-                            title: 'New Camera',
-                            icon: componentsLogos.camera,
+                        'add-new-listener': {
+                            title: 'Audio Listener',
+                            icon: componentsLogos.audiolistener,
                             select: function() {
                                 var entity = newEntity();
-                                entity.set('name', 'New Camera');
-                                addComponent(entity, 'camera');
-                            }
-                        },
-                        'add-new-model': {
-                            title: 'New Model',
-                            icon: componentsLogos.model,
-                            select: function() {
-                                var entity = newEntity();
-                                entity.set('name', 'New Model');
-                                addComponent(entity, 'model');
-                                entity.set('components.model.type', 'asset');
-                            }
-                        },
-                        'add-new-box': {
-                            title: 'New Box',
-                            icon: componentsLogos.model,
-                            select: function() {
-                                var entity = newEntity();
-                                entity.set('name', 'New Box');
-                                addComponent(entity, 'model');
-                                entity.set('components.model.type', 'box');
-                            }
-                        },
-                        'add-new-capsule': {
-                            title: 'New Capsule',
-                            icon: componentsLogos.model,
-                            select: function() {
-                                var entity = newEntity();
-                                entity.set('name', 'New Capsule');
-                                addComponent(entity, 'model');
-                                entity.set('components.model.type', 'capsule');
-                            }
-                        },
-                        'add-new-cone': {
-                            title: 'New Cone',
-                            icon: componentsLogos.model,
-                            select: function() {
-                                var entity = newEntity();
-                                entity.set('name', 'New Cone');
-                                addComponent(entity, 'model');
-                                entity.set('components.model.type', 'cone');
-                            }
-                        },
-                        'add-new-cylinder': {
-                            title: 'New Cylinder',
-                            icon: componentsLogos.model,
-                            select: function() {
-                                var entity = newEntity();
-                                entity.set('name', 'New Cylinder');
-                                addComponent(entity, 'model');
-                                entity.set('components.model.type', 'cylinder');
-                            }
-                        },
-                        'add-new-plane': {
-                            title: 'New Plane',
-                            icon: componentsLogos.model,
-                            select: function() {
-                                var entity = newEntity();
-                                entity.set('name', 'New Plane');
-                                addComponent(entity, 'model');
-                                entity.set('components.model.type', 'plane');
-                            }
-                        },
-                        'add-new-sphere': {
-                            title: 'New Sphere',
-                            icon: componentsLogos.model,
-                            select: function() {
-                                var entity = newEntity();
-                                entity.set('name', 'New Sphere');
-                                addComponent(entity, 'model');
-                                entity.set('components.model.type', 'sphere');
-                            }
-                        },
-                        'add-new-directional': {
-                            title: 'New Directional Light',
-                            icon: componentsLogos.light,
-                            select: function() {
-                                var entity = newEntity();
-                                entity.set('name', 'New Directional Light');
-                                addComponent(entity, 'light');
-                                entity.set('components.light.type', 'directional');
-                            }
-                        },
-                        'add-new-point': {
-                            title: 'New Point Light',
-                            icon: componentsLogos.light,
-                            select: function() {
-                                var entity = newEntity();
-                                entity.set('name', 'New Point Light');
-                                addComponent(entity, 'light');
-                                entity.set('components.light.type', 'point');
-                            }
-                        },
-                        'add-new-spot': {
-                            title: 'New Spot Light',
-                            icon: componentsLogos.light,
-                            select: function() {
-                                var entity = newEntity();
-                                entity.set('name', 'New Spot Light');
-                                addComponent(entity, 'light');
-                                entity.set('components.light.type', 'spot');
-                            }
-                        },
-                        'add-new-particles': {
-                            title: 'New Particle System',
-                            icon: componentsLogos.particlesystem,
-                            select: function() {
-                                var entity = newEntity();
-                                entity.set('name', 'New Particle System');
-                                addComponent(entity, 'particlesystem');
+                                entity.history.enabled = false;
+                                entity.set('name', 'Audio Listener');
+                                addComponent(entity, 'audiolistener');
+                                entity.history.enabled = true;
                             }
                         },
                         'add-new-audiosource': {
-                            title: 'New Audio Source',
+                            title: 'Audio Source',
                             icon: componentsLogos.audiosource,
                             select: function() {
                                 var entity = newEntity();
+                                entity.history.enabled = false;
                                 entity.set('name', 'New Audio Source');
                                 addComponent(entity, 'audiosource');
+                                entity.history.enabled = true;
+                            }
+                        },
+                        'add-new-camera': {
+                            title: 'Camera',
+                            icon: componentsLogos.camera,
+                            select: function() {
+                                var entity = newEntity();
+                                entity.history.enabled = false;
+                                entity.set('name', 'New Camera');
+                                addComponent(entity, 'camera');
+                                entity.history.enabled = true;
+                            }
+                        },
+                        'add-new-box': {
+                            title: 'Box',
+                            icon: componentsLogos.model,
+                            select: function() {
+                                var entity = newEntity();
+                                entity.history.enabled = false;
+                                entity.set('name', 'New Box');
+                                addComponent(entity, 'model');
+                                entity.set('components.model.type', 'box');
+                                entity.history.enabled = true;
+                            }
+                        },
+                        'add-new-capsule': {
+                            title: 'Capsule',
+                            icon: componentsLogos.model,
+                            select: function() {
+                                var entity = newEntity();
+                                entity.history.enabled = false;
+                                entity.set('name', 'New Capsule');
+                                addComponent(entity, 'model');
+                                entity.set('components.model.type', 'capsule');
+                                entity.history.enabled = true;
+                            }
+                        },
+                        'add-new-cone': {
+                            title: 'Cone',
+                            icon: componentsLogos.model,
+                            select: function() {
+                                var entity = newEntity();
+                                entity.history.enabled = false;
+                                entity.set('name', 'New Cone');
+                                addComponent(entity, 'model');
+                                entity.set('components.model.type', 'cone');
+                                entity.history.enabled = true;
+                            }
+                        },
+                        'add-new-cylinder': {
+                            title: 'Cylinder',
+                            icon: componentsLogos.model,
+                            select: function() {
+                                var entity = newEntity();
+                                entity.history.enabled = false;
+                                entity.set('name', 'New Cylinder');
+                                addComponent(entity, 'model');
+                                entity.set('components.model.type', 'cylinder');
+                                entity.history.enabled = true;
+                            }
+                        },
+                        'add-new-model': {
+                            title: 'Model',
+                            icon: componentsLogos.model,
+                            select: function() {
+                                var entity = newEntity();
+                                entity.history.enabled = false;
+                                entity.set('name', 'New Model');
+                                addComponent(entity, 'model');
+                                entity.set('components.model.type', 'asset');
+                                entity.history.enabled = true;
+                            }
+                        },
+                        'add-new-plane': {
+                            title: 'Plane',
+                            icon: componentsLogos.model,
+                            select: function() {
+                                var entity = newEntity();
+                                entity.history.enabled = false;
+                                entity.set('name', 'New Plane');
+                                addComponent(entity, 'model');
+                                entity.set('components.model.type', 'plane');
+                                entity.history.enabled = true;
+                            }
+                        },
+                        'add-new-sphere': {
+                            title: 'Sphere',
+                            icon: componentsLogos.model,
+                            select: function() {
+                                var entity = newEntity();
+                                entity.history.enabled = false;
+                                entity.set('name', 'New Sphere');
+                                addComponent(entity, 'model');
+                                entity.set('components.model.type', 'sphere');
+                                entity.history.enabled = true;
+                            }
+                        },
+                        'add-new-directional': {
+                            title: 'Directional Light',
+                            icon: componentsLogos.light,
+                            select: function() {
+                                var entity = newEntity();
+                                entity.history.enabled = false;
+                                entity.set('name', 'New Directional Light');
+                                addComponent(entity, 'light');
+                                entity.set('components.light.type', 'directional');
+                                entity.history.enabled = true;
+                            }
+                        },
+                        'add-new-point': {
+                            title: 'Point Light',
+                            icon: componentsLogos.light,
+                            select: function() {
+                                var entity = newEntity();
+                                entity.history.enabled = false;
+                                entity.set('name', 'New Point Light');
+                                addComponent(entity, 'light');
+                                entity.set('components.light.type', 'point');
+                                entity.history.enabled = true;
+                            }
+                        },
+                        'add-new-spot': {
+                            title: 'Spot Light',
+                            icon: componentsLogos.light,
+                            select: function() {
+                                var entity = newEntity();
+                                entity.history.enabled = false;
+                                entity.set('name', 'New Spot Light');
+                                addComponent(entity, 'light');
+                                entity.set('components.light.type', 'spot');
+                                entity.history.enabled = true;
+                            }
+                        },
+                        'add-new-particles': {
+                            title: 'Particle System',
+                            icon: componentsLogos.particlesystem,
+                            select: function() {
+                                var entity = newEntity();
+                                entity.history.enabled = false;
+                                entity.set('name', 'New Particle System');
+                                addComponent(entity, 'particlesystem');
+                                entity.history.enabled = true;
                             }
                         }
+
                     }
                 },
                 'add-component': {
