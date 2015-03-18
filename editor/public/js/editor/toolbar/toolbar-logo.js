@@ -48,6 +48,9 @@ editor.once('load', function() {
             items: {
                 'new-entity': {
                     title: 'New Entity',
+                    select: function () {
+                        newEntity();
+                    },
                     items: {
                         'add-new-entity': {
                             title: 'New Entity',
