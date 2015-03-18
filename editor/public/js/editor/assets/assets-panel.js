@@ -89,14 +89,24 @@ editor.once('load', function() {
 
         assetsIndex[asset.get('id')] = item;
 
-        if (asset.has('thumbnails')) {
-            item.style.backgroundImage = 'url("' + config.url.home + asset.get('thumbnails.m') + '")';
-        }
+        // generate material previews
+        if (asset.get('type') === 'material') {
+            editor.on('material:preview:' + asset.get('id'), function (url) {
+                item.style.backgroundImage = 'url("' + url + '")';
+            });
 
-        // update thumbnails change
-        asset.on('thumbnails.m:set', function(value) {
-            item.style.backgroundImage = 'url("' + config.url.home + value + '")';
-        });
+            editor.call('material:preview', asset, 128, 128);
+        } else {
+            // else use asset thumbnails
+            if (asset.has('thumbnails')) {
+                item.style.backgroundImage = 'url("' + config.url.home + asset.get('thumbnails.m') + '")';
+            }
+
+            // update thumbnails change
+            asset.on('thumbnails.m:set', function(value) {
+                item.style.backgroundImage = 'url("' + config.url.home + value + '")';
+            });
+        }
 
         var icon = document.createElement('div');
         icon.classList.add('icon');
@@ -117,8 +127,11 @@ editor.once('load', function() {
         });
     });
 
-
     editor.on('assets:remove', function(asset) {
         assetsIndex[asset.get('id')].destroy();
+
+        if (asset.get('type') === 'material') {
+            editor.unbind('material:preview:' + asset.get('id'));
+        }
     });
 });
