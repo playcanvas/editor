@@ -1,21 +1,20 @@
 editor.once('load', function() {
     'use strict';
 
-    editor.call('hotkey:register', 'asset:delete', {
+    // delete
+    editor.call('hotkey:register', 'entity:delete', {
         key: 'delete',
         callback: function() {
             if (! editor.call('permissions:write'))
                 return;
 
             var type = editor.call('selector:type');
-            if (type !== 'asset')
+            if (type !== 'entity')
                 return;
 
             var items = editor.call('selector:items');
-
-            editor.call('picker:confirm', 'Delete Asset?', function() {
-                for(var i = 0; i < items.length; i++)
-                    editor.call('assets:delete', items[i]);
+            items.forEach(function(entity) {
+                editor.call('entities:delete', entity);
             });
         }
     });

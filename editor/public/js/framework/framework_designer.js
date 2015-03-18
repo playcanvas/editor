@@ -573,34 +573,49 @@ pc.extend(pc.designer, function() {
 
                     if (picked.length > 0) {
                         var selectedNode = picked[0].node;
-                        while (!(selectedNode instanceof pc.Entity) && (selectedNode !== null)) {
+                        while (!(selectedNode instanceof pc.Entity) && selectedNode !== null && selectedNode !== this.activeGizmo.node) {
                             selectedNode = selectedNode.getParent();
+                        }
+
+                        // if we selected something from the active gizmo then it's like selecting the entity
+                        if (selectedNode === this.activeGizmo.node) {
+                            if (e.button === pc.input.MOUSEBUTTON_RIGHT) {
+                                selectedNode = this.activeGizmo.entity;
+                            } else {
+                                selectedNode = null;
+                            }
                         }
 
                         if (selectedNode) {
                             var selectedEntity = editor.call('entities:get', selectedNode.getGuid());
-                            if (!selectedEntity) {
-                                return;
-                            }
-
-                            if (e.button !== pc.input.MOUSEBUTTON_RIGHT) {
+                            if (selectedEntity) {
                                 if (this.selectedEntity !== selectedNode) {
                                     // We've selected a new entity
                                     editor.call('selector:add', 'entity', selectedEntity);
+
+                                    if (e.button === pc.input.MOUSEBUTTON_RIGHT) {
+                                        // show context menu for selected entity
+                                        editor.call('viewport:contextmenu', event.x, event.y, selectedEntity);
+                                    }
                                 } else {
-                                    // We've selected the same entity again so try to find the selected mesh instance
-                                    var meshSelection = this._getMeshInstanceSelection(selectedNode, picked);
-                                    if (meshSelection) {
-                                        // deselect entity and select model
-                                        editor.call('selector:add', 'asset', editor.call('assets:get', meshSelection.modelId));
-                                        // select mesh instance
-                                        editor.call(
-                                            'attributes:assets:model:select-node',
-                                            meshSelection.modelId,
-                                            meshSelection.meshInstanceIndex,
-                                            meshSelection.materialId,
-                                            selectedEntity
-                                        );
+                                    if (e.button === pc.input.MOUSEBUTTON_LEFT) {
+                                        // We've selected the same entity again so try to find the selected mesh instance
+                                        var meshSelection = this._getMeshInstanceSelection(selectedNode, picked);
+                                        if (meshSelection) {
+                                            // deselect entity and select model
+                                            editor.call('selector:add', 'asset', editor.call('assets:get', meshSelection.modelId));
+                                            // select mesh instance
+                                            editor.call(
+                                                'attributes:assets:model:select-node',
+                                                meshSelection.modelId,
+                                                meshSelection.meshInstanceIndex,
+                                                meshSelection.materialId,
+                                                selectedEntity
+                                            );
+                                        }
+                                    } else if (e.button === pc.input.MOUSEBUTTON_RIGHT) {
+                                        // show context menu for selected entity
+                                        editor.call('viewport:contextmenu', event.x, event.y, selectedEntity);
                                     }
                                 }
                             }

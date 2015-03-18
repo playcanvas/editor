@@ -217,6 +217,9 @@ a:visited {
     > .overlay {
         background-color: rgba($bcg-darkest, .7);
     }
+    > .content {
+        background-color: $bcg-primary;
+    }
 }
 
 .ui-tree {
@@ -501,6 +504,23 @@ a:visited {
             @extend .ui-flash;
         }
     }
+    &.disabled {
+        cursor: default;
+
+        &:hover,
+        &.active {
+            > .bar {
+                border-color: $bcg-darker;
+                background-color: $bcg-dark;
+
+                > .handle {
+                    cursor: default;
+                    border-color: $bcg-darker;
+                    background-color: $text-darkest;
+                }
+            }
+        }
+    }
     > .bar {
         background-color: $bcg-dark;
         border-color: $bcg-darker;
@@ -601,9 +621,13 @@ a:visited {
             border-color: $text-primary;
         }
     }
-
+    &.empty {
+        > .pick {
+            background-color: $bcg-dark;
+        }
+    }
     > .clear,
-    > .view {
+    > .pick {
         border-color: #0f0;
 
         width: 22px;
@@ -633,12 +657,12 @@ a:visited {
             content: '\E521';
         }
     }
-    > .view {
+    > .pick {
         &:hover {
             color: $text-primary;
         }
         &:after {
-            content: '\E584';
+            content: '...';
         }
     }
 
@@ -707,7 +731,7 @@ a:visited {
     border: 1px solid $bcg-darker;
     background-color: $bcg-dark;
     border-radius: 12px;
-    width: 24px;
+    width: 28px;
     height: 14px;
     margin: $field-padding;
     margin-top: 7px;
@@ -729,7 +753,7 @@ a:visited {
         width: 12px;
         height: 12px;
         border-radius: 6px;
-        background-color: $text-secondary;
+        background-color: $text-darkest;
         transition: left 100ms ease, background-color 100ms ease;
     }
     &.checked {
@@ -737,7 +761,8 @@ a:visited {
         background-color: $bcg-dark;
 
         &:after {
-            left: 11px;
+            left: 15px;
+            background-color: mix($text-darkest, #7f7, 50%);
         }
         &:hover,
         &:focus {
@@ -745,7 +770,7 @@ a:visited {
             background-color: $bcg-darkest;
 
             &:after {
-                background-color: $text-active;
+                background-color: #7f7;
             }
         }
     }

@@ -234,7 +234,7 @@ editor.once('load', function() {
                 var field = new ui.ImageField();
                 var evtPick;
 
-                field.on('click', function() {
+                field.on('pick', function() {
                     var asset = editor.call('assets:get', this.value);
                     editor.call('picker:asset', args.kind, asset);
 
@@ -252,7 +252,8 @@ editor.once('load', function() {
                     });
                 });
 
-                field.on('view', function() {
+                field.on('click', function() {
+                    if (! this.value) return;
                     var asset = editor.call('assets:get', this.value);
                     if (! asset) return;
                     editor.call('selector:set', 'asset', [ asset ]);
@@ -409,19 +410,6 @@ editor.once('load', function() {
 
                 // open curve editor on click
                 field.on('click', toggleCurvePicker);
-
-                // open curve editor on space
-                field.element.addEventListener('keydown', function (e) {
-                    if (e.which === 32) {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        if (!curvePickerOn) {
-                            toggleCurvePicker();
-                        } else {
-                            editor.call('picker:curve:close');
-                        }
-                    }
-                });
 
                 // close picker if field destroyed
                 field.on('destroy', function() {

@@ -332,13 +332,13 @@ a:visited {
         visibility: hidden;
     }
     &.center {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        margin-left: -64px;
-        margin-top: -64px;
-        width: 128px;
-        height: 128px;
+        > .content {
+            position: absolute;
+            top: calc(50% - 64px);
+            left: calc(50% - 64px);
+            width: 128px;
+            height: 128px;
+        }
     }
     &.transparent {
         > .overlay {
@@ -736,6 +736,8 @@ a:visited {
     width: auto;
     height: auto;
     z-index: 401;
+    outline: none;
+    border: none;
 
     &.open {
         display: block;
@@ -1107,9 +1109,16 @@ a:visited {
         border-color: #07f;
     }
     &.empty {
+        width: 22px;
+
         > .preview,
-        > .view,
         > .clear {
+            display: none;
+        }
+        > .pick {
+            background-color: #000;
+        }
+        &:after {
             display: none;
         }
     }
@@ -1118,7 +1127,7 @@ a:visited {
         width: 64px;
         height: 64px;
     }
-    > .view,
+    > .pick,
     > .clear {
         position: absolute;
         width: 16px;
@@ -1132,7 +1141,7 @@ a:visited {
         right: 0;
         border-left: 1px solid #666;
     }
-    > .view {
+    > .pick {
         left: 0;
         border-right: 1px solid #666;
     }

@@ -50,6 +50,13 @@ editor.once('load', function() {
         return assets.findOne(fn);
     });
 
+    editor.method('assets:map', function (fn) {
+        assets.map(fn);
+    });
+
+    editor.method('assets:list', function () {
+        return assets.array();
+    });
 
     // publish added asset
     assets.on('add', function(asset) {

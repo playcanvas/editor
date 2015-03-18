@@ -131,7 +131,7 @@ editor.once('load', function() {
             }
 
             asset.syncing = true;
-            asset.syncTimeout = setTimeout(update, 50);
+            asset.syncTimeout = setTimeout(update, 300);
         });
     });
 });

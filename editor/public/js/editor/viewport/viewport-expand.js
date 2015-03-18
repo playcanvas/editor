@@ -25,11 +25,11 @@ editor.once('load', function() {
     });
 
 
-    // space key
-    window.addEventListener('keydown', function(evt) {
-        if ((evt.target && evt.target.tagName.toLowerCase() === 'input') || evt.keyCode !== 32) // SPACE key
-            return;
-
-        editor.call('viewport:expand');
+    // expand hotkey
+    editor.call('hotkey:register', 'viewport:expand', {
+        key: 'space',
+        callback: function() {
+            editor.call('viewport:expand');
+        }
     });
 });

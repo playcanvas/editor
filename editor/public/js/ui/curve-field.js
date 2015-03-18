@@ -1,6 +1,8 @@
 "use strict"
 
 function CurveField(args) {
+    var self = this;
+
     ui.Element.call(this);
     args = args || { };
 
@@ -30,8 +32,17 @@ function CurveField(args) {
 CurveField.prototype = Object.create(ui.Element.prototype);
 
 CurveField.prototype._onKeyDown = function(evt) {
+    // esc
     if (evt.keyCode === 27)
         return this.element.blur();
+
+    // enter
+    if (evt.keyCode !== 32 || this.disabled)
+        return;
+
+    evt.stopPropagation();
+    evt.preventDefault();
+    this.emit('click');
 };
 
 CurveField.prototype._resize = function(width, height) {

@@ -40,12 +40,15 @@ editor.once('load', function() {
 
 
     // esc to close
-    window.addEventListener('keydown', function(evt) {
-        if (evt.keyCode !== 27 || overlay.hidden)
-            return;
+    editor.call('hotkey:register', 'picker:curve:close', {
+        key: 'esc',
+        callback: function() {
+            if (overlay.hidden)
+                return;
 
-        overlay.hidden = true;
-    }, false);
+            overlay.hidden = true;
+        }
+    });
 
 
     // type selector

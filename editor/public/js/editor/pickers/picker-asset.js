@@ -25,13 +25,15 @@ editor.once('load', function() {
 
 
     // esc to close
-    assetsPanel.element.addEventListener('keydown', function(evt) {
-        if (evt.keyCode !== 27 || overlay.hidden)
-            return;
+    editor.call('hotkey:register', 'picker:assets:close', {
+        key: 'esc',
+        callback: function() {
+            if (overlay.hidden)
+                return;
 
-        overlay.hidden = true;
-    }, false);
-
+            overlay.hidden = true;
+        }
+    });
 
     assetsGrid.on('deselect', function(item) {
         if (overlay.hidden || ! item.asset || item.asset !== currentAsset)

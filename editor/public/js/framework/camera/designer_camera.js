@@ -68,7 +68,9 @@ pc.script.create( "designer_camera", function (app) {
         this.frameScale = 10; // This is used to scale dollying to prevent zooming past the object that is framed
 
         this.flySpeed = new pc.Vec3();
+        this.flyFast = false;
         this.flySpeedModifier = 1;
+        this.flyDuration = 0;
         this.flyMode = false;
         this.flyModeKeys = {
             65: false, // A
@@ -386,9 +388,12 @@ pc.script.create( "designer_camera", function (app) {
         if (this.flyMode !== toggle) {
             this.flyMode = toggle;
             if (toggle) {
+                this.flySpeedModifier = 0.1;
                 editor.call('viewport:flyModeStart');
                 editor.call('viewport:render');
             } else {
+                this.flySpeedModifier = 0;
+                this.flyDuration = 0;
                 editor.call('viewport:flyModeEnd');
             }
         }
@@ -419,13 +424,14 @@ pc.script.create( "designer_camera", function (app) {
 
         if (e.ctrlKey || e.altKey) {
             this.flySpeedModifier = 0;
+            this.flyDuration = 0;
         } else if (e.shiftKey) {
-            this.flySpeedModifier = 1;
+            this.flyFast = true;
         } else {
-            this.flySpeedModifier = 0.2;
+            this.flyFast = false;
         }
 
-        this.flySpeed.add2(this.entity.forward.scale(forward), this.entity.right.scale(right)).add(this.entity.up.scale(up));
+        this.flySpeed.set(right, up, -forward).normalize();
     };
 
     DesignerCamera.prototype.onKeyUp = function (e) {
@@ -645,7 +651,26 @@ pc.script.create( "designer_camera", function (app) {
         } else {
             if (this.flyMode) {
                 var pos = this.entity.getLocalPosition();
-                offset.copy(this.flySpeed).scale(this.flySpeedModifier);
+
+                offset.copy(this.flySpeed);
+
+                // transform offset with camera transform
+                this.entity.getWorldTransform().transformVector(offset, offset);
+
+                // increase speed while keys are held down
+                if (this.flySpeedModifier > 0) {
+                    this.flyDuration += dt;
+                    if (this.flyDuration > 2) {
+                        this.flySpeedModifier += dt * 0.3;
+                    }
+                }
+
+                offset.scale(this.flySpeedModifier);
+                if (this.flyFast) {
+                    offset.scale(3);
+                }
+
+
                 pos.add(offset);
                 this.focus.add(offset);
 

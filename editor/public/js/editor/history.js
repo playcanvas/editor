@@ -105,17 +105,22 @@ editor.once('load', function() {
         checkCanUndoRedo();
     });
 
+    // hotkey undo
+    editor.call('hotkey:register', 'history:undo', {
+        key: 'z',
+        ctrl: true,
+        callback: function() {
+            editor.call('history:undo');
+        }
+    });
 
-    // key binding
-    window.addEventListener('keydown', function(evt) {
-        if ((evt.ctrlKey || evt.metaKey) && evt.keyCode === 90) {
-            if (evt.shiftKey) {
-                editor.call('history:redo');
-            } else {
-                editor.call('history:undo');
-            }
-            evt.preventDefault();
-            evt.stopPropagation();
+    // hotkey redo
+    editor.call('hotkey:register', 'history:redo', {
+        key: 'z',
+        ctrl: true,
+        shift: true,
+        callback: function() {
+            editor.call('history:redo');
         }
     });
 });

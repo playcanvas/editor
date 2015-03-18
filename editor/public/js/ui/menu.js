@@ -7,6 +7,7 @@ function Menu(args) {
     ui.ContainerElement.call(this);
 
     this.element = document.createElement('div');
+    this.element.tabIndex = 1;
     this.element.classList.add('ui-menu');
 
     this.elementOverlay = document.createElement('div');
@@ -14,11 +15,19 @@ function Menu(args) {
     this.elementOverlay.addEventListener('click', function() {
         self.open = false;
     }, false);
+    this.elementOverlay.addEventListener('contextmenu', function() {
+        self.open = false;
+    }, false);
     this.element.appendChild(this.elementOverlay);
 
     this.innerElement = document.createElement('div');
     this.innerElement.classList.add('inner');
     this.element.appendChild(this.innerElement);
+
+    this.element.addEventListener('keydown', function(evt) {
+        if (self.open && evt.keyCode === 27)
+            self.open = false;
+    });
 
     this.on('select-propagate', function(path) {
         this.open = false;
@@ -61,6 +70,7 @@ Object.defineProperty(Menu.prototype, 'open', {
 
         if (value) {
             this.class.add('open');
+            this.element.focus();
         } else {
             this.class.remove('open');
         }
@@ -101,13 +111,31 @@ Menu.prototype._updatePath = function(path) {
         node = node._index[this._hovered[i]];
         if (! node) break;
         node.class.add('hover');
+
+        // limit to bottom / top of screen
+        var top = node.parent.innerElement.offsetTop + node.element.offsetTop;
+        if (top + node.innerElement.clientHeight > window.innerHeight) {
+            node.innerElement.style.top = window.innerHeight - (top + node.innerElement.clientHeight) + 'px';
+        } else {
+            node.innerElement.style.top = 0;
+        }
     }
 };
 
 
 Menu.prototype.position = function(x, y) {
-    this.innerElement.style.left = (x || 0) + 'px';
-    this.innerElement.style.top = (y || 0) + 'px';
+    var left = (x || 0);
+    var top = (y || 0);
+
+    // limit to bottom / top of screen
+    if (top + this.innerElement.clientHeight > window.innerHeight) {
+        top = window.innerHeight - this.innerElement.clientHeight;
+    } else if (top < 0) {
+        top = 0;
+    }
+
+    this.innerElement.style.left = left + 'px';
+    this.innerElement.style.top = top + 'px';
 };
 
 
