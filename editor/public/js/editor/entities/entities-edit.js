@@ -35,6 +35,8 @@ editor.once('load', function() {
                 addEntity(entity, parent, true);
             }
         });
+
+        return entity;
     });
 
     var addEntity = function (entity, parent, select) {
