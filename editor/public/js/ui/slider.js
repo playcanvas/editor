@@ -93,7 +93,7 @@ Slider.prototype._handleEvt = function(evt) {
 
 
 Slider.prototype._onMouseDown = function(evt) {
-    if (evt.button !== 0)
+    if (evt.button !== 0 || this.disabled)
         return;
 
     this.elementHandle.focus();
