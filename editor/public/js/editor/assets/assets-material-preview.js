@@ -61,6 +61,8 @@ editor.once('load', function () {
         if (!asset)
             return;
 
+        var timeout;
+
         // render with specified material
         function render (material) {
             model.meshInstances[0].material = material;
@@ -88,7 +90,13 @@ editor.once('load', function () {
                 if (! editor.call('assets:get', materialId)) {
                     material.update = material.oldUpdate;
                 } else  {
-                    render(material);
+                    if (timeout)
+                        clearTimeout(timeout);
+
+                    timeout = setTimeout(function() {
+                        render(material);
+                        timeout = null;
+                    }, 100);
                 }
             };
 
