@@ -66,8 +66,10 @@ editor.once('load', function() {
             for(var i = 0; i < items.length; i++)
                 editor.call('entities:delete', items[i]);
         } else if (type === 'asset') {
-            for(var i = 0; i < items.length; i++)
-                editor.call('assets:delete', items[i]);
+            editor.call('picker:confirm', 'Delete Asset?', function() {
+                for(var i = 0; i < items.length; i++)
+                    editor.call('assets:delete', items[i]);
+            });
         }
     });
     toolbar.append(btnDelete);

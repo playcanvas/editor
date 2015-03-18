@@ -17,15 +17,13 @@ editor.once('load', function() {
     btnDelete.element.title = 'Delete Entity';
     btnDelete.on('click', function() {
         var type = editor.call('selector:type');
-        var items = editor.call('selector:items');
 
-        if (type === 'entity') {
-            for(var i = 0; i < items.length; i++)
-                editor.call('entities:delete', items[i]);
-        } else if (type === 'asset') {
-            for(var i = 0; i < items.length; i++)
-                editor.call('assets:delete', items[i]);
-        }
+        if (type !== 'entity')
+            return;
+
+        var items = editor.call('selector:items');
+        for(var i = 0; i < items.length; i++)
+            editor.call('entities:delete', items[i]);
     });
     controls.append(btnDelete);
 

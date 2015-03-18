@@ -12,7 +12,9 @@ editor.once('load', function() {
 
         var items = editor.call('selector:items');
 
-        for(var i = 0; i < items.length; i++)
-            editor.call('assets:delete', items[i]);
+        editor.call('picker:confirm', 'Delete Asset?', function() {
+            for(var i = 0; i < items.length; i++)
+                editor.call('assets:delete', items[i]);
+        });
     }, false);
 });

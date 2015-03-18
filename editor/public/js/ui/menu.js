@@ -7,6 +7,7 @@ function Menu(args) {
     ui.ContainerElement.call(this);
 
     this.element = document.createElement('div');
+    this.element.tabIndex = 1;
     this.element.classList.add('ui-menu');
 
     this.elementOverlay = document.createElement('div');
@@ -22,6 +23,11 @@ function Menu(args) {
     this.innerElement = document.createElement('div');
     this.innerElement.classList.add('inner');
     this.element.appendChild(this.innerElement);
+
+    this.element.addEventListener('keydown', function(evt) {
+        if (self.open && evt.keyCode === 27)
+            self.open = false;
+    });
 
     this.on('select-propagate', function(path) {
         this.open = false;
@@ -64,6 +70,7 @@ Object.defineProperty(Menu.prototype, 'open', {
 
         if (value) {
             this.class.add('open');
+            this.element.focus();
         } else {
             this.class.remove('open');
         }

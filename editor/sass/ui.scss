@@ -332,13 +332,13 @@ a:visited {
         visibility: hidden;
     }
     &.center {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        margin-left: -64px;
-        margin-top: -64px;
-        width: 128px;
-        height: 128px;
+        > .content {
+            position: absolute;
+            top: calc(50% - 64px);
+            left: calc(50% - 64px);
+            width: 128px;
+            height: 128px;
+        }
     }
     &.transparent {
         > .overlay {
@@ -736,6 +736,8 @@ a:visited {
     width: auto;
     height: auto;
     z-index: 401;
+    outline: none;
+    border: none;
 
     &.open {
         display: block;
