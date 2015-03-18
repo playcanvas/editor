@@ -25,15 +25,9 @@ editor.once('load', function() {
         value: 'delete'
     });
     menuItemDelete.on('select', function() {
-        editor.call('picker:confirm', 'Delete Asset?');
-
         var asset = currentAsset;
-        var evtYes = editor.once('picker:confirm:yes', function() {
+        editor.call('picker:confirm', 'Delete Asset?', function() {
             editor.call('assets:delete', asset);
-        });
-
-        editor.once('picker:confirm:close', function() {
-            evtYes.unbind();
         });
     });
     menu.append(menuItemDelete);

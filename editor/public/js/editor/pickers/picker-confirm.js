@@ -1,6 +1,8 @@
 editor.once('load', function() {
     'use strict';
 
+    var callback = null;
+
     // overlay
     var overlay = new ui.Overlay();
     overlay.class.add('picker-confirm');
@@ -10,6 +12,7 @@ editor.once('load', function() {
     var label = new ui.Label();
     label.text = 'Are you sure?';
     label.class.add('text');
+    label.renderChanges = false;
     overlay.append(label);
 
     // yes
@@ -18,6 +21,10 @@ editor.once('load', function() {
     btnYes.class.add('yes');
     btnYes.on('click', function() {
         editor.emit('picker:confirm:yes');
+
+        if (callback)
+            callback();
+
         overlay.hidden = true;
     });
     overlay.append(btnYes);
@@ -59,8 +66,9 @@ editor.once('load', function() {
 
 
     // call picker
-    editor.method('picker:confirm', function(text) {
+    editor.method('picker:confirm', function(text, fn) {
         label.text = text || 'Are you sure?';
+        callback = fn || null;
 
         // show overlay
         overlay.hidden = false;
