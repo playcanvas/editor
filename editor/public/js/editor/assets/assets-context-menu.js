@@ -9,15 +9,15 @@ editor.once('load', function() {
     root.append(menu);
 
 
-    // duplicate
-    var menuItemDuplicate = new ui.MenuItem({
-        text: 'Duplicate',
-        value: 'duplicate'
-    });
-    menuItemDuplicate.on('select', function() {
-        // editor.call('assets:duplicate', currentAsset);
-    });
-    menu.append(menuItemDuplicate);
+    // // duplicate
+    // var menuItemDuplicate = new ui.MenuItem({
+    //     text: 'Duplicate',
+    //     value: 'duplicate'
+    // });
+    // menuItemDuplicate.on('select', function() {
+    //     // editor.call('assets:duplicate', currentAsset);
+    // });
+    // menu.append(menuItemDuplicate);
 
     // delete
     var menuItemDelete = new ui.MenuItem({
@@ -25,15 +25,24 @@ editor.once('load', function() {
         value: 'delete'
     });
     menuItemDelete.on('select', function() {
-        // editor.call('assets:delete', currentAsset);
+        editor.call('picker:confirm', 'Delete Asset?');
+
+        var asset = currentAsset;
+        var evtYes = editor.once('picker:confirm:yes', function() {
+            editor.call('assets:delete', asset);
+        });
+
+        editor.once('picker:confirm:close', function() {
+            evtYes.unbind();
+        });
     });
     menu.append(menuItemDelete);
 
 
-    // filter buttons
-    menu.on('open', function() {
-        menuItemDuplicate.enabled = currentAsset.get('type') === 'material';
-    });
+    // // filter buttons
+    // menu.on('open', function() {
+    //     menuItemDuplicate.enabled = currentAsset.get('type') === 'material';
+    // });
 
 
     // for each asset added

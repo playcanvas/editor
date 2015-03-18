@@ -1028,6 +1028,36 @@ body {
     }
 }
 
+.picker-confirm.center {
+    > .content {
+        width: 288px;
+        height: auto;
+        left: calc(50% - 144px);
+        top: calc(50% - 32px);
+        padding: 16px;
+        text-align: right;
+
+        > .text {
+            display: block;
+            text-align: center;
+            margin: 8px 0 16px;
+            color: $text-primary;
+            font-size: 16px;
+            text-align: center;
+        }
+        > .ui-button {
+            font-size: 16px;
+            padding: 0 16px;
+            line-height: 32px;
+            text-transform: uppercase;
+            margin: 0;
+        }
+        > .yes {
+            margin-right: 8px;
+        }
+    }
+}
+
 .picker-color {
     &.c-1 > .content {
         > .pick-opacity {

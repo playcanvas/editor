@@ -217,6 +217,9 @@ a:visited {
     > .overlay {
         background-color: rgba($bcg-darkest, .7);
     }
+    > .content {
+        background-color: $bcg-primary;
+    }
 }
 
 .ui-tree {
