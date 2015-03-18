@@ -48,16 +48,38 @@ editor.once('load', function() {
             items: {
                 'new-entity': {
                     title: 'New Entity',
+                    icon: '&#58468;',
+                    select: function() {
+                        newEntity();
+                    },
                     items: {
                         'add-new-entity': {
-                            title: 'New Entity',
+                            title: 'Entity',
                             icon: '&#58468;',
                             select: function() {
                                 newEntity();
                             }
                         },
+                        'add-new-audiolistener': {
+                            title: 'Audio Listener',
+                            icon: componentsLogos.audiolistener,
+                            select: function() {
+                                var entity = newEntity();
+                                entity.set('name', 'New Audio Listener');
+                                addComponent(entity, 'audiolistener');
+                            }
+                        },
+                        'add-new-audiosource': {
+                            title: 'Audio Source',
+                            icon: componentsLogos.audiosource,
+                            select: function() {
+                                var entity = newEntity();
+                                entity.set('name', 'New Audio Source');
+                                addComponent(entity, 'audiosource');
+                            }
+                        },
                         'add-new-camera': {
-                            title: 'New Camera',
+                            title: 'Camera',
                             icon: componentsLogos.camera,
                             select: function() {
                                 var entity = newEntity();
@@ -66,7 +88,7 @@ editor.once('load', function() {
                             }
                         },
                         'add-new-model': {
-                            title: 'New Model',
+                            title: 'Model',
                             icon: componentsLogos.model,
                             select: function() {
                                 var entity = newEntity();
@@ -76,7 +98,7 @@ editor.once('load', function() {
                             }
                         },
                         'add-new-box': {
-                            title: 'New Box',
+                            title: 'Box',
                             icon: componentsLogos.model,
                             select: function() {
                                 var entity = newEntity();
@@ -86,7 +108,7 @@ editor.once('load', function() {
                             }
                         },
                         'add-new-capsule': {
-                            title: 'New Capsule',
+                            title: 'Capsule',
                             icon: componentsLogos.model,
                             select: function() {
                                 var entity = newEntity();
@@ -96,7 +118,7 @@ editor.once('load', function() {
                             }
                         },
                         'add-new-cone': {
-                            title: 'New Cone',
+                            title: 'Cone',
                             icon: componentsLogos.model,
                             select: function() {
                                 var entity = newEntity();
@@ -106,7 +128,7 @@ editor.once('load', function() {
                             }
                         },
                         'add-new-cylinder': {
-                            title: 'New Cylinder',
+                            title: 'Cylinder',
                             icon: componentsLogos.model,
                             select: function() {
                                 var entity = newEntity();
@@ -116,7 +138,7 @@ editor.once('load', function() {
                             }
                         },
                         'add-new-plane': {
-                            title: 'New Plane',
+                            title: 'Plane',
                             icon: componentsLogos.model,
                             select: function() {
                                 var entity = newEntity();
@@ -126,7 +148,7 @@ editor.once('load', function() {
                             }
                         },
                         'add-new-sphere': {
-                            title: 'New Sphere',
+                            title: 'Sphere',
                             icon: componentsLogos.model,
                             select: function() {
                                 var entity = newEntity();
@@ -136,7 +158,7 @@ editor.once('load', function() {
                             }
                         },
                         'add-new-directional': {
-                            title: 'New Directional Light',
+                            title: 'Directional Light',
                             icon: componentsLogos.light,
                             select: function() {
                                 var entity = newEntity();
@@ -146,7 +168,7 @@ editor.once('load', function() {
                             }
                         },
                         'add-new-point': {
-                            title: 'New Point Light',
+                            title: 'Point Light',
                             icon: componentsLogos.light,
                             select: function() {
                                 var entity = newEntity();
@@ -156,7 +178,7 @@ editor.once('load', function() {
                             }
                         },
                         'add-new-spot': {
-                            title: 'New Spot Light',
+                            title: 'Spot Light',
                             icon: componentsLogos.light,
                             select: function() {
                                 var entity = newEntity();
@@ -166,21 +188,12 @@ editor.once('load', function() {
                             }
                         },
                         'add-new-particles': {
-                            title: 'New Particle System',
+                            title: 'Particle System',
                             icon: componentsLogos.particlesystem,
                             select: function() {
                                 var entity = newEntity();
                                 entity.set('name', 'New Particle System');
                                 addComponent(entity, 'particlesystem');
-                            }
-                        },
-                        'add-new-audiosource': {
-                            title: 'New Audio Source',
-                            icon: componentsLogos.audiosource,
-                            select: function() {
-                                var entity = newEntity();
-                                entity.set('name', 'New Audio Source');
-                                addComponent(entity, 'audiosource');
                             }
                         }
                     }
