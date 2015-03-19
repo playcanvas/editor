@@ -105,18 +105,16 @@ editor.once('load', function () {
 
         model.meshInstances[0].material = material;
 
-        asset.set('has_thumbnail', true);
-
         // use the same size for all thumbs for optimization
         device.resizeCanvas(256, 256);
         camera.setAspectRatio(1);
 
         renderer.render(scene, camera);
         var img = canvas.toDataURL();
-        asset.set('thumbnails.s', img);
-        asset.set('thumbnails.m', img);
-        asset.set('thumbnails.l', img);
-        asset.set('thumbnails.xl', img);
+        setThumbnail(asset, 'thumbnails.s', img);
+        setThumbnail(asset, 'thumbnails.m', img);
+        setThumbnail(asset, 'thumbnails.l', img);
+        setThumbnail(asset, 'thumbnails.xl', img);
     }
 
     // loads real-time material for the specified asset and
@@ -168,9 +166,39 @@ editor.once('load', function () {
         }
     };
 
+    var setThumbnail = function (asset, path, value) {
+        var sync = asset.sync;
+        asset.sync = false;
+
+        var history = asset.history.enabled;
+        asset.history.enabled = false;
+
+        asset.set('has_thumbnail', true);
+        asset.set(path, value);
+
+        asset.history.enabled = history;
+        asset.sync = sync;
+    };
+
     editor.on('assets:add', function (asset) {
         if (asset.get('type') === 'material')
             generatePreview(asset);
+
+        // prevent updates coming from C3 to overwrite the material thumbnail if
+        // it's set to a generated thumbnail
+        var changing = false;
+        ['thumbnails.s', 'thumbnails.m', 'thumbnails.l', 'thumbnails.xl'].forEach(function (path) {
+            asset.on(path + ':set', function (value, oldValue) {
+                if (changing) return;
+
+                changing = true;
+                if (oldValue && oldValue.startsWith('data:') && value && !value.startsWith('data:')) {
+                    setThumbnail(asset, path, oldValue);
+                }
+                changing = false;
+            });
+
+        });
     });
 
     editor.on('assets:remove', function (asset) {
