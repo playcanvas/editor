@@ -426,8 +426,8 @@ body {
 
                 > .ui-image-field {
                     float: right;
-                    background-image: url("/editor/scene/img/asset-placeholder-texture.png");
                     background-position: center center;
+                    background-color: $bcg-darkest;
                 }
             }
         }

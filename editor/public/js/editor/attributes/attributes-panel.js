@@ -271,7 +271,10 @@ editor.once('load', function() {
                         return field.image = '';
 
                     if (asset.has('thumbnails.m')) {
-                        field.image = config.url.home + asset.get('thumbnails.m');
+                        var url = asset.get('thumbnails.m');
+                        if (url.startsWith('/api'))
+                            url = config.url.home + url;
+                        field.image = url;
                     } else {
                         field.image = '';
                     }
