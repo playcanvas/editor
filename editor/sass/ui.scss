@@ -1089,7 +1089,7 @@ a:visited {
     @extend .noSelect;
     position: relative;
     width: 64px;
-    min-height: 22px;
+    height: 64px;
     margin: 4px;
     border: 1px solid #666;
     overflow: hidden;
@@ -1099,57 +1099,67 @@ a:visited {
         opacity: $disabled-opacity;
         cursor: default;
     }
-    &:hover {
-        > .clear {
-            display: block;
-        }
-    }
+    // &:hover {
+    //     > .clear {
+    //         display: block;
+    //     }
+    // }
     &:focus {
         outline: none;
         border-color: #07f;
     }
     &.empty {
-        width: 22px;
+    //     // width: 22px;
 
-        > .preview,
-        > .clear {
-            display: none;
+        > .preview {
+    //     > .clear {
+    //         display: none;
         }
-        > .pick {
-            background-color: #000;
-        }
-        &:after {
-            display: none;
-        }
+    //     > .pick {
+    //         background-color: #000;
+    //     }
+    //     &:after {
+    //         display: none;
+    //     }
     }
     > .preview {
         display: block;
-        width: 64px;
-        height: 64px;
+        width: 56px;
+        height: 56px;
+        margin: 4px;
+        outline: none;
+        border: none;
+
+        // &:after {
+        //     content: '';
+        // }
     }
-    > .pick,
-    > .clear {
-        position: absolute;
-        width: 16px;
-        height: 16px;
-        top: 0;
-        background-color: #07f;
-        border-bottom: 1px solid #666;
-    }
-    > .clear {
+    > .preview[src=''], > .preview:not([src]) {
         display: none;
-        right: 0;
-        border-left: 1px solid #666;
     }
-    > .pick {
-        left: 0;
-        border-right: 1px solid #666;
-    }
-    &.disabled {
-        > .clear {
-            display: none;
-        }
-    }
+    // > .pick,
+    // > .clear {
+    //     position: absolute;
+    //     width: 16px;
+    //     height: 16px;
+    //     top: 0;
+    //     background-color: #07f;
+    //     border-bottom: 1px solid #666;
+    // }
+    // > .clear {
+    //     display: none;
+    //     right: 0;
+    //     border-left: 1px solid #666;
+    // }
+    // > .pick {
+    //     left: 0;
+    //     border-right: 1px solid #666;
+    // }
+    // &.disabled {
+    //     > .clear {
+    //         display: none;
+    //     }
+    // }
     &:after {
         content: '\00a0';
         position: absolute;

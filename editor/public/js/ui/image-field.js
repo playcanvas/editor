@@ -13,26 +13,6 @@ function ImageField(args) {
     this.elementImage.classList.add('preview');
     this.element.appendChild(this.elementImage);
 
-    this.elementClear = document.createElement('span');
-    this.elementClear.classList.add('clear');
-    this.elementClear.addEventListener('click', function(evt) {
-        if (self.disabled)
-            return;
-        self.value = null;
-        evt.stopPropagation();
-    }, false);
-    this.element.appendChild(this.elementClear);
-
-    this.elementPick = document.createElement('span');
-    this.elementPick.classList.add('pick');
-    this.elementPick.addEventListener('click', function(evt) {
-        if (self.disabled)
-            return;
-        self.emit('pick');
-        evt.stopPropagation();
-    }, false);
-    this.element.appendChild(this.elementPick);
-
     this._value = null;
 
     this.on('change', function() {

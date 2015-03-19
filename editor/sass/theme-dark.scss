@@ -621,51 +621,6 @@ a:visited {
             border-color: $text-primary;
         }
     }
-    &.empty {
-        > .pick {
-            background-color: $bcg-dark;
-        }
-    }
-    > .clear,
-    > .pick {
-        border-color: #0f0;
-
-        width: 22px;
-        height: 22px;
-        padding: 0;
-        margin: 0;
-        line-height: 20px;
-        background-color: #364346;
-        border: none;
-        font-family: 'ui-font-solid';
-        font-size: 18px;
-        text-align: center;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        font-smoothing: antialiased;
-
-        &:hover {
-            background-color: $bcg-darkest;
-        }
-    }
-
-    > .clear {
-        &:hover {
-            color: #d34141;
-        }
-        &:after {
-            content: '\E521';
-        }
-    }
-    > .pick {
-        &:hover {
-            color: $text-primary;
-        }
-        &:after {
-            content: '...';
-        }
-    }
-
     &.flash {
         @extend .ui-flash;
     }

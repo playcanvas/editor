@@ -83,7 +83,7 @@ editor.once('load', function() {
         // asset
         var fieldAsset = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Asset',
+            name: 'Model',
             type: 'asset',
             kind: 'model',
             link: entity,

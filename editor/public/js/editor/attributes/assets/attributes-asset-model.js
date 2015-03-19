@@ -31,83 +31,18 @@ editor.once('load', function() {
             });
             panelNodes.class.add('component');
 
-            // nodes list
-            var nodesList = new ui.List();
-            nodesList.selectable = false;
-            nodesList.class.add('model-nodes');
-            panelNodes.append(nodesList);
-
             var nodeItems = [ ];
-
-            var createNodeField = function(ind) {
-                var fieldNode = new ui.ListItem({
-                    text: 'node ' + ind
-                });
-                nodeItems[ind] = fieldNode;
-
-                // material picker
-                var fieldMaterial = new ui.ImageField();
-
-                // once changed, update thumbnail
-                fieldMaterial.on('change', function(value) {
-                    if (! value)
-                        return this.empty = true;
-
-                    this.empty = false;
-
-                    var asset = editor.call('assets:get', value);
-
-                    if (! asset)
-                        return this.image = '';
-
-                    if (asset.has('thumbnails')) {
-                        this.image = config.url.home + asset.get('thumbnails.m');
-                    } else {
-                        this.image = '';
-                    }
-                });
-
-                // call picker
-                fieldMaterial.on('pick', function() {
-                    pickMaterial(fieldMaterial.value, function(assetId) {
-                        // set to mapping observer
-                        asset.set('data.mapping.' + ind + '.material', assetId);
-                    });
-                });
-
-                fieldMaterial.on('click', function() {
-                    if (! this.value) return;
-                    var asset = editor.call('assets:get', this.value);
-                    if (! asset) return;
-                    editor.call('selector:set', 'asset', [ asset ]);
-                });
-
-                // link field
-                fieldMaterial.link(asset, 'data.mapping.' + ind + '.material');
-                fieldMaterial.parent = fieldNode;
-                fieldNode.element.appendChild(fieldMaterial.element);
-
-                var dropRef = editor.call('drop:target', {
-                    ref: fieldMaterial.element,
-                    type: 'asset.material',
-                    drop: function(type, data) {
-                        if (type !== 'asset.material')
-                            return;
-
-                        fieldMaterial.value = data.id;
-                    }
-                });
-                fieldMaterial.on('destroy', function() {
-                    dropRef.unregister();
-                });
-
-                // append to list
-                nodesList.append(fieldNode);
-            };
 
             // create node fields
             for(var i = 0; i < asset.get('data.mapping').length; i++) {
-                createNodeField(i);
+                nodeItems[i] = editor.call('attributes:addField', {
+                    parent: panelNodes,
+                    type: 'asset',
+                    kind: 'material',
+                    name: 'node ' + i,
+                    link: asset,
+                    path: 'data.mapping.' + i + '.material'
+                });
             }
 
             // template nodes
@@ -116,9 +51,8 @@ editor.once('load', function() {
                     if (! nodeItems[i])
                         return;
 
-                    nodeItems[i].text = nodeName;
+                    nodeItems[i]._label.text = nodeName;
                 });
-                // panelNodes.hidden = false;
             };
 
             if (asset.has('nodes')) {
