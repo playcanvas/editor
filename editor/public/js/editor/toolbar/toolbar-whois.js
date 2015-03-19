@@ -8,8 +8,6 @@ editor.once('load', function() {
     viewport.append(panel);
 
     editor.on('whoisonline:add', function (id) {
-        console.log('User ' + id + ' is now online');
-
         var link = document.createElement('a');
         link.href = '/' + id;
         link.target = "_blank";
@@ -25,7 +23,6 @@ editor.once('load', function() {
     });
 
     editor.on('whoisonline:remove', function (id, index) {
-        console.log('User ' + id + ' is no longer online');
         var element = panel.innerElement.childNodes[index];
         if (element)
             element.remove();

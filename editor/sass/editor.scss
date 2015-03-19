@@ -379,11 +379,8 @@ body {
 }
 
 .ui-panel.attributes {
-    border-left: 1px solid $bcg-dark;
+    border-left: 1px solid black;
 
-    > .content {
-        background-color: #293538;
-    }
     .ui-panel {
         &.field {
             > .content {
@@ -509,8 +506,8 @@ body {
 
                 > .ui-image-field {
                     float: right;
-                    background-image: url("/editor/scene/img/asset-placeholder-texture.png");
                     background-position: center center;
+                    background-color: black;
                 }
             }
         }

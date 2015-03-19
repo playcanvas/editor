@@ -315,7 +315,7 @@ editor.once('load', function() {
                     var asset = editor.call('assets:get', value);
 
                     if (! asset)
-                        return field.image = '';
+                        return field.image = config.url.home + '/editor/scene/img/asset-placeholder-texture.png';
 
                     fieldTitle.text = asset.get('file.filename') || asset.get('name');
 
