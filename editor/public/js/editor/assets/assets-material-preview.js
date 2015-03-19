@@ -49,20 +49,6 @@ editor.once('load', function () {
     scene.addModel(model);
     scene.addLight(light);
 
-    var resolutions = [{
-        size: 64,
-        path: 'thumbnails.s'
-    }, {
-        size: 128,
-        path: 'thumbnails.m'
-    }, {
-        size: 256,
-        path: 'thumbnails.l'
-    }, {
-        size: 512,
-        path: 'thumbnails.xl'
-    }];
-
     var sceneSettingsTimeout;
 
     var settings = editor.call('sceneSettings');
@@ -104,7 +90,7 @@ editor.once('load', function () {
     loader.registerHandler(pc.resources.CubemapRequest, new pc.resources.CubemapResourceHandler(device, assets));
     loader.registerHandler(pc.resources.MaterialRequest, new pc.resources.MaterialResourceHandler(device, assets));
 
-    // renders preview in 4 resolutions for the specified material
+    // renders preview for the specified material
     var render = function (asset) {
         var material = assets.getAssetById(asset.get('id'));
         if (!material) return;
@@ -121,13 +107,16 @@ editor.once('load', function () {
 
         asset.set('has_thumbnail', true);
 
-        resolutions.forEach(function (res) {
-            device.resizeCanvas(res.size, res.size);
-            camera.setAspectRatio(1);
+        // use the same size for all thumbs for optimization
+        device.resizeCanvas(256, 256);
+        camera.setAspectRatio(1);
 
-            renderer.render(scene, camera);
-            asset.set(res.path, canvas.toDataURL());
-        });
+        renderer.render(scene, camera);
+        var img = canvas.toDataURL();
+        asset.set('thumbnails.s', img);
+        asset.set('thumbnails.m', img);
+        asset.set('thumbnails.l', img);
+        asset.set('thumbnails.xl', img);
     }
 
     // loads real-time material for the specified asset and
