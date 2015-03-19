@@ -260,7 +260,7 @@ editor.once('load', function() {
                 btnEdit.flexGrow = 0;
 
                 var btnRemove = new ui.Button({
-                    text: '&#58657;'
+                    text: '&#58422;'
                 });
                 btnRemove.disabled = true;
                 btnRemove.parent = panel;
