@@ -267,25 +267,29 @@ editor.once('load', function() {
 
         var root = editor.call('attributes.rootPanel');
 
-        // thumbnail url
-        var url = asset.get('thumbnails.l');
-        if (url && url.startsWith('/api'))
-            url = config.url.home + url;
-
         // preview
         var image = document.createElement('div');
         image.classList.add('asset-preview');
-        image.style.backgroundImage = 'url("' + url + '")';
         root.innerElement.insertBefore(image, root.innerElement.firstChild);
 
-        // preview change
-        var evtAssetChange = asset.on('thumbnails.l:set', function (url) {
-            if (url && url.startsWith('/api'))
-                url = config.url.home + url;
+        var renderPreview = function () {
+            editor.call('preview:material', asset, Math.min(image.clientWidth, image.clientHeight), function (url) {
+                image.style.backgroundImage = 'url("' + url + '")';
+            });
+        }
 
-            image.style.backgroundImage = 'url("' + url + '")';
+        renderPreview();
+
+        var renderTimeout;
+
+        var evtPanelResize = root.on('resize', function () {
+            if (renderTimeout)
+                clearTimeout(renderTimeout);
+
+            renderTimeout = setTimeout(renderPreview, 100);
         });
 
+        var evtMaterialChanged = editor.on('preview:material:changed', renderPreview);
 
         // properties panel
         var panelParams = editor.call('attributes:addPanel', {
@@ -294,9 +298,9 @@ editor.once('load', function() {
         panelParams.class.add('component');
 
         panelParams.on('destroy', function() {
-            evtAssetChange.unbind();
+            evtPanelResize.unbind();
+            evtMaterialChanged.unbind();
         });
-
 
         // model
         var fieldModel = editor.call('attributes:addField', {
