@@ -268,10 +268,13 @@ editor.once('load', function() {
                     var asset = editor.call('assets:get', value);
 
                     if (! asset)
-                        return field.image = '';
+                        return field.image = config.url.home + '/editor/scene/img/asset-placeholder-texture.png';
 
                     if (asset.has('thumbnails.m')) {
-                        field.image = config.url.home + asset.get('thumbnails.m');
+                        var url = asset.get('thumbnails.m');
+                        if (url.startsWith('/api'))
+                            url = config.url.home + url;
+                        field.image = url;
                     } else {
                         field.image = '';
                     }

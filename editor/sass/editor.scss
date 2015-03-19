@@ -314,8 +314,15 @@ body {
     }
 }
 
-.ui-panel.material-preview, .ui-panel.texture-preview {
-    pointer-events: none;
+.asset-preview {
+    width: calc(100% - 16px);
+    padding-bottom: calc(100% - 16px);
+    border: 8px solid $bcg-darkest;
+
+    background-position: center center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-color: $bcg-darkest;
 }
 
 .drop-ref-highlight {
@@ -372,11 +379,8 @@ body {
 }
 
 .ui-panel.attributes {
-    border-left: 1px solid $bcg-dark;
+    border-left: 1px solid black;
 
-    > .content {
-        background-color: #293538;
-    }
     .ui-panel {
         &.field {
             > .content {
@@ -419,8 +423,8 @@ body {
 
                 > .ui-image-field {
                     float: right;
-                    background-image: url("/editor/scene/img/asset-placeholder-texture.png");
                     background-position: center center;
+                    background-color: black;
                 }
             }
         }

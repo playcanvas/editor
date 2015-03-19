@@ -211,16 +211,28 @@ a:visited {
     &.flash {
         @extend .ui-flash;
     }
+}
 
-    .material-preview {
-        background-color: $bcg-darkest;
+.ui-panel.attributes {
+    border-left: 1px solid $bcg-dark;
 
-        .content {
-            background-color: $bcg-darkest;
-
-            img {
-                background-color: $bcg-darkest;
+    > .content {
+        background-color: #293538;
+    }
+    .ui-list {
+        &.model-nodes {
+            > .ui-list-item {
+                > .ui-image-field {
+                    background-color: $bcg-darkest;
+                }
             }
+        }
+    }
+
+    .field-asset {
+        > .content > .ui-image-field.material-asset {
+            background-image: none;
+            background-color: $bcg-darkest;
         }
     }
 }

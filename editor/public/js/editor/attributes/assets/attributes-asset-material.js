@@ -265,35 +265,42 @@ editor.once('load', function() {
 
         var asset = assets[0];
 
-        // preview
-        var previewPanel = editor.call('attributes:addPanel');
-        previewPanel.class.add('component', 'material-preview', 'noSelect');
-
-        var url = asset.get('thumbnails.l');
-        if (url && url.startsWith('/api'))
-            url = config.url.home + url;
+        var root = editor.call('attributes.rootPanel');
 
         // preview
-        var image = editor.call('attributes:addField', {
-            parent: previewPanel,
-            type: 'image',
-            src: url
+        var image = document.createElement('div');
+        image.classList.add('asset-preview');
+        root.innerElement.insertBefore(image, root.innerElement.firstChild);
+
+        var renderPreview = function () {
+            editor.call('preview:material', asset, Math.min(image.clientWidth, image.clientHeight), function (url) {
+                image.style.backgroundImage = 'url("' + url + '")';
+            });
+        }
+
+        renderPreview();
+
+        var renderTimeout;
+
+        var evtPanelResize = root.on('resize', function () {
+            if (renderTimeout)
+                clearTimeout(renderTimeout);
+
+            renderTimeout = setTimeout(renderPreview, 100);
         });
 
-        image.style.margin = '0 auto';
-
-        asset.on('thumbnails.l:set', function (url) {
-            if (url && url.startsWith('/api'))
-                url = config.url.home + url;
-
-            image.src = url;
-        })
+        var evtMaterialChanged = editor.on('preview:material:changed', renderPreview);
 
         // properties panel
         var panelParams = editor.call('attributes:addPanel', {
-            name: 'Material Properties'
+            name: 'Properties'
         });
         panelParams.class.add('component');
+
+        panelParams.on('destroy', function() {
+            evtPanelResize.unbind();
+            evtMaterialChanged.unbind();
+        });
 
         // model
         var fieldModel = editor.call('attributes:addField', {
