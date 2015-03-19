@@ -101,6 +101,7 @@ editor.once('load', function() {
             link: entity,
             path: 'components.model.materialAsset'
         });
+        fieldMaterial.class.add('material-asset');
         fieldMaterial.parent.hidden = entity.get('components.model.type') === 'asset';
 
 

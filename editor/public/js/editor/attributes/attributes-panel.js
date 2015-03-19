@@ -268,7 +268,7 @@ editor.once('load', function() {
                     var asset = editor.call('assets:get', value);
 
                     if (! asset)
-                        return field.image = '';
+                        return field.image = config.url.home + '/editor/scene/img/asset-placeholder-texture.png';
 
                     if (asset.has('thumbnails.m')) {
                         var url = asset.get('thumbnails.m');
