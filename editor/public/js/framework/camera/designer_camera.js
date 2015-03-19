@@ -374,7 +374,7 @@ pc.script.create( "designer_camera", function (app) {
             return;
         }
 
-        if (this.flyModeKeys[e.which] !== undefined) {
+        if (this.flyModeKeys[e.which] !== undefined && ! e.altKey && ! e.ctrlKey && ! e.metaKey) {
             this.flyModeKeys[e.which] = true;
             this.toggleFlyMode(true);
         }
