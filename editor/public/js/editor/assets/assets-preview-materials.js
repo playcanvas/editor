@@ -41,7 +41,7 @@ editor.once('load', function () {
     clearOptions.color[3] = 0;
 
     var cameraNode = new pc.GraphNode();
-    cameraNode.setPosition(0, 0, 1.3);
+    cameraNode.setPosition(0, 0, 1.34);
     camera._node = cameraNode;
 
     // set up scene
