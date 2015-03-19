@@ -265,35 +265,38 @@ editor.once('load', function() {
 
         var asset = assets[0];
 
-        // preview
-        var previewPanel = editor.call('attributes:addPanel');
-        previewPanel.class.add('component', 'material-preview', 'noSelect');
+        var root = editor.call('attributes.rootPanel');
 
+        // thumbnail url
         var url = asset.get('thumbnails.l');
         if (url && url.startsWith('/api'))
             url = config.url.home + url;
 
         // preview
-        var image = editor.call('attributes:addField', {
-            parent: previewPanel,
-            type: 'image',
-            src: url
-        });
+        var image = document.createElement('div');
+        image.classList.add('asset-preview');
+        image.style.backgroundImage = 'url("' + url + '")';
+        root.innerElement.insertBefore(image, root.innerElement.firstChild);
 
-        image.style.margin = '0 auto';
-
-        asset.on('thumbnails.l:set', function (url) {
+        // preview change
+        var evtAssetChange = asset.on('thumbnails.l:set', function (url) {
             if (url && url.startsWith('/api'))
                 url = config.url.home + url;
 
-            image.src = url;
-        })
+            image.style.backgroundImage = 'url("' + url + '")';
+        });
+
 
         // properties panel
         var panelParams = editor.call('attributes:addPanel', {
-            name: 'Material Properties'
+            name: 'Properties'
         });
         panelParams.class.add('component');
+
+        panelParams.on('destroy', function() {
+            evtAssetChange.unbind();
+        });
+
 
         // model
         var fieldModel = editor.call('attributes:addField', {

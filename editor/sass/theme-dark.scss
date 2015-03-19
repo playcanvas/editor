@@ -211,18 +211,6 @@ a:visited {
     &.flash {
         @extend .ui-flash;
     }
-
-    .material-preview {
-        background-color: $bcg-darkest;
-
-        .content {
-            background-color: $bcg-darkest;
-
-            img {
-                background-color: $bcg-darkest;
-            }
-        }
-    }
 }
 
 .ui-overlay {

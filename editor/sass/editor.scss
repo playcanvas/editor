@@ -314,8 +314,15 @@ body {
     }
 }
 
-.ui-panel.material-preview, .ui-panel.texture-preview {
-    pointer-events: none;
+.asset-preview {
+    width: calc(100% - 16px);
+    padding-bottom: calc(100% - 16px);
+    border: 8px solid $bcg-darkest;
+
+    background-position: center center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-color: $bcg-darkest;
 }
 
 .drop-ref-highlight {

@@ -140,25 +140,19 @@ editor.once('load', function() {
             path: 'data.anisotropy'
         });
 
-        var previewPanel = editor.call('attributes:addPanel', {
-            name: 'Preview'
-        });
-        previewPanel.class.add('component', 'texture-preview', 'noSelect');
+        var root = editor.call('attributes.rootPanel');
 
         // preview
-        var image = editor.call('attributes:addField', {
-            parent: previewPanel,
-            type: 'image',
-            src: config.url.home + '/' + asset.get('file.url')
-        });
+        var image = document.createElement('div');
+        image.classList.add('asset-preview');
+        image.style.backgroundImage = 'url("' + config.url.home + '/' + asset.get('file.url') + '")';
+        root.innerElement.insertBefore(image, root.innerElement.firstChild);
 
-        image.style.backgroundImage = 'url("/editor/scene/img/asset-placeholder-texture.png")';
-        image.style.backgroundRepeat = 'repeat';
-        image.style.backgroundPosition = 'center center';
-        image.style.margin = '0 auto';
-
-        image.onload = function() {
-            fieldDimensions.text = image.naturalWidth + ' x ' + image.naturalHeight;
+        // size
+        var img = new Image();
+        img.onload = function() {
+            fieldDimensions.text = img.naturalWidth + ' x ' + img.naturalHeight;
         };
+        img.src = config.url.home + '/' + asset.get('file.url');
     });
 });
