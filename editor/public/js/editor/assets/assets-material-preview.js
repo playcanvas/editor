@@ -1,7 +1,7 @@
 editor.once('load', function () {
 
     // canvas user to render the preview
-    var canvas = new ui.Canvas();
+    var canvas = document.createElement('canvas');
 
     // create resource loader and asset registry
     var loader = new pc.resources.ResourceLoader();
@@ -11,7 +11,7 @@ editor.once('load', function () {
     editor.call('assets:registry:bind', assets);
 
     // set up graphics
-    var device = new pc.GraphicsDevice(canvas.element);
+    var device = new pc.GraphicsDevice(canvas);
     var scene = new pc.Scene();
     var renderer = new pc.ForwardRenderer(device);
 
@@ -49,7 +49,25 @@ editor.once('load', function () {
     scene.addModel(model);
     scene.addLight(light);
 
-    function updateSettings (settings) {
+    var resolutions = [{
+        size: 64,
+        path: 'thumbnails.s'
+    }, {
+        size: 128,
+        path: 'thumbnails.m'
+    }, {
+        size: 256,
+        path: 'thumbnails.l'
+    }, {
+        size: 512,
+        path: 'thumbnails.xl'
+    }];
+
+    var sceneSettingsTimeout;
+
+    var settings = editor.call('sceneSettings');
+
+    function updateSettings () {
         var ambient = settings.get('render.global_ambient');
         scene.ambientLight.set(ambient[0], ambient[1], ambient[2]);
 
@@ -57,15 +75,28 @@ editor.once('load', function () {
         scene.toneMapping = settings.get('render.tonemapping');
         scene.exposure = settings.get('render.exposure');
 
-        editor.emit('material:preview:sceneChanged');
+        // regenerate all material thumbnails after a small delay
+        if (sceneSettingsTimeout)
+            clearTimeout(sceneSettingsTimeout);
+
+        sceneSettingsTimeout = setTimeout(function () {
+            editor.call('assets:map', function (asset) {
+                if (asset.get('type') !== 'material') return;
+
+                render(asset);
+            });
+
+            sceneSettingsTimeout = null;
+        }, 100);
     }
 
-    editor.on('sceneSettings:load', function (settings) {
-        updateSettings(settings);
+    editor.on('sceneSettings:load', function () {
+        updateSettings();
 
-        settings.on('*:set', function () {
-            updateSettings(settings);
-        });
+        settings.on('render.global_ambient:set', updateSettings);
+        settings.on('render.gamma_correction:set', updateSettings);
+        settings.on('render.tonemapping:set', updateSettings);
+        settings.on('render.exposure:set', updateSettings);
     });
 
     // register resource handlers
@@ -73,58 +104,49 @@ editor.once('load', function () {
     loader.registerHandler(pc.resources.CubemapRequest, new pc.resources.CubemapResourceHandler(device, assets));
     loader.registerHandler(pc.resources.MaterialRequest, new pc.resources.MaterialResourceHandler(device, assets));
 
-    // renders the scene with the specified material and emits event
-    // with canvas.toDataURL() as argument
-    editor.method('material:preview', function (asset, width, height, callback) {
+    // renders preview in 4 resolutions for the specified material
+    var render = function (asset) {
+        var material = assets.getAssetById(asset.get('id'));
+        if (!material) return;
+
+        material = material.resource;
+        if (!material) return;
+
+        if (scene.updateShaders) {
+            scene._updateShaders(device);
+            scene.updateShaders = false;
+        }
+
+        model.meshInstances[0].material = material;
+
+        asset.set('has_thumbnail', true);
+
+        resolutions.forEach(function (res) {
+            device.resizeCanvas(res.size, res.size);
+            camera.setAspectRatio(1);
+
+            renderer.render(scene, camera);
+            asset.set(res.path, canvas.toDataURL());
+        });
+    }
+
+    // loads real-time material for the specified asset and
+    // generates thumbnails for it
+    var generatePreview = function (asset) {
         var materialId = asset.get('id');
         var material;
 
-        var asset = assets.getAssetById(materialId);
-        if (!asset)
+        var realtimeAsset = assets.getAssetById(materialId);
+        if (!realtimeAsset)
             return;
 
         var timeout;
-
-        // render with specified material
-        function render () {
-            model.meshInstances[0].material = material;
-            device.resizeCanvas(width, height);
-            canvas.resize(width, height);
-            camera.setAspectRatio(width / height);
-
-            if (scene.updateShaders) {
-                scene._updateShaders(device);
-                scene.updateShaders = false;
-            }
-
-            renderer.render(scene, camera);
-            editor.emit('material:preview:' + materialId, canvas.element.toDataURL());
-        }
-
-        function delayedRender () {
-            // if the asset no longer exists then stop re-rendering
-            if (! editor.call('assets:get', materialId)) {
-                material.update = material.oldUpdate;
-                editor.unbind('material:preview:sceneChanged', delayedRender);
-            } else  {
-                if (timeout)
-                    clearTimeout(timeout);
-
-                timeout = setTimeout(function() {
-                    render();
-                    timeout = null;
-                }, 100);
-            }
-        }
 
         // called when material resource is loaded
         function onLoaded () {
             // remember old update
             if (!material.oldUpdate) {
                 material.oldUpdate = material.update;
-
-                // re-render when scene settings change
-                editor.on('material:preview:sceneChanged', delayedRender);
             }
 
             // change update function of material
@@ -132,25 +154,44 @@ editor.once('load', function () {
             // material is updated
             material.update = function () {
                 material.oldUpdate.call(material);
-                delayedRender();
+
+                if (timeout)
+                    clearTimeout(timeout);
+
+                timeout = setTimeout(function() {
+                    render(asset);
+                    timeout = null;
+                }, 100);
             };
 
-            render();
-
-            if (callback)
-                callback();
+            render(asset);
         }
 
         // load material
-        var material = asset.resource;
+        var material = realtimeAsset.resource;
         if (!material) {
-            assets.load(asset).then(function (resources) {
+            assets.load(realtimeAsset).then(function (resources) {
                 material = resources[0];
                 onLoaded();
             }.bind(this));
         } else {
             onLoaded();
         }
+    };
+
+    editor.on('assets:add', function (asset) {
+        if (asset.get('type') === 'material')
+            generatePreview(asset);
+    });
+
+    editor.on('assets:remove', function (asset) {
+        if (asset.get('type') !== 'material') return;
+
+        var id = asset.get('id');
+        var material = assets.getAssetById(id);
+        if (!material || !material.resource || !material.resource.oldUpdate) return;
+
+        material.resource.update = material.resource.oldUpdate;
     });
 
 });
