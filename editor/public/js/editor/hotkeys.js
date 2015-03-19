@@ -99,6 +99,8 @@ editor.once('load', function() {
             for(var i = 0; i < keyIndex[index].length; i++) {
                 hotkeys[keyIndex[index][i]].callback();
             }
+
+            evt.preventDefault();
         }
     }, false);
 });
