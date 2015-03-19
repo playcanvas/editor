@@ -52,6 +52,7 @@ editor.once('load', function () {
     var sceneSettingsTimeout;
 
     var settings = editor.call('sceneSettings');
+    var settingsLoaded = false;
 
     function updateSettings () {
         var ambient = settings.get('render.global_ambient');
@@ -77,6 +78,7 @@ editor.once('load', function () {
     }
 
     editor.on('sceneSettings:load', function () {
+        settingsLoaded = true;
         updateSettings();
 
         settings.on('render.global_ambient:set', updateSettings);
@@ -92,16 +94,13 @@ editor.once('load', function () {
 
     // renders preview for the specified material
     var render = function (asset) {
+        if (!settingsLoaded) return;
+
         var material = assets.getAssetById(asset.get('id'));
         if (!material) return;
 
         material = material.resource;
         if (!material) return;
-
-        if (scene.updateShaders) {
-            scene._updateShaders(device);
-            scene.updateShaders = false;
-        }
 
         model.meshInstances[0].material = material;
 
