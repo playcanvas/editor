@@ -71,8 +71,6 @@ editor.once('load', function() {
         if (! keyIndex[args.index])
             keyIndex[args.index] = [ ];
 
-        console.log('hotkey', name, args.index)
-
         keyIndex[args.index].push(name);
     });
 
@@ -101,6 +99,8 @@ editor.once('load', function() {
             for(var i = 0; i < keyIndex[index].length; i++) {
                 hotkeys[keyIndex[index][i]].callback();
             }
+
+            evt.preventDefault();
         }
     }, false);
 });

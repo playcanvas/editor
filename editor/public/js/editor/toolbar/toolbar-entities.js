@@ -114,11 +114,15 @@ editor.once('load', function() {
     // });
 
 
-    // shortcut Ctrl + D
-    window.addEventListener('keyup', function (e) {
-        if (e.target && e.target.tagName.toLowerCase() === 'input' || ! editor.call('permissions:write') || e.keyCode !== 68 || ! e.ctrlKey)
-            return;
-            btnDuplicate.emit('click');
-    });
+    // duplicate
+    editor.call('hotkey:register', 'entity:duplicate', {
+        key: 'd',
+        ctrl: true,
+        callback: function() {
+            if (! editor.call('permissions:write'))
+                return;
 
+            btnDuplicate.emit('click');
+        }
+    });
 });

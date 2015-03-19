@@ -265,6 +265,30 @@ editor.once('load', function() {
 
         var asset = assets[0];
 
+        // preview
+        var previewPanel = editor.call('attributes:addPanel');
+        previewPanel.class.add('component', 'material-preview', 'noSelect');
+
+        var url = asset.get('thumbnails.l');
+        if (url && url.startsWith('/api'))
+            url = config.url.home + url;
+
+        // preview
+        var image = editor.call('attributes:addField', {
+            parent: previewPanel,
+            type: 'image',
+            src: url
+        });
+
+        image.style.margin = '0 auto';
+
+        asset.on('thumbnails.l:set', function (url) {
+            if (url && url.startsWith('/api'))
+                url = config.url.home + url;
+
+            image.src = url;
+        })
+
         // properties panel
         var panelParams = editor.call('attributes:addPanel', {
             name: 'Material Properties'

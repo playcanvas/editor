@@ -92,6 +92,9 @@ editor.once('load', function() {
         var update = function() {
             var json = asset.json();
 
+            // make sure we don't send thumbnails
+            delete json['thumbnails'];
+
             if (json.type === 'material') {
                 json.data = editor.call('material:mapToList', json);
             }

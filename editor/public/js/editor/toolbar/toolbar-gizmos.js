@@ -135,4 +135,14 @@ editor.once('load', function() {
             gizmoButtons['scale'].emit('click');
         }
     });
+
+    // focus
+    editor.call('hotkey:register', 'viewport:focus', {
+        key: 'f',
+        callback: function() {
+            var framework = editor.call('viewport:framework');
+            if (framework)
+                framework.frameSelection();
+        }
+    });
 });
