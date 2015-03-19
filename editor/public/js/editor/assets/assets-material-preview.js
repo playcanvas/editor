@@ -104,6 +104,10 @@ editor.once('load', function () {
 
         model.meshInstances[0].material = material;
 
+        // multiply-blend won't work properly so make it normal
+        if (material.blendType === pc.BLEND_MULTIPLICATIVE)
+            material.blendType = pc.BLEND_NORMAL;
+
         // use the same size for all thumbs for optimization
         device.resizeCanvas(256, 256);
         camera.setAspectRatio(1);
