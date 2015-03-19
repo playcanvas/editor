@@ -267,7 +267,7 @@ editor.once('load', function() {
 
         // preview
         var previewPanel = editor.call('attributes:addPanel');
-        previewPanel.class.add('component', 'material-preview');
+        previewPanel.class.add('component', 'material-preview', 'noSelect');
 
         var url = asset.get('thumbnails.l');
         if (url && url.startsWith('/api'))

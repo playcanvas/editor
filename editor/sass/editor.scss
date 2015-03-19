@@ -314,6 +314,10 @@ body {
     }
 }
 
+.ui-panel.material-preview, .ui-panel.texture-preview {
+    pointer-events: none;
+}
+
 .drop-ref-highlight {
     z-index: 210;
 }
