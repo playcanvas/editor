@@ -183,22 +183,6 @@ editor.once('load', function () {
     editor.on('assets:add', function (asset) {
         if (asset.get('type') === 'material')
             generatePreview(asset);
-
-        // prevent updates coming from C3 to overwrite the material thumbnail if
-        // it's set to a generated thumbnail
-        var changing = false;
-        ['thumbnails.s', 'thumbnails.m', 'thumbnails.l', 'thumbnails.xl'].forEach(function (path) {
-            asset.on(path + ':set', function (value, oldValue) {
-                if (changing) return;
-
-                changing = true;
-                if (oldValue && oldValue.startsWith('data:') && value && !value.startsWith('data:')) {
-                    setThumbnail(asset, path, oldValue);
-                }
-                changing = false;
-            });
-
-        });
     });
 
     editor.on('assets:remove', function (asset) {
