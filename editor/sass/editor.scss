@@ -61,6 +61,12 @@ body {
         height: auto;
         background-color: #293538;
 
+        > .beta {
+            line-height: 22px;
+            text-align: center;
+            color: $text-primary;
+            background-color: #f30;
+        }
         > .ui-button {
             display: block;
             margin: 0;
