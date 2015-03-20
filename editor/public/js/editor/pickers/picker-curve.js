@@ -225,23 +225,12 @@ editor.once('load', function() {
     btnResetCurve.on('click', function () {
         // reset keys of selected curve
         if (selectedCurve) {
-
             changing = true;
 
             // start editing
             editor.emit('picker:curve:change:start');
 
-            selectedCurve.keys.length = 0;
-            createAnchor(selectedCurve, 0, 0);
-            updateFields([0, 0]);
-            setSelected(selectedCurve, null);
-
-            // reset secondary curve too
-            var otherCurve = getOtherCurve(selectedCurve);
-            if (otherCurve) {
-                otherCurve.keys.length = 0;
-                createAnchor(otherCurve, 0, 0);
-            }
+            resetCurve(selectedCurve);
 
             render();
 
@@ -315,6 +304,20 @@ editor.once('load', function() {
         selectedAnchorIndex = -1;
         changing = false;
         dragging = false;
+    }
+
+    function resetCurve (curve) {
+        curve.keys.length = 0;
+        createAnchor(curve, 0, 0);
+        updateFields([0, 0]);
+        setSelected(curve, null);
+
+        // reset secondary curve too
+        var otherCurve = getOtherCurve(curve);
+        if (otherCurve) {
+            otherCurve.keys.length = 0;
+            createAnchor(otherCurve, 0, 0);
+        }
     }
 
     // Sets value for the picker and render it
@@ -803,6 +806,10 @@ editor.once('load', function() {
         if (index >= 0) {
             curve.keys.splice(index, 1);
         }
+
+        // if there are no more keys reset the curve
+        if (curve.keys.length === 0)
+            resetCurve(curve);
 
         editor.emit('picker:curve:change', getKeysPath(curve), serializeCurveKeys(curve));
     }
