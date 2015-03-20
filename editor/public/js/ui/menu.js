@@ -116,7 +116,7 @@ Menu.prototype._updatePath = function(path) {
     for(var i = 0; i < this._hovered.length; i++) {
         node = node._index[this._hovered[i]];
 
-        if (! node || node.class.contains('hover'))
+        if (! node)
             break;
 
         node.class.add('hover');
