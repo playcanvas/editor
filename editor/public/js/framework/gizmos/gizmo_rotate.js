@@ -249,7 +249,7 @@
             }
 
             // Snap to closest increment
-            if (this.snap && !this.overrideSnap && this.snapIncrement > 0) {
+            if (this.snap !== this.overrideSnap && this.snapIncrement > 0) {
                 angle = Math.round(angle / this.snapIncrement) * this.snapIncrement;
             }
 

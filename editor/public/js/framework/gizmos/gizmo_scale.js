@@ -221,7 +221,7 @@
             }
 
             // Snap the translation to the closest increment if necessary
-            if (this.snap && !this.overrideSnap && this.snapIncrement > 0) {
+            if (this.snap !== this.overrideSnap && this.snapIncrement > 0) {
                 if (axis < 3) {
                     var amount = scale.length();
                     if (amount > 0) {
