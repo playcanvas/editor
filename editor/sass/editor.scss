@@ -1028,8 +1028,9 @@ body {
 .ui-select-field.viewport-camera {
     position: absolute;
     top: 2px;
-    right: 73px;
+    right: 74px;
     z-index: 1;
+    margin: 2px;
 
     line-height: 30px;
     padding: 0px 10px;
@@ -1108,7 +1109,7 @@ body {
 
     > .content {
         > a {
-            margin-right: 2px;
+            margin-right: 4px;
         }
     }
 }
