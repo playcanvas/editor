@@ -135,7 +135,7 @@ SelectField.prototype.open = function() {
 
     // limit to bottom / top of screen
     if (top + this.elementOptions.clientHeight > window.innerHeight) {
-        top = window.innerHeight - this.elementOptions.clientHeight;
+        top = window.innerHeight - this.elementOptions.clientHeight + 1;
     } else if (top < 0) {
         top = rect.top + 1;
     }
