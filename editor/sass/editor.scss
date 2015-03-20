@@ -708,6 +708,22 @@ body {
         }
         > .content {
             padding: 8px 6px;
+
+            > .ui-button.add-component {
+                display: block;
+                text-align: center;
+
+                &:before {
+                    content: '\E464';
+                    padding-right: 8px;
+                    font-family: 'ui-font-solid';
+                    font-size: 16px;
+                    text-align: center;
+                    -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
+                    font-smoothing: antialiased;
+                }
+            }
         }
 
         .ui-panel.components-scripts > .content {

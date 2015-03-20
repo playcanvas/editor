@@ -81,7 +81,9 @@ Object.defineProperty(Menu.prototype, 'open', {
 
 
 Menu.prototype.findByPath = function(path) {
-    path = path.split('.');
+    if (! (path instanceof Array))
+        path = path.split('.');
+
     var item = this;
 
     for(var i = 0; i < path.length; i++) {
@@ -100,8 +102,12 @@ Menu.prototype._updatePath = function(path) {
     for(var i = 0; i < this._hovered.length; i++) {
         node = node._index[this._hovered[i]];
         if (! node) break;
-        if (path.length <= i || path[i] !== this._hovered[i])
+        if (path.length <= i || path[i] !== this._hovered[i]) {
             node.class.remove('hover');
+            node.innerElement.style.top = '';
+            node.innerElement.style.left = '';
+            node.innerElement.style.right = '';
+        }
     }
 
     this._hovered = path;
@@ -109,33 +115,53 @@ Menu.prototype._updatePath = function(path) {
 
     for(var i = 0; i < this._hovered.length; i++) {
         node = node._index[this._hovered[i]];
-        if (! node) break;
+
+        if (! node || node.class.contains('hover'))
+            break;
+
         node.class.add('hover');
+        node.innerElement.style.top = '';
+        node.innerElement.style.left = '';
+        node.innerElement.style.right = '';
+
+        var rect = node.innerElement.getBoundingClientRect();
 
         // limit to bottom / top of screen
-        var top = node.parent.innerElement.offsetTop + node.element.offsetTop;
-        if (top + node.innerElement.clientHeight > window.innerHeight) {
-            node.innerElement.style.top = window.innerHeight - (top + node.innerElement.clientHeight) + 'px';
-        } else {
-            node.innerElement.style.top = 0;
+        if (rect.bottom > window.innerHeight) {
+            node.innerElement.style.top = -(rect.bottom - window.innerHeight) + 'px';
+        }
+        if (rect.right > window.innerWidth) {
+            node.innerElement.style.left = 'auto';
+            node.innerElement.style.right = (node.parent.innerElement.clientWidth) + 'px';
         }
     }
 };
 
 
 Menu.prototype.position = function(x, y) {
+    this.element.style.display = 'block';
+
+    var rect = this.innerElement.getBoundingClientRect();
+
     var left = (x || 0);
     var top = (y || 0);
 
     // limit to bottom / top of screen
-    if (top + this.innerElement.clientHeight > window.innerHeight) {
-        top = window.innerHeight - this.innerElement.clientHeight;
+    if (top + rect.height > window.innerHeight) {
+        top = window.innerHeight - rect.height;
     } else if (top < 0) {
         top = 0;
+    }
+    if (left + rect.width > window.innerWidth) {
+        left = window.innerWidth - rect.width;
+    } else if (left < 0) {
+        left = 0;
     }
 
     this.innerElement.style.left = left + 'px';
     this.innerElement.style.top = top + 'px';
+
+    this.element.style.display = '';
 };
 
 
