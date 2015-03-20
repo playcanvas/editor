@@ -117,8 +117,6 @@ Observer.prototype._prepare = function(target, key, value, silent) {
 
         if (silent)
             this.silenceRestore(state);
-
-        return true;
     } else if (type === 'object' && (value instanceof Object)) {
         target._data[key] = {
             _path: path,
@@ -150,11 +148,20 @@ Observer.prototype._prepare = function(target, key, value, silent) {
 
         if (silent)
             this.silenceRestore(state);
+    } else {
+        if (silent)
+            state = this.silence();
 
-        return true;
+        target._data[key] = value;
+
+        this.emit(path + ':set', value);
+        this.emit('*:set', path, value);
+
+        if (silent)
+            this.silenceRestore(state);
     }
 
-    return false;
+    return true;
 };
 
 
