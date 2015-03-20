@@ -89,19 +89,25 @@ editor.once('load', function() {
 
         assetsIndex[asset.get('id')] = item;
 
-        if (asset.has('thumbnails')) {
-            item.style.backgroundImage = 'url("' + config.url.home + asset.get('thumbnails.m') + '")';
-        }
-
         // update thumbnails change
         asset.on('thumbnails.m:set', function(value) {
             var url = value;
             if (value.startsWith('/api'))
                 url = config.url.home + value;
 
-            item.style.backgroundImage = 'url("' + url + '")';
+            thumbnail.style.backgroundImage = 'url("' + url + '")';
+            thumbnail.classList.remove('placeholder');
         });
 
+        var thumbnail = document.createElement('div');
+        thumbnail.classList.add('thumbnail');
+        item.element.appendChild(thumbnail);
+
+        if (asset.has('thumbnails')) {
+            thumbnail.style.backgroundImage = 'url("' + config.url.home + asset.get('thumbnails.m') + '")';
+        } else {
+            thumbnail.classList.add('placeholder');
+        }
 
         var icon = document.createElement('div');
         icon.classList.add('icon');

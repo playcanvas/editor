@@ -938,69 +938,122 @@ body {
         position: relative;
 
         &.type-animation {
-            background-image: url("/editor/scene/img/asset-placeholder-animation.png");
+            // background-image: url("/editor/scene/img/asset-placeholder-animation.png");
+            > .thumbnail.placeholder:after {
+                content: '\E274';
+            }
             > .icon:after {
                 content: '\E274';
             }
         }
         &.type-audio {
-            background-image: url("/editor/scene/img/asset-placeholder-audio.png");
+            // background-image: url("/editor/scene/img/asset-placeholder-audio.png");
+            > .thumbnail.placeholder:after {
+                content: '\E262';
+            }
             > .icon:after {
-                content: '\E254';
+                content: '\E262';
             }
         }
         &.type-cubemap {
-            background-image: url("/editor/scene/img/asset-placeholder-cubemap.png");
+            // background-image: url("/editor/scene/img/asset-placeholder-cubemap.png");
+            > .thumbnail.placeholder:after {
+                content: '\E515';
+            }
             > .icon:after {
                 content: '\E515';
             }
         }
         &.type-json {
-            background-image: url("/editor/scene/img/asset-placeholder-json.png");
+            // background-image: url("/editor/scene/img/asset-placeholder-json.png");
+            > .thumbnail.placeholder:after {
+                content: '\E353';
+            }
             > .icon:after {
                 content: '\E353';
             }
         }
         &.type-material {
-            background-image: url("/editor/scene/img/asset-placeholder-material.png");
+            // background-image: url("/editor/scene/img/asset-placeholder-material.png");
+            > .thumbnail.placeholder:after {
+                content: '\E547';
+            }
             > .icon:after {
                 content: '\E547';
             }
         }
         &.type-model {
-            background-image: url("/editor/scene/img/asset-placeholder-model.png");
+            // background-image: url("/editor/scene/img/asset-placeholder-model.png");
+            > .thumbnail.placeholder:after {
+                content: '\E417';
+            }
             > .icon:after {
                 content: '\E417';
             }
         }
         &.type-scene {
-            background-image: url("/editor/scene/img/asset-placeholder-scene.png");
+            // background-image: url("/editor/scene/img/asset-placeholder-scene.png");
+            > .thumbnail.placeholder:after {
+                content: '\E417';
+            }
             > .icon:after {
                 content: '\E417';
             }
         }
         &.type-texture {
-            background-image: url("/editor/scene/img/asset-placeholder-texture.png");
+            // background-image: url("/editor/scene/img/asset-placeholder-texture.png");
+            > .thumbnail.placeholder:after {
+                content: '\E236';
+            }
             > .icon:after {
                 content: '\E236';
             }
         }
         &.type-text {
-            background-image: url("/editor/scene/img/asset-placeholder-text.png");
+            // background-image: url("/editor/scene/img/asset-placeholder-text.png");
+            > .thumbnail.placeholder:after {
+                content: '\E284';
+            }
             > .icon:after {
-                content: '\E212';
+                content: '\E284';
             }
         }
 
         &:focus,
         &:hover {
+            > .thumbnail {
+                color: $text-primary;
+            }
             > .label {
                 background-color: #2c393c;
             }
         }
         &.selected {
+            > .thumbnail {
+                color: $text-primary;
+            }
             > .label {
                 background-color: #20292b;
+            }
+        }
+        > .thumbnail {
+            width: 64px;
+            height: 64px;
+            line-height: 60px;
+            margin: 16px;
+            background-position: center center;
+            background-size: 64px 64px;
+            background-repeat: no-repeat;
+            text-align: center;
+            color: $text-darkest;
+
+            &.placeholder:after {
+                font-family: 'ui-font-solid';
+                font-size: 48px;
+                font-weight: 100;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                font-smoothing: antialiased;
             }
         }
         > .icon {
