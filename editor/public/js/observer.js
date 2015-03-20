@@ -304,6 +304,17 @@ Observer.prototype.set = function(path, value, silent) {
 
             var keys = Object.keys(value);
 
+            if (! node._data[key] || node._data[key]._data) {
+                if (node._data[key])
+                    obj.unset((node.__path ? node.__path + '.' : '') + key);
+
+                node._data[key] = {
+                    _path: path,
+                    _keys: [ ],
+                    _data: { }
+                };
+            }
+
             for(var n in node._data[key]._data) {
                 if (! value.hasOwnProperty(n)) {
                     var c = obj.unset(path + '.' + n, true);
