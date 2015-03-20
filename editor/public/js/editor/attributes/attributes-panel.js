@@ -476,6 +476,22 @@ editor.once('load', function() {
                                 field._link.set(path, value);
 
                                 field._link.history.combine = combine;
+
+                                // set second graph keys to be the same as the first
+                                // if betweenCurves if false
+                                if (args.paths) {
+                                    if (path.indexOf(args.paths[0]) === 0) {
+                                        if ((path.indexOf('.keys') !== -1 || path.indexOf('betweenCurves') !== -1)) {
+                                            if (! field._link.get(args.paths[0] + '.betweenCurves')) {
+                                                var history = field._link.history.enabled;
+                                                field._link.history.enabled = false;
+                                                field._link.set(args.paths[1] + '.keys', field._link.get(args.paths[0] + '.keys'));
+                                                field._link.history.enabled = history;
+                                            }
+                                        }
+                                    }
+                                }
+
                             }
 
                             first = false;
