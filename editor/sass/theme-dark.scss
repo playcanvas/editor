@@ -846,13 +846,34 @@ a:visited {
 
 .ui-panel.top-controls {
     > .content {
-        > .ui-button.icon {
+        .ui-button.icon {
 
             color: transparentize($text-primary, 0.25);
             background-color: transparentize($bcg-darker, 0.5);
 
-            &.active, &:hover {
+            &.active, &:hover, &.hover {
                 color: $text-primary;
+                background-color: transparentize($bcg-darker, 0.25);
+            }
+        }
+    }
+
+    .launch {
+        ul.dropdown-menu {
+            background-color: transparentize($bcg-darker, 0.25);
+
+            > li {
+                color: $text-primary;
+
+                &:hover {
+                    cursor: pointer;
+                    background-color: $bcg-darker;
+                }
+            }
+        }
+
+        &:hover {
+            .ui-button.icon {
                 background-color: transparentize($bcg-darker, 0.25);
             }
         }
