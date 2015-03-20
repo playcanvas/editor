@@ -106,6 +106,11 @@ Observer.prototype._prepare = function(target, key, value, silent) {
                         parentKey: null
                     });
                 }
+            } else {
+                state = this.silence();
+                this.emit(path + '.' + i + ':set', target._data[key][i], null);
+                this.emit('*:set', path + '.' + i, target._data[key][i], null);
+                this.silenceRestore(state);
             }
         }
 
