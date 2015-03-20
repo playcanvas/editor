@@ -2,6 +2,9 @@ editor.once('load', function() {
     'use strict';
 
     editor.method('assets:createCubemap', function () {
+        if (! editor.call('permissions:write'))
+            return;
+
         var asset = {
             name: 'New Cubemap',
             type: 'cubemap',

@@ -2,6 +2,9 @@ editor.once('load', function() {
     'use strict';
 
     editor.method('assets:createMaterial', function () {
+        if (! editor.call('permissions:write'))
+            return;
+
         var data = editor.call('material:mapToList', {
             name: 'New Material',
             data: {
