@@ -301,11 +301,36 @@ editor.once('load', function() {
                     field.value = null;
                 });
 
+                var evtThumbnailChange;
+                var updateThumbnail = function() {
+                    var asset = editor.call('assets:get', field.value);
+
+                    if (! asset) {
+                        return field.image = config.url.home + '/editor/scene/img/asset-placeholder-texture.png';
+                    } else {
+                        if (asset.has('thumbnails.m')) {
+                            var src = asset.get('thumbnails.m');
+                            if (src.startsWith('data:image/png;base64')) {
+                                field.image = asset.get('thumbnails.m');
+                            } else {
+                                field.image = config.url.home + asset.get('thumbnails.m');
+                            }
+                        } else {
+                            field.image = '/editor/scene/img/asset-placeholder-' + asset.get('type') + '.png';
+                        }
+                    }
+                };
+
                 field.on('change', function(value) {
                     fieldTitle.text = 'Empty';
 
                     btnEdit.disabled = ! value;
                     btnRemove.disabled = ! value;
+
+                    if (evtThumbnailChange) {
+                        evtThumbnailChange.unbind();
+                        evtThumbnailChange = null;
+                    }
 
                     if (! value)
                         return field.empty = true;
@@ -317,18 +342,10 @@ editor.once('load', function() {
                     if (! asset)
                         return field.image = config.url.home + '/editor/scene/img/asset-placeholder-texture.png';
 
-                    fieldTitle.text = asset.get('file.filename') || asset.get('name');
+                    evtThumbnailChange = asset.on('thumbnails.m:set', updateThumbnail);
+                    updateThumbnail();
 
-                    if (asset.has('thumbnails.m')) {
-                        var src = asset.get('thumbnails.m');
-                        if (src.startsWith('data:image/png;base64')) {
-                            field.image = asset.get('thumbnails.m');
-                        } else {
-                            field.image = config.url.home + asset.get('thumbnails.m');
-                        }
-                    } else {
-                        field.image = '/editor/scene/img/asset-placeholder-' + asset.get('type') + '.png';
-                    }
+                    fieldTitle.text = asset.get('file.filename') || asset.get('name');
                 });
 
                 if (args.value)
@@ -351,6 +368,10 @@ editor.once('load', function() {
                 });
                 field.on('destroy', function() {
                     dropRef.unregister();
+                    if (evtThumbnailChange) {
+                        evtThumbnailChange.unbind();
+                        evtThumbnailChange = null;
+                    }
                 });
 
                 // thumbnail
