@@ -407,9 +407,93 @@ body {
             vertical-align: top;
         }
         &.field-asset {
-            > .content > .ui-image-field {
-                background-image: url("/editor/scene/img/asset-placeholder-texture.png");
-                background-position: center center;
+            > .content {
+                > .ui-image-field {
+                    -webkit-flex-shrink: 0;
+                    flex-shrink: 0;
+                    margin-right: 15px;
+                    background-color: $bcg-darkest;
+
+                    &.empty {
+                        background-image: url("/editor/scene/img/asset-placeholder-texture.png");
+                        background-position: center center;
+                    }
+                }
+                > .top {
+                    width: 100%;
+
+                    > .controls {
+                        display: -webkit-flex;
+                        display: flex;
+                        margin-top: 4px;
+                        height: 32px;
+
+                        > .ui-label {
+                            padding-right: 4px;
+                            line-height: 26px;
+                        }
+                        > .ui-button {
+                            color: $text-dark;
+                            height: 28px;
+                            line-height: 28px;
+                            font-family: 'ui-font-solid';
+                            font-size: 18px;
+                            text-align: center;
+                            -webkit-font-smoothing: antialiased;
+                            -moz-osx-font-smoothing: grayscale;
+                            font-smoothing: antialiased;
+                            text-align: center;
+                            background: transparent;
+                            border: none;
+                            margin-left: 0;
+                            margin-right: 0;
+
+                            &.disabled {
+                                &:hover {
+                                    color: $text-dark;
+                                    background-color: transparent;
+                                }
+                            }
+                            &:last-child {
+                                margin-right: 4px;
+                                line-height: 26px;
+
+                                &:hover {
+                                    color: #d34141;
+
+                                    &.disabled {
+                                        color: $text-dark;
+                                    }
+                                }
+                            }
+                            &:hover {
+                                background-color: $bcg-darkest;
+                                color: $text-primary;
+                            }
+                        }
+                    }
+                    > .ui-label {
+                        width: calc(100% - 24px);
+                        height: 22px;
+                        line-height: 22px;
+                        margin: 3px;
+                        padding: 0 8px;
+                        background-color: $bcg-dark;
+                        border: 1px solid $bcg-darker;
+                        cursor: pointer;
+
+                        &:hover {
+                            background-color: $bcg-darkest;
+                            color: $text-primary;
+                        }
+                    }
+                    > .ui-label[placeholder] {
+                        &:after {
+                            font-size: 24px;
+                            line-height: 14px;
+                        }
+                    }
+                }
             }
         }
     }

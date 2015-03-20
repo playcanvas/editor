@@ -234,7 +234,39 @@ editor.once('load', function() {
                 var field = new ui.ImageField();
                 var evtPick;
 
-                field.on('pick', function() {
+                label.renderChanges = false;
+                field._label = label;
+
+                label.style.width = '32px';
+                label.flexGrow = 1;
+
+                var panelFields = document.createElement('div');
+                panelFields.classList.add('top');
+
+                var panelControls = document.createElement('div');
+                panelControls.classList.add('controls');
+
+                var fieldTitle = new ui.Label();
+                fieldTitle.text = 'Empty';
+                fieldTitle.parent = panel;
+                fieldTitle.flexGrow = 1;
+                fieldTitle.placeholder = '...';
+
+                var btnEdit = new ui.Button({
+                    text: '&#58214;'
+                });
+                btnEdit.disabled = true;
+                btnEdit.parent = panel;
+                btnEdit.flexGrow = 0;
+
+                var btnRemove = new ui.Button({
+                    text: '&#58422;'
+                });
+                btnRemove.disabled = true;
+                btnRemove.parent = panel;
+                btnRemove.flexGrow = 0;
+
+                fieldTitle.on('click', function() {
                     var asset = editor.call('assets:get', this.value);
                     editor.call('picker:asset', args.kind, asset);
 
@@ -253,13 +285,28 @@ editor.once('load', function() {
                 });
 
                 field.on('click', function() {
-                    if (! this.value) return;
-                    var asset = editor.call('assets:get', this.value);
-                    if (! asset) return;
-                    editor.call('selector:set', 'asset', [ asset ]);
+                    if (! this.value) {
+                        fieldTitle.emit('click');
+                    } else {
+                        var asset = editor.call('assets:get', this.value);
+                        if (! asset) return;
+                        editor.call('selector:set', 'asset', [ asset ]);
+                    }
+                });
+                btnEdit.on('click', function() {
+                    field.emit('click');
+                });
+
+                btnRemove.on('click', function() {
+                    field.value = null;
                 });
 
                 field.on('change', function(value) {
+                    fieldTitle.text = 'Empty';
+
+                    btnEdit.disabled = ! value;
+                    btnRemove.disabled = ! value;
+
                     if (! value)
                         return field.empty = true;
 
@@ -270,11 +317,15 @@ editor.once('load', function() {
                     if (! asset)
                         return field.image = config.url.home + '/editor/scene/img/asset-placeholder-texture.png';
 
+                    fieldTitle.text = asset.get('file.filename') || asset.get('name');
+
                     if (asset.has('thumbnails.m')) {
-                        var url = asset.get('thumbnails.m');
-                        if (url.startsWith('/api'))
-                            url = config.url.home + url;
-                        field.image = url;
+                        var src = asset.get('thumbnails.m');
+                        if (src.startsWith('data:image/png;base64')) {
+                            field.image = asset.get('thumbnails.m');
+                        } else {
+                            field.image = config.url.home + asset.get('thumbnails.m');
+                        }
                     } else {
                         field.image = '';
                     }
@@ -287,7 +338,7 @@ editor.once('load', function() {
                     field.link(args.link, args.path)
 
                 var dropRef = editor.call('drop:target', {
-                    ref: field.element,
+                    ref: panel.element,
                     filter: function(type, data) {
                         return type === 'asset.' + args.kind && data.id !== field.value;
                     },
@@ -302,7 +353,23 @@ editor.once('load', function() {
                     dropRef.unregister();
                 });
 
-                panel.append(field)
+                // thumbnail
+                panel.append(field);
+                // right side
+                panel.append(panelFields);
+                // controls
+                panelFields.appendChild(panelControls);
+                // label
+                panel.innerElement.removeChild(label.element);
+                panelControls.appendChild(label.element);
+                panelControls.classList.remove('label-field');
+                // edit
+                panelControls.appendChild(btnEdit.element);
+                // remove
+                panelControls.appendChild(btnRemove.element);
+
+                // title
+                panelFields.appendChild(fieldTitle.element);
 
                 return field;
             case 'image':

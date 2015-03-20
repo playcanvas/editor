@@ -273,7 +273,7 @@ editor.once('load', function() {
         root.innerElement.insertBefore(image, root.innerElement.firstChild);
 
         var renderPreview = function () {
-            editor.call('preview:material', asset, Math.min(image.clientWidth, image.clientHeight), function (url) {
+            editor.call('preview:material', asset, image.clientWidth, function (url) {
                 image.style.backgroundImage = 'url("' + url + '")';
             });
         }
@@ -357,7 +357,7 @@ editor.once('load', function() {
             parent: panelAmbiend,
             type: 'asset',
             kind: 'texture',
-            name: 'Texture',
+            name: 'Ambient',
             link: asset,
             path: 'data.aoMap'
         });
@@ -396,7 +396,7 @@ editor.once('load', function() {
             parent: panelDiffuse,
             type: 'asset',
             kind: 'texture',
-            name: 'Texture',
+            name: 'Diffuse',
             link: asset,
             path: 'data.diffuseMap'
         });
@@ -635,7 +635,7 @@ editor.once('load', function() {
             parent: panelEmissive,
             type: 'asset',
             kind: 'texture',
-            name: 'Texture',
+            name: 'Emissive',
             link: asset,
             path: 'data.emissiveMap'
         });
@@ -743,7 +743,7 @@ editor.once('load', function() {
             parent: panelNormal,
             type: 'asset',
             kind: 'texture',
-            name: 'Texture',
+            name: 'Normals',
             link: asset,
             path: 'data.normalMap'
         });
@@ -818,7 +818,7 @@ editor.once('load', function() {
             parent: panelParallax,
             type: 'asset',
             kind: 'texture',
-            name: 'Texture',
+            name: 'Heightmap',
             link: asset,
             path: 'data.heightMap'
         });
@@ -961,7 +961,7 @@ editor.once('load', function() {
             parent: panelLightMap,
             type: 'asset',
             kind: 'texture',
-            name: 'Texture',
+            name: 'Lightmap',
             link: asset,
             path: 'data.lightMap'
         });
