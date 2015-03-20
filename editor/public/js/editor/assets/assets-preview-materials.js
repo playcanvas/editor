@@ -8,7 +8,7 @@ editor.once('load', function () {
     var assets = new pc.asset.AssetRegistry(loader, '/api');
 
     // bind asset registry to editor
-    editor.call('assets:registry:bind', assets);
+    editor.call('assets:registry:bind', assets, ['texture', 'cubemap', 'material']);
 
     // set up graphics
     var device = new pc.GraphicsDevice(canvas);
@@ -85,7 +85,6 @@ editor.once('load', function () {
     loader.registerHandler(pc.resources.TextureRequest, new pc.resources.TextureResourceHandler(device, assets));
     loader.registerHandler(pc.resources.CubemapRequest, new pc.resources.CubemapResourceHandler(device, assets));
     loader.registerHandler(pc.resources.MaterialRequest, new pc.resources.MaterialResourceHandler(device, assets));
-
 
     // renders preview for the specified material
     var render = function (asset) {
