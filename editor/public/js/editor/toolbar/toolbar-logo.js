@@ -8,6 +8,12 @@ editor.once('load', function() {
     toolbar.append(logo);
 
 
+    var beta = document.createElement('div');
+    beta.textContent = 'BETA';
+    beta.classList.add('beta');
+    toolbar.append(beta);
+
+
     logo.on('click', function() {
         menu.open = true;
     });
