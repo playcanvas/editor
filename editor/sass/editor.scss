@@ -755,6 +755,15 @@ body {
                 height: 32px;
                 line-height: 32px;
 
+                > .title {
+                    max-width: calc(100% - 128px);
+
+                    > a {
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        display: block;
+                    }
+                }
                 > .move-down, > .move-up, > .refresh, > .remove {
                     float: right;
                     width: 32px;
