@@ -1027,16 +1027,48 @@ body {
 
 .ui-select-field.viewport-camera {
     position: absolute;
-    top: 0;
-    left: 0;
+    top: 2px;
+    right: 73px;
     z-index: 1;
+
+    line-height: 30px;
+    padding: 0px 10px;
+
+    > .value {
+        min-height: 30px;
+        line-height: 30px;
+
+        &:after {
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            content: '\E126';
+            -ms-transform: rotate(90deg); /* IE 9 */
+            -webkit-transform: rotate(90deg); /* Safari */
+            transform: rotate(90deg);
+        }
+    }
+
+    &:hover {
+        > .value:after {
+            content: '\E126';
+        }
+    }
+
+    > ul {
+        > li {
+            padding: 0px 10px 0px 11px;
+            line-height: 32px;
+        }
+    }
 }
+
 
 .ui-panel.top-controls {
     position: absolute;
     $width: (32px + 4px) * 2;
-    left: calc(50% - #{$width / 2});
-    top: 0;
+    top: 2px;
+    right: 2px;
     width: $width;
     z-index: 1;
     background-color: transparent;
@@ -1068,15 +1100,15 @@ body {
 
 .ui-panel.whoisonline {
     position: absolute;
-    top: 0;
-    right: 0;
+    top: 2px;
+    left: 2px;
     z-index: 1;
     background-color: transparent;
     padding: 2px;
 
     > .content {
         > a {
-            margin-right: 5px;
+            margin-right: 2px;
         }
     }
 }

@@ -818,6 +818,47 @@ a:visited {
     }
 }
 
+
+.ui-select-field.viewport-camera {
+    background-color: transparentize($bcg-darker, 0.5);
+    border-color: transparent;
+
+    > .value {
+        color: transparentize($text-primary, 0.25);
+        &:after {
+            color: transparentize($text-primary, 0.5);
+        }
+    }
+
+    &:hover {
+        background-color: transparentize($bcg-darker, 0.25);
+        border-color: transparent;
+
+        > .value {
+            color: $text-primary;
+            &:after {
+                color: $text-primary;
+            }
+        }
+    }
+}
+
+
+.ui-panel.top-controls {
+    > .content {
+        > .ui-button.icon {
+
+            color: transparentize($text-primary, 0.25);
+            background-color: transparentize($bcg-darker, 0.5);
+
+            &.active, &:hover {
+                color: $text-primary;
+                background-color: transparentize($bcg-darker, 0.25);
+            }
+        }
+    }
+}
+
 .ui-button {
     border: 1px solid $bcg-darker;
     background-color: $bcg-dark;
