@@ -331,7 +331,7 @@
             }
 
             // Snap the translation to the closest increment if necessary
-            if (this.snap && !this.overrideSnap && snapIncrement > 0) {
+            if (this.snap !== this.overrideSnap && snapIncrement > 0) {
                 // if we're only moving on 1 axis then snap the length of the translation vector
                 if (axis <= 2) {
                     var amount = translate.length();

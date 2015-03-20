@@ -7,12 +7,40 @@ editor.once('load', function() {
         return panelComponents;
     });
 
+    // add component menu
+    var menuAddComponent = new ui.Menu();
+    var currentEntity = null;
+    var components = editor.call('components:schema');
+    var list = editor.call('components:list');
+    for(var i = 0; i < list.length; i++) {
+        menuAddComponent.append(new ui.MenuItem({
+            text: components[list[i]].title,
+            value: list[i]
+        }));
+    }
+    menuAddComponent.on('open', function() {
+        for(var i = 0; i < list.length; i++)
+            this.findByPath([ list[i] ]).disabled = currentEntity.has('components.' + list[i]);
+    });
+    menuAddComponent.on('select', function(path) {
+        if (! currentEntity) return;
+
+        var componentData = editor.call('components:getDefault', path[0]);
+        currentEntity.set('components.' + path[0], componentData);
+
+        // if it's a collision or rigidbody component then enable physics
+        if (path[0] === 'collision' || path[0] === 'rigidbody')
+            editor.call('project:enablePhysics');
+    });
+    editor.call('layout.root').append(menuAddComponent);
+
 
     editor.on('attributes:inspect[entity]', function(entities) {
         if (entities.length !== 1)
             return;
 
         var entity = entities[0];
+        currentEntity = entity;
 
         // panel
         var panel = editor.call('attributes:addPanel');
@@ -76,52 +104,18 @@ editor.once('load', function() {
         // components
         panelComponents = editor.call('attributes:addPanel');
 
-        // get all components and make an enum out of them
-        var allComponents = editor.call('components:list');
-
-        // return an enum for a select field showing all the
-        // components that are not currently added to the entity
-        var createComponentEnum = function () {
-            var result = { };
-
-            allComponents.filter(function (item) {
-                return ! entity.has('components.' + item);
-            })
-            .forEach(function (item) {
-                result[item] = item;
-            });
-
-            return result;
-        };
-
-        // show components in a select field
-        var addComponent = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Add Component',
-            type: 'string',
-            enum: createComponentEnum()
-        });
-
-        // refresh available components on click
-        addComponent.on('open', function () {
-            addComponent._updateOptions(createComponentEnum());
-        });
-
         // add component
-        addComponent.on('change', function (value) {
-            if (! value) return;
-
-            var componentData = editor.call('components:getDefault', value);
-            entity.set('components.' + value, componentData);
-            // reset displayed value
-            addComponent.value = null;
-
-            // if it's a collision or rigidbody component then enable physics
-            if (value === 'collision' || value === 'rigidbody') {
-                editor.call('project:enablePhysics');
-            }
+        var btnAddComponent = new ui.Button();
+        btnAddComponent.text = 'Add Component';
+        btnAddComponent.class.add('add-component');
+        btnAddComponent.on('click', function(evt) {
+            menuAddComponent.position(evt.clientX, evt.clientY);
+            menuAddComponent.open = true;
         });
+        panel.append(btnAddComponent);
 
+
+        // json panel
         var panelJson = editor.call('attributes:addPanel', {
             name: 'JSON'
         });

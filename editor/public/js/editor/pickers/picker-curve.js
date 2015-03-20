@@ -105,6 +105,9 @@ editor.once('load', function() {
 
         betweenCurves = value;
 
+        editor.emit('picker:curve:change:start');
+        editor.emit('picker:curve:change', '0.betweenCurves', betweenCurves);
+
         if (!betweenCurves) {
             // disable the secondary graph
             for (i = 0; i < numCurves; i++) {
@@ -113,6 +116,11 @@ editor.once('load', function() {
         } else {
             // enable the secondary graphs if their respective primary graphs are enabled
             for (i = 0; i < numCurves; i++) {
+                // we might have a different value for the secondary graphs
+                // when we re-enable betweenCurves so fire change event
+                // to make sure the different values are saved
+                onCurveKeysChanged(curves[i + numCurves]);
+
                 var isEnabled = enabledCurves.indexOf(curves[i]) >= 0;
                 toggleCurve(curves[i + numCurves], false);
                 if (isEnabled) {
@@ -120,10 +128,6 @@ editor.once('load', function() {
                 }
             }
         }
-
-
-        editor.emit('picker:curve:change:start');
-        editor.emit('picker:curve:change', '0.betweenCurves', betweenCurves);
 
         changing = false;
     });
@@ -771,7 +775,7 @@ editor.once('load', function() {
         for (var index in changedCurves) {
             var curve = curves[parseInt(index)];
             if (curve) {
-                editor.emit('picker:curve:change', getKeysPath(curve), serializeCurveKeys(curve));
+                onCurveKeysChanged(curve);
             }
         }
     }
@@ -779,9 +783,7 @@ editor.once('load', function() {
     // Creates and returns an anchor and fires change event
     function createAnchor (curve, time, value) {
         var anchor = curve.add(time, value);
-
-        editor.emit('picker:curve:change', getKeysPath(curve), serializeCurveKeys(curve));
-
+        onCurveKeysChanged(curve);
         return anchor;
     }
 
@@ -797,7 +799,7 @@ editor.once('load', function() {
             selectedAnchorIndex = curve.keys.indexOf(selectedAnchor);
         }
 
-        editor.emit('picker:curve:change', getKeysPath(curve), serializeCurveKeys(curve));
+        onCurveKeysChanged(curve);
     }
 
     // Deletes an anchor from the curve and fires change event
@@ -807,11 +809,12 @@ editor.once('load', function() {
             curve.keys.splice(index, 1);
         }
 
-        // if there are no more keys reset the curve
-        if (curve.keys.length === 0)
-            resetCurve(curve);
-
-        editor.emit('picker:curve:change', getKeysPath(curve), serializeCurveKeys(curve));
+        // Have at least one key in the curve
+        if (curve.keys.length === 0) {
+            createAnchor(curve, 0, 0);
+        } else {
+            onCurveKeysChanged(curve);
+        }
     }
 
     function getKeysPath (curve) {
@@ -829,6 +832,10 @@ editor.once('load', function() {
             result.push(k[0], k[1]);
         });
         return result;
+    }
+
+    function onCurveKeysChanged (curve) {
+        editor.emit('picker:curve:change', getKeysPath(curve), serializeCurveKeys(curve));
     }
 
     // Make the specified curve appear in front of the others
