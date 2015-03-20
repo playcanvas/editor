@@ -215,6 +215,26 @@ body {
 
 .ui-panel.assets {
     > .ui-header {
+        > .create-asset {
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            border: none;
+            padding: 0;
+            margin: 0 0 0 8px;
+            vertical-align: top;
+            font-family: 'ui-font-solid';
+            font-size: 18px;
+            text-align: center;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-smoothing: antialiased;
+            background-color: transparent;
+
+            &:hover {
+                background-color: $bcg-darkest;
+            }
+        }
         > .filters {
             float: right;
             background-color: transparent;
