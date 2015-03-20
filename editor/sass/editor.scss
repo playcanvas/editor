@@ -1244,9 +1244,10 @@ body {
 
                 > li {
                     @extend .noSelect;
-                    padding: 8px 10px;
+                    padding: 9px 10px;
                     width: 140px;
                     color: white;
+                    font-size: 13px;
 
                     &.ticked:after {
                         font-family: 'ui-font-solid';
