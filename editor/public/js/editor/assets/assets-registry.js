@@ -1,11 +1,14 @@
 editor.once('load', function() {
     'use strict';
 
-    editor.method('assets:registry:bind', function (assetRegistry) {
+    editor.method('assets:registry:bind', function (assetRegistry, assetTypes) {
         // add assets to asset registry
         editor.on('assets:add', function (asset) {
             // do only for target assets
             if (asset.get('source'))
+                return;
+
+            if (assetTypes && assetTypes.indexOf(asset.get('type')) === -1)
                 return;
 
             // raw json data
