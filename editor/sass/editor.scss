@@ -1132,7 +1132,7 @@ body {
 .ui-select-field.viewport-camera {
     position: absolute;
     top: 2px;
-    right: 74px;
+    right: 97px;
     z-index: 1;
     margin: 2px;
 
@@ -1148,9 +1148,14 @@ body {
             height: 30px;
             line-height: 30px;
             content: '\E126';
-            -ms-transform: rotate(90deg); /* IE 9 */
-            -webkit-transform: rotate(90deg); /* Safari */
+
             transform: rotate(90deg);
+            -webkit-transform: rotate(90deg);
+            -moz-transform: rotate(90deg);
+            -o-transform: rotate(90deg);
+            -ms-transform: rotate(90deg);
+            -ms-transform: rotate(90deg);
+            -webkit-transform: rotate(90deg);
         }
     }
 
@@ -1168,24 +1173,15 @@ body {
     }
 }
 
-
 .ui-panel.top-controls {
     position: absolute;
-    $width: (32px + 4px) * 2;
     top: 2px;
-    right: 2px;
-    width: $width;
+    right: 4px;
     z-index: 1;
     background-color: transparent;
 
     > .content {
-        > .ui-button.icon {
-            width: 32px;
-            height: 32px;
-            margin: 2px;
-            padding: 0;
-            border: none;
-
+        .icon {
             font-family: 'ui-font-solid';
             font-size: 24px;
             font-weight: 100;
@@ -1194,10 +1190,77 @@ body {
             -moz-osx-font-smoothing: grayscale;
             font-smoothing: antialiased;
             text-align: center;
+        }
+
+        .ui-button {
+            width: 32px;
+            height: 32px;
+            margin: 2px 3px;
+            padding: 0;
+            border: none;
 
             &.active {
                 color: $text-active;
-                background-color: #2c393c;
+            }
+        }
+
+        .launch {
+            position: relative;
+            background-color: transparent;
+            display: inline-block;
+            .ui-button {
+                margin: 0;
+
+                &.dropdown {
+                    width: 20px;
+                    padding-left: 5px;
+
+                    &:after {
+                        display: inline-block;
+                        content: '\E126';
+
+                        transform: rotate(90deg);
+                        -webkit-transform: rotate(90deg);
+                        -moz-transform: rotate(90deg);
+                        -o-transform: rotate(90deg);
+                        -ms-transform: rotate(90deg);
+                        -ms-transform: rotate(90deg);
+                        -webkit-transform: rotate(90deg);
+
+                        font-size: 18px;
+                        line-height: 32px;
+                        height: 31px;
+                    }
+
+                }
+            }
+
+            ul.dropdown-menu {
+                position: absolute;
+                top: 18px;
+                right: 0;
+                padding: 0;
+                list-style: none;
+
+                > li {
+                    @extend .noSelect;
+                    padding: 9px 10px;
+                    width: 140px;
+                    color: white;
+                    font-size: 13px;
+
+                    &.ticked:after {
+                        font-family: 'ui-font-solid';
+                        font-size: 14px;
+                        line-height: 14px;
+                        font-weight: 100;
+                        -webkit-font-smoothing: antialiased;
+                        -moz-osx-font-smoothing: grayscale;
+                        font-smoothing: antialiased;
+                        float: right;
+                        content: '\E435';
+                    }
+                }
             }
         }
     }
