@@ -327,7 +327,7 @@ editor.once('load', function() {
                             field.image = config.url.home + asset.get('thumbnails.m');
                         }
                     } else {
-                        field.image = '';
+                        field.image = '/editor/scene/img/asset-placeholder-' + asset.get('type') + '.png';
                     }
                 });
 
