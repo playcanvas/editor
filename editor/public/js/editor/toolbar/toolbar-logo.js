@@ -309,12 +309,25 @@ editor.once('load', function() {
         },
         'launch': {
             title: 'Launch',
-            icon: '&#57922;',
-            select: function() {
-                var url = window.location.href.replace(/^https/, 'http') + '/launch';
-                window.open(url, 'pc.launch.' + config.scene.id);
+            items: {
+                'launch-remote': {
+                    title: 'Launch',
+                    icon: '&#57922;',
+                    select: function() {
+                        var url = window.location.href.replace(/^https/, 'http') + '/launch';
+                        window.open(url, 'pc.launch.' + config.scene.id);
+                    }
+                },
+                'launch-local': {
+                    title: 'Launch (Local)',
+                    icon: '&#57922;',
+                    select: function() {
+                        var url = window.location.href.replace(/^https/, 'http') + '/launch?local=true';
+                        window.open(url, 'pc.launch.' + config.scene.id);
+                    }
+                }
             }
-        },
+        }
     };
 
     var makeMenuComponentItem = function(key) {
