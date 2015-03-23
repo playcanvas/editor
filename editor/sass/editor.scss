@@ -611,17 +611,22 @@ body {
                 height: 0px;
                 cursor: pointer;
                 padding-bottom: 25%;
+                font-size: 12px;
 
                 background-image: url("/editor/scene/img/asset-placeholder-texture.png");
                 background-position: center center;
                 background-repeat: no-repeat;
                 background-size: 100% 100%;
                 background-color: #07f;
+                color: rgba(255, 255, 255, 0.5);
 
                 &:hover {
                     outline: $text-active 2px solid;
                     z-index: 1;
 
+                    > .face-name {
+                        color: $text-primary;
+                    }
                     > .clear {
                         display: block;
                     }
@@ -630,6 +635,12 @@ body {
                     > .clear {
                         display: none;
                     }
+                }
+                > .face-name {
+                    float: left;
+                    color: $text-secondary;
+                    padding: 2px 4px;
+                    background-color: rgba($bcg-dark, 0.8);
                 }
                 > .clear {
                     display: none;
@@ -1577,22 +1588,53 @@ body {
         background-color: transparent;
         white-space: nowrap;
         transition: none;
-    }
 
-    .ui-checkbox.picker-curve-toggle {
-        text-align: center;
-        line-height: 22px;
-        width: auto;
-        min-width: 14px;
-        padding-left: 5px;
-        padding-right: 5px;
+        > .picker-curve-panel {
+            height: 100%;
+            font-size: 11px;
 
-        &:after {
-            content: none;
-        }
+            > .picker-curve-header {
+                padding: 5px 10px;
 
-        &:focus, &.active {
-            border-color: transparent;
+                > .content {
+                    .ui-button.picker-curve-toggle {
+                        float: right;
+                        text-align: center;
+                        line-height: 22px;
+                        width: auto;
+                        min-width: 14px;
+                        padding-left: 5px;
+                        padding-right: 5px;
+                        margin: 3px 0px;
+
+                        & + .ui-button.picker-curve-toggle {
+                            border-right: none;
+                        }
+
+                        &.active.first {
+                            color: rgb(255, 0, 0);
+                        }
+
+                        &.active.second {
+                            color: rgb(0, 255, 0);
+                        }
+
+                        &.active.third {
+                            color: rgb(133, 133, 252);
+                        }
+                    }
+
+                }
+            }
+
+            > .picker-curve-footer {
+                padding: 5px 10px;
+
+                .ui-button {
+                    float: right;
+                    font-size: 11px;
+                }
+            }
         }
     }
 }

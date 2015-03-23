@@ -37,8 +37,12 @@ editor.once('load', function() {
 
             // attach update handler
             asset.on('*:set', function (path, value) {
-                var realtimeAsset = assetRegistry.getAssetById(asset.get('id'));
                 var parts = path.split('.');
+
+                if ([ 'data', 'file' ].indexOf(parts[0]) === -1)
+                    return;
+
+                var realtimeAsset = assetRegistry.getAssetById(asset.get('id'));
 
                 var raw = asset.get(parts[0]);
                 if (asset.get('type') === 'material' && parts[0] === 'data')

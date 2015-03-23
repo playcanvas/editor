@@ -3,21 +3,7 @@ editor.once('load', function() {
 
     var sceneSettings = editor.call('sceneSettings');
 
-    editor.on('attributes:inspect[entity]', function(entities) {
-        if (entities.length !== 1)
-            return;
-
-        var entity = entities[0];
-
-        // not root
-        if (entity.get('parent'))
-            return;
-
-        var panelComponents = editor.call('attributes:entity.panelComponents');
-        if (! panelComponents)
-            return;
-
-
+    editor.on('attributes:inspect[designerSettings]', function() {
         var filteredFields = [ ];
 
         var addFiltered = function (field, filter) {
@@ -40,7 +26,6 @@ editor.once('load', function() {
 
         // physics settings
         var physicsPanel = editor.call('attributes:addPanel', {
-            parent: panelComponents,
             name: 'Physics Settings'
         });
         physicsPanel.class.add('component');
@@ -60,7 +45,6 @@ editor.once('load', function() {
 
         // environment
         var panelEnvironment = editor.call('attributes:addPanel', {
-            parent: panelComponents,
             name: 'Environment'
         });
         panelEnvironment.class.add('component');
@@ -87,7 +71,6 @@ editor.once('load', function() {
 
         // camera
         var panelCamera = editor.call('attributes:addPanel', {
-            parent: panelComponents,
             name: 'Camera'
         });
         panelCamera.class.add('component');
@@ -142,7 +125,6 @@ editor.once('load', function() {
 
         // fog
         var panelFog = editor.call('attributes:addPanel', {
-            parent: panelComponents,
             name: 'Fog'
         });
         panelFog.class.add('component');

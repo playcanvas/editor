@@ -26,10 +26,6 @@ editor.once('load', function() {
         if (visible && search.value)
             visible = asset.get('name').indexOf(search.value) !== -1;
 
-        // deselect
-        if (! visible)
-            editor.call('selector:remove', asset);
-
         return visible;
     };
 
@@ -70,6 +66,14 @@ editor.once('load', function() {
 
     editor.method('assets:filter:type:disabled', function(state) {
         filterField.disabled = state;
+    });
+
+    editor.on('assets:add', function(asset) {
+        if (filterField.value === 'all' && ! search.value)
+            return;
+
+        if (! filter(asset))
+            editor.call('assets:panel:get', asset.get('id')).hidden = true;
     });
 
     // search

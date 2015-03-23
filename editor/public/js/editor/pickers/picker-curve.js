@@ -24,13 +24,12 @@ editor.once('load', function() {
 
     // rectangular picker
     var panel = document.createElement('div');
-    panel.style.height = '100%';
-    panel.style['font-size'] = '11px';
+    panel.classList.add('picker-curve-panel');
     overlay.append(panel);
 
     // header
     var header = new ui.Panel();
-    header.style.padding = '0px 10px';
+    header.class.add('picker-curve-header');
 
     panel.appendChild(header.element);
 
@@ -137,20 +136,26 @@ editor.once('load', function() {
     // curve toggles
     var curveToggles = [];
 
-    var onCurveToggleChange = function (value) {
+    var onCurveToggleClick = function () {
         var i = curveToggles.indexOf(this);
-        toggleCurve(curves[i], value);
+        var enabled = !this.class.contains('active');
+        if (enabled) {
+            this.class.add('active');
+        } else {
+            this.class.remove('active');
+        }
+
+        toggleCurve(curves[i], enabled);
     };
 
+    var curveTogglesClasses = ['third', 'second', 'first'];
     for (var i = 0; i < 3; i++) {
-        var btn = new ui.Checkbox();
-        btn.value = true;
-        btn.class.add('picker-curve-toggle');
-        btn.style.float = 'right';
+        var btn = new ui.Button();
+        btn.class.add('picker-curve-toggle', 'active', curveTogglesClasses[i]);
         curveToggles.splice(0, 0, btn);
         header.append(btn);
 
-        btn.on('change', onCurveToggleChange.bind(btn));
+        btn.on('click', onCurveToggleClick.bind(btn));
     }
 
     // canvas
@@ -167,7 +172,6 @@ editor.once('load', function() {
     // footer
     var footer = new ui.Panel();
     footer.class.add('picker-curve-footer');
-    footer.style.padding = '0px 10px';
     panel.appendChild(footer.element);
 
     // time input field
@@ -219,6 +223,21 @@ editor.once('load', function() {
         changing = false;
     }
 
+    // reset zoom
+    var btnResetZoom = new ui.Button({
+        text: 'Reset Zoom'
+    });
+
+    btnResetZoom.flexGrow = 1;
+
+    btnResetZoom.on('click', function () {
+        if (resetZoom()) {
+            render();
+        }
+    });
+
+    footer.append(btnResetZoom);
+
     // reset curve
     var btnResetCurve = new ui.Button({
         text: 'Reset Curve'
@@ -241,25 +260,8 @@ editor.once('load', function() {
             changing = false;
         }
     });
-    btnResetCurve.style['font-size'] = '11px';
 
     footer.append(btnResetCurve);
-
-    // reset zoom
-    var btnResetZoom = new ui.Button({
-        text: 'Reset Zoom'
-    });
-
-    btnResetZoom.flexGrow = 1;
-    btnResetZoom.style['font-size'] = '11px';
-
-    btnResetZoom.on('click', function () {
-        if (resetZoom()) {
-            render();
-        }
-    });
-
-    footer.append(btnResetZoom);
 
     var context = canvas.element.getContext('2d');
 
@@ -354,11 +356,10 @@ editor.once('load', function() {
         curveNames = args.curves || [];
         for (var i = 0; i < 3; i++) {
             if (i < numCurves) {
-                curveToggles[i].style.display = 'inline-block';
-                curveToggles[i].element.innerHTML = curveNames[i];
-                curveToggles[i].style.color = colors.curves[i];
+                curveToggles[i].text = curveNames[i];
+                curveToggles[i].class.remove('hidden');
             } else {
-                curveToggles[i].style.display = 'none';
+                curveToggles[i].class.add('hidden');
             }
         }
 
@@ -379,7 +380,7 @@ editor.once('load', function() {
 
         enabledCurves.length = 0;
         for (var i = 0; i < numCurves; i++)  {
-            if (curveToggles[i].value) {
+            if (curveToggles[i].class.contains('active')) {
                 enabledCurves.push(curves[i]);
                 if (betweenCurves) {
                     enabledCurves.push(curves[i+numCurves]);
@@ -1148,7 +1149,7 @@ editor.once('load', function() {
 
         suspendEvents = true;
         curveToggles.forEach(function (toggle) {
-            toggle.value = true;
+            toggle.class.add('active');
         });
         suspendEvents = false;
 

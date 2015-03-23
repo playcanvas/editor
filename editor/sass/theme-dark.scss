@@ -968,11 +968,24 @@ a:visited {
     > .content {
         border: 1px solid $bcg-darkest;
         background-color: $bcg-dark;
-    }
 
-    // .ui-checkbox.picker-curve-toggle {
-    //     &.checked {
-    //         border-color: #f00;
-    //     }
-    // }
+        > .picker-curve-panel {
+            > .picker-curve-header {
+                > .content {
+                    .ui-button.picker-curve-toggle {
+                        background-color: $bcg-primary;
+                        color: $text-secondary;
+
+                        &:hover {
+                            border-color: $bcg-darker;
+                        }
+
+                        &.active {
+                            background-color: $bcg-darker;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
