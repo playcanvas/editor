@@ -611,12 +611,14 @@ body {
                 height: 0px;
                 cursor: pointer;
                 padding-bottom: 25%;
+                font-size: 12px;
 
                 background-image: url("/editor/scene/img/asset-placeholder-texture.png");
                 background-position: center center;
                 background-repeat: no-repeat;
                 background-size: 100% 100%;
                 background-color: #07f;
+                color: rgba(255, 255, 255, 0.75);
 
                 &:hover {
                     outline: $text-active 2px solid;
