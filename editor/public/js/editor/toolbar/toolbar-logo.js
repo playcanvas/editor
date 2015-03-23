@@ -309,6 +309,10 @@ editor.once('load', function() {
         },
         'launch': {
             title: 'Launch',
+            select: function() {
+                var url = window.location.href.replace(/^https/, 'http') + '/launch';
+                window.open(url, 'pc.launch.' + config.scene.id);
+            },
             items: {
                 'launch-remote': {
                     title: 'Launch',
@@ -326,6 +330,16 @@ editor.once('load', function() {
                         window.open(url, 'pc.launch.' + config.scene.id);
                     }
                 }
+            }
+        },
+        'settings': {
+            title: 'Settings',
+            icon: '&#58152;',
+            filter: function() {
+                return editor.call('selector:type') !== 'designerSettings';
+            },
+            select: function() {
+                editor.call('selector:set', 'designerSettings', [ editor.call('designerSettings') ]);
             }
         }
     };

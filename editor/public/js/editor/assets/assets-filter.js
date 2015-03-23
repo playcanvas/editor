@@ -68,6 +68,14 @@ editor.once('load', function() {
         filterField.disabled = state;
     });
 
+    editor.on('assets:add', function(asset) {
+        if (filterField.value === 'all' && ! search.value)
+            return;
+
+        if (! filter(asset))
+            editor.call('assets:panel:get', asset.get('id')).hidden = true;
+    });
+
     // search
     var search = new ui.TextField({
         placeholder: 'Search'
