@@ -26,10 +26,6 @@ editor.once('load', function() {
         if (visible && search.value)
             visible = asset.get('name').indexOf(search.value) !== -1;
 
-        // deselect
-        if (! visible)
-            editor.call('selector:remove', asset);
-
         return visible;
     };
 

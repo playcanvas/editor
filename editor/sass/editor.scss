@@ -620,14 +620,13 @@ body {
                 background-color: #07f;
                 color: rgba(255, 255, 255, 0.5);
 
-                > .face-name {
-                    padding: 3px;
-                }
-
                 &:hover {
                     outline: $text-active 2px solid;
                     z-index: 1;
 
+                    > .face-name {
+                        color: $text-primary;
+                    }
                     > .clear {
                         display: block;
                     }
@@ -636,6 +635,12 @@ body {
                     > .clear {
                         display: none;
                     }
+                }
+                > .face-name {
+                    float: left;
+                    color: $text-secondary;
+                    padding: 2px 4px;
+                    background-color: rgba($bcg-dark, 0.8);
                 }
                 > .clear {
                     display: none;
