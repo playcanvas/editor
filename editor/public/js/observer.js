@@ -123,11 +123,13 @@ Observer.prototype._prepare = function(target, key, value, silent) {
         if (silent)
             this.silenceRestore(state);
     } else if (type === 'object' && (value instanceof Object)) {
-        target._data[key] = {
-            _path: path,
-            _keys: [ ],
-            _data: { }
-        };
+        if (typeof(target._data[key]) !== 'object') {
+            target._data[key] = {
+                _path: path,
+                _keys: [ ],
+                _data: { }
+            };
+        }
 
         for(var i in value) {
             if (typeof(value[i]) === 'object') {
@@ -304,7 +306,7 @@ Observer.prototype.set = function(path, value, silent) {
 
             var keys = Object.keys(value);
 
-            if (! node._data[key] || node._data[key]._data) {
+            if (! node._data[key] || ! node._data[key]._data) {
                 if (node._data[key])
                     obj.unset((node.__path ? node.__path + '.' : '') + key);
 
