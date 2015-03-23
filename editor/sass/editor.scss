@@ -618,7 +618,11 @@ body {
                 background-repeat: no-repeat;
                 background-size: 100% 100%;
                 background-color: #07f;
-                color: rgba(255, 255, 255, 0.75);
+                color: rgba(255, 255, 255, 0.5);
+
+                > .face-name {
+                    padding: 3px;
+                }
 
                 &:hover {
                     outline: $text-active 2px solid;

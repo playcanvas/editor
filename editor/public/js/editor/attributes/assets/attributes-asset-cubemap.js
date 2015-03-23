@@ -129,7 +129,10 @@ editor.once('load', function() {
             face.classList.add('face', 'face-' + sides[ind]);
             previewPanel.append(face);
 
-            face.innerHTML = sides[ind];
+            var name = document.createElement('div');
+            name.classList.add('face-name');
+            name.innerHTML = sides[ind];
+            face.appendChild(name);
 
             // on face click
             face.addEventListener('click', function() {
