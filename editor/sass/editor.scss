@@ -1577,22 +1577,53 @@ body {
         background-color: transparent;
         white-space: nowrap;
         transition: none;
-    }
 
-    .ui-checkbox.picker-curve-toggle {
-        text-align: center;
-        line-height: 22px;
-        width: auto;
-        min-width: 14px;
-        padding-left: 5px;
-        padding-right: 5px;
+        > .picker-curve-panel {
+            height: 100%;
+            font-size: 11px;
 
-        &:after {
-            content: none;
-        }
+            > .picker-curve-header {
+                padding: 5px 10px;
 
-        &:focus, &.active {
-            border-color: transparent;
+                > .content {
+                    .ui-button.picker-curve-toggle {
+                        float: right;
+                        text-align: center;
+                        line-height: 22px;
+                        width: auto;
+                        min-width: 14px;
+                        padding-left: 5px;
+                        padding-right: 5px;
+                        margin: 3px 0px;
+
+                        & + .ui-button.picker-curve-toggle {
+                            border-right: none;
+                        }
+
+                        &.active.first {
+                            color: rgb(255, 0, 0);
+                        }
+
+                        &.active.second {
+                            color: rgb(0, 255, 0);
+                        }
+
+                        &.active.third {
+                            color: rgb(133, 133, 252);
+                        }
+                    }
+
+                }
+            }
+
+            > .picker-curve-footer {
+                padding: 5px 10px;
+
+                .ui-button {
+                    float: right;
+                    font-size: 11px;
+                }
+            }
         }
     }
 }
