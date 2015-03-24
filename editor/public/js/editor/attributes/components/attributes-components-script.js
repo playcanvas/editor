@@ -112,6 +112,8 @@ editor.once('load', function() {
             placeholder: 'Script URL'
         });
 
+        fieldScriptsAdd.renderChanges = false;
+
         fieldScriptsAdd.parent.style.marginBottom = '8px';
 
         // autocomplete
