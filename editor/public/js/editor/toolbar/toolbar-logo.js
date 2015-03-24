@@ -5,18 +5,10 @@ editor.once('load', function() {
 
     var logo = new ui.Button();
     logo.class.add('logo');
-    toolbar.append(logo);
-
-
-    var beta = document.createElement('div');
-    beta.textContent = 'BETA';
-    beta.classList.add('beta');
-    toolbar.append(beta);
-
-
     logo.on('click', function() {
         menu.open = true;
     });
+    toolbar.append(logo);
 
     var componentsLogos = {
         'animation': '&#57972;',
@@ -340,6 +332,13 @@ editor.once('load', function() {
             },
             select: function() {
                 editor.call('selector:set', 'designerSettings', [ editor.call('designerSettings') ]);
+            }
+        },
+        'contact': {
+            title: 'Contact',
+            icon: '&#58418;',
+            select: function() {
+                window.location.href = 'mailto:contact@playcanvas.com';
             }
         }
     };

@@ -268,16 +268,15 @@ editor.once('load', function() {
         var root = editor.call('attributes.rootPanel');
 
         // preview
-        var image = document.createElement('div');
+        var image = new Image();
         image.classList.add('asset-preview');
         root.innerElement.insertBefore(image, root.innerElement.firstChild);
 
         var renderPreview = function () {
             editor.call('preview:material', asset, image.clientWidth, function (url) {
-                image.style.backgroundImage = 'url("' + url + '")';
+                image.src = url;
             });
         }
-
         renderPreview();
 
         var renderTimeout;
@@ -288,7 +287,6 @@ editor.once('load', function() {
 
             renderTimeout = setTimeout(renderPreview, 100);
         });
-
         var evtMaterialChanged = editor.on('preview:material:changed', renderPreview);
 
         // properties panel

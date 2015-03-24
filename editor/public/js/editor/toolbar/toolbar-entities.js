@@ -3,24 +3,6 @@ editor.once('load', function() {
 
     var toolbar = editor.call('layout.toolbar');
 
-    // var newEntity = function () {
-    //     var parent = editor.call('entities:selectedFirst');
-    //     editor.call('entities:new', parent);
-    // };
-
-    // var duplicateEntity = function () {
-    //     var entity = editor.call('entities:selectedFirst');
-    //     if (entity)
-    //         editor.call('entities:duplicate', entity);
-    // };
-
-    // var deleteEntity = function () {
-    //     var entity = editor.call('entities:selectedFirst');
-    //     if (entity)
-    //         editor.call('entities:delete', entity);
-    // };
-
-
     // new
     var btnNew = new ui.Button({
         text: '&#57873;'
@@ -89,40 +71,27 @@ editor.once('load', function() {
     });
 
 
-    // [{
-    //     icon: '&#57873;',
-    //     tooltip: 'New Entity',
-    //     handler: newEntity
-    // }, {
-    //     icon: '&#57908;',
-    //     tooltip: 'Duplicate',
-    //     handler: duplicateEntity
-    // }, {
-    //     icon: '&#58657;',
-    //     tooltip: 'Delete',
-    //     handler: deleteEntity
-    // }].forEach(function (item) {
-    //     // Duplicate Entity button
-    //     var button = new ui.Button({
-    //         text: item.icon
-    //     });
-    //     button.class.add('icon');
-    //     button.element.title = item.tooltip;
-    //     toolbar.append(button);
+    [{
+        icon: '&#57873;',
+        tooltip: 'New Entity',
+        handler: newEntity
+    }, {
+        icon: '&#57908;',
+        tooltip: 'Duplicate',
+        handler: duplicateEntity
+    }, {
+        icon: '&#58657;',
+        tooltip: 'Delete',
+        handler: deleteEntity
+    }].forEach(function (item) {
+        // Duplicate Entity button
+        var button = new ui.Button({
+            text: item.icon
+        });
+        button.class.add('icon');
+        button.element.title = item.tooltip;
+        toolbar.append(button);
 
-    //     button.on('click', item.handler);
-    // });
-
-
-    // duplicate
-    editor.call('hotkey:register', 'entity:duplicate', {
-        key: 'd',
-        ctrl: true,
-        callback: function() {
-            if (! editor.call('permissions:write'))
-                return;
-
-            btnDuplicate.emit('click');
-        }
+        button.on('click', item.handler);
     });
 });

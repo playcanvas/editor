@@ -34,10 +34,6 @@ editor.once('load', function() {
     launch.class.add('launch');
     panel.append(launch);
 
-    var dropdown = new ui.Button();
-    dropdown.class.add('icon', 'dropdown');
-    launch.append(dropdown);
-
     var buttonLaunch = new ui.Button({
         text: '&#57922;'
     });
@@ -59,18 +55,17 @@ editor.once('load', function() {
     dropdownMenu.appendChild(launchLocal);
 
     var launchLocally = false;
-
     var timeout;
 
     // show dropdown menu
-    dropdown.element.addEventListener('mouseenter', function () {
+    launch.element.addEventListener('mouseenter', function () {
         dropdownMenu.style.visibility = 'visible';
         if (timeout)
             clearTimeout(timeout);
     });
 
     // hide dropdown menu after a delay
-    dropdown.element.addEventListener('mouseleave', function () {
+    launch.element.addEventListener('mouseleave', function () {
         if (timeout) clearTimeout(timeout);
         timeout = setTimeout(function () {
             dropdownMenu.style.visibility = 'hidden';
@@ -117,9 +112,8 @@ editor.once('load', function() {
     var launchApp = function () {
         var url = window.location.href.replace(/^https/, 'http') + '/launch';
 
-        if (launchLocally) {
+        if (launchLocally)
             url += '?local=true';
-        }
 
         window.open(url, 'pc.launch.' + config.scene.id);
     }

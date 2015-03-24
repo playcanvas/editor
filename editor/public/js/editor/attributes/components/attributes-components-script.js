@@ -266,38 +266,40 @@ editor.once('load', function() {
                 toDestroy[i].destroy();
             }
 
-            for(var i = 0; i < attributes.length; i++) {
-                var ind = list.indexOf(attributes[i]);
-                var panel = null;
+            if (attributes) {
+                for(var i = 0; i < attributes.length; i++) {
+                    var ind = list.indexOf(attributes[i]);
+                    var panel = null;
 
-                if (ind === -1) {
-                    // new attibute
-                    panel = createAttributeField(script, attributes[i], parent);
-                    list.splice(i, 0, attributes[i]);
-                    index[attributes[i]] = panel;
-                } else if (ind !== i) {
-                    // moved attribute
-                    panel = index[attributes[i]];
-                    list.splice(ind, 1);
-                    list.splice(i, 0, attributes[i]);
-                }
+                    if (ind === -1) {
+                        // new attibute
+                        panel = createAttributeField(script, attributes[i], parent);
+                        list.splice(i, 0, attributes[i]);
+                        index[attributes[i]] = panel;
+                    } else if (ind !== i) {
+                        // moved attribute
+                        panel = index[attributes[i]];
+                        list.splice(ind, 1);
+                        list.splice(i, 0, attributes[i]);
+                    }
 
-                if (! panel)
-                    continue;
+                    if (! panel)
+                        continue;
 
-                parent.innerElement.removeChild(panel.element);
+                    parent.innerElement.removeChild(panel.element);
 
-                var ref = null;
-                if (i === 0) {
-                    ref = parent.innerElement.firstChild;
-                } else {
-                    ref = index[list[i - 1]].element.nextSibling;
-                }
+                    var ref = null;
+                    if (i === 0) {
+                        ref = parent.innerElement.firstChild;
+                    } else {
+                        ref = index[list[i - 1]].element.nextSibling;
+                    }
 
-                if (ref) {
-                    parent.innerElement.insertBefore(panel.element, ref);
-                } else {
-                    parent.innerElement.appendChild(panel.element);
+                    if (ref) {
+                        parent.innerElement.insertBefore(panel.element, ref);
+                    } else {
+                        parent.innerElement.appendChild(panel.element);
+                    }
                 }
             }
         };
@@ -599,8 +601,10 @@ editor.once('load', function() {
             if (script.has('attributesOrder')) {
                 // add attributes if has any
                 var order = script.get('attributesOrder');
-                for(var i = 0; i < order.length; i++) {
-                    createAttributeField(script, order[i], attributes);
+                if (order) {
+                    for(var i = 0; i < order.length; i++) {
+                        createAttributeField(script, order[i], attributes);
+                    }
                 }
             }
 
