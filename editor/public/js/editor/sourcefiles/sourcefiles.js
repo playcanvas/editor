@@ -5,7 +5,7 @@ editor.once('repositories:load', function (repositories) {
 
     // get listing of sourcefiles
     Ajax
-    .get('{{url.api}}/projects/{{project.id}}/repositories/' + repositories.get('current') + '/sourcefiles')
+    .get('{{url.api}}/projects/{{project.id}}/repositories/' + repositories.get('current') + '/sourcefiles?access_token=' + config.accessToken)
     .on('load', function (status, data) {
         if (data.response && data.response.length) {
             data.response.forEach(function (sourcefile) {
