@@ -31,8 +31,8 @@ editor.once('load', function() {
 
             editor.call('realtime:scene:op', {
                 p: [ 'name' ],
-                oi: value,
-                od: sceneName
+                od: sceneName || '',
+                oi: value || ''
             });
             sceneName = value;
         });
