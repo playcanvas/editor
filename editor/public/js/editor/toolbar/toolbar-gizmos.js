@@ -67,7 +67,7 @@ editor.once('load', function() {
         }
         var framework = editor.call('viewport:framework');
         if (framework)
-            framework.setGizmoCoordinateSystem(this.class.contains('active') ? 'local' : 'world');
+            framework.setGizmoCoordinateSystem(this.class.contains('active') ? 'world' : 'local');
     });
 
 

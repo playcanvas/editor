@@ -1298,7 +1298,7 @@ a:visited {
 
         > li {
             @extend .fieldFont;
-            padding: 1px 8px 1px 9px;
+            padding: 0 8px 0 8px;
             line-height: 22px;
             white-space: nowrap;
             overflow: hidden;
@@ -1309,6 +1309,37 @@ a:visited {
             }
             &.selected {
                 background-color: #666;
+            }
+        }
+    }
+}
+
+.ui-autocomplete {
+    position: absolute;
+    top: 100%;
+    left: -1px;
+    right: -1px;
+    z-index: 1;
+    background-color: #666;
+    font-size: 12px;
+    max-height: 220px;
+    overflow: hidden;
+    overflow-y: auto;
+
+    > ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        > li {
+            height: 22px;
+            line-height: 22px;
+            padding: 0px 8px;
+            border: 1px solid #333;
+
+            &.selected {
+                cursor: pointer;
+                background-color: #333;
             }
         }
     }

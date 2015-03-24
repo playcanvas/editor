@@ -285,13 +285,12 @@ editor.once('load', function() {
                 });
 
                 field.on('click', function() {
-                    if (! this.value) {
-                        fieldTitle.emit('click');
-                    } else {
-                        var asset = editor.call('assets:get', this.value);
-                        if (! asset) return;
-                        editor.call('selector:set', 'asset', [ asset ]);
-                    }
+                    if (! this.value)
+                        return;
+
+                    var asset = editor.call('assets:get', this.value);
+                    if (! asset) return;
+                    editor.call('selector:set', 'asset', [ asset ]);
                 });
                 btnEdit.on('click', function() {
                     field.emit('click');

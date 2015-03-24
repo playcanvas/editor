@@ -9,11 +9,11 @@ editor.once('load', function() {
     assetsPanel.headerAppend(panelFilters);
 
     // label
-    var filterLabel = new ui.Label({
-        text: 'Filter:'
-    });
-    filterLabel.class.add('label');
-    panelFilters.append(filterLabel);
+    // var filterLabel = new ui.Label({
+    //     text: 'Filter:'
+    // });
+    // filterLabel.class.add('label');
+    // panelFilters.append(filterLabel);
 
     var filter = function(asset) {
         var visible = true;
@@ -53,6 +53,7 @@ editor.once('load', function() {
             filterField.class.add('not-empty');
         } else {
             filterField.class.remove('not-empty');
+            filterField.elementValue.textContent = 'Filter';
         }
         editor.call('assets:panel:filter', filter);
     });

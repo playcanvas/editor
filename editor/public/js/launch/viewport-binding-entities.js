@@ -113,16 +113,13 @@ app.once('load', function() {
                 entity.setName(obj.get('name'));
 
             } else if (path.indexOf('position') === 0) {
-                entity.setLocalPosition(new pc.Vec3(obj.get('position.0'), obj.get('position.1'), obj.get('position.2')));
-                updatePhysics(entity);
+                resetPhysics(entity);
 
             } else if (path.indexOf('rotation') === 0) {
-                entity.setLocalEulerAngles(new pc.Vec3(obj.get('rotation.0'), obj.get('rotation.1'), obj.get('rotation.2')));
-                updatePhysics(entity);
+                resetPhysics(entity);
 
             } else if (path.indexOf('scale') === 0) {
-                entity.setLocalScale(new pc.Vec3(obj.get('scale.0'), obj.get('scale.1'), obj.get('scale.2')));
-                updatePhysics(entity);
+                resetPhysics(entity);
 
             } else if (path.indexOf('enabled') === 0) {
                 entity.enabled = obj.get('enabled');
@@ -134,7 +131,15 @@ app.once('load', function() {
             }
         });
 
-        var updatePhysics = function (entity) {
+        var resetPhysics = function (entity) {
+            var pos = obj.get('position');
+            var rot = obj.get('rotation');
+            var scale = obj.get('scale');
+
+            entity.setLocalPosition(pos[0], pos[1], pos[2]);
+            entity.setLocalEulerAngles(rot[0], rot[1], rot[2]);
+            entity.setLocalScale(scale[0], scale[1], scale[2]);
+
             if (entity.enabled) {
                 if (entity.rigidbody && entity.rigidbody.enabled) {
                     entity.rigidbody.syncEntityToBody();

@@ -143,16 +143,20 @@ editor.once('load', function() {
         var root = editor.call('attributes.rootPanel');
 
         // preview
-        var image = document.createElement('div');
+        var image = new Image();
+        // size
+        image.onload = function() {
+            fieldDimensions.text = image.naturalWidth + ' x ' + image.naturalHeight;
+        };
+        image.src = config.url.home + asset.get('file.url') + '?t=' + asset.get('modified_at');
         image.classList.add('asset-preview');
-        image.style.backgroundImage = 'url("' + config.url.home + '/' + asset.get('file.url') + '")';
         root.innerElement.insertBefore(image, root.innerElement.firstChild);
 
-        // size
-        var img = new Image();
-        img.onload = function() {
-            fieldDimensions.text = img.naturalWidth + ' x ' + img.naturalHeight;
-        };
-        img.src = config.url.home + '/' + asset.get('file.url');
+        var evtImgUpdate = asset.on('file.hash:set', function(hash) {
+            image.src = config.url.home + asset.get('file.url') + '?t=' + asset.get('modified_at');
+        });
+        paramsPanel.on('destroy', function() {
+            evtImgUpdate.unbind();
+        });
     });
 });

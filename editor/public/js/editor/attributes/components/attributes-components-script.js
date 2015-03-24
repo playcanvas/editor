@@ -111,16 +111,31 @@ editor.once('load', function() {
             type: 'string',
             placeholder: 'Script URL'
         });
+
+        fieldScriptsAdd.renderChanges = false;
+
         fieldScriptsAdd.parent.style.marginBottom = '8px';
 
-        fieldScriptsAdd.element.addEventListener('keydown', function (e) {
-            if (e.which !== 13 || ! fieldScriptsAdd.value)
-                return;
+        // autocomplete
+        var sourcefiles = editor.call('sourcefiles:get');
 
-            if (addScript(fieldScriptsAdd.value)) {
-                fieldScriptsAdd.value = '';
-            } else {
-                fieldScriptsAdd.elementInput.select();
+        var autocomplete = new ui.AutoCompleteElement();
+        autocomplete.items = sourcefiles.map(function (sourcefile) {
+            return sourcefile.get('filename');
+        });
+
+        autocomplete.attach(fieldScriptsAdd);
+
+        fieldScriptsAdd.element.addEventListener('keydown', function (e) {
+            if (e.keyCode === 13 && !autocomplete.isFocused) {
+                if (fieldScriptsAdd.value) {
+                    if (addScript(fieldScriptsAdd.value)) {
+                        fieldScriptsAdd.value = '';
+                    } else {
+                        fieldScriptsAdd.elementInput.select();
+                    }
+
+                }
             }
         });
 
@@ -253,38 +268,40 @@ editor.once('load', function() {
                 toDestroy[i].destroy();
             }
 
-            for(var i = 0; i < attributes.length; i++) {
-                var ind = list.indexOf(attributes[i]);
-                var panel = null;
+            if (attributes) {
+                for(var i = 0; i < attributes.length; i++) {
+                    var ind = list.indexOf(attributes[i]);
+                    var panel = null;
 
-                if (ind === -1) {
-                    // new attibute
-                    panel = createAttributeField(script, attributes[i], parent);
-                    list.splice(i, 0, attributes[i]);
-                    index[attributes[i]] = panel;
-                } else if (ind !== i) {
-                    // moved attribute
-                    panel = index[attributes[i]];
-                    list.splice(ind, 1);
-                    list.splice(i, 0, attributes[i]);
-                }
+                    if (ind === -1) {
+                        // new attibute
+                        panel = createAttributeField(script, attributes[i], parent);
+                        list.splice(i, 0, attributes[i]);
+                        index[attributes[i]] = panel;
+                    } else if (ind !== i) {
+                        // moved attribute
+                        panel = index[attributes[i]];
+                        list.splice(ind, 1);
+                        list.splice(i, 0, attributes[i]);
+                    }
 
-                if (! panel)
-                    continue;
+                    if (! panel)
+                        continue;
 
-                parent.innerElement.removeChild(panel.element);
+                    parent.innerElement.removeChild(panel.element);
 
-                var ref = null;
-                if (i === 0) {
-                    ref = parent.innerElement.firstChild;
-                } else {
-                    ref = index[list[i - 1]].element.nextSibling;
-                }
+                    var ref = null;
+                    if (i === 0) {
+                        ref = parent.innerElement.firstChild;
+                    } else {
+                        ref = index[list[i - 1]].element.nextSibling;
+                    }
 
-                if (ref) {
-                    parent.innerElement.insertBefore(panel.element, ref);
-                } else {
-                    parent.innerElement.appendChild(panel.element);
+                    if (ref) {
+                        parent.innerElement.insertBefore(panel.element, ref);
+                    } else {
+                        parent.innerElement.appendChild(panel.element);
+                    }
                 }
             }
         };
@@ -586,8 +603,10 @@ editor.once('load', function() {
             if (script.has('attributesOrder')) {
                 // add attributes if has any
                 var order = script.get('attributesOrder');
-                for(var i = 0; i < order.length; i++) {
-                    createAttributeField(script, order[i], attributes);
+                if (order) {
+                    for(var i = 0; i < order.length; i++) {
+                        createAttributeField(script, order[i], attributes);
+                    }
                 }
             }
 

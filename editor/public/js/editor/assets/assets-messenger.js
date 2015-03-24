@@ -53,6 +53,13 @@ editor.once('load', function() {
                 if (asset.syncing)
                     return;
 
+                // TODO
+                // WORKAROUND
+                // prevent asset being updated if it is selected
+                // keep it until assets are updated through sharejs
+                if (editor.call('selector:type') === 'asset' && editor.call('selector:items')[0].get('id') === data.id)
+                    return;
+
                 var fields = [ 'modified_at', 'data', 'file', 'name' ];
 
                 asset.sync = false;

@@ -127,7 +127,7 @@ body {
 #ui-bottom {
     height: 24px;
     line-height: 24px;
-    background-color: #293538;
+    background-color: $bcg-darkest;
     // background-color: #111;
 
     > .content {
@@ -220,41 +220,80 @@ body {
 }
 
 .ui-panel.assets {
-    > .ui-header {
-        > .create-asset {
-            width: 32px;
-            height: 32px;
-            line-height: 32px;
-            border: none;
-            padding: 0;
-            margin: 0 0 0 8px;
-            vertical-align: top;
-            font-family: 'ui-font-solid';
-            font-size: 18px;
-            text-align: center;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            font-smoothing: antialiased;
-            background-color: transparent;
+    overflow: visible;
+    background-color: $bcg-darker;
 
-            &:hover {
-                background-color: $bcg-darkest;
+    &.resizable {
+        &.resizable-top.scrollable > .content {
+            top: 0;
+        }
+        &.foldable.folded {
+            height: 0 !important;
+
+            > .ui-header {
+                > .assets-controls {
+                    display: none;
+                }
+                > .filters {
+                    display: none;
+                }
+            }
+        }
+    }
+    > .ui-header {
+        position: absolute;
+        top: -32px;
+        left: 8px;
+
+        &:after {
+            content: '\E122';
+            font-size: 20px;
+        }
+        > .title {
+            margin-right: 16px;
+        }
+        > .assets-controls {
+            float: left;
+            background: transparent;
+
+            > .content {
+                > .ui-button {
+                    width: 32px;
+                    height: 32px;
+                    line-height: 32px;
+                    border: none;
+                    padding: 0;
+                    margin: 0;
+                    // margin: 0 0 0 16px;
+                    vertical-align: top;
+                    font-family: 'ui-font-solid';
+                    font-size: 18px;
+                    text-align: center;
+                    -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
+                    font-smoothing: antialiased;
+                    color: $text-dark;
+                    background-color: transparent;
+
+                    &:hover {
+                        color: $text-primary;
+                        background-color: $bcg-darkest;
+                    }
+                    &.disabled {
+                        &:hover {
+                            color: $text-dark;
+                            background-color: transparent;
+                        }
+                    }
+                }
             }
         }
         > .filters {
+            margin-left: 16px;
             float: right;
             background-color: transparent;
 
             > .content {
-                > .ui-label.label {
-                    margin: 0;
-                    height: 32px;
-                    line-height: 32px;
-                    font-size: 12px;
-                    margin-right: 8px;
-                    vertical-align: top;
-                    text-transform: uppercase;
-                }
                 > .ui-select-field.options {
                     margin: 0;
                     height: 32px;
@@ -296,13 +335,39 @@ body {
                     &.focus {
                         border-color: $bcg-darkest;
                         background-color: $bcg-darkest;
+                        &:before {
+                            content: '';
+                            padding: 0;
+                        }
+                        &:after {
+                            content: '';
+                        }
                     }
                     > input.field {
                         line-height: 32px;
                     }
+                    &:before {
+                        content: 'Search';
+                        color: $text-dark;
+                        line-height: 32px;
+                        font-size: 18px;
+                        padding: 0 8px;
+                        font-size: 12px;
+                    }
+                    &.not-empty:before {
+                        padding: 0;
+                        content: '';
+                    }
                     &:after {
+                        content: '\E333';
                         line-height: 32px;
                         background-color: #293538;
+                        font-family: 'ui-font-solid';
+                        font-size: 18px;
+                        text-align: center;
+                        -webkit-font-smoothing: antialiased;
+                        -moz-osx-font-smoothing: grayscale;
+                        font-smoothing: antialiased;
                     }
                     &.not-empty {
                         background-color: $bcg-darkest;
@@ -341,8 +406,9 @@ body {
 }
 
 .asset-preview {
+    display: block;
     width: calc(100% - 16px);
-    padding-bottom: calc(100% - 16px);
+    // padding-bottom: calc(100% - 16px);
     border: 8px solid $bcg-darkest;
 
     background-position: center center;
@@ -405,7 +471,13 @@ body {
 }
 
 .ui-panel.attributes {
-    border-left: 1px solid black;
+    &.foldable.horizontal > .ui-header:after {
+        transform: rotate(90deg);
+    }
+    > .ui-header:after {
+        content: '\E122';
+        font-size: 20px;
+    }
 
     .ui-panel {
         &.field {
@@ -856,8 +928,21 @@ body {
 }
 
 .ui-panel.hierarchy {
-    border-right: 1px solid $bcg-dark;
+    &.foldable {
+        &.horizontal.resizable-right {
+            > .ui-header:after {
+                transform: rotate(90deg);
+            }
+            &.folded > .ui-header:after {
+                transform: rotate(-90deg);
+            }
+        }
+    }
 
+    > .ui-header:after {
+        content: '\E122';
+        font-size: 20px;
+    }
     > .content {
         bottom: 32px;
     }
@@ -984,7 +1069,6 @@ body {
         position: relative;
 
         &.type-animation {
-            // background-image: url("/editor/scene/img/asset-placeholder-animation.png");
             > .thumbnail.placeholder:after {
                 content: '\E274';
             }
@@ -993,7 +1077,6 @@ body {
             }
         }
         &.type-audio {
-            // background-image: url("/editor/scene/img/asset-placeholder-audio.png");
             > .thumbnail.placeholder:after {
                 content: '\E262';
             }
@@ -1002,7 +1085,6 @@ body {
             }
         }
         &.type-cubemap {
-            // background-image: url("/editor/scene/img/asset-placeholder-cubemap.png");
             > .thumbnail.placeholder:after {
                 content: '\E515';
             }
@@ -1011,7 +1093,6 @@ body {
             }
         }
         &.type-json {
-            // background-image: url("/editor/scene/img/asset-placeholder-json.png");
             > .thumbnail.placeholder:after {
                 content: '\E353';
             }
@@ -1020,7 +1101,6 @@ body {
             }
         }
         &.type-material {
-            // background-image: url("/editor/scene/img/asset-placeholder-material.png");
             > .thumbnail.placeholder:after {
                 content: '\E547';
             }
@@ -1029,7 +1109,6 @@ body {
             }
         }
         &.type-model {
-            // background-image: url("/editor/scene/img/asset-placeholder-model.png");
             > .thumbnail.placeholder:after {
                 content: '\E417';
             }
@@ -1038,7 +1117,6 @@ body {
             }
         }
         &.type-scene {
-            // background-image: url("/editor/scene/img/asset-placeholder-scene.png");
             > .thumbnail.placeholder:after {
                 content: '\E417';
             }
@@ -1047,7 +1125,6 @@ body {
             }
         }
         &.type-texture {
-            // background-image: url("/editor/scene/img/asset-placeholder-texture.png");
             > .thumbnail.placeholder:after {
                 content: '\E236';
             }
@@ -1056,7 +1133,6 @@ body {
             }
         }
         &.type-text {
-            // background-image: url("/editor/scene/img/asset-placeholder-text.png");
             > .thumbnail.placeholder:after {
                 content: '\E284';
             }
@@ -1071,7 +1147,7 @@ body {
                 color: $text-primary;
             }
             > .label {
-                background-color: #2c393c;
+                background-color: $bcg-darkest;
             }
         }
         &.selected {
@@ -1079,7 +1155,7 @@ body {
                 color: $text-primary;
             }
             > .label {
-                background-color: #20292b;
+                background-color: $bcg-darkest;
             }
         }
         > .thumbnail {
@@ -1135,7 +1211,7 @@ body {
             text-overflow: ellipsis;
             text-align: center;
             overflow: hidden;
-            background-color: rgba(#364346, 0.8);
+            background-color: rgba($bcg-darker, 0.8);
         }
     }
 }
@@ -1143,7 +1219,7 @@ body {
 .ui-select-field.viewport-camera {
     position: absolute;
     top: 2px;
-    right: 97px;
+    right: 74px;
     z-index: 1;
     margin: 2px;
 
@@ -1178,7 +1254,7 @@ body {
 
     > ul {
         > li {
-            padding: 0px 10px 0px 11px;
+            padding: 0px 9px 0px 10px;
             line-height: 32px;
         }
     }
@@ -1206,7 +1282,7 @@ body {
         .ui-button {
             width: 32px;
             height: 32px;
-            margin: 2px 3px;
+            margin: 2px 4px;
             padding: 0;
             border: none;
 

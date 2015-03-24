@@ -214,10 +214,8 @@ a:visited {
 }
 
 .ui-panel.attributes {
-    border-left: 1px solid $bcg-dark;
-
     > .content {
-        background-color: #293538;
+        background-color: $bcg-primary;
     }
     .ui-list {
         &.model-nodes {
@@ -466,11 +464,7 @@ a:visited {
 .ui-grid-item {
     color: $text-secondary;
     margin: 0;
-    border-right: 1px solid $bcg-dark;
-    border-bottom: 1px solid $bcg-dark;
     outline: none;
-
-    background-size: 50% 50%;
 
     &.disabled.selected {
         background-color: $bcg-darkest;
@@ -478,7 +472,7 @@ a:visited {
     &:hover,
     &:focus {
         color: $text-primary;
-        background-color: $bcg-dark;
+        background-color: $bcg-darkest;
         outline: none;
     }
     &.selected {
@@ -798,7 +792,7 @@ a:visited {
     > ul {
         color: $text-secondary;
         background-color: $bcg-darkest;
-        outline: 1px solid $bcg-darkest;
+        // outline: 1px solid $bcg-darkest;
 
         > li {
             &:hover,
@@ -897,6 +891,20 @@ a:visited {
 .ui-code {
     color: $text-active;
     background-color: $bcg-darkest;
+}
+
+.ui-autocomplete {
+    background-color: $bcg-dark;
+
+    > ul {
+        > li {
+            border-color: $bcg-darker;
+
+            &.selected {
+                background-color: $bcg-darkest;
+            }
+        }
+    }
 }
 
 

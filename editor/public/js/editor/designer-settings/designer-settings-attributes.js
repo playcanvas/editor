@@ -3,12 +3,53 @@ editor.once('load', function() {
 
     var designerSettings = editor.call('designerSettings');
 
+    var sceneName = 'Untitled';
+    editor.on('scene:raw', function(data) {
+        sceneName = data.name;
+    });
+    editor.on('realtime:scene:op:name', function(op) {
+        sceneName = op.oi;
+    });
+
     // inspecting
     editor.on('attributes:inspect[designerSettings]', function() {
 
-        var panel = editor.call('attributes:addPanel');
-        panel.class.add('component');
+        var panelScene = editor.call('attributes:addPanel');
+        panelScene.class.add('component');
 
+        // scene name
+        var fieldName = editor.call('attributes:addField', {
+            parent: panelScene,
+            name: 'Scene Name',
+            type: 'string',
+            value: sceneName
+        });
+        var changingName = false;
+        fieldName.on('change', function(value) {
+            if (changingName)
+                return;
+
+            editor.call('realtime:scene:op', {
+                p: [ 'name' ],
+                od: sceneName || '',
+                oi: value || ''
+            });
+            sceneName = value;
+        });
+        var evtNameChange = editor.on('realtime:scene:op:name', function(op) {
+            changingName = true;
+            fieldName.value = op.oi;
+            changingName = false;
+        });
+        fieldName.on('destroy', function() {
+            evtNameChange.unbind();
+        });
+
+
+        var panel = editor.call('attributes:addPanel', {
+            name: 'Designer Settings'
+        });
+        panel.class.add('component');
 
         // grid divisions
         var fieldNearClip = editor.call('attributes:addField', {
