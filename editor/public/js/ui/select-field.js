@@ -126,7 +126,6 @@ SelectField.prototype.open = function() {
     this.element.classList.add('active');
 
     var rect = this.element.getBoundingClientRect();
-    console.log(rect.left, rect.width, this.element.clientWidth);
 
     // left
     var left = Math.round(rect.left) + ((Math.round(rect.width) - this.element.clientWidth) / 2);
