@@ -111,16 +111,29 @@ editor.once('load', function() {
             type: 'string',
             placeholder: 'Script URL'
         });
+
         fieldScriptsAdd.parent.style.marginBottom = '8px';
 
-        fieldScriptsAdd.element.addEventListener('keydown', function (e) {
-            if (e.which !== 13 || ! fieldScriptsAdd.value)
-                return;
+        // autocomplete
+        var sourcefiles = editor.call('sourcefiles:get');
 
-            if (addScript(fieldScriptsAdd.value)) {
-                fieldScriptsAdd.value = '';
-            } else {
-                fieldScriptsAdd.elementInput.select();
+        var autocomplete = new ui.AutoCompleteElement();
+        autocomplete.items = sourcefiles.map(function (sourcefile) {
+            return sourcefile.get('filename');
+        });
+
+        autocomplete.attach(fieldScriptsAdd);
+
+        fieldScriptsAdd.element.addEventListener('keydown', function (e) {
+            if (e.keyCode === 13 && !autocomplete.isFocused) {
+                if (fieldScriptsAdd.value) {
+                    if (addScript(fieldScriptsAdd.value)) {
+                        fieldScriptsAdd.value = '';
+                    } else {
+                        fieldScriptsAdd.elementInput.select();
+                    }
+
+                }
             }
         });
 

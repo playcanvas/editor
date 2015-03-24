@@ -127,9 +127,9 @@ app.once('load', function() {
 
                 application.start();
 
-                splash.remove();
+                splash.parentElement.removeChild(splash);
             }, function (errors) {
-                splash.remove();
+                splash.parentElement.removeChild(splash);
                 console.error(errors);
             }, function (progress) {
                 setProgress(progress);

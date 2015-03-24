@@ -74,7 +74,7 @@ editor.once('load', function() {
                             select: function() {
                                 var entity = newEntity();
                                 entity.history.enabled = false;
-                                entity.set('name', 'New Audio Source');
+                                entity.set('name', 'Audio Source');
                                 addComponent(entity, 'audiosource');
                                 entity.history.enabled = true;
                             }
@@ -85,7 +85,7 @@ editor.once('load', function() {
                             select: function() {
                                 var entity = newEntity();
                                 entity.history.enabled = false;
-                                entity.set('name', 'New Camera');
+                                entity.set('name', 'Camera');
                                 addComponent(entity, 'camera');
                                 entity.history.enabled = true;
                             }
@@ -96,7 +96,7 @@ editor.once('load', function() {
                             select: function() {
                                 var entity = newEntity();
                                 entity.history.enabled = false;
-                                entity.set('name', 'New Box');
+                                entity.set('name', 'Box');
                                 addComponent(entity, 'model');
                                 entity.set('components.model.type', 'box');
                                 entity.history.enabled = true;
@@ -108,7 +108,7 @@ editor.once('load', function() {
                             select: function() {
                                 var entity = newEntity();
                                 entity.history.enabled = false;
-                                entity.set('name', 'New Capsule');
+                                entity.set('name', 'Capsule');
                                 addComponent(entity, 'model');
                                 entity.set('components.model.type', 'capsule');
                                 entity.history.enabled = true;
@@ -120,7 +120,7 @@ editor.once('load', function() {
                             select: function() {
                                 var entity = newEntity();
                                 entity.history.enabled = false;
-                                entity.set('name', 'New Cone');
+                                entity.set('name', 'Cone');
                                 addComponent(entity, 'model');
                                 entity.set('components.model.type', 'cone');
                                 entity.history.enabled = true;
@@ -132,7 +132,7 @@ editor.once('load', function() {
                             select: function() {
                                 var entity = newEntity();
                                 entity.history.enabled = false;
-                                entity.set('name', 'New Cylinder');
+                                entity.set('name', 'Cylinder');
                                 addComponent(entity, 'model');
                                 entity.set('components.model.type', 'cylinder');
                                 entity.history.enabled = true;
@@ -144,7 +144,7 @@ editor.once('load', function() {
                             select: function() {
                                 var entity = newEntity();
                                 entity.history.enabled = false;
-                                entity.set('name', 'New Model');
+                                entity.set('name', 'Model');
                                 addComponent(entity, 'model');
                                 entity.set('components.model.type', 'asset');
                                 entity.history.enabled = true;
@@ -156,7 +156,7 @@ editor.once('load', function() {
                             select: function() {
                                 var entity = newEntity();
                                 entity.history.enabled = false;
-                                entity.set('name', 'New Plane');
+                                entity.set('name', 'Plane');
                                 addComponent(entity, 'model');
                                 entity.set('components.model.type', 'plane');
                                 entity.history.enabled = true;
@@ -168,7 +168,7 @@ editor.once('load', function() {
                             select: function() {
                                 var entity = newEntity();
                                 entity.history.enabled = false;
-                                entity.set('name', 'New Sphere');
+                                entity.set('name', 'Sphere');
                                 addComponent(entity, 'model');
                                 entity.set('components.model.type', 'sphere');
                                 entity.history.enabled = true;
@@ -180,7 +180,7 @@ editor.once('load', function() {
                             select: function() {
                                 var entity = newEntity();
                                 entity.history.enabled = false;
-                                entity.set('name', 'New Directional Light');
+                                entity.set('name', 'Directional Light');
                                 addComponent(entity, 'light');
                                 entity.set('components.light.type', 'directional');
                                 entity.history.enabled = true;
@@ -192,7 +192,7 @@ editor.once('load', function() {
                             select: function() {
                                 var entity = newEntity();
                                 entity.history.enabled = false;
-                                entity.set('name', 'New Point Light');
+                                entity.set('name', 'Point Light');
                                 addComponent(entity, 'light');
                                 entity.set('components.light.type', 'point');
                                 entity.history.enabled = true;
@@ -204,7 +204,7 @@ editor.once('load', function() {
                             select: function() {
                                 var entity = newEntity();
                                 entity.history.enabled = false;
-                                entity.set('name', 'New Spot Light');
+                                entity.set('name', 'Spot Light');
                                 addComponent(entity, 'light');
                                 entity.set('components.light.type', 'spot');
                                 entity.history.enabled = true;
@@ -216,7 +216,7 @@ editor.once('load', function() {
                             select: function() {
                                 var entity = newEntity();
                                 entity.history.enabled = false;
-                                entity.set('name', 'New Particle System');
+                                entity.set('name', 'Particle System');
                                 addComponent(entity, 'particlesystem');
                                 entity.history.enabled = true;
                             }

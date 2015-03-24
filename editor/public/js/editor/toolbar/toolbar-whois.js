@@ -25,6 +25,6 @@ editor.once('load', function() {
     editor.on('whoisonline:remove', function (id, index) {
         var element = panel.innerElement.childNodes[index];
         if (element)
-            element.remove();
+            element.parentElement.removeChild(element);
     });
 });

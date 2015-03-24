@@ -893,6 +893,20 @@ a:visited {
     background-color: $bcg-darkest;
 }
 
+.ui-autocomplete {
+    background-color: $bcg-dark;
+
+    > ul {
+        > li {
+            border-color: $bcg-darker;
+
+            &.selected {
+                background-color: $bcg-darkest;
+            }
+        }
+    }
+}
+
 
 .ui-progress {
     background-color: $bcg-darkest;

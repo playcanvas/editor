@@ -15,7 +15,7 @@ app.once('load', function() {
     closeBtn.addEventListener('click', function () {
         var i = panel.childNodes.length;
         while (i-- > 1) {
-            panel.childNodes[i].remove();
+            panel.childNodes[i].parentElement.removeChild(panel.childNodes[i]);
         }
 
         panel.classList.add('hidden');

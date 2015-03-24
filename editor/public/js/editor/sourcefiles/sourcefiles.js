@@ -1,6 +1,26 @@
 editor.once('repositories:load', function (repositories) {
     'use strict';
 
+    var sourcefiles = new ObserverList();
+
+    // get listing of sourcefiles
+    Ajax
+    .get('{{url.api}}/projects/{{project.id}}/repositories/' + repositories.get('current') + '/sourcefiles')
+    .on('load', function (status, data) {
+        if (data.response && data.response.length) {
+            data.response.forEach(function (sourcefile) {
+                sourcefiles.add(new Observer(sourcefile));
+            });
+        }
+
+        editor.emit('sourcefiles:load', sourcefiles);
+    });
+
+    editor.method('sourcefiles:get', function () {
+        return sourcefiles;
+    });
+
+
     // get script full URL
     editor.method('sourcefiles:url', function (relativeUrl) {
         var fullUrl = [
@@ -35,4 +55,5 @@ editor.once('repositories:load', function (repositories) {
             }
         });
     });
+
 });
