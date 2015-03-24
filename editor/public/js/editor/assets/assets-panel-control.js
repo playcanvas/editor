@@ -45,26 +45,27 @@ editor.once('load', function() {
     });
     controls.append(btnNew);
 
-    // duplicate
-    var btnDuplicate = new ui.Button({
-        text: '&#57908;'
-    });
-    btnDuplicate.disabled = true;
-    btnDuplicate.class.add('duplicate');
-    btnDuplicate.element.title = 'Duplicate Asset';
-    btnDuplicate.on('click', function() {
-        // var type = editor.call('selector:type');
-        // var items = editor.call('selector:items');
+    // // duplicate
+    // var btnDuplicate = new ui.Button({
+    //     text: '&#57908;'
+    // });
+    // btnDuplicate.disabled = true;
+    // btnDuplicate.class.add('duplicate');
+    // btnDuplicate.element.title = 'Duplicate Asset';
+    // btnDuplicate.on('click', function() {
+    //     // var type = editor.call('selector:type');
+    //     // var items = editor.call('selector:items');
 
-        // if (type === 'entity' && items.length)
-        //     editor.call('entities:duplicate', items[0]);
-    });
-    controls.append(btnDuplicate);
+    //     // if (type === 'entity' && items.length)
+    //     //     editor.call('entities:duplicate', items[0]);
+    // });
+    // controls.append(btnDuplicate);
 
     // delete
     var btnDelete = new ui.Button({
         text: '&#58657;'
     });
+    btnDelete.disabled = true;
     btnDelete.class.add('delete');
     btnDelete.element.title = 'Delete Asset';
     btnDelete.on('click', function() {
@@ -87,11 +88,11 @@ editor.once('load', function() {
 
     editor.on('attributes:clear', function() {
         btnDuplicate.disabled = true;
-        btnDelete.disabled = true;
+        // btnDelete.disabled = true;
     });
 
     editor.on('attributes:inspect[*]', function(type) {
         btnDelete.enabled = type.startsWith('asset');
-        btnDuplicate.enabled = type === 'asset.material';
+        // btnDuplicate.enabled = type === 'asset.material';
     });
 });
