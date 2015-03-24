@@ -334,11 +334,11 @@ editor.once('load', function() {
                 editor.call('selector:set', 'designerSettings', [ editor.call('designerSettings') ]);
             }
         },
-        'contact': {
-            title: 'Contact',
-            icon: '&#58418;',
+        'feedback': {
+            title: 'Feedback',
+            icon: '&#58488;',
             select: function() {
-                window.location.href = 'mailto:contact@playcanvas.com';
+                window.open('http://forum.playcanvas.com/t/playcanvas-editor-feedback/616');
             }
         }
     };

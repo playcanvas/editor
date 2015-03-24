@@ -17,8 +17,13 @@ editor.on('load', function() {
 
     var top = new ui.Panel();
     top.style.backgroundColor = '#5f6f72';
+    top.style.cursor = 'pointer';
     top.element.id = 'ui-top';
     top.flexShrink = false;
+    top.once('click', function() {
+        top.destroy();
+        toolbar.style.marginTop = '';
+    });
     root.append(top);
 
     var message = new ui.Label();

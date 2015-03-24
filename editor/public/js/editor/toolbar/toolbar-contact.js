@@ -4,13 +4,13 @@ editor.once('load', function() {
     var toolbar = editor.call('layout.toolbar');
 
     var contact = new ui.Button({
-        text: '&#58418;'
+        text: '&#58488;'
     });
-    contact.element.title = 'Contact';
+    contact.element.title = 'Feedback Forum';
     contact.class.add('icon');
     toolbar.append(contact);
 
     contact.on('click', function() {
-        window.location.href = 'mailto:contact@playcanvas.com';
+        window.open('http://forum.playcanvas.com/t/playcanvas-editor-feedback/616');
     });
 });
