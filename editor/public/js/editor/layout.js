@@ -15,6 +15,42 @@ editor.on('load', function() {
     // expose
     editor.method('layout.root', function() { return root; });
 
+    var top = new ui.Panel();
+    top.style.backgroundColor = '#5f6f72';
+    top.element.id = 'ui-top';
+    top.flexShrink = false;
+    root.append(top);
+
+    var message = new ui.Label();
+    message.style.color = '#fff';
+    message.style.margin = '0 0 0 64px';
+    message.style.lineHeight = '48px';
+    message.style.fontWeight = 'bold';
+    message.text = 'NEW BETA EDITOR';
+    top.append(message);
+
+    var messageB = new ui.Label();
+    messageB.style.color = '#fff';
+    messageB.style.margin = '0 0 0 32px';
+    messageB.style.lineHeight = '48px';
+    messageB.text = 'We are currently testing our new Editor. Please contact us if you experience any issues or share of what you think.'
+    top.append(messageB);
+
+    var closeMessage = new ui.Button({
+        text: 'Close'
+    });
+    closeMessage.style.color = '#fff';
+    closeMessage.style.margin = '0';
+    closeMessage.style.border = 'none';
+    closeMessage.style.padding = '0 16px';
+    closeMessage.style.backgroundColor = 'transparent';
+    closeMessage.style.lineHeight = '48px';
+    closeMessage.style.float = 'right';
+    closeMessage.once('click', function() {
+        top.destroy();
+        toolbar.style.marginTop = '';
+    });
+    top.append(closeMessage);
 
     // middle
     var middle = new ui.Panel();
@@ -32,7 +68,7 @@ editor.on('load', function() {
     editor.method('layout.bottom', function() { return bottom; });
 
 
-    // toolbar (elft)
+    // toolbar (left)
     var toolbar = new ui.Panel();
     toolbar.element.id = 'ui-toolbar';
     toolbar.flexShrink = false;
@@ -40,6 +76,8 @@ editor.on('load', function() {
     middle.append(toolbar);
     // expose
     editor.method('layout.toolbar', function() { return toolbar; });
+
+    toolbar.style.marginTop = '-48px';
 
 
     // hierarchy
