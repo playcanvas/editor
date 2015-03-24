@@ -87,8 +87,8 @@ editor.once('load', function() {
 
 
     editor.on('attributes:clear', function() {
-        btnDuplicate.disabled = true;
-        // btnDelete.disabled = true;
+        // btnDuplicate.disabled = true;
+        btnDelete.disabled = true;
     });
 
     editor.on('attributes:inspect[*]', function(type) {
