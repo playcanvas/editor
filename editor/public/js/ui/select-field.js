@@ -126,25 +126,30 @@ SelectField.prototype.open = function() {
     this.element.classList.add('active');
 
     var rect = this.element.getBoundingClientRect();
+    console.log(rect.left, rect.width, this.element.clientWidth);
+
+    // left
+    var left = Math.round(rect.left) + ((Math.round(rect.width) - this.element.clientWidth) / 2);
 
     // top
-    var top = (rect.top + 1);
+    var top = rect.top;
     if (this.optionElements[this._value]) {
-        top -= this.optionElements[this._value].offsetTop + 1;
+        top -= this.optionElements[this._value].offsetTop;
+        top += (Math.round(rect.height) - this.optionElements[this._value].clientHeight) / 2;
     }
 
     // limit to bottom / top of screen
     if (top + this.elementOptions.clientHeight > window.innerHeight) {
         top = window.innerHeight - this.elementOptions.clientHeight + 1;
     } else if (top < 0) {
-        top = rect.top + 1;
+        top = Math.round(rect.top);
     }
 
     this.elementOptions.style.top = top + 'px';
     // left
-    this.elementOptions.style.left = rect.left + 'px';
+    this.elementOptions.style.left = left + 'px';
     // right
-    this.elementOptions.style.width = (this.element.clientWidth + 2) + 'px';
+    this.elementOptions.style.width = Math.round(this.element.clientWidth) + 'px';
 
 
     var self = this;

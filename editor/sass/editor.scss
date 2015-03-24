@@ -220,41 +220,79 @@ body {
 }
 
 .ui-panel.assets {
-    > .ui-header {
-        > .create-asset {
-            width: 32px;
-            height: 32px;
-            line-height: 32px;
-            border: none;
-            padding: 0;
-            margin: 0 0 0 8px;
-            vertical-align: top;
-            font-family: 'ui-font-solid';
-            font-size: 18px;
-            text-align: center;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            font-smoothing: antialiased;
-            background-color: transparent;
+    overflow: visible;
 
-            &:hover {
-                background-color: $bcg-darkest;
+    &.resizable {
+        &.resizable-top.scrollable > .content {
+            top: 0;
+        }
+        &.foldable.folded {
+            height: 0 !important;
+
+            > .ui-header {
+                > .assets-controls {
+                    display: none;
+                }
+                > .filters {
+                    display: none;
+                }
+            }
+        }
+    }
+    > .ui-header {
+        position: absolute;
+        top: -32px;
+        left: 8px;
+
+        &:after {
+            content: '\E122';
+            font-size: 20px;
+        }
+        > .title {
+            margin-right: 16px;
+        }
+        > .assets-controls {
+            float: left;
+            background: transparent;
+
+            > .content {
+                > .ui-button {
+                    width: 32px;
+                    height: 32px;
+                    line-height: 32px;
+                    border: none;
+                    padding: 0;
+                    margin: 0;
+                    // margin: 0 0 0 16px;
+                    vertical-align: top;
+                    font-family: 'ui-font-solid';
+                    font-size: 18px;
+                    text-align: center;
+                    -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
+                    font-smoothing: antialiased;
+                    color: $text-dark;
+                    background-color: transparent;
+
+                    &:hover {
+                        color: $text-primary;
+                        background-color: $bcg-darkest;
+                    }
+                    &.disabled {
+                        &:hover {
+                            color: $text-dark;
+                            background-color: transparent;
+                        }
+                    }
+                }
             }
         }
         > .filters {
+            margin-left: 16px;
             float: right;
             background-color: transparent;
 
             > .content {
-                > .ui-label.label {
-                    margin: 0;
-                    height: 32px;
-                    line-height: 32px;
-                    font-size: 12px;
-                    margin-right: 8px;
-                    vertical-align: top;
-                    text-transform: uppercase;
-                }
                 > .ui-select-field.options {
                     margin: 0;
                     height: 32px;
@@ -296,13 +334,39 @@ body {
                     &.focus {
                         border-color: $bcg-darkest;
                         background-color: $bcg-darkest;
+                        &:before {
+                            content: '';
+                            padding: 0;
+                        }
+                        &:after {
+                            content: '';
+                        }
                     }
                     > input.field {
                         line-height: 32px;
                     }
+                    &:before {
+                        content: 'Search';
+                        color: $text-dark;
+                        line-height: 32px;
+                        font-size: 18px;
+                        padding: 0 8px;
+                        font-size: 12px;
+                    }
+                    &.not-empty:before {
+                        padding: 0;
+                        content: '';
+                    }
                     &:after {
+                        content: '\E333';
                         line-height: 32px;
                         background-color: #293538;
+                        font-family: 'ui-font-solid';
+                        font-size: 18px;
+                        text-align: center;
+                        -webkit-font-smoothing: antialiased;
+                        -moz-osx-font-smoothing: grayscale;
+                        font-smoothing: antialiased;
                     }
                     &.not-empty {
                         background-color: $bcg-darkest;
@@ -406,6 +470,14 @@ body {
 
 .ui-panel.attributes {
     border-left: 1px solid black;
+
+    &.foldable.horizontal > .ui-header:after {
+        transform: rotate(90deg);
+    }
+    > .ui-header:after {
+        content: '\E122';
+        font-size: 20px;
+    }
 
     .ui-panel {
         &.field {
@@ -858,6 +930,21 @@ body {
 .ui-panel.hierarchy {
     border-right: 1px solid $bcg-dark;
 
+    &.foldable {
+        &.horizontal.resizable-right {
+            > .ui-header:after {
+                transform: rotate(90deg);
+            }
+            &.folded > .ui-header:after {
+                transform: rotate(-90deg);
+            }
+        }
+    }
+
+    > .ui-header:after {
+        content: '\E122';
+        font-size: 20px;
+    }
     > .content {
         bottom: 32px;
     }
@@ -1143,7 +1230,7 @@ body {
 .ui-select-field.viewport-camera {
     position: absolute;
     top: 2px;
-    right: 97px;
+    right: 74px;
     z-index: 1;
     margin: 2px;
 
@@ -1178,7 +1265,7 @@ body {
 
     > ul {
         > li {
-            padding: 0px 10px 0px 11px;
+            padding: 0px 9px 0px 10px;
             line-height: 32px;
         }
     }
@@ -1206,7 +1293,7 @@ body {
         .ui-button {
             width: 32px;
             height: 32px;
-            margin: 2px 3px;
+            margin: 2px 4px;
             padding: 0;
             border: none;
 
