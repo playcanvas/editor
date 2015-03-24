@@ -38,7 +38,7 @@ editor.on('load', function() {
     messageB.style.color = '#fff';
     messageB.style.margin = '0 0 0 32px';
     messageB.style.lineHeight = '48px';
-    messageB.text = 'We are currently testing our new Editor. Please contact us if you experience any issues or share of what you think.'
+    messageB.text = 'You are currently testing our new Editor. Please give us feedback using the comment button in the toolbar.'
     top.append(messageB);
 
     var closeMessage = new ui.Button({
