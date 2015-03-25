@@ -53,6 +53,8 @@ editor.once('repositories:load', function (repositories) {
             if (callback) {
                 callback(data.response[0]);
             }
+
+            sourcefiles.add(new Observer({filename: url}));
         });
     });
 
