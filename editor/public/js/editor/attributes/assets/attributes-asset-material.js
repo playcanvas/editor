@@ -15,6 +15,26 @@ editor.once('load', function() {
             'default': false,
             'type': 'boolean',
         },
+        aoMap: {
+            'default': 0,
+            'type': 'texture',
+        },
+        aoMapTiling: {
+            'default': [ 1, 1 ],
+            'type': 'vec2',
+        },
+        aoMapOffset: {
+            'default': [ 0, 0 ],
+            'type': 'vec2',
+        },
+        aoUvSet: {
+            'default': 0,
+            'type': 'float',
+        },
+        occludeSpecular: {
+            'default': true,
+            'type': 'boolean'
+        },
         diffuse: {
             'default': [ 1, 1, 1 ],
             'type': 'rgb',
@@ -36,7 +56,7 @@ editor.once('load', function() {
             'type': 'boolean',
         },
         specular: {
-            'default': [ 1, 1, 1 ],
+            'default': [ .23, .23, .23 ],
             'type': 'rgb',
         },
         specularMap: {
@@ -58,6 +78,32 @@ editor.once('load', function() {
         specularAntialias: {
             'default': true,
             'type': 'boolean',
+        },
+        useMetalness: {
+            'default': false,
+            'type': 'boolean',
+        },
+        metalnessMap: {
+            'default': 0,
+            'type': 'texture',
+        },
+        metalnessMapTiling: {
+            'default': [ 1, 1 ],
+            'type': 'vec2',
+        },
+        metalnessMapOffset: {
+            'default': [ 0, 0 ],
+            'type': 'vec2',
+        },
+        metalnessMapTint: {
+            'default': false,
+            'type': 'boolean',
+        },
+        metalness: {
+            'default': 1,
+            'min': 0,
+            'max': 1,
+            'type': 'float',
         },
         conserveEnergy: {
             'default': true,
@@ -181,17 +227,21 @@ editor.once('load', function() {
             'default': 0,
             'type': 'cubemap',
         },
+        cubeMapProjection: {
+            'default': 0,
+            'type': 'boolean'
+        },
         lightMap: {
             'default': 0,
             'type': 'texture',
         },
-        aoMap: {
-            'default': 0,
-            'type': 'texture',
+        lightMapTiling: {
+            'default': [ 1, 1 ],
+            'type': 'vec2',
         },
-        aoUvSet: {
-            'default': 0,
-            'type': 'float',
+        lightMapOffset: {
+            'default': [ 0, 0 ],
+            'type': 'vec2',
         },
         depthTest: {
             'default': true,
@@ -214,14 +264,27 @@ editor.once('load', function() {
             'default': 3,
             'enum': {
                 3: 'None',
-                2: 'Normal',
+                2: 'Alpha',
                 1: 'Additive',
-                4: 'Pre-Multiply',
+                4: 'Premultiplied Alpha',
                 5: 'Multiply'
             },
             'type': 'int'
         },
     };
+
+    var mappingMaps = [
+        'diffuse',
+        'specular',
+        'emissive',
+        'normal',
+        'metalness',
+        'gloss',
+        'opacity',
+        'height',
+        'ao',
+        'light'
+    ];
 
     editor.method('material:listToMap', function(data) {
         var obj = {
@@ -312,20 +375,121 @@ editor.once('load', function() {
             link: asset,
             path: 'data.model'
         });
+        fieldModel.on('change', function(value) {
+            asset.history.enabled = false;
+            asset.set('data.fresnelModel', value === 'blinn' ? 2 : 0);
+            asset.history.enabled = true;
+        });
 
+
+        // tiling & offset
+        var panelTiling = editor.call('attributes:addPanel', {
+            foldable: true,
+            // folded: true,
+            name: 'Offset & Tiling'
+        });
+        panelTiling.class.add('component');
+
+        var tilingOffsetFields = [ ];
+
+        // all maps
+        var fieldTilingOffset = editor.call('attributes:addField', {
+            parent: panelTiling,
+            type: 'checkbox',
+            name: 'Apply to all Maps',
+            value: true
+        });
+        fieldTilingOffset.element.previousSibling.style.width = 'auto';
+        fieldTilingOffset.on('change', function(value) {
+            fieldOffset[0].parent.hidden = ! value;
+            fieldTiling[0].parent.hidden = ! value;
+
+            for(var i = 0; i < tilingOffsetFields.length; i++) {
+                tilingOffsetFields[i].element.hidden = tilingOffsetFields[i].filter();
+            }
+
+            if (value) {
+                updateAllTilingOffsetFields('offset', 0, fieldOffset[0].value);
+                updateAllTilingOffsetFields('offset', 1, fieldOffset[1].value);
+                updateAllTilingOffsetFields('tiling', 0, fieldTiling[0].value);
+                updateAllTilingOffsetFields('tiling', 1, fieldTiling[1].value);
+            }
+        });
+
+        // offset
+        var fieldOffset = editor.call('attributes:addField', {
+            parent: panelTiling,
+            type: 'vec2',
+            name: 'Offset',
+            placeholder: [ 'U', 'V' ]
+        });
+
+
+        // tiling
+        var fieldTiling = editor.call('attributes:addField', {
+            parent: panelTiling,
+            type: 'vec2',
+            name: 'Tiling',
+            placeholder: [ 'U', 'V' ]
+        });
+
+
+        var offset = asset.get('data.' + mappingMaps[0] + 'MapOffset');
+        var tiling = asset.get('data.' + mappingMaps[0] + 'MapTiling');
+        var different = false;
+        for(var i = 1; i < mappingMaps.length; i++) {
+            if (! offset.equals(asset.get('data.' + mappingMaps[i] + 'MapOffset')) || ! tiling.equals(asset.get('data.' + mappingMaps[i] + 'MapTiling'))) {
+                different = true;
+                break;
+            }
+        }
+
+        if (different)
+            fieldTilingOffset.value = false;
+
+        fieldOffset[0].value = offset[0];
+        fieldOffset[1].value = offset[1];
+        fieldTiling[0].value = tiling[0];
+        fieldTiling[1].value = tiling[1];
+
+        var updateAllTilingOffsetFields = function(type, field, value, valueOld) {
+            if (! fieldTilingOffset.value)
+                return;
+
+            asset.history.enabled = false;
+            for(var i = 0; i < tilingOffsetFields.length; i++) {
+                if (tilingOffsetFields[i][type]) {
+                    tilingOffsetFields[i][type][field].value = value;
+                }
+            }
+            asset.history.enabled = true;
+        };
+
+        fieldOffset[0].on('change', function(value, valueOld) {
+            updateAllTilingOffsetFields('offset', 0, value);
+        });
+        fieldOffset[1].on('change', function(value, valueOld) {
+            updateAllTilingOffsetFields('offset', 1, value);
+        });
+        fieldTiling[0].on('change', function(value, valueOld) {
+            updateAllTilingOffsetFields('tiling', 0, value);
+        });
+        fieldTiling[1].on('change', function(value, valueOld) {
+            updateAllTilingOffsetFields('tiling', 1, value);
+        });
 
         // ambient
-        var panelAmbiend = editor.call('attributes:addPanel', {
+        var panelAmbient = editor.call('attributes:addPanel', {
             foldable: true,
             folded: ! asset.get('data.aoMap'),
             name: 'Ambient'
         });
-        panelAmbiend.class.add('component');
+        panelAmbient.class.add('component');
 
 
         // color
         var fieldAmbientColor = editor.call('attributes:addField', {
-            parent: panelAmbiend,
+            parent: panelAmbient,
             name: 'Color',
             type: 'rgb',
             link: asset,
@@ -346,26 +510,74 @@ editor.once('load', function() {
         labelAmbientTint.style.verticalAlign = 'top';
         labelAmbientTint.style.paddingRight = '12px';
         labelAmbientTint.style.fontSize = '12px';
-        labelAmbientTint.style.lineHeight = '26px';
+        labelAmbientTint.style.lineHeight = '24px';
         fieldAmbientColor.parent.appendAfter(labelAmbientTint, fieldAmbientColor);
 
 
         // map
         var fieldAmbientMap = editor.call('attributes:addField', {
-            parent: panelAmbiend,
+            parent: panelAmbient,
             type: 'asset',
             kind: 'texture',
-            name: 'Ambient',
+            name: 'Ambient Occlusion',
             link: asset,
             path: 'data.aoMap'
         });
         fieldAmbientMap.on('change', function(value) {
-            fieldAmbientTint.hidden
+            fieldAmbientOffset[0].parent.hidden = ! value || fieldTilingOffset.value;
+            fieldAmbientTiling[0].parent.hidden = ! value || fieldTilingOffset.value;
+            fieldOccludeSpecular.parent.hidden = ! value;
         });
+
+        // offset
+        var fieldAmbientOffset = editor.call('attributes:addField', {
+            parent: panelAmbient,
+            type: 'vec2',
+            name: 'Offset',
+            placeholder: [ 'U', 'V' ],
+            link: asset,
+            path: 'data.aoMapOffset'
+        });
+        tilingOffsetFields.push({
+            element: fieldAmbientOffset[0].parent,
+            offset: fieldAmbientOffset,
+            filter: function() {
+                return ! fieldAmbientMap.value || fieldTilingOffset.value;
+            }
+        });
+        fieldAmbientOffset[0].parent.hidden = ! fieldAmbientMap.value || fieldTilingOffset.value;
+
+        // tiling
+        var fieldAmbientTiling = editor.call('attributes:addField', {
+            parent: panelAmbient,
+            type: 'vec2',
+            name: 'Tiling',
+            placeholder: [ 'U', 'V' ],
+            link: asset,
+            path: 'data.aoMapTiling'
+        });
+        tilingOffsetFields.push({
+            element: fieldAmbientTiling[0].parent,
+            tiling: fieldAmbientTiling,
+            filter: function() {
+                return ! fieldAmbientMap.value || fieldTilingOffset.value;
+            }
+        });
+        fieldAmbientTiling[0].parent.hidden = ! fieldAmbientMap.value || fieldTilingOffset.value;
+
+        // occludeSpecular
+        var fieldOccludeSpecular = editor.call('attributes:addField', {
+            parent: panelAmbient,
+            type: 'checkbox',
+            name: 'Occlude Specular',
+            link: asset,
+            path: 'data.occludeSpecular'
+        });
+        fieldOccludeSpecular.parent.hidden = ! fieldAmbientMap.value;
 
         // uv set
         var fieldAmbientUVSet = editor.call('attributes:addField', {
-            parent: panelAmbiend,
+            parent: panelAmbient,
             type: 'number',
             name: 'UV Set',
             link: asset,
@@ -374,11 +586,10 @@ editor.once('load', function() {
         fieldAmbientUVSet.parent.hidden = ! fieldAmbientMap.value;
 
         // unfold panel
-        fieldAmbientTint.on('change', function() { panelAmbiend.folded = false; });
-        fieldAmbientColor.on('change', function() { panelAmbiend.folded = false; });
-        fieldAmbientMap.on('change', function() { panelAmbiend.folded = false; });
-        fieldAmbientUVSet.on('change', function() { panelAmbiend.folded = false; });
-
+        fieldAmbientTint.on('change', function() { panelAmbient.folded = false; });
+        fieldAmbientColor.on('change', function() { panelAmbient.folded = false; });
+        fieldAmbientMap.on('change', function() { panelAmbient.folded = false; });
+        fieldAmbientUVSet.on('change', function() { panelAmbient.folded = false; });
 
 
         // diffuse
@@ -401,32 +612,48 @@ editor.once('load', function() {
 
         // map, hide/show offset and tiling, as well as color
         fieldDiffuseMap.on('change', function(value) {
-            // fieldDiffuseOffset[0].parent.hidden = value === 0;
-            // fieldDiffuseTiling[0].parent.hidden = value === 0;
+            fieldDiffuseOffset[0].parent.hidden = ! value || fieldTilingOffset.value;
+            fieldDiffuseTiling[0].parent.hidden = ! value || fieldTilingOffset.value;
             fieldDiffuseTint.hidden = ! value;
             labelDiffuseTint.hidden = ! value;
             fieldDiffuseColor.hidden = value && ! fieldDiffuseTint.value;
         });
 
-        // // offset
-        // var fieldDiffuseOffset = editor.call('attributes:addField', {
-        //     parent: panelDiffuse,
-        //     type: 'vec2',
-        //     name: 'Offset',
-        //     link: asset,
-        //     path: 'data.diffuseMapOffset'
-        // });
-        // fieldDiffuseOffset[0].parent.hidden = ! fieldDiffuseMap.value;
+        // offset
+        var fieldDiffuseOffset = editor.call('attributes:addField', {
+            parent: panelDiffuse,
+            type: 'vec2',
+            name: 'Offset',
+            placeholder: [ 'U', 'V' ],
+            link: asset,
+            path: 'data.diffuseMapOffset'
+        });
+        tilingOffsetFields.push({
+            element: fieldDiffuseOffset[0].parent,
+            offset: fieldDiffuseOffset,
+            filter: function() {
+                return ! fieldDiffuseMap.value || fieldTilingOffset.value;
+            }
+        });
+        fieldDiffuseOffset[0].parent.hidden = ! fieldDiffuseMap.value || fieldTilingOffset.value;
 
-        // // tiling
-        // var fieldDiffuseTiling = editor.call('attributes:addField', {
-        //     parent: panelDiffuse,
-        //     type: 'vec2',
-        //     name: 'Tiling',
-        //     link: asset,
-        //     path: 'data.diffuseMapTiling'
-        // });
-        // fieldDiffuseTiling[0].parent.hidden = ! fieldDiffuseMap.value;
+        // tiling
+        var fieldDiffuseTiling = editor.call('attributes:addField', {
+            parent: panelDiffuse,
+            type: 'vec2',
+            name: 'Tiling',
+            placeholder: [ 'U', 'V' ],
+            link: asset,
+            path: 'data.diffuseMapTiling'
+        });
+        tilingOffsetFields.push({
+            element: fieldDiffuseTiling[0].parent,
+            tiling: fieldDiffuseTiling,
+            filter: function() {
+                return ! fieldDiffuseMap.value || fieldTilingOffset.value;
+            }
+        });
+        fieldDiffuseTiling[0].parent.hidden = ! fieldDiffuseMap.value || fieldTilingOffset.value;
 
 
         // color
@@ -452,7 +679,7 @@ editor.once('load', function() {
         labelDiffuseTint.style.verticalAlign = 'top';
         labelDiffuseTint.style.paddingRight = '12px';
         labelDiffuseTint.style.fontSize = '12px';
-        labelDiffuseTint.style.lineHeight = '26px';
+        labelDiffuseTint.style.lineHeight = '24px';
         labelDiffuseTint.hidden = ! asset.get('data.diffuseMap');
         fieldDiffuseColor.parent.appendAfter(labelDiffuseTint, fieldDiffuseColor);
 
@@ -467,14 +694,109 @@ editor.once('load', function() {
         // specular
         var panelSpecular = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: ! asset.get('data.specularMap') && ! asset.get('data.glossMap'),
+            folded: ! asset.get('data.specularMap') && ! asset.get('data.metalnessMap') && ! asset.get('data.glossMap'),
             name: 'Specular'
         });
         panelSpecular.class.add('component');
 
-        // map
-        var fieldSpecularMap = editor.call('attributes:addField', {
+        // use metalness
+        var fieldUseMetalness = editor.call('attributes:addField', {
             parent: panelSpecular,
+            type: 'checkbox',
+            name: 'Use Metalness',
+            link: asset,
+            path: 'data.useMetalness'
+        });
+        fieldUseMetalness.on('change', function(value) {
+            panelSpecularWorkflow.hidden = value;
+            panelMetalness.hidden = ! value;
+        });
+
+        var panelMetalness = editor.call('attributes:addPanel');
+        panelMetalness.hidden = ! asset.get('data.useMetalness');
+        panelSpecular.append(panelMetalness);
+
+        // metalness map
+        var fieldMetalnessMap = editor.call('attributes:addField', {
+            parent: panelMetalness,
+            type: 'asset',
+            kind: 'texture',
+            name: 'Metalness',
+            link: asset,
+            path: 'data.metalnessMap'
+        });
+        fieldMetalnessMap.on('change', function(value) {
+            fieldMetalnessOffset[0].parent.hidden = ! fieldMetalnessMap.value || fieldTilingOffset.value;
+            fieldMetalnessTiling[0].parent.hidden = ! fieldMetalnessMap.value || fieldTilingOffset.value;
+        });
+
+        // offset
+        var fieldMetalnessOffset = editor.call('attributes:addField', {
+            parent: panelMetalness,
+            type: 'vec2',
+            name: 'Offset',
+            placeholder: [ 'U', 'V' ],
+            link: asset,
+            path: 'data.metalnessMapOffset'
+        });
+        tilingOffsetFields.push({
+            element: fieldMetalnessOffset[0].parent,
+            offset: fieldMetalnessOffset,
+            filter: function() {
+                return ! fieldMetalnessMap.value || fieldTilingOffset.value;
+            }
+        });
+        fieldMetalnessOffset[0].parent.hidden = ! fieldMetalnessMap.value || fieldTilingOffset.value;
+
+        // tiling
+        var fieldMetalnessTiling = editor.call('attributes:addField', {
+            parent: panelMetalness,
+            type: 'vec2',
+            name: 'Tiling',
+            placeholder: [ 'U', 'V' ],
+            link: asset,
+            path: 'data.metalnessMapTiling'
+        });
+        tilingOffsetFields.push({
+            element: fieldMetalnessTiling[0].parent,
+            tiling: fieldMetalnessTiling,
+            filter: function() {
+                return ! fieldMetalnessMap.value || fieldTilingOffset.value;
+            }
+        });
+        fieldMetalnessTiling[0].parent.hidden = ! fieldMetalnessMap.value || fieldTilingOffset.value;
+
+        // metalness
+        var fieldMetalness = editor.call('attributes:addField', {
+            parent: panelMetalness,
+            precision: 3,
+            step: 0.05,
+            min: 0,
+            max: 1,
+            type: 'number',
+            name: 'Metalness',
+            link: asset,
+            path: 'data.metalness'
+        });
+        fieldMetalness.style.width = '32px';
+
+        // metalness slider
+        var fieldMetalnessSlider = new ui.Slider({
+            min: 0,
+            max: 1,
+            precision: 3
+        });
+        fieldMetalnessSlider.flexGrow = 4;
+        fieldMetalnessSlider.link(asset, 'data.metalness');
+        fieldMetalness.parent.append(fieldMetalnessSlider);
+
+        var panelSpecularWorkflow = editor.call('attributes:addPanel');
+        panelSpecularWorkflow.hidden = asset.get('data.useMetalness');
+        panelSpecular.append(panelSpecularWorkflow);
+
+        // specular map
+        var fieldSpecularMap = editor.call('attributes:addField', {
+            parent: panelSpecularWorkflow,
             type: 'asset',
             kind: 'texture',
             name: 'Specular',
@@ -484,37 +806,54 @@ editor.once('load', function() {
 
         // map, hide/show offset and tiling, as well as color
         fieldSpecularMap.on('change', function(value) {
-            // fieldSpecularOffset[0].parent.hidden = value === 0;
-            // fieldSpecularTiling[0].parent.hidden = value === 0;
+            fieldSpecularOffset[0].parent.hidden = ! fieldSpecularMap.value || fieldTilingOffset.value;
+            fieldSpecularTiling[0].parent.hidden = ! fieldSpecularMap.value || fieldTilingOffset.value;
             fieldSpecularTint.hidden = ! value;
             labelSpecularTint.hidden = ! value;
             fieldSpecularColor.hidden = value && ! fieldSpecularTint;
         });
 
-        // // offset
-        // var fieldSpecularOffset = editor.call('attributes:addField', {
-        //     parent: panelSpecular,
-        //     type: 'vec2',
-        //     name: 'Offset',
-        //     link: asset,
-        //     path: 'data.specularMapOffset'
-        // });
-        // fieldSpecularOffset[0].parent.hidden = ! fieldSpecularMap.value;
 
-        // // tiling
-        // var fieldSpecularTiling = editor.call('attributes:addField', {
-        //     parent: panelSpecular,
-        //     type: 'vec2',
-        //     name: 'Tiling',
-        //     link: asset,
-        //     path: 'data.specularMapTiling'
-        // });
-        // fieldSpecularTiling[0].parent.hidden = ! fieldSpecularMap.value;
+        // offset
+        var fieldSpecularOffset = editor.call('attributes:addField', {
+            parent: panelSpecularWorkflow,
+            type: 'vec2',
+            name: 'Offset',
+            placeholder: [ 'U', 'V' ],
+            link: asset,
+            path: 'data.specularMapOffset'
+        });
+        tilingOffsetFields.push({
+            element: fieldSpecularOffset[0].parent,
+            offset: fieldSpecularOffset,
+            filter: function() {
+                return ! fieldSpecularMap.value || fieldTilingOffset.value;
+            }
+        });
+        fieldSpecularOffset[0].parent.hidden = ! fieldSpecularMap.value || fieldTilingOffset.value;
+
+        // tiling
+        var fieldSpecularTiling = editor.call('attributes:addField', {
+            parent: panelSpecularWorkflow,
+            type: 'vec2',
+            name: 'Tiling',
+            placeholder: [ 'U', 'V' ],
+            link: asset,
+            path: 'data.specularMapTiling'
+        });
+        tilingOffsetFields.push({
+            element: fieldSpecularTiling[0].parent,
+            tiling: fieldSpecularTiling,
+            filter: function() {
+                return ! fieldSpecularMap.value || fieldTilingOffset.value;
+            }
+        });
+        fieldSpecularTiling[0].parent.hidden = ! fieldSpecularMap.value || fieldTilingOffset.value;
 
 
         // color
         var fieldSpecularColor = editor.call('attributes:addField', {
-            parent: panelSpecular,
+            parent: panelSpecularWorkflow,
             name: 'Color',
             type: 'rgb',
             link: asset,
@@ -535,9 +874,62 @@ editor.once('load', function() {
         labelSpecularTint.style.verticalAlign = 'top';
         labelSpecularTint.style.paddingRight = '12px';
         labelSpecularTint.style.fontSize = '12px';
-        labelSpecularTint.style.lineHeight = '26px';
+        labelSpecularTint.style.lineHeight = '24px';
         labelSpecularTint.hidden = ! asset.get('data.specularMap');
         fieldSpecularColor.parent.appendAfter(labelSpecularTint, fieldSpecularColor);
+
+
+        // map (gloss)
+        var fieldGlossMap = editor.call('attributes:addField', {
+            parent: panelSpecular,
+            type: 'asset',
+            kind: 'texture',
+            name: 'Glossiness',
+            link: asset,
+            path: 'data.glossMap'
+        });
+
+        // map, hide/show offset and tiling, as well as color
+        fieldGlossMap.on('change', function(value) {
+            fieldGlossOffset[0].parent.hidden = ! value || fieldTilingOffset.value;
+            fieldGlossTiling[0].parent.hidden = ! value || fieldTilingOffset.value;
+        });
+
+        // offset
+        var fieldGlossOffset = editor.call('attributes:addField', {
+            parent: panelSpecular,
+            type: 'vec2',
+            name: 'Offset',
+            placeholder: [ 'U', 'V' ],
+            link: asset,
+            path: 'data.glossMapOffset'
+        });
+        tilingOffsetFields.push({
+            element: fieldGlossOffset[0].parent,
+            offset: fieldGlossOffset,
+            filter: function() {
+                return ! fieldGlossMap.value || fieldTilingOffset.value;
+            }
+        });
+        fieldGlossOffset[0].parent.hidden = ! fieldGlossMap.value || fieldTilingOffset.value;
+
+        // tiling
+        var fieldGlossTiling = editor.call('attributes:addField', {
+            parent: panelSpecular,
+            type: 'vec2',
+            name: 'Tiling',
+            placeholder: [ 'U', 'V' ],
+            link: asset,
+            path: 'data.glossMapTiling'
+        });
+        tilingOffsetFields.push({
+            element: fieldGlossTiling[0].parent,
+            tiling: fieldGlossTiling,
+            filter: function() {
+                return ! fieldGlossMap.value || fieldTilingOffset.value;
+            }
+        });
+        fieldGlossTiling[0].parent.hidden = ! fieldGlossMap.value || fieldTilingOffset.value;
 
 
         // shininess
@@ -548,7 +940,7 @@ editor.once('load', function() {
             step: 0.5,
             min: 0,
             max: 100,
-            name: 'Shininess',
+            name: 'Glossiness',
             link: asset,
             path: 'data.shininess'
         });
@@ -564,41 +956,6 @@ editor.once('load', function() {
         fieldShininessSlider.link(asset, 'data.shininess');
         fieldShininess.parent.append(fieldShininessSlider);
 
-        // map (gloss)
-        var fieldGlossMap = editor.call('attributes:addField', {
-            parent: panelSpecular,
-            type: 'asset',
-            kind: 'texture',
-            name: 'Glossiness',
-            link: asset,
-            path: 'data.glossMap'
-        });
-
-        // // map, hide/show offset and tiling, as well as color
-        // fieldGlossMap.on('change', function(value) {
-        //     fieldGlossOffset[0].parent.hidden = value === 0;
-        //     fieldGlossTiling[0].parent.hidden = value === 0;
-        // });
-
-        // // offset
-        // var fieldGlossOffset = editor.call('attributes:addField', {
-        //     parent: panelSpecular,
-        //     type: 'vec2',
-        //     name: 'Offset',
-        //     link: asset,
-        //     path: 'data.glossMapOffset'
-        // });
-        // fieldGlossOffset[0].parent.hidden = ! fieldGlossMap.value;
-
-        // // tiling
-        // var fieldGlossTiling = editor.call('attributes:addField', {
-        //     parent: panelSpecular,
-        //     type: 'vec2',
-        //     name: 'Tiling',
-        //     link: asset,
-        //     path: 'data.glossMapTiling'
-        // });
-        // fieldGlossTiling[0].parent.hidden = ! fieldGlossMap.value;
 
         // conserve energy
         var fieldConserveEnergy = editor.call('attributes:addField', {
@@ -640,32 +997,48 @@ editor.once('load', function() {
 
         // map, hide/show offset and tiling, as well as color
         fieldEmissiveMap.on('change', function(value) {
-            // fieldEmissiveOffset[0].parent.hidden = value === 0;
-            // fieldEmissiveTiling[0].parent.hidden = value === 0;
+            fieldEmissiveOffset[0].parent.hidden = ! value || fieldTilingOffset.value;
+            fieldEmissiveTiling[0].parent.hidden = ! value || fieldTilingOffset.value;
             fieldEmissiveTint.hidden = ! value;
             labelEmissiveTint.hidden = ! value;
             fieldEmissiveColor.hidden = value && ! fieldEmissiveTint.value;
         });
 
-        // // offset
-        // var fieldEmissiveOffset = editor.call('attributes:addField', {
-        //     parent: panelEmissive,
-        //     type: 'vec2',
-        //     name: 'Offset',
-        //     link: asset,
-        //     path: 'data.emissiveMapOffset'
-        // });
-        // fieldEmissiveOffset[0].parent.hidden = ! fieldEmissiveMap.value;
+        // offset
+        var fieldEmissiveOffset = editor.call('attributes:addField', {
+            parent: panelEmissive,
+            type: 'vec2',
+            name: 'Offset',
+            placeholder: [ 'U', 'V' ],
+            link: asset,
+            path: 'data.emissiveMapOffset'
+        });
+        tilingOffsetFields.push({
+            element: fieldEmissiveOffset[0].parent,
+            offset: fieldEmissiveOffset,
+            filter: function() {
+                return ! fieldEmissiveMap.value || fieldTilingOffset.value;
+            }
+        });
+        fieldEmissiveOffset[0].parent.hidden = ! fieldEmissiveMap.value || fieldTilingOffset.value;
 
-        // // tiling
-        // var fieldEmissiveTiling = editor.call('attributes:addField', {
-        //     parent: panelEmissive,
-        //     type: 'vec2',
-        //     name: 'Tiling',
-        //     link: asset,
-        //     path: 'data.emissiveMapTiling'
-        // });
-        // fieldEmissiveTiling[0].parent.hidden = ! fieldEmissiveMap.value;
+        // tiling
+        var fieldEmissiveTiling = editor.call('attributes:addField', {
+            parent: panelEmissive,
+            type: 'vec2',
+            name: 'Tiling',
+            placeholder: [ 'U', 'V' ],
+            link: asset,
+            path: 'data.emissiveMapTiling'
+        });
+        tilingOffsetFields.push({
+            element: fieldEmissiveTiling[0].parent,
+            tiling: fieldEmissiveTiling,
+            filter: function() {
+                return ! fieldEmissiveMap.value || fieldTilingOffset.value;
+            }
+        });
+        fieldEmissiveTiling[0].parent.hidden = ! fieldEmissiveMap.value || fieldTilingOffset.value;
 
 
         // color
@@ -691,7 +1064,7 @@ editor.once('load', function() {
         labelEmissiveTint.style.verticalAlign = 'top';
         labelEmissiveTint.style.paddingRight = '12px';
         labelEmissiveTint.style.fontSize = '12px';
-        labelEmissiveTint.style.lineHeight = '26px';
+        labelEmissiveTint.style.lineHeight = '24px';
         labelEmissiveTint.hidden = ! asset.get('data.emissiveMap');
         fieldEmissiveColor.parent.appendAfter(labelEmissiveTint, fieldEmissiveColor);
 
@@ -726,6 +1099,96 @@ editor.once('load', function() {
         fieldEmissiveColor.on('change', function() { panelEmissive.folded = false; });
         fieldEmissiveIntensity.on('change', function() { panelEmissive.folded = false; });
 
+
+        // opacity
+        var panelOpacity = editor.call('attributes:addPanel', {
+            foldable: true,
+            folded: ! asset.get('data.opacityMap'),
+            name: 'Opacity'
+        });
+        panelOpacity.class.add('component');
+
+        // map
+        var fieldOpacityMap = editor.call('attributes:addField', {
+            parent: panelOpacity,
+            type: 'asset',
+            kind: 'texture',
+            name: 'Opacity',
+            link: asset,
+            path: 'data.opacityMap'
+        });
+
+        // map, hide/show offset and tiling
+        fieldOpacityMap.on('change', function(value) {
+            fieldOpacityOffset[0].parent.hidden = ! value || fieldTilingOffset.value;
+            fieldOpacityTiling[0].parent.hidden = ! value || fieldTilingOffset.value;
+        });
+
+        // offset
+        var fieldOpacityOffset = editor.call('attributes:addField', {
+            parent: panelOpacity,
+            type: 'vec2',
+            name: 'Offset',
+            placeholder: [ 'U', 'V' ],
+            link: asset,
+            path: 'data.opacityMapOffset'
+        });
+        tilingOffsetFields.push({
+            element: fieldOpacityOffset[0].parent,
+            offset: fieldOpacityOffset,
+            filter: function() {
+                return ! fieldOpacityMap.value || fieldTilingOffset.value;
+            }
+        });
+        fieldOpacityOffset[0].parent.hidden = ! fieldOpacityMap.value || fieldTilingOffset.value;
+
+        // tiling
+        var fieldOpacityTiling = editor.call('attributes:addField', {
+            parent: panelOpacity,
+            type: 'vec2',
+            name: 'Tiling',
+            placeholder: [ 'U', 'V' ],
+            link: asset,
+            path: 'data.opacityMapTiling'
+        });
+        tilingOffsetFields.push({
+            element: fieldOpacityTiling[0].parent,
+            tiling: fieldOpacityTiling,
+            filter: function() {
+                return ! fieldOpacityMap.value || fieldTilingOffset.value;
+            }
+        });
+        fieldOpacityTiling[0].parent.hidden = ! fieldOpacityMap.value || fieldTilingOffset.value;
+
+
+        // intensity
+        var fieldOpacityIntensity = editor.call('attributes:addField', {
+            parent: panelOpacity,
+            name: 'Intensity',
+            type: 'number',
+            precision: 3,
+            step: .05,
+            min: 0,
+            max: 1,
+            link: asset,
+            path: 'data.opacity'
+        });
+        fieldOpacityIntensity.style.width = '32px';
+        fieldOpacityIntensity.flexGrow = 1;
+
+        // intensity slider
+        var fieldOpacityIntensitySlider = new ui.Slider({
+            min: 0,
+            max: 1,
+            precision: 3
+        });
+        fieldOpacityIntensitySlider.flexGrow = 4;
+        fieldOpacityIntensitySlider.link(asset, 'data.opacity');
+        fieldOpacityIntensity.parent.append(fieldOpacityIntensitySlider);
+
+        // unfold panel
+        fieldOpacityMap.on('change', function() { panelOpacity.folded = false; });
+        fieldOpacityIntensity.on('change', function() { panelOpacity.folded = false; });
 
 
         // normals
@@ -771,31 +1234,47 @@ editor.once('load', function() {
         fieldBumpiness.parent.append(fieldBumpinessSlider);
 
         fieldNormalMap.on('change', function(value) {
-            // fieldNormalsOffset[0].parent.hidden = ! value;
-            // fieldNormalsTiling[0].parent.hidden = ! value;
+            fieldNormalsOffset[0].parent.hidden = ! value || fieldTilingOffset.value;
+            fieldNormalsTiling[0].parent.hidden = ! value || fieldTilingOffset.value;
             fieldBumpiness.parent.hidden = ! value;
         })
         fieldBumpiness.parent.hidden = ! fieldNormalMap.value;
 
-        // // offset
-        // var fieldNormalsOffset = editor.call('attributes:addField', {
-        //     parent: panelNormal,
-        //     type: 'vec2',
-        //     name: 'Offset',
-        //     link: asset,
-        //     path: 'data.normalMapOffset'
-        // });
-        // fieldNormalsOffset[0].parent.hidden = ! fieldNormalMap.value;
+        // offset
+        var fieldNormalsOffset = editor.call('attributes:addField', {
+            parent: panelNormal,
+            type: 'vec2',
+            name: 'Offset',
+            placeholder: [ 'U', 'V' ],
+            link: asset,
+            path: 'data.normalMapOffset'
+        });
+        tilingOffsetFields.push({
+            element: fieldNormalsOffset[0].parent,
+            offset: fieldNormalsOffset,
+            filter: function() {
+                return ! fieldNormalMap.value || fieldTilingOffset.value;
+            }
+        });
+        fieldNormalsOffset[0].parent.hidden = ! fieldNormalMap.value || fieldTilingOffset.value;
 
-        // // tiling
-        // var fieldNormalsTiling = editor.call('attributes:addField', {
-        //     parent: panelNormal,
-        //     type: 'vec2',
-        //     name: 'Tiling',
-        //     link: asset,
-        //     path: 'data.normalMapTiling'
-        // });
-        // fieldNormalsTiling[0].parent.hidden = ! fieldNormalMap.value;
+        // tiling
+        var fieldNormalsTiling = editor.call('attributes:addField', {
+            parent: panelNormal,
+            type: 'vec2',
+            name: 'Tiling',
+            placeholder: [ 'U', 'V' ],
+            link: asset,
+            path: 'data.normalMapTiling'
+        });
+        tilingOffsetFields.push({
+            element: fieldNormalsTiling[0].parent,
+            tiling: fieldNormalsTiling,
+            filter: function() {
+                return ! fieldNormalMap.value || fieldTilingOffset.value;
+            }
+        });
+        fieldNormalsTiling[0].parent.hidden = ! fieldNormalMap.value || fieldTilingOffset.value;
 
         // unfold panel
         fieldNormalMap.on('change', function() { panelNormal.folded = false; });
@@ -823,30 +1302,48 @@ editor.once('load', function() {
 
         // map, hide/show offset and tiling, as well as color
         fieldHeightMap.on('change', function(value) {
-            // fieldHeightMapOffset[0].parent.hidden = value === 0;
-            // fieldHeightMapTiling[0].parent.hidden = value === 0;
-            fieldHeightMapFactor.parent.hidden = value === 0;
+            fieldHeightMapOffset[0].parent.hidden = ! value || fieldTilingOffset.value;
+            fieldHeightMapTiling[0].parent.hidden = ! value || fieldTilingOffset.value;
+            fieldHeightMapFactor.parent.hidden = ! value;
         });
 
-        // // offset
-        // var fieldHeightMapOffset = editor.call('attributes:addField', {
-        //     parent: panelParallax,
-        //     type: 'vec2',
-        //     name: 'Offset',
-        //     link: asset,
-        //     path: 'data.heightMapOffset'
-        // });
-        // fieldHeightMapOffset[0].parent.hidden = ! fieldHeightMap.value;
 
-        // // tiling
-        // var fieldHeightMapTiling = editor.call('attributes:addField', {
-        //     parent: panelParallax,
-        //     type: 'vec2',
-        //     name: 'Tiling',
-        //     link: asset,
-        //     path: 'data.heightMapTiling'
-        // });
-        // fieldHeightMapTiling[0].parent.hidden = ! fieldHeightMap.value;
+        // offset
+        var fieldHeightMapOffset = editor.call('attributes:addField', {
+            parent: panelParallax,
+            type: 'vec2',
+            name: 'Offset',
+            placeholder: [ 'U', 'V' ],
+            link: asset,
+            path: 'data.heightMapOffset'
+        });
+        tilingOffsetFields.push({
+            element: fieldHeightMapOffset[0].parent,
+            offset: fieldHeightMapOffset,
+            filter: function() {
+                return ! fieldHeightMap.value || fieldTilingOffset.value;
+            }
+        });
+        fieldHeightMapOffset[0].parent.hidden = ! fieldHeightMap.value || fieldTilingOffset.value;
+
+        // tiling
+        var fieldHeightMapTiling = editor.call('attributes:addField', {
+            parent: panelParallax,
+            type: 'vec2',
+            name: 'Tiling',
+            placeholder: [ 'U', 'V' ],
+            link: asset,
+            path: 'data.heightMapTiling'
+        });
+        tilingOffsetFields.push({
+            element: fieldHeightMapTiling[0].parent,
+            tiling: fieldHeightMapTiling,
+            filter: function() {
+                return ! fieldHeightMap.value || fieldTilingOffset.value;
+            }
+        });
+        fieldHeightMapTiling[0].parent.hidden = ! fieldHeightMap.value || fieldTilingOffset.value;
+
 
         // strength
         var fieldHeightMapFactor = editor.call('attributes:addField', {
@@ -963,9 +1460,49 @@ editor.once('load', function() {
             link: asset,
             path: 'data.lightMap'
         });
-
         // unfold panel
-        fieldLightMap.on('change', function() { panelLightMap.folded = false; });
+        fieldLightMap.on('change', function() {
+            fieldLightMapOffset[0].parent.hidden = ! fieldLightMap.value || fieldTilingOffset.value;
+            fieldLightMapTiling[0].parent.hidden = ! fieldLightMap.value || fieldTilingOffset.value;
+            panelLightMap.folded = false;
+        });
+
+
+        // offset
+        var fieldLightMapOffset = editor.call('attributes:addField', {
+            parent: panelLightMap,
+            type: 'vec2',
+            name: 'Offset',
+            placeholder: [ 'U', 'V' ],
+            link: asset,
+            path: 'data.lightMapOffset'
+        });
+        tilingOffsetFields.push({
+            element: fieldLightMapOffset[0].parent,
+            offset: fieldLightMapOffset,
+            filter: function() {
+                return ! fieldLightMap.value || fieldTilingOffset.value;
+            }
+        });
+        fieldLightMapOffset[0].parent.hidden = ! fieldLightMap.value || fieldTilingOffset.value;
+
+        // tiling
+        var fieldLightMapTiling = editor.call('attributes:addField', {
+            parent: panelLightMap,
+            type: 'vec2',
+            name: 'Tiling',
+            placeholder: [ 'U', 'V' ],
+            link: asset,
+            path: 'data.lightMapTiling'
+        });
+        tilingOffsetFields.push({
+            element: fieldLightMapTiling[0].parent,
+            tiling: fieldLightMapTiling,
+            filter: function() {
+                return ! fieldLightMap.value || fieldTilingOffset.value;
+            }
+        });
+        fieldLightMapTiling[0].parent.hidden = ! fieldLightMap.value || fieldTilingOffset.value;
 
 
 
@@ -991,7 +1528,7 @@ editor.once('load', function() {
         label.style.verticalAlign = 'top';
         label.style.paddingRight = '12px';
         label.style.fontSize = '12px';
-        label.style.lineHeight = '26px';
+        label.style.lineHeight = '24px';
         fieldDepthTest.parent.append(label);
 
 
@@ -1003,7 +1540,7 @@ editor.once('load', function() {
         var label = new ui.Label({ text: 'Write' });
         label.style.verticalAlign = 'top';
         label.style.fontSize = '12px';
-        label.style.lineHeight = '26px';
+        label.style.lineHeight = '24px';
         fieldDepthTest.parent.append(label);
 
 
