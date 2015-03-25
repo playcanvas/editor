@@ -47,6 +47,9 @@ editor.once('load', function() {
 
             // template nodes
             var nodesTemplate = function() {
+                if (! asset.has('nodes'))
+                    return;
+
                 asset.get('nodes').forEach(function(nodeName, i) {
                     if (! nodeItems[i])
                         return;

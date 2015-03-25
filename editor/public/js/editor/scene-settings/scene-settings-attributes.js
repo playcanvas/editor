@@ -96,7 +96,7 @@ editor.once('load', function() {
             precision: 2,
             step: .1,
             min: 0,
-            max: 1024,
+            max: 32,
             link: sceneSettings,
             path: 'render.exposure'
         });
