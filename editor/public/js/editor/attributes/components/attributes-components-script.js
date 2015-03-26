@@ -159,7 +159,7 @@ editor.once('load', function() {
                 });
                 entity.insert('components.script.scripts', script);
 
-                refreshScriptAttributes(script);
+                refreshScriptAttributes(script.get('url'));
             } else {
                 if (! jsRegex.test(url))
                     url += '.js';
@@ -185,7 +185,7 @@ editor.once('load', function() {
                 Ajax
                 .get(fullUrl)
                 .on('load', function(status, data) {
-                    refreshScriptAttributes(script);
+                    refreshScriptAttributes(script.get('url'));
                 })
                 .on('error', function (status) {
                     // script does not exist so create it
@@ -194,7 +194,7 @@ editor.once('load', function() {
                     } else if (status === 0) {
                         // invalid json which is fine because the response is text.
                         // TODO: fix this it's not really an error
-                        refreshScriptAttributes(script);
+                        refreshScriptAttributes(script.get('url'));
                     }
                 });
             }
@@ -202,44 +202,43 @@ editor.once('load', function() {
             return true;
         }
 
-        function refreshScriptAttributes (script) {
-            var fullUrl = urlRegex.test(script.get('url')) ? script.get('url') : editor.call('sourcefiles:url', script.get('url'));
+        function refreshScriptAttributes (url) {
+            var fullUrl = urlRegex.test(url) ? url : editor.call('sourcefiles:url', url);
 
             editor.call('sourcefiles:scan', fullUrl, function (data) {
-                data.url = script.get('url');
+                data.url = url;
 
-                // get all entities with the same script
-                var scriptComponents = [];
+                // merge old attributes with new attributes for all script components with this script
                 for (var key in entitiesWithScripts) {
-                    var scripts = entitiesWithScripts[key].getRaw('components.script.scripts');
+                    var entity = entitiesWithScripts[key];
+                    var scripts = entity.getRaw('components.script.scripts');
                     if (! scripts)
                         continue;
 
                     for (var i = 0; i < scripts.length; i++) {
-                        if (scripts[i].get('url') !== script.get('url'))
+                        var scriptInstance = scripts[i];
+                        if (scriptInstance.get('url') !== scriptInstance.get('url'))
                             continue;
 
-                        scriptComponents.push(scripts[i]);
-                        break;
+                        var oldAttributes = scriptInstance.get('attributes') || { };
+                        for (var attributeName in data.attributes) {
+                            if (! data.attributes.hasOwnProperty(attributeName))
+                                continue;
+
+                            var value = data.attributes[attributeName].defaultValue;
+                            if (attributeName in oldAttributes && oldAttributes[attributeName].type === data.attributes[attributeName].type) {
+                                value = oldAttributes[attributeName].value !== oldAttributes[attributeName].defaultValue ? oldAttributes[attributeName].value : value;
+                            }
+                            data.attributes[attributeName].value = value;
+                        }
+
+                        // this is not undoable
+                        var history = entity.history.enabled;
+                        entity.history.enabled = false;
+                        entity.getRaw('components.script.scripts.' + i).patch(data);
+                        entity.history.enabled = history;
                     }
                 }
-
-                // merge old attributes with new attributes for all script components with this script
-                scriptComponents.forEach(function (script) {
-                    var oldAttributes = script.get('attributes') || { };
-                    for (var key in data.attributes) {
-                        if (! data.attributes.hasOwnProperty(key))
-                            continue;
-
-                        var value = data.attributes[key].defaultValue;
-                        if (key in oldAttributes && oldAttributes[key].type === data.attributes[key].type) {
-                            value = oldAttributes[key].value !== oldAttributes[key].defaultValue ? oldAttributes[key].value : value;
-                        }
-                        data.attributes[key].value = value;
-                    }
-
-                    script.patch(data);
-                });
             });
         }
 
@@ -593,7 +592,7 @@ editor.once('load', function() {
             panel.headerElement.appendChild(fieldRefreshAttributes.element);
 
             fieldRefreshAttributes.on('click', function () {
-                refreshScriptAttributes(script);
+                refreshScriptAttributes(script.get('url'));
             });
 
             // attributes panel
