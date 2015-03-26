@@ -115,7 +115,7 @@ editor.once('load', function() {
         // gamma correction
         var fieldGammaCorrection = editor.call('attributes:addField', {
             parent: panelCamera,
-            name: 'Gamma Correction',
+            name: 'Gamma',
             type: 'number',
             enum: {
                 0: '1.0',
@@ -125,7 +125,6 @@ editor.once('load', function() {
             link: sceneSettings,
             path: 'render.gamma_correction'
         });
-        fieldGammaCorrection.parent.innerElement.childNodes[0].style.width = 'auto';
 
 
         // fog
