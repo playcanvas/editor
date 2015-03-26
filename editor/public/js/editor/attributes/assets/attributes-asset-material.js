@@ -197,10 +197,6 @@ editor.once('load', function() {
             'default': [ 0, 0 ],
             'type': 'vec2',
         },
-        specularAA: {
-            'default': true,
-            'type': 'boolean'
-        },
         bumpMapFactor: {
             'default': 1,
             'type': 'float',
@@ -1451,13 +1447,13 @@ editor.once('load', function() {
         fieldBumpinessSlider.link(asset, 'data.bumpMapFactor');
         fieldBumpiness.parent.append(fieldBumpinessSlider);
 
-        // specularAA
+        // specularAntialias
         var fieldSpecularAA = editor.call('attributes:addField', {
             parent: panelNormal,
             type: 'checkbox',
             name: 'Specular AA',
             link: asset,
-            path: 'data.specularAA'
+            path: 'data.specularAntialias'
         });
 
 
