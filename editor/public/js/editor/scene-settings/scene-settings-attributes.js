@@ -105,7 +105,7 @@ editor.once('load', function() {
         // exposure slider
         var fieldExposureSlider = new ui.Slider({
             min: 0,
-            max: 1024,
+            max: 32,
             precision: 2
         });
         fieldExposureSlider.flexGrow = 4;

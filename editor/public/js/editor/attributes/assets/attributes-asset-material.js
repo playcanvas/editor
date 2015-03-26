@@ -219,6 +219,18 @@ editor.once('load', function() {
             'max': 1,
             'type': 'float',
         },
+        refraction: {
+            'default': 0,
+            'min': 0,
+            'max': 1,
+            'type': 'float'
+        },
+        refractionIndex: {
+            'default': 1.0 / 1.5,
+            'min': 0,
+            'max': 1,
+            'type': 'float'
+        },
         sphereMap: {
             'default': 0,
             'type': 'texture',
@@ -271,6 +283,14 @@ editor.once('load', function() {
             },
             'type': 'int'
         },
+        shadowSampleType: {
+            'default': 1,
+            'enum': {
+                0: 'Hard',
+                1: 'PCF 3x3'
+            },
+            'type': 'int'
+        }
     };
 
     var mappingMaps = [
@@ -1410,6 +1430,8 @@ editor.once('load', function() {
         fieldReflectionCubeMap.on('change', function(value) {
             fieldReflectionStrength.parent.hidden = ! fieldReflectionSphere.value && ! fieldReflectionCubeMap.value;
             fieldReflectionSphere.parent.hidden = !! value;
+            fieldRefraction.parent.hidden = ! value;
+            fieldRefractionIndex.parent.hidden = ! value;
         });
         fieldReflectionCubeMap.parent.hidden = !! asset.get('data.sphereMap');
 
@@ -1435,6 +1457,54 @@ editor.once('load', function() {
         fieldReflectionStrengthSlider.flexGrow = 4;
         fieldReflectionStrengthSlider.link(asset, 'data.reflectivity');
         fieldReflectionStrength.parent.append(fieldReflectionStrengthSlider);
+
+        // refraction
+        var fieldRefraction = editor.call('attributes:addField', {
+            parent: panelReflection,
+            type: 'number',
+            precision: 3,
+            step: 0.01,
+            min: 0,
+            max: 1,
+            name: 'Refraction',
+            link: asset,
+            path: 'data.refraction'
+        });
+        fieldRefraction.style.width = '32px';
+        fieldRefraction.parent.hidden = ! fieldReflectionCubeMap.value;
+
+        // refraction slider
+        var fieldRefractionSlider = new ui.Slider({
+            precision: 3
+        });
+        fieldRefractionSlider.flexGrow = 4;
+        fieldRefractionSlider.link(asset, 'data.refraction');
+        fieldRefraction.parent.append(fieldRefractionSlider);
+
+
+        // refractionIndex
+        var fieldRefractionIndex = editor.call('attributes:addField', {
+            parent: panelReflection,
+            type: 'number',
+            precision: 3,
+            step: 0.01,
+            min: 0,
+            max: 1,
+            name: 'Index of Refraction',
+            link: asset,
+            path: 'data.refractionIndex'
+        });
+        fieldRefractionIndex.style.width = '32px';
+        fieldRefractionIndex.parent.hidden = ! fieldReflectionCubeMap.value;
+
+        // refraction slider
+        var fieldRefractionIndexSlider = new ui.Slider({
+            precision: 3
+        });
+        fieldRefractionIndexSlider.flexGrow = 4;
+        fieldRefractionIndexSlider.link(asset, 'data.refractionIndex');
+        fieldRefractionIndex.parent.append(fieldRefractionIndexSlider);
+
 
         // unfold panel
         fieldReflectionSphere.on('change', function() { panelReflection.folded = false; });
@@ -1509,8 +1579,8 @@ editor.once('load', function() {
         // render states
         var panelRenderStates = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: true,
-            name: 'Render States'
+            // folded: true,
+            name: 'Other'
         });
         panelRenderStates.class.add('component');
 
@@ -1564,10 +1634,21 @@ editor.once('load', function() {
             path: 'data.blendType'
         });
 
+        // shadowSampleType
+        var fieldShadowSampleType = editor.call('attributes:addField', {
+            parent: panelRenderStates,
+            type: 'number',
+            enum: mapping.shadowSampleType.enum,
+            name: 'Shadow Sample Type',
+            link: asset,
+            path: 'data.shadowSampleType'
+        });
+
+
         // unfold panel
-        fieldDepthTest.on('change', function() { panelRenderStates.folded = false; });
-        fieldDepthWrite.on('change', function() { panelRenderStates.folded = false; });
-        fieldCull.on('change', function() { panelRenderStates.folded = false; });
-        fieldBlendType.on('change', function() { panelRenderStates.folded = false; });
+        // fieldDepthTest.on('change', function() { panelRenderStates.folded = false; });
+        // fieldDepthWrite.on('change', function() { panelRenderStates.folded = false; });
+        // fieldCull.on('change', function() { panelRenderStates.folded = false; });
+        // fieldBlendType.on('change', function() { panelRenderStates.folded = false; });
     });
 });
