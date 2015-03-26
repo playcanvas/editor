@@ -116,7 +116,12 @@ editor.once('load', function() {
         var fieldGammaCorrection = editor.call('attributes:addField', {
             parent: panelCamera,
             name: 'Gamma Correction',
-            type: 'checkbox',
+            type: 'number',
+            enum: {
+                0: '1.0',
+                1: '2.2',
+                2: '2.2 Fast'
+            },
             link: sceneSettings,
             path: 'render.gamma_correction'
         });
