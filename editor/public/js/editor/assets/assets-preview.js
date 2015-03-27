@@ -14,10 +14,10 @@ editor.once('load', function () {
     loader.registerHandler(pc.resources.TextureRequest, new pc.resources.TextureResourceHandler(device, assets));
     loader.registerHandler(pc.resources.CubemapRequest, new pc.resources.CubemapResourceHandler(device, assets));
     loader.registerHandler(pc.resources.MaterialRequest, new pc.resources.MaterialResourceHandler(device, assets));
-    loader.registerHandler(pc.resources.ModelRequest, new pc.resources.ModelResourceHandler(device, assets));
+    //loader.registerHandler(pc.resources.ModelRequest, new pc.resources.ModelResourceHandler(device, assets));
 
     // bind asset registry to editor
-    editor.call('assets:registry:bind', assets, ['texture', 'cubemap', 'material', 'model']);
+    editor.call('assets:registry:bind', assets, ['texture', 'cubemap', 'material']);//, 'model']);
 
     var renderTimeouts = {};
 

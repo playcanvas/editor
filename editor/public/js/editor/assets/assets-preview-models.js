@@ -142,13 +142,15 @@ editor.once('load', function () {
     };
 
 
-    editor.on('assets:add', function (asset) {
-        if (asset.get('source')) return;
-        if (asset.get('type') !== 'model') return;
+    // TODO: enable for white materials
+    //editor.on('assets:add', function (asset) {
+        //if (asset.get('source')) return;
+        //if (asset.get('type') !== 'model') return;
 
-        generatePreview(asset);
-    });
+        //generatePreview(asset);
+    //});
 
+    // ---- Models with materials -----
     // var modelMaterialCache = {};
 
     // editor.on('assets:add', function (asset) {

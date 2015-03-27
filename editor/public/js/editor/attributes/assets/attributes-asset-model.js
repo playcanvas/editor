@@ -26,34 +26,34 @@ editor.once('load', function() {
 
         if (asset.has('data.mapping') && asset.get('data.mapping').length) {
 
-            var root = editor.call('attributes.rootPanel');
+            // var root = editor.call('attributes.rootPanel');
 
-            // preview
-            var canvas = document.createElement('canvas');
-            var ctx = canvas.getContext('2d');
-            canvas.classList.add('asset-preview');
+            // // preview
+            // var canvas = document.createElement('canvas');
+            // var ctx = canvas.getContext('2d');
+            // canvas.classList.add('asset-preview');
 
-            root.element.insertBefore(canvas, root.innerElement);
-            root.class.add('asset-preview');
+            // root.element.insertBefore(canvas, root.innerElement);
+            // root.class.add('asset-preview');
 
-            var renderPreview = function () {
-                // resize canvas
-                canvas.width = root.element.clientWidth;
-                canvas.height = canvas.width;
-                editor.call('preview:render:model', asset, canvas.width, function (sourceCanvas) {
-                    ctx.drawImage(sourceCanvas, 0, 0);
-                });
-            };
-            renderPreview();
+            // var renderPreview = function () {
+            //     // resize canvas
+            //     canvas.width = root.element.clientWidth;
+            //     canvas.height = canvas.width;
+            //     editor.call('preview:render:model', asset, canvas.width, function (sourceCanvas) {
+            //         ctx.drawImage(sourceCanvas, 0, 0);
+            //     });
+            // };
+            // renderPreview();
 
-            var renderTimeout;
+            // var renderTimeout;
 
-            var evtPanelResize = root.on('resize', function () {
-                if (renderTimeout)
-                    clearTimeout(renderTimeout);
+            // var evtPanelResize = root.on('resize', function () {
+            //     if (renderTimeout)
+            //         clearTimeout(renderTimeout);
 
-                renderTimeout = setTimeout(renderPreview, 100);
-            });
+            //     renderTimeout = setTimeout(renderPreview, 100);
+            // });
 
             // nodes panel
             var panelNodes = editor.call('attributes:addPanel', {
@@ -75,11 +75,11 @@ editor.once('load', function() {
                 });
             }
 
-            panelNodes.on('destroy', function () {
-                root.class.remove('asset-preview');
-                canvas.parentNode.removeChild(canvas);
-                evtPanelResize.unbind();
-            });
+            // panelNodes.on('destroy', function () {
+            //     root.class.remove('asset-preview');
+            //     canvas.parentNode.removeChild(canvas);
+            //     evtPanelResize.unbind();
+            // });
 
             // template nodes
             var nodesTemplate = function() {

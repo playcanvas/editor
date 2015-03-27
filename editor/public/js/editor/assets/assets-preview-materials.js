@@ -94,7 +94,7 @@ editor.once('load', function () {
         if (material.blendType === pc.BLEND_MULTIPLICATIVE)
             material.blendType = pc.BLEND_NORMAL;
 
-        model.meshInstances[0].material = material.clone();
+        model.meshInstances[0].material = material; //.clone();
 
         // use the same size for all thumbs for optimization
         if (canvas.width !== size)
