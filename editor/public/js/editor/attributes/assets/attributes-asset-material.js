@@ -19,6 +19,10 @@ editor.once('load', function() {
             'default': 0,
             'type': 'texture',
         },
+        aoMapChannel: {
+            'default': 'r',
+            'type': 'string'
+        },
         aoMapTiling: {
             'default': [ 1, 1 ],
             'type': 'vec2',
@@ -43,6 +47,10 @@ editor.once('load', function() {
             'default': 0,
             'type': 'texture',
         },
+        diffuseMapChannel: {
+            'default': 'rgb',
+            'type': 'string'
+        },
         diffuseMapTiling: {
             'default': [ 1, 1 ],
             'type': 'vec2',
@@ -58,6 +66,10 @@ editor.once('load', function() {
         specular: {
             'default': [ .23, .23, .23 ],
             'type': 'rgb',
+        },
+        specularMapChannel: {
+            'default': 'rgb',
+            'type': 'string'
         },
         specularMap: {
             'default': 0,
@@ -86,6 +98,10 @@ editor.once('load', function() {
         metalnessMap: {
             'default': 0,
             'type': 'texture',
+        },
+        metalnessMapChannel: {
+            'default': 'r',
+            'type': 'string'
         },
         metalnessMapTiling: {
             'default': [ 1, 1 ],
@@ -119,6 +135,10 @@ editor.once('load', function() {
             'default': 0,
             'type': 'texture',
         },
+        glossMapChannel: {
+            'default': 'rgb',
+            'type': 'string'
+        },
         glossMapTiling: {
             'default': [ 1, 1 ],
             'type': 'vec2',
@@ -142,6 +162,10 @@ editor.once('load', function() {
         emissiveMap: {
             'default': 0,
             'type': 'texture',
+        },
+        emissiveMapChannel: {
+            'default': 'rgb',
+            'type': 'string'
         },
         emissiveMapTiling: {
             'default': [ 1, 1 ],
@@ -181,6 +205,10 @@ editor.once('load', function() {
             'default': 0,
             'type': 'texture',
         },
+        heightMapChannel: {
+            'default': 'r',
+            'type': 'string'
+        },
         heightMapTiling: {
             'default': [ 1, 1 ],
             'type': 'vec2',
@@ -205,6 +233,10 @@ editor.once('load', function() {
             'default': 0,
             'type': 'texture',
         },
+        opacityMapChannel: {
+            'default': 'r',
+            'type': 'string'
+        },
         opacityMapTiling: {
             'default': [ 1, 1 ],
             'type': 'vec2',
@@ -218,6 +250,18 @@ editor.once('load', function() {
             'min': 0,
             'max': 1,
             'type': 'float',
+        },
+        refraction: {
+            'default': 0,
+            'min': 0,
+            'max': 1,
+            'type': 'float'
+        },
+        refractionIndex: {
+            'default': 1.0 / 1.5,
+            'min': 0,
+            'max': 1,
+            'type': 'float'
         },
         sphereMap: {
             'default': 0,
@@ -234,6 +278,10 @@ editor.once('load', function() {
         lightMap: {
             'default': 0,
             'type': 'texture',
+        },
+        lightMapChannel: {
+            'default': 'rgb',
+            'type': 'string'
         },
         lightMapTiling: {
             'default': [ 1, 1 ],
@@ -271,6 +319,14 @@ editor.once('load', function() {
             },
             'type': 'int'
         },
+        shadowSampleType: {
+            'default': 1,
+            'enum': {
+                0: 'Hard',
+                1: 'PCF 3x3'
+            },
+            'type': 'int'
+        }
     };
 
     var mappingMaps = [
@@ -285,6 +341,21 @@ editor.once('load', function() {
         'ao',
         'light'
     ];
+
+    var panelsStates = { };
+    var panelsStatesDependencies = {
+        'offset': [ 'diffuseMapOffset', 'diffuseMapTiling' ],
+        'ambient': [ 'aoMap' ],
+        'diffuse': [ 'diffuseMap' ],
+        'specular': [ 'specularMap', 'metalnessMap', 'glossMap' ],
+        'emissive': [ 'emissiveMap' ],
+        'opacity': [ 'opacityMap' ],
+        'normals': [ 'normalMap' ],
+        'height': [ 'heightMap' ],
+        'environment': [ 'sphereMap', 'cubeMap' ],
+        'light': [ 'lightMap' ],
+        'states': [ ]
+    }
 
     editor.method('material:listToMap', function(data) {
         var obj = {
@@ -330,16 +401,79 @@ editor.once('load', function() {
 
         var root = editor.call('attributes.rootPanel');
 
+        var panelState = panelsStates[asset.get('id')] = panelsStates[asset.get('id')];
+        var panelStateNew = false;
+
+        if (! panelState) {
+            panelStateNew = true;
+            panelState = panelsStates[asset.get('id')] = { };
+
+            for(var key in panelsStatesDependencies) {
+                var fields = panelsStatesDependencies[key];
+                panelState[key] = true;
+
+                for(var n = 0; n < fields.length; n++) {
+                    switch(mapping[fields[n]].type) {
+                        case 'vec2':
+                            var value = asset.get('data.' + fields[n]);
+                            if (value && value[0] !== mapping[fields[n]].default[0] || value && value[1] !== mapping[fields[n]].default[1]) {
+                                panelState[key] = false;
+                            }
+                            break;
+                        case 'texture':
+                            if (asset.get('data.' + fields[n])) {
+                                panelState[key] = false;
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+
+
         // preview
-        var image = new Image();
-        image.classList.add('asset-preview');
-        root.innerElement.insertBefore(image, root.innerElement.firstChild);
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        canvas.classList.add('asset-preview');
+
+        root.class.add('asset-preview');
+        root.element.insertBefore(canvas, root.innerElement);
+        var scrolledFully = false;
+        var scrollEvt = root.on('scroll', function(evt) {
+            if (root.innerElement.scrollTop > 128) {
+                if (! scrolledFully) {
+                    scrolledFully = true;
+                    root.innerElement.style.marginTop = '50%';
+                    canvas.style.width = 'calc(50% - 16px)';
+                    canvas.style.paddingLeft = '25%';
+                    canvas.style.paddingRight = '25%';
+
+                    if (renderTimeout)
+                        clearTimeout(renderTimeout);
+                    renderTimeout = setTimeout(renderPreview, 100);
+                }
+            } else {
+                scrolledFully = false;
+                var p = 100 - Math.floor((root.innerElement.scrollTop / 128) * 50);
+                root.innerElement.style.marginTop = p + '%';
+                canvas.style.width = 'calc(' + p + '% - 16px)';
+                canvas.style.paddingLeft = ((100 - p) / 2) + '%';
+                canvas.style.paddingRight = ((100 - p) / 2) + '%';
+
+                if (renderTimeout)
+                    clearTimeout(renderTimeout);
+                renderTimeout = setTimeout(renderPreview, 100);
+            }
+        });
 
         var renderPreview = function () {
-            editor.call('preview:material', asset, image.clientWidth, function (url) {
-                image.src = url;
+            // resize canvas
+            canvas.width = root.element.clientWidth;
+            canvas.height = canvas.width;
+            editor.call('preview:render:material', asset, canvas.width, function (sourceCanvas) {
+                ctx.drawImage(sourceCanvas, 0, 0);
             });
-        }
+        };
         renderPreview();
 
         var renderTimeout;
@@ -350,7 +484,10 @@ editor.once('load', function() {
 
             renderTimeout = setTimeout(renderPreview, 100);
         });
-        var evtMaterialChanged = editor.on('preview:material:changed', renderPreview);
+        var evtMaterialChanged = editor.on('preview:material:changed', function (id) {
+            if (id === asset.get('id'))
+                renderPreview();
+        });
 
         // properties panel
         var panelParams = editor.call('attributes:addPanel', {
@@ -359,8 +496,12 @@ editor.once('load', function() {
         panelParams.class.add('component');
 
         panelParams.on('destroy', function() {
+            scrollEvt.unbind();
             evtPanelResize.unbind();
             evtMaterialChanged.unbind();
+            canvas.parentNode.removeChild(canvas);
+            root.class.remove('asset-preview');
+            root.innerElement.style.marginTop = '';
         });
 
         // model
@@ -382,13 +523,29 @@ editor.once('load', function() {
         });
 
 
+        var offset = asset.get('data.' + mappingMaps[0] + 'MapOffset');
+        var tiling = asset.get('data.' + mappingMaps[0] + 'MapTiling');
+        var different = false;
+        for(var i = 1; i < mappingMaps.length; i++) {
+            if (! offset.equals(asset.get('data.' + mappingMaps[i] + 'MapOffset')) || ! tiling.equals(asset.get('data.' + mappingMaps[i] + 'MapTiling'))) {
+                different = true;
+                break;
+            }
+        }
+
+        if (different && panelStateNew)
+            panelState['offset'] = true;
+
+
         // tiling & offset
         var panelTiling = editor.call('attributes:addPanel', {
             foldable: true,
-            // folded: true,
+            folded: panelState['offset'],
             name: 'Offset & Tiling'
         });
         panelTiling.class.add('component');
+        panelTiling.on('fold', function() { panelState['offset'] = true; });
+        panelTiling.on('unfold', function() { panelState['offset'] = false; });
 
         var tilingOffsetFields = [ ];
 
@@ -397,7 +554,7 @@ editor.once('load', function() {
             parent: panelTiling,
             type: 'checkbox',
             name: 'Apply to all Maps',
-            value: true
+            value: ! different
         });
         fieldTilingOffset.element.previousSibling.style.width = 'auto';
         fieldTilingOffset.on('change', function(value) {
@@ -444,8 +601,14 @@ editor.once('load', function() {
             }
         }
 
-        if (different)
+        if (different) {
             fieldTilingOffset.value = false;
+
+            if (panelStateNew && ! panelState['offset']) {
+                panelState['offset'] = true;
+
+            }
+        }
 
         fieldOffset[0].value = offset[0];
         fieldOffset[1].value = offset[1];
@@ -481,10 +644,12 @@ editor.once('load', function() {
         // ambient
         var panelAmbient = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: ! asset.get('data.aoMap'),
+            folded: panelState['ao'],
             name: 'Ambient'
         });
         panelAmbient.class.add('component');
+        panelAmbient.on('fold', function() { panelState['ao'] = true; });
+        panelAmbient.on('unfold', function() { panelState['ao'] = false; });
 
 
         // color
@@ -523,11 +688,28 @@ editor.once('load', function() {
             link: asset,
             path: 'data.aoMap'
         });
+        fieldAmbientMap.parent.class.add('channel');
         fieldAmbientMap.on('change', function(value) {
             fieldAmbientOffset[0].parent.hidden = ! value || fieldTilingOffset.value;
             fieldAmbientTiling[0].parent.hidden = ! value || fieldTilingOffset.value;
             fieldOccludeSpecular.parent.hidden = ! value;
+            fieldAmbientMapChannel.disabled = ! value;
         });
+
+        // map channel
+        var fieldAmbientMapChannel = new ui.SelectField({
+            options: {
+                'r': 'R',
+                'g': 'G',
+                'b': 'B',
+                'a': 'A'
+            }
+        });
+        fieldAmbientMapChannel.disabled = ! fieldAmbientMap.value;
+        fieldAmbientMapChannel.link(asset, 'data.aoMapChannel');
+        fieldAmbientMapChannel.parent = fieldAmbientMap.parent;
+        var label = fieldAmbientMap.parent.innerElement.querySelector('.top > .ui-label');
+        label.parentNode.appendChild(fieldAmbientMapChannel.element);
 
         // offset
         var fieldAmbientOffset = editor.call('attributes:addField', {
@@ -585,22 +767,18 @@ editor.once('load', function() {
         });
         fieldAmbientUVSet.parent.hidden = ! fieldAmbientMap.value;
 
-        // unfold panel
-        fieldAmbientTint.on('change', function() { panelAmbient.folded = false; });
-        fieldAmbientColor.on('change', function() { panelAmbient.folded = false; });
-        fieldAmbientMap.on('change', function() { panelAmbient.folded = false; });
-        fieldAmbientUVSet.on('change', function() { panelAmbient.folded = false; });
-
 
         // diffuse
         var panelDiffuse = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: ! asset.get('data.diffuseMap'),
+            folded: panelState['diffuse'],
             name: 'Diffuse'
         });
         panelDiffuse.class.add('component');
+        panelDiffuse.on('fold', function() { panelState['diffuse'] = true; });
+        panelDiffuse.on('unfold', function() { panelState['diffuse'] = false; });
 
-        // map
+        // diffuse map
         var fieldDiffuseMap = editor.call('attributes:addField', {
             parent: panelDiffuse,
             type: 'asset',
@@ -609,15 +787,31 @@ editor.once('load', function() {
             link: asset,
             path: 'data.diffuseMap'
         });
-
-        // map, hide/show offset and tiling, as well as color
+        fieldDiffuseMap.parent.class.add('channel');
         fieldDiffuseMap.on('change', function(value) {
             fieldDiffuseOffset[0].parent.hidden = ! value || fieldTilingOffset.value;
             fieldDiffuseTiling[0].parent.hidden = ! value || fieldTilingOffset.value;
             fieldDiffuseTint.hidden = ! value;
             labelDiffuseTint.hidden = ! value;
             fieldDiffuseColor.hidden = value && ! fieldDiffuseTint.value;
+            fieldDiffuseMapChannel.disabled = ! value;
         });
+
+        // diffuse map channel
+        var fieldDiffuseMapChannel = new ui.SelectField({
+            options: {
+                'r': 'R',
+                'g': 'G',
+                'b': 'B',
+                'a': 'A',
+                'rgb': 'RGB'
+            }
+        });
+        fieldDiffuseMapChannel.disabled = ! fieldDiffuseMap.value;
+        fieldDiffuseMapChannel.link(asset, 'data.diffuseMapChannel');
+        fieldDiffuseMapChannel.parent = fieldDiffuseMap.parent;
+        var label = fieldDiffuseMap.parent.innerElement.querySelector('.top > .ui-label');
+        label.parentNode.appendChild(fieldDiffuseMapChannel.element);
 
         // offset
         var fieldDiffuseOffset = editor.call('attributes:addField', {
@@ -684,20 +878,15 @@ editor.once('load', function() {
         fieldDiffuseColor.parent.appendAfter(labelDiffuseTint, fieldDiffuseColor);
 
 
-        // unfold panel
-        fieldDiffuseMap.on('change', function() { panelDiffuse.folded = false; });
-        fieldDiffuseTint.on('change', function() { panelDiffuse.folded = false; });
-        fieldDiffuseColor.on('change', function() { panelDiffuse.folded = false; });
-
-
-
         // specular
         var panelSpecular = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: ! asset.get('data.specularMap') && ! asset.get('data.metalnessMap') && ! asset.get('data.glossMap'),
+            folded: panelState['specular'],
             name: 'Specular'
         });
         panelSpecular.class.add('component');
+        panelSpecular.on('fold', function() { panelState['specular'] = true; });
+        panelSpecular.on('unfold', function() { panelState['specular'] = false; });
 
         // use metalness
         var fieldUseMetalness = editor.call('attributes:addField', {
@@ -725,10 +914,27 @@ editor.once('load', function() {
             link: asset,
             path: 'data.metalnessMap'
         });
+        fieldMetalnessMap.parent.class.add('channel');
         fieldMetalnessMap.on('change', function(value) {
             fieldMetalnessOffset[0].parent.hidden = ! fieldMetalnessMap.value || fieldTilingOffset.value;
             fieldMetalnessTiling[0].parent.hidden = ! fieldMetalnessMap.value || fieldTilingOffset.value;
+            fieldMetalnessMapChannel.disabled = ! fieldMetalnessMap.value;
         });
+
+        // metalness map channel
+        var fieldMetalnessMapChannel = new ui.SelectField({
+            options: {
+                'r': 'R',
+                'g': 'G',
+                'b': 'B',
+                'a': 'A'
+            }
+        });
+        fieldMetalnessMapChannel.disabled = ! fieldMetalnessMap.value;
+        fieldMetalnessMapChannel.link(asset, 'data.metalnessMapChannel');
+        fieldMetalnessMapChannel.parent = fieldMetalnessMap.parent;
+        var label = fieldMetalnessMap.parent.innerElement.querySelector('.top > .ui-label');
+        label.parentNode.appendChild(fieldMetalnessMapChannel.element);
 
         // offset
         var fieldMetalnessOffset = editor.call('attributes:addField', {
@@ -803,15 +1009,31 @@ editor.once('load', function() {
             link: asset,
             path: 'data.specularMap'
         });
-
-        // map, hide/show offset and tiling, as well as color
+        fieldSpecularMap.parent.class.add('channel');
         fieldSpecularMap.on('change', function(value) {
             fieldSpecularOffset[0].parent.hidden = ! fieldSpecularMap.value || fieldTilingOffset.value;
             fieldSpecularTiling[0].parent.hidden = ! fieldSpecularMap.value || fieldTilingOffset.value;
             fieldSpecularTint.hidden = ! value;
             labelSpecularTint.hidden = ! value;
             fieldSpecularColor.hidden = value && ! fieldSpecularTint;
+            fieldSpecularMapChannel.disabled = ! value;
         });
+
+        // specular map channel
+        var fieldSpecularMapChannel = new ui.SelectField({
+            options: {
+                'r': 'R',
+                'g': 'G',
+                'b': 'B',
+                'a': 'A',
+                'rgb': 'RGB'
+            }
+        });
+        fieldSpecularMapChannel.disabled = ! fieldSpecularMap.value;
+        fieldSpecularMapChannel.link(asset, 'data.specularMapChannel');
+        fieldSpecularMapChannel.parent = fieldSpecularMap.parent;
+        var label = fieldSpecularMap.parent.innerElement.querySelector('.top > .ui-label');
+        label.parentNode.appendChild(fieldSpecularMapChannel.element);
 
 
         // offset
@@ -888,12 +1110,27 @@ editor.once('load', function() {
             link: asset,
             path: 'data.glossMap'
         });
-
-        // map, hide/show offset and tiling, as well as color
+        fieldGlossMap.parent.class.add('channel');
         fieldGlossMap.on('change', function(value) {
             fieldGlossOffset[0].parent.hidden = ! value || fieldTilingOffset.value;
             fieldGlossTiling[0].parent.hidden = ! value || fieldTilingOffset.value;
+            fieldGlossMapChannel.disabled = ! fieldGlossMap.value;
         });
+
+        // gloss map channel
+        var fieldGlossMapChannel = new ui.SelectField({
+            options: {
+                'r': 'R',
+                'g': 'G',
+                'b': 'B',
+                'a': 'A'
+            }
+        });
+        fieldGlossMapChannel.disabled = ! fieldGlossMap.value;
+        fieldGlossMapChannel.link(asset, 'data.glossMapChannel');
+        fieldGlossMapChannel.parent = fieldGlossMap.parent;
+        var label = fieldGlossMap.parent.innerElement.querySelector('.top > .ui-label');
+        label.parentNode.appendChild(fieldGlossMapChannel.element);
 
         // offset
         var fieldGlossOffset = editor.call('attributes:addField', {
@@ -967,23 +1204,16 @@ editor.once('load', function() {
         });
         fieldConserveEnergy.parent.innerElement.childNodes[0].style.width = 'auto';
 
-        // unfold panel
-        fieldSpecularMap.on('change', function() { panelSpecular.folded = false; });
-        fieldSpecularTint.on('change', function() { panelSpecular.folded = false; });
-        fieldSpecularColor.on('change', function() { panelSpecular.folded = false; });
-        fieldShininess.on('change', function() { panelSpecular.folded = false; });
-        fieldGlossMap.on('change', function() { panelSpecular.folded = false; });
-        fieldConserveEnergy.on('change', function() { panelSpecular.folded = false; });
-
-
 
         // emissive
         var panelEmissive = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: ! asset.get('data.emissiveMap'),
+            folded: panelState['emissive'],
             name: 'Emissive'
         });
         panelEmissive.class.add('component');
+        panelEmissive.on('fold', function() { panelState['emissive'] = true; });
+        panelEmissive.on('unfold', function() { panelState['emissive'] = false; });
 
         // map
         var fieldEmissiveMap = editor.call('attributes:addField', {
@@ -994,15 +1224,31 @@ editor.once('load', function() {
             link: asset,
             path: 'data.emissiveMap'
         });
-
-        // map, hide/show offset and tiling, as well as color
+        fieldEmissiveMap.parent.class.add('channel');
         fieldEmissiveMap.on('change', function(value) {
             fieldEmissiveOffset[0].parent.hidden = ! value || fieldTilingOffset.value;
             fieldEmissiveTiling[0].parent.hidden = ! value || fieldTilingOffset.value;
             fieldEmissiveTint.hidden = ! value;
             labelEmissiveTint.hidden = ! value;
             fieldEmissiveColor.hidden = value && ! fieldEmissiveTint.value;
+            fieldEmissiveMapChannel.disabled = ! fieldEmissiveMap.value;
         });
+
+        // emissive map channel
+        var fieldEmissiveMapChannel = new ui.SelectField({
+            options: {
+                'r': 'R',
+                'g': 'G',
+                'b': 'B',
+                'a': 'A',
+                'rgb': 'RGB'
+            }
+        });
+        fieldEmissiveMapChannel.disabled = ! fieldEmissiveMap.value;
+        fieldEmissiveMapChannel.link(asset, 'data.emissiveMapChannel');
+        fieldEmissiveMapChannel.parent = fieldEmissiveMap.parent;
+        var label = fieldEmissiveMap.parent.innerElement.querySelector('.top > .ui-label');
+        label.parentNode.appendChild(fieldEmissiveMapChannel.element);
 
         // offset
         var fieldEmissiveOffset = editor.call('attributes:addField', {
@@ -1093,20 +1339,16 @@ editor.once('load', function() {
         fieldEmissiveIntensitySlider.link(asset, 'data.emissiveIntensity');
         fieldEmissiveIntensity.parent.append(fieldEmissiveIntensitySlider);
 
-        // unfold panel
-        fieldEmissiveMap.on('change', function() { panelEmissive.folded = false; });
-        fieldEmissiveTint.on('change', function() { panelEmissive.folded = false; });
-        fieldEmissiveColor.on('change', function() { panelEmissive.folded = false; });
-        fieldEmissiveIntensity.on('change', function() { panelEmissive.folded = false; });
-
 
         // opacity
         var panelOpacity = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: ! asset.get('data.opacityMap'),
+            folded: panelState['opacity'],
             name: 'Opacity'
         });
         panelOpacity.class.add('component');
+        panelOpacity.on('fold', function() { panelState['opacity'] = true; });
+        panelOpacity.on('unfold', function() { panelState['opacity'] = false; });
 
         // map
         var fieldOpacityMap = editor.call('attributes:addField', {
@@ -1117,12 +1359,27 @@ editor.once('load', function() {
             link: asset,
             path: 'data.opacityMap'
         });
-
-        // map, hide/show offset and tiling
+        fieldOpacityMap.parent.class.add('channel');
         fieldOpacityMap.on('change', function(value) {
             fieldOpacityOffset[0].parent.hidden = ! value || fieldTilingOffset.value;
             fieldOpacityTiling[0].parent.hidden = ! value || fieldTilingOffset.value;
+            fieldOpacityMapChannel.disabled = ! fieldOpacityMap.value;
         });
+
+        // opacity map channel
+        var fieldOpacityMapChannel = new ui.SelectField({
+            options: {
+                'r': 'R',
+                'g': 'G',
+                'b': 'B',
+                'a': 'A'
+            }
+        });
+        fieldOpacityMapChannel.disabled = ! fieldOpacityMap.value;
+        fieldOpacityMapChannel.link(asset, 'data.opacityMapChannel');
+        fieldOpacityMapChannel.parent = fieldOpacityMap.parent;
+        var label = fieldOpacityMap.parent.innerElement.querySelector('.top > .ui-label');
+        label.parentNode.appendChild(fieldOpacityMapChannel.element);
 
         // offset
         var fieldOpacityOffset = editor.call('attributes:addField', {
@@ -1186,18 +1443,16 @@ editor.once('load', function() {
         fieldOpacityIntensitySlider.link(asset, 'data.opacity');
         fieldOpacityIntensity.parent.append(fieldOpacityIntensitySlider);
 
-        // unfold panel
-        fieldOpacityMap.on('change', function() { panelOpacity.folded = false; });
-        fieldOpacityIntensity.on('change', function() { panelOpacity.folded = false; });
-
 
         // normals
         var panelNormal = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: ! asset.get('data.normalMap'),
+            folded: panelState['normal'],
             name: 'Normals'
         });
         panelNormal.class.add('component');
+        panelNormal.on('fold', function() { panelState['normal'] = true; });
+        panelNormal.on('unfold', function() { panelState['normal'] = false; });
 
         // map (normals)
         var fieldNormalMap = editor.call('attributes:addField', {
@@ -1208,37 +1463,11 @@ editor.once('load', function() {
             link: asset,
             path: 'data.normalMap'
         });
-
-        // bumpiness
-        var fieldBumpiness = editor.call('attributes:addField', {
-            parent: panelNormal,
-            type: 'number',
-            name: 'Bumpiness',
-            precision: 3,
-            step: 0.05,
-            min: 0,
-            max: 2,
-            link: asset,
-            path: 'data.bumpMapFactor'
-        });
-        fieldBumpiness.style.width = '32px';
-
-        // bumpiness slider
-        var fieldBumpinessSlider = new ui.Slider({
-            min: 0,
-            max: 2,
-            precision: 3
-        });
-        fieldBumpinessSlider.flexGrow = 4;
-        fieldBumpinessSlider.link(asset, 'data.bumpMapFactor');
-        fieldBumpiness.parent.append(fieldBumpinessSlider);
-
         fieldNormalMap.on('change', function(value) {
             fieldNormalsOffset[0].parent.hidden = ! value || fieldTilingOffset.value;
             fieldNormalsTiling[0].parent.hidden = ! value || fieldTilingOffset.value;
             fieldBumpiness.parent.hidden = ! value;
         })
-        fieldBumpiness.parent.hidden = ! fieldNormalMap.value;
 
         // offset
         var fieldNormalsOffset = editor.call('attributes:addField', {
@@ -1276,21 +1505,52 @@ editor.once('load', function() {
         });
         fieldNormalsTiling[0].parent.hidden = ! fieldNormalMap.value || fieldTilingOffset.value;
 
-        // unfold panel
-        fieldNormalMap.on('change', function() { panelNormal.folded = false; });
-        fieldBumpiness.on('change', function() { panelNormal.folded = false; });
+        // bumpiness
+        var fieldBumpiness = editor.call('attributes:addField', {
+            parent: panelNormal,
+            type: 'number',
+            name: 'Bumpiness',
+            precision: 3,
+            step: 0.05,
+            min: 0,
+            max: 2,
+            link: asset,
+            path: 'data.bumpMapFactor'
+        });
+        fieldBumpiness.style.width = '32px';
+        fieldBumpiness.parent.hidden = ! fieldNormalMap.value;
 
+        // bumpiness slider
+        var fieldBumpinessSlider = new ui.Slider({
+            min: 0,
+            max: 2,
+            precision: 3
+        });
+        fieldBumpinessSlider.flexGrow = 4;
+        fieldBumpinessSlider.link(asset, 'data.bumpMapFactor');
+        fieldBumpiness.parent.append(fieldBumpinessSlider);
+
+        // specularAntialias
+        var fieldSpecularAA = editor.call('attributes:addField', {
+            parent: panelNormal,
+            type: 'checkbox',
+            name: 'Specular AA',
+            link: asset,
+            path: 'data.specularAntialias'
+        });
 
 
         // parallax
         var panelParallax = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: ! asset.get('data.heightMap'),
+            folded: panelState['height'],
             name: 'Parallax'
         });
         panelParallax.class.add('component');
+        panelParallax.on('fold', function() { panelState['height'] = true; });
+        panelParallax.on('unfold', function() { panelState['height'] = false; });
 
-        // map
+        // height map
         var fieldHeightMap = editor.call('attributes:addField', {
             parent: panelParallax,
             type: 'asset',
@@ -1299,13 +1559,28 @@ editor.once('load', function() {
             link: asset,
             path: 'data.heightMap'
         });
-
-        // map, hide/show offset and tiling, as well as color
+        fieldHeightMap.parent.class.add('channel');
         fieldHeightMap.on('change', function(value) {
             fieldHeightMapOffset[0].parent.hidden = ! value || fieldTilingOffset.value;
             fieldHeightMapTiling[0].parent.hidden = ! value || fieldTilingOffset.value;
             fieldHeightMapFactor.parent.hidden = ! value;
+            fieldHeightMapChannel.disabled = ! fieldHeightMap.value;
         });
+
+        // height map channel
+        var fieldHeightMapChannel = new ui.SelectField({
+            options: {
+                'r': 'R',
+                'g': 'G',
+                'b': 'B',
+                'a': 'A'
+            }
+        });
+        fieldHeightMapChannel.disabled = ! fieldHeightMap.value;
+        fieldHeightMapChannel.link(asset, 'data.heightMapChannel');
+        fieldHeightMapChannel.parent = fieldHeightMap.parent;
+        var label = fieldHeightMap.parent.innerElement.querySelector('.top > .ui-label');
+        label.parentNode.appendChild(fieldHeightMapChannel.element);
 
 
         // offset
@@ -1369,19 +1644,16 @@ editor.once('load', function() {
         fieldHeightMapFactorSlider.link(asset, 'data.heightMapFactor');
         fieldHeightMapFactor.parent.append(fieldHeightMapFactorSlider);
 
-        // unfold panel
-        fieldHeightMap.on('change', function() { panelParallax.folded = false; });
-        fieldHeightMapFactor.on('change', function() { panelParallax.folded = false; });
-
-
 
         // reflection
         var panelReflection = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: ! (asset.get('data.sphereMap') || asset.get('data.cubeMap')),
-            name: 'Reflection'
+            folded: panelState['environment'],
+            name: 'Environment'
         });
         panelReflection.class.add('component');
+        panelReflection.on('fold', function() { panelState['environment'] = true; });
+        panelReflection.on('unfold', function() { panelState['environment'] = false; });
 
         // spheremap
         var fieldReflectionSphere = editor.call('attributes:addField', {
@@ -1410,6 +1682,8 @@ editor.once('load', function() {
         fieldReflectionCubeMap.on('change', function(value) {
             fieldReflectionStrength.parent.hidden = ! fieldReflectionSphere.value && ! fieldReflectionCubeMap.value;
             fieldReflectionSphere.parent.hidden = !! value;
+            fieldRefraction.parent.hidden = ! value;
+            fieldRefractionIndex.parent.hidden = ! value;
         });
         fieldReflectionCubeMap.parent.hidden = !! asset.get('data.sphereMap');
 
@@ -1436,20 +1710,63 @@ editor.once('load', function() {
         fieldReflectionStrengthSlider.link(asset, 'data.reflectivity');
         fieldReflectionStrength.parent.append(fieldReflectionStrengthSlider);
 
-        // unfold panel
-        fieldReflectionSphere.on('change', function() { panelReflection.folded = false; });
-        fieldReflectionCubeMap.on('change', function() { panelReflection.folded = false; });
-        fieldReflectionStrength.on('change', function() { panelReflection.folded = false; });
+        // refraction
+        var fieldRefraction = editor.call('attributes:addField', {
+            parent: panelReflection,
+            type: 'number',
+            precision: 3,
+            step: 0.01,
+            min: 0,
+            max: 1,
+            name: 'Refraction',
+            link: asset,
+            path: 'data.refraction'
+        });
+        fieldRefraction.style.width = '32px';
+        fieldRefraction.parent.hidden = ! fieldReflectionCubeMap.value;
 
+        // refraction slider
+        var fieldRefractionSlider = new ui.Slider({
+            precision: 3
+        });
+        fieldRefractionSlider.flexGrow = 4;
+        fieldRefractionSlider.link(asset, 'data.refraction');
+        fieldRefraction.parent.append(fieldRefractionSlider);
+
+
+        // refractionIndex
+        var fieldRefractionIndex = editor.call('attributes:addField', {
+            parent: panelReflection,
+            type: 'number',
+            precision: 3,
+            step: 0.01,
+            min: 0,
+            max: 1,
+            name: 'Index of Refraction',
+            link: asset,
+            path: 'data.refractionIndex'
+        });
+        fieldRefractionIndex.style.width = '32px';
+        fieldRefractionIndex.parent.hidden = ! fieldReflectionCubeMap.value;
+
+        // refraction slider
+        var fieldRefractionIndexSlider = new ui.Slider({
+            precision: 3
+        });
+        fieldRefractionIndexSlider.flexGrow = 4;
+        fieldRefractionIndexSlider.link(asset, 'data.refractionIndex');
+        fieldRefractionIndex.parent.append(fieldRefractionIndexSlider);
 
 
         // lightmap
         var panelLightMap = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: ! asset.get('data.lightMap'),
+            folded: panelState['light'],
             name: 'LightMap'
         });
         panelLightMap.class.add('component');
+        panelLightMap.on('fold', function() { panelState['light'] = true; });
+        panelLightMap.on('unfold', function() { panelState['light'] = false; });
 
         // map
         var fieldLightMap = editor.call('attributes:addField', {
@@ -1460,12 +1777,28 @@ editor.once('load', function() {
             link: asset,
             path: 'data.lightMap'
         });
-        // unfold panel
+        fieldLightMap.parent.class.add('channel');
         fieldLightMap.on('change', function() {
             fieldLightMapOffset[0].parent.hidden = ! fieldLightMap.value || fieldTilingOffset.value;
             fieldLightMapTiling[0].parent.hidden = ! fieldLightMap.value || fieldTilingOffset.value;
-            panelLightMap.folded = false;
+            fieldLightMapChannel.disabled = ! fieldLightMap.value;
         });
+
+        // light map channel
+        var fieldLightMapChannel = new ui.SelectField({
+            options: {
+                'r': 'R',
+                'g': 'G',
+                'b': 'B',
+                'a': 'A',
+                'rgb': 'RGB'
+            }
+        });
+        fieldLightMapChannel.disabled = ! fieldLightMap.value;
+        fieldLightMapChannel.link(asset, 'data.lightMapChannel');
+        fieldLightMapChannel.parent = fieldLightMap.parent;
+        var label = fieldLightMap.parent.innerElement.querySelector('.top > .ui-label');
+        label.parentNode.appendChild(fieldLightMapChannel.element);
 
 
         // offset
@@ -1509,10 +1842,12 @@ editor.once('load', function() {
         // render states
         var panelRenderStates = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: true,
-            name: 'Render States'
+            folded: panelState['states'],
+            name: 'Other'
         });
         panelRenderStates.class.add('component');
+        panelRenderStates.on('fold', function() { panelState['states'] = true; });
+        panelRenderStates.on('unfold', function() { panelState['states'] = false; });
 
 
         // depth
@@ -1564,10 +1899,14 @@ editor.once('load', function() {
             path: 'data.blendType'
         });
 
-        // unfold panel
-        fieldDepthTest.on('change', function() { panelRenderStates.folded = false; });
-        fieldDepthWrite.on('change', function() { panelRenderStates.folded = false; });
-        fieldCull.on('change', function() { panelRenderStates.folded = false; });
-        fieldBlendType.on('change', function() { panelRenderStates.folded = false; });
+        // shadowSampleType
+        var fieldShadowSampleType = editor.call('attributes:addField', {
+            parent: panelRenderStates,
+            type: 'number',
+            enum: mapping.shadowSampleType.enum,
+            name: 'Shadow Sample Type',
+            link: asset,
+            path: 'data.shadowSampleType'
+        });
     });
 });

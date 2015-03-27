@@ -8,7 +8,7 @@ editor.once('load', function() {
         var data = editor.call('material:mapToList', {
             name: 'New Material',
             data: {
-                model: 'phong'
+                model: 'blinn'
             }
         });
 

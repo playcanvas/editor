@@ -105,7 +105,7 @@ editor.once('load', function() {
         // exposure slider
         var fieldExposureSlider = new ui.Slider({
             min: 0,
-            max: 1024,
+            max: 32,
             precision: 2
         });
         fieldExposureSlider.flexGrow = 4;
@@ -115,12 +115,16 @@ editor.once('load', function() {
         // gamma correction
         var fieldGammaCorrection = editor.call('attributes:addField', {
             parent: panelCamera,
-            name: 'Gamma Correction',
-            type: 'checkbox',
+            name: 'Gamma',
+            type: 'number',
+            enum: {
+                0: '1.0',
+                1: '2.2',
+                2: '2.2 Fast'
+            },
             link: sceneSettings,
             path: 'render.gamma_correction'
         });
-        fieldGammaCorrection.parent.innerElement.childNodes[0].style.width = 'auto';
 
 
         // fog

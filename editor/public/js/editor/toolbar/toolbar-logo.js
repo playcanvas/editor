@@ -195,6 +195,7 @@ editor.once('load', function() {
                                 entity.set('name', 'Point Light');
                                 addComponent(entity, 'light');
                                 entity.set('components.light.type', 'point');
+                                entity.set('components.light.shadowResolution', 256);
                                 entity.history.enabled = true;
                             }
                         },

@@ -26,6 +26,8 @@ function Panel(header) {
     this.innerElement.classList.add('content');
     this.element.appendChild(this.innerElement);
 
+    this.innerElement.addEventListener('scroll', this._onScroll.bind(this), false);
+
     // HACK
     // skip 2 frames before enabling transitions
     requestAnimationFrame(function() {
@@ -129,6 +131,11 @@ Panel.prototype._reflow = function() {
             this.style.height = ((this.headerSize || 32) + this._innerElement.clientHeight) + 'px';
         }
     }
+};
+
+
+Panel.prototype._onScroll = function(evt) {
+    this.emit('scroll', evt);
 };
 
 

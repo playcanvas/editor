@@ -348,6 +348,7 @@ body {
                     }
                     &:before {
                         content: 'Search';
+                        position: absolute;
                         color: $text-dark;
                         line-height: 32px;
                         font-size: 18px;
@@ -403,18 +404,6 @@ body {
             }
         }
     }
-}
-
-.asset-preview {
-    display: block;
-    width: calc(100% - 16px);
-    // padding-bottom: calc(100% - 16px);
-    border: 8px solid $bcg-darkest;
-
-    background-position: center center;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-color: $bcg-darkest;
 }
 
 .drop-ref-highlight {
@@ -479,6 +468,21 @@ body {
         font-size: 20px;
     }
 
+    &.asset-preview {
+        > .asset-preview {
+            display: block;
+            width: calc(100% - 16px);
+            border: 8px solid $bcg-darker;
+            background-color: $bcg-darker;
+            background-position: center center;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        > .content {
+            margin-top: 100%;
+        }
+    }
+
     .ui-panel {
         &.field {
             > .content {
@@ -505,6 +509,18 @@ body {
             vertical-align: top;
         }
         &.field-asset {
+            &.channel {
+                > .content > .top {
+                    > .ui-label {
+                        float: left;
+                        width: calc(100% - 100px);
+                    }
+                    > .ui-select-field {
+                        float: right;
+                        width: 32px;
+                    }
+                }
+            }
             > .content {
                 > .ui-image-field {
                     -webkit-flex-shrink: 0;
@@ -571,11 +587,13 @@ body {
                         }
                     }
                     > .ui-label {
-                        width: calc(100% - 24px);
+                        width: calc(100% - 44px);
                         height: 22px;
                         line-height: 22px;
                         margin: 3px;
-                        padding: 0 8px;
+                        padding: 0 28px 0 8px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
                         background-color: $bcg-dark;
                         border: 1px solid $bcg-darker;
                         cursor: pointer;
