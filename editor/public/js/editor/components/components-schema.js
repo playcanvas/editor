@@ -216,7 +216,7 @@ editor.once('load', function() {
                 linearFactor: [1, 1, 1],
                 angularFactor: [1, 1, 1],
                 friction: 0.5,
-                restitution: 0
+                restitution: 0.5
             },
             types: {
                 linearFactor: 'vec3',

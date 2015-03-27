@@ -345,7 +345,7 @@ editor.once('load', function() {
     var panelsStates = { };
     var panelsStatesDependencies = {
         'offset': [ 'diffuseMapOffset', 'diffuseMapTiling' ],
-        'ambient': [ 'aoMap' ],
+        'ao': [ 'aoMap' ],
         'diffuse': [ 'diffuseMap' ],
         'specular': [ 'specularMap', 'metalnessMap', 'glossMap' ],
         'emissive': [ 'emissiveMap' ],

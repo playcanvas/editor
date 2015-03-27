@@ -29,7 +29,7 @@ editor.on('load', function() {
     var message = new ui.Label();
     message.style.color = '#fff';
     message.style.margin = '0 0 0 64px';
-    message.style.lineHeight = '48px';
+    message.style.lineHeight = '45px';
     message.style.fontWeight = 'bold';
     message.text = 'NEW BETA EDITOR';
     top.append(message);
@@ -37,7 +37,7 @@ editor.on('load', function() {
     var messageB = new ui.Label();
     messageB.style.color = '#fff';
     messageB.style.margin = '0 0 0 32px';
-    messageB.style.lineHeight = '48px';
+    messageB.style.lineHeight = '45px';
     messageB.text = 'You are currently testing our new Editor. Please give us feedback using the comment button in the toolbar.'
     top.append(messageB);
 
@@ -49,7 +49,7 @@ editor.on('load', function() {
     closeMessage.style.border = 'none';
     closeMessage.style.padding = '0 16px';
     closeMessage.style.backgroundColor = 'transparent';
-    closeMessage.style.lineHeight = '48px';
+    closeMessage.style.lineHeight = '45px';
     closeMessage.style.float = 'right';
     closeMessage.once('click', function() {
         top.destroy();
@@ -77,12 +77,12 @@ editor.on('load', function() {
     var toolbar = new ui.Panel();
     toolbar.element.id = 'ui-toolbar';
     toolbar.flexShrink = false;
-    toolbar.style.width = '48px';
+    toolbar.style.width = '45px';
     middle.append(toolbar);
     // expose
     editor.method('layout.toolbar', function() { return toolbar; });
 
-    toolbar.style.marginTop = '-48px';
+    toolbar.style.marginTop = '-45px';
 
 
     // hierarchy
