@@ -402,8 +402,10 @@ editor.once('load', function() {
         var root = editor.call('attributes.rootPanel');
 
         var panelState = panelsStates[asset.get('id')] = panelsStates[asset.get('id')];
+        var panelStateNew = false;
 
         if (! panelState) {
+            panelStateNew = true;
             panelState = panelsStates[asset.get('id')] = { };
 
             for(var key in panelsStatesDependencies) {
@@ -513,6 +515,20 @@ editor.once('load', function() {
         });
 
 
+        var offset = asset.get('data.' + mappingMaps[0] + 'MapOffset');
+        var tiling = asset.get('data.' + mappingMaps[0] + 'MapTiling');
+        var different = false;
+        for(var i = 1; i < mappingMaps.length; i++) {
+            if (! offset.equals(asset.get('data.' + mappingMaps[i] + 'MapOffset')) || ! tiling.equals(asset.get('data.' + mappingMaps[i] + 'MapTiling'))) {
+                different = true;
+                break;
+            }
+        }
+
+        if (different && panelStateNew)
+            panelState['offset'] = true;
+
+
         // tiling & offset
         var panelTiling = editor.call('attributes:addPanel', {
             foldable: true,
@@ -530,7 +546,7 @@ editor.once('load', function() {
             parent: panelTiling,
             type: 'checkbox',
             name: 'Apply to all Maps',
-            value: true
+            value: ! different
         });
         fieldTilingOffset.element.previousSibling.style.width = 'auto';
         fieldTilingOffset.on('change', function(value) {
@@ -577,8 +593,14 @@ editor.once('load', function() {
             }
         }
 
-        if (different)
+        if (different) {
             fieldTilingOffset.value = false;
+
+            if (panelStateNew && ! panelState['offset']) {
+                panelState['offset'] = true;
+
+            }
+        }
 
         fieldOffset[0].value = offset[0];
         fieldOffset[1].value = offset[1];
