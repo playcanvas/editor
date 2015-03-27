@@ -402,8 +402,10 @@ editor.once('load', function() {
         var root = editor.call('attributes.rootPanel');
 
         var panelState = panelsStates[asset.get('id')] = panelsStates[asset.get('id')];
+        var panelStateNew = false;
 
         if (! panelState) {
+            panelStateNew = true;
             panelState = panelsStates[asset.get('id')] = { };
 
             for(var key in panelsStatesDependencies) {
@@ -437,7 +439,7 @@ editor.once('load', function() {
         root.class.add('asset-preview');
         root.element.insertBefore(canvas, root.innerElement);
         var scrolledFully = false;
-        root.on('scroll', function(evt) {
+        var scrollEvt = root.on('scroll', function(evt) {
             if (root.innerElement.scrollTop > 128) {
                 if (! scrolledFully) {
                     scrolledFully = true;
@@ -494,6 +496,7 @@ editor.once('load', function() {
         panelParams.class.add('component');
 
         panelParams.on('destroy', function() {
+            scrollEvt.unbind();
             evtPanelResize.unbind();
             evtMaterialChanged.unbind();
             canvas.parentNode.removeChild(canvas);
@@ -520,6 +523,20 @@ editor.once('load', function() {
         });
 
 
+        var offset = asset.get('data.' + mappingMaps[0] + 'MapOffset');
+        var tiling = asset.get('data.' + mappingMaps[0] + 'MapTiling');
+        var different = false;
+        for(var i = 1; i < mappingMaps.length; i++) {
+            if (! offset.equals(asset.get('data.' + mappingMaps[i] + 'MapOffset')) || ! tiling.equals(asset.get('data.' + mappingMaps[i] + 'MapTiling'))) {
+                different = true;
+                break;
+            }
+        }
+
+        if (different && panelStateNew)
+            panelState['offset'] = true;
+
+
         // tiling & offset
         var panelTiling = editor.call('attributes:addPanel', {
             foldable: true,
@@ -537,7 +554,7 @@ editor.once('load', function() {
             parent: panelTiling,
             type: 'checkbox',
             name: 'Apply to all Maps',
-            value: true
+            value: ! different
         });
         fieldTilingOffset.element.previousSibling.style.width = 'auto';
         fieldTilingOffset.on('change', function(value) {
@@ -584,8 +601,14 @@ editor.once('load', function() {
             }
         }
 
-        if (different)
+        if (different) {
             fieldTilingOffset.value = false;
+
+            if (panelStateNew && ! panelState['offset']) {
+                panelState['offset'] = true;
+
+            }
+        }
 
         fieldOffset[0].value = offset[0];
         fieldOffset[1].value = offset[1];
