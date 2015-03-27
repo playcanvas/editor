@@ -348,6 +348,7 @@ body {
                     }
                     &:before {
                         content: 'Search';
+                        position: absolute;
                         color: $text-dark;
                         line-height: 32px;
                         font-size: 18px;

@@ -435,7 +435,7 @@ editor.once('load', function() {
         root.class.add('asset-preview');
         root.element.insertBefore(image, root.innerElement);
         var scrolledFully = false;
-        root.on('scroll', function(evt) {
+        var scrollEvt = root.on('scroll', function(evt) {
             if (root.innerElement.scrollTop > 128) {
                 if (! scrolledFully) {
                     scrolledFully = true;
@@ -486,6 +486,7 @@ editor.once('load', function() {
         panelParams.class.add('component');
 
         panelParams.on('destroy', function() {
+            scrollEvt.unbind();
             evtPanelResize.unbind();
             evtMaterialChanged.unbind();
             image.parentNode.removeChild(image);

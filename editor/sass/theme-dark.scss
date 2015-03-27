@@ -172,8 +172,10 @@ a:visited {
         }
     }
     &.resizable {
+        $handle-size: 2px;
+
         &.resizing > .handle {
-            background-color: $text-active;
+            background-color: transparent;
         }
         &.resizable-left {
             padding-left: 0;
@@ -181,9 +183,18 @@ a:visited {
             &.scrollable > .content {
                 left: 0;
             }
+            > .handle {
+                width: $handle-size;
+                border-left: 3px solid $bcg-darkest;
+            }
         }
         &.resizable-right {
             padding-right: 0;
+
+            > .handle {
+                width: $handle-size;
+                border-right: 3px solid $bcg-darkest;
+            }
         }
         &.resizable-top {
             padding-top: 0;
@@ -191,20 +202,29 @@ a:visited {
             &.scrollable > .content {
                 top: 32px;
             }
+            > .handle {
+                height: $handle-size;
+                border-top: 3px solid $bcg-darkest;
+            }
         }
         &.resizable-bottom {
             padding-bottom: 0;
+
+            > .handle {
+                height: $handle-size;
+                border-bottom: 3px solid $bcg-darkest;
+            }
         }
         &.resizing > .handle {
             opacity: 1;
         }
         > .handle {
             opacity: 0;
-            background-color: $text-active;
+            background-color: transparent;
 
             &:hover {
                 opacity: 1;
-                background-color: $text-active;
+                background-color: transparent;
             }
         }
     }
