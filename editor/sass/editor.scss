@@ -469,7 +469,7 @@ body {
     }
 
     &.asset-preview {
-        > img.asset-preview {
+        > .asset-preview {
             display: block;
             width: calc(100% - 16px);
             border: 8px solid $bcg-darker;
