@@ -432,7 +432,35 @@ editor.once('load', function() {
         // preview
         var image = new Image();
         image.classList.add('asset-preview');
-        root.innerElement.insertBefore(image, root.innerElement.firstChild);
+        root.class.add('asset-preview');
+        root.element.insertBefore(image, root.innerElement);
+        var scrolledFully = false;
+        root.on('scroll', function(evt) {
+            if (root.innerElement.scrollTop > 128) {
+                if (! scrolledFully) {
+                    scrolledFully = true;
+                    root.innerElement.style.marginTop = '50%';
+                    image.style.width = 'calc(50% - 16px)';
+                    image.style.paddingLeft = '25%';
+                    image.style.paddingRight = '25%';
+
+                    if (renderTimeout)
+                        clearTimeout(renderTimeout);
+                    renderTimeout = setTimeout(renderPreview, 100);
+                }
+            } else {
+                scrolledFully = false;
+                var p = 100 - Math.floor((root.innerElement.scrollTop / 128) * 50);
+                root.innerElement.style.marginTop = p + '%';
+                image.style.width = 'calc(' + p + '% - 16px)';
+                image.style.paddingLeft = ((100 - p) / 2) + '%';
+                image.style.paddingRight = ((100 - p) / 2) + '%';
+
+                if (renderTimeout)
+                    clearTimeout(renderTimeout);
+                renderTimeout = setTimeout(renderPreview, 100);
+            }
+        });
 
         var renderPreview = function () {
             editor.call('preview:material', asset, image.clientWidth, function (url) {
@@ -460,6 +488,9 @@ editor.once('load', function() {
         panelParams.on('destroy', function() {
             evtPanelResize.unbind();
             evtMaterialChanged.unbind();
+            image.parentNode.removeChild(image);
+            root.class.remove('asset-preview');
+            root.innerElement.style.marginTop = '';
         });
 
         // model

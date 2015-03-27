@@ -405,18 +405,6 @@ body {
     }
 }
 
-.asset-preview {
-    display: block;
-    width: calc(100% - 16px);
-    // padding-bottom: calc(100% - 16px);
-    border: 8px solid $bcg-darkest;
-
-    background-position: center center;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-color: $bcg-darkest;
-}
-
 .drop-ref-highlight {
     z-index: 210;
 }
@@ -477,6 +465,21 @@ body {
     > .ui-header:after {
         content: '\E122';
         font-size: 20px;
+    }
+
+    &.asset-preview {
+        > img.asset-preview {
+            display: block;
+            width: calc(100% - 16px);
+            border: 8px solid $bcg-darker;
+            background-color: $bcg-darker;
+            background-position: center center;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        > .content {
+            margin-top: 100%;
+        }
     }
 
     .ui-panel {
