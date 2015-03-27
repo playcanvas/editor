@@ -430,19 +430,21 @@ editor.once('load', function() {
 
 
         // preview
-        var image = new Image();
-        image.classList.add('asset-preview');
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        canvas.classList.add('asset-preview');
+
         root.class.add('asset-preview');
-        root.element.insertBefore(image, root.innerElement);
+        root.element.insertBefore(canvas, root.innerElement);
         var scrolledFully = false;
         root.on('scroll', function(evt) {
             if (root.innerElement.scrollTop > 128) {
                 if (! scrolledFully) {
                     scrolledFully = true;
                     root.innerElement.style.marginTop = '50%';
-                    image.style.width = 'calc(50% - 16px)';
-                    image.style.paddingLeft = '25%';
-                    image.style.paddingRight = '25%';
+                    canvas.style.width = 'calc(50% - 16px)';
+                    canvas.style.paddingLeft = '25%';
+                    canvas.style.paddingRight = '25%';
 
                     if (renderTimeout)
                         clearTimeout(renderTimeout);
@@ -452,9 +454,9 @@ editor.once('load', function() {
                 scrolledFully = false;
                 var p = 100 - Math.floor((root.innerElement.scrollTop / 128) * 50);
                 root.innerElement.style.marginTop = p + '%';
-                image.style.width = 'calc(' + p + '% - 16px)';
-                image.style.paddingLeft = ((100 - p) / 2) + '%';
-                image.style.paddingRight = ((100 - p) / 2) + '%';
+                canvas.style.width = 'calc(' + p + '% - 16px)';
+                canvas.style.paddingLeft = ((100 - p) / 2) + '%';
+                canvas.style.paddingRight = ((100 - p) / 2) + '%';
 
                 if (renderTimeout)
                     clearTimeout(renderTimeout);
@@ -463,10 +465,13 @@ editor.once('load', function() {
         });
 
         var renderPreview = function () {
-            editor.call('preview:material', asset, image.clientWidth, function (url) {
-                image.src = url;
+            // resize canvas
+            canvas.width = root.element.clientWidth;
+            canvas.height = canvas.width;
+            editor.call('preview:render:material', asset, canvas.width, function (sourceCanvas) {
+                ctx.drawImage(sourceCanvas, 0, 0);
             });
-        }
+        };
         renderPreview();
 
         var renderTimeout;
@@ -477,7 +482,10 @@ editor.once('load', function() {
 
             renderTimeout = setTimeout(renderPreview, 100);
         });
-        var evtMaterialChanged = editor.on('preview:material:changed', renderPreview);
+        var evtMaterialChanged = editor.on('preview:material:changed', function (id) {
+            if (id === asset.get('id'))
+                renderPreview();
+        });
 
         // properties panel
         var panelParams = editor.call('attributes:addPanel', {
@@ -488,7 +496,7 @@ editor.once('load', function() {
         panelParams.on('destroy', function() {
             evtPanelResize.unbind();
             evtMaterialChanged.unbind();
-            image.parentNode.removeChild(image);
+            canvas.parentNode.removeChild(canvas);
             root.class.remove('asset-preview');
             root.innerElement.style.marginTop = '';
         });
