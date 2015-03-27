@@ -29,7 +29,7 @@
             var iterator;
 
             var vertexBuffers = [];
-            for (var axis = 0; axis <= 3; axis++) {
+            for (var axis = 0; axis < 3; axis++) {
                 // Create a vertex buffer
                 vertexBuffers.push(new pc.gfx.VertexBuffer(device, this.vertexFormat, numVerts));
 
