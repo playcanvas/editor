@@ -342,6 +342,21 @@ editor.once('load', function() {
         'light'
     ];
 
+    var panelsStates = { };
+    var panelsStatesDependencies = {
+        'offset': [ 'diffuseMapOffset', 'diffuseMapTiling' ],
+        'ambient': [ 'aoMap' ],
+        'diffuse': [ 'diffuseMap' ],
+        'specular': [ 'specularMap', 'metalnessMap', 'glossMap' ],
+        'emissive': [ 'emissiveMap' ],
+        'opacity': [ 'opacityMap' ],
+        'normals': [ 'normalMap' ],
+        'height': [ 'heightMap' ],
+        'environment': [ 'sphereMap', 'cubeMap' ],
+        'light': [ 'lightMap' ],
+        'states': [ ]
+    }
+
     editor.method('material:listToMap', function(data) {
         var obj = {
             model: data.shader
@@ -385,6 +400,34 @@ editor.once('load', function() {
         var asset = assets[0];
 
         var root = editor.call('attributes.rootPanel');
+
+        var panelState = panelsStates[asset.get('id')] = panelsStates[asset.get('id')];
+
+        if (! panelState) {
+            panelState = panelsStates[asset.get('id')] = { };
+
+            for(var key in panelsStatesDependencies) {
+                var fields = panelsStatesDependencies[key];
+                panelState[key] = true;
+
+                for(var n = 0; n < fields.length; n++) {
+                    switch(mapping[fields[n]].type) {
+                        case 'vec2':
+                            var value = asset.get('data.' + fields[n]);
+                            if (value && value[0] !== mapping[fields[n]].default[0] || value && value[1] !== mapping[fields[n]].default[1]) {
+                                panelState[key] = false;
+                            }
+                            break;
+                        case 'texture':
+                            if (asset.get('data.' + fields[n])) {
+                                panelState[key] = false;
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+
 
         // preview
         var image = new Image();
@@ -441,10 +484,12 @@ editor.once('load', function() {
         // tiling & offset
         var panelTiling = editor.call('attributes:addPanel', {
             foldable: true,
-            // folded: true,
+            folded: panelState['offset'],
             name: 'Offset & Tiling'
         });
         panelTiling.class.add('component');
+        panelTiling.on('fold', function() { panelState['offset'] = true; });
+        panelTiling.on('unfold', function() { panelState['offset'] = false; });
 
         var tilingOffsetFields = [ ];
 
@@ -537,10 +582,12 @@ editor.once('load', function() {
         // ambient
         var panelAmbient = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: ! asset.get('data.aoMap'),
+            folded: panelState['ao'],
             name: 'Ambient'
         });
         panelAmbient.class.add('component');
+        panelAmbient.on('fold', function() { panelState['ao'] = true; });
+        panelAmbient.on('unfold', function() { panelState['ao'] = false; });
 
 
         // color
@@ -658,20 +705,16 @@ editor.once('load', function() {
         });
         fieldAmbientUVSet.parent.hidden = ! fieldAmbientMap.value;
 
-        // unfold panel
-        fieldAmbientTint.on('change', function() { panelAmbient.folded = false; });
-        fieldAmbientColor.on('change', function() { panelAmbient.folded = false; });
-        fieldAmbientMap.on('change', function() { panelAmbient.folded = false; });
-        fieldAmbientUVSet.on('change', function() { panelAmbient.folded = false; });
-
 
         // diffuse
         var panelDiffuse = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: ! asset.get('data.diffuseMap'),
+            folded: panelState['diffuse'],
             name: 'Diffuse'
         });
         panelDiffuse.class.add('component');
+        panelDiffuse.on('fold', function() { panelState['diffuse'] = true; });
+        panelDiffuse.on('unfold', function() { panelState['diffuse'] = false; });
 
         // diffuse map
         var fieldDiffuseMap = editor.call('attributes:addField', {
@@ -773,20 +816,15 @@ editor.once('load', function() {
         fieldDiffuseColor.parent.appendAfter(labelDiffuseTint, fieldDiffuseColor);
 
 
-        // unfold panel
-        fieldDiffuseMap.on('change', function() { panelDiffuse.folded = false; });
-        fieldDiffuseTint.on('change', function() { panelDiffuse.folded = false; });
-        fieldDiffuseColor.on('change', function() { panelDiffuse.folded = false; });
-
-
-
         // specular
         var panelSpecular = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: ! asset.get('data.specularMap') && ! asset.get('data.metalnessMap') && ! asset.get('data.glossMap'),
+            folded: panelState['specular'],
             name: 'Specular'
         });
         panelSpecular.class.add('component');
+        panelSpecular.on('fold', function() { panelState['specular'] = true; });
+        panelSpecular.on('unfold', function() { panelState['specular'] = false; });
 
         // use metalness
         var fieldUseMetalness = editor.call('attributes:addField', {
@@ -1104,23 +1142,16 @@ editor.once('load', function() {
         });
         fieldConserveEnergy.parent.innerElement.childNodes[0].style.width = 'auto';
 
-        // unfold panel
-        fieldSpecularMap.on('change', function() { panelSpecular.folded = false; });
-        fieldSpecularTint.on('change', function() { panelSpecular.folded = false; });
-        fieldSpecularColor.on('change', function() { panelSpecular.folded = false; });
-        fieldShininess.on('change', function() { panelSpecular.folded = false; });
-        fieldGlossMap.on('change', function() { panelSpecular.folded = false; });
-        fieldConserveEnergy.on('change', function() { panelSpecular.folded = false; });
-
-
 
         // emissive
         var panelEmissive = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: ! asset.get('data.emissiveMap'),
+            folded: panelState['emissive'],
             name: 'Emissive'
         });
         panelEmissive.class.add('component');
+        panelEmissive.on('fold', function() { panelState['emissive'] = true; });
+        panelEmissive.on('unfold', function() { panelState['emissive'] = false; });
 
         // map
         var fieldEmissiveMap = editor.call('attributes:addField', {
@@ -1246,20 +1277,16 @@ editor.once('load', function() {
         fieldEmissiveIntensitySlider.link(asset, 'data.emissiveIntensity');
         fieldEmissiveIntensity.parent.append(fieldEmissiveIntensitySlider);
 
-        // unfold panel
-        fieldEmissiveMap.on('change', function() { panelEmissive.folded = false; });
-        fieldEmissiveTint.on('change', function() { panelEmissive.folded = false; });
-        fieldEmissiveColor.on('change', function() { panelEmissive.folded = false; });
-        fieldEmissiveIntensity.on('change', function() { panelEmissive.folded = false; });
-
 
         // opacity
         var panelOpacity = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: ! asset.get('data.opacityMap'),
+            folded: panelState['opacity'],
             name: 'Opacity'
         });
         panelOpacity.class.add('component');
+        panelOpacity.on('fold', function() { panelState['opacity'] = true; });
+        panelOpacity.on('unfold', function() { panelState['opacity'] = false; });
 
         // map
         var fieldOpacityMap = editor.call('attributes:addField', {
@@ -1354,18 +1381,16 @@ editor.once('load', function() {
         fieldOpacityIntensitySlider.link(asset, 'data.opacity');
         fieldOpacityIntensity.parent.append(fieldOpacityIntensitySlider);
 
-        // unfold panel
-        fieldOpacityMap.on('change', function() { panelOpacity.folded = false; });
-        fieldOpacityIntensity.on('change', function() { panelOpacity.folded = false; });
-
 
         // normals
         var panelNormal = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: ! asset.get('data.normalMap'),
+            folded: panelState['normal'],
             name: 'Normals'
         });
         panelNormal.class.add('component');
+        panelNormal.on('fold', function() { panelState['normal'] = true; });
+        panelNormal.on('unfold', function() { panelState['normal'] = false; });
 
         // map (normals)
         var fieldNormalMap = editor.call('attributes:addField', {
@@ -1418,9 +1443,6 @@ editor.once('load', function() {
         });
         fieldNormalsTiling[0].parent.hidden = ! fieldNormalMap.value || fieldTilingOffset.value;
 
-        // unfold panel
-        fieldNormalMap.on('change', function() { panelNormal.folded = false; });
-
         // bumpiness
         var fieldBumpiness = editor.call('attributes:addField', {
             parent: panelNormal,
@@ -1435,7 +1457,6 @@ editor.once('load', function() {
         });
         fieldBumpiness.style.width = '32px';
         fieldBumpiness.parent.hidden = ! fieldNormalMap.value;
-        fieldBumpiness.on('change', function() { panelNormal.folded = false; });
 
         // bumpiness slider
         var fieldBumpinessSlider = new ui.Slider({
@@ -1460,10 +1481,12 @@ editor.once('load', function() {
         // parallax
         var panelParallax = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: ! asset.get('data.heightMap'),
+            folded: panelState['height'],
             name: 'Parallax'
         });
         panelParallax.class.add('component');
+        panelParallax.on('fold', function() { panelState['height'] = true; });
+        panelParallax.on('unfold', function() { panelState['height'] = false; });
 
         // height map
         var fieldHeightMap = editor.call('attributes:addField', {
@@ -1559,19 +1582,16 @@ editor.once('load', function() {
         fieldHeightMapFactorSlider.link(asset, 'data.heightMapFactor');
         fieldHeightMapFactor.parent.append(fieldHeightMapFactorSlider);
 
-        // unfold panel
-        fieldHeightMap.on('change', function() { panelParallax.folded = false; });
-        fieldHeightMapFactor.on('change', function() { panelParallax.folded = false; });
-
-
 
         // reflection
         var panelReflection = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: ! (asset.get('data.sphereMap') || asset.get('data.cubeMap')),
+            folded: panelState['environment'],
             name: 'Environment'
         });
         panelReflection.class.add('component');
+        panelReflection.on('fold', function() { panelState['environment'] = true; });
+        panelReflection.on('unfold', function() { panelState['environment'] = false; });
 
         // spheremap
         var fieldReflectionSphere = editor.call('attributes:addField', {
@@ -1676,20 +1696,15 @@ editor.once('load', function() {
         fieldRefractionIndex.parent.append(fieldRefractionIndexSlider);
 
 
-        // unfold panel
-        fieldReflectionSphere.on('change', function() { panelReflection.folded = false; });
-        fieldReflectionCubeMap.on('change', function() { panelReflection.folded = false; });
-        fieldReflectionStrength.on('change', function() { panelReflection.folded = false; });
-
-
-
         // lightmap
         var panelLightMap = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: ! asset.get('data.lightMap'),
+            folded: panelState['light'],
             name: 'LightMap'
         });
         panelLightMap.class.add('component');
+        panelLightMap.on('fold', function() { panelState['light'] = true; });
+        panelLightMap.on('unfold', function() { panelState['light'] = false; });
 
         // map
         var fieldLightMap = editor.call('attributes:addField', {
@@ -1704,7 +1719,6 @@ editor.once('load', function() {
         fieldLightMap.on('change', function() {
             fieldLightMapOffset[0].parent.hidden = ! fieldLightMap.value || fieldTilingOffset.value;
             fieldLightMapTiling[0].parent.hidden = ! fieldLightMap.value || fieldTilingOffset.value;
-            panelLightMap.folded = false;
             fieldLightMapChannel.disabled = ! fieldLightMap.value;
         });
 
@@ -1766,10 +1780,12 @@ editor.once('load', function() {
         // render states
         var panelRenderStates = editor.call('attributes:addPanel', {
             foldable: true,
-            // folded: true,
+            folded: panelState['states'],
             name: 'Other'
         });
         panelRenderStates.class.add('component');
+        panelRenderStates.on('fold', function() { panelState['states'] = true; });
+        panelRenderStates.on('unfold', function() { panelState['states'] = false; });
 
 
         // depth
@@ -1830,12 +1846,5 @@ editor.once('load', function() {
             link: asset,
             path: 'data.shadowSampleType'
         });
-
-
-        // unfold panel
-        // fieldDepthTest.on('change', function() { panelRenderStates.folded = false; });
-        // fieldDepthWrite.on('change', function() { panelRenderStates.folded = false; });
-        // fieldCull.on('change', function() { panelRenderStates.folded = false; });
-        // fieldBlendType.on('change', function() { panelRenderStates.folded = false; });
     });
 });
