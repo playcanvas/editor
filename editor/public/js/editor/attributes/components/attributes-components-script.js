@@ -217,7 +217,7 @@ editor.once('load', function() {
 
                     for (var i = 0; i < scripts.length; i++) {
                         var scriptInstance = scripts[i];
-                        if (scriptInstance.get('url') !== scriptInstance.get('url'))
+                        if (scriptInstance.get('url') !== url)
                             continue;
 
                         var oldAttributes = scriptInstance.get('attributes') || { };
