@@ -49,43 +49,38 @@ body {
 }
 
 #ui-toolbar {
-    border-right: 1px solid $bcg-dark;
-
     > .content {
         position: absolute;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        width: 48px;
+        width: 45px;
         height: auto;
         background-color: #293538;
 
-        > .beta {
-            line-height: 22px;
-            text-align: center;
-            color: $text-primary;
-            background-color: #f30;
-        }
         > .ui-button {
             display: block;
             margin: 0;
             padding: 0;
-            width: 48px;
-            height: 48px;
+            width: 45px;
+            height: 45px;
             border: none;
             overflow: hidden;
 
             &.logo {
-                background-color: #f70;
-                background-image: url("https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/platform/images/logo/playcanvas-icon-80.png");
-                background-size: 14px 32px;
+                background-image: url("https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/editor_logo.png");
+                background-size: 92px 46px;
                 background-repeat: no-repeat;
-                background-position: center center;
+                background-position: -1px -1px;
+
+                &:hover {
+                    background-position: -47px -1px;
+                }
             }
             &.icon {
                 color: #9ba1a3;
-                line-height: 46px;
+                line-height: 43px;
                 font-family: 'ui-font-solid';
                 font-size: 24px;
                 text-align: center;
@@ -267,7 +262,7 @@ body {
                     // margin: 0 0 0 16px;
                     vertical-align: top;
                     font-family: 'ui-font-solid';
-                    font-size: 18px;
+                    font-size: 16px;
                     text-align: center;
                     -webkit-font-smoothing: antialiased;
                     -moz-osx-font-smoothing: grayscale;
@@ -418,7 +413,7 @@ body {
     width: auto;
     height: auto;
     z-index: 201;
-    background-color: rgba(#20292b, .7);
+    background-color: rgba(#20292b, .3);
     opacity: 0;
     visibility: hidden;
     transition: opacity 100ms, visibility 100ms;
@@ -448,13 +443,15 @@ body {
     > .drop-area {
         position: absolute;
         margin: -2px 0 0 -2px;
+        padding: 2px;
         width: auto;
         height: auto;
-        border: 2px dotted $text-active;
-        background-color: rgba($text-active, .1);
+        border: none;
+        // border: 2px solid $text-active;
+        background-color: rgba($text-active, .4);
 
         &.over {
-            background-color: rgba($text-active, .5);
+            background-color: rgba($text-active, .7);
         }
     }
 }
@@ -946,6 +943,8 @@ body {
 }
 
 .ui-panel.hierarchy {
+    border-left: 1px solid $bcg-darker;
+
     &.foldable {
         &.horizontal.resizable-right {
             > .ui-header:after {
@@ -1029,12 +1028,14 @@ body {
 }
 
 .ui-panel.hierarchy-controls {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    width: auto;
-    border-top: 1px solid $bcg-dark;
+    // position: absolute;
+    // left: 0;
+    // bottom: 0;
+    // right: 0;
+    // width: auto;
+    // border-top: 1px solid $bcg-dark;
+    float: right;
+    background-color: transparent;
 
     > .content {
         background-color: transparent;
@@ -1052,7 +1053,7 @@ body {
             padding: 0;
             color: #9ba1a3;
             font-family: 'ui-font-solid';
-            font-size: 18px;
+            font-size: 16px;
             text-align: center;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
@@ -1061,7 +1062,7 @@ body {
 
             &.active {
                 color: $text-active;
-                background-color: #2c393c;
+                background-color: $bcg-darkest;
             }
             &.disabled {
                 opacity: 1;
@@ -1070,13 +1071,13 @@ body {
                 &:hover,
                 &:focus {
                     color: mix(#9ba1a3, #364346, 30%);
-                    background-color: #364346;
+                    background-color: transparent;
                 }
             }
             &:hover,
             &:focus {
                 color: #fff;
-                background-color: $bcg-dark;
+                background-color: $bcg-darkest;
             }
         }
     }
@@ -1084,6 +1085,8 @@ body {
 
 .ui-grid.assets {
     > .ui-grid-item {
+        width: 104px;
+        height: 104px;
         position: relative;
 
         &.type-animation {
@@ -1123,7 +1126,7 @@ body {
                 content: '\E547';
             }
             > .icon:after {
-                content: '\E547';
+                content: '';
             }
         }
         &.type-model {
@@ -1147,7 +1150,7 @@ body {
                 content: '\E236';
             }
             > .icon:after {
-                content: '\E236';
+                content: '';
             }
         }
         &.type-text {
@@ -1180,7 +1183,7 @@ body {
             width: 64px;
             height: 64px;
             line-height: 60px;
-            margin: 16px;
+            margin: 12px 20px;
             background-position: center center;
             background-size: 64px 64px;
             background-repeat: no-repeat;
@@ -1219,9 +1222,9 @@ body {
             position: absolute;
             right: 0;
             left: 0;
-            bottom: 0;
+            bottom: 8px;
             width: auto;
-            max-width: 92px;
+            max-width: 100px;
             line-height: 14px;
             margin: 0px;
             padding: 2px;

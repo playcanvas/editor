@@ -7,7 +7,8 @@ editor.once('load', function() {
     var controls = new ui.Panel();
     controls.class.add('hierarchy-controls');
     controls.parent = panel;
-    panel.element.appendChild(controls.element);
+    panel.headerAppend(controls);
+    // panel.element.appendChild(controls.element);
 
     // controls delete
     var btnDelete = new ui.Button({
