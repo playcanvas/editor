@@ -15,7 +15,7 @@
         this.blockerMaterial.blueWrite = false;
         this.blockerMaterial.alphaWrite = false;
         this.blockerMaterial.update();
-    }
+    };
 
     pc.GizmoRotate = pc.inherits(pc.GizmoRotate, pc.Gizmo);
 
@@ -194,6 +194,12 @@
         },
 
         _drag: function (e) {
+            if (this.activeAxis >= 3) {
+                // TODO: find out why / when this happens
+                console.log('Rotation gizmo: active axis is ' + this.activeAxis);
+                return;
+            }
+
             var x = e.x;
             var y = e.y;
             var entity = this.entity;
