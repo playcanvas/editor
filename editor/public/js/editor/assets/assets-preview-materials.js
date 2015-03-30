@@ -147,7 +147,11 @@ editor.once('load', function () {
 
     editor.on('assets:add', function (asset) {
         if (asset.get('type') === 'material')
-            generatePreview(asset);
+            // generate preview after a little while to wait
+            // for all assets to be added to the registry first
+            setTimeout(function () {
+                generatePreview(asset);
+            }, 100);
     });
 
     editor.on('assets:remove', function (asset) {

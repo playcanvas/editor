@@ -147,7 +147,11 @@ editor.once('load', function () {
         //if (asset.get('source')) return;
         //if (asset.get('type') !== 'model') return;
 
-        //generatePreview(asset);
+        // // do this in a timeout to wait for all
+        // // assets to be added to the asset registry first
+        // setTimeout(function () {
+        //     generatePreview(asset);
+        // }, 100);
     //});
 
     // ---- Models with materials -----
