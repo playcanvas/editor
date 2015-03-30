@@ -23,13 +23,19 @@ editor.once('repositories:load', function (repositories) {
 
     // get script full URL
     editor.method('sourcefiles:url', function (relativeUrl) {
+        var services = {
+            directory: 'directory',
+            bitbucket: 'bitbucket.org',
+            github: 'github.com'
+        };
+
         var fullUrl = [
             config.url.api,
             'files',
             'code',
             config.project.id,
             'master',
-            repositories.get('current'),
+            services[repositories.get('current')],
             repositories.get(repositories.get('current') + '.username'),
             repositories.get(repositories.get('current') + '.repo'),
             relativeUrl
@@ -39,6 +45,8 @@ editor.once('repositories:load', function (repositories) {
     });
 
     editor.method('sourcefiles:create', function (url, callback) {
+        if (repositories.get('current') !== 'directory') return;
+
         var data = {
             filename: url,
             content: editor.call('sourcefiles:skeleton', url)
