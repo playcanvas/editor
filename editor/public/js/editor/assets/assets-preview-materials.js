@@ -46,6 +46,9 @@ editor.once('load', function () {
 
     var settings = editor.call('sceneSettings');
 
+    var materialCache = {};
+    var cubemapCache = {};
+
     var updateSettings = function () {
         var ambient = settings.get('render.global_ambient');
         var gammaCorrection = settings.get('render.gamma_correction');
@@ -108,8 +111,8 @@ editor.once('load', function () {
     });
 
     // when materials are changed render their thumbs
-    editor.on('preview:material:changed', function (materialId) {
-        var asset = editor.call('assets:get', materialId);
+    editor.on('preview:material:changed', function (assetId) {
+        var asset = editor.call('assets:get', assetId);
         if (asset)
             editor.call('preview:delayedRender', asset);
     });
@@ -117,49 +120,21 @@ editor.once('load', function () {
     // loads real-time material for the specified asset and
     // generates thumbnails for it
     var generatePreview = function (asset) {
-        var materialId = asset.get('id');
+        var assetId = asset.get('id');
         var material;
 
-        var realtimeAsset = assets.getAssetById(materialId);
+        var realtimeAsset = assets.getAssetById(assetId);
         if (!realtimeAsset)
             return;
 
         // called when material resource is loaded
         function onLoaded () {
-            // remember old update
-            if (!material.oldUpdate) {
-                material.oldUpdate = material.update;
-
-                // patch update function of material
-                // to re-render on the canvas whenever the
-                // material is updated
-                material.update = function () {
-                    material.oldUpdate.call(material);
-
-                    var cubeMap = material.cubeMap;
-                    if (cubeMap) {
-                        // patch cubemap setSource method to give us
-                        // updates when it's called so we can re-render materials
-                         if (!cubeMap.oldSetSource) {
-                            cubeMap.oldSetSource = cubeMap.setSource;
-                            cubeMap.setSource = function (source) {
-                                cubeMap.oldSetSource.call(cubeMap, source);
-
-                                if (cubeMap === material.cubeMap)
-                                    editor.emit('preview:material:changed', materialId);
-                             };
-                         }
-                    }
-
-                    editor.emit('preview:material:changed', materialId);
-                };
-            }
-
+            materialCache[material.id] = assetId;
             editor.call('preview:render', asset);
         }
 
         // load material
-        var material = realtimeAsset.resource;
+        material = realtimeAsset.resource;
         if (!material) {
             assets.load(realtimeAsset).then(function (resources) {
                 material = resources[0];
@@ -178,11 +153,42 @@ editor.once('load', function () {
     editor.on('assets:remove', function (asset) {
         if (asset.get('type') !== 'material') return;
 
-        var id = asset.get('id');
-        var material = assets.getAssetById(id);
-        if (!material || !material.resource || !material.resource.oldUpdate) return;
-
-        material.resource.update = material.resource.oldUpdate;
+        // clear caches
+        var assetId = asset.get('id');
+        for (var id in materialCache) {
+            if (materialCache[id] === assetId) {
+                delete cubemapCache[id];
+                delete materialCache[id];
+            }
+        }
     });
+
+    // patch update for materials to emit change event
+    var update = pc.PhongMaterial.prototype.update;
+    pc.PhongMaterial.prototype.update = function () {
+        update.call(this);
+        if (materialCache[this.id])
+            editor.emit('preview:material:changed', materialCache[this.id]);
+
+        // add referenced cubemap to cubemap cache
+        if (this.cubeMap)
+            cubemapCache[this.id] = this.cubeMap;
+        else
+            delete cubemapCache[this.id];
+    };
+
+    // patch cubemap setSource to emit a change event for
+    // materials that reference it
+    var setSource = pc.Texture.prototype.setSource;
+    pc.Texture.prototype.setSource = function () {
+        setSource.apply(this, arguments);
+
+        for (var id in cubemapCache) {
+            if (cubemapCache[id] === this && materialCache[id]) {
+                editor.emit('preview:material:changed', materialCache[id]);
+            }
+        }
+    };
+
 
 });

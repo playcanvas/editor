@@ -51,12 +51,7 @@ editor.once('load', function() {
                 // this will trigger the 'update' event on the asset in the engine
                 // handling all resource loading automatically
                 realtimeAsset[parts[0]] = raw;
-
-                editor.call('viewport:render');
             });
-
-            // render
-            editor.call('viewport:render');
         });
 
         // remove assets from asset registry
@@ -64,9 +59,6 @@ editor.once('load', function() {
             var realtimeAsset = assetRegistry.getAssetById(asset.get('id'));
             if (realtimeAsset) {
                 assetRegistry.removeAsset(realtimeAsset);
-
-                // re-render
-                editor.call('viewport:render');
             }
         });
     });
