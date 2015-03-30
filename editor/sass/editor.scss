@@ -302,6 +302,7 @@ body {
                     vertical-align: top;
 
                     > .value {
+                        @include font-bold;
                         line-height: 32px;
 
                         &:after {
@@ -311,6 +312,7 @@ body {
                         }
                     }
                     > ul > li {
+                        @include font-bold;
                         line-height: 32px;
                     }
                     &.not-empty {
@@ -351,7 +353,7 @@ body {
                         color: $text-dark;
                         line-height: 32px;
                         padding: 0 8px;
-                        font-family: inconsolatamedium;
+                        @include font-bold;
                         font-size: 12px;
                     }
                     &.not-empty:before {
