@@ -1,3 +1,5 @@
+@import 'fonts';
+
 $bcg-darkest: #20292b;
 $bcg-darker: #293538;
 $bcg-dark: #2c393c;
@@ -14,6 +16,7 @@ html {
     overflow: hidden;
 }
 body {
+    @include font-regular;
     min-height: 100%;
     height: 100%;
     overflow: hidden;
@@ -21,7 +24,8 @@ body {
     background-color: #333;
     font-size: 14px;
     color: #eee;
-    font-family: inconsolatamedium;
+
+    // font-family: inconsolatamedium;
     // font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
 }
 
@@ -346,8 +350,8 @@ body {
                         position: absolute;
                         color: $text-dark;
                         line-height: 32px;
-                        font-size: 18px;
                         padding: 0 8px;
+                        font-family: inconsolatamedium;
                         font-size: 12px;
                     }
                     &.not-empty:before {
@@ -474,9 +478,12 @@ body {
             background-position: center center;
             background-size: contain;
             background-repeat: no-repeat;
+
+            transition: padding-left 100ms, padding-right 100ms, width 100ms;
         }
         > .content {
             margin-top: 100%;
+            transition: margin-top 100ms;
         }
     }
 
@@ -591,6 +598,8 @@ body {
                         padding: 0 28px 0 8px;
                         overflow: hidden;
                         text-overflow: ellipsis;
+                        font-family: inconsolatamedium;
+                        font-size: 12px;
                         background-color: $bcg-dark;
                         border: 1px solid $bcg-darker;
                         cursor: pointer;
@@ -766,24 +775,12 @@ body {
         }
     }
     .ui-panel.component {
-        // box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
-
         > header {
-            // border-left: 4px solid $text-active;
             text-transform: uppercase;
-
-            &:hover {
-                background-color: $bcg-darkest;
-            }
         }
         &.foldable {
-            &.folded {
-                > header {
-                    border-left-color: #5b7073;
-                }
-            }
             > header:hover {
-                border-left-color: #fff;
+                background-color: $bcg-darkest;
             }
         }
 
@@ -972,16 +969,24 @@ body {
 
 .ui-tree.hierarchy {
     .ui-tree-item {
-        > .title > .icon:after {
-            content: '\E243';
-            line-height: 21px;
-            font-family: 'ui-font-solid';
-            font-size: 18px;
-            text-align: center;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            font-smoothing: antialiased;
-            background-color: transparent;
+        > .title {
+            @include font-regular;
+
+            &:hover > .icon:after {
+                color: $text-primary;
+            }
+            > .icon:after {
+                content: '\E243';
+                line-height: 21px;
+                font-family: 'ui-font-solid';
+                font-size: 18px;
+                text-align: center;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                font-smoothing: antialiased;
+                background-color: transparent;
+                color: $text-darkest;
+            }
         }
         &.container {
             > .title > .icon:after {
@@ -990,7 +995,7 @@ body {
         }
         &.selected {
             > .title > .icon:after {
-                color: $text-active;
+                color: $text-primary;
             }
         }
         &.c-script > .title > .icon:after {
@@ -1219,6 +1224,8 @@ body {
             }
         }
         > .label {
+            @include font-regular;
+
             position: absolute;
             right: 0;
             left: 0;

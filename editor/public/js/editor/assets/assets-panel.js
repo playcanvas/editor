@@ -115,16 +115,13 @@ editor.once('load', function() {
 
         var label = document.createElement('div');
         label.classList.add('label');
-        label.textContent = asset.get('file.filename') || asset.get('name');
+        label.textContent = asset.get('name');
         item.element.appendChild(label);
 
         // update name/filename change
         asset.on('name:set', function() {
-            label.textContent = this.get('file.filename') || this.get('name');
+            label.textContent = this.get('name');
             this.set('data.name', this.get('name'));
-        });
-        asset.on('file.filename:set', function() {
-            label.textContent = this.get('file.filename') || this.get('name');
         });
     });
 

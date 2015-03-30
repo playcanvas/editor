@@ -37,25 +37,14 @@
             path: 'id'
         });
 
-        if (asset.get('file.filename')) {
-            // filename
-            editor.call('attributes:addField', {
-                parent: panel,
-                name: 'Filename',
-                type: 'string',
-                link: asset,
-                path: 'file.filename'
-            });
-        } else {
-            // name
-            editor.call('attributes:addField', {
-                parent: panel,
-                name: 'Name',
-                type: 'string',
-                link: asset,
-                path: 'name'
-            });
-        }
+        // name
+        editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Name',
+            type: 'string',
+            link: asset,
+            path: 'name'
+        });
 
         // type
         editor.call('attributes:addField', {

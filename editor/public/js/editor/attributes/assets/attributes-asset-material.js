@@ -439,10 +439,16 @@ editor.once('load', function() {
         root.class.add('asset-preview');
         root.element.insertBefore(canvas, root.innerElement);
         var scrolledFully = false;
-        var scrollEvt = root.on('scroll', function(evt) {
-            if (root.innerElement.scrollTop > 128) {
+        var scrollHeightLast = -1;
+        var scrollFn = function(evt) {
+            var scrollBudget = root.innerElement.scrollHeight - (root.element.clientHeight - 32 - 320);
+            var scrollHeight = 128 - Math.max(0, 320 - scrollBudget);
+
+            if (root.innerElement.scrollTop > scrollHeight) {
                 if (! scrolledFully) {
                     scrolledFully = true;
+                    scrollHeightLast = -1;
+
                     root.innerElement.style.marginTop = '50%';
                     canvas.style.width = 'calc(50% - 16px)';
                     canvas.style.paddingLeft = '25%';
@@ -454,7 +460,12 @@ editor.once('load', function() {
                 }
             } else {
                 scrolledFully = false;
-                var p = 100 - Math.floor((root.innerElement.scrollTop / 128) * 50);
+
+                var p = 100 - Math.floor((root.innerElement.scrollTop / scrollHeight) * 50);
+
+                if (p === scrollHeightLast) return;
+                scrollHeightLast = p;
+
                 root.innerElement.style.marginTop = p + '%';
                 canvas.style.width = 'calc(' + p + '% - 16px)';
                 canvas.style.paddingLeft = ((100 - p) / 2) + '%';
@@ -464,7 +475,9 @@ editor.once('load', function() {
                     clearTimeout(renderTimeout);
                 renderTimeout = setTimeout(renderPreview, 100);
             }
-        });
+        };
+        var scrollEvt = root.on('scroll', scrollFn);
+        var scrollInterval = setInterval(scrollFn, 200);
 
         var renderPreview = function () {
             // resize canvas
@@ -496,6 +509,7 @@ editor.once('load', function() {
         panelParams.class.add('component');
 
         panelParams.on('destroy', function() {
+            clearInterval(scrollInterval);
             scrollEvt.unbind();
             evtPanelResize.unbind();
             evtMaterialChanged.unbind();
