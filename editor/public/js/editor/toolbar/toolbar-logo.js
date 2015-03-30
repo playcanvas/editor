@@ -377,7 +377,7 @@ editor.once('load', function() {
     var root = editor.call('layout.root');
 
     var menu = ui.Menu.fromData(menuData);
-    menu.position(48, 0);
+    menu.position(45, 0);
     root.append(menu);
 
     // get part of menu data
