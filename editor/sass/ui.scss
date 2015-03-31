@@ -346,6 +346,8 @@ a:visited {
         }
     }
     > .overlay {
+        @extend .noSelect;
+
         position: absolute;
         width: auto;
         height: auto;

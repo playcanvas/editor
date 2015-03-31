@@ -11,8 +11,8 @@ function Overlay(args) {
     this.elementOverlay.classList.add('overlay', 'clickable');
     this.element.appendChild(this.elementOverlay);
 
-    this.elementOverlay.addEventListener('mousedown', function() {
-        if (!this.clickable)
+    this.elementOverlay.addEventListener('mousedown', function(evt) {
+        if (! this.clickable)
             return false;
 
         // some field might be in focus
@@ -23,6 +23,8 @@ function Overlay(args) {
             // hide overlay
             this.hidden = true;
         }.bind(this), 0);
+
+        evt.preventDefault();
     }.bind(this), false);
 
     this.innerElement = document.createElement('div');

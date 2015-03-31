@@ -1,3 +1,5 @@
+@import 'fonts';
+
 $bcg-darkest: #20292b;
 $bcg-darker: #293538;
 $bcg-dark: #2c393c;
@@ -13,15 +15,6 @@ $field-padding: 3px;
 
 $disabled-opacity: .4;
 
-@font-face {
-    font-family: 'ui-font-solid';
-    src: url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/uifont-solid.eot');
-    src: url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/uifont-solid.eot?#iefix') format('embedded-opentype'),
-         url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/uifont-solid.ttf') format('truetype'),
-         url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/uifont-solid.svg') format('svg');
-    font-weight: normal;
-    font-style: normal;
-}
 
 .font-icon {
     font-family: 'ui-font-solid';
@@ -92,15 +85,13 @@ a:visited {
         }
     }
     > header {
+        @include font-bold;
         background-color: $bcg-darker;
         color: $text-primary;
-        // height: 36px;
-        // line-height: 36px;
         font-size: 12px;
-        font-weight: 100;
-        // -webkit-font-smoothing: antialiased;
-        // -moz-osx-font-smoothing: grayscale;
-        // font-smoothing: antialiased;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-smoothing: antialiased;
     }
     &.foldable {
         &.folded {
@@ -146,7 +137,7 @@ a:visited {
                 left: 0;
                 content: '\E113';
                 font-family: 'ui-font-solid';
-                font-size: 18px;
+                font-size: 14px;
                 text-align: center;
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
@@ -283,25 +274,33 @@ a:visited {
     &.container {
         // plus icon
         > .title:before {
-            content: '+';
+            content: '\E464';
+            width: 16px;
+            height: 16px;
+            margin: 3px;
+            font-family: 'ui-font-solid';
+            font-size: 10px;
+            text-align: center;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-smoothing: antialiased;
             color: $text-secondary;
             text-align: center;
-            line-height: 19px;
+            line-height: 15px;
             background: transparent;
-            font-size: 18px;
             font-weight: bold;
             background-color: $bcg-dark;
         }
         > .title:hover:before {
-            color: $text-active;
+            color: $bcg-darkest;
+            background-color: $text-active;
         }
         // minus icon
         &.open {
             > .title:before {
-                content: '-';
-            }
-            > .title:hover:before {
+                content: '\E465';
                 color: $text-secondary;
+                background-color: $bcg-dark;
             }
         }
     }
@@ -328,6 +327,9 @@ a:visited {
             // line-left
             &:before {
                 background-color: $line-color;
+                left: -12px;
+                top: 10px;
+                height: 2px;
             }
             // icon
             &:after {
@@ -342,9 +344,9 @@ a:visited {
             border-color: transparent;
 
             > .icon {
-                &:before {
-                    background-color: $bcg-darkest;
-                }
+                // &:before {
+                //     background-color: $bcg-darkest;
+                // }
                 &:after {
                     background-color: $text-active;
                 }
@@ -360,17 +362,26 @@ a:visited {
     // line-top
     &:before {
         background-color: $line-color;
+        width: 2px;
+        left: 14px;
+        top: -12px;
+        bottom: 12px;
+    }
+    // line-top, last item
+    &:last-child {
+        &:before {
+            height: 25px;
+        }
     }
     // line-top, single item
     &.single {
         &:before {
+            left: 14px;
+            top: -12px;
+            width: 2px;
             background-color: $line-color;
         }
     }
-}
-
-.ui-menu {
-
 }
 
 .ui-menu-item {
