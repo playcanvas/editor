@@ -32,6 +32,42 @@ editor.once('load', function() {
     });
 
 
+    // scrolling on drag
+    var dragScroll = 0;
+    var dragTimer;
+    var dragLastEvt;
+    var dragEvt = function(evt) {
+        if (! hierarchy._dragging) {
+            console.log('1')
+            clearInterval(dragTimer);
+            window.removeEventListener('mousemove', dragEvt);
+            return;
+        }
+        var rect = panel.innerElement.getBoundingClientRect();
+
+        if ((evt.clientY - rect.top) < 32 && panel.innerElement.scrollTop > 0) {
+            dragScroll = -1;
+        } else if ((rect.bottom - evt.clientY) < 32 && (panel.innerElement.scrollHeight - (rect.height + panel.innerElement.scrollTop)) > 0) {
+            dragScroll = 1;
+        } else {
+            dragScroll = 0;
+        }
+    };
+    hierarchy.on('dragstart', function() {
+        dragTimer = setInterval(function() {
+            if (dragScroll === 0)
+                return;
+
+            panel.innerElement.scrollTop += dragScroll * 8;
+            hierarchy._dragOver = null;
+            hierarchy._updateDragHandle();
+        }, 1000 / 60);
+
+        dragScroll = 0;
+        window.addEventListener('mousemove', dragEvt, false);
+    });
+
+
     // reparenting
     hierarchy.on('reparent', function(item, parentOld) {
         var parent = item.parent.entity;

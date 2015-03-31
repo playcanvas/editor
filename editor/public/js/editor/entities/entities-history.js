@@ -5,9 +5,14 @@ editor.once('load', function() {
         if (entity.history)
             return;
 
+        var resourceId = entity.get('resource_id');
+
         entity.history = new ObserverHistory({
             item: entity,
-            prefix: 'entity.' + entity.get('resource_id') + '.'
+            prefix: 'entity.' + entity.get('resource_id') + '.',
+            onGetItem: function() {
+                return editor.call('entities:get', resourceId);
+            }
         });
 
         // record history

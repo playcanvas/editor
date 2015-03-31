@@ -955,12 +955,13 @@ body {
         }
     }
 
-    > .ui-header:after {
-        content: '\E122';
-        font-size: 20px;
-    }
-    > .content {
-        bottom: 32px;
+    > .ui-header {
+        z-index: 5;
+
+        &:after {
+            content: '\E122';
+            font-size: 20px;
+        }
     }
     &.folded {
         > .hierarchy-controls {

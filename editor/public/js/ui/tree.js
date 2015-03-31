@@ -79,6 +79,8 @@ Tree.prototype._onDragStart = function(item) {
     }
 
     this._updateDragHandle();
+
+    this.emit('dragstart');
 };
 
 
@@ -97,7 +99,7 @@ Tree.prototype._onDragOver = function(item, evt) {
 };
 
 
-Tree.prototype._onDragMove = function(evt) {
+Tree.prototype._hoverCalculate = function(evt) {
     if (! this._dragOver)
         return;
 
@@ -130,12 +132,19 @@ Tree.prototype._onDragMove = function(evt) {
 };
 
 
+Tree.prototype._onDragMove = function(evt) {
+    this._hoverCalculate(evt);
+    this.emit('dragmove', evt);
+};
+
+
 Tree.prototype._onDragOut = function() {
     if (! this._dragging || ! this._dragOver)
         return;
 
     this._dragOver = null;
     this._updateDragHandle();
+    this.emit('mouseleave');
 };
 
 
@@ -174,9 +183,10 @@ Tree.prototype._onDragEnd = function() {
 
     this._dragItems = [ ];
 
-    if (this._dragOver) {
+    if (this._dragOver)
         this._dragOver = null;
-    }
+
+    this.emit('dragend');
 };
 
 
