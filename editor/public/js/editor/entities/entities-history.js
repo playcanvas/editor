@@ -9,8 +9,8 @@ editor.once('load', function() {
 
         entity.history = new ObserverHistory({
             item: entity,
-            prefix: 'entity.' + entity.get('resource_id') + '.',
-            onGetItem: function() {
+            prefix: 'entity.' + resourceId + '.',
+            getItemFn: function () {
                 return editor.call('entities:get', resourceId);
             }
         });
