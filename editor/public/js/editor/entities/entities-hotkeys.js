@@ -34,7 +34,8 @@ editor.once('load', function() {
                 return;
 
             var items = editor.call('selector:items');
-            editor.call('entities:duplicate', items[0]);
+            if (items[0] !== editor.call('entities:root'))
+                editor.call('entities:duplicate', items[0]);
         }
     });
 
@@ -49,9 +50,11 @@ editor.once('load', function() {
             if (type !== 'entity')
                 return;
 
+            var root = editor.call('entities:root');
             var items = editor.call('selector:items');
             items.forEach(function(entity) {
-                editor.call('entities:delete', entity);
+                if (entity !== root)
+                    editor.call('entities:delete', entity);
             });
         }
     });
