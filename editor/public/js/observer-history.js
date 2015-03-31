@@ -6,6 +6,7 @@ function ObserverHistory(args) {
     this._enabled = args.enabled || true;
     this._combine = args._combine || false;
     this._prefix = args.prefix || '';
+    this._getItemFn = args.getItemFn;
 
     this._initialize();
 }
@@ -29,10 +30,12 @@ ObserverHistory.prototype._initialize = function() {
             undo: function() {
                 self._enabled = false;
 
+                var item = self._getItemFn();
+
                 if (valueOld === undefined) {
-                    self.item.unset(path);
+                    item.unset(path);
                 } else {
-                    self.item.set(path, valueOld);
+                    item.set(path, valueOld);
                 }
 
                 self._enabled = true;
@@ -40,10 +43,12 @@ ObserverHistory.prototype._initialize = function() {
             redo: function() {
                 self._enabled = false;
 
+                var item = self._getItemFn();
+
                 if (value === undefined) {
-                    self.item.unset(path);
+                    item.unset(path);
                 } else {
-                    self.item.set(path, value);
+                    item.set(path, value);
                 }
 
                 self._enabled = true;
@@ -66,13 +71,17 @@ ObserverHistory.prototype._initialize = function() {
         var data = {
             name: self._prefix + path,
             undo: function() {
+                var item = self._getItemFn();
+
                 self._enabled = false;
-                self.item.set(path, valueOld);
+                item.set(path, valueOld);
                 self._enabled = true;
             },
             redo: function() {
+                var item = self._getItemFn();
+
                 self._enabled = false;
-                self.item.unset(path);
+                item.unset(path);
                 self._enabled = true;
             }
         };
@@ -91,13 +100,17 @@ ObserverHistory.prototype._initialize = function() {
         var data = {
             name: self._prefix + path,
             undo: function() {
+                var item = self._getItemFn();
+
                 self._enabled = false;
-                self.item.removeValue(path, value);
+                item.removeValue(path, value);
                 self._enabled = true;
             },
             redo: function() {
+                var item = self._getItemFn();
+
                 self._enabled = false;
-                self.item.insert(path, value, ind);
+                item.insert(path, value, ind);
                 self._enabled = true;
             }
         };
@@ -116,13 +129,17 @@ ObserverHistory.prototype._initialize = function() {
         var data = {
             name: self._prefix + path,
             undo: function() {
+                var item = self._getItemFn();
+
                 self._enabled = false;
-                self.item.insert(path, value, ind);
+                item.insert(path, value, ind);
                 self._enabled = true;
             },
             redo: function() {
+                var item = self._getItemFn();
+
                 self._enabled = false;
-                self.item.removeValue(path, value);
+                item.removeValue(path, value);
                 self._enabled = true;
             }
         };
@@ -141,13 +158,17 @@ ObserverHistory.prototype._initialize = function() {
         var data = {
             name: self._prefix + path,
             undo: function() {
+                var item = self._getItemFn();
+
                 self._enabled = false;
-                self.item.move(path, ind, indOld);
+                item.move(path, ind, indOld);
                 self._enabled = true;
             },
             redo: function() {
+                var item = self._getItemFn();
+
                 self._enabled = false;
-                self.item.move(path, indOld, ind);
+                item.move(path, indOld, ind);
                 self._enabled = true;
             }
         };

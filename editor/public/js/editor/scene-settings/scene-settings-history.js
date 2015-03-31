@@ -4,7 +4,10 @@ editor.once('load', function() {
     editor.once('sceneSettings:load', function(settings) {
         settings.history = new ObserverHistory({
             item: settings,
-            prefix: 'settings.'
+            prefix: 'settings.',
+            getItemFn: function () {
+                return editor.call('sceneSettings');
+            }
         });
 
         // record history
