@@ -105,7 +105,7 @@ editor.once('load', function () {
 
         setBestCameraPositionForModel();
 
-        // use the same size for all thumbs for optimization
+        // resize canvas appropriately
         device.resizeCanvas(size, size);
         camera.setAspectRatio(1);
 
