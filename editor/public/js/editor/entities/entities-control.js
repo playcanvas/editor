@@ -61,8 +61,10 @@ editor.once('load', function() {
         btnDelete.disabled = true;
     });
 
-    editor.on('attributes:inspect[*]', function(type) {
-        btnDelete.enabled = type === 'entity';
-        btnDuplicate.enabled = type === 'entity';
+    editor.on('attributes:inspect[*]', function(type, items) {
+        var root = editor.call('entities:root');
+
+        btnDelete.enabled = type === 'entity' && items[0] !== root;
+        btnDuplicate.enabled = btnDelete.enabled;
     });
 });

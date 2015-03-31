@@ -5,9 +5,14 @@ editor.once('load', function() {
         if (asset.history)
             return;
 
+        var id = asset.get('id');
+
         asset.history = new ObserverHistory({
             item: asset,
-            prefix: 'asset.' + asset.get('id') + '.',
+            prefix: 'asset.' + id + '.',
+            getItemFn: function () {
+                return editor.call('assets:get', id);
+            }
             // TODO
             // allowed paths
         });

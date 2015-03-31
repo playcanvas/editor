@@ -99,7 +99,7 @@ editor.once('load', function () {
 
         model.meshInstances[0].material = material; //.clone();
 
-        // use the same size for all thumbs for optimization
+        // resize canvas appropriately
         if (canvas.width !== size)
             device.resizeCanvas(size, size);
 

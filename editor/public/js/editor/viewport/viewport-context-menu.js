@@ -22,6 +22,9 @@ editor.once('load', function() {
         menuData['delete'] = {
             title: 'Delete',
             icon: '&#58657;',
+            filter: function () {
+                return currentEntity !== editor.call('entities:root');
+            },
             select: function() {
                 editor.call('entities:delete', currentEntity);
             }
@@ -30,10 +33,13 @@ editor.once('load', function() {
         menuData['duplicate'] = {
             title: 'Duplicate',
             icon: '&#57908;',
+            filter: function () {
+                return currentEntity !== editor.call('entities:root');
+            },
             select: function() {
                 editor.call('entities:duplicate', currentEntity);
             }
-        }
+        };
 
         // menu
         menu = ui.Menu.fromData(menuData);

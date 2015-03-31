@@ -261,7 +261,20 @@ editor.once('load', function() {
                     title: 'Delete',
                     icon: '&#58657;',
                     filter: function() {
-                        return !! editor.call('selector:type');
+                        var type = editor.call('selector:type');
+                        if (!type) return false;
+
+                        if (type === 'entity') {
+                            var root = editor.call('entities:root');
+                            var items = editor.call('selector:items');
+                            for (var i = 0; i < items.length; i++) {
+                                if (items[i] === root) {
+                                    return false;
+                                }
+                            }
+                        }
+
+                        return true;
                     },
                     select: function() {
                         var type = editor.call('selector:type');

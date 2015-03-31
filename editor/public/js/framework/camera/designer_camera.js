@@ -759,21 +759,21 @@ pc.script.create( "designer_camera", function (app) {
             var userdata = editor.call('userdata');
             if (data.position !== undefined) {
                 this.entity.setLocalPosition(data.position);
-                userdata.set('cameras.' + this.lowerCaseName + '.position', [data.position.x.toFixed(4), data.position.y.toFixed(4), data.position.z.toFixed(4)]);
+                userdata.set('cameras.' + this.lowerCaseName + '.position', [Number(data.position.x.toFixed(4)), Number(data.position.y.toFixed(4)), Number(data.position.z.toFixed(4))]);
             }
 
             if (data.rotation !== undefined) {
                 this.entity.setLocalEulerAngles(data.rotation);
-                userdata.set('cameras.' + this.lowerCaseName + '.rotation', [data.rotation.x.toFixed(4), data.rotation.y.toFixed(4), data.rotation.z.toFixed(4)]);
+                userdata.set('cameras.' + this.lowerCaseName + '.rotation', [Number(data.rotation.x.toFixed(4)), Number(data.rotation.y.toFixed(4)), Number(data.rotation.z.toFixed(4))]);
             }
 
             if (data.orthoHeight !== undefined) {
                 this.entity.camera.orthoHeight = data.orthoHeight;
-                userdata.set('cameras.' + this.lowerCaseName + '.orthoHeight', data.orthoHeight.toFixed(4));
+                userdata.set('cameras.' + this.lowerCaseName + '.orthoHeight', Number(data.orthoHeight.toFixed(4)));
             }
 
             if (data.focus !== undefined) {
-                userdata.set('cameras.' + this.lowerCaseName + '.focus', [data.focus.x.toFixed(4), data.focus.y.toFixed(4), data.focus.z.toFixed(4)]);
+                userdata.set('cameras.' + this.lowerCaseName + '.focus', [Number(data.focus.x.toFixed(4)), Number(data.focus.y.toFixed(4)), Number(data.focus.z.toFixed(4))]);
             }
         }
     };
