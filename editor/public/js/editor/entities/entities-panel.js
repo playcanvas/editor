@@ -38,7 +38,6 @@ editor.once('load', function() {
     var dragLastEvt;
     var dragEvt = function(evt) {
         if (! hierarchy._dragging) {
-            console.log('1')
             clearInterval(dragTimer);
             window.removeEventListener('mousemove', dragEvt);
             return;
