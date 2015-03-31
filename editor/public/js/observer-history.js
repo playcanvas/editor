@@ -31,6 +31,7 @@ ObserverHistory.prototype._initialize = function() {
                 self._enabled = false;
 
                 var item = self._getItemFn();
+                if (!item) return;
 
                 if (valueOld === undefined) {
                     item.unset(path);
@@ -44,6 +45,7 @@ ObserverHistory.prototype._initialize = function() {
                 self._enabled = false;
 
                 var item = self._getItemFn();
+                if (!item) return;
 
                 if (value === undefined) {
                     item.unset(path);
@@ -72,6 +74,7 @@ ObserverHistory.prototype._initialize = function() {
             name: self._prefix + path,
             undo: function() {
                 var item = self._getItemFn();
+                if (!item) return;
 
                 self._enabled = false;
                 item.set(path, valueOld);
@@ -79,6 +82,7 @@ ObserverHistory.prototype._initialize = function() {
             },
             redo: function() {
                 var item = self._getItemFn();
+                if (!item) return;
 
                 self._enabled = false;
                 item.unset(path);
@@ -101,6 +105,7 @@ ObserverHistory.prototype._initialize = function() {
             name: self._prefix + path,
             undo: function() {
                 var item = self._getItemFn();
+                if (!item) return;
 
                 self._enabled = false;
                 item.removeValue(path, value);
@@ -108,6 +113,7 @@ ObserverHistory.prototype._initialize = function() {
             },
             redo: function() {
                 var item = self._getItemFn();
+                if (!item) return;
 
                 self._enabled = false;
                 item.insert(path, value, ind);
@@ -130,6 +136,7 @@ ObserverHistory.prototype._initialize = function() {
             name: self._prefix + path,
             undo: function() {
                 var item = self._getItemFn();
+                if (!item) return;
 
                 self._enabled = false;
                 item.insert(path, value, ind);
@@ -137,6 +144,7 @@ ObserverHistory.prototype._initialize = function() {
             },
             redo: function() {
                 var item = self._getItemFn();
+                if (!item) return;
 
                 self._enabled = false;
                 item.removeValue(path, value);
@@ -159,6 +167,7 @@ ObserverHistory.prototype._initialize = function() {
             name: self._prefix + path,
             undo: function() {
                 var item = self._getItemFn();
+                if (!item) return;
 
                 self._enabled = false;
                 item.move(path, ind, indOld);
@@ -166,6 +175,7 @@ ObserverHistory.prototype._initialize = function() {
             },
             redo: function() {
                 var item = self._getItemFn();
+                if (!item) return;
 
                 self._enabled = false;
                 item.move(path, indOld, ind);
