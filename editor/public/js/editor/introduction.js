@@ -287,16 +287,18 @@ editor.once('load', function() {
     };
 
     // if never seen introduction
-    if (! config.self.openedEditor) {
-        if (editor.call('permissions:write')) {
-            stepNext();
-        } else {
-            editor.on('permissions:set:' + config.self.id, function () {
-                if (stepCurrent !== -1 || ! editor.call('permissions:write') || config.self.openedEditor)
-                    return;
-
+    editor.on('realtime:connected', function() {
+        if (! config.self.openedEditor) {
+            if (editor.call('permissions:write')) {
                 stepNext();
-            });
+            } else {
+                editor.on('permissions:set:' + config.self.id, function () {
+                    if (stepCurrent !== -1 || ! editor.call('permissions:write') || config.self.openedEditor)
+                        return;
+
+                    stepNext();
+                });
+            }
         }
-    }
+    });
 });
