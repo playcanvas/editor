@@ -338,6 +338,18 @@ editor.once('load', function() {
                 }
             }
         },
+        'help': {
+            title: 'Help',
+            items: {
+                'controls': {
+                    title: 'Controls',
+                    icon: '&#57976;',
+                    select: function() {
+                        editor.call('help:controls');
+                    }
+                }
+            }
+        },
         'settings': {
             title: 'Settings',
             icon: '&#58152;',

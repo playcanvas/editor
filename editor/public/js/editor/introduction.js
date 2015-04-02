@@ -260,6 +260,7 @@ editor.once('load', function() {
         overlay.hidden = true;
         config.self.openedEditor = true;
         Ajax.post('/editor/scene/{{scene.id}}/opened', { });
+        editor.call('help:controls');
     };
 
     // next step
