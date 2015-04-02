@@ -66,6 +66,11 @@ editor.once('load', function() {
         editor.emit('permissions:set:' + userId, accessLevel);
     });
 
+    editor.on('permissions:set:' + config.self.id, function () {
+        var connection = editor.call('realtime:connection');
+        editor.emit('permissions:writeState', connection && connection.state === 'connected' || false);
+    });
+
     // emit initial event
     if (editor.call('permissions:write')) {
         editor.emit('permissions:set:' + config.self.id, 'write');

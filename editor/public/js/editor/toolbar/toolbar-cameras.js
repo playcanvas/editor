@@ -12,11 +12,14 @@ editor.once('viewport:load', function(framework) {
     var combo = new ui.SelectField({
         options: options
     });
+    combo.enabled = false;
     combo.class.add('viewport-camera');
     combo.value = framework.cameras[0].getGuid();
 
-    // combo.style.float = 'right';
-    // combo.style.marginTop = '12px';
+    editor.on('permissions:writeState', function(state) {
+        combo.enabled = state;
+    });
+
 
     viewport.append(combo);
 

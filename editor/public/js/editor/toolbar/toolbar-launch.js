@@ -40,6 +40,9 @@ editor.once('load', function() {
 
     // show dropdown menu
     launch.element.addEventListener('mouseenter', function () {
+        if (! editor.call('permissions:write'))
+            return;
+
         dropdownMenu.style.visibility = 'visible';
         if (timeout)
             clearTimeout(timeout);
@@ -47,6 +50,9 @@ editor.once('load', function() {
 
     // hide dropdown menu after a delay
     launch.element.addEventListener('mouseleave', function () {
+        if (! editor.call('permissions:write'))
+            return;
+
         if (timeout) clearTimeout(timeout);
         timeout = setTimeout(function () {
             dropdownMenu.style.visibility = 'hidden';

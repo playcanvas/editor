@@ -47,6 +47,9 @@ editor.once('load', function() {
     });
 
     editor.method('viewport:contextmenu', function (x, y, entity) {
+        if (! editor.call('permissions:write'))
+            return;
+
         currentEntity = entity;
         menu.open = true;
         menu.position(x + 1, y);

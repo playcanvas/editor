@@ -20,6 +20,9 @@ editor.once('load', function() {
     var items = [ ];
 
     var activate = function(type) {
+        if (! editor.call('permissions:write'))
+            return;
+
         if (active === type)
             return;
 
@@ -42,6 +45,9 @@ editor.once('load', function() {
     window.addEventListener('dragenter', function(evt) {
         evt.preventDefault();
 
+        if (! editor.call('permissions:write'))
+            return;
+
         if (dragOver) return;
         dragOver = true;
 
@@ -54,6 +60,9 @@ editor.once('load', function() {
     window.addEventListener('dragover', function(evt) {
         evt.preventDefault();
 
+        if (! editor.call('permissions:write'))
+            return;
+
         if (dragOver) return;
         dragOver = true;
 
@@ -62,6 +71,9 @@ editor.once('load', function() {
 
     window.addEventListener('dragleave', function(evt) {
         evt.preventDefault();
+
+        if (! editor.call('permissions:write'))
+            return;
 
         if (! dragOver) return;
         dragOver = false;
@@ -164,6 +176,9 @@ editor.once('load', function() {
         args.element.draggable = true;
 
         args.element.addEventListener('dragstart', function(evt) {
+            if (! editor.call('permissions:write'))
+                return evt.preventDefault();
+
             evt.dataTransfer.setData('editor', args.type);
             currentType = args.type;
             currentData = args.data;
