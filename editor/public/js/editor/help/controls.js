@@ -18,6 +18,9 @@ editor.once('load', function() {
     var btnClose = new ui.Button();
     btnClose.class.add('close');
     btnClose.text = '&#58422;';
+    btnClose.on('click', function() {
+        overlay.hidden = true;
+    });
     header.element.appendChild(btnClose.element);
 
     // top image
