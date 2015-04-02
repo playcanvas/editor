@@ -41,6 +41,8 @@ Object.defineProperty(Overlay.prototype, 'center', {
     set: function(value) {
         if (value) {
             this._element.classList.add('center');
+            this.innerElement.style.left = '';
+            this.innerElement.style.top = '';
         } else {
             this._element.classList.remove('center');
         }

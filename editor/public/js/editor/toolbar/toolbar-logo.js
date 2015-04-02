@@ -342,7 +342,7 @@ editor.once('load', function() {
             title: 'Settings',
             icon: '&#58152;',
             filter: function() {
-                return editor.call('selector:type') !== 'designerSettings';
+                return editor.call('selector:type') !== 'designerSettings' && ! editor.call('viewport:expand:state');
             },
             select: function() {
                 editor.call('selector:set', 'designerSettings', [ editor.call('designerSettings') ]);

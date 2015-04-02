@@ -25,6 +25,11 @@ editor.once('load', function() {
     });
 
 
+    editor.method('viewport:expand:state', function() {
+        return expanded;
+    });
+
+
     // expand hotkey
     editor.call('hotkey:register', 'viewport:expand', {
         key: 'space',

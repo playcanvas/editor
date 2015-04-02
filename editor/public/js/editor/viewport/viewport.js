@@ -22,7 +22,7 @@ editor.once('load', function() {
 
 
     // add canvas
-    editor.call('layout.viewport').append(canvas);
+    editor.call('layout.viewport').prepend(canvas);
 
     var frameSelection = false;
     var flyMode = false;

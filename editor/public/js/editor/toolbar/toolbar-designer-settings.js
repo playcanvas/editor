@@ -24,4 +24,8 @@ editor.once('load', function() {
 
         button.class.add('active');
     });
+
+    editor.on('viewport:expand', function(state) {
+        button.disabled = state;
+    });
 });

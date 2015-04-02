@@ -7,6 +7,7 @@ editor.once('load', function() {
     panel.class.add('whoisonline');
     viewport.append(panel);
 
+
     editor.on('whoisonline:add', function (id) {
         var link = document.createElement('a');
         link.href = '/' + id;
@@ -22,9 +23,15 @@ editor.once('load', function() {
         });
     });
 
+
     editor.on('whoisonline:remove', function (id, index) {
         var element = panel.innerElement.childNodes[index];
         if (element)
             element.parentElement.removeChild(element);
+    });
+
+
+    editor.method('whoisonline:panel', function() {
+        return panel;
     });
 });

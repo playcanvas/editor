@@ -123,4 +123,13 @@ editor.once('load', function() {
             editor.call('history:redo');
         }
     });
+
+    // hotkey redo
+    editor.call('hotkey:register', 'history:redo:y', {
+        key: 'y',
+        ctrl: true,
+        callback: function() {
+            editor.call('history:redo');
+        }
+    });
 });
