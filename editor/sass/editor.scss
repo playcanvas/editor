@@ -1251,83 +1251,75 @@ strong {
 
 .ui-panel.top-controls {
     position: absolute;
-    top: 2px;
+    top: 4px;
     right: 4px;
     background-color: transparent;
 
     > .content {
-        .icon {
-            @extend .font-icon;
-            font-size: 24px;
-            font-weight: 100;
-            line-height: 28px;
-            text-align: center;
-        }
-
-        .ui-button {
+        > .ui-button.expand {
+            float: right;
             width: 32px;
             height: 32px;
-            margin: 2px 4px;
+            line-height: 30px;
+            margin: 0 4px 0 0;
             padding: 0;
             border: none;
+            @extend .font-icon;
+            font-size: 24px;
+            text-align: center;
 
-            &.active {
-                color: $text-active;
+            &.icon.active {
+                color: $text-primary;
+                background-color: $text-active;
             }
         }
 
-        .launch {
+        > .launch {
+            float: right;
             position: relative;
             background-color: transparent;
-            display: inline-block;
-            .ui-button {
-                margin: 0;
 
-                &.dropdown {
-                    width: 20px;
-                    padding-left: 5px;
+            > .content {
+                > .ui-button {
+                    width: 32px;
+                    height: 32px;
+                    line-height: 30px;
+                    margin: 0;
+                    padding: 0;
+                    border: none;
+                    @extend .font-icon;
+                    font-size: 24px;
+                    text-align: center;
 
-                    &:after {
-                        display: inline-block;
-                        content: '\E126';
-
-                        transform: rotate(90deg);
-                        -webkit-transform: rotate(90deg);
-                        -moz-transform: rotate(90deg);
-                        -o-transform: rotate(90deg);
-                        -ms-transform: rotate(90deg);
-                        -ms-transform: rotate(90deg);
-                        -webkit-transform: rotate(90deg);
-
-                        font-size: 18px;
-                        line-height: 32px;
-                        height: 31px;
+                    &:hover {
+                        color: $text-primary;
+                        background-color: $text-active;
                     }
-
                 }
-            }
 
-            ul.dropdown-menu {
-                position: absolute;
-                top: 18px;
-                right: 0;
-                padding: 0;
-                list-style: none;
+                > ul.dropdown-menu {
+                    position: absolute;
+                    top: 32px;
+                    right: 0;
+                    padding: 0;
+                    margin: 0;
+                    list-style: none;
 
-                > li {
-                    @extend .noSelect;
-                    padding: 9px 10px;
-                    width: 140px;
-                    color: white;
-                    font-size: 13px;
+                    > li {
+                        @extend .noSelect;
+                        padding: 9px 10px;
+                        width: 140px;
+                        color: white;
+                        font-size: 13px;
 
-                    &.ticked:after {
-                        @extend .font-icon;
-                        font-size: 14px;
-                        line-height: 14px;
-                        font-weight: 100;
-                        float: right;
-                        content: '\E435';
+                        &.ticked:after {
+                            @extend .font-icon;
+                            font-size: 14px;
+                            line-height: 14px;
+                            font-weight: 100;
+                            float: right;
+                            content: '\E435';
+                        }
                     }
                 }
             }
@@ -1345,6 +1337,100 @@ strong {
     > .content {
         > a {
             margin-right: 4px;
+        }
+    }
+}
+
+.ui-overlay.help-controls {
+    > .content {
+        width: 512px;
+        height: auto;
+        left: calc(50% - 256px);
+        top: calc(50% - 236px);
+
+        > .header {
+            display: block;
+            margin: 0;
+            padding-left: 16px;
+            text-transform: uppercase;
+            font-size: 16px;
+            line-height: 48px;
+            color: $text-darkest;
+            background-color: $bcg-darker;
+
+            > .icon {
+                @extend .font-icon;
+                font-size: 24px;
+                margin-right: 8px;
+            }
+            > .close {
+                @extend .font-icon;
+                float: right;
+                margin: 0;
+                padding: 0;
+                border: none;
+                width: 48px;
+                height: 48px;
+                line-height: 48px;
+                font-size: 24px;
+                text-align: center;
+                color: $text-darkest;
+                background-color: transparent;
+
+                &:hover {
+                    color: $text-active;
+                    background-color: $bcg-darkest;
+                }
+            }
+        }
+        > img.top {
+            display: block;
+            width: 480px;
+            height: auto;
+            padding: 0 16px;
+            background-color: $bcg-darker;
+        }
+        > .row {
+            height: 38px;
+            padding-right: 4px;
+            border-bottom: 1px solid $bcg-darker;
+            overflow: hidden;
+
+            &:last-child {
+                border-bottom: none;
+            }
+            > .buttons {
+                float: left;
+                width: 112px;
+                margin: 5px;
+
+                > .button {
+                    float: left;
+                    margin: 2px;
+                    padding: 0 12px;
+                    line-height: 24px;
+                    font-size: 12px;
+                    border-radius: 2px;
+                    color: $text-primary;
+                    background-color: $bcg-darker;
+                }
+                > .divider {
+                    float: left;
+                    line-height: 28px;
+                    font-size: 12px;
+                    margin: 0 2px;
+                }
+            }
+            > .title {
+                line-height: 38px;
+
+                > .icon {
+                    @extend .font-icon;
+                    float: right;
+                    margin: 0 8px;
+                    font-size: 18px;
+                }
+            }
         }
     }
 }

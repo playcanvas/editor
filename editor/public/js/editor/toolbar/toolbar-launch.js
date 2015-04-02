@@ -10,25 +10,6 @@ editor.once('load', function() {
     viewport.append(panel);
 
 
-    // fullscreen
-    var buttonExpand = new ui.Button({
-        text: '&#57665;'
-    });
-    buttonExpand.class.add('icon', 'expand');
-    panel.append(buttonExpand);
-
-    buttonExpand.on('click', function() {
-        editor.call('viewport:expand');
-    });
-    editor.on('viewport:expand', function(state) {
-        buttonExpand.text = state ? '&#57656;' : '&#57665;';
-        if (state) {
-            buttonExpand.class.add('active');
-        } else {
-            buttonExpand.class.remove('active');
-        }
-    });
-
     // launch
     var launch = new ui.Panel();
     launch.class.add('launch');
@@ -116,5 +97,25 @@ editor.once('load', function() {
             url += '?local=true';
 
         window.open(url, 'pc.launch.' + config.scene.id);
-    }
+    };
+
+
+    // fullscreen
+    var buttonExpand = new ui.Button({
+        text: '&#57665;'
+    });
+    buttonExpand.class.add('icon', 'expand');
+    panel.append(buttonExpand);
+
+    buttonExpand.on('click', function() {
+        editor.call('viewport:expand');
+    });
+    editor.on('viewport:expand', function(state) {
+        buttonExpand.text = state ? '&#57656;' : '&#57665;';
+        if (state) {
+            buttonExpand.class.add('active');
+        } else {
+            buttonExpand.class.remove('active');
+        }
+    });
 });
