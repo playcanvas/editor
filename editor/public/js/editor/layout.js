@@ -26,37 +26,6 @@ editor.on('load', function() {
     });
     root.append(top);
 
-    var message = new ui.Label();
-    message.style.color = '#fff';
-    message.style.margin = '0 0 0 64px';
-    message.style.lineHeight = '45px';
-    message.style.fontWeight = 'bold';
-    message.text = 'NEW BETA EDITOR';
-    top.append(message);
-
-    var messageB = new ui.Label();
-    messageB.style.color = '#fff';
-    messageB.style.margin = '0 0 0 32px';
-    messageB.style.lineHeight = '45px';
-    messageB.text = 'You are currently testing our new Editor. Please give us feedback using the comment button in the toolbar.'
-    top.append(messageB);
-
-    var closeMessage = new ui.Button({
-        text: 'Close'
-    });
-    closeMessage.style.color = '#fff';
-    closeMessage.style.margin = '0';
-    closeMessage.style.border = 'none';
-    closeMessage.style.padding = '0 16px';
-    closeMessage.style.backgroundColor = 'transparent';
-    closeMessage.style.lineHeight = '45px';
-    closeMessage.style.float = 'right';
-    closeMessage.once('click', function() {
-        top.destroy();
-        toolbar.style.marginTop = '';
-    });
-    top.append(closeMessage);
-
     // middle
     var middle = new ui.Panel();
     middle.element.id = 'ui-middle';
@@ -81,8 +50,6 @@ editor.on('load', function() {
     middle.append(toolbar);
     // expose
     editor.method('layout.toolbar', function() { return toolbar; });
-
-    toolbar.style.marginTop = '-45px';
 
 
     // hierarchy
