@@ -356,6 +356,34 @@ editor.once('load', function() {
                     select: function() {
                         editor.call('help:controls');
                     }
+                },
+                'reference': {
+                    title: 'Reference',
+                    icon: '&#57890;',
+                    select: function() {
+                        window.open('http://developer.playcanvas.com/en/engine/api/stable/');
+                    }
+                },
+                'learn': {
+                    title: 'Learn',
+                    icon: '&#57890;',
+                    select: function() {
+                        window.open('http://developer.playcanvas.com/en/');
+                    }
+                },
+                'forum': {
+                    title: 'Forum',
+                    icon: '&#58488;',
+                    select: function() {
+                        window.open('http://forum.playcanvas.com/');
+                    }
+                },
+                'answers': {
+                    title: 'Answers',
+                    icon: '?',
+                    select: function() {
+                        window.open('http://answers.playcanvas.com/');
+                    }
                 }
             }
         },
