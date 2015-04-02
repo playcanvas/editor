@@ -156,5 +156,13 @@ editor.once('load', function() {
                 editor.emit('realtime:scene:error', e);
             }
         });
+
+        editor.on('realtime:disconnected', function () {
+            editor.emit('permissions:writeState', false);
+        });
+
+        editor.on('realtime:connected', function () {
+            editor.emit('permissions:writeState', editor.call('permissions:write'));
+        });
     });
 });

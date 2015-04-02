@@ -54,7 +54,7 @@ editor.once('load', function() {
 
         // attach contextmenu event
         item.element.addEventListener('contextmenu', function(evt) {
-            if (! menu || !editor.call('permissions:write')) return;
+            if (! menu || ! editor.call('permissions:write')) return;
 
             item.selected = true;
 

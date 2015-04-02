@@ -43,6 +43,9 @@ editor.once('load', function() {
     var menuData = {
         'entity': {
             title: 'Entity',
+            filter: function() {
+                return editor.call('permissions:write');
+            },
             items: {
                 'new-entity': {
                     title: 'New Entity',
@@ -261,6 +264,9 @@ editor.once('load', function() {
                     title: 'Delete',
                     icon: '&#58657;',
                     filter: function() {
+                        if (! editor.call('permissions:write'))
+                            return false;
+
                         var type = editor.call('selector:type');
                         if (!type) return false;
 
@@ -296,7 +302,7 @@ editor.once('load', function() {
                     title: 'Duplicate',
                     icon: '&#57908;',
                     filter: function() {
-                        return editor.call('selector:type') === 'entity';
+                        return editor.call('permissions:write') && editor.call('selector:type') === 'entity';
                     },
                     select: function() {
                         var type = editor.call('selector:type');
@@ -331,6 +337,9 @@ editor.once('load', function() {
                 'launch-local': {
                     title: 'Launch (Local)',
                     icon: '&#57922;',
+                    filter: function() {
+                        return editor.call('permissions:write');
+                    },
                     select: function() {
                         var url = window.location.href.replace(/^https/, 'http') + '/launch?local=true';
                         window.open(url, 'pc.launch.' + config.scene.id);
@@ -354,7 +363,7 @@ editor.once('load', function() {
             title: 'Settings',
             icon: '&#58152;',
             filter: function() {
-                return editor.call('selector:type') !== 'designerSettings' && ! editor.call('viewport:expand:state');
+                return editor.call('permissions:write') && editor.call('selector:type') !== 'designerSettings' && ! editor.call('viewport:expand:state');
             },
             select: function() {
                 editor.call('selector:set', 'designerSettings', [ editor.call('designerSettings') ]);
