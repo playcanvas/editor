@@ -1208,17 +1208,6 @@ editor.once('load', function() {
         fieldShininess.parent.append(fieldShininessSlider);
 
 
-        // conserve energy
-        var fieldConserveEnergy = editor.call('attributes:addField', {
-            parent: panelSpecular,
-            type: 'checkbox',
-            name: 'Conserve Energy',
-            link: asset,
-            path: 'data.conserveEnergy'
-        });
-        fieldConserveEnergy.parent.innerElement.childNodes[0].style.width = 'auto';
-
-
         // emissive
         var panelEmissive = editor.call('attributes:addPanel', {
             foldable: true,
@@ -1543,15 +1532,6 @@ editor.once('load', function() {
         fieldBumpinessSlider.flexGrow = 4;
         fieldBumpinessSlider.link(asset, 'data.bumpMapFactor');
         fieldBumpiness.parent.append(fieldBumpinessSlider);
-
-        // specularAntialias
-        var fieldSpecularAA = editor.call('attributes:addField', {
-            parent: panelNormal,
-            type: 'checkbox',
-            name: 'Specular AA',
-            link: asset,
-            path: 'data.specularAntialias'
-        });
 
 
         // parallax
