@@ -190,6 +190,8 @@ editor.once('load', function () {
         return validated;
     };
 
+    // only allow scrpts from playcanvas, code.playcanvas.com and localhost:51000 to be parsed
+    var REGEX_ALLOWED = new RegExp('^((http(s)?:\/\/)((code.playcanvas.com)|(localhost:51000)))|(' + config.url.api + ')');
 
     /**
     * Starts a web worker which scans the specified URL
@@ -197,16 +199,9 @@ editor.once('load', function () {
     * the success callback
     */
     editor.method('sourcefiles:scan', function (url, success) {
-        if (new RegExp(/^http(s)?:/).test(url)) {
-            var lower = url.toLowerCase();
-            // only allow scrpts from playcanvas, code.playcanvas.com and localhost:51000 to be parsed
-            if (lower.indexOf(config.url.api) !== 0 &&
-                lower.indexOf('http://code.playcanvas.com') !== 0 &&
-                lower.indexOf('http://localhost:51000') !== 0) {
-
-                success({});
-                return;
-            }
+        if (!REGEX_ALLOWED.test(url)) {
+            success({});
+            return;
         }
 
         var worker = new Worker("/editor/scene/js/editor/sourcefiles/sourcefiles-attributes-parser.js");
