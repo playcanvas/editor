@@ -61,8 +61,18 @@
                 name: 'Size',
                 value: bytesToHuman(asset.get('file.size'))
             });
-            asset.on('file.size:set', function(value) {
+
+            var evtFileSet = asset.on('file:set', function (value) {
+                fieldSize.text = bytesToHuman(value ? value.size : 0);
+            });
+
+            var evtFileSizeSet = asset.on('file.size:set', function(value) {
                 fieldSize.text = bytesToHuman(value);
+            });
+
+            panel.once('destroy', function () {
+                evtFileSet.unbind();
+                evtFileSizeSet.unbind();
             });
         }
 

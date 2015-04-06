@@ -120,11 +120,13 @@ editor.once('load', function() {
             asset.syncing = false;
         };
 
+        var updateRegex = new RegExp(/^(name$)|(data\.)|(file$)/);
+
         asset.on('*:set', function(path) {
             if (! asset.sync || asset.syncing)
                 return;
 
-            if (path !== 'name' && path.indexOf('data.') !== 0)
+            if (! updateRegex.test(path))
                 return;
 
             // loading in progress - cancel
