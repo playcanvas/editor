@@ -58,7 +58,7 @@ editor.once('load', function() {
                 panel.append(panelInner);
 
                 var label = new ui.Label({
-                    text: 'New Beta Editor. Please give us feedback using the comment button in the toolbar.'
+                    text: 'New Beta <span style="color:#fff">Editor</span>. Please give us <span style="color:#fff">feedback</span> using the <span class="font-icon" style="color:#fff">&#58488;</span> comment button in the toolbar.'
                 });
                 panelInner.append(label);
 
@@ -84,7 +84,7 @@ editor.once('load', function() {
                 panel.append(panelInner);
 
                 var label = new ui.Label({
-                    text: 'The [logo] main menu and toolbar has every command available in the Editor. If you can’t find a button or remember a hot key, you will always find the command in the [logo] menu.'
+                    text: 'The <span style="display:inline-block;background-image:url(\'https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/editor_logo.png\');width:18px;height:18px;background-size:36px 18px;background-position:-18px 0;vertical-align:text-bottom;"></span> main menu and toolbar has every command available in the Editor. If you can’t find a button or remember a hot key, you will always find the command in the menu.'
                 });
                 panelInner.append(label);
             },
@@ -109,7 +109,7 @@ editor.once('load', function() {
                 panel.append(panelInner);
 
                 var label = new ui.Label({
-                    text: 'This is your scene hierarchy made up of Entities, which can be given new behaviours by adding Components. [icon] Add, [icon] Duplicate and [icon] Delete Entities using the controls in this panel.'
+                    text: 'This is your <span style="color:#fff">scene hierarchy</span> made up of <span style="color:#fff">Entities</span>, which can be given new behaviours by adding <span style="color:#fff">Components</span>.<br/><br/><span class="font-icon" style="color:#fff">&#58468;</span> Add, <span class="font-icon" style="color:#fff">&#57908;</span> Duplicate and <span class="font-icon" style="color:#fff">&#58657;</span> Delete Entities using the controls in this panel.'
                 });
                 panelInner.append(label);
             },
@@ -133,7 +133,7 @@ editor.once('load', function() {
                 panel.append(panelInner);
 
                 var label = new ui.Label({
-                    text: 'Drag’n’drop files from your computer to upload or use the [icon] Add button to create new assets. You can filter and [icon] search your assets using the controls at the top.'
+                    text: '<span style="color:#fff">Drag`n`Drop</span> files from your computer to upload or use the <span class="font-icon" style="color:#fff">&#58468;</span> Add button to create new assets.<br/><br/>You can filter and <span class="font-icon" style="color:#fff">&#58163;</span> search your assets using the controls at the top.'
                 });
                 panelInner.append(label);
 
@@ -160,7 +160,7 @@ editor.once('load', function() {
                 panel.append(panelInner);
 
                 var label = new ui.Label({
-                    text: 'Select an Entity or Asset to inspect its properties.'
+                    text: 'Select an Entity or Asset to <span style="color:#fff">inspect and edit</span> its properties.'
                 });
                 panelInner.append(label);
             },
@@ -185,7 +185,7 @@ editor.once('load', function() {
                 panel.append(panelInner);
 
                 var label = new ui.Label({
-                    text: 'PlayCanvas lets you collaborate in real-time with your team. Other teammates in the scene will be shown here.'
+                    text: 'PlayCanvas lets you <span style="color:#fff">collaborate in real-time</span> with your team. Their avatars will be shown here if they are in scene.'
                 });
                 panelInner.append(label);
             },
@@ -216,7 +216,7 @@ editor.once('load', function() {
                 panel.append(panelInner);
 
                 var label = new ui.Label({
-                    text: 'Click the [icon] PLAY button to launch your game. You can continue to edit your scene here, changes will be automatically applied to the launched game in real-time.'
+                    text: 'Click the <span class="font-icon" style="color:#fff">&#57922;</span> <span style="color:#fff">PLAY</span> button to launch your game.<br/><br/>You can continue to edit your scene here, changes will be automatically applied to the launched game in real-time.'
                 });
                 panelInner.append(label);
 
@@ -260,6 +260,7 @@ editor.once('load', function() {
         overlay.hidden = true;
         config.self.openedEditor = true;
         Ajax.post('/editor/scene/{{scene.id}}/opened', { });
+        editor.call('help:controls');
     };
 
     // next step

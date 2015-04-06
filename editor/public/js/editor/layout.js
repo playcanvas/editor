@@ -4,7 +4,6 @@ editor.on('load', function() {
 
     // main container
     var root = new ui.Panel();
-    root.enabled = false;
     root.element.id = 'ui-root';
     root.flex = true;
     root.flexDirection = 'column';
@@ -54,6 +53,7 @@ editor.on('load', function() {
 
     // hierarchy
     var hierarchyPanel = new ui.Panel('HIERARCHY');
+    hierarchyPanel.enabled = false;
     hierarchyPanel.class.add('hierarchy');
     hierarchyPanel.flexShrink = false;
     hierarchyPanel.style.width = '320px';
@@ -67,6 +67,9 @@ editor.on('load', function() {
     middle.append(hierarchyPanel);
     // expose
     editor.method('layout.left', function() { return hierarchyPanel; });
+    editor.on('permissions:writeState', function(state) {
+        hierarchyPanel.enabled = state;
+    });
 
 
 
@@ -87,6 +90,7 @@ editor.on('load', function() {
 
     // assets
     var assetsPanel = new ui.Panel('ASSETS');
+    assetsPanel.enabled = false;
     assetsPanel.class.add('assets');
     assetsPanel.foldable = true;
     assetsPanel.flexShrink = false;
@@ -99,18 +103,21 @@ editor.on('load', function() {
     center.append(assetsPanel);
     // expose
     editor.method('layout.assets', function() { return assetsPanel; });
+    editor.on('permissions:writeState', function(state) {
+        assetsPanel.enabled = state;
+    });
 
 
 
     // attributes
     var attributesPanel = new ui.Panel('INSPECTOR');
+    attributesPanel.enabled = false;
     attributesPanel.class.add('attributes');
     attributesPanel.flexShrink = false;
     attributesPanel.style.width = '320px';
     attributesPanel.innerElement.style.width = '320px';
     attributesPanel.horizontal = true;
     attributesPanel.foldable = true;
-    // attributesPanel.folded = true;
     attributesPanel.scroll = true;
     attributesPanel.resizable = 'left';
     attributesPanel.resizeMin = 256;
@@ -118,22 +125,7 @@ editor.on('load', function() {
     middle.append(attributesPanel);
     // expose
     editor.method('layout.right', function() { return attributesPanel; });
-
-    var isConnected = function () {
-        var connection = editor.call('realtime:connection');
-        return connection && connection.state === 'connected';
-    }
-
-    editor.on('permissions:set:' + config.self.id, function () {
-        root.enabled = editor.call('permissions:write') && isConnected();
+    editor.on('permissions:writeState', function(state) {
+        attributesPanel.enabled = state;
     });
-
-    editor.on('realtime:disconnected', function () {
-        root.enabled = false;
-    });
-
-    editor.on('realtime:connected', function () {
-        root.enabled = editor.call('permissions:write');
-    });
-
 });

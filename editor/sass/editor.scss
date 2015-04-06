@@ -16,7 +16,7 @@ html {
     overflow: hidden;
 }
 body {
-    @include font-regular;
+    @extend .font-regular;
     min-height: 100%;
     height: 100%;
     overflow: hidden;
@@ -27,6 +27,10 @@ body {
 
     // font-family: inconsolatamedium;
     // font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}
+
+strong {
+    @extend .font-bold;
 }
 
 [draggable=true] {
@@ -85,12 +89,9 @@ body {
             &.icon {
                 color: #9ba1a3;
                 line-height: 43px;
-                font-family: 'ui-font-solid';
+                @extend .font-icon;
                 font-size: 24px;
                 text-align: center;
-                -webkit-font-smoothing: antialiased;
-                -moz-osx-font-smoothing: grayscale;
-                font-smoothing: antialiased;
                 background-color: #364346;
 
                 &.active {
@@ -265,12 +266,9 @@ body {
                     margin: 0;
                     // margin: 0 0 0 16px;
                     vertical-align: top;
-                    font-family: 'ui-font-solid';
+                    @extend .font-icon;
                     font-size: 16px;
                     text-align: center;
-                    -webkit-font-smoothing: antialiased;
-                    -moz-osx-font-smoothing: grayscale;
-                    font-smoothing: antialiased;
                     color: $text-dark;
                     background-color: transparent;
 
@@ -302,7 +300,7 @@ body {
                     vertical-align: top;
 
                     > .value {
-                        @include font-bold;
+                        @extend .font-bold;
                         line-height: 32px;
 
                         &:after {
@@ -312,7 +310,7 @@ body {
                         }
                     }
                     > ul > li {
-                        @include font-bold;
+                        @extend .font-bold;
                         line-height: 32px;
                     }
                     &.not-empty {
@@ -353,7 +351,7 @@ body {
                         color: $text-dark;
                         line-height: 32px;
                         padding: 0 8px;
-                        @include font-bold;
+                        @extend .font-bold;
                         font-size: 12px;
                     }
                     &.not-empty:before {
@@ -364,12 +362,9 @@ body {
                         content: '\E333';
                         line-height: 32px;
                         background-color: #293538;
-                        font-family: 'ui-font-solid';
+                        @extend .font-icon;
                         font-size: 18px;
                         text-align: center;
-                        -webkit-font-smoothing: antialiased;
-                        -moz-osx-font-smoothing: grayscale;
-                        font-smoothing: antialiased;
                     }
                     &.not-empty {
                         background-color: $bcg-darkest;
@@ -393,12 +388,9 @@ body {
                         line-height: 32px;
                         text-align: center;
                         color: #d34141;
-                        font-family: 'ui-font-solid';
+                        @extend .font-icon;
                         font-size: 18px;
                         text-align: center;
-                        -webkit-font-smoothing: antialiased;
-                        -moz-osx-font-smoothing: grayscale;
-                        font-smoothing: antialiased;
                         cursor: pointer;
                     }
                 }
@@ -556,12 +548,9 @@ body {
                             color: $text-dark;
                             height: 28px;
                             line-height: 28px;
-                            font-family: 'ui-font-solid';
+                            @extend .font-icon;
                             font-size: 18px;
                             text-align: center;
-                            -webkit-font-smoothing: antialiased;
-                            -moz-osx-font-smoothing: grayscale;
-                            font-smoothing: antialiased;
                             text-align: center;
                             background: transparent;
                             border: none;
@@ -653,12 +642,9 @@ body {
                     margin: 0;
                     padding: 0;
                     border: none;
-                    font-family: 'ui-font-solid';
+                    @extend .font-icon;
                     font-size: 16px;
                     text-align: center;
-                    -webkit-font-smoothing: antialiased;
-                    -moz-osx-font-smoothing: grayscale;
-                    font-smoothing: antialiased;
 
                     &:after {
                         content: '\E464';
@@ -679,12 +665,9 @@ body {
                     margin: 0;
                     padding: 0;
                     border: none;
-                    font-family: 'ui-font-solid';
+                    @extend .font-icon;
                     font-size: 18px;
                     text-align: center;
-                    -webkit-font-smoothing: antialiased;
-                    -moz-osx-font-smoothing: grayscale;
-                    font-smoothing: antialiased;
 
                     &:hover {
                         color: #d34141;
@@ -750,12 +733,9 @@ body {
                     line-height: 20px;
                     background-color: #364346;
                     cursor: pointer;
-                    font-family: 'ui-font-solid';
+                    @extend .font-icon;
                     font-size: 18px;
                     text-align: center;
-                    -webkit-font-smoothing: antialiased;
-                    -moz-osx-font-smoothing: grayscale;
-                    font-smoothing: antialiased;
 
                     &:hover {
                         color: #d34141;
@@ -812,12 +792,9 @@ body {
                 margin: 0;
                 padding: 0;
                 border: none;
-                font-family: 'ui-font-solid';
+                @extend .font-icon;
                 font-size: 18px;
                 text-align: center;
-                -webkit-font-smoothing: antialiased;
-                -moz-osx-font-smoothing: grayscale;
-                font-smoothing: antialiased;
                 background-color: transparent;
 
                 &:hover {
@@ -839,12 +816,9 @@ body {
                 &:before {
                     content: '\E464';
                     padding-right: 8px;
-                    font-family: 'ui-font-solid';
+                    @extend .font-icon;
                     font-size: 16px;
                     text-align: center;
-                    -webkit-font-smoothing: antialiased;
-                    -moz-osx-font-smoothing: grayscale;
-                    font-smoothing: antialiased;
                 }
             }
         }
@@ -896,12 +870,9 @@ body {
                     padding: 0;
                     background-color: transparent;
                     border: none;
-                    font-family: 'ui-font-solid';
+                    @extend .font-icon;
                     font-size: 18px;
                     text-align: center;
-                    -webkit-font-smoothing: antialiased;
-                    -moz-osx-font-smoothing: grayscale;
-                    font-smoothing: antialiased;
 
                     &:hover {
                         color: $text-active;
@@ -973,7 +944,7 @@ body {
 .ui-tree.hierarchy {
     .ui-tree-item {
         > .title {
-            @include font-regular;
+            @extend .font-regular;
 
             &:hover > .icon:after {
                 color: $text-primary;
@@ -981,12 +952,9 @@ body {
             > .icon:after {
                 content: '\E243';
                 line-height: 21px;
-                font-family: 'ui-font-solid';
+                @extend .font-icon;
                 font-size: 18px;
                 text-align: center;
-                -webkit-font-smoothing: antialiased;
-                -moz-osx-font-smoothing: grayscale;
-                font-smoothing: antialiased;
                 background-color: transparent;
                 color: $text-darkest;
             }
@@ -1060,12 +1028,9 @@ body {
             border: none;
             padding: 0;
             color: #9ba1a3;
-            font-family: 'ui-font-solid';
+            @extend .font-icon;
             font-size: 16px;
             text-align: center;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            font-smoothing: antialiased;
             background-color: transparent;
 
             &.active {
@@ -1199,12 +1164,9 @@ body {
             color: $text-darkest;
 
             &.placeholder:after {
-                font-family: 'ui-font-solid';
+                @extend .font-icon;
                 font-size: 48px;
                 font-weight: 100;
-                -webkit-font-smoothing: antialiased;
-                -moz-osx-font-smoothing: grayscale;
-                font-smoothing: antialiased;
             }
         }
         > .icon {
@@ -1213,13 +1175,10 @@ body {
             height: 22px;
             top: 4px;
             left: 4px;
-            font-family: 'ui-font-solid';
+            @extend .font-icon;
             font-size: 18px;
             font-weight: 100;
             line-height: 20px;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            font-smoothing: antialiased;
             text-align: center;
 
             &:after {
@@ -1227,7 +1186,7 @@ body {
             }
         }
         > .label {
-            @include font-regular;
+            @extend .font-regular;
 
             position: absolute;
             right: 0;
@@ -1292,89 +1251,75 @@ body {
 
 .ui-panel.top-controls {
     position: absolute;
-    top: 2px;
+    top: 4px;
     right: 4px;
     background-color: transparent;
 
     > .content {
-        .icon {
-            font-family: 'ui-font-solid';
-            font-size: 24px;
-            font-weight: 100;
-            line-height: 28px;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            font-smoothing: antialiased;
-            text-align: center;
-        }
-
-        .ui-button {
+        > .ui-button.expand {
+            float: right;
             width: 32px;
             height: 32px;
-            margin: 2px 4px;
+            line-height: 30px;
+            margin: 0 4px 0 0;
             padding: 0;
             border: none;
+            @extend .font-icon;
+            font-size: 24px;
+            text-align: center;
 
-            &.active {
-                color: $text-active;
+            &.icon.active {
+                color: $text-primary;
+                background-color: $text-active;
             }
         }
 
-        .launch {
+        > .launch {
+            float: right;
             position: relative;
             background-color: transparent;
-            display: inline-block;
-            .ui-button {
-                margin: 0;
 
-                &.dropdown {
-                    width: 20px;
-                    padding-left: 5px;
+            > .content {
+                > .ui-button {
+                    width: 32px;
+                    height: 32px;
+                    line-height: 30px;
+                    margin: 0;
+                    padding: 0;
+                    border: none;
+                    @extend .font-icon;
+                    font-size: 24px;
+                    text-align: center;
 
-                    &:after {
-                        display: inline-block;
-                        content: '\E126';
-
-                        transform: rotate(90deg);
-                        -webkit-transform: rotate(90deg);
-                        -moz-transform: rotate(90deg);
-                        -o-transform: rotate(90deg);
-                        -ms-transform: rotate(90deg);
-                        -ms-transform: rotate(90deg);
-                        -webkit-transform: rotate(90deg);
-
-                        font-size: 18px;
-                        line-height: 32px;
-                        height: 31px;
+                    &:hover {
+                        color: $text-primary;
+                        background-color: $text-active;
                     }
-
                 }
-            }
 
-            ul.dropdown-menu {
-                position: absolute;
-                top: 18px;
-                right: 0;
-                padding: 0;
-                list-style: none;
+                > ul.dropdown-menu {
+                    position: absolute;
+                    top: 32px;
+                    right: 0;
+                    padding: 0;
+                    margin: 0;
+                    list-style: none;
 
-                > li {
-                    @extend .noSelect;
-                    padding: 9px 10px;
-                    width: 140px;
-                    color: white;
-                    font-size: 13px;
+                    > li {
+                        @extend .noSelect;
+                        padding: 9px 10px;
+                        width: 140px;
+                        color: white;
+                        font-size: 13px;
 
-                    &.ticked:after {
-                        font-family: 'ui-font-solid';
-                        font-size: 14px;
-                        line-height: 14px;
-                        font-weight: 100;
-                        -webkit-font-smoothing: antialiased;
-                        -moz-osx-font-smoothing: grayscale;
-                        font-smoothing: antialiased;
-                        float: right;
-                        content: '\E435';
+                        &.ticked:after {
+                            @extend .font-icon;
+                            font-size: 14px;
+                            line-height: 14px;
+                            font-weight: 100;
+                            float: right;
+                            content: '\E435';
+                        }
                     }
                 }
             }
@@ -1396,6 +1341,100 @@ body {
     }
 }
 
+.ui-overlay.help-controls {
+    > .content {
+        width: 512px;
+        height: auto;
+        left: calc(50% - 256px);
+        top: calc(50% - 236px);
+
+        > .header {
+            display: block;
+            margin: 0;
+            padding-left: 16px;
+            text-transform: uppercase;
+            font-size: 16px;
+            line-height: 48px;
+            color: $text-darkest;
+            background-color: $bcg-darker;
+
+            > .icon {
+                @extend .font-icon;
+                font-size: 24px;
+                margin-right: 8px;
+            }
+            > .close {
+                @extend .font-icon;
+                float: right;
+                margin: 0;
+                padding: 0;
+                border: none;
+                width: 48px;
+                height: 48px;
+                line-height: 48px;
+                font-size: 24px;
+                text-align: center;
+                color: $text-darkest;
+                background-color: transparent;
+
+                &:hover {
+                    color: $text-active;
+                    background-color: $bcg-darkest;
+                }
+            }
+        }
+        > img.top {
+            display: block;
+            width: 480px;
+            height: auto;
+            padding: 0 16px;
+            background-color: $bcg-darker;
+        }
+        > .row {
+            height: 38px;
+            padding-right: 4px;
+            border-bottom: 1px solid $bcg-darker;
+            overflow: hidden;
+
+            &:last-child {
+                border-bottom: none;
+            }
+            > .buttons {
+                float: left;
+                width: 112px;
+                margin: 5px;
+
+                > .button {
+                    float: left;
+                    margin: 2px;
+                    padding: 0 12px;
+                    line-height: 24px;
+                    font-size: 12px;
+                    border-radius: 2px;
+                    color: $text-primary;
+                    background-color: $bcg-darker;
+                }
+                > .divider {
+                    float: left;
+                    line-height: 28px;
+                    font-size: 12px;
+                    margin: 0 2px;
+                }
+            }
+            > .title {
+                line-height: 38px;
+
+                > .icon {
+                    @extend .font-icon;
+                    float: right;
+                    margin: 0 8px;
+                    font-size: 18px;
+                }
+            }
+        }
+    }
+}
+
 .connection-overlay {
     > .content {
         width: 400px;
@@ -1413,12 +1452,9 @@ body {
             width: 64px;
             height: 64px;
             line-height: 64px;
-            font-family: 'ui-font-solid';
+            @extend .font-icon;
             font-size: 34px;
             font-weight: 100;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            font-smoothing: antialiased;
             text-align: center;
 
             &.error:before {
@@ -1551,7 +1587,7 @@ body {
                 background-color: transparent;
 
                 > .ui-header {
-                    @include font-bold;
+                    @extend .font-bold;
                     background-color: transparent;
                     font-size: 18px;
                     height: auto;

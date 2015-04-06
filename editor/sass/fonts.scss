@@ -8,25 +8,32 @@
     font-style: normal;
 }
 
-@mixin font-thin {
+.font-icon {
+    font-family: 'ui-font-solid';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-smoothing: antialiased;
+}
+
+.font-thin {
     font-family: 'Proxima Nova Thin', 'Helvetica Neue', Arial, Helvetica, sans-serif;
     font-weight: 100;
     font-style: normal;
 }
 
-@mixin font-light {
+.font-light {
     font-family: 'Proxima Nova Light', 'Helvetica Neue', Arial, Helvetica, sans-serif;
     font-weight: 200;
     font-style: normal;
 }
 
-@mixin font-regular {
+.font-regular {
     font-family: 'Proxima Nova Regular', 'Helvetica Neue', Arial, Helvetica, sans-serif;
     font-weight: normal;
     font-style: normal;
 }
 
-@mixin font-bold {
+.font-bold {
     font-family: 'Proxima Nova Bold', 'Helvetica Neue', Arial, Helvetica, sans-serif;
     font-weight: bold;
     font-style: normal;
