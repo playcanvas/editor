@@ -73,6 +73,8 @@ editor.once('load', function() {
                     link: asset,
                     path: 'data.mapping.' + i + '.material'
                 });
+
+                nodeItems[i].parent.class.add('node-' + i);
             }
 
             // panelNodes.on('destroy', function () {
@@ -146,21 +148,4 @@ editor.once('load', function() {
             }
         }
     });
-
-    // selects the specified node index for the specified model
-    // - once the user select a material it reselect the entity
-    editor.method('attributes:assets:model:select-node', function (modelId, nodeIndex, materialId, entity) {
-        var asset = editor.call('assets:get', modelId);
-        if (asset) {
-            pickMaterial(materialId, function(assetId) {
-                // set to mapping observer
-                asset.set('data.mapping.' + nodeIndex + '.material', assetId);
-            });
-
-            editor.once('picker:asset:close', function() {
-                editor.call('selector:add', 'entity', entity);
-            });
-        }
-    });
-
 });
