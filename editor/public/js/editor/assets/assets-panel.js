@@ -22,31 +22,42 @@ editor.once('load', function() {
     grid.class.add('assets');
     assetsPanel.append(grid);
 
+    var scriptsIndex = { };
     var assetsIndex = { };
     grid.assetsIndex = assetsIndex;
 
 
     grid.on('select', function(item) {
-        editor.call('selector:add', 'asset', item.asset);
+        if (item.asset) {
+            editor.call('selector:add', 'asset', item.asset);
+        } else if (item.script) {
+            editor.call('selector:add', 'script', item.script);
+        }
     });
 
     grid.on('deselect', function(item) {
-        editor.call('selector:remove', item.asset);
+        if (item.asset) {
+            editor.call('selector:remove', item.asset);
+        } else if (item.script) {
+            editor.call('selector:remove', item.script);
+        }
     });
 
 
     // selector reflect in list
-    editor.on('selector:add', function(asset, type) {
-        if (type !== 'asset')
-            return;
-
-        assetsIndex[asset.get('id')].selected = true;
+    editor.on('selector:add', function(item, type) {
+        if (type === 'asset') {
+            assetsIndex[item.get('id')].selected = true;
+        } else if (type === 'script') {
+            scriptsIndex[item.get('filename')].selected = true;
+        }
     });
-    editor.on('selector:remove', function(asset, type) {
-        if (type !== 'asset')
-            return;
-
-        assetsIndex[asset.get('id')].selected = false;
+    editor.on('selector:remove', function(item, type) {
+        if (type === 'asset') {
+            assetsIndex[item.get('id')].selected = false;
+        } else if (type === 'script') {
+            scriptsIndex[item.get('filename')].selected = false;
+        }
     });
 
 
@@ -59,10 +70,13 @@ editor.once('load', function() {
     // filter assets in grid
     editor.method('assets:panel:filter', function(fn) {
         grid.forEach(function(gridItem) {
-            if (! gridItem.asset)
+            if (gridItem.asset) {
+                gridItem.hidden = ! fn('asset', gridItem.asset);
+            } else if (gridItem.script) {
+                gridItem.hidden = ! fn('script', gridItem.script);
+            } else {
                 return true;
-
-            gridItem.hidden = ! fn(gridItem.asset);
+            }
         });
     });
 
@@ -119,13 +133,56 @@ editor.once('load', function() {
         item.element.appendChild(label);
 
         // update name/filename change
-        asset.on('name:set', function() {
+        var evtNameSet = asset.on('name:set', function() {
             label.textContent = this.get('name');
             this.set('data.name', this.get('name'));
+        });
+        item.on('destroy', function() {
+            evtNameSet.unbind();
         });
     });
 
     editor.on('assets:remove', function(asset) {
         assetsIndex[asset.get('id')].destroy();
     });
+
+    var addSourceFile = function(file) {
+        var item = new ui.GridItem();
+        item.script = file;
+        item.class.add('type-script');
+        grid.append(item);
+
+        scriptsIndex[file.get('filename')] = item;
+
+        var thumbnail = document.createElement('div');
+        thumbnail.classList.add('thumbnail', 'placeholder');
+        item.element.appendChild(thumbnail);
+
+        var icon = document.createElement('div');
+        icon.classList.add('icon');
+        item.element.appendChild(icon);
+
+        var label = document.createElement('div');
+        label.classList.add('label');
+        label.textContent = file.get('filename');
+        item.element.appendChild(label);
+
+        // update name/filename change
+        var evtNameSet = file.on('filename:set', function(value, valueOld) {
+            label.textContent = value;
+            scriptsIndex[value] = item;
+            delete scriptsIndex[valueOld];
+        });
+        item.on('destroy', function() {
+            evtNameSet.unbind();
+        });
+        file.on('destroy', function() {
+            item.destroy();
+        });
+    };
+
+    editor.once('sourcefiles:load', function(files) {
+        files.forEach(addSourceFile);
+    });
+    editor.on('sourcefiles:add', addSourceFile);
 });

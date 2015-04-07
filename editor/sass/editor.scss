@@ -489,6 +489,8 @@ strong {
                     font-family: "Lucida Console", Monaco, monospace;
                     font-weight: normal;
                     font-size: 11px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
                 }
             }
         }
@@ -840,6 +842,18 @@ strong {
                     text-align: center;
                 }
             }
+            > .ui-button.edit-script {
+                display: block;
+                text-align: center;
+
+                &:before {
+                    content: '\E442';
+                    padding-right: 8px;
+                    @extend .font-icon;
+                    font-size: 16px;
+                    text-align: center;
+                }
+            }
         }
 
         .ui-panel.components-scripts > .content {
@@ -1135,6 +1149,14 @@ strong {
             }
             > .icon:after {
                 content: '\E417';
+            }
+        }
+        &.type-script {
+            > .thumbnail.placeholder:after {
+                content: '\E353';
+            }
+            > .icon:after {
+                content: '\E353';
             }
         }
         &.type-texture {

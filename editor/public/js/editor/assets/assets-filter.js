@@ -15,16 +15,26 @@ editor.once('load', function() {
     // filterLabel.class.add('label');
     // panelFilters.append(filterLabel);
 
-    var filter = function(asset) {
+    var filter = function(type, item) {
         var visible = true;
 
         // type
-        if (filterField.value !== 'all')
-            visible = asset.get('type') === filterField.value;
+        if (filterField.value !== 'all') {
+            if (type === 'asset') {
+                visible = item.get('type') === filterField.value;
+            } else if (type === 'script') {
+                visible = filterField.value === 'script';
+            }
+        }
 
         // query
-        if (visible && search.value)
-            visible = asset.get('name').indexOf(search.value) !== -1;
+        if (visible && search.value) {
+            if (type === 'asset') {
+                visible = item.get('name').indexOf(search.value) !== -1;
+            } else if (type === 'script') {
+                visible = item.get('filename').indexOf(search.value) !== -1;
+            }
+        }
 
         return visible;
     };
@@ -39,6 +49,7 @@ editor.once('load', function() {
             json: 'Json',
             material: 'Material',
             model: 'Model',
+            script: 'Script',
             text: 'Text',
             texture: 'Texture'
         }
