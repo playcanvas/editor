@@ -34,6 +34,12 @@ editor.once('load', function() {
             entity.set('components.model.asset', asset.get('id'));
 
             entity.history.enabled = true;
+
+            setTimeout(function() {
+                var framework = editor.call('viewport:framework');
+                if (framework)
+                    framework.frameSelection();
+            }, 0);
         }
     });
 });
