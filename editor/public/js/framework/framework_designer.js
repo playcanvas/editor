@@ -607,8 +607,8 @@ pc.extend(pc.designer, function() {
 
                                             setTimeout(function () {
                                                 var node = editor.call('attributes.rootPanel').element.querySelector('.field-asset.node-' + meshSelection.meshInstanceIndex);
-                                                console.log(node);
                                                 node.classList.add('active');
+                                                node.focus();
                                             });
                                         }
                                     } else if (e.button === pc.input.MOUSEBUTTON_RIGHT) {
