@@ -33,5 +33,4 @@ editor.once('load', function() {
         update.call(this);
         editor.call('viewport:render');
     };
-
 });
