@@ -599,20 +599,18 @@ pc.extend(pc.designer, function() {
                                     }
                                 } else {
                                     if (e.button === pc.input.MOUSEBUTTON_LEFT) {
-                                        // // We've selected the same entity again so try to find the selected mesh instance
-                                        // var meshSelection = this._getMeshInstanceSelection(selectedNode, picked);
-                                        // if (meshSelection) {
-                                        //     // deselect entity and select model
-                                        //     editor.call('selector:add', 'asset', editor.call('assets:get', meshSelection.modelId));
-                                        //     // select mesh instance
-                                        //     editor.call(
-                                        //         'attributes:assets:model:select-node',
-                                        //         meshSelection.modelId,
-                                        //         meshSelection.meshInstanceIndex,
-                                        //         meshSelection.materialId,
-                                        //         selectedEntity
-                                        //     );
-                                        // }
+                                        // We've selected the same entity again so try to find the selected mesh instance
+                                        var meshSelection = this._getMeshInstanceSelection(selectedNode, picked);
+                                        if (meshSelection) {
+                                            // deselect entity and select model
+                                            editor.call('selector:add', 'asset', editor.call('assets:get', meshSelection.modelId));
+
+                                            setTimeout(function () {
+                                                var node = editor.call('attributes.rootPanel').element.querySelector('.field-asset.node-' + meshSelection.meshInstanceIndex);
+                                                console.log(node);
+                                                node.classList.add('active');
+                                            });
+                                        }
                                     } else if (e.button === pc.input.MOUSEBUTTON_RIGHT) {
                                         // show context menu for selected entity
                                         editor.call('viewport:contextmenu', event.x, event.y, selectedEntity);

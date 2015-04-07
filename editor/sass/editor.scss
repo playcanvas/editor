@@ -519,6 +519,7 @@ strong {
                     }
                 }
             }
+
             > .content {
                 > .ui-image-field {
                     -webkit-flex-shrink: 0;
@@ -604,6 +605,24 @@ strong {
                         &:after {
                             font-size: 24px;
                             line-height: 14px;
+                        }
+                    }
+                }
+            }
+
+            &.active {
+                border: 1px solid $text-active;
+                background-color: $bcg-darkest;
+
+                > .content {
+                    > .top {
+                        > .controls {
+                            > .ui-label {
+                                color: $text-active;
+                            }
+                        }
+                        > .ui-label {
+                            color: $text-active;
                         }
                     }
                 }
