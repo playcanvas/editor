@@ -75,6 +75,15 @@ editor.once('load', function() {
                 });
 
                 nodeItems[i].parent.class.add('node-' + i);
+
+                (function (index) {
+                    nodeItems[index].parent.element.addEventListener('click', function () {
+                        if (nodeItems[index].parent) {
+                            nodeItems[index].parent.class.remove('active');
+                        }
+                    });
+
+                })(i);
             }
 
             // panelNodes.on('destroy', function () {
