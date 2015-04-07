@@ -127,7 +127,7 @@ editor.once('load', function() {
         icon.classList.add('icon');
         item.element.appendChild(icon);
 
-        var label = document.createElement('div');
+        var label = item.labelElement = document.createElement('div');
         label.classList.add('label');
         label.textContent = asset.get('name');
         item.element.appendChild(label);
@@ -162,7 +162,7 @@ editor.once('load', function() {
         icon.classList.add('icon');
         item.element.appendChild(icon);
 
-        var label = document.createElement('div');
+        var label = item.labelElement = document.createElement('div');
         label.classList.add('label');
         label.textContent = file.get('filename');
         item.element.appendChild(label);
