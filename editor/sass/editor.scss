@@ -613,7 +613,8 @@ strong {
             }
 
             &.active {
-                border: 1px solid $text-active;
+                outline: 1px solid $text-active;
+                z-index: 1;
                 background-color: $bcg-darkest;
 
                 > .content {

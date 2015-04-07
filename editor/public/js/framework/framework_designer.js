@@ -607,8 +607,12 @@ pc.extend(pc.designer, function() {
 
                                             setTimeout(function () {
                                                 var node = editor.call('attributes.rootPanel').element.querySelector('.field-asset.node-' + meshSelection.meshInstanceIndex);
-                                                console.log(node);
                                                 node.classList.add('active');
+                                                var img = node.querySelector('.ui-image-field');
+                                                // scroll into view
+                                                img.focus();
+                                                // remove 'focused' effect
+                                                img.blur();
                                             });
                                         }
                                     } else if (e.button === pc.input.MOUSEBUTTON_RIGHT) {
