@@ -81,14 +81,12 @@ editor.once('load', function() {
 
         setMinMipFields(asset.get('data.minfilter'));
 
-        var onMinFilterChanged = function (value) {
+        var evtMinFilterChanged = asset.on('data.minfilter:set', function (value) {
             setMinMipFields(value);
-        };
-
-        asset.on('data.minfilter:set', onMinFilterChanged);
+        });
 
         paramsPanel.once('destroy', function () {
-            asset.unbind('data.minfilter:set', onMinFilterChanged);
+            evtMinFilterChanged.unbind();
         });
 
         // magfilter

@@ -1450,12 +1450,12 @@ editor.once('load', function() {
         // normals
         var panelNormal = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: panelState['normal'],
+            folded: panelState['normals'],
             name: 'Normals'
         });
         panelNormal.class.add('component');
-        panelNormal.on('fold', function() { panelState['normal'] = true; });
-        panelNormal.on('unfold', function() { panelState['normal'] = false; });
+        panelNormal.on('fold', function() { panelState['normals'] = true; });
+        panelNormal.on('unfold', function() { panelState['normals'] = false; });
 
         // map (normals)
         var fieldNormalMap = editor.call('attributes:addField', {
@@ -1659,7 +1659,6 @@ editor.once('load', function() {
             path: 'data.sphereMap'
         });
         fieldReflectionSphere.on('change', function(value) {
-            fieldReflectionStrength.parent.hidden = ! fieldReflectionSphere.value && ! fieldReflectionCubeMap.value;
             fieldReflectionCubeMap.parent.hidden = !! value;
         });
         fieldReflectionSphere.parent.hidden = !! asset.get('data.cubeMap');
@@ -1674,10 +1673,7 @@ editor.once('load', function() {
             path: 'data.cubeMap'
         });
         fieldReflectionCubeMap.on('change', function(value) {
-            fieldReflectionStrength.parent.hidden = ! fieldReflectionSphere.value && ! fieldReflectionCubeMap.value;
             fieldReflectionSphere.parent.hidden = !! value;
-            fieldRefraction.parent.hidden = ! value;
-            fieldRefractionIndex.parent.hidden = ! value;
         });
         fieldReflectionCubeMap.parent.hidden = !! asset.get('data.sphereMap');
 
@@ -1694,7 +1690,6 @@ editor.once('load', function() {
             path: 'data.reflectivity'
         });
         fieldReflectionStrength.style.width = '32px';
-        fieldReflectionStrength.parent.hidden = ! fieldReflectionSphere.value && ! fieldReflectionCubeMap.value;
 
         // reflectivity slider
         var fieldReflectionStrengthSlider = new ui.Slider({
@@ -1717,7 +1712,6 @@ editor.once('load', function() {
             path: 'data.refraction'
         });
         fieldRefraction.style.width = '32px';
-        fieldRefraction.parent.hidden = ! fieldReflectionCubeMap.value;
 
         // refraction slider
         var fieldRefractionSlider = new ui.Slider({
@@ -1741,7 +1735,6 @@ editor.once('load', function() {
             path: 'data.refractionIndex'
         });
         fieldRefractionIndex.style.width = '32px';
-        fieldRefractionIndex.parent.hidden = ! fieldReflectionCubeMap.value;
 
         // refraction slider
         var fieldRefractionIndexSlider = new ui.Slider({

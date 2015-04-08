@@ -3,9 +3,32 @@ editor.once('load', function() {
 
     var assetsPanel = editor.call('layout.assets');
 
+    var fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    // fileInput.accept = '';
+    fileInput.multiple = true;
+    fileInput.style.display = 'none';
+    fileInput.addEventListener('change', function() {
+        for(var i = 0; i < this.files.length; i++) {
+            editor.call('assets:uploadFile', this.files[i], this.files[i].name);
+        }
+        this.value = null;
+    }, false);
+    assetsPanel.append(fileInput);
+
     // context menu
     var menu = new ui.Menu();
     editor.call('layout.root').append(menu);
+
+    // upload
+    var menuUpload = new ui.MenuItem({
+        text: 'Upload',
+        value: 'upload'
+    });
+    menuUpload.on('select', function() {
+        fileInput.click();
+    });
+    menu.append(menuUpload);
 
     // material
     var menuMaterial = new ui.MenuItem({

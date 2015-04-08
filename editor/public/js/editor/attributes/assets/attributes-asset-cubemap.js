@@ -77,7 +77,7 @@ editor.once('load', function() {
 
 
         // anisotropy
-        editor.call('attributes:addField', {
+        var fieldAnisotropy = editor.call('attributes:addField', {
             parent: paramsPanel,
             name: 'Anisotropy',
             type: 'number',
@@ -141,6 +141,7 @@ editor.once('load', function() {
                 editor.call('picker:asset', 'texture', texture);
 
                 var evtPick = editor.once('picker:asset', function(texture) {
+                    // clear prefiltered data
                     asset.set('data.textures.' + ind, texture.get('id'));
                     evtPick = null;
                 });
@@ -160,6 +161,7 @@ editor.once('load', function() {
                     if (type !== 'asset.texture')
                         return;
 
+                    // clear prefiltered data
                     asset.set('data.textures.' + ind, data.id);
                 }
             });
@@ -184,9 +186,11 @@ editor.once('load', function() {
 
             // bind to changes
             face.evt = asset.on('data.textures.' + ind + ':set', function(value) {
+                clearPrefiltered();
                 setTexture(face, value);
+                prefilterPanel.hidden = !hasAllTextures();
             });
-        }
+        };
 
         // create all faces
         for(var i = 0; i < side.length; i++)
@@ -198,5 +202,82 @@ editor.once('load', function() {
             for(var i = 0; i < faces.length; i++)
                 faces[i].evt.unbind();
         });
+
+        // prefiltering
+        var prefilterPanel = editor.call('attributes:addPanel', {
+            name: 'Prefiltering'
+        });
+        prefilterPanel.class.add('component');
+
+        // prefilter button
+        var prefilterBtn = new ui.Button({
+            text: 'Prefilter',
+        });
+
+        prefilterPanel.append(prefilterBtn);
+
+        prefilterBtn.on('click', function () {
+            // disable while prefiltering
+            prefilterBtn.disabled = true;
+            editor.call('assets:cubemaps:prefilter', asset, function () {
+                // re-enable button
+                prefilterBtn.disabled = false;
+            });
+        });
+
+        // delete prefiltered data button
+        var clearPrefilteredBtn = new ui.Button({
+            text: 'Delete Prefiltered Data',
+        });
+
+        prefilterPanel.append(clearPrefilteredBtn);
+
+        var clearPrefiltered = function () {
+            var history = asset.history.enabled;
+            asset.history.enabled = false;
+            asset.set('file', null);
+            asset.history.enabled = history;
+        };
+
+        clearPrefilteredBtn.on('click', clearPrefiltered);
+
+        var evtFileChange = asset.on('file:set', function (value) {
+            togglePrefilterFields(!!value);
+        });
+
+        prefilterPanel.once('destroy', function () {
+            evtFileChange.unbind();
+        });
+
+        var hasAllTextures = function () {
+            var textures = asset.get('data.textures');
+            if (textures && textures.length === 6) {
+                for (var i = 0; i < 6; i++) {
+                    if (isNaN(parseInt(textures[i], 10) )) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            return false;
+        };
+
+        // show prefilter button or clear prefiltering button depending
+        // on current cubemap 'file' field
+        var togglePrefilterFields = function (isPrefiltered) {
+            prefilterPanel.hidden = !hasAllTextures();
+            prefilterBtn.hidden = isPrefiltered;
+            clearPrefilteredBtn.hidden = !isPrefiltered;
+
+            fieldMinFilter.disabled = isPrefiltered;
+            fieldMipFilter.disabled = isPrefiltered;
+            fieldMagFilter.disabled = isPrefiltered;
+            fieldAnisotropy.disabled = isPrefiltered;
+        };
+
+        togglePrefilterFields(!!asset.get('file'));
+
     });
 });

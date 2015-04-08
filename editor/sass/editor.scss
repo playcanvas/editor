@@ -1,15 +1,6 @@
+@import 'variables';
 @import 'fonts';
 
-$bcg-darkest: #20292b;
-$bcg-darker: #293538;
-$bcg-dark: #2c393c;
-$bcg-primary: #364346;
-
-$text-darkest: #5b7073;
-$text-dark: #9ba1a3;
-$text-secondary: #b1b8ba;
-$text-primary: #ffffff;
-$text-active: #f60;
 
 html {
     height: 100%;
@@ -21,7 +12,6 @@ body {
     height: 100%;
     overflow: hidden;
     margin: 0;
-    background-color: #333;
     font-size: 14px;
     color: #eee;
 
@@ -97,6 +87,11 @@ strong {
                 &.active {
                     color: $text-primary;
                     background-color: $bcg-darkest;
+
+                    &:hover,
+                    &:focus {
+                        background-color: mix($bcg-dark, $bcg-darkest, 50%);
+                    }
                 }
                 &.disabled {
                     opacity: 1;
@@ -110,7 +105,7 @@ strong {
                 }
                 &:hover,
                 &:focus {
-                    color: #fff;
+                    color: $text-primary;
                     background-color: $bcg-dark;
                 }
             }
@@ -489,6 +484,8 @@ strong {
                     font-family: "Lucida Console", Monaco, monospace;
                     font-weight: normal;
                     font-size: 11px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
                 }
             }
         }
@@ -519,6 +516,7 @@ strong {
                     }
                 }
             }
+
             > .content {
                 > .ui-image-field {
                     -webkit-flex-shrink: 0;
@@ -604,6 +602,25 @@ strong {
                         &:after {
                             font-size: 24px;
                             line-height: 14px;
+                        }
+                    }
+                }
+            }
+
+            &.active {
+                outline: 1px solid $text-active;
+                z-index: 1;
+                background-color: $bcg-darkest;
+
+                > .content {
+                    > .top {
+                        > .controls {
+                            > .ui-label {
+                                color: $text-active;
+                            }
+                        }
+                        > .ui-label {
+                            color: $text-active;
                         }
                     }
                 }
@@ -815,6 +832,18 @@ strong {
 
                 &:before {
                     content: '\E464';
+                    padding-right: 8px;
+                    @extend .font-icon;
+                    font-size: 16px;
+                    text-align: center;
+                }
+            }
+            > .ui-button.edit-script {
+                display: block;
+                text-align: center;
+
+                &:before {
+                    content: '\E442';
                     padding-right: 8px;
                     @extend .font-icon;
                     font-size: 16px;
@@ -1116,6 +1145,14 @@ strong {
             }
             > .icon:after {
                 content: '\E417';
+            }
+        }
+        &.type-script {
+            > .thumbnail.placeholder:after {
+                content: '\E353';
+            }
+            > .icon:after {
+                content: '\E353';
             }
         }
         &.type-texture {

@@ -102,15 +102,15 @@ pc.extend(pc.designer, function() {
             clearDepthBuffer: true
         });
         this.root.addChild(perspective);
-        perspective.setPosition(100, 50, 100);
-        perspective.setEulerAngles(-20, 45, 0);
+        perspective.setPosition(9.2, 7, 9);
+        perspective.setEulerAngles(-25, 45, 0);
 
         // top
         var top = new pc.Entity();
         top.name = 'Top';
         top.addComponent('camera', {
             fov: 45,
-            orthoHeight: 80,
+            orthoHeight: 5,
             projection: 1,
             farClip: 100000,
             nearClip: 0.1,
@@ -129,7 +129,7 @@ pc.extend(pc.designer, function() {
         bottom.name = 'Bottom';
         bottom.addComponent('camera', {
             fov: 45,
-            orthoHeight: 80,
+            orthoHeight: 5,
             projection: 1,
             farClip: 100000,
             nearClip: 0.1,
@@ -148,7 +148,7 @@ pc.extend(pc.designer, function() {
         front.name = 'Front';
         front.addComponent('camera', {
             fov: 45,
-            orthoHeight: 80,
+            orthoHeight: 5,
             projection: 1,
             farClip: 100000,
             nearClip: 0.1,
@@ -167,7 +167,7 @@ pc.extend(pc.designer, function() {
         back.name = 'Back';
         back.addComponent('camera', {
             fov: 45,
-            orthoHeight: 80,
+            orthoHeight: 5,
             projection: 1,
             farClip: 100000,
             nearClip: 0.1,
@@ -186,7 +186,7 @@ pc.extend(pc.designer, function() {
         left.name = 'Left';
         left.addComponent('camera', {
             fov: 45,
-            orthoHeight: 80,
+            orthoHeight: 5,
             projection: 1,
             farClip: 100000,
             nearClip: 0.1,
@@ -205,7 +205,7 @@ pc.extend(pc.designer, function() {
         right.name = 'Right';
         right.addComponent('camera', {
             fov: 45,
-            orthoHeight: 80,
+            orthoHeight: 5,
             projection: 1,
             farClip: 100000,
             nearClip: 0.1,
@@ -595,27 +595,29 @@ pc.extend(pc.designer, function() {
 
                                     if (e.button === pc.input.MOUSEBUTTON_RIGHT) {
                                         // show context menu for selected entity
-                                        editor.call('viewport:contextmenu', event.x, event.y, selectedEntity);
+                                        editor.call('viewport:contextmenu', event.clientX, event.clientY, selectedEntity);
                                     }
                                 } else {
                                     if (e.button === pc.input.MOUSEBUTTON_LEFT) {
-                                        // // We've selected the same entity again so try to find the selected mesh instance
-                                        // var meshSelection = this._getMeshInstanceSelection(selectedNode, picked);
-                                        // if (meshSelection) {
-                                        //     // deselect entity and select model
-                                        //     editor.call('selector:add', 'asset', editor.call('assets:get', meshSelection.modelId));
-                                        //     // select mesh instance
-                                        //     editor.call(
-                                        //         'attributes:assets:model:select-node',
-                                        //         meshSelection.modelId,
-                                        //         meshSelection.meshInstanceIndex,
-                                        //         meshSelection.materialId,
-                                        //         selectedEntity
-                                        //     );
-                                        // }
+                                        // We've selected the same entity again so try to find the selected mesh instance
+                                        var meshSelection = this._getMeshInstanceSelection(selectedNode, picked);
+                                        if (meshSelection) {
+                                            // deselect entity and select model
+                                            editor.call('selector:add', 'asset', editor.call('assets:get', meshSelection.modelId));
+
+                                            setTimeout(function () {
+                                                var node = editor.call('attributes.rootPanel').element.querySelector('.field-asset.node-' + meshSelection.meshInstanceIndex);
+                                                node.classList.add('active');
+                                                var img = node.querySelector('.ui-image-field');
+                                                // scroll into view
+                                                img.focus();
+                                                // remove 'focused' effect
+                                                img.blur();
+                                            });
+                                        }
                                     } else if (e.button === pc.input.MOUSEBUTTON_RIGHT) {
                                         // show context menu for selected entity
-                                        editor.call('viewport:contextmenu', event.x, event.y, selectedEntity);
+                                        editor.call('viewport:contextmenu', event.clientX, event.clientY, selectedEntity);
                                     }
                                 }
                             }
@@ -653,6 +655,12 @@ pc.extend(pc.designer, function() {
             event.preventDefault(); // stop text selection
             return false;
         }
+    };
+
+    // Redraw when we set the skybox
+    Designer.prototype._setSkybox = function (cubemaps) {
+        Designer._super._setSkybox.call(this, cubemaps);
+        this.redraw = true;
     };
 
     return {

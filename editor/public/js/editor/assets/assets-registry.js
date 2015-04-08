@@ -35,23 +35,44 @@ editor.once('load', function() {
             // add to registry
             assetRegistry.createAndAddAsset(assetJson.id, data);
 
-            // attach update handler
+            var timeout;
+            var updatedFields = {};
+
             asset.on('*:set', function (path, value) {
                 var parts = path.split('.');
 
-                if ([ 'data', 'file' ].indexOf(parts[0]) === -1)
+                if (parts[0] !== 'data' && parts[0] !== 'file')
                     return;
 
-                var realtimeAsset = assetRegistry.getAssetById(asset.get('id'));
+                if (timeout)
+                    clearTimeout(timeout);
 
-                var raw = asset.get(parts[0]);
-                if (asset.get('type') === 'material' && parts[0] === 'data')
-                    raw = editor.call('material:mapToList', { data: raw });
+                updatedFields[parts[0]] = true;
 
-                // this will trigger the 'update' event on the asset in the engine
-                // handling all resource loading automatically
-                realtimeAsset[parts[0]] = raw;
+                // do this in a timeout to avoid multiple sets of the same
+                // fields
+                timeout = setTimeout(function () {
+                    var realtimeAsset = assetRegistry.getAssetById(asset.get('id'));
+
+                    for (var key in updatedFields) {
+                        var data = asset.get(key);
+
+                        if (asset.get('type') === 'material' && key === 'data')
+                            data = editor.call('material:mapToList', { data: data });
+
+                        // this will trigger the 'update' event on the asset in the engine
+                        // handling all resource loading automatically
+                        realtimeAsset[key] = data;
+
+                        delete updatedFields[key];
+                    }
+
+                    timeout = null;
+
+                });
+
             });
+
         });
 
         // remove assets from asset registry

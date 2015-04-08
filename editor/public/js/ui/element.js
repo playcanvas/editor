@@ -96,9 +96,9 @@ Element.prototype.destroy = function() {
     this._destroyed = true;
 
     if (this._parent) {
-        this._parent.unbind('destroy', this._parentDestroy);
-        this._parent.unbind('disable', this._parentDisable);
-        this._parent.unbind('enable', this._parentEnable);
+        this._evtParentDestroy.unbind();
+        this._evtParentDisable.unbind();
+        this._evtParentEnable.unbind();
         this._parent = null;
     }
 
@@ -153,7 +153,6 @@ Object.defineProperty(Element.prototype, 'parent', {
         if (value) {
             this._parent = value;
             this._evtParentDestroy = this._parent.once('destroy', this._parentDestroy);
-
             this._evtParentDisable = this._parent.on('disable', this._parentDisable);
             this._evtParentEnable = this._parent.on('enable', this._parentEnable);
 

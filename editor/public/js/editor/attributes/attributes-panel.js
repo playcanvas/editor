@@ -454,13 +454,11 @@ editor.once('load', function() {
                         var rectField = field.element.getBoundingClientRect();
                         editor.call('picker:curve:position', rectField.right - rectPicker.width, rectField.bottom);
 
-                        var onPickerStartChange = function () {
+                        var evtPickerStartChange = editor.on('picker:curve:change:start', function () {
                             first = true;
-                        };
+                        });
 
-                        editor.on('picker:curve:change:start', onPickerStartChange);
-
-                        var onPickerChanged = function (path, value) {
+                        var evtPickerChanged = editor.on('picker:curve:change', function (path, value) {
                             var combine;
                             if (field._link) {
                                 combine = field._link.history.combine;
@@ -494,21 +492,16 @@ editor.once('load', function() {
                             }
 
                             first = false;
-                        };
+                        });
 
-                        editor.on('picker:curve:change', onPickerChanged);
-
-                        var refreshPicker = function (value) {
+                        var evtRefreshPicker = field.on('change', function (value) {
                             editor.call('picker:curve:set', value, args);
-                        };
-
-                        field.on('change', refreshPicker);
-
+                        });
 
                         editor.once('picker:curve:close', function () {
-                            field.unbind('change', refreshPicker);
-                            editor.unbind('picker:curve:change:start', onPickerStartChange);
-                            editor.unbind('picker:curve:change', onPickerChanged);
+                            evtRefreshPicker.unbind();
+                            evtPickerStartChange.unbind();
+                            evtPickerChanged.unbind();
                             curvePickerOn = false;
                         });
                     }

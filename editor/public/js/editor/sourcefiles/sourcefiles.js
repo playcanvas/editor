@@ -62,7 +62,13 @@ editor.once('repositories:load', function (repositories) {
                 callback(data.response[0]);
             }
 
-            sourcefiles.add(new Observer({filename: url}));
+            var file = new Observer({
+                filename: url
+            });
+
+            sourcefiles.add(file);
+
+            editor.emit('sourcefiles:add', file);
         });
     });
 

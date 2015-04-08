@@ -59,6 +59,15 @@ editor.once('load', function () {
         asset.sync = sync;
     };
 
+    // Gets asset registry
+    editor.method('preview:assetRegistry', function () {
+        return assets;
+    });
+
+    editor.method('preview:device', function () {
+        return device;
+    });
+
     // Get necessary objects for a new preview scene
     editor.method('preview:prepare', function () {
         var scene = new pc.Scene();

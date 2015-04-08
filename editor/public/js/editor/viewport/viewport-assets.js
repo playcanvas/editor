@@ -33,15 +33,4 @@ editor.once('load', function() {
         update.call(this);
         editor.call('viewport:render');
     };
-
-    // patch cubemap setSource re-render the viewport
-    var setSource = pc.Texture.prototype.setSource;
-    pc.Texture.prototype.setSource = function () {
-        setSource.apply(this, arguments);
-
-        if (this._cubemap) {
-            editor.call('viewport:render');
-        }
-    };
-
 });

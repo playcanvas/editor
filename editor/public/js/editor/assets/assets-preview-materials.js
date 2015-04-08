@@ -54,11 +54,13 @@ editor.once('load', function () {
         var gammaCorrection = settings.get('render.gamma_correction');
         var tonemapping = settings.get('render.tonemapping');
         var exposure = settings.get('render.exposure');
+        //var skybox = settings.get('render.skybox');
 
         scene.ambientLight.set(ambient[0], ambient[1], ambient[2]);
         scene.gammaCorrection = gammaCorrection;
         scene.toneMapping = tonemapping;
         scene.exposure = exposure;
+        //scene.skybox = skybox;
 
         // regenerate all material thumbnails
         editor.call('assets:map', function (asset) {
@@ -79,6 +81,7 @@ editor.once('load', function () {
         settings.on('render.gamma_correction:set', updateSettings);
         settings.on('render.tonemapping:set', updateSettings);
         settings.on('render.exposure:set', updateSettings);
+        //settings.on('render.skybox:set', updateSettings);
     });
 
 
@@ -180,19 +183,5 @@ editor.once('load', function () {
         else
             delete cubemapCache[this.id];
     };
-
-    // patch cubemap setSource to emit a change event for
-    // materials that reference it
-    var setSource = pc.Texture.prototype.setSource;
-    pc.Texture.prototype.setSource = function () {
-        setSource.apply(this, arguments);
-
-        for (var id in cubemapCache) {
-            if (cubemapCache[id] === this && materialCache[id]) {
-                editor.emit('preview:material:changed', materialCache[id]);
-            }
-        }
-    };
-
 
 });
