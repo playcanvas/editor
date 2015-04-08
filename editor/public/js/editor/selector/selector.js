@@ -26,19 +26,14 @@ editor.once('load', function() {
         if (! index[type])
             index[type] = { };
 
-        var ind = index[type][item.get[key]] = {
-            item: item,
-            onDestroy: function() {
-                editor.call('selector:history', false);
+        index[type][item.get[key]] = item.once('destroy', function() {
+            editor.call('selector:history', false);
 
-                selector.remove(item);
-                delete index[type][item.get[key]];
+            selector.remove(item);
+            delete index[type][item.get[key]];
 
-                editor.call('selector:history', true);
-            }
-        };
-
-        item.once('destroy', ind.onDestroy);
+            editor.call('selector:history', true);
+        });
     };
 
     var removeIndex = function(type, item) {
@@ -50,8 +45,8 @@ editor.once('load', function() {
         var ind = index[type][item.get[key]];
         if (! ind) return;
 
-        ind.item.unbind('destroy', ind.onDestroy);
-    }
+        ind.unbind();
+    };
 
     // adding
     selector.on('add', function(item) {

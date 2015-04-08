@@ -17,31 +17,21 @@ Events.prototype.on = function(name, fn) {
     var events = this._events[name];
     if (events === undefined) {
         this._events[name] = [ fn ];
-        this.emit('event:on', fn);
     } else {
         if (events.indexOf(fn) == -1) {
             events.push(fn);
-            this.emit('event:on', fn);
         }
     }
     return new EventHandle(this, name, fn);
-    // return this;
 };
 
 Events.prototype.once = function(name, fn) {
-    var events = this._events[name];
-    fn.once = true;
-    if (! events) {
-        this._events[name] = [ fn ];
-        this.emit('event:once', fn);
-    } else {
-        if (events.indexOf(fn) == -1) {
-            events.push(fn);
-            this.emit('event:once', fn);
-        }
-    }
-    return new EventHandle(this, name, fn);
-    // return this;
+    var self = this;
+    var evt = this.on(name, function() {
+        fn.apply(self, arguments);
+        evt.unbind();
+    });
+    return evt;
 };
 
 Events.prototype.emit = function(name) {
@@ -52,6 +42,7 @@ Events.prototype.emit = function(name) {
     events = events.slice(0);
 
     var args = Array.prototype.slice.call(arguments, 1);
+    var removed = 0;
 
     for(var i = 0; i < events.length; i++) {
         if (! events[i])
@@ -62,10 +53,6 @@ Events.prototype.emit = function(name) {
         } catch(ex) {
             console.info('%c%s %c(event error)', 'color: #06f', name, 'color: #f00');
             console.log(ex.stack);
-        }
-
-        if (events[i] && events[i].once && this._events[name]) {
-            this._events[name].splice(this._events[name].indexOf(events[i]), 1);
         }
     }
 
