@@ -595,7 +595,7 @@ pc.extend(pc.designer, function() {
 
                                     if (e.button === pc.input.MOUSEBUTTON_RIGHT) {
                                         // show context menu for selected entity
-                                        editor.call('viewport:contextmenu', event.x, event.y, selectedEntity);
+                                        editor.call('viewport:contextmenu', event.clientX, event.clientY, selectedEntity);
                                     }
                                 } else {
                                     if (e.button === pc.input.MOUSEBUTTON_LEFT) {
@@ -617,7 +617,7 @@ pc.extend(pc.designer, function() {
                                         }
                                     } else if (e.button === pc.input.MOUSEBUTTON_RIGHT) {
                                         // show context menu for selected entity
-                                        editor.call('viewport:contextmenu', event.x, event.y, selectedEntity);
+                                        editor.call('viewport:contextmenu', event.clientX, event.clientY, selectedEntity);
                                     }
                                 }
                             }
