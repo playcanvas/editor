@@ -1450,12 +1450,12 @@ editor.once('load', function() {
         // normals
         var panelNormal = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: panelState['normal'],
+            folded: panelState['normals'],
             name: 'Normals'
         });
         panelNormal.class.add('component');
-        panelNormal.on('fold', function() { panelState['normal'] = true; });
-        panelNormal.on('unfold', function() { panelState['normal'] = false; });
+        panelNormal.on('fold', function() { panelState['normals'] = true; });
+        panelNormal.on('unfold', function() { panelState['normals'] = false; });
 
         // map (normals)
         var fieldNormalMap = editor.call('attributes:addField', {

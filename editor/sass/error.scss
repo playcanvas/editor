@@ -1,0 +1,38 @@
+@import 'variables';
+@import 'fonts';
+
+body {
+    @extend .font-regular;
+    color: $text-secondary;
+    background-color: $bcg-darker;
+    margin: 0;
+}
+
+h1 {
+    color: $text-active;
+    margin: 8px 16px 0;
+}
+
+h2 {
+    @extend .font-light;
+    margin: 0 16px;
+    font-size: 16px;
+}
+
+pre.stack {
+    color: $text-active;
+    background-color: $bcg-darkest;
+    padding: 8px;
+}
+
+a.home {
+    display: block;
+    margin: 8px 16px;
+    color: $text-dark;
+    text-decoration: none;
+
+    &:hover {
+        color: $text-primary;
+        text-decoration: underline;
+    }
+}

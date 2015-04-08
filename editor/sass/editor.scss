@@ -1,15 +1,6 @@
+@import 'variables';
 @import 'fonts';
 
-$bcg-darkest: #20292b;
-$bcg-darker: #293538;
-$bcg-dark: #2c393c;
-$bcg-primary: #364346;
-
-$text-darkest: #5b7073;
-$text-dark: #9ba1a3;
-$text-secondary: #b1b8ba;
-$text-primary: #ffffff;
-$text-active: #f60;
 
 html {
     height: 100%;
@@ -21,7 +12,6 @@ body {
     height: 100%;
     overflow: hidden;
     margin: 0;
-    background-color: #333;
     font-size: 14px;
     color: #eee;
 
