@@ -25,9 +25,11 @@ editor.once('load', function() {
     // on settings change
     sceneSettings.on('*:set', queueApplySettings);
 
-    editor.once('sceneSettings:load', function () {
+    editor.once('sceneSettings:load', function (settings) {
         // when all assets are loaded re-apply scene settings
         // to make sure any missing skyboxes are set
-        editor.once('assets:load', queueApplySettings);
+        editor.once('assets:load', function () {
+            queueApplySettings();
+        });
     });
 });
