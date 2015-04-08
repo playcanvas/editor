@@ -87,6 +87,11 @@ strong {
                 &.active {
                     color: $text-primary;
                     background-color: $bcg-darkest;
+
+                    &:hover,
+                    &:focus {
+                        background-color: mix($bcg-dark, $bcg-darkest, 50%);
+                    }
                 }
                 &.disabled {
                     opacity: 1;
@@ -100,7 +105,7 @@ strong {
                 }
                 &:hover,
                 &:focus {
-                    color: #fff;
+                    color: $text-primary;
                     background-color: $bcg-dark;
                 }
             }
