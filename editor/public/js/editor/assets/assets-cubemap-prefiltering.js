@@ -8,13 +8,15 @@ editor.once('load', function () {
         if (!realtimeAsset) return;
 
         // load cubemap asset
-        var cubemap = realtimeAsset.resource;
-        if (!cubemap) {
+        var cubemap;
+
+        if (!realtimeAsset.resource) {
             assets.load(realtimeAsset).then(function (resources) {
-                cubemap = resources[0];
+                cubemap = resources[0][0];
                 onLoad();
             });
         } else {
+            cubemap = realtimeAsset.resource;
             onLoad();
         }
 
