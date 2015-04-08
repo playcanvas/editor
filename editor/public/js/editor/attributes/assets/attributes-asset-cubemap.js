@@ -186,7 +186,7 @@ editor.once('load', function() {
 
             // bind to changes
             face.evt = asset.on('data.textures.' + ind + ':set', function(value) {
-                asset.set('file', null);
+                clearPrefiltered();
                 setTexture(face, value);
                 prefilterPanel.hidden = !hasAllTextures();
             });
@@ -232,9 +232,14 @@ editor.once('load', function() {
 
         prefilterPanel.append(clearPrefilteredBtn);
 
-        clearPrefilteredBtn.on('click', function () {
+        var clearPrefiltered = function () {
+            var history = asset.history.enabled;
+            asset.history.enabled = false;
             asset.set('file', null);
-        });
+            asset.history.enabled = history;
+        };
+
+        clearPrefilteredBtn.on('click', clearPrefiltered);
 
         var evtFileChange = asset.on('file:set', function (value) {
             togglePrefilterFields(!!value);

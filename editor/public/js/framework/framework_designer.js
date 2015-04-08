@@ -657,6 +657,12 @@ pc.extend(pc.designer, function() {
         }
     };
 
+    // Redraw when we set the skybox
+    Designer.prototype._setSkybox = function (cubemaps) {
+        Designer._super._setSkybox.call(this, cubemaps);
+        this.redraw = true;
+    };
+
     return {
         /**
         * @name pc.designer.user
