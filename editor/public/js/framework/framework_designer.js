@@ -102,15 +102,15 @@ pc.extend(pc.designer, function() {
             clearDepthBuffer: true
         });
         this.root.addChild(perspective);
-        perspective.setPosition(100, 50, 100);
-        perspective.setEulerAngles(-20, 45, 0);
+        perspective.setPosition(9.2, 7, 9);
+        perspective.setEulerAngles(-25, 45, 0);
 
         // top
         var top = new pc.Entity();
         top.name = 'Top';
         top.addComponent('camera', {
             fov: 45,
-            orthoHeight: 80,
+            orthoHeight: 5,
             projection: 1,
             farClip: 100000,
             nearClip: 0.1,
@@ -129,7 +129,7 @@ pc.extend(pc.designer, function() {
         bottom.name = 'Bottom';
         bottom.addComponent('camera', {
             fov: 45,
-            orthoHeight: 80,
+            orthoHeight: 5,
             projection: 1,
             farClip: 100000,
             nearClip: 0.1,
@@ -148,7 +148,7 @@ pc.extend(pc.designer, function() {
         front.name = 'Front';
         front.addComponent('camera', {
             fov: 45,
-            orthoHeight: 80,
+            orthoHeight: 5,
             projection: 1,
             farClip: 100000,
             nearClip: 0.1,
@@ -167,7 +167,7 @@ pc.extend(pc.designer, function() {
         back.name = 'Back';
         back.addComponent('camera', {
             fov: 45,
-            orthoHeight: 80,
+            orthoHeight: 5,
             projection: 1,
             farClip: 100000,
             nearClip: 0.1,
@@ -186,7 +186,7 @@ pc.extend(pc.designer, function() {
         left.name = 'Left';
         left.addComponent('camera', {
             fov: 45,
-            orthoHeight: 80,
+            orthoHeight: 5,
             projection: 1,
             farClip: 100000,
             nearClip: 0.1,
@@ -205,7 +205,7 @@ pc.extend(pc.designer, function() {
         right.name = 'Right';
         right.addComponent('camera', {
             fov: 45,
-            orthoHeight: 80,
+            orthoHeight: 5,
             projection: 1,
             farClip: 100000,
             nearClip: 0.1,

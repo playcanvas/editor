@@ -10,8 +10,8 @@ editor.once('load', function() {
             0.6941176652908325,
             1
         ],
-        'grid_divisions': 14,
-        'grid_division_size': 10,
+        'grid_divisions': 8,
+        'grid_division_size': 1,
         'snap_increment': 1
     });
     designerSettings.sync = false;
