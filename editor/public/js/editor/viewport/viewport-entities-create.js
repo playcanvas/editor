@@ -3,8 +3,9 @@ editor.once('load', function() {
 
     var framework = editor.call('viewport:framework');
 
-    // entities awaiting parent
-    var awaitingParent = { };
+    // entities indexes for parenting
+    var childIndex = { };
+    var entitiesIndex = { };
 
     // queue for hierarchy resync
     var awaitingResyncHierarchy = false;
@@ -21,6 +22,8 @@ editor.once('load', function() {
 
     var createEntity = function (obj) {
         var entity = new pc.Entity();
+
+        entitiesIndex[obj.get('resource_id')] = entity;
 
         entity.setName(obj.get('name'));
         entity.setGuid(obj.get('resource_id'));
@@ -50,36 +53,23 @@ editor.once('load', function() {
         for(var key in components)
             framework.context.systems[key].addComponent(entity, components[key]);
 
+        var children = obj.get('children');
+        for(var i = 0; i < children.length; i++) {
+            childIndex[children[i]] = entity;
+
+            if (entitiesIndex[children[i]])
+                entity.addChild(entitiesIndex[children[i]]);
+        }
+
         // parenting
         if (! obj.get('parent')) {
             // root
             framework.context.root.addChild(entity);
-
         } else {
-            // get parent
-            var parent = editor.call('entities:get', obj.get('parent'));
-
-            if (! parent || ! parent.entity) {
-                // if parent not available, then await
-                if (! awaitingParent[obj.get('parent')])
-                    awaitingParent[obj.get('parent')] = [ ];
-
-                // add to awaiting children
-                awaitingParent[obj.get('parent')].push(obj);
-            } else {
-                // if parent available, addChild
-                parent.entity.addChild(entity);
-            }
-        }
-
-        // check if there are awaiting children
-        if (awaitingParent[obj.get('resource_id')]) {
-            // add all awaiting children
-            for(var i = 0; i < awaitingParent[obj.get('resource_id')].length; i++)
-                entity.addChild(awaitingParent[obj.get('resource_id')][i].entity);
-
-            // delete awaiting queue
-            delete awaitingParent[obj.get('resource_id')];
+            // child
+            var parent = childIndex[obj.get('resource_id')];
+            if (parent)
+                parent.addChild(entity);
         }
 
         // queue resync hierarchy
@@ -109,16 +99,14 @@ editor.once('load', function() {
     editor.once('assets:load', function () {
         assetsLoaded = true;
         // if entities already loaded then create them
-        if (entitiesLoaded) {
+        if (entitiesLoaded)
             createEntities();
-        }
     });
 
     editor.once('entities:load', function() {
         entitiesLoaded = true;
         // if assets already loaded then create entities
-        if (assetsLoaded) {
+        if (assetsLoaded)
             createEntities();
-        }
     });
 });
