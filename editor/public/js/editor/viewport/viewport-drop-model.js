@@ -20,20 +20,18 @@ editor.once('load', function() {
             if (editor.call('selector:type') === 'entity')
                 parent = editor.call('selector:items')[0];
 
+            var component = editor.call('components:getDefault', 'model');
+            component.type = 'asset';
+            component.asset = asset.get('id');
+
             // new entity
-            var entity = editor.call('entities:new', parent);
-
-            entity.history.enabled = false;
-
-            // name
-            entity.set('name', asset.get('name'));
-
-            // model asset
-            entity.set('components.model', editor.call('components:getDefault', 'model'));
-            entity.set('components.model.type', 'asset');
-            entity.set('components.model.asset', asset.get('id'));
-
-            entity.history.enabled = true;
+            editor.call('entities:new', {
+                parent: parent,
+                name: asset.get('name'),
+                components: {
+                    model: component
+                }
+            });
 
             setTimeout(function() {
                 var framework = editor.call('viewport:framework');
