@@ -136,6 +136,8 @@ editor.once('load', function() {
 
             // on face click
             face.addEventListener('click', function() {
+                if (! editor.call('permissions:write'))
+                    return;
 
                 var texture = editor.call('assets:get', asset.get('data.textures.' + ind));
                 editor.call('picker:asset', 'texture', texture);
@@ -176,6 +178,9 @@ editor.once('load', function() {
 
             // on clear click
             faceClear.addEventListener('click', function(evt) {
+                if (! editor.call('permissions:write'))
+                    return;
+
                 evt.stopPropagation();
                 asset.set('data.textures.' + ind, null);
                 face.classList.add('empty');

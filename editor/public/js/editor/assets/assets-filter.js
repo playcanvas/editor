@@ -29,11 +29,18 @@ editor.once('load', function() {
 
         // query
         if (visible && search.value) {
-            if (type === 'asset') {
-                visible = item.get('name').indexOf(search.value) !== -1;
-            } else if (type === 'script') {
-                visible = item.get('filename').indexOf(search.value) !== -1;
+            var name = item.get(type === 'asset' ? 'name' : 'filename');
+            var normalSearch = true;
+
+            if (search.value[0] === '*' && search.value.length > 1) {
+                try {
+                    visible = (new RegExp(search.value.slice(1), 'i')).test(name);
+                    normalSearch = false;
+                } catch(ex) { }
             }
+
+            if (normalSearch)
+                visible = name.toLowerCase().indexOf(search.value.toLowerCase()) !== -1;
         }
 
         return visible;

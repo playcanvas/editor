@@ -90,7 +90,6 @@ editor.on('load', function() {
 
     // assets
     var assetsPanel = new ui.Panel('ASSETS');
-    assetsPanel.enabled = false;
     assetsPanel.class.add('assets');
     assetsPanel.foldable = true;
     assetsPanel.flexShrink = false;
@@ -103,9 +102,6 @@ editor.on('load', function() {
     center.append(assetsPanel);
     // expose
     editor.method('layout.assets', function() { return assetsPanel; });
-    editor.on('permissions:writeState', function(state) {
-        assetsPanel.enabled = state;
-    });
 
 
 
