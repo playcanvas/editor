@@ -11,7 +11,9 @@ editor.once('load', function() {
     btnNew.element.title = 'New Entity';
     btnNew.on('click', function() {
         var parent = editor.call('entities:selectedFirst');
-        editor.call('entities:new', parent);
+        editor.call('entities:new', {
+            parent: parent
+        });
     });
     toolbar.append(btnNew);
 

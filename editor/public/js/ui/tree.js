@@ -70,13 +70,13 @@ Tree.prototype._onDragStart = function(item) {
 
     this._dragging = true;
 
-    if (this._selected) {
-        var i = this._selected.length;
-        while(i--) {
-            this._selected[i].selected = false;
-        }
-        this._selected = [ ];
-    }
+    // if (this._selected) {
+    //     var i = this._selected.length;
+    //     while(i--) {
+    //         this._selected[i].selected = false;
+    //     }
+    //     this._selected = [ ];
+    // }
 
     this._updateDragHandle();
 

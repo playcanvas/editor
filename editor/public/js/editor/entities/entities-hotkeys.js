@@ -13,7 +13,9 @@ editor.once('load', function() {
             var items = editor.call('selector:items');
 
             if (type === 'entity') {
-                editor.call('entities:new', items[0]);
+                editor.call('entities:new', {
+                    parent: items[0]
+                });
             } else {
                 editor.call('entities:new');
             }

@@ -28,10 +28,10 @@ ObserverHistory.prototype._initialize = function() {
             name: self._prefix + path,
             combine: self._combine,
             undo: function() {
-                self._enabled = false;
-
                 var item = self._getItemFn();
-                if (!item) return;
+                if (! item) return;
+
+                item.history.enabled = false;
 
                 if (valueOld === undefined) {
                     item.unset(path);
@@ -39,13 +39,13 @@ ObserverHistory.prototype._initialize = function() {
                     item.set(path, valueOld);
                 }
 
-                self._enabled = true;
+                item.history.enabled = true;
             },
             redo: function() {
-                self._enabled = false;
-
                 var item = self._getItemFn();
-                if (!item) return;
+                if (! item) return;
+
+                item.history.enabled = false;
 
                 if (value === undefined) {
                     item.unset(path);
@@ -53,7 +53,7 @@ ObserverHistory.prototype._initialize = function() {
                     item.set(path, value);
                 }
 
-                self._enabled = true;
+                item.history.enabled = true;
             }
         };
 
@@ -74,19 +74,19 @@ ObserverHistory.prototype._initialize = function() {
             name: self._prefix + path,
             undo: function() {
                 var item = self._getItemFn();
-                if (!item) return;
+                if (! item) return;
 
-                self._enabled = false;
+                item.history.enabled = false;
                 item.set(path, valueOld);
-                self._enabled = true;
+                item.history.enabled = true;
             },
             redo: function() {
                 var item = self._getItemFn();
-                if (!item) return;
+                if (! item) return;
 
-                self._enabled = false;
+                item.history.enabled = false;
                 item.unset(path);
-                self._enabled = true;
+                item.history.enabled = true;
             }
         };
 
@@ -105,19 +105,19 @@ ObserverHistory.prototype._initialize = function() {
             name: self._prefix + path,
             undo: function() {
                 var item = self._getItemFn();
-                if (!item) return;
+                if (! item) return;
 
-                self._enabled = false;
+                item.history.enabled = false;
                 item.removeValue(path, value);
-                self._enabled = true;
+                item.history.enabled = true;
             },
             redo: function() {
                 var item = self._getItemFn();
-                if (!item) return;
+                if (! item) return;
 
-                self._enabled = false;
+                item.history.enabled = false;
                 item.insert(path, value, ind);
-                self._enabled = true;
+                item.history.enabled = true;
             }
         };
 
@@ -136,19 +136,19 @@ ObserverHistory.prototype._initialize = function() {
             name: self._prefix + path,
             undo: function() {
                 var item = self._getItemFn();
-                if (!item) return;
+                if (! item) return;
 
-                self._enabled = false;
+                item.history.enabled = false;
                 item.insert(path, value, ind);
-                self._enabled = true;
+                item.history.enabled = true;
             },
             redo: function() {
                 var item = self._getItemFn();
-                if (!item) return;
+                if (! item) return;
 
-                self._enabled = false;
+                item.history.enabled = false;
                 item.removeValue(path, value);
-                self._enabled = true;
+                item.history.enabled = true;
             }
         };
 
@@ -158,28 +158,24 @@ ObserverHistory.prototype._initialize = function() {
     this.item.on('*:move', function(path, value, ind, indOld) {
         if (! self._enabled) return;
 
-        // need jsonify
-        if (value instanceof Observer)
-            value = value.json();
-
         // action
         var data = {
             name: self._prefix + path,
             undo: function() {
                 var item = self._getItemFn();
-                if (!item) return;
+                if (! item) return;
 
-                self._enabled = false;
+                item.history.enabled = false;
                 item.move(path, ind, indOld);
-                self._enabled = true;
+                item.history.enabled = true;
             },
             redo: function() {
                 var item = self._getItemFn();
-                if (!item) return;
+                if (! item) return;
 
-                self._enabled = false;
+                item.history.enabled = false;
                 item.move(path, indOld, ind);
-                self._enabled = true;
+                item.history.enabled = true;
             }
         };
 

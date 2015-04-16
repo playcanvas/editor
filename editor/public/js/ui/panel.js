@@ -15,7 +15,7 @@ function Panel(header) {
         this.header = header;
 
     this.on('nodesChanged', function() {
-        if (! this.foldable || this.folded || this.horizontal)
+        if (! this.foldable || this.folded || this.horizontal || this.hidden)
             return;
 
         this.style.height = ((this.headerSize || 32) + this.innerElement.clientHeight) + 'px';
@@ -116,6 +116,9 @@ Panel.prototype.headerAppend = function(element) {
 
 
 Panel.prototype._reflow = function() {
+    if (this.hidden)
+        return;
+
     if (this.folded) {
         if (this.horizontal) {
             this.style.height = '';
@@ -166,6 +169,9 @@ Object.defineProperty(Panel.prototype, 'folded', {
         return this.class.contains('foldable') && this.class.contains('folded');
     },
     set: function(value) {
+        if (this.hidden)
+            return;
+
         if (this.headerElement && this.headerSize === 0)
             this.headerSize = this.headerElement.clientHeight;
 

@@ -73,13 +73,22 @@ editor.once('load', function() {
         var entity = item.entity;
         parentOld = parentOld.entity;
 
+        var resourceId = entity.get('resource_id');
+        var parentId = parent.get('resource_id');
+        var parentIdOld = parentOld.get('resource_id');
+
         // no need to reparent
         if (entity.reparenting)
             return;
 
         entity.reparenting = true;
 
+        parent.history.enabled = false;
+        parentOld.history.enabled = false;
+        entity.history.enabled = false;
+
         // relative entity
+        var indOld = parentOld.get('children').indexOf(entity.get('resource_id'));
         var ind = parent.get('children').indexOf(entity.get('resource_id'));
         var indNew = -1;
 
@@ -98,7 +107,7 @@ editor.once('load', function() {
             // reparenting
 
             // remove from old parent
-            parentOld.removeValue('children', entity.get('resource_id'));
+            parentOld.remove('children', indOld);
 
             // add to new parent children
             if (indNew !== -1) {
@@ -113,8 +122,51 @@ editor.once('load', function() {
             entity.set('parent', parent.get('resource_id'));
         }
 
-        // select reparented entity
-        item.selected = true;
+        parent.history.enabled = true;
+        parentOld.history.enabled = true;
+        entity.history.enabled = true;
+
+        editor.call('history:add', {
+            name: 'reparent entity ' + resourceId,
+            undo: function() {
+                var parentOld = editor.call('entities:get', parentIdOld);
+                var parent = editor.call('entities:get', parentId);
+                var entity = editor.call('entities:get', resourceId);
+                if (! parentOld || ! parent || ! entity)
+                    return;
+
+                parent.history.enabled = false;
+                parent.removeValue('children', resourceId);
+                parent.history.enabled = true;
+
+                parentOld.history.enabled = false;
+                parentOld.insert('children', resourceId, indOld === -1 ? undefined : indOld);
+                parentOld.history.enabled = true;
+
+                entity.history.enabled = false;
+                entity.set('parent', parentIdOld);
+                entity.history.enabled = true;
+            },
+            redo: function() {
+                var parentOld = editor.call('entities:get', parentIdOld);
+                var parent = editor.call('entities:get', parentId);
+                var entity = editor.call('entities:get', resourceId);
+                if (! parentOld || ! parent || ! entity)
+                    return;
+
+                parentOld.history.enabled = false;
+                parentOld.removeValue('children', resourceId);
+                parentOld.history.enabled = true;
+
+                parent.history.enabled = false;
+                parent.insert('children', resourceId, indNew === -1 ? undefined : indNew);
+                parent.history.enabled = true;
+
+                entity.history.enabled = false;
+                entity.set('parent', parentId);
+                entity.history.enabled = true;
+            }
+        });
 
         entity.reparenting = false;
     });

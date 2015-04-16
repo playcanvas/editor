@@ -49,6 +49,9 @@ editor.once('load', function() {
     });
 
     editor.method('selector:history', function (toggle) {
+        if (toggle === undefined)
+            return selectorHistory;
+
         selectorHistory = toggle;
     });
 });
