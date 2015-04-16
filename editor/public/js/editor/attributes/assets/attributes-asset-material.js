@@ -136,7 +136,7 @@ editor.once('load', function() {
             'type': 'texture',
         },
         glossMapChannel: {
-            'default': 'rgb',
+            'default': 'r',
             'type': 'string'
         },
         glossMapTiling: {

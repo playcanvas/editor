@@ -285,7 +285,7 @@ editor.once('load', function() {
     });
 
     editor.method('components:getDefault', function (component) {
-        return schema[component].default;
+        return utils.deepCopy(schema[component].default);
     });
 
 });

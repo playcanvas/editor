@@ -27,12 +27,15 @@ editor.once('load', function() {
             index[type] = { };
 
         index[type][item.get[key]] = item.once('destroy', function() {
-            editor.call('selector:history', false);
+            var state = editor.call('selector:history');
+            if (state)
+                editor.call('selector:history', false);
 
             selector.remove(item);
             delete index[type][item.get[key]];
 
-            editor.call('selector:history', true);
+            if (state)
+                editor.call('selector:history', true);
         });
     };
 

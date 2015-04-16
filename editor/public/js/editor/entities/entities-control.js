@@ -52,7 +52,9 @@ editor.once('load', function() {
     btnAdd.element.title = 'New Entity';
     btnAdd.on('click', function() {
         var parent = editor.call('entities:selectedFirst');
-        editor.call('entities:new', parent);
+        editor.call('entities:new', {
+            parent: parent
+        });
     });
     controls.append(btnAdd);
 

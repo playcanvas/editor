@@ -43,24 +43,22 @@ editor.once('load', function() {
         obj.on('children:insert', reparent);
         obj.on('children:move', reparent);
 
-        obj.on('delete', function () {
-            if (obj.entity) {
+        obj.on('destroy', function () {
+            if (obj.entity)
                 obj.entity.destroy();
-            }
         });
     });
 
     editor.on('entities:remove', function (obj) {
         var entity = obj.entity;
-        if (entity) {
+        if (! entity)
+            return;
 
-            var framework = editor.call('viewport:framework');
-            if (framework && framework.selectedEntity === entity) {
-                framework.deselectEntity();
-            }
+        var framework = editor.call('viewport:framework');
+        if (framework && framework.selectedEntity === entity)
+            framework.deselectEntity();
 
-            entity.destroy();
-            obj.entity = null;
-        }
+        entity.destroy();
+        obj.entity = null;
     });
 });

@@ -23,12 +23,18 @@ editor.once('load', function() {
         'script': '&#57988;'
     };
 
-    var newEntity = function () {
+    var newEntity = function (data) {
+        data = data || { };
+
         var parent = null;
         if (editor.call('selector:type') === 'entity')
             parent = editor.call('selector:items')[0];
 
-        return editor.call('entities:new', parent);
+        return editor.call('entities:new', {
+            name: data.name,
+            components: data.components,
+            parent: parent
+        });
     };
 
     var addComponent = function (entity, component) {
@@ -64,165 +70,199 @@ editor.once('load', function() {
                             title: 'Audio Listener',
                             icon: componentsLogos.audiolistener,
                             select: function() {
-                                var entity = newEntity();
-                                entity.history.enabled = false;
-                                entity.set('name', 'Audio Listener');
-                                addComponent(entity, 'audiolistener');
-                                entity.history.enabled = true;
+                                newEntity({
+                                    name: 'Audio Listener',
+                                    components: {
+                                        audiolistener: editor.call('components:getDefault', 'audiolistener')
+                                    }
+                                });
                             }
                         },
                         'add-new-audiosource': {
                             title: 'Audio Source',
                             icon: componentsLogos.audiosource,
                             select: function() {
-                                var entity = newEntity();
-                                entity.history.enabled = false;
-                                entity.set('name', 'Audio Source');
-                                addComponent(entity, 'audiosource');
-                                entity.history.enabled = true;
+                                newEntity({
+                                    name: 'Audio Source',
+                                    components: {
+                                        audiosource: editor.call('components:getDefault', 'audiosource')
+                                    }
+                                });
                             }
                         },
                         'add-new-camera': {
                             title: 'Camera',
                             icon: componentsLogos.camera,
                             select: function() {
-                                var entity = newEntity();
-                                entity.history.enabled = false;
-                                entity.set('name', 'Camera');
-                                addComponent(entity, 'camera');
-                                entity.history.enabled = true;
+                                newEntity({
+                                    name: 'Camera',
+                                    components: {
+                                        camera: editor.call('components:getDefault', 'camera')
+                                    }
+                                });
                             }
                         },
                         'add-new-box': {
                             title: 'Box',
                             icon: componentsLogos.model,
                             select: function() {
-                                var entity = newEntity();
-                                entity.history.enabled = false;
-                                entity.set('name', 'Box');
-                                addComponent(entity, 'model');
-                                entity.set('components.model.type', 'box');
-                                entity.history.enabled = true;
+                                var component = editor.call('components:getDefault', 'model');
+                                component.type = 'box';
+
+                                newEntity({
+                                    name: 'Box',
+                                    components: {
+                                        model: component
+                                    }
+                                });
                             }
                         },
                         'add-new-capsule': {
                             title: 'Capsule',
                             icon: componentsLogos.model,
                             select: function() {
-                                var entity = newEntity();
-                                entity.history.enabled = false;
-                                entity.set('name', 'Capsule');
-                                addComponent(entity, 'model');
-                                entity.set('components.model.type', 'capsule');
-                                entity.history.enabled = true;
+                                var component = editor.call('components:getDefault', 'model');
+                                component.type = 'capsule';
+
+                                newEntity({
+                                    name: 'Capsule',
+                                    components: {
+                                        model: component
+                                    }
+                                });
                             }
                         },
                         'add-new-cone': {
                             title: 'Cone',
                             icon: componentsLogos.model,
                             select: function() {
-                                var entity = newEntity();
-                                entity.history.enabled = false;
-                                entity.set('name', 'Cone');
-                                addComponent(entity, 'model');
-                                entity.set('components.model.type', 'cone');
-                                entity.history.enabled = true;
+                                var component = editor.call('components:getDefault', 'model');
+                                component.type = 'cone';
+
+                                newEntity({
+                                    name: 'Cone',
+                                    components: {
+                                        model: component
+                                    }
+                                });
                             }
                         },
                         'add-new-cylinder': {
                             title: 'Cylinder',
                             icon: componentsLogos.model,
                             select: function() {
-                                var entity = newEntity();
-                                entity.history.enabled = false;
-                                entity.set('name', 'Cylinder');
-                                addComponent(entity, 'model');
-                                entity.set('components.model.type', 'cylinder');
-                                entity.history.enabled = true;
+                                var component = editor.call('components:getDefault', 'model');
+                                component.type = 'cylinder';
+
+                                newEntity({
+                                    name: 'Cylinder',
+                                    components: {
+                                        model: component
+                                    }
+                                });
                             }
                         },
                         'add-new-model': {
                             title: 'Model',
                             icon: componentsLogos.model,
                             select: function() {
-                                var entity = newEntity();
-                                entity.history.enabled = false;
-                                entity.set('name', 'Model');
-                                addComponent(entity, 'model');
-                                entity.set('components.model.type', 'asset');
-                                entity.history.enabled = true;
+                                var component = editor.call('components:getDefault', 'model');
+                                component.type = 'asset';
+
+                                newEntity({
+                                    name: 'Model',
+                                    components: {
+                                        model: component
+                                    }
+                                });
                             }
                         },
                         'add-new-plane': {
                             title: 'Plane',
                             icon: componentsLogos.model,
                             select: function() {
-                                var entity = newEntity();
-                                entity.history.enabled = false;
-                                entity.set('name', 'Plane');
-                                addComponent(entity, 'model');
-                                entity.set('components.model.type', 'plane');
-                                entity.history.enabled = true;
+                                var component = editor.call('components:getDefault', 'model');
+                                component.type = 'plane';
+
+                                newEntity({
+                                    name: 'Plane',
+                                    components: {
+                                        model: component
+                                    }
+                                });
                             }
                         },
                         'add-new-sphere': {
                             title: 'Sphere',
                             icon: componentsLogos.model,
                             select: function() {
-                                var entity = newEntity();
-                                entity.history.enabled = false;
-                                entity.set('name', 'Sphere');
-                                addComponent(entity, 'model');
-                                entity.set('components.model.type', 'sphere');
-                                entity.history.enabled = true;
+                                var component = editor.call('components:getDefault', 'model');
+                                component.type = 'sphere';
+
+                                newEntity({
+                                    name: 'Sphere',
+                                    components: {
+                                        model: component
+                                    }
+                                });
                             }
                         },
                         'add-new-directional': {
                             title: 'Directional Light',
                             icon: componentsLogos.light,
                             select: function() {
-                                var entity = newEntity();
-                                entity.history.enabled = false;
-                                entity.set('name', 'Directional Light');
-                                addComponent(entity, 'light');
-                                entity.set('components.light.type', 'directional');
-                                entity.history.enabled = true;
+                                var component = editor.call('components:getDefault', 'light');
+                                component.type = 'directional';
+
+                                newEntity({
+                                    name: 'Directional Light',
+                                    components: {
+                                        light: component
+                                    }
+                                });
                             }
                         },
                         'add-new-point': {
                             title: 'Point Light',
                             icon: componentsLogos.light,
                             select: function() {
-                                var entity = newEntity();
-                                entity.history.enabled = false;
-                                entity.set('name', 'Point Light');
-                                addComponent(entity, 'light');
-                                entity.set('components.light.type', 'point');
-                                entity.set('components.light.shadowResolution', 256);
-                                entity.history.enabled = true;
+                                var component = editor.call('components:getDefault', 'light');
+                                component.type = 'point';
+                                component.shadowResolution = 256;
+
+                                newEntity({
+                                    name: 'Point Light',
+                                    components: {
+                                        light: component
+                                    }
+                                });
                             }
                         },
                         'add-new-spot': {
                             title: 'Spot Light',
                             icon: componentsLogos.light,
                             select: function() {
-                                var entity = newEntity();
-                                entity.history.enabled = false;
-                                entity.set('name', 'Spot Light');
-                                addComponent(entity, 'light');
-                                entity.set('components.light.type', 'spot');
-                                entity.history.enabled = true;
+                                var component = editor.call('components:getDefault', 'light');
+                                component.type = 'spot';
+
+                                newEntity({
+                                    name: 'Spot Light',
+                                    components: {
+                                        light: component
+                                    }
+                                });
                             }
                         },
                         'add-new-particles': {
                             title: 'Particle System',
                             icon: componentsLogos.particlesystem,
                             select: function() {
-                                var entity = newEntity();
-                                entity.history.enabled = false;
-                                entity.set('name', 'Particle System');
-                                addComponent(entity, 'particlesystem');
-                                entity.history.enabled = true;
+                                newEntity({
+                                    name: 'Particle System',
+                                    components: {
+                                        particlesystem: editor.call('components:getDefault', 'particlesystem')
+                                    }
+                                });
                             }
                         }
 

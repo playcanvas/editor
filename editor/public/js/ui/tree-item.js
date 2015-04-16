@@ -251,7 +251,7 @@ TreeItem.prototype.remove = function(item) {
 
     if (this._children === 0) {
         this.class.remove('container');
-    } else if (this._children === 1) {
+    } else if (this._children === 1 && this.element.childNodes.length > 2) {
         this.element.childNodes[1].classList.add('single');
     }
 
