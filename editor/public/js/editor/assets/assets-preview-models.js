@@ -83,12 +83,9 @@ editor.once('load', function () {
         }
     };
 
-
     // Instantly renders a preview for the specified model and passes
     // the result in the callback
     editor.method('preview:render:model', function (asset, size, callback) {
-        var meshInstances;
-
         var model = assets.getAssetById(asset.get('id'));
         if (!model) return;
 
@@ -121,10 +118,18 @@ editor.once('load', function () {
         var model = assets.getAssetById(asset.get('id'));
         if (!model) return;
 
+        // clear mapping to avoid loading materials
+        if (model.data && model.data.mapping) {
+            model.data.mapping = [];
+        }
+
         var onLoaded = function () {
+            // update skinned mesh instance aabb's
             var meshInstances = model.meshInstances;
             for (var i = 0; i < meshInstances.length; i++) {
-                meshInstances[i].material = new pc.PhongMaterial();
+                if (meshInstances[i].skinInstance) {
+                    meshInstances[i].skinInstance.updateMatrixPalette();
+                }
             }
 
             editor.call('preview:render', asset);
@@ -143,16 +148,16 @@ editor.once('load', function () {
 
 
     // TODO: enable for white materials
-    //editor.on('assets:add', function (asset) {
-        //if (asset.get('source')) return;
-        //if (asset.get('type') !== 'model') return;
+    editor.on('assets:add', function (asset) {
+        if (asset.get('source')) return;
+        if (asset.get('type') !== 'model') return;
 
-        // // do this in a timeout to wait for all
-        // // assets to be added to the asset registry first
-        // setTimeout(function () {
-        //     generatePreview(asset);
-        // }, 100);
-    //});
+        // do this in a timeout to wait for all
+        // assets to be added to the asset registry first
+        setTimeout(function () {
+            generatePreview(asset);
+        }, 100);
+    });
 
     // ---- Models with materials -----
     // var modelMaterialCache = {};

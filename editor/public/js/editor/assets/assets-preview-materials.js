@@ -100,7 +100,7 @@ editor.once('load', function () {
         if (material.blendType === pc.BLEND_MULTIPLICATIVE)
             material.blendType = pc.BLEND_NORMAL;
 
-        model.meshInstances[0].material = material; //.clone();
+        model.meshInstances[0].material = material;
 
         // resize canvas appropriately
         if (canvas.width !== size)
