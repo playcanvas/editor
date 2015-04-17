@@ -71,6 +71,17 @@ editor.once('load', function () {
             scene.removeModel(models[i]);
         }
 
+        // update skinned mesh instance aabb's and materials
+        var meshInstances = model.meshInstances;
+        var material = new pc.PhongMaterial();
+        for (var i = 0; i < meshInstances.length; i++) {
+            meshInstances[i].material = material;
+
+            if (meshInstances[i].skinInstance) {
+                meshInstances[i].skinInstance.updateMatrixPalette();
+            }
+        }
+
         scene.addModel(model);
 
         setBestCameraPositionForModel(model);
@@ -91,20 +102,7 @@ editor.once('load', function () {
         var model = assets.getAssetById(asset.get('id'));
         if (!model) return;
 
-        // clear mapping to avoid loading materials
-        if (model.data && model.data.mapping) {
-            model.data.mapping = [];
-        }
-
         var onLoaded = function () {
-            // update skinned mesh instance aabb's
-            var meshInstances = model.meshInstances;
-            for (var i = 0; i < meshInstances.length; i++) {
-                if (meshInstances[i].skinInstance) {
-                    meshInstances[i].skinInstance.updateMatrixPalette();
-                }
-            }
-
             editor.call('preview:render', asset);
         };
 
