@@ -178,6 +178,7 @@ editor.once('load', function() {
 
         data.children = [ ];
         data.resource_id = pc.guid.create();
+        data.parent = parent.get('resource_id');
 
         entity = new Observer(data);
         childToParent[entity.get('resource_id')] = parent.get('resource_id');
