@@ -52,9 +52,13 @@ editor.once('load', function() {
 
     // controls
     var controls = new ui.Panel();
+    controls.enabled = false;
     controls.class.add('assets-controls');
     controls.parent = assetsPanel;
     assetsPanel.headerElement.insertBefore(controls.element, assetsPanel.headerElementTitle.nextSibling);
+    editor.on('permissions:writeState', function(state) {
+        controls.enabled = state;
+    });
 
 
     // add

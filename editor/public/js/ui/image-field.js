@@ -15,6 +15,11 @@ function ImageField(args) {
 
     this._value = null;
 
+    this.element.removeEventListener('click', this._evtClick);
+    this.element.addEventListener('click', function(evt) {
+        self.emit('click', evt);
+    });
+
     this.on('change', function() {
         if (! this.renderChanges)
             return;

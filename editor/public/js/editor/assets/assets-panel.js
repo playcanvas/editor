@@ -19,8 +19,12 @@ editor.once('load', function() {
     });
 
     var grid = new ui.Grid();
+    grid.enabled = false;
     grid.class.add('assets');
     assetsPanel.append(grid);
+    editor.on('permissions:writeState', function(state) {
+        grid.enabled = state;
+    });
 
     var scriptsIndex = { };
     var assetsIndex = { };

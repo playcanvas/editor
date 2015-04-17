@@ -115,47 +115,47 @@ editor.once('load', function() {
         panel.append(btnAddComponent);
 
 
-        // json panel
-        var panelJson = editor.call('attributes:addPanel', {
-            name: 'JSON'
-        });
+        // // json panel
+        // var panelJson = editor.call('attributes:addPanel', {
+        //     name: 'JSON'
+        // });
 
-        // code
-        var fieldJson = editor.call('attributes:addField', {
-            parent: panelJson,
-            type: 'code'
-        });
+        // // code
+        // var fieldJson = editor.call('attributes:addField', {
+        //     parent: panelJson,
+        //     type: 'code'
+        // });
 
-        fieldJson.text = JSON.stringify(entity.json(), null, 4);
+        // fieldJson.text = JSON.stringify(entity.json(), null, 4);
 
-        // changes
-        var evtSet = entity.on('*:set', function() {
-            // console.log('set', arguments)
-            fieldJson.text = JSON.stringify(entity.json(), null, 4);
-        });
-        var evtUnset = entity.on('*:unset', function() {
-            // console.log('unset', arguments)
-            fieldJson.text = JSON.stringify(entity.json(), null, 4);
-        });
-        var evtInsert = entity.on('*:insert', function() {
-            // console.log('insert', arguments)
-            fieldJson.text = JSON.stringify(entity.json(), null, 4);
-        });
-        var evtRemove = entity.on('*:remove', function() {
-            // console.log('remove', arguments)
-            fieldJson.text = JSON.stringify(entity.json(), null, 4);
-        });
-        var evtMove = entity.on('*:move', function() {
-            // console.log('move', arguments)
-            fieldJson.text = JSON.stringify(entity.json(), null, 4);
-        });
+        // // changes
+        // var evtSet = entity.on('*:set', function() {
+        //     // console.log('set', arguments)
+        //     fieldJson.text = JSON.stringify(entity.json(), null, 4);
+        // });
+        // var evtUnset = entity.on('*:unset', function() {
+        //     // console.log('unset', arguments)
+        //     fieldJson.text = JSON.stringify(entity.json(), null, 4);
+        // });
+        // var evtInsert = entity.on('*:insert', function() {
+        //     // console.log('insert', arguments)
+        //     fieldJson.text = JSON.stringify(entity.json(), null, 4);
+        // });
+        // var evtRemove = entity.on('*:remove', function() {
+        //     // console.log('remove', arguments)
+        //     fieldJson.text = JSON.stringify(entity.json(), null, 4);
+        // });
+        // var evtMove = entity.on('*:move', function() {
+        //     // console.log('move', arguments)
+        //     fieldJson.text = JSON.stringify(entity.json(), null, 4);
+        // });
 
-        fieldJson.on('destroy', function() {
-            evtSet.unbind();
-            evtUnset.unbind();
-            evtInsert.unbind();
-            evtRemove.unbind();
-            evtMove.unbind();
-        });
+        // fieldJson.on('destroy', function() {
+        //     evtSet.unbind();
+        //     evtUnset.unbind();
+        //     evtInsert.unbind();
+        //     evtRemove.unbind();
+        //     evtMove.unbind();
+        // });
     });
 });
