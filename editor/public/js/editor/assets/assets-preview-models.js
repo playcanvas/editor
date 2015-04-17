@@ -35,60 +35,30 @@ editor.once('load', function () {
     scene.ambientLight.set(0.2, 0.2, 0.2);
     scene.addLight(light);
 
-    var setBestCameraPositionForModel = function () {
-        var i, j;
-
-        // Position the camera somewhere sensible
-        var models = scene.getModels();
-
-        var isUnderCamera = function (mi) {
-            var parent = mi.node.getParent();
-
-            while (parent) {
-                if (parent.camera) {
-                    return true;
-                }
-                parent = parent.getParent();
-            }
-
-            return false;
-        };
-
-        var meshInstances = [];
-        for (i = 0; i < models.length; i++) {
-            var mi = models[i].meshInstances;
-            for (j = 0; j < mi.length; j++) {
-                if (!isUnderCamera(mi[j])) {
-                    meshInstances.push(mi[j]);
-                }
-            }
-        }
-
+    var setBestCameraPositionForModel = function (model) {
+        var aabb = new pc.shape.Aabb();
+        var meshInstances = model.meshInstances;
         if (meshInstances.length > 0) {
-            var aabb = new pc.shape.Aabb();
+            meshInstances[0].syncAabb();
             aabb.copy(meshInstances[0].aabb);
-            for (i = 0; i < meshInstances.length; i++) {
+            for (var i = 1; i < meshInstances.length; i++) {
+                meshInstances[i].syncAabb();
                 aabb.add(meshInstances[i].aabb);
             }
-
-            var focus = aabb.center;
-            var halfHeight = aabb.halfExtents.y;
-            var halfDepth = aabb.halfExtents.z;
-            var offset = 1.2 * halfHeight / Math.tan(0.5 * camera.getFov() * Math.PI / 180.0);
-            cameraNode.setPosition(focus);
-            cameraNode.translateLocal(0, 0, offset + halfDepth);
-        } else {
-            cameraNode.setPosition(pc.Vec3.ZERO);
-            cameraNode.translateLocal(0, 0, 1.2);
         }
-    };
 
+        var bestPosition = aabb.center;
+        var halfWidth = aabb.halfExtents.x;
+        var halfHeight = aabb.halfExtents.y;
+        var halfDepth = aabb.halfExtents.z;
+        bestPosition.z += 1.2 * (halfHeight + halfWidth) * 0.5 / Math.tan(0.5 * camera.getFov() * Math.PI / 180.0) + halfDepth;
+
+        cameraNode.setPosition(bestPosition);
+    };
 
     // Instantly renders a preview for the specified model and passes
     // the result in the callback
     editor.method('preview:render:model', function (asset, size, callback) {
-        var meshInstances;
-
         var model = assets.getAssetById(asset.get('id'));
         if (!model) return;
 
@@ -101,9 +71,20 @@ editor.once('load', function () {
             scene.removeModel(models[i]);
         }
 
+        // update skinned mesh instance aabb's and materials
+        var meshInstances = model.meshInstances;
+        var material = new pc.PhongMaterial();
+        for (var i = 0; i < meshInstances.length; i++) {
+            meshInstances[i].material = material;
+
+            if (meshInstances[i].skinInstance) {
+                meshInstances[i].skinInstance.updateMatrixPalette();
+            }
+        }
+
         scene.addModel(model);
 
-        setBestCameraPositionForModel();
+        setBestCameraPositionForModel(model);
 
         // resize canvas appropriately
         device.resizeCanvas(size, size);
@@ -122,11 +103,6 @@ editor.once('load', function () {
         if (!model) return;
 
         var onLoaded = function () {
-            var meshInstances = model.meshInstances;
-            for (var i = 0; i < meshInstances.length; i++) {
-                meshInstances[i].material = new pc.PhongMaterial();
-            }
-
             editor.call('preview:render', asset);
         };
 
@@ -143,16 +119,16 @@ editor.once('load', function () {
 
 
     // TODO: enable for white materials
-    //editor.on('assets:add', function (asset) {
-        //if (asset.get('source')) return;
-        //if (asset.get('type') !== 'model') return;
+    editor.on('assets:add', function (asset) {
+        if (asset.get('source')) return;
+        if (asset.get('type') !== 'model') return;
 
-        // // do this in a timeout to wait for all
-        // // assets to be added to the asset registry first
-        // setTimeout(function () {
-        //     generatePreview(asset);
-        // }, 100);
-    //});
+        // do this in a timeout to wait for all
+        // assets to be added to the asset registry first
+        setTimeout(function () {
+            generatePreview(asset);
+        }, 100);
+    });
 
     // ---- Models with materials -----
     // var modelMaterialCache = {};

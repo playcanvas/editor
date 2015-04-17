@@ -467,8 +467,11 @@ pc.extend(pc.designer, function() {
             this.grid.destroy();
         }
 
-        this.grid = new pc.Grid(this.graphicsDevice, settings.grid_divisions * settings.grid_division_size, settings.grid_divisions);
-        this.scene.addModel(this.grid.model);
+        settings.grid_divisions = parseInt(settings.grid_divisions, 10);
+        if (settings.grid_divisions > 0) {
+            this.grid = new pc.Grid(this.graphicsDevice, settings.grid_divisions * settings.grid_division_size, settings.grid_divisions);
+            this.scene.addModel(this.grid.model);
+        }
 
         this.redraw = true;
     };

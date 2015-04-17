@@ -75,7 +75,6 @@ pc.script.create( "designer_camera", function (app) {
         this.flySpeed = new pc.Vec3();
         this.flyFast = false;
         this.flySpeedModifier = 1;
-        this.flyDuration = 0;
         this.flyMode = false;
         this.flyModeKeys = {
             65: false, // A
@@ -398,7 +397,6 @@ pc.script.create( "designer_camera", function (app) {
                 editor.call('viewport:render');
             } else {
                 this.flySpeedModifier = 0;
-                this.flyDuration = 0;
                 editor.call('viewport:flyModeEnd');
             }
         }
@@ -429,7 +427,6 @@ pc.script.create( "designer_camera", function (app) {
 
         if (e.ctrlKey || e.altKey) {
             this.flySpeedModifier = 0;
-            this.flyDuration = 0;
         } else if (e.shiftKey) {
             this.flyFast = true;
         } else {
@@ -662,19 +659,10 @@ pc.script.create( "designer_camera", function (app) {
                 // transform offset with camera transform
                 this.entity.getWorldTransform().transformVector(offset, offset);
 
-                // increase speed while keys are held down
-                if (this.flySpeedModifier > 0) {
-                    this.flyDuration += dt;
-                    if (this.flyDuration > 2) {
-                        this.flySpeedModifier += dt * 0.3;
-                    }
-                }
-
                 offset.scale(this.flySpeedModifier);
                 if (this.flyFast) {
                     offset.scale(3);
                 }
-
 
                 pos.add(offset);
                 this.focus.add(offset);
