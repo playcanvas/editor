@@ -62,7 +62,7 @@ editor.on('load', function() {
     hierarchyPanel.horizontal = true;
     hierarchyPanel.scroll = true;
     hierarchyPanel.resizable = 'right';
-    hierarchyPanel.resizeMin = 128;
+    hierarchyPanel.resizeMin = 256;
     hierarchyPanel.resizeMax = 512;
     middle.append(hierarchyPanel);
     // expose
@@ -117,7 +117,7 @@ editor.on('load', function() {
     attributesPanel.scroll = true;
     attributesPanel.resizable = 'left';
     attributesPanel.resizeMin = 256;
-    attributesPanel.resizeMax = 768;
+    attributesPanel.resizeMax = 512;
     middle.append(attributesPanel);
     // expose
     editor.method('layout.right', function() { return attributesPanel; });

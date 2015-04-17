@@ -226,6 +226,8 @@ strong {
             height: 0 !important;
 
             > .ui-header {
+                width: 56px;
+
                 > .assets-controls {
                     display: none;
                 }
@@ -239,6 +241,7 @@ strong {
         position: absolute;
         top: -32px;
         left: 8px;
+        width: 464px;
 
         &:after {
             content: '\E122';
@@ -246,6 +249,7 @@ strong {
         }
         > .title {
             margin-right: 16px;
+            width: 46px;
         }
         > .assets-controls {
             float: left;
@@ -450,12 +454,25 @@ strong {
 }
 
 .ui-panel.attributes {
-    &.foldable.horizontal > .ui-header:after {
-        transform: rotate(90deg);
+    &.foldable.horizontal {
+        &.folded > .ui-header {
+            overflow: visible;
+            text-overflow: normal;
+            max-width: auto;
+        }
+        > .ui-header:after {
+            transform: rotate(90deg);
+        }
     }
-    > .ui-header:after {
-        content: '\E122';
-        font-size: 20px;
+    > .ui-header {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+
+        &:after {
+            content: '\E122';
+            font-size: 20px;
+        }
     }
 
     &.asset-preview {
@@ -954,10 +971,16 @@ strong {
 
     > .ui-header {
         z-index: 5;
+        white-space: nowrap;
 
         &:after {
             content: '\E122';
             font-size: 20px;
+        }
+        > .title {
+            max-width: calc(100% - 96px);
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     }
     &.folded {
