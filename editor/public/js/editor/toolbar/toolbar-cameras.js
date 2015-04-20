@@ -49,6 +49,11 @@ editor.once('viewport:load', function(framework) {
             }
         });
 
+        entity.on('name:set', function (value) {
+            options[entity.get('resource_id')] = value;
+            refreshOptions();
+        });
+
         entity.on('components.camera:unset', function () {
             // reset active camera if the current one is deleted
             if (framework.activeCamera.getGuid() === entity.get('resource_id')) {
