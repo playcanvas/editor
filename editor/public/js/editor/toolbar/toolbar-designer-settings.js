@@ -7,7 +7,6 @@ editor.once('load', function() {
     var button = new ui.Button({
         text: '&#58152;'
     });
-    button.element.title = 'Designer Settings';
     button.class.add('icon', 'designer-settings');
     toolbar.append(button);
 
@@ -27,5 +26,12 @@ editor.once('load', function() {
 
     editor.on('viewport:expand', function(state) {
         button.disabled = state;
+    });
+
+    Tooltip.attach({
+        target: button,
+        text: 'Settings',
+        align: 'left',
+        root: editor.call('layout.root')
     });
 });

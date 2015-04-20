@@ -359,6 +359,78 @@ a:visited {
     }
 }
 
+.ui-tooltip {
+    padding: 0;
+
+    &.align-top {
+        margin-left: -16px;
+
+        > .inner {
+            margin-top: 8px;
+        }
+        &:after {
+            top: -8px;
+            left: 8px;
+            border-bottom-color: $bcg-darkest;
+        }
+    }
+    &.align-right {
+        margin-top: -16px;
+
+        > .inner {
+            margin-right: 8px;
+        }
+        &:after {
+            top: 8px;
+            right: -8px;
+            border-left-color: $bcg-darkest;
+        }
+    }
+    &.align-bottom {
+        margin-left: -16px;
+
+        > .inner {
+            margin-bottom: 8px;
+        }
+        &:after {
+            bottom: -8px;
+            left: 8px;
+            border-top-color: $bcg-darkest;
+        }
+    }
+    &.align-left {
+        margin-top: -16px;
+
+        > .inner {
+            margin-left: 8px;
+        }
+        &:after {
+            top: 8px;
+            left: -8px;
+            border-right-color: $bcg-darkest;
+        }
+    }
+    > .inner {
+        padding: 0 16px;
+        line-height: 32px;
+        font-size: 14px;
+        background-color: $bcg-darkest;
+        color: $text-primary;
+    }
+    &:after {
+        content: '\00a0';
+        width: 0;
+        height: 0;
+        position: absolute;
+        border: 8px solid transparent;
+    }
+    &.innactive {
+        > .inner {
+            color: $text-darkest;
+        }
+    }
+}
+
 .ui-menu-item {
     background-color: $bcg-darkest;
 

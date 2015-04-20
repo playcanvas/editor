@@ -50,8 +50,13 @@ editor.once('load', function() {
 
         // add components
         var components = obj.json().components;
-        for(var key in components)
-            framework.context.systems[key].addComponent(entity, components[key]);
+        for(var key in components) {
+            if (framework.context.systems[key]) {
+                framework.context.systems[key].addComponent(entity, components[key]);
+            } else {
+                console.log('unknown component "' + key + '", in entity ' + obj.get('resource_id'));
+            }
+        }
 
         var children = obj.get('children');
         for(var i = 0; i < children.length; i++) {
