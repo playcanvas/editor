@@ -544,58 +544,68 @@ editor.once('load', function() {
         group: 'post-effects',
         title: 'Bloom',
         name: 'posteffect-bloom',
-        url: 'https://code.playcanvas.com/posteffects/posteffect_bloom.js'
+        url: 'https://code.playcanvas.com/posteffects/posteffect_bloom.js',
+        requires: 'camera'
     }, {
         group: 'post-effects',
         title: 'Bloom',
         name: 'posteffect-bloom',
-        url: 'https://code.playcanvas.com/posteffects/posteffect_bloom.js'
+        url: 'https://code.playcanvas.com/posteffects/posteffect_bloom.js',
+        requires: 'camera'
     }, {
         group: 'post-effects',
         title: 'Bloom',
         name: 'posteffect-bloom',
-        url: 'https://code.playcanvas.com/posteffects/posteffect_bloom.js'
+        url: 'https://code.playcanvas.com/posteffects/posteffect_bloom.js',
+        requires: 'camera'
     }, {
         group: 'post-effects',
         title: 'Brightness-Contrast',
         name: 'posteffect-brightnesscontrast',
-        url: 'https://code.playcanvas.com/posteffects/posteffect_brightnesscontrast.js'
+        url: 'https://code.playcanvas.com/posteffects/posteffect_brightnesscontrast.js',
+        requires: 'camera'
     }, {
         group: 'post-effects',
         title: 'Hue-Saturation',
         name: 'posteffect-huesaturation',
-        url: 'https://code.playcanvas.com/posteffects/posteffect_huesaturation.js'
+        url: 'https://code.playcanvas.com/posteffects/posteffect_huesaturation.js',
+        requires: 'camera'
     }, {
         group: 'post-effects',
         title: 'FXAA',
         name: 'posteffect-fxaa',
-        url: 'https://code.playcanvas.com/posteffects/posteffect_fxaa.js'
+        url: 'https://code.playcanvas.com/posteffects/posteffect_fxaa.js',
+        requires: 'camera'
     }, {
         group: 'post-effects',
         title: 'Sepia',
         name: 'posteffect-sepia',
-        url: 'https://code.playcanvas.com/posteffects/posteffect_sepia.js'
+        url: 'https://code.playcanvas.com/posteffects/posteffect_sepia.js',
+        requires: 'camera'
     }, {
         group: 'post-effects',
         title: 'Vignette',
         name: 'posteffect-vignette',
-        url: 'https://code.playcanvas.com/posteffects/posteffect_vignette.js'
+        url: 'https://code.playcanvas.com/posteffects/posteffect_vignette.js',
+        requires: 'camera'
     }, {
         group: 'camera-scripts',
         title: 'Fly Camera',
         name: 'camera-fly',
-        url: 'https://code.playcanvas.com/camera/camera_fly.js'
+        url: 'https://code.playcanvas.com/camera/camera_fly.js',
+        requires: 'camera'
     }];
 
     builtInScripts.forEach(function (data) {
         menuData['entity'].items['add-builtin-script'].items[data.group].items[data.name] = {
             title: data.title,
             filter: function () {
-                if (editor.call('selector:type') === 'entity' && editor.call('permissions:write')) {
-                    return !hasScript(editor.call('selector:items')[0], data.url);
-                }
+                var entity = editor.call('selector:items')[0];
 
-                return false;
+                return editor.call('selector:type') === 'entity' &&
+                       editor.call('permissions:write') &&
+                       !hasScript(entity, data.url) &&
+                       (!data.requires || entity.get('components.' + data.requires));
             },
             select: function () {
                 var entity = editor.call('selector:items')[0];
