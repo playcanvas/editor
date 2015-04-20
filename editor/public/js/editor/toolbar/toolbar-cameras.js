@@ -19,6 +19,12 @@ editor.once('viewport:load', function(framework) {
     editor.on('permissions:writeState', function(state) {
         combo.enabled = state;
     });
+    combo.on('open', function() {
+        tooltip.disabled = true;
+    });
+    combo.on('close', function() {
+        tooltip.disabled = false;
+    });
 
 
     viewport.append(combo);
@@ -28,6 +34,13 @@ editor.once('viewport:load', function(framework) {
         if (framework) {
             framework.setActiveCamera(value);
         }
+    });
+
+    var tooltip = Tooltip.attach({
+        target: combo.element,
+        text: 'Camera',
+        align: 'top',
+        root: editor.call('layout.root')
     });
 
     function refreshOptions () {

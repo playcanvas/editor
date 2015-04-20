@@ -1,6 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
+    var root = editor.call('layout.root');
     var viewport = editor.call('layout.viewport');
 
 
@@ -118,10 +119,22 @@ editor.once('load', function() {
     });
     editor.on('viewport:expand', function(state) {
         buttonExpand.text = state ? '&#57656;' : '&#57665;';
+
         if (state) {
+            tooltipExpand.text = 'Show Panels';
             buttonExpand.class.add('active');
         } else {
+            tooltipExpand.text = 'Hide Panels';
             buttonExpand.class.remove('active');
         }
+
+        tooltipExpand.hidden = true;
+    });
+
+    var tooltipExpand = Tooltip.attach({
+        target: buttonExpand.element,
+        text: 'Hide Panels',
+        align: 'top',
+        root: root
     });
 });

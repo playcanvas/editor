@@ -368,7 +368,7 @@ a:visited {
         > .inner {
             margin-top: 8px;
         }
-        &:after {
+        > .arrow {
             top: -8px;
             left: 8px;
             border-bottom-color: $bcg-darkest;
@@ -380,7 +380,7 @@ a:visited {
         > .inner {
             margin-right: 8px;
         }
-        &:after {
+        > .arrow {
             top: 8px;
             right: -8px;
             border-left-color: $bcg-darkest;
@@ -392,7 +392,7 @@ a:visited {
         > .inner {
             margin-bottom: 8px;
         }
-        &:after {
+        > .arrow {
             bottom: -8px;
             left: 8px;
             border-top-color: $bcg-darkest;
@@ -404,7 +404,7 @@ a:visited {
         > .inner {
             margin-left: 8px;
         }
-        &:after {
+        > .arrow {
             top: 8px;
             left: -8px;
             border-right-color: $bcg-darkest;
@@ -417,8 +417,7 @@ a:visited {
         background-color: $bcg-darkest;
         color: $text-primary;
     }
-    &:after {
-        content: '\00a0';
+    > .arrow {
         width: 0;
         height: 0;
         position: absolute;

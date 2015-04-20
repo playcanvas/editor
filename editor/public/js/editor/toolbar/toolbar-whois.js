@@ -1,6 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
+    var root = editor.call('layout.root');
     var viewport = editor.call('layout.viewport');
 
     var panel = new ui.Panel();
@@ -20,14 +21,25 @@ editor.once('load', function() {
 
         editor.call('users:loadOne', id, function (user) {
             link.href = '/' + user.username;
+            link.tooltip.text = user.username;
+        });
+
+        link.tooltip = Tooltip.attach({
+            target: link,
+            text: '',
+            align: 'top',
+            root: root
         });
     });
 
 
     editor.on('whoisonline:remove', function (id, index) {
         var element = panel.innerElement.childNodes[index];
-        if (element)
+        if (element) {
             element.parentElement.removeChild(element);
+            if (element.tooltip)
+                element.tooltip.destroy();
+        }
     });
 
 

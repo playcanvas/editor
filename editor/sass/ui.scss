@@ -731,6 +731,7 @@ a:visited {
     position: absolute;
     z-index: 301;
     overflow: hidden;
+    white-space: nowrap;
 
     &.align-top {
         margin-left: -8px;
@@ -748,6 +749,9 @@ a:visited {
         padding: 4px 8px;
         background-color: #000;
         color: #07f;
+    }
+    &.disabled {
+        display: none;
     }
 }
 
