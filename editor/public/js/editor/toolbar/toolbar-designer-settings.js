@@ -29,7 +29,7 @@ editor.once('load', function() {
     });
 
     Tooltip.attach({
-        target: button,
+        target: button.element,
         text: 'Settings',
         align: 'left',
         root: editor.call('layout.root')

@@ -1,6 +1,7 @@
 editor.once('load', function() {
     'use strict'
 
+    var root = editor.call('layout.root');
     var panel = editor.call('layout.left');
 
     // controls
@@ -10,12 +11,12 @@ editor.once('load', function() {
     panel.headerAppend(controls);
     // panel.element.appendChild(controls.element);
 
+
     // controls delete
     var btnDelete = new ui.Button({
         text: '&#58657;'
     });
     btnDelete.class.add('delete');
-    btnDelete.element.title = 'Delete Entity';
     btnDelete.on('click', function() {
         var type = editor.call('selector:type');
 
@@ -28,13 +29,21 @@ editor.once('load', function() {
     });
     controls.append(btnDelete);
 
+    var tooltipDelete = Tooltip.attach({
+        target: btnDelete.element,
+        text: 'Delete Entity',
+        align: 'top',
+        root: root
+    });
+    tooltipDelete.class.add('innactive');
+
+
     // controls duplicate
     var btnDuplicate = new ui.Button({
         text: '&#57908;'
     });
     btnDuplicate.disabled = true;
     btnDuplicate.class.add('duplicate');
-    btnDuplicate.element.title = 'Duplicate Entity';
     btnDuplicate.on('click', function() {
         var type = editor.call('selector:type');
         var items = editor.call('selector:items');
@@ -44,12 +53,20 @@ editor.once('load', function() {
     });
     controls.append(btnDuplicate);
 
+    var tooltipDuplicate = Tooltip.attach({
+        target: btnDuplicate.element,
+        text: 'Duplicate Entity',
+        align: 'top',
+        root: root
+    });
+    tooltipDuplicate.class.add('innactive');
+
+
     // controls add
     var btnAdd = new ui.Button({
         text: '&#58468;'
     });
     btnAdd.class.add('add');
-    btnAdd.element.title = 'New Entity';
     btnAdd.on('click', function() {
         var parent = editor.call('entities:selectedFirst');
         editor.call('entities:new', {
@@ -58,15 +75,34 @@ editor.once('load', function() {
     });
     controls.append(btnAdd);
 
+    Tooltip.attach({
+        target: btnAdd.element,
+        text: 'Add Entity',
+        align: 'top',
+        root: root
+    });
+
+
     editor.on('attributes:clear', function() {
         btnDuplicate.disabled = true;
         btnDelete.disabled = true;
+        tooltipDelete.class.add('innactive');
+        tooltipDuplicate.class.add('innactive');
     });
 
     editor.on('attributes:inspect[*]', function(type, items) {
         var root = editor.call('entities:root');
 
-        btnDelete.enabled = type === 'entity' && items[0] !== root;
-        btnDuplicate.enabled = btnDelete.enabled;
+        if (type === 'entity' && items[0] !== root) {
+            btnDelete.enabled = true;
+            btnDuplicate.enabled = true;
+            tooltipDelete.class.remove('innactive');
+            tooltipDuplicate.class.remove('innactive');
+        } else {
+            btnDelete.enabled = false;
+            btnDuplicate.enabled = false;
+            tooltipDelete.class.add('innactive');
+            tooltipDuplicate.class.add('innactive');
+        }
     });
 });

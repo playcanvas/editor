@@ -1,6 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
+    var root = editor.call('layout.root');
     var assetsPanel = editor.call('layout.assets');
 
     // filters
@@ -71,9 +72,22 @@ editor.once('load', function() {
             filterField.class.add('not-empty');
         } else {
             filterField.class.remove('not-empty');
-            filterField.elementValue.textContent = 'Filter';
+            // filterField.elementValue.textContent = 'Filter';
         }
         editor.call('assets:panel:filter', filter);
+    });
+
+    var tooltipFilter = Tooltip.attach({
+        target: filterField.element,
+        text: 'Filter Assets',
+        align: 'bottom',
+        root: root
+    });
+    filterField.on('open', function() {
+        tooltipFilter.disabled = true;
+    });
+    filterField.on('close', function() {
+        tooltipFilter.disabled = false;
     });
 
     editor.method('assets:filter:type', function(type) {
@@ -123,5 +137,12 @@ editor.once('load', function() {
         }
 
         editor.call('assets:panel:filter', filter);
+    });
+
+    Tooltip.attach({
+        target: search.element,
+        text: 'Search Assets',
+        align: 'bottom',
+        root: root
     });
 });

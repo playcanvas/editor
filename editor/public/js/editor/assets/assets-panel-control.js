@@ -1,6 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
+    var root = editor.call('layout.root');
     var assetsPanel = editor.call('layout.assets');
 
     var fileInput = document.createElement('input');
@@ -18,7 +19,7 @@ editor.once('load', function() {
 
     // context menu
     var menu = new ui.Menu();
-    editor.call('layout.root').append(menu);
+    root.append(menu);
 
     // upload
     var menuUpload = new ui.MenuItem({
@@ -72,13 +73,22 @@ editor.once('load', function() {
     });
     controls.append(btnNew);
 
+    var tooltipAdd = Tooltip.attach({
+        target: btnNew.element,
+        text: 'Add Asset',
+        align: 'bottom',
+        root: root
+    });
+    menu.on('open', function(state) {
+        tooltipAdd.disabled = state;
+    });
+
     // // duplicate
     // var btnDuplicate = new ui.Button({
     //     text: '&#57908;'
     // });
     // btnDuplicate.disabled = true;
     // btnDuplicate.class.add('duplicate');
-    // btnDuplicate.element.title = 'Duplicate Asset';
     // btnDuplicate.on('click', function() {
     //     // var type = editor.call('selector:type');
     //     // var items = editor.call('selector:items');
@@ -94,7 +104,6 @@ editor.once('load', function() {
     });
     btnDelete.disabled = true;
     btnDelete.class.add('delete');
-    btnDelete.element.title = 'Delete Asset';
     btnDelete.on('click', function() {
         if (! editor.call('permissions:write'))
             return;
@@ -112,14 +121,29 @@ editor.once('load', function() {
     });
     controls.append(btnDelete);
 
+    var tooltipDelete = Tooltip.attach({
+        target: btnDelete.element,
+        text: 'Delete Asset',
+        align: 'bottom',
+        root: root
+    });
+    tooltipDelete.class.add('innactive');
+
 
     editor.on('attributes:clear', function() {
         // btnDuplicate.disabled = true;
         btnDelete.disabled = true;
+        tooltipDelete.class.add('innactive');
     });
 
     editor.on('attributes:inspect[*]', function(type) {
-        btnDelete.enabled = type.startsWith('asset');
+        if (type.startsWith('asset')) {
+            btnDelete.enabled = true;
+            tooltipDelete.class.remove('innactive');
+        } else {
+            btnDelete.enabled = false;
+            tooltipDelete.class.add('innactive');
+        }
         // btnDuplicate.enabled = type === 'asset.material';
     });
 });

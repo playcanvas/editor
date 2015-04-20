@@ -13,6 +13,10 @@ function Tooltip(args) {
     this.innerElement.classList.add('inner');
     this.element.appendChild(this.innerElement);
 
+    this.arrow = document.createElement('div');
+    this.arrow.classList.add('arrow');
+    this.element.appendChild(this.arrow);
+
     this.hoverable = args.hoverable || false;
 
     this.x = args.x || 0;
@@ -93,8 +97,14 @@ Tooltip.prototype._reflow = function() {
     this.element.style.bottom = '';
     this.element.style.left = '';
 
+    this.arrow.style.top = '';
+    this.arrow.style.right = '';
+    this.arrow.style.bottom = '';
+    this.arrow.style.left = '';
+
     this.element.style.display = 'block';
 
+    // alignment
     switch(this._align) {
         case 'top':
             this.element.style.top = this.y + 'px';
@@ -112,6 +122,28 @@ Tooltip.prototype._reflow = function() {
             this.element.style.top = this.y + 'px';
             this.element.style.left = this.x + 'px';
             break;
+    }
+
+    // limit to screen bounds
+    var rect = this.element.getBoundingClientRect();
+
+    if (rect.left < 0) {
+        this.element.style.left = '0px';
+        this.element.style.right = '';
+    }
+    if (rect.top < 0) {
+        this.element.style.top = '0px';
+        this.element.style.bottom = '';
+    }
+    if (rect.right > window.innerWidth) {
+        this.element.style.right = '0px';
+        this.element.style.left = '';
+        this.arrow.style.left = Math.floor(rect.right - window.innerWidth + 8) + 'px';
+    }
+    if (rect.bottom > window.innerHeight) {
+        this.element.style.bottom = '0px';
+        this.element.style.top = '';
+        this.arrow.style.top = Math.floor(rect.bottom - window.innerHeight + 8) + 'px';
     }
 
     this.element.style.display = '';
@@ -138,8 +170,8 @@ Tooltip.attach = function(args) {
         align: args.align
     });
 
-    args.target.on('hover', function() {
-        var rect = args.target.element.getBoundingClientRect();
+    item.evtHover = function() {
+        var rect = args.target.getBoundingClientRect();
 
         switch(item.align) {
             case 'top':
@@ -157,10 +189,18 @@ Tooltip.attach = function(args) {
         }
 
         item.hidden = false;
-    });
+    };
 
-    args.target.on('blur', function() {
+    item.evtBlur = function() {
         item.hidden = true;
+    };
+
+    args.target.addEventListener('mouseover', item.evtHover, false);
+    args.target.addEventListener('mouseout', item.evtBlur, false);
+
+    item.on('destroy', function() {
+        args.target.removeEventListener('mouseover', item.evtHover);
+        args.target.removeEventListener('mouseout', item.evtBlur);
     });
 
     args.root.append(item);

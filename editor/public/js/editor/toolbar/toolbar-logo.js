@@ -12,13 +12,6 @@ editor.once('load', function() {
     });
     toolbar.append(logo);
 
-    Tooltip.attach({
-        target: logo,
-        text: 'Menu',
-        align: 'left',
-        root: root
-    });
-
     var componentsLogos = {
         'animation': '&#57972;',
         'audiolistener': '&#57959;',
@@ -628,6 +621,16 @@ editor.once('load', function() {
     var menu = ui.Menu.fromData(menuData);
     menu.position(45, 0);
     root.append(menu);
+
+    var tooltip = Tooltip.attach({
+        target: logo.element,
+        text: 'Menu',
+        align: 'left',
+        root: root
+    });
+    menu.on('open', function(state) {
+        tooltip.disabled = state;
+    });
 
     // get part of menu data
     editor.method('menu:get', function (name) {

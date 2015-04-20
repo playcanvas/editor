@@ -10,7 +10,7 @@ editor.once('load', function() {
     toolbar.append(contact);
 
     Tooltip.attach({
-        target: contact,
+        target: contact.element,
         text: 'Feedback',
         align: 'left',
         root: editor.call('layout.root')

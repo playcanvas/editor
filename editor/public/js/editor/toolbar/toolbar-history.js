@@ -27,7 +27,7 @@ editor.once('load', function() {
     });
 
     var tooltipUndo = Tooltip.attach({
-        target: buttonUndo,
+        target: buttonUndo.element,
         text: 'Undo',
         align: 'left',
         root: root
@@ -58,7 +58,7 @@ editor.once('load', function() {
     });
 
     var tooltipRedo = Tooltip.attach({
-        target: buttonRedo,
+        target: buttonRedo.element,
         text: 'Redo',
         align: 'left',
         root: root

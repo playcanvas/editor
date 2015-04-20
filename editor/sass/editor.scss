@@ -1393,7 +1393,13 @@ strong {
 
     > .content {
         > a {
+            display: block;
             margin-right: 4px;
+            float: left;
+
+            > img {
+                display: block;
+            }
         }
     }
 }

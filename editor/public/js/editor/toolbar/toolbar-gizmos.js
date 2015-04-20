@@ -47,7 +47,7 @@ editor.once('load', function() {
         toolbar.append(button);
 
         button.tooltip = Tooltip.attach({
-            target: button,
+            target: button.element,
             text: item.tooltip,
             align: 'left',
             root: root
@@ -83,7 +83,7 @@ editor.once('load', function() {
     });
 
     var tooltipWorld = Tooltip.attach({
-        target: buttonWorld,
+        target: buttonWorld.element,
         align: 'left',
         root: root
     });
@@ -112,7 +112,7 @@ editor.once('load', function() {
     toolbar.append(buttonSnap);
 
     var tooltipSnap = Tooltip.attach({
-        target: buttonSnap,
+        target: buttonSnap.element,
         text: 'Snap',
         align: 'left',
         root: root
@@ -148,7 +148,7 @@ editor.once('load', function() {
     });
 
     var tooltipFocus = Tooltip.attach({
-        target: buttonFocus,
+        target: buttonFocus.element,
         text: 'Focus',
         align: 'left',
         root: root
