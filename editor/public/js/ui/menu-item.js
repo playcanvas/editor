@@ -34,16 +34,16 @@ function MenuItem(args) {
         evt.stopPropagation();
         evt.preventDefault();
 
-        self.parent.emit('hover', [ self._value ]);
+        self.parent.emit('over', [ self._value ]);
     });
 
-    this.on('hover', function(path) {
+    this.on('over', function(path) {
         if (! this.parent)
             return;
 
         path.splice(0, 0, this._value);
 
-        this.parent.emit('hover', path);
+        this.parent.emit('over', path);
     });
 
     this.elementTitle.addEventListener('click', function(evt) {

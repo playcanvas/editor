@@ -130,6 +130,16 @@ Object.defineProperty(Element.prototype, 'element', {
         };
         this._element.addEventListener('click', this._evtClick, false);
 
+        this._evtHover = function(evt) {
+            self.emit('hover', evt);
+        };
+        this._element.addEventListener('mouseover', this._evtHover, false);
+
+        this._evtBlur = function(evt) {
+            self.emit('blur', evt);
+        };
+        this._element.addEventListener('mouseout', this._evtBlur, false);
+
         if (! this.innerElement)
             this.innerElement = this._element;
     }

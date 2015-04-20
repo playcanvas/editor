@@ -6,9 +6,15 @@ editor.once('load', function() {
     var contact = new ui.Button({
         text: '&#58488;'
     });
-    contact.element.title = 'Feedback Forum';
     contact.class.add('icon');
     toolbar.append(contact);
+
+    Tooltip.attach({
+        target: contact,
+        text: 'Feedback',
+        align: 'left',
+        root: editor.call('layout.root')
+    });
 
     contact.on('click', function() {
         window.open('http://forum.playcanvas.com/t/playcanvas-editor-feedback/616');

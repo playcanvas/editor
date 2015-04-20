@@ -727,6 +727,30 @@ a:visited {
     }
 }
 
+.ui-tooltip {
+    position: absolute;
+    z-index: 301;
+    overflow: hidden;
+
+    &.align-top {
+        margin-left: -8px;
+    }
+    &.align-right {
+        margin-top: -8px;
+    }
+    &.align-bottom {
+        margin-left: -8px;
+    }
+    &.align-left {
+        margin-top: -8px;
+    }
+    > .content {
+        padding: 4px 8px;
+        background-color: #000;
+        color: #07f;
+    }
+}
+
 .ui-menu {
     @extend .noSelect;
     display: none;

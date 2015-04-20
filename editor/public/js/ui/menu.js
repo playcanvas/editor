@@ -49,7 +49,7 @@ function Menu(args) {
     });
 
     this._hovered = [ ];
-    this.on('hover', function(path) {
+    this.on('over', function(path) {
         this._updatePath(path);
     });
     this.on('open', function(state) {

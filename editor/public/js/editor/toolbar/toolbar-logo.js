@@ -1,7 +1,9 @@
 editor.once('load', function() {
     'use strict';
 
+    var root = editor.call('layout.root');
     var toolbar = editor.call('layout.toolbar');
+
 
     var logo = new ui.Button();
     logo.class.add('logo');
@@ -9,6 +11,13 @@ editor.once('load', function() {
         menu.open = true;
     });
     toolbar.append(logo);
+
+    Tooltip.attach({
+        target: logo,
+        text: 'Menu',
+        align: 'left',
+        root: root
+    });
 
     var componentsLogos = {
         'animation': '&#57972;',
