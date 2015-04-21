@@ -9,7 +9,6 @@ editor.once('load', function() {
     var buttonUndo = new ui.Button({
         text: '&#57654;'
     });
-    buttonUndo.element.title = 'Undo';
     buttonUndo.class.add('icon');
     buttonUndo.enabled = editor.call('history:canUndo');
     toolbar.append(buttonUndo);
@@ -40,7 +39,6 @@ editor.once('load', function() {
     var buttonRedo = new ui.Button({
         text: '&#57655;'
     });
-    buttonRedo.element.title = 'Redo';
     buttonRedo.class.add('icon');
     buttonRedo.enabled = editor.call('history:canRedo');
     toolbar.append(buttonRedo);
