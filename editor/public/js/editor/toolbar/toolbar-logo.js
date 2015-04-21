@@ -62,32 +62,73 @@ editor.once('load', function() {
     };
 
     var addBultinScript = function (entity, url) {
-        var history = entity.history.enabled;
+        var resourceId = entity.get('resource_id');
 
-        // add script component if necessary
-        if (! entity.get('components.script')) {
-            addComponent(entity, 'script');
-            entity.history.enabled = false;
-        }
+        var addedComponent = false;
 
-        // add script
-        var script = new Observer({
-            url: url
-        });
-        entity.insert('components.script.scripts', script);
+        var action = {
+            name: 'entity.' + resourceId + '.builtinscript',
+            combine: false,
+            undo: function () {
+                var e = editor.call('entities:get', resourceId);
+                if (! e) return;
 
-        entity.history.enabled = history;
+                var history = e.history.enabled;
+                e.history.enabled = false;
 
-        // scan script and add
-        editor.call('sourcefiles:scan', url, function (data) {
-            entity.history.enabled = false;
+                if (addedComponent) {
+                    e.unset('components.script');
+                } else {
+                    var scripts = e.get('components.script.scripts');
+                    if (scripts) {
+                        for (var i = 0; i < scripts.length; i++) {
+                            if (scripts[i].url === url) {
+                                e.remove('components.script.scripts', i);
+                                break;
+                            }
+                        }
+                    }
+                }
 
-            data.url = url;
-            script.patch(data);
+                e.history.enabled = history;
+            },
+            redo: function () {
+                var e = editor.call('entities:get', resourceId);
+                if (! e) return;
 
-            entity.history.enabled = history;
-        });
+                var history = e.history.enabled;
+                e.history.enabled = false;
 
+                if (!e.get('components.script')) {
+                    addComponent(e, 'script');
+                    addedComponent = true;
+                }
+
+                // add script
+                var script = new Observer({
+                    url: url
+                });
+                e.insert('components.script.scripts', script);
+
+                e.history.enabled = history;
+
+                // scan script
+                editor.call('sourcefiles:scan', url, function (data) {
+                    e.history.enabled = false;
+
+                    data.url = url;
+                    script.patch(data);
+
+                    e.history.enabled = history;
+                });
+            }
+        };
+
+        // perform action
+        action.redo();
+
+        // raise history event
+        entity.history.emit('record', 'add', action);
     };
 
     var menuData = {
