@@ -95,7 +95,6 @@ editor.once('load', function() {
     var buttonSnap = new ui.Button({
         text: '&#58663;'
     });
-    buttonSnap.element.title = 'Snapping';
     buttonSnap.class.add('icon');
     buttonSnap.on('click', function () {
         if (this.class.contains('active')) {
@@ -125,7 +124,6 @@ editor.once('load', function() {
         text: '&#58756;'
     });
     buttonFocus.disabled = true;
-    buttonFocus.element.title = 'Focus on Selection';
     buttonFocus.class.add('icon');
     buttonFocus.on('click', function() {
         var framework = editor.call('viewport:framework');

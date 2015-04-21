@@ -9,7 +9,7 @@ function Label(args) {
     this.element = document.createElement('label');
     this.element.classList.add('ui-label');
     this.element.innerHTML = this._text;
-    this.element.title = this._text;
+    // this.element.title = this._text;
 
     this.on('change', function() {
         if (! this.renderChanges)
