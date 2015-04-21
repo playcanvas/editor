@@ -71,9 +71,9 @@ editor.once('load', function() {
         var panelDynamic = editor.call('attributes:addPanel', {
             parent: panel
         });
-        panelDynamic.hidden = entity.get('components.rigidbody.type') === 'static';
+        panelDynamic.hidden = entity.get('components.rigidbody.type') !== 'dynamic';
         fieldType.on('change', function(value) {
-            panelDynamic.hidden = value === 'static';
+            panelDynamic.hidden = value !== 'dynamic';
         });
 
         // mass
