@@ -19,6 +19,9 @@ editor.once('load', function () {
 
     // set up camera
     var camera = new pc.Camera();
+    camera.setNearClip(0.0001);
+    camera.setFarClip(100000);
+
     var clearOptions = camera.getClearOptions();
     clearOptions.color[0] = 0;
     clearOptions.color[1] = 0;
@@ -51,7 +54,9 @@ editor.once('load', function () {
         var halfWidth = aabb.halfExtents.x;
         var halfHeight = aabb.halfExtents.y;
         var halfDepth = aabb.halfExtents.z;
-        bestPosition.z += 1.2 * (halfHeight + halfWidth) * 0.5 / Math.tan(0.5 * camera.getFov() * Math.PI / 180.0) + halfDepth;
+        var max = Math.max(halfWidth, halfDepth);
+        max = Math.max(max, halfHeight);
+        bestPosition.z += max / Math.tan(0.5 * camera.getFov() * Math.PI / 180.0) + halfDepth;
 
         cameraNode.setPosition(bestPosition);
     };
