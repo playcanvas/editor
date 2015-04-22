@@ -51,7 +51,9 @@ editor.once('load', function () {
         var halfWidth = aabb.halfExtents.x;
         var halfHeight = aabb.halfExtents.y;
         var halfDepth = aabb.halfExtents.z;
-        bestPosition.z += 1.2 * (halfHeight + halfWidth) * 0.5 / Math.tan(0.5 * camera.getFov() * Math.PI / 180.0) + halfDepth;
+        var max = Math.max(halfWidth, halfDepth);
+        max = Math.max(max, halfHeight);
+        bestPosition.z += 1.5 * max / Math.tan(0.5 * camera.getFov() * Math.PI / 180.0);
 
         cameraNode.setPosition(bestPosition);
     };
