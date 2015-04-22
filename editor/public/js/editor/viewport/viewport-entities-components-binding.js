@@ -69,6 +69,11 @@ editor.once('load', function() {
             var parts = path.split('.');
             var component = parts[1];
 
+            // ignore script component
+            if (component === 'script') {
+                return;
+            }
+
             if (entity[component]) {
                 // remove component
                 var framework = editor.call('viewport:framework');
