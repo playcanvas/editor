@@ -29,11 +29,12 @@ function Tooltip(args) {
     this.hidden = args.hidden !== undefined ? args.hidden : true;
     this.text = args.text || '';
 
-    this.element.addEventListener('mouseover', function() {
+    this.element.addEventListener('mouseover', function(evt) {
         if (! self.hoverable)
             return;
 
         self.hidden = false;
+        self.emit('hover', evt);
     }, false);
     this.element.addEventListener('mouseleave', function() {
         if (! self.hoverable)
@@ -56,6 +57,25 @@ Object.defineProperty(Tooltip.prototype, 'align', {
         this.class.remove('align-' + this._align);
         this._align = value;
         this.class.add('align-' + this._align);
+
+        this._reflow();
+    }
+});
+
+
+Object.defineProperty(Tooltip.prototype, 'flip', {
+    get: function() {
+        return this.class.contains('flip');
+    },
+    set: function(value) {
+        if (this.class.contains('flip') === value)
+            return;
+
+        if (value) {
+            this.class.add('flip');
+        } else {
+            this.class.remove('flip');
+        }
 
         this._reflow();
     }
@@ -108,7 +128,11 @@ Tooltip.prototype._reflow = function() {
     switch(this._align) {
         case 'top':
             this.element.style.top = this.y + 'px';
-            this.element.style.left = this.x + 'px';
+            if (this.flip) {
+                this.element.style.right = 'calc(100% - ' + this.x + 'px)';
+            } else {
+                this.element.style.left = this.x + 'px';
+            }
             break;
         case 'right':
             this.element.style.top = this.y + 'px';
@@ -116,7 +140,11 @@ Tooltip.prototype._reflow = function() {
             break;
         case 'bottom':
             this.element.style.bottom = 'calc(100% - ' + this.y + 'px)';
-            this.element.style.left = this.x + 'px';
+            if (this.flip) {
+                this.element.style.right = 'calc(100% - ' + this.x + 'px)';
+            } else {
+                this.element.style.left = this.x + 'px';
+            }
             break;
         case 'left':
             this.element.style.top = this.y + 'px';
@@ -172,19 +200,36 @@ Tooltip.attach = function(args) {
 
     item.evtHover = function() {
         var rect = args.target.getBoundingClientRect();
+        var off = 16;
 
         switch(item.align) {
             case 'top':
-                item.position(rect.left + rect.width / 2, rect.bottom);
+                if (rect.width < 64) off = rect.width / 2;
+                item.flip = rect.left + off > window.innerWidth / 2;
+                if (item.flip) {
+                    item.position(rect.right - off, rect.bottom);
+                } else {
+                    item.position(rect.left + off, rect.bottom);
+                }
                 break;
             case 'right':
-                item.position(rect.left, rect.top + rect.height / 2);
+                if (rect.height < 64) off = rect.height / 2;
+                item.flip = false;
+                item.position(rect.left, rect.top + off);
                 break;
             case 'bottom':
-                item.position(rect.left + rect.width / 2, rect.top);
+                if (rect.width < 64) off = rect.width / 2;
+                item.flip = rect.left + off > window.innerWidth / 2;
+                if (item.flip) {
+                    item.position(rect.right - off, rect.top);
+                } else {
+                    item.position(rect.left + off, rect.top);
+                }
                 break;
             case 'left':
-                item.position(rect.right, rect.top + rect.height / 2);
+                if (rect.height < 64) off = rect.height / 2;
+                item.flip = false;
+                item.position(rect.right, rect.top + off);
                 break;
         }
 

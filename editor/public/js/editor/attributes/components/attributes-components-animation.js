@@ -1,6 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
+
     editor.on('attributes:inspect[entity]', function(entities) {
         if (entities.length !== 1)
             return;
@@ -18,6 +19,8 @@ editor.once('load', function() {
             name: 'Animation'
         });
         panel.class.add('component');
+        // reference
+        editor.call('attributes:reference:animation:attach', panel, panel.headerElement);
 
         if (! entity.get('components.animation')) {
             panel.disabled = true;
@@ -105,6 +108,9 @@ editor.once('load', function() {
             element: fieldAssetsList
         });
         fieldAssets.class.add('assets');
+
+        // reference assets
+        editor.call('attributes:reference:animation:assets:attach', fieldAssets.parent.innerElement.firstChild.ui);
 
         // assets list
         var itemAdd = new ui.ListItem({
@@ -217,6 +223,9 @@ editor.once('load', function() {
             path: 'components.animation.speed'
         });
 
+        // reference speed
+        editor.call('attributes:reference:animation:speed:attach', fieldSpeed.parent.innerElement.firstChild.ui);
+
         // animation.playback
         var panelPlayback = new ui.Panel();
         editor.call('attributes:addField', {
@@ -235,6 +244,8 @@ editor.once('load', function() {
         label.class.add('label-infield');
         label.style.paddingRight = '12px';
         panelPlayback.append(label);
+        // reference activate
+        editor.call('attributes:reference:animation:activate:attach', label);
 
         // animation.loop
         var fieldLoop = new ui.Checkbox();
@@ -244,5 +255,7 @@ editor.once('load', function() {
         var label = new ui.Label({ text: 'Loop' });
         label.class.add('label-infield');
         panelPlayback.append(label);
+        // reference loop
+        editor.call('attributes:reference:animation:loop:attach', label);
     });
 });

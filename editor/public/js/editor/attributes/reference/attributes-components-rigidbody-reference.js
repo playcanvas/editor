@@ -1,0 +1,73 @@
+editor.once('load', function() {
+    'use strict';
+
+    var create = function(args) {
+        var tooltip = editor.call('attributes:reference', args);
+
+        editor.method('attributes:reference:rigidbody' + (args.name ? (':' + args.name) : '') + ':attach', function(target, element) {
+            tooltip.attach({
+                target: target,
+                element: element || target.element
+            });
+        });
+    };
+
+    var fields = [
+        {
+            name: 'damping',
+            title: 'angularDamping / linearDamping',
+            subTitle: '{Number}',
+            description: 'Controls the rate at which a body loses angular/linear velocity over time.',
+            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.RigidBodyComponent.html#angularDamping'
+        }, {
+            title: 'angularFactor',
+            subTitle: '{pc.Vec3}',
+            description: 'Scaling factor for angular movement of the body in each axis.',
+            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.RigidBodyComponent.html#angularFactor'
+        }, {
+            title: 'friction',
+            subTitle: '{Number}',
+            description: 'The friction value used when contacts occur between two bodies.',
+            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.RigidBodyComponent.html#friction'
+        }, {
+            title: 'group',
+            subTitle: '{Number}',
+            description: 'description',
+            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.RigidBodyComponent.html#group'
+        }, {
+            title: 'linearFactor',
+            subTitle: '{pc.Vec3}',
+            description: 'Scaling factor for linear movement of the body in each axis.',
+            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.RigidBodyComponent.html#linearFactor'
+        }, {
+            title: 'mass',
+            subTitle: '{Number}',
+            description: 'The mass of the body.',
+            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.RigidBodyComponent.html#mass'
+        }, {
+            title: 'restitution',
+            subTitle: '{Number}',
+            description: 'The amount of energy lost when two objects collide, this determines the bounciness of the object.',
+            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.RigidBodyComponent.html#restitution'
+        }, {
+            title: 'type',
+            subTitle: '{pc.RIGIDBODY_TYPE_*}',
+            description: 'The type of RigidBody determines how it is simulated.',
+            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.RigidBodyComponent.html#type'
+        },
+    ];
+
+    // component reference
+    create({
+        title: 'pc.RigidBodyComponent',
+        subTitle: '{pc.Component}',
+        description: 'The rigidbody Component, when combined with a pc.CollisionComponent, allows your Entities to be simulated using realistic physics. A rigidbody Component will fall under gravity and collide with other rigid bodies, using scripts you can apply forces to the body.',
+        url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.RigidBodyComponent.html'
+    });
+
+    // fields reference
+    for(var i = 0; i < fields.length; i++) {
+        fields[i].name = fields[i].name || fields[i].title;
+        create(fields[i]);
+    }
+});

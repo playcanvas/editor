@@ -56,6 +56,8 @@ editor.once('load', function() {
             name: 'Scripts'
         });
         panel.class.add('component');
+        // reference
+        editor.call('attributes:reference:script:attach', panel, panel.headerElement);
 
         if (! entity.get('components.script')) {
             panel.disabled = true;
@@ -111,6 +113,8 @@ editor.once('load', function() {
             type: 'string',
             placeholder: 'Script URL'
         });
+        // reference
+        editor.call('attributes:reference:script:scripts:attach', fieldScriptsAdd.parent.innerElement.firstChild.ui);
 
         fieldScriptsAdd.renderChanges = false;
 

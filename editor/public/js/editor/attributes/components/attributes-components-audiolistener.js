@@ -19,6 +19,9 @@ editor.once('load', function() {
         });
         panel.class.add('component');
 
+        // reference
+        editor.call('attributes:reference:audiolistener:attach', panel, panel.headerElement);
+
         if (! entity.get('components.audiolistener')) {
             panel.disabled = true;
             panel.hidden = true;

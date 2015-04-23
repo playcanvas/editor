@@ -362,6 +362,18 @@ a:visited {
 .ui-tooltip {
     padding: 0;
 
+    &.flip {
+        &.align-top,
+        &.align-bottom {
+            margin-left: auto;
+            margin-right: -16px;
+
+            > .arrow {
+                left: auto;
+                right: 8px;
+            }
+        }
+    }
     &.align-top {
         margin-left: -16px;
 
@@ -371,7 +383,7 @@ a:visited {
         > .arrow {
             top: -8px;
             left: 8px;
-            border-bottom-color: $bcg-darkest;
+            border-bottom-color: mix($bcg-darkest, #000, 75%);
         }
     }
     &.align-right {
@@ -383,7 +395,7 @@ a:visited {
         > .arrow {
             top: 8px;
             right: -8px;
-            border-left-color: $bcg-darkest;
+            border-left-color: mix($bcg-darkest, #000, 75%);
         }
     }
     &.align-bottom {
@@ -395,7 +407,7 @@ a:visited {
         > .arrow {
             bottom: -8px;
             left: 8px;
-            border-top-color: $bcg-darkest;
+            border-top-color: mix($bcg-darkest, #000, 75%);
         }
     }
     &.align-left {
@@ -407,14 +419,14 @@ a:visited {
         > .arrow {
             top: 8px;
             left: -8px;
-            border-right-color: $bcg-darkest;
+            border-right-color: mix($bcg-darkest, #000, 75%);
         }
     }
     > .inner {
         padding: 0 16px;
         line-height: 32px;
         font-size: 14px;
-        background-color: $bcg-darkest;
+        background-color: mix($bcg-darkest, #000, 75%);
         color: $text-primary;
     }
     > .arrow {

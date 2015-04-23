@@ -46,23 +46,30 @@ editor.once('load', function() {
         var panel = editor.call('attributes:addPanel');
         panel.class.add('component');
 
+
         // enabled
-        editor.call('attributes:addField', {
+        var fieldEnabled = editor.call('attributes:addField', {
             parent: panel,
             name: 'Enabled',
             type: 'checkbox',
             link: entity,
             path: 'enabled'
         });
+        // reference
+        editor.call('attributes:reference:entity:enabled:attach', fieldEnabled.parent.innerElement.firstChild.ui);
+
 
         // name
-        editor.call('attributes:addField', {
+        var fieldName = editor.call('attributes:addField', {
             parent: panel,
             name: 'Name',
             type: 'string',
             link: entity,
             path: 'name'
         });
+        // reference
+        editor.call('attributes:reference:entity:name:attach', fieldName.parent.innerElement.firstChild.ui);
+
 
         // position
         var fieldPosition = editor.call('attributes:addField', {
@@ -75,6 +82,9 @@ editor.once('load', function() {
             link: entity,
             path: 'position'
         });
+        // reference
+        editor.call('attributes:reference:entity:position:attach', fieldPosition[0].parent.innerElement.firstChild.ui);
+
 
         // rotation
         var fieldRotation = editor.call('attributes:addField', {
@@ -87,6 +97,9 @@ editor.once('load', function() {
             link: entity,
             path: 'rotation'
         });
+        // reference
+        editor.call('attributes:reference:entity:rotation:attach', fieldRotation[0].parent.innerElement.firstChild.ui);
+
 
         // scale
         var fieldScale = editor.call('attributes:addField', {
@@ -99,6 +112,8 @@ editor.once('load', function() {
             link: entity,
             path: 'scale'
         });
+        // reference
+        editor.call('attributes:reference:entity:scale:attach', fieldScale[0].parent.innerElement.firstChild.ui);
 
 
         // components

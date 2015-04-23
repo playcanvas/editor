@@ -17,6 +17,8 @@ editor.once('load', function() {
             name: 'Camera'
         });
         panel.class.add('component');
+        // reference
+        editor.call('attributes:reference:camera:attach', panel, panel.headerElement);
 
         if (! entity.get('components.camera')) {
             panel.disabled = true;
@@ -64,6 +66,8 @@ editor.once('load', function() {
         label.class.add('label-infield');
         label.style.paddingRight = '12px';
         fieldClearColorBuffer.parent.append(label);
+        // reference
+        editor.call('attributes:reference:camera:clearColorBuffer:attach', label);
 
 
         // clearDepthBuffer
@@ -74,6 +78,8 @@ editor.once('load', function() {
         var label = new ui.Label({ text: 'Depth' });
         label.class.add('label-infield');
         fieldClearColorBuffer.parent.append(label);
+        // reference
+        editor.call('attributes:reference:camera:clearDepthBuffer:attach', label);
 
 
         // camera.clearColor
@@ -88,6 +94,8 @@ editor.once('load', function() {
         fieldClearColorBuffer.on('change', function(value) {
             fieldClearColor.parent.hidden = ! value;
         });
+        // reference
+        editor.call('attributes:reference:camera:clearColor:attach', fieldClearColor.parent.innerElement.firstChild.ui);
 
 
         // camera.projection
@@ -102,6 +110,8 @@ editor.once('load', function() {
             link: entity,
             path: 'components.camera.projection'
         });
+        // reference
+        editor.call('attributes:reference:camera:projection:attach', fieldProjection.parent.innerElement.firstChild.ui);
 
 
         // camera.fov
@@ -122,6 +132,8 @@ editor.once('load', function() {
         fieldProjection.on('change', function(value) {
             fieldFov.parent.hidden = value !== 0;
         });
+        // reference
+        editor.call('attributes:reference:camera:fov:attach', fieldFov.parent.innerElement.firstChild.ui);
 
         // fov slider
         var fieldFovSlider = new ui.Slider({
@@ -146,6 +158,8 @@ editor.once('load', function() {
         fieldProjection.on('change', function(value) {
             fieldOrthoHeight.parent.hidden = value !== 1;
         });
+        // reference
+        editor.call('attributes:reference:camera:orthoHeight:attach', fieldOrthoHeight.parent.innerElement.firstChild.ui);
 
 
         // nearClip
@@ -161,6 +175,8 @@ editor.once('load', function() {
             path: 'components.camera.nearClip'
         });
         fieldNearClip.style.width = '32px';
+        // reference
+        editor.call('attributes:reference:camera:clip:attach', fieldNearClip.parent.innerElement.firstChild.ui);
 
 
         // farClip
@@ -177,7 +193,7 @@ editor.once('load', function() {
 
 
         // camera.priority
-        editor.call('attributes:addField', {
+        var fieldPriority = editor.call('attributes:addField', {
             parent: panel,
             name: 'Priority',
             type: 'number',
@@ -187,10 +203,12 @@ editor.once('load', function() {
             link: entity,
             path: 'components.camera.priority'
         });
+        // reference
+        editor.call('attributes:reference:camera:priority:attach', fieldPriority.parent.innerElement.firstChild.ui);
 
 
         // camera.rect
-        editor.call('attributes:addField', {
+        var fieldRect = editor.call('attributes:addField', {
             parent: panel,
             name: 'Viewport',
             placeholder: [ 'X', 'Y', 'W', 'H' ],
@@ -202,5 +220,7 @@ editor.once('load', function() {
             link: entity,
             path: 'components.camera.rect'
         });
+        // reference
+        editor.call('attributes:reference:camera:rect:attach', fieldRect[0].parent.innerElement.firstChild.ui);
     });
 });
