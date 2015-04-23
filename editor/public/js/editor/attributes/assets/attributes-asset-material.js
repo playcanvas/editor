@@ -314,6 +314,7 @@ editor.once('load', function() {
                 3: 'None',
                 2: 'Alpha',
                 1: 'Additive',
+                6: 'Additive Alpha',
                 4: 'Premultiplied Alpha',
                 5: 'Multiply'
             },
@@ -1353,6 +1354,23 @@ editor.once('load', function() {
         panelOpacity.on('fold', function() { panelState['opacity'] = true; });
         panelOpacity.on('unfold', function() { panelState['opacity'] = false; });
 
+        // blend type
+        var fieldBlendType = editor.call('attributes:addField', {
+            parent: panelOpacity,
+            type: 'number',
+            enum: mapping.blendType.enum,
+            name: 'Blend Type',
+            link: asset,
+            path: 'data.blendType'
+        });
+
+        fieldBlendType.on('change', function (value) {
+            fieldOpacityMap.parent.hidden = value !== 2 && value !== 4 && value !== 6;
+            fieldOpacityIntensity.parent.hidden = fieldOpacityMap.parent.hidden;
+            fieldOpacityOffset[0].parent.hidden = fieldOpacityMap.parent.hidden || ! fieldOpacityMap.value || fieldTilingOffset.value;
+            fieldOpacityTiling[0].parent.hidden = fieldOpacityMap.parent.hidden || ! fieldOpacityMap.value || fieldTilingOffset.value;
+        });
+
         // map
         var fieldOpacityMap = editor.call('attributes:addField', {
             parent: panelOpacity,
@@ -1363,9 +1381,10 @@ editor.once('load', function() {
             path: 'data.opacityMap'
         });
         fieldOpacityMap.parent.class.add('channel');
+        fieldOpacityMap.parent.hidden = fieldBlendType.value !== 2 && fieldBlendType.value !== 4 && fieldBlendType.value !== 6;
         fieldOpacityMap.on('change', function(value) {
-            fieldOpacityOffset[0].parent.hidden = ! value || fieldTilingOffset.value;
-            fieldOpacityTiling[0].parent.hidden = ! value || fieldTilingOffset.value;
+            fieldOpacityOffset[0].parent.hidden = fieldOpacityMap.parent.hidden || ! value || fieldTilingOffset.value;
+            fieldOpacityTiling[0].parent.hidden = fieldOpacityMap.parent.hidden ||! value || fieldTilingOffset.value;
             fieldOpacityMapChannel.disabled = ! fieldOpacityMap.value;
         });
 
@@ -1397,10 +1416,10 @@ editor.once('load', function() {
             element: fieldOpacityOffset[0].parent,
             offset: fieldOpacityOffset,
             filter: function() {
-                return ! fieldOpacityMap.value || fieldTilingOffset.value;
+                return fieldOpacityMap.parent.hidden || ! fieldOpacityMap.value || fieldTilingOffset.value;
             }
         });
-        fieldOpacityOffset[0].parent.hidden = ! fieldOpacityMap.value || fieldTilingOffset.value;
+        fieldOpacityOffset[0].parent.hidden = fieldOpacityMap.parent.hidden || ! fieldOpacityMap.value || fieldTilingOffset.value;
 
         // tiling
         var fieldOpacityTiling = editor.call('attributes:addField', {
@@ -1415,10 +1434,10 @@ editor.once('load', function() {
             element: fieldOpacityTiling[0].parent,
             tiling: fieldOpacityTiling,
             filter: function() {
-                return ! fieldOpacityMap.value || fieldTilingOffset.value;
+                return fieldOpacityMap.parent.hidden || ! fieldOpacityMap.value || fieldTilingOffset.value;
             }
         });
-        fieldOpacityTiling[0].parent.hidden = ! fieldOpacityMap.value || fieldTilingOffset.value;
+        fieldOpacityTiling[0].parent.hidden = fieldOpacityMap.parent.hidden || ! fieldOpacityMap.value || fieldTilingOffset.value;
 
 
         // intensity
@@ -1433,6 +1452,7 @@ editor.once('load', function() {
             link: asset,
             path: 'data.opacity'
         });
+        fieldOpacityIntensity.parent.hidden = fieldOpacityMap.parent.hidden;
         fieldOpacityIntensity.style.width = '32px';
         fieldOpacityIntensity.flexGrow = 1;
 
@@ -1874,16 +1894,6 @@ editor.once('load', function() {
             name: 'Cull Mode',
             link: asset,
             path: 'data.cull'
-        });
-
-        // blend type
-        var fieldBlendType = editor.call('attributes:addField', {
-            parent: panelRenderStates,
-            type: 'number',
-            enum: mapping.blendType.enum,
-            name: 'Blend Type',
-            link: asset,
-            path: 'data.blendType'
         });
 
         // shadowSampleType
