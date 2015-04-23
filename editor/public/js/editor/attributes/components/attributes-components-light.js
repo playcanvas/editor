@@ -17,6 +17,8 @@ editor.once('load', function() {
             name: 'Light'
         });
         panel.class.add('component');
+        // reference
+        editor.call('attributes:reference:light:attach', panel, panel.headerElement);
 
         if (! entity.get('components.light')) {
             panel.disabled = true;
@@ -64,6 +66,8 @@ editor.once('load', function() {
             link: entity,
             path: 'components.light.type'
         });
+        // reference
+        editor.call('attributes:reference:light:type:attach', fieldType.parent.innerElement.firstChild.ui);
 
 
         // color
@@ -74,6 +78,8 @@ editor.once('load', function() {
             link: entity,
             path: 'components.light.color'
         });
+        // reference
+        editor.call('attributes:reference:light:color:attach', fieldColor.parent.innerElement.firstChild.ui);
 
 
         // intensity
@@ -89,6 +95,8 @@ editor.once('load', function() {
             path: 'components.light.intensity'
         });
         fieldIntensity.style.width = '32px';
+        // reference
+        editor.call('attributes:reference:light:intensity:attach', fieldIntensity.parent.innerElement.firstChild.ui);
 
         // intensity slider
         var fieldIntensitySlider = new ui.Slider({
@@ -116,6 +124,8 @@ editor.once('load', function() {
         fieldType.on('change', function(value) {
             fieldRange.parent.hidden = value === 'directional';
         });
+        // reference
+        editor.call('attributes:reference:light:range:attach', fieldRange.parent.innerElement.firstChild.ui);
 
 
         // falloffMode
@@ -134,6 +144,8 @@ editor.once('load', function() {
         fieldType.on('change', function(value) {
             fieldFalloffMode.parent.hidden = value === 'directional';
         });
+        // reference
+        editor.call('attributes:reference:light:falloffMode:attach', fieldFalloffMode.parent.innerElement.firstChild.ui);
 
 
         // innerConeAngle
@@ -150,6 +162,8 @@ editor.once('load', function() {
             path: 'components.light.innerConeAngle'
         });
         fieldInnerConeAngle.style.width = '32px';
+        // reference
+        editor.call('attributes:reference:light:coneAngles:attach', fieldInnerConeAngle.parent.innerElement.firstChild.ui);
 
 
         fieldInnerConeAngle.parent.hidden = entity.get('components.light.type') !== 'spot';
@@ -181,6 +195,8 @@ editor.once('load', function() {
             link: entity,
             path: 'components.light.castShadows'
         });
+        // reference
+        editor.call('attributes:reference:light:castShadows:attach', fieldCastShadows.parent.innerElement.firstChild.ui);
 
 
         // shadows panel
@@ -208,10 +224,12 @@ editor.once('load', function() {
         fieldType.on('change', function(value) {
             fieldShadowDistance.parent.hidden = value !== 'directional';
         });
+        // reference
+        editor.call('attributes:reference:light:shadowDistance:attach', fieldShadowDistance.parent.innerElement.firstChild.ui);
 
 
         // shadowResolution
-        editor.call('attributes:addField', {
+        var fieldShadowResolution = editor.call('attributes:addField', {
             parent: panelShadows,
             name: 'Shadow Resolution',
             type: 'number',
@@ -225,6 +243,8 @@ editor.once('load', function() {
             link: entity,
             path: 'components.light.shadowResolution'
         });
+        // reference
+        editor.call('attributes:reference:light:shadowResolution:attach', fieldShadowResolution.parent.innerElement.firstChild.ui);
 
 
         // shadowBias
@@ -240,6 +260,8 @@ editor.once('load', function() {
             path: 'components.light.shadowBias'
         });
         fieldShadowBias.style.width = '32px';
+        // reference
+        editor.call('attributes:reference:light:shadowBias:attach', fieldShadowBias.parent.innerElement.firstChild.ui);
 
 
         // normalOffsetBias

@@ -18,6 +18,8 @@ editor.once('load', function() {
             name: 'Model'
         });
         panel.class.add('component');
+        // reference
+        editor.call('attributes:reference:model:attach', panel, panel.headerElement);
 
         if (! entity.get('components.model')) {
             panel.disabled = true;
@@ -78,6 +80,8 @@ editor.once('load', function() {
             if (fieldMaterial.parent.hidden)
                 fieldMaterial.value = null;
         });
+        // reference
+        editor.call('attributes:reference:model:type:attach', fieldType.parent.innerElement.firstChild.ui);
 
 
         // asset
@@ -90,6 +94,8 @@ editor.once('load', function() {
             path: 'components.model.asset'
         });
         fieldAsset.parent.hidden = entity.get('components.model.type') !== 'asset';
+        // reference
+        editor.call('attributes:reference:model:asset:attach', fieldAsset._label);
 
 
         // material
@@ -103,6 +109,8 @@ editor.once('load', function() {
         });
         fieldMaterial.class.add('material-asset');
         fieldMaterial.parent.hidden = entity.get('components.model.type') === 'asset';
+        // reference
+        editor.call('attributes:reference:model:materialAsset:attach', fieldMaterial._label);
 
 
         // castShadows
@@ -118,6 +126,8 @@ editor.once('load', function() {
         label.class.add('label-infield');
         label.style.paddingRight = '12px';
         fieldCastShadows.parent.append(label);
+        // reference
+        editor.call('attributes:reference:model:castShadows:attach', label);
 
 
         // receiveShadows
@@ -128,5 +138,7 @@ editor.once('load', function() {
         var label = new ui.Label({ text: 'Receive' });
         label.class.add('label-infield');
         fieldCastShadows.parent.append(label);
+        // reference
+        editor.call('attributes:reference:model:receiveShadows:attach', label);
     });
 });

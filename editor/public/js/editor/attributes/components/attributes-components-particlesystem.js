@@ -18,6 +18,8 @@ editor.once('load', function() {
             name: 'Particles'
         });
         panel.class.add('component');
+        // reference
+        editor.call('attributes:reference:particlesystem:attach', panel, panel.headerElement);
 
         if (! entity.get('components.particlesystem')) {
             panel.disabled = true;
@@ -53,27 +55,31 @@ editor.once('load', function() {
 
 
         // autoPlay
-        editor.call('attributes:addField', {
+        var fieldAutoPlay = editor.call('attributes:addField', {
             parent: panel,
             name: 'Auto Play',
             type: 'checkbox',
             link: entity,
             path: 'components.particlesystem.autoPlay'
         });
+        // reference
+        editor.call('attributes:reference:particlesystem:autoPlay:attach', fieldAutoPlay.parent.innerElement.firstChild.ui);
 
 
         // numParticles
-        editor.call('attributes:addField', {
+        var fieldNumParticles = editor.call('attributes:addField', {
             parent: panel,
             name: 'Particle Count',
             type: 'number',
             link: entity,
             path: 'components.particlesystem.numParticles'
         });
+        // reference
+        editor.call('attributes:reference:particlesystem:numParticles:attach', fieldNumParticles.parent.innerElement.firstChild.ui);
 
 
         // lifetime
-        editor.call('attributes:addField', {
+        var fieldLifetime = editor.call('attributes:addField', {
             parent: panel,
             name: 'Lifetime',
             placeholder: 'Seconds',
@@ -81,6 +87,8 @@ editor.once('load', function() {
             link: entity,
             path: 'components.particlesystem.lifetime'
         });
+        // reference
+        editor.call('attributes:reference:particlesystem:lifetime:attach', fieldLifetime.parent.innerElement.firstChild.ui);
 
 
         // emission rate
@@ -88,6 +96,8 @@ editor.once('load', function() {
             parent: panel,
             name: 'Emission Rate'
         });
+        // reference
+        editor.call('attributes:reference:particlesystem:rate:attach', panelEmissionRate.parent.innerElement.firstChild.ui);
 
         var label = panelEmissionRate;
         panelEmissionRate = panelEmissionRate.parent;
@@ -115,6 +125,8 @@ editor.once('load', function() {
             parent: panel,
             name: 'Start Angle'
         });
+        // reference
+        editor.call('attributes:reference:particlesystem:startAngle:attach', panelStartAngle.parent.innerElement.firstChild.ui);
 
         var label = panelStartAngle;
         panelStartAngle = panelStartAngle.parent;
@@ -156,6 +168,8 @@ editor.once('load', function() {
         label.class.add('label-infield');
         label.style.paddingRight = '12px';
         panelPlayback.append(label);
+        // reference
+        editor.call('attributes:reference:particlesystem:loop:attach', label);
 
 
         // preWarm
@@ -167,13 +181,15 @@ editor.once('load', function() {
         labelPreWarm.class.add('label-infield');
         labelPreWarm.style.paddingRight = '12px';
         panelPlayback.append(labelPreWarm);
-
+        // states
         fieldPreWarm.hidden = ! entity.get('components.particlesystem.loop');
         labelPreWarm.hidden = fieldPreWarm.hidden;
         fieldLoop.on('change', function(value) {
             fieldPreWarm.hidden = ! value;
             labelPreWarm.hidden = fieldPreWarm.hidden;
         });
+        // reference
+        editor.call('attributes:reference:particlesystem:preWarm:attach', labelPreWarm);
 
 
 
@@ -197,6 +213,8 @@ editor.once('load', function() {
         label.style.paddingRight = '12px';
         label.class.add('label-infield');
         panelLighting.append(label);
+        // reference
+        editor.call('attributes:reference:particlesystem:lighting:attach', label);
 
 
         // halfLambert
@@ -208,23 +226,27 @@ editor.once('load', function() {
         labelHalfLambert.class.add('label-infield');
         labelHalfLambert.style.paddingRight = '12px';
         panelLighting.append(labelHalfLambert);
-
+        // state
         fieldHalfLambert.hidden = ! entity.get('components.particlesystem.halfLambert');
         labelHalfLambert.hidden = fieldHalfLambert.hidden;
         fieldLighting.on('change', function(value) {
             fieldHalfLambert.hidden = ! value;
             labelHalfLambert.hidden = fieldHalfLambert.hidden;
         });
+        // reference
+        editor.call('attributes:reference:particlesystem:halfLambert:attach', labelHalfLambert);
 
 
         // intensity
-        editor.call('attributes:addField', {
+        var fieldIntensity = editor.call('attributes:addField', {
             parent: panel,
             name: 'Intensity',
             type: 'number',
             link: entity,
             path: 'components.particlesystem.intensity'
         });
+        // reference
+        editor.call('attributes:reference:particlesystem:intensity:attach', fieldIntensity.parent.innerElement.firstChild.ui);
 
 
         // depth
@@ -246,6 +268,8 @@ editor.once('load', function() {
         label.class.add('label-infield');
         label.style.paddingRight = '12px';
         panelDepth.append(label);
+        // reference
+        editor.call('attributes:reference:particlesystem:depthWrite:attach', label);
 
         // depthSoftening
         var fieldDepthSoftening = new ui.NumberField();
@@ -253,10 +277,12 @@ editor.once('load', function() {
         fieldDepthSoftening.placeholder = 'Softening';
         fieldDepthSoftening.link(entity, 'components.particlesystem.depthSoftening');
         panelDepth.append(fieldDepthSoftening);
+        // reference
+        editor.call('attributes:reference:particlesystem:depthSoftening:attach', fieldDepthSoftening);
 
 
         // sort
-        editor.call('attributes:addField', {
+        var fieldSort = editor.call('attributes:addField', {
             parent: panel,
             name: 'Sort',
             type: 'number',
@@ -269,10 +295,12 @@ editor.once('load', function() {
             link: entity,
             path: 'components.particlesystem.sort'
         });
+        // reference
+        editor.call('attributes:reference:particlesystem:sort:attach', fieldSort.parent.innerElement.firstChild.ui);
 
 
         // blendType
-        editor.call('attributes:addField', {
+        var fieldBlendType = editor.call('attributes:addField', {
             parent: panel,
             name: 'Blend Type',
             type: 'number',
@@ -284,26 +312,32 @@ editor.once('load', function() {
             link: entity,
             path: 'components.particlesystem.blendType'
         });
+        // reference
+        editor.call('attributes:reference:particlesystem:blend:attach', fieldBlendType.parent.innerElement.firstChild.ui);
 
 
         // stretch
-        editor.call('attributes:addField', {
+        var fieldStretch = editor.call('attributes:addField', {
             parent: panel,
             name: 'Stretch',
             type: 'number',
             link: entity,
             path: 'components.particlesystem.stretch'
         });
+        // reference
+        editor.call('attributes:reference:particlesystem:stretch:attach', fieldStretch.parent.innerElement.firstChild.ui);
 
 
         // alignToMotion
-        editor.call('attributes:addField', {
+        var fieldAlignToMotion = editor.call('attributes:addField', {
             parent: panel,
             name: 'Align To Motion',
             type: 'checkbox',
             link: entity,
             path: 'components.particlesystem.alignToMotion'
         });
+        // reference
+        editor.call('attributes:reference:particlesystem:alignToMotion:attach', fieldAlignToMotion.parent.innerElement.firstChild.ui);
 
 
         // emitterShape
@@ -318,6 +352,8 @@ editor.once('load', function() {
             link: entity,
             path: 'components.particlesystem.emitterShape'
         });
+        // reference
+        editor.call('attributes:reference:particlesystem:emitterShape:attach', fieldEmitterShape.parent.innerElement.firstChild.ui);
 
 
         // emitterExtents
@@ -329,6 +365,8 @@ editor.once('load', function() {
             link: entity,
             path: 'components.particlesystem.emitterExtents'
         });
+        // reference
+        editor.call('attributes:reference:particlesystem:emitterExtents:attach', fieldSpawnBounds[0].parent.innerElement.firstChild.ui);
 
 
         // wrap
@@ -339,6 +377,8 @@ editor.once('load', function() {
             link: entity,
             path: 'components.particlesystem.wrap'
         });
+        // reference
+        editor.call('attributes:reference:particlesystem:wrap:attach', fieldWrap.parent.innerElement.firstChild.ui);
 
 
         // wrapBounds
@@ -354,10 +394,12 @@ editor.once('load', function() {
         fieldWrap.on('change', function(value) {
             fieldWrapBounds[0].parent.hidden = ! value;
         });
+        // reference
+        editor.call('attributes:reference:particlesystem:wrapBounds:attach', fieldWrapBounds[0].parent.innerElement.firstChild.ui);
 
 
         // colorMapAsset
-        editor.call('attributes:addField', {
+        var fieldColorMap = editor.call('attributes:addField', {
             parent: panel,
             name: 'Color Map',
             type: 'asset',
@@ -365,10 +407,12 @@ editor.once('load', function() {
             link: entity,
             path: 'components.particlesystem.colorMapAsset'
         });
+        // reference
+        editor.call('attributes:reference:particlesystem:colorMap:attach', fieldColorMap._label);
 
 
         // normalMapAsset
-        editor.call('attributes:addField', {
+        var fieldNormalMap = editor.call('attributes:addField', {
             parent: panel,
             name: 'Normal Map',
             type: 'asset',
@@ -376,10 +420,12 @@ editor.once('load', function() {
             link: entity,
             path: 'components.particlesystem.normalMapAsset'
         });
+        // reference
+        editor.call('attributes:reference:particlesystem:normalMap:attach', fieldNormalMap._label);
 
 
         // mesh
-        editor.call('attributes:addField', {
+        var fieldMesh = editor.call('attributes:addField', {
             parent: panel,
             name: 'Mesh',
             type: 'asset',
@@ -387,75 +433,93 @@ editor.once('load', function() {
             link: entity,
             path: 'components.particlesystem.mesh'
         });
+        // reference
+        editor.call('attributes:reference:particlesystem:mesh:attach', fieldMesh._label);
 
 
         // localVelocityGraph
-        editor.call('attributes:addField', {
+        var fieldLocalVelocity = editor.call('attributes:addField', {
             parent: panel,
             name: 'Local Velocity',
             type: 'curveset',
             link: entity,
-            paths: ['components.particlesystem.localVelocityGraph', 'components.particlesystem.localVelocityGraph2'],
-            curves: ['X', 'Y', 'Z']
+            paths: [ 'components.particlesystem.localVelocityGraph', 'components.particlesystem.localVelocityGraph2' ],
+            curves: [ 'X', 'Y', 'Z' ]
         });
+        // reference
+        editor.call('attributes:reference:particlesystem:localVelocityGraph:attach', fieldLocalVelocity.parent.innerElement.firstChild.ui);
+
 
         // velocityGraph
-        editor.call('attributes:addField', {
+        var fieldVelocity = editor.call('attributes:addField', {
             parent: panel,
             name: 'Velocity',
             type: 'curveset',
             link: entity,
-            paths: ['components.particlesystem.velocityGraph', 'components.particlesystem.velocityGraph2'],
-            curves: ['X', 'Y', 'Z']
+            paths: [ 'components.particlesystem.velocityGraph', 'components.particlesystem.velocityGraph2' ],
+            curves: [ 'X', 'Y', 'Z' ]
         });
+        // reference
+        editor.call('attributes:reference:particlesystem:velocityGraph:attach', fieldVelocity.parent.innerElement.firstChild.ui);
+
 
         // rotationSpeedGraph
-        editor.call('attributes:addField', {
+        var fieldRotationSpeed = editor.call('attributes:addField', {
             parent: panel,
             name: 'Rotation Speed',
             type: 'curveset',
             link: entity,
-            paths: ['components.particlesystem.rotationSpeedGraph', 'components.particlesystem.rotationSpeedGraph2'],
-            curves: ['Angle'],
+            paths: [ 'components.particlesystem.rotationSpeedGraph', 'components.particlesystem.rotationSpeedGraph2' ],
+            curves: [ 'Angle' ],
             verticalValue: 180
         });
+        // reference
+        editor.call('attributes:reference:particlesystem:rotationSpeedGraph:attach', fieldRotationSpeed.parent.innerElement.firstChild.ui);
+
 
         // scaleGraph
-        editor.call('attributes:addField', {
+        var fieldScale = editor.call('attributes:addField', {
             parent: panel,
             name: 'Scale',
             type: 'curveset',
             link: entity,
-            paths: ['components.particlesystem.scaleGraph', 'components.particlesystem.scaleGraph2'],
-            curves: ['Scale'],
+            paths: [ 'components.particlesystem.scaleGraph', 'components.particlesystem.scaleGraph2' ],
+            curves: [ 'Scale' ],
             verticalValue: 1,
             min: 0
         });
+        // reference
+        editor.call('attributes:reference:particlesystem:scaleGraph:attach', fieldScale.parent.innerElement.firstChild.ui);
+
 
         // colorGraph
-        editor.call('attributes:addField', {
+        var fieldColor = editor.call('attributes:addField', {
             parent: panel,
             name: 'Color',
             type: 'curveset',
             link: entity,
             path: 'components.particlesystem.colorGraph',
             gradient: true,
-            curves: ['R', 'G', 'B'],
+            curves: [ 'R', 'G', 'B' ],
             max: 1,
             min: 0
         });
+        // reference
+        editor.call('attributes:reference:particlesystem:colorGraph:attach', fieldColor.parent.innerElement.firstChild.ui);
+
 
         // alphaGraph
-        editor.call('attributes:addField', {
+        var fieldAlpha = editor.call('attributes:addField', {
             parent: panel,
             name: 'Opacity',
             type: 'curveset',
             link: entity,
-            paths: ['components.particlesystem.alphaGraph', 'components.particlesystem.alphaGraph2'],
-            curves: ['Opacity'],
+            paths: [ 'components.particlesystem.alphaGraph', 'components.particlesystem.alphaGraph2' ],
+            curves: ['Opacity' ],
             min: 0,
             max: 1
         });
-
+        // reference
+        editor.call('attributes:reference:particlesystem:alphaGraph:attach', fieldAlpha.parent.innerElement.firstChild.ui);
     });
 });

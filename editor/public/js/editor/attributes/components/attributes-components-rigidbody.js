@@ -18,6 +18,8 @@ editor.once('load', function() {
             name: 'Rigid Body'
         });
         panel.class.add('component');
+        // reference
+        editor.call('attributes:reference:rigidbody:attach', panel, panel.headerElement);
 
         if (! entity.get('components.rigidbody')) {
             panel.disabled = true;
@@ -65,6 +67,8 @@ editor.once('load', function() {
             link: entity,
             path: 'components.rigidbody.type'
         });
+        // reference
+        editor.call('attributes:reference:rigidbody:type:attach', fieldType.parent.innerElement.firstChild.ui);
 
 
         // dynamic/kinematic fields
@@ -88,6 +92,8 @@ editor.once('load', function() {
             path: 'components.rigidbody.mass'
         });
         fieldMass.placeholder = 'Kg';
+        // reference
+        editor.call('attributes:reference:rigidbody:mass:attach', fieldMass.parent.innerElement.firstChild.ui);
 
 
         // linearDamping
@@ -104,6 +110,8 @@ editor.once('load', function() {
             path: 'components.rigidbody.linearDamping'
         });
         fieldLinearDamping.style.width = '32px';
+        // reference
+        editor.call('attributes:reference:rigidbody:damping:attach', fieldLinearDamping.parent.innerElement.firstChild.ui);
 
 
         // angularDamping
@@ -133,6 +141,8 @@ editor.once('load', function() {
             link: entity,
             path: 'components.rigidbody.linearFactor'
         });
+        // reference
+        editor.call('attributes:reference:rigidbody:linearFactor:attach', fieldLinearFactor[0].parent.innerElement.firstChild.ui);
 
 
         // angularFactor
@@ -148,6 +158,8 @@ editor.once('load', function() {
             link: entity,
             path: 'components.rigidbody.angularFactor'
         });
+        // reference
+        editor.call('attributes:reference:rigidbody:angularFactor:attach', fieldAngularFactor[0].parent.innerElement.firstChild.ui);
 
 
         // friction
@@ -164,6 +176,8 @@ editor.once('load', function() {
             path: 'components.rigidbody.friction'
         });
         fieldFriction.style.width = '32px';
+        // reference
+        editor.call('attributes:reference:rigidbody:friction:attach', fieldFriction);
 
 
         // restitution
@@ -178,6 +192,8 @@ editor.once('load', function() {
         fieldRestitution.flexGrow = 1;
         fieldRestitution.link(entity, 'components.rigidbody.restitution');
         fieldFriction.parent.append(fieldRestitution);
+        // reference
+        editor.call('attributes:reference:rigidbody:restitution:attach', fieldRestitution);
 
 
         var panelFrictionRestitution = editor.call('attributes:addField', {

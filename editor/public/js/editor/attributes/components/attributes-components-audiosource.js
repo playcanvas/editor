@@ -18,6 +18,8 @@ editor.once('load', function() {
             name: 'Audio Source'
         });
         panel.class.add('component');
+        // reference
+        editor.call('attributes:reference:audiosource:attach', panel, panel.headerElement);
 
         if (! entity.get('components.audiosource')) {
             panel.disabled = true;
@@ -105,6 +107,8 @@ editor.once('load', function() {
             element: fieldAssetsList
         });
         fieldAssets.class.add('assets');
+        // reference
+        editor.call('attributes:reference:audiosource:assets:attach', fieldAssets.parent.innerElement.firstChild.ui);
 
         // assets list
         var itemAdd = new ui.ListItem({
@@ -216,6 +220,8 @@ editor.once('load', function() {
         var label = new ui.Label({ text: 'Activate' });
         label.class.add('label-infield');
         panelPlayback.append(label);
+        // reference
+        editor.call('attributes:reference:audiosource:activate:attach', label);
 
         // audiosource.loop
         var fieldLoop = new ui.Checkbox();
@@ -224,6 +230,8 @@ editor.once('load', function() {
         var label = new ui.Label({ text: 'Loop' });
         label.class.add('label-infield');
         panelPlayback.append(label);
+        // reference
+        editor.call('attributes:reference:audiosource:loop:attach', label);
 
         // audiosource.3d
         var fieldLoop = new ui.Checkbox();
@@ -232,6 +240,8 @@ editor.once('load', function() {
         var label = new ui.Label({ text: '3D' });
         label.class.add('label-infield');
         panelPlayback.append(label);
+        // reference
+        editor.call('attributes:reference:audiosource:3d:attach', label);
 
 
         // volume
@@ -247,6 +257,8 @@ editor.once('load', function() {
             path: 'components.audiosource.volume'
         });
         fieldVolume.style.width = '32px';
+        // reference
+        editor.call('attributes:reference:audiosource:volume:attach', fieldVolume.parent.innerElement.firstChild.ui);
 
         // volume slider
         var fieldVolumeSlider = new ui.Slider({
@@ -260,7 +272,7 @@ editor.once('load', function() {
 
 
         // pitch
-        var fieldVolume = editor.call('attributes:addField', {
+        var fieldPitch = editor.call('attributes:addField', {
             parent: panel,
             name: 'Pitch',
             type: 'number',
@@ -270,6 +282,8 @@ editor.once('load', function() {
             link: entity,
             path: 'components.audiosource.pitch'
         });
+        // reference
+        editor.call('attributes:reference:audiosource:pitch:attach', fieldPitch.parent.innerElement.firstChild.ui);
 
 
         // distance
@@ -281,6 +295,9 @@ editor.once('load', function() {
         var label = panelDistance;
         panelDistance = panelDistance.parent;
         label.destroy();
+
+        // reference
+        editor.call('attributes:reference:audiosource:distance:attach', panelDistance.innerElement.firstChild.ui);
 
         // minDistance
         var fieldMinDistance = new ui.NumberField({
@@ -308,7 +325,7 @@ editor.once('load', function() {
 
 
         // audiosource.rollOffFactor
-        editor.call('attributes:addField', {
+        var fieldRollOffFactor = editor.call('attributes:addField', {
             parent: panel,
             name: 'Roll-off factor',
             type: 'number',
@@ -318,5 +335,7 @@ editor.once('load', function() {
             link: entity,
             path: 'components.audiosource.rollOffFactor'
         });
+        // reference
+        editor.call('attributes:reference:audiosource:rollOffFactor:attach', fieldRollOffFactor.parent.innerElement.firstChild.ui);
     });
 });

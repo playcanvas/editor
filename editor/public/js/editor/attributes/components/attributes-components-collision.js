@@ -18,6 +18,8 @@ editor.once('load', function() {
             name: 'Collision'
         });
         panel.class.add('component');
+        // reference
+        editor.call('attributes:reference:collision:attach', panel, panel.headerElement);
 
         if (! entity.get('components.collision')) {
             panel.disabled = true;
@@ -67,6 +69,8 @@ editor.once('load', function() {
             link: entity,
             path: 'components.collision.type'
         });
+        // reference
+        editor.call('attributes:reference:collision:type:attach', fieldType.parent.innerElement.firstChild.ui);
 
 
         // halfExtents
@@ -81,11 +85,12 @@ editor.once('load', function() {
             link: entity,
             path: 'components.collision.halfExtents'
         });
-
         fieldHalfExtents[0].parent.hidden = entity.get('components.collision.type') !== 'box';
         fieldType.on('change', function(value) {
             fieldHalfExtents[0].parent.hidden = value !== 'box';
         });
+        // reference
+        editor.call('attributes:reference:collision:halfExtents:attach', fieldHalfExtents[0].parent.innerElement.firstChild.ui);
 
 
         // radius
@@ -103,6 +108,8 @@ editor.once('load', function() {
         fieldType.on('change', function(value) {
             fieldRadius.parent.hidden = [ 'sphere', 'capsule', 'cylinder' ].indexOf(value) === -1;
         });
+        // reference
+        editor.call('attributes:reference:collision:radius:attach', fieldRadius.parent.innerElement.firstChild.ui);
 
 
         // height
@@ -121,21 +128,29 @@ editor.once('load', function() {
         fieldType.on('change', function(value) {
             fieldHeight.parent.hidden = [ 'capsule', 'cylinder' ].indexOf(value) === -1;
         });
+        // reference
+        editor.call('attributes:reference:collision:height:attach', fieldHeight.parent.innerElement.firstChild.ui);
 
 
         // axis
-        var fieldAxis = new ui.SelectField({
-            number: true,
-            options: {
+        var fieldAxis = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Axis',
+            type: 'number',
+            enum: {
                 0: 'X',
                 1: 'Y',
                 2: 'Z'
-            }
+            },
+            link: entity,
+            path: 'components.collision.axis'
         });
-        fieldAxis.style.width = '32px';
-        fieldAxis.flexGrow = 1;
-        fieldAxis.link(entity, 'components.collision.axis');
-        fieldHeight.parent.append(fieldAxis);
+        fieldAxis.parent.hidden = [ 'capsule', 'cylinder' ].indexOf(entity.get('components.collision.type')) === -1;
+        fieldType.on('change', function(value) {
+            fieldAxis.parent.hidden = [ 'capsule', 'cylinder' ].indexOf(value) === -1;
+        });
+        // reference
+        editor.call('attributes:reference:collision:axis:attach', fieldAxis.parent.innerElement.firstChild.ui);
 
 
         // asset
@@ -153,5 +168,7 @@ editor.once('load', function() {
             if (fieldAsset.parent.hidden)
                 fieldAsset.value = null;
         });
+        // reference
+        editor.call('attributes:reference:collision:asset:attach', fieldAsset.parent.innerElement.firstChild.ui);
     });
 });
