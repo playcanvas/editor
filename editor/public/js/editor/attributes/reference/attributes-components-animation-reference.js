@@ -15,7 +15,7 @@ editor.once('load', function() {
     var fields = [
         {
             title: 'assets',
-            subTitle: '{Array{Number}}',
+            subTitle: '{Number[]}',
             description: 'The animation assets that can be utilized by this entity. Multiple animations can be assigned via the picker control.',
             url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.AnimationComponent.html#assets'
         }, {

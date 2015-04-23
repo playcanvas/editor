@@ -25,7 +25,7 @@ editor.once('load', function() {
             url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.LightComponent.html#color'
         }, {
             title: 'falloffMode',
-            subTitle: '{Number}',
+            subTitle: '{pc.LIGHTFALLOFF_*}',
             description: 'Controls the rate at which a light attentuates from its position.',
             url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.LightComponent.html#falloffMode'
         }, {

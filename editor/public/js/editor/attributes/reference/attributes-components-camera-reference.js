@@ -29,7 +29,8 @@ editor.once('load', function() {
             description: 'If selected, the camera will explicitly clear the depth buffer of its render target before rendering the scene.',
             url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.CameraComponent.html#clearDepthBuffer'
         }, {
-            title: 'clip',
+            name: 'clip',
+            title: 'nearClip / farClip',
             subTitle: '{Number}',
             description: 'The distance in camera space from the camera\'s eye point to the near and far clip planes.',
             url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.CameraComponent.html#farClip'
@@ -50,7 +51,7 @@ editor.once('load', function() {
             url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.CameraComponent.html#priority'
         }, {
             title: 'projection',
-            subTitle: '{pc.Projection}',
+            subTitle: '{pc.PROJECTION_*}',
             description: 'The projection type of the camera.',
             url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.CameraComponent.html#projection'
         }, {

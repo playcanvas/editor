@@ -25,7 +25,7 @@ editor.once('load', function() {
             url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.AudioSourceComponent.html#activate'
         }, {
             title: 'assets',
-            subTitle: '{Array{Number}}',
+            subTitle: '{Number[]}',
             description: 'The audio assets that can be played from this audio source. Multiple audio assets can be specified by the picker control.',
             url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.AudioSourceComponent.html#assets'
         }, {
