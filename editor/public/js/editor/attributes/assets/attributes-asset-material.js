@@ -314,6 +314,7 @@ editor.once('load', function() {
                 3: 'None',
                 2: 'Alpha',
                 1: 'Additive',
+                6: 'Additive Alpha',
                 4: 'Premultiplied Alpha',
                 5: 'Multiply'
             },
@@ -1364,7 +1365,7 @@ editor.once('load', function() {
         });
 
         fieldBlendType.on('change', function (value) {
-            fieldOpacityMap.parent.hidden = value !== 2 && value !== 4;
+            fieldOpacityMap.parent.hidden = value !== 2 && value !== 4 && value !== 6;
             fieldOpacityIntensity.parent.hidden = fieldOpacityMap.parent.hidden;
             fieldOpacityOffset[0].parent.hidden = fieldOpacityMap.parent.hidden || ! fieldOpacityMap.value || fieldTilingOffset.value;
             fieldOpacityTiling[0].parent.hidden = fieldOpacityMap.parent.hidden || ! fieldOpacityMap.value || fieldTilingOffset.value;
@@ -1380,7 +1381,7 @@ editor.once('load', function() {
             path: 'data.opacityMap'
         });
         fieldOpacityMap.parent.class.add('channel');
-        fieldOpacityMap.parent.hidden = fieldBlendType.value !== 2 && fieldBlendType.value !== 4;
+        fieldOpacityMap.parent.hidden = fieldBlendType.value !== 2 && fieldBlendType.value !== 4 && fieldBlendType.value !== 6;
         fieldOpacityMap.on('change', function(value) {
             fieldOpacityOffset[0].parent.hidden = fieldOpacityMap.parent.hidden || ! value || fieldTilingOffset.value;
             fieldOpacityTiling[0].parent.hidden = fieldOpacityMap.parent.hidden ||! value || fieldTilingOffset.value;
