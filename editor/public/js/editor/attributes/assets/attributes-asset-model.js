@@ -57,9 +57,12 @@ editor.once('load', function() {
 
             // nodes panel
             var panelNodes = editor.call('attributes:addPanel', {
-                name: 'Nodes'
+                name: 'Mesh Instances'
             });
             panelNodes.class.add('component');
+
+            // reference
+            editor.call('attributes:reference:asset:model:meshInstances:attach', panelNodes, panelNodes.headerElement);
 
             var nodeItems = [ ];
 

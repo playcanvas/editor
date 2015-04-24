@@ -11,9 +11,11 @@ editor.once('load', function() {
 
         // properties panel
         var paramsPanel = editor.call('attributes:addPanel', {
-            name: 'Properties'
+            name: 'CubeMap'
         });
         paramsPanel.class.add('component');
+        // reference
+        editor.call('attributes:reference:asset:cubemap:asset:attach', paramsPanel, paramsPanel.headerElement);
 
 
         // minFilter
@@ -27,6 +29,8 @@ editor.once('load', function() {
             name: 'Min Filter'
         });
         fieldMinFilter.renderChanges = false;
+        // reference
+        editor.call('attributes:reference:asset:cubemap:minFilter:attach', fieldMinFilter.parent.innerElement.firstChild.ui);
 
 
         // mipFilter
@@ -41,6 +45,8 @@ editor.once('load', function() {
             name: 'Mip Filter'
         });
         fieldMipFilter.renderChanges = false;
+        // reference
+        editor.call('attributes:reference:asset:cubemap:mipFilter:attach', fieldMipFilter.parent.innerElement.firstChild.ui);
 
         // data > ui
         var evtUpdateMinMip = asset.on('data.minFilter:set', function(value) {
@@ -74,6 +80,8 @@ editor.once('load', function() {
             link: asset,
             path: 'data.magFilter'
         });
+        // reference
+        editor.call('attributes:reference:asset:cubemap:magFilter:attach', fieldMagFilter.parent.innerElement.firstChild.ui);
 
 
         // anisotropy
@@ -84,6 +92,8 @@ editor.once('load', function() {
             link: asset,
             path: 'data.anisotropy'
         });
+        // reference
+        editor.call('attributes:reference:asset:cubemap:anisotropy:attach', fieldAnisotropy.parent.innerElement.firstChild.ui);
 
 
         // preview
@@ -91,6 +101,8 @@ editor.once('load', function() {
             name: 'Preview'
         });
         previewPanel.class.add('cubemap-viewport', 'component');
+        // reference
+        editor.call('attributes:reference:asset:cubemap:slots:attach', previewPanel, previewPanel.headerElement);
 
 
         // faces
@@ -213,6 +225,8 @@ editor.once('load', function() {
             name: 'Prefiltering'
         });
         prefilterPanel.class.add('component');
+        // reference
+        editor.call('attributes:reference:asset:cubemap:prefilter:attach', prefilterPanel, prefilterPanel.headerElement);
 
         // prefilter button
         var prefilterBtn = new ui.Button({
