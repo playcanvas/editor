@@ -72,6 +72,7 @@ editor.once('load', function () {
                 img.addEventListener('load', onImageLoaded);
 
                 // use small thumbnail or file if thumbnail not there
+                img.setAttribute('crossOrigin', 'anonymous');
                 img.src = (texture.get('thumbnails.s') || texture.get('file.url'));
 
                 if (!texture.get('thumbnails.s')) {
