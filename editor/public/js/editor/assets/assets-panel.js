@@ -117,6 +117,11 @@ editor.once('load', function() {
             thumbnail.classList.remove('placeholder');
         });
 
+        asset.on('thumbnails.m:unset', function() {
+            thumbnail.style.backgroundImage = 'none';
+            thumbnail.classList.add('placeholder');
+        });
+
         var thumbnail = document.createElement('div');
         thumbnail.classList.add('thumbnail');
         item.element.appendChild(thumbnail);
