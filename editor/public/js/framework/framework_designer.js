@@ -76,6 +76,7 @@ pc.extend(pc.designer, function() {
         this.selectedEntity = null;
         this.lastMouseX = -1;
         this.lastMouseY = -1;
+        this.lastClickTime = null;
         this.clickedCanvas = false;
 
         // handle mouse / keyboard
@@ -509,6 +510,7 @@ pc.extend(pc.designer, function() {
         // Mouse click XY with reference to top left corner of canvas
         this.lastMouseX = e.x;
         this.lastMouseY = e.y;
+        this.lastMouseDown = Date.now();
 
         // Pass mousedown on to Gizmo
         this.activeGizmo.handleMouseDown(e);
@@ -564,7 +566,7 @@ pc.extend(pc.designer, function() {
             var x = e.x;
             var y = e.y;
 
-            if (Math.abs(this.lastMouseX - x) < 5 && Math.abs(this.lastMouseY -= y) < 5) {
+            if (Math.abs(this.lastMouseX - x) < 3 && Math.abs(this.lastMouseY -= y) < 3 && Date.now() - this.lastMouseDown < 300) {
                 if (!this.activeGizmo.isDragging) {
                     var picker = this.picker;
                     picker.prepare(this.activeCamera.camera.camera, this.scene);
