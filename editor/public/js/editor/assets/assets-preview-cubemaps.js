@@ -67,18 +67,19 @@ editor.once('load', function () {
 
             var texture = editor.call('assets:get', textures[i]);
 
-            if (texture) {
-                // get small thumbnail
-                if (texture.get('thumbnails.s')) {
-                    img = new Image();
-                    img.addEventListener('load', onImageLoaded);
-                    img.src = texture.get('thumbnails.s');
-                } else {
+            if (texture && (texture.get('thumbnails.s') || texture.get('file.url'))) {
+                img = new Image();
+                img.addEventListener('load', onImageLoaded);
+
+                // use small thumbnail or file if thumbnail not there
+                img.src = (texture.get('thumbnails.s') || texture.get('file.url'));
+
+                if (!texture.get('thumbnails.s')) {
                     // if thumbnail not there yet then re-render when it's ready
                     texture.once('thumbnails.s:set', function () {
                         editor.call('preview:delayedRender', asset);
                     });
-                }
+                };
             }
 
             images.push(img);
