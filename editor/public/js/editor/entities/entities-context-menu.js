@@ -19,14 +19,25 @@ editor.once('load', function() {
             }
         }
 
-        menuData['delete'] = {
-            title: 'Delete',
-            icon: '&#58657;',
-            filter: function () {
-                return currentEntity !== editor.call('entities:root');
+        menuData['enable'] = {
+            title: 'Enable',
+            icon: '&#58421;',
+            hide: function () {
+                return currentEntity.get('enabled');
             },
             select: function() {
-                editor.call('entities:delete', currentEntity);
+                currentEntity.set('enabled', true);
+            }
+        };
+
+        menuData['disable'] = {
+            title: 'Disable',
+            icon: '&#58422;',
+            hide: function () {
+                return !currentEntity.get('enabled');
+            },
+            select: function() {
+                currentEntity.set('enabled', false);
             }
         };
 
@@ -40,6 +51,18 @@ editor.once('load', function() {
                 editor.call('entities:duplicate', currentEntity);
             }
         };
+
+        menuData['delete'] = {
+            title: 'Delete',
+            icon: '&#58657;',
+            filter: function () {
+                return currentEntity !== editor.call('entities:root');
+            },
+            select: function() {
+                editor.call('entities:delete', currentEntity);
+            }
+        };
+
 
         // menu
         menu = ui.Menu.fromData(menuData);

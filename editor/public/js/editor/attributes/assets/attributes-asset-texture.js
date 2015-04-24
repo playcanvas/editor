@@ -26,6 +26,13 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:texture:dimensions:attach', fieldDimensions.parent.innerElement.firstChild.ui);
 
+        // hdr
+        var fieldHdr = editor.call('attributes:addField', {
+            parent: paramsPanel,
+            name: 'HDR',
+            value: asset.get('data.rgbm') ? 'true' : 'false'
+        });
+
         // minfilter
         var minFilterField = editor.call('attributes:addField', {
             parent: paramsPanel,
