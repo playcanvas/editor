@@ -42,6 +42,8 @@ editor.once('load', function () {
             var offset = (size - height * 3) / 2;
 
             var ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
             // left
             ctx.drawImage(images[1], 0, offset + height, width, height);
             // front
