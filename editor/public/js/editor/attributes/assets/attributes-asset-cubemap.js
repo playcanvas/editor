@@ -122,6 +122,54 @@ editor.once('load', function() {
             }
         };
 
+        var setAssetFace = function (face, texture) {
+            var prevFace = asset.get('data.textures.' + face);
+            var assetId = asset.get('id');
+            var textureId = texture ? texture.get('id') : null;
+
+            var setRgbmIfNeeded = function (asset) {
+                var hdrTextures = asset.get('data.textures').filter(function (id) {
+                    var texture = editor.call('assets:get', id);
+                    return texture && texture.get('data.rgbm');
+                });
+
+                if (hdrTextures.length === 6) {
+                    asset.set('data.rgbm', true);
+                } else {
+                    asset.unset('data.rgbm');
+                }
+            };
+
+            var action = {
+                name: 'asset.' + assetId + '.face.' + face,
+                combine: false,
+                undo: function () {
+                    var a = editor.call('assets:get', assetId);
+                    if (!a) return;
+
+                    var history = a.history.enabled;
+                    a.history.enabled = false;
+                    a.set('data.textures.' + face, prevFace);
+                    setRgbmIfNeeded(a);
+                    a.history.enabled = history;
+                },
+                redo: function () {
+                    var a = editor.call('assets:get', assetId);
+                    if (!a) return;
+
+                    var history = a.history.enabled;
+                    a.history.enabled = false;
+                    a.set('data.textures.' + face, textureId);
+                    setRgbmIfNeeded(a);
+                    a.history.enabled = history;
+                }
+            };
+
+            action.redo();
+
+            asset.history.emit('record', 'add', action);
+        };
+
         // create eface
         var createFace = function(ind) {
             // create face element
@@ -144,7 +192,7 @@ editor.once('load', function() {
 
                 var evtPick = editor.once('picker:asset', function(texture) {
                     // clear prefiltered data
-                    asset.set('data.textures.' + ind, texture.get('id'));
+                    setAssetFace(ind, texture);
                     evtPick = null;
                 });
 
@@ -163,8 +211,7 @@ editor.once('load', function() {
                     if (type !== 'asset.texture')
                         return;
 
-                    // clear prefiltered data
-                    asset.set('data.textures.' + ind, data.id);
+                    setAssetFace(ind, editor.call('assets:get', data.id));
                 }
             });
             previewPanel.on('destroy', function() {
@@ -182,7 +229,7 @@ editor.once('load', function() {
                     return;
 
                 evt.stopPropagation();
-                asset.set('data.textures.' + ind, null);
+                setAssetFace(ind, null);
                 face.classList.add('empty');
             }, false);
 

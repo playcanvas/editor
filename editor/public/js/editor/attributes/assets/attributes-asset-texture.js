@@ -22,6 +22,13 @@ editor.once('load', function() {
         });
         fieldDimensions.renderChanges = false;
 
+        // hdr
+        var fieldHdr = editor.call('attributes:addField', {
+            parent: paramsPanel,
+            name: 'HDR',
+            value: asset.get('data.rgbm') ? 'true' : 'false'
+        });
+
         // minfilter
         var minFilterField = editor.call('attributes:addField', {
             parent: paramsPanel,
