@@ -71,7 +71,8 @@ editor.once('load', function() {
                 // reset thumbnails
                 if (data.thumbnails) {
                     for (var key in data.thumbnails) {
-                        asset.unset('thumbnails.' + key);
+                        if (asset.get('thumbnails.' + key))
+                            asset.unset('thumbnails.' + key);
                     }
 
                     setTimeout(function () {
