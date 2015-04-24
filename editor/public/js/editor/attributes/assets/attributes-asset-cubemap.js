@@ -112,9 +112,9 @@ editor.once('load', function() {
                 face.classList.add('empty');
             } else {
                 var texture = editor.call('assets:get', assetId);
-                if (texture && texture.get('type') === 'texture' && texture.get('file.url')) {
+                if (texture && texture.get('type') === 'texture' && (texture.get('thumbnails.l') || texture.get('file.url'))) {
                     face.classList.remove('empty');
-                    face.style.backgroundImage = 'url("' + config.url.home + '/' + texture.get('file.url') + '")';
+                    face.style.backgroundImage = 'url("' + config.url.home + '/' + (texture.get('thumbnails.l') || texture.get('file.url')) + '")';
                 } else {
                     face.classList.add('empty');
                     face.style.backgroundImage = '';

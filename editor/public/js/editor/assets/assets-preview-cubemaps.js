@@ -2,7 +2,11 @@ editor.once('load', function () {
 
     var canvas = document.createElement('canvas');
 
+    var placeHolderLoaded = false;
     var placeholder = document.createElement('img');
+    placeholder.addEventListener('load', function () {
+        placeHolderLoaded = true;
+    });
     placeholder.src = '/editor/scene/img/asset-placeholder-texture.png';
 
     var assets = editor.call('preview:assetRegistry');
@@ -10,26 +14,14 @@ editor.once('load', function () {
     editor.method('preview:render:cubemap', function (asset, size, callback) {
         var textures = asset.get('data.textures');
 
-        var images = [];
-        var requests = [];
-
-        for (var i = 0; i < textures.length; i++) {
-            var id = parseInt(textures[i], 10);
-            var img = placeholder;
-            if (id >= 0) {
-                var textureAsset = assets.getAssetById(id);
-                if (textureAsset) {
-                    if (textureAsset.resource) {
-                        img = textureAsset.resource.getSource();
-                    } else {
-                        requests.push(textureAsset);
-                        img = null;
-                    }
-                }
-            }
-
-            images.push(img);
+        // make sure placeholder image is loaded
+        if (!placeHolderLoaded) {
+            editor.call('preview:delayedRender', asset);
+            return;
         }
+
+        var images = [];
+        var loadedImages = 0;
 
         var onLoaded = function () {
             if (canvas.width !== size) {
@@ -58,21 +50,42 @@ editor.once('load', function () {
             ctx.drawImage(images[3], width, offset + 2*height, width, height);
 
             callback(canvas);
+
+            images = null;
         };
 
-        if (requests.length) {
-            assets.load(requests).then(function (resources) {
-                var j = 0;
-                for (var i = 0; i < images.length; i++) {
-                    if (images[i] === null) {
-                        images[i] = resources[j++].getSource();
-                    }
-                }
-
+        var onImageLoaded = function () {
+            loadedImages++;
+            if (loadedImages === 6) {
                 onLoaded();
-            });
-        } else {
-            onLoaded();
+            }
+        };
+
+        for (var i = 0; i < textures.length; i++) {
+            faceImagesLoaded = 0;
+            var img = placeholder;
+
+            var texture = editor.call('assets:get', textures[i]);
+
+            if (texture) {
+                // get small thumbnail
+                if (texture.get('thumbnails.s')) {
+                    img = new Image();
+                    img.addEventListener('load', onImageLoaded);
+                    img.src = texture.get('thumbnails.s');
+                } else {
+                    // if thumbnail not there yet then re-render when it's ready
+                    texture.once('thumbnails.s:set', function () {
+                        editor.call('preview:delayedRender', asset);
+                    });
+                }
+            }
+
+            images.push(img);
+
+            if (img === placeholder) {
+                onImageLoaded();
+            }
         }
 
     });

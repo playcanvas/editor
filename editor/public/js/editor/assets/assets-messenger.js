@@ -68,9 +68,21 @@ editor.once('load', function() {
                     asset.set(fields[i], data[fields[i]]);
                 }
 
-                // do not delete existing thumbnails
+                // reset thumbnails
                 if (data.thumbnails) {
-                    asset.set('thumbnails', data.thumbnails);
+                    for (var key in data.thumbnails) {
+                        asset.unset('thumbnails.' + key);
+                    }
+
+                    setTimeout(function () {
+                        asset.history.enabled = false;
+                        asset.sync = false;
+                        for (var key in data.thumbnails) {
+                            asset.set('thumbnails.' + key, data.thumbnails[key]);
+                        }
+                        asset.sync = true;
+                        asset.history.enabled = true;
+                    });
                 }
 
                 asset.history.enabled = true;
