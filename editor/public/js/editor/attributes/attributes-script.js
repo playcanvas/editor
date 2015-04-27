@@ -12,13 +12,15 @@ editor.once('load', function() {
         panel.class.add('component');
 
         // filename
-        editor.call('attributes:addField', {
+        var fieldFilename = editor.call('attributes:addField', {
             parent: panel,
             name: 'Filename',
             // type: 'string',
             link: script,
             path: 'filename'
         });
+        // reference
+        editor.call('attributes:reference:asset:script:filename:attach', fieldFilename.parent.innerElement.firstChild.ui);
 
         // edit
         var btnEdit = new ui.Button();

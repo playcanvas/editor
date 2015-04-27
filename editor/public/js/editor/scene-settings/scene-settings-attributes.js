@@ -13,6 +13,7 @@ editor.once('load', function() {
                 element: field.length ? field[0].parent : field.parent,
                 filter: filter
             });
+            return field;
         };
 
         var filter = function () {
@@ -43,6 +44,8 @@ editor.once('load', function() {
             link: sceneSettings,
             path: 'physics.gravity'
         });
+        // reference
+        editor.call('attributes:reference:settings:gravity:attach', fieldGravity[0].parent.innerElement.firstChild.ui);
 
 
         // environment
@@ -50,6 +53,7 @@ editor.once('load', function() {
             name: 'Environment'
         });
         panelEnvironment.class.add('component');
+
 
         // ambient
         var fieldGlobalAmbient = editor.call('attributes:addField', {
@@ -59,9 +63,12 @@ editor.once('load', function() {
             link: sceneSettings,
             path: 'render.global_ambient'
         });
+        // reference
+        editor.call('attributes:reference:settings:ambientColor:attach', fieldGlobalAmbient.parent.innerElement.firstChild.ui);
+
 
         // skybox
-        editor.call('attributes:addField', {
+        var fieldSkybox = editor.call('attributes:addField', {
             parent: panelEnvironment,
             name: 'Skybox',
             type: 'asset',
@@ -69,6 +76,8 @@ editor.once('load', function() {
             link: sceneSettings,
             path: 'render.skybox'
         });
+        // reference
+        editor.call('attributes:reference:settings:skybox:attach', fieldSkybox._label);
 
 
         // camera
@@ -77,8 +86,9 @@ editor.once('load', function() {
         });
         panelCamera.class.add('component');
 
+
         // tonemapping
-        editor.call('attributes:addField', {
+        var fieldTonemapping = editor.call('attributes:addField', {
             parent: panelCamera,
             name: 'Tonemapping',
             type: 'number',
@@ -89,6 +99,9 @@ editor.once('load', function() {
             link: sceneSettings,
             path: 'render.tonemapping'
         });
+        // reference
+        editor.call('attributes:reference:settings:tomeMapping:attach', fieldTonemapping.parent.innerElement.firstChild.ui);
+
 
         // exposure
         var fieldExposure = editor.call('attributes:addField', {
@@ -103,6 +116,9 @@ editor.once('load', function() {
             path: 'render.exposure'
         });
         fieldExposure.style.width = '32px';
+        // reference
+        editor.call('attributes:reference:settings:exposure:attach', fieldExposure.parent.innerElement.firstChild.ui);
+
 
         // exposure slider
         var fieldExposureSlider = new ui.Slider({
@@ -113,6 +129,7 @@ editor.once('load', function() {
         fieldExposureSlider.flexGrow = 4;
         fieldExposureSlider.link(sceneSettings, 'render.exposure');
         fieldExposure.parent.append(fieldExposureSlider);
+
 
         // gamma correction
         var fieldGammaCorrection = editor.call('attributes:addField', {
@@ -127,6 +144,8 @@ editor.once('load', function() {
             link: sceneSettings,
             path: 'render.gamma_correction'
         });
+        // reference
+        editor.call('attributes:reference:settings:gammaCorrection:attach', fieldGammaCorrection.parent.innerElement.firstChild.ui);
 
 
         // fog
@@ -135,24 +154,27 @@ editor.once('load', function() {
         });
         panelFog.class.add('component');
 
+
         // fog type
-        editor.call('attributes:addField', {
+        var fieldFogType = editor.call('attributes:addField', {
             parent: panelFog,
             name: 'Type',
             type: 'string',
             enum: {
                 'none': 'None',
                 'linear': 'Linear',
-                'exp': 'Exp',
-                'exp2': 'Exp2'
+                'exp': 'Exponential',
+                'exp2': 'Exponential Squared'
             },
             link: sceneSettings,
             path: 'render.fog'
         });
+        // reference
+        editor.call('attributes:reference:settings:fog:attach', fieldFogType.parent.innerElement.firstChild.ui);
 
 
         // fog density
-        addFiltered(editor.call('attributes:addField', {
+        var fieldFogDensity = addFiltered(editor.call('attributes:addField', {
             parent: panelFog,
             name: 'Density',
             type: 'number',
@@ -162,10 +184,12 @@ editor.once('load', function() {
             link: sceneSettings,
             path: 'render.fog_density',
         }), fogFilter);
+        // reference
+        editor.call('attributes:reference:settings:fogDensity:attach', fieldFogDensity.parent.innerElement.firstChild.ui);
 
 
         // fog distance near
-        var fieldFogStart = editor.call('attributes:addField', {
+        var fieldFogDistance = editor.call('attributes:addField', {
             parent: panelFog,
             name: 'Distance',
             placeholder: 'Start',
@@ -176,8 +200,10 @@ editor.once('load', function() {
             link: sceneSettings,
             path: 'render.fog_start',
         });
-        fieldFogStart.style.width = '32px';
-        addFiltered(fieldFogStart, fogFilter);
+        fieldFogDistance.style.width = '32px';
+        addFiltered(fieldFogDistance, fogFilter);
+        // reference
+        editor.call('attributes:reference:settings:fogDistance:attach', fieldFogDistance.parent.innerElement.firstChild.ui);
 
 
         // fog dinstance far
@@ -190,16 +216,18 @@ editor.once('load', function() {
         fieldFogEnd.style.width = '32px';
         fieldFogEnd.flexGrow = 1;
         fieldFogEnd.link(sceneSettings, 'render.fog_end');
-        fieldFogStart.parent.append(fieldFogEnd);
+        fieldFogDistance.parent.append(fieldFogEnd);
 
         // fog color
-        addFiltered(editor.call('attributes:addField', {
+        var fieldFogColor = addFiltered(editor.call('attributes:addField', {
             parent: panelFog,
             name: 'Color',
             type: 'rgb',
             link: sceneSettings,
             path: 'render.fog_color'
         }), fogFilter);
+        // reference
+        editor.call('attributes:reference:settings:fogColor:attach', fieldFogColor.parent.innerElement.firstChild.ui);
 
 
         filter();

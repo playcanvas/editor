@@ -99,6 +99,8 @@ function AjaxRequest(args) {
     // open request
     this._xhr.open(args.method || 'GET', url, true);
 
+    this.notJson = args.notJson || false;
+
     // header for PUT/POST
     if (! args.ignoreContentType && (args.method === 'PUT' || args.method === 'POST' || args.method === 'DELETE'))
         this._xhr.setRequestHeader('Content-Type', 'application/json');
@@ -123,19 +125,18 @@ AjaxRequest.prototype._onLoad = function() {
     this._progress = 1.0;
     this.emit('progress', 1.0);
 
-    var json;
-
     if (this._xhr.status === 200 || this._xhr.status === 201) {
-        try {
-            json = JSON.parse(this._xhr.responseText);
-        } catch(ex) {
-            this.emit('error', 0, new Error('invalid json'));
-            return;
+        if (this.notJson) {
+            this.emit('load', this._xhr.status, this._xhr.responseText);
+        } else {
+            try {
+                var json = JSON.parse(this._xhr.responseText);
+            } catch(ex) {
+                this.emit('error', this._xhr.status || 0, new Error('invalid json'));
+                return;
+            }
+            this.emit('load', this._xhr.status, json);
         }
-    }
-
-    if (json) {
-        this.emit('load', this._xhr.status, json);
     } else {
         this.emit('error', this._xhr.status);
     }

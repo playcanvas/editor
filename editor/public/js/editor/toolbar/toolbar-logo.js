@@ -407,6 +407,71 @@ editor.once('load', function() {
                         editor.call('history:redo');
                     }
                 },
+                'enable': {
+                    title: 'Enable',
+                    icon: '&#58421;',
+                    filter: function() {
+                        if (! editor.call('permissions:write'))
+                            return false;
+
+                        return editor.call('selector:type') === 'entity';
+                    },
+                    hide: function () {
+                        var type = editor.call('selector:type');
+                        if (type === 'entity') {
+                            var items = editor.call('selector:items');
+                            return items[0].get('enabled');
+                        }
+
+                        return true;
+                    },
+                    select: function() {
+                        var items = editor.call('selector:items');
+                        items[0].set('enabled', true);
+                    }
+                },
+                'disable': {
+                    title: 'Disable',
+                    icon: '&#58422;',
+                    filter: function() {
+                        if (! editor.call('permissions:write'))
+                            return false;
+
+                        return editor.call('selector:type') === 'entity';
+                    },
+                    hide: function () {
+                        var type = editor.call('selector:type');
+                        if (type === 'entity') {
+                            var items = editor.call('selector:items');
+                            return !items[0].get('enabled');
+                        }
+
+                        return true;
+                    },
+                    select: function() {
+                        var items = editor.call('selector:items');
+                        items[0].set('enabled', false);
+                    }
+                },
+                'duplicate': {
+                    title: 'Duplicate',
+                    icon: '&#57908;',
+                    filter: function() {
+                        return editor.call('permissions:write') && editor.call('selector:type') === 'entity';
+                    },
+                    select: function() {
+                        var type = editor.call('selector:type');
+                        if (! type) return;
+                        var items = editor.call('selector:items');
+
+                        if (type === 'entity') {
+                            editor.call('entities:duplicate', items[0]);
+                        } else if (type === 'asset') {
+                            // TODO
+                            // duplicate asset
+                        }
+                    }
+                },
                 'delete': {
                     title: 'Delete',
                     icon: '&#58657;',
@@ -442,25 +507,6 @@ editor.once('load', function() {
                                 for(var i = 0; i < items.length; i++)
                                     editor.call('assets:delete', items[i]);
                             });
-                        }
-                    }
-                },
-                'duplicate': {
-                    title: 'Duplicate',
-                    icon: '&#57908;',
-                    filter: function() {
-                        return editor.call('permissions:write') && editor.call('selector:type') === 'entity';
-                    },
-                    select: function() {
-                        var type = editor.call('selector:type');
-                        if (! type) return;
-                        var items = editor.call('selector:items');
-
-                        if (type === 'entity') {
-                            editor.call('entities:duplicate', items[0]);
-                        } else if (type === 'asset') {
-                            // TODO
-                            // duplicate asset
                         }
                     }
                 }

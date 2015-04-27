@@ -6,10 +6,9 @@ function Label(args) {
 
     this._text = args.text || '';
 
-    this.element = document.createElement('label');
+    this.element = document.createElement('span');
     this.element.classList.add('ui-label');
     this.element.innerHTML = this._text;
-    // this.element.title = this._text;
 
     this.on('change', function() {
         if (! this.renderChanges)
@@ -42,13 +41,11 @@ Object.defineProperty(Label.prototype, 'text', {
         if (this._link) {
             if (! this._link.set(this.path, value)) {
                 this.element.innerHTML = this._link.get(this.path);
-                this.element.title = this.element.innerHTML;
             }
         } else {
             if (this._text === value) return;
             this._text = value;
             this.element.innerHTML = this._text;
-            this.element.title = this._text;
             this.emit('change', value);
         }
     }

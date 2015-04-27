@@ -24,10 +24,10 @@ editor.once('load', function () {
     editor.method('preview:render', function (asset) {
         editor.call('preview:render:' + asset.get('type'), asset, 128, function (canvas) {
             var url = canvas.toDataURL();
-            setThumbnail(asset, 'thumbnails.s', url);
-            setThumbnail(asset, 'thumbnails.m', url);
-            setThumbnail(asset, 'thumbnails.l', url);
-            setThumbnail(asset, 'thumbnails.xl', url);
+            editor.call('preview:setThumbnail', asset, 'thumbnails.s', url);
+            editor.call('preview:setThumbnail', asset, 'thumbnails.m', url);
+            editor.call('preview:setThumbnail', asset, 'thumbnails.l', url);
+            editor.call('preview:setThumbnail', asset, 'thumbnails.xl', url);
         });
     });
 
@@ -45,19 +45,24 @@ editor.once('load', function () {
     });
 
     // sets thumbnail to specified asset without syncing or recording history
-    var setThumbnail = function (asset, path, value) {
+    editor.method('preview:setThumbnail', function (asset, path, value) {
         var sync = asset.sync;
         asset.sync = false;
 
         var history = asset.history.enabled;
         asset.history.enabled = false;
 
-        asset.set('has_thumbnail', true);
-        asset.set(path, value);
+        if (value) {
+            asset.set('has_thumbnail', true);
+            asset.set(path, value);
+        } else {
+            asset.set('has_thumbnail', false);
+            asset.unset(path);
+        }
 
         asset.history.enabled = history;
         asset.sync = sync;
-    };
+    });
 
     // Gets asset registry
     editor.method('preview:assetRegistry', function () {

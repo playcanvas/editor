@@ -11,16 +11,53 @@ editor.once('load', function() {
         });
         tooltip.hoverable = true;
         tooltip.class.add('reference');
-        tooltip.html = '<h1>' + args.title + '</h1><h2>' + args.subTitle + '</h2><p>' + args.description + '</p><a class="reference" href="' + args.url + '" target="_blank">API Reference</a>';
 
-        var target = null;
-        var element = null;
+        var html = '';
+        if (args.title)
+            html += '<h1>' + args.title + '</h1>';
+        if (args.subTitle)
+            html += '<h2>' + args.subTitle + '</h2>';
+        if (args.description)
+            html += '<p>' + args.description + '</p>';
+        if (args.url)
+            html += '<a class="reference" href="' + args.url + '" target="_blank">API Reference</a>';
+        tooltip.html = html;
+
+        var links = { };
         var timerHover = null;
         var timerBlur = null;
 
         tooltip.attach = function(args) {
-            target = args.target;
-            element = args.element;
+            var target = args.target;
+            var element = args.element;
+
+            var show = function() {
+                if (! target || target.hidden) return;
+                tooltip.position(panel.element.getBoundingClientRect().left, element.getBoundingClientRect().top + 16);
+                tooltip.hidden = false;
+            };
+
+            var evtHide = function() {
+                clearTimeout(timerHover);
+                clearTimeout(timerBlur);
+                tooltip.hidden = true;
+            };
+
+            var evtHover = function() {
+                clearTimeout(timerBlur);
+                timerHover = setTimeout(show, 500);
+            };
+
+            var evtBlur = function() {
+                clearTimeout(timerHover);
+                timerBlur = setTimeout(hide, 200);
+            };
+
+            var evtClick = function() {
+                clearTimeout(timerBlur);
+                clearTimeout(timerHover);
+                show();
+            };
 
             target.on('hide', evtHide);
 
@@ -41,36 +78,8 @@ editor.once('load', function() {
             element.addEventListener('click', evtClick, false);
         };
 
-        var show = function() {
-            if (! target || target.hidden) return;
-            tooltip.position(panel.element.getBoundingClientRect().left, element.getBoundingClientRect().top + 16);
-            tooltip.hidden = false;
-        };
-
         var hide = function() {
             tooltip.hidden = true;
-        };
-
-        var evtHide = function() {
-            clearTimeout(timerHover);
-            clearTimeout(timerBlur);
-            tooltip.hidden = true;
-        };
-
-        var evtHover = function() {
-            clearTimeout(timerBlur);
-            timerHover = setTimeout(show, 500);
-        };
-
-        var evtBlur = function() {
-            clearTimeout(timerHover);
-            timerBlur = setTimeout(hide, 200);
-        };
-
-        var evtClick = function() {
-            clearTimeout(timerBlur);
-            clearTimeout(timerHover);
-            show();
         };
 
         tooltip.on('hover', function() {

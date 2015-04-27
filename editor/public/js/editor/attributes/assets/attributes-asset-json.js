@@ -7,13 +7,8 @@ editor.once('load', function() {
 
         var asset = assets[0];
 
-        // panel
-        var panel = editor.call('attributes:addPanel');
-        panel.class.add('component');
-
         // loading
         var loading = editor.call('attributes:addField', {
-            parent: panel,
             type: 'progress'
         });
         loading.on('progress:100', function() {
@@ -21,15 +16,18 @@ editor.once('load', function() {
         });
 
         var panelRaw = editor.call('attributes:addPanel', {
-            parent: panel,
-            name: 'Raw Data'
+            name: 'JSON'
         });
+        panelRaw.class.add('component');
+        // reference
+        editor.call('attributes:reference:asset:json:asset:attach', panelRaw, panelRaw.headerElement);
 
         // code
         var fieldCode = editor.call('attributes:addField', {
             parent: panelRaw,
             type: 'code'
         });
+        fieldCode.style.margin = '-8px -6px';
 
         // load data
         Ajax
@@ -43,7 +41,7 @@ editor.once('load', function() {
         })
         .on('error', function() {
             loading.failed = true;
-            panelRaw.destroy();
+            fieldCode.destroy();
 
             var error = new ui.Label({ text: 'failed loading data' });
             error.textContent = 'failed loading data';

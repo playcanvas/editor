@@ -10,9 +10,11 @@ editor.once('load', function() {
 
         // properties panel
         var paramsPanel = editor.call('attributes:addPanel', {
-            name: 'Properties'
+            name: 'Texture'
         });
         paramsPanel.class.add('component');
+        // reference
+        editor.call('attributes:reference:asset:texture:asset:attach', paramsPanel, paramsPanel.headerElement);
 
         // dimensions
         var fieldDimensions = editor.call('attributes:addField', {
@@ -21,6 +23,15 @@ editor.once('load', function() {
             value: '...'
         });
         fieldDimensions.renderChanges = false;
+        // reference
+        editor.call('attributes:reference:asset:texture:dimensions:attach', fieldDimensions.parent.innerElement.firstChild.ui);
+
+        // hdr
+        var fieldHdr = editor.call('attributes:addField', {
+            parent: paramsPanel,
+            name: 'HDR',
+            value: asset.get('data.rgbm') ? 'true' : 'false'
+        });
 
         // minfilter
         var minFilterField = editor.call('attributes:addField', {
@@ -31,6 +42,8 @@ editor.once('load', function() {
                 'linear': 'Linear'
             }
         });
+        // reference
+        editor.call('attributes:reference:asset:texture:minFilter:attach', minFilterField.parent.innerElement.firstChild.ui);
 
         // mipfilter
         var mipFilterField = editor.call('attributes:addField', {
@@ -42,6 +55,8 @@ editor.once('load', function() {
                 'linear': 'Linear'
             }
         });
+        // reference
+        editor.call('attributes:reference:asset:texture:mipFilter:attach', mipFilterField.parent.innerElement.firstChild.ui);
 
         var suspendEvents = false;
 
@@ -100,9 +115,11 @@ editor.once('load', function() {
                 'linear': 'Linear'
             }
         });
+        // reference
+        editor.call('attributes:reference:asset:texture:magFilter:attach', magFilterField.parent.innerElement.firstChild.ui);
 
         // addressu
-        editor.call('attributes:addField', {
+        var fieldAddressU = editor.call('attributes:addField', {
             parent: paramsPanel,
             name: 'Address U',
             type: 'string',
@@ -114,9 +131,11 @@ editor.once('load', function() {
             link: asset,
             path: 'data.addressu'
         });
+        // reference
+        editor.call('attributes:reference:asset:texture:addressU:attach', fieldAddressU.parent.innerElement.firstChild.ui);
 
         // addressv
-        editor.call('attributes:addField', {
+        var fieldAddressV = editor.call('attributes:addField', {
             parent: paramsPanel,
             name: 'Address V',
             type: 'string',
@@ -128,15 +147,19 @@ editor.once('load', function() {
             link: asset,
             path: 'data.addressv'
         });
+        // reference
+        editor.call('attributes:reference:asset:texture:addressV:attach', fieldAddressV.parent.innerElement.firstChild.ui);
 
         // anisotropy
-        editor.call('attributes:addField', {
+        var fieldAnisotropy = editor.call('attributes:addField', {
             parent: paramsPanel,
             name: 'Anisotropy',
             type: 'number',
             link: asset,
             path: 'data.anisotropy'
         });
+        // reference
+        editor.call('attributes:reference:asset:texture:anisotropy:attach', fieldAnisotropy.parent.innerElement.firstChild.ui);
 
         var root = editor.call('attributes.rootPanel');
 
@@ -146,7 +169,8 @@ editor.once('load', function() {
         image.onload = function() {
             fieldDimensions.text = image.naturalWidth + ' x ' + image.naturalHeight;
         };
-        image.src = config.url.home + asset.get('file.url') + '?t=' + asset.get('modified_at');
+        image.src = config.url.home + (asset.get('thumbnails.xl') || asset.get('file.url')) + '?t=' + asset.get('modified_at');
+
         image.classList.add('asset-preview');
         root.class.add('asset-preview');
         root.element.insertBefore(image, root.innerElement);
