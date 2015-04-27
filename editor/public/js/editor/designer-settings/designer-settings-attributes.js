@@ -44,15 +44,18 @@ editor.once('load', function() {
         fieldName.on('destroy', function() {
             evtNameChange.unbind();
         });
-
+        // reference
+        editor.call('attributes:reference:settings:name:attach', fieldName.parent.innerElement.firstChild.ui);
 
         var panel = editor.call('attributes:addPanel', {
             name: 'Designer Settings'
         });
         panel.class.add('component');
+        // reference
+        editor.call('attributes:reference:settings:designer:attach', panel, panel.headerElement);
 
         // grid divisions
-        var fieldNearClip = editor.call('attributes:addField', {
+        var fieldGrid = editor.call('attributes:addField', {
             parent: panel,
             name: 'Grid',
             placeholder: 'Divisions',
@@ -63,7 +66,9 @@ editor.once('load', function() {
             link: designerSettings,
             path: 'grid_divisions'
         });
-        fieldNearClip.style.width = '32px';
+        fieldGrid.style.width = '32px';
+        // reference
+        editor.call('attributes:reference:settings:grid:attach', fieldGrid.parent.innerElement.firstChild.ui);
 
 
         // grid divisions size
@@ -76,11 +81,11 @@ editor.once('load', function() {
         fieldFarClip.style.width = '32px';
         fieldFarClip.flexGrow = 1;
         fieldFarClip.link(designerSettings, 'grid_division_size');
-        fieldNearClip.parent.append(fieldFarClip);
+        fieldGrid.parent.append(fieldFarClip);
 
 
         // snap increment
-        editor.call('attributes:addField', {
+        var fieldSnap = editor.call('attributes:addField', {
             parent: panel,
             name: 'Snap',
             type: 'number',
@@ -91,10 +96,12 @@ editor.once('load', function() {
             link: designerSettings,
             path: 'snap_increment'
         });
+        // reference
+        editor.call('attributes:reference:settings:snap:attach', fieldSnap.parent.innerElement.firstChild.ui);
 
 
         // camera near clip
-        var fieldNearClip = editor.call('attributes:addField', {
+        var fieldClip = editor.call('attributes:addField', {
             parent: panel,
             name: 'Camera Clip',
             placeholder: 'Near',
@@ -105,7 +112,9 @@ editor.once('load', function() {
             link: designerSettings,
             path: 'camera_near_clip'
         });
-        fieldNearClip.style.width = '32px';
+        fieldClip.style.width = '32px';
+        // reference
+        editor.call('attributes:reference:settings:cameraClip:attach', fieldClip.parent.innerElement.firstChild.ui);
 
 
         // camera far clip
@@ -118,7 +127,7 @@ editor.once('load', function() {
         fieldFarClip.style.width = '32px';
         fieldFarClip.flexGrow = 1;
         fieldFarClip.link(designerSettings, 'camera_far_clip');
-        fieldNearClip.parent.append(fieldFarClip);
+        fieldClip.parent.append(fieldFarClip);
 
 
         // clear color
@@ -129,5 +138,7 @@ editor.once('load', function() {
             link: designerSettings,
             path: 'camera_clear_color'
         });
+        // reference
+        editor.call('attributes:reference:settings:clearColor:attach', fieldClearColor.parent.innerElement.firstChild.ui);
     });
 });
