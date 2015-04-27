@@ -1,0 +1,28 @@
+editor.once('load', function() {
+    'use strict';
+
+    var create = function(args) {
+        var tooltip = editor.call('attributes:reference', args);
+
+        editor.method('attributes:reference:asset:script' + (args.name ? (':' + args.name) : '') + ':attach', function(target, element) {
+            tooltip.attach({
+                target: target,
+                element: element || target.element
+            });
+        });
+    };
+
+    var fields = [
+        {
+            title: 'filename',
+            subTitle: '{String}',
+            description: 'Filename of a script..'
+        }
+    ];
+
+    // fields reference
+    for(var i = 0; i < fields.length; i++) {
+        fields[i].name = fields[i].name || fields[i].title;
+        create(fields[i]);
+    }
+});

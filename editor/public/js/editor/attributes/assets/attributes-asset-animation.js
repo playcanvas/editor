@@ -9,9 +9,12 @@ editor.once('load', function() {
 
         // panel
         var panel = editor.call('attributes:addPanel', {
-            name: 'Properties'
+            name: 'Animation'
         });
         panel.class.add('component');
+
+        // reference
+        editor.call('attributes:reference:asset:animation:asset:attach', panel, panel.headerElement);
 
         // duration
         var fieldDuration = editor.call('attributes:addField', {
@@ -19,6 +22,10 @@ editor.once('load', function() {
             name: 'Duration',
             placeholder: 'Seconds'
         });
+
+        // reference
+        editor.call('attributes:reference:asset:animation:duration:attach', fieldDuration.parent.innerElement.firstChild.ui);
+
         if (asset._duration != undefined)
             fieldDuration.text = asset._duration;
 

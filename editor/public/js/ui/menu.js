@@ -175,13 +175,21 @@ Menu.fromData = function(data) {
             icon: data.icon
         });
 
-        if (data.select)
+        if (data.select) {
             item.on('select', data.select);
+        }
 
-        if (data.filter)
+        if (data.filter) {
             menu.on('open', function() {
                 item.enabled = data.filter();
             });
+        }
+
+        if (data.hide) {
+            menu.on('open', function () {
+                item.hidden = data.hide();
+            });
+        }
 
         return item;
     };

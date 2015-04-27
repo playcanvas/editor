@@ -11,9 +11,11 @@ editor.once('load', function() {
 
         // properties panel
         var paramsPanel = editor.call('attributes:addPanel', {
-            name: 'Properties'
+            name: 'CubeMap'
         });
         paramsPanel.class.add('component');
+        // reference
+        editor.call('attributes:reference:asset:cubemap:asset:attach', paramsPanel, paramsPanel.headerElement);
 
 
         // minFilter
@@ -27,6 +29,8 @@ editor.once('load', function() {
             name: 'Min Filter'
         });
         fieldMinFilter.renderChanges = false;
+        // reference
+        editor.call('attributes:reference:asset:cubemap:minFilter:attach', fieldMinFilter.parent.innerElement.firstChild.ui);
 
 
         // mipFilter
@@ -41,6 +45,8 @@ editor.once('load', function() {
             name: 'Mip Filter'
         });
         fieldMipFilter.renderChanges = false;
+        // reference
+        editor.call('attributes:reference:asset:cubemap:mipFilter:attach', fieldMipFilter.parent.innerElement.firstChild.ui);
 
         // data > ui
         var evtUpdateMinMip = asset.on('data.minFilter:set', function(value) {
@@ -74,6 +80,8 @@ editor.once('load', function() {
             link: asset,
             path: 'data.magFilter'
         });
+        // reference
+        editor.call('attributes:reference:asset:cubemap:magFilter:attach', fieldMagFilter.parent.innerElement.firstChild.ui);
 
 
         // anisotropy
@@ -84,6 +92,8 @@ editor.once('load', function() {
             link: asset,
             path: 'data.anisotropy'
         });
+        // reference
+        editor.call('attributes:reference:asset:cubemap:anisotropy:attach', fieldAnisotropy.parent.innerElement.firstChild.ui);
 
 
         // preview
@@ -91,6 +101,8 @@ editor.once('load', function() {
             name: 'Preview'
         });
         previewPanel.class.add('cubemap-viewport', 'component');
+        // reference
+        editor.call('attributes:reference:asset:cubemap:slots:attach', previewPanel, previewPanel.headerElement);
 
 
         // faces
@@ -112,14 +124,62 @@ editor.once('load', function() {
                 face.classList.add('empty');
             } else {
                 var texture = editor.call('assets:get', assetId);
-                if (texture && texture.get('type') === 'texture' && texture.get('file.url')) {
+                if (texture && texture.get('type') === 'texture' && (texture.get('thumbnails.l') || texture.get('file.url'))) {
                     face.classList.remove('empty');
-                    face.style.backgroundImage = 'url("' + config.url.home + '/' + texture.get('file.url') + '")';
+                    face.style.backgroundImage = 'url("' + config.url.home + '/' + (texture.get('thumbnails.l') || texture.get('file.url')) + '")';
                 } else {
                     face.classList.add('empty');
                     face.style.backgroundImage = '';
                 }
             }
+        };
+
+        var setAssetFace = function (face, texture) {
+            var prevFace = asset.get('data.textures.' + face);
+            var assetId = asset.get('id');
+            var textureId = texture ? texture.get('id') : null;
+
+            var setRgbmIfNeeded = function (asset) {
+                var hdrTextures = asset.get('data.textures').filter(function (id) {
+                    var texture = editor.call('assets:get', id);
+                    return texture && texture.get('data.rgbm');
+                });
+
+                if (hdrTextures.length === 6) {
+                    asset.set('data.rgbm', true);
+                } else {
+                    asset.unset('data.rgbm');
+                }
+            };
+
+            var action = {
+                name: 'asset.' + assetId + '.face.' + face,
+                combine: false,
+                undo: function () {
+                    var a = editor.call('assets:get', assetId);
+                    if (!a) return;
+
+                    var history = a.history.enabled;
+                    a.history.enabled = false;
+                    a.set('data.textures.' + face, prevFace);
+                    setRgbmIfNeeded(a);
+                    a.history.enabled = history;
+                },
+                redo: function () {
+                    var a = editor.call('assets:get', assetId);
+                    if (!a) return;
+
+                    var history = a.history.enabled;
+                    a.history.enabled = false;
+                    a.set('data.textures.' + face, textureId);
+                    setRgbmIfNeeded(a);
+                    a.history.enabled = history;
+                }
+            };
+
+            action.redo();
+
+            asset.history.emit('record', 'add', action);
         };
 
         // create eface
@@ -144,7 +204,7 @@ editor.once('load', function() {
 
                 var evtPick = editor.once('picker:asset', function(texture) {
                     // clear prefiltered data
-                    asset.set('data.textures.' + ind, texture.get('id'));
+                    setAssetFace(ind, texture);
                     evtPick = null;
                 });
 
@@ -163,8 +223,7 @@ editor.once('load', function() {
                     if (type !== 'asset.texture')
                         return;
 
-                    // clear prefiltered data
-                    asset.set('data.textures.' + ind, data.id);
+                    setAssetFace(ind, editor.call('assets:get', data.id));
                 }
             });
             previewPanel.on('destroy', function() {
@@ -182,7 +241,7 @@ editor.once('load', function() {
                     return;
 
                 evt.stopPropagation();
-                asset.set('data.textures.' + ind, null);
+                setAssetFace(ind, null);
                 face.classList.add('empty');
             }, false);
 
@@ -213,6 +272,8 @@ editor.once('load', function() {
             name: 'Prefiltering'
         });
         prefilterPanel.class.add('component');
+        // reference
+        editor.call('attributes:reference:asset:cubemap:prefilter:attach', prefilterPanel, prefilterPanel.headerElement);
 
         // prefilter button
         var prefilterBtn = new ui.Button({

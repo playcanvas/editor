@@ -30,29 +30,38 @@
 
 
         // id
-        editor.call('attributes:addField', {
+        var fieldId = editor.call('attributes:addField', {
             parent: panel,
             name: 'ID',
             link: asset,
             path: 'id'
         });
+        // reference
+        editor.call('attributes:reference:asset:id:attach', fieldId.parent.innerElement.firstChild.ui);
 
         // name
-        editor.call('attributes:addField', {
+        var fieldName = editor.call('attributes:addField', {
             parent: panel,
             name: 'Name',
             type: 'string',
             link: asset,
             path: 'name'
         });
+        // reference
+        editor.call('attributes:reference:asset:name:attach', fieldName.parent.innerElement.firstChild.ui);
 
         // type
-        editor.call('attributes:addField', {
+        var fieldType = editor.call('attributes:addField', {
             parent: panel,
             name: 'Type',
             link: asset,
             path: 'type'
         });
+        // reference
+        editor.call('attributes:reference:asset:type:attach', fieldType.parent.innerElement.firstChild.ui);
+
+        // reference
+        editor.call('attributes:reference:asset:' + asset.get('type') + ':asset:attach', fieldType);
 
         // size
         if (asset.has('file')) {
@@ -74,6 +83,9 @@
                 evtFileSet.unbind();
                 evtFileSizeSet.unbind();
             });
+
+            // reference
+            editor.call('attributes:reference:asset:size:attach', fieldSize.parent.innerElement.firstChild.ui);
         }
 
         // // TEMP
