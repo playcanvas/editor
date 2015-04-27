@@ -169,7 +169,8 @@ editor.once('load', function() {
         image.onload = function() {
             fieldDimensions.text = image.naturalWidth + ' x ' + image.naturalHeight;
         };
-        image.src = config.url.home + asset.get('file.url') + '?t=' + asset.get('modified_at');
+        image.src = config.url.home + (asset.get('thumbnails.xl') || asset.get('file.url')) + '?t=' + asset.get('modified_at');
+
         image.classList.add('asset-preview');
         root.class.add('asset-preview');
         root.element.insertBefore(image, root.innerElement);
