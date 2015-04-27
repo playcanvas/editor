@@ -74,13 +74,6 @@ editor.once('load', function () {
                 // use small thumbnail or file if thumbnail not there
                 img.setAttribute('crossOrigin', 'anonymous');
                 img.src = (texture.get('thumbnails.s') || texture.get('file.url'));
-
-                if (!texture.get('thumbnails.s')) {
-                    // if thumbnail not there yet then re-render when it's ready
-                    texture.once('thumbnails.s:set', function () {
-                        editor.call('preview:delayedRender', asset);
-                    });
-                };
             }
 
             images.push(img);
@@ -95,15 +88,42 @@ editor.once('load', function () {
     editor.on('assets:add', function (asset) {
         if (asset.get('type') !== 'cubemap') return;
 
+        // re-render thumbnail if texture thumbnails changed
+        var evts = [];
+
+        var onChanged = function () {
+            editor.call('preview:delayedRender', asset);
+        };
+
+        var bindTextureChanges = function () {
+            evts.forEach(function (evt) {
+                evt.unbind();
+            });
+
+            evts.length = 0;
+
+            asset.get('data.textures').forEach(function (id) {
+                if (parseInt(id) >= 0) {
+                    var texture = editor.call('assets:get', id);
+                    if (texture) {
+                        evts.push(texture.on('thumbnails.s:set', onChanged));
+                    }
+                }
+            });
+        };
+
         // do this in a timeout to wait for all
         // assets to be added to the asset registry first
         setTimeout(function () {
+            bindTextureChanges();
             editor.call('preview:render', asset);
         }, 100);
 
+
         asset.on('*:set', function (path) {
-            if (path.indexOf('data') === 0) {
-                editor.call('preview:delayedRender', asset);
+            if (path.indexOf('data.textures') === 0) {
+                onChanged();
+                bindTextureChanges();
             }
         });
     });
