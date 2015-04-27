@@ -186,8 +186,10 @@ editor.once('load', function() {
                 entity.insert('components.script.scripts', script);
 
                 // try to get the script and if it doesn't exist create it
-                Ajax
-                .get(fullUrl)
+                new AjaxRequest({
+                    url: fullUrl,
+                    notJson: true
+                })
                 .on('load', function(status, data) {
                     refreshScriptAttributes(script.get('url'));
                 })
