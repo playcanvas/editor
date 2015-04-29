@@ -288,6 +288,9 @@ editor.once('load', function() {
             editor.call('assets:cubemaps:prefilter', asset, function () {
                 // re-enable button
                 prefilterBtn.disabled = false;
+            }, function (error) {
+                prefilterBtn.disabled = false;
+                editor.call('status:error', error);
             });
         });
 
