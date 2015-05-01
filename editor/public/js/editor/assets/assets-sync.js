@@ -57,8 +57,7 @@ editor.once('load', function() {
                 // need small delay
                 setTimeout(function() {
                     // select asset
-                    editor.call('selector:clear');
-                    editor.call('selector:add', 'asset', asset);
+                    editor.call('selector:set', 'asset', [ asset ]);
                 }, 0);
             });
 
