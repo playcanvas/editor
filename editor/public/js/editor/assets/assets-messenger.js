@@ -64,26 +64,17 @@ editor.once('load', function() {
                 asset.sync = false;
                 asset.history.enabled = false;
 
+                var fileSize = asset.get('file.size');
+
                 for(var i = 0; i < fields.length; i++) {
                     asset.set(fields[i], data[fields[i]]);
                 }
 
                 // reset thumbnails
-                if (data.thumbnails) {
-                    for (var key in data.thumbnails) {
-                        if (asset.get('thumbnails.' + key))
-                            asset.unset('thumbnails.' + key);
-                    }
-
-                    setTimeout(function () {
-                        asset.history.enabled = false;
-                        asset.sync = false;
-                        for (var key in data.thumbnails) {
-                            asset.set('thumbnails.' + key, data.thumbnails[key]);
-                        }
-                        asset.sync = true;
-                        asset.history.enabled = true;
-                    });
+                if (data.thumbnails && ! (asset.get('type') === 'texture' && fileSize === asset.get('file.size'))) {
+                    fileSize = asset.get('file.size');
+                    asset.unset('thumbnails');
+                    asset.set('thumbnails', data.thumbnails);
                 }
 
                 asset.history.enabled = true;

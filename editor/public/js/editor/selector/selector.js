@@ -51,13 +51,23 @@ editor.once('load', function() {
         ind.unbind();
     };
 
+    var evtChange = false;
+    var evtChangeFn = function() {
+        evtChange = false;
+        editor.emit('selector:change', selector.array());
+    };
+
     // adding
     selector.on('add', function(item) {
         // add index
         setIndex(this.type, item);
 
         editor.emit('selector:add', item, this.type);
-        editor.emit('selector:change', this.array());
+
+        if (! evtChange) {
+            evtChange = true;
+            setTimeout(evtChangeFn, 0);
+        }
     });
 
 
@@ -71,7 +81,10 @@ editor.once('load', function() {
         if (this.length === 0)
             this.type = null;
 
-        editor.emit('selector:change', this.array());
+        if (! evtChange) {
+            evtChange = true;
+            setTimeout(evtChangeFn, 0);
+        }
     });
 
 
@@ -98,15 +111,13 @@ editor.once('load', function() {
         if (! enabled)
             return;
 
-        if (! type || ! items.length) {
-            selector.clear();
-            return;
-        }
+        selector.clear();
 
-        if (selector.type !== type) {
-            selector.clear();
-            selector.type = type;
-        }
+        if (! type || ! items.length)
+            return;
+
+        // type
+        selector.type = type;
 
         // remove
         selector.find(function(item) {
@@ -130,9 +141,9 @@ editor.once('load', function() {
         if (selector.has(item))
             return;
 
-        if (selector.length && selector.type !== type) {
+        if (selector.length && selector.type !== type)
             selector.clear();
-        }
+
         selector.type = type;
         selector.add(item);
     });

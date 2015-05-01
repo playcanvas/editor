@@ -1264,13 +1264,15 @@ strong {
             }
         }
 
-        &:focus,
         &:hover {
             > .thumbnail {
                 color: $text-primary;
             }
             > .label {
-                background-color: $bcg-darkest;
+                background-color: mix($bcg-darkest, $bcg-dark, 50%);
+            }
+            > .icon {
+                color: $text-primary;
             }
         }
         &.selected {
@@ -1279,6 +1281,9 @@ strong {
             }
             > .label {
                 background-color: $bcg-darkest;
+            }
+            &:hover > .label {
+                background-color: mix($bcg-darkest, $bcg-darker, 75%);
             }
         }
         > .thumbnail {
@@ -1330,6 +1335,7 @@ strong {
             text-overflow: ellipsis;
             text-align: center;
             overflow: hidden;
+            color: $text-primary;
             background-color: rgba($bcg-darker, 0.8);
         }
     }

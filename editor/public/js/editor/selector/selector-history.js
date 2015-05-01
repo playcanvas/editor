@@ -24,12 +24,16 @@ editor.once('load', function() {
             undo: function() {
                 selectorHistory = false;
                 editor.call('selector:set', oldType, oldItems);
-                selectorHistory = true;
+                editor.once('selector:change', function() {
+                    selectorHistory = true;
+                });
             },
             redo: function() {
                 selectorHistory = false;
                 editor.call('selector:set', type, items);
-                selectorHistory = true;
+                editor.once('selector:change', function() {
+                    selectorHistory = true;
+                });
             }
         });
     };

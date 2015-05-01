@@ -101,7 +101,11 @@ Object.defineProperty(TextField.prototype, 'placeholder', {
         return this.element.getAttribute('placeholder');
     },
     set: function(value) {
-        this.element.setAttribute('placeholder', value);
+        if (! value) {
+            this.element.removeAttribute('placeholder');
+        } else {
+            this.element.setAttribute('placeholder', value);
+        }
     }
 });
 

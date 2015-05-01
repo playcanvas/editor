@@ -106,6 +106,19 @@ editor.once('load', function() {
         window.open(url, 'pc.launch.' + config.scene.id);
     };
 
+    editor.call('hotkey:register', 'launch', {
+        key: 'enter',
+        ctrl: true,
+        callback: function() {
+            var url = window.location.href.replace(/^https/, 'http') + '/launch';
+
+            if (launchLocally)
+                url += '?local=true';
+
+            window.open(url, 'pc.launch.' + config.scene.id);
+        }
+    });
+
 
     // fullscreen
     var buttonExpand = new ui.Button({

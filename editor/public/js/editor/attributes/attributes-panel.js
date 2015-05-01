@@ -72,37 +72,156 @@ editor.once('load', function() {
             panel.append(label);
         }
 
-        if (args.enum) {
-            var field = new ui.SelectField({
-                options: args.enum,
-                number: args.type === 'number'
-            });
-            field.value == args.value || '';
-            field.flexGrow = 1;
-            panel.append(field);
+        var field;
+        var changing = false;
+        var events = [ ];
+        var linkMultiple, update, changeField, changeFieldQueue;
 
-            if (args.link)
-                field.link(args.link, args.path);
+        // multi functionality
+        if (args.link instanceof Array && args.link.length > 1) {
+            // update field value
+            update = function() {
+                var value = args.link[0].get(args.path);
+                for(var i = 1; i < args.link.length; i++) {
+                    if (value !== args.link[i].get(args.path)) {
+                        value = args.enum ? '' : null;
+                        break;
+                    }
+                }
+                changing = true;
+                field.value = value;
+                changing = false;
 
-            return field;
+                if (args.enum) {
+                    if (field.optionElements[''])
+                        field.optionElements[''].style.display = value ? 'none' : '';
+                } else {
+                    field.proxy = value === null ? '...' : null;
+                }
+            };
+
+            changeField = function(value) {
+                if (changing)
+                    return;
+
+                if (args.enum) {
+                    if (this.optionElements[''])
+                        this.optionElements[''].style.display = value ? 'none' : '';
+                } else {
+                    this.proxy = value === null ? '...' : null;
+                }
+
+                var items = [ ];
+
+                // set link value
+                changing = true;
+                for(var i = 0; i < args.link.length; i++) {
+                    items.push({
+                        get: args.link[i].history._getItemFn,
+                        value: args.link[i].get(args.path)
+                    });
+                    args.link[i].history.enabled = false;
+                    args.link[i].set(args.path, value);
+                    args.link[i].history.enabled = true;
+                }
+                changing = false;
+
+                // history
+                editor.call('history:add', {
+                    name: args.path,
+                    undo: function() {
+                        for(var i = 0; i < items.length; i++) {
+                            var item = items[i].get();
+                            if (! item)
+                                continue;
+
+                            item.history.enabled = false;
+                            item.set(args.path, items[i].value);
+                            item.history.enabled = true;
+                        }
+                    },
+                    redo: function() {
+                        for(var i = 0; i < items.length; i++) {
+                            var item = items[i].get();
+                            if (! item)
+                                continue;
+
+                            item.history.enabled = false;
+                            item.set(args.path, value);
+                            item.history.enabled = true;
+                        }
+                    }
+                });
+            };
+
+            changeFieldQueue = function() {
+                if (changing)
+                    return;
+
+                changing = true;
+                setTimeout(function() {
+                    changing = false;
+                    update();
+                }, 0);
+            };
+
+            linkMultiple = function() {
+                update();
+                field.on('change', changeField);
+
+                for(var i = 0; i < args.link.length; i++)
+                    events.push(args.link[i].on(args.path + ':set', changeFieldQueue));
+
+                field.once('destroy', function() {
+                    for(var i = 0; i < events.length; i++)
+                        events[i].unbind();
+                });
+            };
         }
+
+        var linkField = function() {
+            if (args.link) {
+                if (linkMultiple) {
+                    linkMultiple();
+                } else {
+                    field.link((args.link instanceof Array) ? args.link[0] : args.link, args.path);
+                    if (args.enum && field.optionElements[''])
+                        field.optionElements[''].style.display = 'none';
+                }
+            }
+        };
 
         switch(args.type) {
             case 'string':
-                var field = new ui.TextField();
-                field.value = args.value || '';
+                if (args.enum) {
+                    field = new ui.SelectField({
+                        options: args.enum
+                    });
+                } else {
+                    field = new ui.TextField();
+                }
+
+                field.value == args.value || '';
                 field.flexGrow = 1;
+
                 if (args.placeholder)
                     field.placeholder = args.placeholder;
 
-                if (args.link)
-                    field.link(args.link, args.path);
+                linkField();
 
                 panel.append(field);
+                break;
 
-                return field;
             case 'number':
-                var field = new ui.NumberField();
+                if (args.enum) {
+                    field = new ui.SelectField({
+                        options: args.enum,
+                        number: true
+                    });
+                } else {
+                    field = new ui.NumberField();
+                }
+
                 field.value = args.value || 0;
                 field.flexGrow = 1;
                 if (args.placeholder)
@@ -120,55 +239,55 @@ editor.once('load', function() {
                 if (args.max != null)
                     field.max = args.max;
 
-                if (args.link)
-                    field.link(args.link, args.path);
+                linkField();
 
                 panel.append(field);
+                break;
 
-                return field;
             case 'checkbox':
-                var field = new ui.Checkbox();
+                field = new ui.Checkbox();
                 field.value = args.value || 0;
 
                 if (args.link)
                     field.link(args.link, args.path);
 
                 panel.append(field);
+                break;
 
-                return field;
             case 'vec2':
             case 'vec3':
             case 'vec4':
                 var channels = parseInt(args.type[3], 10);
-                var fields = [ ];
+                field = [ ];
 
                 for(var i = 0; i < channels; i++) {
-                    fields[i] = new ui.NumberField();
-                    fields[i].flexGrow = 1;
-                    fields[i].style.width = '24px';
-                    fields[i].value = (args.value && args.value[i]) || 0;
-                    panel.append(fields[i]);
+                    field[i] = new ui.NumberField();
+                    field[i].flexGrow = 1;
+                    field[i].style.width = '24px';
+                    field[i].value = (args.value && args.value[i]) || 0;
+                    panel.append(field[i]);
 
                     if (args.placeholder)
-                        fields[i].placeholder = args.placeholder[i];
+                        field[i].placeholder = args.placeholder[i];
 
                     if (args.precision != null)
-                        fields[i].precision = args.precision;
+                        field[i].precision = args.precision;
 
                     if (args.step != null)
-                        fields[i].step = args.step;
+                        field[i].step = args.step;
 
                     if (args.min != null)
-                        fields[i].min = args.min;
+                        field[i].min = args.min;
 
                     if (args.max != null)
-                        fields[i].max = args.max;
+                        field[i].max = args.max;
 
                     if (args.link)
-                        fields[i].link(args.link, args.path + '.' + i);
+                        field[i].link(args.link, args.path + '.' + i);
                 }
 
-                return fields;
+                break;
+
             case 'rgb':
                 var field = new ui.ColorField();
 
@@ -231,7 +350,7 @@ editor.once('load', function() {
 
                 return field;
             case 'asset':
-                var field = new ui.ImageField();
+                field = new ui.ImageField();
                 var evtPick;
 
                 label.renderChanges = false;
@@ -390,46 +509,50 @@ editor.once('load', function() {
 
                 // title
                 panelFields.appendChild(fieldTitle.element);
+                break;
 
-                return field;
             case 'image':
                 panel.flex = false;
 
-                var image = new Image();
-                image.style.maxWidth = '100%';
-                image.style.display = 'block';
-                image.src = args.src;
+                field = new Image();
+                field.style.maxWidth = '100%';
+                field.style.display = 'block';
+                field.src = args.src;
 
-                panel.append(image);
+                panel.append(field);
+                break;
 
-                return image;
             case 'progress':
-                var field = new ui.Progress();
+                field = new ui.Progress();
                 field.flexGrow = 1;
 
                 panel.append(field);
-                return field;
+                break;
+
             case 'code':
-                var field = new ui.Code();
+                field = new ui.Code();
                 field.flexGrow = 1;
 
                 if (args.value)
                     field.text = args.value;
 
                 panel.append(field);
+                break;
 
-                return field;
             case 'button':
-                var field = new ui.Button();
+                field = new ui.Button();
                 field.flexGrow = 1;
                 field.text = args.text || 'Button';
                 panel.append(field);
-                return field;
+                break;
+
             case 'element':
-                panel.append(args.element);
-                return args.element;
+                field = args.element;
+                panel.append(field);
+                break;
+
             case 'curveset':
-                var field = new ui.CurveField(args);
+                field = new ui.CurveField(args);
                 field.flexGrow = 1;
                 field.text = args.text || '';
 
@@ -518,9 +641,10 @@ editor.once('load', function() {
                 });
 
                 panel.append(field);
-                return field;
+                break;
+
             default:
-                var field = new ui.Label();
+                field = new ui.Label();
                 field.flexGrow = 1;
                 field.text = args.value || '';
                 if (args.placeholder)
@@ -530,9 +654,10 @@ editor.once('load', function() {
                     field.link(args.link, args.path);
 
                 panel.append(field);
-
-                return field;
+                break;
         }
+
+        return field;
     });
 
     var inspectedItems = [ ];

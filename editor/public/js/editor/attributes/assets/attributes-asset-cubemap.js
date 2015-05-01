@@ -3,11 +3,10 @@ editor.once('load', function() {
 
 
     editor.on('attributes:inspect[asset]', function(assets) {
-        if (assets.length !== 1 || assets[0].get('type') !== 'cubemap')
-            return;
-
-        var asset = assets[0];
-
+        for(var i = 0; i < assets.length; i++) {
+            if (assets[i].get('type') !== 'cubemap')
+                return;
+        }
 
         // properties panel
         var paramsPanel = editor.call('attributes:addPanel', {
@@ -18,70 +17,212 @@ editor.once('load', function() {
         editor.call('attributes:reference:asset:cubemap:asset:attach', paramsPanel, paramsPanel.headerElement);
 
 
-        // minFilter
-        var fieldMinFilter = editor.call('attributes:addField', {
+
+        // filtering
+        var fieldFiltering = editor.call('attributes:addField', {
             parent: paramsPanel,
-            type: 'number',
+            name: 'Filtering',
+            type: 'string',
             enum: {
-                0: 'Nearest',
-                1: 'Linear'
-            },
-            name: 'Min Filter'
+                '': '...',
+                'nearest': 'Point',
+                'linear': 'Linear'
+            }
         });
-        fieldMinFilter.renderChanges = false;
         // reference
-        editor.call('attributes:reference:asset:cubemap:minFilter:attach', fieldMinFilter.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:asset:texture:filtering:attach', fieldFiltering.parent.innerElement.firstChild.ui);
 
 
-        // mipFilter
-        var fieldMipFilter = editor.call('attributes:addField', {
-            parent: paramsPanel,
-            type: 'number',
-            enum: {
-                0: 'None',
-                1: 'Nearest',
-                2: 'Linear'
-            },
-            name: 'Mip Filter'
-        });
-        fieldMipFilter.renderChanges = false;
-        // reference
-        editor.call('attributes:reference:asset:cubemap:mipFilter:attach', fieldMipFilter.parent.innerElement.firstChild.ui);
+        var isPrefiltered = false;
+        for(var i = 0; i < assets.length; i++) {
+            if (!! assets[i].get('file')) {
+                isPrefiltered = true;
+                break;
+            }
+        }
+        if (isPrefiltered)
+            fieldFiltering.disabled = true;
 
-        // data > ui
-        var evtUpdateMinMip = asset.on('data.minFilter:set', function(value) {
-            fieldMinFilter.value = [ 1, 4, 5 ].indexOf(value) === -1 ? 0 : 1;
-            fieldMipFilter.value = (value < 2) ? 0 : (value % 2 + 1);
-        });
-        evtUpdateMinMip.call(asset.get('data.minFilter'));
+        var changingFiltering = false;
 
-        // ui > data
-        var updateAssetMinMip = function() {
-            var a = fieldMinFilter.value;
-            var b = fieldMipFilter.value;
-            asset.set('data.minFilter', (a && b) ? (2 + a + b) : (b ? (1 + b) : a));
+        var updateFiltering = function() {
+            var value = '';
+            var valueDifferent = false;
+            var filter = assets[0].get('data.minFilter') + '_' + assets[0].get('data.magFilter');
+
+            for(var i = 1; i < assets.length; i++) {
+                if (filter !== (assets[i].get('data.minFilter') + '_' + assets[i].get('data.magFilter'))) {
+                    valueDifferent = true;
+                    break;
+                }
+            }
+
+            if (! valueDifferent) {
+                if (assets[0].get('data.minFilter') === 5 && assets[0].get('data.magFilter') === 1) {
+                    value = 'linear';
+                } else if (assets[0].get('data.minFilter') === 2 && assets[0].get('data.magFilter') === 0) {
+                    value = 'nearest';
+                }
+            }
+
+            if (! valueDifferent && value) {
+                fieldFiltering.optionElements[''].style.display = 'none';
+            } else {
+                fieldFiltering.optionElements[''].style.display = '';
+            }
+
+            changingFiltering = true;
+            fieldFiltering.value = value;
+            changingFiltering = false;
         };
-        fieldMinFilter.on('change', updateAssetMinMip);
-        fieldMipFilter.on('change', updateAssetMinMip);
+        updateFiltering();
 
-        fieldMinFilter.renderChanges = true;
-        fieldMipFilter.renderChanges = true;
+        fieldFiltering.on('change', function(value) {
+            if (changingFiltering)
+                return;
 
+            var values = [ ];
+            var valueMin = value === 'nearest' ? 2 : 5;
+            var valueMag = value === 'nearest' ? 0 : 1;
 
-        // magFilter
-        var fieldMagFilter = editor.call('attributes:addField', {
-            parent: paramsPanel,
-            type: 'number',
-            enum: {
-                0: 'Nearest',
-                1: 'Linear'
-            },
-            name: 'Mag Filter',
-            link: asset,
-            path: 'data.magFilter'
+            changingFiltering = true;
+            for(var i = 0; i < assets.length; i++) {
+                values.push({
+                    id: assets[i].get('id'),
+                    valueMin: assets[i].get('data.minFilter'),
+                    valueMag: assets[i].get('data.magFilter')
+                });
+                assets[i].history.enabled = false;
+                assets[i].set('data.minFilter', valueMin);
+                assets[i].set('data.magFilter', valueMag);
+                assets[i].history.enabled = true;
+            }
+            changingFiltering = false;
+
+            fieldFiltering.optionElements[''].style.display = 'none';
+
+            // history
+            editor.call('history:add', {
+                name: 'assets.filtering',
+                undo: function() {
+                    for(var i = 0; i < values.length; i++) {
+                        var asset = editor.call('assets:get', values[i].id);
+                        if (! asset)
+                            continue;
+
+                        asset.history.enabled = false;
+                        asset.set('data.minFilter', values[i].valueMin);
+                        asset.set('data.magFilter', values[i].valueMag);
+                        asset.history.enabled = true;
+                    }
+                },
+                redo: function() {
+                    for(var i = 0; i < values.length; i++) {
+                        var asset = editor.call('assets:get', values[i].id);
+                        if (! asset)
+                            continue;
+
+                        asset.history.enabled = false;
+                        asset.set('data.minFilter', valueMin);
+                        asset.set('data.magFilter', valueMag);
+                        asset.history.enabled = true;
+                    }
+                }
+            });
         });
-        // reference
-        editor.call('attributes:reference:asset:cubemap:magFilter:attach', fieldMagFilter.parent.innerElement.firstChild.ui);
+
+        var eventsFiltering = [ ];
+        var changingQueued = false;
+        var changedFiltering = function() {
+            if (changingQueued || changingFiltering)
+                return;
+
+            changingQueued = true;
+            setTimeout(function() {
+                changingQueued = false;
+                updateFiltering();
+            }, 0);
+        };
+        for(var i = 0; i < assets.length; i++) {
+            eventsFiltering.push(assets[i].on('data.minFilter:set', changedFiltering));
+            eventsFiltering.push(assets[i].on('data.magFilter:set', changedFiltering));
+        }
+        fieldFiltering.once('destroy', function() {
+            for(var i = 0; i < eventsFiltering.length; i++) {
+                eventsFiltering[i].unbind();
+            }
+        });
+
+
+
+
+
+
+
+        // // minFilter
+        // var fieldMinFilter = editor.call('attributes:addField', {
+        //     parent: paramsPanel,
+        //     type: 'number',
+        //     enum: {
+        //         0: 'Nearest',
+        //         1: 'Linear'
+        //     },
+        //     name: 'Min Filter'
+        // });
+        // fieldMinFilter.renderChanges = false;
+        // // reference
+        // editor.call('attributes:reference:asset:cubemap:minFilter:attach', fieldMinFilter.parent.innerElement.firstChild.ui);
+
+
+        // // mipFilter
+        // var fieldMipFilter = editor.call('attributes:addField', {
+        //     parent: paramsPanel,
+        //     type: 'number',
+        //     enum: {
+        //         0: 'None',
+        //         1: 'Nearest',
+        //         2: 'Linear'
+        //     },
+        //     name: 'Mip Filter'
+        // });
+        // fieldMipFilter.renderChanges = false;
+        // // reference
+        // editor.call('attributes:reference:asset:cubemap:mipFilter:attach', fieldMipFilter.parent.innerElement.firstChild.ui);
+
+        // // data > ui
+        // var evtUpdateMinMip = asset.on('data.minFilter:set', function(value) {
+        //     fieldMinFilter.value = [ 1, 4, 5 ].indexOf(value) === -1 ? 0 : 1;
+        //     fieldMipFilter.value = (value < 2) ? 0 : (value % 2 + 1);
+        // });
+        // evtUpdateMinMip.call(asset.get('data.minFilter'));
+
+        // // ui > data
+        // var updateAssetMinMip = function() {
+        //     var a = fieldMinFilter.value;
+        //     var b = fieldMipFilter.value;
+        //     asset.set('data.minFilter', (a && b) ? (2 + a + b) : (b ? (1 + b) : a));
+        // };
+        // fieldMinFilter.on('change', updateAssetMinMip);
+        // fieldMipFilter.on('change', updateAssetMinMip);
+
+        // fieldMinFilter.renderChanges = true;
+        // fieldMipFilter.renderChanges = true;
+
+
+        // // magFilter
+        // var fieldMagFilter = editor.call('attributes:addField', {
+        //     parent: paramsPanel,
+        //     type: 'number',
+        //     enum: {
+        //         0: 'Nearest',
+        //         1: 'Linear'
+        //     },
+        //     name: 'Mag Filter',
+        //     link: asset,
+        //     path: 'data.magFilter'
+        // });
+        // // reference
+        // editor.call('attributes:reference:asset:cubemap:magFilter:attach', fieldMagFilter.parent.innerElement.firstChild.ui);
 
 
         // anisotropy
@@ -89,261 +230,262 @@ editor.once('load', function() {
             parent: paramsPanel,
             name: 'Anisotropy',
             type: 'number',
-            link: asset,
+            link: assets,
             path: 'data.anisotropy'
         });
+        if (isPrefiltered)
+            fieldAnisotropy.disabled = true;
         // reference
         editor.call('attributes:reference:asset:cubemap:anisotropy:attach', fieldAnisotropy.parent.innerElement.firstChild.ui);
 
 
-        // preview
-        var previewPanel = editor.call('attributes:addPanel', {
-            name: 'Preview'
-        });
-        previewPanel.class.add('cubemap-viewport', 'component');
-        // reference
-        editor.call('attributes:reference:asset:cubemap:slots:attach', previewPanel, previewPanel.headerElement);
+        if (assets.length === 1) {
+            // preview
+            var previewPanel = editor.call('attributes:addPanel', {
+                name: 'Preview'
+            });
+            previewPanel.class.add('cubemap-viewport', 'component');
+            // reference
+            editor.call('attributes:reference:asset:cubemap:slots:attach', previewPanel, previewPanel.headerElement);
 
 
-        // faces
-        var sides = {
-            2: 'top',
-            1: 'left',
-            4: 'front',
-            0: 'right',
-            5: 'back',
-            3: 'bottom'
-        };
-        var side = [ 2, 1, 4, 0, 5, 3 ];
-        var faces = [ ];
+            // faces
+            var sides = {
+                2: 'top',
+                1: 'left',
+                4: 'front',
+                0: 'right',
+                5: 'back',
+                3: 'bottom'
+            };
+            var side = [ 2, 1, 4, 0, 5, 3 ];
+            var faces = [ ];
 
-        // set face texture
-        var setTexture = function(face, assetId) {
-            if (! assetId) {
-                face.style.backgroundImage = '';
-                face.classList.add('empty');
-            } else {
-                var texture = editor.call('assets:get', assetId);
-                if (texture && texture.get('type') === 'texture' && (texture.get('thumbnails.l') || texture.get('file.url'))) {
-                    face.classList.remove('empty');
-                    face.style.backgroundImage = 'url("' + config.url.home + '/' + (texture.get('thumbnails.l') || texture.get('file.url')) + '")';
-                } else {
-                    face.classList.add('empty');
+            // set face texture
+            var setTexture = function(face, assetId) {
+                if (! assetId) {
                     face.style.backgroundImage = '';
-                }
-            }
-        };
-
-        var setAssetFace = function (face, texture) {
-            var prevFace = asset.get('data.textures.' + face);
-            var assetId = asset.get('id');
-            var textureId = texture ? texture.get('id') : null;
-
-            var setRgbmIfNeeded = function (asset) {
-                var hdrTextures = asset.get('data.textures').filter(function (id) {
-                    var texture = editor.call('assets:get', id);
-                    return texture && texture.get('data.rgbm');
-                });
-
-                if (hdrTextures.length === 6) {
-                    asset.set('data.rgbm', true);
+                    face.classList.add('empty');
                 } else {
-                    asset.unset('data.rgbm');
-                }
-            };
-
-            var action = {
-                name: 'asset.' + assetId + '.face.' + face,
-                combine: false,
-                undo: function () {
-                    var a = editor.call('assets:get', assetId);
-                    if (!a) return;
-
-                    var history = a.history.enabled;
-                    a.history.enabled = false;
-                    a.set('data.textures.' + face, prevFace);
-                    setRgbmIfNeeded(a);
-                    a.history.enabled = history;
-                },
-                redo: function () {
-                    var a = editor.call('assets:get', assetId);
-                    if (!a) return;
-
-                    var history = a.history.enabled;
-                    a.history.enabled = false;
-                    a.set('data.textures.' + face, textureId);
-                    setRgbmIfNeeded(a);
-                    a.history.enabled = history;
-                }
-            };
-
-            action.redo();
-
-            asset.history.emit('record', 'add', action);
-        };
-
-        // create eface
-        var createFace = function(ind) {
-            // create face element
-            var face = faces[ind] = document.createElement('div');
-            face.classList.add('face', 'face-' + sides[ind]);
-            previewPanel.append(face);
-
-            var name = document.createElement('div');
-            name.classList.add('face-name');
-            name.innerHTML = sides[ind];
-            face.appendChild(name);
-
-            // on face click
-            face.addEventListener('click', function() {
-                if (! editor.call('permissions:write'))
-                    return;
-
-                var texture = editor.call('assets:get', asset.get('data.textures.' + ind));
-                editor.call('picker:asset', 'texture', texture);
-
-                var evtPick = editor.once('picker:asset', function(texture) {
-                    // clear prefiltered data
-                    setAssetFace(ind, texture);
-                    evtPick = null;
-                });
-
-                editor.once('picker:asset:close', function() {
-                    if (evtPick) {
-                        evtPick.unbind();
-                        evtPick = null;
+                    var texture = editor.call('assets:get', assetId);
+                    if (texture && texture.get('type') === 'texture' && (texture.get('thumbnails.l') || texture.get('file.url'))) {
+                        face.classList.remove('empty');
+                        face.style.backgroundImage = 'url("' + config.url.home + '/' + (texture.get('thumbnails.l') || texture.get('file.url')) + '")';
+                    } else {
+                        face.classList.add('empty');
+                        face.style.backgroundImage = '';
                     }
-                });
-            }, false);
+                }
+            };
 
-            var dropRef = editor.call('drop:target', {
-                ref: face,
-                type: 'asset.texture',
-                drop: function(type, data) {
-                    if (type !== 'asset.texture')
+            var setAssetFace = function (face, texture) {
+                var prevFace = assets[0].get('data.textures.' + face);
+                var assetId = assets[0].get('id');
+                var textureId = texture ? texture.get('id') : null;
+
+                var setRgbmIfNeeded = function (asset) {
+                    var hdrTextures = asset.get('data.textures').filter(function (id) {
+                        var texture = editor.call('assets:get', id);
+                        return texture && texture.get('data.rgbm');
+                    });
+
+                    if (hdrTextures.length === 6) {
+                        asset.set('data.rgbm', true);
+                    } else {
+                        asset.unset('data.rgbm');
+                    }
+                };
+
+                var action = {
+                    name: 'asset.' + assetId + '.face.' + face,
+                    combine: false,
+                    undo: function () {
+                        var a = editor.call('assets:get', assetId);
+                        if (!a) return;
+
+                        var history = a.history.enabled;
+                        a.history.enabled = false;
+                        a.set('data.textures.' + face, prevFace);
+                        setRgbmIfNeeded(a);
+                        a.history.enabled = history;
+                    },
+                    redo: function () {
+                        var a = editor.call('assets:get', assetId);
+                        if (!a) return;
+
+                        var history = a.history.enabled;
+                        a.history.enabled = false;
+                        a.set('data.textures.' + face, textureId);
+                        setRgbmIfNeeded(a);
+                        a.history.enabled = history;
+                    }
+                };
+
+                action.redo();
+
+                assets[0].history.emit('record', 'add', action);
+            };
+
+            // create eface
+            var createFace = function(ind) {
+                // create face element
+                var face = faces[ind] = document.createElement('div');
+                face.classList.add('face', 'face-' + sides[ind]);
+                previewPanel.append(face);
+
+                var name = document.createElement('div');
+                name.classList.add('face-name');
+                name.innerHTML = sides[ind];
+                face.appendChild(name);
+
+                // on face click
+                face.addEventListener('click', function() {
+                    if (! editor.call('permissions:write'))
                         return;
 
-                    setAssetFace(ind, editor.call('assets:get', data.id));
-                }
-            });
-            previewPanel.on('destroy', function() {
-                dropRef.unregister();
-            });
+                    var texture = editor.call('assets:get', assets[0].get('data.textures.' + ind));
+                    editor.call('picker:asset', 'texture', texture);
 
-            // clear button
-            var faceClear = document.createElement('div');
-            faceClear.classList.add('clear');
-            face.appendChild(faceClear);
+                    var evtPick = editor.once('picker:asset', function(texture) {
+                        // clear prefiltered data
+                        setAssetFace(ind, texture);
+                        evtPick = null;
+                    });
 
-            // on clear click
-            faceClear.addEventListener('click', function(evt) {
-                if (! editor.call('permissions:write'))
-                    return;
+                    editor.once('picker:asset:close', function() {
+                        if (evtPick) {
+                            evtPick.unbind();
+                            evtPick = null;
+                        }
+                    });
+                }, false);
 
-                evt.stopPropagation();
-                setAssetFace(ind, null);
-                face.classList.add('empty');
-            }, false);
+                var dropRef = editor.call('drop:target', {
+                    ref: face,
+                    type: 'asset.texture',
+                    drop: function(type, data) {
+                        if (type !== 'asset.texture')
+                            return;
 
-            // load texture asset
-            setTexture(face, asset.get('data.textures.' + ind));
-
-            // bind to changes
-            face.evt = asset.on('data.textures.' + ind + ':set', function(value) {
-                clearPrefiltered();
-                setTexture(face, value);
-                prefilterPanel.hidden = !hasAllTextures();
-            });
-        };
-
-        // create all faces
-        for(var i = 0; i < side.length; i++)
-            createFace(side[i]);
-
-        // on destroy
-        previewPanel.on('destroy', function() {
-            // unbind events
-            for(var i = 0; i < faces.length; i++)
-                faces[i].evt.unbind();
-        });
-
-        // prefiltering
-        var prefilterPanel = editor.call('attributes:addPanel', {
-            name: 'Prefiltering'
-        });
-        prefilterPanel.class.add('component');
-        // reference
-        editor.call('attributes:reference:asset:cubemap:prefilter:attach', prefilterPanel, prefilterPanel.headerElement);
-
-        // prefilter button
-        var prefilterBtn = new ui.Button({
-            text: 'Prefilter',
-        });
-
-        prefilterPanel.append(prefilterBtn);
-
-        prefilterBtn.on('click', function () {
-            // disable while prefiltering
-            prefilterBtn.disabled = true;
-            editor.call('assets:cubemaps:prefilter', asset, function () {
-                // re-enable button
-                prefilterBtn.disabled = false;
-            });
-        });
-
-        // delete prefiltered data button
-        var clearPrefilteredBtn = new ui.Button({
-            text: 'Delete Prefiltered Data',
-        });
-
-        prefilterPanel.append(clearPrefilteredBtn);
-
-        var clearPrefiltered = function () {
-            var history = asset.history.enabled;
-            asset.history.enabled = false;
-            asset.set('file', null);
-            asset.history.enabled = history;
-        };
-
-        clearPrefilteredBtn.on('click', clearPrefiltered);
-
-        var evtFileChange = asset.on('file:set', function (value) {
-            togglePrefilterFields(!!value);
-        });
-
-        prefilterPanel.once('destroy', function () {
-            evtFileChange.unbind();
-        });
-
-        var hasAllTextures = function () {
-            var textures = asset.get('data.textures');
-            if (textures && textures.length === 6) {
-                for (var i = 0; i < 6; i++) {
-                    if (isNaN(parseInt(textures[i], 10) )) {
-                        return false;
+                        setAssetFace(ind, editor.call('assets:get', data.id));
                     }
+                });
+                previewPanel.on('destroy', function() {
+                    dropRef.unregister();
+                });
+
+                // clear button
+                var faceClear = document.createElement('div');
+                faceClear.classList.add('clear');
+                face.appendChild(faceClear);
+
+                // on clear click
+                faceClear.addEventListener('click', function(evt) {
+                    if (! editor.call('permissions:write'))
+                        return;
+
+                    evt.stopPropagation();
+                    setAssetFace(ind, null);
+                    face.classList.add('empty');
+                }, false);
+
+                // load texture asset
+                setTexture(face, assets[0].get('data.textures.' + ind));
+
+                // bind to changes
+                face.evt = assets[0].on('data.textures.' + ind + ':set', function(value) {
+                    clearPrefiltered();
+                    setTexture(face, value);
+                    prefilterPanel.hidden = !hasAllTextures();
+                });
+            };
+
+            // create all faces
+            for(var i = 0; i < side.length; i++)
+                createFace(side[i]);
+
+            // on destroy
+            previewPanel.on('destroy', function() {
+                // unbind events
+                for(var i = 0; i < faces.length; i++)
+                    faces[i].evt.unbind();
+            });
+
+            // prefiltering
+            var prefilterPanel = editor.call('attributes:addPanel', {
+                name: 'Prefiltering'
+            });
+            prefilterPanel.class.add('component');
+            // reference
+            editor.call('attributes:reference:asset:cubemap:prefilter:attach', prefilterPanel, prefilterPanel.headerElement);
+
+            // prefilter button
+            var prefilterBtn = new ui.Button({
+                text: 'Prefilter',
+            });
+
+            prefilterPanel.append(prefilterBtn);
+
+            prefilterBtn.on('click', function () {
+                // disable while prefiltering
+                prefilterBtn.disabled = true;
+                editor.call('assets:cubemaps:prefilter', assets[0], function () {
+                    // re-enable button
+                    prefilterBtn.disabled = false;
+                });
+            });
+
+            // delete prefiltered data button
+            var clearPrefilteredBtn = new ui.Button({
+                text: 'Delete Prefiltered Data',
+            });
+
+            prefilterPanel.append(clearPrefilteredBtn);
+
+            var clearPrefiltered = function () {
+                var history = assets[0].history.enabled;
+                assets[0].history.enabled = false;
+                assets[0].set('file', null);
+                assets[0].history.enabled = history;
+            };
+
+            clearPrefilteredBtn.on('click', clearPrefiltered);
+
+            var evtFileChange = assets[0].on('file:set', function (value) {
+                togglePrefilterFields(!!value);
+            });
+
+            prefilterPanel.once('destroy', function () {
+                evtFileChange.unbind();
+            });
+
+            var hasAllTextures = function () {
+                var textures = assets[0].get('data.textures');
+                if (textures && textures.length === 6) {
+                    for (var i = 0; i < 6; i++) {
+                        if (isNaN(parseInt(textures[i], 10) )) {
+                            return false;
+                        }
+                    }
+
+                    return true;
                 }
 
-                return true;
-            }
+                return false;
+            };
 
-            return false;
-        };
+            // show prefilter button or clear prefiltering button depending
+            // on current cubemap 'file' field
+            var togglePrefilterFields = function (isPrefiltered) {
+                prefilterPanel.hidden = !hasAllTextures();
+                prefilterBtn.hidden = isPrefiltered;
+                clearPrefilteredBtn.hidden = !isPrefiltered;
 
-        // show prefilter button or clear prefiltering button depending
-        // on current cubemap 'file' field
-        var togglePrefilterFields = function (isPrefiltered) {
-            prefilterPanel.hidden = !hasAllTextures();
-            prefilterBtn.hidden = isPrefiltered;
-            clearPrefilteredBtn.hidden = !isPrefiltered;
+                fieldFiltering.disabled = isPrefiltered;
+                fieldAnisotropy.disabled = isPrefiltered;
+            };
 
-            fieldMinFilter.disabled = isPrefiltered;
-            fieldMipFilter.disabled = isPrefiltered;
-            fieldMagFilter.disabled = isPrefiltered;
-            fieldAnisotropy.disabled = isPrefiltered;
-        };
-
-        togglePrefilterFields(!!asset.get('file'));
-
+            togglePrefilterFields(!!assets[0].get('file'));
+        }
     });
 });
