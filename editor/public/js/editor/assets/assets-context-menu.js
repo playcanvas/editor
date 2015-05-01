@@ -9,15 +9,16 @@ editor.once('load', function() {
     root.append(menu);
 
 
-    // // duplicate
-    // var menuItemDuplicate = new ui.MenuItem({
-    //     text: 'Duplicate',
-    //     value: 'duplicate'
-    // });
-    // menuItemDuplicate.on('select', function() {
-    //     // editor.call('assets:duplicate', currentAsset);
-    // });
-    // menu.append(menuItemDuplicate);
+    // duplicate
+    var menuItemDuplicate = new ui.MenuItem({
+        text: 'Duplicate',
+        value: 'duplicate'
+    });
+    menuItemDuplicate.on('select', function() {
+        editor.call('assets:duplicate', currentAsset);
+    });
+    menu.append(menuItemDuplicate);
+
 
     // delete
     var menuItemDelete = new ui.MenuItem({
@@ -57,10 +58,19 @@ editor.once('load', function() {
     menu.append(menuItemDelete);
 
 
-    // // filter buttons
-    // menu.on('open', function() {
-    //     menuItemDuplicate.enabled = currentAsset.get('type') === 'material';
-    // });
+    // filter buttons
+    menu.on('open', function() {
+        if (currentAsset.get('type') === 'material') {
+            if (editor.call('selector:type') === 'asset') {
+                var items = editor.call('selector:items');
+                menuItemDuplicate.disabled = (items.length > 1 && items.indexOf(currentAsset) !== -1);
+            } else {
+                menuItemDuplicate.enabled = true;
+            }
+        } else {
+            menuItemDuplicate.enabled = false;
+        }
+    });
 
 
     // for each asset added
