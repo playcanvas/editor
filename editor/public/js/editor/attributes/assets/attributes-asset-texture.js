@@ -228,15 +228,28 @@ editor.once('load', function() {
         editor.call('attributes:reference:asset:texture:addressV:attach', fieldAddressV.parent.innerElement.firstChild.ui);
 
 
+
         // preview
         if (assets.length === 1) {
-            var root = editor.call('attributes.rootPanel');
-            var image = new Image();
-            // size
-            image.onload = function() {
-                fieldDimensions.text = image.naturalWidth + ' x ' + image.naturalHeight;
+            // image to load original file
+            // so that we can measure the texture size
+            var imageOriginal = new Image();
+            imageOriginal.onload = function() {
+                fieldDimensions.text = imageOriginal.naturalWidth + ' x ' + imageOriginal.naturalHeight;
             };
-            image.src = config.url.home + (assets[0].get('thumbnails.xl') || assets[0].get('file.url')) + '?t=' + assets[0].get('modified_at');
+            imageOriginal.src = config.url.home + assets[0].get('file.url') + '?t=' + assets[0].get('modified_at');
+
+            var root = editor.call('attributes.rootPanel');
+
+            // image for preview - use thumbnail if present otherwise
+            // use original file
+            var image;
+            if (! assets[0].get('thumbnails.xl')) {
+                image = imageOriginal;
+            } else {
+                image = new Image();
+                image.src = config.url.home + assets[0].get('thumbnails.xl') + '?t=' + assets[0].get('modified_at');
+            }
 
             image.classList.add('asset-preview');
             root.class.add('asset-preview');

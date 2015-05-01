@@ -32,7 +32,6 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:texture:filtering:attach', fieldFiltering.parent.innerElement.firstChild.ui);
 
-
         var isPrefiltered = false;
         for(var i = 0; i < assets.length; i++) {
             if (!! assets[i].get('file')) {
@@ -155,76 +154,6 @@ editor.once('load', function() {
 
 
 
-
-
-
-
-        // // minFilter
-        // var fieldMinFilter = editor.call('attributes:addField', {
-        //     parent: paramsPanel,
-        //     type: 'number',
-        //     enum: {
-        //         0: 'Nearest',
-        //         1: 'Linear'
-        //     },
-        //     name: 'Min Filter'
-        // });
-        // fieldMinFilter.renderChanges = false;
-        // // reference
-        // editor.call('attributes:reference:asset:cubemap:minFilter:attach', fieldMinFilter.parent.innerElement.firstChild.ui);
-
-
-        // // mipFilter
-        // var fieldMipFilter = editor.call('attributes:addField', {
-        //     parent: paramsPanel,
-        //     type: 'number',
-        //     enum: {
-        //         0: 'None',
-        //         1: 'Nearest',
-        //         2: 'Linear'
-        //     },
-        //     name: 'Mip Filter'
-        // });
-        // fieldMipFilter.renderChanges = false;
-        // // reference
-        // editor.call('attributes:reference:asset:cubemap:mipFilter:attach', fieldMipFilter.parent.innerElement.firstChild.ui);
-
-        // // data > ui
-        // var evtUpdateMinMip = asset.on('data.minFilter:set', function(value) {
-        //     fieldMinFilter.value = [ 1, 4, 5 ].indexOf(value) === -1 ? 0 : 1;
-        //     fieldMipFilter.value = (value < 2) ? 0 : (value % 2 + 1);
-        // });
-        // evtUpdateMinMip.call(asset.get('data.minFilter'));
-
-        // // ui > data
-        // var updateAssetMinMip = function() {
-        //     var a = fieldMinFilter.value;
-        //     var b = fieldMipFilter.value;
-        //     asset.set('data.minFilter', (a && b) ? (2 + a + b) : (b ? (1 + b) : a));
-        // };
-        // fieldMinFilter.on('change', updateAssetMinMip);
-        // fieldMipFilter.on('change', updateAssetMinMip);
-
-        // fieldMinFilter.renderChanges = true;
-        // fieldMipFilter.renderChanges = true;
-
-
-        // // magFilter
-        // var fieldMagFilter = editor.call('attributes:addField', {
-        //     parent: paramsPanel,
-        //     type: 'number',
-        //     enum: {
-        //         0: 'Nearest',
-        //         1: 'Linear'
-        //     },
-        //     name: 'Mag Filter',
-        //     link: asset,
-        //     path: 'data.magFilter'
-        // });
-        // // reference
-        // editor.call('attributes:reference:asset:cubemap:magFilter:attach', fieldMagFilter.parent.innerElement.firstChild.ui);
-
-
         // anisotropy
         var fieldAnisotropy = editor.call('attributes:addField', {
             parent: paramsPanel,
@@ -237,6 +166,7 @@ editor.once('load', function() {
             fieldAnisotropy.disabled = true;
         // reference
         editor.call('attributes:reference:asset:cubemap:anisotropy:attach', fieldAnisotropy.parent.innerElement.firstChild.ui);
+
 
 
         if (assets.length === 1) {
@@ -432,6 +362,9 @@ editor.once('load', function() {
                 editor.call('assets:cubemaps:prefilter', assets[0], function () {
                     // re-enable button
                     prefilterBtn.disabled = false;
+                }, function (error) {
+                    prefilterBtn.disabled = false;
+                    editor.call('status:error', error);
                 });
             });
 
@@ -467,10 +400,8 @@ editor.once('load', function() {
                             return false;
                         }
                     }
-
                     return true;
                 }
-
                 return false;
             };
 
