@@ -938,6 +938,35 @@ strong {
             }
         }
 
+        > .content {
+            .ui-button.audio-play {
+                @extend .font-icon;
+                float: left;
+                width: 26px;
+                height: 26px;
+                line-height: 24px;
+                text-align: center;
+                flex-shrink: 0;
+                -webkit-flex-shrink: 0;
+                margin: 0 0 0 4px;
+                padding: 0;
+                font-size: 24px;
+
+                &.active {
+                    color: $text-active;
+                    background-color: $bcg-darkest;
+                }
+            }
+            .ui-progress.audio-timeline {
+                float: left;
+                flex-grow: 1;
+                -webkit-flex-grow: 1;
+                width: calc(100% - 42px);
+                margin: 11px 0 0 8px;
+                height: 4px;
+            }
+        }
+
         .ui-panel.components-scripts > .content {
             > .ui-panel.component-script {
                 &:first-child {
