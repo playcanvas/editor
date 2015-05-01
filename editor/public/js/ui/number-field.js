@@ -203,7 +203,25 @@ Object.defineProperty(NumberField.prototype, 'placeholder', {
         return this.element.getAttribute('placeholder');
     },
     set: function(value) {
-        this.element.setAttribute('placeholder', value);
+        if (! value) {
+            this.element.removeAttribute('placeholder');
+        } else {
+            this.element.setAttribute('placeholder', value);
+        }
+    }
+});
+
+
+Object.defineProperty(NumberField.prototype, 'proxy', {
+    get: function() {
+        return this.element.getAttribute('proxy');
+    },
+    set: function(value) {
+        if (! value) {
+            this.element.removeAttribute('proxy');
+        } else {
+            this.element.setAttribute('proxy', value);
+        }
     }
 });
 

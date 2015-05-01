@@ -394,11 +394,15 @@ editor.once('load', function() {
                 var dropRef = editor.call('drop:target', {
                     ref: fieldAssetsList.element,
                     filter: function(type, data) {
-                        return type.startsWith('asset') && script.get('attributes.' + attribute.name + '.value').indexOf(data.id) === -1;
+                        return type.startsWith('asset') && script.get('attributes.' + attribute.name + '.value').indexOf(data.id) === -1 && (! attribute.options.type || (editor.call('assets:get', data.id).get('type') === attribute.options.type));
                     },
                     drop: function(type, data) {
                         // already in list
                         if (script.get('attributes.' + attribute.name + '.value').indexOf(data.id) !== -1)
+                            return;
+
+                        // script type
+                        if (attribute.options.type && editor.call('assets:get', data.id).get('type') !== attribute.options.type)
                             return;
 
                         // add to component
@@ -456,12 +460,16 @@ editor.once('load', function() {
                 // on adding new audio
                 itemAdd.on('click', function() {
                     // call picker
-                    editor.call('picker:asset', '*', null);
+                    editor.call('picker:asset', attribute.options.type ? attribute.options.type : '*', null);
 
                     // on pick
                     var evtPick = editor.once('picker:asset', function(asset) {
                         // already in list
                         if (script.get('attributes.' + attribute.name + '.value').indexOf(asset.get('id')) !== -1)
+                            return;
+
+                        // script type
+                        if (attribute.options.type && asset.get('type') !== attribute.options.type)
                             return;
 
                         // add to component

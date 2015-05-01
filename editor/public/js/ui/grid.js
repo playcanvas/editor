@@ -1,28 +1,100 @@
 "use strict";
 
 function Grid() {
+    var self = this;
     ui.ContainerElement.call(this);
 
     this.element = document.createElement('ul');
     this.element.tabIndex = 0;
     this.element.classList.add('ui-grid');
 
+    this._lastSelect = null;
+    this._selecting = false;
+
     this.on('select', this._onSelect);
+    this.on('beforeDeselect', this._onBeforeDeselect);
 }
 Grid.prototype = Object.create(ui.ContainerElement.prototype);
 
 
 Grid.prototype._onSelect = function(item) {
-    var items = this.element.querySelectorAll('.ui-grid-item.selected');
+    if (this._selecting)
+        return;
 
-    if (items.length > 1) {
-        for(var i = 0; i < items.length; i++) {
-            if (items[i].ui === item)
-                continue;
+    if (Grid._shift) {
+        // multi select from-to
+        var items = this.element.querySelectorAll('.ui-grid-item.selected');
+        if (this._lastSelect) {
+            var el = this.element.firstChild;
+            var start = false;
+            var elementStart = null;
+            var elementEnd = null;
 
-            items[i].ui.selected = false;
+            this._selecting = true;
+
+            while(! elementEnd && el) {
+                if (el === this._lastSelect.element || el === item.element) {
+                    if (start)
+                        break;
+
+                    start = true;
+                }
+
+                if (start && ! el.ui.hidden)
+                    el.ui.selected = true;
+
+                el = el.nextSibling;
+            }
+
+            this._selecting = false;
+        } else {
+            this._lastSelect = item;
+        }
+    } else if (Grid._ctrl) {
+        // multi select
+        this._lastSelect = item;
+    } else {
+        // single select
+        var items = this.element.querySelectorAll('.ui-grid-item.selected');
+
+        if (items.length > 1) {
+            for(var i = 0; i < items.length; i++) {
+                if (items[i].ui === item)
+                    continue;
+
+                items[i].ui.selected = false;
+            }
+        }
+
+        this._lastSelect = item;
+    }
+};
+
+
+Grid.prototype._onBeforeDeselect = function(item) {
+    if (this._selecting)
+        return;
+
+    this._selecting = true;
+
+    if (Grid._shift) {
+        this._lastSelect = null;
+    } else if (Grid._ctrl) {
+        this._lastSelect = null;
+    } else {
+        var items = this.element.querySelectorAll('.ui-grid-item.selected');
+        if (items.length > 1) {
+            for(var i = 0; i < items.length; i++) {
+                if (items[i].ui === item)
+                    continue;
+                items[i].ui.selected = false;
+            }
+            item._selectPending = true;
+            this._lastSelect = item;
         }
     }
+
+    this._selecting = false;
 };
 
 
@@ -49,13 +121,14 @@ Object.defineProperty(Grid.prototype, 'selected', {
         var items = [ ];
         var elements = this.element.querySelectorAll('.ui-grid-item.selected');
 
-        for(var i = 0; i < elements.length; i++) {
+        for(var i = 0; i < elements.length; i++)
             items.push(elements[i].ui);
-        }
 
         return items;
     },
     set: function(value) {
+        this._selecting = true;
+
         // deselecting
         var items = this.selected;
         for(var i = 0; i < items.length; i++) {
@@ -68,9 +141,33 @@ Object.defineProperty(Grid.prototype, 'selected', {
             return;
 
         // selecting
-        for(var i = 0; i < value.length; i++) {
+        for(var i = 0; i < value.length; i++)
             value[i].selected = true;
-        }
+
+        this._selecting = false;
+    }
+});
+
+
+window.addEventListener('keydown', function(evt) {
+    if (evt.keyCode !== 16 && evt.keyCode !== 17 && evt.keyCode !== 91)
+        return;
+
+    if (evt.keyCode === 17 || evt.keyCode === 91) {
+        Grid._ctrl = true;
+    } else if (evt.keyCode === 16) {
+        Grid._shift = true;
+    }
+});
+
+window.addEventListener('keyup', function(evt) {
+    if (evt.keyCode !== 16 && evt.keyCode !== 17 && evt.keyCode !== 91)
+        return;
+
+    if (evt.keyCode === 17 || evt.keyCode === 91) {
+        Grid._ctrl = false;
+    } else if (evt.keyCode === 16) {
+        Grid._shift = false;
     }
 });
 

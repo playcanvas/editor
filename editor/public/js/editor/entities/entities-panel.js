@@ -194,6 +194,9 @@ editor.once('load', function() {
     });
 
 
+    var componentList;
+
+
     // entity added
     editor.on('entities:add', function(entity) {
         var element = new ui.TreeItem({
@@ -203,9 +206,24 @@ editor.once('load', function() {
         element.entity = entity;
         element.enabled = entity.get('enabled');
 
+        if (! componentList)
+            componentList = editor.call('components:list');
+
+        // icon
         var components = Object.keys(entity.get('components'));
         for(var i = 0; i < components.length; i++) {
             element.class.add('c-' + components[i]);
+        }
+        var watchComponent = function(component) {
+            entity.on('components.' + component + ':set', function() {
+                element.class.add('c-' + component);
+            });
+            entity.on('components.' + component + ':unset', function() {
+                element.class.remove('c-' + component);
+            });
+        };
+        for(var i = 0; i < componentList.length; i++) {
+            watchComponent(componentList[i]);
         }
 
         entity.reparenting = false;

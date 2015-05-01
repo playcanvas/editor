@@ -97,10 +97,7 @@ editor.once('load', function() {
 
             // template nodes
             var nodesTemplate = function() {
-                if (! asset.has('nodes'))
-                    return;
-
-                asset.get('nodes').forEach(function(nodeName, i) {
+                asset._nodes.forEach(function(nodeName, i) {
                     if (! nodeItems[i])
                         return;
 
@@ -108,7 +105,7 @@ editor.once('load', function() {
                 });
             };
 
-            if (asset.has('nodes')) {
+            if (asset._nodes) {
                 // already loaded
                 nodesTemplate();
             } else {
@@ -119,9 +116,6 @@ editor.once('load', function() {
                 loading.on('progress:100', function() {
                     this.destroy();
                 });
-
-                // once loaded
-                asset.once('nodes:set', nodesTemplate);
 
                 // load data
                 Ajax
@@ -134,7 +128,8 @@ editor.once('load', function() {
 
                         nodes.push(data.model.nodes[i].name);
                     }
-                    asset.set('nodes', nodes);
+                    asset._nodes = nodes;
+                    nodesTemplate();
 
                     loading.progress = 1;
                 })

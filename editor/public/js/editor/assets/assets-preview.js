@@ -23,11 +23,11 @@ editor.once('load', function () {
 
     editor.method('preview:render', function (asset) {
         editor.call('preview:render:' + asset.get('type'), asset, 128, function (canvas) {
-            var url = canvas.toDataURL();
-            editor.call('preview:setThumbnail', asset, 'thumbnails.s', url);
-            editor.call('preview:setThumbnail', asset, 'thumbnails.m', url);
-            editor.call('preview:setThumbnail', asset, 'thumbnails.l', url);
-            editor.call('preview:setThumbnail', asset, 'thumbnails.xl', url);
+            var url = canvas.toDataURL('image/png');
+            editor.call('preview:setThumbnail', asset, url);
+            // editor.call('preview:setThumbnail', asset, 'thumbnails.m', url);
+            // editor.call('preview:setThumbnail', asset, 'thumbnails.l', url);
+            // editor.call('preview:setThumbnail', asset, 'thumbnails.xl', url);
         });
     });
 
@@ -45,7 +45,7 @@ editor.once('load', function () {
     });
 
     // sets thumbnail to specified asset without syncing or recording history
-    editor.method('preview:setThumbnail', function (asset, path, value) {
+    editor.method('preview:setThumbnail', function (asset, value) {
         var sync = asset.sync;
         asset.sync = false;
 
@@ -54,10 +54,15 @@ editor.once('load', function () {
 
         if (value) {
             asset.set('has_thumbnail', true);
-            asset.set(path, value);
+            asset.set('thumbnails', {
+                's': value,
+                'm': value,
+                'l': value,
+                'xl': value
+            });
         } else {
             asset.set('has_thumbnail', false);
-            asset.unset(path);
+            asset.unset('thumbnails');
         }
 
         asset.history.enabled = history;

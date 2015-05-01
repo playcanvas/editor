@@ -17,6 +17,9 @@ editor.once('load', function() {
     // panelFilters.append(filterLabel);
 
     var filter = function(type, item) {
+        if (! item)
+            return false;
+
         var visible = true;
 
         // type

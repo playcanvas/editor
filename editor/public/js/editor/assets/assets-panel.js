@@ -35,7 +35,7 @@ editor.once('load', function() {
         if (item.asset) {
             editor.call('selector:add', 'asset', item.asset);
         } else if (item.script) {
-            editor.call('selector:add', 'script', item.script);
+            editor.call('selector:add', 'asset', item.script);
         }
     });
 
@@ -47,22 +47,24 @@ editor.once('load', function() {
         }
     });
 
-
     // selector reflect in list
-    editor.on('selector:add', function(item, type) {
-        if (type === 'asset') {
-            assetsIndex[item.get('id')].selected = true;
-        } else if (type === 'script') {
-            scriptsIndex[item.get('filename')].selected = true;
+    var setSelection = function(item, type) {
+        if (type !== 'asset')
+            return;
+
+        var items = editor.call('selector:items');
+        for(var i = 0; i < items.length; i++) {
+            if (items[i].get('type') === 'script') {
+                items[i] = scriptsIndex[items[i].get('filename')];
+            } else {
+                items[i] = assetsIndex[items[i].get('id')];
+            }
         }
-    });
-    editor.on('selector:remove', function(item, type) {
-        if (type === 'asset') {
-            assetsIndex[item.get('id')].selected = false;
-        } else if (type === 'script') {
-            scriptsIndex[item.get('filename')].selected = false;
-        }
-    });
+
+        grid.selected = items;
+    };
+    editor.on('selector:add', setSelection);
+    editor.on('selector:remove', setSelection);
 
 
     // return grid
@@ -92,6 +94,8 @@ editor.once('load', function() {
 
 
     editor.on('assets:add', function(asset) {
+        asset._type = 'asset';
+
         var item = new ui.GridItem();
         item.asset = asset;
         item.class.add('type-' + asset.get('type'));
@@ -107,13 +111,17 @@ editor.once('load', function() {
 
         assetsIndex[asset.get('id')] = item;
 
+        var fileSize = asset.get('file.size');
+
         // update thumbnails change
         asset.on('thumbnails.m:set', function(value) {
             var url = value;
             if (value.startsWith('/api'))
-                url = config.url.home + value;
+                url = config.url.home + value + '?' + Date.now();
 
-            thumbnail.style.backgroundImage = 'url("' + url + '")';
+            setTimeout(function() {
+                thumbnail.style.backgroundImage = 'url(' + url + ')';
+            }, 500);
             thumbnail.classList.remove('placeholder');
         });
 
@@ -156,6 +164,8 @@ editor.once('load', function() {
     });
 
     var addSourceFile = function(file) {
+        file.set('type', 'script');
+
         var item = new ui.GridItem();
         item.script = file;
         item.class.add('type-script');

@@ -555,7 +555,7 @@ a:visited {
     &:hover,
     &:focus {
         color: $text-primary;
-        background-color: $bcg-darkest;
+        background-color: mix($bcg-darkest, $bcg-dark, 50%);
         outline: none;
     }
     &.selected {
@@ -563,8 +563,8 @@ a:visited {
         background-color: $bcg-darkest;
         outline: none;
 
-        > .label {
-            color: $text-primary;
+        &:hover {
+            background-color: mix($bcg-darkest, $bcg-darker, 75%);
         }
     }
 }
@@ -758,6 +758,12 @@ a:visited {
 .ui-number-field[placeholder] {
     &:after {
         color: $text-darkest;
+        background-color: $bcg-dark;
+    }
+}
+.ui-number-field[proxy] {
+    &:after {
+        color: $text-secondary;
         background-color: $bcg-dark;
     }
 }

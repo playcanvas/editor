@@ -26,8 +26,32 @@ editor.once('load', function() {
     });
     menuItemDelete.on('select', function() {
         var asset = currentAsset;
-        editor.call('picker:confirm', 'Delete Asset?', function() {
-            editor.call('assets:delete', asset);
+
+        var multiple = false;
+        var type = editor.call('selector:type');
+
+        if (type === 'asset') {
+            var items = editor.call('selector:items');
+            for(var i = 0; i < items.length; i++) {
+                if (items[i].get('id') === asset.get('id')) {
+                    multiple = true;
+                    break;
+                }
+            }
+        }
+
+        var msg = 'Delete Asset?';
+        if (multiple)
+            msg = 'Delete ' + items.length + ' Assets?';
+
+        editor.call('picker:confirm', msg, function() {
+            if (multiple) {
+                for(var i = 0; i < items.length; i++) {
+                    editor.call('assets:delete', items[i]);
+                }
+            } else {
+                editor.call('assets:delete', asset);
+            }
         });
     });
     menu.append(menuItemDelete);
@@ -47,7 +71,7 @@ editor.once('load', function() {
 
         // attach contextmenu event
         item.element.addEventListener('contextmenu', function(evt) {
-            if (!editor.call('permissions:write')) return;
+            if (! editor.call('permissions:write')) return;
 
             currentAsset = asset;
             menu.open = true;

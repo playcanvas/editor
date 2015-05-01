@@ -6,7 +6,9 @@ function GridItem(args) {
     args = args || { };
 
     this._text = args.text || '';
+    this._selectPending = false;
     this._selected = args.selected || false;
+    this._clicked = false;
 
     this.element = document.createElement('li');
     this.element.tabIndex = 0;
@@ -39,7 +41,9 @@ GridItem.prototype = Object.create(ui.Element.prototype);
 
 GridItem.prototype._onClick = function() {
     this.emit('click');
+    this._clicked = true;
     this.selected = ! this.selected;
+    this._clicked = false;
 };
 
 
@@ -63,7 +67,13 @@ Object.defineProperty(GridItem.prototype, 'selected', {
         if (this._selected === value)
             return;
 
-        this._selected = value;
+        this._selectPending = value;
+        if (this.parent && this._clicked)
+            this.parent.emit('before' + (value ? 'Select' : 'Deselect'), this, this._clicked);
+        if (this._selected === this._selectPending)
+            return;
+
+        this._selected = this._selectPending;
 
         if (this._selected) {
             this.element.classList.add('selected');
@@ -74,9 +84,8 @@ Object.defineProperty(GridItem.prototype, 'selected', {
         this.emit(this.selected ? 'select' : 'deselect');
         this.emit('change', this.selected);
 
-        if (this.parent) {
-            this.parent.emit(this.selected ? 'select' : 'deselect', this);
-        }
+        if (this.parent)
+            this.parent.emit(this.selected ? 'select' : 'deselect', this, this._clicked);
     }
 });
 
