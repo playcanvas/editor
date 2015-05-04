@@ -154,8 +154,9 @@ editor.once('load', function() {
         var oldLocalServer = fieldLocalServer.value;
         fieldLocalServer.on('change', function (value) {
             if (changingLocalServer) return;
+
             changingLocalServer = true;
-            if (! /^http(s)?:\S+/.test(value)) {
+            if (! /^http(s)?:\/\/\S+/.test(value)) {
                 fieldLocalServer.value = oldLocalServer;
             } else {
                 oldLocalServer = value;

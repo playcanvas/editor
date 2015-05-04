@@ -22,25 +22,27 @@ editor.once('load', function() {
         return designerSettings;
     });
 
+    var syncTimeout;
+
     // sync
     designerSettings.on('*:set', function(field, value) {
         if (! this.sync)
             return;
 
-        Ajax({
-            url: '{{url.api}}/scenes/{{scene.id}}/designer_settings/{{self.id}}',
-            method: 'PUT',
-            query: {
-                access_token: '{{accessToken}}'
-            },
-            data: this.json()
-        })
-        // .on('load', function(status, data) {
-        //     console.log(status, data);
-        // })
-        // .on('error', function(status, evt) {
-        //     console.log("error", status, evt)
-        // })
+        if (syncTimeout)
+            clearTimeout(syncTimeout);
+
+        syncTimeout = setTimeout(function () {
+            Ajax({
+                url: '{{url.api}}/scenes/{{scene.id}}/designer_settings/{{self.id}}',
+                method: 'PUT',
+                query: {
+                    access_token: '{{accessToken}}'
+                },
+                data: this.json()
+            });
+            syncTimeout = null;
+        }.bind(this), 100);
     });
 
     // load designer settings
