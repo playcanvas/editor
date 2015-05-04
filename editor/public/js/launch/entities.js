@@ -35,37 +35,37 @@ app.once('load', function() {
         }
 
         // Global value where PackResourceHandler loads pack data from
-        pc.content = {
-            packs: {}
-        };
+        // pc.content = {
+        //     packs: {}
+        // };
 
         // convert to hierarchy data format
-        var hierarchy = null;
-        for (var id in data.entities) {
-            if (!data.entities[id].parent) {
-                hierarchy = data.entities[id];
-            }
+        // var hierarchy = null;
+        // for (var id in data.entities) {
+        //     if (!data.entities[id].parent) {
+        //         hierarchy = data.entities[id];
+        //     }
 
-            for (var i = 0; i < data.entities[id].children.length; i++) {
-                data.entities[id].children[i] = data.entities[data.entities[id].children[i]];
-            }
-        }
+        //     for (var i = 0; i < data.entities[id].children.length; i++) {
+        //         data.entities[id].children[i] = data.entities[data.entities[id].children[i]];
+        //     }
+        // }
 
-        pc.content.packs[config.scene.id] = {
-            hierarchy: hierarchy
-        };
+        // pc.content.packs[config.scene.id] = {
+        //     hierarchy: hierarchy
+        // };
 
-        if (framework.content) {
-            //...
-        } else {
-            framework.content = {
-                toc: {}
-            };
-            framework.content.toc[config.scene.id] = {
-                packs: [config.scene.id]
-            };
-        }
+        // if (framework.content) {
+        //     //...
+        // } else {
+        //     framework.content = {
+        //         toc: {}
+        //     };
+        //     framework.content.toc[config.scene.id] = {
+        //         packs: [config.scene.id]
+        //     };
+        // }
 
-        app.emit('entities:load');
+        app.emit('entities:load', data);
     });
 });

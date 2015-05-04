@@ -122,23 +122,25 @@ app.once('load', function() {
 
     var init = function () {
         if (assets && hierarchy && settings) {
-            application.loadFromToc(config.scene.id, function () {
-                console.log("engine loaded resources");
+            // load assets that are in the preload set
+            application.preload(function (err) {
+                app.call('entities:')
+                if (err) {
+                    console.error(err);
+                }
 
                 application.start();
-
                 splash.parentElement.removeChild(splash);
-            }, function (errors) {
-                splash.parentElement.removeChild(splash);
-                console.error(errors);
-            }, function (progress) {
-                setProgress(progress);
             });
         }
     };
 
-    app.on('entities:load', function () {
+    app.on('entities:load', function (data) {
         hierarchy = true;
+
+        // create scene
+        application.scene = application.loader.open("scene", data);
+
         init();
     });
 

@@ -11,7 +11,7 @@ app.once('load', function() {
 
         // attach update handler
         asset.on('*:set', function (path, value) {
-            var realtimeAsset = assetRegistry.getAssetById(asset.get('id'));
+            var realtimeAsset = assetRegistry.get(asset.get('id'));
             var parts = path.split('.');
 
             var raw = asset.get(parts[0]);
@@ -52,14 +52,18 @@ app.once('load', function() {
             };
 
             // add to registry
-            assetRegistry.createAndAddAsset(assetJson.id, data);
+            // assetRegistry.createAndAddAsset(assetJson.id, data);
+
+            var newAsset = new pc.Asset(data.name, data.type, data.file, data.data);
+            newAsset.id = parseInt(assetJson.id);
+            assetRegistry.add(newAsset);
 
             attachSetHandler(asset);
         });
 
         // remove assets from asset registry
         app.on('assets:remove', function (asset) {
-            var realtimeAsset = assetRegistry.getAssetById(asset.get('id'));
+            var realtimeAsset = assetRegistry.get(asset.get('id'));
             if (realtimeAsset) {
                 assetRegistry.removeAsset(realtimeAsset);
             }

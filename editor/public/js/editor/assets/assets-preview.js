@@ -7,14 +7,19 @@ editor.once('load', function () {
     var device = new pc.GraphicsDevice(canvas);
 
     // create resource loader and asset registry
-    var loader = new pc.resources.ResourceLoader();
-    var assets = new pc.asset.AssetRegistry(loader, '/api');
+    var loader = new pc.ResourceLoader();
+    var assets = new pc.AssetRegistry(loader, '/api');
 
     // register resource handlers
-    loader.registerHandler(pc.resources.TextureRequest, new pc.resources.TextureResourceHandler(device, assets));
-    loader.registerHandler(pc.resources.CubemapRequest, new pc.resources.CubemapResourceHandler(device, assets));
-    loader.registerHandler(pc.resources.MaterialRequest, new pc.resources.MaterialResourceHandler(device, assets));
-    loader.registerHandler(pc.resources.ModelRequest, new pc.resources.ModelResourceHandler(device, assets));
+    // loader.addHandler("texture", new pc.TextureHandler(device, assets));
+    // loader.addHandler(pc.resources.CubemapRequest, new pc.resources.CubemapResourceHandler(device, assets));
+    // loader.addHandler(pc.resources.MaterialRequest, new pc.resources.MaterialResourceHandler(device, assets));
+    // loader.addHandler(pc.resources.ModelRequest, new pc.resources.ModelResourceHandler(device, assets));
+
+    loader.addHandler("model", new pc.ModelHandler(device));
+    loader.addHandler("material", new pc.MaterialHandler());
+    loader.addHandler("texture", new pc.TextureHandler(device));
+    loader.addHandler("cubemap", new pc.CubemapHandler(device, assets, loader));
 
     // bind asset registry to editor
     editor.call('assets:registry:bind', assets, ['texture', 'cubemap', 'material', 'model']);

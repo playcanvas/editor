@@ -64,7 +64,7 @@ editor.once('load', function () {
     // Instantly renders a preview for the specified model and passes
     // the result in the callback
     editor.method('preview:render:model', function (asset, size, callback) {
-        var model = assets.getAssetById(asset.get('id'));
+        var model = assets.get(asset.get('id'));
         if (!model) return;
 
         model = model.resource;
@@ -104,22 +104,18 @@ editor.once('load', function () {
     // loads real-time material for the specified asset and
     // generates thumbnails for it
     var generatePreview = function (asset) {
-        var model = assets.getAssetById(asset.get('id'));
+        var model = assets.get(asset.get('id'));
         if (!model) return;
 
         var onLoaded = function () {
             editor.call('preview:render', asset);
         };
 
-        if (!model.resource) {
-            assets.load(model).then(function (resources) {
-                model = resources[0];
-                onLoaded();
-            });
-        } else {
-            model = model.resource;
+        model.ready(function (asset) {
+            model = asset.resource;
             onLoaded();
-        }
+        });
+        assets.load(model);
     };
 
 
