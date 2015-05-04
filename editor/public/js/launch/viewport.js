@@ -48,6 +48,13 @@ app.once('load', function() {
 
     var queryParams = (new pc.URI(window.location.href)).getQuery();
 
+    var scriptPrefix = config.project.repository_url;
+
+    // queryParams.local can be true or it can be a URL
+    if (queryParams.local) {
+        scriptPrefix = queryParams.local === 'true' ? 'http://localhost:51000' : queryParams.local;
+    }
+
     // playcanvas application
     var application = new pc.Application(canvas, {
         mouse: new pc.input.Mouse(canvas),
@@ -55,7 +62,7 @@ app.once('load', function() {
         keyboard: new pc.input.Keyboard(window),
         gamepads: new pc.input.GamePads(),
         libraries: libraryUrls,
-        scriptPrefix: queryParams.local ? 'http://localhost:51000' : config.project.repository_url
+        scriptPrefix: scriptPrefix
     });
 
     if (canvas.classList) {
@@ -151,4 +158,5 @@ app.once('load', function() {
         settings = true;
         init();
     });
+
 });

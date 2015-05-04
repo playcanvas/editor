@@ -99,9 +99,10 @@ editor.once('load', function() {
 
     var launchApp = function () {
         var url = window.location.href.replace(/^https/, 'http') + '/launch';
+        var settings = editor.call('designerSettings');
 
         if (launchLocally)
-            url += '?local=true';
+            url += '?local=' + settings.get('local_server');
 
         window.open(url, 'pc.launch.' + config.scene.id);
     };
@@ -111,9 +112,10 @@ editor.once('load', function() {
         ctrl: true,
         callback: function() {
             var url = window.location.href.replace(/^https/, 'http') + '/launch';
+            var settings = editor.call('designerSettings');
 
             if (launchLocally)
-                url += '?local=true';
+                url += '?local=' + settings.get('local_server');
 
             window.open(url, 'pc.launch.' + config.scene.id);
         }

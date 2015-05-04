@@ -534,7 +534,8 @@ editor.once('load', function() {
                         return editor.call('permissions:write');
                     },
                     select: function() {
-                        var url = window.location.href.replace(/^https/, 'http') + '/launch?local=true';
+                        var settings = editor.call('designerSettings');
+                        var url = window.location.href.replace(/^https/, 'http') + '/launch?local=' + settings.get('local_server');
                         window.open(url, 'pc.launch.' + config.scene.id);
                     }
                 }

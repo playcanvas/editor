@@ -140,5 +140,32 @@ editor.once('load', function() {
         });
         // reference
         editor.call('attributes:reference:settings:clearColor:attach', fieldClearColor.parent.innerElement.firstChild.ui);
+
+        // local server
+        var fieldLocalServer = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Local Server',
+            type: 'string',
+            link: designerSettings,
+            path: 'local_server'
+        });
+
+        var changingLocalServer = false;
+        var oldLocalServer = fieldLocalServer.value;
+        fieldLocalServer.on('change', function (value) {
+            if (changingLocalServer) return;
+            changingLocalServer = true;
+            if (! /^http(s)?:\S+/.test(value)) {
+                fieldLocalServer.value = oldLocalServer;
+            } else {
+                oldLocalServer = value;
+            }
+
+            changingLocalServer = false;
+        });
+
+        // reference
+        editor.call('attributes:reference:settings:localServer:attach', fieldLocalServer.parent.innerElement.firstChild.ui);
+
     });
 });
