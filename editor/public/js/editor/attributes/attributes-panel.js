@@ -201,7 +201,7 @@ editor.once('load', function() {
                     field = new ui.TextField();
                 }
 
-                field.value == args.value || '';
+                field.value = args.value || '';
                 field.flexGrow = 1;
 
                 if (args.placeholder)

@@ -33,6 +33,9 @@ editor.once('load', function() {
             name: 'clearColor',
             description: 'Set the Camera Clear Color of your preference to affect Editor. This color will not affect the game.'
         }, {
+            name: 'localServer',
+            description: 'Set a URL to use as the local server. When you click on "Launch Local" all your scripts will be loaded from this URL.'
+        }, {
             title: 'gravity',
             subTitle: '{pc.Vec3}',
             description: 'Gravity is the acceleration applied every frame to all rigid bodies in your scene. By default, it is set to -9.8 meters per second per second, which essentially approximates Earth\'s gravity. If you are making a game in space, you might want to set this to 0, 0, 0 (zero g).',
@@ -48,7 +51,7 @@ editor.once('load', function() {
             description: 'The Skybox is a cubemap asset that is rendered behind your 3D scene. This lets your use a set of 6 2D images to display the distant world beyond the 3D models in your scene.<br /><br />To add a skybox, create a cubemap asset and then assign it to the cubemap slot in the settings panel.<br /><br />Note, if you are using a Prefiltered Cubemap, the skybox will be used as the default environment map for all Physical materials.',
             url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.Scene.html#skybox'
         }, {
-            title: 'tomeMapping',
+            title: 'toneMapping',
             subTitle: '{Number}',
             description: 'Tonemapping is the process of compressing High Dynamic Range (HDR) colors into limited Low Dynamic Range (e.g. into visible monitor output values). There are two options for tonemapping.<br />Linear: imply scales HDR colors by exposure.<br />Filmic: More sophisticated curve, good at softening overly bright spots, while preserving dark shades as well.<br /><br />Linear tonemapping is active by default, it\'s simply (color * exposure). You can tweak exposure to make quick changes to brightness. Note that it\'s not just simple brightness à la Photoshop because your input can be HDR. e.g. If you have a light source with intensity = 8, it will still be quite bright (4) after exposure = 0.5. So, all visible things won\'t just fade out linearly.<br /><br />Filmic tonemapping is a good choice in high-contrast environments, like scenes lit by bright Sun, or interiors with bright lights being close to walls/ceiling. It will nicely remap out-of-range super bright values to something more perceptually realistic (our eyes and film do tonemapping as well, we don\'t see physically linear values). Well, ask any photographer: nobody likes to leave extremely bright spots as well as pitch black spots on a photo. Filmic tonemapping gives you nice abilities to get rid of such spots.',
             url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.Scene.html#tomeMapping'

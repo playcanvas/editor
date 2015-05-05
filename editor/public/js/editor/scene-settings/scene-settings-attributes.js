@@ -100,7 +100,7 @@ editor.once('load', function() {
             path: 'render.tonemapping'
         });
         // reference
-        editor.call('attributes:reference:settings:tomeMapping:attach', fieldTonemapping.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:settings:toneMapping:attach', fieldTonemapping.parent.innerElement.firstChild.ui);
 
 
         // exposure
