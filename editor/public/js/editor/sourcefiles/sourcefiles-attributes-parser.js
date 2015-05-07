@@ -91,7 +91,7 @@ onmessage = function (event) {
     var data = event.data;
 
     if (data.url) {
-        var url = data.url + "?ts=" + new Date().getTime();
+        var url = new URL(data.url).search ? data.url + '&ts=' + new Date().getTime() : data.url + '?ts=' + new Date().getTime();
         request("GET", url, function () {
             //success
             postMessage({
