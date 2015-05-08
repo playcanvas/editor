@@ -1,29 +1,9 @@
-/**
- * @namespace All code related to integrating the PlayCanvas Designer tool with the engine.
- * @name pc.designer
- * @private
- * @preserve PlayCanvas Designer Framework
- * http://playcanvas.com
- * Copyright 2011-2015 PlayCanvas Ltd. All rights reserved.
- * Do not distribute.
- */
-pc.designer = pc.designer || {};
-pc.extend(pc.designer, function() {
+pc.editor = pc.editor || {};
+pc.extend(pc.editor, function() {
 
     var time;
     var rect = new pc.Vec4(0, 0, 1, 1);
 
-    // Private members
-
-    // Public Interface
-    /**
-     * @name pc.designer.Designer
-     * @class The {@link pc.Application} that runs the 3D view in the Designer. Often referred to as the 'runtime application' as opposed to the 'web application'
-     * @param {Object} canvas
-     * @param {Object} options
-     * @extends pc.Designer
-     * @private
-     */
     var Designer = function (canvas, options) {
         this._inTools = true;
 
@@ -248,7 +228,7 @@ pc.extend(pc.designer, function() {
     };
 
     /**
-     * @name pc.designer.Designer#render
+     * @name pc.editor.Designer#render
      * @description Render a frame to the graphics device. For the designer this is only called when necessary, not every frame like in a game application
      */
     Designer.prototype.render = function () {
@@ -321,7 +301,7 @@ pc.extend(pc.designer, function() {
     };
 
     /**
-     * @name pc.designer.Designer#tick
+     * @name pc.editor.Designer#tick
      * @description Custom tick function that constantly checks to see if the app has invalidated the 3d view.
      */
     Designer.prototype.tick = function () {
@@ -351,7 +331,7 @@ pc.extend(pc.designer, function() {
     };
 
     /**
-     * @name pc.designer.Designer#resize
+     * @name pc.editor.Designer#resize
      * @description Resize the canvas
      */
     Designer.prototype.resize = function (w, h) {
@@ -362,7 +342,7 @@ pc.extend(pc.designer, function() {
     };
 
     /**
-     * @name pc.designer.Designer#setActiveViewportShading
+     * @name pc.editor.Designer#setActiveViewportShading
      * @description Sets the render style of the active viewport to be 'normal' or wireframe.
      */
     Designer.prototype.setActiveViewportShading = function (shading) {
@@ -499,7 +479,7 @@ pc.extend(pc.designer, function() {
     };
 
     /**
-     * @name pc.designer.Designer#handleMouseDown
+     * @name pc.editor.Designer#handleMouseDown
      * @description Handle a mousedown event from the web application
      * @param {MouseEvent} A DOM MouseEvent
      */
@@ -550,7 +530,7 @@ pc.extend(pc.designer, function() {
     };
 
     /**
-     * @name pc.designer.Designer#handleMouseUp
+     * @name pc.editor.Designer#handleMouseUp
      * @description Handle a mouseup event from the web application
      * @param {MouseEvent} A DOM MouseEvent
      */
@@ -645,7 +625,7 @@ pc.extend(pc.designer, function() {
     };
 
     /**
-     * @name pc.designer.Designer#handleMouseMove
+     * @name pc.editor.Designer#handleMouseMove
      * @description Handle a mousemove event from the web application
      * @param {MouseEvent} A DOM MouseEvent
      */
@@ -670,17 +650,17 @@ pc.extend(pc.designer, function() {
 
     return {
         /**
-        * @name pc.designer.user
+        * @name pc.editor.user
         * @description Details of the currently authenticated user
         */
         user: null,
         /**
-        * @name pc.designer.owner
+        * @name pc.editor.owner
         * @description Details of the owner of the depot that is being edited
         */
         owner: null,
         /**
-        * @name pc.designer.depot
+        * @name pc.editor.depot
         * @description Details of the depot that is being edited
         */
         depot: null,
