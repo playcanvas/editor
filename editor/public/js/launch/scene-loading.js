@@ -1,10 +1,17 @@
 pc.editor = pc.editor || {};
 pc.extend(pc.editor, function() {
 
-    var loadScene = function (id, callback) {
+    var loadScene = function (id, callback, errorCallback) {
         var connection = editor.call('realtime:connection');
 
         var scene = connection.get('scenes', '' + id);
+
+        scene.on('error', function(err) {
+            if (errorCallback)
+                errorCallback(err);
+
+            scene.destroy();
+        });
 
         scene.on('ready', function () {
             var data = scene.getSnapshot();
