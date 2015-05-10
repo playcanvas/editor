@@ -94,7 +94,7 @@ app.once('load', function() {
         canvas.style.width = '';
         canvas.style.height = '';
 
-        var fillMode = application.fillMode;
+        var fillMode = application._fillMode;
 
         if (fillMode == pc.fw.FillMode.NONE || fillMode == pc.fw.FillMode.KEEP_ASPECT) {
             if ((fillMode == pc.fw.FillMode.NONE && canvas.clientHeight < window.innerHeight) || (canvas.clientWidth / canvas.clientHeight >= window.innerWidth / window.innerHeight)) {
@@ -119,11 +119,20 @@ app.once('load', function() {
     var hierarchy = false;
     var assets  = false;
     var settings = false;
+    var scene_data = null;
 
     var init = function () {
         if (assets && hierarchy && settings) {
+            application.on("preload:progress", setProgress);
+
             // load assets that are in the preload set
             application.preload(function (err) {
+                application.off("preload:progress", setProgress);
+
+                // create scene
+                application.scene = application.loader.open("scene", scene_data);
+                scene_data = null;
+
                 app.call('entities:')
                 if (err) {
                     console.error(err);
@@ -137,10 +146,7 @@ app.once('load', function() {
 
     app.on('entities:load', function (data) {
         hierarchy = true;
-
-        // create scene
-        application.scene = application.loader.open("scene", data);
-
+        scene_data = data;
         init();
     });
 

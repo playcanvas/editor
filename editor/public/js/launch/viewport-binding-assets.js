@@ -65,7 +65,7 @@ app.once('load', function() {
         app.on('assets:remove', function (asset) {
             var realtimeAsset = assetRegistry.get(asset.get('id'));
             if (realtimeAsset) {
-                assetRegistry.removeAsset(realtimeAsset);
+                assetRegistry.remove(realtimeAsset);
             }
         });
     });

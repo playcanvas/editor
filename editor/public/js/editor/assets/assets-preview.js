@@ -17,7 +17,7 @@ editor.once('load', function () {
     // loader.addHandler(pc.resources.ModelRequest, new pc.resources.ModelResourceHandler(device, assets));
 
     loader.addHandler("model", new pc.ModelHandler(device));
-    loader.addHandler("material", new pc.MaterialHandler());
+    loader.addHandler("material", new pc.MaterialHandler(assets));
     loader.addHandler("texture", new pc.TextureHandler(device));
     loader.addHandler("cubemap", new pc.CubemapHandler(device, assets, loader));
 

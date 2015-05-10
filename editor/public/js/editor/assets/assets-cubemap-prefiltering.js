@@ -32,23 +32,6 @@ editor.once('load', function () {
                 var count = l;
                 var textures = [];
 
-                textureAssets.forEach(function (asset, index) {
-                    var url = asset.get('file.url').replace(/.png$/, '.dds');
-
-                    assets._loader.load(url, "texture", function (err, resource) {
-                        if (!err) {
-                            textures[index] = resource;
-                        } else {
-                            console.warn(err);
-                        }
-
-                        count--;
-                        if (count === 0) {
-                            onLoad();
-                        }
-                    });
-                });
-
                 var onLoad = function () {
                     editor.call('status:job', 'prefilter');
 
@@ -105,6 +88,24 @@ editor.once('load', function () {
                     });
                 };
 
+                textureAssets.forEach(function (asset, index) {
+                    editor.call('status:job', 'prefilter', index);
+
+                    var url = asset.get('file.url').replace(/.png$/, '.dds');
+
+                    assets._loader.load(url, "texture", function (err, resource) {
+                        if (!err) {
+                            textures[index] = resource;
+                        } else {
+                            console.warn(err);
+                        }
+
+                        count--;
+                        if (count === 0) {
+                            onLoad();
+                        }
+                    });
+                });
                 // var requests = textureAssets.map(function (asset) {
                 //     var url = asset.get('file.url').replace(/.png$/, '.dds');
                 //     return new pc.resources.TextureRequest(url);

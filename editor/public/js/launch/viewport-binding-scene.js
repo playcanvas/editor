@@ -18,11 +18,17 @@ app.once('load', function() {
         // apply settings
         var applySettings = function() {
             updating = false;
-            framework._linkUpdatePackSettings(sceneSettings.json());
+            // framework._linkUpdatePackSettings(sceneSettings.json());
+            if (framework.scene) {
+                framework.scene.applySettings(sceneSettings.json());
+            }
         };
 
         // on settings change
         sceneSettings.on('*:set', queueApplySettings);
+
+        // initialize
+        queueApplySettings();
     });
 
 });
