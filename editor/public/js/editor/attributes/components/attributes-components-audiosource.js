@@ -217,7 +217,7 @@ editor.once('load', function() {
         var fieldActivate = new ui.Checkbox();
         fieldActivate.link(entity, 'components.audiosource.activate');
         panelPlayback.append(fieldActivate);
-        var label = new ui.Label({ text: 'Activate' });
+        label = new ui.Label({ text: 'Activate' });
         label.class.add('label-infield');
         panelPlayback.append(label);
         // reference
@@ -227,17 +227,23 @@ editor.once('load', function() {
         var fieldLoop = new ui.Checkbox();
         fieldLoop.link(entity, 'components.audiosource.loop');
         panelPlayback.append(fieldLoop);
-        var label = new ui.Label({ text: 'Loop' });
+        label = new ui.Label({ text: 'Loop' });
         label.class.add('label-infield');
         panelPlayback.append(label);
         // reference
         editor.call('attributes:reference:audiosource:loop:attach', label);
 
         // audiosource.3d
-        var fieldLoop = new ui.Checkbox();
-        fieldLoop.link(entity, 'components.audiosource.3d');
-        panelPlayback.append(fieldLoop);
-        var label = new ui.Label({ text: '3D' });
+        var field3d = new ui.Checkbox();
+        field3d.link(entity, 'components.audiosource.3d');
+
+        field3d.on('change', function (value) {
+            panelDistance.hidden = !value;
+            fieldRollOffFactor.parent.hidden = !value;
+        });
+
+        panelPlayback.append(field3d);
+        label = new ui.Label({ text: '3D' });
         label.class.add('label-infield');
         panelPlayback.append(label);
         // reference
@@ -323,6 +329,7 @@ editor.once('load', function() {
         fieldMaxDistance.link(entity, 'components.audiosource.maxDistance');
         panelDistance.append(fieldMaxDistance);
 
+        panelDistance.hidden = !entity.get('components.audiosource.3d');
 
         // audiosource.rollOffFactor
         var fieldRollOffFactor = editor.call('attributes:addField', {
@@ -335,6 +342,9 @@ editor.once('load', function() {
             link: entity,
             path: 'components.audiosource.rollOffFactor'
         });
+
+        fieldRollOffFactor.parent.hidden = !entity.get('components.audiosource.3d');
+
         // reference
         editor.call('attributes:reference:audiosource:rollOffFactor:attach', fieldRollOffFactor.parent.innerElement.firstChild.ui);
     });
