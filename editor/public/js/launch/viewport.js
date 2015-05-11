@@ -101,7 +101,7 @@ app.once('load', function() {
         canvas.style.width = '';
         canvas.style.height = '';
 
-        var fillMode = application.fillMode;
+        var fillMode = application._fillMode;
 
         if (fillMode == pc.fw.FillMode.NONE || fillMode == pc.fw.FillMode.KEEP_ASPECT) {
             if ((fillMode == pc.fw.FillMode.NONE && canvas.clientHeight < window.innerHeight) || (canvas.clientWidth / canvas.clientHeight >= window.innerWidth / window.innerHeight)) {
