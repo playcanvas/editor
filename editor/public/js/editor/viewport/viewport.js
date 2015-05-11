@@ -8,7 +8,7 @@ editor.once('load', function() {
     var settings = editor.call('designerSettings');
 
     // create designer framework
-    var framework = new pc.designer.Designer(canvas.element, {
+    var framework = new pc.editor.Designer(canvas.element, {
         mouse: new pc.input.Mouse(canvas.element),
         touch: !!('ontouchstart' in window) ? new pc.input.TouchDevice(canvas.element) : null,
         designerSettings: settings.json()
