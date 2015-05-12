@@ -33,6 +33,10 @@ body {
     right: 0;
     bottom: 0;
 }
+
+#application-canvas.fill-mode-NONE {
+    margin: auto;
+}
 #application-canvas.fill-mode-KEEP_ASPECT {
     width: 100%;
     height: auto;
