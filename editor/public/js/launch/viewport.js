@@ -85,12 +85,7 @@ app.once('load', function() {
     if (document.head.querySelector) {
         var appendCss = function () {
             var style = document.head.querySelector('style');
-            if (style) {
-                style.innerHTML += css;
-            } else {
-                // try again
-                setTimeout(appendCss, 25);
-            }
+            style.innerHTML += css;
         };
 
         appendCss();
