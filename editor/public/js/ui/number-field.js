@@ -186,7 +186,7 @@ Object.defineProperty(NumberField.prototype, 'value', {
             if (this.min !== null && this.min > value)
                 value = this.min;
 
-            value = (this.precision !== null) ? parseFloat(value.toFixed(this.precision), 10) : value;
+            value = (value !== null && (this.precision !== null) ? parseFloat(value.toFixed(this.precision), 10) : value) || '';
 
             if (this._lastValue !== value) {
                 this._lastValue = value;

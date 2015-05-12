@@ -49,20 +49,308 @@ editor.once('load', function() {
         return panel;
     });
 
-    // add field
-    editor.method('attributes:addField', function(args) {
-        var panel = new ui.Panel();
-        panel.flexWrap = 'nowrap';
-        panel.WebkitFlexWrap = 'nowrap';
-        panel.style.display = '';
+    editor.method('attributes:linkField', function(args) {
+        var update, changeField, changeFieldQueue;
+        args.field._changing = false;
+        var events = [ ];
 
-        if (args.type) {
-            panel.class.add('field-' + args.type);
-        } else {
-            panel.class.add('field');
+        if (! (args.link instanceof Array))
+            args.link = [ args.link ];
+
+        update = function() {
+            var different = false;
+            var value = args.link[0].get(args.path);
+            if (args.type === 'rgb') {
+                for(var i = 1; i < args.link.length; i++) {
+                    if (! value.equals(args.link[i].get(args.path))) {
+                        value = null;
+                        different = true;
+                        break;
+                    }
+                }
+                if (value) {
+                    value = value.map(function(v) {
+                        return Math.floor(v * 255);
+                    });
+                }
+            } else {
+                for(var i = 1; i < args.link.length; i++) {
+                    if (value !== args.link[i].get(args.path)) {
+                        value = args.enum ? '' : null;
+                        different = true;
+                        break;
+                    }
+                }
+
+                if (args.type === 'asset') {
+                    if (different) {
+                        args.field.class.add('null');
+                        args.field._title.text = 'various';
+                    } else {
+                        args.field.class.remove('null');
+                    }
+                }
+            }
+
+            args.field._changing = true;
+            args.field.value = value;
+            args.field._changing = false;
+
+            if (args.enum) {
+                if (args.field.optionElements[''])
+                    args.field.optionElements[''].style.display = value ? 'none' : '';
+            } else {
+                args.field.proxy = value === null ? '...' : null;
+            }
+        };
+
+        changeField = function(value) {
+            if (args.field._changing)
+                return;
+
+            if (args.enum) {
+                if (this.optionElements[''])
+                    this.optionElements[''].style.display = value ? 'none' : '';
+            } else {
+                this.proxy = value === null ? '...' : null;
+            }
+
+            if (args.type === 'rgb') {
+                value = value.map(function(v) {
+                    return v / 255;
+                });
+            } else if (args.type === 'asset') {
+                args.field.class.remove('null');
+            }
+
+            var items = [ ];
+
+            // set link value
+            args.field._changing = true;
+            for(var i = 0; i < args.link.length; i++) {
+                items.push({
+                    get: args.link[i].history._getItemFn,
+                    item: args.link[i],
+                    value: args.link[i].get(args.path)
+                });
+                if (typeof(args.link[i].history) === 'boolean') {
+                    args.link[i].history = false;
+                } else {
+                    args.link[i].history.enabled = false;
+                }
+
+                args.link[i].set(args.path, value);
+
+                if (typeof(args.link[i].history) === 'boolean') {
+                    args.link[i].history = true;
+                } else {
+                    args.link[i].history.enabled = true;
+                }
+            }
+            args.field._changing = false;
+
+            // history
+            if (args.type !== 'rgb') {
+                editor.call('history:add', {
+                    name: args.path,
+                    undo: function() {
+                        var different = false;
+
+                        for(var i = 0; i < items.length; i++) {
+                            var item;
+                            if (items[i].get) {
+                                item = items[i].get();
+                                if (! item)
+                                    continue;
+                            } else {
+                                item = items[i].item;
+                            }
+
+                            if (! different && items[0].value !== items[i].value)
+                                different = true;
+
+                            if (typeof(item.history) === 'boolean') {
+                                item.history = false;
+                            } else {
+                                item.history.enabled = false;
+                            }
+
+                            item.set(args.path, items[i].value);
+
+                            if (typeof(item.history) === 'boolean') {
+                                item.history = true;
+                            } else {
+                                item.history.enabled = true;
+                            }
+                        }
+
+                        if (different) {
+                            args.field.class.add('null');
+                        } else {
+                            args.field.class.remove('null');
+                        }
+                    },
+                    redo: function() {
+                        for(var i = 0; i < items.length; i++) {
+                            var item;
+                            if (items[i].get) {
+                                item = items[i].get();
+                                if (! item)
+                                    continue;
+                            } else {
+                                item = items[i].item;
+                            }
+
+                            if (typeof(item.history) === 'boolean') {
+                                item.history = false;
+                            } else {
+                                item.history.enabled = false;
+                            }
+
+                            item.set(args.path, value);
+
+                            if (typeof(item.history) === 'boolean') {
+                                item.history = true;
+                            } else {
+                                item.history.enabled = true;
+                            }
+                        }
+
+                        args.field.class.remove('null');
+                    }
+                });
+            }
+        };
+
+        changeFieldQueue = function() {
+            if (args.field._changing)
+                return;
+
+            args.field._changing = true;
+            setTimeout(function() {
+                args.field._changing = false;
+                update();
+            }, 0);
+        };
+
+        if (args.type === 'rgb') {
+            var items = [ ];
+
+            events.push(editor.on('picker:color:start', function() {
+                args.field._changing = true;
+                items = [ ];
+
+                for(var i = 0; i < args.link.length; i++) {
+                    items.push({
+                        get: args.link[i].history._getItemFn,
+                        item: args.link[i],
+                        value: args.link[i].get(args.path).slice(0)
+                    });
+                }
+            }));
+            events.push(editor.on('picker:color', function() {
+                args.field._changing = false;
+            }));
+            events.push(editor.on('picker:color:end', function() {
+                args.field._changing = false;
+
+                var records = items.slice(0);
+                var value = args.field.value.map(function(v) {
+                    return v / 255;
+                });
+
+                // history
+                editor.call('history:add', {
+                    name: args.path,
+                    undo: function() {
+                        for(var i = 0; i < records.length; i++) {
+                            var item;
+                            if (records[i].get) {
+                                item = records[i].get();
+                                if (! item)
+                                    continue;
+                            } else {
+                                item = records[i].item;
+                            }
+
+                            if (typeof(item.history) === 'boolean') {
+                                item.history = false;
+                            } else {
+                                item.history.enabled = false;
+                            }
+
+                            item.set(args.path, records[i].value);
+
+                            if (typeof(item.history) === 'boolean') {
+                                item.history = true;
+                            } else {
+                                item.history.enabled = true;
+                            }
+                        }
+                    },
+                    redo: function() {
+                        for(var i = 0; i < records.length; i++) {
+                            var item;
+                            if (records[i].get) {
+                                item = records[i].get();
+                                if (! item)
+                                    continue;
+                            } else {
+                                item = records[i].item;
+                            }
+
+                            if (typeof(item.history) === 'boolean') {
+                                item.history = false;
+                            } else {
+                                item.history.enabled = false;
+                            }
+
+                            item.set(args.path, value);
+
+                            if (typeof(item.history) === 'boolean') {
+                                item.history = true;
+                            } else {
+                                item.history.enabled = true;
+                            }
+                        }
+                    }
+                });
+            }));
+            events.push(editor.on('picker:color:close', function() {
+                args.field._changing = false;
+            }));
         }
 
-        (args.parent || root).append(panel);
+        update();
+        args.field.on('change', changeField);
+
+        for(var i = 0; i < args.link.length; i++)
+            events.push(args.link[i].on(args.path + ':set', changeFieldQueue));
+
+        args.field.once('destroy', function() {
+            for(var i = 0; i < events.length; i++)
+                events[i].unbind();
+        });
+    });
+
+    // add field
+    editor.method('attributes:addField', function(args) {
+        var panel = args.panel;
+
+        if (! panel) {
+            panel = new ui.Panel();
+            panel.flexWrap = 'nowrap';
+            panel.WebkitFlexWrap = 'nowrap';
+            panel.style.display = '';
+
+            if (args.type) {
+                panel.class.add('field-' + args.type);
+            } else {
+                panel.class.add('field');
+            }
+
+            (args.parent || root).append(panel);
+        }
 
         if (args.name) {
             var label = new ui.Label({
@@ -73,120 +361,30 @@ editor.once('load', function() {
         }
 
         var field;
-        var changing = false;
-        var events = [ ];
-        var linkMultiple, update, changeField, changeFieldQueue;
-
-        // multi functionality
-        if (args.link instanceof Array && args.link.length > 1) {
-            // update field value
-            update = function() {
-                var value = args.link[0].get(args.path);
-                for(var i = 1; i < args.link.length; i++) {
-                    if (value !== args.link[i].get(args.path)) {
-                        value = args.enum ? '' : null;
-                        break;
-                    }
-                }
-                changing = true;
-                field.value = value;
-                changing = false;
-
-                if (args.enum) {
-                    if (field.optionElements[''])
-                        field.optionElements[''].style.display = value ? 'none' : '';
-                } else {
-                    field.proxy = value === null ? '...' : null;
-                }
-            };
-
-            changeField = function(value) {
-                if (changing)
-                    return;
-
-                if (args.enum) {
-                    if (this.optionElements[''])
-                        this.optionElements[''].style.display = value ? 'none' : '';
-                } else {
-                    this.proxy = value === null ? '...' : null;
-                }
-
-                var items = [ ];
-
-                // set link value
-                changing = true;
-                for(var i = 0; i < args.link.length; i++) {
-                    items.push({
-                        get: args.link[i].history._getItemFn,
-                        value: args.link[i].get(args.path)
-                    });
-                    args.link[i].history.enabled = false;
-                    args.link[i].set(args.path, value);
-                    args.link[i].history.enabled = true;
-                }
-                changing = false;
-
-                // history
-                editor.call('history:add', {
-                    name: args.path,
-                    undo: function() {
-                        for(var i = 0; i < items.length; i++) {
-                            var item = items[i].get();
-                            if (! item)
-                                continue;
-
-                            item.history.enabled = false;
-                            item.set(args.path, items[i].value);
-                            item.history.enabled = true;
-                        }
-                    },
-                    redo: function() {
-                        for(var i = 0; i < items.length; i++) {
-                            var item = items[i].get();
-                            if (! item)
-                                continue;
-
-                            item.history.enabled = false;
-                            item.set(args.path, value);
-                            item.history.enabled = true;
-                        }
-                    }
-                });
-            };
-
-            changeFieldQueue = function() {
-                if (changing)
-                    return;
-
-                changing = true;
-                setTimeout(function() {
-                    changing = false;
-                    update();
-                }, 0);
-            };
-
-            linkMultiple = function() {
-                update();
-                field.on('change', changeField);
-
-                for(var i = 0; i < args.link.length; i++)
-                    events.push(args.link[i].on(args.path + ':set', changeFieldQueue));
-
-                field.once('destroy', function() {
-                    for(var i = 0; i < events.length; i++)
-                        events[i].unbind();
-                });
-            };
-        }
 
         var linkField = function() {
             if (args.link) {
-                if (linkMultiple) {
-                    linkMultiple();
+                var link = function(field, path) {
+                    if ((args.link instanceof Array && args.link.length > 1) || args.type === 'rgb') {
+                        editor.call('attributes:linkField', {
+                            field: field,
+                            path: path || args.path,
+                            type: args.type,
+                            enum: args.enum,
+                            link: args.link
+                        });
+                    } else {
+                        field.link((args.link instanceof Array) ? args.link[0] : args.link, path || args.path);
+                        if (args.enum && field.optionElements[''])
+                            field.optionElements[''].style.display = 'none';
+                    }
+                }
+                if (field instanceof Array) {
+                    for(var i = 0; i < field.length; i++) {
+                        link(field[i], args.path + '.' + i);
+                    }
                 } else {
-                    field.link((args.link instanceof Array) ? args.link[0] : args.link, args.path);
-                    if (args.enum && field.optionElements[''])
-                        field.optionElements[''].style.display = 'none';
+                    link(field);
                 }
             }
         };
@@ -248,8 +446,7 @@ editor.once('load', function() {
                 field = new ui.Checkbox();
                 field.value = args.value || 0;
 
-                if (args.link)
-                    field.link(args.link, args.path);
+                linkField();
 
                 panel.append(field);
                 break;
@@ -282,18 +479,17 @@ editor.once('load', function() {
                     if (args.max != null)
                         field[i].max = args.max;
 
-                    if (args.link)
-                        field[i].link(args.link, args.path + '.' + i);
+                    // if (args.link)
+                    //     field[i].link(args.link, args.path + '.' + i);
                 }
 
+                linkField();
                 break;
 
             case 'rgb':
-                var field = new ui.ColorField();
+                field = new ui.ColorField();
 
-                if (args.link) {
-                    field.link(args.link, args.path);
-                }
+                linkField();
 
                 var colorPickerOn = false;
                 field.on('click', function() {
@@ -310,14 +506,14 @@ editor.once('load', function() {
 
                     // picked color
                     var evtColorPick = editor.on('picker:color', function(color) {
-                        if (field._link && typeof(field._link.history) === 'object')
-                            field._link.history.combine = ! first;
+                        // if (field._link && typeof(field._link.history) === 'object')
+                        //     field._link.history.combine = ! first;
 
                         first = false;
                         field.value = color;
 
-                        if (field._link && typeof(field._link.history) === 'object')
-                            field._link.history.combine = false;
+                        // if (field._link && typeof(field._link.history) === 'object')
+                        //     field._link.history.combine = false;
                     });
 
                     // position picker
@@ -327,6 +523,9 @@ editor.once('load', function() {
 
                     // color changed, update picker
                     var evtColorToPicker = field.on('change', function() {
+                        // if (field._changing)
+                        //     return;
+
                         editor.call('picker:color:set', this.value);
                     });
 
@@ -347,8 +546,8 @@ editor.once('load', function() {
                 });
 
                 panel.append(field);
+                break;
 
-                return field;
             case 'asset':
                 field = new ui.ImageField();
                 var evtPick;
@@ -365,7 +564,7 @@ editor.once('load', function() {
                 var panelControls = document.createElement('div');
                 panelControls.classList.add('controls');
 
-                var fieldTitle = new ui.Label();
+                var fieldTitle = field._title = new ui.Label();
                 fieldTitle.text = 'Empty';
                 fieldTitle.parent = panel;
                 fieldTitle.flexGrow = 1;
@@ -390,7 +589,7 @@ editor.once('load', function() {
                     editor.call('picker:asset', args.kind, asset);
 
                     evtPick = editor.once('picker:asset', function(asset) {
-                        args.link.set(args.path, asset.get('id'))
+                        field.value = asset.get('id');
                         evtPick = null;
                     });
 
@@ -440,7 +639,7 @@ editor.once('load', function() {
                 };
 
                 field.on('change', function(value) {
-                    fieldTitle.text = 'Empty';
+                    fieldTitle.text = this.class.contains('null') ? 'various' : 'Empty';
 
                     btnEdit.disabled = ! value;
                     btnRemove.disabled = ! value;
@@ -469,8 +668,7 @@ editor.once('load', function() {
                 if (args.value)
                     field.value = args.value;
 
-                if (args.link)
-                    field.link(args.link, args.path)
+                linkField();
 
                 var dropRef = editor.call('drop:target', {
                     ref: panel.element,

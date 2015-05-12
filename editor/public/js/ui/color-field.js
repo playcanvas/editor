@@ -81,6 +81,13 @@ Object.defineProperty(ColorField.prototype, 'value', {
         }
     },
     set: function(value) {
+        if (! value) {
+            this.class.add('null');
+            return;
+        } else {
+            this.class.remove('null');
+        }
+
         if (this._link) {
             this._link.set(this.path, value.map(function(channel) {
                 return channel / 255;
@@ -94,17 +101,20 @@ Object.defineProperty(ColorField.prototype, 'value', {
 ColorField.prototype._setValue = function(value) {
     var changed = false;
 
+    if (! value)
+        return;
+
     if (value.length !== this._channels) {
         changed = true;
         this.channels = value.length;
     }
 
     for(var i = 0; i < this._channels; i++) {
-        if (this._values[i] === Math.floor(value[i] * 255))
+        if (this._values[i] === Math.floor(value[i]))
             continue;
 
         changed = true;
-        this._values[i] = Math.floor(value[i] * 255);
+        this._values[i] = Math.floor(value[i]);
     }
 
     if (changed)
