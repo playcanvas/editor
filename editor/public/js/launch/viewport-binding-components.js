@@ -82,11 +82,6 @@ app.once('load', function() {
             var component = parts[1];
             var property = parts[2];
 
-            // ignore script component
-            if (component === 'script') {
-                return;
-            }
-
             if (property) {
                 // edit component property
                 value = obj.get('components.' + component + '.' + property);
