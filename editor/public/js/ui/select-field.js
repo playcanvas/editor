@@ -6,6 +6,17 @@ function SelectField(args) {
     args = args || { };
 
     this.options = args.options || { };
+    this.optionsKeys = [ ];
+    if (this.options instanceof Array) {
+        var options = { };
+        for(var i = 0; i < this.options.length; i++) {
+            this.optionsKeys.push(this.options[i].v);
+            options[this.options[i].v] = this.options[i].t;
+        }
+        this.options = options;
+    } else {
+        this.optionsKeys = Object.keys(this.options);
+    }
 
     this.element = document.createElement('div');
     this.element.tabIndex = 0;
@@ -192,8 +203,19 @@ SelectField.prototype.toggle = function() {
 
 
 SelectField.prototype._updateOptions = function(options) {
-    if (options !== undefined)
-        this.options = options;
+    if (options !== undefined) {
+        if (options instanceof Array) {
+            this.options = { };
+            this.optionsKeys = [ ];
+            for(var i = 0; i < options.length; i++) {
+                this.optionsKeys.push(options[i].v);
+                this.options[options[i].v] = options[i].t;
+            }
+        } else {
+            this.options = options;
+            this.optionsKeys = Object.keys(options);
+        }
+    }
 
     if (! this._optionSelectHandler)
         this._optionSelectHandler = this._onOptionSelect.bind(this);
@@ -205,19 +227,19 @@ SelectField.prototype._updateOptions = function(options) {
     this.optionElements = { };
     this.elementOptions.innerHTML = '';
 
-    for(var key in this.options) {
-        if (! this.options.hasOwnProperty(key))
+    for(var i = 0; i < this.optionsKeys.length; i++) {
+        if (! this.options.hasOwnProperty(this.optionsKeys[i]))
             continue;
 
         var element = document.createElement('li');
-        element.textContent = this.options[key];
+        element.textContent = this.options[this.optionsKeys[i]];
         element.uiElement = this;
-        element.uiValue = key;
+        element.uiValue = this.optionsKeys[i];
         element.addEventListener('click', this._onOptionSelect);
         element.addEventListener('mouseover', this._onOptionHover);
         element.addEventListener('mouseout', this._onOptionOut);
         this.elementOptions.appendChild(element);
-        this.optionElements[key] = element;
+        this.optionElements[this.optionsKeys[i]] = element;
     }
 };
 
@@ -267,6 +289,9 @@ Object.defineProperty(SelectField.prototype, 'value', {
             this.emit('change:before', value);
             this._link.set(this.path, value);
         } else {
+            if (this._number && isNaN(value) && this.optionElements[''])
+                value = '';
+
             if (this._value === value) return;
             if (value !== null && this.options[value] === undefined) return;
 
@@ -275,7 +300,7 @@ Object.defineProperty(SelectField.prototype, 'value', {
                 this.optionElements[this._oldValue].classList.remove('selected');
 
             this._value = value;
-            if (this._number)
+            if (this._number && value !== '')
                 this._value = parseInt(this._value, 10);
 
             this.emit('change:before', this._value);

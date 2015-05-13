@@ -21,7 +21,7 @@ Grid.prototype._onSelect = function(item) {
     if (this._selecting)
         return;
 
-    if (Grid._shift) {
+    if (Grid._shift && Grid._shift()) {
         // multi select from-to
         var items = this.element.querySelectorAll('.ui-grid-item.selected');
         if (this._lastSelect) {
@@ -50,7 +50,7 @@ Grid.prototype._onSelect = function(item) {
         } else {
             this._lastSelect = item;
         }
-    } else if (Grid._ctrl) {
+    } else if (Grid._ctrl && Grid._ctrl()) {
         // multi select
         this._lastSelect = item;
     } else {
@@ -77,9 +77,9 @@ Grid.prototype._onBeforeDeselect = function(item) {
 
     this._selecting = true;
 
-    if (Grid._shift) {
+    if (Grid._shift && Grid._shift()) {
         this._lastSelect = null;
-    } else if (Grid._ctrl) {
+    } else if (Grid._ctrl && Grid._ctrl()) {
         this._lastSelect = null;
     } else {
         var items = this.element.querySelectorAll('.ui-grid-item.selected');
@@ -145,29 +145,6 @@ Object.defineProperty(Grid.prototype, 'selected', {
             value[i].selected = true;
 
         this._selecting = false;
-    }
-});
-
-
-window.addEventListener('keydown', function(evt) {
-    if (evt.keyCode !== 16 && evt.keyCode !== 17 && evt.keyCode !== 91)
-        return;
-
-    if (evt.keyCode === 17 || evt.keyCode === 91) {
-        Grid._ctrl = true;
-    } else if (evt.keyCode === 16) {
-        Grid._shift = true;
-    }
-});
-
-window.addEventListener('keyup', function(evt) {
-    if (evt.keyCode !== 16 && evt.keyCode !== 17 && evt.keyCode !== 91)
-        return;
-
-    if (evt.keyCode === 17 || evt.keyCode === 91) {
-        Grid._ctrl = false;
-    } else if (evt.keyCode === 16) {
-        Grid._shift = false;
     }
 });
 

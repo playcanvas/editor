@@ -7,6 +7,7 @@ editor.once('load', function() {
     var channels = [ ];
     var channelsNumber = 4;
     var changing = false;
+    var dragging = false;
 
 
     // make hex out of channels
@@ -45,6 +46,7 @@ editor.once('load', function() {
     var pickRectMouseUp = function() {
         window.removeEventListener('mousemove', pickRectMouseMove, false);
         window.removeEventListener('mouseup', pickRectMouseUp, false);
+        dragging = false;
         editor.emit('picker:color:end');
     };
 
@@ -72,6 +74,7 @@ editor.once('load', function() {
     var pickHueMouseUp = function() {
         window.removeEventListener('mousemove', pickHueMouseMove, false);
         window.removeEventListener('mouseup', pickHueMouseUp, false);
+        dragging = false;
         editor.emit('picker:color:end');
     };
 
@@ -93,6 +96,7 @@ editor.once('load', function() {
     var pickOpacityMouseUp = function() {
         window.removeEventListener('mousemove', pickOpacityMouseMove, false);
         window.removeEventListener('mouseup', pickOpacityMouseUp, false);
+        dragging = false;
         editor.emit('picker:color:end');
     };
 
@@ -129,6 +133,7 @@ editor.once('load', function() {
             colorHSV[1] = hsv[1];
             colorHSV[2] = hsv[2];
 
+            dragging = true;
             editor.emit('picker:color:start');
         }
 
@@ -209,6 +214,7 @@ editor.once('load', function() {
 
         evt.stopPropagation();
         evt.preventDefault();
+        dragging = true;
         editor.emit('picker:color:start');
     });
 
@@ -242,6 +248,7 @@ editor.once('load', function() {
 
         evt.stopPropagation();
         evt.preventDefault();
+        dragging = true;
         editor.emit('picker:color:start');
     });
 
@@ -265,6 +272,7 @@ editor.once('load', function() {
 
         evt.stopPropagation();
         evt.preventDefault();
+        dragging = true;
         editor.emit('picker:color:start');
     });
 
@@ -428,7 +436,7 @@ editor.once('load', function() {
 
     // position color picker
     editor.method('picker:color:set', function(color) {
-        if (changing)
+        if (changing || dragging)
             return;
 
         if (channelsNumber >= 3) {

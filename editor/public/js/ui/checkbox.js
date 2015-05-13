@@ -36,10 +36,14 @@ Checkbox.prototype = Object.create(ui.Element.prototype);
 
 
 Checkbox.prototype._onLinkChange = function(value) {
-    if (value) {
-        this.element.classList.add('checked');
-    } else {
+    if (value === null) {
         this.element.classList.remove('checked');
+        this.element.classList.add('null');
+    } else if (value) {
+        this.element.classList.add('checked');
+        this.element.classList.remove('null');
+    } else {
+        this.element.classList.remove('checked', 'null');
     }
     this.emit('change', value);
 };
@@ -63,14 +67,8 @@ Object.defineProperty(Checkbox.prototype, 'value', {
         if (this._link) {
             this._link.set(this.path, value);
         } else {
-            if (this.element.classList.contains('checked') !== value) {
-                if (value) {
-                    this.element.classList.add('checked');
-                } else {
-                    this.element.classList.remove('checked');
-                }
-                this.emit('change', value);
-            }
+            if (this.element.classList.contains('checked') !== value)
+                this._onLinkChange(value);
         }
     }
 });

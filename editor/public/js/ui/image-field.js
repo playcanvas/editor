@@ -94,7 +94,7 @@ Object.defineProperty(ImageField.prototype, 'value', {
                 this._value = this._link.get(this.path)
         } else {
             value = (value && parseInt(value, 10)) || null;
-            if (this._value === value)
+            if (this._value === value && ! this.class.contains('null'))
                 return;
 
             this._value = value;
