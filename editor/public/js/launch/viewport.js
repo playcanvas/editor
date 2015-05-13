@@ -85,12 +85,7 @@ app.once('load', function() {
     if (document.head.querySelector) {
         var appendCss = function () {
             var style = document.head.querySelector('style');
-            if (style) {
-                style.innerHTML += css;
-            } else {
-                // try again
-                setTimeout(appendCss, 25);
-            }
+            style.innerHTML += css;
         };
 
         appendCss();
@@ -101,7 +96,7 @@ app.once('load', function() {
         canvas.style.width = '';
         canvas.style.height = '';
 
-        var fillMode = application.fillMode;
+        var fillMode = application._fillMode;
 
         if (fillMode == pc.fw.FillMode.NONE || fillMode == pc.fw.FillMode.KEEP_ASPECT) {
             if ((fillMode == pc.fw.FillMode.NONE && canvas.clientHeight < window.innerHeight) || (canvas.clientWidth / canvas.clientHeight >= window.innerWidth / window.innerHeight)) {

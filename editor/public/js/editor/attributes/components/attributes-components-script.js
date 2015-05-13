@@ -457,7 +457,7 @@ editor.once('load', function() {
                     item.element.appendChild(btnRemove.element);
                 };
 
-                // on adding new audio
+                // on adding new asset
                 itemAdd.on('click', function() {
                     // call picker
                     editor.call('picker:asset', attribute.options.type ? attribute.options.type : '*', null);

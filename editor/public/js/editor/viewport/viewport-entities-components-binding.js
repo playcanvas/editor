@@ -57,6 +57,38 @@ editor.once('load', function() {
 
         });
 
+        var setComponentProperty = function (path, value) {
+            if (path.indexOf('components') !== 0) {
+                return;
+            }
+
+            var entity = obj.entity;
+            if (!entity) {
+                return;
+            }
+
+            var parts = path.split('.');
+            var component = parts[1];
+            var property = parts[2];
+
+            // ignore script component
+            if (component === 'script') {
+                return;
+            }
+
+            if (property) {
+                // edit component property
+                value = obj.get('components.' + component + '.' + property);
+                entity[component][property] = editor.call('components:convertValue', component, property, value);
+
+                // render
+                editor.call('viewport:render');
+            }
+        };
+
+        obj.on('*:insert', setComponentProperty);
+        obj.on('*:remove', setComponentProperty);
+
         obj.on('*:unset', function (path) {
             if (path.indexOf('components') !== 0) {
                 return;
