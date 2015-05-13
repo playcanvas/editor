@@ -73,21 +73,27 @@ editor.once('load', function() {
                         return Math.floor(v * 255);
                     });
                 }
-            } else {
+            } else if (args.type === 'asset') {
                 for(var i = 1; i < args.link.length; i++) {
-                    if (value !== args.link[i].get(args.path)) {
+                    if ((value || 0) !== (args.link[i].get(args.path) || 0)) {
                         value = args.enum ? '' : null;
                         different = true;
                         break;
                     }
                 }
-
-                if (args.type === 'asset') {
-                    if (different) {
-                        args.field.class.add('null');
-                        args.field._title.text = 'various';
-                    } else {
-                        args.field.class.remove('null');
+                if (different) {
+                    args.field.class.add('null');
+                    args.field._title.text = 'various';
+                } else {
+                    args.field.class.remove('null');
+                }
+            } else {
+                for(var i = 1; i < args.link.length; i++) {
+                    var v = args.link[i].get(args.path);
+                    if ((value || 0) !== (v || 0)) {
+                        value = args.enum ? '' : null;
+                        different = true;
+                        break;
                     }
                 }
             }
@@ -97,8 +103,8 @@ editor.once('load', function() {
             args.field._changing = false;
 
             if (args.enum) {
-                if (args.field.optionElements[''])
-                    args.field.optionElements[''].style.display = value ? 'none' : '';
+                var opt = args.field.optionElements[''];
+                if (opt) opt.style.display = value !== '' ? 'none' : '';
             } else {
                 args.field.proxy = value === null ? '...' : null;
             }
@@ -109,8 +115,8 @@ editor.once('load', function() {
                 return;
 
             if (args.enum) {
-                if (this.optionElements[''])
-                    this.optionElements[''].style.display = value ? 'none' : '';
+                var opt = this.optionElements[''];
+                if (opt) opt.style.display = value !== '' ? 'none' : '';
             } else {
                 this.proxy = value === null ? '...' : null;
             }
@@ -150,7 +156,7 @@ editor.once('load', function() {
             args.field._changing = false;
 
             // history
-            if (args.type !== 'rgb') {
+            if (args.type !== 'rgb' && ! args.field._stopHistory) {
                 editor.call('history:add', {
                     name: args.path,
                     undo: function() {
@@ -234,91 +240,123 @@ editor.once('load', function() {
         };
 
         if (args.type === 'rgb') {
-            var items = [ ];
+            var colorPickerOn = false;
+            args.field.on('click', function() {
+                colorPickerOn = true;
 
-            events.push(editor.on('picker:color:start', function() {
-                args.field._changing = true;
-                items = [ ];
+                // set picker color
+                editor.call('picker:color', args.field.value);
 
-                for(var i = 0; i < args.link.length; i++) {
-                    items.push({
-                        get: args.link[i].history._getItemFn,
-                        item: args.link[i],
-                        value: args.link[i].get(args.path).slice(0)
-                    });
-                }
-            }));
-            events.push(editor.on('picker:color', function() {
-                args.field._changing = false;
-            }));
-            events.push(editor.on('picker:color:end', function() {
-                args.field._changing = false;
+                var items = [ ];
 
-                var records = items.slice(0);
-                var value = args.field.value.map(function(v) {
-                    return v / 255;
-                });
+                // picking starts
+                var evtColorPickStart = editor.on('picker:color:start', function() {
+                    items = [ ];
 
-                // history
-                editor.call('history:add', {
-                    name: args.path,
-                    undo: function() {
-                        for(var i = 0; i < records.length; i++) {
-                            var item;
-                            if (records[i].get) {
-                                item = records[i].get();
-                                if (! item)
-                                    continue;
-                            } else {
-                                item = records[i].item;
-                            }
-
-                            if (typeof(item.history) === 'boolean') {
-                                item.history = false;
-                            } else {
-                                item.history.enabled = false;
-                            }
-
-                            item.set(args.path, records[i].value);
-
-                            if (typeof(item.history) === 'boolean') {
-                                item.history = true;
-                            } else {
-                                item.history.enabled = true;
-                            }
-                        }
-                    },
-                    redo: function() {
-                        for(var i = 0; i < records.length; i++) {
-                            var item;
-                            if (records[i].get) {
-                                item = records[i].get();
-                                if (! item)
-                                    continue;
-                            } else {
-                                item = records[i].item;
-                            }
-
-                            if (typeof(item.history) === 'boolean') {
-                                item.history = false;
-                            } else {
-                                item.history.enabled = false;
-                            }
-
-                            item.set(args.path, value);
-
-                            if (typeof(item.history) === 'boolean') {
-                                item.history = true;
-                            } else {
-                                item.history.enabled = true;
-                            }
-                        }
+                    for(var i = 0; i < args.link.length; i++) {
+                        items.push({
+                            get: args.link[i].history._getItemFn,
+                            item: args.link[i],
+                            value: args.link[i].get(args.path).slice(0)
+                        });
                     }
                 });
-            }));
-            events.push(editor.on('picker:color:close', function() {
-                args.field._changing = false;
-            }));
+
+                // picked color
+                var evtColorPick = editor.on('picker:color', function(color) {
+                    args.field.value = color;
+                });
+
+                var evtColorPickEnd = editor.on('picker:color:end', function() {
+                    var records = items.slice(0);
+                    var value = args.field.value.map(function(v) {
+                        return v / 255;
+                    });
+
+                    // history
+                    editor.call('history:add', {
+                        name: args.path,
+                        undo: function() {
+                            for(var i = 0; i < records.length; i++) {
+                                var item;
+                                if (records[i].get) {
+                                    item = records[i].get();
+                                    if (! item)
+                                        continue;
+                                } else {
+                                    item = records[i].item;
+                                }
+
+                                if (typeof(item.history) === 'boolean') {
+                                    item.history = false;
+                                } else {
+                                    item.history.enabled = false;
+                                }
+
+                                item.set(args.path, records[i].value);
+
+                                if (typeof(item.history) === 'boolean') {
+                                    item.history = true;
+                                } else {
+                                    item.history.enabled = true;
+                                }
+                            }
+                        },
+                        redo: function() {
+                            for(var i = 0; i < records.length; i++) {
+                                var item;
+                                if (records[i].get) {
+                                    item = records[i].get();
+                                    if (! item)
+                                        continue;
+                                } else {
+                                    item = records[i].item;
+                                }
+
+                                if (typeof(item.history) === 'boolean') {
+                                    item.history = false;
+                                } else {
+                                    item.history.enabled = false;
+                                }
+
+                                item.set(args.path, value);
+
+                                if (typeof(item.history) === 'boolean') {
+                                    item.history = true;
+                                } else {
+                                    item.history.enabled = true;
+                                }
+                            }
+                        }
+                    });
+                });
+
+                // position picker
+                var rectPicker = editor.call('picker:color:rect');
+                var rectField = args.field.element.getBoundingClientRect();
+                editor.call('picker:color:position', rectField.left - rectPicker.width, rectField.top);
+
+                // color changed, update picker
+                var evtColorToPicker = args.field.on('change', function() {
+                    editor.call('picker:color:set', this.value);
+                });
+
+                // picker closed
+                editor.once('picker:color:close', function() {
+                    evtColorPick.unbind();
+                    evtColorPickStart.unbind();
+                    evtColorPickEnd.unbind();
+                    evtColorToPicker.unbind();
+                    colorPickerOn = false;
+                    args.field.element.focus();
+                });
+            });
+
+            // close picker if field destroyed
+            args.field.once('destroy', function() {
+                if (colorPickerOn)
+                    editor.call('picker:color:close');
+            });
         }
 
         update();
@@ -506,14 +544,8 @@ editor.once('load', function() {
 
                     // picked color
                     var evtColorPick = editor.on('picker:color', function(color) {
-                        // if (field._link && typeof(field._link.history) === 'object')
-                        //     field._link.history.combine = ! first;
-
                         first = false;
                         field.value = color;
-
-                        // if (field._link && typeof(field._link.history) === 'object')
-                        //     field._link.history.combine = false;
                     });
 
                     // position picker
@@ -523,9 +555,6 @@ editor.once('load', function() {
 
                     // color changed, update picker
                     var evtColorToPicker = field.on('change', function() {
-                        // if (field._changing)
-                        //     return;
-
                         editor.call('picker:color:set', this.value);
                     });
 
@@ -638,11 +667,15 @@ editor.once('load', function() {
                     }
                 };
 
-                field.on('change', function(value) {
-                    fieldTitle.text = this.class.contains('null') ? 'various' : 'Empty';
+                linkField();
+
+                var updateField = function() {
+                    var value = field.value;
+
+                    fieldTitle.text = field.class.contains('null') ? 'various' : 'Empty';
 
                     btnEdit.disabled = ! value;
-                    btnRemove.disabled = ! value;
+                    btnRemove.disabled = ! value && ! field.class.contains('null');
 
                     if (evtThumbnailChange) {
                         evtThumbnailChange.unbind();
@@ -663,12 +696,13 @@ editor.once('load', function() {
                     updateThumbnail();
 
                     fieldTitle.text = asset.get('file.filename') || asset.get('name');
-                });
+                };
+                field.on('change', updateField);
 
                 if (args.value)
                     field.value = args.value;
 
-                linkField();
+                updateField();
 
                 var dropRef = editor.call('drop:target', {
                     ref: panel.element,

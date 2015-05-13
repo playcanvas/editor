@@ -641,6 +641,13 @@ a:visited {
             }
         }
     }
+    &.null {
+        > .bar {
+            > .handle {
+                display: none;
+            }
+        }
+    }
 }
 
 .ui-text-field {
