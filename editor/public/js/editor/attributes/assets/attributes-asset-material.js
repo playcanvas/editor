@@ -1170,7 +1170,64 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:metalness:attach', fieldMetalness.parent.innerElement.firstChild.ui);
 
-        // metalness s5s.parent.append(fieldMetalnessSlider);
+        // metalness slider
+        var fieldMetalnessSlider = new ui.Slider({
+            min: 0,
+            max: 100,
+            precision: 2
+        });
+        fieldMetalnessSlider.value = fieldMetalness.value;
+        fieldMetalnessSlider.flexGrow = 4;
+        fieldMetalness.on('change', function(value) {
+            fieldMetalnessSlider.value = value;
+        });
+        var recordsMetalness = [ ];
+        fieldMetalnessSlider.on('start', function() {
+            fieldMetalness._stopHistory = true;
+            recordsMetalness = [ ];
+            for(var i = 0; i < assets.length; i++) {
+                recordsMetalness.push({
+                    get: assets[i].history._getItemFn,
+                    value: assets[i].get('data.metalness')
+                });
+            }
+        });
+        fieldMetalnessSlider.on('end', function() {
+            fieldMetalness._stopHistory = false;
+            var records = recordsMetalness.slice(0);
+            var value = fieldMetalness.value;
+
+            // history
+            editor.call('history:add', {
+                name: 'data.metalness',
+                undo: function() {
+                    for(var i = 0; i < records.length; i++) {
+                        var item = records[i].get();
+                        if (! item) continue;
+
+                        item.history.enabled = false;
+                        item.set('data.metalness', records[i].value || 0);
+                        item.history.enabled = true;
+                    }
+                },
+                redo: function() {
+                    for(var i = 0; i < records.length; i++) {
+                        var item = records[i].get();
+                        if (! item) continue;
+
+                        item.history.enabled = false;
+                        item.set('data.metalness', value);
+                        item.history.enabled = true;
+                    }
+                }
+            });
+        });
+        fieldMetalnessSlider.on('change', function(value) {
+            if (fieldMetalness._changing)
+                return;
+            fieldMetalness.value = value;
+        });
+        fieldMetalness.parent.append(fieldMetalnessSlider);
 
 
         // specular
@@ -1385,7 +1442,7 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:shininess:attach', fieldShininess.parent.innerElement.firstChild.ui);
 
-        // metalness slider
+        // shininess slider
         var fieldShininessSlider = new ui.Slider({
             min: 0,
             max: 100,
