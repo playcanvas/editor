@@ -383,14 +383,16 @@ pc.extend(pc.editor, function() {
 
         cameraEntity.enabled = true;
 
-        if (!cameraEntity.script) {
-            cameraEntity.addComponent('script', {
-                scripts: [{
-                    url: '/editor/scene/js/framework/camera/designer_camera.js'
-                }],
-                runInTools: true
-            });
+        if (cameraEntity.script) {
+            cameraEntity.removeComponent('script');
         }
+
+        cameraEntity.addComponent('script', {
+            scripts: [{
+                url: '/editor/scene/js/framework/camera/designer_camera.js'
+            }],
+            runInTools: true
+        });
 
         for (var key in this.gizmos) {
             this.gizmos[key].setCamera(cameraEntity);
