@@ -614,6 +614,12 @@ strong {
                         background-image: url("/editor/scene/img/asset-placeholder-texture.png");
                         background-position: center center;
                     }
+                    &.null {
+                        background-color: #000;
+                        background-image: linear-gradient(45deg, #fff 25%, transparent 25%, transparent), linear-gradient(-45deg, #fff 25%, transparent 25%, transparent), linear-gradient(45deg, transparent 75%, #fff 75%), linear-gradient(-45deg, transparent 75%, #fff 75%);
+                        background-position: 0 0;
+                        background-size: 16px 16px;
+                    }
                 }
                 > .top {
                     width: 100%;
