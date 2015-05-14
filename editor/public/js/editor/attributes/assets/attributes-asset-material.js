@@ -1737,8 +1737,8 @@ editor.once('load', function() {
         });
         fieldNormalMap.on('change', function(value) {
             fieldNormalsOffset[0].parent.hidden = filterNormalOffset();
-            fieldNormalsTiling[0].parent.hidden = fieldNormalsTiling();
-            // fieldBumpiness.parent.hidden = ! value;
+            fieldNormalsTiling[0].parent.hidden = filterNormalTiling();
+            fieldBumpiness.parent.hidden = ! value && ! this.class.contains('null');
         });
         // reference
         editor.call('attributes:reference:asset:material:normalMap:attach', fieldNormalMap._label);
@@ -1799,7 +1799,7 @@ editor.once('load', function() {
             link: assets,
             path: 'data.bumpMapFactor'
         });
-        fieldBumpiness.parent.hidden = fieldNormalMap.parent.hidden;
+        fieldBumpiness.parent.hidden = ! fieldNormalMap.value && ! fieldNormalMap.class.contains('null');
         fieldBumpiness.style.width = '32px';
         fieldBumpiness.flexGrow = 1;
         // reference

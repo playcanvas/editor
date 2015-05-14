@@ -38,10 +38,10 @@ pc.script.create( "designer_camera", function (app) {
         document.body.addEventListener('drop', function () {
             // fix 'drop' event not resetting left mouse button pressed state
             this.mouse._buttons[pc.MOUSEBUTTON_LEFT] = false;
-        }.bind(this));
+        }.bind(this), false);
 
-        window.addEventListener('keydown', this.onKeyDown.bind(this));
-        window.addEventListener('keyup', this.onKeyUp.bind(this));
+        window.addEventListener('keydown', this.onKeyDown.bind(this), false);
+        window.addEventListener('keyup', this.onKeyUp.bind(this), false);
 
         this.canvasFocused = false;
         this.rightClickOnCanvas = false;
