@@ -156,7 +156,7 @@ editor.once('load', function() {
             args.field._changing = false;
 
             // history
-            if (args.type !== 'rgb' && ! args.field._stopHistory) {
+            if (args.type !== 'rgb' && ! args.slider && ! args.field._stopHistory) {
                 editor.call('history:add', {
                     name: args.path,
                     undo: function() {
@@ -239,6 +239,87 @@ editor.once('load', function() {
             }, 0);
         };
 
+        var historyStart, historyEnd;
+
+        if (args.type === 'rgb' || args.slider) {
+            historyStart = function() {
+                var items = [ ];
+
+                for(var i = 0; i < args.link.length; i++) {
+                    var v = args.link[i].get(args.path);
+                    if (v instanceof Array)
+                        v = v.slice(0);
+
+                    items.push({
+                        get: args.link[i].history._getItemFn,
+                        item: args.link[i],
+                        value: v
+                    });
+                }
+
+                return items;
+            };
+
+            historyEnd = function(items, value) {
+                // history
+                editor.call('history:add', {
+                    name: args.path,
+                    undo: function() {
+                        for(var i = 0; i < items.length; i++) {
+                            var item;
+                            if (items[i].get) {
+                                item = items[i].get();
+                                if (! item)
+                                    continue;
+                            } else {
+                                item = items[i].item;
+                            }
+
+                            if (typeof(item.history) === 'boolean') {
+                                item.history = false;
+                            } else {
+                                item.history.enabled = false;
+                            }
+
+                            item.set(args.path, items[i].value);
+
+                            if (typeof(item.history) === 'boolean') {
+                                item.history = true;
+                            } else {
+                                item.history.enabled = true;
+                            }
+                        }
+                    },
+                    redo: function() {
+                        for(var i = 0; i < items.length; i++) {
+                            var item;
+                            if (items[i].get) {
+                                item = items[i].get();
+                                if (! item)
+                                    continue;
+                            } else {
+                                item = items[i].item;
+                            }
+
+                            if (typeof(item.history) === 'boolean') {
+                                item.history = false;
+                            } else {
+                                item.history.enabled = false;
+                            }
+
+                            item.set(args.path, value);
+
+                            if (typeof(item.history) === 'boolean') {
+                                item.history = true;
+                            } else {
+                                item.history.enabled = true;
+                            }
+                        }
+                    }
+                });
+            };
+        }
+
         if (args.type === 'rgb') {
             var colorPickerOn = false;
             args.field.on('click', function() {
@@ -251,15 +332,7 @@ editor.once('load', function() {
 
                 // picking starts
                 var evtColorPickStart = editor.on('picker:color:start', function() {
-                    items = [ ];
-
-                    for(var i = 0; i < args.link.length; i++) {
-                        items.push({
-                            get: args.link[i].history._getItemFn,
-                            item: args.link[i],
-                            value: args.link[i].get(args.path).slice(0)
-                        });
-                    }
+                    items = historyStart();
                 });
 
                 // picked color
@@ -268,67 +341,9 @@ editor.once('load', function() {
                 });
 
                 var evtColorPickEnd = editor.on('picker:color:end', function() {
-                    var records = items.slice(0);
-                    var value = args.field.value.map(function(v) {
+                    historyEnd(items.slice(0), args.field.value.map(function(v) {
                         return v / 255;
-                    });
-
-                    // history
-                    editor.call('history:add', {
-                        name: args.path,
-                        undo: function() {
-                            for(var i = 0; i < records.length; i++) {
-                                var item;
-                                if (records[i].get) {
-                                    item = records[i].get();
-                                    if (! item)
-                                        continue;
-                                } else {
-                                    item = records[i].item;
-                                }
-
-                                if (typeof(item.history) === 'boolean') {
-                                    item.history = false;
-                                } else {
-                                    item.history.enabled = false;
-                                }
-
-                                item.set(args.path, records[i].value);
-
-                                if (typeof(item.history) === 'boolean') {
-                                    item.history = true;
-                                } else {
-                                    item.history.enabled = true;
-                                }
-                            }
-                        },
-                        redo: function() {
-                            for(var i = 0; i < records.length; i++) {
-                                var item;
-                                if (records[i].get) {
-                                    item = records[i].get();
-                                    if (! item)
-                                        continue;
-                                } else {
-                                    item = records[i].item;
-                                }
-
-                                if (typeof(item.history) === 'boolean') {
-                                    item.history = false;
-                                } else {
-                                    item.history.enabled = false;
-                                }
-
-                                item.set(args.path, value);
-
-                                if (typeof(item.history) === 'boolean') {
-                                    item.history = true;
-                                } else {
-                                    item.history.enabled = true;
-                                }
-                            }
-                        }
-                    });
+                    }));
                 });
 
                 // position picker
@@ -357,6 +372,16 @@ editor.once('load', function() {
                 if (colorPickerOn)
                     editor.call('picker:color:close');
             });
+        } else if (args.slider) {
+            var sliderRecords;
+
+            events.push(args.field.on('start', function() {
+                sliderRecords = historyStart();
+            }));
+
+            events.push(args.field.on('end', function() {
+                historyEnd(sliderRecords.slice(0), args.field.value);
+            }));
         }
 
         update();
@@ -408,6 +433,7 @@ editor.once('load', function() {
                             field: field,
                             path: path || args.path,
                             type: args.type,
+                            slider: args.slider,
                             enum: args.enum,
                             link: args.link
                         });
@@ -454,6 +480,8 @@ editor.once('load', function() {
                         options: args.enum,
                         number: true
                     });
+                } else if (args.slider) {
+                    field = new ui.Slider();
                 } else {
                     field = new ui.NumberField();
                 }

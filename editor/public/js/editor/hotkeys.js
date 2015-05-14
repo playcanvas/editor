@@ -125,7 +125,7 @@ editor.once('load', function() {
                     return;
         }
 
-        var index = [ ctrl+0, alt+0, shift+0, evt.keyCode ].join('+');
+        var index = [ (ctrl || evt.ctrlKey || evt.metaKey)+0, (alt || evt.altKey)+0, (shift || evt.shiftKey)+0, evt.keyCode ].join('+');
 
         if (keyIndex[index]) {
             for(var i = 0; i < keyIndex[index].length; i++) {
