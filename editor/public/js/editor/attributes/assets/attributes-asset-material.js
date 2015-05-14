@@ -1171,63 +1171,18 @@ editor.once('load', function() {
         editor.call('attributes:reference:asset:material:metalness:attach', fieldMetalness.parent.innerElement.firstChild.ui);
 
         // metalness slider
-        var fieldMetalnessSlider = new ui.Slider({
+        var fieldMetalnessSlider = editor.call('attributes:addField', {
+            panel: fieldMetalness.parent,
+            precision: 3,
+            step: 0.05,
             min: 0,
-            max: 100,
-            precision: 2
+            max: 1,
+            type: 'number',
+            slider: true,
+            link: assets,
+            path: 'data.metalness'
         });
-        fieldMetalnessSlider.value = fieldMetalness.value;
         fieldMetalnessSlider.flexGrow = 4;
-        fieldMetalness.on('change', function(value) {
-            fieldMetalnessSlider.value = value;
-        });
-        var recordsMetalness = [ ];
-        fieldMetalnessSlider.on('start', function() {
-            fieldMetalness._stopHistory = true;
-            recordsMetalness = [ ];
-            for(var i = 0; i < assets.length; i++) {
-                recordsMetalness.push({
-                    get: assets[i].history._getItemFn,
-                    value: assets[i].get('data.metalness')
-                });
-            }
-        });
-        fieldMetalnessSlider.on('end', function() {
-            fieldMetalness._stopHistory = false;
-            var records = recordsMetalness.slice(0);
-            var value = fieldMetalness.value;
-
-            // history
-            editor.call('history:add', {
-                name: 'data.metalness',
-                undo: function() {
-                    for(var i = 0; i < records.length; i++) {
-                        var item = records[i].get();
-                        if (! item) continue;
-
-                        item.history.enabled = false;
-                        item.set('data.metalness', records[i].value || 0);
-                        item.history.enabled = true;
-                    }
-                },
-                redo: function() {
-                    for(var i = 0; i < records.length; i++) {
-                        var item = records[i].get();
-                        if (! item) continue;
-
-                        item.history.enabled = false;
-                        item.set('data.metalness', value);
-                        item.history.enabled = true;
-                    }
-                }
-            });
-        });
-        fieldMetalnessSlider.on('change', function(value) {
-            if (fieldMetalness._changing)
-                return;
-            fieldMetalness.value = value;
-        });
-        fieldMetalness.parent.append(fieldMetalnessSlider);
 
 
         // specular
@@ -1443,63 +1398,18 @@ editor.once('load', function() {
         editor.call('attributes:reference:asset:material:shininess:attach', fieldShininess.parent.innerElement.firstChild.ui);
 
         // shininess slider
-        var fieldShininessSlider = new ui.Slider({
+        var fieldShininessSlider = editor.call('attributes:addField', {
+            panel: fieldShininess.parent,
+            precision: 2,
+            step: 0.5,
             min: 0,
             max: 100,
-            precision: 2
+            type: 'number',
+            slider: true,
+            link: assets,
+            path: 'data.shininess'
         });
-        fieldShininessSlider.value = fieldShininess.value;
         fieldShininessSlider.flexGrow = 4;
-        fieldShininess.on('change', function(value) {
-            fieldShininessSlider.value = value;
-        });
-        var recordsShininess = [ ];
-        fieldShininessSlider.on('start', function() {
-            fieldShininess._stopHistory = true;
-            recordsShininess = [ ];
-            for(var i = 0; i < assets.length; i++) {
-                recordsShininess.push({
-                    get: assets[i].history._getItemFn,
-                    value: assets[i].get('data.shininess')
-                });
-            }
-        });
-        fieldShininessSlider.on('end', function() {
-            fieldShininess._stopHistory = false;
-            var records = recordsShininess.slice(0);
-            var value = fieldShininess.value;
-
-            // history
-            editor.call('history:add', {
-                name: 'data.shininess',
-                undo: function() {
-                    for(var i = 0; i < records.length; i++) {
-                        var item = records[i].get();
-                        if (! item) continue;
-
-                        item.history.enabled = false;
-                        item.set('data.shininess', records[i].value || 0);
-                        item.history.enabled = true;
-                    }
-                },
-                redo: function() {
-                    for(var i = 0; i < records.length; i++) {
-                        var item = records[i].get();
-                        if (! item) continue;
-
-                        item.history.enabled = false;
-                        item.set('data.shininess', value);
-                        item.history.enabled = true;
-                    }
-                }
-            });
-        });
-        fieldShininessSlider.on('change', function(value) {
-            if (fieldShininess._changing)
-                return;
-            fieldShininess.value = value;
-        });
-        fieldShininess.parent.append(fieldShininessSlider);
 
 
         // emissive
@@ -1643,63 +1553,18 @@ editor.once('load', function() {
         editor.call('attributes:reference:asset:material:emissiveIntensity:attach', fieldEmissiveIntensity.parent.innerElement.firstChild.ui);
 
         // emissiveIntensity slider
-        var fieldEmissiveIntensitySlider = new ui.Slider({
+        var fieldEmissiveIntensitySlider = editor.call('attributes:addField', {
+            panel: fieldEmissiveIntensity.parent,
+            precision: 2,
+            step: .1,
             min: 0,
             max: 10,
-            precision: 2
+            type: 'number',
+            slider: true,
+            link: assets,
+            path: 'data.emissiveIntensity'
         });
-        fieldEmissiveIntensitySlider.value = fieldEmissiveIntensity.value;
         fieldEmissiveIntensitySlider.flexGrow = 4;
-        fieldEmissiveIntensity.on('change', function(value) {
-            fieldEmissiveIntensitySlider.value = value;
-        });
-        var recordsEmissiveIntensity = [ ];
-        fieldEmissiveIntensitySlider.on('start', function() {
-            fieldEmissiveIntensity._stopHistory = true;
-            recordsEmissiveIntensity = [ ];
-            for(var i = 0; i < assets.length; i++) {
-                recordsEmissiveIntensity.push({
-                    get: assets[i].history._getItemFn,
-                    value: assets[i].get('data.emissiveIntensity')
-                });
-            }
-        });
-        fieldEmissiveIntensitySlider.on('end', function() {
-            fieldEmissiveIntensity._stopHistory = false;
-            var records = recordsEmissiveIntensity.slice(0);
-            var value = fieldEmissiveIntensity.value;
-
-            // history
-            editor.call('history:add', {
-                name: 'data.emissiveIntensity',
-                undo: function() {
-                    for(var i = 0; i < records.length; i++) {
-                        var item = records[i].get();
-                        if (! item) continue;
-
-                        item.history.enabled = false;
-                        item.set('data.emissiveIntensity', records[i].value || 0);
-                        item.history.enabled = true;
-                    }
-                },
-                redo: function() {
-                    for(var i = 0; i < records.length; i++) {
-                        var item = records[i].get();
-                        if (! item) continue;
-
-                        item.history.enabled = false;
-                        item.set('data.emissiveIntensity', value);
-                        item.history.enabled = true;
-                    }
-                }
-            });
-        });
-        fieldEmissiveIntensitySlider.on('change', function(value) {
-            if (fieldEmissiveIntensity._changing)
-                return;
-            fieldEmissiveIntensity.value = value;
-        });
-        fieldEmissiveIntensity.parent.append(fieldEmissiveIntensitySlider);
 
 
         // opacity
@@ -1834,64 +1699,19 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:opacity:attach', fieldOpacityIntensity.parent.innerElement.firstChild.ui);
 
-        // opacity slider
-        var fieldOpacityIntensitySlider = new ui.Slider({
+        // intensity slider
+        var fieldOpacityIntensitySlider = editor.call('attributes:addField', {
+            panel: fieldOpacityIntensity.parent,
+            precision: 3,
+            step: .05,
             min: 0,
             max: 1,
-            precision: 3
+            type: 'number',
+            slider: true,
+            link: assets,
+            path: 'data.opacity'
         });
-        fieldOpacityIntensitySlider.value = fieldOpacityIntensity.value;
         fieldOpacityIntensitySlider.flexGrow = 4;
-        fieldOpacityIntensity.on('change', function(value) {
-            fieldOpacityIntensitySlider.value = value;
-        });
-        var recordsOpacityIntensity = [ ];
-        fieldOpacityIntensitySlider.on('start', function() {
-            fieldOpacityIntensity._stopHistory = true;
-            recordsOpacityIntensity = [ ];
-            for(var i = 0; i < assets.length; i++) {
-                recordsOpacityIntensity.push({
-                    get: assets[i].history._getItemFn,
-                    value: assets[i].get('data.opacity')
-                });
-            }
-        });
-        fieldOpacityIntensitySlider.on('end', function() {
-            fieldOpacityIntensity._stopHistory = false;
-            var records = recordsOpacityIntensity.slice(0);
-            var value = fieldOpacityIntensity.value;
-
-            // history
-            editor.call('history:add', {
-                name: 'data.opacity',
-                undo: function() {
-                    for(var i = 0; i < records.length; i++) {
-                        var item = records[i].get();
-                        if (! item) continue;
-
-                        item.history.enabled = false;
-                        item.set('data.opacity', records[i].value || 0);
-                        item.history.enabled = true;
-                    }
-                },
-                redo: function() {
-                    for(var i = 0; i < records.length; i++) {
-                        var item = records[i].get();
-                        if (! item) continue;
-
-                        item.history.enabled = false;
-                        item.set('data.opacity', value);
-                        item.history.enabled = true;
-                    }
-                }
-            });
-        });
-        fieldOpacityIntensitySlider.on('change', function(value) {
-            if (fieldOpacityIntensity._changing)
-                return;
-            fieldOpacityIntensity.value = value;
-        });
-        fieldOpacityIntensity.parent.append(fieldOpacityIntensitySlider);
 
 
         // normals
@@ -1967,7 +1787,7 @@ editor.once('load', function() {
         editor.call('attributes:reference:asset:material:normalMapTiling:attach', fieldNormalsTiling[0].parent.innerElement.firstChild.ui);
 
 
-        // intensity
+        // bumpiness
         var fieldBumpiness = editor.call('attributes:addField', {
             parent: panelNormal,
             name: 'Bumpiness',
@@ -1986,64 +1806,18 @@ editor.once('load', function() {
         editor.call('attributes:reference:asset:material:bumpiness:attach', fieldBumpiness.parent.innerElement.firstChild.ui);
 
         // bumpiness slider
-        var fieldBumpinessSlider = new ui.Slider({
+        var fieldBumpinessSlider = editor.call('attributes:addField', {
+            panel: fieldBumpiness.parent,
+            precision: 3,
+            step: .05,
             min: 0,
-            max: 1,
-            precision: 3
+            max: 2,
+            type: 'number',
+            slider: true,
+            link: assets,
+            path: 'data.bumpMapFactor'
         });
-        fieldBumpinessSlider.value = fieldBumpiness.value;
         fieldBumpinessSlider.flexGrow = 4;
-        fieldBumpiness.on('change', function(value) {
-            fieldBumpinessSlider.value = value;
-        });
-        var recordsBumpiness = [ ];
-        fieldBumpinessSlider.on('start', function() {
-            fieldBumpiness._stopHistory = true;
-            recordsBumpiness = [ ];
-            for(var i = 0; i < assets.length; i++) {
-                recordsBumpiness.push({
-                    get: assets[i].history._getItemFn,
-                    value: assets[i].get('data.bumpMapFactor')
-                });
-            }
-        });
-        fieldBumpinessSlider.on('end', function() {
-            fieldBumpiness._stopHistory = false;
-            var records = recordsBumpiness.slice(0);
-            var value = fieldBumpiness.value;
-
-            // history
-            editor.call('history:add', {
-                name: 'data.bumpMapFactor',
-                undo: function() {
-                    for(var i = 0; i < records.length; i++) {
-                        var item = records[i].get();
-                        if (! item) continue;
-
-                        item.history.enabled = false;
-                        item.set('data.bumpMapFactor', records[i].value || 0);
-                        item.history.enabled = true;
-                    }
-                },
-                redo: function() {
-                    for(var i = 0; i < records.length; i++) {
-                        var item = records[i].get();
-                        if (! item) continue;
-
-                        item.history.enabled = false;
-                        item.set('data.bumpMapFactor', value);
-                        item.history.enabled = true;
-                    }
-                }
-            });
-        });
-        fieldBumpinessSlider.on('change', function(value) {
-            if (fieldBumpiness._changing)
-                return;
-            fieldBumpiness.value = value;
-        });
-        fieldBumpiness.parent.append(fieldBumpinessSlider);
-
 
 
         // parallax
@@ -2140,7 +1914,7 @@ editor.once('load', function() {
         editor.call('attributes:reference:asset:material:heightMapTiling:attach', fieldHeightMapTiling[0].parent.innerElement.firstChild.ui);
 
 
-        // intensity
+        // heightMapFactor
         var fieldHeightMapFactor = editor.call('attributes:addField', {
             parent: panelParallax,
             name: 'Strength',
@@ -2159,64 +1933,18 @@ editor.once('load', function() {
         editor.call('attributes:reference:asset:material:bumpiness:attach', fieldHeightMapFactor.parent.innerElement.firstChild.ui);
 
         // heightMapFactor slider
-        var fieldHeightMapFactorSlider = new ui.Slider({
+        var fieldHeightMapFactorSlider = editor.call('attributes:addField', {
+            panel: fieldHeightMapFactor.parent,
+            precision: 3,
+            step: .05,
             min: 0,
-            max: 1,
-            precision: 3
+            max: 2,
+            type: 'number',
+            slider: true,
+            link: assets,
+            path: 'data.heightMapFactor'
         });
-        fieldHeightMapFactorSlider.value = fieldHeightMapFactor.value;
         fieldHeightMapFactorSlider.flexGrow = 4;
-        fieldHeightMapFactor.on('change', function(value) {
-            fieldHeightMapFactorSlider.value = value;
-        });
-        var recordsHeightMapFactor = [ ];
-        fieldHeightMapFactorSlider.on('start', function() {
-            fieldHeightMapFactor._stopHistory = true;
-            recordsHeightMapFactor = [ ];
-            for(var i = 0; i < assets.length; i++) {
-                recordsHeightMapFactor.push({
-                    get: assets[i].history._getItemFn,
-                    value: assets[i].get('data.heightMapFactor')
-                });
-            }
-        });
-        fieldHeightMapFactorSlider.on('end', function() {
-            fieldHeightMapFactor._stopHistory = false;
-            var records = recordsHeightMapFactor.slice(0);
-            var value = fieldHeightMapFactor.value;
-
-            // history
-            editor.call('history:add', {
-                name: 'data.heightMapFactor',
-                undo: function() {
-                    for(var i = 0; i < records.length; i++) {
-                        var item = records[i].get();
-                        if (! item) continue;
-
-                        item.history.enabled = false;
-                        item.set('data.heightMapFactor', records[i].value || 0);
-                        item.history.enabled = true;
-                    }
-                },
-                redo: function() {
-                    for(var i = 0; i < records.length; i++) {
-                        var item = records[i].get();
-                        if (! item) continue;
-
-                        item.history.enabled = false;
-                        item.set('data.heightMapFactor', value);
-                        item.history.enabled = true;
-                    }
-                }
-            });
-        });
-        fieldHeightMapFactorSlider.on('change', function(value) {
-            if (fieldHeightMapFactor._changing)
-                return;
-            fieldHeightMapFactor.value = value;
-        });
-        fieldHeightMapFactor.parent.append(fieldHeightMapFactorSlider);
-
 
 
         // reflection
@@ -2281,63 +2009,18 @@ editor.once('load', function() {
         editor.call('attributes:reference:asset:material:reflectivity:attach', fieldReflectionStrength.parent.innerElement.firstChild.ui);
 
         // reflectivity slider
-        var fieldReflectionStrengthSlider = new ui.Slider({
+        var fieldReflectionStrengthSlider = editor.call('attributes:addField', {
+            panel: fieldReflectionStrength.parent,
+            precision: 3,
+            step: .01,
             min: 0,
             max: 1,
-            precision: 3
+            type: 'number',
+            slider: true,
+            link: assets,
+            path: 'data.reflectivity'
         });
-        fieldReflectionStrengthSlider.value = fieldReflectionStrength.value;
         fieldReflectionStrengthSlider.flexGrow = 4;
-        fieldReflectionStrength.on('change', function(value) {
-            fieldReflectionStrengthSlider.value = value;
-        });
-        var recordsReflectionStrength = [ ];
-        fieldReflectionStrengthSlider.on('start', function() {
-            fieldReflectionStrength._stopHistory = true;
-            recordsReflectionStrength = [ ];
-            for(var i = 0; i < assets.length; i++) {
-                recordsReflectionStrength.push({
-                    get: assets[i].history._getItemFn,
-                    value: assets[i].get('data.reflectivity')
-                });
-            }
-        });
-        fieldReflectionStrengthSlider.on('end', function() {
-            fieldReflectionStrength._stopHistory = false;
-            var records = recordsReflectionStrength.slice(0);
-            var value = fieldReflectionStrength.value;
-
-            // history
-            editor.call('history:add', {
-                name: 'data.reflectivity',
-                undo: function() {
-                    for(var i = 0; i < records.length; i++) {
-                        var item = records[i].get();
-                        if (! item) continue;
-
-                        item.history.enabled = false;
-                        item.set('data.reflectivity', records[i].value || 0);
-                        item.history.enabled = true;
-                    }
-                },
-                redo: function() {
-                    for(var i = 0; i < records.length; i++) {
-                        var item = records[i].get();
-                        if (! item) continue;
-
-                        item.history.enabled = false;
-                        item.set('data.reflectivity', value);
-                        item.history.enabled = true;
-                    }
-                }
-            });
-        });
-        fieldReflectionStrengthSlider.on('change', function(value) {
-            if (fieldReflectionStrength._changing)
-                return;
-            fieldReflectionStrength.value = value;
-        });
-        fieldReflectionStrength.parent.append(fieldReflectionStrengthSlider);
 
 
         // refraction
@@ -2356,64 +2039,19 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:refraction:attach', fieldRefraction.parent.innerElement.firstChild.ui);
 
-        // refraction slider
-        var fieldRefractionSlider = new ui.Slider({
+        // reflectivity slider
+        var fieldRefractionSlider = editor.call('attributes:addField', {
+            panel: fieldRefraction.parent,
+            precision: 3,
+            step: .01,
             min: 0,
             max: 1,
-            precision: 3
+            type: 'number',
+            slider: true,
+            link: assets,
+            path: 'data.refraction'
         });
-        fieldRefractionSlider.value = fieldRefraction.value;
         fieldRefractionSlider.flexGrow = 4;
-        fieldRefraction.on('change', function(value) {
-            fieldRefractionSlider.value = value;
-        });
-        var recordsRefraction = [ ];
-        fieldRefractionSlider.on('start', function() {
-            fieldRefraction._stopHistory = true;
-            recordsRefraction = [ ];
-            for(var i = 0; i < assets.length; i++) {
-                recordsRefraction.push({
-                    get: assets[i].history._getItemFn,
-                    value: assets[i].get('data.refraction')
-                });
-            }
-        });
-        fieldRefractionSlider.on('end', function() {
-            fieldRefraction._stopHistory = false;
-            var records = recordsRefraction.slice(0);
-            var value = fieldRefraction.value;
-
-            // history
-            editor.call('history:add', {
-                name: 'data.refraction',
-                undo: function() {
-                    for(var i = 0; i < records.length; i++) {
-                        var item = records[i].get();
-                        if (! item) continue;
-
-                        item.history.enabled = false;
-                        item.set('data.refraction', records[i].value || 0);
-                        item.history.enabled = true;
-                    }
-                },
-                redo: function() {
-                    for(var i = 0; i < records.length; i++) {
-                        var item = records[i].get();
-                        if (! item) continue;
-
-                        item.history.enabled = false;
-                        item.set('data.refraction', value);
-                        item.history.enabled = true;
-                    }
-                }
-            });
-        });
-        fieldRefractionSlider.on('change', function(value) {
-            if (fieldRefraction._changing)
-                return;
-            fieldRefraction.value = value;
-        });
-        fieldRefraction.parent.append(fieldRefractionSlider);
 
 
         // refractionIndex
@@ -2432,66 +2070,19 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:refractionIndex:attach', fieldRefractionIndex.parent.innerElement.firstChild.ui);
 
-
-        // refraction slider
-        var fieldRefractionIndexSlider = new ui.Slider({
+        // reflectivity slider
+        var fieldRefractionIndexSlider = editor.call('attributes:addField', {
+            panel: fieldRefractionIndex.parent,
+            precision: 3,
+            step: .01,
             min: 0,
             max: 1,
-            precision: 3
+            type: 'number',
+            slider: true,
+            link: assets,
+            path: 'data.refractionIndex'
         });
-        fieldRefractionIndexSlider.value = fieldRefractionIndex.value;
         fieldRefractionIndexSlider.flexGrow = 4;
-        fieldRefractionIndex.on('change', function(value) {
-            fieldRefractionIndexSlider.value = value;
-        });
-        var recordsRefractionIndex = [ ];
-        fieldRefractionIndexSlider.on('start', function() {
-            fieldRefractionIndex._stopHistory = true;
-            recordsRefractionIndex = [ ];
-            for(var i = 0; i < assets.length; i++) {
-                recordsRefractionIndex.push({
-                    get: assets[i].history._getItemFn,
-                    value: assets[i].get('data.refractionIndex')
-                });
-            }
-        });
-        fieldRefractionIndexSlider.on('end', function() {
-            fieldRefractionIndex._stopHistory = false;
-            var records = recordsRefractionIndex.slice(0);
-            var value = fieldRefractionIndex.value;
-
-            // history
-            editor.call('history:add', {
-                name: 'data.refractionIndex',
-                undo: function() {
-                    for(var i = 0; i < records.length; i++) {
-                        var item = records[i].get();
-                        if (! item) continue;
-
-                        item.history.enabled = false;
-                        item.set('data.refractionIndex', records[i].value || 0);
-                        item.history.enabled = true;
-                    }
-                },
-                redo: function() {
-                    for(var i = 0; i < records.length; i++) {
-                        var item = records[i].get();
-                        if (! item) continue;
-
-                        item.history.enabled = false;
-                        item.set('data.refractionIndex', value);
-                        item.history.enabled = true;
-                    }
-                }
-            });
-        });
-        fieldRefractionIndexSlider.on('change', function(value) {
-            if (fieldRefractionIndex._changing)
-                return;
-            fieldRefractionIndex.value = value;
-        });
-        fieldRefractionIndex.parent.append(fieldRefractionIndexSlider);
-
 
         filterReflectionMaps();
 
