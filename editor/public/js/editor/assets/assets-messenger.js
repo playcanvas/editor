@@ -53,7 +53,16 @@ editor.once('load', function() {
                 if (asset.syncing)
                     return;
 
-                var isAssetSelected = (editor.call('selector:type') === 'asset' && editor.call('selector:items')[0].get('id') === data.id);
+                var isAssetSelected = false;
+                if (editor.call('selector:type') === 'asset') {
+                    var items = editor.call('selector:items');
+                    for(var i = 0; i < items.length; i++) {
+                        if (items[i].get('id') === data.id) {
+                            isAssetSelected = true;
+                            break;
+                        }
+                    }
+                }
 
                 // TODO
                 // WORKAROUND
