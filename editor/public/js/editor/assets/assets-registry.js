@@ -68,7 +68,6 @@ editor.once('load', function() {
                     }
 
                     timeout = null;
-
                 });
 
             });
