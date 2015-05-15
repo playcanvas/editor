@@ -8,6 +8,9 @@ editor.once('load', function() {
                 return;
         }
 
+        if (assets.length > 1)
+            editor.call('attributes:header', assets.length + ' CubeMaps');
+
         // properties panel
         var paramsPanel = editor.call('attributes:addPanel', {
             name: 'CubeMap'

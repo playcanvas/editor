@@ -25,7 +25,7 @@ editor.once('load', function() {
 
     // set header
     editor.method('attributes:header', function(text) {
-        root.header = title + ' (' + text + ')';
+        root.header = text;
     });
 
     // return root panel
@@ -937,7 +937,7 @@ editor.once('load', function() {
             editor.call('attributes:clear');
         }));
 
-        root.header = title + ' (' + type + ')';
+        root.header = type;
         editor.emit('attributes:inspect[' + type + ']', [ item ]);
         editor.emit('attributes:inspect[*]', type, [ item ]);
     });
@@ -965,7 +965,7 @@ editor.once('load', function() {
         }
 
         var type = editor.call('selector:type');
-        root.header = title + ' (' + type + ')';
+        root.header = type;
         editor.emit('attributes:inspect[' + type + ']', items);
         editor.emit('attributes:inspect[*]', type, items);
     });

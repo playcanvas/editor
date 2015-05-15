@@ -2,13 +2,13 @@ editor.once('load', function() {
     'use strict';
 
     editor.on('attributes:inspect[asset]', function(assets) {
-        // if (assets.length !== 1 || assets[0].get('type') !== 'texture')
-        //     return;
-
         for(var i = 0; i < assets.length; i++) {
             if (assets[i].get('type') !== 'texture')
                 return;
         }
+
+        if (assets.length > 1)
+            editor.call('attributes:header', assets.length + ' Textures');
 
         // properties panel
         var paramsPanel = editor.call('attributes:addPanel', {
