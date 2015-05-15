@@ -81,10 +81,18 @@ editor.once('load', function() {
         setIconClass('error');
         content.innerHTML = 'Error while saving changes. Please refresh the editor.';
         overlay.hidden = false;
-    }
+    };
 
     editor.on('realtime:error', onError);
     editor.on('realtime:scene:error', onError);
+
+    editor.on('messenger:pack.delete', function (data) {
+        if (data.pack.id === parseInt(config.scene.id, 10)) {
+            setIconClass('error');
+            content.innerHTML = 'This scene has been deleted.';
+            overlay.hidden = false;
+        }
+    });
 
     var clearIconClass = function () {
         icon.classList.remove('error');
