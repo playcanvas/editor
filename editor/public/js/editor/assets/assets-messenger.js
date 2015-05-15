@@ -64,22 +64,24 @@ editor.once('load', function() {
                 // WORKAROUND
                 // prevent asset being updated if it is selected
                 // keep it until assets are updated through sharejs
-                var fields = isAssetSelected ? ['modified_at', 'file', 'name'] : [ 'modified_at', 'data', 'file', 'name' ];
+                var fields = isAssetSelected ? [ 'modified_at', 'file', 'name', 'has_thumbnail' ] : [ 'modified_at', 'data', 'file', 'name', 'has_thumbnail' ];
 
                 asset.sync = false;
                 asset.history.enabled = false;
 
                 var fileSize = asset.get('file.size');
+                var thumbnailSet = data.has_thumbnail !== asset.get('has_thumbnail');
 
                 for(var i = 0; i < fields.length; i++) {
                     asset.set(fields[i], data[fields[i]]);
                 }
 
                 // reset thumbnails
-                if (data.thumbnails && ! (asset.get('type') === 'texture' && fileSize === asset.get('file.size'))) {
+                if (data.thumbnails && ! (asset.get('type') === 'texture' && fileSize === asset.get('file.size') && ! thumbnailSet)) {
                     fileSize = asset.get('file.size');
                     asset.unset('thumbnails');
                     asset.set('thumbnails', data.thumbnails);
+                    asset.set('has_thumbnail', true);
                 }
 
                 asset.history.enabled = true;
