@@ -5,10 +5,13 @@ editor.once('load', function() {
 
     var sceneName = 'Untitled';
     editor.on('scene:raw', function(data) {
-        sceneName = data.name;
+        editor.emit('scene:name', data.name);
     });
     editor.on('realtime:scene:op:name', function(op) {
-        sceneName = op.oi;
+        editor.emit('scene:name', op.oi);
+    });
+    editor.on('scene:name', function(name) {
+        sceneName = name;
     });
 
     // inspecting
@@ -34,7 +37,7 @@ editor.once('load', function() {
                 od: sceneName || '',
                 oi: value || ''
             });
-            sceneName = value;
+            editor.emit('scene:name', value);
         });
         var evtNameChange = editor.on('realtime:scene:op:name', function(op) {
             changingName = true;

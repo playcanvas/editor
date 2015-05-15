@@ -403,6 +403,9 @@ editor.once('load', function() {
                 return;
         }
 
+        if (assets.length > 1)
+            editor.call('attributes:header', assets.length + ' Materials');
+
         var root = editor.call('attributes.rootPanel');
 
         var ids = [ ];

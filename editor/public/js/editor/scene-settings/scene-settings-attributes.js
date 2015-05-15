@@ -4,7 +4,7 @@ editor.once('load', function() {
     var sceneSettings = editor.call('sceneSettings');
 
     editor.on('attributes:inspect[designerSettings]', function() {
-        editor.call('attributes:header', 'Editor Settings');
+        editor.call('attributes:header', 'Settings');
 
         var filteredFields = [ ];
 

@@ -39,6 +39,8 @@ editor.once('load', function() {
         if (entities.length !== 1)
             return;
 
+        editor.call('attributes:header', 'Entity');
+
         var entity = entities[0];
         currentEntity = entity;
 

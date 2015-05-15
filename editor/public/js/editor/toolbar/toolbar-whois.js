@@ -10,10 +10,17 @@ editor.once('load', function() {
 
 
     editor.on('whoisonline:add', function (id) {
+        for(var i = 0; i < panel.innerElement.childNodes.length; i++) {
+            var child = panel.innerElement.childNodes[i];
+            if (child.userId === id)
+                return;
+        }
+
         var link = document.createElement('a');
+        link.userId = id;
         link.href = '/' + id;
         link.target = "_blank";
-        panel.append(link);
+        panel.prepend(link);
 
         var img = document.createElement('img');
         img.src = '/api/' + id + '/thumbnail?size=32';
@@ -30,20 +37,46 @@ editor.once('load', function() {
             align: 'top',
             root: root
         });
+
+        reflow();
     });
 
 
     editor.on('whoisonline:remove', function (id, index) {
-        var element = panel.innerElement.childNodes[index];
-        if (element) {
-            element.parentElement.removeChild(element);
-            if (element.tooltip)
-                element.tooltip.destroy();
+        for(var i = 0; i < panel.innerElement.childNodes.length; i++) {
+            var child = panel.innerElement.childNodes[i];
+            if (child.userId === id) {
+                if (child.tooltip)
+                    child.tooltip.destroy();
+                panel.innerElement.removeChild(child);
+                reflow()
+                return;
+            }
         }
     });
 
 
     editor.method('whoisonline:panel', function() {
         return panel;
+    });
+
+    // offset whoisonline if assets panel header overlaps
+    var canvas = null;
+    var panelAssets =  editor.call('layout.assets');
+
+    var reflow = function() {
+        if (! canvas)
+            return;
+
+        if ((8 + panelAssets.headerElement.clientWidth + panel.element.clientWidth) > canvas.width) {
+            panel.class.add('offset');
+        } else {
+            panel.class.remove('offset');
+        }
+    };
+
+    setTimeout(function() {
+        canvas = editor.call('viewport:canvas');
+        canvas.on('resize', reflow);
     });
 });
