@@ -2,27 +2,23 @@ editor.once('load', function() {
     'use strict';
 
     var updateOrCreate = function(data) {
-        // if (asset.syncTimeout) {
-        //     clearTimeout(asset.syncTimeout);
-        //     asset.syncTimeout = null;
-        // }
-
-        var assetId = null;
+        var assetId = data.asset.id;
 
         if (data.asset.source) {
+            if ([ 'scene', 'texture' ].indexOf(data.asset.type) === -1 || data.asset.status !== 'complete')
+                return;
+
             var asset = editor.call('assets:findOne', function(asset) {
-                return asset.get('source_asset_id') === data.asset.id;
-            })
+                return asset.get('source_asset_id') === data.asset.id && asset.get('type') === ((data.asset.type === 'scene') ? 'model' : data.asset.type);
+            });
+
             if (! asset)
                 return;
 
             assetId = asset[1].get('id');
-        }
-        if (! data.asset.source)
-            assetId = data.asset.id;
-
-        if (! assetId)
+        } else if (data.asset.status !== 'complete' && [ 'material', 'model', 'cubemap', 'text', 'json' ].indexOf(data.asset.type) === -1) {
             return;
+        }
 
         var asset = editor.call('assets:get', assetId);
 
