@@ -109,23 +109,14 @@ editor.once('load', function() {
         if ((evt.target && evt.target.tagName.toLowerCase() === 'input'))
             return;
 
-        switch(evt.keyCode) {
-            case 16: // shift
-                shift = true;
-                return;
-            case 17: // ctrl
-            case 91: // cmnd
-                ctrl = true;
-                return;
-            case 18: // alt
-                alt = true;
-                return;
-            default:
-                if ([ 92, 93 ].indexOf(evt.keyCode) !== -1)
-                    return;
-        }
+        shift = evt.shiftKey;
+        ctrl = evt.ctrlKey || evt.metaKey;
+        alt = evt.altKey;
 
-        var index = [ (ctrl || evt.ctrlKey || evt.metaKey)+0, (alt || evt.altKey)+0, (shift || evt.shiftKey)+0, evt.keyCode ].join('+');
+        if ([ 92, 93 ].indexOf(evt.keyCode) !== -1)
+            return;
+
+        var index = [ ctrl+0, alt+0, shift+0, evt.keyCode ].join('+');
 
         if (keyIndex[index]) {
             for(var i = 0; i < keyIndex[index].length; i++) {
@@ -137,18 +128,16 @@ editor.once('load', function() {
 
 
     window.addEventListener('keyup', function(evt) {
-        switch(evt.keyCode) {
-            case 16: // shift
-                shift = false;
-                return;
-            case 17: // ctrl
-            case 91: // cmnd
-                ctrl = false;
-                return;
-            case 18: // alt
-                alt = false;
-                return;
-        }
+        shift = evt.shiftKey;
+        ctrl = evt.ctrlKey || evt.metaKey;
+        alt = evt.altKey;
+    }, false);
+
+
+    window.addEventListener('mousedown', function(evt) {
+        shift = evt.shiftKey;
+        ctrl = evt.ctrlKey || evt.metaKey;
+        alt = evt.altKey;
     }, false);
 
 
