@@ -1499,15 +1499,19 @@ strong {
 
 .ui-panel.whoisonline {
     position: absolute;
-    top: 2px;
-    left: 2px;
+    bottom: 2px;
+    right: 2px;
     background-color: transparent;
     padding: 2px;
+
+    &.offset {
+        bottom: 34px;
+    }
 
     > .content {
         > a {
             display: block;
-            margin-right: 4px;
+            margin-left: 4px;
             float: left;
 
             > img {
