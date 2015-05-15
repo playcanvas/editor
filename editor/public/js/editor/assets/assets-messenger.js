@@ -2,27 +2,23 @@ editor.once('load', function() {
     'use strict';
 
     var updateOrCreate = function(data) {
-        // if (asset.syncTimeout) {
-        //     clearTimeout(asset.syncTimeout);
-        //     asset.syncTimeout = null;
-        // }
-
-        var assetId = null;
+        var assetId = data.asset.id;
 
         if (data.asset.source) {
+            if ([ 'scene', 'texture' ].indexOf(data.asset.type) === -1 || data.asset.status !== 'complete')
+                return;
+
             var asset = editor.call('assets:findOne', function(asset) {
-                return asset.get('source_asset_id') === data.asset.id;
-            })
+                return asset.get('source_asset_id') === data.asset.id && asset.get('type') === ((data.asset.type === 'scene') ? 'model' : data.asset.type);
+            });
+
             if (! asset)
                 return;
 
             assetId = asset[1].get('id');
-        }
-        if (! data.asset.source)
-            assetId = data.asset.id;
-
-        if (! assetId)
+        } else if (data.asset.status !== 'complete' && [ 'material', 'model', 'cubemap', 'text', 'json' ].indexOf(data.asset.type) === -1) {
             return;
+        }
 
         var asset = editor.call('assets:get', assetId);
 
@@ -68,22 +64,24 @@ editor.once('load', function() {
                 // WORKAROUND
                 // prevent asset being updated if it is selected
                 // keep it until assets are updated through sharejs
-                var fields = isAssetSelected ? ['modified_at', 'file', 'name'] : [ 'modified_at', 'data', 'file', 'name' ];
+                var fields = isAssetSelected ? [ 'modified_at', 'file', 'name', 'has_thumbnail' ] : [ 'modified_at', 'data', 'file', 'name', 'has_thumbnail' ];
 
                 asset.sync = false;
                 asset.history.enabled = false;
 
                 var fileSize = asset.get('file.size');
+                var thumbnailSet = data.has_thumbnail !== asset.get('has_thumbnail');
 
                 for(var i = 0; i < fields.length; i++) {
                     asset.set(fields[i], data[fields[i]]);
                 }
 
                 // reset thumbnails
-                if (data.thumbnails && ! (asset.get('type') === 'texture' && fileSize === asset.get('file.size'))) {
+                if (data.thumbnails && ! (asset.get('type') === 'texture' && fileSize === asset.get('file.size') && ! thumbnailSet)) {
                     fileSize = asset.get('file.size');
                     asset.unset('thumbnails');
                     asset.set('thumbnails', data.thumbnails);
+                    asset.set('has_thumbnail', true);
                 }
 
                 asset.history.enabled = true;
