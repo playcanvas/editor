@@ -77,7 +77,9 @@ editor.once('load', function() {
                     if (items.length) {
                         editor.call('selector:history', false);
                         editor.call('selector:set', selectorType, items);
-                        editor.call('selector:history', true);
+                        editor.once('selector:change', function() {
+                            editor.call('selector:history', true);
+                        });
                     }
                 }
             },
@@ -118,7 +120,9 @@ editor.once('load', function() {
             setTimeout(function() {
                 editor.call('selector:history', false);
                 editor.call('selector:set', 'entity', [ entity ]);
-                editor.call('selector:history', true);
+                editor.once('selector:change', function() {
+                    editor.call('selector:history', true);
+                });
             }, 0);
         }
 
@@ -146,9 +150,13 @@ editor.once('load', function() {
             removeEntity(entity);
         });
 
-        editor.call('selector:history', false);
-        editor.call('selector:remove', entity);
-        editor.call('selector:history', true);
+        if (editor.call('selector:type') === 'entity' && editor.call('selector:items').indexOf(entity) !== -1) {
+            editor.call('selector:history', false);
+            editor.call('selector:remove', entity);
+            editor.once('selector:change', function() {
+                editor.call('selector:history', true);
+            });
+        }
 
         // remove from parent
         var parentId = childToParent[entity.get('resource_id')];
@@ -226,7 +234,9 @@ editor.once('load', function() {
         setTimeout(function() {
             editor.call('selector:history', false);
             editor.call('selector:set', 'entity', [ entityNew ]);
-            editor.call('selector:history', true);
+            editor.once('selector:change', function() {
+                editor.call('selector:history', true);
+            });
         }, 0);
 
         editor.call('history:add', {
@@ -249,7 +259,9 @@ editor.once('load', function() {
                     if (items.length) {
                         editor.call('selector:history', false);
                         editor.call('selector:set', selectorType, items);
-                        editor.call('selector:history', true);
+                        editor.once('selector:change', function() {
+                            editor.call('selector:history', true);
+                        });
                     }
                 }
             },
@@ -418,11 +430,13 @@ editor.once('load', function() {
         }
 
         // select pasted entity
-        // setTimeout(function() {
-        //     editor.call('selector:history', false);
-        //     editor.call('selector:set', 'entity', [ newEntity ]);
-        //     editor.call('selector:history', true);
-        // }, 0);
+        setTimeout(function() {
+            editor.call('selector:history', false);
+            editor.call('selector:set', 'entity', [ newEntity ]);
+            editor.once('selector:change', function() {
+                editor.call('selector:history', true);
+            });
+        }, 0);
 
         // get final raw json for pasted entity
         var pastedData = newEntity.json();
@@ -437,22 +451,24 @@ editor.once('load', function() {
 
                 removeEntity(entity);
 
-                // var selectorType = editor.call('selector:type');
-                // var selectorItems = editor.call('selector:items');
-                // if (selectorType === 'entity' && selectorItems.length) {
-                //     var items = [ ];
-                //     for(var i = 0; i < selectorItems.length; i++) {
-                //         var item = editor.call('entities:get', selectorItems[i]);
-                //         if (item)
-                //             items.push(item);
-                //     }
+                var selectorType = editor.call('selector:type');
+                var selectorItems = editor.call('selector:items');
+                if (selectorType === 'entity' && selectorItems.length) {
+                    var items = [ ];
+                    for(var i = 0; i < selectorItems.length; i++) {
+                        var item = editor.call('entities:get', selectorItems[i]);
+                        if (item)
+                            items.push(item);
+                    }
 
-                //     if (items.length) {
-                //         editor.call('selector:history', false);
-                //         editor.call('selector:set', selectorType, items);
-                //         editor.call('selector:history', true);
-                //     }
-                // }
+                    if (items.length) {
+                        editor.call('selector:history', false);
+                        editor.call('selector:set', selectorType, items);
+                        editor.once('selector:change', function() {
+                            editor.call('selector:history', true);
+                        });
+                    }
+                }
             },
             redo: function() {
                 var parentEntity = editor.call('entities:get', parent.get('resource_id'));
@@ -467,5 +483,3 @@ editor.once('load', function() {
     });
 
 });
-
-
