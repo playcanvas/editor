@@ -1,6 +1,15 @@
 app.once('load', function() {
     'use strict';
 
+    // Wait for assets, hierarchy and settings to load before initializing application and starting.
+    var hierarchy = false;
+    var assets  = false;
+    var settings = false;
+    var sourcefiles = false;
+    var libraries = false;
+    var sceneData = null;
+    var sceneSettings = null;
+
     // canvas element
     var canvas = document.createElement('canvas');
     canvas.id = 'application-canvas';
@@ -34,14 +43,14 @@ app.once('load', function() {
         bar.style.width = value * 100 + '%';
     }
 
-    var libraries = config.project.settings.libraries;
+    // convert library properties into URLs
     var libraryUrls = [];
-    if (libraries) {
-        for (var i = 0; i < libraries.length; i++) {
-            if (libraries[i] === 'physics-engine-3d') {
+    if (config.project.settings.libraries) {
+        for (var i = 0; i < config.project.settings.libraries.length; i++) {
+            if (config.project.settings.libraries[i] === 'physics-engine-3d') {
                 libraryUrls.push(config.url.physics);
             } else {
-                libraryUrls.push(libraries[i]);
+                libraryUrls.push(config.project.settings.libraries[i]);
             }
         }
     }
@@ -61,7 +70,6 @@ app.once('load', function() {
         touch: !!('ontouchstart' in window) ? new pc.input.TouchDevice(canvas) : null,
         keyboard: new pc.input.Keyboard(window),
         gamepads: new pc.input.GamePads(),
-        libraries: libraryUrls,
         scriptPrefix: queryParams.local ? 'http://localhost:51000' : config.project.scriptPrefix
     });
 
@@ -71,6 +79,14 @@ app.once('load', function() {
 
     application.setCanvasResolution(config.project.settings.resolutionMode, config.project.settings.width, config.project.settings.height);
     application.setCanvasFillMode(config.project.settings.fillMode, config.project.settings.width, config.project.settings.height);
+
+    application._loadLibraries(libraryUrls, function (err) {
+        libraries = true;
+        if (err) {
+            console.error(err);
+        }
+        init();
+    });
 
     // css media query for aspect ratio changes
     var css  = "@media screen and (min-aspect-ratio: " + config.project.settings.width + "/" + config.project.settings.height + ") {";
@@ -117,15 +133,8 @@ app.once('load', function() {
         return application;
     });
 
-    // Wait for assets, hierarchy and settings to load before initializing application and starting.
-    var hierarchy = false;
-    var assets  = false;
-    var settings = false;
-    var sourcefiles = false;
-    var scene_data = null;
-
     var init = function () {
-        if (assets && hierarchy && settings && sourcefiles) {
+        if (assets && hierarchy && settings && sourcefiles && libraries) {
             application.on("preload:progress", setProgress);
 
             // load assets that are in the preload set
@@ -133,8 +142,13 @@ app.once('load', function() {
                 application.off("preload:progress", setProgress);
 
                 // create scene
-                application.scene = application.loader.open("scene", scene_data);
-                scene_data = null;
+                application.scene = application.loader.open("scene", sceneData);
+                // update scene settings now that scene is loaded
+                application.updateSceneSettings(sceneSettings)
+
+                // clear stored loading data
+                sceneData = null;
+                sceneSettings = null;
 
                 app.call('entities:')
                 if (err) {
@@ -149,7 +163,7 @@ app.once('load', function() {
 
     app.on('entities:load', function (data) {
         hierarchy = true;
-        scene_data = data;
+        sceneData = data;
         init();
     });
 
@@ -158,8 +172,9 @@ app.once('load', function() {
         init();
     });
 
-    app.on('sceneSettings:load', function () {
+    app.on('sceneSettings:load', function (data) {
         settings = true;
+        sceneSettings = data.json();
         init();
     });
 
