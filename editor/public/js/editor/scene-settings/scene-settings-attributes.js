@@ -4,7 +4,7 @@ editor.once('load', function() {
     var sceneSettings = editor.call('sceneSettings');
 
     editor.on('attributes:inspect[designerSettings]', function() {
-        editor.call('attributes:header', 'Editor Settings');
+        editor.call('attributes:header', 'Settings');
 
         var filteredFields = [ ];
 
@@ -100,7 +100,7 @@ editor.once('load', function() {
             path: 'render.tonemapping'
         });
         // reference
-        editor.call('attributes:reference:settings:tomeMapping:attach', fieldTonemapping.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:settings:toneMapping:attach', fieldTonemapping.parent.innerElement.firstChild.ui);
 
 
         // exposure

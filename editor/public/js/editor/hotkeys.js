@@ -5,6 +5,9 @@ editor.once('load', function() {
     var hotkeys = { };
     var keyIndex = { };
     var keysDown = { };
+    var ctrl = false;
+    var shift = false;
+    var alt = false;
 
     var keyMap = {
         'backspace': 8,
@@ -89,18 +92,59 @@ editor.once('load', function() {
     });
 
 
+    editor.method('hotkey:shift', function() {
+        return shift;
+    });
+
+    editor.method('hotkey:ctrl', function() {
+        return ctrl;
+    });
+
+    editor.method('hotkey:alt', function() {
+        return alt;
+    });
+
+
     window.addEventListener('keydown', function(evt) {
-        if ((evt.target && evt.target.tagName.toLowerCase() === 'input') || [ 16, 17, 18, 91, 92, 93 ].indexOf(evt.keyCode) !== -1)
+        if ((evt.target && evt.target.tagName.toLowerCase() === 'input'))
             return;
 
-        var index = [ (evt.ctrlKey || evt.metaKey) ? 1 : 0, evt.altKey ? 1 : 0, evt.shiftKey ? 1 : 0, evt.keyCode ].join('+');
+        shift = evt.shiftKey;
+        ctrl = evt.ctrlKey || evt.metaKey;
+        alt = evt.altKey;
+
+        if ([ 92, 93 ].indexOf(evt.keyCode) !== -1)
+            return;
+
+        var index = [ ctrl+0, alt+0, shift+0, evt.keyCode ].join('+');
 
         if (keyIndex[index]) {
             for(var i = 0; i < keyIndex[index].length; i++) {
                 hotkeys[keyIndex[index][i]].callback();
             }
-
             evt.preventDefault();
         }
     }, false);
+
+
+    window.addEventListener('keyup', function(evt) {
+        shift = evt.shiftKey;
+        ctrl = evt.ctrlKey || evt.metaKey;
+        alt = evt.altKey;
+    }, false);
+
+
+    window.addEventListener('mousedown', function(evt) {
+        shift = evt.shiftKey;
+        ctrl = evt.ctrlKey || evt.metaKey;
+        alt = evt.altKey;
+    }, false);
+
+
+    ui.Grid._ctrl = function() {
+        return ctrl;
+    };
+    ui.Grid._shift = function() {
+        return shift;
+    };
 });

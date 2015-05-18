@@ -171,7 +171,7 @@ Object.defineProperty(NumberField.prototype, 'value', {
         if (this._link) {
             return this._link.get(this.path);
         } else {
-            return parseFloat(this.elementInput.value, 10);
+            return this.elementInput.value !== '' ? parseFloat(this.elementInput.value, 10) : null;
         }
     },
     set: function(value) {
@@ -186,12 +186,14 @@ Object.defineProperty(NumberField.prototype, 'value', {
             if (this.min !== null && this.min > value)
                 value = this.min;
 
-            value = (this.precision !== null) ? parseFloat(value.toFixed(this.precision), 10) : value;
+            value = (value !== null && (this.precision !== null) ? parseFloat(value.toFixed(this.precision), 10) : value);
+            if (value === undefined)
+                value = null;
 
             if (this._lastValue !== value) {
                 this._lastValue = value;
                 this.elementInput.value = value;
-                this.emit('change', parseFloat(value, 10));
+                this.emit('change', value);
             }
         }
     }

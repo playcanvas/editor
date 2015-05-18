@@ -25,7 +25,7 @@ editor.once('load', function() {
 
     // set header
     editor.method('attributes:header', function(text) {
-        root.header = title + ' (' + text + ')';
+        root.header = text;
     });
 
     // return root panel
@@ -49,20 +49,371 @@ editor.once('load', function() {
         return panel;
     });
 
-    // add field
-    editor.method('attributes:addField', function(args) {
-        var panel = new ui.Panel();
-        panel.flexWrap = 'nowrap';
-        panel.WebkitFlexWrap = 'nowrap';
-        panel.style.display = '';
+    editor.method('attributes:linkField', function(args) {
+        var update, changeField, changeFieldQueue;
+        args.field._changing = false;
+        var events = [ ];
 
-        if (args.type) {
-            panel.class.add('field-' + args.type);
-        } else {
-            panel.class.add('field');
+        if (! (args.link instanceof Array))
+            args.link = [ args.link ];
+
+        update = function() {
+            var different = false;
+            var value = args.link[0].get(args.path);
+            if (args.type === 'rgb') {
+                for(var i = 1; i < args.link.length; i++) {
+                    if (! value.equals(args.link[i].get(args.path))) {
+                        value = null;
+                        different = true;
+                        break;
+                    }
+                }
+                if (value) {
+                    value = value.map(function(v) {
+                        return Math.floor(v * 255);
+                    });
+                }
+            } else if (args.type === 'asset') {
+                for(var i = 1; i < args.link.length; i++) {
+                    if ((value || 0) !== (args.link[i].get(args.path) || 0)) {
+                        value = args.enum ? '' : null;
+                        different = true;
+                        break;
+                    }
+                }
+                if (different) {
+                    args.field.class.add('null');
+                    args.field._title.text = 'various';
+                } else {
+                    args.field.class.remove('null');
+                }
+            } else {
+                for(var i = 1; i < args.link.length; i++) {
+                    var v = args.link[i].get(args.path);
+                    if ((value || 0) !== (v || 0)) {
+                        value = args.enum ? '' : null;
+                        different = true;
+                        break;
+                    }
+                }
+            }
+
+            args.field._changing = true;
+            args.field.value = value;
+            args.field._changing = false;
+
+            if (args.enum) {
+                var opt = args.field.optionElements[''];
+                if (opt) opt.style.display = value !== '' ? 'none' : '';
+            } else {
+                args.field.proxy = value === null ? '...' : null;
+            }
+        };
+
+        changeField = function(value) {
+            if (args.field._changing)
+                return;
+
+            if (args.enum) {
+                var opt = this.optionElements[''];
+                if (opt) opt.style.display = value !== '' ? 'none' : '';
+            } else {
+                this.proxy = value === null ? '...' : null;
+            }
+
+            if (args.type === 'rgb') {
+                value = value.map(function(v) {
+                    return v / 255;
+                });
+            } else if (args.type === 'asset') {
+                args.field.class.remove('null');
+            }
+
+            var items = [ ];
+
+            // set link value
+            args.field._changing = true;
+            for(var i = 0; i < args.link.length; i++) {
+                items.push({
+                    get: args.link[i].history._getItemFn,
+                    item: args.link[i],
+                    value: args.link[i].get(args.path)
+                });
+                if (typeof(args.link[i].history) === 'boolean') {
+                    args.link[i].history = false;
+                } else {
+                    args.link[i].history.enabled = false;
+                }
+
+                args.link[i].set(args.path, value);
+
+                if (typeof(args.link[i].history) === 'boolean') {
+                    args.link[i].history = true;
+                } else {
+                    args.link[i].history.enabled = true;
+                }
+            }
+            args.field._changing = false;
+
+            // history
+            if (args.type !== 'rgb' && ! args.slider && ! args.field._stopHistory) {
+                editor.call('history:add', {
+                    name: args.path,
+                    undo: function() {
+                        var different = false;
+
+                        for(var i = 0; i < items.length; i++) {
+                            var item;
+                            if (items[i].get) {
+                                item = items[i].get();
+                                if (! item)
+                                    continue;
+                            } else {
+                                item = items[i].item;
+                            }
+
+                            if (! different && items[0].value !== items[i].value)
+                                different = true;
+
+                            if (typeof(item.history) === 'boolean') {
+                                item.history = false;
+                            } else {
+                                item.history.enabled = false;
+                            }
+
+                            item.set(args.path, items[i].value);
+
+                            if (typeof(item.history) === 'boolean') {
+                                item.history = true;
+                            } else {
+                                item.history.enabled = true;
+                            }
+                        }
+
+                        if (different) {
+                            args.field.class.add('null');
+                        } else {
+                            args.field.class.remove('null');
+                        }
+                    },
+                    redo: function() {
+                        for(var i = 0; i < items.length; i++) {
+                            var item;
+                            if (items[i].get) {
+                                item = items[i].get();
+                                if (! item)
+                                    continue;
+                            } else {
+                                item = items[i].item;
+                            }
+
+                            if (typeof(item.history) === 'boolean') {
+                                item.history = false;
+                            } else {
+                                item.history.enabled = false;
+                            }
+
+                            item.set(args.path, value);
+
+                            if (typeof(item.history) === 'boolean') {
+                                item.history = true;
+                            } else {
+                                item.history.enabled = true;
+                            }
+                        }
+
+                        args.field.class.remove('null');
+                    }
+                });
+            }
+        };
+
+        changeFieldQueue = function() {
+            if (args.field._changing)
+                return;
+
+            args.field._changing = true;
+            setTimeout(function() {
+                args.field._changing = false;
+                update();
+            }, 0);
+        };
+
+        var historyStart, historyEnd;
+
+        if (args.type === 'rgb' || args.slider) {
+            historyStart = function() {
+                var items = [ ];
+
+                for(var i = 0; i < args.link.length; i++) {
+                    var v = args.link[i].get(args.path);
+                    if (v instanceof Array)
+                        v = v.slice(0);
+
+                    items.push({
+                        get: args.link[i].history._getItemFn,
+                        item: args.link[i],
+                        value: v
+                    });
+                }
+
+                return items;
+            };
+
+            historyEnd = function(items, value) {
+                // history
+                editor.call('history:add', {
+                    name: args.path,
+                    undo: function() {
+                        for(var i = 0; i < items.length; i++) {
+                            var item;
+                            if (items[i].get) {
+                                item = items[i].get();
+                                if (! item)
+                                    continue;
+                            } else {
+                                item = items[i].item;
+                            }
+
+                            if (typeof(item.history) === 'boolean') {
+                                item.history = false;
+                            } else {
+                                item.history.enabled = false;
+                            }
+
+                            item.set(args.path, items[i].value);
+
+                            if (typeof(item.history) === 'boolean') {
+                                item.history = true;
+                            } else {
+                                item.history.enabled = true;
+                            }
+                        }
+                    },
+                    redo: function() {
+                        for(var i = 0; i < items.length; i++) {
+                            var item;
+                            if (items[i].get) {
+                                item = items[i].get();
+                                if (! item)
+                                    continue;
+                            } else {
+                                item = items[i].item;
+                            }
+
+                            if (typeof(item.history) === 'boolean') {
+                                item.history = false;
+                            } else {
+                                item.history.enabled = false;
+                            }
+
+                            item.set(args.path, value);
+
+                            if (typeof(item.history) === 'boolean') {
+                                item.history = true;
+                            } else {
+                                item.history.enabled = true;
+                            }
+                        }
+                    }
+                });
+            };
         }
 
-        (args.parent || root).append(panel);
+        if (args.type === 'rgb') {
+            var colorPickerOn = false;
+            args.field.on('click', function() {
+                colorPickerOn = true;
+
+                // set picker color
+                editor.call('picker:color', args.field.value);
+
+                var items = [ ];
+
+                // picking starts
+                var evtColorPickStart = editor.on('picker:color:start', function() {
+                    items = historyStart();
+                });
+
+                // picked color
+                var evtColorPick = editor.on('picker:color', function(color) {
+                    args.field.value = color;
+                });
+
+                var evtColorPickEnd = editor.on('picker:color:end', function() {
+                    historyEnd(items.slice(0), args.field.value.map(function(v) {
+                        return v / 255;
+                    }));
+                });
+
+                // position picker
+                var rectPicker = editor.call('picker:color:rect');
+                var rectField = args.field.element.getBoundingClientRect();
+                editor.call('picker:color:position', rectField.left - rectPicker.width, rectField.top);
+
+                // color changed, update picker
+                var evtColorToPicker = args.field.on('change', function() {
+                    editor.call('picker:color:set', this.value);
+                });
+
+                // picker closed
+                editor.once('picker:color:close', function() {
+                    evtColorPick.unbind();
+                    evtColorPickStart.unbind();
+                    evtColorPickEnd.unbind();
+                    evtColorToPicker.unbind();
+                    colorPickerOn = false;
+                    args.field.element.focus();
+                });
+            });
+
+            // close picker if field destroyed
+            args.field.once('destroy', function() {
+                if (colorPickerOn)
+                    editor.call('picker:color:close');
+            });
+        } else if (args.slider) {
+            var sliderRecords;
+
+            events.push(args.field.on('start', function() {
+                sliderRecords = historyStart();
+            }));
+
+            events.push(args.field.on('end', function() {
+                historyEnd(sliderRecords.slice(0), args.field.value);
+            }));
+        }
+
+        update();
+        args.field.on('change', changeField);
+
+        for(var i = 0; i < args.link.length; i++)
+            events.push(args.link[i].on(args.path + ':set', changeFieldQueue));
+
+        args.field.once('destroy', function() {
+            for(var i = 0; i < events.length; i++)
+                events[i].unbind();
+        });
+    });
+
+    // add field
+    editor.method('attributes:addField', function(args) {
+        var panel = args.panel;
+
+        if (! panel) {
+            panel = new ui.Panel();
+            panel.flexWrap = 'nowrap';
+            panel.WebkitFlexWrap = 'nowrap';
+            panel.style.display = '';
+
+            if (args.type) {
+                panel.class.add('field-' + args.type);
+            } else {
+                panel.class.add('field');
+            }
+
+            (args.parent || root).append(panel);
+        }
 
         if (args.name) {
             var label = new ui.Label({
@@ -73,120 +424,31 @@ editor.once('load', function() {
         }
 
         var field;
-        var changing = false;
-        var events = [ ];
-        var linkMultiple, update, changeField, changeFieldQueue;
-
-        // multi functionality
-        if (args.link instanceof Array && args.link.length > 1) {
-            // update field value
-            update = function() {
-                var value = args.link[0].get(args.path);
-                for(var i = 1; i < args.link.length; i++) {
-                    if (value !== args.link[i].get(args.path)) {
-                        value = args.enum ? '' : null;
-                        break;
-                    }
-                }
-                changing = true;
-                field.value = value;
-                changing = false;
-
-                if (args.enum) {
-                    if (field.optionElements[''])
-                        field.optionElements[''].style.display = value ? 'none' : '';
-                } else {
-                    field.proxy = value === null ? '...' : null;
-                }
-            };
-
-            changeField = function(value) {
-                if (changing)
-                    return;
-
-                if (args.enum) {
-                    if (this.optionElements[''])
-                        this.optionElements[''].style.display = value ? 'none' : '';
-                } else {
-                    this.proxy = value === null ? '...' : null;
-                }
-
-                var items = [ ];
-
-                // set link value
-                changing = true;
-                for(var i = 0; i < args.link.length; i++) {
-                    items.push({
-                        get: args.link[i].history._getItemFn,
-                        value: args.link[i].get(args.path)
-                    });
-                    args.link[i].history.enabled = false;
-                    args.link[i].set(args.path, value);
-                    args.link[i].history.enabled = true;
-                }
-                changing = false;
-
-                // history
-                editor.call('history:add', {
-                    name: args.path,
-                    undo: function() {
-                        for(var i = 0; i < items.length; i++) {
-                            var item = items[i].get();
-                            if (! item)
-                                continue;
-
-                            item.history.enabled = false;
-                            item.set(args.path, items[i].value);
-                            item.history.enabled = true;
-                        }
-                    },
-                    redo: function() {
-                        for(var i = 0; i < items.length; i++) {
-                            var item = items[i].get();
-                            if (! item)
-                                continue;
-
-                            item.history.enabled = false;
-                            item.set(args.path, value);
-                            item.history.enabled = true;
-                        }
-                    }
-                });
-            };
-
-            changeFieldQueue = function() {
-                if (changing)
-                    return;
-
-                changing = true;
-                setTimeout(function() {
-                    changing = false;
-                    update();
-                }, 0);
-            };
-
-            linkMultiple = function() {
-                update();
-                field.on('change', changeField);
-
-                for(var i = 0; i < args.link.length; i++)
-                    events.push(args.link[i].on(args.path + ':set', changeFieldQueue));
-
-                field.once('destroy', function() {
-                    for(var i = 0; i < events.length; i++)
-                        events[i].unbind();
-                });
-            };
-        }
 
         var linkField = function() {
             if (args.link) {
-                if (linkMultiple) {
-                    linkMultiple();
+                var link = function(field, path) {
+                    if ((args.link instanceof Array && args.link.length > 1) || args.type === 'rgb') {
+                        editor.call('attributes:linkField', {
+                            field: field,
+                            path: path || args.path,
+                            type: args.type,
+                            slider: args.slider,
+                            enum: args.enum,
+                            link: args.link
+                        });
+                    } else {
+                        field.link((args.link instanceof Array) ? args.link[0] : args.link, path || args.path);
+                        if (args.enum && field.optionElements[''])
+                            field.optionElements[''].style.display = 'none';
+                    }
+                }
+                if (field instanceof Array) {
+                    for(var i = 0; i < field.length; i++) {
+                        link(field[i], args.path + '.' + i);
+                    }
                 } else {
-                    field.link((args.link instanceof Array) ? args.link[0] : args.link, args.path);
-                    if (args.enum && field.optionElements[''])
-                        field.optionElements[''].style.display = 'none';
+                    link(field);
                 }
             }
         };
@@ -201,7 +463,7 @@ editor.once('load', function() {
                     field = new ui.TextField();
                 }
 
-                field.value == args.value || '';
+                field.value = args.value || '';
                 field.flexGrow = 1;
 
                 if (args.placeholder)
@@ -218,6 +480,8 @@ editor.once('load', function() {
                         options: args.enum,
                         number: true
                     });
+                } else if (args.slider) {
+                    field = new ui.Slider();
                 } else {
                     field = new ui.NumberField();
                 }
@@ -248,8 +512,7 @@ editor.once('load', function() {
                 field = new ui.Checkbox();
                 field.value = args.value || 0;
 
-                if (args.link)
-                    field.link(args.link, args.path);
+                linkField();
 
                 panel.append(field);
                 break;
@@ -282,18 +545,17 @@ editor.once('load', function() {
                     if (args.max != null)
                         field[i].max = args.max;
 
-                    if (args.link)
-                        field[i].link(args.link, args.path + '.' + i);
+                    // if (args.link)
+                    //     field[i].link(args.link, args.path + '.' + i);
                 }
 
+                linkField();
                 break;
 
             case 'rgb':
-                var field = new ui.ColorField();
+                field = new ui.ColorField();
 
-                if (args.link) {
-                    field.link(args.link, args.path);
-                }
+                linkField();
 
                 var colorPickerOn = false;
                 field.on('click', function() {
@@ -310,14 +572,8 @@ editor.once('load', function() {
 
                     // picked color
                     var evtColorPick = editor.on('picker:color', function(color) {
-                        if (field._link && typeof(field._link.history) === 'object')
-                            field._link.history.combine = ! first;
-
                         first = false;
                         field.value = color;
-
-                        if (field._link && typeof(field._link.history) === 'object')
-                            field._link.history.combine = false;
                     });
 
                     // position picker
@@ -347,8 +603,8 @@ editor.once('load', function() {
                 });
 
                 panel.append(field);
+                break;
 
-                return field;
             case 'asset':
                 field = new ui.ImageField();
                 var evtPick;
@@ -365,7 +621,7 @@ editor.once('load', function() {
                 var panelControls = document.createElement('div');
                 panelControls.classList.add('controls');
 
-                var fieldTitle = new ui.Label();
+                var fieldTitle = field._title = new ui.Label();
                 fieldTitle.text = 'Empty';
                 fieldTitle.parent = panel;
                 fieldTitle.flexGrow = 1;
@@ -390,7 +646,7 @@ editor.once('load', function() {
                     editor.call('picker:asset', args.kind, asset);
 
                     evtPick = editor.once('picker:asset', function(asset) {
-                        args.link.set(args.path, asset.get('id'))
+                        field.value = asset.get('id');
                         evtPick = null;
                     });
 
@@ -439,11 +695,15 @@ editor.once('load', function() {
                     }
                 };
 
-                field.on('change', function(value) {
-                    fieldTitle.text = 'Empty';
+                linkField();
+
+                var updateField = function() {
+                    var value = field.value;
+
+                    fieldTitle.text = field.class.contains('null') ? 'various' : 'Empty';
 
                     btnEdit.disabled = ! value;
-                    btnRemove.disabled = ! value;
+                    btnRemove.disabled = ! value && ! field.class.contains('null');
 
                     if (evtThumbnailChange) {
                         evtThumbnailChange.unbind();
@@ -464,13 +724,13 @@ editor.once('load', function() {
                     updateThumbnail();
 
                     fieldTitle.text = asset.get('file.filename') || asset.get('name');
-                });
+                };
+                field.on('change', updateField);
 
                 if (args.value)
                     field.value = args.value;
 
-                if (args.link)
-                    field.link(args.link, args.path)
+                updateField();
 
                 var dropRef = editor.call('drop:target', {
                     ref: panel.element,
@@ -677,7 +937,7 @@ editor.once('load', function() {
             editor.call('attributes:clear');
         }));
 
-        root.header = title + ' (' + type + ')';
+        root.header = type;
         editor.emit('attributes:inspect[' + type + ']', [ item ]);
         editor.emit('attributes:inspect[*]', type, [ item ]);
     });
@@ -705,7 +965,7 @@ editor.once('load', function() {
         }
 
         var type = editor.call('selector:type');
-        root.header = title + ' (' + type + ')';
+        root.header = type;
         editor.emit('attributes:inspect[' + type + ']', items);
         editor.emit('attributes:inspect[*]', type, items);
     });

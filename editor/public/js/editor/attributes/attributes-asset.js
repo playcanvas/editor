@@ -21,7 +21,7 @@
         var type = asset.get('type');
 
         if (multi) {
-            editor.call('attributes:header', 'assets, ' + assets.length);
+            editor.call('attributes:header', assets.length + ' assets');
 
             for(var i = 0; i < assets.length; i++) {
                 if (type !== assets[i].get('type')) {
@@ -30,7 +30,7 @@
                 }
             }
         } else {
-            editor.call('attributes:header', 'asset, ' + asset.get('type'));
+            editor.call('attributes:header', asset.get('type'));
         }
 
         // panel

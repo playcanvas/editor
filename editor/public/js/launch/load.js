@@ -32,6 +32,9 @@ app.once('load', function() {
         console.error('realtime error:', msg);
     });
 
+    editor.method('realtime:connection', function () {
+        return connection;
+    });
 
     var loadScene = function() {
         scene = connection.get('scenes', '' + config.scene.id);

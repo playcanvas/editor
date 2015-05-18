@@ -108,7 +108,7 @@ editor.once('load', function() {
         if (filterField.value === 'all' && ! search.value)
             return;
 
-        if (! filter(asset))
+        if (! filter((asset.get('type') === 'script') ? 'script' : 'asset', asset))
             editor.call('assets:panel:get', asset.get('id')).hidden = true;
     });
 

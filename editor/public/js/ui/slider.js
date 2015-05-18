@@ -6,6 +6,7 @@ function Slider(args) {
     args = args || { };
 
     this._value = 0;
+    this._lastValue = 0;
 
     this.precision = isNaN(args.precision) ? 2 : args.precision;
     this._min = isNaN(args.min) ? 0 : args.min;
@@ -72,7 +73,7 @@ Slider.prototype._onLinkChange = function(value) {
 
 
 Slider.prototype._updateHandle = function(value) {
-    this.elementHandle.style.left = (Math.max(0, Math.min(1, value / (this._max - this._min))) * 100) + '%';
+    this.elementHandle.style.left = (Math.max(0, Math.min(1, (value || 0) / (this._max - this._min))) * 100) + '%';
 };
 
 
@@ -108,6 +109,8 @@ Slider.prototype._onMouseDown = function(evt) {
 
     this.class.add('active');
 
+    this.emit('start', this.value);
+
     this._handleEvt(evt);
 
     if (this._link && this._link.history)
@@ -132,6 +135,8 @@ Slider.prototype._onMouseUp = function(evt) {
 
     if (this._link && this._link.history)
         this._link.history.combine = false;
+
+    this.emit('end', this.value);
 };
 
 
@@ -182,7 +187,13 @@ Object.defineProperty(Slider.prototype, 'value', {
             if (this._min !== null && this._min > value)
                 value = this._min;
 
-            value = (this.precision !== null) ? parseFloat(value.toFixed(this.precision), 10) : value;
+            if (value === null) {
+                this.class.add('null');
+            } else {
+                value = (this.precision !== null) ? parseFloat(value.toFixed(this.precision), 10) : value;
+                this.class.remove('null');
+            }
+
             this._updateHandle(value);
             this._value = value;
 

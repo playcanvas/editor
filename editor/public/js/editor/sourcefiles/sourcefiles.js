@@ -31,15 +31,13 @@ editor.once('repositories:load', function (repositories) {
 
         var fullUrl = [
             config.url.api,
-            'files',
-            'code',
+            'projects',
             config.project.id,
-            'master',
-            services[repositories.get('current')],
-            repositories.get(repositories.get('current') + '.username'),
-            repositories.get(repositories.get('current') + '.repo'),
+            'repositories',
+            repositories.get('current'),
+            'sourcefiles',
             relativeUrl
-        ].join('/');
+        ].join('/') + '?access_token=' + config.accessToken;
 
         return fullUrl;
     });

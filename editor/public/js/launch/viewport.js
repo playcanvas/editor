@@ -48,6 +48,13 @@ app.once('load', function() {
 
     var queryParams = (new pc.URI(window.location.href)).getQuery();
 
+    var scriptPrefix = config.project.repository_url;
+
+    // queryParams.local can be true or it can be a URL
+    if (queryParams.local) {
+        scriptPrefix = queryParams.local === 'true' ? 'http://localhost:51000' : queryParams.local;
+    }
+
     // playcanvas application
     var application = new pc.Application(canvas, {
         mouse: new pc.input.Mouse(canvas),
@@ -78,12 +85,7 @@ app.once('load', function() {
     if (document.head.querySelector) {
         var appendCss = function () {
             var style = document.head.querySelector('style');
-            if (style) {
-                style.innerHTML += css;
-            } else {
-                // try again
-                setTimeout(appendCss, 25);
-            }
+            style.innerHTML += css;
         };
 
         appendCss();

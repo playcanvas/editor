@@ -641,6 +641,13 @@ a:visited {
             }
         }
     }
+    &.null {
+        > .bar {
+            > .handle {
+                display: none;
+            }
+        }
+    }
 }
 
 .ui-text-field {
@@ -685,7 +692,6 @@ a:visited {
         background-color: $bcg-darker;
         border-color: $bcg-darker;
     }
-
     &:hover,
     &:focus {
         outline: 1px solid $text-primary;
@@ -696,9 +702,15 @@ a:visited {
             border-color: $text-primary;
         }
     }
-
     &.flash {
         @extend .ui-flash;
+    }
+    &.null {
+        > .color {
+            background-color: #000 !important;
+            background-image: linear-gradient(45deg, #fff 25%, transparent 25%, transparent), linear-gradient(-45deg, #fff 25%, transparent 25%, transparent), linear-gradient(45deg, transparent 75%, #fff 75%), linear-gradient(-45deg, transparent 75%, #fff 75%);
+            background-size: 24px 22px;
+        }
     }
 }
 
@@ -836,6 +848,18 @@ a:visited {
             }
         }
     }
+    &.null {
+        &:after {
+            left: 8px;
+            background-color: rgba($text-dark, 0.25);
+        }
+        &:hover,
+        &:focus {
+            &:after {
+                background-color: rgba($text-dark, 0.5);
+            }
+        }
+    }
 }
 
 .ui-select-field {
@@ -895,68 +919,6 @@ a:visited {
     }
     &.flash {
         @extend .ui-flash;
-    }
-}
-
-
-.ui-select-field.viewport-camera {
-    background-color: transparentize($bcg-darker, 0.5);
-    border-color: transparent;
-
-    > .value {
-        color: transparentize($text-primary, 0.25);
-        &:after {
-            color: transparentize($text-primary, 0.5);
-        }
-    }
-
-    &:hover {
-        background-color: transparentize($bcg-darker, 0.25);
-        border-color: transparent;
-
-        > .value {
-            color: $text-primary;
-            &:after {
-                color: $text-primary;
-            }
-        }
-    }
-}
-
-
-.ui-panel.top-controls {
-    > .content {
-        .ui-button.icon {
-
-            color: transparentize($text-primary, 0.25);
-            background-color: transparentize($bcg-darker, 0.5);
-
-            &.active, &:hover, &.hover {
-                color: $text-primary;
-                background-color: transparentize($bcg-darker, 0.25);
-            }
-        }
-    }
-
-    .launch {
-        ul.dropdown-menu {
-            background-color: transparentize($bcg-darker, 0.25);
-
-            > li {
-                color: $text-primary;
-
-                &:hover {
-                    cursor: pointer;
-                    background-color: $bcg-darker;
-                }
-            }
-        }
-
-        &:hover {
-            .ui-button.icon {
-                background-color: transparentize($bcg-darker, 0.25);
-            }
-        }
     }
 }
 
