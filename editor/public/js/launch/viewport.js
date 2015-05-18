@@ -55,7 +55,7 @@ app.once('load', function() {
         keyboard: new pc.input.Keyboard(window),
         gamepads: new pc.input.GamePads(),
         libraries: libraryUrls,
-        scriptPrefix: queryParams.local ? 'http://localhost:51000' : config.project.repository_url
+        scriptPrefix: queryParams.local ? 'http://localhost:51000' : config.project.scriptPrefix
     });
 
     if (canvas.classList) {
@@ -119,10 +119,11 @@ app.once('load', function() {
     var hierarchy = false;
     var assets  = false;
     var settings = false;
+    var sourcefiles = false;
     var scene_data = null;
 
     var init = function () {
-        if (assets && hierarchy && settings) {
+        if (assets && hierarchy && settings && sourcefiles) {
             application.on("preload:progress", setProgress);
 
             // load assets that are in the preload set
@@ -159,4 +160,10 @@ app.once('load', function() {
         settings = true;
         init();
     });
+
+    app.on('sourcefiles:load', function (scripts) {
+        application.scripts = scripts;
+        sourcefiles = true;
+        init();
+    })
 });
