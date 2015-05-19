@@ -92,6 +92,15 @@ editor.once('load', function() {
             processEntity(obj);
         });
 
+        // clear entitiesIndex and childIndex
+        editor.on('entities:remove', function (obj) {
+            delete entitiesIndex[obj.get('resource_id')];
+            var children = obj.get('children');
+            for(var i = 0; i < children.length; i++) {
+                delete childIndex[children[i]];
+            }
+        });
+
         var entities = editor.call('entities:list');
         entities.forEach(processEntity);
     };

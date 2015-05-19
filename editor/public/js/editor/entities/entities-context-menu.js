@@ -41,6 +41,25 @@ editor.once('load', function() {
             }
         };
 
+        menuData['copy'] = {
+            title: 'Copy',
+            icon: '&#57891;',
+            select: function() {
+                editor.call('entities:copy', currentEntity);
+            }
+        };
+
+        menuData['paste'] = {
+            title: 'Paste',
+            icon: '&#57892;',
+            filter: function () {
+                return !editor.call('entities:clipboard:empty');
+            },
+            select: function() {
+                editor.call('entities:paste', currentEntity);
+            }
+        };
+
         menuData['duplicate'] = {
             title: 'Duplicate',
             icon: '&#57908;',
