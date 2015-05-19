@@ -35,6 +35,14 @@ editor.once('load', function() {
             title: 'New Entity',
             icons: [ '&#58468;' ]
         }, {
+            buttons: [ 'Ctrl', '$+', 'C' ],
+            title: 'Copy Entity',
+            icons: [ '&#57891;' ]
+        }, {
+            buttons: [ 'Ctrl', '$+', 'V' ],
+            title: 'Paste Entity',
+            icons: [ '&#57892;' ]
+        }, {
             buttons: [ 'Ctrl', '$+', 'D' ],
             title: 'Duplicate Entity',
             icons: [ '&#57908;' ]
