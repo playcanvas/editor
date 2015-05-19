@@ -58,9 +58,11 @@
 
             // size
             var size = 0;
+            var preload;
 
             for(var i = 0; i < assets.length; i++)
                 size += assets[i].get('file.size') || 0;
+
 
             var fieldSize = editor.call('attributes:addField', {
                 parent: panel,
@@ -89,6 +91,16 @@
 
             // reference
             editor.call('attributes:reference:asset:size:attach', fieldSize.parent.innerElement.firstChild.ui);
+
+            var fieldType = editor.call('attributes:addField', {
+                parent: panel,
+                name: 'Preload',
+                type: 'checkbox',
+                link: assets,
+                path: 'preload'
+            });
+            editor.call('attributes:reference:asset:preload:attach', fieldType.parent.innerElement.firstChild.ui);
+
         } else {
             if (asset.get('type') === 'script') {
                 // filename
@@ -101,6 +113,16 @@
                 });
                 // reference
                 editor.call('attributes:reference:asset:script:filename:attach', fieldFilename.parent.innerElement.firstChild.ui);
+
+                // var fieldType = editor.call('attributes:addField', {
+                //     parent: panel,
+                //     name: 'Preload',
+                //     type: 'checkbox',
+                //     link: asset,
+                //     path: 'preload'
+                // });
+                // editor.call('attributes:reference:asset:preload:attach', fieldType.parent.innerElement.firstChild.ui);
+
             } else {
                 // id
                 var fieldId = editor.call('attributes:addField', {
@@ -135,6 +157,15 @@
 
                 // reference
                 editor.call('attributes:reference:asset:' + asset.get('type') + ':asset:attach', fieldType);
+
+                var fieldType = editor.call('attributes:addField', {
+                    parent: panel,
+                    name: 'Preload',
+                    type: 'checkbox',
+                    link: asset,
+                    path: 'preload'
+                });
+                editor.call('attributes:reference:asset:preload:attach', fieldType.parent.innerElement.firstChild.ui);
             }
 
             // size
@@ -161,6 +192,7 @@
                 // reference
                 editor.call('attributes:reference:asset:size:attach', fieldSize.parent.innerElement.firstChild.ui);
             }
+
 
             // // TEMP
             // // load raw
