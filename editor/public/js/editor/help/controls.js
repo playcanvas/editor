@@ -55,6 +55,10 @@ editor.once('load', function() {
             title: 'Redo',
             icons: [ '&#57655;' ]
         }, {
+            buttons: [ 'Ctrl', '$+', 'Enter' ],
+            title: 'Launch Game',
+            icons: [ '&#57922;' ]
+        }, {
             buttons: [ 'Space' ],
             title: 'Hide Panels',
             icons: [ '&#57665;' ]
