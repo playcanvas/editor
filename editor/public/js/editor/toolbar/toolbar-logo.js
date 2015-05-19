@@ -477,10 +477,12 @@ editor.once('load', function() {
                         if (! editor.call('permissions:write'))
                             return false;
 
-                        return editor.call('selector:type') === 'entity';
+                        return editor.call('selector:type') === 'entity' &&
+                               !editor.call('entities:clipboard:empty') &&
+                               editor.call('entities:clipboard:get').project === config.project.id;
                     },
                     hide: function () {
-                        return !this.filter();
+                        return editor.call('selector:type') !== 'entity';
                     },
                     select: function () {
                         var items = editor.call('selector:items');

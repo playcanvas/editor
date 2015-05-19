@@ -338,22 +338,15 @@ editor.once('load', function() {
         data.hierarchy[entity.get('resource_id')].parent = null;
 
         // save to local storage
-        localStorage.setItem('playcanvas_editor_clipboard', JSON.stringify(data));
+        editor.call('entities:clipboard:set', data);
     });
 
     // paste entity in local storage under parent
     editor.method('entities:paste', function (parent) {
         // parse data from local storage
-        var data = localStorage.getItem('playcanvas_editor_clipboard');
+        var data = editor.call('entities:clipboard:get');
         if (! data)
             return;
-
-        try {
-            data = JSON.parse(data);
-        } catch (e) {
-            console.error(e);
-            return;
-        }
 
         // check it's the same project
         if (data.project !== config.project.id)
