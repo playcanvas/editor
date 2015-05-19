@@ -9,6 +9,62 @@ app.once('load', function() {
     var libraries = false;
     var sceneData = null;
     var sceneSettings = null;
+    var scriptList = []
+
+    // update progress bar
+    var setProgress = function (value) {
+        value = Math.min(1, Math.max(0, value));
+        bar.style.width = value * 100 + '%';
+    }
+
+    // respond to resize window
+    var reflow = function () {
+        var size = application.resizeCanvas(canvas.width, canvas.height);
+        canvas.style.width = '';
+        canvas.style.height = '';
+
+        var fillMode = application._fillMode;
+
+        if (fillMode == pc.fw.FillMode.NONE || fillMode == pc.fw.FillMode.KEEP_ASPECT) {
+            if ((fillMode == pc.fw.FillMode.NONE && canvas.clientHeight < window.innerHeight) || (canvas.clientWidth / canvas.clientHeight >= window.innerWidth / window.innerHeight)) {
+                canvas.style.marginTop = Math.floor((window.innerHeight - canvas.clientHeight) / 2) + 'px';
+            } else {
+                canvas.style.marginTop = '';
+            }
+        }
+    };
+
+    // try to start preload and initialization of application after load event
+    var init = function () {
+        if (assets && hierarchy && settings && sourcefiles && libraries) {
+            application.on("preload:progress", setProgress);
+
+            application._parseScripts(scriptList, sceneSettings['priority_scripts']);
+
+            // load assets that are in the preload set
+            application.preload(function (err) {
+                application.off("preload:progress", setProgress);
+
+                // create scene
+                application.scene = application.loader.open("scene", sceneData);
+                // update scene settings now that scene is loaded
+                application.updateSceneSettings(sceneSettings)
+
+                // clear stored loading data
+                sceneData = null;
+                sceneSettings = null;
+                scriptList = null;
+
+                app.call('entities:')
+                if (err) {
+                    console.error(err);
+                }
+
+                application.start();
+                splash.parentElement.removeChild(splash);
+            });
+        }
+    };
 
     // canvas element
     var canvas = document.createElement('canvas');
@@ -37,11 +93,6 @@ app.once('load', function() {
     var bar = document.createElement('div');
     bar.id = 'progress-bar';
     container.appendChild(bar);
-
-    var setProgress = function (value) {
-        value = Math.min(1, Math.max(0, value));
-        bar.style.width = value * 100 + '%';
-    }
 
     // convert library properties into URLs
     var libraryUrls = [];
@@ -107,21 +158,7 @@ app.once('load', function() {
         appendCss();
     }
 
-    var reflow = function () {
-        var size = application.resizeCanvas(canvas.width, canvas.height);
-        canvas.style.width = '';
-        canvas.style.height = '';
 
-        var fillMode = application._fillMode;
-
-        if (fillMode == pc.fw.FillMode.NONE || fillMode == pc.fw.FillMode.KEEP_ASPECT) {
-            if ((fillMode == pc.fw.FillMode.NONE && canvas.clientHeight < window.innerHeight) || (canvas.clientWidth / canvas.clientHeight >= window.innerWidth / window.innerHeight)) {
-                canvas.style.marginTop = Math.floor((window.innerHeight - canvas.clientHeight) / 2) + 'px';
-            } else {
-                canvas.style.marginTop = '';
-            }
-        }
-    };
 
     window.addEventListener('resize', reflow, false);
     window.addEventListener('orientationchange', reflow, false);
@@ -133,33 +170,7 @@ app.once('load', function() {
         return application;
     });
 
-    var init = function () {
-        if (assets && hierarchy && settings && sourcefiles && libraries) {
-            application.on("preload:progress", setProgress);
 
-            // load assets that are in the preload set
-            application.preload(function (err) {
-                application.off("preload:progress", setProgress);
-
-                // create scene
-                application.scene = application.loader.open("scene", sceneData);
-                // update scene settings now that scene is loaded
-                application.updateSceneSettings(sceneSettings)
-
-                // clear stored loading data
-                sceneData = null;
-                sceneSettings = null;
-
-                app.call('entities:')
-                if (err) {
-                    console.error(err);
-                }
-
-                application.start();
-                splash.parentElement.removeChild(splash);
-            });
-        }
-    };
 
     app.on('entities:load', function (data) {
         hierarchy = true;
@@ -179,7 +190,7 @@ app.once('load', function() {
     });
 
     app.on('sourcefiles:load', function (scripts) {
-        application.scripts = scripts;
+        scriptList = scripts;
         sourcefiles = true;
         init();
     })
