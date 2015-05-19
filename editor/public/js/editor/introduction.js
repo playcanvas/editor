@@ -289,7 +289,7 @@ editor.once('load', function() {
 
     // if never seen introduction
     editor.on('realtime:connected', function() {
-        if (! config.self.openedEditor || true) {
+        if (! config.self.openedEditor) {
             if (editor.call('permissions:write')) {
                 stepNext();
             } else {
