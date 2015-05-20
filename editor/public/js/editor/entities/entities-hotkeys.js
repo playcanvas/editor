@@ -60,4 +60,40 @@ editor.once('load', function() {
             });
         }
     });
+
+    // copy
+    editor.call('hotkey:register', 'entity:copy', {
+        key: 'c',
+        ctrl: true,
+        callback: function () {
+            // write permissions only (perhaps we could also allow read permissions)
+            if (! editor.call('permissions:write'))
+                return;
+
+            var type = editor.call('selector:type');
+            if (type !== 'entity')
+                return;
+
+            var items = editor.call('selector:items');
+            editor.call('entities:copy', items[0]);
+        }
+    });
+
+    // paste
+    editor.call('hotkey:register', 'entity:paste', {
+        key: 'v',
+        ctrl: true,
+        callback: function () {
+            // write permissions only (perhaps we could also allow read permissions)
+            if (! editor.call('permissions:write'))
+                return;
+
+            var type = editor.call('selector:type');
+            if (type !== 'entity')
+                return;
+
+            var items = editor.call('selector:items');
+            editor.call('entities:paste', items[0]);
+        }
+    });
 });
