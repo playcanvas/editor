@@ -61,6 +61,10 @@ editor.once('load', function() {
         if (accessLevel) {
             config.project.permissions[accessLevel].push(userId);
             permissions[userId] = accessLevel;
+        } else {
+            // lock out user if private project
+            if (config.self.id === userId && config.project.private)
+                window.location.reload();
         }
 
         editor.emit('permissions:set:' + userId, accessLevel);
@@ -71,6 +75,8 @@ editor.once('load', function() {
         var projectId = msg.project.id;
         if (config.project.id !== projectId)
             return;
+
+        config.project.private = msg.project.private;
 
         if (msg.project.private && !editor.call('permissions:read', config.self.id)) {
             // refresh page so that user gets locked out
