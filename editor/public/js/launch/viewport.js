@@ -108,7 +108,7 @@ app.once('load', function() {
 
     var queryParams = (new pc.URI(window.location.href)).getQuery();
 
-    var scriptPrefix = config.project.repository_url;
+    var scriptPrefix = config.project.scriptPrefix;
 
     // queryParams.local can be true or it can be a URL
     if (queryParams.local) {
@@ -121,7 +121,7 @@ app.once('load', function() {
         touch: !!('ontouchstart' in window) ? new pc.input.TouchDevice(canvas) : null,
         keyboard: new pc.input.Keyboard(window),
         gamepads: new pc.input.GamePads(),
-        scriptPrefix: queryParams.local ? 'http://localhost:51000' : config.project.scriptPrefix
+        scriptPrefix: scriptPrefix
     });
 
     if (canvas.classList) {
