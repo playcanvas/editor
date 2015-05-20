@@ -10,15 +10,15 @@ editor.once('load', function() {
         var scripts = sceneSettings.get('priority_scripts');
         if (scripts) {
             priorityScripts = scripts.slice();
-            sourcefiles.forEach(function (file) {
-                if (priorityScripts.indexOf(file.get("filename")) < 0) {
-                    menuAddScript.append(new ui.MenuItem({
-                        text: file.get("filename"),
-                        value: file.get("filename")
-                    }));
-                }
-            });
         }
+        sourcefiles.forEach(function (file) {
+            if (priorityScripts.indexOf(file.get("filename")) < 0) {
+                menuAddScript.append(new ui.MenuItem({
+                    text: file.get("filename"),
+                    value: file.get("filename")
+                }));
+            }
+        });
     };
 
     var refreshPriorityList = function () {
