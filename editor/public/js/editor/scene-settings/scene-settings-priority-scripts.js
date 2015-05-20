@@ -152,5 +152,6 @@ editor.once('load', function() {
 
     editor.method('sceneSettings:priorityScripts', function () {
         overlay.hidden = false;
+        refreshPriorityList();
     });
 });
