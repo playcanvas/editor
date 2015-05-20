@@ -63,8 +63,11 @@ editor.once('viewport:load', function(framework) {
         });
 
         entity.on('name:set', function (value) {
-            options[entity.get('resource_id')] = value;
-            refreshOptions();
+            var resourceId = entity.get('resource_id');
+            if (options[resourceId]) {
+                options[resourceId] = value;
+                refreshOptions();
+            }
         });
 
         entity.on('components.camera:unset', function () {
