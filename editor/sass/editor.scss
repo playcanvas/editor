@@ -1593,6 +1593,10 @@ strong {
             max-height: 200px;
         }
 
+        .ui-list {
+            margin-right: 0px;
+        }
+
         .ui-label.title {
             @extend .font-bold;
         }

@@ -24,53 +24,59 @@ editor.once('load', function() {
     var refreshPriorityList = function () {
         priorityList.clear();
 
-        priorityScripts.forEach(function (script, index) {
+        if (priorityScripts.length === 0) {
             var item = new ui.ListItem();
-            item.text = script;
-
-            var moveUp = new ui.Button();
-            moveUp.class.add('move-up');
-            if (index) {
-                moveUp.on("click", function () {
-                    var index = priorityScripts.indexOf(script);
-                    priorityScripts.splice(index, 1);
-                    priorityScripts.splice(index-1, 0, script);
-                    sceneSettings.set("priority_scripts", priorityScripts);
-                    refreshPriorityList();
-                });
-            } else {
-                moveUp.class.add('not-visible')
-            }
-
-            var moveDown = new ui.Button();
-            moveDown.class.add('move-down');
-            if (index < priorityScripts.length-1) {
-                moveDown.on("click", function () {
-                    var index = priorityScripts.indexOf(script);
-                    priorityScripts.splice(index, 1);
-                    priorityScripts.splice(index+1, 0, script);
-                    sceneSettings.set("priority_scripts", priorityScripts);
-                    refreshPriorityList();
-                });
-            } else {
-                moveDown.class.add('not-visible');
-            }
-
-            var remove = new ui.Button();
-            remove.class.add('remove');
-            remove.on("click", function () {
-                var index = priorityScripts.indexOf(script);
-                priorityScripts.splice(index, 1);
-                sceneSettings.set("priority_scripts", priorityScripts);
-                refreshPriorityList();
-            });
-
-            item.element.appendChild(remove.element);
-            item.element.appendChild(moveUp.element);
-            item.element.appendChild(moveDown.element);
-
             priorityList.append(item);
-        });
+        } else {
+            priorityScripts.forEach(function (script, index) {
+                var item = new ui.ListItem();
+                item.text = script;
+
+                var moveUp = new ui.Button();
+                moveUp.class.add('move-up');
+                if (index) {
+                    moveUp.on("click", function () {
+                        var index = priorityScripts.indexOf(script);
+                        priorityScripts.splice(index, 1);
+                        priorityScripts.splice(index-1, 0, script);
+                        sceneSettings.set("priority_scripts", priorityScripts);
+                        refreshPriorityList();
+                    });
+                } else {
+                    moveUp.class.add('not-visible')
+                }
+
+                var moveDown = new ui.Button();
+                moveDown.class.add('move-down');
+                if (index < priorityScripts.length-1) {
+                    moveDown.on("click", function () {
+                        var index = priorityScripts.indexOf(script);
+                        priorityScripts.splice(index, 1);
+                        priorityScripts.splice(index+1, 0, script);
+                        sceneSettings.set("priority_scripts", priorityScripts);
+                        refreshPriorityList();
+                    });
+                } else {
+                    moveDown.class.add('not-visible');
+                }
+
+                var remove = new ui.Button();
+                remove.class.add('remove');
+                remove.on("click", function () {
+                    var index = priorityScripts.indexOf(script);
+                    priorityScripts.splice(index, 1);
+                    sceneSettings.set("priority_scripts", priorityScripts);
+                    refreshPriorityList();
+                });
+
+                item.element.appendChild(remove.element);
+                item.element.appendChild(moveUp.element);
+                item.element.appendChild(moveDown.element);
+
+                priorityList.append(item);
+            });
+        }
+
 
 
         refreshSourcesList();
@@ -104,16 +110,15 @@ editor.once('load', function() {
     overlay.append(panel);
 
 
-        var button = new ui.Button();
-        // var button = new ui.Button();
-        button.text = "Add Script";
-        button.class.add('add-script');
-        button.on("click", function (evt) {
-            menuAddScript.position(evt.clientX, evt.clientY);
-            menuAddScript.open = true;
-        });
-        // item.element.appendChild(button.element);
-        overlay.append(button);
+    // Add new script button
+    var button = new ui.Button();
+    button.text = "Add Script";
+    button.class.add('add-script');
+    button.on("click", function (evt) {
+        menuAddScript.position(evt.clientX, evt.clientY);
+        menuAddScript.open = true;
+    });
+    overlay.append(button);
 
     var priorityList = new ui.List();
     sceneSettings.on("priority_scripts:set", function (scripts) {
@@ -125,14 +130,8 @@ editor.once('load', function() {
     root.append(overlay);
 
     var menuAddScript = new ui.Menu();
-
-    menuAddScript.on('open', function () {
-
-    });
     menuAddScript.on('select', function (path) {
         var value = path[0];
-        // var scripts = sceneSettings.get("priority_scripts");
-        // scripts.push(value);
         priorityScripts.push(value);
         sceneSettings.insert("priority_scripts", value);
         refreshPriorityList();
