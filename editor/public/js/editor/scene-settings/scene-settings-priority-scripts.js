@@ -3,7 +3,7 @@ editor.once('load', function() {
 
     var sceneSettings = editor.call('sceneSettings');
     var sourcefiles = null;
-    var priorityScripts = null;
+    var priorityScripts = [];
 
     var refreshSourcesList = function () {
         menuAddScript.clear();
