@@ -12,6 +12,8 @@ editor.once('load', function() {
     hierarchy.class.add('hierarchy');
     panel.append(hierarchy);
 
+
+
     // list item selected
     hierarchy.on('select', function(item) {
         // open items till parent
@@ -185,6 +187,11 @@ editor.once('load', function() {
             return;
 
         uiItemIndex[entity.get('resource_id')].selected = false;
+    });
+    // selector change
+    editor.on('selector:change', function(type) {
+        if (type !== 'entity')
+            hierarchy.clear();
     });
 
 

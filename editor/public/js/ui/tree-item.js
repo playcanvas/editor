@@ -291,10 +291,7 @@ TreeItem.prototype._onClick = function(evt) {
     if (this._children && (evt.clientX - rect.left) < 0) {
         this.open = ! this.open;
     } else {
-        if (! this.selected)
-            this.open = true;
-
-        this.selected = ! this.selected;
+        this.tree._onItemClick(this);
         evt.stopPropagation();
     }
 };

@@ -942,7 +942,7 @@ editor.once('load', function() {
         editor.emit('attributes:inspect[*]', type, [ item ]);
     });
 
-    editor.on('selector:change', function(items) {
+    editor.on('selector:change', function(type, items) {
         clearPanel();
 
         // nothing selected
@@ -964,11 +964,10 @@ editor.once('load', function() {
             }));
         }
 
-        var type = editor.call('selector:type');
         root.header = type;
         editor.emit('attributes:inspect[' + type + ']', items);
         editor.emit('attributes:inspect[*]', type, items);
     });
 
-    editor.emit('selector:change', [ ]);
+    editor.emit('selector:change', null, [ ]);
 });

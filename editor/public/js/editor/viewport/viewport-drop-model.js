@@ -34,9 +34,7 @@ editor.once('load', function() {
             });
 
             setTimeout(function() {
-                var framework = editor.call('viewport:framework');
-                if (framework)
-                    framework.frameSelection();
+                editor.call('viewport:focus');
             }, 0);
         }
     });

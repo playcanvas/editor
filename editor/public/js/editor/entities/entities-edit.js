@@ -1,7 +1,6 @@
 editor.once('load', function() {
     'use strict';
 
-
     // index
     var childToParent = { };
 
@@ -77,7 +76,9 @@ editor.once('load', function() {
                     if (items.length) {
                         editor.call('selector:history', false);
                         editor.call('selector:set', selectorType, items);
-                        editor.call('selector:history', true);
+                        editor.once('selector:change', function() {
+                            editor.call('selector:history', true);
+                        });
                     }
                 }
             },
@@ -118,7 +119,9 @@ editor.once('load', function() {
             setTimeout(function() {
                 editor.call('selector:history', false);
                 editor.call('selector:set', 'entity', [ entity ]);
-                editor.call('selector:history', true);
+                editor.once('selector:change', function() {
+                    editor.call('selector:history', true);
+                });
             }, 0);
         }
 
@@ -146,9 +149,13 @@ editor.once('load', function() {
             removeEntity(entity);
         });
 
-        editor.call('selector:history', false);
-        editor.call('selector:remove', entity);
-        editor.call('selector:history', true);
+        if (editor.call('selector:type') === 'entity' && editor.call('selector:items').indexOf(entity) !== -1) {
+            editor.call('selector:history', false);
+            editor.call('selector:remove', entity);
+            editor.once('selector:change', function() {
+                editor.call('selector:history', true);
+            });
+        }
 
         // remove from parent
         var parentId = childToParent[entity.get('resource_id')];
@@ -226,7 +233,9 @@ editor.once('load', function() {
         setTimeout(function() {
             editor.call('selector:history', false);
             editor.call('selector:set', 'entity', [ entityNew ]);
-            editor.call('selector:history', true);
+            editor.once('selector:change', function() {
+                editor.call('selector:history', true);
+            });
         }, 0);
 
         editor.call('history:add', {
@@ -249,7 +258,9 @@ editor.once('load', function() {
                     if (items.length) {
                         editor.call('selector:history', false);
                         editor.call('selector:set', selectorType, items);
-                        editor.call('selector:history', true);
+                        editor.once('selector:change', function() {
+                            editor.call('selector:history', true);
+                        });
                     }
                 }
             },
@@ -299,7 +310,4 @@ editor.once('load', function() {
             }
         });
     });
-
 });
-
-

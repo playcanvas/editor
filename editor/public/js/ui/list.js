@@ -43,7 +43,7 @@ Object.defineProperty(List.prototype, 'selectable', {
             this.class.remove('selectable');
         }
     }
-})
+});
 
 
 Object.defineProperty(List.prototype, 'selected', {

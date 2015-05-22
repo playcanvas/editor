@@ -24,6 +24,7 @@ pc.script.create( "designer_camera", function (app) {
 
 
     var DesignerCamera = function (entity) {
+        var self = this;
         this.entity = entity;
 
         this.mouse = new pc.Mouse();
@@ -71,6 +72,11 @@ pc.script.create( "designer_camera", function (app) {
         };
 
         this.frameScale = 10; // This is used to scale dollying to prevent zooming past the object that is framed
+
+        this.disabled = false;
+        this.evtDisabled = editor.on('camera:toggle', function(state) {
+            self.disabled = ! state;
+        });
 
         this.flySpeed = new pc.Vec3();
         this.flyFast = false;
@@ -364,9 +370,9 @@ pc.script.create( "designer_camera", function (app) {
             this.combineHistory = false;
             this.canvasFocused = false;
 
-            if (!this.flyMode) {
-                app.toggleGizmoInteraction(true);
-            }
+            // if (!this.flyMode) {
+            //     app.toggleGizmoInteraction(true);
+            // }
         }
 
     };
@@ -473,7 +479,7 @@ pc.script.create( "designer_camera", function (app) {
     };
 
     DesignerCamera.prototype.onMouseMove = function (e) {
-        if (!this.canvasFocused || app.activeGizmo.isDragging) {
+        if (!this.canvasFocused || this.disabled /* || app.activeGizmo.isDragging*/) {
             return;
         }
 
@@ -485,16 +491,16 @@ pc.script.create( "designer_camera", function (app) {
         if (!this.flyMode && !this.isOrbiting && !this.isLookingAround && (middle || (left && (e.shiftKey || isOrtho)))) {
             this.pan([e.dx, e.dy]);
             this.isPanning = true;
-            app.toggleGizmoInteraction(false);
+            // app.toggleGizmoInteraction(false);
         } else if (!isOrtho) {
             if (!this.flyMode && !this.isPanning && !this.isLookingAround && left) {
                 this.orbit([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);
                 this.isOrbiting = true;
-                app.toggleGizmoInteraction(false);
+                // app.toggleGizmoInteraction(false);
             } else if (!this.isOrbiting && !this.isPanning && right) {
                 this.lookAt([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);
                 this.isLookingAround = true;
-                app.toggleGizmoInteraction(false);
+                // app.toggleGizmoInteraction(false);
             }
         }
     };

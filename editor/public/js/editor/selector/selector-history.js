@@ -38,10 +38,10 @@ editor.once('load', function() {
         });
     };
 
-    editor.on('selector:change', function(items) {
+    editor.on('selector:change', function(type, items) {
         if (! selectorHistory) {
-            newType = editor.call('selector:type');
-            newItems = editor.call('selector:items');
+            newType = type;
+            newItems = items;
             return;
         }
 

@@ -36,6 +36,10 @@ editor.once('load', function() {
 
 
     editor.on('attributes:inspect[entity]', function(entities) {
+        if (entities.length > 1) {
+            editor.call('attributes:header', entities.length + ' Entities');
+        }
+
         if (entities.length !== 1)
             return;
 

@@ -44,8 +44,10 @@ editor.once('load', function() {
         obj.on('children:move', reparent);
 
         obj.on('destroy', function () {
-            if (obj.entity)
+            if (obj.entity) {
                 obj.entity.destroy();
+                editor.call('viewport:render');
+            }
         });
     });
 
@@ -54,11 +56,12 @@ editor.once('load', function() {
         if (! entity)
             return;
 
-        var framework = editor.call('viewport:framework');
-        if (framework && framework.selectedEntity === entity)
-            framework.deselectEntity();
+        // var framework = editor.call('viewport:framework');
+        // if (framework && framework.selectedEntity === entity)
+        //     framework.deselectEntity();
 
         entity.destroy();
         obj.entity = null;
+        editor.call('viewport:render');
     });
 });
