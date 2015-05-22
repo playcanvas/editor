@@ -97,12 +97,12 @@ editor.once('load', function() {
     overlay.hidden = true;
 
     var label = new ui.Label();
-    label.text = "Script Priority"
+    label.text = "Script Loading Priority"
     label.class.add('title');
     overlay.append(label);
 
     var description = new ui.Label();
-    description.text = "Scripts in the Priority list are loaded first, in the order that they are listed. Other scripts are loaded in an unspecified order.";
+    description.text = "Scripts in the priority list are loaded first in the order that they are listed. Other scripts are loaded in an unspecified order.";
     description.class.add('description');
     overlay.append(description);
 
