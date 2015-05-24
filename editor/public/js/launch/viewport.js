@@ -2,6 +2,7 @@ app.once('load', function() {
     'use strict';
 
     // Wait for assets, hierarchy and settings to load before initializing application and starting.
+    var done = false;
     var hierarchy = false;
     var assets  = false;
     var settings = false;
@@ -36,7 +37,10 @@ app.once('load', function() {
 
     // try to start preload and initialization of application after load event
     var init = function () {
-        if (assets && hierarchy && settings && sourcefiles && libraries) {
+        if (!done && assets && hierarchy && settings && sourcefiles && libraries) {
+            // prevent multiple init calls during scene loading
+            done = true;
+
             application.on("preload:progress", setProgress);
 
             application._parseScripts(scriptList, sceneSettings['priority_scripts']);
@@ -47,6 +51,8 @@ app.once('load', function() {
 
                 // create scene
                 application.scene = application.loader.open("scene", sceneData);
+                application.root.addChild(application.scene.root);
+
                 // update scene settings now that scene is loaded
                 application.updateSceneSettings(sceneSettings)
 
