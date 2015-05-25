@@ -1,6 +1,77 @@
 app.once('load', function() {
     'use strict';
 
+    // Wait for assets, hierarchy and settings to load before initializing application and starting.
+    var done = false;
+    var hierarchy = false;
+    var assets  = false;
+    var settings = false;
+    var sourcefiles = false;
+    var libraries = false;
+    var sceneData = null;
+    var sceneSettings = null;
+    var scriptList = []
+
+    // update progress bar
+    var setProgress = function (value) {
+        value = Math.min(1, Math.max(0, value));
+        bar.style.width = value * 100 + '%';
+    }
+
+    // respond to resize window
+    var reflow = function () {
+        var size = application.resizeCanvas(canvas.width, canvas.height);
+        canvas.style.width = '';
+        canvas.style.height = '';
+
+        var fillMode = application._fillMode;
+
+        if (fillMode == pc.fw.FillMode.NONE || fillMode == pc.fw.FillMode.KEEP_ASPECT) {
+            if ((fillMode == pc.fw.FillMode.NONE && canvas.clientHeight < window.innerHeight) || (canvas.clientWidth / canvas.clientHeight >= window.innerWidth / window.innerHeight)) {
+                canvas.style.marginTop = Math.floor((window.innerHeight - canvas.clientHeight) / 2) + 'px';
+            } else {
+                canvas.style.marginTop = '';
+            }
+        }
+    };
+
+    // try to start preload and initialization of application after load event
+    var init = function () {
+        if (!done && assets && hierarchy && settings && sourcefiles && libraries) {
+            // prevent multiple init calls during scene loading
+            done = true;
+
+            application.on("preload:progress", setProgress);
+
+            application._parseScripts(scriptList, sceneSettings['priority_scripts']);
+
+            // load assets that are in the preload set
+            application.preload(function (err) {
+                application.off("preload:progress", setProgress);
+
+                // create scene
+                application.scene = application.loader.open("scene", sceneData);
+                application.root.addChild(application.scene.root);
+
+                // update scene settings now that scene is loaded
+                application.updateSceneSettings(sceneSettings)
+
+                // clear stored loading data
+                sceneData = null;
+                sceneSettings = null;
+                scriptList = null;
+
+                app.call('entities:')
+                if (err) {
+                    console.error(err);
+                }
+
+                application.start();
+                splash.parentElement.removeChild(splash);
+            });
+        }
+    };
+
     // canvas element
     var canvas = document.createElement('canvas');
     canvas.id = 'application-canvas';
@@ -29,26 +100,21 @@ app.once('load', function() {
     bar.id = 'progress-bar';
     container.appendChild(bar);
 
-    var setProgress = function (value) {
-        value = Math.min(1, Math.max(0, value));
-        bar.style.width = value * 100 + '%';
-    }
-
-    var libraries = config.project.settings.libraries;
+    // convert library properties into URLs
     var libraryUrls = [];
-    if (libraries) {
-        for (var i = 0; i < libraries.length; i++) {
-            if (libraries[i] === 'physics-engine-3d') {
+    if (config.project.settings.libraries) {
+        for (var i = 0; i < config.project.settings.libraries.length; i++) {
+            if (config.project.settings.libraries[i] === 'physics-engine-3d') {
                 libraryUrls.push(config.url.physics);
             } else {
-                libraryUrls.push(libraries[i]);
+                libraryUrls.push(config.project.settings.libraries[i]);
             }
         }
     }
 
     var queryParams = (new pc.URI(window.location.href)).getQuery();
 
-    var scriptPrefix = config.project.repository_url;
+    var scriptPrefix = config.project.scriptPrefix;
 
     // queryParams.local can be true or it can be a URL
     if (queryParams.local) {
@@ -61,7 +127,6 @@ app.once('load', function() {
         touch: !!('ontouchstart' in window) ? new pc.input.TouchDevice(canvas) : null,
         keyboard: new pc.input.Keyboard(window),
         gamepads: new pc.input.GamePads(),
-        libraries: libraryUrls,
         scriptPrefix: scriptPrefix
     });
 
@@ -71,6 +136,14 @@ app.once('load', function() {
 
     application.setCanvasResolution(config.project.settings.resolutionMode, config.project.settings.width, config.project.settings.height);
     application.setCanvasFillMode(config.project.settings.fillMode, config.project.settings.width, config.project.settings.height);
+
+    application._loadLibraries(libraryUrls, function (err) {
+        libraries = true;
+        if (err) {
+            console.error(err);
+        }
+        init();
+    });
 
     // css media query for aspect ratio changes
     var css  = "@media screen and (min-aspect-ratio: " + config.project.settings.width + "/" + config.project.settings.height + ") {";
@@ -91,21 +164,7 @@ app.once('load', function() {
         appendCss();
     }
 
-    var reflow = function () {
-        var size = application.resizeCanvas(canvas.width, canvas.height);
-        canvas.style.width = '';
-        canvas.style.height = '';
 
-        var fillMode = application._fillMode;
-
-        if (fillMode == pc.fw.FillMode.NONE || fillMode == pc.fw.FillMode.KEEP_ASPECT) {
-            if ((fillMode == pc.fw.FillMode.NONE && canvas.clientHeight < window.innerHeight) || (canvas.clientWidth / canvas.clientHeight >= window.innerWidth / window.innerHeight)) {
-                canvas.style.marginTop = Math.floor((window.innerHeight - canvas.clientHeight) / 2) + 'px';
-            } else {
-                canvas.style.marginTop = '';
-            }
-        }
-    };
 
     window.addEventListener('resize', reflow, false);
     window.addEventListener('orientationchange', reflow, false);
@@ -117,30 +176,11 @@ app.once('load', function() {
         return application;
     });
 
-    // Wait for assets, hierarchy and settings to load before initializing application and starting.
-    var hierarchy = false;
-    var assets  = false;
-    var settings = false;
 
-    var init = function () {
-        if (assets && hierarchy && settings) {
-            application.loadFromToc(config.scene.id, function () {
-                console.log("engine loaded resources");
 
-                application.start();
-
-                splash.parentElement.removeChild(splash);
-            }, function (errors) {
-                splash.parentElement.removeChild(splash);
-                console.error(errors);
-            }, function (progress) {
-                setProgress(progress);
-            });
-        }
-    };
-
-    app.on('entities:load', function () {
+    app.on('entities:load', function (data) {
         hierarchy = true;
+        sceneData = data;
         init();
     });
 
@@ -149,9 +189,15 @@ app.once('load', function() {
         init();
     });
 
-    app.on('sceneSettings:load', function () {
+    app.on('sceneSettings:load', function (data) {
         settings = true;
+        sceneSettings = data.json();
         init();
     });
 
+    app.on('sourcefiles:load', function (scripts) {
+        scriptList = scripts;
+        sourcefiles = true;
+        init();
+    })
 });

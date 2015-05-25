@@ -10,6 +10,8 @@ pc.extend(pc.editor, function() {
         var context = this;
         context.assets._prefix = '../../api/';
 
+        this.scene = new pc.Scene();
+
         this.gizmos = {
             translate: new pc.GizmoTranslate(context),
             rotate: new pc.GizmoRotate(context),
@@ -510,7 +512,7 @@ pc.extend(pc.editor, function() {
                 if (instance === pickedInstances[0]) {
 
                     var materialId = null;
-                    var modelAsset = this.assets.getAssetById(selectedNode.model.asset);
+                    var modelAsset = this.assets.get(selectedNode.model.asset);
                     if (modelAsset.data.mapping) {
                         materialId = modelAsset.data.mapping[i].material;
                     }

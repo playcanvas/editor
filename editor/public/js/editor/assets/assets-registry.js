@@ -33,7 +33,12 @@ editor.once('load', function() {
             };
 
             // add to registry
-            assetRegistry.createAndAddAsset(assetJson.id, data);
+            // assetRegistry.createAndAddAsset(assetJson.id, data);
+
+            var newAsset = new pc.Asset(data.name, data.type, data.file, data.data);
+            newAsset.id = parseInt(assetJson.id);
+            assetRegistry.add(newAsset);
+
 
             var timeout;
             var updatedFields = {};
@@ -52,7 +57,7 @@ editor.once('load', function() {
                 // do this in a timeout to avoid multiple sets of the same
                 // fields
                 timeout = setTimeout(function () {
-                    var realtimeAsset = assetRegistry.getAssetById(asset.get('id'));
+                    var realtimeAsset = assetRegistry.get(asset.get('id'));
 
                     for (var key in updatedFields) {
                         var data = asset.get(key);
@@ -76,9 +81,9 @@ editor.once('load', function() {
 
         // remove assets from asset registry
         editor.on('assets:remove', function (asset) {
-            var realtimeAsset = assetRegistry.getAssetById(asset.get('id'));
+            var realtimeAsset = assetRegistry.get(asset.get('id'));
             if (realtimeAsset) {
-                assetRegistry.removeAsset(realtimeAsset);
+                assetRegistry.remove(realtimeAsset);
             }
         });
     });

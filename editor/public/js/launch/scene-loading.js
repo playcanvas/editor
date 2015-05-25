@@ -1,45 +1,57 @@
-pc.editor = pc.editor || {};
-pc.extend(pc.editor, function() {
+app.once('load', function() {
+    'use strict';
 
-    var loadScene = function (id, callback, errorCallback) {
+    // cache
+    var loaded = {};
+
+    var loadScene = function(id, callback, settingsOnly) {
+        //
+        if (loaded[id]) {
+            callback(null, loaded[id].getSnapshot());
+            return;
+        }
+
         var connection = editor.call('realtime:connection');
-
         var scene = connection.get('scenes', '' + id);
 
+        // error
         scene.on('error', function(err) {
-            if (errorCallback)
-                errorCallback(err);
-
-            scene.destroy();
+            console.error('error', err);
         });
 
-        scene.on('ready', function () {
-            var data = scene.getSnapshot();
+        // ready to sync
+        scene.on('ready', function() {
+            // cache loaded scene for any subsequent load requests
+            loaded[id] = scene;
 
-            // convert to hierarchy data format
-            var hierarchy = null;
-            for (var id in data.entities) {
-                if (!data.entities[id].parent) {
-                    hierarchy = data.entities[id];
-                }
+            // notify of operations
+            scene.on('after op', function(ops, local) {
+                if (local)
+                    return;
 
-                for (var i = 0; i < data.entities[id].children.length; i++) {
-                    data.entities[id].children[i] = data.entities[data.entities[id].children[i]];
+                for (var i = 0; i < ops.length; i++) {
+                    var op = ops[i];
+
+                    // console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
+
+                    if (op.p[0]) {
+                        app.emit('realtime:op:' + op.p[0], op);
+                    }
                 }
+            });
+
+            // notify of scene load
+            var snapshot = scene.getSnapshot();
+            if (settingsOnly !== true) {
+                app.emit('scene:raw', snapshot);
             }
-
-            // pass scene to callback
-            callback({hierarchy: hierarchy});
-
-            // destroy document
-            scene.destroy();
+            if (callback)
+                callback(null, snapshot);
         });
 
         // subscribe for realtime events
         scene.subscribe();
     };
 
-    return {
-        loadScene: loadScene
-    };
-}());
+    app.method('loadScene', loadScene);
+});

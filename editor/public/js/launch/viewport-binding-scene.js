@@ -23,6 +23,9 @@ app.once('load', function() {
 
         // on settings change
         sceneSettings.on('*:set', queueApplySettings);
+
+        // initialize
+        queueApplySettings();
     });
 
 });

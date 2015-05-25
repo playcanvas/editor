@@ -53,9 +53,6 @@ app.once('load', function() {
     var onLoad = function(data) {
         data = data.response;
 
-        var toc = {
-            assets: {}
-        };
         for(var i = 0; i < data.length; i++) {
             if (data[i].source)
                 continue;
@@ -65,11 +62,12 @@ app.once('load', function() {
             editor.call('assets:add', asset);
             assets.add(asset);
 
-            toc.assets[asset.get("id")] = asset.json();
+            var adata = asset.json()
+            var _asset = new pc.Asset(adata.name, adata.type, adata.file, adata.data);
+            _asset.id = parseInt(adata.id);
+            _asset.preload = adata.preload ? adata.preload : false;
+            framework.assets.add(_asset);
         }
-
-
-        framework.assets.addGroup(config.scene.id, toc);
 
         app.emit('assets:load');
     };
@@ -82,4 +80,5 @@ app.once('load', function() {
         .on('error', function(status, evt) {
             console.log(status, evt);
         });
+
 });

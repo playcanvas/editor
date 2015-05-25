@@ -362,12 +362,12 @@ editor.once('load', function() {
             prefilterBtn.on('click', function () {
                 // disable while prefiltering
                 prefilterBtn.disabled = true;
-                editor.call('assets:cubemaps:prefilter', assets[0], function () {
+                editor.call('assets:cubemaps:prefilter', assets[0], function (err) {
                     // re-enable button
                     prefilterBtn.disabled = false;
-                }, function (error) {
-                    prefilterBtn.disabled = false;
-                    editor.call('status:error', error);
+                    if (err) {
+                        editor.call('status:error', error);
+                    }
                 });
             });
 

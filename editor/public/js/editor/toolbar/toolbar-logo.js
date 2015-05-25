@@ -627,6 +627,16 @@ editor.once('load', function() {
                 editor.call('selector:set', 'designerSettings', [ editor.call('designerSettings') ]);
             }
         },
+        'priorityScripts': {
+            title: 'Script Priority',
+            icon: '&#58152;',
+            filter: function() {
+                return editor.call('permissions:write');
+            },
+            select: function() {
+                editor.call('sceneSettings:priorityScripts');
+            }
+        },
         'feedback': {
             title: 'Feedback',
             icon: '&#58488;',
