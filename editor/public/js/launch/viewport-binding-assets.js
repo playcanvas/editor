@@ -51,9 +51,7 @@ app.once('load', function() {
                 type: assetJson.type
             };
 
-            // add to registry
-            // assetRegistry.createAndAddAsset(assetJson.id, data);
-
+            // create and add to registry
             var newAsset = new pc.Asset(data.name, data.type, data.file, data.data);
             newAsset.id = parseInt(assetJson.id);
             assetRegistry.add(newAsset);

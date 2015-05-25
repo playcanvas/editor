@@ -14,7 +14,6 @@ app.once('load', function() {
 
             // load scene
             if (!scene) {
-                // pc.editor.loadScene(config.scene.id);
                 app.call('loadScene', config.scene.id);
             }
 

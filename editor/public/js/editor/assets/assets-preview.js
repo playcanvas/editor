@@ -10,12 +10,6 @@ editor.once('load', function () {
     var loader = new pc.ResourceLoader();
     var assets = new pc.AssetRegistry(loader, '/api');
 
-    // register resource handlers
-    // loader.addHandler("texture", new pc.TextureHandler(device, assets));
-    // loader.addHandler(pc.resources.CubemapRequest, new pc.resources.CubemapResourceHandler(device, assets));
-    // loader.addHandler(pc.resources.MaterialRequest, new pc.resources.MaterialResourceHandler(device, assets));
-    // loader.addHandler(pc.resources.ModelRequest, new pc.resources.ModelResourceHandler(device, assets));
-
     loader.addHandler("model", new pc.ModelHandler(device));
     loader.addHandler("material", new pc.MaterialHandler(assets));
     loader.addHandler("texture", new pc.TextureHandler(device));

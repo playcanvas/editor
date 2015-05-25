@@ -75,14 +75,6 @@ editor.once('load', function () {
                             callback();
                         } else {
                             editor.call('status:job', 'prefilter');
-
-                            // HACK: (remove this with new resource loader)
-                            // If there is an error the dds requests are kept in the
-                            // resource loader cache so manually remove them.
-                            // requests.forEach(function (r) {
-                            //     delete assets.loader._requests[r.canonical];
-                            // });
-
                             callback(err);
                         }
                     });
@@ -106,68 +98,6 @@ editor.once('load', function () {
                         }
                     });
                 });
-                // var requests = textureAssets.map(function (asset) {
-                //     var url = asset.get('file.url').replace(/.png$/, '.dds');
-                //     return new pc.resources.TextureRequest(url);
-                // });
-
-                // editor.call('status:job', 'prefilter', 1);
-
-                // assets.loader.request(requests).then(function (resources) {
-                //     editor.call('status:job', 'prefilter');
-
-                //     cubemap = new pc.Texture(device, {
-                //         cubemap: true,
-                //         rgbm: false,
-                //         fixCubemapSeams: true,
-                //         format: resources[0].format,
-                //         width: resources[0].width,
-                //         height: resources[0].height
-                //     });
-
-                //     cubemap._levels[0] = [ resources[0]._levels[0],
-                //                            resources[1]._levels[0],
-                //                            resources[2]._levels[0],
-                //                            resources[3]._levels[0],
-                //                            resources[4]._levels[0],
-                //                            resources[5]._levels[0] ];
-
-                //     // prefilter cubemap
-                //     var options = {
-                //         device: device,
-                //         sourceCubemap: cubemap,
-                //         method: 1,
-                //         samples: 4096,
-                //         cpuSync: true,
-                //         filteredFixed: [],
-                //         filteredFixedRgbm: [],
-                //         singleFilteredFixedRgbm: true
-                //     };
-
-                //     pc.prefilterCubemap(options);
-
-                //     // get dds and create blob
-                //     var dds = options.singleFilteredFixedRgbm.getDds();
-                //     var blob = new Blob([dds], {type: 'image/dds'});
-
-                //     // upload blob as dds
-                //     editor.call('assets:uploadFile', blob, cubemapAsset.get('name') + '.dds', cubemapAsset, function (err, data) {
-                //         if (!err) {
-                //             callback();
-                //         } else {
-                //             editor.call('status:job', 'prefilter');
-
-                //             // HACK: (remove this with new resource loader)
-                //             // If there is an error the dds requests are kept in the
-                //             // resource loader cache so manually remove them.
-                //             requests.forEach(function (r) {
-                //                 delete assets.loader._requests[r.canonical];
-                //             });
-
-                //             callback(err);
-                //         }
-                //     });
-                // });
             }
         }
         catch (ex) {
@@ -218,18 +148,6 @@ editor.once('load', function () {
             onLoad();
         });
         assets.load(realtimeAsset);
-
-        // if (!realtimeAsset.resource) {
-        //     assets.load(realtimeAsset).then(function (resources) {
-        //         cubemap = resources[0][0];
-        //         onLoad();
-        //     }, function (error) {
-        //         error('Could not load cubemap');
-        //     });
-        // } else {
-        //     cubemap = realtimeAsset.resource;
-        //     onLoad();
-        // }
 
         function onLoad() {
             if (device.extTextureFloatRenderable && cubemapAsset.get('data.rgbm')) {

@@ -113,16 +113,6 @@
                 });
                 // reference
                 editor.call('attributes:reference:asset:script:filename:attach', fieldFilename.parent.innerElement.firstChild.ui);
-
-                // var fieldType = editor.call('attributes:addField', {
-                //     parent: panel,
-                //     name: 'Preload',
-                //     type: 'checkbox',
-                //     link: asset,
-                //     path: 'preload'
-                // });
-                // editor.call('attributes:reference:asset:preload:attach', fieldType.parent.innerElement.firstChild.ui);
-
             } else {
                 // id
                 var fieldId = editor.call('attributes:addField', {
