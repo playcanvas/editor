@@ -1,8 +1,18 @@
-pc.editor = pc.editor || {};
-pc.extend(pc.editor, function() {
+app.once('load', function() {
+    'use strict';
+
+    // cache
+    var loaded = {};
+
     var loadScene = function(id, callback, settingsOnly) {
+        //
+        if (loaded[id]) {
+            callback(null, loaded[id].getSnapshot());
+            return;
+        }
+
         var connection = editor.call('realtime:connection');
-        scene = connection.get('scenes', '' + id);
+        var scene = connection.get('scenes', '' + id);
 
         // error
         scene.on('error', function(err) {
@@ -11,6 +21,9 @@ pc.extend(pc.editor, function() {
 
         // ready to sync
         scene.on('ready', function() {
+            // cache loaded scene for any subsequent load requests
+            loaded[id] = scene;
+
             // notify of operations
             scene.on('after op', function(ops, local) {
                 if (local)
@@ -40,7 +53,5 @@ pc.extend(pc.editor, function() {
         scene.subscribe();
     };
 
-    return {
-        loadScene: loadScene
-    };
-}());
+    app.method('loadScene', loadScene);
+});
