@@ -32,6 +32,8 @@ editor.once('load', function() {
         gizmo.root.enabled = state;
 
         visible = true;
+
+        editor.call('viewport:render');
     });
 
     // show/hide gizmo

@@ -189,9 +189,24 @@ editor.once('load', function() {
         uiItemIndex[entity.get('resource_id')].selected = false;
     });
     // selector change
-    editor.on('selector:change', function(type) {
-        if (type !== 'entity')
+    editor.on('selector:change', function(type, items) {
+        if (type !== 'entity') {
             hierarchy.clear();
+        } else {
+            var selected = hierarchy.selected;
+            var ids = { };
+
+            // build index of selected items
+            for(var i = 0; i < items.length; i++) {
+                ids[items[i].get('resource_id')] = true;
+            };
+
+            // deselect unselected items
+            for(var i = 0; i < selected.length; i++) {
+                if (! ids[selected[i].entity.get('resource_id')])
+                    selected[i].selected = false;
+            }
+        }
     });
 
 

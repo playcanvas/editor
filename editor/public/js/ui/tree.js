@@ -37,6 +37,16 @@ function Tree() {
 Tree.prototype = Object.create(ui.ContainerElement.prototype);
 
 
+Object.defineProperty(Tree.prototype, 'selected', {
+    get: function() {
+        return this._selected.slice(0);
+    },
+    set: function(value) {
+
+    }
+});
+
+
 Tree.prototype._onItemClick = function(item) {
     if (Tree._ctrl && Tree._ctrl()) {
         item.selected = ! item.selected;
