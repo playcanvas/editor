@@ -119,7 +119,7 @@ editor.once('load', function() {
             asset.syncing = false;
         };
 
-        var updateRegex = new RegExp(/^(name$)|(data\.)|(file$)/);
+        var updateRegex = new RegExp(/^(name$|preload$)|(data\.)|(file$)/);
 
         asset.on('*:set', function(path) {
             if (! asset.sync || asset.syncing)

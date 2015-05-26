@@ -13,8 +13,9 @@ app.once('load', function() {
             var data = JSON.parse(msg.data.slice(4));
 
             // load scene
-            if (! scene)
-                loadScene();
+            if (!scene) {
+                app.call('loadScene', config.scene.id);
+            }
 
         } else if (msg.data.startsWith('permissions') || msg.data.startsWith('whoisonline')) {
         } else {
@@ -35,37 +36,4 @@ app.once('load', function() {
     editor.method('realtime:connection', function () {
         return connection;
     });
-
-    var loadScene = function() {
-        scene = connection.get('scenes', '' + config.scene.id);
-
-        // error
-        scene.on('error', function(err) {
-            console.error('error', err);
-        });
-
-        // ready to sync
-        scene.on('ready', function() {
-            // notify of operations
-            scene.on('after op', function(ops, local) {
-                if (local)
-                    return;
-
-                for (var i = 0; i < ops.length; i++) {
-                    var op = ops[i];
-
-                    // console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
-
-                    if (op.p[0])
-                        app.emit('realtime:op:' + op.p[0], op);
-                }
-            });
-
-            // notify of scene load
-            app.emit('scene:raw', scene.getSnapshot());
-        });
-
-        // subscribe for realtime events
-        scene.subscribe();
-    };
 });

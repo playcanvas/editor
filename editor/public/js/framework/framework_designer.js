@@ -10,6 +10,8 @@ pc.extend(pc.editor, function() {
         var context = this;
         context.assets._prefix = '../../api/';
 
+        this.scene = new pc.Scene();
+
         for (var key in context.systems) {
             if (context.systems.hasOwnProperty(key)) {
                 context.systems[key]._inTools = true;
@@ -28,13 +30,6 @@ pc.extend(pc.editor, function() {
 
         // Draw immediately
         this.redraw = true;
-
-        this.lastMouseEvent = null;
-        this.selectedEntity = null;
-        this.lastMouseX = -1;
-        this.lastMouseY = -1;
-        this.lastClickTime = null;
-        this.clickedCanvas = false;
     };
 
     Designer = pc.inherits(Designer, pc.Application);
@@ -280,12 +275,6 @@ pc.extend(pc.editor, function() {
      */
     Designer.prototype.tick = function () {
         if (this.redraw) {
-            if (this.lastMouseEvent) {
-                // pass mousemove on to gizmo system
-                // this.activeGizmo.handleMouseMove(this.lastMouseEvent);
-                this.lastMouseEvent = null;
-            }
-
             var dt = this.getDt();
             var keepRendering = editor.call('viewport:keepRendering');
             this.redraw = keepRendering;

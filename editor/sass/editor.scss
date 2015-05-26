@@ -1578,6 +1578,90 @@ strong {
     }
 }
 
+.ui-overlay.script-priorities {
+
+
+    > .content {
+        width: 400px;
+        height: auto;
+        top: 25%;
+        left: calc(50% - 200px);
+        padding: 2px;
+
+        > .ui-panel {
+            overflow-y: scroll;
+            max-height: 200px;
+        }
+
+        .ui-list {
+            margin-right: 0px;
+        }
+
+        .ui-label.title {
+            @extend .font-bold;
+        }
+
+        .ui-label.description {
+            font-size: 0.8em;
+        }
+
+        .ui-button.add-script {
+            display: block;
+            text-align: center;
+
+            &:before {
+                content: '\E464';
+                padding-right: 8px;
+                @extend .font-icon;
+            }
+        }
+    }
+
+    .ui-list-item {
+        height: 32px;
+        padding-right: 0px;
+        line-height: 32px;
+    }
+
+    .ui-button.move-up, .ui-button.move-down, .ui-button.remove {
+        float: right;
+        width: 32px;
+        height: 32px;
+        line-height: 30px;
+        margin: 0;
+        padding: 0;
+        background-color: transparent;
+        border: none;
+        @extend .font-icon;
+        font-size: 18px;
+        text-align: center;
+
+        &:hover {
+            color: $text-active;
+            background-color: #20292b;
+        }
+    }
+
+    .move-up:after {
+        content: '\E112';
+    }
+
+    .move-down {
+        line-height: 32px;
+        &:after {
+            content: '\E111';
+        }
+    }
+
+    .remove:after {
+        content: '\E521';
+    }
+
+    .not-visible {
+        visibility: hidden;
+    }
+}
+
 .ui-overlay.help-controls {
     > .content {
         width: 512px;
