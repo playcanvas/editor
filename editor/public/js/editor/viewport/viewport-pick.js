@@ -29,7 +29,7 @@ editor.once('load', function() {
         } else {
             var node = picked[0].node;
             // traverse to pc.Entity
-            while (! (node instanceof pc.Entity) && node !== null/* && node !== this.activeGizmo.node*/) {
+            while (! (node instanceof pc.Entity) && node && node.getParent/* && node !== this.activeGizmo.node*/) {
                 node = node.getParent();
             }
             if (! node) return;

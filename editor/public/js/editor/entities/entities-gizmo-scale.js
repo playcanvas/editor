@@ -12,7 +12,9 @@ editor.once('load', function() {
     var app;
     var gizmoMoving = false;
     var gizmoAxis, gizmoMiddle;
-    var linesColor = new pc.Color(1, 1, 1, .25);
+    var linesColorActive = new pc.Color(1, 1, 1, 1);
+    var linesColor = new pc.Color(1, 1, 1, .2);
+    var linesColorBehind = new pc.Color(1, 1, 1, .05);
 
     // get position of gizmo based on selected entities
     var getGizmoPosition = function() {
@@ -21,10 +23,10 @@ editor.once('load', function() {
 
         vecA.set(0, 0, 0);
         for(var i = 0; i < items.length; i++) {
-            var pos = items[i].obj.get('position');
-            vecA.x += pos[0];
-            vecA.y += pos[1];
-            vecA.z += pos[2];
+            var pos = items[i].obj.entity.getPosition();
+            vecA.x += pos.x;
+            vecA.y += pos.y;
+            vecA.z += pos.z;
         }
         vecA.scale(1 / items.length);
         return vecA;
@@ -35,7 +37,8 @@ editor.once('load', function() {
             return;
 
         if (items.length === 1) {
-            return items[0].obj.get('rotation');
+            var rot = items[0].obj.entity.getEulerAngles();
+            return [ rot.x, rot.y, rot.z ];
         } else {
             return [ 0, 0, 0 ];
         }
@@ -142,10 +145,9 @@ editor.once('load', function() {
             var camera = app.activeCamera;
 
             for(var i = 0; i < items.length; i++) {
-                var pos = items[i].obj.get('position');
-                vecA.set(pos[0], pos[1], pos[2]);
+                vecA.copy(getGizmoPosition());
 
-                var rot = items[i].obj.get('rotation');
+                var rot = getGizmoRotation();
                 quat.setFromEulerAngles(rot[0], rot[1], rot[2]);
 
                 if (gizmoAxis === 'x' || gizmoMiddle) {
@@ -153,21 +155,24 @@ editor.once('load', function() {
                     quat.transformVector(vecB, vecB);
                     vecC.copy(vecB).scale(-1).add(vecA);
                     vecB.add(vecA);
-                    app.renderLine(vecB, vecC, linesColor);
+                    app.renderLine(vecB, vecC, linesColorBehind, pc.LINEBATCH_GIZMO);
+                    app.renderLine(vecB, vecC, linesColorActive);
                 }
                 if (gizmoAxis === 'y' || gizmoMiddle) {
                     vecB.set(0, camera.camera.farClip * 2, 0);
                     quat.transformVector(vecB, vecB);
                     vecC.copy(vecB).scale(-1).add(vecA);
                     vecB.add(vecA);
-                    app.renderLine(vecB, vecC, linesColor);
+                    app.renderLine(vecB, vecC, linesColorBehind, pc.LINEBATCH_GIZMO);
+                    app.renderLine(vecB, vecC, linesColorActive);
                 }
                 if (gizmoAxis === 'z' || gizmoMiddle) {
                     vecB.set(0, 0, camera.camera.farClip * 2);
                     quat.transformVector(vecB, vecB);
                     vecC.copy(vecB).scale(-1).add(vecA);
                     vecB.add(vecA);
-                    app.renderLine(vecB, vecC, linesColor);
+                    app.renderLine(vecB, vecC, linesColorBehind, pc.LINEBATCH_GIZMO);
+                    app.renderLine(vecB, vecC, linesColorActive);
                 }
             }
         }
@@ -220,7 +225,7 @@ editor.once('load', function() {
             // show gizmo
             editor.call('gizmo:scale:toggle', true);
             // on render
-            events.push(editor.on('viewport:update', onRender));
+            events.push(editor.on('gizmo:scale:render', onRender));
             // render
             editor.call('viewport:render');
         } else {

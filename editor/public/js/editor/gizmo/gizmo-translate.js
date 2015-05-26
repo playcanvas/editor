@@ -133,15 +133,6 @@ editor.once('load', function() {
         // update gizmo
         editor.on('viewport:update', function(dt) {
             if (gizmo.root.enabled) {
-                // Insert a command into the draw call queue to clear the depth buffer immediately before the gizmos are rendered
-                var clearOptions = {
-                    flags: pc.CLEARFLAG_DEPTH
-                };
-                var command = new pc.scene.Command(pc.LAYER_GIZMO, pc.BLEND_NONE, function () {
-                    app.graphicsDevice.clear(clearOptions);
-                });
-                app.scene.drawCalls.push(command);
-
                 var camera = app.activeCamera;
                 var posCamera = camera.getPosition();
 
@@ -152,6 +143,8 @@ editor.once('load', function() {
                         editor.emit('gizmo:translate:offset', point.x, point.y, point.z);
                     }
                 }
+
+                editor.emit('gizmo:translate:render', dt);
 
                 posCameraLast.copy(posCamera);
 
@@ -352,7 +345,6 @@ editor.once('load', function() {
             mat.blendSrc = pc.BLENDMODE_SRC_ALPHA;
             mat.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
         }
-        mat.cull = pc.CULLFACE_NONE;
         mat.update();
         return mat;
     };
@@ -383,6 +375,7 @@ editor.once('load', function() {
         // active mat
         obj.matActive = createMaterial(new pc.Color(1, 1, 1, 1));
         obj.matActiveTransparent = createMaterial(new pc.Color(1, 1, 1, .25));
+        obj.matActiveTransparent.cull = pc.CULLFACE_NONE;
 
         // root entity
         var entity = obj.root = new pc.Entity();
@@ -400,6 +393,7 @@ editor.once('load', function() {
         planeX.setLocalEulerAngles(90, -90, 0);
         planeX.setLocalPosition(0, .5, .5);
         planeX.mat = planeX.model.material = createMaterial(new pc.Color(1, 0, 0, .25));
+        planeX.mat.cull = pc.CULLFACE_NONE;
 
         // plane y
         var planeY = obj.plane.y = new pc.Entity();
@@ -414,6 +408,7 @@ editor.once('load', function() {
         planeY.setLocalEulerAngles(0, 0, 0);
         planeY.setLocalPosition(-.5, 0, .5);
         planeY.mat = planeY.model.material = createMaterial(new pc.Color(0, 1, 0, .25));
+        planeY.mat.cull = pc.CULLFACE_NONE;
 
         // plane z
         var planeZ = obj.plane.z = new pc.Entity();
@@ -428,6 +423,7 @@ editor.once('load', function() {
         planeZ.setLocalEulerAngles(90, 0, 0);
         planeZ.setLocalPosition(-.5, .5, 0);
         planeZ.mat = planeZ.model.material = createMaterial(new pc.Color(0, 0, 1, .25));
+        planeZ.mat.cull = pc.CULLFACE_NONE;
 
         // line x
         var lineX = obj.line.x = new pc.Entity();

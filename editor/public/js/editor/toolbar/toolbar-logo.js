@@ -453,6 +453,42 @@ editor.once('load', function() {
                         items[0].set('enabled', false);
                     }
                 },
+                'copy': {
+                    title: 'Copy',
+                    icon: '&#57891;',
+                    filter: function () {
+                        if (! editor.call('permissions:write'))
+                            return false;
+
+                        return editor.call('selector:type') === 'entity';
+                    },
+                    hide: function () {
+                        return !this.filter();
+                    },
+                    select: function () {
+                        var items = editor.call('selector:items');
+                        editor.call('entities:copy', items[0]);
+                    }
+                },
+                'paste': {
+                    title: 'Paste',
+                    icon: '&#57892;',
+                    filter: function () {
+                        if (! editor.call('permissions:write'))
+                            return false;
+
+                        return editor.call('selector:type') === 'entity' &&
+                               !editor.call('entities:clipboard:empty') &&
+                               editor.call('entities:clipboard:get').project === config.project.id;
+                    },
+                    hide: function () {
+                        return editor.call('selector:type') !== 'entity';
+                    },
+                    select: function () {
+                        var items = editor.call('selector:items');
+                        editor.call('entities:paste', items[0]);
+                    }
+                },
                 'duplicate': {
                     title: 'Duplicate',
                     icon: '&#57908;',

@@ -27,4 +27,15 @@ editor.once('load', function() {
 
         editor.emit('gizmo:coordSystem', system);
     });
+
+    editor.once('viewport:load', function() {
+        var app = editor.call('viewport:framework');
+
+        // clear depth buffer before gizmo layer
+        app.scene.drawCalls.push(new pc.scene.Command(pc.LAYER_GIZMO, pc.BLEND_NONE, function() {
+            app.graphicsDevice.clear({
+                flags: pc.CLEARFLAG_DEPTH
+            });
+        }));
+    })
 });

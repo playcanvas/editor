@@ -206,13 +206,13 @@ pc.extend(pc.editor, function() {
     Designer.prototype.render = function () {
         var self = this;
 
-        this.fire('preRender', null);
-
         var context = this;
         var renderer = this.renderer;
 
         var root = context.root;
         context.root.syncHierarchy();
+
+        this.fire('preRender', null);
 
         var device = this.graphicsDevice;
         var dw = device.width;
@@ -288,6 +288,7 @@ pc.extend(pc.editor, function() {
 
             var dt = this.getDt();
             var keepRendering = editor.call('viewport:keepRendering');
+            this.redraw = keepRendering;
 
             // Perform ComponentSystem update
             pc.ComponentSystem.fire('toolsUpdate', dt);
@@ -296,8 +297,6 @@ pc.extend(pc.editor, function() {
             // this.activeGizmo.render();
 
             this.render();
-
-            this.redraw = keepRendering;
         }
 
         // Submit a request to queue up a new animation frame immediately

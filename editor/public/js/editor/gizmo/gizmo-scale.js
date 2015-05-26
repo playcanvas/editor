@@ -136,6 +136,8 @@ editor.once('load', function() {
         // update gizmo
         editor.on('viewport:update', function(dt) {
             if (gizmo.root.enabled) {
+                editor.emit('gizmo:scale:render', dt);
+
                 if (moving) {
                     var point = pickPlane(mouseTap.x, mouseTap.y);
                     if (point) {
@@ -384,8 +386,8 @@ editor.once('load', function() {
         lineX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(lineX);
         lineX.setLocalEulerAngles(90, 90, 0);
-        lineX.setLocalPosition(1.2, 0, 0);
-        lineX.setLocalScale(boxSize, 1.2, boxSize);
+        lineX.setLocalPosition(1.25, 0, 0);
+        lineX.setLocalScale(boxSize, 1.5, boxSize);
         lineX.mat = lineX.model.material = createMaterial(new pc.Color(1, 0, 0, 0));
 
         // line y
@@ -398,8 +400,8 @@ editor.once('load', function() {
         lineY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(lineY);
         lineY.setLocalEulerAngles(0, 0, 0);
-        lineY.setLocalPosition(0, 1.2, 0);
-        lineY.setLocalScale(boxSize, 1.2, boxSize);
+        lineY.setLocalPosition(0, 1.25, 0);
+        lineY.setLocalScale(boxSize, 1.5, boxSize);
         lineY.mat = lineY.model.material = createMaterial(new pc.Color(0, 1, 0, 0));
 
         // line z
@@ -412,8 +414,8 @@ editor.once('load', function() {
         lineZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(lineZ);
         lineZ.setLocalEulerAngles(90, 0, 0);
-        lineZ.setLocalPosition(0, 0, 1.2);
-        lineZ.setLocalScale(boxSize, 1.2, boxSize);
+        lineZ.setLocalPosition(0, 0, 1.25);
+        lineZ.setLocalScale(boxSize, 1.5, boxSize);
         lineZ.mat = lineZ.model.material = createMaterial(new pc.Color(0, 0, 1, 0));
 
         // box x
@@ -425,7 +427,7 @@ editor.once('load', function() {
         });
         boxX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(boxX);
-        boxX.setLocalPosition(2, 0, 0);
+        boxX.setLocalPosition(2.2, 0, 0);
         boxX.setLocalScale(boxSize, boxSize, boxSize);
         boxX.mat = boxX.model.material = createMaterial(new pc.Color(1, 0, 0, 1.1));
         boxX.color = new pc.Color(1, 0, 0, 1);
@@ -439,7 +441,7 @@ editor.once('load', function() {
         });
         boxY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(boxY);
-        boxY.setLocalPosition(0, 2, 0);
+        boxY.setLocalPosition(0, 2.2, 0);
         boxY.setLocalScale(boxSize, boxSize, boxSize);
         boxY.mat = boxY.model.material = createMaterial(new pc.Color(0, 1, 0, 1.1));
         boxY.color = new pc.Color(0, 1, 0, 1);
@@ -453,7 +455,7 @@ editor.once('load', function() {
         });
         boxZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(boxZ);
-        boxZ.setLocalPosition(0, 0, 2);
+        boxZ.setLocalPosition(0, 0, 2.2);
         boxZ.setLocalScale(boxSize, boxSize, boxSize);
         boxZ.mat = boxZ.model.material = createMaterial(new pc.Color(0, 0, 1, 1.1));
         boxZ.color = new pc.Color(0, 0, 1, 1);
