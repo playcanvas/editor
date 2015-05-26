@@ -8,9 +8,9 @@ editor.once('load', function() {
     var aabbB = new pc.shape.Aabb();
     var aabbC = new pc.shape.Aabb();
 
-    editor.method('viewport:focus', function() {
+    editor.method('selection:aabb', function() {
         if (editor.call('selector:type') !== 'entity')
-            return;
+            return null;
 
         var items = editor.call('selector:items');
 
@@ -78,6 +78,15 @@ editor.once('load', function() {
             }
         }
 
+        return aabb;
+    });
+
+    editor.method('viewport:focus', function() {
+        var selection = editor.call('selection:aabb');
+
+        if (! selection)
+            return;
+
         // camera
         var camera = app.activeCamera;
         // get tranform
@@ -85,10 +94,10 @@ editor.once('load', function() {
         // looking vector
         var camPos = camWtm.getZ();
         // calculate offset distance
-        var averageExtent = (aabb.halfExtents.x + aabb.halfExtents.y + aabb.halfExtents.z) / 3;
+        var averageExtent = (selection.halfExtents.x + selection.halfExtents.y + selection.halfExtents.z) / 3;
         var offset = averageExtent / Math.tan(0.5 * camera.camera.fov * Math.PI / 180.0);
         // get camera position
-        camPos.normalize().scale(offset * 1.5).add(aabb.center);
+        camPos.normalize().scale(offset * 1.5).add(selection.center);
 
         var transition = camera.script.designer_camera.transition;
         // set transition information

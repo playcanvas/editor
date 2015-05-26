@@ -13,6 +13,7 @@ editor.once('load', function() {
     var app;
     var gizmoMoving = false;
     var gizmoAxis, gizmoPlane;
+    var movingStart = new pc.Vec3();
     var linesColorActive = new pc.Color(1, 1, 1, 1);
     var linesColor = new pc.Color(1, 1, 1, .2);
     var linesColorBehind = new pc.Color(1, 1, 1, .05);
@@ -35,17 +36,16 @@ editor.once('load', function() {
         if (! items.length)
             return;
 
-        vecA.set(0, 0, 0);
-        for(var i = 0; i < items.length; i++) {
-            if (! items[i].obj.entity)
-                continue;
+        if (items.length === 1) {
+            vecA.copy(items[0].obj.entity.getPosition());
+        } else {
+            var selection = editor.call('selection:aabb');
+            if (! selection)
+                return;
 
-            var pos = items[i].obj.entity.getPosition();
-            vecA.x += pos.x;
-            vecA.y += pos.y;
-            vecA.z += pos.z;
+            vecA.copy(selection.center);
         }
-        vecA.scale(1 / items.length);
+
         return vecA;
     };
 
@@ -63,7 +63,7 @@ editor.once('load', function() {
 
     // update gizmo position
     var updateGizmoPosition = function() {
-        if (! items.length || timeoutUpdatePosition)
+        if (! items.length || timeoutUpdatePosition || gizmoMoving)
             return;
 
         timeoutUpdatePosition = true;
@@ -104,7 +104,8 @@ editor.once('load', function() {
             itemIds[items[i].obj.get('resource_id')] = items[i];
         }
 
-        var vec = getGizmoPosition();
+        movingStart.copy(getGizmoPosition());
+
         for(var i = 0; i < items.length; i++) {
             var child = false;
             var parent = items[i].obj.entity._parent;
@@ -156,6 +157,10 @@ editor.once('load', function() {
                     item.set('position', records[i].valueOld);
                     item.history.enabled = true;
                 }
+
+                var pos = getGizmoPosition();
+                if (pos)
+                    editor.call('gizmo:translate:position', pos.x, pos.y, pos.z);
             },
             redo: function() {
                 for(var i = 0; i < records.length; i++) {
@@ -167,6 +172,10 @@ editor.once('load', function() {
                     item.set('position', records[i].value);
                     item.history.enabled = true;
                 }
+
+                var pos = getGizmoPosition();
+                if (pos)
+                    editor.call('gizmo:translate:position', pos.x, pos.y, pos.z);
             }
         });
     };
@@ -186,20 +195,18 @@ editor.once('load', function() {
 
         timeoutUpdateRotation = false;
 
-        var vec = getGizmoPosition();
-        if (vec)
-            editor.call('gizmo:translate:position', vec.x, vec.y, vec.z);
+        vecA.copy(movingStart).add(vecB.set(x, y, z));
+        editor.call('gizmo:translate:position', vecA.x, vecA.y, vecA.z);
     };
 
     var onRender = function() {
-        var pos;
-
-        if (items.length) {
-            pos = getGizmoPosition();
-            editor.call('gizmo:translate:position', pos.x, pos.y, pos.z);
-        }
+        // if (items.length && ! gizmoMoving) {
+        //     var pos = getGizmoPosition();
+        //     editor.call('gizmo:translate:position', pos.x, pos.y, pos.z);
+        // }
 
         if (gizmoMoving && items.length) {
+            var pos = editor.call('gizmo:translate:position');
             var camera = app.activeCamera;
 
             if (coordSystem === 'local' && items.length === 1) {
