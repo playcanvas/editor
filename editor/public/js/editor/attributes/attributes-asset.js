@@ -58,11 +58,10 @@
 
             // size
             var size = 0;
-            var preload;
+            var preload = true;
 
             for(var i = 0; i < assets.length; i++)
                 size += assets[i].get('file.size') || 0;
-
 
             var fieldSize = editor.call('attributes:addField', {
                 parent: panel,
@@ -81,6 +80,11 @@
                     size = size - (valueOld || 0) + (value || 0);
                     fieldSize.text = bytesToHuman(size);
                 }));
+
+                // scripts are not real assets, and have no preload option
+                if (asset.get('type') === 'script') {
+                    preload = false;
+                }
             }
 
             panel.once('destroy', function () {
@@ -92,14 +96,16 @@
             // reference
             editor.call('attributes:reference:asset:size:attach', fieldSize.parent.innerElement.firstChild.ui);
 
-            var fieldType = editor.call('attributes:addField', {
-                parent: panel,
-                name: 'Preload',
-                type: 'checkbox',
-                link: assets,
-                path: 'preload'
-            });
-            editor.call('attributes:reference:asset:preload:attach', fieldType.parent.innerElement.firstChild.ui);
+            if (preload) {
+                var fieldType = editor.call('attributes:addField', {
+                    parent: panel,
+                    name: 'Preload',
+                    type: 'checkbox',
+                    link: assets,
+                    path: 'preload'
+                });
+                editor.call('attributes:reference:asset:preload:attach', fieldType.parent.innerElement.firstChild.ui);
+            }
 
         } else {
             if (asset.get('type') === 'script') {
