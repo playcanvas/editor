@@ -70,6 +70,9 @@ editor.once('load', function() {
 
         editor.emit('viewport:tap:start', tapMouse, evt);
 
+        if (document.activeElement && document.activeElement.tagName.toLowerCase() === 'input')
+            document.activeElement.blur();
+
         evt.preventDefault();
     }, false);
 
