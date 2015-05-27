@@ -207,9 +207,9 @@ editor.once('load', function() {
                 gizmo.line.z.setLocalScale(arrowRadius, (vecA.z > 0) ? 1 : 1.8, arrowRadius);
 
                 // hide plane if viewed from very angle
-                gizmo.plane.x.model.enabled = Math.abs(vecA.x) > 0.1 && visible;
-                gizmo.plane.y.model.enabled = Math.abs(vecA.y) > 0.1 && visible;
-                gizmo.plane.z.model.enabled = Math.abs(vecA.z) > 0.1 && visible;
+                gizmo.plane.x.model.enabled = Math.abs(vecA.x) > 0.2 && visible;
+                gizmo.plane.y.model.enabled = Math.abs(vecA.y) > 0.2 && visible;
+                gizmo.plane.z.model.enabled = Math.abs(vecA.z) > 0.2 && visible;
 
                 quat.invert();
 
@@ -248,9 +248,9 @@ editor.once('load', function() {
                 }
 
                 // hide lines and arrows if viewed from very angle
-                gizmo.line.x.model.enabled = gizmo.arrow.x.model.enabled = ! (Math.abs(vecA.z) <= 0.1 && Math.abs(vecA.y) <= 0.1) && visible;
-                gizmo.line.y.model.enabled = gizmo.arrow.y.model.enabled = ! (Math.abs(vecA.x) <= 0.1 && Math.abs(vecA.z) <= 0.1) && visible;
-                gizmo.line.z.model.enabled = gizmo.arrow.z.model.enabled = ! (Math.abs(vecA.x) <= 0.1 && Math.abs(vecA.y) <= 0.1) && visible;
+                gizmo.line.x.model.enabled = gizmo.arrow.x.model.enabled = ! (Math.abs(vecA.z) <= 0.2 && Math.abs(vecA.y) <= 0.2) && visible;
+                gizmo.line.y.model.enabled = gizmo.arrow.y.model.enabled = ! (Math.abs(vecA.x) <= 0.2 && Math.abs(vecA.z) <= 0.2) && visible;
+                gizmo.line.z.model.enabled = gizmo.arrow.z.model.enabled = ! (Math.abs(vecA.x) <= 0.2 && Math.abs(vecA.y) <= 0.2) && visible;
 
                 // draw axes lines
                 // line x
