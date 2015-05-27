@@ -186,6 +186,9 @@ editor.once('load', function() {
         } else {
             var dirty = false;
             for(var i = 0; i < items.length; i++) {
+                if (! items[i].obj.entity)
+                    continue;
+
                 var pos = items[i].obj.entity.getPosition();
                 if (pos.x !== items[i].pos[0] || pos.y !== items[i].pos[1] || pos.z !== items[i].pos[2]) {
                     dirty = true;
@@ -235,6 +238,7 @@ editor.once('load', function() {
 
         for(var i = 0; i < events.length; i++)
             events[i].unbind();
+        events = [ ];
         items = [ ];
 
         if (editor.call('selector:type') === 'entity' && editor.call('gizmo:type') === 'scale') {

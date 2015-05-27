@@ -317,12 +317,14 @@ editor.once('load', function() {
             }
 
             records.push({
-                get: items[i].history._getItemFn,
+                resourceId: resourceId,
                 parentId: parentId,
                 ind: ind,
                 data: items[i].json()
             });
+        }
 
+        for(var i = 0; i < items.length; i++) {
             removeEntity(items[i]);
         }
 
@@ -330,7 +332,8 @@ editor.once('load', function() {
             name: 'delete entities',
             undo: function() {
                 var items = [ ];
-                for(var i = 0; i < records.length; i++) {
+                var i = records.length;
+                while(i--) {
                     var parent = editor.call('entities:get', records[i].parentId);
                     if (! parent)
                         return;
@@ -359,39 +362,6 @@ editor.once('load', function() {
                 }
             }
         });
-
-
-        // var resourceId = entity.get('resource_id');
-        // var ind;
-        // var data = entity.json();
-        // var parentId = childToParent[entity.get('resource_id')];
-        // if (parentId) {
-        //     var parent = editor.call('entities:get', parentId);
-        //     if (parent)
-        //         ind = parent.get('children').indexOf(resourceId);
-        // }
-
-        // removeEntity(entity);
-
-        // editor.call('history:add', {
-        //     name: 'delete entity ' + entity.get('resource_id'),
-        //     undo: function() {
-        //         var parent = editor.call('entities:get', parentId);
-        //         if (! parent)
-        //             return;
-
-        //         var entity = new Observer(data);
-        //         childToParent[entity.get('resource_id')] = parent.get('resource_id');
-        //         addEntity(entity, parent, true, ind);
-        //     },
-        //     redo: function() {
-        //         var entity = editor.call('entities:get', resourceId);
-        //         if (! entity)
-        //             return;
-
-        //         removeEntity(entity);
-        //     }
-        // });
     });
 
     // copy entity to local storage

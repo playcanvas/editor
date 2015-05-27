@@ -18,6 +18,9 @@ editor.once('load', function() {
         for(var i = 0; i < items.length; i++) {
             var entity = items[i].entity;
 
+            if (! entity)
+                continue;
+
             aabbA.center.set(Infinity, Infinity, Infinity);
 
             // model

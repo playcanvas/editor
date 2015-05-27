@@ -312,6 +312,7 @@ editor.once('load', function() {
 
         for(var i = 0; i < events.length; i++)
             events[i].unbind();
+        events = [ ];
         items = [ ];
 
         if (editor.call('selector:type') === 'entity' && editor.call('gizmo:type') === 'translate') {
