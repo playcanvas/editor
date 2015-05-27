@@ -234,6 +234,9 @@ editor.once('load', function() {
     };
 
     var updateGizmo = function() {
+        if (! editor.call('permissions:write'))
+            return;
+
         var objects = editor.call('selector:items');
 
         for(var i = 0; i < events.length; i++)

@@ -33,6 +33,9 @@ editor.once('load', function() {
         if (! gizmo)
             return;
 
+        if (! editor.call('permissions:write'))
+            return;
+
         gizmo.root.enabled = state;
 
         visible = true;
