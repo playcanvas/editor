@@ -24,6 +24,9 @@ editor.once('load', function() {
             if (entity.model && entity.model.model.meshInstances.length) {
                 var meshes = entity.model.model.meshInstances;
                 for(var n = 0; n < meshes.length; n++) {
+                    // clean tranformation matrix
+                    meshes[n].node.getWorldTransform();
+
                     if (n === 0) {
                         aabbA.copy(meshes[n].aabb);
                     } else {

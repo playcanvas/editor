@@ -185,25 +185,25 @@ editor.once('load', function() {
                 // line x
                 if (gizmo.line.x.model.enabled) {
                     vecB.set(scale * .5, 0, 0);
-                    quat.transformVector(vecB, vecB).add(gizmo.root.getPosition());
+                    quat.transformVector(vecB, vecB).add(posGizmo);
                     vecC.set(scale * 2, 0, 0);
-                    quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
+                    quat.transformVector(vecC, vecC).add(posGizmo);
                     app.renderLine(vecB, vecC, gizmo.box.x.color, pc.LINEBATCH_GIZMO);
                 }
                 // line y
                 if (gizmo.line.y.model.enabled) {
                     vecB.set(0, scale * .5, 0);
-                    quat.transformVector(vecB, vecB).add(gizmo.root.getPosition());
+                    quat.transformVector(vecB, vecB).add(posGizmo);
                     vecC.set(0, scale * 2, 0);
-                    quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
+                    quat.transformVector(vecC, vecC).add(posGizmo);
                     app.renderLine(vecB, vecC, gizmo.box.y.color, pc.LINEBATCH_GIZMO);
                 }
                 // line z
                 if (gizmo.line.z.model.enabled) {
                     vecB.set(0, 0, scale * .5);
-                    quat.transformVector(vecB, vecB).add(gizmo.root.getPosition());
+                    quat.transformVector(vecB, vecB).add(posGizmo);
                     vecC.set(0, 0, scale * 2);
-                    quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
+                    quat.transformVector(vecC, vecC).add(posGizmo);
                     app.renderLine(vecB, vecC, gizmo.box.z.color, pc.LINEBATCH_GIZMO);
                 }
             }
@@ -357,6 +357,9 @@ editor.once('load', function() {
         // active mat
         obj.matActive = createMaterial(new pc.Color(1, 1, 1, 1));
         obj.matActiveTransparent = createMaterial(new pc.Color(1, 1, 1, .25));
+        obj.colorLineBehind = new pc.Color(1, 1, 1, 0.05);
+        obj.colorLine = new pc.Color(1, 1, 1, .2);
+        obj.colorLineActive = new pc.Color(1, 1, 1, 1);
 
         // root entity
         var entity = obj.root = new pc.Entity();
@@ -373,7 +376,7 @@ editor.once('load', function() {
         middle.model.material.id = 0xFFFFFFFF;
         entity.addChild(middle);
         middle.setLocalScale(boxSize * 1.5, boxSize * 1.5, boxSize * 1.5);
-        middle.mat = middle.model.material = createMaterial(new pc.Color(1, 1, 1, 1.1));
+        middle.mat = middle.model.material = createMaterial(new pc.Color(1, 1, 1, 0.2));
         middle.mat.depthTest = false;
 
         // line x

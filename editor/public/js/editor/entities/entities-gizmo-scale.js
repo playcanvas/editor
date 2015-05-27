@@ -21,14 +21,14 @@ editor.once('load', function() {
         if (! items.length)
             return;
 
-        vecA.set(0, 0, 0);
-        for(var i = 0; i < items.length; i++) {
-            var pos = items[i].obj.entity.getPosition();
-            vecA.x += pos.x;
-            vecA.y += pos.y;
-            vecA.z += pos.z;
+        var reference = items[items.length - 1];
+        var parent = reference.parent;
+        while(parent) {
+            reference = parent;
+            parent = parent.parent;
         }
-        vecA.scale(1 / items.length);
+        vecA.copy(reference.obj.entity.getPosition());
+
         return vecA;
     };
 
@@ -36,12 +36,15 @@ editor.once('load', function() {
         if (! items.length)
             return;
 
-        if (items.length === 1) {
-            var rot = items[0].obj.entity.getEulerAngles();
-            return [ rot.x, rot.y, rot.z ];
-        } else {
-            return [ 0, 0, 0 ];
+        var reference = items[items.length - 1];
+        var parent = reference.parent;
+        while(parent) {
+            reference = parent;
+            parent = parent.parent;
         }
+        var rot = reference.obj.entity.getEulerAngles();
+
+        return [ rot.x, rot.y, rot.z ];
     };
 
     // update gizmo position
@@ -82,12 +85,12 @@ editor.once('load', function() {
         gizmoMiddle = middle;
         gizmoMoving = true;
 
-        var vec = getGizmoPosition();
         for(var i = 0; i < items.length; i++) {
             var scale = items[i].obj.get('scale');
             items[i].start[0] = scale[0];
             items[i].start[1] = scale[1];
             items[i].start[2] = scale[2];
+            items[i].pos = items[i].start.slice(0);
             items[i].obj.history.enabled = false;
         }
     };
@@ -136,44 +139,65 @@ editor.once('load', function() {
 
     // scaled
     var onGizmoOffset = function(x, y, z) {
-        for(var i = 0; i < items.length; i++)
+        for(var i = 0; i < items.length; i++) {
+            if (items[i].child)
+                continue;
+
             items[i].obj.set('scale', [ items[i].start[0] * x, items[i].start[1] * y, items[i].start[2] * z ]);
+        }
     };
 
     var onRender = function() {
-        if (gizmoMoving && items.length) {
+        if (gizmoMoving) {
             var camera = app.activeCamera;
 
             for(var i = 0; i < items.length; i++) {
-                vecA.copy(getGizmoPosition());
+                if (items[i].child)
+                    continue;
 
-                var rot = getGizmoRotation();
-                quat.setFromEulerAngles(rot[0], rot[1], rot[2]);
+                vecA.copy(items[i].obj.entity.getPosition());
+                quat.copy(items[i].obj.entity.getRotation());
 
                 if (gizmoAxis === 'x' || gizmoMiddle) {
                     vecB.set(camera.camera.farClip * 2, 0, 0);
-                    quat.transformVector(vecB, vecB);
-                    vecC.copy(vecB).scale(-1).add(vecA);
-                    vecB.add(vecA);
+                    quat.transformVector(vecB, vecB).add(vecA);
+                    vecC.set(camera.camera.farClip * -2, 0, 0);
+                    quat.transformVector(vecC, vecC).add(vecA);
                     app.renderLine(vecB, vecC, linesColorBehind, pc.LINEBATCH_GIZMO);
                     app.renderLine(vecB, vecC, linesColorActive);
                 }
                 if (gizmoAxis === 'y' || gizmoMiddle) {
                     vecB.set(0, camera.camera.farClip * 2, 0);
-                    quat.transformVector(vecB, vecB);
-                    vecC.copy(vecB).scale(-1).add(vecA);
-                    vecB.add(vecA);
+                    quat.transformVector(vecB, vecB).add(vecA);
+                    vecC.set(0, camera.camera.farClip * -2, 0);
+                    quat.transformVector(vecC, vecC).add(vecA);
                     app.renderLine(vecB, vecC, linesColorBehind, pc.LINEBATCH_GIZMO);
                     app.renderLine(vecB, vecC, linesColorActive);
                 }
                 if (gizmoAxis === 'z' || gizmoMiddle) {
                     vecB.set(0, 0, camera.camera.farClip * 2);
-                    quat.transformVector(vecB, vecB);
-                    vecC.copy(vecB).scale(-1).add(vecA);
-                    vecB.add(vecA);
+                    quat.transformVector(vecB, vecB).add(vecA);
+                    vecC.set(0, 0, camera.camera.farClip * -2);
+                    quat.transformVector(vecC, vecC).add(vecA);
                     app.renderLine(vecB, vecC, linesColorBehind, pc.LINEBATCH_GIZMO);
                     app.renderLine(vecB, vecC, linesColorActive);
                 }
+            }
+        } else {
+            var dirty = false;
+            for(var i = 0; i < items.length; i++) {
+                var pos = items[i].obj.entity.getPosition();
+                if (pos.x !== items[i].pos[0] || pos.y !== items[i].pos[1] || pos.z !== items[i].pos[2]) {
+                    dirty = true;
+                    items[i].pos[0] = pos.x;
+                    items[i].pos[1] = pos.y;
+                    items[i].pos[2] = pos.z;
+                }
+            }
+
+            if (dirty) {
+                var pos = getGizmoPosition();
+                editor.call('gizmo:scale:position', pos.x, pos.y, pos.z);
             }
         }
     };
@@ -181,6 +205,30 @@ editor.once('load', function() {
     editor.once('viewport:load', function() {
         app = editor.call('viewport:framework');
     });
+
+    var updateChildRelation = function() {
+        var itemIds = { };
+        for(var i = 0; i < items.length; i++) {
+            itemIds[items[i].obj.get('resource_id')] = items[i];
+        }
+
+        for(var i = 0; i < items.length; i++) {
+            var child = false;
+            var parent = items[i].obj.entity._parent;
+            var id = '';
+            while(! child && parent) {
+                id = parent.getGuid();
+                if (itemIds[id]) {
+                    parent = itemIds[id];
+                    child = true;
+                    break;
+                }
+                parent = parent._parent;
+            }
+            items[i].child = child;
+            items[i].parent = child ? parent : null;
+        }
+    };
 
     var updateGizmo = function() {
         var objects = editor.call('selector:items');
@@ -191,8 +239,11 @@ editor.once('load', function() {
 
         if (editor.call('selector:type') === 'entity' && editor.call('gizmo:type') === 'scale') {
             for(var i = 0; i < objects.length; i++) {
+                var pos = objects[i].entity.getPosition();
+
                 items.push({
                     obj: objects[i],
+                    pos: [ pos.x, pos.y, pos.z ],
                     start: [ 1, 1, 1 ]
                 });
 
@@ -208,9 +259,13 @@ editor.once('load', function() {
                 for(var n = 0; n < 3; n++)
                     events.push(objects[i].on('rotation.' + n + ':set', updateGizmoRotation));
 
-                var rot = getGizmoRotation();
-                editor.call('gizmo:scale:rotation', rot[0], rot[1], rot[2]);
+                events.push(objects[i].on('parent:set', updateChildRelation));
             }
+
+            updateChildRelation();
+
+            var rot = getGizmoRotation();
+            editor.call('gizmo:scale:rotation', rot[0], rot[1], rot[2]);
 
             // gizmo start
             events.push(editor.on('gizmo:scale:start', onGizmoStart));

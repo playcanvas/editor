@@ -139,6 +139,8 @@ editor.once('load', function() {
                 var camera = app.activeCamera;
                 var posCamera = camera.getPosition();
 
+                quat.copy(gizmo.root.getRotation()).invert();
+
                 if (moving && (vecA.copy(posCameraLast).sub(posCamera).length() > 0.01 || mouseTapMoved)) {
                     var point = pickPlane(mouseTap.x, mouseTap.y);
                     if (point) {
@@ -171,10 +173,7 @@ editor.once('load', function() {
                 .normalize();
 
                 // rotate vector by gizmo rotation
-                quat
-                .copy(gizmo.root.getRotation())
-                .invert()
-                .transformVector(vecA, vecA);
+                quat.transformVector(vecA, vecA);
 
                 // swap sides to face camera
                 // x
@@ -271,6 +270,7 @@ editor.once('load', function() {
 
             var mouseWPos = camera.camera.screenToWorld(x, y, 1);
             var posCamera = camera.getPosition();
+            var posGizmo = gizmo.root.getPosition();
             var mouseDir = vecA.copy(mouseWPos).sub(posCamera).normalize();
 
             // vector based on selected axis
@@ -283,13 +283,13 @@ editor.once('load', function() {
             if (! hoverPlane) {
                 vecC
                 .copy(posCamera)
-                .sub(gizmo.root.getPosition())
+                .sub(posGizmo)
                 .normalize();
                 vecB.copy(vecC.sub(vecB.scale(vecB.dot(vecC))).normalize());
             }
 
             var rayPlaneDot = vecB.dot(mouseDir);
-            var planeDist = gizmo.root.getPosition().dot(vecB);
+            var planeDist = posGizmo.dot(vecB);
             var pointPlaneDist = (vecB.dot(posCamera) - planeDist) / rayPlaneDot;
             var pickedPos = mouseDir.scale(-pointPlaneDist).add(posCamera);
 
@@ -299,6 +299,14 @@ editor.once('load', function() {
                 vecB[hoverAxis] = 1;
                 quat.transformVector(vecB, vecB);
                 pickedPos.copy(vecB.scale(vecB.dot(pickedPos)));
+            }
+
+            quat.invert().transformVector(pickedPos, pickedPos);
+
+            if (! hoverPlane) {
+                var v = pickedPos[hoverAxis];
+                pickedPos.set(0, 0, 0);
+                pickedPos[hoverAxis] = v;
             }
 
             return pickedPos;

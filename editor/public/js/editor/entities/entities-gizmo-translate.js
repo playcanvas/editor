@@ -24,6 +24,10 @@ editor.once('load', function() {
 
         coordSystem = system;
 
+        var pos = getGizmoPosition();
+        if (pos)
+            editor.call('gizmo:translate:position', pos.x, pos.y, pos.z);
+
         var rot = getGizmoRotation();
         if (rot)
             editor.call('gizmo:translate:rotation', rot[0], rot[1], rot[2]);
@@ -38,11 +42,17 @@ editor.once('load', function() {
 
         if (items.length === 1) {
             vecA.copy(items[0].obj.entity.getPosition());
+        } else if (coordSystem === 'local') {
+            var reference = items[items.length - 1];
+            var parent = reference.parent;
+            while(parent) {
+                reference = parent;
+                parent = parent.parent;
+            }
+            vecA.copy(reference.obj.entity.getPosition());
         } else {
             var selection = editor.call('selection:aabb');
-            if (! selection)
-                return;
-
+            if (! selection) return;
             vecA.copy(selection.center);
         }
 
@@ -53,8 +63,14 @@ editor.once('load', function() {
         if (! items.length)
             return;
 
-        if (items.length === 1 && coordSystem === 'local') {
-            var rot = items[0].obj.entity.getEulerAngles()
+        if (coordSystem === 'local') {
+            var reference = items[items.length - 1];
+            var parent = reference.parent;
+            while(parent) {
+                reference = parent;
+                parent = parent.parent;
+            }
+            var rot = reference.obj.entity.getEulerAngles()
             return [ rot.x, rot.y, rot.z ];
         } else {
             return [ 0, 0, 0 ];
@@ -99,33 +115,20 @@ editor.once('load', function() {
         gizmoPlane = plane;
         gizmoMoving = true;
 
-        var itemIds = { };
-        for(var i = 0; i < items.length; i++) {
-            itemIds[items[i].obj.get('resource_id')] = items[i];
-        }
-
         movingStart.copy(getGizmoPosition());
 
         for(var i = 0; i < items.length; i++) {
-            var child = false;
-            var parent = items[i].obj.entity._parent;
-            while(! child && parent) {
-                if (itemIds[parent.getGuid()]) {
-                    child = true;
-                    break;
-                }
-                parent = parent._parent;
-            }
-            items[i].child = child;
-
             var pos = items[i].obj.entity.getPosition();
             items[i].start[0] = pos.x;
             items[i].start[1] = pos.y;
             items[i].start[2] = pos.z;
+            items[i].pos = items[i].start.slice(0);
+
             pos = items[i].obj.get('position');
             items[i].startLocal[0] = pos[0];
             items[i].startLocal[1] = pos[1];
             items[i].startLocal[2] = pos[2];
+
             items[i].obj.history.enabled = false;
         }
     };
@@ -157,10 +160,6 @@ editor.once('load', function() {
                     item.set('position', records[i].valueOld);
                     item.history.enabled = true;
                 }
-
-                var pos = getGizmoPosition();
-                if (pos)
-                    editor.call('gizmo:translate:position', pos.x, pos.y, pos.z);
             },
             redo: function() {
                 for(var i = 0; i < records.length; i++) {
@@ -172,10 +171,6 @@ editor.once('load', function() {
                     item.set('position', records[i].value);
                     item.history.enabled = true;
                 }
-
-                var pos = getGizmoPosition();
-                if (pos)
-                    editor.call('gizmo:translate:position', pos.x, pos.y, pos.z);
             }
         });
     };
@@ -188,67 +183,95 @@ editor.once('load', function() {
             if (items[i].child)
                 continue;
 
-            items[i].obj.entity.setPosition(items[i].start[0] + x, items[i].start[1] + y, items[i].start[2] + z);
+            if (coordSystem === 'local') {
+                vecA.set(x, y, z);
+                quat.copy(items[i].obj.entity.getLocalRotation()).transformVector(vecA, vecA);
+                items[i].obj.entity.setLocalPosition(items[i].startLocal[0] + vecA.x, items[i].startLocal[1] + vecA.y, items[i].startLocal[2] + vecA.z);
+            } else {
+                items[i].obj.entity.setPosition(items[i].start[0] + x, items[i].start[1] + y, items[i].start[2] + z);
+            }
+
             var pos = items[i].obj.entity.getLocalPosition();
             items[i].obj.set('position', [ pos.x, pos.y, pos.z ]);
         }
 
         timeoutUpdateRotation = false;
 
-        vecA.copy(movingStart).add(vecB.set(x, y, z));
-        editor.call('gizmo:translate:position', vecA.x, vecA.y, vecA.z);
+        var pos = getGizmoPosition();
+        editor.call('gizmo:translate:position', pos.x, pos.y, pos.z);
     };
 
     var onRender = function() {
-        // if (items.length && ! gizmoMoving) {
-        //     var pos = getGizmoPosition();
-        //     editor.call('gizmo:translate:position', pos.x, pos.y, pos.z);
-        // }
+        if (! gizmoMoving && items.length) {
+            var dirty = false;
+            for(var i = 0; i < items.length; i++) {
+                var pos = items[i].obj.entity.getPosition();
+                if (pos.x !== items[i].pos[0] || pos.y !== items[i].pos[1] || pos.z !== items[i].pos[2]) {
+                    dirty = true;
+                    items[i].pos[0] = pos.x;
+                    items[i].pos[1] = pos.y;
+                    items[i].pos[2] = pos.z;
+                }
+            }
+
+            if (dirty) {
+                var pos = getGizmoPosition();
+                editor.call('gizmo:translate:position', pos.x, pos.y, pos.z);
+            }
+        }
 
         if (gizmoMoving && items.length) {
-            var pos = editor.call('gizmo:translate:position');
             var camera = app.activeCamera;
+            var pos;
 
-            if (coordSystem === 'local' && items.length === 1) {
-                quat.copy(items[0].obj.entity.getRotation());
-            } else {
-                quat.setFromEulerAngles(0, 0, 0);
-            }
+            var len = coordSystem === 'local' ? items.length : 1;
+            for(var i = 0; i < len; i++) {
+                if (items[i].child)
+                    continue;
 
-            // x
-            vecB.set(camera.camera.farClip * 2, 0, 0);
-            quat.transformVector(vecB, vecB);
-            vecC.copy(vecB).scale(-1).add(pos);
-            vecB.add(pos);
-            app.renderLine(vecB, vecC, linesColorBehind, pc.LINEBATCH_GIZMO);
-            if ((gizmoAxis === 'x' && ! gizmoPlane) || (gizmoPlane && (gizmoAxis === 'y' || gizmoAxis === 'z'))) {
-                app.renderLine(vecB, vecC, linesColorActive);
-            } else {
-                app.renderLine(vecB, vecC, linesColor);
-            }
+                if (coordSystem === 'local') {
+                    pos = items[i].obj.entity.getPosition();
+                    quat.copy(items[i].obj.entity.getRotation());
+                } else {
+                    pos = editor.call('gizmo:translate:position');
+                    quat.setFromEulerAngles(0, 0, 0);
+                }
 
-            // y
-            vecB.set(0, camera.camera.farClip * 2, 0);
-            quat.transformVector(vecB, vecB);
-            vecC.copy(vecB).scale(-1).add(pos);
-            vecB.add(pos);
-            app.renderLine(vecB, vecC, linesColorBehind, pc.LINEBATCH_GIZMO);
-            if ((gizmoAxis === 'y' && ! gizmoPlane) || (gizmoPlane && (gizmoAxis === 'x' || gizmoAxis === 'z'))) {
-                app.renderLine(vecB, vecC, linesColorActive);
-            } else {
-                app.renderLine(vecB, vecC, linesColor);
-            }
+                // x
+                vecB.set(camera.camera.farClip * 2, 0, 0);
+                quat.transformVector(vecB, vecB).add(pos);
+                vecC.set(camera.camera.farClip * -2, 0, 0);
+                quat.transformVector(vecC, vecC).add(pos);
+                app.renderLine(vecB, vecC, linesColorBehind, pc.LINEBATCH_GIZMO);
+                if ((gizmoAxis === 'x' && ! gizmoPlane) || (gizmoPlane && (gizmoAxis === 'y' || gizmoAxis === 'z'))) {
+                    app.renderLine(vecB, vecC, linesColorActive);
+                } else {
+                    app.renderLine(vecB, vecC, linesColor);
+                }
 
-            // z
-            vecB.set(0, 0, camera.camera.farClip * 2);
-            quat.transformVector(vecB, vecB);
-            vecC.copy(vecB).scale(-1).add(pos);
-            vecB.add(pos);
-            app.renderLine(vecB, vecC, linesColorBehind, pc.LINEBATCH_GIZMO);
-            if ((gizmoAxis === 'z' && ! gizmoPlane) || (gizmoPlane && (gizmoAxis === 'x' || gizmoAxis === 'y'))) {
-                app.renderLine(vecB, vecC, linesColorActive);
-            } else {
-                app.renderLine(vecB, vecC, linesColor);
+                // y
+                vecB.set(0, camera.camera.farClip * 2, 0);
+                quat.transformVector(vecB, vecB).add(pos);
+                vecC.set(0, camera.camera.farClip * -2, 0);
+                quat.transformVector(vecC, vecC).add(pos);
+                app.renderLine(vecB, vecC, linesColorBehind, pc.LINEBATCH_GIZMO);
+                if ((gizmoAxis === 'y' && ! gizmoPlane) || (gizmoPlane && (gizmoAxis === 'x' || gizmoAxis === 'z'))) {
+                    app.renderLine(vecB, vecC, linesColorActive);
+                } else {
+                    app.renderLine(vecB, vecC, linesColor);
+                }
+
+                // z
+                vecB.set(0, 0, camera.camera.farClip * 2);
+                quat.transformVector(vecB, vecB).add(pos);
+                vecC.set(0, 0, camera.camera.farClip * -2);
+                quat.transformVector(vecC, vecC).add(pos);
+                app.renderLine(vecB, vecC, linesColorBehind, pc.LINEBATCH_GIZMO);
+                if ((gizmoAxis === 'z' && ! gizmoPlane) || (gizmoPlane && (gizmoAxis === 'x' || gizmoAxis === 'y'))) {
+                    app.renderLine(vecB, vecC, linesColorActive);
+                } else {
+                    app.renderLine(vecB, vecC, linesColor);
+                }
             }
         }
     };
@@ -256,6 +279,30 @@ editor.once('load', function() {
     editor.once('viewport:load', function() {
         app = editor.call('viewport:framework');
     });
+
+    var updateChildRelation = function() {
+        var itemIds = { };
+        for(var i = 0; i < items.length; i++) {
+            itemIds[items[i].obj.get('resource_id')] = items[i];
+        }
+
+        for(var i = 0; i < items.length; i++) {
+            var child = false;
+            var parent = items[i].obj.entity._parent;
+            var id = '';
+            while(! child && parent) {
+                id = parent.getGuid();
+                if (itemIds[id]) {
+                    parent = itemIds[id];
+                    child = true;
+                    break;
+                }
+                parent = parent._parent;
+            }
+            items[i].child = child;
+            items[i].parent = child ? parent : null;
+        }
+    };
 
     var updateGizmo = function() {
         var objects = editor.call('selector:items');
@@ -266,8 +313,11 @@ editor.once('load', function() {
 
         if (editor.call('selector:type') === 'entity' && editor.call('gizmo:type') === 'translate') {
             for(var i = 0; i < objects.length; i++) {
+                var pos = objects[i].entity.getPosition();
+
                 items.push({
                     obj: objects[i],
+                    pos: [ pos.x, pos.y, pos.z ],
                     start: [ 0, 0, 0 ],
                     startLocal: [ 0, 0, 0 ]
                 });
@@ -284,9 +334,13 @@ editor.once('load', function() {
                 for(var n = 0; n < 3; n++)
                     events.push(objects[i].on('rotation.' + n + ':set', updateGizmoRotation));
 
-                var rot = getGizmoRotation();
-                editor.call('gizmo:translate:rotation', rot[0], rot[1], rot[2]);
+                events.push(objects[i].on('parent:set', updateChildRelation));
             }
+
+            updateChildRelation();
+
+            var rot = getGizmoRotation();
+            editor.call('gizmo:translate:rotation', rot[0], rot[1], rot[2]);
 
             // gizmo start
             events.push(editor.on('gizmo:translate:start', onGizmoStart));

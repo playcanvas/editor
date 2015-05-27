@@ -55,6 +55,9 @@ editor.once('load', function() {
 
     // position gizmo
     editor.method('gizmo:rotate:position', function(x, y, z) {
+        if (x === undefined)
+            return gizmo.root.getPosition();
+
         gizmo.root.setPosition(x, y, z);
 
         if (gizmo.root.enabled)
