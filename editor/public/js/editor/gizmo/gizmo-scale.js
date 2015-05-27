@@ -21,6 +21,13 @@ editor.once('load', function() {
     var evtTapEnd;
     var pickStart = new pc.Vec3();
 
+    var snap = false;
+    var snapIncrement = 1;
+    editor.on('gizmo:snap', function(state, increment) {
+        snap = state;
+        snapIncrement = increment;
+    });
+
     // enable/disable gizmo
     editor.method('gizmo:scale:toggle', function(state) {
         if (! gizmo)
@@ -142,6 +149,13 @@ editor.once('load', function() {
                     var point = pickPlane(mouseTap.x, mouseTap.y);
                     if (point) {
                         point.sub(pickStart);
+                        if (snap) {
+                            point.scale(1 / snapIncrement);
+                            point.x = Math.round(point.x);
+                            point.y = Math.round(point.y);
+                            point.z = Math.round(point.z);
+                            point.scale(snapIncrement);
+                        }
                         editor.emit('gizmo:scale:offset', point.x, point.y, point.z);
                     }
                 }
@@ -314,8 +328,7 @@ editor.once('load', function() {
             evtTapMove.unbind();
             evtTapEnd.unbind();
 
-            var point = pickPlane(tap.x, tap.y).sub(pickStart);
-            editor.emit('gizmo:scale:end', point.x, point.y, point.z);
+            editor.emit('gizmo:scale:end');
             editor.call('gizmo:scale:visible', true);
         };
     });

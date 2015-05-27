@@ -24,6 +24,13 @@ editor.once('load', function() {
     var angleStart = 0;
     var startRotation = new pc.Quat();
 
+    var snap = false;
+    var snapIncrement = 5;
+    editor.on('gizmo:snap', function(state, increment) {
+        snap = state;
+        snapIncrement = increment * 5;
+    });
+
     // enable/disable gizmo
     editor.method('gizmo:rotate:toggle', function(state) {
         if (! gizmo)
@@ -132,7 +139,14 @@ editor.once('load', function() {
                 if (moving && (vecA.copy(posCameraLast).sub(posCamera).length() > 0.01 || mouseTapMoved)) {
                     var data = pickPlane(mouseTap.x, mouseTap.y);
                     lastPoint.copy(data.point);
-                    editor.emit('gizmo:rotate:offset', data.angle - angleStart, data.point);
+
+                    if (snap) {
+                        data.angle = Math.round((data.angle - angleStart) / snapIncrement) * snapIncrement;
+                    } else {
+                        data.angle -= angleStart;
+                    }
+
+                    editor.emit('gizmo:rotate:offset', data.angle, data.point);
                 }
 
                 var posGizmo = gizmo.root.getPosition();
@@ -312,8 +326,7 @@ editor.once('load', function() {
             evtTapMove.unbind();
             evtTapEnd.unbind();
 
-            var data = pickPlane(tap.x, tap.y);
-            editor.emit('gizmo:rotate:end', data.angle - angleStart, data.point);
+            editor.emit('gizmo:rotate:end');
         };
     });
 
