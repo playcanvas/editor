@@ -194,17 +194,17 @@ editor.once('load', function() {
 
                 // swap sides to face camera
                 // x
-                gizmo.plane.x.setLocalPosition(0, (vecA.y > 0) ? .5 : -.5, (vecA.z > 0) ? .5 : -.5);
-                gizmo.line.x.setLocalPosition((vecA.x > 0) ? 1.6 : 1.1, 0, 0);
-                gizmo.line.x.setLocalScale(arrowRadius, (vecA.x > 0) ? .8 : 1.8, arrowRadius);
+                gizmo.plane.x.setLocalPosition(0, (vecA.y > 0) ? .4 : -.4, (vecA.z > 0) ? .4 : -.4);
+                gizmo.line.x.setLocalPosition((vecA.x > 0) ? 1.5 : 1.1, 0, 0);
+                gizmo.line.x.setLocalScale(arrowRadius, (vecA.x > 0) ? 1 : 1.8, arrowRadius);
                 // y
-                gizmo.plane.y.setLocalPosition((vecA.x > 0) ? .5 : -.5, 0, (vecA.z > 0) ? .5 : -.5);
-                gizmo.line.y.setLocalPosition(0, (vecA.y > 0) ? 1.6 : 1.1, 0);
-                gizmo.line.y.setLocalScale(arrowRadius, (vecA.y > 0) ? .8 : 1.8, arrowRadius);
+                gizmo.plane.y.setLocalPosition((vecA.x > 0) ? .4 : -.4, 0, (vecA.z > 0) ? .4 : -.4);
+                gizmo.line.y.setLocalPosition(0, (vecA.y > 0) ? 1.5 : 1.1, 0);
+                gizmo.line.y.setLocalScale(arrowRadius, (vecA.y > 0) ? 1 : 1.8, arrowRadius);
                 // z
-                gizmo.plane.z.setLocalPosition((vecA.x > 0) ? .5 : -.5, (vecA.y > 0) ? .5 : -.5, 0);
-                gizmo.line.z.setLocalPosition(0, 0, (vecA.z > 0) ? 1.6 : 1.1);
-                gizmo.line.z.setLocalScale(arrowRadius, (vecA.z > 0) ? .8 : 1.8, arrowRadius);
+                gizmo.plane.z.setLocalPosition((vecA.x > 0) ? .4 : -.4, (vecA.y > 0) ? .4 : -.4, 0);
+                gizmo.line.z.setLocalPosition(0, 0, (vecA.z > 0) ? 1.5 : 1.1);
+                gizmo.line.z.setLocalScale(arrowRadius, (vecA.z > 0) ? 1 : 1.8, arrowRadius);
 
                 // hide plane if viewed from very angle
                 gizmo.plane.x.model.enabled = Math.abs(vecA.x) > 0.1 && visible;
@@ -215,9 +215,9 @@ editor.once('load', function() {
 
                 // plane x lines
                 if (gizmo.plane.x.model.enabled) {
-                    vecB.set(0, 0, (vecA.z > 0) ? scale : -scale);
-                    vecC.set(0, (vecA.y > 0) ? scale : -scale, (vecA.z > 0) ? scale : -scale);
-                    vecD.set(0, (vecA.y > 0) ? scale : -scale, 0);
+                    vecB.set(0, 0, (vecA.z > 0) ? scale * .8 : -scale * .8);
+                    vecC.set(0, (vecA.y > 0) ? scale * .8 : -scale * .8, (vecA.z > 0) ? scale * .8 : -scale * .8);
+                    vecD.set(0, (vecA.y > 0) ? scale * .8 : -scale * .8, 0);
                     quat.transformVector(vecB, vecB).add(gizmo.root.getPosition());
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
                     quat.transformVector(vecD, vecD).add(gizmo.root.getPosition());
@@ -226,9 +226,9 @@ editor.once('load', function() {
                 }
                 // plane y lines
                 if (gizmo.plane.y.model.enabled) {
-                    vecB.set((vecA.x > 0) ? scale : -scale, 0, 0);
-                    vecC.set((vecA.x > 0) ? scale : -scale, 0, (vecA.z > 0) ? scale : -scale);
-                    vecD.set(0, 0, (vecA.z > 0) ? scale : -scale);
+                    vecB.set((vecA.x > 0) ? scale * .8 : -scale * .8, 0, 0);
+                    vecC.set((vecA.x > 0) ? scale * .8 : -scale * .8, 0, (vecA.z > 0) ? scale * .8 : -scale * .8);
+                    vecD.set(0, 0, (vecA.z > 0) ? scale * .8 : -scale * .8);
                     quat.transformVector(vecB, vecB).add(gizmo.root.getPosition());
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
                     quat.transformVector(vecD, vecD).add(gizmo.root.getPosition());
@@ -237,9 +237,9 @@ editor.once('load', function() {
                 }
                 // plane z lines
                 if (gizmo.plane.z.model.enabled) {
-                    vecB.set((vecA.x > 0) ? scale : -scale, 0, 0);
-                    vecC.set((vecA.x > 0) ? scale : -scale, (vecA.y > 0) ? scale : -scale, 0);
-                    vecD.set(0, (vecA.y > 0) ? scale : -scale, 0);
+                    vecB.set((vecA.x > 0) ? scale * .8 : -scale * .8, 0, 0);
+                    vecC.set((vecA.x > 0) ? scale * .8 : -scale * .8, (vecA.y > 0) ? scale * .8 : -scale * .8, 0);
+                    vecD.set(0, (vecA.y > 0) ? scale * .8 : -scale * .8, 0);
                     quat.transformVector(vecB, vecB).add(gizmo.root.getPosition());
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
                     quat.transformVector(vecD, vecD).add(gizmo.root.getPosition());
@@ -255,7 +255,7 @@ editor.once('load', function() {
                 // draw axes lines
                 // line x
                 if (gizmo.line.x.model.enabled) {
-                    vecB.set(((vecA.x > 0) ? scale * 1.2 : scale * .2), 0, 0);
+                    vecB.set(((vecA.x > 0) ? scale * 1 : scale * .2), 0, 0);
                     quat.transformVector(vecB, vecB).add(gizmo.root.getPosition());
                     vecC.set(scale * 2, 0, 0);
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
@@ -263,7 +263,7 @@ editor.once('load', function() {
                 }
                 // line y
                 if (gizmo.line.y.model.enabled) {
-                    vecB.set(0, ((vecA.y > 0) ? scale * 1.2 : scale * .2), 0);
+                    vecB.set(0, ((vecA.y > 0) ? scale * 1 : scale * .2), 0);
                     quat.transformVector(vecB, vecB).add(gizmo.root.getPosition());
                     vecC.set(0, scale * 2, 0);
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
@@ -271,7 +271,7 @@ editor.once('load', function() {
                 }
                 // line z
                 if (gizmo.line.z.model.enabled) {
-                    vecB.set(0, 0, ((vecA.z > 0) ? scale * 1.2 : scale * .2));
+                    vecB.set(0, 0, ((vecA.z > 0) ? scale * 1 : scale * .2));
                     quat.transformVector(vecB, vecB).add(gizmo.root.getPosition());
                     vecC.set(0, 0, scale * 2);
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
@@ -418,7 +418,8 @@ editor.once('load', function() {
         planeX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(planeX);
         planeX.setLocalEulerAngles(90, -90, 0);
-        planeX.setLocalPosition(0, .5, .5);
+        planeX.setLocalScale(.8, .8, .8);
+        planeX.setLocalPosition(0, .4, .4);
         planeX.mat = planeX.model.material = createMaterial(new pc.Color(1, 0, 0, .25));
         planeX.mat.cull = pc.CULLFACE_NONE;
 
@@ -433,7 +434,8 @@ editor.once('load', function() {
         planeY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(planeY);
         planeY.setLocalEulerAngles(0, 0, 0);
-        planeY.setLocalPosition(-.5, 0, .5);
+        planeY.setLocalScale(.8, .8, .8);
+        planeY.setLocalPosition(-.4, 0, .4);
         planeY.mat = planeY.model.material = createMaterial(new pc.Color(0, 1, 0, .25));
         planeY.mat.cull = pc.CULLFACE_NONE;
 
@@ -448,7 +450,8 @@ editor.once('load', function() {
         planeZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(planeZ);
         planeZ.setLocalEulerAngles(90, 0, 0);
-        planeZ.setLocalPosition(-.5, .5, 0);
+        planeZ.setLocalScale(.8, .8, .8);
+        planeZ.setLocalPosition(-.4, .4, 0);
         planeZ.mat = planeZ.model.material = createMaterial(new pc.Color(0, 0, 1, .25));
         planeZ.mat.cull = pc.CULLFACE_NONE;
 
@@ -465,7 +468,6 @@ editor.once('load', function() {
         lineX.setLocalPosition(1.6, 0, 0);
         lineX.setLocalScale(arrowRadius, .8, arrowRadius);
         lineX.mat = lineX.model.material = createMaterial(new pc.Color(1, 0, 0, 0));
-        lineX.mat.depthWrite = false;
 
         // line y
         var lineY = obj.line.y = new pc.Entity();
@@ -480,7 +482,6 @@ editor.once('load', function() {
         lineY.setLocalPosition(0, 1.6, 0);
         lineY.setLocalScale(arrowRadius, .8, arrowRadius);
         lineY.mat = lineY.model.material = createMaterial(new pc.Color(0, 1, 0, 0));
-        lineY.mat.depthWrite = false;
 
         // line z
         var lineZ = obj.line.z = new pc.Entity();
@@ -495,7 +496,6 @@ editor.once('load', function() {
         lineZ.setLocalPosition(0, 0, 1.6);
         lineZ.setLocalScale(arrowRadius, .8, arrowRadius);
         lineZ.mat = lineZ.model.material = createMaterial(new pc.Color(0, 0, 1, 0));
-        lineZ.mat.depthWrite = false;
 
         // arrow x
         var arrowX = obj.arrow.x = new pc.Entity();
