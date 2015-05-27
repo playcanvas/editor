@@ -1,3 +1,9 @@
+$cube-size: 24px;
+$color-one: #829193;
+$color-two: #f06531;
+$color-three: #fff;
+$rotation-period: 5s;
+
 @font-face {
     font-family: 'inconsolatamedium';
     src: url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/Inconsolata-webfont.eot');
@@ -54,7 +60,7 @@ canvas:focus {
 
 #application-splash {
     position: absolute;
-    top: 40%;
+    top: 42%;
     width: 30%;
     left: 35%;
 
@@ -74,7 +80,69 @@ canvas:focus {
             background-color: white;
         }
     }
+
+    // #spinner {
+    //     width: 10%;
+    // }
+
+    // .wrapper{
+    //     #position:relative;
+    //     #top:50%;
+    //     #margin: -$cube-size/2 auto 0;
+    //     width: $cube-size;
+    //     height: $cube-size;
+    //     transform: rotateX(-33deg);
+    //     transform-style: preserve-3d;
+    // }
+
+    // .cube {
+    //     position: relative;
+    //     transform-style: preserve-3d;
+    //     backface-visibility: hidden;
+    //     animation: spin $rotation-period infinite linear;
+    //     animation-delay:-$rotation-period/8;
+
+    //     div {
+    //         position: absolute;
+    //         width: $cube-size;
+    //         height: $cube-size;
+    //     }
+    // }
+
+    // .back {
+    //     transform: translateZ(-$cube-size/2) rotateY(180deg);
+    //     background: $color-one;
+    // }
+    // .right {
+    //     transform: rotateY(-270deg) translateX($cube-size/2);
+    //     transform-origin: top right;
+    //     background: $color-two;
+    // }
+    // .left {
+    //     transform: rotateY(270deg) translateX(-$cube-size/2);
+    //     transform-origin: center left;
+    //     background-color:$color-two;
+    // }
+    // .top {
+    //     transform: rotateX(-90deg) translateY(-$cube-size/2);
+    //     transform-origin: top center;
+    //     background: $color-three;
+    // }
+    // .bottom {
+    //     transform: rotateX(90deg) translateY($cube-size/2);
+    //     transform-origin: bottom center;
+    //     background: $color-three;
+    // }
+    // .front {
+    //     transform: translateZ($cube-size/2);
+    //     background: $color-one;
+    // }
 }
+
+// @keyframes spin {
+//     from { transform: rotateY(0); }
+//     to { transform: rotateY(360deg); }
+// }
 
 #application-console {
     position: absolute;
@@ -120,14 +188,22 @@ canvas:focus {
 
 @media (min-width: 768px) {
     #application-splash {
-        width: 20%;
-        left: 40%;
+        top: 44%;
+        width: 10%;
+        left: 45%;
     }
 }
+
 @media (min-width: 992px) {
     #application-splash {
         width: 10%;
         left: 45%;
+    }
+}
+
+@media (orientation: portrait) {
+    #application-splash {
+        top: 42%;
     }
 }
 

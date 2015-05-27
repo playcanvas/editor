@@ -14,6 +14,7 @@ app.once('load', function() {
 
     // update progress bar
     var setProgress = function (value) {
+        var bar = document.getElementById('progress-bar');
         value = Math.min(1, Math.max(0, value));
         bar.style.width = value * 100 + '%';
     }
@@ -66,39 +67,54 @@ app.once('load', function() {
                     console.error(err);
                 }
 
+                hideSplash();
                 application.start();
-                splash.parentElement.removeChild(splash);
             });
         }
     };
 
-    // canvas element
-    var canvas = document.createElement('canvas');
-    canvas.id = 'application-canvas';
-    document.body.appendChild(canvas);
+    var createCanvas = function () {
+        var canvas = document.createElement('canvas');
+        canvas.setAttribute('id', 'application-canvas');
+        canvas.setAttribute('tabindex', 0);
+        // canvas.style.visibility = 'hidden';
 
-    // splash
-    var splash = document.createElement('div');
-    splash.id = 'application-splash';
-    document.body.appendChild(splash);
+        // Disable I-bar cursor on click+drag
+        canvas.onselectstart = function () { return false; };
 
-    var logoLink = document.createElement('a');
-    logoLink.href = 'https://games.playcanvas.com';
-    logoLink.target = '_blank';
-    splash.appendChild(logoLink);
+        document.body.appendChild(canvas);
 
-    var logo = document.createElement('img');
-    logo.src = 'https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/logo/PLAY_FLAT_ORANGE3.png';
-    logoLink.appendChild(logo);
+        return canvas;
+    }
 
-    // progress bar
-    var container = document.createElement('div');
-    container.id = 'progress-container';
-    splash.appendChild(container);
+    var showSplash = function () {
+        // splash
+        var splash = document.createElement('div');
+        splash.id = 'application-splash';
+        document.body.appendChild(splash);
 
-    var bar = document.createElement('div');
-    bar.id = 'progress-bar';
-    container.appendChild(bar);
+        // img
+        var img = document.createElement('img');
+        img.src = 'https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/logo/PLAY_FLAT_ORANGE3.png'
+        splash.appendChild(img);
+
+        // progress bar
+        var container = document.createElement('div');
+        container.id = 'progress-container';
+        splash.appendChild(container);
+
+        var bar = document.createElement('div');
+        bar.id = 'progress-bar';
+        container.appendChild(bar);
+    };
+
+    var hideSplash = function () {
+        var splash = document.getElementById('application-splash');
+        splash.parentElement.removeChild(splash);
+    };
+
+    var canvas = createCanvas();
+    showSplash();
 
     // convert library properties into URLs
     var libraryUrls = [];
