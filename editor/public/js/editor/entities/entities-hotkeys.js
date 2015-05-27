@@ -13,6 +13,9 @@ editor.once('load', function() {
             var items = editor.call('selector:items');
 
             if (type === 'entity') {
+                if (items.length !== 1)
+                    return;
+
                 editor.call('entities:new', {
                     parent: items[0]
                 });
@@ -36,6 +39,9 @@ editor.once('load', function() {
                 return;
 
             var items = editor.call('selector:items');
+            if (items.length !== 1)
+                return;
+
             if (items[0] !== editor.call('entities:root'))
                 editor.call('entities:duplicate', items[0]);
         }
@@ -76,6 +82,9 @@ editor.once('load', function() {
                 return;
 
             var items = editor.call('selector:items');
+            if (items.length !== 1)
+                return;
+
             editor.call('entities:copy', items[0]);
         }
     });
@@ -94,6 +103,9 @@ editor.once('load', function() {
                 return;
 
             var items = editor.call('selector:items');
+            if (items.length !== 1)
+                return;
+
             editor.call('entities:paste', items[0]);
         }
     });
