@@ -239,6 +239,9 @@ editor.once('load', function() {
 
         if (editor.call('selector:type') === 'entity' && editor.call('gizmo:type') === 'scale') {
             for(var i = 0; i < objects.length; i++) {
+                if (! objects[i].entity)
+                    continue;
+
                 var pos = objects[i].entity.getPosition();
 
                 items.push({
@@ -261,6 +264,9 @@ editor.once('load', function() {
 
                 events.push(objects[i].on('parent:set', updateChildRelation));
             }
+
+            if (! items.length)
+                return;
 
             updateChildRelation();
 

@@ -536,8 +536,10 @@ editor.once('load', function() {
                         var items = editor.call('selector:items');
 
                         if (type === 'entity') {
-                            for(var i = 0; i < items.length; i++)
-                                editor.call('entities:delete', items[i]);
+                            var root = editor.call('entities:root');
+                            if (items.indexOf(root) !== -1)
+                                return;
+                            editor.call('entities:delete', items);
                         } else if (type === 'asset') {
                             editor.call('picker:confirm', 'Delete Asset?', function() {
                                 for(var i = 0; i < items.length; i++)

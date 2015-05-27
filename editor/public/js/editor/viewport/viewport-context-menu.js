@@ -19,68 +19,69 @@ editor.once('load', function() {
             }
         }
 
-        menuData['enable'] = {
-            title: 'Enable',
-            icon: '&#58421;',
-            hide: function () {
-                return currentEntity.get('enabled');
-            },
-            select: function() {
-                currentEntity.set('enabled', true);
-            }
-        };
+        // TODO
+        // menuData['enable'] = {
+        //     title: 'Enable',
+        //     icon: '&#58421;',
+        //     hide: function () {
+        //         return currentEntity.get('enabled');
+        //     },
+        //     select: function() {
+        //         currentEntity.set('enabled', true);
+        //     }
+        // };
 
-        menuData['disable'] = {
-            title: 'Disable',
-            icon: '&#58422;',
-            hide: function () {
-                return !currentEntity.get('enabled');
-            },
-            select: function() {
-                currentEntity.set('enabled', false);
-            }
-        };
+        // menuData['disable'] = {
+        //     title: 'Disable',
+        //     icon: '&#58422;',
+        //     hide: function () {
+        //         return !currentEntity.get('enabled');
+        //     },
+        //     select: function() {
+        //         currentEntity.set('enabled', false);
+        //     }
+        // };
 
-        menuData['copy'] = {
-            title: 'Copy',
-            icon: '&#57891;',
-            select: function() {
-                editor.call('entities:copy', currentEntity);
-            }
-        };
+        // menuData['copy'] = {
+        //     title: 'Copy',
+        //     icon: '&#57891;',
+        //     select: function() {
+        //         editor.call('entities:copy', currentEntity);
+        //     }
+        // };
 
-        menuData['paste'] = {
-            title: 'Paste',
-            icon: '&#57892;',
-            filter: function () {
-                return !editor.call('entities:clipboard:empty');
-            },
-            select: function() {
-                editor.call('entities:paste', currentEntity);
-            }
-        };
+        // menuData['paste'] = {
+        //     title: 'Paste',
+        //     icon: '&#57892;',
+        //     filter: function () {
+        //         return !editor.call('entities:clipboard:empty');
+        //     },
+        //     select: function() {
+        //         editor.call('entities:paste', currentEntity);
+        //     }
+        // };
 
-        menuData['duplicate'] = {
-            title: 'Duplicate',
-            icon: '&#57908;',
-            filter: function () {
-                return currentEntity !== editor.call('entities:root');
-            },
-            select: function() {
-                editor.call('entities:duplicate', currentEntity);
-            }
-        };
+        // menuData['duplicate'] = {
+        //     title: 'Duplicate',
+        //     icon: '&#57908;',
+        //     filter: function () {
+        //         return currentEntity !== editor.call('entities:root');
+        //     },
+        //     select: function() {
+        //         editor.call('entities:duplicate', currentEntity);
+        //     }
+        // };
 
-        menuData['delete'] = {
-            title: 'Delete',
-            icon: '&#58657;',
-            filter: function () {
-                return currentEntity !== editor.call('entities:root');
-            },
-            select: function() {
-                editor.call('entities:delete', currentEntity);
-            }
-        };
+        // menuData['delete'] = {
+        //     title: 'Delete',
+        //     icon: '&#58657;',
+        //     filter: function () {
+        //         return currentEntity !== editor.call('entities:root');
+        //     },
+        //     select: function() {
+        //         editor.call('entities:delete', currentEntity);
+        //     }
+        // };
 
 
         // menu

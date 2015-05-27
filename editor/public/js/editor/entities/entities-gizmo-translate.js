@@ -205,6 +205,9 @@ editor.once('load', function() {
         if (! gizmoMoving && items.length) {
             var dirty = false;
             for(var i = 0; i < items.length; i++) {
+                if (! items[i].obj.entity)
+                    continue;
+
                 var pos = items[i].obj.entity.getPosition();
                 if (pos.x !== items[i].pos[0] || pos.y !== items[i].pos[1] || pos.z !== items[i].pos[2]) {
                     dirty = true;
@@ -313,6 +316,9 @@ editor.once('load', function() {
 
         if (editor.call('selector:type') === 'entity' && editor.call('gizmo:type') === 'translate') {
             for(var i = 0; i < objects.length; i++) {
+                if (! objects[i].entity)
+                    continue;
+
                 var pos = objects[i].entity.getPosition();
 
                 items.push({
@@ -336,6 +342,9 @@ editor.once('load', function() {
 
                 events.push(objects[i].on('parent:set', updateChildRelation));
             }
+
+            if (! items.length)
+                return;
 
             updateChildRelation();
 

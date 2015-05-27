@@ -64,6 +64,8 @@ function TreeItem(args) {
         evt.preventDefault();
         evt.stopPropagation();
 
+        var selectedItem = null;
+
         switch(evt.keyCode) {
             case 9: // tab
                 break;
@@ -75,19 +77,23 @@ function TreeItem(args) {
                 if (self._children && self.open) {
                     var first = self.element.firstChild.nextSibling;
                     if (first && first.ui) {
-                        first.ui.selected = true;
+                        selectedItem = first.ui;
+                        // first.ui.selected = true;
                     } else if (item) {
-                        item.selected = true;
+                        selectedItem = item;
+                        // item.selected = true;
                     }
                 } else if (item) {
-                    item.selected = true;
+                    selectedItem = item;
+                    // item.selected = true;
                 } else if (self.parent && self.parent instanceof TreeItem) {
                     var parent = self.parent;
 
                     var findNext = function(from) {
                         var next = from.next;
                         if (next) {
-                            next.selected = true;
+                            selectedItem = next;
+                            // next.selected = true;
                         } else if (from.parent instanceof TreeItem) {
                             return from.parent;
                         }
@@ -127,15 +133,19 @@ function TreeItem(args) {
                                 }
                             }
 
-                            last.selected = true;
+                            selectedItem = last;
+                            // last.selected = true;
                         } else {
-                            item.selected = true;
+                            selectedItem = item;
+                            // item.selected = true;
                         }
                     } else {
-                        item.selected = true;
+                        selectedItem = item;
+                        // item.selected = true;
                     }
                 } else if (self.parent && self.parent instanceof TreeItem) {
-                    self.parent.selected = true;
+                    selectedItem = self.parent;
+                    // self.parent.selected = true;
                 }
 
                 break;
@@ -147,6 +157,12 @@ function TreeItem(args) {
                 if (self._children && ! self.open)
                     self.open = true;
                 break;
+        }
+
+        if (selectedItem) {
+            if (! (Tree._ctrl && Tree._ctrl()) && ! (Tree._shift && Tree._shift()))
+                self.tree.clear();
+            selectedItem.selected = true;
         }
     }, false);
 }
@@ -286,6 +302,9 @@ TreeItem.prototype._onRemove = function(item) {
 
 
 TreeItem.prototype._onClick = function(evt) {
+    if (evt.button !== 0)
+        return;
+
     var rect = this.elementTitle.getBoundingClientRect();
 
     if (this._children && (evt.clientX - rect.left) < 0) {

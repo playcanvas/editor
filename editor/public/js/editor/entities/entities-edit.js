@@ -115,15 +115,15 @@ editor.once('load', function() {
         parent.insert('children', entity.get('resource_id'), ind);
         parent.history.enabled = true;
 
-        if (select) {
-            setTimeout(function() {
-                editor.call('selector:history', false);
-                editor.call('selector:set', 'entity', [ entity ]);
-                editor.once('selector:change', function() {
-                    editor.call('selector:history', true);
-                });
-            }, 0);
-        }
+        // if (select) {
+        //     setTimeout(function() {
+        //         editor.call('selector:history', false);
+        //         editor.call('selector:set', 'entity', [ entity ]);
+        //         editor.once('selector:change', function() {
+        //             editor.call('selector:history', true);
+        //         });
+        //     }, 0);
+        // }
 
         // add children too
         children.forEach(function(childId) {
@@ -277,38 +277,121 @@ editor.once('load', function() {
     });
 
     // delete entity
-    editor.method('entities:delete', function (entity) {
-        var resourceId = entity.get('resource_id');
-        var ind;
-        var data = entity.json();
-        var parentId = childToParent[entity.get('resource_id')];
-        if (parentId) {
-            var parent = editor.call('entities:get', parentId);
-            if (parent)
-                ind = parent.get('children').indexOf(resourceId);
+    editor.method('entities:delete', function (items) {
+        var records = [ ];
+        var itemsToDelete = [ ];
+
+        // index items
+        var itemsIds = { };
+        for(var i = 0; i < items.length; i++) {
+            itemsIds[items[i].get('resource_id')] = items[i];
         }
 
-        removeEntity(entity);
+        // find out if item has ancestor
+        for(var i = 0; i < items.length; i++) {
+            var child = false;
+            var parent = childToParent[items[i].get('resource_id')];
+            while(! child && parent) {
+                if (itemsIds[parent]) {
+                    child = true;
+                } else {
+                    parent = childToParent[parent]
+                }
+            }
+
+            if (! child)
+                itemsToDelete.push(items[i]);
+        }
+
+        // delete only non-childed items
+        items = itemsToDelete;
+
+        for(var i = 0; i < items.length; i++) {
+            var resourceId = items[i].get('resource_id');
+            var parentId = childToParent[resourceId];
+            var ind;
+            if (parentId) {
+                var parent = editor.call('entities:get', parentId);
+                if (parent)
+                    ind = parent.get('children').indexOf(resourceId);
+            }
+
+            records.push({
+                get: items[i].history._getItemFn,
+                parentId: parentId,
+                ind: ind,
+                data: items[i].json()
+            });
+
+            removeEntity(items[i]);
+        }
 
         editor.call('history:add', {
-            name: 'delete entity ' + entity.get('resource_id'),
+            name: 'delete entities',
             undo: function() {
-                var parent = editor.call('entities:get', parentId);
-                if (! parent)
-                    return;
+                var items = [ ];
+                for(var i = 0; i < records.length; i++) {
+                    var parent = editor.call('entities:get', records[i].parentId);
+                    if (! parent)
+                        return;
 
-                var entity = new Observer(data);
-                childToParent[entity.get('resource_id')] = parent.get('resource_id');
-                addEntity(entity, parent, true, ind);
+                    var entity = new Observer(records[i].data);
+                    items.push(entity);
+                    childToParent[entity.get('resource_id')] = parent.get('resource_id');
+                    addEntity(entity, parent, false, records[i].ind);
+                }
+
+                setTimeout(function() {
+                    editor.call('selector:history', false);
+                    editor.call('selector:set', 'entity', items);
+                    editor.once('selector:change', function() {
+                        editor.call('selector:history', true);
+                    });
+                }, 0);
             },
             redo: function() {
-                var entity = editor.call('entities:get', resourceId);
-                if (! entity)
-                    return;
+                for(var i = 0; i < records.length; i++) {
+                    var entity = editor.call('entities:get', records[i].resourceId);
+                    if (! entity)
+                        return;
 
-                removeEntity(entity);
+                    removeEntity(entity);
+                }
             }
         });
+
+
+        // var resourceId = entity.get('resource_id');
+        // var ind;
+        // var data = entity.json();
+        // var parentId = childToParent[entity.get('resource_id')];
+        // if (parentId) {
+        //     var parent = editor.call('entities:get', parentId);
+        //     if (parent)
+        //         ind = parent.get('children').indexOf(resourceId);
+        // }
+
+        // removeEntity(entity);
+
+        // editor.call('history:add', {
+        //     name: 'delete entity ' + entity.get('resource_id'),
+        //     undo: function() {
+        //         var parent = editor.call('entities:get', parentId);
+        //         if (! parent)
+        //             return;
+
+        //         var entity = new Observer(data);
+        //         childToParent[entity.get('resource_id')] = parent.get('resource_id');
+        //         addEntity(entity, parent, true, ind);
+        //     },
+        //     redo: function() {
+        //         var entity = editor.call('entities:get', resourceId);
+        //         if (! entity)
+        //             return;
+
+        //         removeEntity(entity);
+        //     }
+        // });
     });
 
     // copy entity to local storage

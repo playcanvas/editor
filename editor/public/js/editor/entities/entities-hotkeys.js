@@ -54,10 +54,11 @@ editor.once('load', function() {
 
             var root = editor.call('entities:root');
             var items = editor.call('selector:items');
-            items.forEach(function(entity) {
-                if (entity !== root)
-                    editor.call('entities:delete', entity);
-            });
+
+            if (items.indexOf(root) !== -1)
+                return;
+
+            editor.call('entities:delete', items);
         }
     });
 
