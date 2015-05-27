@@ -40,8 +40,19 @@ editor.once('load', function() {
             editor.call('attributes:header', entities.length + ' Entities');
         }
 
-        if (entities.length !== 1)
+        if (entities.length !== 1) {
+            // TODO
+            var label = new ui.Label({
+                text: 'editing multiple entities comming soon.'
+            });
+            label.style.fontSize = '12px';
+            label.style.padding = '4px 8px';
+            label.style.textAlign = 'center';
+            label.style.margin = '0';
+            label.style.display = 'block';
+            editor.call('attributes.rootPanel').append(label);
             return;
+        }
 
         editor.call('attributes:header', 'Entity');
 
