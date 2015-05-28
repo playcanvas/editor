@@ -61,8 +61,8 @@ canvas:focus {
 #application-splash {
     position: absolute;
     top: 42%;
-    width: 30%;
-    left: 35%;
+    width: 10%;
+    left: 45%;
 
     img {
         width: 100%;
@@ -186,24 +186,18 @@ canvas:focus {
     }
 }
 
-@media (min-width: 768px) {
-    #application-splash {
-        top: 44%;
-        width: 10%;
-        left: 45%;
-    }
-}
+// @media (min-width: 768px) {
+//     #application-splash {
+//         top: 44%;
+//         width: 10%;
+//         left: 45%;
+//     }
+// }
 
-@media (min-width: 992px) {
-    #application-splash {
-        width: 10%;
-        left: 45%;
-    }
-}
+// @media (min-width: 992px) {
+//     #application-splash {
+//         top: 42%;
+//     }
+// }
 
-@media (orientation: portrait) {
-    #application-splash {
-        top: 42%;
-    }
-}
 
