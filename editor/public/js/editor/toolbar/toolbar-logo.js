@@ -61,6 +61,48 @@ editor.once('load', function() {
         return false;
     };
 
+    var setField = function(items, field, value) {
+        var records = [ ];
+
+        for(var i = 0; i < items.length; i++) {
+            records.push({
+                get: items[i].history._getItemFn,
+                value: value,
+                valueOld: items[i].get(field)
+            });
+
+            items[i].history.enabled = false;
+            items[i].set(field, value);
+            items[i].history.enabled = true;
+        }
+
+        editor.call('history:add', {
+            name: 'entities.set[' + field + ']',
+            undo: function() {
+                for(var i = 0; i < records.length; i++) {
+                    var item = records[i].get();
+                    if (! item)
+                        continue;
+
+                    item.history.enabled = false;
+                    item.set(field, records[i].valueOld);
+                    item.history.enabled = true;
+                }
+            },
+            redo: function() {
+                for(var i = 0; i < records.length; i++) {
+                    var item = records[i].get();
+                    if (! item)
+                        continue;
+
+                    item.history.enabled = false;
+                    item.set(field, records[i].value);
+                    item.history.enabled = true;
+                }
+            }
+        });
+    };
+
     var addBultinScript = function (entity, url) {
         var resourceId = entity.get('resource_id');
 
@@ -135,6 +177,9 @@ editor.once('load', function() {
         'entity': {
             title: 'Entity',
             filter: function() {
+                if (editor.call('selector:type') === 'entity' && editor.call('selector:items').length !== 1)
+                    return false;
+
                 return editor.call('permissions:write');
             },
             items: {
@@ -418,16 +463,24 @@ editor.once('load', function() {
                     },
                     hide: function () {
                         var type = editor.call('selector:type');
-                        if (type === 'entity') {
-                            var items = editor.call('selector:items');
-                            return items[0].get('enabled');
-                        }
+                        if (type !== 'entity')
+                            return true;
 
-                        return true;
+                        var items = editor.call('selector:items');
+
+                        if (items.length === 1) {
+                            return items[0].get('enabled');
+                        } else {
+                            var enabled = items[0].get('enabled');
+                            for(var i = 1; i < items.length; i++) {
+                                if (enabled !== items[i].get('enabled'))
+                                    return false;
+                            }
+                            return enabled;
+                        }
                     },
                     select: function() {
-                        var items = editor.call('selector:items');
-                        items[0].set('enabled', true);
+                        setField(editor.call('selector:items'), 'enabled', true);
                     }
                 },
                 'disable': {
@@ -441,16 +494,24 @@ editor.once('load', function() {
                     },
                     hide: function () {
                         var type = editor.call('selector:type');
-                        if (type === 'entity') {
-                            var items = editor.call('selector:items');
-                            return !items[0].get('enabled');
-                        }
+                        if (type !== 'entity')
+                            return true;
 
-                        return true;
+                        var items = editor.call('selector:items');
+
+                        if (items.length === 1) {
+                            return ! items[0].get('enabled');
+                        } else {
+                            var disabled = items[0].get('enabled');
+                            for(var i = 1; i < items.length; i++) {
+                                if (disabled !== items[i].get('enabled'))
+                                    return false;
+                            }
+                            return ! disabled;
+                        }
                     },
                     select: function() {
-                        var items = editor.call('selector:items');
-                        items[0].set('enabled', false);
+                        setField(editor.call('selector:items'), 'enabled', false);
                     }
                 },
                 'copy': {
@@ -460,10 +521,7 @@ editor.once('load', function() {
                         if (! editor.call('permissions:write'))
                             return false;
 
-                        return editor.call('selector:type') === 'entity';
-                    },
-                    hide: function () {
-                        return !this.filter();
+                        return editor.call('selector:type') === 'entity' && editor.call('selector:items').length === 1;
                     },
                     select: function () {
                         var items = editor.call('selector:items');
@@ -478,11 +536,9 @@ editor.once('load', function() {
                             return false;
 
                         return editor.call('selector:type') === 'entity' &&
-                               !editor.call('entities:clipboard:empty') &&
+                               editor.call('selector:items').length === 1 &&
+                             ! editor.call('entities:clipboard:empty') &&
                                editor.call('entities:clipboard:get').project === config.project.id;
-                    },
-                    hide: function () {
-                        return editor.call('selector:type') !== 'entity';
                     },
                     select: function () {
                         var items = editor.call('selector:items');
@@ -493,7 +549,22 @@ editor.once('load', function() {
                     title: 'Duplicate',
                     icon: '&#57908;',
                     filter: function() {
-                        return editor.call('permissions:write') && editor.call('selector:type') === 'entity';
+                        if (! editor.call('permissions:write'))
+                            return false;
+
+                        var type = editor.call('selector:type');
+                        if (! type)
+                            return false;
+
+                        var items = editor.call('selector:items');
+
+                        if (type === 'entity') {
+                            return items.length === 1;
+                        } else if (type === 'asset') {
+                            return items.length === 1 && items[0].get('type') === 'material';
+                        } else {
+                            return false;
+                        }
                     },
                     select: function() {
                         var type = editor.call('selector:type');
@@ -503,8 +574,7 @@ editor.once('load', function() {
                         if (type === 'entity') {
                             editor.call('entities:duplicate', items[0]);
                         } else if (type === 'asset') {
-                            // TODO
-                            // duplicate asset
+                            editor.call('assets:duplicate', items[0]);
                         }
                     }
                 },
@@ -536,8 +606,10 @@ editor.once('load', function() {
                         var items = editor.call('selector:items');
 
                         if (type === 'entity') {
-                            for(var i = 0; i < items.length; i++)
-                                editor.call('entities:delete', items[i]);
+                            var root = editor.call('entities:root');
+                            if (items.indexOf(root) !== -1)
+                                return;
+                            editor.call('entities:delete', items);
                         } else if (type === 'asset') {
                             editor.call('picker:confirm', 'Delete Asset?', function() {
                                 for(var i = 0; i < items.length; i++)

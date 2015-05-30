@@ -1,4 +1,3 @@
-
 editor.once('load', function() {
     'use strict';
 
@@ -19,7 +18,6 @@ editor.once('load', function() {
             return null;
         }
     });
-
 });
 
 

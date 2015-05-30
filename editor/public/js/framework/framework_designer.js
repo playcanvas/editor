@@ -12,18 +12,6 @@ pc.extend(pc.editor, function() {
 
         this.scene = new pc.Scene();
 
-        this.gizmos = {
-            translate: new pc.GizmoTranslate(context),
-            rotate: new pc.GizmoRotate(context),
-            scale: new pc.GizmoScale(context)
-        };
-
-        for (var key in this.gizmos) {
-            this.gizmos[key].initialize();
-        }
-
-        this.activeGizmo = this.gizmos.translate;
-
         for (var key in context.systems) {
             if (context.systems.hasOwnProperty(key)) {
                 context.systems[key]._inTools = true;
@@ -40,29 +28,8 @@ pc.extend(pc.editor, function() {
         this.activeCamera = null;
         this.setActiveCamera(this.cameras[0].getGuid());
 
-        // Insert a command into the draw call queue to clear the depth buffer immediately before the gizmos are rendered
-        var clearOptions = {
-            flags: pc.CLEARFLAG_DEPTH
-        };
-        var command = new pc.scene.Command(pc.LAYER_GIZMO, pc.BLEND_NONE, function () {
-            context.graphicsDevice.clear(clearOptions);
-        });
-        context.scene.drawCalls.push(command);
-
         // Draw immediately
         this.redraw = true;
-
-        this.lastMouseEvent = null;
-        this.selectedEntity = null;
-        this.lastMouseX = -1;
-        this.lastMouseY = -1;
-        this.lastClickTime = null;
-        this.clickedCanvas = false;
-
-        // handle mouse / keyboard
-        canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
-        window.addEventListener('mouseup', this.handleMouseUp.bind(this));
-        window.addEventListener('mousemove', this.handleMouseMove.bind(this));
     };
 
     Designer = pc.inherits(Designer, pc.Application);
@@ -240,6 +207,8 @@ pc.extend(pc.editor, function() {
         var root = context.root;
         context.root.syncHierarchy();
 
+        this.fire('preRender', null);
+
         var device = this.graphicsDevice;
         var dw = device.width;
         var dh = device.height;
@@ -306,28 +275,21 @@ pc.extend(pc.editor, function() {
      */
     Designer.prototype.tick = function () {
         if (this.redraw) {
-            if (this.lastMouseEvent) {
-                // pass mousemove on to gizmo system
-                this.activeGizmo.handleMouseMove(this.lastMouseEvent);
-                this.lastMouseEvent = null;
-            }
-
             var dt = this.getDt();
             var keepRendering = editor.call('viewport:keepRendering');
+            this.redraw = keepRendering;
 
             // Perform ComponentSystem update
             pc.ComponentSystem.fire('toolsUpdate', dt);
+            editor.emit('viewport:update', dt);
 
-            this.activeGizmo.render();
+            // this.activeGizmo.render();
 
             this.render();
-
-            this.redraw = keepRendering;
         }
 
         // Submit a request to queue up a new animation frame immediately
         requestAnimationFrame(this.tick.bind(this), this.graphicsDevice.canvas);
-
     };
 
     /**
@@ -396,54 +358,14 @@ pc.extend(pc.editor, function() {
             runInTools: true
         });
 
-        for (var key in this.gizmos) {
-            this.gizmos[key].setCamera(cameraEntity);
-        }
-
         // remove the active camera's debug shape
         // TODO: fix issue in engine where disabling/re-enabling active camera
         // re-adds the debug shape
         this.scene.removeModel(cameraEntity.camera.model);
     };
 
-
-    Designer.prototype.setActiveGizmoType = function (gizmoType) {
-        var entity = this.activeGizmo.entity;
-        this.activeGizmo.deactivate();
-
-        this.activeGizmo = this.gizmos[gizmoType];
-        if (entity) {
-            this.activeGizmo.activate(entity);
-        }
-
-        this.redraw = true;
-    };
-
-    Designer.prototype.toggleGizmoInteraction = function (toggle) {
-        for (var key in this.gizmos) {
-            this.gizmos[key].disableInteraction = !toggle;
-        }
-    };
-
-    Designer.prototype.setGizmoCoordinateSystem = function (system) {
-        for (var key in this.gizmos) {
-            this.gizmos[key].setCoordinateSystem(system);
-        }
-
-        this.redraw = true;
-    };
-
-    Designer.prototype.setSnapToClosestIncrement = function (snap) {
-        for (var key in this.gizmos) {
-            this.gizmos[key].setSnap(snap);
-        }
-    };
-
     Designer.prototype.setDesignerSettings = function (settings) {
         this.designerSettings = settings;
-
-        this.gizmos.translate.setSnapIncrement(settings.snap_increment);
-        this.gizmos.scale.setSnapIncrement(settings.snap_increment);
 
         if (this.grid) {
             this.scene.removeModel(this.grid.model);
@@ -457,191 +379,6 @@ pc.extend(pc.editor, function() {
         }
 
         this.redraw = true;
-    };
-
-    Designer.prototype.selectEntity = function (resourceId) {
-        this.selectedEntity = this.root.findByGuid(resourceId);
-        if (this.selectedEntity && editor.call('permissions:write'))
-            this.activeGizmo.activate(this.selectedEntity);
-
-        this.redraw = true;
-    };
-
-    Designer.prototype.deselectEntity = function () {
-        this.selectedEntity = null;
-        this.activeGizmo.deactivate();
-        this.redraw = true;
-    };
-
-    Designer.prototype.frameSelection = function () {
-        if (this.selectedEntity) {
-            this.activeCamera.script.designer_camera.frameSelection(this.selectedEntity);
-            this.redraw = true;
-        }
-    };
-
-    /**
-     * @name pc.editor.Designer#handleMouseDown
-     * @description Handle a mousedown event from the web application
-     * @param {MouseEvent} A DOM MouseEvent
-     */
-    Designer.prototype.handleMouseDown = function (event) {
-        // wrap mouseevent with PlayCanvas version which adds cross-browser properties
-        var e = new pc.input.MouseEvent(this.mouse, event);
-
-        // Mouse click XY with reference to top left corner of canvas
-        this.lastMouseX = e.x;
-        this.lastMouseY = e.y;
-        this.lastMouseDown = Date.now();
-
-        // Pass mousedown on to Gizmo
-        this.activeGizmo.handleMouseDown(e);
-
-        this.clickedCanvas = true;
-
-        this.redraw = true;
-    };
-
-    Designer.prototype._getMeshInstanceSelection = function (selectedNode, pickedInstances) {
-        var result = null;
-
-        if (selectedNode.model && selectedNode.model.type === 'asset' && selectedNode.model.model) {
-            var meshInstances = selectedNode.model.model.meshInstances;
-            for (var i = 0; i < meshInstances.length; i++) {
-                var instance = meshInstances[i];
-                if (instance === pickedInstances[0]) {
-
-                    var materialId = null;
-                    var modelAsset = this.assets.get(selectedNode.model.asset);
-                    if (modelAsset.data.mapping) {
-                        materialId = modelAsset.data.mapping[i].material;
-                    }
-
-                    result = {
-                        modelId: selectedNode.model.asset,
-                        meshInstanceIndex: i,
-                        materialId: materialId
-                    };
-
-                    break;
-                }
-            }
-        }
-
-        return result;
-    };
-
-    /**
-     * @name pc.editor.Designer#handleMouseUp
-     * @description Handle a mouseup event from the web application
-     * @param {MouseEvent} A DOM MouseEvent
-     */
-    Designer.prototype.handleMouseUp = function (event) {
-        if (event.button === pc.input.MOUSEBUTTON_LEFT) {
-            this.clickedCanvas = false;
-        }
-
-        if (event.target === this.graphicsDevice.canvas) {
-
-            // wrap mouseevent wiht PlayCanvas version which adds cross-browser properties
-            var e = new pc.input.MouseEvent(this.mouse, event);
-            var x = e.x;
-            var y = e.y;
-
-            if (Math.abs(this.lastMouseX - x) < 3 && Math.abs(this.lastMouseY -= y) < 3 && Date.now() - this.lastMouseDown < 300) {
-                if (!this.activeGizmo.isDragging) {
-                    var picker = this.picker;
-                    picker.prepare(this.activeCamera.camera.camera, this.scene);
-
-                    var picked = picker.getSelection({
-                        x: x,
-                        y: this.graphicsDevice.canvas.height - y
-                    });
-
-                    if (picked.length > 0) {
-                        var selectedNode = picked[0].node;
-                        while (!(selectedNode instanceof pc.Entity) && selectedNode !== null && selectedNode !== this.activeGizmo.node) {
-                            selectedNode = selectedNode.getParent();
-                        }
-
-                        // if we selected something from the active gizmo then it's like selecting the entity
-                        if (selectedNode === this.activeGizmo.node) {
-                            if (e.button === pc.input.MOUSEBUTTON_RIGHT) {
-                                selectedNode = this.activeGizmo.entity;
-                            } else {
-                                selectedNode = null;
-                            }
-                        }
-
-                        if (selectedNode) {
-                            var selectedEntity = editor.call('entities:get', selectedNode.getGuid());
-                            if (selectedEntity) {
-                                if (this.selectedEntity !== selectedNode) {
-                                    // We've selected a new entity
-                                    editor.call('selector:add', 'entity', selectedEntity);
-
-                                    if (e.button === pc.input.MOUSEBUTTON_RIGHT) {
-                                        // show context menu for selected entity
-                                        editor.call('viewport:contextmenu', event.clientX, event.clientY, selectedEntity);
-                                    }
-                                } else {
-                                    if (e.button === pc.input.MOUSEBUTTON_LEFT) {
-                                        // We've selected the same entity again so try to find the selected mesh instance
-                                        var meshSelection = this._getMeshInstanceSelection(selectedNode, picked);
-                                        if (meshSelection) {
-                                            // deselect entity and select model
-                                            editor.call('selector:add', 'asset', editor.call('assets:get', meshSelection.modelId));
-
-                                            setTimeout(function () {
-                                                var node = editor.call('attributes.rootPanel').element.querySelector('.field-asset.node-' + meshSelection.meshInstanceIndex);
-                                                node.classList.add('active');
-                                                var img = node.querySelector('.ui-image-field');
-                                                // scroll into view
-                                                img.focus();
-                                                // remove 'focused' effect
-                                                img.blur();
-                                            });
-                                        }
-                                    } else if (e.button === pc.input.MOUSEBUTTON_RIGHT) {
-                                        // show context menu for selected entity
-                                        editor.call('viewport:contextmenu', event.clientX, event.clientY, selectedEntity);
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        editor.call('selector:clear');
-                    }
-                }
-            }
-        }
-
-        // pass mouseup on to the gizmo
-        this.activeGizmo.handleMouseUp(event);
-
-        if (event.target !== this.graphicsDevice.canvas) {
-            this.activeGizmo.setActiveAxis(null);
-        }
-
-        this.redraw = true;
-    };
-
-    /**
-     * @name pc.editor.Designer#handleMouseMove
-     * @description Handle a mousemove event from the web application
-     * @param {MouseEvent} A DOM MouseEvent
-     */
-    Designer.prototype.handleMouseMove = function (event) {
-        if (event.target === this.graphicsDevice.canvas) {
-            // wrap mouseevent with PlayCanvas version which adds cross-browser properties
-            this.lastMouseEvent = new pc.input.MouseEvent(this.mouse, event);
-            this.redraw = true;
-        }
-
-        if (this.clickedCanvas) {
-            event.preventDefault(); // stop text selection
-            return false;
-        }
     };
 
     // Redraw when we set the skybox

@@ -24,6 +24,7 @@ pc.script.create( "designer_camera", function (app) {
 
 
     var DesignerCamera = function (entity) {
+        var self = this;
         this.entity = entity;
 
         this.mouse = new pc.Mouse();
@@ -72,6 +73,11 @@ pc.script.create( "designer_camera", function (app) {
 
         this.frameScale = 10; // This is used to scale dollying to prevent zooming past the object that is framed
 
+        this.disabled = false;
+        this.evtDisabled = editor.on('camera:toggle', function(state) {
+            self.disabled = ! state;
+        });
+
         this.flySpeed = new pc.Vec3();
         this.flyFast = false;
         this.flySpeedModifier = 1;
@@ -99,71 +105,6 @@ pc.script.create( "designer_camera", function (app) {
 
     DesignerCamera.prototype.destroy = function () {
         this.mouse.detach();
-    };
-
-    DesignerCamera.prototype.frameSelection = function (selection) {
-        if (!this.flyMode) {
-            this.combineHistory = false;
-        }
-
-        var model;
-        if (selection.model) {
-            model = selection.model.model;
-        }
-
-        // TODO: Move AABB syncing out to the engine scene manager
-        var aabb = new pc.shape.Aabb();
-        if (model) {
-            var meshInstances = model.meshInstances;
-            if (meshInstances.length > 0) {
-                meshInstances[0].syncAabb();
-                aabb.copy(meshInstances[0].aabb);
-                for (var i = 1; i < meshInstances.length; i++) {
-                    meshInstances[i].syncAabb();
-                    aabb.add(meshInstances[i].aabb);
-                }
-            }
-        } else {
-            aabb = new pc.shape.Aabb(selection.getPosition(), new pc.Vec3(5, 5, 5));
-        }
-
-        var transition = this.transition;
-        transition.focusStart = this.focus.clone();
-        transition.focusEnd = aabb.center;
-        transition.eyeStart = this.entity.getPosition().clone();
-
-        var vec = new pc.Vec3();
-        vec.sub2(transition.focusEnd, transition.focusStart);
-        transition.eyeEnd.add2(transition.eyeStart, vec);
-
-        // convert eyeStart and eyeEnd to local coordinates
-        tempMat.copy(this.entity.getParent().getWorldTransform()).invert();
-        tempMat.transformPoint(transition.eyeStart, transition.eyeStart);
-        tempMat.transformPoint(transition.eyeEnd, transition.eyeEnd);
-
-        var averageExtent = (aabb.halfExtents.x + aabb.halfExtents.y + aabb.halfExtents.z) / 3;
-        var offset = averageExtent / Math.tan(0.5 * this.entity.camera.fov * Math.PI / 180.0);
-
-        var camWtm = this.entity.getWorldTransform();
-        var lookDir = camWtm.getZ();
-        lookDir.normalize().scale(offset * 1.5);
-        transition.eyeEnd.add2(transition.focusEnd, lookDir);
-
-        if (this.entity.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
-            transition.orthoHeightStart = this.entity.camera.orthoHeight;
-            transition.orthoHeightEnd = averageExtent * 1.1;
-            transition.eyeEnd.add2(transition.focusEnd, lookDir.normalize().scale(1000));
-        }
-
-        transition.startTime = pc.time.now();
-        transition.active = true;
-        editor.call('viewport:frameSelectionStart');
-
-        this.frameScale = averageExtent * 50;
-
-        // The next line may seem redundant. However, we're forcing the script's render
-        // function to be fired, thereby allowing the next animation step to be scheduled.
-        editor.call('viewport:render');
     };
 
     DesignerCamera.prototype.pan = function(movement) {
@@ -364,9 +305,9 @@ pc.script.create( "designer_camera", function (app) {
             this.combineHistory = false;
             this.canvasFocused = false;
 
-            if (!this.flyMode) {
-                app.toggleGizmoInteraction(true);
-            }
+            // if (!this.flyMode) {
+            //     app.toggleGizmoInteraction(true);
+            // }
         }
 
     };
@@ -473,7 +414,7 @@ pc.script.create( "designer_camera", function (app) {
     };
 
     DesignerCamera.prototype.onMouseMove = function (e) {
-        if (!this.canvasFocused || app.activeGizmo.isDragging) {
+        if (!this.canvasFocused || this.disabled /* || app.activeGizmo.isDragging*/) {
             return;
         }
 
@@ -485,16 +426,16 @@ pc.script.create( "designer_camera", function (app) {
         if (!this.flyMode && !this.isOrbiting && !this.isLookingAround && (middle || (left && (e.shiftKey || isOrtho)))) {
             this.pan([e.dx, e.dy]);
             this.isPanning = true;
-            app.toggleGizmoInteraction(false);
+            // app.toggleGizmoInteraction(false);
         } else if (!isOrtho) {
             if (!this.flyMode && !this.isPanning && !this.isLookingAround && left) {
                 this.orbit([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);
                 this.isOrbiting = true;
-                app.toggleGizmoInteraction(false);
+                // app.toggleGizmoInteraction(false);
             } else if (!this.isOrbiting && !this.isPanning && right) {
                 this.lookAt([pc.math.RAD_TO_DEG*e.dx/300.0, pc.math.RAD_TO_DEG*e.dy/300.0]);
                 this.isLookingAround = true;
-                app.toggleGizmoInteraction(false);
+                // app.toggleGizmoInteraction(false);
             }
         }
     };
