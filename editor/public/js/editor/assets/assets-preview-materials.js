@@ -90,7 +90,7 @@ editor.once('load', function () {
     editor.method('preview:render:material', function (asset, size, callback) {
         if (!sceneSettingsLoaded) return;
 
-        var material = assets.getAssetById(asset.get('id'));
+        var material = assets.get(asset.get('id'));
         if (!material) return;
 
         material = material.resource;
@@ -130,7 +130,7 @@ editor.once('load', function () {
         var assetId = asset.get('id');
         var material;
 
-        var realtimeAsset = assets.getAssetById(assetId);
+        var realtimeAsset = assets.get(assetId);
         if (!realtimeAsset)
             return;
 
@@ -140,16 +140,12 @@ editor.once('load', function () {
             editor.call('preview:render', asset);
         }
 
-        // load material
-        material = realtimeAsset.resource;
-        if (!material) {
-            assets.load(realtimeAsset).then(function (resources) {
-                material = resources[0];
-                onLoaded();
-            }.bind(this));
-        } else {
+        // use or load material
+        realtimeAsset.ready(function (asset) {
+            material = asset.resource;
             onLoaded();
-        }
+        });
+        assets.load(realtimeAsset);
     };
 
     editor.on('assets:add', function (asset) {
