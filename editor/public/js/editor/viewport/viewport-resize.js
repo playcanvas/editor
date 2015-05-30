@@ -11,6 +11,7 @@ editor.once('load', function() {
     canvas.on('resize', function(width, height) {
         framework.resize(width, height);
         editor.call('viewport:render');
+        editor.emit('viewport:resize', width, height);
     });
 
     // handle canvas resizing

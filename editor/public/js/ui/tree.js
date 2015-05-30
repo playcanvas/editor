@@ -37,15 +37,32 @@ function Tree() {
 Tree.prototype = Object.create(ui.ContainerElement.prototype);
 
 
-Tree.prototype._onSelect = function(item) {
-    if (this._selected.length) {
-        var i = this._selected.length;
-        while(i--) {
-            this._selected[i].selected = false;
-        }
-        this._selected = [ ];
-    }
+Object.defineProperty(Tree.prototype, 'selected', {
+    get: function() {
+        return this._selected.slice(0);
+    },
+    set: function(value) {
 
+    }
+});
+
+
+Tree.prototype._onItemClick = function(item) {
+    if (Tree._ctrl && Tree._ctrl()) {
+        item.selected = ! item.selected;
+    } else {
+        var selected = item.selected && ((this._selected.indexOf(item) === -1) || (this._selected.length === 1 && this._selected[0] === item));
+        this.clear();
+
+        if (! selected) {
+            item.open = true;
+            item.selected = true;
+        }
+    }
+};
+
+
+Tree.prototype._onSelect = function(item) {
     this._selected.push(item);
 };
 
@@ -57,6 +74,18 @@ Tree.prototype._onDeselect = function(item) {
 
     this._selected.splice(ind, 1);
 };
+
+
+Tree.prototype.clear = function() {
+    if (! this._selected.length)
+        return;
+
+    var i = this._selected.length;
+    while(i--) {
+        this._selected[i].selected = false;
+    }
+    this._selected = [ ];
+}
 
 
 Tree.prototype._onDragStart = function(item) {

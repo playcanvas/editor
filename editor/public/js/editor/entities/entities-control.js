@@ -23,9 +23,7 @@ editor.once('load', function() {
         if (type !== 'entity')
             return;
 
-        var items = editor.call('selector:items');
-        for(var i = 0; i < items.length; i++)
-            editor.call('entities:delete', items[i]);
+        editor.call('entities:delete', editor.call('selector:items'));
     });
     controls.append(btnDelete);
 

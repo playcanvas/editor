@@ -54,7 +54,7 @@ editor.once('load', function() {
     var evtChange = false;
     var evtChangeFn = function() {
         evtChange = false;
-        editor.emit('selector:change', selector.array());
+        editor.emit('selector:change', selector.type, selector.array());
     };
 
     // adding

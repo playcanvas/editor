@@ -176,8 +176,8 @@ app.once('load', function() {
         var entity = framework.root.findByGuid(obj.get('resource_id'));
         if (entity) {
             entity.destroy();
+            editor.call('viewport:render');
         }
-
     });
 
     app.on('entities:load', function () {

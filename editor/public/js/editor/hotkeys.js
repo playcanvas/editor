@@ -105,13 +105,29 @@ editor.once('load', function() {
     });
 
 
+    var updateModifierKeys = function(evt) {
+        if (shift !== evt.shiftKey) {
+            shift = evt.shiftKey;
+            editor.emit('hotkey:shift', shift);
+        }
+
+        if (ctrl !== (evt.ctrlKey || evt.metaKey)) {
+            ctrl = evt.ctrlKey || evt.metaKey;
+            editor.emit('hotkey:ctrl', ctrl);
+        }
+
+        if (alt !== evt.altKey) {
+            alt = evt.altKey;
+            editor.emit('hotkey:alt', alt);
+        }
+    };
+
+
     window.addEventListener('keydown', function(evt) {
         if ((evt.target && evt.target.tagName.toLowerCase() === 'input'))
             return;
 
-        shift = evt.shiftKey;
-        ctrl = evt.ctrlKey || evt.metaKey;
-        alt = evt.altKey;
+        updateModifierKeys(evt);
 
         if ([ 92, 93 ].indexOf(evt.keyCode) !== -1)
             return;
@@ -127,24 +143,21 @@ editor.once('load', function() {
     }, false);
 
 
-    window.addEventListener('keyup', function(evt) {
-        shift = evt.shiftKey;
-        ctrl = evt.ctrlKey || evt.metaKey;
-        alt = evt.altKey;
-    }, false);
-
-
-    window.addEventListener('mousedown', function(evt) {
-        shift = evt.shiftKey;
-        ctrl = evt.ctrlKey || evt.metaKey;
-        alt = evt.altKey;
-    }, false);
+    window.addEventListener('keyup', updateModifierKeys, false);
+    window.addEventListener('mousedown', updateModifierKeys, false);
 
 
     ui.Grid._ctrl = function() {
         return ctrl;
     };
     ui.Grid._shift = function() {
+        return shift;
+    };
+
+    ui.Tree._ctrl = function() {
+        return ctrl;
+    };
+    ui.Tree._shift = function() {
         return shift;
     };
 });

@@ -1965,9 +1965,6 @@ editor.once('load', function() {
         var filterReflectionMaps = function() {
             fieldReflectionCubeMap.parent.hidden = ! fieldReflectionCubeMap.value && ! fieldReflectionCubeMap.class.contains('null') && (fieldReflectionSphere.value || fieldReflectionSphere.class.contains('null'));
             fieldReflectionSphere.parent.hidden = ! fieldReflectionSphere.value && ! fieldReflectionSphere.class.contains('null') && (fieldReflectionCubeMap.value || fieldReflectionCubeMap.class.contains('null'));
-            fieldReflectionStrength.parent.hidden = ! (fieldReflectionCubeMap.value || fieldReflectionSphere.value || fieldReflectionCubeMap.class.contains('null') || fieldReflectionSphere.class.contains('null'));
-            fieldRefraction.parent.hidden = fieldReflectionStrength.parent.hidden;
-            fieldRefractionIndexSlider.parent.hidden = fieldReflectionStrength.parent.hidden;
         };
         // spheremap
         var fieldReflectionSphere = editor.call('attributes:addField', {

@@ -39,9 +39,10 @@ editor.once('load', function() {
             activeGizmo.class.add('active');
             activeGizmo.tooltip.class.remove('innactive');
 
-            var framework = editor.call('viewport:framework');
-            if (framework)
-                framework.setActiveGizmoType(this.op);
+            editor.call('gizmo:type', this.op);
+            // var framework = editor.call('viewport:framework');
+            // if (framework)
+            //     framework.setActiveGizmoType(this.op);
         });
 
         toolbar.append(button);
@@ -77,9 +78,10 @@ editor.once('load', function() {
             this.class.add('active');
             tooltipWorld.html = '<span style="color:#fff">World</span> / Local';
         }
-        var framework = editor.call('viewport:framework');
-        if (framework)
-            framework.setGizmoCoordinateSystem(this.class.contains('active') ? 'world' : 'local');
+        editor.call('gizmo:coordSystem', this.class.contains('active') ? 'world' : 'local');
+        // var framework = editor.call('viewport:framework');
+        // if (framework)
+        //     framework.setGizmoCoordinateSystem(this.class.contains('active') ? 'world' : 'local');
     });
 
     var tooltipWorld = Tooltip.attach({
@@ -104,9 +106,10 @@ editor.once('load', function() {
             this.class.add('active');
             tooltipSnap.class.remove('innactive');
         }
-        var framework = editor.call('viewport:framework');
-        if (framework)
-            framework.setSnapToClosestIncrement(this.class.contains('active'));
+        editor.call('gizmo:snap', this.class.contains('active'));
+        // var framework = editor.call('viewport:framework');
+        // if (framework)
+        //     framework.setSnapToClosestIncrement(this.class.contains('active'));
     });
     toolbar.append(buttonSnap);
 
@@ -126,9 +129,7 @@ editor.once('load', function() {
     buttonFocus.disabled = true;
     buttonFocus.class.add('icon');
     buttonFocus.on('click', function() {
-        var framework = editor.call('viewport:framework');
-        if (framework)
-            framework.frameSelection();
+        editor.call('viewport:focus');
     });
     toolbar.append(buttonFocus);
 
@@ -182,9 +183,7 @@ editor.once('load', function() {
     editor.call('hotkey:register', 'viewport:focus', {
         key: 'f',
         callback: function() {
-            var framework = editor.call('viewport:framework');
-            if (framework)
-                framework.frameSelection();
+            editor.call('viewport:focus');
         }
     });
 });
