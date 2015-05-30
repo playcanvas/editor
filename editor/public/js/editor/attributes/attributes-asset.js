@@ -60,8 +60,14 @@
             var size = 0;
             var preload = true;
 
-            for(var i = 0; i < assets.length; i++)
+            for(var i = 0; i < assets.length; i++) {
                 size += assets[i].get('file.size') || 0;
+
+                // scripts are not real assets, and have no preload option
+                if (assets[i].get('type') === 'script') {
+                    preload = false;
+                }
+            }
 
             var fieldSize = editor.call('attributes:addField', {
                 parent: panel,
@@ -80,11 +86,6 @@
                     size = size - (valueOld || 0) + (value || 0);
                     fieldSize.text = bytesToHuman(size);
                 }));
-
-                // scripts are not real assets, and have no preload option
-                if (asset.get('type') === 'script') {
-                    preload = false;
-                }
             }
 
             panel.once('destroy', function () {
