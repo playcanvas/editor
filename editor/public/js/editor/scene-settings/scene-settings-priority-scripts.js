@@ -5,22 +5,6 @@ editor.once('load', function() {
     var sourcefiles = null;
     var priorityScripts = [];
 
-    var refreshSourcesList = function () {
-        menuAddScript.clear();
-        var scripts = sceneSettings.get('priority_scripts');
-        if (scripts) {
-            priorityScripts = scripts.slice();
-        }
-        sourcefiles.forEach(function (file) {
-            if (priorityScripts.indexOf(file.get("filename")) < 0) {
-                menuAddScript.append(new ui.MenuItem({
-                    text: file.get("filename"),
-                    value: file.get("filename")
-                }));
-            }
-        });
-    };
-
     var refreshPriorityList = function () {
         priorityList.clear();
 
@@ -79,18 +63,10 @@ editor.once('load', function() {
                 priorityList.append(item);
             });
         }
-
-
-
-        refreshSourcesList();
     };
 
     editor.on('sourcefiles:load', function (obs) {
         sourcefiles = obs;
-        refreshSourcesList();
-        sourcefiles.on("add", function (file) {
-            refreshSourcesList();
-        });
     });
 
     var root = editor.call('layout.root');
@@ -112,14 +88,28 @@ editor.once('load', function() {
     var panel = new ui.Panel();
     overlay.append(panel);
 
-
     // Add new script button
     var button = new ui.Button();
     button.text = "Add Script";
     button.class.add('add-script');
     button.on("click", function (evt) {
-        menuAddScript.position(evt.clientX, evt.clientY);
-        menuAddScript.open = true;
+        // use asset-picker to select script
+        overlay.hidden = true;
+        editor.once("picker:asset", function (asset) {
+            overlay.hidden = false;
+            var value = asset.get("filename");
+            if (priorityScripts.indexOf(value) < 0) {
+                priorityScripts.push(value);
+                sceneSettings.insert("priority_scripts", value);
+                refreshPriorityList();
+            }
+        });
+        editor.once("picker:asset:close", function (asset) {
+            overlay.hidden = false;
+        });
+
+        // show asset picker
+        editor.call("picker:asset", "script", null);
     });
     overlay.append(button);
 
@@ -132,16 +122,6 @@ editor.once('load', function() {
     panel.append(priorityList);
 
     root.append(overlay);
-
-    var menuAddScript = new ui.Menu();
-    menuAddScript.on('select', function (path) {
-        var value = path[0];
-        priorityScripts.push(value);
-        sceneSettings.insert("priority_scripts", value);
-        refreshPriorityList();
-    });
-
-    overlay.append(menuAddScript);
 
     // esc > no
     editor.call('hotkey:register', 'sceneSettings:priorityScripts:close', {

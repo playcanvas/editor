@@ -44,11 +44,26 @@ editor.once('load', function() {
 
     // picked asset
     assetsGrid.on('select', function(item) {
-        if (overlay.hidden || ! item.asset || (currentType !== '*' && item.asset.get('type') !== currentType) || item.asset === currentAsset)
-            return;
+        if (item.asset) {
+            if (overlay.hidden ||
+                (currentType !== '*' && item.asset.get('type') !== currentType) ||
+                item.asset === currentAsset) {
+                return;
+            }
 
-        // emit event
-        editor.emit('picker:asset', item.asset);
+            // emit event
+            if (item.asset)
+                editor.emit('picker:asset', item.asset);
+        } else if (item.script) {
+            if (overlay.hidden ||
+                (currentType !== '*' && currentType !== "script")) {
+                return;
+            }
+
+            if (item.script)
+                editor.emit('picker:asset', item.script);
+        }
+
 
         // hide picker
         overlay.hidden = true;
