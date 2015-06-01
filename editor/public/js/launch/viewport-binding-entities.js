@@ -98,7 +98,8 @@ app.once('load', function() {
     };
 
     app.on('entities:add', function (obj) {
-        if (! framework.root.findByGuid(obj.get('resource_id')) && initialEntitiesLoaded) {
+        var sceneLoading = app.call("isLoadingScene");
+        if (! framework.root.findByGuid(obj.get('resource_id')) && !sceneLoading) {
             // create entity if it does not exist and all initial entities have loaded
             processEntity(obj);
         }
