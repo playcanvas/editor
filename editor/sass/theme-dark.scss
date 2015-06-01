@@ -685,21 +685,26 @@ a:visited {
 }
 
 .ui-color-field {
-    border: 1px solid $bcg-darker;
+    border: 2px solid $bcg-dark;
     margin: $field-padding;
+    width: 42px;
+    height: 20px;
 
     &:after {
-        background-color: $bcg-darker;
-        border-color: $bcg-darker;
+        width: 0;
+        height: 0;
+        background-color: transparent;
+        border: none;
+        border-bottom: 12px solid $bcg-dark;
+        border-left: 12px solid transparent;
     }
     &:hover,
     &:focus {
-        outline: 1px solid $text-primary;
-        border-color: $text-primary;
+        outline: 1px solid $bcg-darkest;
+        border-color: $bcg-darkest;
         box-shadow: none;
         &:after {
-            background-color: $text-primary;
-            border-color: $text-primary;
+            border-bottom: 12px solid $bcg-darkest;
         }
     }
     &.flash {
@@ -707,9 +712,24 @@ a:visited {
     }
     &.null {
         > .color {
-            background-color: #000 !important;
-            background-image: linear-gradient(45deg, #fff 25%, transparent 25%, transparent), linear-gradient(-45deg, #fff 25%, transparent 25%, transparent), linear-gradient(45deg, transparent 75%, #fff 75%), linear-gradient(-45deg, transparent 75%, #fff 75%);
-            background-size: 24px 22px;
+            background-color: #465659 !important;
+            background-image:
+            -moz-linear-gradient(45deg, #5b696c 25%, transparent 25%,transparent 75%, #5b696c 75%, #5b696c 100%),
+            -moz-linear-gradient(45deg, #5b696c 25%, transparent 25%,transparent 75%, #5b696c 75%, #5b696c 100%);
+            background-image:
+            -webkit-linear-gradient(45deg, #5b696c 25%, transparent 25%,transparent 75%, #5b696c 75%, #5b696c 100%),
+            -webkit-linear-gradient(45deg, #5b696c 25%, transparent 25%,transparent 75%, #5b696c 75%, #5b696c 100%);
+            background-image:
+            linear-gradient(45deg, #5b696c 25%, transparent 25%,transparent 75%, #5b696c 75%, #5b696c 100%),
+            linear-gradient(45deg, #5b696c 25%, transparent 25%,transparent 75%, #5b696c 75%, #5b696c 100%);
+            -moz-background-size: 20px 20px;
+            background-size: 20px 20px;
+            -webkit-background-size: 22px 22px;
+            background-position: 0 0, 10px 10px;
+
+            // background-color: #000 !important;
+            // background-image: linear-gradient(45deg, #fff 25%, transparent 25%, transparent), linear-gradient(-45deg, #fff 25%, transparent 25%, transparent), linear-gradient(45deg, transparent 75%, #fff 75%), linear-gradient(-45deg, transparent 75%, #fff 75%);
+            // background-size: 24px 22px;
         }
     }
 }
@@ -726,12 +746,12 @@ a:visited {
 
     &:hover,
     &:focus {
-        outline: 1px solid $text-primary;
-        border-color: $text-primary;
+        background-color: $bcg-darkest;
+        border-color: $bcg-darkest;
+        outline: 1px solid $bcg-darkest;
         box-shadow: none;
         &:after {
-            background-color: $text-primary;
-            border-color: $text-primary;
+            background-color: $bcg-darkest;
         }
     }
     &.flash {

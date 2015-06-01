@@ -14,9 +14,6 @@ body {
     margin: 0;
     font-size: 14px;
     color: #eee;
-
-    // font-family: inconsolatamedium;
-    // font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
 }
 
 strong {
@@ -562,7 +559,55 @@ strong {
             margin-top: 100%;
         }
     }
+    .ui-checkbox.tick {
+        width: 12px;
+        height: 12px;
+        border-width: 2px;
 
+        &.null {
+            &:after {
+                content: '\00a0';
+                background-color: mix($bcg-primary, $text-darkest, 50%);
+                width: 8px;
+                height: 8px;
+                margin: 2px 0 0 2px;
+            }
+            &:hover {
+                &:after {
+                    width: 12px;
+                    height: 12px;
+                    margin: 0;
+                    background-color: transparent;
+                }
+            }
+        }
+        &:after {
+            position: static;
+            display: block;
+            margin: 0;
+            content: none;
+            text-align: center;
+            font-size: 8px;
+            line-height: 12px;
+            @extend .font-icon;
+            background-color: transparent;
+            color: #7f7;
+            transition: none;
+        }
+        &:hover {
+            &:after {
+                content: '\E435';
+                color: mix($bcg-dark, #7f7, 50%);
+            }
+        }
+        &.checked {
+            border-color: mix($bcg-dark, #7f7, 50%);
+
+            &:after {
+                content: '\E435';
+            }
+        }
+    }
     .ui-panel {
         &.field {
             > .content {
@@ -609,17 +654,42 @@ strong {
                     -webkit-flex-shrink: 0;
                     flex-shrink: 0;
                     margin-right: 15px;
-                    background-color: $bcg-darkest;
+                    background-color: $bcg-dark;
 
-                    &.empty {
-                        background-image: url("/editor/scene/img/asset-placeholder-texture.png");
-                        background-position: center center;
+                    &:hover {
+                        background-color: $bcg-darkest;
+                        &:after {
+                            border-bottom: 24px solid $bcg-darkest;
+                        }
                     }
-                    &.null {
-                        background-color: #000;
-                        background-image: linear-gradient(45deg, #fff 25%, transparent 25%, transparent), linear-gradient(-45deg, #fff 25%, transparent 25%, transparent), linear-gradient(45deg, transparent 75%, #fff 75%), linear-gradient(-45deg, transparent 75%, #fff 75%);
-                        background-position: 0 0;
-                        background-size: 16px 16px;
+                    &.empty {
+                        > .preview {
+                            display: block;
+                            content: '';
+
+                            background-color: #465659;
+                            background-image:
+                            -moz-linear-gradient(45deg, #5b696c 25%, transparent 25%,transparent 75%, #5b696c 75%, #5b696c 100%),
+                            -moz-linear-gradient(45deg, #5b696c 25%, transparent 25%,transparent 75%, #5b696c 75%, #5b696c 100%);
+                            background-image:
+                            -webkit-linear-gradient(45deg, #5b696c 25%, transparent 25%,transparent 75%, #5b696c 75%, #5b696c 100%),
+                            -webkit-linear-gradient(45deg, #5b696c 25%, transparent 25%,transparent 75%, #5b696c 75%, #5b696c 100%);
+                            background-image:
+                            linear-gradient(45deg, #5b696c 25%, transparent 25%,transparent 75%, #5b696c 75%, #5b696c 100%),
+                            linear-gradient(45deg, #5b696c 25%, transparent 25%,transparent 75%, #5b696c 75%, #5b696c 100%);
+                            -moz-background-size: 24px 24px;
+                            background-size: 24px 24px;
+                            -webkit-background-size: 25px 25px;
+                            background-position: 0 0, 12px 12px;
+                        }
+                    }
+                    &:after {
+                        width: 0;
+                        height: 0;
+                        border: none;
+                        background-color: transparent;
+                        border-bottom: 24px solid $bcg-dark;
+                        border-left: 24px solid transparent;
                     }
                 }
                 > .top {
@@ -1469,7 +1539,7 @@ strong {
     }
 
     &:hover {
-        background-color: rgba($bcg-darker, .25);
+        background-color: rgba($bcg-darker, .75);
         border-color: transparent;
 
         > .value {
@@ -1614,30 +1684,40 @@ strong {
     position: absolute;
     top: 4px;
     left: 4px;
-    min-height: 28px;
-    padding: 0 8px;
-    background-color: rgba(41, 53, 56, 0.5);
-    cursor: pointer;
+    padding: 0;
+    background-color: transparent;
 
-    &:hover,
-    &.active {
-        background-color: rgba(41, 53, 56, 0.75);
-        > .content {
-            > .scene-name {
+    > .content {
+        > .project-name {
+            height: 28px;
+            min-height: 28px;
+            line-height: 28px;
+            padding: 0 8px;
+            margin: 0 0 4px 0;
+            color: rgba(#fff, 0.75);
+            background-color: rgba(41, 53, 56, 0.5);
+            cursor: default;
+        }
+        > .scene-name {
+            display: block;
+            color: rgba(#fff, 0.75);
+            background-color: rgba(41, 53, 56, 0.5);
+            padding: 0 8px;
+            margin: 0;
+            height: 28px;
+            line-height: 28px;
+            cursor: pointer;
+
+            &:hover,
+            &.active {
+                background-color: rgba(41, 53, 56, 0.75);
                 color: #fff;
             }
-        }
-    }
-    > .content {
-        > .scene-name {
-            color: rgba(255, 255, 255, 0.75);
         }
     }
 }
 
 .ui-overlay.script-priorities {
-
-
     > .content {
         width: 400px;
         height: auto;

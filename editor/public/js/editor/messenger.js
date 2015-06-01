@@ -17,6 +17,7 @@ editor.on('start', function() {
     });
 
     messenger.on('message', function(evt) {
+        console.log(evt.name, evt.data)
         editor.emit('messenger:' + evt.name, evt.data);
     });
 });

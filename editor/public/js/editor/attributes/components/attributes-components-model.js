@@ -131,6 +131,7 @@ editor.once('load', function() {
             link: entity,
             path: 'components.model.castShadows'
         });
+        fieldCastShadows.class.add('tick');
         // label
         var label = new ui.Label({ text: 'Cast' });
         label.class.add('label-infield');
@@ -142,6 +143,7 @@ editor.once('load', function() {
 
         // receiveShadows
         var fieldReceiveShadows = new ui.Checkbox();
+        fieldReceiveShadows.class.add('tick');
         fieldReceiveShadows.link(entity, 'components.model.receiveShadows');
         fieldCastShadows.parent.append(fieldReceiveShadows);
         // label
