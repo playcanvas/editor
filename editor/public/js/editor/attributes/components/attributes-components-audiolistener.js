@@ -17,10 +17,10 @@ editor.once('load', function() {
             parent: panelComponents,
             name: 'Audio Listener'
         });
-        panel.class.add('component');
+        panel.class.add('component', 'entity', 'audiolistener');
 
         // reference
-        editor.call('attributes:reference:audiolistener:attach', panel, panel.headerElement);
+        editor.call('attributes:reference:audiolistener:attach', panel, panel.headerElementTitle);
 
         if (! entity.get('components.audiolistener')) {
             panel.disabled = true;
@@ -40,13 +40,6 @@ editor.once('load', function() {
         });
 
 
-        // enabled
-        var fieldEnabled = new ui.Checkbox();
-        fieldEnabled.class.add('component-toggle');
-        fieldEnabled.link(entity, 'components.audiolistener.enabled');
-        panel.headerElement.appendChild(fieldEnabled.element);
-        panel.headerAppend(fieldEnabled);
-
         // remove
         var fieldRemove = new ui.Button();
         fieldRemove.class.add('component-remove');
@@ -55,5 +48,22 @@ editor.once('load', function() {
         });
         panel.headerElement.appendChild(fieldRemove.element);
         panel.headerAppend(fieldRemove);
+
+        // enabled
+        var fieldEnabled = new ui.Checkbox();
+        fieldEnabled.class.add('component-toggle');
+        fieldEnabled.link(entity, 'components.audiolistener.enabled');
+        panel.headerElement.appendChild(fieldEnabled.element);
+        panel.headerAppend(fieldEnabled);
+
+        // toggle-label
+        var labelEnabled = new ui.Label();
+        labelEnabled.renderChanges = false;
+        labelEnabled.class.add('component-toggle-label');
+        panel.headerAppend(labelEnabled);
+        labelEnabled.text = fieldEnabled.value ? 'On' : 'Off';
+        fieldEnabled.on('change', function(value) {
+            labelEnabled.text = value ? 'On' : 'Off';
+        });
     });
 });

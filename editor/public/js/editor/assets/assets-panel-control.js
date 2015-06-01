@@ -112,12 +112,7 @@ editor.once('load', function() {
         if (type !== 'asset')
             return;
 
-        var items = editor.call('selector:items');
-
-        editor.call('picker:confirm', 'Delete Asset?', function() {
-            for(var i = 0; i < items.length; i++)
-                editor.call('assets:delete', items[i]);
-        });
+        editor.call('assets:delete:picker', editor.call('selector:items'));
     });
     controls.append(btnDelete);
 

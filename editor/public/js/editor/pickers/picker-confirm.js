@@ -2,6 +2,8 @@ editor.once('load', function() {
     'use strict';
 
     var callback = null;
+    var className = '';
+    var timeoutClass = null;
 
     // overlay
     var overlay = new ui.Overlay();
@@ -69,7 +71,28 @@ editor.once('load', function() {
 
     // on overlay hide
     overlay.on('hide', function() {
+        timeoutClass = setTimeout(function() {
+            overlay.class.remove(className);
+            className = '';
+        }, 100);
+
         editor.emit('picker:confirm:close');
+    });
+
+
+    editor.method('picker:confirm:class', function(name) {
+        if (timeoutClass) {
+            clearTimeout(timeoutClass);
+            timeoutClass = null;
+        }
+
+        if (className)
+            overlay.class.remove(className);
+
+        if (name)
+            overlay.class.add(name);
+
+        className = name;
     });
 
 

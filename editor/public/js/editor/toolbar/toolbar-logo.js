@@ -611,10 +611,7 @@ editor.once('load', function() {
                                 return;
                             editor.call('entities:delete', items);
                         } else if (type === 'asset') {
-                            editor.call('picker:confirm', 'Delete Asset?', function() {
-                                for(var i = 0; i < items.length; i++)
-                                    editor.call('assets:delete', items[i]);
-                            });
+                            editor.call('assets:delete:picker', items);
                         }
                     }
                 }

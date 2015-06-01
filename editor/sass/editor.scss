@@ -871,49 +871,106 @@ strong {
             text-transform: uppercase;
         }
         &.foldable {
-            > header:hover {
-                background-color: $bcg-darkest;
-            }
-        }
-
-        > .ui-header {
-            > .ui-checkbox.component-toggle {
-                float: left;
-                margin-left: 0;
-                margin-right: 7px;
-                margin-top: 8px;
-
-                border: 1px solid #5b7073;
-                background-color: #5b7073;
-
-                &:after {
-                    background-color: #2c393c;
-                }
-                &.checked {
-                    border: 1px solid #9ba1a3;
-                    background-color: #9ba1a3;
-                }
-            }
-            > .ui-button.component-remove {
-                float: right;
-                width: 32px;
-                height: 32px;
-                line-height: 30px;
-                margin: 0;
-                padding: 0;
-                border: none;
-                @extend .font-icon;
-                font-size: 18px;
-                text-align: center;
-                background-color: transparent;
+            > header {
+                border-top: 1px solid $bcg-darker;
 
                 &:hover {
-                    color: #d34141;
-                    background-color: #20292b;
+                    border-top-color: $bcg-darkest;
+                    background-color: $bcg-darkest;
                 }
-                &:after {
-                    content: '\E521';
+            }
+            &.folded {
+                > header {
+                    background-color: $bcg-primary;
+
+                    &:hover {
+                        border-top-color: $bcg-darkest;
+                        background-color: $bcg-darkest;
+                    }
                 }
+            }
+        }
+        &.entity {
+            > header {
+                border-top: 1px solid $bcg-dark;
+                background-color: transparent;
+
+                > .title {
+                    &:before {
+                        content: '\E243';
+                        @extend .font-icon;
+                        font-size: 18px;
+                        float: left;
+                        width: 24px;
+                        margin-right: 4px;
+                        line-height: 30px;
+                        text-align: center;
+                        color: $text-active;
+                    }
+                }
+                > .component-toggle-label {
+                    float: right;
+                    margin: 0 8px 0 0;
+                    line-height: 32px;
+                }
+                > .ui-checkbox.component-toggle {
+                    float: right;
+                    margin: 7px 4px 0 0;
+                }
+                > .ui-button.component-remove {
+                    float: right;
+                    width: 32px;
+                    height: 32px;
+                    line-height: 30px;
+                    margin: 0;
+                    padding: 0;
+                    border: none;
+                    @extend .font-icon;
+                    font-size: 18px;
+                    text-align: center;
+                    background-color: transparent;
+
+                    &:hover {
+                        color: #d34141;
+                        background-color: #20292b;
+                    }
+                    &:after {
+                        content: '\E521';
+                    }
+                }
+            }
+
+            &.script > header > .title:before {
+                content: '\E284';
+            }
+            &.model > header > .title:before {
+                content: '\E417';
+                // font-size: 16px;
+            }
+            &.animation > header > .title:before {
+                content: '\E274';
+            }
+            &.audiosource > header > .title:before {
+                content: '\E254';
+                font-size: 20px;
+            }
+            &.collision > header > .title:before {
+                content: '\E327';
+            }
+            &.rigidbody > header > .title:before {
+                content: '\E328';
+            }
+            &.particlesystem > header > .title:before {
+                content: '\E458';
+            }
+            &.light > header > .title:before {
+                content: '\E318';
+            }
+            &.audiolistener > header > .title:before {
+                content: '\E267';
+            }
+            &.camera > header > .title:before {
+                content: '\E584';
             }
         }
         > .content {
@@ -1993,11 +2050,12 @@ strong {
         top: calc(50% - 32px);
         padding: 16px;
         text-align: right;
+        transition: none;
 
         > .text {
             display: block;
             text-align: center;
-            margin: 8px 0 16px;
+            margin: 4px 0 16px;
             color: $text-primary;
             font-size: 16px;
             text-align: center;
@@ -2011,6 +2069,72 @@ strong {
         }
         > .yes {
             margin-right: 8px;
+        }
+    }
+
+    &.asset-delete {
+        > .content {
+            width: 208px;
+            left: calc(50% - 104px);
+            text-align: center;
+            background-color: $bcg-darker;
+
+            > .ui-button.yes {
+                margin: 0;
+                font-size: 0;
+                height: 32px;
+                line-height: 32px;
+                padding: 0;
+                background-color: #e54d42;
+                border: none;
+                color: $text-primary;
+
+                &:hover {
+                    &:after {
+                        background-color: transparent;
+                    }
+                }
+                &:before {
+                    content: 'DELETE';
+                    font-size: 14px;
+                    padding: 0 16px;
+                }
+                &:after {
+                    content: '\E521';
+                    @extend .font-icon;
+                    font-size: 18px;
+                    float: right;
+                    width: 31px;
+                    padding-right: 1px;
+                    text-align: center;
+                    border-left: 1px solid $bcg-dark;
+                    background-color: #8c413c;
+                }
+            }
+            > .ui-button.no {
+                position: absolute;
+                top: 0;
+                right: 0;
+                padding: 0;
+                margin: 0;
+                width: 32px;
+                height: 32px;
+                background: transparent;
+                font-size: 0;
+                border: none;
+                color: $text-dark;
+
+                &:hover {
+                    color: $text-primary;
+                    background-color: $bcg-darkest;
+                }
+                &:after {
+                    content: '\E436';
+                    @extend .font-icon;
+                    text-align: center;
+                    font-size: 18px;
+                }
+            }
         }
     }
 }
