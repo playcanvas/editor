@@ -2111,7 +2111,7 @@ editor.once('load', function() {
         fieldLightMap.parent.class.add('channel');
         fieldLightMap.on('change', function() {
             fieldLightMapOffset[0].parent.hidden = filterLightMapOffset();
-            fieldLightMapTiling[0].parent.hidden = fieldLightMapTiling();
+            fieldLightMapTiling[0].parent.hidden = filterLightMapTiling();
         });
         // reference
         editor.call('attributes:reference:asset:material:lightMap:attach', fieldLightMap._label);
