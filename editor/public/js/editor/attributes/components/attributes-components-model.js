@@ -17,9 +17,9 @@ editor.once('load', function() {
             parent: panelComponents,
             name: 'Model'
         });
-        panel.class.add('component');
+        panel.class.add('component', 'entity', 'model');
         // reference
-        editor.call('attributes:reference:model:attach', panel, panel.headerElement);
+        editor.call('attributes:reference:model:attach', panel, panel.headerElementTitle);
 
         if (! entity.get('components.model')) {
             panel.disabled = true;
@@ -39,12 +39,6 @@ editor.once('load', function() {
         });
 
 
-        // enabled
-        var fieldEnabled = new ui.Checkbox();
-        fieldEnabled.class.add('component-toggle');
-        fieldEnabled.link(entity, 'components.model.enabled');
-        panel.headerAppend(fieldEnabled);
-
         // remove
         var fieldRemove = new ui.Button();
         fieldRemove.class.add('component-remove');
@@ -52,6 +46,22 @@ editor.once('load', function() {
             entity.unset('components.model');
         });
         panel.headerAppend(fieldRemove);
+
+        // enabled
+        var fieldEnabled = new ui.Checkbox();
+        fieldEnabled.class.add('component-toggle');
+        fieldEnabled.link(entity, 'components.model.enabled');
+        panel.headerAppend(fieldEnabled);
+
+        // toggle-label
+        var labelEnabled = new ui.Label();
+        labelEnabled.renderChanges = false;
+        labelEnabled.class.add('component-toggle-label');
+        panel.headerAppend(labelEnabled);
+        labelEnabled.text = fieldEnabled.value ? 'On' : 'Off';
+        fieldEnabled.on('change', function(value) {
+            labelEnabled.text = value ? 'On' : 'Off';
+        });
 
 
         // type
@@ -121,6 +131,7 @@ editor.once('load', function() {
             link: entity,
             path: 'components.model.castShadows'
         });
+        fieldCastShadows.class.add('tick');
         // label
         var label = new ui.Label({ text: 'Cast' });
         label.class.add('label-infield');
@@ -132,6 +143,7 @@ editor.once('load', function() {
 
         // receiveShadows
         var fieldReceiveShadows = new ui.Checkbox();
+        fieldReceiveShadows.class.add('tick');
         fieldReceiveShadows.link(entity, 'components.model.receiveShadows');
         fieldCastShadows.parent.append(fieldReceiveShadows);
         // label

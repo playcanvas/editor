@@ -511,6 +511,7 @@ editor.once('load', function() {
             case 'checkbox':
                 field = new ui.Checkbox();
                 field.value = args.value || 0;
+                field.class.add('tick');
 
                 linkField();
 

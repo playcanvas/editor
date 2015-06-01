@@ -17,9 +17,9 @@ editor.once('load', function() {
             parent: panelComponents,
             name: 'Rigid Body'
         });
-        panel.class.add('component');
+        panel.class.add('component', 'entity', 'rigidbody');
         // reference
-        editor.call('attributes:reference:rigidbody:attach', panel, panel.headerElement);
+        editor.call('attributes:reference:rigidbody:attach', panel, panel.headerElementTitle);
 
         if (! entity.get('components.rigidbody')) {
             panel.disabled = true;
@@ -39,12 +39,6 @@ editor.once('load', function() {
         });
 
 
-        // enabled
-        var fieldEnabled = new ui.Checkbox();
-        fieldEnabled.class.add('component-toggle');
-        fieldEnabled.link(entity, 'components.rigidbody.enabled');
-        panel.headerAppend(fieldEnabled);
-
         // remove
         var fieldRemove = new ui.Button();
         fieldRemove.class.add('component-remove');
@@ -52,6 +46,22 @@ editor.once('load', function() {
             entity.unset('components.rigidbody');
         });
         panel.headerAppend(fieldRemove);
+
+        // enabled
+        var fieldEnabled = new ui.Checkbox();
+        fieldEnabled.class.add('component-toggle');
+        fieldEnabled.link(entity, 'components.rigidbody.enabled');
+        panel.headerAppend(fieldEnabled);
+
+        // toggle-label
+        var labelEnabled = new ui.Label();
+        labelEnabled.renderChanges = false;
+        labelEnabled.class.add('component-toggle-label');
+        panel.headerAppend(labelEnabled);
+        labelEnabled.text = fieldEnabled.value ? 'On' : 'Off';
+        fieldEnabled.on('change', function(value) {
+            labelEnabled.text = value ? 'On' : 'Off';
+        });
 
 
         // type

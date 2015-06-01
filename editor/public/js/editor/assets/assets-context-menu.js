@@ -30,9 +30,10 @@ editor.once('load', function() {
 
         var multiple = false;
         var type = editor.call('selector:type');
+        var items;
 
         if (type === 'asset') {
-            var items = editor.call('selector:items');
+            items = editor.call('selector:items');
             for(var i = 0; i < items.length; i++) {
                 if (items[i].get('id') === asset.get('id')) {
                     multiple = true;
@@ -41,19 +42,7 @@ editor.once('load', function() {
             }
         }
 
-        var msg = 'Delete Asset?';
-        if (multiple)
-            msg = 'Delete ' + items.length + ' Assets?';
-
-        editor.call('picker:confirm', msg, function() {
-            if (multiple) {
-                for(var i = 0; i < items.length; i++) {
-                    editor.call('assets:delete', items[i]);
-                }
-            } else {
-                editor.call('assets:delete', asset);
-            }
-        });
+        editor.call('assets:delete:picker', multiple ? items : [ asset ]);
     });
     menu.append(menuItemDelete);
 

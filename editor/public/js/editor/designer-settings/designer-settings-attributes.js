@@ -51,7 +51,7 @@ editor.once('load', function() {
         editor.call('attributes:reference:settings:name:attach', fieldName.parent.innerElement.firstChild.ui);
 
         var panel = editor.call('attributes:addPanel', {
-            name: 'Designer Settings'
+            name: 'Editor Settings'
         });
         panel.class.add('component');
         // reference
