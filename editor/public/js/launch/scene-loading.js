@@ -3,13 +3,15 @@ app.once('load', function() {
 
     // cache
     var loaded = {};
-
+    var isLoading = false;
     var loadScene = function(id, callback, settingsOnly) {
         //
         if (loaded[id]) {
             callback(null, loaded[id].getSnapshot());
             return;
         }
+
+        isLoading = true;
 
         var connection = editor.call('realtime:connection');
         var scene = connection.get('scenes', '' + id);
@@ -45,8 +47,11 @@ app.once('load', function() {
             if (settingsOnly !== true) {
                 app.emit('scene:raw', snapshot);
             }
-            if (callback)
+            if (callback) {
                 callback(null, snapshot);
+            }
+
+            isLoading = false;
         });
 
         // subscribe for realtime events
@@ -54,4 +59,7 @@ app.once('load', function() {
     };
 
     app.method('loadScene', loadScene);
+    app.method('isLoadingScene', function () {
+        return isLoading;
+    });
 });
