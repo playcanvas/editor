@@ -23,7 +23,6 @@ editor.once('load', function() {
                         var index = priorityScripts.indexOf(script);
                         priorityScripts.splice(index, 1);
                         priorityScripts.splice(index-1, 0, script);
-                        console.log(priorityScripts);
                         sceneSettings.set("priority_scripts", priorityScripts);
                         refreshPriorityList();
                     });
@@ -38,7 +37,6 @@ editor.once('load', function() {
                         var index = priorityScripts.indexOf(script);
                         priorityScripts.splice(index, 1);
                         priorityScripts.splice(index+1, 0, script);
-                        console.log(priorityScripts)
                         sceneSettings.set("priority_scripts", priorityScripts);
                         refreshPriorityList();
                     });
@@ -51,7 +49,6 @@ editor.once('load', function() {
                 remove.on("click", function () {
                     var index = priorityScripts.indexOf(script);
                     priorityScripts.splice(index, 1);
-                    console.log(priorityScripts);
                     sceneSettings.set("priority_scripts", priorityScripts);
                     refreshPriorityList();
                 });
@@ -115,7 +112,6 @@ editor.once('load', function() {
 
     var priorityList = new ui.List();
     sceneSettings.on("priority_scripts:set", function (scripts) {
-        console.log(scripts);
         priorityScripts = scripts.slice();
         refreshPriorityList();
     });

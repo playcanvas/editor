@@ -145,8 +145,8 @@ editor.once('load', function() {
             items[i].startLocal[1] = rot[1];
             items[i].startLocal[2] = rot[2];
 
-            items[i].startLocalQuat = items[i].obj.entity.getLocalRotation();
-            items[i].startQuat = items[i].obj.entity.getRotation();
+            items[i].startLocalQuat.copy(items[i].obj.entity.getLocalRotation());
+            items[i].startQuat.copy(items[i].obj.entity.getRotation());
 
             items[i].obj.history.enabled = false;
         }
@@ -319,8 +319,8 @@ editor.once('load', function() {
 
                 items.push({
                     obj: objects[i],
-                    startLocalQuat: objects[i].entity.getLocalRotation(),
-                    startQuat: objects[i].entity.getRotation(),
+                    startLocalQuat: objects[i].entity.getLocalRotation().clone(),
+                    startQuat: objects[i].entity.getRotation().clone(),
                     pos: [ pos.x, pos.y, pos.z ],
                     offset: [ 0, 0, 0 ],
                     start: [ 0, 0, 0 ],
