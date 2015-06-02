@@ -280,8 +280,8 @@ pc.extend(pc.editor, function() {
             this.redraw = keepRendering;
 
             // Perform ComponentSystem update
-            pc.ComponentSystem.fire('toolsUpdate', dt);
             editor.emit('viewport:update', dt);
+            pc.ComponentSystem.fire('toolsUpdate', dt);
 
             // this.activeGizmo.render();
 
