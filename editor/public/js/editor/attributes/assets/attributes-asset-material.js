@@ -965,7 +965,7 @@ editor.once('load', function() {
                 'rgb': 'RGB'
             },
             link: assets,
-            path: 'data.aoMapChannel'
+            path: 'data.diffuseMapChannel'
         });
         fieldDiffuseMapChannel.element.parentNode.removeChild(fieldDiffuseMapChannel.element);
         fieldDiffuseMap.parent.innerElement.querySelector('.top > .ui-label').parentNode.appendChild(fieldDiffuseMapChannel.element);
