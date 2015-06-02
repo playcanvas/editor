@@ -2,7 +2,8 @@ editor.once('load', function() {
     'use strict';
 
     editor.on('viewport:pick:clear', function() {
-        editor.call('selector:clear');
+        if (! editor.call('hotkey:ctrl'))
+            editor.call('selector:clear');
     });
 
     editor.on('viewport:pick:node', function(node, picked) {
@@ -19,9 +20,10 @@ editor.once('load', function() {
             // with highlighting mesh instance
             if (node.model && node.model.type === 'asset' && node.model.model) {
                 var meshInstances = node.model.model.meshInstances;
+
                 for(var i = 0; i < meshInstances.length; i++) {
                     var instance = meshInstances[i];
-                    if (instance !== picked[0])
+                    if (instance !== picked)
                         continue;
 
                     // get model asset

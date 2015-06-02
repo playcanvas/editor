@@ -183,15 +183,21 @@ editor.once('load', function() {
             if (items[i].child)
                 continue;
 
+            var entity = items[i].obj.entity;
+
             if (coordSystem === 'local') {
                 vecA.set(x, y, z);
-                quat.copy(items[i].obj.entity.getLocalRotation()).transformVector(vecA, vecA);
-                items[i].obj.entity.setLocalPosition(items[i].startLocal[0] + vecA.x, items[i].startLocal[1] + vecA.y, items[i].startLocal[2] + vecA.z);
+                quat.copy(entity.getLocalRotation()).transformVector(vecA, vecA);
+                entity.setLocalPosition(items[i].startLocal[0] + vecA.x, items[i].startLocal[1] + vecA.y, items[i].startLocal[2] + vecA.z);
             } else {
-                items[i].obj.entity.setPosition(items[i].start[0] + x, items[i].start[1] + y, items[i].start[2] + z);
+                entity.setPosition(items[i].start[0] + x, items[i].start[1] + y, items[i].start[2] + z);
             }
 
-            var pos = items[i].obj.entity.getLocalPosition();
+            if (entity.collision) {
+                app.systems.collision.onTransformChanged(entity.collision, entity.getPosition(), entity.getRotation(), entity.getLocalScale());
+            }
+
+            var pos = entity.getLocalPosition();
             items[i].obj.set('position', [ pos.x, pos.y, pos.z ]);
         }
 

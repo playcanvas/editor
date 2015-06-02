@@ -67,7 +67,8 @@ editor.once('load', function() {
             var nodeItems = [ ];
 
             // create node fields
-            for(var i = 0; i < asset.get('data.mapping').length; i++) {
+            var mapping = asset.get('data.mapping');
+            for(var i = 0; i < mapping.length; i++) {
                 nodeItems[i] = editor.call('attributes:addField', {
                     parent: panelNodes,
                     type: 'asset',
@@ -79,14 +80,9 @@ editor.once('load', function() {
 
                 nodeItems[i].parent.class.add('node-' + i);
 
-                (function (index) {
-                    nodeItems[index].parent.element.addEventListener('click', function () {
-                        if (nodeItems[index].parent) {
-                            nodeItems[index].parent.class.remove('active');
-                        }
-                    });
-
-                })(i);
+                nodeItems[i].parent.on('click', function() {
+                    this.class.remove('active');
+                });
             }
 
             panelNodes.on('destroy', function () {
@@ -97,12 +93,12 @@ editor.once('load', function() {
 
             // template nodes
             var nodesTemplate = function() {
-                asset._nodes.forEach(function(nodeName, i) {
+                for(var i = 0; i < asset._nodes.length; i++) {
                     if (! nodeItems[i])
-                        return;
+                        continue;
 
-                    nodeItems[i]._label.text = nodeName;
-                });
+                    nodeItems[i]._label.text = asset._nodes[i];
+                }
             };
 
             if (asset._nodes) {
@@ -121,14 +117,10 @@ editor.once('load', function() {
                 Ajax
                 .get('{{url.home}}/' + asset.get('file.url'))
                 .on('load', function(status, data) {
-                    var nodes = [ ];
-                    for(var i = 0; i < data.model.nodes.length; i++) {
-                        if (data.model.nodes[i].name === 'RootNode')
-                            continue;
-
-                        nodes.push(data.model.nodes[i].name);
+                    asset._nodes = [ ];
+                    for(var i = 0; i < data.model.meshInstances.length; i++) {
+                        asset._nodes[data.model.meshInstances[i].mesh] = data.model.nodes[data.model.meshInstances[i].node].name;
                     }
-                    asset._nodes = nodes;
                     nodesTemplate();
 
                     loading.progress = 1;
