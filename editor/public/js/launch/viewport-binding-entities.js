@@ -113,19 +113,19 @@ app.once('load', function() {
             if (path === 'name') {
                 entity.setName(obj.get('name'));
 
-            } else if (path.startsWith('position') === 0) {
+            } else if (path.startsWith('position')) {
                 resetPhysics(entity);
 
-            } else if (path.startsWith('rotation') === 0) {
+            } else if (path.startsWith('rotation')) {
                 resetPhysics(entity);
 
-            } else if (path.startsWith('scale') === 0) {
+            } else if (path.startsWith('scale')) {
                 resetPhysics(entity);
 
-            } else if (path.startsWith('enabled') === 0) {
+            } else if (path.startsWith('enabled')) {
                 entity.enabled = obj.get('enabled');
 
-            } else if (path.startsWith('parent') === 0) {
+            } else if (path.startsWith('parent')) {
                 var parent = app.call('entities:get', obj.get('parent'));
                 if (parent && parent.entity)
                     entity.reparent(parent.entity);
