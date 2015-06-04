@@ -307,7 +307,7 @@ editor.once('load', function() {
             evtTapEnd = editor.once('viewport:tap:end', onTapEnd);
 
             if (gizmo.root.enabled) {
-                startRotation = gizmo.root.getRotation();
+                startRotation.copy(gizmo.root.getRotation());
                 var data = pickPlane(tap.x, tap.y);
                 angleStart = data.angle;
             }
