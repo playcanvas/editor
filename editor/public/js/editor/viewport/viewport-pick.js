@@ -1,8 +1,8 @@
 editor.once('load', function() {
     'use strict';
 
-    var framework = editor.call('viewport:framework');
-    var picker = new pc.scene.Picker(framework.graphicsDevice, 1, 1);
+    var app = editor.call('viewport:framework');
+    var picker = new pc.scene.Picker(app.graphicsDevice, 1, 1);
     var pickedData = {
         node: null,
         picked: null
@@ -16,25 +16,26 @@ editor.once('load', function() {
 
     editor.method('viewport:pick', function(x, y, fn) {
         // prepare picker
-        picker.prepare(framework.activeCamera.camera.camera, framework.scene);
+        picker.prepare(app.activeCamera.camera.camera, app.scene);
 
         // pick node
         var picked = picker.getSelection({
             x: x,
-            y: framework.graphicsDevice.canvas.height - y
+            y: app.graphicsDevice.canvas.height - y
         });
 
         if (! picked.length || ! picked[0]) {
             fn(null, null);
         } else {
             var node = picked[0].node;
+
             // traverse to pc.Entity
             while (! (node instanceof pc.Entity) && node && node.getParent/* && node !== this.activeGizmo.node*/) {
                 node = node.getParent();
             }
             if (! node) return;
 
-            fn(node, picked);
+            fn(node, picked[0]);
         }
     });
 
@@ -45,11 +46,11 @@ editor.once('load', function() {
             return;
 
         editor.call('viewport:pick', tap.x, tap.y, function(node, picked) {
-            if (pickedData.node !== node) {
+            if (pickedData.node !== node || pickedData.picked !== picked) {
                 pickedData.node = node;
                 pickedData.picked = picked;
 
-                editor.emit('viewport:pick:hover', node, picked);
+                editor.emit('viewport:pick:hover', pickedData.node, pickedData.picked);
             }
         });
     });
@@ -58,7 +59,18 @@ editor.once('load', function() {
         if (pickedData.node) {
             editor.emit('viewport:pick:node', pickedData.node, pickedData.picked);
         } else {
-            editor.emit('viewport:pick:clear');
+            editor.call('viewport:pick', tap.x, tap.y, function(node, picked) {
+                if (pickedData.node !== node || pickedData.picked !== picked) {
+                    pickedData.node = node;
+                    pickedData.picked = picked;
+                }
+
+                if (pickedData.node) {
+                    editor.emit('viewport:pick:node', pickedData.node, pickedData.picked);
+                } else {
+                    editor.emit('viewport:pick:clear');
+                }
+            });
         }
     });
 });

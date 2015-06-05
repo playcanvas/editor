@@ -2,56 +2,17 @@ editor.once('load', function() {
     'use strict';
 
     editor.on('attributes:inspect[entity]', function(entities) {
-        if (entities.length !== 1)
-            return;
-
-        var entity = entities[0];
-
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (! panelComponents)
             return;
 
 
         // particlesystem
-        var panel = editor.call('attributes:addPanel', {
-            parent: panelComponents,
-            name: 'Particles'
+        var panel = editor.call('attributes:entity:addComponentPanel', {
+            title: 'Particles',
+            name: 'particlesystem',
+            entities: entities
         });
-        panel.class.add('component');
-        // reference
-        editor.call('attributes:reference:particlesystem:attach', panel, panel.headerElement);
-
-        if (! entity.get('components.particlesystem')) {
-            panel.disabled = true;
-            panel.hidden = true;
-        }
-        var evtComponentSet = entity.on('components.particlesystem:set', function(value) {
-            panel.disabled = ! value;
-            panel.hidden = ! value;
-        });
-        var evtComponentUnset = entity.on('components.particlesystem:unset', function() {
-            panel.disabled = true;
-            panel.hidden = true;
-        });
-        panel.on('destroy', function() {
-            evtComponentSet.unbind();
-            evtComponentUnset.unbind();
-        });
-
-
-        // enabled
-        var fieldEnabled = new ui.Checkbox();
-        fieldEnabled.class.add('component-toggle');
-        fieldEnabled.link(entity, 'components.particlesystem.enabled');
-        panel.headerAppend(fieldEnabled);
-
-        // remove
-        var fieldRemove = new ui.Button();
-        fieldRemove.class.add('component-remove');
-        fieldRemove.on('click', function(value) {
-            entity.unset('components.particlesystem');
-        });
-        panel.headerAppend(fieldRemove);
 
 
         // autoPlay
@@ -59,7 +20,7 @@ editor.once('load', function() {
             parent: panel,
             name: 'Auto Play',
             type: 'checkbox',
-            link: entity,
+            link: entities,
             path: 'components.particlesystem.autoPlay'
         });
         // reference
@@ -71,7 +32,7 @@ editor.once('load', function() {
             parent: panel,
             name: 'Particle Count',
             type: 'number',
-            link: entity,
+            link: entities,
             path: 'components.particlesystem.numParticles'
         });
         // reference
@@ -84,7 +45,7 @@ editor.once('load', function() {
             name: 'Lifetime',
             placeholder: 'Seconds',
             type: 'number',
-            link: entity,
+            link: entities,
             path: 'components.particlesystem.lifetime'
         });
         // reference
@@ -96,28 +57,31 @@ editor.once('load', function() {
             parent: panel,
             name: 'Emission Rate'
         });
-        // reference
-        editor.call('attributes:reference:particlesystem:rate:attach', panelEmissionRate.parent.innerElement.firstChild.ui);
-
         var label = panelEmissionRate;
         panelEmissionRate = panelEmissionRate.parent;
         label.destroy();
+        // reference
+        editor.call('attributes:reference:particlesystem:rate:attach', panelEmissionRate.innerElement.firstChild.ui);
 
         // emission rate from
-        var fieldEmissionRateFrom = new ui.NumberField();
-        fieldEmissionRateFrom.placeholder = 'From';
+        var fieldEmissionRateFrom = editor.call('attributes:addField', {
+            panel: panelEmissionRate,
+            placeholder: 'From',
+            type: 'number',
+            link: entities,
+            path: 'components.particlesystem.rate'
+        });
         fieldEmissionRateFrom.style.width = '32px';
-        fieldEmissionRateFrom.flexGrow = 1;
-        fieldEmissionRateFrom.link(entity, 'components.particlesystem.rate');
-        panelEmissionRate.append(fieldEmissionRateFrom);
 
         // emission rate to
-        var fieldEmissionRateTo = new ui.NumberField();
-        fieldEmissionRateTo.placeholder = 'To';
+        var fieldEmissionRateTo = editor.call('attributes:addField', {
+            panel: panelEmissionRate,
+            placeholder: 'To',
+            type: 'number',
+            link: entities,
+            path: 'components.particlesystem.rate2'
+        });
         fieldEmissionRateTo.style.width = '32px';
-        fieldEmissionRateTo.flexGrow = 1;
-        fieldEmissionRateTo.link(entity, 'components.particlesystem.rate2');
-        panelEmissionRate.append(fieldEmissionRateTo);
 
 
         // start angle
@@ -125,28 +89,31 @@ editor.once('load', function() {
             parent: panel,
             name: 'Start Angle'
         });
-        // reference
-        editor.call('attributes:reference:particlesystem:startAngle:attach', panelStartAngle.parent.innerElement.firstChild.ui);
-
         var label = panelStartAngle;
         panelStartAngle = panelStartAngle.parent;
         label.destroy();
+        // reference
+        editor.call('attributes:reference:particlesystem:startAngle:attach', panelStartAngle.innerElement.firstChild.ui);
 
-        // emission rate from
-        var fieldStartAngleFrom = new ui.NumberField();
-        fieldStartAngleFrom.placeholder = 'From';
+        // start angle from
+        var fieldStartAngleFrom = editor.call('attributes:addField', {
+            panel: panelStartAngle,
+            placeholder: 'From',
+            type: 'number',
+            link: entities,
+            path: 'components.particlesystem.startAngle'
+        });
         fieldStartAngleFrom.style.width = '32px';
-        fieldStartAngleFrom.flexGrow = 1;
-        fieldStartAngleFrom.link(entity, 'components.particlesystem.startAngle');
-        panelStartAngle.append(fieldStartAngleFrom);
 
-        // emission rate to
-        var fieldStartAngleTo = new ui.NumberField();
-        fieldStartAngleTo.placeholder = 'To';
+        // start angle to
+        var fieldStartAngleTo = editor.call('attributes:addField', {
+            panel: panelStartAngle,
+            placeholder: 'To',
+            type: 'number',
+            link: entities,
+            path: 'components.particlesystem.startAngle2'
+        });
         fieldStartAngleTo.style.width = '32px';
-        fieldStartAngleTo.flexGrow = 1;
-        fieldStartAngleTo.link(entity, 'components.particlesystem.startAngle2');
-        panelStartAngle.append(fieldStartAngleTo);
 
 
         // playback
@@ -154,15 +121,17 @@ editor.once('load', function() {
             parent: panel,
             name: 'Playback'
         });
-
         var label = panelPlayback;
         panelPlayback = panelPlayback.parent;
         label.destroy();
 
         // loop
-        var fieldLoop = new ui.Checkbox();
-        fieldLoop.link(entity, 'components.particlesystem.loop');
-        panelPlayback.append(fieldLoop);
+        var fieldLoop = editor.call('attributes:addField', {
+            panel: panelPlayback,
+            type: 'checkbox',
+            link: entities,
+            path: 'components.particlesystem.loop'
+        });
         // label
         var label = new ui.Label({ text: 'Loop' });
         label.class.add('label-infield');
@@ -173,20 +142,21 @@ editor.once('load', function() {
 
 
         // preWarm
-        var fieldPreWarm = new ui.Checkbox();
-        fieldPreWarm.link(entity, 'components.particlesystem.preWarm');
-        panelPlayback.append(fieldPreWarm);
+        var fieldPreWarm = editor.call('attributes:addField', {
+            panel: panelPlayback,
+            type: 'checkbox',
+            link: entities,
+            path: 'components.particlesystem.preWarm'
+        });
         // label
         var labelPreWarm = new ui.Label({ text: 'Pre Warm' });
         labelPreWarm.class.add('label-infield');
         labelPreWarm.style.paddingRight = '12px';
         panelPlayback.append(labelPreWarm);
         // states
-        fieldPreWarm.hidden = ! entity.get('components.particlesystem.loop');
-        labelPreWarm.hidden = fieldPreWarm.hidden;
+        fieldPreWarm.hidden = labelPreWarm.hidden = ! fieldLoop.value && ! fieldLoop.class.contains('null');
         fieldLoop.on('change', function(value) {
-            fieldPreWarm.hidden = ! value;
-            labelPreWarm.hidden = fieldPreWarm.hidden;
+            fieldPreWarm.hidden = labelPreWarm.hidden = ! value && ! this.class.contains('null');
         });
         // reference
         editor.call('attributes:reference:particlesystem:preWarm:attach', labelPreWarm);
@@ -198,15 +168,17 @@ editor.once('load', function() {
             parent: panel,
             name: 'Lighting'
         });
-
         var label = panelLighting;
         panelLighting = panelLighting.parent;
         label.destroy();
 
         // lighting
-        var fieldLighting = new ui.Checkbox();
-        fieldLighting.link(entity, 'components.particlesystem.lighting');
-        panelLighting.append(fieldLighting);
+        var fieldLighting = editor.call('attributes:addField', {
+            panel: panelLighting,
+            type: 'checkbox',
+            link: entities,
+            path: 'components.particlesystem.lighting'
+        });
         // label
         var label = new ui.Label({ text: 'Enabled' });
         label.class.add('label-infield');
@@ -218,20 +190,21 @@ editor.once('load', function() {
 
 
         // halfLambert
-        var fieldHalfLambert = new ui.Checkbox();
-        fieldHalfLambert.link(entity, 'components.particlesystem.halfLambert');
-        panelLighting.append(fieldHalfLambert);
+        var fieldHalfLambert = editor.call('attributes:addField', {
+            panel: panelLighting,
+            type: 'checkbox',
+            link: entities,
+            path: 'components.particlesystem.halfLambert'
+        });
         // label
         var labelHalfLambert = new ui.Label({ text: 'Half Lambert' });
         labelHalfLambert.class.add('label-infield');
         labelHalfLambert.style.paddingRight = '12px';
         panelLighting.append(labelHalfLambert);
         // state
-        fieldHalfLambert.hidden = ! entity.get('components.particlesystem.halfLambert');
-        labelHalfLambert.hidden = fieldHalfLambert.hidden;
+        fieldHalfLambert.hidden = labelHalfLambert.hidden = ! fieldHalfLambert.value && ! fieldHalfLambert.class.contains('null');
         fieldLighting.on('change', function(value) {
-            fieldHalfLambert.hidden = ! value;
-            labelHalfLambert.hidden = fieldHalfLambert.hidden;
+            fieldHalfLambert.hidden = labelHalfLambert.hidden = ! value && ! this.class.contains('null');
         });
         // reference
         editor.call('attributes:reference:particlesystem:halfLambert:attach', labelHalfLambert);
@@ -242,7 +215,7 @@ editor.once('load', function() {
             parent: panel,
             name: 'Intensity',
             type: 'number',
-            link: entity,
+            link: entities,
             path: 'components.particlesystem.intensity'
         });
         // reference
@@ -254,15 +227,17 @@ editor.once('load', function() {
             parent: panel,
             name: 'Depth'
         });
-
         var label = panelDepth;
         panelDepth = panelDepth.parent;
         label.destroy();
 
         // depthWrite
-        var fieldDepthWrite = new ui.Checkbox();
-        fieldDepthWrite.link(entity, 'components.particlesystem.depthWrite');
-        panelDepth.append(fieldDepthWrite);
+        var fieldDepthWrite = editor.call('attributes:addField', {
+            panel: panelDepth,
+            type: 'checkbox',
+            link: entities,
+            path: 'components.particlesystem.depthWrite'
+        });
         // label
         var label = new ui.Label({ text: 'Write' });
         label.class.add('label-infield');
@@ -272,11 +247,13 @@ editor.once('load', function() {
         editor.call('attributes:reference:particlesystem:depthWrite:attach', label);
 
         // depthSoftening
-        var fieldDepthSoftening = new ui.NumberField();
-        fieldDepthSoftening.flexGrow = 1;
-        fieldDepthSoftening.placeholder = 'Softening';
-        fieldDepthSoftening.link(entity, 'components.particlesystem.depthSoftening');
-        panelDepth.append(fieldDepthSoftening);
+        var fieldDepthSoftening = editor.call('attributes:addField', {
+            panel: panelDepth,
+            placeholder: 'Softening',
+            type: 'number',
+            link: entities,
+            path: 'components.particlesystem.depthWrite'
+        });
         // reference
         editor.call('attributes:reference:particlesystem:depthSoftening:attach', fieldDepthSoftening);
 
@@ -286,13 +263,14 @@ editor.once('load', function() {
             parent: panel,
             name: 'Sort',
             type: 'number',
-            enum: {
-                0: 'None',
-                1: 'Camera Distance',
-                2: 'Newest First',
-                3: 'Oldest First'
-            },
-            link: entity,
+            enum: [
+                { v: '', t: '...' },
+                { v: 0, t: 'None' },
+                { v: 1, t: 'Camera Distance' },
+                { v: 2, t: 'Newest First' },
+                { v: 3, t: 'Oldest First' }
+            ],
+            link: entities,
             path: 'components.particlesystem.sort'
         });
         // reference
@@ -304,12 +282,13 @@ editor.once('load', function() {
             parent: panel,
             name: 'Blend Type',
             type: 'number',
-            enum: {
-                2: 'Alpha',
-                1: 'Additive',
-                5: 'Multiply'
-            },
-            link: entity,
+            enum: [
+                { v: '', t: '...' },
+                { v: 2, t: 'Alpha' },
+                { v: 1, t: 'Additive' },
+                { v: 5, t: 'Multiply' }
+            ],
+            link: entities,
             path: 'components.particlesystem.blendType'
         });
         // reference
@@ -321,7 +300,7 @@ editor.once('load', function() {
             parent: panel,
             name: 'Stretch',
             type: 'number',
-            link: entity,
+            link: entities,
             path: 'components.particlesystem.stretch'
         });
         // reference
@@ -333,7 +312,7 @@ editor.once('load', function() {
             parent: panel,
             name: 'Align To Motion',
             type: 'checkbox',
-            link: entity,
+            link: entities,
             path: 'components.particlesystem.alignToMotion'
         });
         // reference
@@ -345,11 +324,12 @@ editor.once('load', function() {
             parent: panel,
             name: 'Emmiter Shape',
             type: 'number',
-            enum: {
-                0: 'Box',
-                1: 'Sphere'
-            },
-            link: entity,
+            enum: [
+                { v: '', t: '...' },
+                { v: 0, t: 'Box' },
+                { v: 1, t: 'Sphere' }
+            ],
+            link: entities,
             path: 'components.particlesystem.emitterShape'
         });
         // reference
@@ -362,7 +342,7 @@ editor.once('load', function() {
             name: 'Emmiter Extents',
             placeholder: [ 'X', 'Y', 'Z' ],
             type: 'vec3',
-            link: entity,
+            link: entities,
             path: 'components.particlesystem.emitterExtents'
         });
         // reference
@@ -374,7 +354,7 @@ editor.once('load', function() {
             parent: panel,
             name: 'Wrap',
             type: 'checkbox',
-            link: entity,
+            link: entities,
             path: 'components.particlesystem.wrap'
         });
         // reference
@@ -387,12 +367,12 @@ editor.once('load', function() {
             name: 'Wrap Bounds',
             placeholder: [ 'X', 'Y', 'Z' ],
             type: 'vec3',
-            link: entity,
+            link: entities,
             path: 'components.particlesystem.wrapBounds'
         });
-        fieldWrapBounds[0].parent.hidden = ! entity.get('components.particlesystem.wrap');
+        fieldWrapBounds[0].parent.hidden = ! fieldWrap.value && ! fieldWrap.class.contains('null');
         fieldWrap.on('change', function(value) {
-            fieldWrapBounds[0].parent.hidden = ! value;
+            fieldWrapBounds[0].parent.hidden = ! value && ! this.class.contains('null');
         });
         // reference
         editor.call('attributes:reference:particlesystem:wrapBounds:attach', fieldWrapBounds[0].parent.innerElement.firstChild.ui);
@@ -404,7 +384,7 @@ editor.once('load', function() {
             name: 'Color Map',
             type: 'asset',
             kind: 'texture',
-            link: entity,
+            link: entities,
             path: 'components.particlesystem.colorMapAsset'
         });
         // reference
@@ -417,7 +397,7 @@ editor.once('load', function() {
             name: 'Normal Map',
             type: 'asset',
             kind: 'texture',
-            link: entity,
+            link: entities,
             path: 'components.particlesystem.normalMapAsset'
         });
         // reference
@@ -430,7 +410,7 @@ editor.once('load', function() {
             name: 'Mesh',
             type: 'asset',
             kind: 'model',
-            link: entity,
+            link: entities,
             path: 'components.particlesystem.mesh'
         });
         // reference
@@ -442,7 +422,7 @@ editor.once('load', function() {
             parent: panel,
             name: 'Local Velocity',
             type: 'curveset',
-            link: entity,
+            link: entities[0],
             paths: [ 'components.particlesystem.localVelocityGraph', 'components.particlesystem.localVelocityGraph2' ],
             curves: [ 'X', 'Y', 'Z' ]
         });
@@ -455,7 +435,7 @@ editor.once('load', function() {
             parent: panel,
             name: 'Velocity',
             type: 'curveset',
-            link: entity,
+            link: entities[0],
             paths: [ 'components.particlesystem.velocityGraph', 'components.particlesystem.velocityGraph2' ],
             curves: [ 'X', 'Y', 'Z' ]
         });
@@ -468,7 +448,7 @@ editor.once('load', function() {
             parent: panel,
             name: 'Rotation Speed',
             type: 'curveset',
-            link: entity,
+            link: entities[0],
             paths: [ 'components.particlesystem.rotationSpeedGraph', 'components.particlesystem.rotationSpeedGraph2' ],
             curves: [ 'Angle' ],
             verticalValue: 180
@@ -482,7 +462,7 @@ editor.once('load', function() {
             parent: panel,
             name: 'Scale',
             type: 'curveset',
-            link: entity,
+            link: entities[0],
             paths: [ 'components.particlesystem.scaleGraph', 'components.particlesystem.scaleGraph2' ],
             curves: [ 'Scale' ],
             verticalValue: 1,
@@ -497,7 +477,7 @@ editor.once('load', function() {
             parent: panel,
             name: 'Color',
             type: 'curveset',
-            link: entity,
+            link: entities[0],
             path: 'components.particlesystem.colorGraph',
             gradient: true,
             curves: [ 'R', 'G', 'B' ],
@@ -513,7 +493,7 @@ editor.once('load', function() {
             parent: panel,
             name: 'Opacity',
             type: 'curveset',
-            link: entity,
+            link: entities[0],
             paths: [ 'components.particlesystem.alphaGraph', 'components.particlesystem.alphaGraph2' ],
             curves: ['Opacity' ],
             min: 0,
@@ -521,5 +501,14 @@ editor.once('load', function() {
         });
         // reference
         editor.call('attributes:reference:particlesystem:alphaGraph:attach', fieldAlpha.parent.innerElement.firstChild.ui);
+
+        if (entities.length > 1) {
+            fieldLocalVelocity.disabled = true;
+            fieldVelocity.disabled = true;
+            fieldRotationSpeed.disabled = true;
+            fieldScale.disabled = true;
+            fieldColor.disabled = true;
+            fieldAlpha.disabled = true;
+        }
     });
 });

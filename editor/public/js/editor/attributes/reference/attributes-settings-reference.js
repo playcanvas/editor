@@ -19,7 +19,7 @@ editor.once('load', function() {
             description: 'Name of the Scene for better navigation across content.'
         }, {
             name: 'designer',
-            description: 'Designer Settings are applied per user basis and only visible to you, and not team collaborators. Although rest of other sections are shared for the Scene for all collaborators.'
+            description: 'Editor Settings are applied per user basis and only visible to you, and not team collaborators. Although rest of other sections are shared for the Scene for all collaborators.'
         }, {
             name: 'snap',
             description: 'Change increment value for Snap gizmo state. Use SHIFT or Snap Toggle on toolbar to enable Snapping during use of Gizmos.'

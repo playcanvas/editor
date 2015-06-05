@@ -32,11 +32,19 @@ editor.once('load', function() {
         if (editor.call('selector:type') === 'entity')
             parent = editor.call('selector:items')[0];
 
-        return editor.call('entities:new', {
+        var entity = editor.call('entities:new', {
             name: data.name,
             components: data.components,
             parent: parent
         });
+
+        editor.call('selector:history', false);
+        editor.call('selector:set', 'entity', [ entity ]);
+        editor.once('selector:change', function() {
+            editor.call('selector:history', true);
+        });
+
+        return entity;
     };
 
     var addComponent = function (entity, component) {
@@ -611,10 +619,7 @@ editor.once('load', function() {
                                 return;
                             editor.call('entities:delete', items);
                         } else if (type === 'asset') {
-                            editor.call('picker:confirm', 'Delete Asset?', function() {
-                                for(var i = 0; i < items.length; i++)
-                                    editor.call('assets:delete', items[i]);
-                            });
+                            editor.call('assets:delete:picker', items);
                         }
                     }
                 }

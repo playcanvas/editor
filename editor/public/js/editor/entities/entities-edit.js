@@ -115,15 +115,15 @@ editor.once('load', function() {
         parent.insert('children', entity.get('resource_id'), ind);
         parent.history.enabled = true;
 
-        // if (select) {
-        //     setTimeout(function() {
-        //         editor.call('selector:history', false);
-        //         editor.call('selector:set', 'entity', [ entity ]);
-        //         editor.once('selector:change', function() {
-        //             editor.call('selector:history', true);
-        //         });
-        //     }, 0);
-        // }
+        if (select) {
+            setTimeout(function() {
+                editor.call('selector:history', false);
+                editor.call('selector:set', 'entity', [ entity ]);
+                editor.once('selector:change', function() {
+                    editor.call('selector:history', true);
+                });
+            }, 0);
+        }
 
         // add children too
         children.forEach(function(childId) {

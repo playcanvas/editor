@@ -2,55 +2,15 @@ editor.once('load', function() {
     'use strict';
 
     editor.on('attributes:inspect[entity]', function(entities) {
-        if (entities.length !== 1)
-            return;
-
-        var entity = entities[0];
-
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (! panelComponents)
             return;
 
-        // camera
-        var panel = editor.call('attributes:addPanel', {
-            parent: panelComponents,
-            name: 'Camera'
+        var panel = editor.call('attributes:entity:addComponentPanel', {
+            title: 'Camera',
+            name: 'camera',
+            entities: entities
         });
-        panel.class.add('component');
-        // reference
-        editor.call('attributes:reference:camera:attach', panel, panel.headerElement);
-
-        if (! entity.get('components.camera')) {
-            panel.disabled = true;
-            panel.hidden = true;
-        }
-        var evtComponentSet = entity.on('components.camera:set', function(value) {
-            panel.disabled = ! value;
-            panel.hidden = ! value;
-        });
-        var evtComponentUnset = entity.on('components.camera:unset', function() {
-            panel.disabled = true;
-            panel.hidden = true;
-        });
-        panel.on('destroy', function() {
-            evtComponentSet.unbind();
-            evtComponentUnset.unbind();
-        });
-
-
-        // enabled
-        var fieldEnabled = new ui.Checkbox();
-        fieldEnabled.class.add('component-toggle');
-        fieldEnabled.link(entity, 'components.camera.enabled');
-        panel.headerAppend(fieldEnabled);
-
-        // remove
-        var fieldRemove = new ui.Button();
-        fieldRemove.class.add('component-remove');
-        fieldRemove.on('click', function(value) {
-            entity.unset('components.camera');
-        });
-        panel.headerAppend(fieldRemove);
 
 
         // clearColorBuffer
@@ -58,7 +18,7 @@ editor.once('load', function() {
             parent: panel,
             type: 'checkbox',
             name: 'Clear Buffers',
-            link: entity,
+            link: entities,
             path: 'components.camera.clearColorBuffer'
         });
         // label
@@ -71,9 +31,12 @@ editor.once('load', function() {
 
 
         // clearDepthBuffer
-        var fieldClearDepthBuffer = new ui.Checkbox();
-        fieldClearDepthBuffer.link(entity, 'components.camera.clearDepthBuffer');
-        fieldClearColorBuffer.parent.append(fieldClearDepthBuffer);
+        var fieldCastShadows = editor.call('attributes:addField', {
+            panel: fieldClearColorBuffer.parent,
+            type: 'checkbox',
+            link: entities,
+            path: 'components.camera.clearDepthBuffer'
+        });
         // label
         var label = new ui.Label({ text: 'Depth' });
         label.class.add('label-infield');
@@ -87,12 +50,12 @@ editor.once('load', function() {
             parent: panel,
             name: 'Clear Color',
             type: 'rgb',
-            link: entity,
+            link: entities,
             path: 'components.camera.clearColor'
         });
-        fieldClearColor.parent.hidden = ! entity.get('components.camera.clearColorBuffer');
+        fieldClearColor.parent.hidden = ! (fieldClearColorBuffer.value || fieldClearColorBuffer.class.contains('null'));
         fieldClearColorBuffer.on('change', function(value) {
-            fieldClearColor.parent.hidden = ! value;
+            fieldClearColor.parent.hidden = ! (value || this.class.contains('null'));
         });
         // reference
         editor.call('attributes:reference:camera:clearColor:attach', fieldClearColor.parent.innerElement.firstChild.ui);
@@ -103,11 +66,12 @@ editor.once('load', function() {
             parent: panel,
             name: 'Projection',
             type: 'number',
-            enum: {
-                0: 'Perspective', // pc.PROJECTION_PERSPECTIVE
-                1: 'Orthographic' // pc.PROJECTION_ORTHOGRAPHIC
-            },
-            link: entity,
+            enum: [
+                { v: '', t: '...' },
+                { v: 0, t: 'Perspective' }, // pc.PROJECTION_PERSPECTIVE
+                { v: 1, t: 'Orthographic' } // pc.PROJECTION_ORTHOGRAPHIC
+            ],
+            link: entities,
             path: 'components.camera.projection'
         });
         // reference
@@ -124,39 +88,42 @@ editor.once('load', function() {
             step: 1,
             min: 0,
             max: 90,
-            link: entity,
+            link: entities,
             path: 'components.camera.fov'
         });
         fieldFov.style.width = '32px';
-        fieldFov.parent.hidden = entity.get('components.camera.projection') !== 0;
+        fieldFov.parent.hidden = fieldProjection.value !== 0 && fieldProjection.value !== '';
         fieldProjection.on('change', function(value) {
-            fieldFov.parent.hidden = value !== 0;
+            fieldFov.parent.hidden = value !== 0 && value !== '';
         });
         // reference
         editor.call('attributes:reference:camera:fov:attach', fieldFov.parent.innerElement.firstChild.ui);
 
         // fov slider
-        var fieldFovSlider = new ui.Slider({
+        var fieldFovSlider = editor.call('attributes:addField', {
+            panel: fieldFov.parent,
+            precision: 2,
+            step: 1,
             min: 0,
             max: 90,
-            precision: 1
+            type: 'number',
+            slider: true,
+            link: entities,
+            path: 'components.camera.fov'
         });
         fieldFovSlider.flexGrow = 4;
-        fieldFovSlider.link(entity, 'components.camera.fov');
-        fieldFov.parent.append(fieldFovSlider);
-
 
         // camera.orthoHeight
         var fieldOrthoHeight = editor.call('attributes:addField', {
             parent: panel,
             name: 'Ortho Height',
             type: 'number',
-            link: entity,
+            link: entities,
             path: 'components.camera.orthoHeight'
         });
-        fieldOrthoHeight.parent.hidden = entity.get('components.camera.projection') !== 1;
+        fieldOrthoHeight.parent.hidden = fieldProjection.value !== 1 && fieldProjection.value !== '';
         fieldProjection.on('change', function(value) {
-            fieldOrthoHeight.parent.hidden = value !== 1;
+            fieldOrthoHeight.parent.hidden = value !== 1 && value !== '';
         });
         // reference
         editor.call('attributes:reference:camera:orthoHeight:attach', fieldOrthoHeight.parent.innerElement.firstChild.ui);
@@ -171,7 +138,7 @@ editor.once('load', function() {
             precision: 2,
             step: .1,
             min: 0,
-            link: entity,
+            link: entities,
             path: 'components.camera.nearClip'
         });
         fieldNearClip.style.width = '32px';
@@ -180,16 +147,17 @@ editor.once('load', function() {
 
 
         // farClip
-        var fieldFarClip = new ui.NumberField({
+        var fieldFarClip = editor.call('attributes:addField', {
+            panel: fieldNearClip.parent,
+            placeholder: 'Far',
+            type: 'number',
             precision: 2,
-            step: 1,
+            step: .1,
             min: 0,
+            link: entities,
+            path: 'components.camera.farClip'
         });
-        fieldFarClip.placeholder = 'Far';
         fieldFarClip.style.width = '32px';
-        fieldFarClip.flexGrow = 1;
-        fieldFarClip.link(entity, 'components.camera.farClip');
-        fieldNearClip.parent.append(fieldFarClip);
 
 
         // camera.priority
@@ -200,7 +168,7 @@ editor.once('load', function() {
             precision: 1,
             step: 1,
             min: 0,
-            link: entity,
+            link: entities,
             path: 'components.camera.priority'
         });
         // reference
@@ -217,7 +185,7 @@ editor.once('load', function() {
             step: 0.01,
             min: 0,
             max: 1,
-            link: entity,
+            link: entities,
             path: 'components.camera.rect'
         });
         // reference

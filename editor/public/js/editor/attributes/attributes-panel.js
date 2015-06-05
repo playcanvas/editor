@@ -61,11 +61,13 @@ editor.once('load', function() {
             var different = false;
             var value = args.link[0].get(args.path);
             if (args.type === 'rgb') {
-                for(var i = 1; i < args.link.length; i++) {
-                    if (! value.equals(args.link[i].get(args.path))) {
-                        value = null;
-                        different = true;
-                        break;
+                if (value) {
+                    for(var i = 1; i < args.link.length; i++) {
+                        if (! value.equals(args.link[i].get(args.path))) {
+                            value = null;
+                            different = true;
+                            break;
+                        }
                     }
                 }
                 if (value) {
@@ -161,7 +163,6 @@ editor.once('load', function() {
                     name: args.path,
                     undo: function() {
                         var different = false;
-
                         for(var i = 0; i < items.length; i++) {
                             var item;
                             if (items[i].get) {
@@ -511,6 +512,7 @@ editor.once('load', function() {
             case 'checkbox':
                 field = new ui.Checkbox();
                 field.value = args.value || 0;
+                field.class.add('tick');
 
                 linkField();
 

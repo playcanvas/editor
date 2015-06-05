@@ -223,6 +223,12 @@ editor.once('load', function() {
             'max': 2,
             'type': 'float'
         },
+        alphaTest: {
+            'default': 0,
+            'min': 0,
+            'max': 1,
+            'type': 'float'
+        },
         opacity: {
             'default': 1,
             'min': 0,
@@ -965,7 +971,7 @@ editor.once('load', function() {
                 'rgb': 'RGB'
             },
             link: assets,
-            path: 'data.aoMapChannel'
+            path: 'data.diffuseMapChannel'
         });
         fieldDiffuseMapChannel.element.parentNode.removeChild(fieldDiffuseMapChannel.element);
         fieldDiffuseMap.parent.innerElement.querySelector('.top > .ui-label').parentNode.appendChild(fieldDiffuseMapChannel.element);
@@ -1593,8 +1599,7 @@ editor.once('load', function() {
             path: 'data.blendType'
         });
         fieldBlendType.on('change', function (value) {
-            fieldOpacityMap.parent.hidden = ! value || [ 2, 4, 6 ].indexOf(value) === -1;
-            fieldOpacityIntensity.parent.hidden = fieldOpacityMap.parent.hidden;
+            fieldOpacityIntensity.parent.hidden = ! (value === '' || [ 2, 4, 6 ].indexOf(value) !== -1);
             fieldOpacityOffset[0].parent.hidden = filterOpacityOffset();
             fieldOpacityTiling[0].parent.hidden = filterOpacityTiling();
         });
@@ -1611,8 +1616,8 @@ editor.once('load', function() {
             path: 'data.opacityMap'
         });
         fieldOpacityMap.parent.class.add('channel');
-        fieldOpacityMap.parent.hidden = ! fieldBlendType.value || [ 2, 4, 6 ].indexOf(fieldBlendType.value) === -1;
         fieldOpacityMap.on('change', function(value) {
+            fieldAlphaTest.parent.hidden = ! (this.class.contains('null') || value);
             fieldOpacityOffset[0].parent.hidden = filterOpacityOffset();
             fieldOpacityTiling[0].parent.hidden = filterOpacityTiling();
         });
@@ -1696,7 +1701,7 @@ editor.once('load', function() {
             link: assets,
             path: 'data.opacity'
         });
-        fieldOpacityIntensity.parent.hidden = fieldOpacityMap.parent.hidden;
+        fieldOpacityIntensity.parent.hidden = ! (fieldBlendType.value === '' || [ 2, 4, 6 ].indexOf(fieldBlendType.value) !== -1);
         fieldOpacityIntensity.style.width = '32px';
         fieldOpacityIntensity.flexGrow = 1;
         // reference
@@ -1715,6 +1720,39 @@ editor.once('load', function() {
             path: 'data.opacity'
         });
         fieldOpacityIntensitySlider.flexGrow = 4;
+
+
+        // alphaTest
+        var fieldAlphaTest = editor.call('attributes:addField', {
+            parent: panelOpacity,
+            name: 'Alpha Test',
+            type: 'number',
+            precision: 3,
+            step: .05,
+            min: 0,
+            max: 1,
+            link: assets,
+            path: 'data.alphaTest'
+        });
+        fieldAlphaTest.parent.hidden = ! (fieldOpacityMap.class.contains('null') || fieldOpacityMap.value);
+        fieldAlphaTest.style.width = '32px';
+        fieldAlphaTest.flexGrow = 1;
+        // reference
+        editor.call('attributes:reference:asset:material:alphaTest:attach', fieldAlphaTest.parent.innerElement.firstChild.ui);
+
+        // alphaTest slider
+        var fieldAlphaTestSlider = editor.call('attributes:addField', {
+            panel: fieldAlphaTest.parent,
+            precision: 3,
+            step: .05,
+            min: 0,
+            max: 1,
+            type: 'number',
+            slider: true,
+            link: assets,
+            path: 'data.alphaTest'
+        });
+        fieldAlphaTestSlider.flexGrow = 4;
 
 
         // normals
@@ -2111,7 +2149,7 @@ editor.once('load', function() {
         fieldLightMap.parent.class.add('channel');
         fieldLightMap.on('change', function() {
             fieldLightMapOffset[0].parent.hidden = filterLightMapOffset();
-            fieldLightMapTiling[0].parent.hidden = fieldLightMapTiling();
+            fieldLightMapTiling[0].parent.hidden = filterLightMapTiling();
         });
         // reference
         editor.call('attributes:reference:asset:material:lightMap:attach', fieldLightMap._label);

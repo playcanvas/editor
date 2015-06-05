@@ -366,7 +366,8 @@ editor.once('load', function() {
                     // re-enable button
                     prefilterBtn.disabled = false;
                     if (err) {
-                        editor.call('status:error', error);
+                        console.log(err);
+                        editor.call('status:error', err);
                     }
                 });
             });

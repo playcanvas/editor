@@ -113,19 +113,19 @@ app.once('load', function() {
             if (path === 'name') {
                 entity.setName(obj.get('name'));
 
-            } else if (path.indexOf('position') === 0) {
+            } else if (path.startsWith('position')) {
                 resetPhysics(entity);
 
-            } else if (path.indexOf('rotation') === 0) {
+            } else if (path.startsWith('rotation')) {
                 resetPhysics(entity);
 
-            } else if (path.indexOf('scale') === 0) {
+            } else if (path.startsWith('scale')) {
                 resetPhysics(entity);
 
-            } else if (path.indexOf('enabled') === 0) {
+            } else if (path.startsWith('enabled')) {
                 entity.enabled = obj.get('enabled');
 
-            } else if (path.indexOf('parent') === 0) {
+            } else if (path.startsWith('parent')) {
                 var parent = app.call('entities:get', obj.get('parent'));
                 if (parent && parent.entity)
                     entity.reparent(parent.entity);
@@ -148,10 +148,6 @@ app.once('load', function() {
                     // Reset velocities
                     entity.rigidbody.linearVelocity = pc.Vec3.ZERO;
                     entity.rigidbody.angularVelocity = pc.Vec3.ZERO;
-                }
-
-                if (entity.collision && entity.collision.enabled) {
-                    framework.systems.collision.onTransformChanged(entity.collision, entity.getPosition(), entity.getRotation(), entity.getLocalScale());
                 }
             }
         };
