@@ -59,7 +59,18 @@ editor.once('load', function() {
         if (pickedData.node) {
             editor.emit('viewport:pick:node', pickedData.node, pickedData.picked);
         } else {
-            editor.emit('viewport:pick:clear');
+            editor.call('viewport:pick', tap.x, tap.y, function(node, picked) {
+                if (pickedData.node !== node || pickedData.picked !== picked) {
+                    pickedData.node = node;
+                    pickedData.picked = picked;
+                }
+
+                if (pickedData.node) {
+                    editor.emit('viewport:pick:node', pickedData.node, pickedData.picked);
+                } else {
+                    editor.emit('viewport:pick:clear');
+                }
+            });
         }
     });
 });

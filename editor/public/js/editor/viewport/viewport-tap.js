@@ -16,7 +16,7 @@ editor.once('load', function() {
         var y = evt.clientY - rect.top;
 
         // if it's moved
-        if (this.down && ! this.move && (Math.abs(this.sx - x) + Math.abs(this.sy - y)) > 4)
+        if (this.down && ! this.move && (Math.abs(this.sx - x) + Math.abs(this.sy - y)) > 8)
             this.move = true;
 
         // moving
