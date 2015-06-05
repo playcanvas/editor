@@ -365,8 +365,10 @@ editor.once('load', function() {
                 editor.call('assets:cubemaps:prefilter', assets[0], function (err) {
                     // re-enable button
                     prefilterBtn.disabled = false;
-                    if (err)
+                    if (err) {
+                        console.log(err);
                         editor.call('status:error', err);
+                    }
                 });
             });
 
