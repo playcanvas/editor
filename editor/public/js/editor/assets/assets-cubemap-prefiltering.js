@@ -107,28 +107,61 @@ editor.once('load', function () {
 
     var prefilterCubemap = function (cubemapAsset, cubemap, callback) {
         try {
-            var options = {
-                device: device,
-                sourceCubemap: cubemap,
-                method: 1,
-                samples: 4096,
-                cpuSync: true,
-                filteredFixed: [],
-                singleFilteredFixed: true
-            };
+            var textureAssets = getTextureAssets(cubemapAsset);
+            if (textureAssets) {
+                var l = textureAssets.length;
+                var count = l;
+                var textures = [];
 
-            pc.prefilterCubemap(options);
+                var onLoad = function () {
+                    editor.call('status:job', 'prefilter');
 
-            // get dds and create blob
-            var dds = options.singleFilteredFixed.getDds();
-            var blob = new Blob([dds], {type: 'image/dds'});
+                    // cubemap._levels[0] =
 
-            // upload blob as dds
-            editor.call('assets:uploadFile', blob, cubemapAsset.get('name') + '.dds', cubemapAsset, function (err, data) {
-                if (callback) {
-                    callback(null);
+                    var options = {
+                        device: device,
+                        sourceCubemap: cubemap,
+                        method: 1,
+                        samples: 4096,
+                        cpuSync: true,
+                        filteredFixed: [],
+                        singleFilteredFixed: true
+                    };
+
+                    pc.prefilterCubemap(options);
+
+                    // get dds and create blob
+                    var dds = options.singleFilteredFixed.getDds();
+                    var blob = new Blob([dds], {type: 'image/dds'});
+
+                    // upload blob as dds
+                    editor.call('assets:uploadFile', blob, cubemapAsset.get('name') + '.dds', cubemapAsset, function (err, data) {
+                        if (callback) {
+                            callback(null);
+                        }
+                    });
                 }
-            });
+
+                textureAssets.forEach(function (asset, index) {
+                    editor.call('status:job', 'prefilter', index);
+
+                    var url = asset.get('file.url'); //.replace(/.png$/, '.dds');
+
+                    assets._loader.load(url, "texture", function (err, resource) {
+                        if (!err) {
+                            textures[index] = resource;
+                        } else {
+                            console.warn(err);
+                        }
+
+                        count--;
+                        if (count === 0) {
+                            onLoad();
+                        }
+                    });
+                });
+            }
+
         } catch (ex) {
             if (callback) {
                 callback(ex);
