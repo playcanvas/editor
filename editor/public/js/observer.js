@@ -778,7 +778,9 @@ Observer.prototype.json = function(target) {
             }
         }
     } else {
-        if (typeof(node) === 'object' && (node instanceof Array)) {
+        if (node === null) {
+            return null;
+        } else if (typeof(node) === 'object' && (node instanceof Array)) {
             obj = node.slice(0);
 
             for(var n = 0; n < obj.length; n++) {

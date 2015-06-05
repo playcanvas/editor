@@ -190,7 +190,7 @@ Object.defineProperty(Slider.prototype, 'value', {
             if (value === null) {
                 this.class.add('null');
             } else {
-                value = (this.precision !== null) ? parseFloat(value.toFixed(this.precision), 10) : value;
+                value = (value !== undefined && this.precision !== null) ? parseFloat(value.toFixed(this.precision), 10) : value;
                 this.class.remove('null');
             }
 

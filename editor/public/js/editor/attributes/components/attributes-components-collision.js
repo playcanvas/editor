@@ -2,65 +2,16 @@ editor.once('load', function() {
     'use strict';
 
     editor.on('attributes:inspect[entity]', function(entities) {
-        if (entities.length !== 1)
-            return;
-
-        var entity = entities[0];
-
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (! panelComponents)
             return;
 
+        var events = [ ];
 
-        // collision
-        var panel = editor.call('attributes:addPanel', {
-            parent: panelComponents,
-            name: 'Collision'
-        });
-        panel.class.add('component', 'entity', 'collision');
-        // reference
-        editor.call('attributes:reference:collision:attach', panel, panel.headerElementTitle);
-
-        if (! entity.get('components.collision')) {
-            panel.disabled = true;
-            panel.hidden = true;
-        }
-        var evtComponentSet = entity.on('components.collision:set', function(value) {
-            panel.disabled = ! value;
-            panel.hidden = ! value;
-        });
-        var evtComponentUnset = entity.on('components.collision:unset', function() {
-            panel.disabled = true;
-            panel.hidden = true;
-        });
-        panel.on('destroy', function() {
-            evtComponentSet.unbind();
-            evtComponentUnset.unbind();
-        });
-
-
-        // remove
-        var fieldRemove = new ui.Button();
-        fieldRemove.class.add('component-remove');
-        fieldRemove.on('click', function(value) {
-            entity.unset('components.collision');
-        });
-        panel.headerAppend(fieldRemove);
-
-        // enabled
-        var fieldEnabled = new ui.Checkbox();
-        fieldEnabled.class.add('component-toggle');
-        fieldEnabled.link(entity, 'components.collision.enabled');
-        panel.headerAppend(fieldEnabled);
-
-        // toggle-label
-        var labelEnabled = new ui.Label();
-        labelEnabled.renderChanges = false;
-        labelEnabled.class.add('component-toggle-label');
-        panel.headerAppend(labelEnabled);
-        labelEnabled.text = fieldEnabled.value ? 'On' : 'Off';
-        fieldEnabled.on('change', function(value) {
-            labelEnabled.text = value ? 'On' : 'Off';
+        var panel = editor.call('attributes:entity:addComponentPanel', {
+            title: 'Collision',
+            name: 'collision',
+            entities: entities
         });
 
 
@@ -70,13 +21,14 @@ editor.once('load', function() {
             name: 'Type',
             type: 'string',
             enum: {
+                '': '...',
                 'box': 'Box',
                 'sphere': 'Sphere',
                 'capsule': 'Capsule',
                 'cylinder': 'Cylinder',
                 'mesh': 'Mesh'
             },
-            link: entity,
+            link: entities,
             path: 'components.collision.type'
         });
         // reference
@@ -92,12 +44,12 @@ editor.once('load', function() {
             step: 0.1,
             min: 0,
             type: 'vec3',
-            link: entity,
+            link: entities,
             path: 'components.collision.halfExtents'
         });
-        fieldHalfExtents[0].parent.hidden = entity.get('components.collision.type') !== 'box';
+        fieldHalfExtents[0].parent.hidden = fieldType.value !== 'box' && fieldType.value !== '';
         fieldType.on('change', function(value) {
-            fieldHalfExtents[0].parent.hidden = value !== 'box';
+            fieldHalfExtents[0].parent.hidden = value !== 'box' && value !== '';
         });
         // reference
         editor.call('attributes:reference:collision:halfExtents:attach', fieldHalfExtents[0].parent.innerElement.firstChild.ui);
@@ -111,12 +63,12 @@ editor.once('load', function() {
             precision: 2,
             step: 0.1,
             min: 0,
-            link: entity,
+            link: entities,
             path: 'components.collision.radius'
         });
-        fieldRadius.parent.hidden = [ 'sphere', 'capsule', 'cylinder' ].indexOf(entity.get('components.collision.type')) === -1;
+        fieldRadius.parent.hidden = fieldType.value !== '' && [ 'sphere', 'capsule', 'cylinder' ].indexOf(fieldType.value) === -1;
         fieldType.on('change', function(value) {
-            fieldRadius.parent.hidden = [ 'sphere', 'capsule', 'cylinder' ].indexOf(value) === -1;
+            fieldRadius.parent.hidden = value !== '' && [ 'sphere', 'capsule', 'cylinder' ].indexOf(value) === -1;
         });
         // reference
         editor.call('attributes:reference:collision:radius:attach', fieldRadius.parent.innerElement.firstChild.ui);
@@ -130,13 +82,13 @@ editor.once('load', function() {
             precision: 2,
             step: 0.1,
             min: 0,
-            link: entity,
+            link: entities,
             path: 'components.collision.height'
         });
         // show/hide
-        fieldHeight.parent.hidden = [ 'capsule', 'cylinder' ].indexOf(entity.get('components.collision.type')) === -1;
+        fieldHeight.parent.hidden = fieldType.value !== '' && [ 'capsule', 'cylinder' ].indexOf(fieldType.value) === -1;
         fieldType.on('change', function(value) {
-            fieldHeight.parent.hidden = [ 'capsule', 'cylinder' ].indexOf(value) === -1;
+            fieldHeight.parent.hidden = value !== '' && [ 'capsule', 'cylinder' ].indexOf(value) === -1;
         });
         // reference
         editor.call('attributes:reference:collision:height:attach', fieldHeight.parent.innerElement.firstChild.ui);
@@ -152,12 +104,18 @@ editor.once('load', function() {
                 1: 'Y',
                 2: 'Z'
             },
-            link: entity,
+            enum: [
+                { v: '', t: '...' },
+                { v: 0, t: 'X' },
+                { v: 1, t: 'Y' },
+                { v: 2, t: 'Z' }
+            ],
+            link: entities,
             path: 'components.collision.axis'
         });
-        fieldAxis.parent.hidden = [ 'capsule', 'cylinder' ].indexOf(entity.get('components.collision.type')) === -1;
+        fieldAxis.parent.hidden = fieldType.value !== '' && [ 'capsule', 'cylinder' ].indexOf(fieldType.value) === -1;
         fieldType.on('change', function(value) {
-            fieldAxis.parent.hidden = [ 'capsule', 'cylinder' ].indexOf(value) === -1;
+            fieldAxis.parent.hidden = value !== '' && [ 'capsule', 'cylinder' ].indexOf(value) === -1;
         });
         // reference
         editor.call('attributes:reference:collision:axis:attach', fieldAxis.parent.innerElement.firstChild.ui);
@@ -169,14 +127,12 @@ editor.once('load', function() {
             name: 'Asset',
             type: 'asset',
             kind: 'model',
-            link: entity,
+            link: entities,
             path: 'components.collision.asset'
         });
-        fieldAsset.parent.hidden = entity.get('components.collision.type') !== 'mesh';
+        fieldAsset.parent.hidden = fieldType.value !== '' && fieldType.value !== 'mesh';
         fieldType.on('change', function(value) {
-            fieldAsset.parent.hidden = value !== 'mesh';
-            if (fieldAsset.parent.hidden)
-                fieldAsset.value = null;
+            fieldAsset.parent.hidden = value !== '' && value !== 'mesh';
         });
         // reference
         editor.call('attributes:reference:collision:asset:attach', fieldAsset.parent.innerElement.firstChild.ui);

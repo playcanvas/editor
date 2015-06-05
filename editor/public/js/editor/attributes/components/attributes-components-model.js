@@ -2,65 +2,16 @@ editor.once('load', function() {
     'use strict';
 
     editor.on('attributes:inspect[entity]', function(entities) {
-        if (entities.length !== 1)
-            return;
-
-        var entity = entities[0];
-
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (! panelComponents)
             return;
 
+        var events = [ ];
 
-        // model
-        var panel = editor.call('attributes:addPanel', {
-            parent: panelComponents,
-            name: 'Model'
-        });
-        panel.class.add('component', 'entity', 'model');
-        // reference
-        editor.call('attributes:reference:model:attach', panel, panel.headerElementTitle);
-
-        if (! entity.get('components.model')) {
-            panel.disabled = true;
-            panel.hidden = true;
-        }
-        var evtComponentSet = entity.on('components.model:set', function(value) {
-            panel.disabled = ! value;
-            panel.hidden = ! value;
-        });
-        var evtComponentUnset = entity.on('components.model:unset', function() {
-            panel.disabled = true;
-            panel.hidden = true;
-        });
-        panel.on('destroy', function() {
-            evtComponentSet.unbind();
-            evtComponentUnset.unbind();
-        });
-
-
-        // remove
-        var fieldRemove = new ui.Button();
-        fieldRemove.class.add('component-remove');
-        fieldRemove.on('click', function(value) {
-            entity.unset('components.model');
-        });
-        panel.headerAppend(fieldRemove);
-
-        // enabled
-        var fieldEnabled = new ui.Checkbox();
-        fieldEnabled.class.add('component-toggle');
-        fieldEnabled.link(entity, 'components.model.enabled');
-        panel.headerAppend(fieldEnabled);
-
-        // toggle-label
-        var labelEnabled = new ui.Label();
-        labelEnabled.renderChanges = false;
-        labelEnabled.class.add('component-toggle-label');
-        panel.headerAppend(labelEnabled);
-        labelEnabled.text = fieldEnabled.value ? 'On' : 'Off';
-        fieldEnabled.on('change', function(value) {
-            labelEnabled.text = value ? 'On' : 'Off';
+        var panel = editor.call('attributes:entity:addComponentPanel', {
+            title: 'Model',
+            name: 'model',
+            entities: entities
         });
 
 
@@ -70,6 +21,7 @@ editor.once('load', function() {
             name: 'Type',
             type: 'string',
             enum: {
+                '': '...',
                 'asset': 'Asset',
                 'box': 'Box',
                 'capsule': 'Capsule',
@@ -78,17 +30,12 @@ editor.once('load', function() {
                 'cone': 'Cone',
                 'plane': 'Plane'
             },
-            link: entity,
+            link: entities,
             path: 'components.model.type'
         });
         fieldType.on('change', function(value) {
             fieldAsset.parent.hidden = value !== 'asset';
-            if (fieldAsset.parent.hidden)
-                fieldAsset.value = null;
-
-            fieldMaterial.parent.hidden = value === 'asset';
-            if (fieldMaterial.parent.hidden)
-                fieldMaterial.value = null;
+            fieldMaterial.parent.hidden = value === 'asset' || value === '';
         });
         // reference
         editor.call('attributes:reference:model:type:attach', fieldType.parent.innerElement.firstChild.ui);
@@ -100,10 +47,10 @@ editor.once('load', function() {
             name: 'Model',
             type: 'asset',
             kind: 'model',
-            link: entity,
+            link: entities,
             path: 'components.model.asset'
         });
-        fieldAsset.parent.hidden = entity.get('components.model.type') !== 'asset';
+        fieldAsset.parent.hidden = fieldType.value !== 'asset';
         // reference
         editor.call('attributes:reference:model:asset:attach', fieldAsset._label);
 
@@ -114,11 +61,11 @@ editor.once('load', function() {
             name: 'Material',
             type: 'asset',
             kind: 'material',
-            link: entity,
+            link: entities,
             path: 'components.model.materialAsset'
         });
         fieldMaterial.class.add('material-asset');
-        fieldMaterial.parent.hidden = entity.get('components.model.type') === 'asset';
+        fieldMaterial.parent.hidden = fieldType.value === 'asset' || fieldType.value === '';
         // reference
         editor.call('attributes:reference:model:materialAsset:attach', fieldMaterial._label);
 
@@ -128,10 +75,9 @@ editor.once('load', function() {
             parent: panel,
             type: 'checkbox',
             name: 'Shadows',
-            link: entity,
+            link: entities,
             path: 'components.model.castShadows'
         });
-        fieldCastShadows.class.add('tick');
         // label
         var label = new ui.Label({ text: 'Cast' });
         label.class.add('label-infield');
@@ -142,15 +88,22 @@ editor.once('load', function() {
 
 
         // receiveShadows
-        var fieldReceiveShadows = new ui.Checkbox();
-        fieldReceiveShadows.class.add('tick');
-        fieldReceiveShadows.link(entity, 'components.model.receiveShadows');
-        fieldCastShadows.parent.append(fieldReceiveShadows);
+        var fieldReceiveShadows = editor.call('attributes:addField', {
+            panel: fieldCastShadows.parent,
+            type: 'checkbox',
+            link: entities,
+            path: 'components.model.receiveShadows'
+        });
         // label
         var label = new ui.Label({ text: 'Receive' });
         label.class.add('label-infield');
         fieldCastShadows.parent.append(label);
         // reference
         editor.call('attributes:reference:model:receiveShadows:attach', label);
+
+        panel.on('destroy', function() {
+            for(var i = 0; i < events.length; i++)
+                events[i].unbind();
+        });
     });
 });

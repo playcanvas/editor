@@ -2,67 +2,17 @@ editor.once('load', function() {
     'use strict';
 
     editor.on('attributes:inspect[entity]', function(entities) {
-        if (entities.length !== 1)
-            return;
-
-        var entity = entities[0];
-
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (! panelComponents)
             return;
 
+        var events = [ ];
 
-        // rigidbody
-        var panel = editor.call('attributes:addPanel', {
-            parent: panelComponents,
-            name: 'Rigid Body'
+        var panel = editor.call('attributes:entity:addComponentPanel', {
+            title: 'Rigid Body',
+            name: 'rigidbody',
+            entities: entities
         });
-        panel.class.add('component', 'entity', 'rigidbody');
-        // reference
-        editor.call('attributes:reference:rigidbody:attach', panel, panel.headerElementTitle);
-
-        if (! entity.get('components.rigidbody')) {
-            panel.disabled = true;
-            panel.hidden = true;
-        }
-        var evtComponentSet = entity.on('components.rigidbody:set', function(value) {
-            panel.disabled = ! value;
-            panel.hidden = ! value;
-        });
-        var evtComponentUnset = entity.on('components.rigidbody:unset', function() {
-            panel.disabled = true;
-            panel.hidden = true;
-        });
-        panel.on('destroy', function() {
-            evtComponentSet.unbind();
-            evtComponentUnset.unbind();
-        });
-
-
-        // remove
-        var fieldRemove = new ui.Button();
-        fieldRemove.class.add('component-remove');
-        fieldRemove.on('click', function(value) {
-            entity.unset('components.rigidbody');
-        });
-        panel.headerAppend(fieldRemove);
-
-        // enabled
-        var fieldEnabled = new ui.Checkbox();
-        fieldEnabled.class.add('component-toggle');
-        fieldEnabled.link(entity, 'components.rigidbody.enabled');
-        panel.headerAppend(fieldEnabled);
-
-        // toggle-label
-        var labelEnabled = new ui.Label();
-        labelEnabled.renderChanges = false;
-        labelEnabled.class.add('component-toggle-label');
-        panel.headerAppend(labelEnabled);
-        labelEnabled.text = fieldEnabled.value ? 'On' : 'Off';
-        fieldEnabled.on('change', function(value) {
-            labelEnabled.text = value ? 'On' : 'Off';
-        });
-
 
         // type
         var fieldType = editor.call('attributes:addField', {
@@ -70,11 +20,12 @@ editor.once('load', function() {
             name: 'Type',
             type: 'string',
             enum: {
+                '': '...',
                 'static': 'Static',
                 'dynamic': 'Dynamic',
                 'kinematic': 'Kinematic'
             },
-            link: entity,
+            link: entities,
             path: 'components.rigidbody.type'
         });
         // reference
@@ -85,9 +36,9 @@ editor.once('load', function() {
         var panelDynamic = editor.call('attributes:addPanel', {
             parent: panel
         });
-        panelDynamic.hidden = entity.get('components.rigidbody.type') !== 'dynamic';
+        panelDynamic.hidden = fieldType.value !== '' && fieldType.value !== 'dynamic';
         fieldType.on('change', function(value) {
-            panelDynamic.hidden = value !== 'dynamic';
+            panelDynamic.hidden = value !== '' && value !== 'dynamic';
         });
 
         // mass
@@ -98,7 +49,7 @@ editor.once('load', function() {
             precision: 2,
             step: .1,
             min: 0,
-            link: entity,
+            link: entities,
             path: 'components.rigidbody.mass'
         });
         fieldMass.placeholder = 'Kg';
@@ -116,7 +67,7 @@ editor.once('load', function() {
             step: .01,
             min: 0,
             max: 1,
-            link: entity,
+            link: entities,
             path: 'components.rigidbody.linearDamping'
         });
         fieldLinearDamping.style.width = '32px';
@@ -125,17 +76,18 @@ editor.once('load', function() {
 
 
         // angularDamping
-        var fieldAngularDamping = new ui.NumberField({
+        var fieldAngularDamping = editor.call('attributes:addField', {
+            panel: fieldLinearDamping.parent,
+            placeholder: 'Angular',
+            type: 'number',
             precision: 2,
             step: .01,
             min: 0,
-            max: 1
+            max: 1,
+            link: entities,
+            path: 'components.rigidbody.angularDamping'
         });
-        fieldAngularDamping.placeholder = 'Angular';
         fieldAngularDamping.style.width = '32px';
-        fieldAngularDamping.flexGrow = 1;
-        fieldAngularDamping.link(entity, 'components.rigidbody.angularDamping');
-        fieldLinearDamping.parent.append(fieldAngularDamping);
 
 
         // linearFactor
@@ -148,7 +100,7 @@ editor.once('load', function() {
             min: 0,
             max: 1,
             type: 'vec3',
-            link: entity,
+            link: entities,
             path: 'components.rigidbody.linearFactor'
         });
         // reference
@@ -165,7 +117,7 @@ editor.once('load', function() {
             min: 0,
             max: 1,
             type: 'vec3',
-            link: entity,
+            link: entities,
             path: 'components.rigidbody.angularFactor'
         });
         // reference
@@ -182,7 +134,7 @@ editor.once('load', function() {
             step: .01,
             min: 0,
             max: 1,
-            link: entity,
+            link: entities,
             path: 'components.rigidbody.friction'
         });
         fieldFriction.style.width = '32px';
@@ -191,48 +143,52 @@ editor.once('load', function() {
 
 
         // restitution
-        var fieldRestitution = new ui.NumberField({
+        var fieldRestitution = editor.call('attributes:addField', {
+            panel: fieldFriction.parent,
+            placeholder: 'Restitution',
+            type: 'number',
             precision: 2,
             step: .01,
             min: 0,
-            max: 1
+            max: 1,
+            link: entities,
+            path: 'components.rigidbody.restitution'
         });
-        fieldRestitution.placeholder = 'Restitution';
         fieldRestitution.style.width = '32px';
-        fieldRestitution.flexGrow = 1;
-        fieldRestitution.link(entity, 'components.rigidbody.restitution');
-        fieldFriction.parent.append(fieldRestitution);
-        // reference
-        editor.call('attributes:reference:rigidbody:restitution:attach', fieldRestitution);
 
 
         var panelFrictionRestitution = editor.call('attributes:addField', {
             parent: panel,
             name: ''
         });
-
         var label = panelFrictionRestitution;
         panelFrictionRestitution = panelFrictionRestitution.parent;
         label.destroy();
 
         // friction slider
-        var fieldFrictionSlider = new ui.Slider({
+        var fieldFrictionSlider = editor.call('attributes:addField', {
+            panel: panelFrictionRestitution,
+            precision: 3,
             min: 0,
             max: 1,
-            precision: 3
+            type: 'number',
+            slider: true,
+            link: entities,
+            path: 'components.rigidbody.friction'
         });
         fieldFrictionSlider.flexGrow = 1;
-        fieldFrictionSlider.link(entity, 'components.rigidbody.friction');
-        panelFrictionRestitution.append(fieldFrictionSlider);
 
         // restitution slider
-        var fieldRestitutionSlider = new ui.Slider({
+        var fieldRestitutionSlider = editor.call('attributes:addField', {
+            panel: panelFrictionRestitution,
+            precision: 3,
             min: 0,
             max: 1,
-            precision: 3
+            type: 'number',
+            slider: true,
+            link: entities,
+            path: 'components.rigidbody.restitution'
         });
         fieldRestitutionSlider.flexGrow = 1;
-        fieldRestitutionSlider.link(entity, 'components.rigidbody.restitution');
-        panelFrictionRestitution.append(fieldRestitutionSlider);
     });
 });
