@@ -89,7 +89,7 @@ Object.defineProperty(TextField.prototype, 'value', {
             if (this.elementInput.value === value)
                 return;
 
-            this.elementInput.value = value;
+            this.elementInput.value = value || '';
             this.emit('change', value);
         }
     }
@@ -105,6 +105,20 @@ Object.defineProperty(TextField.prototype, 'placeholder', {
             this.element.removeAttribute('placeholder');
         } else {
             this.element.setAttribute('placeholder', value);
+        }
+    }
+});
+
+
+Object.defineProperty(TextField.prototype, 'proxy', {
+    get: function() {
+        return this.element.getAttribute('proxy');
+    },
+    set: function(value) {
+        if (! value) {
+            this.element.removeAttribute('proxy');
+        } else {
+            this.element.setAttribute('proxy', value);
         }
     }
 });

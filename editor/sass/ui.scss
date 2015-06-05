@@ -1046,6 +1046,35 @@ a:visited {
         }
     }
 }
+// proxy
+.ui-text-field[proxy] {
+    position: relative;
+
+    &:before {
+        @extend .fieldFont;
+        content: attr(proxy);
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 0 8px;
+        line-height: 22px;
+        font-size: 12px;
+        font-weight: 100;
+        white-space: nowrap;
+        color: #999;
+    }
+    &:hover,
+    &.focus {
+        &:before {
+            content: none;
+        }
+    }
+}
+.ui-text-field[value] {
+    &:before {
+        content: none;
+    }
+}
 
 .ui-slider {
     @extend .noSelect;

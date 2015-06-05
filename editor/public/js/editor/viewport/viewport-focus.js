@@ -24,7 +24,7 @@ editor.once('load', function() {
             aabbA.center.set(Infinity, Infinity, Infinity);
 
             // model
-            if (entity.model && entity.model.model.meshInstances.length) {
+            if (entity.model && entity.model.model && entity.model.model.meshInstances.length) {
                 var meshes = entity.model.model.meshInstances;
                 for(var n = 0; n < meshes.length; n++) {
                     // clean tranformation matrix
