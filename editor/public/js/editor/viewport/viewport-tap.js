@@ -66,6 +66,8 @@ editor.once('load', function() {
 
         tapMouse.move = false;
         tapMouse.down = true;
+        tapMouse.sx = evt.clientX - rect.left;
+        tapMouse.sy = evt.clientY - rect.top;
         taps.push(tapMouse);
 
         editor.emit('viewport:tap:start', tapMouse, evt);
