@@ -13,10 +13,10 @@ editor.once('load', function() {
         });
 
         // audiosource.assets
-        var fieldAssets = editor.call('attributes:entity:addAssetsList', {
+        var fieldAssets = editor.call('attributes:addAssetsList', {
             title: 'Audio',
             type: 'audio',
-            entities: entities,
+            link: entities,
             panel: panel,
             path: 'components.audiosource.assets'
         });
