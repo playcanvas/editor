@@ -514,7 +514,6 @@ editor.once('load', function() {
             }
         };
 
-        // TODO
         menuData['delete'] = {
             title: 'Delete',
             icon: '&#58657;',

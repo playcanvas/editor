@@ -15,11 +15,11 @@ editor.once('load', function() {
         });
 
         // animation.assets
-        var fieldAssets = editor.call('attributes:entity:addAssetsList', {
+        var fieldAssets = editor.call('attributes:addAssetsList', {
+            panel: panel,
             title: 'Animation',
             type: 'animation',
-            entities: entities,
-            panel: panel,
+            link: entities,
             path: 'components.animation.assets'
         });
 

@@ -50,7 +50,6 @@ editor.once('load', function() {
 
         // holds each script panel
         var events = [ ];
-        var scriptPanels = [ ];
         var scriptsIndex = { };
 
 
@@ -96,68 +95,47 @@ editor.once('load', function() {
 
         var addScript = function(url) {
             var scriptAdded = false;
+            var records = [ ];
+            var requestScript = false;
 
-            if (urlRegex.test(url)) {
-                for(var i = 0; i < entities.length; i++) {
-                    var addScript = true;
-                    var scripts = entities[i].getRaw('components.script.scripts');
-                    for(var s = 0; s < scripts.length; s++) {
-                        if (scripts[s].get('url') === url) {
-                            addScript = false;
-                            break;
-                        }
-                    }
-
-                    if (addScript) {
-                        var script = new Observer({
-                            url: url
-                        });
-
-                        // TODO
-                        // history
-
-                        entities[i].history.enabled = false;
-                        entities[i].insert('components.script.scripts', script);
-                        entities[i].history.enabled = true;
-
-                        scriptAdded = true;
-                    }
-                }
-
-                refreshScriptAttributes(url);
-            } else {
+            if (! urlRegex.test(url)) {
                 if (! jsRegex.test(url))
                     url += '.js';
 
                 if (! scriptNameRegex.test(url) || url.indexOf('..') >= 0)
                     return false;
 
-                for(var i = 0; i < entities.length; i++) {
-                    var addScript = true;
-                    var scripts = entities[i].getRaw('components.script.scripts');
-                    for(var s = 0; s < scripts.length; s++) {
-                        if (scripts[s].get('url') === url) {
-                            addScript = false;
-                            break;
-                        }
-                    }
+                requestScript = true;
+            }
 
-                    if (addScript) {
-                        var script = new Observer({
-                            url: url
-                        });
-
-                        // TODO
-                        // history
-
-                        entities[i].history.enabled = false;
-                        entities[i].insert('components.script.scripts', script);
-                        entities[i].history.enabled = true;
-
-                        scriptAdded = true;
+            for(var i = 0; i < entities.length; i++) {
+                var addScript = true;
+                var scripts = entities[i].getRaw('components.script.scripts');
+                for(var s = 0; s < scripts.length; s++) {
+                    if (scripts[s].get('url') === url) {
+                        addScript = false;
+                        break;
                     }
                 }
 
+                if (addScript) {
+                    var script = new Observer({
+                        url: url
+                    });
+
+                    records.push({
+                        get: entities[i].history._getItemFn
+                    });
+
+                    entities[i].history.enabled = false;
+                    entities[i].insert('components.script.scripts', script);
+                    entities[i].history.enabled = true;
+
+                    scriptAdded = true;
+                }
+            }
+
+            if (requestScript) {
                 var fullUrl = editor.call('sourcefiles:url', url);
 
                 // try to get the script and if it doesn't exist create it
@@ -178,7 +156,63 @@ editor.once('load', function() {
                         refreshScriptAttributes(url);
                     }
                 });
+            } else {
+                refreshScriptAttributes(url);
             }
+
+            editor.call('history:add', {
+                name: 'entities.components.script.scripts',
+                undo: function() {
+                    for(var i = 0; i < records.length; i++) {
+                        var item = records[i].get();
+                        if (! item)
+                            continue;
+
+                        var scripts = item.getRaw('components.script.scripts');
+                        if (! scripts)
+                            continue;
+
+                        for(var s = 0; s < scripts.length; s++) {
+                            if (scripts[s].get('url') !== url)
+                                continue;
+
+                            item.history.enabled = false;
+                            item.removeValue('components.script.scripts', scripts[s]);
+                            item.history.enabled = true;
+                            break;
+                        }
+                    }
+                },
+                redo: function() {
+                    for(var i = 0; i < records.length; i++) {
+                        var item = records[i].get();
+                        if (! item)
+                            continue;
+
+                        var addScript = true;
+                        var scripts = item.getRaw('components.script.scripts');
+                        for(var s = 0; s < scripts.length; s++) {
+                            if (scripts[s].get('url') !== url)
+                                continue;
+                            addScript = false;
+                            break;
+                        }
+
+                        if (! addScript)
+                            continue;
+
+                        var script = new Observer({
+                            url: url
+                        });
+
+                        item.history.enabled = false;
+                        item.insert('components.script.scripts', script);
+                        item.history.enabled = true;
+                    }
+
+                    refreshScriptAttributes(url);
+                }
+            });
 
             return scriptAdded;
         };
@@ -251,24 +285,24 @@ editor.once('load', function() {
             if (attributes) {
                 for(var i = 0; i < attributes.length; i++) {
                     var ind = list.indexOf(attributes[i]);
-                    var panel = null;
+                    var panelAttribute = null;
 
                     if (ind === -1) {
                         // new attibute
-                        panel = createAttributeField(script, attributes[i], parent);
+                        panelAttribute = createAttributeField(script, attributes[i], parent);
                         list.splice(i, 0, attributes[i]);
-                        index[attributes[i]] = panel;
+                        index[attributes[i]] = panelAttribute;
                     } else if (ind !== i) {
                         // moved attribute
-                        panel = index[attributes[i]];
+                        panelAttribute = index[attributes[i]];
                         list.splice(ind, 1);
                         list.splice(i, 0, attributes[i]);
                     }
 
-                    if (! panel)
+                    if (! panelAttribute)
                         continue;
 
-                    parent.innerElement.removeChild(panel.element);
+                    parent.innerElement.removeChild(panelAttribute.element);
 
                     var ref = null;
                     if (i === 0) {
@@ -278,9 +312,9 @@ editor.once('load', function() {
                     }
 
                     if (ref) {
-                        parent.innerElement.insertBefore(panel.element, ref);
+                        parent.innerElement.insertBefore(panelAttribute.element, ref);
                     } else {
-                        parent.innerElement.appendChild(panel.element);
+                        parent.innerElement.appendChild(panelAttribute.element);
                     }
                 }
             }
@@ -291,10 +325,14 @@ editor.once('load', function() {
             attribute = script.get('attributes.' + attribute);
 
             if (attribute.type === 'enumeration') {
-                choices = { };
+                choices = [ { v: '', t: '...' } ];
+
                 try {
                     for(var e = 0; e < attribute.options.enumerations.length; e++) {
-                        choices[attribute.options.enumerations[e].value] = attribute.options.enumerations[e].name;
+                        choices.push({
+                            v: attribute.options.enumerations[e].value,
+                            t: attribute.options.enumerations[e].name
+                        });
                     }
                 } catch(ex) {
                     console.log(ex)
@@ -302,42 +340,64 @@ editor.once('load', function() {
                 }
             }
 
-            var field = editor.call('attributes:addField', {
-                parent: parent,
-                name: attribute.displayName,
-                type: scriptAttributeTypes[attribute.type],
-                enum: choices,
-                link: script,
-                path: 'attributes.' + attribute.name + '.value'
-            });
+            var url = script.get('url');
+            var scripts = [ ];
+            for(var i = 0; i < entities.length; i++) {
+                var items = entities[i].getRaw('components.script.scripts');
+                if (! items)
+                    continue;
 
-            if (scriptAttributeTypes[attribute.type] === 'number') {
+                for(var s = 0; s < items.length; s++) {
+                    if (items[s].get('url') === url) {
+                        scripts.push(items[s]);
+                        break;
+                    }
+                }
+            }
+
+            var field;
+
+            if (scriptAttributeTypes[attribute.type] !== 'assets') {
+                field = editor.call('attributes:addField', {
+                    parent: parent,
+                    name: attribute.displayName || attribute.name,
+                    type: scriptAttributeTypes[attribute.type],
+                    enum: choices,
+                    link: scripts,
+                    path: 'attributes.' + attribute.name + '.value'
+                });
+            }
+
+            if (attribute.type !== 'enumeration' && scriptAttributeTypes[attribute.type] === 'number') {
                 field.flexGrow = 1;
                 field.style.width = '32px';
 
-                var slider = new ui.Slider({
+                // friction slider
+                var slider = editor.call('attributes:addField', {
+                    panel: field.parent,
                     min: attribute.options.min || 0,
-                    max: attribute.options.max || 1
+                    max: attribute.options.max || 1,
+                    type: 'number',
+                    slider: true,
+                    link: scripts,
+                    path: 'attributes.' + attribute.name + '.value'
                 });
-                slider.hidden = isNaN(attribute.options.min) || isNaN(attribute.options.max);
-                slider.flexGrow = 4;
                 slider.style.width = '32px';
-                slider.link(script, 'attributes.' + attribute.name + '.value');
-                field.parent.append(slider);
+                slider.flexGrow = 4;
 
-                var evtMin = script.on('attributes.' + attribute.name + '.options.min:set', function(value) {
+                var evtMin = scripts[0].on('attributes.' + attribute.name + '.options.min:set', function(value) {
                     slider.min = value;
-                    slider.hidden = isNaN(script.get('attributes.' + attribute.name + '.options.min')) || isNaN(script.get('attributes.' + attribute.name + '.options.max'));
+                    slider.hidden = isNaN(scripts[0].get('attributes.' + attribute.name + '.options.min')) || isNaN(scripts[0].get('attributes.' + attribute.name + '.options.max'));
                 });
-                events.push(evtMin);
+                events.push(evtMin)
 
-                var evtMax = script.on('attributes.' + attribute.name + '.options.max:set', function(value) {
+                var evtMax = scripts[0].on('attributes.' + attribute.name + '.options.max:set', function(value) {
                     slider.max = value;
-                    slider.hidden = isNaN(script.get('attributes.' + attribute.name + '.options.min')) || isNaN(script.get('attributes.' + attribute.name + '.options.max'));
+                    slider.hidden = isNaN(scripts[0].get('attributes.' + attribute.name + '.options.min')) || isNaN(scripts[0].get('attributes.' + attribute.name + '.options.max'));
                 });
                 events.push(evtMax);
 
-                var evtMinUnset = script.on('attributes.' + attribute.name + '.options.min:unset', function() {
+                var evtMinUnset = scripts[0].on('attributes.' + attribute.name + '.options.min:unset', function() {
                     slider.hidden = true;
                 });
                 events.push(evtMinUnset);
@@ -348,150 +408,20 @@ editor.once('load', function() {
                 events.push(evtMaxUnset);
 
                 events.push(field.once('destroy', function() {
-                    evtType.unbind();
                     evtMin.unbind();
                     evtMax.unbind();
                     evtMinUnset.unbind();
                     evtMaxUnset.unbind();
                 }));
             } else if (scriptAttributeTypes[attribute.type] === 'assets') {
-                field.unlink();
-
                 // assets
-                var fieldAssetsList = new ui.List();
-                fieldAssetsList.class.add('assets');
-                fieldAssetsList.flexGrow = 1;
-                field.parent.append(fieldAssetsList);
-                field.destroy();
-                field = fieldAssetsList;
-
-                // drop
-                var dropRef = editor.call('drop:target', {
-                    ref: fieldAssetsList.element,
-                    filter: function(type, data) {
-                        return type.startsWith('asset') && script.get('attributes.' + attribute.name + '.value').indexOf(data.id) === -1 && (! attribute.options.type || (editor.call('assets:get', data.id).get('type') === attribute.options.type));
-                    },
-                    drop: function(type, data) {
-                        // already in list
-                        if (script.get('attributes.' + attribute.name + '.value').indexOf(data.id) !== -1)
-                            return;
-
-                        // script type
-                        if (attribute.options.type && editor.call('assets:get', data.id).get('type') !== attribute.options.type)
-                            return;
-
-                        // add to component
-                        script.insert('attributes.' + attribute.name + '.value', data.id, 0);
-                    }
+                field = editor.call('attributes:addAssetsList', {
+                    panel: parent,
+                    title: 'Asset',
+                    type: attribute.options.type || '*',
+                    link: scripts,
+                    path: 'attributes.' + attribute.name + '.value'
                 });
-                events.push(fieldAssetsList.on('destroy', function() {
-                    dropRef.unregister();
-                }));
-
-                // assets list
-                var itemAdd = new ui.ListItem({
-                    text: 'Add Asset'
-                });
-                itemAdd.class.add('add-asset');
-                fieldAssetsList.append(itemAdd);
-
-                // add asset icon
-                var iconAdd = document.createElement('span');
-                iconAdd.classList.add('icon');
-                itemAdd.element.appendChild(iconAdd);
-
-                // index list items by asset id
-                var assetItems = { };
-
-                // add asset
-                var addAsset = function(assetId, after) {
-                    var asset = editor.call('assets:get', assetId);
-                    var text = assetId;
-                    if (asset && asset.get('name'))
-                        text = asset.get('name');
-
-                    var item = new ui.ListItem({
-                        text: text
-                    });
-
-                    if (after) {
-                        fieldAssetsList.appendAfter(item, after);
-                    } else {
-                        fieldAssetsList.append(item);
-                    }
-
-                    assetItems[assetId] = item;
-
-                    // remove button
-                    var btnRemove = new ui.Button();
-                    btnRemove.class.add('remove');
-                    btnRemove.on('click', function() {
-                        script.removeValue('attributes.' + attribute.name + '.value', assetId);
-                    });
-                    btnRemove.parent = item;
-                    item.element.appendChild(btnRemove.element);
-                };
-
-                // on adding new asset
-                itemAdd.on('click', function() {
-                    // call picker
-                    editor.call('picker:asset', attribute.options.type ? attribute.options.type : '*', null);
-
-                    // on pick
-                    var evtPick = editor.once('picker:asset', function(asset) {
-                        // already in list
-                        if (script.get('attributes.' + attribute.name + '.value').indexOf(asset.get('id')) !== -1)
-                            return;
-
-                        // script type
-                        if (attribute.options.type && asset.get('type') !== attribute.options.type)
-                            return;
-
-                        // add to component
-                        script.insert('attributes.' + attribute.name + '.value', asset.get('id'), 0);
-                        evtPick = null;
-                    });
-
-                    editor.once('picker:asset:close', function() {
-                        if (evtPick) {
-                            evtPick.unbind();
-                            evtPick = null;
-                        }
-                    });
-                });
-
-                // assets
-                var assets = script.get('attributes.' + attribute.name + '.value');
-                if (assets) {
-                    for(var i = 0; i < assets.length; i++) {
-                        addAsset(assets[i]);
-                    }
-                }
-                // on asset insert
-                var evtAssetInsert = script.on('attributes.' + attribute.name + '.value:insert', function(assetId, ind) {
-                    var before;
-                    if (ind === 0) {
-                        before = itemAdd;
-                    } else {
-                        before = assetItems[script.get('attributes.' + attribute.name + '.value.' + ind)];
-                    }
-                    addAsset(assetId, before);
-                });
-                events.push(evtAssetInsert);
-
-                // on asset remove
-                var evtAssetRemove = script.on('attributes.' + attribute.name + '.value:remove', function(assetId) {
-                    if (! assetItems[assetId])
-                        return;
-
-                    assetItems[assetId].destroy();
-                });
-                events.push(evtAssetRemove);
-
-                events.push(field.parent.once('destroy', function() {
-                    evtAssetInsert.unbind();
-                    evtAssetRemove.unbind();
-                }));
             }
 
             var fieldParent;
@@ -519,10 +449,18 @@ editor.once('load', function() {
         };
 
         var createScriptPanel = function(script) {
-            var panel = new ui.Panel(script.get('url'));
-            panel.class.add('component-script');
+            var panelScript = scriptsIndex[script.get('url')];
+            if (panelScript) {
+                panelScript.count++;
+                panelScript._link.textContent = (panelScript.count === entities.length ? '' : '* ') + panelScript._originalTitle;
+                return;
+            }
 
-            var link = document.createElement('a');
+            panelScript = new ui.Panel(script.get('url'));
+            panelScript.class.add('component-script');
+            panelScript.count = 1;
+
+            var href = document.createElement('a');
 
             var url = script.get('url');
             var lowerUrl = url.toLowerCase();
@@ -530,31 +468,40 @@ editor.once('load', function() {
             if (! isExternalUrl && ! jsRegex.test(url))
                 url += '.js';
 
-            var title = script.get('name') || getFilenameFromUrl(url);
-            link.textContent = title;
-            link.target = '_blank';
-            link.href = isExternalUrl ? url : '/editor/code/' + config.project.id + '/' + url;
-            panel.headerElementTitle.textContent = '';
-            panel.headerElementTitle.appendChild(link);
+            panelScript._originalTitle = script.get('name') || getFilenameFromUrl(url);
+            panelScript._link = href;
+            href.textContent = (panelScript.count === entities.length ? '' : '* ') + panelScript._originalTitle;
+            href.target = '_blank';
+            href.href = isExternalUrl ? url : '/editor/code/' + config.project.id + '/' + url;
+            panelScript.headerElementTitle.textContent = '';
+            panelScript.headerElementTitle.appendChild(href);
 
             // name change
             events.push(script.on('name:set', function(value) {
-                link.textContent = value;
+                panelScript._originalTitle = value;
+                href.textContent = (panelScript.count === entities.length ? '' : '* ') + panelScript._originalTitle;
             }));
 
             // remove
             var fieldRemoveScript = new ui.Button();
-            fieldRemoveScript.parent = panel;
+            fieldRemoveScript.parent = panelScript;
             fieldRemoveScript.class.add('remove');
             fieldRemoveScript.on('click', function (value) {
-                for(var i = 0; i < entities.length; i++) {
-                    // TODO
-                    // history
+                var records = [ ];
 
+                for(var i = 0; i < entities.length; i++) {
                     entities[i].history.enabled = false;
                     var scripts = entities[i].getRaw('components.script.scripts');
                     for(var s = 0; s < scripts.length; s++) {
                         if (scripts[s].get('url') === script.get('url')) {
+                            var data = scripts[s].json();
+
+                            records.push({
+                                get: entities[i].history._getItemFn,
+                                value: data,
+                                ind: s
+                            });
+
                             entities[i].remove('components.script.scripts', s);
                             break;
                         }
@@ -562,13 +509,68 @@ editor.once('load', function() {
                     entities[i].history.enabled = true;
                 }
 
-                var ind = scriptPanels.indexOf(scriptsIndex[script.get('url')]);
-                if (ind !== -1)
-                    scriptPanels.splice(ind, 1);
-
                 delete scriptsIndex[script.get('url')];
+
+                if (! records.length)
+                    return;
+
+                editor.call('history:add', {
+                    name: 'entities.components.script.scripts',
+                    undo: function() {
+                        for(var i = 0; i < records.length; i++) {
+                            var item = records[i].get();
+                            if (! item)
+                                continue;
+
+                            var scripts = item.getRaw('components.script.scripts');
+                            if (! scripts)
+                                continue;
+
+                            var addScript = true;
+
+                            for(var s = 0; s < scripts.length; s++) {
+                                if (scripts[s].get('url') === records[i].value.url) {
+                                    addScript = false;
+                                    break;
+                                }
+                            }
+
+                            if (! addScript)
+                                continue;
+
+                            var script = new Observer(records[i].value);
+
+                            item.history.enabled = false;
+                            item.insert('components.script.scripts', script, records[i].ind);
+                            item.history.enabled = true;
+                        }
+
+                        refreshScriptAttributes(records[0].value.url);
+                    },
+                    redo: function() {
+                        for(var i = 0; i < records.length; i++) {
+                            var item = records[i].get();
+                            if (! item)
+                                continue;
+
+                            var scripts = item.getRaw('components.script.scripts');
+
+                            for(var s = 0; s < scripts.length; s++) {
+                                if (scripts[s].get('url') !== records[i].value.url)
+                                    continue;
+
+                                item.history.enabled = false;
+                                item.removeValue('components.script.scripts', scripts[s]);
+                                item.history.enabled = true;
+                                break;
+                            }
+                        }
+
+                        delete scriptsIndex[records[0].value.url];
+                    }
+                });
             });
-            panel.headerElement.appendChild(fieldRemoveScript.element);
+            panelScript.headerElement.appendChild(fieldRemoveScript.element);
 
             // TODO
             // allow reordering scripts if all entities scripts components are identical
@@ -583,7 +585,7 @@ editor.once('load', function() {
                 if (ind < scripts.length - 1)
                     entities[0].move('components.script.scripts', ind, ind + 1);
             });
-            panel.headerElement.appendChild(fieldMoveDown.element);
+            panelScript.headerElement.appendChild(fieldMoveDown.element);
             if (entities.length > 1)
                 fieldMoveDown.style.visibility = 'hidden';
 
@@ -596,7 +598,7 @@ editor.once('load', function() {
                 if (ind > 0)
                     entities[0].move('components.script.scripts', ind, ind - 1);
             });
-            panel.headerElement.appendChild(fieldMoveUp.element);
+            panelScript.headerElement.appendChild(fieldMoveUp.element);
             if (entities.length > 1)
                 fieldMoveUp.style.visibility = 'hidden';
 
@@ -604,7 +606,7 @@ editor.once('load', function() {
             var fieldRefreshAttributes = new ui.Button();
             fieldRefreshAttributes.class.add('refresh');
             fieldRefreshAttributes.element.title = "Refresh script attributes";
-            panel.headerElement.appendChild(fieldRefreshAttributes.element);
+            panelScript.headerElement.appendChild(fieldRefreshAttributes.element);
 
             fieldRefreshAttributes.on('click', function () {
                 refreshScriptAttributes(script.get('url'));
@@ -612,7 +614,7 @@ editor.once('load', function() {
 
             // attributes panel
             var attributes = new ui.Panel();
-            panel.append(attributes);
+            panelScript.append(attributes);
 
             if (script.has('attributesOrder')) {
                 // add attributes if has any
@@ -636,7 +638,7 @@ editor.once('load', function() {
                 }, 0);
             }));
 
-            return panel;
+            return panelScript;
         };
 
         // Converts URL to script name
@@ -660,58 +662,64 @@ editor.once('load', function() {
                 continue;
 
             for(var s = 0; s < scripts.length; s++) {
-                if (scriptsIndex[scripts[s].get('url')])
+                var panelScript = createScriptPanel(scripts[s]);
+                if (! panelScript)
                     continue;
 
-                // TODO
-                // increment script count
-
-                var scriptPanel = scriptsIndex[scripts[s].get('url')] = createScriptPanel(scripts[s]);
-                scriptPanels.push(scriptPanel);
-                panelScripts.append(scriptPanel);
+                scriptsIndex[scripts[s].get('url')] = panelScript;
+                panelScripts.append(panelScript);
             }
 
             // subscribe to scripts:insert
             events.push(entities[i].on('components.script.scripts:insert', function (script, ind) {
-                if (scriptsIndex[script.get('url')])
+                var panelScript = createScriptPanel(script);
+                if (! panelScript)
                     return;
 
-                // TODO
-                // increment script count
+                scriptsIndex[script.get('url')] = panelScript;
 
-                var scriptPanel = scriptsIndex[script.get('url')] = createScriptPanel(script);
-                scriptPanels.splice(ind, 0, scriptPanel);
+                var panels = panelScripts.innerElement.childNodes;
 
-                if (ind === scriptPanels.length - 1) {
+                if (ind === panels.length) {
                     // append at the end
-                    panelScripts.append(scriptPanel);
+                    panelScripts.append(panelScript);
                 } else {
                     // append before panel at next index
-                    panelScripts.appendBefore(scriptPanel, scriptPanels[ind + 1]);
+                    panelScripts.appendBefore(panelScript, panels[ind]);
                 }
             }));
 
             events.push(entities[i].on('components.script.scripts:move', function (value, indNew, indOld) {
-                panelScripts.appendBefore(scriptPanels[indOld], scriptPanels[indNew > indOld ? indNew + 1 : indNew]);
-                var temp = scriptPanels[indOld];
-                scriptPanels[indOld] = scriptPanels[indNew];
-                scriptPanels[indNew] = temp;
+                var elementOld = scriptsIndex[this.get('components.script.scripts.' + indOld + '.url')];
+                var elementNew = scriptsIndex[value.get('url')];
+
+                panelScripts.innerElement.removeChild(elementNew.element);
+
+                if (indNew > indOld) {
+                    if (elementOld.element.nextSibling) {
+                        panelScripts.innerElement.insertBefore(elementNew.element, elementOld.element.nextSibling);
+                    } else {
+                        panelScripts.innerElement.appendChild(elementNew.element);
+                    }
+                } else {
+                    panelScripts.innerElement.insertBefore(elementNew.element, elementOld.element);
+                }
             }));
 
             // subscribe to scripts:remove
             events.push(entities[i].on('components.script.scripts:remove', function (script, ind) {
-                if (! scriptsIndex[script.get('url')])
+                var scriptPanel = scriptsIndex[script.get('url')];
+                if (! scriptPanel)
                     return;
 
-                // TODO
-                // decrement scripts count
+                scriptPanel.count--;
+                scriptPanel._link.textContent = (scriptPanel.count === entities.length ? '' : '* ') + scriptPanel._originalTitle;
 
-                scriptsIndex[script.get('url')].destroy();
-                var ind = scriptPanels.indexOf(script);
-                if (ind !== -1)
-                    scriptPanels.splice(i, 1);
-
-                script.destroy();
+                if (scriptPanel.count === 0) {
+                    scriptsIndex[script.get('url')].destroy();
+                    script.destroy();
+                    delete scriptsIndex[script.get('url')];
+                }
             }));
         }
 
