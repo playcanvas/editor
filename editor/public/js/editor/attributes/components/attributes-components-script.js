@@ -658,16 +658,16 @@ editor.once('load', function() {
         // add existing scripts and subscribe to scripts Observer list
         for(var i = 0; i < entities.length; i++) {
             var scripts = entities[i].getRaw('components.script.scripts');
-            if (! scripts)
-                continue;
 
-            for(var s = 0; s < scripts.length; s++) {
-                var panelScript = createScriptPanel(scripts[s]);
-                if (! panelScript)
-                    continue;
+            if (scripts) {
+                for(var s = 0; s < scripts.length; s++) {
+                    var panelScript = createScriptPanel(scripts[s]);
+                    if (! panelScript)
+                        continue;
 
-                scriptsIndex[scripts[s].get('url')] = panelScript;
-                panelScripts.append(panelScript);
+                    scriptsIndex[scripts[s].get('url')] = panelScript;
+                    panelScripts.append(panelScript);
+                }
             }
 
             // subscribe to scripts:insert

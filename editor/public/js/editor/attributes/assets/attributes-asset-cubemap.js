@@ -42,8 +42,6 @@ editor.once('load', function() {
                 break;
             }
         }
-        if (isPrefiltered)
-            fieldFiltering.disabled = true;
 
         var changingFiltering = false;
 
@@ -165,8 +163,6 @@ editor.once('load', function() {
             link: assets,
             path: 'data.anisotropy'
         });
-        if (isPrefiltered)
-            fieldAnisotropy.disabled = true;
         // reference
         editor.call('attributes:reference:asset:cubemap:anisotropy:attach', fieldAnisotropy.parent.innerElement.firstChild.ui);
 
@@ -366,7 +362,6 @@ editor.once('load', function() {
                     // re-enable button
                     prefilterBtn.disabled = false;
                     if (err) {
-                        console.log(err);
                         editor.call('status:error', err);
                     }
                 });
@@ -415,9 +410,6 @@ editor.once('load', function() {
                 prefilterPanel.hidden = !hasAllTextures();
                 prefilterBtn.hidden = isPrefiltered;
                 clearPrefilteredBtn.hidden = !isPrefiltered;
-
-                fieldFiltering.disabled = isPrefiltered;
-                fieldAnisotropy.disabled = isPrefiltered;
             };
 
             togglePrefilterFields(!!assets[0].get('file'));
