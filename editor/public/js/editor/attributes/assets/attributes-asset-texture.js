@@ -246,55 +246,38 @@ editor.once('load', function() {
             var image;
             if (! assets[0].get('thumbnails.xl')) {
                 image = imageOriginal;
+                requestAnimationFrame(function() {
+                    root.class.add('animate');
+                });
             } else {
                 image = new Image();
+                image.onload = function() {
+                    root.class.add('animate');
+                };
                 image.src = config.url.home + assets[0].get('thumbnails.xl') + '?t=' + assets[0].get('modified_at');
             }
+
+            image.addEventListener('click', function() {
+                if (root.element.classList.contains('large')) {
+                    root.element.classList.remove('large');
+                } else {
+                    root.element.classList.add('large');
+                }
+            }, false);
 
             image.classList.add('asset-preview');
             root.class.add('asset-preview');
             root.element.insertBefore(image, root.innerElement);
-            var scrolledFully = false;
-            var scrollHeightLast = -1;
-            var scrollEvt = root.on('scroll', function(evt) {
-                var scrollBudget = root.innerElement.scrollHeight - (root.element.clientHeight - 32 - 320);
-                var scrollHeight = 128 - Math.max(0, 320 - scrollBudget);
-
-                if (root.innerElement.scrollTop > scrollHeight) {
-                    if (! scrolledFully) {
-                        scrolledFully = true;
-                        scrollHeightLast = -1;
-
-                        root.innerElement.style.marginTop = '50%';
-                        image.style.width = 'calc(50% - 16px)';
-                        image.style.paddingLeft = '25%';
-                        image.style.paddingRight = '25%';
-                    }
-                } else {
-                    scrolledFully = false;
-
-                    var p = 100 - Math.floor((root.innerElement.scrollTop / scrollHeight) * 50);
-
-                    if (p === scrollHeightLast) return;
-                    scrollHeightLast = p;
-
-                    root.innerElement.style.marginTop = p + '%';
-                    image.style.width = 'calc(' + p + '% - 16px)';
-                    image.style.paddingLeft = ((100 - p) / 2) + '%';
-                    image.style.paddingRight = ((100 - p) / 2) + '%';
-                }
-            });
 
             var evtImgUpdate = assets[0].on('file.hash:set', function(hash) {
                 image.src = config.url.home + assets[0].get('file.url') + '?t=' + assets[0].get('modified_at');
             });
 
             paramsPanel.on('destroy', function() {
-                scrollEvt.unbind();
+                // scrollEvt.unbind();
                 evtImgUpdate.unbind();
                 image.parentNode.removeChild(image);
-                root.class.remove('asset-preview');
-                root.innerElement.style.marginTop = '';
+                root.class.remove('asset-preview', 'animate');
             });
         }
     });
