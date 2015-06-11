@@ -80,6 +80,52 @@ editor.once('load', function() {
         editor.call('attributes:reference:settings:skybox:attach', fieldSkybox._label);
 
 
+        // skyboxIntensity
+        var fieldSkyboxIntensity = editor.call('attributes:addField', {
+            parent: panelEnvironment,
+            name: 'Intensity',
+            type: 'number',
+            precision: 3,
+            step: .05,
+            min: 0,
+            max: 32,
+            link: sceneSettings,
+            path: 'render.skyboxIntensity'
+        });
+        fieldSkyboxIntensity.style.width = '32px';
+        // reference
+        editor.call('attributes:reference:settings:skyboxIntensity:attach', fieldSkyboxIntensity.parent.innerElement.firstChild.ui);
+
+        // skyboxIntensity slider
+        var fieldExposureSlider = new ui.Slider({
+            min: 0,
+            max: 32,
+            precision: 3
+        });
+        fieldExposureSlider.flexGrow = 4;
+        fieldExposureSlider.link(sceneSettings, 'render.skyboxIntensity');
+        fieldSkyboxIntensity.parent.append(fieldExposureSlider);
+
+
+        // skyboxMip
+        var fieldSkyboxIntensity = editor.call('attributes:addField', {
+            parent: panelEnvironment,
+            name: 'Mip',
+            type: 'number',
+            enum: {
+                0: '1',
+                1: '2',
+                2: '3',
+                3: '4',
+                4: '5'
+            },
+            link: sceneSettings,
+            path: 'render.skyboxMip'
+        });
+        // reference
+        editor.call('attributes:reference:settings:skyboxMip:attach', fieldSkyboxIntensity.parent.innerElement.firstChild.ui);
+
+
         // camera
         var panelCamera = editor.call('attributes:addPanel', {
             name: 'Camera'
