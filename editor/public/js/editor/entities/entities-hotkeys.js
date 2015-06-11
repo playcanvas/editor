@@ -72,6 +72,7 @@ editor.once('load', function() {
     editor.call('hotkey:register', 'entity:copy', {
         key: 'c',
         ctrl: true,
+        skipPreventDefault: true,
         callback: function () {
             // write permissions only (perhaps we could also allow read permissions)
             if (! editor.call('permissions:write'))
