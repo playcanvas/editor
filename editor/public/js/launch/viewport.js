@@ -44,7 +44,29 @@ app.once('load', function() {
 
             application.on("preload:progress", setProgress);
 
-            application._parseScripts(scriptList, sceneSettings['priority_scripts']);
+            // load only referenced scripts
+            var scriptsIndex = { };
+            var scriptsReferenced = [ ];
+            for(var i = 0; i < scriptList.length; i++)
+                scriptsIndex[scriptList[i]] = true;
+
+            for(var key in sceneData.entities) {
+                var entity = sceneData.entities[key];
+
+                if (! entity.components.script)
+                    continue;
+
+                var scripts = entity.components.script.scripts;
+                for(var i = 0; i < scripts.length; i++) {
+                    if (! scriptsIndex[scripts[i].url])
+                        continue;
+
+                    delete scriptsIndex[scripts[i].url];
+                    scriptsReferenced.push(scripts[i].url);
+                }
+            }
+
+            application._parseScripts(scriptsReferenced, sceneSettings['priority_scripts']);
 
             // load assets that are in the preload set
             application.preload(function (err) {
