@@ -69,7 +69,7 @@ editor.once('load', function() {
                 asset.sync = false;
                 asset.history.enabled = false;
 
-                var fileSize = asset.get('file.size');
+                var fileHash = asset.get('file.hash');
                 var thumbnailSet = data.has_thumbnail !== asset.get('has_thumbnail');
 
                 for(var i = 0; i < fields.length; i++) {
@@ -77,8 +77,7 @@ editor.once('load', function() {
                 }
 
                 // reset thumbnails
-                if (data.thumbnails && ! (asset.get('type') === 'texture' && fileSize === asset.get('file.size') && ! thumbnailSet)) {
-                    fileSize = asset.get('file.size');
+                if (data.thumbnails && ! (asset.get('type') === 'texture' && fileHash === asset.get('file.hash') && ! thumbnailSet)) {
                     asset.unset('thumbnails');
                     asset.set('thumbnails', data.thumbnails);
                     asset.set('has_thumbnail', true);
