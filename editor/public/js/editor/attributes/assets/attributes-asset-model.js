@@ -36,6 +36,18 @@ editor.once('load', function() {
             root.element.insertBefore(canvas, root.innerElement);
             root.class.add('asset-preview');
 
+            requestAnimationFrame(function() {
+                root.class.add('animate');
+            });
+
+            canvas.addEventListener('click', function() {
+                if (root.element.classList.contains('large')) {
+                    root.element.classList.remove('large');
+                } else {
+                    root.element.classList.add('large');
+                }
+            }, false);
+
             var renderPreview = function () {
                 // resize canvas
                 canvas.width = root.element.clientWidth;
@@ -86,7 +98,7 @@ editor.once('load', function() {
             }
 
             panelNodes.on('destroy', function () {
-                root.class.remove('asset-preview');
+                root.class.remove('asset-preview', 'animate');
                 canvas.parentNode.removeChild(canvas);
                 evtPanelResize.unbind();
             });
