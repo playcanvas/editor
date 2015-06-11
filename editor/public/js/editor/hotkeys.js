@@ -135,10 +135,14 @@ editor.once('load', function() {
         var index = [ ctrl+0, alt+0, shift+0, evt.keyCode ].join('+');
 
         if (keyIndex[index]) {
+            var skipPreventDefault = false;
             for(var i = 0; i < keyIndex[index].length; i++) {
                 hotkeys[keyIndex[index][i]].callback();
+                if (! skipPreventDefault && hotkeys[keyIndex[index][i]].skipPreventDefault)
+                    skipPreventDefault = true;
             }
-            evt.preventDefault();
+            if (! skipPreventDefault)
+                evt.preventDefault();
         }
     }, false);
 
