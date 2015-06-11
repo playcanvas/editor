@@ -19,6 +19,10 @@ editor.once('load', function() {
             'default': 0,
             'type': 'texture',
         },
+        aoMapVertexColor: {
+            'default': false,
+            'type': 'boolean',
+        },
         aoMapChannel: {
             'default': 'r',
             'type': 'string'
@@ -52,6 +56,10 @@ editor.once('load', function() {
             'default': 0,
             'type': 'texture',
         },
+        diffuseMapVertexColor: {
+            'default': false,
+            'type': 'boolean',
+        },
         diffuseMapChannel: {
             'default': 'rgb',
             'type': 'string'
@@ -80,6 +88,10 @@ editor.once('load', function() {
         specular: {
             'default': [ .23, .23, .23 ],
             'type': 'rgb',
+        },
+        specularMapVertexColor: {
+            'default': false,
+            'type': 'boolean',
         },
         specularMapChannel: {
             'default': 'rgb',
@@ -121,6 +133,10 @@ editor.once('load', function() {
         metalnessMap: {
             'default': 0,
             'type': 'texture',
+        },
+        metalnessMapVertexColor: {
+            'default': false,
+            'type': 'boolean',
         },
         metalnessMapChannel: {
             'default': 'r',
@@ -167,6 +183,10 @@ editor.once('load', function() {
             'default': 0,
             'type': 'texture',
         },
+        glossMapVertexColor: {
+            'default': false,
+            'type': 'boolean',
+        },
         glossMapChannel: {
             'default': 'r',
             'type': 'string'
@@ -203,6 +223,10 @@ editor.once('load', function() {
         emissiveMap: {
             'default': 0,
             'type': 'texture',
+        },
+        emissiveMapVertexColor: {
+            'default': false,
+            'type': 'boolean',
         },
         emissiveMapChannel: {
             'default': 'rgb',
@@ -270,7 +294,12 @@ editor.once('load', function() {
         },
         heightMapUv: {
             'default': 0,
-            'type': 'int'
+            'type': 'int',
+            'enum': [
+                { v: '', t: '...' },
+                { v: 0, t: 'UV0' },
+                { v: 1, t: 'UV1' }
+            ]
         },
         heightMapTiling: {
             'default': [ 1, 1 ],
@@ -301,6 +330,10 @@ editor.once('load', function() {
         opacityMap: {
             'default': 0,
             'type': 'texture',
+        },
+        opacityMapVertexColor: {
+            'default': false,
+            'type': 'boolean',
         },
         opacityMapChannel: {
             'default': 'r',
@@ -356,6 +389,10 @@ editor.once('load', function() {
         lightMap: {
             'default': 0,
             'type': 'texture',
+        },
+        lightMapVertexColor: {
+            'default': false,
+            'type': 'boolean',
         },
         lightMapChannel: {
             'default': 'rgb',
@@ -1010,6 +1047,17 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:aoMapTiling:attach', fieldAmbientTiling[0].parent.innerElement.firstChild.ui);
 
+        // vertex color
+        var fieldAmbientVertexColor = editor.call('attributes:addField', {
+            parent: panelAmbient,
+            name: 'Vertex Color',
+            type: 'checkbox',
+            link: assets,
+            path: 'data.aoMapVertexColor'
+        });
+        // reference
+        editor.call('attributes:reference:asset:material:aoMapVertexColor:attach', fieldAmbientVertexColor.parent.innerElement.firstChild.ui);
+
         // occludeSpecular
         var fieldOccludeSpecular = editor.call('attributes:addField', {
             parent: panelAmbient,
@@ -1086,7 +1134,6 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:diffuseMapChannel:attach', fieldDiffuseMapChannel);
 
-
         // offset
         var fieldDiffuseOffset = editor.call('attributes:addField', {
             parent: panelDiffuse,
@@ -1129,6 +1176,16 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:diffuseMapTiling:attach', fieldDiffuseTiling[0].parent.innerElement.firstChild.ui);
 
+        // vertex color
+        var fieldDiffuseVertexColor = editor.call('attributes:addField', {
+            parent: panelDiffuse,
+            name: 'Vertex Color',
+            type: 'checkbox',
+            link: assets,
+            path: 'data.diffuseMapVertexColor'
+        });
+        // reference
+        editor.call('attributes:reference:asset:material:diffuseMapVertexColor:attach', fieldDiffuseVertexColor.parent.innerElement.firstChild.ui);
 
         // color
         var fieldDiffuseColor = editor.call('attributes:addField', {
@@ -1241,7 +1298,6 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:metalnessMapChannel:attach', fieldMetalnessMapChannel);
 
-
         // offset
         var fieldMetalnessOffset = editor.call('attributes:addField', {
             parent: panelMetalness,
@@ -1283,6 +1339,17 @@ editor.once('load', function() {
         fieldMetalnessTiling[0].parent.hidden = filterMetalnessTiling();
         // reference
         editor.call('attributes:reference:asset:material:metalnessMapTiling:attach', fieldMetalnessTiling[0].parent.innerElement.firstChild.ui);
+
+        // vertex color
+        var fieldMetalnessVertexColor = editor.call('attributes:addField', {
+            parent: panelMetalness,
+            name: 'Vertex Color',
+            type: 'checkbox',
+            link: assets,
+            path: 'data.metalnessMapVertexColor'
+        });
+        // reference
+        editor.call('attributes:reference:asset:material:metalnessMapVertexColor:attach', fieldMetalnessVertexColor.parent.innerElement.firstChild.ui);
 
 
         // metalness
@@ -1415,6 +1482,16 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:specularMapTiling:attach', fieldSpecularTiling[0].parent.innerElement.firstChild.ui);
 
+        // vertex color
+        var fieldSpecularVertexColor = editor.call('attributes:addField', {
+            parent: panelSpecularWorkflow,
+            name: 'Vertex Color',
+            type: 'checkbox',
+            link: assets,
+            path: 'data.specularMapVertexColor'
+        });
+        // reference
+        editor.call('attributes:reference:asset:material:specularMapVertexColor:attach', fieldSpecularVertexColor.parent.innerElement.firstChild.ui);
 
         // color
         var fieldSpecularColor = editor.call('attributes:addField', {
@@ -1538,6 +1615,16 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:glossMapTiling:attach', fieldGlossTiling[0].parent.innerElement.firstChild.ui);
 
+        // vertex color
+        var fieldGlossVertexColor = editor.call('attributes:addField', {
+            parent: panelSpecular,
+            name: 'Vertex Color',
+            type: 'checkbox',
+            link: assets,
+            path: 'data.glossMapVertexColor'
+        });
+        // reference
+        editor.call('attributes:reference:asset:material:glossMapVertexColor:attach', fieldGlossVertexColor.parent.innerElement.firstChild.ui);
 
         // shininess
         var fieldShininess = editor.call('attributes:addField', {
@@ -1676,6 +1763,16 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:emissiveMapTiling:attach', fieldEmissiveTiling[0].parent.innerElement.firstChild.ui);
 
+        // vertex color
+        var fieldEmissiveVertexColor = editor.call('attributes:addField', {
+            parent: panelEmissive,
+            name: 'Vertex Color',
+            type: 'checkbox',
+            link: assets,
+            path: 'data.emissiveMapVertexColor'
+        });
+        // reference
+        editor.call('attributes:reference:asset:material:emissiveMapVertexColor:attach', fieldEmissiveVertexColor.parent.innerElement.firstChild.ui);
 
         // color
         var fieldEmissiveColor = editor.call('attributes:addField', {
@@ -1749,6 +1846,12 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:opacityOverview:attach', panelOpacity, panelOpacity.headerElement);
 
+        var filterBlendFields = function() {
+            fieldOpacityIntensity.parent.hidden = ! (fieldBlendType.value === '' || [ 2, 4, 6 ].indexOf(fieldBlendType.value) !== -1);
+            fieldOpacityOffset[0].parent.hidden = filterOpacityOffset();
+            fieldOpacityTiling[0].parent.hidden = filterOpacityTiling();
+            fieldAlphaTest.parent.hidden = ! (fieldOpacityMap.class.contains('null') || fieldOpacityMap.value) && ! (fieldOpacityVertexColor.value || fieldOpacityVertexColor.class.contains('null'));
+        };
 
         // blend type
         var fieldBlendType = editor.call('attributes:addField', {
@@ -1759,11 +1862,7 @@ editor.once('load', function() {
             link: assets,
             path: 'data.blendType'
         });
-        fieldBlendType.on('change', function (value) {
-            fieldOpacityIntensity.parent.hidden = ! (value === '' || [ 2, 4, 6 ].indexOf(value) !== -1);
-            fieldOpacityOffset[0].parent.hidden = filterOpacityOffset();
-            fieldOpacityTiling[0].parent.hidden = filterOpacityTiling();
-        });
+        fieldBlendType.on('change', filterBlendFields);
         // reference
         editor.call('attributes:reference:asset:material:blendType:attach', fieldBlendType.parent.innerElement.firstChild.ui);
 
@@ -1777,11 +1876,7 @@ editor.once('load', function() {
             path: 'data.opacityMap'
         });
         fieldOpacityMap.parent.class.add('channel');
-        fieldOpacityMap.on('change', function(value) {
-            fieldAlphaTest.parent.hidden = ! (this.class.contains('null') || value);
-            fieldOpacityOffset[0].parent.hidden = filterOpacityOffset();
-            fieldOpacityTiling[0].parent.hidden = filterOpacityTiling();
-        });
+        fieldOpacityMap.on('change', filterBlendFields);
         // reference
         editor.call('attributes:reference:asset:material:opacityMap:attach', fieldOpacityMap._label);
 
@@ -1818,7 +1913,6 @@ editor.once('load', function() {
         fieldOpacityMap.parent.innerElement.querySelector('.top > .ui-label').parentNode.appendChild(fieldOpacityMapChannel.element);
         // reference
         editor.call('attributes:reference:asset:material:opacityMapChannel:attach', fieldOpacityMapChannel);
-
 
         // offset
         var fieldOpacityOffset = editor.call('attributes:addField', {
@@ -1862,6 +1956,17 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:opacityMapTiling:attach', fieldOpacityTiling[0].parent.innerElement.firstChild.ui);
 
+        // vertex color
+        var fieldOpacityVertexColor = editor.call('attributes:addField', {
+            parent: panelOpacity,
+            name: 'Vertex Color',
+            type: 'checkbox',
+            link: assets,
+            path: 'data.opacityMapVertexColor'
+        });
+        fieldOpacityVertexColor.on('change', filterBlendFields);
+        // reference
+        editor.call('attributes:reference:asset:material:opacityMapVertexColor:attach', fieldOpacityVertexColor.parent.innerElement.firstChild.ui);
 
         // intensity
         var fieldOpacityIntensity = editor.call('attributes:addField', {
@@ -1875,7 +1980,6 @@ editor.once('load', function() {
             link: assets,
             path: 'data.opacity'
         });
-        fieldOpacityIntensity.parent.hidden = ! (fieldBlendType.value === '' || [ 2, 4, 6 ].indexOf(fieldBlendType.value) !== -1);
         fieldOpacityIntensity.style.width = '32px';
         fieldOpacityIntensity.flexGrow = 1;
         // reference
@@ -1895,7 +1999,6 @@ editor.once('load', function() {
         });
         fieldOpacityIntensitySlider.flexGrow = 4;
 
-
         // alphaTest
         var fieldAlphaTest = editor.call('attributes:addField', {
             parent: panelOpacity,
@@ -1908,7 +2011,6 @@ editor.once('load', function() {
             link: assets,
             path: 'data.alphaTest'
         });
-        fieldAlphaTest.parent.hidden = ! (fieldOpacityMap.class.contains('null') || fieldOpacityMap.value);
         fieldAlphaTest.style.width = '32px';
         fieldAlphaTest.flexGrow = 1;
         // reference
@@ -1927,6 +2029,8 @@ editor.once('load', function() {
             path: 'data.alphaTest'
         });
         fieldAlphaTestSlider.flexGrow = 4;
+
+        filterBlendFields();
 
 
         // normals
@@ -2432,7 +2536,16 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:lightMapTiling:attach', fieldLightMapTiling[0].parent.innerElement.firstChild.ui);
 
-
+        // vertex color
+        var fieldLightVertexColor = editor.call('attributes:addField', {
+            parent: panelLightMap,
+            name: 'Vertex Color',
+            type: 'checkbox',
+            link: assets,
+            path: 'data.lightMapVertexColor'
+        });
+        // reference
+        editor.call('attributes:reference:asset:material:lightMapVertexColor:attach', fieldLightVertexColor.parent.innerElement.firstChild.ui);
 
         // render states
         var panelRenderStates = editor.call('attributes:addPanel', {
