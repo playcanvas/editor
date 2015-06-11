@@ -25,7 +25,12 @@ editor.once('load', function() {
         },
         aoMapUv: {
             'default': 0,
-            'type': 'int'
+            'type': 'int',
+            'enum': [
+                { v: '', t: '...' },
+                { v: 0, t: 'UV0' },
+                { v: 1, t: 'UV1' }
+            ]
         },
         aoMapTiling: {
             'default': [ 1, 1 ],
@@ -53,7 +58,12 @@ editor.once('load', function() {
         },
         diffuseMapUv: {
             'default': 0,
-            'type': 'int'
+            'type': 'int',
+            'enum': [
+                { v: '', t: '...' },
+                { v: 0, t: 'UV0' },
+                { v: 1, t: 'UV1' }
+            ]
         },
         diffuseMapTiling: {
             'default': [ 1, 1 ],
@@ -77,7 +87,12 @@ editor.once('load', function() {
         },
         specularMapUv: {
             'default': 0,
-            'type': 'int'
+            'type': 'int',
+            'enum': [
+                { v: '', t: '...' },
+                { v: 0, t: 'UV0' },
+                { v: 1, t: 'UV1' }
+            ]
         },
         specularMap: {
             'default': 0,
@@ -113,7 +128,12 @@ editor.once('load', function() {
         },
         metalnessMapUv: {
             'default': 0,
-            'type': 'int'
+            'type': 'int',
+            'enum': [
+                { v: '', t: '...' },
+                { v: 0, t: 'UV0' },
+                { v: 1, t: 'UV1' }
+            ]
         },
         metalnessMapTiling: {
             'default': [ 1, 1 ],
@@ -153,7 +173,12 @@ editor.once('load', function() {
         },
         glossMapUv: {
             'default': 0,
-            'type': 'int'
+            'type': 'int',
+            'enum': [
+                { v: '', t: '...' },
+                { v: 0, t: 'UV0' },
+                { v: 1, t: 'UV1' }
+            ]
         },
         glossMapTiling: {
             'default': [ 1, 1 ],
@@ -185,7 +210,12 @@ editor.once('load', function() {
         },
         emissiveMapUv: {
             'default': 0,
-            'type': 'int'
+            'type': 'int',
+            'enum': [
+                { v: '', t: '...' },
+                { v: 0, t: 'UV0' },
+                { v: 1, t: 'UV1' }
+            ]
         },
         emissiveMapTiling: {
             'default': [ 1, 1 ],
@@ -220,6 +250,11 @@ editor.once('load', function() {
         normalMapUv: {
             'default': 0,
             'type': 'int',
+            'enum': [
+                { v: '', t: '...' },
+                { v: 0, t: 'UV0' },
+                { v: 1, t: 'UV1' }
+            ]
         },
         bumpMapFactor: {
             'default': 1,
@@ -273,7 +308,12 @@ editor.once('load', function() {
         },
         opacityMapUv: {
             'default': 0,
-            'type': 'int'
+            'type': 'int',
+            'enum': [
+                { v: '', t: '...' },
+                { v: 0, t: 'UV0' },
+                { v: 1, t: 'UV1' }
+            ]
         },
         opacityMapTiling: {
             'default': [ 1, 1 ],
@@ -323,7 +363,12 @@ editor.once('load', function() {
         },
         lightMapUv: {
             'default': 1,
-            'type': 'int'
+            'type': 'int',
+            'enum': [
+                { v: '', t: '...' },
+                { v: 0, t: 'UV0' },
+                { v: 1, t: 'UV1' }
+            ]
         },
         lightMapTiling: {
             'default': [ 1, 1 ],
@@ -894,11 +939,7 @@ editor.once('load', function() {
         var fieldAmbientMapUV = editor.call('attributes:addField', {
             panel: fieldAmbientMap.parent,
             type: 'number',
-            enum: [
-                { v: '', t: '...' },
-                { v: 0, t: 'UV0' },
-                { v: 1, t: 'UV1' }
-            ],
+            enum: mapping.aoMapUv.enum,
             link: assets,
             path: 'data.aoMapUv'
         });
@@ -1015,11 +1056,7 @@ editor.once('load', function() {
         var fieldDiffuseMapUV = editor.call('attributes:addField', {
             panel: fieldDiffuseMap.parent,
             type: 'number',
-            enum: [
-                { v: '', t: '...' },
-                { v: 0, t: 'UV0' },
-                { v: 1, t: 'UV1' }
-            ],
+            enum: mapping.diffuseMapUv.enum,
             link: assets,
             path: 'data.diffuseMapUv'
         });
@@ -1175,11 +1212,7 @@ editor.once('load', function() {
         var fieldMetalnessMapUV = editor.call('attributes:addField', {
             panel: fieldMetalnessMap.parent,
             type: 'number',
-            enum: [
-                { v: '', t: '...' },
-                { v: 0, t: 'UV0' },
-                { v: 1, t: 'UV1' }
-            ],
+            enum: mapping.metalnessMapUv.enum,
             link: assets,
             path: 'data.metalnessMapUv'
         });
@@ -1309,11 +1342,7 @@ editor.once('load', function() {
         var fieldSpecularMapUV = editor.call('attributes:addField', {
             panel: fieldSpecularMap.parent,
             type: 'number',
-            enum: [
-                { v: '', t: '...' },
-                { v: 0, t: 'UV0' },
-                { v: 1, t: 'UV1' }
-            ],
+            enum: mapping.specularMapUv.enum,
             link: assets,
             path: 'data.specularMapUv'
         });
@@ -1437,11 +1466,7 @@ editor.once('load', function() {
         var fieldGlossMapUV = editor.call('attributes:addField', {
             panel: fieldGlossMap.parent,
             type: 'number',
-            enum: [
-                { v: '', t: '...' },
-                { v: 0, t: 'UV0' },
-                { v: 1, t: 'UV1' }
-            ],
+            enum: mapping.glossMapUv.enum,
             link: assets,
             path: 'data.glossMapUv'
         });
@@ -1578,11 +1603,7 @@ editor.once('load', function() {
         var fieldEmissiveMapUV = editor.call('attributes:addField', {
             panel: fieldEmissiveMap.parent,
             type: 'number',
-            enum: [
-                { v: '', t: '...' },
-                { v: 0, t: 'UV0' },
-                { v: 1, t: 'UV1' }
-            ],
+            enum: mapping.emissiveMapUv.enum,
             link: assets,
             path: 'data.emissiveMapUv'
         });
@@ -1768,11 +1789,7 @@ editor.once('load', function() {
         var fieldOpacityMapUV = editor.call('attributes:addField', {
             panel: fieldOpacityMap.parent,
             type: 'number',
-            enum: [
-                { v: '', t: '...' },
-                { v: 0, t: 'UV0' },
-                { v: 1, t: 'UV1' }
-            ],
+            enum: mapping.opacityMapUv.enum,
             link: assets,
             path: 'data.opacityMapUv'
         });
@@ -1945,11 +1962,7 @@ editor.once('load', function() {
         var fieldNormalMapUV = editor.call('attributes:addField', {
             panel: fieldNormalMap.parent,
             type: 'number',
-            enum: [
-                { v: '', t: '...' },
-                { v: 0, t: 'UV0' },
-                { v: 1, t: 'UV1' }
-            ],
+            enum: mapping.normalMapUv.enum,
             link: assets,
             path: 'data.normalMapUv'
         });
@@ -2070,11 +2083,7 @@ editor.once('load', function() {
         var fieldHeightMapUV = editor.call('attributes:addField', {
             panel: fieldHeightMap.parent,
             type: 'number',
-            enum: [
-                { v: '', t: '...' },
-                { v: 0, t: 'UV0' },
-                { v: 1, t: 'UV1' }
-            ],
+            enum: mapping.heightMapUv.enum,
             link: assets,
             path: 'data.heightMapUv'
         });
@@ -2350,11 +2359,7 @@ editor.once('load', function() {
         var fieldLightMapUV = editor.call('attributes:addField', {
             panel: fieldLightMap.parent,
             type: 'number',
-            enum: [
-                { v: '', t: '...' },
-                { v: 0, t: 'UV0' },
-                { v: 1, t: 'UV1' }
-            ],
+            enum: mapping.lightMapUv.enum,
             link: assets,
             path: 'data.lightMapUv'
         });
