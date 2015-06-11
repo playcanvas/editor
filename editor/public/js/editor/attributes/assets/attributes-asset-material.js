@@ -23,6 +23,10 @@ editor.once('load', function() {
             'default': 'r',
             'type': 'string'
         },
+        aoMapUv: {
+            'default': 0,
+            'type': 'int'
+        },
         aoMapTiling: {
             'default': [ 1, 1 ],
             'type': 'vec2',
@@ -30,10 +34,6 @@ editor.once('load', function() {
         aoMapOffset: {
             'default': [ 0, 0 ],
             'type': 'vec2',
-        },
-        aoUvSet: {
-            'default': 0,
-            'type': 'float',
         },
         occludeSpecular: {
             'default': true,
@@ -50,6 +50,10 @@ editor.once('load', function() {
         diffuseMapChannel: {
             'default': 'rgb',
             'type': 'string'
+        },
+        diffuseMapUv: {
+            'default': 0,
+            'type': 'int'
         },
         diffuseMapTiling: {
             'default': [ 1, 1 ],
@@ -70,6 +74,10 @@ editor.once('load', function() {
         specularMapChannel: {
             'default': 'rgb',
             'type': 'string'
+        },
+        specularMapUv: {
+            'default': 0,
+            'type': 'int'
         },
         specularMap: {
             'default': 0,
@@ -102,6 +110,10 @@ editor.once('load', function() {
         metalnessMapChannel: {
             'default': 'r',
             'type': 'string'
+        },
+        metalnessMapUv: {
+            'default': 0,
+            'type': 'int'
         },
         metalnessMapTiling: {
             'default': [ 1, 1 ],
@@ -139,6 +151,10 @@ editor.once('load', function() {
             'default': 'r',
             'type': 'string'
         },
+        glossMapUv: {
+            'default': 0,
+            'type': 'int'
+        },
         glossMapTiling: {
             'default': [ 1, 1 ],
             'type': 'vec2',
@@ -166,6 +182,10 @@ editor.once('load', function() {
         emissiveMapChannel: {
             'default': 'rgb',
             'type': 'string'
+        },
+        emissiveMapUv: {
+            'default': 0,
+            'type': 'int'
         },
         emissiveMapTiling: {
             'default': [ 1, 1 ],
@@ -197,6 +217,10 @@ editor.once('load', function() {
             'default': [ 0, 0 ],
             'type': 'vec2',
         },
+        normalMapUv: {
+            'default': 0,
+            'type': 'int',
+        },
         bumpMapFactor: {
             'default': 1,
             'type': 'float',
@@ -208,6 +232,10 @@ editor.once('load', function() {
         heightMapChannel: {
             'default': 'r',
             'type': 'string'
+        },
+        heightMapUv: {
+            'default': 0,
+            'type': 'int'
         },
         heightMapTiling: {
             'default': [ 1, 1 ],
@@ -242,6 +270,10 @@ editor.once('load', function() {
         opacityMapChannel: {
             'default': 'r',
             'type': 'string'
+        },
+        opacityMapUv: {
+            'default': 0,
+            'type': 'int'
         },
         opacityMapTiling: {
             'default': [ 1, 1 ],
@@ -288,6 +320,10 @@ editor.once('load', function() {
         lightMapChannel: {
             'default': 'rgb',
             'type': 'string'
+        },
+        lightMapUv: {
+            'default': 1,
+            'type': 'int'
         },
         lightMapTiling: {
             'default': [ 1, 1 ],
@@ -854,6 +890,23 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:aoMap:attach', fieldAmbientMap._label);
 
+        // map uv
+        var fieldAmbientMapUV = editor.call('attributes:addField', {
+            panel: fieldAmbientMap.parent,
+            type: 'number',
+            enum: [
+                { v: '', t: '...' },
+                { v: 0, t: 'UV0' },
+                { v: 1, t: 'UV1' }
+            ],
+            link: assets,
+            path: 'data.aoMapUv'
+        });
+        fieldAmbientMapUV.flexGrow = 0;
+        fieldAmbientMapUV.element.parentNode.removeChild(fieldAmbientMapUV.element);
+        fieldAmbientMap.parent.innerElement.querySelector('.top > .controls').appendChild(fieldAmbientMapUV.element);
+        // reference
+        editor.call('attributes:reference:asset:material:aoMapUv:attach', fieldAmbientMapUV);
 
         // map channel
         var fieldAmbientMapChannel = editor.call('attributes:addField', {
@@ -957,6 +1010,24 @@ editor.once('load', function() {
         });
         // reference
         editor.call('attributes:reference:asset:material:diffuseMap:attach', fieldDiffuseMap._label);
+
+        // map uv
+        var fieldDiffuseMapUV = editor.call('attributes:addField', {
+            panel: fieldDiffuseMap.parent,
+            type: 'number',
+            enum: [
+                { v: '', t: '...' },
+                { v: 0, t: 'UV0' },
+                { v: 1, t: 'UV1' }
+            ],
+            link: assets,
+            path: 'data.diffuseMapUv'
+        });
+        fieldDiffuseMapUV.flexGrow = 0;
+        fieldDiffuseMapUV.element.parentNode.removeChild(fieldDiffuseMapUV.element);
+        fieldDiffuseMap.parent.innerElement.querySelector('.top > .controls').appendChild(fieldDiffuseMapUV.element);
+        // reference
+        editor.call('attributes:reference:asset:material:diffuseMapUv:attach', fieldDiffuseMapUV);
 
         // map channel
         var fieldDiffuseMapChannel = editor.call('attributes:addField', {
@@ -1100,6 +1171,24 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:metalnessMap:attach', fieldMetalnessMap._label);
 
+        // map uv
+        var fieldMetalnessMapUV = editor.call('attributes:addField', {
+            panel: fieldMetalnessMap.parent,
+            type: 'number',
+            enum: [
+                { v: '', t: '...' },
+                { v: 0, t: 'UV0' },
+                { v: 1, t: 'UV1' }
+            ],
+            link: assets,
+            path: 'data.metalnessMapUv'
+        });
+        fieldMetalnessMapUV.flexGrow = 0;
+        fieldMetalnessMapUV.element.parentNode.removeChild(fieldMetalnessMapUV.element);
+        fieldMetalnessMap.parent.innerElement.querySelector('.top > .controls').appendChild(fieldMetalnessMapUV.element);
+        // reference
+        editor.call('attributes:reference:asset:material:metalnessMapUv:attach', fieldMetalnessMapUV);
+
         // map channel
         var fieldMetalnessMapChannel = editor.call('attributes:addField', {
             panel: fieldMetalnessMap.parent,
@@ -1216,6 +1305,24 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:specularMap:attach', fieldSpecularMap._label);
 
+        // map uv
+        var fieldSpecularMapUV = editor.call('attributes:addField', {
+            panel: fieldSpecularMap.parent,
+            type: 'number',
+            enum: [
+                { v: '', t: '...' },
+                { v: 0, t: 'UV0' },
+                { v: 1, t: 'UV1' }
+            ],
+            link: assets,
+            path: 'data.specularMapUv'
+        });
+        fieldSpecularMapUV.flexGrow = 0;
+        fieldSpecularMapUV.element.parentNode.removeChild(fieldSpecularMapUV.element);
+        fieldSpecularMap.parent.innerElement.querySelector('.top > .controls').appendChild(fieldSpecularMapUV.element);
+        // reference
+        editor.call('attributes:reference:asset:material:specularMapUv:attach', fieldSpecularMapUV);
+
         // map channel
         var fieldSpecularMapChannel = editor.call('attributes:addField', {
             panel: fieldSpecularMap.parent,
@@ -1326,6 +1433,23 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:glossMap:attach', fieldGlossMap._label);
 
+        // map uv
+        var fieldGlossMapUV = editor.call('attributes:addField', {
+            panel: fieldGlossMap.parent,
+            type: 'number',
+            enum: [
+                { v: '', t: '...' },
+                { v: 0, t: 'UV0' },
+                { v: 1, t: 'UV1' }
+            ],
+            link: assets,
+            path: 'data.glossMapUv'
+        });
+        fieldGlossMapUV.flexGrow = 0;
+        fieldGlossMapUV.element.parentNode.removeChild(fieldGlossMapUV.element);
+        fieldGlossMap.parent.innerElement.querySelector('.top > .controls').appendChild(fieldGlossMapUV.element);
+        // reference
+        editor.call('attributes:reference:asset:material:glossMapUv:attach', fieldGlossMapUV);
 
         // map channel
         var fieldGlossMapChannel = editor.call('attributes:addField', {
@@ -1433,7 +1557,6 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:emissiveOverview:attach', panelEmissive, panelEmissive.headerElement);
 
-
         // map
         var fieldEmissiveMap = editor.call('attributes:addField', {
             parent: panelEmissive,
@@ -1451,6 +1574,23 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:emissiveMap:attach', fieldEmissiveMap._label);
 
+        // map uv
+        var fieldEmissiveMapUV = editor.call('attributes:addField', {
+            panel: fieldEmissiveMap.parent,
+            type: 'number',
+            enum: [
+                { v: '', t: '...' },
+                { v: 0, t: 'UV0' },
+                { v: 1, t: 'UV1' }
+            ],
+            link: assets,
+            path: 'data.emissiveMapUv'
+        });
+        fieldEmissiveMapUV.flexGrow = 0;
+        fieldEmissiveMapUV.element.parentNode.removeChild(fieldEmissiveMapUV.element);
+        fieldEmissiveMap.parent.innerElement.querySelector('.top > .controls').appendChild(fieldEmissiveMapUV.element);
+        // reference
+        editor.call('attributes:reference:asset:material:emissiveMapUv:attach', fieldEmissiveMapUV);
 
         // map channel
         var fieldEmissiveMapChannel = editor.call('attributes:addField', {
@@ -1624,6 +1764,23 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:opacityMap:attach', fieldOpacityMap._label);
 
+        // map uv
+        var fieldOpacityMapUV = editor.call('attributes:addField', {
+            panel: fieldOpacityMap.parent,
+            type: 'number',
+            enum: [
+                { v: '', t: '...' },
+                { v: 0, t: 'UV0' },
+                { v: 1, t: 'UV1' }
+            ],
+            link: assets,
+            path: 'data.opacityMapUv'
+        });
+        fieldOpacityMapUV.flexGrow = 0;
+        fieldOpacityMapUV.element.parentNode.removeChild(fieldOpacityMapUV.element);
+        fieldOpacityMap.parent.innerElement.querySelector('.top > .controls').appendChild(fieldOpacityMapUV.element);
+        // reference
+        editor.call('attributes:reference:asset:material:opacityMapUv:attach', fieldOpacityMapUV);
 
         // map channel
         var fieldOpacityMapChannel = editor.call('attributes:addField', {
@@ -1784,6 +1941,24 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:normalMap:attach', fieldNormalMap._label);
 
+        // map uv
+        var fieldNormalMapUV = editor.call('attributes:addField', {
+            panel: fieldNormalMap.parent,
+            type: 'number',
+            enum: [
+                { v: '', t: '...' },
+                { v: 0, t: 'UV0' },
+                { v: 1, t: 'UV1' }
+            ],
+            link: assets,
+            path: 'data.normalMapUv'
+        });
+        fieldNormalMapUV.flexGrow = 0;
+        fieldNormalMapUV.element.parentNode.removeChild(fieldNormalMapUV.element);
+        fieldNormalMap.parent.innerElement.querySelector('.top > .controls').appendChild(fieldNormalMapUV.element);
+        // reference
+        editor.call('attributes:reference:asset:material:normalMapUv:attach', fieldNormalMapUV);
+
 
         // offset
         var fieldNormalsOffset = editor.call('attributes:addField', {
@@ -1891,6 +2066,23 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:heightMap:attach', fieldHeightMap._label);
 
+        // map uv
+        var fieldHeightMapUV = editor.call('attributes:addField', {
+            panel: fieldHeightMap.parent,
+            type: 'number',
+            enum: [
+                { v: '', t: '...' },
+                { v: 0, t: 'UV0' },
+                { v: 1, t: 'UV1' }
+            ],
+            link: assets,
+            path: 'data.heightMapUv'
+        });
+        fieldHeightMapUV.flexGrow = 0;
+        fieldHeightMapUV.element.parentNode.removeChild(fieldHeightMapUV.element);
+        fieldHeightMap.parent.innerElement.querySelector('.top > .controls').appendChild(fieldHeightMapUV.element);
+        // reference
+        editor.call('attributes:reference:asset:material:heightMapUv:attach', fieldHeightMapUV);
 
         // map channel
         var fieldHeightMapChannel = editor.call('attributes:addField', {
@@ -2153,6 +2345,24 @@ editor.once('load', function() {
         });
         // reference
         editor.call('attributes:reference:asset:material:lightMap:attach', fieldLightMap._label);
+
+        // map uv
+        var fieldLightMapUV = editor.call('attributes:addField', {
+            panel: fieldLightMap.parent,
+            type: 'number',
+            enum: [
+                { v: '', t: '...' },
+                { v: 0, t: 'UV0' },
+                { v: 1, t: 'UV1' }
+            ],
+            link: assets,
+            path: 'data.lightMapUv'
+        });
+        fieldLightMapUV.flexGrow = 0;
+        fieldLightMapUV.element.parentNode.removeChild(fieldLightMapUV.element);
+        fieldLightMap.parent.innerElement.querySelector('.top > .controls').appendChild(fieldLightMapUV.element);
+        // reference
+        editor.call('attributes:reference:asset:material:lightMapUv:attach', fieldLightMapUV);
 
         // map channel
         var fieldLightMapChannel = editor.call('attributes:addField', {
