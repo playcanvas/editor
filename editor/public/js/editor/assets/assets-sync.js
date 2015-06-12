@@ -46,28 +46,22 @@ editor.once('load', function() {
 
     // create asset
     editor.method('assets:create', function (data) {
+        var evtAssetAdd = editor.once('assets:add', function(asset) {
+            evtAssetAdd = null;
+            editor.call('selector:set', 'asset', [ asset ]);
+        });
+
+        editor.once('selector:change', function() {
+            if (evtAssetAdd)
+                evtAssetAdd.unbind();
+        });
+
         Ajax
         .post('{{url.api}}/assets?access_token={{accessToken}}', data)
-        .on('load', function(status, data) {
-            var id = data.response[0].id;
-
-            // once asset created
-            var evtAssetAdd = editor.once('assets:add[' + id + ']', function(asset) {
-                evtAssetAdd = null;
-                // need small delay
-                setTimeout(function() {
-                    // select asset
-                    editor.call('selector:set', 'asset', [ asset ]);
-                }, 0);
-            });
-
-            // selector might be changed, then don't autoselect
-            editor.once('selector:change', function() {
-                if (evtAssetAdd)
-                    evtAssetAdd.unbind();
-            });
-        })
         .on('error', function(status, evt) {
+            if (evtAssetAdd)
+                evtAssetAdd.unbind();
+
             console.log(status, evt);
         });
     });
