@@ -44,6 +44,9 @@ editor.once('load', function () {
                         height: textures[0].height
                     });
 
+                    cubemap.addressU = pc.ADDRESS_CLAMP_TO_EDGE;
+                    cubemap.addressV = pc.ADDRESS_CLAMP_TO_EDGE;
+
                     cubemap._levels[0] = [ textures[0]._levels[0],
                                            textures[1]._levels[0],
                                            textures[2]._levels[0],

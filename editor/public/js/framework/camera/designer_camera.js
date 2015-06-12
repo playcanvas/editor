@@ -36,13 +36,17 @@ pc.script.create( "designer_camera", function (app) {
         this.mouse.bind(pc.EVENT_MOUSEWHEEL, this.onMouseWheel.bind(this));
         this.mouse.bind(pc.EVENT_MOUSEUP, this.onMouseUp.bind(this));
 
-        document.body.addEventListener('drop', function () {
+        this._dropListener = function () {
             // fix 'drop' event not resetting left mouse button pressed state
             this.mouse._buttons[pc.MOUSEBUTTON_LEFT] = false;
-        }.bind(this), false);
+        }.bind(this);
 
-        window.addEventListener('keydown', this.onKeyDown.bind(this), false);
-        window.addEventListener('keyup', this.onKeyUp.bind(this), false);
+        this._keyDownListener = this.onKeyDown.bind(this);
+        this._keyUpListener = this.onKeyUp.bind(this);
+
+        document.body.addEventListener('drop', this._dropListener, false);
+        window.addEventListener('keydown', this._keyDownListener, false);
+        window.addEventListener('keyup', this._keyUpListener, false);
 
         this.canvasFocused = false;
         this.rightClickOnCanvas = false;
@@ -726,8 +730,10 @@ pc.script.create( "designer_camera", function (app) {
 
     DesignerCamera.prototype.destroy = function () {
         this.mouse.detach(document.body);
-        window.removeEventListener('keydown', this.onKeyDown);
-        window.removeEventListener('keyup', this.onKeyUp);
+
+        document.body.removeEventListener('drop', this._dropListener);
+        window.removeEventListener('keydown', this._keyDownListener);
+        window.removeEventListener('keyup', this._keyUpListener);
     };
 
     return DesignerCamera;

@@ -35,15 +35,20 @@ editor.once('load', function() {
                 return;
 
             var type = editor.call('selector:type');
-            if (type !== 'entity')
-                return;
 
             var items = editor.call('selector:items');
             if (items.length !== 1)
                 return;
 
-            if (items[0] !== editor.call('entities:root'))
-                editor.call('entities:duplicate', items[0]);
+            if (type === 'entity') {
+                if (items[0] !== editor.call('entities:root'))
+                    editor.call('entities:duplicate', items[0]);
+            } else if (type === 'asset') {
+                if (items[0].get('type') !== 'material')
+                    return;
+
+                editor.call('assets:duplicate', items[0]);
+            }
         }
     });
 

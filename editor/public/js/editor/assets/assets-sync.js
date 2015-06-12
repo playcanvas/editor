@@ -46,41 +46,42 @@ editor.once('load', function() {
 
     // create asset
     editor.method('assets:create', function (data) {
+        var evtAssetAdd = editor.once('assets:add', function(asset) {
+            evtAssetAdd = null;
+            editor.call('selector:set', 'asset', [ asset ]);
+        });
+
+        editor.once('selector:change', function() {
+            if (evtAssetAdd)
+                evtAssetAdd.unbind();
+        });
+
         Ajax
         .post('{{url.api}}/assets?access_token={{accessToken}}', data)
-        .on('load', function(status, data) {
-            var id = data.response[0].id;
-
-            // once asset created
-            var evtAssetAdd = editor.once('assets:add[' + id + ']', function(asset) {
-                evtAssetAdd = null;
-                // need small delay
-                setTimeout(function() {
-                    // select asset
-                    editor.call('selector:set', 'asset', [ asset ]);
-                }, 0);
-            });
-
-            // selector might be changed, then don't autoselect
-            editor.once('selector:change', function() {
-                if (evtAssetAdd)
-                    evtAssetAdd.unbind();
-            });
-        })
         .on('error', function(status, evt) {
+            if (evtAssetAdd)
+                evtAssetAdd.unbind();
+
             console.log(status, evt);
         });
     });
 
     // delete asset
     editor.method('assets:delete', function(asset) {
-        editor.call('assets:remove', asset);
+        if (asset.get('type') === 'script') {
+            editor.emit('sourcefiles:remove', asset);
 
-        Ajax
-        .delete('{{url.api}}/assets/' + asset.get('id') + '?access_token={{accessToken}}')
-        .on('error', function(status, evt) {
-            console.log(status, evt);
-        });
+            Ajax
+            .delete('{{url.api}}/projects/' + config.project.id + '/repositories/directory/sourcefiles/' + asset.get('filename') + '?access_token={{accessToken}}');
+        } else {
+            editor.call('assets:remove', asset);
+
+            Ajax
+            .delete('{{url.api}}/assets/' + asset.get('id') + '?access_token={{accessToken}}')
+            .on('error', function(status, evt) {
+                console.log(status, evt);
+            });
+        }
     });
 
     // hook sync to new assets
