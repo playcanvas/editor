@@ -12,7 +12,7 @@ editor.once('load', function () {
 
     loader.addHandler("model", new pc.ModelHandler(device));
     loader.addHandler("material", new pc.MaterialHandler(assets));
-    loader.addHandler("texture", new pc.TextureHandler(device));
+    loader.addHandler("texture", new pc.TextureHandler(device, assets, loader));
     loader.addHandler("cubemap", new pc.CubemapHandler(device, assets, loader));
 
     // bind asset registry to editor
