@@ -74,13 +74,20 @@ editor.once('load', function() {
 
     // delete asset
     editor.method('assets:delete', function(asset) {
-        editor.call('assets:remove', asset);
+        if (asset.get('type') === 'script') {
+            editor.emit('sourcefiles:remove', asset);
 
-        Ajax
-        .delete('{{url.api}}/assets/' + asset.get('id') + '?access_token={{accessToken}}')
-        .on('error', function(status, evt) {
-            console.log(status, evt);
-        });
+            Ajax
+            .delete('{{url.api}}/projects/' + config.project.id + '/repositories/directory/sourcefiles/' + asset.get('filename') + '?access_token={{accessToken}}');
+        } else {
+            editor.call('assets:remove', asset);
+
+            Ajax
+            .delete('{{url.api}}/assets/' + asset.get('id') + '?access_token={{accessToken}}')
+            .on('error', function(status, evt) {
+                console.log(status, evt);
+            });
+        }
     });
 
     // hook sync to new assets

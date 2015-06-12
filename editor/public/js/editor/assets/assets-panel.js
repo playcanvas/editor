@@ -89,7 +89,7 @@ editor.once('load', function() {
 
     // get grid item by id
     editor.method('assets:panel:get', function(id) {
-        return assetsIndex[id];
+        return assetsIndex[id] || scriptsIndex[id];
     });
 
 
@@ -155,7 +155,9 @@ editor.once('load', function() {
             this.set('data.name', this.get('name'));
         });
         item.on('destroy', function() {
+            editor.call('selector:remove', asset);
             evtNameSet.unbind();
+            delete assetsIndex[asset.get('id')];
         });
     });
 
@@ -193,15 +195,23 @@ editor.once('load', function() {
             delete scriptsIndex[valueOld];
         });
         item.on('destroy', function() {
+            editor.call('selector:remove', file);
             evtNameSet.unbind();
+            delete scriptsIndex[file.get('filename')];
         });
         file.on('destroy', function() {
             item.destroy();
         });
     };
+    var removeSourceFile = function(file) {
+        file.destroy();
+    };
 
     editor.once('sourcefiles:load', function(files) {
-        files.forEach(addSourceFile);
+        for(var i = 0; i < files.data.length; i++) {
+            editor.emit('sourcefiles:add', files.data[i]);
+        }
     });
     editor.on('sourcefiles:add', addSourceFile);
+    editor.on('sourcefiles:remove', removeSourceFile);
 });

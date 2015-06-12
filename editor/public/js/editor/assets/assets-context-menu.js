@@ -27,6 +27,7 @@ editor.once('load', function() {
     });
     menuItemDelete.on('select', function() {
         var asset = currentAsset;
+        var assetType = asset.get('type');
 
         var multiple = false;
         var type = editor.call('selector:type');
@@ -35,7 +36,7 @@ editor.once('load', function() {
         if (type === 'asset') {
             items = editor.call('selector:items');
             for(var i = 0; i < items.length; i++) {
-                if (items[i].get('id') === asset.get('id')) {
+                if ((assetType === 'script' && items[i].get('filename') === asset.get('filename')) || (assetType !== 'script' && items[i].get('id') === asset.get('id'))) {
                     multiple = true;
                     break;
                 }
@@ -66,6 +67,21 @@ editor.once('load', function() {
     editor.on('assets:add', function(asset) {
         // get grid item
         var item = editor.call('assets:panel:get', asset.get('id'));
+        if (! item) return;
+
+        // attach contextmenu event
+        item.element.addEventListener('contextmenu', function(evt) {
+            if (! editor.call('permissions:write')) return;
+
+            currentAsset = asset;
+            menu.open = true;
+            menu.position(evt.clientX + 1, evt.clientY);
+        });
+    });
+
+    editor.on('sourcefiles:add', function(asset) {
+        // get grid item
+        var item = editor.call('assets:panel:get', asset.get('filename'));
         if (! item) return;
 
         // attach contextmenu event
