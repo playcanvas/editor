@@ -44,53 +44,36 @@ app.once('load', function() {
 
             application.on("preload:progress", setProgress);
 
-            // load only referenced scripts
-            var scriptsIndex = { };
-            var scriptsReferenced = [ ];
-            for(var i = 0; i < scriptList.length; i++)
-                scriptsIndex[scriptList[i]] = true;
-
-            for(var key in sceneData.entities) {
-                var entity = sceneData.entities[key];
-
-                if (! entity.components.script)
-                    continue;
-
-                var scripts = entity.components.script.scripts;
-                for(var i = 0; i < scripts.length; i++) {
-                    if (! scriptsIndex[scripts[i].url])
-                        continue;
-
-                    delete scriptsIndex[scripts[i].url];
-                    scriptsReferenced.push(scripts[i].url);
-                }
-            }
-
-            application._parseScripts(scriptsReferenced, sceneSettings['priority_scripts']);
-
             // load assets that are in the preload set
             application.preload(function (err) {
                 application.off("preload:progress", setProgress);
 
-                // create scene
-                application.scene = application.loader.open("scene", sceneData);
-                application.root.addChild(application.scene.root);
+                // load scripts that are in the scene data
+                application._preloadScripts(sceneData, function (err) {
+                    if (err) {
+                        console.error(err);
+                    }
 
-                // update scene settings now that scene is loaded
-                application.updateSceneSettings(sceneSettings);
+                    // create scene
+                    application.scene = application.loader.open("scene", sceneData);
+                    application.root.addChild(application.scene.root);
 
-                // clear stored loading data
-                sceneData = null;
-                sceneSettings = null;
-                scriptList = null;
+                    // update scene settings now that scene is loaded
+                    application.updateSceneSettings(sceneSettings);
 
-                app.call('entities:')
-                if (err) {
-                    console.error(err);
-                }
+                    // clear stored loading data
+                    sceneData = null;
+                    sceneSettings = null;
+                    scriptList = null;
 
-                hideSplash();
-                application.start();
+                    app.call('entities:')
+                    if (err) {
+                        console.error(err);
+                    }
+
+                    hideSplash();
+                    application.start();
+                });
             });
         }
     };
