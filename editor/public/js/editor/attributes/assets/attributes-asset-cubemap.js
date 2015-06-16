@@ -210,7 +210,7 @@ editor.once('load', function() {
             var setAssetFace = function (face, texture) {
                 var prevFace = assets[0].get('data.textures.' + face);
                 var assetId = assets[0].get('id');
-                var textureId = texture ? texture.get('id') : null;
+                var textureId = texture ? parseInt(texture.get('id'), 10) : null;
 
                 var setRgbmIfNeeded = function (asset) {
                     var hdrTextures = asset.get('data.textures').filter(function (id) {

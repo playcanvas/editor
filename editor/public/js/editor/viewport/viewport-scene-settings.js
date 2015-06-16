@@ -3,11 +3,12 @@ editor.once('load', function() {
 
     var sceneSettings = editor.call('sceneSettings');
     var framework = editor.call('viewport:framework');
+    var assetsLoaded = false;
     var updating;
 
     // queue settings apply
     var queueApplySettings = function() {
-        if (updating)
+        if (updating || !assetsLoaded)
             return;
 
         updating = true;
@@ -25,9 +26,12 @@ editor.once('load', function() {
     // on settings change
     sceneSettings.on('*:set', queueApplySettings);
 
+    editor.on('assets:load', function () {
+        assetsLoaded = true;
+        queueApplySettings();
+    });
+
     editor.once('sceneSettings:load', function () {
-        // when all assets are loaded re-apply scene settings
-        // to make sure any missing skyboxes are set
-        editor.once('assets:load', queueApplySettings);
+        queueApplySettings();
     });
 });

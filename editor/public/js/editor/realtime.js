@@ -32,6 +32,8 @@ editor.once('load', function() {
                             auth = true;
                             data = JSON.parse(msg.data.slice(4));
 
+                            editor.emit('realtime:authenticated');
+
                             // load scene
                             if (! scene)
                                 loadScene();

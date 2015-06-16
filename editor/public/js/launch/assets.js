@@ -22,6 +22,11 @@ app.once('load', function() {
         asset.destroy();
     });
 
+    // remove all assets
+    app.method('assets:clear', function () {
+        assets.clear();
+    });
+
     // get asset by id
     app.method('assets:get', function(id) {
         return assets.get(id);

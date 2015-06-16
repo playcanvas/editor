@@ -237,7 +237,7 @@ editor.once('load', function() {
             imageOriginal.onload = function() {
                 fieldDimensions.text = imageOriginal.naturalWidth + ' x ' + imageOriginal.naturalHeight;
             };
-            imageOriginal.src = config.url.home + assets[0].get('file.url') + '?t=' + assets[0].get('modified_at');
+            imageOriginal.src = config.url.home + assets[0].get('file.url') + '?t=' + assets[0].get('file.hash');
 
             var root = editor.call('attributes.rootPanel');
 
@@ -254,7 +254,7 @@ editor.once('load', function() {
                 image.onload = function() {
                     root.class.add('animate');
                 };
-                image.src = config.url.home + assets[0].get('thumbnails.xl') + '?t=' + assets[0].get('modified_at');
+                image.src = config.url.home + assets[0].get('thumbnails.xl');
             }
 
             image.addEventListener('click', function() {
@@ -270,7 +270,7 @@ editor.once('load', function() {
             root.element.insertBefore(image, root.innerElement);
 
             var evtImgUpdate = assets[0].on('file.hash:set', function(hash) {
-                image.src = config.url.home + assets[0].get('file.url') + '?t=' + assets[0].get('modified_at');
+                image.src = config.url.home + assets[0].get('file.url') + '?t=' + assets[0].get('file.hash');
             });
 
             paramsPanel.on('destroy', function() {

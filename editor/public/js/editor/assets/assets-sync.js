@@ -1,34 +1,92 @@
 editor.once('load', function() {
     'use strict';
 
-    // loaded all assets
+    var syncPaths = [
+        'name',
+        'preload',
+        'scope',
+        'data',
+        'file'
+    ];
+
+    var docs = {};
+
+    editor.method('loadAsset', function (id, callback) {
+        var connection = editor.call('realtime:connection');
+
+        var doc = connection.get('assets', '' + id);
+
+        docs[id] = doc;
+
+        // error
+        doc.on('error', function (err) {
+            console.error(err);
+            editor.emit('realtime:assets:error', err);
+        });
+
+        // ready to sync
+        doc.on('ready', function () {
+            // notify of operations
+            doc.on('after op', function (ops, local) {
+                if (local) return;
+
+                for (var i = 0; i < ops.length; i++) {
+                    editor.emit('realtime:op:assets', ops[i], id);
+                }
+            });
+
+            // notify of asset load
+            var assetData = doc.getSnapshot();
+            assetData.id = id;
+
+            if (assetData.file) {
+                assetData.file.url = getFileUrl(assetData.id, assetData.revision, assetData.file.filename);
+            }
+
+            var asset = new Observer(assetData);
+            editor.call('assets:add', asset);
+
+            if (callback)
+                callback(asset);
+
+        });
+
+        // subscribe for realtime events
+        doc.subscribe();
+    });
+
     var onLoad = function(data) {
         editor.call('assets:progress', .5);
 
         data = data.response;
 
-        for(var i = 0; i < data.length; i++) {
-            if (data[i].source)
-                continue;
+        var count = 0;
 
-            // TODO
-            // this is workaround to convert from array to key-value material properties
-            if (data[i].type == 'material') {
-                data[i].data = editor.call('material:listToMap', data[i].data);
+        var load = function (id) {
+            editor.call('loadAsset', id, function (asset) {
+                count++;
+                editor.call('assets:progress', (count / data.length) * .5 + .5);
+                if (count >= data.length) {
+                    editor.call('assets:progress', 1);
+                    editor.emit('assets:load');
+                }
+            });
+        };
+
+        if (data.length) {
+            for(var i = 0; i < data.length; i++) {
+                load(data[i].id);
             }
-
-            var asset = new Observer(data[i]);
-
-            editor.call('assets:add', asset);
-            editor.call('assets:progress', (i / data.length) * .5 + .5);
+        } else {
+            editor.call('assets:progress', 1);
+            editor.emit('assets:load');
         }
-
-        editor.call('assets:progress', 1);
-        editor.emit('assets:load');
     };
 
     // load all assets
-    editor.once('start', function() {
+    editor.on('realtime:authenticated', function() {
+        editor.call('assets:clear');
+
         Ajax
         .get('{{url.api}}/projects/{{project.id}}/assets?view=designer&access_token={{accessToken}}')
         .on('load', function(status, data) {
@@ -84,59 +142,99 @@ editor.once('load', function() {
         }
     });
 
+    editor.on('assets:remove', function (asset) {
+        var id = asset.get('id');
+        if (docs[id]) {
+            docs[id].destroy();
+            delete docs[id];
+        }
+    });
+
+    var setThumbnailPaths = function (asset) {
+        var id = asset.get('id');
+
+        asset.unset('thumbnails');
+        if (asset.get('has_thumbnail')) {
+            // set thumbnail paths for textures
+            asset.set('thumbnails', {
+                's': '/api/assets/' + id + '/thumbnail/small.jpg?t=' + asset.get('file.hash'),
+                'm': '/api/assets/' + id + '/thumbnail/medium.jpg?t=' + asset.get('file.hash'),
+                'l': '/api/assets/' + id + '/thumbnail/large.jpg?t=' + asset.get('file.hash'),
+                'xl': '/api/assets/' + id + '/thumbnail/xlarge.jpg?t=' + asset.get('file.hash')
+            });
+        }
+    };
+
+    var getFileUrl = function (id, revision, filename) {
+        return '/api/files/assets/' + id + '/' + revision + '/' + filename;
+    };
+
     // hook sync to new assets
     editor.on('assets:add', function(asset) {
-        asset.sync = true;
-        asset.syncing = false;
+        if (asset.sync)
+            return;
 
-        var update = function() {
-            var json = asset.json();
-
-            // make sure we don't send thumbnails
-            delete json['thumbnails'];
-
-            if (json.type === 'material') {
-                json.data = editor.call('material:mapToList', json);
-            }
-
-            // TEMP
-            // scope to update!?
-            json.scope = {
-                type: 'project',
-                id: config.project.id
-            };
-
-            Ajax({
-                method: 'PUT',
-                url: '{{url.api}}/assets/' + asset.get('id'),
-                query: {
-                    access_token: '{{accessToken}}'
-                },
-                data: json
-            });
-            // TODO
-            // do we update with data from response?
-
-            asset.syncing = false;
-        };
-
-        var updateRegex = new RegExp(/^(name$|preload$)|(data\.)|(file$)/);
-
-        asset.on('*:set', function(path) {
-            if (! asset.sync || asset.syncing)
-                return;
-
-            if (! updateRegex.test(path))
-                return;
-
-            // loading in progress - cancel
-            if (asset.loadAjax) {
-                asset.loadAjax.abort();
-                asset.loadAjax = null;
-            }
-
-            asset.syncing = true;
-            asset.syncTimeout = setTimeout(update, 50);
+        asset.sync = new ObserverSync({
+            item: asset,
+            paths: syncPaths
         });
+
+        // client > server
+        asset.sync.on('op', function(op) {
+            editor.call('realtime:assets:op', op, asset.get('id'));
+        });
+
+        var isTexture = asset.get('type') === 'texture';
+        if (isTexture)
+            setThumbnailPaths(asset);
+
+        var oldHash = asset.get('file.hash');
+
+        var setting = false;
+
+        asset.on('*:set', function (path, value) {
+            if (setting) return;
+            setting = true;
+
+            if (isTexture && /^has_thumbnail/.test(path)) {
+                setThumbnailPaths(asset);
+            } else if (/^file/.test(path)) {
+                if (value) {
+                    // reset file url
+                    asset.set('file.url', getFileUrl(asset.get('id'), asset.get('revision'), asset.get('file.filename')));
+                }
+
+                // updated thumbnail URLs if file hash changed
+                if (isTexture && oldHash !== asset.get('file.hash')) {
+                    oldHash = asset.get('file.hash');
+                    setThumbnailPaths(asset);
+                }
+            }
+
+            setting = false;
+        });
+    });
+
+    // write asset operations
+    editor.method('realtime:assets:op', function(op, id) {
+        if (! editor.call('permissions:write') || !docs[id])
+            return;
+
+        // console.trace();
+        // console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
+        // console.log(op)
+
+        docs[id].submitOp([ op ]);
+    });
+
+
+    // server > client
+    editor.on('realtime:op:assets', function(op, id) {
+        var asset = editor.call('assets:get', id);
+        if (asset) {
+            asset.sync.write(op);
+        } else {
+            console.error('realtime operation on missing asset: ' + op.p[1]);
+        }
     });
 });

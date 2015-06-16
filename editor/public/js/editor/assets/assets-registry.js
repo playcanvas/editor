@@ -20,7 +20,7 @@ editor.once('load', function() {
 
             // engine material data
             var data = {
-                id: assetJson.id,
+                id: parseInt(assetJson.id, 10),
                 name: assetJson.name,
                 file: assetJson.file ? {
                     filename: assetJson.file.filename,
@@ -36,7 +36,7 @@ editor.once('load', function() {
             // assetRegistry.createAndAddAsset(assetJson.id, data);
 
             var newAsset = new pc.Asset(data.name, data.type, data.file, data.data);
-            newAsset.id = parseInt(assetJson.id);
+            newAsset.id = parseInt(assetJson.id, 10);
             assetRegistry.add(newAsset);
 
 

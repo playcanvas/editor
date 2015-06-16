@@ -483,21 +483,17 @@ editor.once('load', function() {
         'environment': [ 'sphereMap', 'cubeMap' ],
         'light': [ 'lightMap' ],
         'states': [ ]
-    }
+    };
 
-    editor.method('material:listToMap', function(data) {
+    editor.method('material:default', function () {
         var obj = {
-            model: data.shader
+            model: 'blinn'
         };
 
         var indexed = { };
 
-        for(var i = 0; i < data.parameters.length; i++) {
-            indexed[data.parameters[i].name] = data.parameters[i].data;
-        };
-
         for(var key in mapping) {
-            obj[key] = indexed[key] === undefined ? mapping[key].default : indexed[key];
+            obj[key] = mapping[key].default;
         }
 
         return obj;
