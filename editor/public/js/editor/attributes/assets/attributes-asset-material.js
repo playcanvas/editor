@@ -487,31 +487,13 @@ editor.once('load', function() {
 
     editor.method('material:default', function () {
         var obj = {
-            model: 'blinn'
+            shader: 'blinn'
         };
 
         var indexed = { };
 
         for(var key in mapping) {
             obj[key] = mapping[key].default;
-        }
-
-        return obj;
-    });
-
-    editor.method('material:mapToList', function(data) {
-        var obj = {
-            name: data.name,
-            shader: data.data.model,
-            parameters: [ ]
-        };
-
-        for(var key in mapping) {
-            obj.parameters.push({
-                name: key,
-                type: mappingTypes[mapping[key].type] || mapping[key].type,
-                data: data.data[key] === undefined ? mapping[key].default : data.data[key]
-            });
         }
 
         return obj;
@@ -633,7 +615,7 @@ editor.once('load', function() {
 
 
         // model
-        var fieldModel = editor.call('attributes:addField', {
+        var fieldShader = editor.call('attributes:addField', {
             parent: panelParams,
             type: 'string',
             enum: {
@@ -643,21 +625,21 @@ editor.once('load', function() {
             },
             name: 'Shading',
             link: assets,
-            path: 'data.model'
+            path: 'data.shader'
         });
         // reference
-        editor.call('attributes:reference:asset:material:shadingModel:attach', fieldModel.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:asset:material:shadingModel:attach', fieldShader.parent.innerElement.firstChild.ui);
         // fresnelMode
         var evtFresnelModel = [ ];
         for(var i = 0; i < assets.length; i++) {
-            evtFresnelModel.push(assets[i].on('data.model:set', function(value) {
+            evtFresnelModel.push(assets[i].on('data.shader:set', function(value) {
                 var state = this.history.enabled;
                 this.history.enabled = false;
                 this.set('data.fresnelModel', value === 'blinn' ? 2 : 0);
                 this.history.enabled = state;
             }));
         }
-        fieldModel.once('destroy', function() {
+        fieldShader.once('destroy', function() {
             for(var i = 0; i < evtFresnelModel.length; i++)
                 evtFresnelModel[i].unbind();
         });
@@ -931,6 +913,21 @@ editor.once('load', function() {
             fieldAmbientOffset[0].parent.hidden = filterAmbientOffset();
             fieldAmbientTiling[0].parent.hidden = filterAmbientTiling();
             fieldOccludeSpecular.parent.hidden = ! fieldAmbientMap.value && ! fieldAmbientMap.class.contains('null');
+
+            if (value) {
+                assets.forEach(function (asset) {
+                    var history = asset.history.enabled;
+                    asset.history.enabled = false;
+
+                    if (!asset.get('data.aoMapOffset'))
+                        asset.set('data.aoMapOffset', [0, 0]);
+
+                    if (!asset.get('data.aoMapTiling'))
+                        asset.set('data.aoMapTiling', [1, 1]);
+
+                    asset.history.enabled = true;
+                });
+            }
         });
         // reference
         editor.call('attributes:reference:asset:material:aoMap:attach', fieldAmbientMap._label);
@@ -1059,6 +1056,21 @@ editor.once('load', function() {
         fieldDiffuseMap.on('change', function(value) {
             fieldDiffuseOffset[0].parent.hidden = filterDiffuseOffset();
             fieldDiffuseTiling[0].parent.hidden = filterDiffuseTiling();
+
+            if (value) {
+                assets.forEach(function (asset) {
+                    var history = asset.history.enabled;
+                    asset.history.enabled = false;
+
+                    if (!asset.get('data.diffuseMapOffset'))
+                        asset.set('data.diffuseMapOffset', [0, 0]);
+
+                    if (!asset.get('data.diffuseMapTiling'))
+                        asset.set('data.diffuseMapTiling', [1, 1]);
+
+                    asset.history.enabled = true;
+                });
+            }
         });
         // reference
         editor.call('attributes:reference:asset:material:diffuseMap:attach', fieldDiffuseMap._label);
@@ -1224,6 +1236,21 @@ editor.once('load', function() {
         fieldMetalnessMap.on('change', function(value) {
             fieldMetalnessOffset[0].parent.hidden = filterMetalnessOffset();
             fieldMetalnessTiling[0].parent.hidden = filterMetalnessTiling();
+
+            if (value) {
+                assets.forEach(function (asset) {
+                    var history = asset.history.enabled;
+                    asset.history.enabled = false;
+
+                    if (!asset.get('data.metalnessMapOffset'))
+                        asset.set('data.metalnessMapOffset', [0, 0]);
+
+                    if (!asset.get('data.metalnessMapTiling'))
+                        asset.set('data.metalnessMapTiling', [1, 1]);
+
+                    asset.history.enabled = true;
+                });
+            }
         });
         // reference
         editor.call('attributes:reference:asset:material:metalnessMap:attach', fieldMetalnessMap._label);
@@ -1364,6 +1391,21 @@ editor.once('load', function() {
         fieldSpecularMap.on('change', function(value) {
             fieldSpecularOffset[0].parent.hidden = filterSpecularOffset();
             fieldSpecularTiling[0].parent.hidden = filterSpecularTiling();
+
+            if (value) {
+                assets.forEach(function (asset) {
+                    var history = asset.history.enabled;
+                    asset.history.enabled = false;
+
+                    if (!asset.get('data.specularMapOffset'))
+                        asset.set('data.specularMapOffset', [0, 0]);
+
+                    if (!asset.get('data.specularMapTiling'))
+                        asset.set('data.specularMapTiling', [1, 1]);
+
+                    asset.history.enabled = true;
+                });
+            }
         });
         // reference
         editor.call('attributes:reference:asset:material:specularMap:attach', fieldSpecularMap._label);
@@ -1498,6 +1540,21 @@ editor.once('load', function() {
         fieldGlossMap.on('change', function(value) {
             fieldGlossOffset[0].parent.hidden = filterGlossOffset();
             fieldGlossTiling[0].parent.hidden = filterGlossTiling();
+
+            if (value) {
+                assets.forEach(function (asset) {
+                    var history = asset.history.enabled;
+                    asset.history.enabled = false;
+
+                    if (!asset.get('data.glossMapOffset'))
+                        asset.set('data.glossMapOffset', [0, 0]);
+
+                    if (!asset.get('data.glossMapTiling'))
+                        asset.set('data.glossMapTiling', [1, 1]);
+
+                    asset.history.enabled = true;
+                });
+            }
         });
         // reference
         editor.call('attributes:reference:asset:material:glossMap:attach', fieldGlossMap._label);
@@ -1645,6 +1702,21 @@ editor.once('load', function() {
         fieldEmissiveMap.on('change', function(value) {
             fieldEmissiveOffset[0].parent.hidden = filterEmissiveOffset();
             fieldEmissiveTiling[0].parent.hidden = filterEmissiveTiling();
+
+            if (value) {
+                assets.forEach(function (asset) {
+                    var history = asset.history.enabled;
+                    asset.history.enabled = false;
+
+                    if (!asset.get('data.emissiveMapOffset'))
+                        asset.set('data.emissiveMapOffset', [0, 0]);
+
+                    if (!asset.get('data.emissiveMapTiling'))
+                        asset.set('data.emissiveMapTiling', [1, 1]);
+
+                    asset.history.enabled = true;
+                });
+            }
         });
         // reference
         editor.call('attributes:reference:asset:material:emissiveMap:attach', fieldEmissiveMap._label);
@@ -1809,11 +1881,26 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:opacityOverview:attach', panelOpacity, panelOpacity.headerElement);
 
-        var filterBlendFields = function() {
+        var filterBlendFields = function (value) {
             fieldOpacityIntensity.parent.hidden = ! (fieldBlendType.value === '' || [ 2, 4, 6 ].indexOf(fieldBlendType.value) !== -1);
             fieldOpacityOffset[0].parent.hidden = filterOpacityOffset();
             fieldOpacityTiling[0].parent.hidden = filterOpacityTiling();
             fieldAlphaTest.parent.hidden = ! (fieldOpacityMap.class.contains('null') || fieldOpacityMap.value) && ! (fieldOpacityVertexColor.value || fieldOpacityVertexColor.class.contains('null'));
+
+            if (value) {
+                assets.forEach(function (asset) {
+                    var history = asset.history.enabled;
+                    asset.history.enabled = false;
+
+                    if (!asset.get('data.opacityMapOffset'))
+                        asset.set('data.opacityMapOffset', [0, 0]);
+
+                    if (!asset.get('data.opacityMapTiling'))
+                        asset.set('data.opacityMapTiling', [1, 1]);
+
+                    asset.history.enabled = true;
+                });
+            }
         };
 
         // blend type
@@ -2021,6 +2108,21 @@ editor.once('load', function() {
             fieldNormalsOffset[0].parent.hidden = filterNormalOffset();
             fieldNormalsTiling[0].parent.hidden = filterNormalTiling();
             fieldBumpiness.parent.hidden = ! value && ! this.class.contains('null');
+
+            if (value) {
+                assets.forEach(function (asset) {
+                    var history = asset.history.enabled;
+                    asset.history.enabled = false;
+
+                    if (!asset.get('data.normalMapOffset'))
+                        asset.set('data.normalMapOffset', [0, 0]);
+
+                    if (!asset.get('data.normalMapTiling'))
+                        asset.set('data.normalMapTiling', [1, 1]);
+
+                    asset.history.enabled = true;
+                });
+            }
         });
         // reference
         editor.call('attributes:reference:asset:material:normalMap:attach', fieldNormalMap._label);
@@ -2142,6 +2244,21 @@ editor.once('load', function() {
             fieldHeightMapOffset[0].parent.hidden = filterHeightMapOffset();
             fieldHeightMapTiling[0].parent.hidden = filterHeightMapTiling();
             fieldHeightMapFactor.parent.hidden = ! value;
+
+            if (value) {
+                assets.forEach(function (asset) {
+                    var history = asset.history.enabled;
+                    asset.history.enabled = false;
+
+                    if (!asset.get('data.heightMapOffset'))
+                        asset.set('data.heightMapOffset', [0, 0]);
+
+                    if (!asset.get('data.heightMapTiling'))
+                        asset.set('data.heightMapTiling', [1, 1]);
+
+                    asset.history.enabled = true;
+                });
+            }
         });
         // reference
         editor.call('attributes:reference:asset:material:heightMap:attach', fieldHeightMap._label);
@@ -2415,9 +2532,24 @@ editor.once('load', function() {
             path: 'data.lightMap'
         });
         fieldLightMap.parent.class.add('channel');
-        fieldLightMap.on('change', function() {
+        fieldLightMap.on('change', function (value) {
             fieldLightMapOffset[0].parent.hidden = filterLightMapOffset();
             fieldLightMapTiling[0].parent.hidden = filterLightMapTiling();
+
+            if (value) {
+                assets.forEach(function (asset) {
+                    var history = asset.history.enabled;
+                    asset.history.enabled = false;
+
+                    if (!asset.get('data.lightMapOffset'))
+                        asset.set('data.lightMapOffset', [0, 0]);
+
+                    if (!asset.get('data.lightMapTiling'))
+                        asset.set('data.lightMapTiling', [1, 1]);
+
+                    asset.history.enabled = true;
+                });
+            }
         });
         // reference
         editor.call('attributes:reference:asset:material:lightMap:attach', fieldLightMap._label);
@@ -2467,7 +2599,7 @@ editor.once('load', function() {
             path: 'data.lightMapOffset'
         });
         var filterLightMapOffset = function() {
-            return fieldHeightMap.parent.hidden || (! fieldHeightMap.value && ! fieldHeightMap.class.contains('null')) || fieldTilingOffset.value;
+            return fieldLightMap.parent.hidden || (! fieldLightMap.value && ! fieldLightMap.class.contains('null')) || fieldTilingOffset.value;
         };
         tilingOffsetFields.push({
             element: fieldLightMapOffset[0].parent,
@@ -2488,7 +2620,7 @@ editor.once('load', function() {
             path: 'data.lightMapTiling'
         });
         var filterLightMapTiling = function() {
-            return fieldHeightMap.parent.hidden || (! fieldHeightMap.value && ! fieldHeightMap.class.contains('null')) || fieldTilingOffset.value;
+            return fieldLightMap.parent.hidden || (! fieldLightMap.value && ! fieldLightMap.class.contains('null')) || fieldTilingOffset.value;
         };
         tilingOffsetFields.push({
             element: fieldLightMapTiling[0].parent,

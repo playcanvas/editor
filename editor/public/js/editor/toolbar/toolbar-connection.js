@@ -85,6 +85,8 @@ editor.once('load', function() {
 
     editor.on('realtime:error', onError);
     editor.on('realtime:scene:error', onError);
+    editor.on('realtime:userdata:error', onError);
+    editor.on('realtime:assets:error', onError);
 
     editor.on('messenger:pack.delete', function (data) {
         if (data.pack.id === parseInt(config.scene.id, 10)) {

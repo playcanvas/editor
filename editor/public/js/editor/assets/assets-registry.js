@@ -14,10 +14,6 @@ editor.once('load', function() {
             // raw json data
             var assetJson = asset.json();
 
-            // map for material
-            if (assetJson.type === 'material')
-                assetJson.data = editor.call('material:mapToList', assetJson);
-
             // engine material data
             var data = {
                 id: parseInt(assetJson.id, 10),
@@ -61,9 +57,6 @@ editor.once('load', function() {
 
                     for (var key in updatedFields) {
                         var data = asset.get(key);
-
-                        if (asset.get('type') === 'material' && key === 'data')
-                            data = editor.call('material:mapToList', { data: data });
 
                         // this will trigger the 'update' event on the asset in the engine
                         // handling all resource loading automatically

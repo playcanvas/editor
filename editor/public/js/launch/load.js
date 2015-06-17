@@ -12,6 +12,8 @@ app.once('load', function() {
             auth = true;
             var data = JSON.parse(msg.data.slice(4));
 
+            editor.emit('realtime:authenticated');
+
             // load scene
             if (!scene) {
                 app.call('loadScene', config.scene.id);

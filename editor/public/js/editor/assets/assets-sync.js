@@ -20,7 +20,6 @@ editor.once('load', function() {
 
         // error
         doc.on('error', function (err) {
-            console.error(err);
             editor.emit('realtime:assets:error', err);
         });
 
