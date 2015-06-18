@@ -37,6 +37,7 @@ editor.once('load', function() {
     // remove all assets
     editor.method('assets:clear', function () {
         assets.clear();
+        editor.emit('assets:clear');
     });
 
     // get asset by id
