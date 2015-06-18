@@ -5,9 +5,10 @@ app.once('load', function() {
     var loaded = {};
     var isLoading = false;
     var loadScene = function(id, callback, settingsOnly) {
-        //
         if (loaded[id]) {
-            callback(null, loaded[id].getSnapshot());
+            if (callback)
+                callback(null, loaded[id].getSnapshot());
+
             return;
         }
 
@@ -61,5 +62,26 @@ app.once('load', function() {
     app.method('loadScene', loadScene);
     app.method('isLoadingScene', function () {
         return isLoading;
+    });
+
+    app.on('realtime:authenticated', function () {
+        var startedLoading = false;
+
+        // if we are reconnecting try to reload
+        // all scenes that we've already loaded
+        for (var id in loaded) {
+            startedLoading = true;
+            loaded[id].destroy();
+            delete loaded[id];
+
+            app.call('loadScene', id);
+        }
+
+        // if no scenes have been loaded at
+        // all then we are initializing
+        // for the first time so load the main scene
+        if (! startedLoading) {
+            app.call('loadScene', config.scene.id);
+        }
     });
 });

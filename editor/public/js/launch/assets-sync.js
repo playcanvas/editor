@@ -36,14 +36,24 @@ app.once('load', function() {
                 assetData.file.url = getFileUrl(assetData.id, assetData.revision, assetData.file.filename);
             }
 
-            var asset = new Observer(assetData);
-            app.call('assets:add', asset);
+            var asset = editor.call('assets:get', id);
+            // asset can exist if we are reconnecting to c3
+            var assetExists = !!asset;
 
-            var _asset = new pc.Asset(assetData.name, assetData.type, assetData.file, assetData.data);
-            _asset.id = parseInt(assetData.id);
-            _asset.preload = assetData.preload ? assetData.preload : false;
+            if (!assetExists) {
+                asset = new Observer(assetData);
+                app.call('assets:add', asset);
 
-            framework.assets.add(_asset);
+                var _asset = new pc.Asset(assetData.name, assetData.type, assetData.file, assetData.data);
+                _asset.id = parseInt(assetData.id);
+                _asset.preload = assetData.preload ? assetData.preload : false;
+
+                framework.assets.add(_asset);
+            } else {
+                for (var key in assetData) {
+                    asset.set(key, assetData[key]);
+                }
+            }
 
             if (callback)
                 callback(asset);
@@ -84,8 +94,6 @@ app.once('load', function() {
 
     // load all assets
     app.on('realtime:authenticated', function() {
-        app.call('assets:clear');
-
         Ajax
         .get('{{url.api}}/projects/{{project.id}}/assets?view=designer&access_token={{accessToken}}')
         .on('load', function(status, data) {
