@@ -104,6 +104,7 @@ editor.once('load', function () {
     // loads real-time material for the specified asset and
     // generates thumbnails for it
     var generatePreview = function (asset) {
+        var timeout;
         var model = assets.get(asset.get('id'));
         if (!model) return;
 
@@ -111,10 +112,35 @@ editor.once('load', function () {
             editor.call('preview:render', asset);
         };
 
-        model.ready(function (asset) {
+        var onReady = function (asset) {
             model = asset.resource;
             onLoaded();
-        });
+
+            var onChange = function (asset, attribute, newValue, oldValue) {
+                if (attribute === 'file') {
+                    if (timeout) {
+                        clearTimeout(timeout);
+                    }
+
+                    // reload model asset
+                    // (do it in a timeout to avoid
+                    // rapid attribute changes)
+                    timeout = setTimeout(function () {
+                        asset.off('change', onChange);
+                        asset.unload();
+                        editor.call('preview:loader').clearCache(asset.file.url, 'model');
+                        asset.ready(onReady);
+                        assets.load(asset);
+                    }, 100);
+                }
+            };
+
+            asset.off('change', onChange);
+            asset.on('change', onChange);
+        };
+
+
+        model.ready(onReady);
         assets.load(model);
     };
 
@@ -130,39 +156,4 @@ editor.once('load', function () {
             generatePreview(asset);
         }, 100);
     });
-
-    // ---- Models with materials -----
-    // var modelMaterialCache = {};
-
-    // editor.on('assets:add', function (asset) {
-    //     if (asset.get('source')) return;
-    //     if (asset.get('type') !== 'model') return;
-
-    //     generatePreview(asset);
-
-    //     var mapping = asset.get('data.mapping');
-    //     if (mapping) {
-    //         var modelId = asset.get('id');
-
-    //         for (var i = 0; i < mapping.length; i++) {
-    //             if (!modelMaterialCache[mapping[i].material]) {
-    //                 modelMaterialCache[mapping[i].material] = {};
-    //             }
-
-    //             modelMaterialCache[mapping[i].material][modelId] = true;
-    //         }
-    //     }
-    // });
-
-    // editor.on('preview:material:changed', function (materialId) {
-    //     if (modelMaterialCache[materialId]) {
-    //         for (var modelId in modelMaterialCache[materialId]) {
-    //             var asset = editor.call('assets:get', modelId);
-    //             if (asset) {
-    //                 editor.call('preview:delayedRender', asset);
-    //             }
-    //         }
-    //     }
-    // });
-
 });

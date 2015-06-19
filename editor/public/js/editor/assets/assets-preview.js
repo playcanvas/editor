@@ -73,6 +73,10 @@ editor.once('load', function () {
         return assets;
     });
 
+    editor.method('preview:loader', function () {
+        return loader;
+    });
+
     editor.method('preview:device', function () {
         return device;
     });
