@@ -131,6 +131,8 @@ editor.once('load', function () {
                         editor.call('preview:loader').clearCache(asset.file.url, 'model');
                         asset.ready(onReady);
                         assets.load(asset);
+
+                        timeout = null;
                     }, 100);
                 }
             };
