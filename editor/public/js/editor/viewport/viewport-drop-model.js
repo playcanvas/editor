@@ -22,7 +22,7 @@ editor.once('load', function() {
 
             var component = editor.call('components:getDefault', 'model');
             component.type = 'asset';
-            component.asset = asset.get('id');
+            component.asset = parseInt(asset.get('id'), 10);
 
             // new entity
             editor.call('entities:new', {

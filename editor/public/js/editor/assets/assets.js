@@ -34,6 +34,11 @@ editor.once('load', function() {
         asset.destroy();
     });
 
+    // remove all assets
+    editor.method('assets:clear', function () {
+        assets.clear();
+        editor.emit('assets:clear');
+    });
 
     // get asset by id
     editor.method('assets:get', function(id) {

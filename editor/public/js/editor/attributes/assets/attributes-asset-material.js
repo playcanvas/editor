@@ -483,39 +483,19 @@ editor.once('load', function() {
         'environment': [ 'sphereMap', 'cubeMap' ],
         'light': [ 'lightMap' ],
         'states': [ ]
-    }
+    };
 
-    editor.method('material:listToMap', function(data) {
+    editor.method('material:default', function (existingData) {
+        existingData = existingData || {};
+
         var obj = {
-            model: data.shader
+            shader: existingData.shader || 'blinn'
         };
 
         var indexed = { };
 
-        for(var i = 0; i < data.parameters.length; i++) {
-            indexed[data.parameters[i].name] = data.parameters[i].data;
-        };
-
         for(var key in mapping) {
-            obj[key] = indexed[key] === undefined ? mapping[key].default : indexed[key];
-        }
-
-        return obj;
-    });
-
-    editor.method('material:mapToList', function(data) {
-        var obj = {
-            name: data.name,
-            shader: data.data.model,
-            parameters: [ ]
-        };
-
-        for(var key in mapping) {
-            obj.parameters.push({
-                name: key,
-                type: mappingTypes[mapping[key].type] || mapping[key].type,
-                data: data.data[key] === undefined ? mapping[key].default : data.data[key]
-            });
+            obj[key] = existingData[key] || mapping[key].default;
         }
 
         return obj;
@@ -637,7 +617,7 @@ editor.once('load', function() {
 
 
         // model
-        var fieldModel = editor.call('attributes:addField', {
+        var fieldShader = editor.call('attributes:addField', {
             parent: panelParams,
             type: 'string',
             enum: {
@@ -647,21 +627,21 @@ editor.once('load', function() {
             },
             name: 'Shading',
             link: assets,
-            path: 'data.model'
+            path: 'data.shader'
         });
         // reference
-        editor.call('attributes:reference:asset:material:shadingModel:attach', fieldModel.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:asset:material:shadingModel:attach', fieldShader.parent.innerElement.firstChild.ui);
         // fresnelMode
         var evtFresnelModel = [ ];
         for(var i = 0; i < assets.length; i++) {
-            evtFresnelModel.push(assets[i].on('data.model:set', function(value) {
+            evtFresnelModel.push(assets[i].on('data.shader:set', function(value) {
                 var state = this.history.enabled;
                 this.history.enabled = false;
                 this.set('data.fresnelModel', value === 'blinn' ? 2 : 0);
                 this.history.enabled = state;
             }));
         }
-        fieldModel.once('destroy', function() {
+        fieldShader.once('destroy', function() {
             for(var i = 0; i < evtFresnelModel.length; i++)
                 evtFresnelModel[i].unbind();
         });
@@ -1813,7 +1793,7 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:material:opacityOverview:attach', panelOpacity, panelOpacity.headerElement);
 
-        var filterBlendFields = function() {
+        var filterBlendFields = function (value) {
             fieldOpacityIntensity.parent.hidden = ! (fieldBlendType.value === '' || [ 2, 4, 6 ].indexOf(fieldBlendType.value) !== -1);
             fieldOpacityOffset[0].parent.hidden = filterOpacityOffset();
             fieldOpacityTiling[0].parent.hidden = filterOpacityTiling();
@@ -2419,7 +2399,7 @@ editor.once('load', function() {
             path: 'data.lightMap'
         });
         fieldLightMap.parent.class.add('channel');
-        fieldLightMap.on('change', function() {
+        fieldLightMap.on('change', function (value) {
             fieldLightMapOffset[0].parent.hidden = filterLightMapOffset();
             fieldLightMapTiling[0].parent.hidden = filterLightMapTiling();
         });
@@ -2471,7 +2451,7 @@ editor.once('load', function() {
             path: 'data.lightMapOffset'
         });
         var filterLightMapOffset = function() {
-            return fieldHeightMap.parent.hidden || (! fieldHeightMap.value && ! fieldHeightMap.class.contains('null')) || fieldTilingOffset.value;
+            return fieldLightMap.parent.hidden || (! fieldLightMap.value && ! fieldLightMap.class.contains('null')) || fieldTilingOffset.value;
         };
         tilingOffsetFields.push({
             element: fieldLightMapOffset[0].parent,
@@ -2492,7 +2472,7 @@ editor.once('load', function() {
             path: 'data.lightMapTiling'
         });
         var filterLightMapTiling = function() {
-            return fieldHeightMap.parent.hidden || (! fieldHeightMap.value && ! fieldHeightMap.class.contains('null')) || fieldTilingOffset.value;
+            return fieldLightMap.parent.hidden || (! fieldLightMap.value && ! fieldLightMap.class.contains('null')) || fieldTilingOffset.value;
         };
         tilingOffsetFields.push({
             element: fieldLightMapTiling[0].parent,

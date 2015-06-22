@@ -1,8 +1,6 @@
 app.once('load', function() {
     'use strict';
 
-    var framework = app.call('viewport');
-
     var assets = new ObserverList();
     assets.index = 'id';
 
@@ -20,6 +18,11 @@ app.once('load', function() {
     app.method('assets:remove', function(asset) {
         assets.remove(asset);
         asset.destroy();
+    });
+
+    // remove all assets
+    app.method('assets:clear', function () {
+        assets.clear();
     });
 
     // get asset by id
@@ -47,38 +50,4 @@ app.once('load', function() {
     assets.on('remove', function(asset) {
         app.emit('assets:remove', asset);
     });
-
-
-    // loaded all assets
-    var onLoad = function(data) {
-        data = data.response;
-
-        for(var i = 0; i < data.length; i++) {
-            if (data[i].source)
-                continue;
-
-            var asset = new Observer(data[i]);
-
-            editor.call('assets:add', asset);
-            assets.add(asset);
-
-            var adata = asset.json()
-            var _asset = new pc.Asset(adata.name, adata.type, adata.file, adata.data);
-            _asset.id = parseInt(adata.id);
-            _asset.preload = adata.preload ? adata.preload : false;
-            framework.assets.add(_asset);
-        }
-
-        app.emit('assets:load');
-    };
-
-    // load assets
-    Ajax.get('{{url.api}}/projects/{{project.id}}/assets?view=designer&access_token={{accessToken}}')
-        .on('load', function(status, data) {
-            onLoad(data);
-        })
-        .on('error', function(status, evt) {
-            console.log(status, evt);
-        });
-
 });
