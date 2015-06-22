@@ -45,8 +45,8 @@ editor.once('load', function () {
 
     // sets thumbnail to specified asset without syncing or recording history
     editor.method('preview:setThumbnail', function (asset, value) {
-        var sync = asset.sync;
-        asset.sync = false;
+        var sync = asset.sync.enabled;
+        asset.sync.enabled = false;
 
         var history = asset.history.enabled;
         asset.history.enabled = false;
@@ -65,12 +65,16 @@ editor.once('load', function () {
         }
 
         asset.history.enabled = history;
-        asset.sync = sync;
+        asset.sync.enabled = sync;
     });
 
     // Gets asset registry
     editor.method('preview:assetRegistry', function () {
         return assets;
+    });
+
+    editor.method('preview:loader', function () {
+        return loader;
     });
 
     editor.method('preview:device', function () {

@@ -14,13 +14,9 @@ editor.once('load', function() {
             // raw json data
             var assetJson = asset.json();
 
-            // map for material
-            if (assetJson.type === 'material')
-                assetJson.data = editor.call('material:mapToList', assetJson);
-
             // engine material data
             var data = {
-                id: assetJson.id,
+                id: parseInt(assetJson.id, 10),
                 name: assetJson.name,
                 file: assetJson.file ? {
                     filename: assetJson.file.filename,
@@ -36,7 +32,7 @@ editor.once('load', function() {
             // assetRegistry.createAndAddAsset(assetJson.id, data);
 
             var newAsset = new pc.Asset(data.name, data.type, data.file, data.data);
-            newAsset.id = parseInt(assetJson.id);
+            newAsset.id = parseInt(assetJson.id, 10);
             assetRegistry.add(newAsset);
 
 
@@ -61,9 +57,6 @@ editor.once('load', function() {
 
                     for (var key in updatedFields) {
                         var data = asset.get(key);
-
-                        if (asset.get('type') === 'material' && key === 'data')
-                            data = editor.call('material:mapToList', { data: data });
 
                         // this will trigger the 'update' event on the asset in the engine
                         // handling all resource loading automatically

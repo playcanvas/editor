@@ -11,6 +11,21 @@ editor.once('load', function () {
 
     var assets = editor.call('preview:assetRegistry');
 
+    var eventsToClear = [];
+    var assetsLoaded = false;
+
+    editor.on('assets:load', function () {
+        assetsLoaded = true;
+
+        eventsToClear.forEach(function (evt) {
+            evt.unbind();
+        });
+    });
+
+    editor.on('assets:clear', function () {
+        assetsLoaded = false;
+    });
+
     editor.method('preview:render:cubemap', function (asset, size, callback) {
         var textures = asset.get('data.textures');
 
@@ -65,7 +80,15 @@ editor.once('load', function () {
             faceImagesLoaded = 0;
             var img = placeholder;
 
-            var texture = editor.call('assets:get', textures[i]);
+            var texture;
+            if (textures[i]) {
+                texture = editor.call('assets:get', textures[i]);
+                if (! texture && ! assetsLoaded) {
+                    eventsToClear.push(editor.once('assets:add[' + textures[i] + ']', function () {
+                        editor.call('preview:delayedRender', asset);
+                    }));
+                }
+            }
 
             if (texture && (texture.get('thumbnails.s') || texture.get('file.url'))) {
                 img = new Image();

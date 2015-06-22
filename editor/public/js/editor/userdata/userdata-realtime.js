@@ -20,7 +20,7 @@ editor.once('load', function() {
 
         // error
         data.on('error', function (err) {
-            editor.emit('userdata:' + userId + ':error', err);
+            editor.emit('realtime:userdata:error', err);
         });
 
         // ready to sync

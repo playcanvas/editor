@@ -9,16 +9,32 @@ app.once('load', function() {
         if (asset.get('source'))
             return;
 
+        var timeout;
+        var updatedFields = {};
+
         // attach update handler
         asset.on('*:set', function (path, value) {
             var realtimeAsset = assetRegistry.get(asset.get('id'));
             var parts = path.split('.');
 
-            var raw = asset.get(parts[0]);
+            updatedFields[parts[0]] = true;
+            if (timeout)
+                clearTimeout(timeout);
 
-            // this will trigger the 'update' event on the asset in the engine
-            // handling all resource loading automatically
-            realtimeAsset[parts[0]] = raw;
+            // do the update in a timeout to avoid rapid
+            // updates to the same fields
+            timeout = setTimeout(function () {
+                for (var key in updatedFields) {
+                    var raw = asset.get(key);
+
+                    // this will trigger the 'update' event on the asset in the engine
+                    // handling all resource loading automatically
+                    realtimeAsset[key] = raw;
+                }
+
+                timeout = null;
+            });
+
         });
     };
 
@@ -39,7 +55,7 @@ app.once('load', function() {
 
             // engine data
             var data = {
-                id: assetJson.id,
+                id: parseInt(assetJson.id, 10),
                 name: assetJson.name,
                 file: assetJson.file ? {
                     filename: assetJson.file.filename,
@@ -53,7 +69,7 @@ app.once('load', function() {
 
             // create and add to registry
             var newAsset = new pc.Asset(data.name, data.type, data.file, data.data);
-            newAsset.id = parseInt(assetJson.id);
+            newAsset.id = parseInt(assetJson.id, 10);
             assetRegistry.add(newAsset);
 
             attachSetHandler(asset);

@@ -4,36 +4,85 @@ app.once('load', function() {
     var auth = false;
     var socket = new SockJS(config.url.realtime.http);
     var connection = new sharejs.Connection(socket);
-    var scene = null;
+    var data;
+    var reconnectAttempts = 0;
+    var reconnectInterval = 1;
 
-    var sharejsMessage = connection.socket.onmessage;
-    connection.socket.onmessage = function(msg) {
-        if (! auth && msg.data.startsWith('auth')) {
-            auth = true;
-            var data = JSON.parse(msg.data.slice(4));
-
-            // load scene
-            if (!scene) {
-                app.call('loadScene', config.scene.id);
-            }
-
-        } else if (msg.data.startsWith('permissions') || msg.data.startsWith('whoisonline')) {
-        } else {
-            sharejsMessage(msg);
-        }
-    };
-
-    connection.on('connected', function() {
-        this.socket.send('auth' + JSON.stringify({
-            accessToken: config.accessToken
-        }));
-    });
-
-    connection.on('error', function(msg) {
-        console.error('realtime error:', msg);
-    });
-
-    editor.method('realtime:connection', function () {
+    app.method('realtime:connection', function () {
         return connection;
     });
+
+    var connect = function () {
+        if (reconnectAttempts > 8) {
+            editor.emit('realtime:cannotConnect');
+            return;
+        }
+
+        reconnectAttempts++;
+        editor.emit('realtime:connecting', reconnectAttempts);
+
+        var sharejsMessage = connection.socket.onmessage;
+
+        connection.socket.onmessage = function(msg) {
+            try {
+                if (msg.data.startsWith('auth')) {
+                    if (!auth) {
+                        auth = true;
+                        data = JSON.parse(msg.data.slice(4));
+
+                        editor.emit('realtime:authenticated');
+                    }
+                } else if (!msg.data.startsWith('permissions') && !msg.data.startsWith('whoisonline')) {
+                    sharejsMessage(msg);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+
+        };
+
+        connection.on('connected', function() {
+            reconnectAttempts = 0;
+            reconnectInterval = 1;
+
+            this.socket.send('auth' + JSON.stringify({
+                accessToken: config.accessToken
+            }));
+
+            editor.emit('realtime:connected');
+        });
+
+        connection.on('error', function(msg) {
+            editor.emit('realtime:error', msg);
+        });
+
+        var onConnectionClosed = connection.socket.onclose;
+        connection.socket.onclose = function (reason) {
+            auth = false;
+
+            editor.emit('realtime:disconnected', reason);
+            onConnectionClosed(reason);
+
+            // try to reconnect after a while
+            editor.emit('realtime:nextAttempt', reconnectInterval);
+
+            setTimeout(reconnect, reconnectInterval * 1000);
+
+            reconnectInterval++;
+        };
+    };
+
+    var reconnect = function () {
+        // create new socket...
+        socket = new SockJS(config.url.realtime.http);
+        // ... and new sharejs connection
+        connection = new sharejs.Connection(socket);
+        // connect again
+        connect();
+    };
+
+    connect();
 });
+
+
+

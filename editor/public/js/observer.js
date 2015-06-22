@@ -95,7 +95,7 @@ Observer.prototype._prepare = function(target, key, value, silent) {
         target._data[key] = value.slice(0);
 
         for(var i = 0; i < target._data[key].length; i++) {
-            if (typeof(target._data[key][i]) === 'object') {
+            if (typeof(target._data[key][i]) === 'object' && target._data[key][i] !== null) {
                 if (target._data[key][i] instanceof Array) {
                     target._data[key][i].slice(0);
                 } else {

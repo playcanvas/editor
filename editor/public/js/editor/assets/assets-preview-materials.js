@@ -137,7 +137,7 @@ editor.once('load', function () {
         // called when material resource is loaded
         function onLoaded () {
             materialCache[material.id] = assetId;
-            editor.call('preview:render', asset);
+            editor.emit('preview:material:changed', assetId);
         }
 
         // use or load material

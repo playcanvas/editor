@@ -6,10 +6,7 @@ editor.once('load', function() {
             type: 'material',
             name: asset.get('name') + ' Copy',
             source: false,
-            data: editor.call('material:mapToList', {
-                name: asset.get('name') + ' Copy',
-                data: asset.get('data')
-            }),
+            data: asset.get('data'),
             scope: {
                 type: 'project',
                 id: config.project.id

@@ -210,15 +210,22 @@ editor.once('load', function() {
             var setAssetFace = function (face, texture) {
                 var prevFace = assets[0].get('data.textures.' + face);
                 var assetId = assets[0].get('id');
-                var textureId = texture ? texture.get('id') : null;
+                var textureId = texture ? parseInt(texture.get('id'), 10) : null;
 
                 var setRgbmIfNeeded = function (asset) {
-                    var hdrTextures = asset.get('data.textures').filter(function (id) {
-                        var texture = editor.call('assets:get', id);
-                        return texture && texture.get('data.rgbm');
-                    });
+                    var allHdr = true;
+                    var textures = asset.get('data.textures');
+                    for (var i = 0; i < textures.length; i++) {
+                        if (textures[i] >= 0) {
+                            var texture = editor.call('assets:get', textures[i]);
+                            if (texture && !texture.get('data.rgbm')) {
+                                allHdr = false;
+                                break;
+                            }
+                        }
+                    }
 
-                    if (hdrTextures.length === 6) {
+                    if (allHdr)  {
                         asset.set('data.rgbm', true);
                     } else {
                         asset.unset('data.rgbm');

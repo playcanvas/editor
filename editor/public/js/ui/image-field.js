@@ -89,11 +89,12 @@ Object.defineProperty(ImageField.prototype, 'value', {
         }
     },
     set: function(value) {
+        value = value && parseInt(value, 10) || null;
+
         if (this._link) {
             if (! this._link.set(this.path, value))
-                this._value = this._link.get(this.path)
+                this._value = this._link.get(this.path);
         } else {
-            value = (value && parseInt(value, 10)) || null;
             if (this._value === value && ! this.class.contains('null'))
                 return;
 

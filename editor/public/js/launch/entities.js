@@ -24,12 +24,17 @@ app.once('load', function() {
         entities.remove(obj);
     });
 
+    // remove all entities
+    app.method('entities:clear', function () {
+        entities.clear();
+    });
+
     // Get entity by resource id
     app.method('entities:get', function (resourceId) {
         return entities.get(resourceId);
     });
 
-    app.on('scene:raw', function(data) {
+    app.once('scene:raw', function(data) {
         for(var key in data.entities) {
             entities.add(new Observer(data.entities[key]));
         }

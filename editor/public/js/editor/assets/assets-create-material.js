@@ -5,12 +5,7 @@ editor.once('load', function() {
         if (! editor.call('permissions:write'))
             return;
 
-        var data = editor.call('material:mapToList', {
-            name: 'New Material',
-            data: {
-                model: 'blinn'
-            }
-        });
+        var data = editor.call('material:default');
 
         var asset = {
             name: 'New Material',

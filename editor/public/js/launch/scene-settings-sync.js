@@ -14,7 +14,6 @@ app.once('load', function() {
 
         // server > client
         app.on('realtime:op:settings', function(op) {
-            console.log(op);
             settings.sync.write(op);
         });
     });
