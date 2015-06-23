@@ -914,19 +914,21 @@ editor.once('load', function() {
 
                 var records = [ ];
 
+                var id = parseInt(data.id, 10);
+
                 for(var i = 0; i < link.length; i++) {
-                    if (link[i].get(path).indexOf(data.id) !== -1)
+                    if (link[i].get(path).indexOf(id) !== -1)
                         continue;
 
                     records.push({
                         get: link[i].history !== undefined ? link[i].history._getItemFn : null,
                         item: link[i],
                         path: path,
-                        value: data.id
+                        value: id
                     });
 
                     historyState(link[i], false);
-                    link[i].insert(path, data.id, 0);
+                    link[i].insert(path, id, 0);
                     historyState(link[i], true);
                 }
 
@@ -1018,6 +1020,8 @@ editor.once('load', function() {
 
         // add asset
         var addAsset = function(assetId, after) {
+            assetId = parseInt(assetId, 10);
+
             var item = assetIndex[assetId];
             if (item) {
                 item.count++;
@@ -1123,7 +1127,7 @@ editor.once('load', function() {
                     return;
 
                 var records = [ ];
-                var assetId = asset.get('id');
+                var assetId = parseInt(asset.get('id'), 10);
 
                 for(var i = 0; i < link.length; i++) {
                     // already in list
