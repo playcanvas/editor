@@ -495,7 +495,7 @@ editor.once('load', function() {
         var indexed = { };
 
         for(var key in mapping) {
-            obj[key] = existingData[key] || mapping[key].default;
+            obj[key] = existingData[key] !== undefined ? existingData[key] : mapping[key].default;
         }
 
         return obj;
