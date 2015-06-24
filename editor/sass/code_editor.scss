@@ -1,0 +1,308 @@
+@import 'fonts';
+
+$ace-bg: #1d292c;
+$ace-gutter-bg: lighten($ace-bg, 2%);
+$ace-text-color: #f8f4f0;
+$ace-gutter-fg: #5b7073;
+$ace-line-highlight: #163a43;
+$ace-step-bg: #c6dbae;
+$ace-fold-bg: #3cff94;
+$ace-keyword: #ed1e79;
+$ace-numeric: #c978eb;
+$ace-support: #77bef3;
+$ace-string: #f1c40f;
+$ace-comment: #779296;
+$ace-variable: #3cff94;
+$ace-parameter: #ff842f;
+$ace-attribute-name: #A9E884;
+$ace-function: $ace-variable;
+$ace-invalid-text: white;
+$ace-invalid-bg: #ff3295;
+$ace-invalid-deprecated-bg: #e3a9ff;
+
+$save-btn-disabled-bg: #35454a;
+$save-btn-disabled-color: #29363b;
+
+$ace-btn-bg: lighten($save-btn-disabled-color, 5%);
+$ace-btn-bg-hover: lighten($save-btn-disabled-color, 7%);
+
+$top-bar-line-height: 34px;
+$top-bar-border: 1px;
+$top-bar-height: $top-bar-line-height + $top-bar-border;
+
+$muted-green: #27AE60;
+$bright-green: #2ECC71;
+$bg-bright: #5B7073;
+$bright-red: #E74C3C;
+$gray-light: lighten(#000, 60%);
+$text-color: #324447;
+
+html {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    @extend .font-regular;
+    min-height: 100%;
+    height: 100%;
+    overflow: hidden;
+    margin: 0;
+    font-size: 14px;
+    color: $text-color;
+}
+
+.code-editor {
+    background-color: $ace-gutter-bg;
+    display: none; // enabled in js
+
+    .code-editor-topbar {
+        text-align: center;
+        padding-left: 10px;
+        top: 0;
+        height: $top-bar-height;
+        line-height: $top-bar-line-height;
+        border-bottom: $top-bar-border solid black;
+
+        @mixin block {
+            display: inline-block;
+            float: right;
+            padding: 0px 10px;
+
+            @extend .font-regular;
+        }
+
+        .code-editor-save {
+            background-color: $muted-green;
+            color: $ace-gutter-bg;
+            font-size: 16px;
+
+            @include block();
+        }
+
+        .code-editor-save:hover {
+            background-color: $bright-green;
+            color: white;
+            cursor: pointer;
+        }
+
+        .code-editor-save.disabled, .code-editor-save[disabled], fieldset[disabled] .code-editor-save {
+            background-color: $save-btn-disabled-bg;
+            color: $save-btn-disabled-color;
+            cursor: not-allowed;
+        }
+
+        .code-editor-readonly {
+            background-color: $bg-bright;
+            color: $ace-bg;
+            font-size: 14px;
+
+            @include block();
+        }
+
+        .code-editor-error {
+            background-color: $bright-red;
+            color: $ace-bg;
+            font-size: 14px;
+            @include block();
+        }
+
+        .code-editor-progress {
+            background-color: $muted-green;
+            @include block();
+        }
+    }
+
+    #editor-container {
+        position: absolute;
+        top: $top-bar-height;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        font-size-adjust: none;
+    }
+
+    .code-editor-logo {
+        clear: left;
+        float: left;
+        color: white;
+        position: relative;
+        font-size: 16px;
+        font-weight: bold;
+
+        .thin {
+            @extend .font-thin;
+            opacity: 0.9;
+        }
+    }
+
+    .code-editor-logo-small {
+        float: left;
+        color: $gray-light;
+        margin-left: 10px;
+        margin-top: 1px;
+        font-size: 14px;
+    }
+
+    .ace-playcanvas {
+        background-color: $ace-bg;
+        color: $ace-text-color;
+
+        .ace_gutter {
+            background-color: $ace-gutter-bg;
+            color: $ace-gutter-fg;
+        }
+
+        .ace_gutter-active-line {
+            background-color: $ace-line-highlight;
+        }
+
+        .ace_print-margin {
+            width: 1px;
+        }
+
+        .ace_cursor {
+            color: $ace-text-color;
+        }
+
+        .ace_marker-layer .ace_selection {
+            background-color: $ace-line-highlight;
+        }
+
+        .ace_marker-layer .ace_active-line {
+            background-color: $ace-line-highlight;
+        }
+
+        .ace_multiselect .ace_selection.ace_start {
+            box-shadow: 0 0 3px 0px $ace-bg;
+            border-radius: 2px;
+        }
+
+        .ace_marker-layer .ace_active-line {
+            background-color: $ace-bg;
+        }
+
+        .ace_marker-layer .ace_step {
+            background-color: $ace-step-bg;
+        }
+
+        .ace_marker-layer .ace_bracket {
+            margin: -1px 0 0 -1px;
+            border: 1px solid $ace-line-highlight;
+        }
+
+        .ace_marker-layer .ace_selected-word {
+            border: 1px solid $ace-parameter;
+        }
+
+        .ace_fold {
+            background-color: $ace-fold-bg;
+            border-color: $ace-text-color;
+        }
+
+        .ace_keyword {
+            color: $ace-keyword;
+        }
+
+        .ace_constant.ace_language {
+            color: $ace-numeric;
+        }
+
+        .ace_constant.ace_numeric {
+            color: $ace-numeric;
+        }
+
+        .ace_constant.ace_character {
+            color: $ace-numeric;
+        }
+
+        .ace_constant.ace_other {
+            color: $ace-numeric;
+        }
+
+        .ace_support {
+            color: $ace-support;
+        }
+
+        .ace_storage {
+            color: $ace-support;
+        }
+
+        .ace_invalid {
+            color: $ace-invalid-text;
+            background-color: $ace-invalid-bg;
+        }
+
+        .ace_invalid.ace_deprecated {
+            color: $ace-invalid-text;
+            background-color: $ace-invalid-deprecated-bg;
+        }
+
+        .ace_string {
+            color: $ace-string;
+        }
+
+        .ace_comment {
+            color: $ace-comment;
+        }
+
+        .ace_variable {
+            color: $ace-variable;
+        }
+
+        .ace_variable.ace_parameter {
+            color: $ace-parameter;
+        }
+
+        .ace_entity.ace_other.ace_attribute-name {
+            color: $ace-attribute-name;
+        }
+
+        .ace_entity.ace_name.ace_function {
+            color: $ace_function;
+
+        }
+
+        .ace_entity.ace_name.ace_tag {
+            color: $ace-keyword;
+        }
+
+        .ace_search {
+            background-color: $save-btn-disabled-color;
+        }
+
+        .ace_button {
+            background-color: $ace-btn-bg;
+            color: white;
+        }
+
+        .ace_button:hover {
+            background-color: $ace-btn-bg-hover;
+        }
+
+        .ace_replace_form {
+            button {
+                background-color: $ace-btn-bg;
+                color: white;
+            }
+
+            button:hover {
+                background-color: $ace-btn-bg-hover;
+            }
+        }
+
+        .ace_search_field {
+            color: $text-color;
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .hidden-xs {
+        display: none;
+    }
+}
+
+
+
+
