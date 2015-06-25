@@ -54,4 +54,8 @@ editor.once('load', function () {
     });
 
     editor.on('editor:ace:change', refreshSaveButton);
+
+    editor.on('permissions:set:' + config.self.id, function (level) {
+        refreshButtons();
+    });
 });

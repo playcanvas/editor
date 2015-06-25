@@ -41,6 +41,7 @@
     // first load
     document.addEventListener('DOMContentLoaded', function() {
         editor.emit('load');
+        editor.emit('start');
     }, false);
 })();
 

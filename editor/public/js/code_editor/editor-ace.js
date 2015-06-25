@@ -1,12 +1,15 @@
 editor.once('load', function () {
-    var isReadonly = !editor.call('permissions:write') || config.project.repositories.current !== 'directory';
+
+    var isReadonly = function () {
+        return !editor.call('permissions:write') || config.project.repositories.current !== 'directory';
+    };
 
     // initialize ace
     var aceEditor = ace.edit("editor-container");
     aceEditor.setTheme("ace/theme/playcanvas");
     aceEditor.setShowPrintMargin(false);
     aceEditor.getSession().setMode("ace/mode/javascript");
-    aceEditor.setReadOnly(isReadonly);
+    aceEditor.setReadOnly(isReadonly());
 
     editor.method('editor:ace', function () {
         return aceEditor;
@@ -79,6 +82,10 @@ editor.once('load', function () {
         aceEditor.on('change', function () {
             editor.emit('editor:ace:change');
         });
+    });
+
+    editor.on('permissions:set:' + config.self.id, function (level) {
+        aceEditor.setReadOnly(isReadonly());
     });
 
     // fired when the user tries to leave the current page
