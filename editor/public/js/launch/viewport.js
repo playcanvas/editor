@@ -155,6 +155,10 @@ app.once('load', function() {
         canvas.classList.add('fill-mode-' + config.project.settings.fillMode);
     }
 
+    if (config.project.settings.useDevicePixelRatio) {
+        application.graphicsDevice.maxPixelRatio = window.devicePixelRatio;
+    }
+
     application.setCanvasResolution(config.project.settings.resolutionMode, config.project.settings.width, config.project.settings.height);
     application.setCanvasFillMode(config.project.settings.fillMode, config.project.settings.width, config.project.settings.height);
 
