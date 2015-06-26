@@ -11,10 +11,6 @@ editor.once('load', function () {
     aceEditor.getSession().setMode("ace/mode/javascript");
     aceEditor.setReadOnly(isReadonly());
 
-    editor.method('editor:ace', function () {
-        return aceEditor;
-    });
-
     var customSnippets = editor.call('editor:ace:snippets');
 
     // load custom snippets
@@ -80,12 +76,17 @@ editor.once('load', function () {
         // set a 'change' handler in order to mark the document as dirty
         // when it changes
         aceEditor.on('change', function () {
-            editor.emit('editor:ace:change');
+            editor.emit('editor:change');
         });
     });
 
     editor.on('permissions:set:' + config.self.id, function (level) {
         aceEditor.setReadOnly(isReadonly());
+    });
+
+    // get content
+    editor.method('editor:content', function () {
+        return aceEditor.getValue();
     });
 
     // fired when the user tries to leave the current page

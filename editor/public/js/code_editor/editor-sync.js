@@ -17,8 +17,7 @@ editor.once('load', function () {
 
         editor.emit('editor:save:start');
 
-        var ace = editor.call('editor:ace');
-        var content = ace.getValue();
+        var content = editor.call('editor:content');
 
         var data = {
             url: '/api/projects/{{project.id}}/repositories/directory/sourcefiles/{{file.name}}',
@@ -74,7 +73,7 @@ editor.once('load', function () {
         });
     });
 
-    editor.on('editor:ace:change', function () {
+    editor.on('editor:change', function () {
         isDirty = true;
     });
 

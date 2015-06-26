@@ -53,7 +53,7 @@ editor.once('load', function () {
         refreshButtons();
     });
 
-    editor.on('editor:ace:change', refreshSaveButton);
+    editor.on('editor:change', refreshSaveButton);
 
     editor.on('permissions:set:' + config.self.id, function (level) {
         refreshButtons();
