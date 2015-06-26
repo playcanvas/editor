@@ -928,7 +928,7 @@ editor.once('load', function() {
                     });
 
                     historyState(link[i], false);
-                    link[i].insert(path, id, 0);
+                    link[i].insert(path, id);
                     historyState(link[i], true);
                 }
 
@@ -962,7 +962,7 @@ editor.once('load', function() {
                             }
 
                             historyState(item, false);
-                            item.insert(records[i].path, records[i].value, 0);
+                            item.insert(records[i].path, records[i].value);
                             historyState(item, true);
                         }
                     }
@@ -1142,7 +1142,7 @@ editor.once('load', function() {
                     });
 
                     historyState(link[i], false);
-                    link[i].insert(path, assetId, 0);
+                    link[i].insert(path, assetId);
                     historyState(link[i], true);
                     evtPick = null;
                 }
@@ -1177,7 +1177,7 @@ editor.once('load', function() {
                             }
 
                             historyState(item, false);
-                            item.insert(records[i].path, records[i].value, 0);
+                            item.insert(records[i].path, records[i].value);
                             historyState(item, true);
                         }
                     }
