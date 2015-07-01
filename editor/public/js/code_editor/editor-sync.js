@@ -1,13 +1,16 @@
 editor.once('load', function () {
     var isSaving = false;
-    var isDirty = false;
 
     editor.method('editor:canSave', function () {
-        return isDirty && editor.call('permissions:write') && !isSaving;
+        return editor.call('editor:isDirty') && !editor.call('editor:isReadonly') && !isSaving;
     });
 
     editor.method('editor:isSaving', function () {
         return isSaving;
+    });
+
+    editor.method('editor:isReadonly', function () {
+        return !editor.call('permissions:write') || config.project.repositories.current !== 'directory';
     });
 
     editor.method('editor:save', function () {
@@ -38,7 +41,6 @@ editor.once('load', function () {
 
         Ajax(data)
         .on('load', function(status, data) {
-            isDirty = false;
             isSaving = false;
             editor.emit('editor:save:success');
         })
@@ -62,7 +64,6 @@ editor.once('load', function () {
 
         Ajax(data)
         .on('load', function(status, data) {
-            isDirty = false;
             isSaving = false;
             editor.emit('editor:loadScript', data);
         })
@@ -73,9 +74,7 @@ editor.once('load', function () {
         });
     });
 
-    editor.on('editor:change', function () {
-        isDirty = true;
+    editor.once('start', function () {
+        editor.call('editor:loadScript');
     });
-
-    editor.call('editor:loadScript');
 });

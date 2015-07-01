@@ -22,7 +22,7 @@ editor.once('load', function () {
     var refreshButtons = function () {
         refreshSaveButton();
         progress.style.display = editor.call('editor:isSaving') ? 'block' : 'none';
-        readonly.style.display = editor.call('permissions:write') && config.project.repositories.current === 'directory' ? 'none' : 'inline-block';
+        readonly.style.display = editor.call('editor:isReadonly') ? 'inline-block' : 'none';
         error.style.display = errorMsg ? 'inline-block' : 'none';
     };
 
