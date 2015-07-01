@@ -89,6 +89,12 @@ editor.once('load', function () {
             server.updateArgHints(cm);
         });
 
+        // autocomplete on dot
+        codeMirror.on("keyup", function (cm, e) {
+            if (e.keyCode === 190)
+                server.complete(cm);
+        });
+
         isLoading = true;
         codeMirror.setValue(code);
         code = null;
