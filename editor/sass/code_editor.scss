@@ -58,7 +58,8 @@ body {
 }
 
 #editor-container {
-    height: 100%;
+    height: calc(100% - 35px);
+    clear: both;
 }
 
 .code-editor {
