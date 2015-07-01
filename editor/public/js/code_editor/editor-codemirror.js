@@ -18,75 +18,80 @@ editor.once('load', function () {
         readOnly: editor.call('editor:isReadonly') ? 'nocursor' : false
     });
 
-    var patchScriptBeforeTern = function (code) {
-        // match last occurence of 'return Name' and replace it with
-        // new Name(new pc.Entity()); return Name'
-        // This is so that the type inference system can deduce that Name.entity
-        // is a pc.Entity
-        return code.replace(/return(\s+)?(\w+)?(?![\s\S]*return)/, 'new $2(new pc.Entity()); return $2');
-    };
-
-    // set up tern
-    var server = new CodeMirror.TernServer({
-        // add definition JSON's
-        defs: [
-            editor.call('tern-ecma5'),
-            editor.call('tern-browser'),
-            editor.call('tern-pc')
-        ],
-        fileFilter: patchScriptBeforeTern,
-
-        // called when we are about to show the docs for a method
-        completionTip: function (data) {
-            var div = document.createElement('div');
-            div.innerHTML = data.doc;
-            return div;
-        },
-
-        // called when we are about to show the definition of a type
-        typeTip: function (data) {
-            var tip = document.createElement('span');
-            var type = data.type;
-            if (data.url) {
-                var parts = data.url.split('/');
-                type = parts[parts.length-1].replace('.html', '');
-            }
-            tip.innerHTML = '<span><strong>' + type + '</strong>&nbsp;';
-            if (data.url) {
-                tip.innerHTML += '<a href="' + data.url + '" target="_blank">[docs]</a>';
-            }
-
-            tip.innerHTML += '</span><br/><p>' + (data.doc || 'Empty description') + '</p>';
-            return tip;
-        }
-    });
-
-    // create key bindings
-    codeMirror.setOption("extraKeys", {
-        'Ctrl-Space': function (cm) {server.complete(cm);},
-        'Ctrl-I':     function (cm) {server.showType(cm);},
-        'Cmd-I':     function (cm) {server.showType(cm);},
-        'Ctrl-O':     function (cm) {server.showDocs(cm);},
-        'Cmd-O':     function (cm) {server.showDocs(cm);},
-        'Alt-.':      function (cm) {server.jumpToDef(cm);},
-        'Alt-,':      function (cm) {server.jumpBack(cm);},
-        'Ctrl-Q':     function (cm) {server.rename(cm);},
-        'Ctrl-.':     function (cm) {server.selectName(cm);},
-        'Ctrl-S':     function (cm) {editor.call('editor:save');},
-        'Cmd-S':     function (cm) {editor.call('editor:save');}
-    });
-
-    // update hints on cursor activity
-    codeMirror.on("cursorActivity", function(cm) {
-        server.updateArgHints(cm);
-    });
-
     var isLoading = false;
+    var code = null;
+    var loadedDefinitions = false;
 
-    // load script
-    editor.on('editor:loadScript', function (data) {
+    var init = function () {
+        if (!code || !loadedDefinitions)
+            return;
+
+        var patchScriptBeforeTern = function (code) {
+            // match last occurence of 'return Name' and replace it with
+            // new Name(new pc.Entity()); return Name'
+            // This is so that the type inference system can deduce that Name.entity
+            // is a pc.Entity
+            return code.replace(/return(\s+)?(\w+)?(?![\s\S]*return)/, 'new $2(new pc.Entity()); return $2');
+        };
+
+        // set up tern
+        var server = new CodeMirror.TernServer({
+            // add definition JSON's
+            defs: [
+                editor.call('tern-ecma5'),
+                editor.call('tern-browser'),
+                editor.call('tern-pc')
+            ],
+            fileFilter: patchScriptBeforeTern,
+
+            // called when we are about to show the docs for a method
+            completionTip: function (data) {
+                var div = document.createElement('div');
+                div.innerHTML = data.doc;
+                return div;
+            },
+
+            // called when we are about to show the definition of a type
+            typeTip: function (data) {
+                var tip = document.createElement('span');
+                var type = data.type;
+                if (data.url) {
+                    var parts = data.url.split('/');
+                    type = parts[parts.length-1].replace('.html', '');
+                }
+                tip.innerHTML = '<span><strong>' + type + '</strong>&nbsp;';
+                if (data.url) {
+                    tip.innerHTML += '<a href="' + data.url + '" target="_blank">[docs]</a>';
+                }
+
+                tip.innerHTML += '</span><br/><p>' + (data.doc || 'Empty description') + '</p>';
+                return tip;
+            }
+        });
+
+        // create key bindings
+        codeMirror.setOption("extraKeys", {
+            'Ctrl-Space': function (cm) {server.complete(cm);},
+            'Ctrl-I':     function (cm) {server.showType(cm);},
+            'Cmd-I':     function (cm) {server.showType(cm);},
+            'Ctrl-O':     function (cm) {server.showDocs(cm);},
+            'Cmd-O':     function (cm) {server.showDocs(cm);},
+            'Alt-.':      function (cm) {server.jumpToDef(cm);},
+            'Alt-,':      function (cm) {server.jumpBack(cm);},
+            'Ctrl-Q':     function (cm) {server.rename(cm);},
+            'Ctrl-.':     function (cm) {server.selectName(cm);},
+            'Ctrl-S':     function (cm) {editor.call('editor:save');},
+            'Cmd-S':     function (cm) {editor.call('editor:save');}
+        });
+
+        // update hints on cursor activity
+        codeMirror.on("cursorActivity", function(cm) {
+            server.updateArgHints(cm);
+        });
+
         isLoading = true;
-        codeMirror.setValue(data);
+        codeMirror.setValue(code);
+        code = null;
 
         // if there is a line parameter then go to that line
         var line = config.file.line;
@@ -101,6 +106,18 @@ editor.once('load', function () {
         codeMirror.focus();
 
         isLoading = false;
+    };
+
+    // wait for tern definitions to be loaded
+    editor.on('tern:load', function () {
+        loadedDefinitions = true;
+        init();
+    });
+
+    // load script
+    editor.on('editor:loadScript', function (data) {
+        code = data;
+        init();
     });
 
     // emit change

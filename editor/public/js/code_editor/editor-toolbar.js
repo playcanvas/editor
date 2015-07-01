@@ -53,6 +53,12 @@ editor.once('load', function () {
         refreshButtons();
     });
 
+    editor.on('tern:error', function (err) {
+        errorMsg = err;
+        error.innerHTML = 'Error while loading autocomplete: ' + err;
+        refreshButtons();
+    });
+
     editor.on('editor:change', refreshSaveButton);
 
     editor.on('permissions:set:' + config.self.id, function (level) {
