@@ -1,4 +1,5 @@
 editor.once('load', function () {
+    return;
 
     var isReadonly = function () {
         return !editor.call('permissions:write') || config.project.repositories.current !== 'directory';

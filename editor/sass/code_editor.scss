@@ -1,30 +1,43 @@
+@import 'variables';
 @import 'fonts';
 
-$ace-bg: #1d292c;
-$ace-gutter-bg: lighten($ace-bg, 2%);
-$ace-text-color: #f8f4f0;
-$ace-gutter-fg: #5b7073;
-$ace-line-highlight: #163a43;
-$ace-step-bg: #c6dbae;
-$ace-fold-bg: #3cff94;
-$ace-keyword: #ed1e79;
-$ace-numeric: #c978eb;
-$ace-support: #77bef3;
-$ace-string: #f1c40f;
-$ace-comment: #779296;
-$ace-variable: #3cff94;
-$ace-parameter: #ff842f;
-$ace-attribute-name: #A9E884;
-$ace-function: $ace-variable;
-$ace-invalid-text: white;
-$ace-invalid-bg: #ff3295;
-$ace-invalid-deprecated-bg: #e3a9ff;
+$editor-bg: #1d292c;
+$editor-gutter-bg: lighten($editor-bg, 2%);
+$editor-text-color: #f8f4f0;
+$editor-gutter-fg: #5b7073;
+$editor-line-highlight: #324447;//#163a43;
+$editor-selection: #677173; //#324447;//#275C69;
+$editor-tooltip-bg: #324447;
+$editor-hint-line: #b1b8ba;
+$editor-hint-line-active: $editor-text-color;
+$editor-yellow: #f1c40f;
+$editor-step-bg: #c6dbae;
+$editor-search: #b1b8ba;
+$editor-fold-bg: #3cff94;
+$editor-operator: #ed1e79;
+$editor-numeric: #c978eb;
+$editor-keyword: #77bef3;
+$editor-string: $editor-yellow;
+$editor-link: #F16524;
+$editor-comment: #779296;
+$editor-def: #3cff94;
+$editor-variable: white;
+$editor-variable-2: white;
+$editor-variable-3: white;
+$editor-parameter: #ff842f;
+$editor-attribute-name: #A9E884;
+$editor-property: white;
+$editor-attribute: white;
+$editor-function: $editor-variable;
+$editor-invalid-text: white;
+$editor-invalid-bg: #ff3295;
+$editor-invalid-deprecated-bg: #e3a9ff;
 
 $save-btn-disabled-bg: #35454a;
 $save-btn-disabled-color: #29363b;
 
-$ace-btn-bg: lighten($save-btn-disabled-color, 5%);
-$ace-btn-bg-hover: lighten($save-btn-disabled-color, 7%);
+$editor-btn-bg: lighten($save-btn-disabled-color, 5%);
+$editor-btn-bg-hover: lighten($save-btn-disabled-color, 7%);
 
 $top-bar-line-height: 34px;
 $top-bar-border: 1px;
@@ -52,9 +65,15 @@ body {
     color: $text-color;
 }
 
+#editor-container {
+    height: calc(100% - 35px);
+    clear: both;
+}
+
 .code-editor {
-    background-color: $ace-gutter-bg;
+    background-color: $editor-gutter-bg;
     display: none; // enabled in js
+    height: 100%;
 
     .code-editor-topbar {
         text-align: center;
@@ -62,7 +81,7 @@ body {
         top: 0;
         height: $top-bar-height;
         line-height: $top-bar-line-height;
-        border-bottom: $top-bar-border solid black;
+        border-bottom: $top-bar-border $editor-bg;
 
         @mixin block {
             display: inline-block;
@@ -74,7 +93,7 @@ body {
 
         .code-editor-save {
             background-color: $muted-green;
-            color: $ace-gutter-bg;
+            color: $editor-gutter-bg;
             font-size: 16px;
 
             @include block();
@@ -94,7 +113,7 @@ body {
 
         .code-editor-readonly {
             background-color: $bg-bright;
-            color: $ace-bg;
+            color: $editor-bg;
             font-size: 14px;
 
             @include block();
@@ -102,7 +121,7 @@ body {
 
         .code-editor-error {
             background-color: $bright-red;
-            color: $ace-bg;
+            color: $editor-bg;
             font-size: 14px;
             @include block();
         }
@@ -111,15 +130,6 @@ body {
             background-color: $muted-green;
             @include block();
         }
-    }
-
-    #editor-container {
-        position: absolute;
-        top: $top-bar-height;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        font-size-adjust: none;
     }
 
     .code-editor-logo {
@@ -143,158 +153,212 @@ body {
         margin-top: 1px;
         font-size: 14px;
     }
+}
 
-    .ace-playcanvas {
-        background-color: $ace-bg;
-        color: $ace-text-color;
-
-        .ace_gutter {
-            background-color: $ace-gutter-bg;
-            color: $ace-gutter-fg;
-        }
-
-        .ace_gutter-active-line {
-            background-color: $ace-line-highlight;
-        }
-
-        .ace_print-margin {
-            width: 1px;
-        }
-
-        .ace_cursor {
-            color: $ace-text-color;
-        }
-
-        .ace_marker-layer .ace_selection {
-            background-color: $ace-line-highlight;
-        }
-
-        .ace_marker-layer .ace_active-line {
-            background-color: $ace-line-highlight;
-        }
-
-        .ace_multiselect .ace_selection.ace_start {
-            box-shadow: 0 0 3px 0px $ace-bg;
-            border-radius: 2px;
-        }
-
-        .ace_marker-layer .ace_active-line {
-            background-color: $ace-bg;
-        }
-
-        .ace_marker-layer .ace_step {
-            background-color: $ace-step-bg;
-        }
-
-        .ace_marker-layer .ace_bracket {
-            margin: -1px 0 0 -1px;
-            border: 1px solid $ace-line-highlight;
-        }
-
-        .ace_marker-layer .ace_selected-word {
-            border: 1px solid $ace-parameter;
-        }
-
-        .ace_fold {
-            background-color: $ace-fold-bg;
-            border-color: $ace-text-color;
-        }
-
-        .ace_keyword {
-            color: $ace-keyword;
-        }
-
-        .ace_constant.ace_language {
-            color: $ace-numeric;
-        }
-
-        .ace_constant.ace_numeric {
-            color: $ace-numeric;
-        }
-
-        .ace_constant.ace_character {
-            color: $ace-numeric;
-        }
-
-        .ace_constant.ace_other {
-            color: $ace-numeric;
-        }
-
-        .ace_support {
-            color: $ace-support;
-        }
-
-        .ace_storage {
-            color: $ace-support;
-        }
-
-        .ace_invalid {
-            color: $ace-invalid-text;
-            background-color: $ace-invalid-bg;
-        }
-
-        .ace_invalid.ace_deprecated {
-            color: $ace-invalid-text;
-            background-color: $ace-invalid-deprecated-bg;
-        }
-
-        .ace_string {
-            color: $ace-string;
-        }
-
-        .ace_comment {
-            color: $ace-comment;
-        }
-
-        .ace_variable {
-            color: $ace-variable;
-        }
-
-        .ace_variable.ace_parameter {
-            color: $ace-parameter;
-        }
-
-        .ace_entity.ace_other.ace_attribute-name {
-            color: $ace-attribute-name;
-        }
-
-        .ace_entity.ace_name.ace_function {
-            color: $ace_function;
-
-        }
-
-        .ace_entity.ace_name.ace_tag {
-            color: $ace-keyword;
-        }
-
-        .ace_search {
-            background-color: $save-btn-disabled-color;
-        }
-
-        .ace_button {
-            background-color: $ace-btn-bg;
-            color: white;
-        }
-
-        .ace_button:hover {
-            background-color: $ace-btn-bg-hover;
-        }
-
-        .ace_replace_form {
-            button {
-                background-color: $ace-btn-bg;
-                color: white;
-            }
-
-            button:hover {
-                background-color: $ace-btn-bg-hover;
-            }
-        }
-
-        .ace_search_field {
-            color: $text-color;
-        }
+.cm-s-default {
+    &.CodeMirror {
+        height: 100%;
+        background-color: $editor-bg;
+        color: $editor-text-color;
+        font-size: 12px;
+        font-family: Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
+        font-style: normal;
+        font-variant: normal;
+        font-weight: normal;
     }
+
+    div.CodeMirror-selected {
+        background-color: $editor-selection !important;
+    }
+
+    .CodeMirror-gutters {
+        min-height: 100%;
+        background-color: $editor-gutter-bg;
+        border-right: none;
+    }
+
+    .CodeMirror-lines {
+        padding: 0;
+    }
+
+    .CodeMirror-linenumber {
+        color: $editor-gutter-fg;
+        min-width: 29px;
+        padding-right: 10px;
+    }
+
+    .CodeMirror-cursor {
+       border-left: 1px solid $editor-text-color !important;
+    }
+
+    span.cm-comment {
+        color: $editor-comment;
+    }
+
+    span.cm-atom, span.cm-keyword {
+        color: $editor-keyword;
+    }
+
+    span.cm-number {
+        color: $editor-numeric;
+    }
+
+    span.cm-property {
+        color: $editor-property;
+    }
+
+    span.cm-attribute {
+        color: $editor-keyword;
+    }
+
+    span.cm-string {
+        color: $editor-string;
+    }
+
+    span.cm-def {
+        color: $editor-def;
+    }
+
+    span.cm-variable {
+        color: $editor-variable;
+    }
+
+    span.cm-variable-2 {
+        color: $editor-variable-2;
+    }
+
+    span.cm-variable-3 {
+        color: $editor-variable-3;
+    }
+
+    span.cm-operator {
+        color: $editor-operator;
+    }
+
+    span.cm-searching {
+        background-color: transparent;
+        border: 1px solid $editor-search;
+    }
+
+    .CodeMirror-matchingbracket {
+        text-decoration: underline;
+        color: $editor-text-color !important;
+    }
+
+    .CodeMirror-nonmatchingbracket {
+        color: $editor-text-color !important;
+    }
+}
+
+.CodeMirror-Tern-tooltip {
+    border-color:  $editor-bg;
+    color: $editor-text-color;
+    padding: 5px 10px;
+    background-color: $editor-tooltip-bg;
+    text-align: left;
+    border-radius: 0;
+
+    @extend .font-regular;
+    font-size: 12px;
+    line-height: 1.5;
+
+    a {
+        color: $editor-link;
+    }
+}
+
+.CodeMirror-hints {
+    border: none;
+    background: $editor-tooltip-bg;
+    font-size: 12px;
+    margin: 0;
+    padding: 0;
+    max-width: none;
+    border-radius: 0;
+}
+
+.CodeMirror-hint {
+    color: $editor-hint-line;
+    height: 20px;
+    padding: 0 25px;
+    line-height: 20px;
+    max-width: none;
+    border-radius: 0;
+}
+
+li.CodeMirror-hint-active {
+    background: black;
+    color: $editor-hint-line-active;
+}
+
+.CodeMirror-Tern-hint-doc {
+    margin-left: 10px;
+}
+
+.CodeMirror-Tern-completion:before {
+    left: 0;
+    top: 0;
+    border-radius: 0;
+    font-size: 10px;
+    font-weight: bold;
+    height: 20px;
+    width: 20px;
+    line-height: 20px;
+    text-align: center;
+    color: $editor-text-color;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.CodeMirror-Tern-farg {
+    opacity: 1;
+}
+
+.CodeMirror-Tern-fname {
+    color: $editor-text-color;
+}
+
+.CodeMirror-Tern-farg {
+    color: $editor-text-color;
+}
+
+.CodeMirror-Tern-farg-current {
+    color: $editor-yellow;
+}
+
+.CodeMirror-Tern-type {
+    color: $editor-keyword;
+}
+
+.CodeMirror-dialog-top {
+    background-color: rgba(0,0,0,0.9);
+    border: none;
+    top: 0;
+    padding: 10px 20px;
+    font-size: 12px;
+    color: $editor-hint-line !important;
+}
+
+.CodeMirror-search-field {
+    color: white !important;
+    font-size: 12px;
+}
+
+.CodeMirror-lint-tooltip {
+    background-color: $editor-tooltip-bg;
+    border: none;
+    border-radius: 0;
+    color: $editor-text-color;
+    font-size: 12px;
+    text-align: justify;
+    padding: 5px;
+    line-height: 1.5;
+
+    @extend .font-regular;
+}
+
+.CodeMirror-fhint {
+    font-family: monospace;
 }
 
 @media (max-width: 480px) {
@@ -303,6 +367,23 @@ body {
     }
 }
 
+a.link-docs {
+    margin-left: 10px;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: $editor-tooltip-bg;
+}
+::-webkit-scrollbar-thumb {
+    background: black;
+}
+::-webkit-scrollbar-corner {
+    background: $editor-tooltip-bg;
+}
 
 
 
