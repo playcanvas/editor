@@ -2,7 +2,7 @@ editor.once('load', function () {
     var element = document.getElementById('editor-container');
 
     // create editor
-    var codeMirror = CodeMirror(element, {
+    var options = {
         mode: 'javascript',
         indentUnit: 4,
         lineNumbers: true,
@@ -15,8 +15,14 @@ editor.once('load', function () {
         continueComments: true,
         lint: true,
         gutters: ["CodeMirror-lint-markers"],
-        readOnly: editor.call('editor:isReadonly') ? 'nocursor' : false
-    });
+        readOnly: editor.call('editor:isReadonly') ? true : false
+    };
+
+    if (options.readOnly) {
+        options.cursorBlinkRate = -1; // hide cursor
+    }
+
+    var codeMirror = CodeMirror(element, options);
 
     var isLoading = false;
     var code = null;
@@ -138,7 +144,9 @@ editor.once('load', function () {
 
     // permissions changed so set readonly
     editor.on('permissions:set:' + config.self.id, function (level) {
-        codeMirror.setOption('readOnly', editor.call('editor:isReadonly') ? 'nocursor' : false);
+        var readOnly = editor.call('editor:isReadonly');
+        codeMirror.setOption('readOnly', readOnly ? true : false);
+        codeMirror.setOption('cursorBlinkRate', readOnly ? -1 : 530);
     });
 
     // return document content
