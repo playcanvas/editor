@@ -538,6 +538,8 @@
       }
     }
 
+    query.docFormat = 'full';
+
     return {query: query, files: files};
   }
 

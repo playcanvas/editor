@@ -46,9 +46,13 @@ editor.once('load', function () {
 
             // called when we are about to show the docs for a method
             completionTip: function (data) {
-                var div = document.createElement('div');
-                div.innerHTML = data.doc;
-                return div;
+                if (data.doc) {
+                    var div = document.createElement('div');
+                    div.innerHTML = data.doc;
+                    return div;
+                } else {
+                    return null;
+                }
             },
 
             // called when we are about to show the definition of a type
