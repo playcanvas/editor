@@ -357,5 +357,19 @@ a.link-docs {
     margin-left: 10px;
 }
 
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #000;
+}
+::-webkit-scrollbar-thumb {
+    background: $editor-selection;
+}
+::-webkit-scrollbar-corner {
+    background: #000;
+}
+
 
 
