@@ -1120,8 +1120,12 @@
     var pasted = e.clipboardData && e.clipboardData.getData("text/plain");
     if (pasted) {
       e.preventDefault();
-      runInOp(cm, function() { applyTextInput(cm, pasted, 0, null, "paste"); });
-      return true;
+      if (! isReadOnly(cm)) {
+          runInOp(cm, function() { applyTextInput(cm, pasted, 0, null, "paste"); });
+          return true;
+      } else {
+        return false;
+      }
     }
   }
 
