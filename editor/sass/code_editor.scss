@@ -255,7 +255,7 @@ body {
     color: $editor-text-color;
     padding: 5px 10px;
     background-color: $editor-tooltip-bg;
-    text-align: justify;
+    text-align: left;
     border-radius: 0;
 
     @extend .font-regular;
