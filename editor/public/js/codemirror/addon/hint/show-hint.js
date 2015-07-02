@@ -116,10 +116,7 @@
       var picked = (this.widget && this.widget.picked) || (first && this.options.completeSingle);
       if (this.widget) this.widget.close();
       if (data && data.list.length) {
-        /* Vaios: add check after && to make sure we don't accidentally autocomplete when typing fast.
-            NOTE: this disabled autocompleting words by ctrl+space completely
-         */
-        if (picked && data.list.length == 1 && data.from.ch == data.to.ch) {
+        if (picked && data.list.length == 1) {
           this.pick(data, 0);
         } else {
           this.widget = new Widget(this, data);
@@ -372,7 +369,7 @@
 
   var defaultOptions = {
     hint: CodeMirror.hint.auto,
-    completeSingle: true,
+    completeSingle: false,
     alignWithWord: true,
     closeCharacters: /[\s()\[\]{};:>,]/,
     closeOnUnfocus: true,
