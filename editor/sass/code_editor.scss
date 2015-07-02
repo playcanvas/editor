@@ -357,6 +357,10 @@ li.CodeMirror-hint-active {
     @extend .font-regular;
 }
 
+.CodeMirror-fhint {
+    font-family: monospace;
+}
+
 @media (max-width: 480px) {
     .hidden-xs {
         display: none;

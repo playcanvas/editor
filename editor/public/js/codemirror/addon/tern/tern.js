@@ -319,7 +319,7 @@
     closeArgHints(ts);
 
     var cache = ts.cachedArgHints, tp = cache.type;
-    var tip = elt("span", cache.guess ? cls + "fhint-guess" : null,
+    var tip = elt("span", cache.guess ? cls + "fhint-guess" : 'CodeMirror-fhint',
                   elt("span", cls + "fname", cache.name), "(");
     for (var i = 0; i < tp.args.length; ++i) {
       if (i) tip.appendChild(document.createTextNode(", "));
