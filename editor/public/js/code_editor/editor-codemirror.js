@@ -65,7 +65,7 @@ editor.once('load', function () {
                 }
                 tip.innerHTML = '<span><strong>' + type + '</strong>&nbsp;';
                 if (data.url) {
-                    tip.innerHTML += '<a href="' + data.url + '" target="_blank">[docs]</a>';
+                    tip.innerHTML += '<a class="link-docs" href="' + data.url + '" target="_blank">View docs</a>';
                 }
 
                 tip.innerHTML += '</span><br/><p>' + (data.doc || 'Empty description') + '</p>';

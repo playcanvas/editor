@@ -1,23 +1,28 @@
+@import 'variables';
 @import 'fonts';
 
 $editor-bg: #1d292c;
 $editor-gutter-bg: lighten($editor-bg, 2%);
 $editor-text-color: #f8f4f0;
 $editor-gutter-fg: #5b7073;
-$editor-line-highlight: #163a43;
-$editor-selection: #275C69;
+$editor-line-highlight: #324447;//#163a43;
+$editor-selection: #677173; //#324447;//#275C69;
+$editor-tooltip-bg: #324447;
+$editor-hint-line: #b1b8ba;
+$editor-hint-line-active: $editor-text-color;
 $editor-yellow: #f1c40f;
 $editor-step-bg: #c6dbae;
+$editor-search: #b1b8ba;
 $editor-fold-bg: #3cff94;
 $editor-operator: #ed1e79;
 $editor-numeric: #c978eb;
 $editor-keyword: #77bef3;
 $editor-string: $editor-yellow;
-$editor-link: $editor-yellow;
+$editor-link: #F16524;
 $editor-comment: #779296;
 $editor-def: #3cff94;
 $editor-variable: white;
-$editor-variable-2: white; //#3cff94;
+$editor-variable-2: white;
 $editor-variable-3: white;
 $editor-parameter: #ff842f;
 $editor-attribute-name: #A9E884;
@@ -231,7 +236,8 @@ body {
     }
 
     span.cm-searching {
-        background-color: $editor-selection;
+        background-color: transparent;
+        border: 1px solid $editor-search;
     }
 
     .CodeMirror-matchingbracket {
@@ -244,16 +250,17 @@ body {
     }
 }
 
-.CodeMirror-Tern-hint-doc {
-    max-width: 400px;
-}
-
 .CodeMirror-Tern-tooltip {
     border-color:  $editor-bg;
     color: $editor-text-color;
     padding: 5px 10px;
-    background-color: $editor-line-highlight;
+    background-color: $editor-tooltip-bg;
     text-align: justify;
+    border-radius: 0;
+
+    @extend .font-regular;
+    font-size: 12px;
+    line-height: 1.5;
 
     a {
         color: $editor-link;
@@ -261,21 +268,46 @@ body {
 }
 
 .CodeMirror-hints {
-    border-color: darken($editor-bg, 5%);
-    background: $editor-bg;
-
-    -webkit-box-shadow: none;
-    -moz-box-shadow: none;
-    box-shadow: none;
+    border: none;
+    background: $editor-tooltip-bg;
+    font-size: 12px;
+    margin: 0;
+    padding: 0;
+    max-width: none;
+    border-radius: 0;
 }
 
 .CodeMirror-hint {
-    color: $editor-comment;
+    color: $editor-hint-line;
+    height: 20px;
+    padding: 0 25px;
+    line-height: 20px;
+    max-width: none;
+    border-radius: 0;
 }
 
 li.CodeMirror-hint-active {
-    background: $editor-line-highlight;
+    background: black;
+    color: $editor-hint-line-active;
+}
+
+.CodeMirror-Tern-hint-doc {
+    margin-left: 10px;
+}
+
+.CodeMirror-Tern-completion:before {
+    left: 0;
+    top: 0;
+    border-radius: 0;
+    font-size: 10px;
+    font-weight: bold;
+    height: 20px;
+    width: 20px;
+    line-height: 20px;
+    text-align: center;
     color: $editor-text-color;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 .CodeMirror-Tern-farg {
@@ -298,12 +330,32 @@ li.CodeMirror-hint-active {
     color: $editor-keyword;
 }
 
+.CodeMirror-dialog-top {
+    background-color: rgba(0,0,0,0.9);
+    border: none;
+    top: 0;
+    padding: 10px 20px;
+    font-size: 12px;
+    color: $editor-hint-line !important;
+}
+
+.CodeMirror-search-field {
+    color: white !important;
+    font-size: 12px;
+}
+
+.CodeMirror-search-hint {
+}
+
 @media (max-width: 480px) {
     .hidden-xs {
         display: none;
     }
 }
 
+a.link-docs {
+    margin-left: 10px;
+}
 
 
 
