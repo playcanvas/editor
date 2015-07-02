@@ -344,7 +344,17 @@ li.CodeMirror-hint-active {
     font-size: 12px;
 }
 
-.CodeMirror-search-hint {
+.CodeMirror-lint-tooltip {
+    background-color: $editor-tooltip-bg;
+    border: none;
+    border-radius: 0;
+    color: $editor-text-color;
+    font-size: 12px;
+    text-align: justify;
+    padding: 5px;
+    line-height: 1.5;
+
+    @extend .font-regular;
 }
 
 @media (max-width: 480px) {
@@ -362,13 +372,13 @@ a.link-docs {
     height: 8px;
 }
 ::-webkit-scrollbar-track {
-    background: #000;
+    background: $editor-tooltip-bg;
 }
 ::-webkit-scrollbar-thumb {
-    background: $editor-selection;
+    background: black;
 }
 ::-webkit-scrollbar-corner {
-    background: #000;
+    background: $editor-tooltip-bg;
 }
 
 
