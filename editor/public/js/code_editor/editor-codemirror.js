@@ -92,7 +92,11 @@ editor.once('load', function () {
             'Ctrl-.': function (cm) {server.selectName(cm);},
             'Ctrl-S': function (cm) {editor.call('editor:save');},
             'Cmd-S': function (cm) {editor.call('editor:save');},
-            'Esc': 'clearSearch'
+            'Esc': 'clearSearch',
+            'Tab': function(cm) {
+                var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
+                cm.replaceSelection(spaces);
+            }
         });
 
         // update hints on cursor activity
