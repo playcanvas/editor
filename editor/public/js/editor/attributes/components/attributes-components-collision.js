@@ -99,11 +99,6 @@ editor.once('load', function() {
             parent: panel,
             name: 'Axis',
             type: 'number',
-            enum: {
-                0: 'X',
-                1: 'Y',
-                2: 'Z'
-            },
             enum: [
                 { v: '', t: '...' },
                 { v: 0, t: 'X' },
