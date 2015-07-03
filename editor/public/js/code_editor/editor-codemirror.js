@@ -82,16 +82,17 @@ editor.once('load', function () {
         // create key bindings
         codeMirror.setOption("extraKeys", {
             'Ctrl-Space': function (cm) {server.complete(cm);},
-            'Ctrl-I':     function (cm) {server.showType(cm);},
-            'Cmd-I':     function (cm) {server.showType(cm);},
-            'Ctrl-O':     function (cm) {server.showDocs(cm);},
-            'Cmd-O':     function (cm) {server.showDocs(cm);},
-            'Alt-.':      function (cm) {server.jumpToDef(cm);},
-            'Alt-,':      function (cm) {server.jumpBack(cm);},
-            'Ctrl-Q':     function (cm) {server.rename(cm);},
-            'Ctrl-.':     function (cm) {server.selectName(cm);},
-            'Ctrl-S':     function (cm) {editor.call('editor:save');},
-            'Cmd-S':     function (cm) {editor.call('editor:save');}
+            'Ctrl-I': function (cm) {server.showType(cm);},
+            'Cmd-I': function (cm) {server.showType(cm);},
+            'Ctrl-O': function (cm) {server.showDocs(cm);},
+            'Cmd-O': function (cm) {server.showDocs(cm);},
+            'Alt-.': function (cm) {server.jumpToDef(cm);},
+            'Alt-,': function (cm) {server.jumpBack(cm);},
+            'Ctrl-Q': function (cm) {server.rename(cm);},
+            'Ctrl-.': function (cm) {server.selectName(cm);},
+            'Ctrl-S': function (cm) {editor.call('editor:save');},
+            'Cmd-S': function (cm) {editor.call('editor:save');},
+            'Esc': 'clearSearch'
         });
 
         // update hints on cursor activity
