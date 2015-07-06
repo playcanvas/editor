@@ -38,6 +38,10 @@ editor.once('load', function() {
             editor.call('status:job', 'asset-upload:' + job, progress);
         })
         .on('error', function(status, data) {
+            if (/Disk allowance/.test(data)) {
+                data += '. <a href="/account" target="_blank">UPGRADE</a> to get more disk space.';
+            }
+
             editor.call('status:error', data);
             editor.call('status:job', 'asset-upload:' + job);
             if (fn)

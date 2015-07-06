@@ -138,7 +138,12 @@ AjaxRequest.prototype._onLoad = function() {
             this.emit('load', this._xhr.status, json);
         }
     } else {
-        this.emit('error', this._xhr.status);
+        try {
+            var json = JSON.parse(this._xhr.responseText);
+            this.emit('error', this._xhr.status, json.message);
+        } catch (ex) {
+            this.emit('error', this._xhr.status);
+        }
     }
 };
 
