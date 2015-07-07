@@ -101,7 +101,9 @@ editor.once('load', function () {
                     cm.replaceSelection(spaces);
                 }
             },
-            "Shift-Tab": "indentLess"
+            "Shift-Tab": "indentLess",
+            'Ctrl-/': 'toggleComment',
+            'Cmd-/': 'toggleComment'
         });
 
         // update hints on cursor activity
