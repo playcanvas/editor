@@ -94,8 +94,12 @@ editor.once('load', function () {
             'Cmd-S': function (cm) {editor.call('editor:save');},
             'Esc': 'clearSearch',
             'Tab': function(cm) {
-                var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
-                cm.replaceSelection(spaces);
+                if (cm.somethingSelected()) {
+                    cm.indentSelection("add");
+                } else {
+                    var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
+                    cm.replaceSelection(spaces);
+                }
             },
             "Shift-Tab": "indentLess"
         });
