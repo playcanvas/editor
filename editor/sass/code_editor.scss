@@ -129,6 +129,10 @@ body {
         .code-editor-progress {
             background-color: $muted-green;
             @include block();
+
+            img {
+                vertical-align: middle;
+            }
         }
     }
 
