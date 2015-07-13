@@ -9,6 +9,7 @@ editor.once('load', function() {
 
     // list
     var hierarchy = new ui.Tree();
+    hierarchy.allowRenaming = true;
     hierarchy.class.add('hierarchy');
     panel.append(hierarchy);
 

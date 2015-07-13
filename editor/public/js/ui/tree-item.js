@@ -28,7 +28,9 @@ function TreeItem(args) {
     this._children = 0;
 
     this._onClickEvt = this._onClick.bind(this);
+    this._onDblClickEvt = this._onDblClick.bind(this);
     this.elementTitle.addEventListener('click', this._onClickEvt, false);
+    this.elementTitle.addEventListener('dblclick', this._onDblClickEvt, false);
 
     // this.elementTitle.addEventListener('dblclick', function() {
     //     if (self.open) {
@@ -315,6 +317,49 @@ TreeItem.prototype._onClick = function(evt) {
     }
 };
 
+
+TreeItem.prototype._onDblClick = function(evt) {
+    if (! this.tree.allowRenaming || evt.button !== 0)
+        return;
+
+    evt.stopPropagation();
+    var rect = this.elementTitle.getBoundingClientRect();
+
+    if (this._children && (evt.clientX - rect.left) < 0) {
+        return;
+    } else {
+        this.tree.clear();
+        this.tree._onItemClick(this);
+
+        var self = this;
+        this.class.add('rename');
+
+        // add remaning field
+        var field = new ui.TextField();
+        field.renderChanges = false;
+        field.value = this.text;
+        field.elementInput.addEventListener('blur', function() {
+            field.destroy();
+            self.class.remove('rename');
+        }, false);
+        field.on('click', function(evt) {
+            evt.stopPropagation();
+        });
+        field.element.addEventListener('dblclick', function(evt) {
+            evt.stopPropagation();
+        });
+        field.on('change', function(value) {
+            if (value)
+                self.entity.set('name', value);
+
+            field.destroy();
+            self.class.remove('rename');
+        });
+        this.elementTitle.appendChild(field.element);
+        field.elementInput.focus();
+        field.elementInput.select();
+    }
+};
 
 TreeItem.prototype._onDragStart = function(evt) {
     if (this.tree.disabled) {
