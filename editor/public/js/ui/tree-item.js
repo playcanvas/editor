@@ -60,6 +60,9 @@ function TreeItem(args) {
     });
 
     this.elementTitle.addEventListener('keydown', function(evt) {
+        if ((evt.target && evt.target.tagName.toLowerCase() === 'input'))
+            return;
+
         if ([ 9, 38, 40, 37, 39 ].indexOf(evt.keyCode) === -1)
             return;
 
