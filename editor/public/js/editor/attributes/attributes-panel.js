@@ -696,7 +696,9 @@ editor.once('load', function() {
                 var dropRef = editor.call('drop:target', {
                     ref: panel.element,
                     filter: function(type, data) {
-                        return type === 'asset.' + args.kind && data.id !== field.value;
+                        var rectA = root.innerElement.getBoundingClientRect();
+                        var rectB = panel.element.getBoundingClientRect();
+                        return type === 'asset.' + args.kind && data.id !== field.value && rectB.top > rectA.top && rectB.bottom < rectA.bottom;
                     },
                     drop: function(type, data) {
                         if (type !== 'asset.' + args.kind)
@@ -898,9 +900,17 @@ editor.once('load', function() {
             ref: fieldAssetsList.element,
             type: 'asset.' + type,
             filter: function(type, data) {
-                if (assetType && type !== 'asset.' + assetType)
+                // type
+                if (assetType && assetType !== '*' && type !== 'asset.' + assetType)
                     return false;
 
+                // overflowed
+                var rectA = root.innerElement.getBoundingClientRect();
+                var rectB = fieldAssetsList.element.getBoundingClientRect();
+                if (rectB.top <= rectA.top || rectB.bottom >= rectA.bottom)
+                    return false;
+
+                // already added
                 for(var i = 0; i < link.length; i++) {
                     if (link[i].get(path).indexOf(data.id) === -1)
                         return true;

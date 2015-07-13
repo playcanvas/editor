@@ -1471,8 +1471,24 @@ strong {
             > .label {
                 background-color: $bcg-darkest;
             }
-            &:hover > .label {
-                background-color: mix($bcg-darkest, $bcg-darker, 75%);
+            &:hover {
+                > .label {
+                    background-color: mix($bcg-darkest, $bcg-darker, 75%);
+                }
+            }
+        }
+        &.unused {
+            &:after {
+                @extend .font-icon;
+                content: '\E532';
+                position: absolute;
+                top: 4px;
+                right: 4px;
+                width: 16px;
+                height: 16px;
+                line-height: 16px;
+                text-align: center;
+                color: $text-dark;
             }
         }
         > .thumbnail {

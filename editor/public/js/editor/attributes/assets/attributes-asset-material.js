@@ -555,7 +555,6 @@ editor.once('load', function() {
         }
 
 
-
         // preview
         if (assets.length === 1) {
             var canvas = document.createElement('canvas');
@@ -595,25 +594,26 @@ editor.once('load', function() {
                 if (id === assets[0].get('id'))
                     renderPreview();
             });
+        }
 
-            // properties panel
-            var panelParams = editor.call('attributes:addPanel', {
-                name: 'Material'
-            });
-            panelParams.class.add('component');
-            // reference
-            editor.call('attributes:reference:asset:material:asset:attach', panelParams, panelParams.headerElement);
 
+        // properties panel
+        var panelParams = editor.call('attributes:addPanel', {
+            name: 'Material'
+        });
+        panelParams.class.add('component');
+        // reference
+        editor.call('attributes:reference:asset:material:asset:attach', panelParams, panelParams.headerElement);
+        // clean preview
+        if (assets.length === 1) {
             panelParams.on('destroy', function() {
                 evtPanelResize.unbind();
                 evtMaterialChanged.unbind();
                 canvas.parentNode.removeChild(canvas);
                 root.class.remove('asset-preview', 'animate');
             });
-
             root.class.add('animate');
         }
-
 
 
         // model
