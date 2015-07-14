@@ -293,44 +293,49 @@ editor.once('load', function() {
             var panelLoadingScreen = editor.call('attributes:addPanel', {
                 name: 'Loading Screen'
             });
-            panelLoadingScreen.class.add('component');
+            panelLoadingScreen.class.add('component', 'loading-screen');
 
-            var fieldLoadingScreen = editor.call('attributes:addField', {
+            var fieldScriptPicker = editor.call('attributes:addField', {
                 parent: panelLoadingScreen,
                 name: 'Script',
-                type: 'string',
-                placeholder: 'Script Name'
+                type: 'button'
             });
-            fieldLoadingScreen.renderChanges = false;
-            fieldLoadingScreen.parent.style.marginBottom = '8px';
 
-            // reference
-            editor.call('attributes:reference:settings:loadingScreenScript:attach', fieldLoadingScreen.parent.innerElement.firstChild.ui);
+            fieldScriptPicker.style['font-size'] = '11px';
 
-            // autocomplete
-            var sourcefiles = editor.call('sourcefiles:get');
-
-            var autocomplete = new ui.AutoCompleteElement();
-            autocomplete.items = sourcefiles.map(function (sourcefile) {
-                return sourcefile.get('filename');
+            var remove = new ui.Button();
+            remove.class.add('remove');
+            fieldScriptPicker.parent.append(remove);
+            remove.on("click", function () {
+                editor.call('project:setLoadingScreenScript', null);
+                fieldScriptPicker.text = "Click to select script";
+                remove.class.add('not-visible');
             });
-            autocomplete.attach(fieldLoadingScreen);
 
             editor.call('project:getLoadingScreenScript', function (value) {
-                if (value)
-                    fieldLoadingScreen.value = value;
-            });
-
-            fieldLoadingScreen.element.addEventListener('keydown', function (e) {
-                if (autocomplete.isFocused || e.keyCode !== 13)
-                    return;
-
-                if (!fieldLoadingScreen.value || autocomplete.items.indexOf(fieldLoadingScreen.value) !== -1) {
-                    editor.call('project:setLoadingScreenScript', fieldLoadingScreen.value);
+                if (value) {
+                    fieldScriptPicker.text = value;
                 } else {
-                    fieldLoadingScreen.elementInput.select();
+                    fieldScriptPicker.text = "Click to select script";
+                    remove.class.add('not-visible');
                 }
             });
+
+            fieldScriptPicker.on('click', function () {
+                editor.once("picker:asset", function (asset) {
+                    var value = asset.get("filename");
+                    editor.call('project:setLoadingScreenScript', value);
+                    fieldScriptPicker.text = value;
+                    remove.class.remove('not-visible');
+                });
+
+                // show asset picker
+                editor.call("picker:asset", "script", null);
+            });
+
+            // reference
+            editor.call('attributes:reference:settings:loadingScreenScript:attach', fieldScriptPicker.parent.innerElement.firstChild.ui);
+
         }
 
     });

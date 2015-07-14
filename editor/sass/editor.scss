@@ -1779,6 +1779,33 @@ strong {
     }
 }
 
+.ui-panel.loading-screen {
+    .remove {
+        position: absolute;
+        width: 11px;
+        height: 24px;
+        top: 0;
+        right: 0;
+        @extend .font-icon;
+        text-align: center;
+        border: none;
+        color: #5b7073;
+        background-color: transparent;
+
+        &:hover {
+            color: #d34141;
+        }
+
+        &:after {
+            content: '\E521';
+        }
+
+        &.not-visible {
+            visibility: hidden;
+        }
+    }
+}
+
 .ui-overlay.script-priorities {
     > .content {
         width: 400px;
