@@ -96,6 +96,12 @@ editor.once('load', function() {
             subTitle: '{pc.Color}',
             description: 'The color of the fog. This color is blended with a surface\'s color more as the fog fades in.',
             url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.Scene.html#fogColor'
+        }, {
+            name: 'loadingScreenScript',
+            title: 'Loading Screen Script',
+            subTitle: '{String}',
+            description: 'The name of the script to use for creating the loading screen of the application. The script needs to call pc.script.createLoadingScreen.',
+            url: 'http://developer.playcanvas.com/en/engine/api/stable/symbols/pc.script.html#createLoadingScreen'
         }
     ];
 

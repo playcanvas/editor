@@ -40,7 +40,6 @@ editor.once('load', function() {
     });
 
     editor.method('project:setLoadingScreenScript', function (script) {
-        console.log('set', script);
         function set () {
             project.set('settings.loading_screen_script', script);
 
