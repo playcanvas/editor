@@ -285,5 +285,53 @@ editor.once('load', function() {
         physicsPanel.on('destroy', function () {
             evtFilter.unbind();
         });
+
+
+        // custom loading screen script
+        if (config.owner.superUser || config.owner.plan.type === 'org') {
+            // loading screen
+            var panelLoadingScreen = editor.call('attributes:addPanel', {
+                name: 'Loading Screen'
+            });
+            panelLoadingScreen.class.add('component');
+
+            var fieldLoadingScreen = editor.call('attributes:addField', {
+                parent: panelLoadingScreen,
+                name: 'Script',
+                type: 'string',
+                placeholder: 'Script Name'
+            });
+            fieldLoadingScreen.renderChanges = false;
+            fieldLoadingScreen.parent.style.marginBottom = '8px';
+
+            // reference
+            editor.call('attributes:reference:settings:loadingScreenScript:attach', fieldLoadingScreen.parent.innerElement.firstChild.ui);
+
+            // autocomplete
+            var sourcefiles = editor.call('sourcefiles:get');
+
+            var autocomplete = new ui.AutoCompleteElement();
+            autocomplete.items = sourcefiles.map(function (sourcefile) {
+                return sourcefile.get('filename');
+            });
+            autocomplete.attach(fieldLoadingScreen);
+
+            editor.call('project:getLoadingScreenScript', function (value) {
+                if (value)
+                    fieldLoadingScreen.value = value;
+            });
+
+            fieldLoadingScreen.element.addEventListener('keydown', function (e) {
+                if (autocomplete.isFocused || e.keyCode !== 13)
+                    return;
+
+                if (!fieldLoadingScreen.value || autocomplete.items.indexOf(fieldLoadingScreen.value) !== -1) {
+                    editor.call('project:setLoadingScreenScript', fieldLoadingScreen.value);
+                } else {
+                    fieldLoadingScreen.elementInput.select();
+                }
+            });
+        }
+
     });
 });
