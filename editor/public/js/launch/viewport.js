@@ -137,6 +137,7 @@ app.once('load', function() {
 
             loadingScript.onload = function() {
                 loadingScreen = true;
+                init();
             };
 
             loadingScript.onerror = function () {
