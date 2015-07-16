@@ -117,6 +117,37 @@ app.once('load', function() {
 
     var createLoadingScreen = function () {
         var defaultLoadingScreen = function () {
+            if (document.head.querySelector) {
+                var css = [
+                    '#application-splash {',
+                    '    position: absolute;',
+                    '    top: 42%;',
+                    '    width: 10%;',
+                    '    left: 45%;',
+                    '}',
+
+                    '#application-splash img {',
+                    '    width: 100%;',
+                    '}',
+
+                    '#progress-container {',
+                    '    width: 100%;',
+                    '    height: 2px;',
+                    '    position: absolute;',
+                    '    background-color: #444;',
+                    '}',
+
+                    '#progress-bar {',
+                    '    width: 0%;',
+                    '    height: 100%;',
+                    '    background-color: white;',
+                    '}'
+                ].join('\n');
+
+                var style = document.head.querySelector('style');
+                style.innerHTML += css;
+            }
+
             application.on("preload:progress", setProgress);
             application.once("preload:end", function () {
                 application.off("preload:progress");
