@@ -285,5 +285,58 @@ editor.once('load', function() {
         physicsPanel.on('destroy', function () {
             evtFilter.unbind();
         });
+
+
+        // custom loading screen script
+        if (config.owner.superUser || config.owner.plan.type === 'org') {
+            // loading screen
+            var panelLoadingScreen = editor.call('attributes:addPanel', {
+                name: 'Loading Screen'
+            });
+            panelLoadingScreen.class.add('component', 'loading-screen');
+
+            var fieldScriptPicker = editor.call('attributes:addField', {
+                parent: panelLoadingScreen,
+                name: 'Script',
+                type: 'button'
+            });
+
+            fieldScriptPicker.style['font-size'] = '11px';
+
+            var remove = new ui.Button();
+            remove.class.add('remove');
+            fieldScriptPicker.parent.append(remove);
+            remove.on("click", function () {
+                editor.call('project:setLoadingScreenScript', null);
+                fieldScriptPicker.text = "Click to select script";
+                remove.class.add('not-visible');
+            });
+
+            editor.call('project:getLoadingScreenScript', function (value) {
+                if (value) {
+                    fieldScriptPicker.text = value;
+                } else {
+                    fieldScriptPicker.text = "Click to select script";
+                    remove.class.add('not-visible');
+                }
+            });
+
+            fieldScriptPicker.on('click', function () {
+                editor.once("picker:asset", function (asset) {
+                    var value = asset.get("filename");
+                    editor.call('project:setLoadingScreenScript', value);
+                    fieldScriptPicker.text = value;
+                    remove.class.remove('not-visible');
+                });
+
+                // show asset picker
+                editor.call("picker:asset", "script", null);
+            });
+
+            // reference
+            editor.call('attributes:reference:settings:loadingScreenScript:attach', fieldScriptPicker.parent.innerElement.firstChild.ui);
+
+        }
+
     });
 });

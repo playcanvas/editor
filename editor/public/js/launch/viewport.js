@@ -10,14 +10,15 @@ app.once('load', function() {
     var libraries = false;
     var sceneData = null;
     var sceneSettings = null;
-    var scriptList = []
+    var loadingScreen = false;
+    var scriptList = [];
 
     // update progress bar
     var setProgress = function (value) {
         var bar = document.getElementById('progress-bar');
         value = Math.min(1, Math.max(0, value));
         bar.style.width = value * 100 + '%';
-    }
+    };
 
     // respond to resize window
     var reflow = function () {
@@ -36,18 +37,15 @@ app.once('load', function() {
         }
     };
 
+
     // try to start preload and initialization of application after load event
     var init = function () {
-        if (!done && assets && hierarchy && settings && sourcefiles && libraries) {
+        if (!done && assets && hierarchy && settings && sourcefiles && libraries && loadingScreen) {
             // prevent multiple init calls during scene loading
             done = true;
 
-            application.on("preload:progress", setProgress);
-
             // load assets that are in the preload set
             application.preload(function (err) {
-                application.off("preload:progress", setProgress);
-
                 // load scripts that are in the scene data
                 application._preloadScripts(sceneData, function (err) {
                     if (err) {
@@ -71,7 +69,6 @@ app.once('load', function() {
                         console.error(err);
                     }
 
-                    hideSplash();
                     application.start();
                 });
             });
@@ -90,7 +87,7 @@ app.once('load', function() {
         document.body.appendChild(canvas);
 
         return canvas;
-    }
+    };
 
     var showSplash = function () {
         // splash
@@ -118,8 +115,77 @@ app.once('load', function() {
         splash.parentElement.removeChild(splash);
     };
 
+    var createLoadingScreen = function () {
+        var defaultLoadingScreen = function () {
+            if (document.head.querySelector) {
+                var css = [
+                    '#application-splash {',
+                    '    position: absolute;',
+                    '    top: 42%;',
+                    '    width: 10%;',
+                    '    left: 45%;',
+                    '}',
+
+                    '#application-splash img {',
+                    '    width: 100%;',
+                    '}',
+
+                    '#progress-container {',
+                    '    width: 100%;',
+                    '    height: 2px;',
+                    '    position: absolute;',
+                    '    background-color: #444;',
+                    '}',
+
+                    '#progress-bar {',
+                    '    width: 0%;',
+                    '    height: 100%;',
+                    '    background-color: white;',
+                    '}'
+                ].join('\n');
+
+                var style = document.head.querySelector('style');
+                style.innerHTML += css;
+            }
+
+            application.on("preload:progress", setProgress);
+            application.once("preload:end", function () {
+                application.off("preload:progress");
+            });
+            application.once("start", hideSplash);
+
+            showSplash();
+
+            loadingScreen = true;
+            init();
+        };
+
+        // if the project has a loading screen script then
+        // download it and execute it
+        if (config.project.settings.loading_screen_script) {
+            var loadingScript = document.createElement('script');
+            loadingScript.src = scriptPrefix + '/' + config.project.settings.loading_screen_script;
+
+            loadingScript.onload = function() {
+                loadingScreen = true;
+                init();
+            };
+
+            loadingScript.onerror = function () {
+                console.error("Could not load loading screen script: " + config.project.settings.loading_screen_script);
+                defaultLoadingScreen();
+            };
+
+            var head = document.getElementsByTagName('head')[0];
+            head.insertBefore(loadingScript, head.firstChild);
+         }
+         // no loading screen script so just use default splash screen
+         else {
+            defaultLoadingScreen();
+         }
+    };
+
     var canvas = createCanvas();
-    showSplash();
 
     // convert library properties into URLs
     var libraryUrls = [];
@@ -201,8 +267,6 @@ app.once('load', function() {
         return application;
     });
 
-
-
     app.on('entities:load', function (data) {
         hierarchy = true;
         sceneData = data;
@@ -224,5 +288,8 @@ app.once('load', function() {
         scriptList = scripts;
         sourcefiles = true;
         init();
-    })
+    });
+
+    createLoadingScreen();
+
 });

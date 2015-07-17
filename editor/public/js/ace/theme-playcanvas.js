@@ -1,1 +1,0 @@
-ace.define("ace/theme/playcanvas",["require","exports","module","ace/lib/dom"],function(e,t,n){t.isDark=!0,t.cssClass="ace-playcanvas",t.cssText="";var r=e("../lib/dom");r.importCssString(t.cssText,t.cssClass)})

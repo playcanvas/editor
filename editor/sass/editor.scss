@@ -1310,6 +1310,26 @@ strong {
         &.c-camera > .title > .icon:after {
             content: '\E584';
         }
+        &.rename {
+            > .title {
+                > .text {
+                    display: none;
+                }
+                > .ui-text-field {
+                    width: calc(100% - 24px);
+                    margin: 0;
+                    padding: 0;
+                    border: none;
+                    background-color: transparent;
+
+                    > .field {
+                        padding: 0;
+                        @extend .font-regular;
+                        font-size: 14px;
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -1471,8 +1491,24 @@ strong {
             > .label {
                 background-color: $bcg-darkest;
             }
-            &:hover > .label {
-                background-color: mix($bcg-darkest, $bcg-darker, 75%);
+            &:hover {
+                > .label {
+                    background-color: mix($bcg-darkest, $bcg-darker, 75%);
+                }
+            }
+        }
+        &.unused {
+            &:after {
+                @extend .font-icon;
+                content: '\E532';
+                position: absolute;
+                top: 4px;
+                right: 4px;
+                width: 16px;
+                height: 16px;
+                line-height: 16px;
+                text-align: center;
+                color: $text-dark;
             }
         }
         > .thumbnail {
@@ -1739,6 +1775,33 @@ strong {
                 background-color: rgba(41, 53, 56, 0.75);
                 color: #fff;
             }
+        }
+    }
+}
+
+.ui-panel.loading-screen {
+    .remove {
+        position: absolute;
+        width: 11px;
+        height: 24px;
+        top: 0;
+        right: 0;
+        @extend .font-icon;
+        text-align: center;
+        border: none;
+        color: #5b7073;
+        background-color: transparent;
+
+        &:hover {
+            color: #d34141;
+        }
+
+        &:after {
+            content: '\E521';
+        }
+
+        &.not-visible {
+            visibility: hidden;
         }
     }
 }

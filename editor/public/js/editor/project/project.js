@@ -38,4 +38,37 @@ editor.once('load', function() {
             enable();
         }
     });
+
+    editor.method('project:setLoadingScreenScript', function (script) {
+        function set () {
+            project.set('settings.loading_screen_script', script);
+
+            Ajax.put('{{url.api}}/projects/{{project.id}}?access_token={{accessToken}}', project.json())
+            .on('error', function () {
+                // remove physics from libraries on error
+                project.unset('settings.loading_screen_script');
+            });
+        }
+
+        if (!loadedProject) {
+            editor.call('project:load');
+            editor.once('project:load', set);
+        } else {
+            set();
+        }
+    });
+
+    editor.method('project:getLoadingScreenScript', function (callback) {
+        function get () {
+            callback(project.get('settings.loading_screen_script'));
+        }
+
+        if (!loadedProject) {
+            editor.call('project:load');
+            editor.once('project:load', get);
+        } else {
+            get();
+        }
+    });
+
 });

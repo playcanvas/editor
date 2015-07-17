@@ -154,9 +154,22 @@ editor.once('load', function() {
             label.textContent = this.get('name');
             this.set('data.name', this.get('name'));
         });
+        // used event
+        var evtUnused = editor.on('assets:used:' + asset.get('id'), function(state) {
+            if (state) {
+                item.class.remove('unused');
+            } else {
+                item.class.add('unused');
+            }
+        });
+        // used state
+        if (! editor.call('assets:used:get', asset.get('id')))
+            item.class.add('unused');
+        // clean events
         item.on('destroy', function() {
             editor.call('selector:remove', asset);
             evtNameSet.unbind();
+            evtUnused.unbind();
             delete assetsIndex[asset.get('id')];
         });
     });

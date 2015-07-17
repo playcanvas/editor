@@ -179,7 +179,7 @@ editor.once('load', function() {
             if (! editor.call('permissions:write'))
                 return evt.preventDefault();
 
-            evt.dataTransfer.setData('editor', args.type);
+            evt.dataTransfer.setData('Text', args.type);
             currentType = args.type;
             currentData = args.data;
         }, false);
