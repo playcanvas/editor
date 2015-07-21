@@ -1472,6 +1472,22 @@ strong {
                 content: '\E284';
             }
         }
+        &.type-html {
+            > .thumbnail.placeholder:after {
+                content: '\E214';
+            }
+            > .icon:after {
+                content: '\E214';
+            }
+        }
+        &.type-css {
+            > .thumbnail.placeholder:after {
+                content: '\E367';
+            }
+            > .icon:after {
+                content: '\E367';
+            }
+        }
 
         &:hover {
             > .thumbnail {

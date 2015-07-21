@@ -62,7 +62,9 @@ editor.once('load', function() {
             model: 'Model',
             script: 'Script',
             text: 'Text',
-            texture: 'Texture'
+            texture: 'Texture',
+            html: 'Html',
+            css: 'Css'
         }
     });
     filterField.class.add('options');

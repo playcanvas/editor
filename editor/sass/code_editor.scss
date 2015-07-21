@@ -17,9 +17,11 @@ $editor-fold-bg: #3cff94;
 $editor-operator: #ed1e79;
 $editor-numeric: #c978eb;
 $editor-keyword: #77bef3;
+$editor-tag: #ed1e79;
 $editor-string: $editor-yellow;
 $editor-link: #F16524;
 $editor-comment: #779296;
+$editor-meta: #779296;
 $editor-def: #3cff94;
 $editor-variable: white;
 $editor-variable-2: white;
@@ -68,6 +70,24 @@ body {
 #editor-container {
     height: calc(100% - 35px);
     clear: both;
+}
+
+#users {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    z-index: 1;
+    height: $top-bar-height;
+    line-height: $top-bar-line-height;
+
+    a {
+        margin-right: 5px;
+    }
+
+    img {
+        max-height: 100%;
+        vertical-align: middle;
+    }
 }
 
 .code-editor {
@@ -217,6 +237,14 @@ body {
 
     span.cm-string {
         color: $editor-string;
+    }
+
+    span.cm-tag, span.cm-qualifier, span.cm-builtin {
+        color: $editor-tag;
+    }
+
+    span.cm-meta {
+        color: $editor-meta;
     }
 
     span.cm-def {
