@@ -173,17 +173,22 @@ editor.once('load', function () {
     };
 
     editor.method('assets:cubemaps:prefilter', function (cubemapAsset, callback) {
-        var realtimeAsset = assets.get(cubemapAsset.get('id'));
-        if (!realtimeAsset) return;
+        var runtimeAsset = assets.get(cubemapAsset.get('id'));
+        if (!runtimeAsset) return;
 
         // load cubemap asset
         var cubemap;
 
-        realtimeAsset.ready(function (asset) {
+        // force cubemap to reload, including face textures if necessary
+        if (runtimeAsset.data.skipFaces) {
+            runtimeAsset.data.skipFaces = false;
+            runtimeAsset.unload();
+        }
+        runtimeAsset.ready(function (asset) {
             cubemap = asset.resources[0];
             onLoad();
         });
-        assets.load(realtimeAsset);
+        assets.load(runtimeAsset);
 
         function onLoad() {
             if (device.extTextureFloatRenderable && cubemapAsset.get('data.rgbm')) {
