@@ -15,6 +15,19 @@ editor.once('load', function() {
             this.destroy();
         });
 
+        // panel
+        var panel = editor.call('attributes:addPanel');
+        panel.class.add('component');
+
+        // edit
+        var btnEdit = new ui.Button();
+        btnEdit.text = 'Edit';
+        btnEdit.class.add('edit-script');
+        btnEdit.on('click', function(evt) {
+            window.open('/editor/asset/' + asset.get('id'));
+        });
+        panel.append(btnEdit);
+
         var panelRaw = editor.call('attributes:addPanel', {
             name: 'JSON'
         });

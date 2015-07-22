@@ -22,14 +22,18 @@ editor.once('load', function () {
             options.mode = 'htmlmixed';
         } else if (config.asset.type === 'css') {
             options.mode = 'css';
+        } else if (config.asset.type === 'json') {
+            options.mode = 'javascript';
+        } else {
+            options.mode = 'text';
+            options.lineWrapping = true;
         }
-    }
-
-    if (options.mode === 'javascript') {
+    } else {
         options.lint = true;
         options.gutters = ["CodeMirror-lint-markers"];
-        options.lineNumbers = true;
     }
+
+    options.lineNumbers = true;
 
     if (options.readOnly) {
         options.cursorBlinkRate = -1; // hide cursor
@@ -46,14 +50,14 @@ editor.once('load', function () {
     var loadedDefinitions = false;
 
     var init = function () {
-        if (options.mode === 'javascript') {
-            initJavascript();
+        if (config.asset === 'javascript') {
+            initScript();
         } else {
-            initRest();
+            initAsset();
         }
     };
 
-    var initJavascript = function () {
+    var initScript = function () {
         if (code === null || !loadedDefinitions)
             return;
 
@@ -161,8 +165,7 @@ editor.once('load', function () {
         isLoading = false;
     };
 
-    // initilizes all other modes apart from javascript
-    var initRest = function () {
+    var initAsset = function () {
         if (code === null)
             return;
 
