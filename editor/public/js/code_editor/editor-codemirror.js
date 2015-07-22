@@ -258,6 +258,8 @@ editor.once('load', function () {
     window.onbeforeunload = function (event) {
         var message;
 
+        editor.emit('editor:beforeQuit');
+
         if (editor.call('editor:canSave')) {
             message = 'You have unsaved changes. Are you sure you want to leave?';
             event.returnValue = message;
