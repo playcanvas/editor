@@ -28,6 +28,8 @@ editor.once('load', function () {
             options.mode = 'text';
             options.lineWrapping = true;
         }
+
+        options.gutters = ["CodeMirror-pc-gutter"];
     } else {
         options.lint = true;
         options.gutters = ["CodeMirror-lint-markers"];

@@ -197,6 +197,7 @@ body {
 
     .CodeMirror-gutters {
         min-height: 100%;
+        width: 61px;
         background-color: $editor-gutter-bg;
         border-right: none;
     }
@@ -208,7 +209,17 @@ body {
     .CodeMirror-linenumber {
         color: $editor-gutter-fg;
         min-width: 29px;
+        width: 32px !important;
+        left: 16px !important;
         padding-right: 10px;
+    }
+
+    .CodeMirror-pc-gutter {
+        width: 16px;
+    }
+
+    .CodeMirror-sizer {
+        margin-left: 61px !important;
     }
 
     .CodeMirror-cursor {
