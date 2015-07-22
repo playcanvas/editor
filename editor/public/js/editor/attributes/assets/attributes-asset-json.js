@@ -7,14 +7,6 @@ editor.once('load', function() {
 
         var asset = assets[0];
 
-        // loading
-        var loading = editor.call('attributes:addField', {
-            type: 'progress'
-        });
-        loading.on('progress:100', function() {
-            this.destroy();
-        });
-
         // panel
         var panel = editor.call('attributes:addPanel');
         panel.class.add('component');
@@ -27,6 +19,14 @@ editor.once('load', function() {
             window.open('/editor/asset/' + asset.get('id'));
         });
         panel.append(btnEdit);
+
+        // loading
+        var loading = editor.call('attributes:addField', {
+            type: 'progress'
+        });
+        loading.on('progress:100', function() {
+            this.destroy();
+        });
 
         var panelRaw = editor.call('attributes:addPanel', {
             name: 'JSON'
