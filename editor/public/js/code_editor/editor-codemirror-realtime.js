@@ -295,8 +295,10 @@ editor.once('load', function () {
     // Flush changes to the server
     // and pause until next flushInterval
     var flushInterval = function () {
-        share._doc.resume();
-        share._doc.pause();
+        if (share && share._doc) {
+            share._doc.resume();
+            share._doc.pause();
+        }
     };
 
     // flush changes to server every once in a while

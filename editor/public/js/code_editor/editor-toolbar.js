@@ -81,6 +81,8 @@ editor.once('load', function () {
         refreshButtons();
     });
 
+    editor.on('realtime:connecting', refreshButtons);
+
     editor.on('realtime:disconnected', function () {
         errorMsg = 'Disconnected from server';
         error.innerHTML = errorMsg;
