@@ -7,6 +7,19 @@ editor.once('load', function() {
 
         var asset = assets[0];
 
+        // panel
+        var panel = editor.call('attributes:addPanel');
+        panel.class.add('component');
+
+        // edit
+        var btnEdit = new ui.Button();
+        btnEdit.text = 'Edit';
+        btnEdit.class.add('edit-script');
+        btnEdit.on('click', function(evt) {
+            window.open('/editor/asset/' + asset.get('id'));
+        });
+        panel.append(btnEdit);
+
         // loading
         var loading = editor.call('attributes:addField', {
             type: 'progress'

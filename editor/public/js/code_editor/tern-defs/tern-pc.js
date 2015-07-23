@@ -1,4 +1,7 @@
 editor.once('load', function () {
+    if (config.asset)
+        return;
+
     var def = {};
 
     var data = {
