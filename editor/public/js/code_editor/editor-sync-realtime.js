@@ -18,6 +18,42 @@ editor.once('load', function() {
         return isSaving;
     });
 
+    // check job.update messages
+    // which will be sent when a 'save' job
+    // is completed
+    editor.on('messenger:job.update', function (data) {
+        var jobId = data.job.id;
+        Ajax({
+            url: '/api/jobs/' + jobId,
+            method: 'GET',
+            query: {
+                'access_token': '{{accessToken}}'
+            },
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+        .on('load', function (status, data) {
+            var job = data.response[0];
+
+            if (job.data.asset_id === config.asset.id) {
+                isSaving = false;
+                if (job.status === 'complete') {
+                    editor.emit('editor:save:success');
+                } else if (job.status === 'error') {
+                    console.log('this')
+                    editor.emit('editor:save:error', job.messages[0]);
+                }
+
+            }
+        })
+        .on('error', function (status, data) {
+            console.error('Could not get job');
+            editor.emit('editor:save:error', status);
+        });
+    });
+
     editor.method('editor:save', function () {
         if (! editor.call('editor:canSave')) return;
 
@@ -46,12 +82,6 @@ editor.once('load', function() {
         };
 
         Ajax(data)
-        .on('load', function(status, data) {
-            isSaving = false;
-            editor.emit('editor:save:success');
-        })
-        .on('progress', function(progress) {
-        })
         .on('error', function(status, data) {
             isSaving = false;
             editor.emit('editor:save:error', status);
