@@ -52,10 +52,10 @@ editor.once('load', function () {
     var loadedDefinitions = false;
 
     var init = function () {
-        if (config.asset === 'javascript') {
-            initScript();
-        } else {
+        if (config.asset) {
             initAsset();
+        } else {
+            initScript();
         }
     };
 
