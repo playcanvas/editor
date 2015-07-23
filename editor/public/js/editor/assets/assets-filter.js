@@ -57,14 +57,14 @@ editor.once('load', function() {
             animation: 'Animation',
             audio: 'Audio',
             cubemap: 'Cubemap',
+            css: 'Css',
             json: 'Json',
+            html: 'Html',
             material: 'Material',
             model: 'Model',
             script: 'Script',
             text: 'Text',
-            texture: 'Texture',
-            html: 'Html',
-            css: 'Css'
+            texture: 'Texture'
         }
     });
     filterField.class.add('options');
