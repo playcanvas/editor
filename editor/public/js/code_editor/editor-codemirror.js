@@ -231,6 +231,16 @@ editor.once('load', function () {
         init();
     });
 
+    editor.on('editor:reloadScript', function (data) {
+        var isDirty = editor.call('editor:isDirty');
+
+        isLoading = true;
+        codeMirror.setValue(code);
+
+        if (!isDirty)
+            codeMirror.markClean();
+    });
+
     // emit change
     codeMirror.on('change', function (cm, change) {
         if (isLoading) return;

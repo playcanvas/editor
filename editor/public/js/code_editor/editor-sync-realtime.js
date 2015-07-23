@@ -7,11 +7,17 @@ editor.once('load', function() {
     if (!config.asset)
         return;
 
-
+    var isLoading = false;
     var isSaving;
+    var isConnected = false;
+    var loadedScriptOnce = false;
 
     editor.method('editor:canSave', function () {
-        return editor.call('editor:isDirty') && !editor.call('editor:isReadonly') && !isSaving;
+        return editor.call('editor:isDirty') && !editor.call('editor:isReadonly') && !isSaving && isConnected;
+    });
+
+    editor.method('editor:isLoading', function () {
+        return isLoading;
     });
 
     editor.method('editor:isSaving', function () {
@@ -119,6 +125,7 @@ editor.once('load', function() {
                 return;
             }
 
+            isLoading = true;
             reconnectAttempts++;
             editor.emit('realtime:connecting', reconnectAttempts);
 
@@ -168,6 +175,8 @@ editor.once('load', function() {
                     accessToken: config.accessToken
                 }));
 
+                isConnected = true;
+
                 editor.emit('realtime:connected');
             });
 
@@ -183,6 +192,9 @@ editor.once('load', function() {
                     textDocument.destroy();
                     textDocument = null;
                 }
+
+                isLoading = false;
+                isConnected = false;
 
                 editor.emit('realtime:disconnected', reason);
                 onConnectionClosed(reason);
@@ -218,8 +230,16 @@ editor.once('load', function() {
             // ready to sync
             textDocument.on('ready', function() {
                 // notify of scene load
+                isLoading = false;
                 editingContext = textDocument.createContext();
-                editor.emit('editor:loadScript', textDocument.getSnapshot());
+
+                if (! loadedScriptOnce) {
+                    editor.emit('editor:loadScript', textDocument.getSnapshot());
+                    loadedScriptOnce = true;
+                }
+                else {
+                    editor.emit('editor:reloadScript', textDocument.getSnapshot());
+                }
             });
 
             // subscribe for realtime events

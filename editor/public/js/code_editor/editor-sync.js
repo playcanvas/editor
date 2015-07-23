@@ -7,6 +7,7 @@ editor.once('load', function () {
     if (config.asset)
         return;
 
+    var isLoading = true;
     var isSaving = false;
 
     editor.method('editor:canSave', function () {
@@ -73,11 +74,13 @@ editor.once('load', function () {
         Ajax(data)
         .on('load', function(status, data) {
             isSaving = false;
+            isLoading = false;
             editor.emit('editor:loadScript', data);
         })
         .on('progress', function(progress) {
         })
         .on('error', function(status, data) {
+            isLoading = false;
             editor.emit('editor:loadScript:error', status);
         });
     });

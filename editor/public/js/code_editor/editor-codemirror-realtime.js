@@ -115,7 +115,7 @@ editor.once('load', function () {
     };
 
     // Called when the script / asset is loaded
-    editor.on('editor:loadScript', function () {
+    var onLoaded = function () {
         share = editor.call('realtime:context');
 
         // server -> local
@@ -149,7 +149,10 @@ editor.once('load', function () {
             // validate();
             suppress = false;
         };
-    });
+    };
+
+    editor.on('editor:loadScript', onLoaded);
+    editor.on('editor:reloadScript', onLoaded);
 
     // debug function
     var printStacks = function () {
