@@ -7,6 +7,7 @@ editor.once('load', function() {
             name: asset.get('name') + ' Copy',
             source: false,
             data: asset.get('data'),
+            preload: asset.get('preload'),
             scope: {
                 type: 'project',
                 id: config.project.id
