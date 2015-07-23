@@ -2,12 +2,12 @@ editor.once('load', function() {
     'use strict';
 
     editor.on('attributes:inspect[asset]', function(assets) {
-        if (assets.length !== 1 || assets[0].get('type') !== 'text')
+        if (assets.length !== 1 || assets[0].get('type') !== 'css')
             return;
 
         var asset = assets[0];
 
-         // panel
+        // panel
         var panel = editor.call('attributes:addPanel');
         panel.class.add('component');
 
@@ -29,34 +29,34 @@ editor.once('load', function() {
         });
 
         var panelRaw = editor.call('attributes:addPanel', {
-            name: 'TEXT'
+            name: 'CSS'
         });
         panelRaw.class.add('component');
         // reference
-        editor.call('attributes:reference:asset:text:asset:attach', panelRaw, panelRaw.headerElement);
+        editor.call('attributes:reference:asset:css:asset:attach', panelRaw, panelRaw.headerElement);
 
         // code
-        var fieldText = editor.call('attributes:addField', {
+        var fieldCode = editor.call('attributes:addField', {
             parent: panelRaw,
             type: 'code'
         });
-        fieldText.style.margin = '-8px -6px';
+        fieldCode.style.margin = '-8px -6px';
 
         // load data
-        new AjaxRequest({
+        (new AjaxRequest({
             url: '{{url.home}}/' + asset.get('file.url'),
             notJson: true
-        })
+        }))
         .on('load', function(status, data) {
-            fieldText.text = data;
+            fieldCode.text = data;
             loading.progress = 1;
         })
         .on('progress', function(progress) {
             loading.progress = .1 + progress * .8;
         })
-        .on('error', function(status, err) {
+        .on('error', function() {
             loading.failed = true;
-            fieldText.destroy();
+            fieldCode.destroy();
 
             var error = new ui.Label({ text: 'failed loading data' });
             error.textContent = 'failed loading data';

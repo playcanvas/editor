@@ -1,22 +1,41 @@
 editor.once('load', function () {
+    'use strict';
+
     var element = document.getElementById('editor-container');
 
     // create editor
     var options = {
         mode: 'javascript',
-        indentUnit: 4,
-        lineNumbers: true,
         tabIndex: 1,
         autoCloseBrackets: true,
         matchBrackets: true,
         lineComment: true,
         blockComment: true,
+        indentUnit: 4,
         unComment: true,
         continueComments: true,
-        lint: true,
-        gutters: ["CodeMirror-lint-markers"],
         readOnly: editor.call('editor:isReadonly') ? true : false
     };
+
+    if (config.asset) {
+        if (config.asset.type === 'html') {
+            options.mode = 'htmlmixed';
+        } else if (config.asset.type === 'css') {
+            options.mode = 'css';
+        } else if (config.asset.type === 'json') {
+            options.mode = 'javascript';
+        } else {
+            options.mode = 'text';
+            options.lineWrapping = true;
+        }
+
+        options.gutters = ["CodeMirror-pc-gutter"];
+    } else {
+        options.lint = true;
+        options.gutters = ["CodeMirror-lint-markers"];
+    }
+
+    options.lineNumbers = true;
 
     if (options.readOnly) {
         options.cursorBlinkRate = -1; // hide cursor
@@ -24,12 +43,24 @@ editor.once('load', function () {
 
     var codeMirror = CodeMirror(element, options);
 
+    editor.method('editor:codemirror', function () {
+        return codeMirror;
+    });
+
     var isLoading = false;
     var code = null;
     var loadedDefinitions = false;
 
     var init = function () {
-        if (!code || !loadedDefinitions)
+        if (config.asset) {
+            initAsset();
+        } else {
+            initScript();
+        }
+    };
+
+    var initScript = function () {
+        if (code === null || !loadedDefinitions)
             return;
 
         var patchScriptBeforeTern = function (code) {
@@ -136,6 +167,58 @@ editor.once('load', function () {
         isLoading = false;
     };
 
+    var initAsset = function () {
+        if (code === null)
+            return;
+
+        // create key bindings
+        codeMirror.setOption("extraKeys", {
+            'Ctrl-S': function (cm) {editor.call('editor:save');},
+            'Cmd-S': function (cm) {editor.call('editor:save');},
+            'Esc': 'clearSearch',
+            'Tab': function(cm) {
+                if (cm.somethingSelected()) {
+                    cm.indentSelection("add");
+                } else {
+                    var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
+                    cm.replaceSelection(spaces);
+                }
+            },
+            "Shift-Tab": "indentLess",
+            'Ctrl-/': 'toggleComment',
+            'Cmd-/': 'toggleComment',
+            'Ctrl-Z': function (cm) {
+                editor.call('editor:undo');
+            },
+            'Cmd-Z': function (cm) {
+                editor.call('editor:undo');
+            },
+            'Shift-Ctrl-Z': function (cm) {
+                editor.call('editor:redo');
+            },
+            'Ctrl-Y': function (cm) {
+                editor.call('editor:redo');
+            },
+            'Shift-Cmd-Z': function (cm) {
+                editor.call('editor:redo');
+            },
+            'Cmd-Y': function (cm) {
+                editor.call('editor:redo');
+            }
+        });
+
+        isLoading = true;
+        codeMirror.setValue(code);
+        code = null;
+
+        codeMirror.clearHistory();
+        codeMirror.markClean();
+
+        codeMirror.focus();
+
+        isLoading = false;
+    };
+
     // wait for tern definitions to be loaded
     editor.on('tern:load', function () {
         loadedDefinitions = true;
@@ -149,9 +232,9 @@ editor.once('load', function () {
     });
 
     // emit change
-    codeMirror.on('change', function () {
+    codeMirror.on('change', function (cm, change) {
         if (isLoading) return;
-        editor.emit('editor:change');
+        editor.emit('editor:change', cm, change);
     });
 
     // permissions changed so set readonly
@@ -179,6 +262,8 @@ editor.once('load', function () {
     // fired when the user tries to leave the current page
     window.onbeforeunload = function (event) {
         var message;
+
+        editor.emit('editor:beforeQuit');
 
         if (editor.call('editor:canSave')) {
             message = 'You have unsaved changes. Are you sure you want to leave?';
