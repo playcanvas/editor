@@ -42,7 +42,6 @@ editor.once('load', function() {
                 if (job.status === 'complete') {
                     editor.emit('editor:save:success');
                 } else if (job.status === 'error') {
-                    console.log('this')
                     editor.emit('editor:save:error', job.messages[0]);
                 }
 
