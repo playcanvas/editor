@@ -8,6 +8,16 @@ editor.once('load', function() {
     var menu = new ui.Menu();
     root.append(menu);
 
+    // edit
+    var menuItemEdit = new ui.MenuItem({
+        text: 'Edit',
+        value: 'edit'
+    });
+    menuItemEdit.on('select', function() {
+        editor.call('assets:edit', currentAsset);
+    });
+    menu.append(menuItemEdit);
+
 
     // duplicate
     var menuItemDuplicate = new ui.MenuItem({
@@ -51,14 +61,26 @@ editor.once('load', function() {
     // filter buttons
     menu.on('open', function() {
         if (currentAsset.get('type') === 'material') {
+            menuItemEdit.hidden = true;
             if (editor.call('selector:type') === 'asset') {
                 var items = editor.call('selector:items');
-                menuItemDuplicate.disabled = (items.length > 1 && items.indexOf(currentAsset) !== -1);
+                menuItemDuplicate.hidden = (items.length > 1 && items.indexOf(currentAsset) !== -1);
             } else {
-                menuItemDuplicate.enabled = true;
+                menuItemDuplicate.hidden = false;
             }
         } else {
-            menuItemDuplicate.enabled = false;
+            menuItemDuplicate.hidden = true;
+
+            if (/^(html)|(css)|(json)|(text)|(script)$/.test(currentAsset.get('type'))) {
+                if (editor.call('selector:type') === 'asset') {
+                    var items = editor.call('selector:items');
+                    menuItemEdit.hidden = (items.length > 1 && items.indexOf(currentAsset) !== -1);
+                } else {
+                    menuItemEdit.hidden = false;
+                }
+            } else {
+                menuItemEdit.hidden = true;
+            }
         }
     });
 

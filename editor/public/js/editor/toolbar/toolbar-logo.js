@@ -553,6 +553,25 @@ editor.once('load', function() {
                         editor.call('entities:paste', items[0]);
                     }
                 },
+                'edit': {
+                    title: 'Edit',
+                    icon: '&#58434;',
+                    filter: function() {
+                        var type = editor.call('selector:type');
+                        if (! type || type !== 'asset')
+                            return false;
+
+                        var items = editor.call('selector:items');
+                        return items.length === 1 && /^(html)|(css)|(json)|(text)|(script)$/.test(items[0].get('type'));
+                    },
+                    select: function() {
+                        var type = editor.call('selector:type');
+                        if (! type || type !== 'asset') return;
+                        var items = editor.call('selector:items');
+
+                        editor.call('assets:edit', items[0]);
+                    }
+                },
                 'duplicate': {
                     title: 'Duplicate',
                     icon: '&#57908;',
