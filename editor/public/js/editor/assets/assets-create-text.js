@@ -1,0 +1,25 @@
+editor.once('load', function() {
+    'use strict';
+
+    editor.method('assets:createText', function () {
+        if (! editor.call('permissions:write'))
+            return;
+
+        var asset = {
+            name: 'New Text',
+            type: 'text',
+            source: false,
+            preload: true,
+            asset: {
+                filename: "asset.txt",
+                data: ''
+            },
+            scope: {
+                type: 'project',
+                id: config.project.id
+            }
+        };
+
+        editor.call('assets:create', asset);
+    });
+});
