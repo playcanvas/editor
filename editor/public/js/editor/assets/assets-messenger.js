@@ -4,7 +4,7 @@ editor.once('load', function() {
     var create = function(data) {
         var assetId = data.asset.id;
 
-        if (data.asset.source || data.asset.status !== 'complete' && [ 'material', 'model', 'cubemap', 'text', 'json' ].indexOf(data.asset.type) === -1) {
+        if (data.asset.source || data.asset.status !== 'complete' && [ 'material', 'model', 'cubemap', 'text', 'json', 'html', 'css' ].indexOf(data.asset.type) === -1) {
             return;
         }
 

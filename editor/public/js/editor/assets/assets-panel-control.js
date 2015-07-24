@@ -51,6 +51,46 @@ editor.once('load', function() {
     });
     menu.append(menuCubemap);
 
+    // html
+    var menuHtml = new ui.MenuItem({
+        text: 'New Html',
+        value: 'html'
+    });
+    menuHtml.on('select', function () {
+        editor.call('assets:createHtml');
+    });
+    menu.append(menuHtml);
+
+    // css
+    var menuCss = new ui.MenuItem({
+        text: 'New Css',
+        value: 'css'
+    });
+    menuCss.on('select', function () {
+        editor.call('assets:createCss');
+    });
+    menu.append(menuCss);
+
+    // json
+    var menuJson = new ui.MenuItem({
+        text: 'New Json',
+        value: 'json'
+    });
+    menuJson.on('select', function () {
+        editor.call('assets:createJson');
+    });
+    menu.append(menuJson);
+
+    // text
+    var menuText = new ui.MenuItem({
+        text: 'New Text',
+        value: 'text'
+    });
+    menuText.on('select', function () {
+        editor.call('assets:createText');
+    });
+    menu.append(menuText);
+
     // controls
     var controls = new ui.Panel();
     controls.enabled = false;
