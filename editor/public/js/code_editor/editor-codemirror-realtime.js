@@ -89,24 +89,33 @@ editor.once('load', function () {
     // transform undo and redo operations against the new remote operation
     var transformStacks = function (remoteOp) {
         var i = undoStack.length;
+        var initialRemoteOp = remoteOp.op;
+
         while (i--) {
             var localOp = undoStack[i];
+            var old = localOp.op;
             localOp.op = transform(localOp.op, remoteOp.op, 'left');
 
             // remove noop
             if (localOp.op.length === 0 || (localOp.op.length === 1 && typeof localOp.op === 'object' && localOp.op.d === 0)) {
                 undoStack.splice(i, 1);
+            } else {
+                remoteOp.op = transform(remoteOp.op, old, 'right');
             }
         }
 
+        remoteOp.op = initialRemoteOp;
         i = redoStack.length;
         while (i--) {
             var localOp = redoStack[i] ;
+            var old = localOp.op;
             localOp.op = transform(localOp.op, remoteOp.op, 'left');
 
             // remove noop
             if (localOp.op.length === 0 || (localOp.op.length === 1 && typeof localOp.op === 'object' && localOp.op.d === 0)) {
                 redoStack.splice(i, 1);
+            } else {
+                remoteOp.op = transform(remoteOp.op, old, 'right');
             }
         }
 
