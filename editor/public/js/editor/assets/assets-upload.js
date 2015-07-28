@@ -3,6 +3,16 @@ editor.once('load', function() {
 
     var uploadJobs = 0;
 
+    editor.method('assets:canUploadFiles', function (files) {
+        // check usage first
+        var totalSize = 0;
+        for(var i = 0; i < files.length; i++) {
+            totalSize += files[i].size;
+        }
+
+        return config.owner.size + totalSize <= config.owner.diskAllowance;
+    });
+
     editor.method('assets:uploadFile', function (file, name, asset, fn) {
         var form = new FormData();
         form.append('file', file, name);

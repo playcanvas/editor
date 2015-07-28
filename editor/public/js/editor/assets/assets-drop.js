@@ -10,6 +10,12 @@ editor.once('load', function() {
             if (type !== 'files')
                 return;
 
+            if (!editor.call('assets:canUploadFiles', data)) {
+                var msg = 'Disk allowance exceeded. <a href="/account" target="_blank">UPGRADE</a> to get more disk space.';
+                editor.call('status:error', msg);
+                return;
+            }
+
             for(var i = 0; i < data.length; i++) {
                 editor.call('assets:uploadFile', data[i], data[i].name);
             }
