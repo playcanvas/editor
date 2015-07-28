@@ -141,23 +141,28 @@
       return simplified.map(function(tp) { return toString(tp, maxDepth, parent); }).join("|");
     },
 
-    computedPropType: function() {
-      if (!this.propertyOf) return null;
-      if (this.propertyOf.hasProp("<i>")) {
-        var computedProp = this.propertyOf.getProp("<i>");
-        if (computedProp == this) return null;
-        return computedProp.getType();
-      } else if (this.propertyOf.maybeProps && this.propertyOf.maybeProps["<i>"] == this) {
-        for (var prop in this.propertyOf.props) {
-          var val = this.propertyOf.props[prop];
-          if (!val.isEmpty()) return val;
+    makeupPropType: function(obj) {
+      var propName = this.propertyName;
+
+      var protoProp = obj.proto && obj.proto.hasProp(propName);
+      if (protoProp) {
+        var fromProto = protoProp.getType();
+        if (fromProto) return fromProto;
+      }
+
+      if (propName != "<i>") {
+        var computedProp = obj.hasProp("<i>");
+        if (computedProp) return computedProp.getType();
+      } else if (obj.props["<i>"] != this) {
+        for (var prop in obj.props) {
+          var val = obj.props[prop];
+          if (!val.isEmpty()) return val.getType();
         }
-        return null;
       }
     },
 
     makeupType: function() {
-      var computed = this.computedPropType();
+      var computed = this.propertyOf && this.makeupPropType(this.propertyOf);
       if (computed) return computed;
 
       if (!this.forward) return null;
@@ -344,11 +349,9 @@
 
   function withDisabledComputing(fn, body) {
     cx.disabledComputing = {fn: fn, prev: cx.disabledComputing};
-    try {
-      return body();
-    } finally {
-      cx.disabledComputing = cx.disabledComputing.prev;
-    }
+    var result = body();
+    cx.disabledComputing = cx.disabledComputing.prev;
+    return result;
   }
   var IsCallee = exports.IsCallee = constraint({
     construct: function(self, args, argNodes, retval) {
@@ -365,10 +368,14 @@
       var compute = fn.computeRet;
       if (compute) for (var d = this.disabled; d; d = d.prev)
         if (d.fn == fn || fn.originNode && d.fn.originNode == fn.originNode) compute = null;
-      if (compute)
+      if (compute) {
+        var old = cx.disabledComputing;
+        cx.disabledComputing = this.disabled;
         compute(this.self, this.args, this.argNodes).propagate(this.retval, weight);
-      else
+        cx.disabledComputing = old;
+      } else {
         fn.retval.propagate(this.retval, weight);
+      }
     },
     typeHint: function() {
       var names = [];
@@ -559,6 +566,7 @@
       } else {
         av = new AVal;
         av.propertyOf = this;
+        av.propertyName = prop;
       }
 
       this.props[prop] = av;
@@ -573,6 +581,7 @@
       if (prop == "__proto__" || prop == "✖") return ANull;
       var av = this.ensureMaybeProps()[prop] = new AVal;
       av.propertyOf = this;
+      av.propertyName = prop;
       return av;
     },
     broadcastProp: function(prop, val, local) {
@@ -752,6 +761,10 @@
     });
   };
 
+  exports.Context.prototype.startAnalysis = function() {
+    this.disabledComputing = this.workList = null;
+  };
+
   var cx = null;
   exports.cx = function() { return cx; };
 
@@ -792,18 +805,15 @@
       if (depth < baseMaxWorkDepth - reduceMaxWorkDepth * list.length)
         list.push(type, target, weight, depth);
     };
-    try {
-      var ret = f(add);
-      for (var i = 0; i < list.length; i += 4) {
-        if (timeout && +new Date >= timeout)
-          throw new exports.TimedOut();
-        depth = list[i + 3] + 1;
-        list[i + 1].addType(list[i], list[i + 2]);
-      }
-      return ret;
-    } finally {
-      cx.workList = null;
+    var ret = f(add);
+    for (var i = 0; i < list.length; i += 4) {
+      if (timeout && +new Date >= timeout)
+        throw new exports.TimedOut();
+      depth = list[i + 3] + 1;
+      list[i + 1].addType(list[i], list[i + 2]);
     }
+    cx.workList = null;
+    return ret;
   }
 
   // SCOPES
@@ -1289,6 +1299,8 @@
     exports.addOrigin(cx.curOrigin = name);
 
     if (!scope) scope = cx.topScope;
+    cx.startAnalysis();
+
     walk.recursive(ast, scope, null, scopeGatherer);
     runPasses(passes, "preInfer", ast, scope);
     walk.recursive(ast, scope, null, inferWrapper);
@@ -1335,6 +1347,8 @@
       else
         type.purge(test);
     }
+    if (!this.types.length) this.maxWeight = 0;
+
     if (this.forward) for (var i = 0; i < this.forward.length; ++i) {
       var f = this.forward[i];
       if (test(f)) {
