@@ -492,8 +492,6 @@ editor.once('load', function() {
             shader: existingData.shader || 'blinn'
         };
 
-        var indexed = { };
-
         for(var key in mapping) {
             obj[key] = existingData[key] !== undefined ? existingData[key] : mapping[key].default;
         }
@@ -505,6 +503,23 @@ editor.once('load', function() {
         for(var i = 0; i < assets.length; i++) {
             if (assets[i].get('type') !== 'material')
                 return;
+
+            // fill in default values but don't sync them to sharejs
+            // unless they are offset / tilings which will cause sharejs
+            // errors if they don't exist and we try to set them partially
+            var data = assets[i].get('data');
+            for (var key in mapping) {
+                if (data[key] === undefined) {
+                    if (mapping[key].type !== 'vec2') {
+                        var sync = assets[i].sync.enabled;
+                        assets[i].sync.enabled = false;
+                        assets[i].set('data.' + key, mapping[key].default);
+                        assets[i].sync.enabled = sync;
+                    } else {
+                        assets[i].set('data.' + key, mapping[key].default);
+                    }
+                }
+            }
         }
 
         if (assets.length > 1)
