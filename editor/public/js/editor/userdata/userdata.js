@@ -14,6 +14,11 @@ editor.once('load', function() {
 
             // client > server
             userdata.sync.on('op', function(op) {
+                if (op.oi === null) {
+                    console.error('Tried to send invalid userdata op', op);
+                    return;
+                }
+
                 editor.call('realtime:userdata:op', op);
             });
         }
