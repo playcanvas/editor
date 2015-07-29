@@ -1537,7 +1537,7 @@ editor.once('load', function() {
 
         // offset
         var fieldGlossOffset = editor.call('attributes:addField', {
-            parent: panelSpecularWorkflow,
+            parent: panelSpecular,
             type: 'vec2',
             name: 'Offset',
             placeholder: [ 'U', 'V' ],
@@ -1558,7 +1558,7 @@ editor.once('load', function() {
 
         // tiling
         var fieldGlossTiling = editor.call('attributes:addField', {
-            parent: panelSpecularWorkflow,
+            parent: panelSpecular,
             type: 'vec2',
             name: 'Tiling',
             placeholder: [ 'U', 'V' ],
