@@ -382,10 +382,17 @@ editor.once('load', function() {
             prefilterPanel.append(clearPrefilteredBtn);
 
             var clearPrefiltered = function () {
-                var history = assets[0].history.enabled;
-                assets[0].history.enabled = false;
-                assets[0].set('file', null);
-                assets[0].history.enabled = history;
+                // send PUT request so that the file's size
+                // will properly be removed from the cached
+                // usage
+                var updated = {
+                    name: assets[0].get('name'),
+                    scope: assets[0].get('scope'),
+                    file: null
+                };
+
+
+                Ajax.put('{{url.api}}/assets/' + assets[0].get('id') + '?access_token={{accessToken}}', updated);
             };
 
             clearPrefilteredBtn.on('click', clearPrefiltered);
