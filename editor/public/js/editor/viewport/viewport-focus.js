@@ -6,6 +6,7 @@ editor.once('load', function() {
     var aabb = new pc.shape.Aabb();
     var aabbA = new pc.shape.Aabb();
     var aabbB = new pc.shape.Aabb();
+    var aabbC = new pc.shape.Aabb();
 
     var calculateChildAABB = function(entity) {
         aabbB.center.copy(entity.getPosition());
