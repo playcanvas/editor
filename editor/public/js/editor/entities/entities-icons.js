@@ -238,7 +238,7 @@ editor.once('load', function() {
             img.onload = function() {
                 textures[this.textureName].setSource(this);
             };
-            img.src = 'https://playcanvas.dev/editor/scene/img/entity-icons/' + textureNames[i] + '.png';
+            img.src = '/editor/scene/img/entity-icons/' + textureNames[i] + '.png';
         }
 
         editor.on('entities:add', function(obj) {
