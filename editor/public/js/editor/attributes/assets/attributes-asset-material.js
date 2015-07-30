@@ -485,6 +485,7 @@ editor.once('load', function() {
         'states': [ ]
     };
 
+
     editor.method('material:default', function (existingData) {
         existingData = existingData || {};
 
@@ -499,27 +500,33 @@ editor.once('load', function() {
         return obj;
     });
 
+    // Contains paths in this form: id.data.property
+    // Holds material properties that are not in the db.
+    // Used to set initial values for offsets and tilings
+    // to avoid sharejs errors.
+    var missingPaths = {};
+
     editor.on('attributes:inspect[asset]', function(assets) {
         for(var i = 0; i < assets.length; i++) {
             if (assets[i].get('type') !== 'material')
                 return;
 
-            // fill in default values but don't sync them to sharejs
-            // unless they are offset / tilings which will cause sharejs
-            // errors if they don't exist and we try to set them partially
-            var data = assets[i].get('data');
-            for (var key in mapping) {
-                if (data[key] === undefined) {
-                    if (mapping[key].type !== 'vec2') {
-                        var sync = assets[i].sync.enabled;
-                        assets[i].sync.enabled = false;
-                        assets[i].set('data.' + key, mapping[key].default);
-                        assets[i].sync.enabled = sync;
-                    } else {
-                        assets[i].set('data.' + key, mapping[key].default);
-                    }
-                }
-            }
+            // check missing tilings / offsets
+            mappingMaps.forEach(function (map) {
+                var path = 'data.' + map + 'MapTiling';
+                if (assets[i].get(path) === null)
+                    missingPaths[assets[i].get('id') + '.' + path] = true;
+
+                path = 'data.' + map + 'MapOffset';
+                if (assets[i].get(path) === null)
+                    missingPaths[assets[i].get('id') + '.' + path] = true;
+            });
+
+            // set initial default data but don't sync to sharejs
+            var sync = assets[i].sync.enabled;
+            assets[i].sync.enabled = false;
+            assets[i].set('data', editor.call('material:default', assets[i].get('data')));
+            assets[i].sync.enabled = sync;
         }
 
         if (assets.length > 1)
@@ -809,7 +816,7 @@ editor.once('load', function() {
         fieldTiling[0].value = tiling[0];
         fieldTiling[1].value = tiling[1];
 
-        var updateAllTilingOffsetFields = function(type, field, value, valueOld) {
+        var updateAllTilingOffsetFields = function(input, type, field, value, valueOld) {
             if (! fieldTilingOffset.value || tilingOffsetsChanging)
                 return;
 
@@ -819,12 +826,20 @@ editor.once('load', function() {
             for(var i = 0; i < assets.length; i++) {
                 assets[i].history.enabled = false;
                 for(var m = 0; m < mappingMaps.length; m++) {
+                    var path = 'data.' + mappingMaps[m] + 'Map' + type;
+                    // set initial value for tiling / offset if it was missing
+                    if (missingPaths[assets[i].get('id') + '.' + path]) {
+                        assets[i].set(path, [input[0].value, input[1].value]);
+                        delete missingPaths[assets[i].get('id') + '.' + path];
+                    }
+
+                    var fullpath = path + '.' + field;
                     items.push({
                         get: assets[i].history._getItemFn,
-                        path: 'data.' + mappingMaps[m] + 'Map' + type + '.' + field,
-                        value: assets[i].get('data.' + mappingMaps[m] + 'Map' + type + '.' + field)
+                        path: fullpath,
+                        value: assets[i].get(fullpath)
                     });
-                    assets[i].set('data.' + mappingMaps[m] + 'Map' + type + '.' + field, value);
+                    assets[i].set(fullpath, value);
                 }
                 assets[i].history.enabled = true;
             }
@@ -859,16 +874,16 @@ editor.once('load', function() {
         };
 
         fieldOffset[0].on('change', function(value, valueOld) {
-            updateAllTilingOffsetFields('Offset', 0, value);
+            updateAllTilingOffsetFields(fieldOffset, 'Offset', 0, value);
         });
         fieldOffset[1].on('change', function(value, valueOld) {
-            updateAllTilingOffsetFields('Offset', 1, value);
+            updateAllTilingOffsetFields(fieldOffset, 'Offset', 1, value);
         });
         fieldTiling[0].on('change', function(value, valueOld) {
-            updateAllTilingOffsetFields('Tiling', 0, value);
+            updateAllTilingOffsetFields(fieldTiling, 'Tiling', 0, value);
         });
         fieldTiling[1].on('change', function(value, valueOld) {
-            updateAllTilingOffsetFields('Tiling', 1, value);
+            updateAllTilingOffsetFields(fieldTiling, 'Tiling', 1, value);
         });
 
 
@@ -982,7 +997,8 @@ editor.once('load', function() {
         tilingOffsetFields.push({
             element: fieldAmbientOffset[0].parent,
             offset: fieldAmbientOffset,
-            filter: filterAmbientOffset
+            filter: filterAmbientOffset,
+            path: 'data.aoMapOffset'
         });
         fieldAmbientOffset[0].parent.hidden = filterAmbientOffset();
         // reference
@@ -1003,7 +1019,8 @@ editor.once('load', function() {
         tilingOffsetFields.push({
             element: fieldAmbientTiling[0].parent,
             tiling: fieldAmbientTiling,
-            filter: filterAmbientTiling
+            filter: filterAmbientTiling,
+            path: 'data.aoMapTiling'
         });
         fieldAmbientTiling[0].parent.hidden = filterAmbientTiling();
         // reference
@@ -1111,7 +1128,8 @@ editor.once('load', function() {
         tilingOffsetFields.push({
             element: fieldDiffuseOffset[0].parent,
             offset: fieldDiffuseOffset,
-            filter: filterDiffuseOffset
+            filter: filterDiffuseOffset,
+            path: 'data.diffuseMapOffset'
         });
         fieldDiffuseOffset[0].parent.hidden = filterDiffuseOffset();
         // reference
@@ -1132,7 +1150,8 @@ editor.once('load', function() {
         tilingOffsetFields.push({
             element: fieldDiffuseTiling[0].parent,
             tiling: fieldDiffuseTiling,
-            filter: filterDiffuseTiling
+            filter: filterDiffuseTiling,
+            path: 'data.diffuseMapTiling'
         });
         fieldDiffuseTiling[0].parent.hidden = filterDiffuseTiling();
         // reference
@@ -1275,7 +1294,8 @@ editor.once('load', function() {
         tilingOffsetFields.push({
             element: fieldMetalnessOffset[0].parent,
             offset: fieldMetalnessOffset,
-            filter: filterMetalnessOffset
+            filter: filterMetalnessOffset,
+            path: 'data.metalnessMapOffset'
         });
         fieldMetalnessOffset[0].parent.hidden = filterMetalnessOffset();
         // reference
@@ -1296,7 +1316,8 @@ editor.once('load', function() {
         tilingOffsetFields.push({
             element: fieldMetalnessTiling[0].parent,
             tiling: fieldMetalnessTiling,
-            filter: filterMetalnessTiling
+            filter: filterMetalnessTiling,
+            path: 'data.metalnessMapTiling'
         });
         fieldMetalnessTiling[0].parent.hidden = filterMetalnessTiling();
         // reference
@@ -1417,7 +1438,8 @@ editor.once('load', function() {
         tilingOffsetFields.push({
             element: fieldSpecularOffset[0].parent,
             offset: fieldSpecularOffset,
-            filter: filterSpecularOffset
+            filter: filterSpecularOffset,
+            path: 'data.specularMapOffset'
         });
         fieldSpecularOffset[0].parent.hidden = filterSpecularOffset();
         // reference
@@ -1438,7 +1460,8 @@ editor.once('load', function() {
         tilingOffsetFields.push({
             element: fieldSpecularTiling[0].parent,
             tiling: fieldSpecularTiling,
-            filter: filterSpecularTiling
+            filter: filterSpecularTiling,
+            path: 'data.specularMapTiling'
         });
         fieldSpecularTiling[0].parent.hidden = filterSpecularTiling();
         // reference
@@ -1550,7 +1573,8 @@ editor.once('load', function() {
         tilingOffsetFields.push({
             element: fieldGlossOffset[0].parent,
             offset: fieldGlossOffset,
-            filter: filterGlossOffset
+            filter: filterGlossOffset,
+            path: 'data.glossMapOffset'
         });
         fieldGlossOffset[0].parent.hidden = filterGlossOffset();
         // reference
@@ -1571,7 +1595,8 @@ editor.once('load', function() {
         tilingOffsetFields.push({
             element: fieldGlossTiling[0].parent,
             tiling: fieldGlossTiling,
-            filter: filterGlossTiling
+            filter: filterGlossTiling,
+            path: 'data.glossMapTiling'
         });
         fieldGlossTiling[0].parent.hidden = filterGlossTiling();
         // reference
@@ -1698,7 +1723,8 @@ editor.once('load', function() {
         tilingOffsetFields.push({
             element: fieldEmissiveOffset[0].parent,
             offset: fieldEmissiveOffset,
-            filter: filterEmissiveOffset
+            filter: filterEmissiveOffset,
+            path: 'data.emissiveMapOffset'
         });
         fieldEmissiveOffset[0].parent.hidden = filterEmissiveOffset();
         // reference
@@ -1719,7 +1745,8 @@ editor.once('load', function() {
         tilingOffsetFields.push({
             element: fieldEmissiveTiling[0].parent,
             tiling: fieldEmissiveTiling,
-            filter: filterEmissiveTiling
+            filter: filterEmissiveTiling,
+            path: 'data.emissiveMapTiling'
         });
         fieldEmissiveTiling[0].parent.hidden = filterEmissiveTiling();
         // reference
@@ -1891,7 +1918,8 @@ editor.once('load', function() {
         tilingOffsetFields.push({
             element: fieldOpacityOffset[0].parent,
             offset: fieldOpacityOffset,
-            filter: filterOpacityOffset
+            filter: filterOpacityOffset,
+            path: 'data.opacityMapOffset'
         });
         fieldOpacityOffset[0].parent.hidden = filterOpacityOffset();
         // reference
@@ -1912,7 +1940,8 @@ editor.once('load', function() {
         tilingOffsetFields.push({
             element: fieldOpacityTiling[0].parent,
             tiling: fieldOpacityTiling,
-            filter: filterOpacityTiling
+            filter: filterOpacityTiling,
+            path: 'data.opacityMapTiling'
         });
         fieldOpacityTiling[0].parent.hidden = filterOpacityTiling();
         // reference
@@ -2054,7 +2083,8 @@ editor.once('load', function() {
         tilingOffsetFields.push({
             element: fieldNormalsOffset[0].parent,
             offset: fieldNormalsOffset,
-            filter: filterNormalOffset
+            filter: filterNormalOffset,
+            path: 'data.normalMapOffset'
         });
         fieldNormalsOffset[0].parent.hidden = filterNormalOffset();
         // reference
@@ -2075,7 +2105,8 @@ editor.once('load', function() {
         tilingOffsetFields.push({
             element: fieldNormalsTiling[0].parent,
             tiling: fieldNormalsTiling,
-            filter: filterNormalTiling
+            filter: filterNormalTiling,
+            path: 'data.normalMapTiling'
         });
         fieldNormalsTiling[0].parent.hidden = filterNormalTiling();
         // reference
@@ -2194,7 +2225,8 @@ editor.once('load', function() {
         tilingOffsetFields.push({
             element: fieldHeightMapOffset[0].parent,
             offset: fieldHeightMapOffset,
-            filter: filterHeightMapOffset
+            filter: filterHeightMapOffset,
+            path: 'data.heightMapOffset'
         });
         fieldHeightMapOffset[0].parent.hidden = filterHeightMapOffset();
         // reference
@@ -2215,7 +2247,8 @@ editor.once('load', function() {
         tilingOffsetFields.push({
             element: fieldHeightMapTiling[0].parent,
             tiling: fieldHeightMapTiling,
-            filter: filterHeightMapTiling
+            filter: filterHeightMapTiling,
+            path: 'data.heightMapTiling'
         });
         fieldHeightMapTiling[0].parent.hidden = filterHeightMapTiling();
         // reference
@@ -2471,7 +2504,8 @@ editor.once('load', function() {
         tilingOffsetFields.push({
             element: fieldLightMapOffset[0].parent,
             offset: fieldLightMapOffset,
-            filter: filterLightMapOffset
+            filter: filterLightMapOffset,
+            path: 'data.lightMapOffset'
         });
         fieldLightMapOffset[0].parent.hidden = filterLightMapOffset();
         // reference
@@ -2492,7 +2526,8 @@ editor.once('load', function() {
         tilingOffsetFields.push({
             element: fieldLightMapTiling[0].parent,
             tiling: fieldLightMapTiling,
-            filter: filterLightMapTiling
+            filter: filterLightMapTiling,
+            path: 'data.lightMapTiling'
         });
         fieldLightMapTiling[0].parent.hidden = filterLightMapTiling();
         // reference
@@ -2581,5 +2616,26 @@ editor.once('load', function() {
         });
         // reference
         editor.call('attributes:reference:asset:material:shadowSampleType:attach', fieldShadowSampleType.parent.innerElement.firstChild.ui);
+
+        // attach change event on tiling / offset fields
+        // to set initial value if it doesn't exist
+        tilingOffsetFields.forEach(function (item) {
+            var field = item.tiling || item.offset;
+            var onChange = function () {
+                var path = item.path;
+                for (var i = 0, len = assets.length; i < len; i++) {
+                    if (missingPaths[assets[i].get('id') + '.' + path]) {
+                        assets[i].set(path, [field[0].value, field[1].value]);
+                        delete missingPaths[assets[i].get('id') + '.' + path];
+                    }
+                }
+            }
+
+            // make sure our change event is first otherwise
+            // sharejs will complain that we can't insert a value on
+            // a list that does not exist
+            field[0]._events.change.splice(0, 0, onChange);
+            field[1]._events.change.splice(0, 0, onChange);
+        });
     });
 });
