@@ -69,7 +69,7 @@ editor.once('load', function() {
             return;
 
         // don't render if selected or disabled
-        if (selectedIds[this._link.get('resource_id')] || ! this._link.entity.enabled) {
+        if (selectedIds[this._link.get('resource_id')] || ! this._link.entity.enabled || scale === 0) {
             this.entity.enabled = false;
             this.dirty = true;
             return;
@@ -272,8 +272,6 @@ editor.once('load', function() {
             return scale;
 
         scale = size;
-        material.setParameter('scale', scale);
-        materialBehind.setParameter('scale', scale);
         editor.call('viewport:render');
     });
 });
