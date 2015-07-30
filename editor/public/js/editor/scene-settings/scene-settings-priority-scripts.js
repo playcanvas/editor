@@ -97,7 +97,11 @@ editor.once('load', function() {
             var value = asset.get("filename");
             if (priorityScripts.indexOf(value) < 0) {
                 priorityScripts.push(value);
-                sceneSettings.insert("priority_scripts", value);
+                if (sceneSettings.get('priority_scripts')) {
+                    sceneSettings.insert("priority_scripts", value);
+                } else {
+                    sceneSettings.set('priority_scripts', priorityScripts);
+                }
                 refreshPriorityList();
             }
         });

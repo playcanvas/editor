@@ -42,11 +42,6 @@ editor.once('load', function() {
                 assetData.file.url = getFileUrl(assetData.id, assetData.revision, assetData.file.filename);
             }
 
-            if (assetData.type === 'material') {
-                // fill in default values for missing properties
-                assetData.data = editor.call('material:default', assetData.data);
-            }
-
             var asset = new Observer(assetData);
             editor.call('assets:add', asset);
 
