@@ -7,6 +7,13 @@ editor.once('load', function() {
     });
 
     editor.on('viewport:pick:node', function(node, picked) {
+        // icon
+        if (node._icon) {
+            node = node._getEntity();
+            if (! node) return;
+        }
+
+        // get entity
         var entity = editor.call('entities:get', node.getGuid());
         if (! entity) return;
 
