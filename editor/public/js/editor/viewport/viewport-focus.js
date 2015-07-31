@@ -3,6 +3,7 @@ editor.once('load', function() {
 
     var app = editor.call('viewport:framework');
     var defaultSize = new pc.Vec3(1, 1, 1);
+    var defaultSizeSmall = new pc.Vec3(.2, .2, .2);
     var aabb = new pc.shape.Aabb();
     var aabbA = new pc.shape.Aabb();
     var aabbB = new pc.shape.Aabb();
@@ -10,7 +11,7 @@ editor.once('load', function() {
 
     var calculateChildAABB = function(entity) {
         aabbB.center.copy(entity.getPosition());
-        aabbB.halfExtents.copy(defaultSize);
+        aabbB.halfExtents.copy(defaultSizeSmall);
         aabbA.add(aabbB);
 
         if (entity.model && entity.model.model && entity.model.model.meshInstances.length) {
@@ -39,10 +40,17 @@ editor.once('load', function() {
                     aabbA.add(aabbB);
                     break;
             }
+        } else {
+            aabbB.center.copy(entity.getPosition());
+            aabbB.halfExtents.copy(defaultSize);
+            aabbA.add(aabbB);
         }
 
         var children = entity.getChildren();
         for(var i = 0; i < children.length; i++) {
+            if (! (children[i] instanceof pc.Entity))
+                continue;
+
             calculateChildAABB(children[i]);
         }
     };
@@ -61,7 +69,7 @@ editor.once('load', function() {
                 continue;
 
             aabbA.center.copy(entity.getPosition());
-            aabbA.halfExtents.copy(defaultSize);
+            aabbA.halfExtents.copy(defaultSizeSmall);
             calculateChildAABB(entity)
 
             if (i === 0) {
