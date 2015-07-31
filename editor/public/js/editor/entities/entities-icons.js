@@ -86,7 +86,7 @@ editor.once('load', function() {
         this.dirty = false;
 
         // hide icon if model is set
-        if (this._link.has('components.model') && (this._link.get('components.model.type') !== 'asset' || this._link.get('components.model.asset'))) {
+        if (this._link.has('components.model') && this._link.get('components.model.enabled') && (this._link.get('components.model.type') !== 'asset' || this._link.get('components.model.asset'))) {
             this.entity.enabled = false;
             return;
         }
