@@ -218,6 +218,9 @@ editor.once('load', function() {
         };
 
         var refreshScriptAttributes = function(url) {
+            if (! editor.call('permissions:write'))
+                return;
+
             var fullUrl = urlRegex.test(url) ? url : editor.call('sourcefiles:url', url);
 
             editor.call('sourcefiles:scan', fullUrl, function (data) {
