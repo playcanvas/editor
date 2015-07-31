@@ -193,9 +193,9 @@ editor.once('load', function() {
                 entity.setPosition(items[i].start[0] + x, items[i].start[1] + y, items[i].start[2] + z);
             }
 
-            if (entity.collision) {
-                app.systems.collision.onTransformChanged(entity.collision, entity.getPosition(), entity.getRotation(), entity.getLocalScale());
-            }
+            // if (entity.collision) {
+            //     app.systems.collision.onTransformChanged(entity.collision, entity.getPosition(), entity.getRotation(), entity.getLocalScale());
+            // }
 
             var pos = entity.getLocalPosition();
             items[i].obj.set('position', [ pos.x, pos.y, pos.z ]);

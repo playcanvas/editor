@@ -297,6 +297,8 @@ editor.once('load', function() {
             items[i].child = child;
             items[i].parent = child ? parent : null;
         }
+
+        updateGizmoPosition();
     };
 
     var updateGizmo = function() {

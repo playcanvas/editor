@@ -144,7 +144,7 @@ editor.once('load', function() {
         });
 
         // update gizmo
-        editor.on('viewport:update', function(dt) {
+        editor.on('viewport:postUpdate', function(dt) {
             if (gizmo.root.enabled) {
                 editor.emit('gizmo:scale:render', dt);
 
@@ -194,9 +194,9 @@ editor.once('load', function() {
                 quat.invert();
 
                 // hide lines and boxes if viewed from very angle
-                gizmo.line.x.model.enabled = gizmo.box.x.model.enabled = ! (Math.abs(vecA.z) <= 0.2 && Math.abs(vecA.y) <= 0.2) && visible;
-                gizmo.line.y.model.enabled = gizmo.box.y.model.enabled = ! (Math.abs(vecA.x) <= 0.2 && Math.abs(vecA.z) <= 0.2) && visible;
-                gizmo.line.z.model.enabled = gizmo.box.z.model.enabled = ! (Math.abs(vecA.x) <= 0.2 && Math.abs(vecA.y) <= 0.2) && visible;
+                gizmo.line.x.model.enabled = gizmo.box.x.model.enabled = ! (Math.abs(vecA.z) <= 0.15 && Math.abs(vecA.y) <= 0.15) && visible;
+                gizmo.line.y.model.enabled = gizmo.box.y.model.enabled = ! (Math.abs(vecA.x) <= 0.15 && Math.abs(vecA.z) <= 0.15) && visible;
+                gizmo.line.z.model.enabled = gizmo.box.z.model.enabled = ! (Math.abs(vecA.x) <= 0.15 && Math.abs(vecA.y) <= 0.15) && visible;
 
                 // draw axes lines
                 // line x
@@ -205,7 +205,7 @@ editor.once('load', function() {
                     quat.transformVector(vecB, vecB).add(posGizmo);
                     vecC.set(scale * 2, 0, 0);
                     quat.transformVector(vecC, vecC).add(posGizmo);
-                    app.renderLine(vecB, vecC, gizmo.box.x.color, pc.LINEBATCH_GIZMO);
+                    app.renderLine(vecB, vecC, gizmo.box.x.model.material === gizmo.matActive ? gizmo.matActive.color : gizmo.box.x.color, pc.LINEBATCH_GIZMO);
                 }
                 // line y
                 if (gizmo.line.y.model.enabled) {
@@ -213,7 +213,7 @@ editor.once('load', function() {
                     quat.transformVector(vecB, vecB).add(posGizmo);
                     vecC.set(0, scale * 2, 0);
                     quat.transformVector(vecC, vecC).add(posGizmo);
-                    app.renderLine(vecB, vecC, gizmo.box.y.color, pc.LINEBATCH_GIZMO);
+                    app.renderLine(vecB, vecC, gizmo.box.y.model.material === gizmo.matActive ? gizmo.matActive.color : gizmo.box.y.color, pc.LINEBATCH_GIZMO);
                 }
                 // line z
                 if (gizmo.line.z.model.enabled) {
@@ -221,7 +221,7 @@ editor.once('load', function() {
                     quat.transformVector(vecB, vecB).add(posGizmo);
                     vecC.set(0, 0, scale * 2);
                     quat.transformVector(vecC, vecC).add(posGizmo);
-                    app.renderLine(vecB, vecC, gizmo.box.z.color, pc.LINEBATCH_GIZMO);
+                    app.renderLine(vecB, vecC, gizmo.box.z.model.material === gizmo.matActive ? gizmo.matActive.color : gizmo.box.z.color, pc.LINEBATCH_GIZMO);
                 }
             }
         });

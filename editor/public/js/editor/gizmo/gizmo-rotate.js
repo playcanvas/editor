@@ -134,7 +134,7 @@ editor.once('load', function() {
         var lastPoint = new pc.Vec3();
 
         // update gizmo
-        editor.on('viewport:update', function(dt) {
+        editor.on('viewport:postUpdate', function(dt) {
             if (gizmo.root.enabled) {
                 var camera = app.activeCamera;
                 var posCamera = camera.getPosition();
@@ -193,9 +193,9 @@ editor.once('load', function() {
                 .transformVector(vecA, vecA);
 
                 // hide plane if viewed from very angle
-                gizmo.plane.x.model.enabled = Math.abs(vecA.x) > 0.2 && visible;
-                gizmo.plane.y.model.enabled = Math.abs(vecA.y) > 0.2 && visible;
-                gizmo.plane.z.model.enabled = Math.abs(vecA.z) > 0.2 && visible;
+                gizmo.plane.x.model.enabled = Math.abs(vecA.x) > 0.15 && visible;
+                gizmo.plane.y.model.enabled = Math.abs(vecA.y) > 0.15 && visible;
+                gizmo.plane.z.model.enabled = Math.abs(vecA.z) > 0.15 && visible;
 
                 var worldTransform = gizmo.root.getWorldTransform();
 

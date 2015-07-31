@@ -67,16 +67,6 @@ editor.once('load', function() {
         return flyMode;
     });
 
-    // editor.on('selector:add', function(entity, type) {
-    //     if (type === 'entity')
-    //         framework.selectEntity(entity.get('resource_id'));
-    // });
-
-    // editor.on('selector:remove', function(entity, type) {
-    //     if (type === 'entity')
-    //         framework.deselectEntity();
-    // });
-
     // start framework
     framework.start();
 

@@ -8,6 +8,45 @@ editor.once('load', function() {
     var aabbB = new pc.shape.Aabb();
     var aabbC = new pc.shape.Aabb();
 
+    var calculateChildAABB = function(entity) {
+        aabbB.center.copy(entity.getPosition());
+        aabbB.halfExtents.copy(defaultSize);
+        aabbA.add(aabbB);
+
+        if (entity.model && entity.model.model && entity.model.model.meshInstances.length) {
+            var meshes = entity.model.model.meshInstances;
+            for(var i = 0; i < meshes.length; i++) {
+                meshes[i].node.getWorldTransform();
+                aabbA.add(meshes[i].aabb);
+            }
+        } else if (entity.collision) {
+            switch(entity.collision.type) {
+                case 'box':
+                    aabbC.halfExtents.copy(entity.collision.halfExtents);
+                    aabbB.setFromTransformedAabb(aabbC, entity.getWorldTransform());
+                    aabbA.add(aabbB);
+                    break;
+                case 'sphere':
+                    aabbB.center.copy(entity.getPosition());
+                    aabbB.halfExtents.set(entity.collision.radius, entity.collision.radius, entity.collision.radius);
+                    aabbA.add(aabbB);
+                    break;
+                case 'capsule':
+                case 'cylinder':
+                    aabbC.halfExtents.set(entity.collision.radius, entity.collision.radius, entity.collision.radius);
+                    aabbC.halfExtents.data[entity.collision.axis] = entity.collision.height;
+                    aabbB.setFromTransformedAabb(aabbC, entity.getWorldTransform());
+                    aabbA.add(aabbB);
+                    break;
+            }
+        }
+
+        var children = entity.getChildren();
+        for(var i = 0; i < children.length; i++) {
+            calculateChildAABB(children[i]);
+        }
+    };
+
     editor.method('selection:aabb', function() {
         if (editor.call('selector:type') !== 'entity')
             return null;
@@ -21,61 +60,9 @@ editor.once('load', function() {
             if (! entity)
                 continue;
 
-            aabbA.center.set(Infinity, Infinity, Infinity);
-
-            // model
-            if (entity.model && entity.model.model && entity.model.model.meshInstances.length) {
-                var meshes = entity.model.model.meshInstances;
-                for(var n = 0; n < meshes.length; n++) {
-                    // clean tranformation matrix
-                    meshes[n].node.getWorldTransform();
-
-                    if (n === 0) {
-                        aabbA.copy(meshes[n].aabb);
-                    } else {
-                        aabbA.add(meshes[n].aabb);
-                    }
-                }
-            }
-
-            // collision
-            if (entity.collision && aabbA.center.x === Infinity) {
-                switch(entity.collision.type) {
-                    case 'box':
-                        aabbB.halfExtents.copy(entity.collision.halfExtents);
-                        aabbA.setFromTransformedAabb(aabbB, entity.getWorldTransform());
-                        break;
-                    case 'sphere':
-                        aabbA.center.copy(entity.getPosition());
-                        aabbA.halfExtents.set(entity.collision.radius, entity.collision.radius, entity.collision.radius);
-                        break;
-                    case 'capsule':
-                    case 'cylinder':
-                        aabbB.halfExtents.set(entity.collision.radius, entity.collision.radius, entity.collision.radius);
-                        aabbB.halfExtents.data[entity.collision.axis] = entity.collision.height;
-                        aabbA.setFromTransformedAabb(aabbB, entity.getWorldTransform());
-                        break;
-                    // case 'mesh':
-                        // TODO
-                        // break;
-                }
-            }
-
-            // light
-            if (entity.light && aabbA.center.x === Infinity) {
-                switch(entity.light.type) {
-                    case 'spot':
-                    case 'point':
-                        aabbA.center.copy(entity.getPosition());
-                        aabbA.halfExtents.set(entity.light.range, entity.light.range, entity.light.range);
-                        break;
-                }
-            }
-
-            if (aabbA.center.x === Infinity) {
-                aabbA.center.copy(entity.getPosition());
-                aabbA.halfExtents.copy(defaultSize);
-            }
+            aabbA.center.copy(entity.getPosition());
+            aabbA.halfExtents.copy(defaultSize);
+            calculateChildAABB(entity)
 
             if (i === 0) {
                 aabb.copy(aabbA);

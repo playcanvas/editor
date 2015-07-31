@@ -47,6 +47,9 @@ editor.once('load', function() {
     };
 
     var evtMouseUp = function(evt) {
+        if (evt.button !== 0)
+            return;
+
         if (tapMouse.down) {
             tapMouse.down = false;
             tapMouse.update(evt, canvas.element.getBoundingClientRect());
@@ -62,6 +65,9 @@ editor.once('load', function() {
     };
 
     canvas.element.addEventListener('mousedown', function(evt) {
+        if (evt.button !== 0)
+            return;
+
         var rect = canvas.element.getBoundingClientRect();
 
         tapMouse.move = false;

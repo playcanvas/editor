@@ -345,8 +345,28 @@ editor.once('load', function() {
             link: entities,
             path: 'components.particlesystem.emitterExtents'
         });
+        fieldSpawnBounds[0].parent.hidden = fieldEmitterShape.value !== 0 || fieldEmitterShape.class.contains('null');
+        fieldEmitterShape.on('change', function(value) {
+            fieldSpawnBounds[0].parent.hidden = value !== 0 || this.class.contains('null');
+        });
         // reference
         editor.call('attributes:reference:particlesystem:emitterExtents:attach', fieldSpawnBounds[0].parent.innerElement.firstChild.ui);
+
+
+        // emitterRadius
+        var fieldSpawnRadius = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Emmiter Radius',
+            type: 'number',
+            link: entities,
+            path: 'components.particlesystem.emitterRadius'
+        });
+        fieldSpawnRadius.parent.hidden = fieldEmitterShape.value !== 1 || fieldEmitterShape.class.contains('null');
+        fieldEmitterShape.on('change', function(value) {
+            fieldSpawnRadius.parent.hidden = value !== 1 || this.class.contains('null');
+        });
+        // reference
+        editor.call('attributes:reference:particlesystem:emitterRadius:attach', fieldSpawnRadius.parent.innerElement.firstChild.ui);
 
 
         // wrap

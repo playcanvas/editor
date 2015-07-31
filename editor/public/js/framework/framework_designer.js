@@ -282,8 +282,8 @@ pc.extend(pc.editor, function() {
             // Perform ComponentSystem update
             editor.emit('viewport:update', dt);
             pc.ComponentSystem.fire('toolsUpdate', dt);
-
-            // this.activeGizmo.render();
+            editor.emit('viewport:postUpdate', dt);
+            editor.emit('viewport:gizmoUpdate', dt);
 
             this.render();
         }
@@ -327,29 +327,21 @@ pc.extend(pc.editor, function() {
     Designer.prototype._activateCamera = function (cameraEntity) {
         var prev = this.activeCamera;
         if (this.activeCamera && this.activeCamera !== cameraEntity) {
-            if (this.activeCamera.script) {
-                this.activeCamera.removeComponent('script');
-            }
+            var entity = editor.call('entities:get', this.activeCamera.getGuid());
 
-            // re-add the camera's debug shape if needed
-            if (this.isUserCamera(this.activeCamera) && this.activeCamera.camera) {
-                var entity = editor.call('entities:get', this.activeCamera.getGuid());
-                if (entity) {
-                    this.activeCamera.enabled = entity.get('enabled');
-                    if (this.activeCamera.enabled && !this.scene.containsModel(this.activeCamera.camera.model)) {
-                        this.scene.addModel(this.activeCamera.camera.model);
-                    }
-                }
-            }
+            if (this.activeCamera.script)
+                this.activeCamera.removeComponent('script');
+
+            if (this.isUserCamera(this.activeCamera) && this.activeCamera.camera)
+                this.activeCamera.enabled = entity.get('enabled');
         }
 
         this.activeCamera = cameraEntity;
 
         cameraEntity.enabled = true;
 
-        if (cameraEntity.script) {
+        if (cameraEntity.script)
             cameraEntity.removeComponent('script');
-        }
 
         cameraEntity.addComponent('script', {
             scripts: [{
@@ -357,11 +349,6 @@ pc.extend(pc.editor, function() {
             }],
             runInTools: true
         });
-
-        // remove the active camera's debug shape
-        // TODO: fix issue in engine where disabling/re-enabling active camera
-        // re-adds the debug shape
-        this.scene.removeModel(cameraEntity.camera.model);
     };
 
     Designer.prototype.setDesignerSettings = function (settings) {

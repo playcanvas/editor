@@ -32,9 +32,8 @@ editor.once('load', function() {
             var property = parts[2];
 
             // ignore script component
-            if (component === 'script') {
+            if (component === 'script' && property)
                 return;
-            }
 
             if (!entity[component]) {
                 if (!property) {
@@ -72,9 +71,8 @@ editor.once('load', function() {
             var property = parts[2];
 
             // ignore script component
-            if (component === 'script') {
+            if (component === 'script')
                 return;
-            }
 
             if (property) {
                 // edit component property
@@ -100,11 +98,6 @@ editor.once('load', function() {
 
             var parts = path.split('.');
             var component = parts[1];
-
-            // ignore script component
-            if (component === 'script') {
-                return;
-            }
 
             if (entity[component]) {
                 // remove component
