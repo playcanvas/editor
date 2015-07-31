@@ -144,6 +144,22 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:settings:clearColor:attach', fieldClearColor.parent.innerElement.firstChild.ui);
 
+
+        // icons size
+        var fieldIconsSize = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Icons Size',
+            type: 'number',
+            precision: 2,
+            step: .1,
+            min: 0,
+            link: designerSettings,
+            path: 'icons_size'
+        });
+        // reference
+        editor.call('attributes:reference:settings:iconsSize:attach', fieldIconsSize.parent.innerElement.firstChild.ui);
+
+
         // local server
         var fieldLocalServer = editor.call('attributes:addField', {
             parent: panel,
