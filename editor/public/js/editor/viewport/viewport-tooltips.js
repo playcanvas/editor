@@ -13,6 +13,8 @@ editor.once('load', function() {
 
         if (! inViewport) {
             nameLast = '';
+            pickedLast = null;
+            nodeLast = null;
             editor.call('cursor:text', '');
             clearTimeout(timeout);
         }

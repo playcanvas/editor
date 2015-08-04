@@ -425,6 +425,7 @@ editor.once('load', function() {
                     link: scripts,
                     path: 'attributes.' + attribute.name + '.value'
                 });
+                field.parent._label.text = attribute.displayName || attribute.name;
             }
 
             var fieldParent;

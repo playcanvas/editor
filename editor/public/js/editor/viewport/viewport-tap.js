@@ -93,6 +93,19 @@ editor.once('load', function() {
         evt.preventDefault();
     }, false);
 
+    canvas.element.addEventListener('mouseover', function() {
+        editor.emit('viewport:hover', true);
+    }, false);
+
+    canvas.element.addEventListener('mouseleave', function(evt) {
+        // ignore tooltip
+        var target = evt.toElement || evt.relatedTarget;
+        if (target && target.classList.contains('cursor-tooltip'))
+            return;
+
+        editor.emit('viewport:hover', false);
+    }, false);
+
     window.addEventListener('mousemove', evtMouseMove, false);
     window.addEventListener('mouseup', evtMouseUp, false);
 });

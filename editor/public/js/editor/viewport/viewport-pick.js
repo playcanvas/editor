@@ -11,6 +11,12 @@ editor.once('load', function() {
     var inViewport = false;
 
     editor.on('viewport:update', function() {
+        if (! inViewport && pickedData.node) {
+            pickedData.node = null;
+            pickedData.picked = null;
+            editor.emit('viewport:pick:hover', null, null);
+        }
+
         if (! inViewport || ! mouseTap || mouseTap.down)
             return;
 
@@ -63,6 +69,9 @@ editor.once('load', function() {
     });
 
     editor.on('viewport:tap:click', function(tap) {
+        if (! inViewport)
+            return;
+
         if (pickedData.node) {
             editor.emit('viewport:pick:node', pickedData.node, pickedData.picked);
         } else {

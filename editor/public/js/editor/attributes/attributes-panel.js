@@ -386,6 +386,7 @@ editor.once('load', function() {
                 text: args.name
             });
             label.class.add('label-field');
+            panel._label = label;
             panel.append(label);
         }
 
