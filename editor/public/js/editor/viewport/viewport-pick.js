@@ -7,8 +7,27 @@ editor.once('load', function() {
         node: null,
         picked: null
     };
-
     var mouseTap = null;
+    var inViewport = false;
+
+    editor.on('viewport:update', function() {
+        if (! inViewport || ! mouseTap || mouseTap.down)
+            return;
+
+        // pick
+        editor.call('viewport:pick', mouseTap.x, mouseTap.y, function(node, picked) {
+            if (pickedData.node !== node || pickedData.picked !== picked) {
+                pickedData.node = node;
+                pickedData.picked = picked;
+
+                editor.emit('viewport:pick:hover', pickedData.node, pickedData.picked);
+            }
+        });
+    });
+
+    editor.on('viewport:hover', function(hover) {
+        inViewport = hover;
+    });
 
     editor.on('viewport:resize', function(width, height) {
         picker.resize(width, height);
@@ -30,7 +49,7 @@ editor.once('load', function() {
             var node = picked[0].node;
 
             // traverse to pc.Entity
-            while (! (node instanceof pc.Entity) && node && node.getParent/* && node !== this.activeGizmo.node*/) {
+            while (! (node instanceof pc.Entity) && node && node.getParent) {
                 node = node.getParent();
             }
             if (! node) return;
@@ -41,18 +60,6 @@ editor.once('load', function() {
 
     editor.on('viewport:tap:move', function(tap) {
         mouseTap = tap;
-
-        if (tap.down)
-            return;
-
-        editor.call('viewport:pick', tap.x, tap.y, function(node, picked) {
-            if (pickedData.node !== node || pickedData.picked !== picked) {
-                pickedData.node = node;
-                pickedData.picked = picked;
-
-                editor.emit('viewport:pick:hover', pickedData.node, pickedData.picked);
-            }
-        });
     });
 
     editor.on('viewport:tap:click', function(tap) {

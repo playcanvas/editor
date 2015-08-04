@@ -43,10 +43,12 @@ editor.once('load', function() {
                     // highlight selected node
                     setTimeout(function() {
                         var node = editor.call('attributes.rootPanel').element.querySelector('.field-asset.node-' + index);
-                        node.classList.add('active');
-                        var field = node.querySelector('.ui-image-field');
-                        field.focus();
-                        field.blur();
+                        if (node) {
+                            node.classList.add('active');
+                            var field = node.querySelector('.ui-image-field');
+                            field.focus();
+                            field.blur();
+                        }
                     }, 0);
 
                     break;
