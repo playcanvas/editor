@@ -57,7 +57,7 @@ app.once('load', function() {
                     application.root.addChild(application.scene.root);
 
                     // update scene settings now that scene is loaded
-                    application.updateSceneSettings(sceneSettings);
+                    application.applySceneSettings(sceneSettings);
 
                     // clear stored loading data
                     sceneData = null;
