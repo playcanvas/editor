@@ -13,11 +13,11 @@ editor.once('load', function() {
 
         // edit
         var btnEdit = new ui.Button();
-        btnEdit.text = 'Edit Script';
+        btnEdit.text = (editor.call('permissions:write') ? 'Edit' : 'View') + ' Script';
         btnEdit.class.add('edit-script');
-        btnEdit.on('click', function(evt) {
+        btnEdit.element.addEventListener('click', function(evt) {
             window.open('/editor/code/' + config.project.id + '/' + asset.get('filename'));
-        });
+        }, false);
         panel.append(btnEdit);
     });
 });
