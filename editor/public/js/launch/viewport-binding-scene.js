@@ -18,7 +18,7 @@ app.once('load', function() {
         // apply settings
         var applySettings = function() {
             updating = false;
-            framework.updateSceneSettings(sceneSettings.json());
+            framework.applySceneSettings(sceneSettings.json());
         };
 
         // on settings change
