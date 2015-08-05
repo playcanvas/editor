@@ -95,6 +95,13 @@ editor.once('load', function() {
         tooltipFilter.disabled = false;
     });
 
+    editor.method('assets:filter:search', function(query) {
+        if (query === undefined)
+            return search.value;
+
+        search.value = query;
+    });
+
     editor.method('assets:filter:type', function(type) {
         if (type === undefined)
             return filterField.value;

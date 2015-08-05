@@ -699,13 +699,13 @@ editor.once('load', function() {
                     filter: function(type, data) {
                         var rectA = root.innerElement.getBoundingClientRect();
                         var rectB = panel.element.getBoundingClientRect();
-                        return type === 'asset.' + args.kind && data.id !== field.value && rectB.top > rectA.top && rectB.bottom < rectA.bottom;
+                        return type === 'asset.' + args.kind && parseInt(data.id, 10) !== field.value && rectB.top > rectA.top && rectB.bottom < rectA.bottom;
                     },
                     drop: function(type, data) {
                         if (type !== 'asset.' + args.kind)
                             return;
 
-                        field.value = data.id;
+                        field.value = parseInt(data.id, 10);
                     }
                 });
                 field.on('destroy', function() {
@@ -912,15 +912,16 @@ editor.once('load', function() {
                     return false;
 
                 // already added
+                var id = parseInt(data.id, 10);
                 for(var i = 0; i < link.length; i++) {
-                    if (link[i].get(path).indexOf(data.id) === -1)
+                    if (link[i].get(path).indexOf(id) === -1)
                         return true;
                 }
 
                 return false;
             },
             drop: function(type, data) {
-                if (assetType && type !== 'asset.' + assetType)
+                if (assetType && assetType !== '*' && type !== 'asset.' + assetType)
                     return;
 
                 var records = [ ];

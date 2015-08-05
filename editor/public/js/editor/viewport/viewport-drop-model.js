@@ -11,7 +11,7 @@ editor.once('load', function() {
                 return;
 
             // asset
-            var asset = editor.call('assets:get', data.id);
+            var asset = editor.call('assets:get', parseInt(data.id, 10));
             if (! asset)
                 return;
 

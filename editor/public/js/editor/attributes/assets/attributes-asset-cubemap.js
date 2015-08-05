@@ -303,7 +303,7 @@ editor.once('load', function() {
                         if (type !== 'asset.texture')
                             return;
 
-                        setAssetFace(ind, editor.call('assets:get', data.id));
+                        setAssetFace(ind, editor.call('assets:get', parseInt(data.id, 10)));
                     }
                 });
                 previewPanel.on('destroy', function() {
