@@ -34,6 +34,7 @@ editor.once('load', function() {
 
     var taps = [ ];
     var tapMouse = new Tap({ clientX: 0, clientY: 0 }, { left: 0, top: 0 });
+    var inViewport = false;
 
 
     var evtMouseMove = function(evt) {
@@ -42,8 +43,16 @@ editor.once('load', function() {
         editor.emit('viewport:tap:move', tapMouse, evt);
 
         // render if mouse moved within viewport
-        if (evt.clientX >= rect.left && evt.clientX <= rect.right && evt.clientY >= rect.top && evt.clientY <= rect.bottom)
+        if (evt.clientX >= rect.left && evt.clientX <= rect.right && evt.clientY >= rect.top && evt.clientY <= rect.bottom) {
+            if (! inViewport) {
+                inViewport = true;
+                editor.emit('viewport:hover', true);
+            }
             editor.call('viewport:render');
+        } else if (inViewport) {
+            inViewport = false;
+            editor.emit('viewport:hover', false);
+        }
     };
 
     var evtMouseUp = function(evt) {
@@ -82,6 +91,19 @@ editor.once('load', function() {
             document.activeElement.blur();
 
         evt.preventDefault();
+    }, false);
+
+    canvas.element.addEventListener('mouseover', function() {
+        editor.emit('viewport:hover', true);
+    }, false);
+
+    canvas.element.addEventListener('mouseleave', function(evt) {
+        // ignore tooltip
+        var target = evt.toElement || evt.relatedTarget;
+        if (target && target.classList.contains('cursor-tooltip'))
+            return;
+
+        editor.emit('viewport:hover', false);
     }, false);
 
     window.addEventListener('mousemove', evtMouseMove, false);

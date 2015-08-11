@@ -2601,3 +2601,23 @@ strong {
         }
     }
 }
+
+.ui-label.cursor-tooltip {
+    display: block;
+    position: absolute;
+    top: -26px;
+    left: 8px;
+    background-color: #181e20;
+    margin: 0;
+    padding: 0 6px;
+    line-height: 18px;
+    font-size: 12px;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 100ms, visibility 100ms;
+}
+.ui-label.cursor-tooltip.hidden {
+    display: block;
+    opacity: 0;
+    visibility: hidden;
+}

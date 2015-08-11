@@ -19,6 +19,7 @@ editor.once('load', function() {
     var gridSelected = null;
     var assetsPanelFolded = false;
     var assetsPanelFilter = '';
+    var assetsPanelSearch = '';
     // elements
     var assetsGrid = editor.call('assets:grid');
     var assetsPanel = editor.call('layout.assets');
@@ -75,6 +76,7 @@ editor.once('load', function() {
         // show all assets back
         editor.call('assets:filter:type:disabled', false);
         editor.call('assets:filter:type', assetsPanelFilter);
+        editor.call('assets:filter:search', assetsPanelSearch);
         // fold back assets panel if needed
         if (assetsPanelFolded)
             assetsPanel.folded = true;
@@ -94,11 +96,12 @@ editor.once('load', function() {
     editor.method('picker:asset', function(type, asset) {
         // show only asset assets
         assetsPanelFilter = editor.call('assets:filter:type');
+        assetsPanelSearch = editor.call('assets:filter:search');
         // initial grid selected items
         gridSelected = assetsGrid.selected;
         // filters
-        editor.call('assets:filter:type', type);
-        editor.call('assets:filter:type:disabled', true);
+        editor.call('assets:filter:type', (type === '*') ? 'all' : type);
+        editor.call('assets:filter:type:disabled', (! type || type === '*') ? false : true);
         // disable selector
         editor.call('selector:enabled', false);
         // find current asset

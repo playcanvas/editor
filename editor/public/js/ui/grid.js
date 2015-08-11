@@ -141,8 +141,12 @@ Object.defineProperty(Grid.prototype, 'selected', {
             return;
 
         // selecting
-        for(var i = 0; i < value.length; i++)
+        for(var i = 0; i < value.length; i++) {
+            if (! value[i])
+                continue;
+
             value[i].selected = true;
+        }
 
         this._selecting = false;
     }

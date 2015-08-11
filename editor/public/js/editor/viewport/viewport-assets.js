@@ -2,9 +2,9 @@ editor.once('load', function() {
     'use strict';
 
     var framework = editor.call('viewport:framework');
-    var assetRegistry = framework.assets;
+    var assets = framework.assets;
 
-    editor.call('assets:registry:bind', assetRegistry);
+    editor.call('assets:registry:bind', assets);
 
     // add assets to asset registry
     editor.on('assets:add', function (asset) {
@@ -12,8 +12,18 @@ editor.once('load', function() {
         if (asset.get('source'))
             return;
 
-        // re-render
+        // when data is changed
         asset.on('*:set', function (path, value) {
+            editor.call('viewport:render');
+        });
+
+        var assetEngine = assets.get(asset.get('id'));
+        // render on asset load
+        assetEngine.on('load', function() {
+            editor.call('viewport:render');
+        });
+        // render on asset data change
+        assetEngine.on('change', function() {
             editor.call('viewport:render');
         });
 
