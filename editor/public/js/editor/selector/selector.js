@@ -116,6 +116,20 @@ editor.once('load', function() {
         if (! type || ! items.length)
             return;
 
+        // make sure items still exist
+        if (type === 'asset') {
+            items = items.filter(function(item) {
+                return !! editor.call('assets:get', item.get('id'));
+            });
+        } else if (type === 'entity') {
+            items = items.filter(function(item) {
+                return !! editor.call('entities:get', item.get('resource_id'));
+            });
+        }
+
+        if (! items.length)
+            return;
+
         // type
         selector.type = type;
 
@@ -127,9 +141,8 @@ editor.once('load', function() {
         });
 
         // add
-        for(var i = 0; i < items.length; i++) {
+        for(var i = 0; i < items.length; i++)
             selector.add(items[i]);
-        }
     });
 
 

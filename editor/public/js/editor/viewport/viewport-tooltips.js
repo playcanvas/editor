@@ -30,7 +30,9 @@ editor.once('load', function() {
         if (inViewport && node) {
             if (node._icon) {
                 // icon
-                name = node._getEntity().name;
+                var entity = node._getEntity && node._getEntity();
+                if (entity)
+                    name = entity.name;
             } else if (node.model && node.model.asset && node.model.model && picked && picked.node &&
                        editor.call('selector:type') === 'entity' &&
                        editor.call('selector:count') === 1 &&

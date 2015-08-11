@@ -93,6 +93,14 @@ editor.once('load', function() {
     });
 
 
+    editor.on('messenger:asset.thumbnail', function(data) {
+        var gridItem = assetsIndex[parseInt(data.asset.id, 10)];
+        if (! gridItem) return;
+        var url = '/api/assets/' + data.asset.id + '/thumbnail/medium.jpg?t=' + (data.asset.hash || gridItem.asset.get('file.hash') || '')
+        gridItem.thumbnail.style.backgroundImage = 'url(' + url + ')';
+        gridItem.thumbnail.classList.remove('placeholder');
+    });
+
     editor.on('assets:add', function(asset) {
         asset._type = 'asset';
 
@@ -117,11 +125,9 @@ editor.once('load', function() {
         asset.on('thumbnails.m:set', function(value) {
             var url = value;
             if (value.startsWith('/api'))
-                url = config.url.home + value + '?' + Date.now();
+                return;
 
-            setTimeout(function() {
-                thumbnail.style.backgroundImage = 'url(' + url + ')';
-            }, 500);
+            thumbnail.style.backgroundImage = 'url(' + url + ')';
             thumbnail.classList.remove('placeholder');
         });
 
@@ -130,7 +136,7 @@ editor.once('load', function() {
             thumbnail.classList.add('placeholder');
         });
 
-        var thumbnail = document.createElement('div');
+        var thumbnail = item.thumbnail = document.createElement('div');
         thumbnail.classList.add('thumbnail');
         item.element.appendChild(thumbnail);
 
@@ -152,7 +158,8 @@ editor.once('load', function() {
         // update name/filename change
         var evtNameSet = asset.on('name:set', function() {
             label.textContent = this.get('name');
-            this.set('data.name', this.get('name'));
+            if (this.get('data'))
+                this.set('data.name', this.get('name'));
         });
         // used event
         var evtUnused = editor.on('assets:used:' + asset.get('id'), function(state) {

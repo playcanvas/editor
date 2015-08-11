@@ -252,6 +252,8 @@ editor.once('load', function() {
                         var history = a.history.enabled;
                         a.history.enabled = false;
                         a.set('data.textures.' + face, textureId);
+                        // invalidate prefiltered data
+                        // if (a.get('file')) a.set('file', null)
                         setRgbmIfNeeded(a);
                         a.history.enabled = history;
                     }
@@ -390,7 +392,6 @@ editor.once('load', function() {
                     scope: assets[0].get('scope'),
                     file: null
                 };
-
 
                 Ajax.put('{{url.api}}/assets/' + assets[0].get('id') + '?access_token={{accessToken}}', updated);
             };

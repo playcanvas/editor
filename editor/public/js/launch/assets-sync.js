@@ -130,18 +130,12 @@ app.once('load', function() {
             item: asset
         });
 
-        var setting = false;
-
-        asset.on('*:set', function (path, value) {
-            if (setting) return;
-            setting = true;
-
-            if (/^file/.test(path) && value) {
-                // reset file url
-                asset.set('file.url', getFileUrl(asset.get('id'), asset.get('revision'), asset.get('file.filename')));
-            }
-
-            setting = false;
+        asset.on('file:set', function(value) {
+            if (! value) return;
+            var state = asset.sync.enabled;
+            asset.sync.enabled = false;
+            asset.set('file.url', getFileUrl(asset.get('id'), asset.get('revision'), asset.get('file.filename')));
+            asset.sync.enabled = state;
         });
     });
 

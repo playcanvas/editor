@@ -38,9 +38,8 @@ editor.once('load', function() {
             var assetData = doc.getSnapshot();
             assetData.id = id;
 
-            if (assetData.file) {
+            if (assetData.file)
                 assetData.file.url = getFileUrl(assetData.id, assetData.revision, assetData.file.filename);
-            }
 
             var asset = new Observer(assetData);
             editor.call('assets:add', asset);
@@ -149,23 +148,24 @@ editor.once('load', function() {
         }
     });
 
-    var setThumbnailPaths = function (asset) {
-        var id = asset.get('id');
-
-        asset.unset('thumbnails');
-        if (asset.get('has_thumbnail')) {
-            // set thumbnail paths for textures
-            asset.set('thumbnails', {
-                's': '/api/assets/' + id + '/thumbnail/small.jpg?t=' + asset.get('file.hash'),
-                'm': '/api/assets/' + id + '/thumbnail/medium.jpg?t=' + asset.get('file.hash'),
-                'l': '/api/assets/' + id + '/thumbnail/large.jpg?t=' + asset.get('file.hash'),
-                'xl': '/api/assets/' + id + '/thumbnail/xlarge.jpg?t=' + asset.get('file.hash')
-            });
-        }
-    };
-
     var getFileUrl = function (id, revision, filename) {
         return '/api/files/assets/' + id + '/' + revision + '/' + filename;
+    };
+
+    var assetSetThumbnailPaths = function(asset) {
+        if (asset.get('type') !== 'texture')
+            return;
+
+        if (asset.get('has_thumbnail')) {
+            asset.set('thumbnails', {
+                's': '/api/assets/' + asset.get('id') + '/thumbnail/small.jpg',
+                'm': '/api/assets/' + asset.get('id') + '/thumbnail/medium.jpg',
+                'l': '/api/assets/' + asset.get('id') + '/thumbnail/large.jpg',
+                'xl': '/api/assets/' + asset.get('id') + '/thumbnail/xlarge.jpg'
+            });
+        } else {
+            asset.unset('thumbnails');
+        }
     };
 
     // hook sync to new assets
@@ -183,32 +183,19 @@ editor.once('load', function() {
             editor.call('realtime:assets:op', op, asset.get('id'));
         });
 
-        var isTexture = asset.get('type') === 'texture';
-        if (isTexture)
-            setThumbnailPaths(asset);
-
-        var oldHash = asset.get('file.hash');
+        // set thumbnails
+        assetSetThumbnailPaths(asset);
 
         var setting = false;
 
         asset.on('*:set', function (path, value) {
-            if (setting) return;
+            if (setting || ! value || ! path.startsWith('file')) return;
             setting = true;
 
-            if (isTexture && /^has_thumbnail/.test(path)) {
-                setThumbnailPaths(asset);
-            } else if (/^file/.test(path)) {
-                if (value) {
-                    // reset file url
-                    asset.set('file.url', getFileUrl(asset.get('id'), asset.get('revision'), asset.get('file.filename')));
-                }
-
-                // updated thumbnail URLs if file hash changed
-                if (isTexture && oldHash !== asset.get('file.hash')) {
-                    oldHash = asset.get('file.hash');
-                    setThumbnailPaths(asset);
-                }
-            }
+            // reset file url
+            asset.set('file.url', getFileUrl(asset.get('id'), asset.get('revision'), asset.get('file.filename')));
+            // set thumbnails
+            assetSetThumbnailPaths(asset);
 
             setting = false;
         });

@@ -35,7 +35,6 @@ editor.once('load', function() {
             newAsset.id = parseInt(assetJson.id, 10);
             assetRegistry.add(newAsset);
 
-
             var timeout;
             var updatedFields = {};
 
@@ -67,9 +66,7 @@ editor.once('load', function() {
 
                     timeout = null;
                 });
-
             });
-
         });
 
         // remove assets from asset registry
