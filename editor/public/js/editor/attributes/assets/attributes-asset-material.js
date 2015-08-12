@@ -1892,8 +1892,7 @@ editor.once('load', function() {
                 'r': 'R',
                 'g': 'G',
                 'b': 'B',
-                'a': 'A',
-                'rgb': 'RGB'
+                'a': 'A'
             },
             link: assets,
             path: 'data.opacityMapChannel'
