@@ -477,7 +477,7 @@ strong {
 
         &.hole {
             outline: 2px solid $text-active;
-            background-color: rgba($text-active, .4);
+            background-color: transparent;
             &.over {
                 background-color: transparent;
             }

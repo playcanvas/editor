@@ -30,6 +30,7 @@ editor.once('load', function() {
     var currentElement = null;
     var dragOver = false;
     var items = [ ];
+    var itemOver = null;
 
     var activate = function(type) {
         if (! editor.call('permissions:write'))
@@ -110,6 +111,11 @@ editor.once('load', function() {
         e.preventDefault();
         this.classList.add('over');
 
+        if (itemOver && itemOver !== this)
+            evtDragLeave.call(itemOver);
+
+        itemOver = this;
+
         if (this._ref && this._ref.over) {
             var data = currentData;
             if (currentType == 'files')
@@ -118,11 +124,14 @@ editor.once('load', function() {
         }
     };
     var evtDragLeave = function(e) {
-        e.preventDefault();
+        if (e) e.preventDefault();
         this.classList.remove('over');
 
         if (this._ref && this._ref.leave)
             this._ref.leave();
+
+        if (itemOver === this)
+            itemOver = null;
     };
 
     var fixChromeFlexBox = function(item) {
@@ -162,17 +171,17 @@ editor.once('load', function() {
         obj.evtDrop = function(e) {
             e.preventDefault();
 
-            var data = currentData;
-            if (currentType == 'files')
-                data = e.dataTransfer.files;
-
-            obj.drop(currentType, data);
-
             // leave event
             if (obj.element.classList.contains('over')) {
                 if (obj.leave) obj.leave();
                 obj.element.classList.remove('over');
             }
+
+            var data = currentData;
+            if (currentType == 'files')
+                data = e.dataTransfer.files;
+
+            obj.drop(currentType, data);
         };
 
         obj.element.addEventListener('dragenter', evtDragOver, false);
@@ -216,6 +225,7 @@ editor.once('load', function() {
             evt.dataTransfer.setData('Text', args.type);
             currentType = args.type;
             currentData = args.data;
+            itemOver = null;
         }, false);
 
         args.element.addEventListener('dragend', function(evt) {

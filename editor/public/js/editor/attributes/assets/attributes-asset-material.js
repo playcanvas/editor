@@ -504,7 +504,7 @@ editor.once('load', function() {
     // Holds material properties that are not in the db.
     // Used to set initial values for offsets and tilings
     // to avoid sharejs errors.
-    var missingPaths = {};
+    var missingPaths = { };
 
     editor.on('attributes:inspect[asset]', function(assets) {
         for(var i = 0; i < assets.length; i++) {
@@ -528,6 +528,8 @@ editor.once('load', function() {
             assets[i].set('data', editor.call('material:default', assets[i].get('data')));
             assets[i].sync.enabled = sync;
         }
+
+        var app = editor.call('viewport:framework');
 
         if (assets.length > 1)
             editor.call('attributes:header', assets.length + ' Materials');
@@ -617,6 +619,62 @@ editor.once('load', function() {
                     renderPreview();
             });
         }
+
+        var handleTextureHover = function(path) {
+            var valueOld = null;
+            var events = [ ];
+
+            return {
+                over: function(type, data) {
+                    var texture = app.assets.get(parseInt(data.id, 10));
+                    app.assets.load(texture);
+
+                    var attachTexture = function(ind) {
+                        var engineAsset = app.assets.get(parseInt(assets[ind].get('id'), 10));
+                        if (engineAsset) {
+                            valueOld[ind] = engineAsset.resource[path];
+
+                            if (texture.resource) {
+                                engineAsset.resource[path] = texture.resource;
+                                engineAsset.resource.update();
+                            } else {
+                                var evt = {
+                                    asset: texture,
+                                    fn: function() {
+                                        engineAsset.resource[path] = texture.resource;
+                                        engineAsset.resource.update();
+                                    }
+                                };
+                                events.push(evt);
+                                texture.once('load', evt.fn);
+                            }
+                        }
+                    };
+
+                    valueOld = [ ];
+                    for(var i = 0; i < assets.length; i++)
+                        attachTexture(i);
+                    editor.call('viewport:render');
+                },
+                leave: function() {
+                    if (valueOld === null) return;
+
+                    for(var i = 0; i < events.length; i++)
+                        events[i].asset.off('load', events[i].fn);
+                    events = [ ];
+
+                    for(var i = 0; i < assets.length; i++) {
+                        var engineAsset = app.assets.get(parseInt(assets[i].get('id'), 10));
+                        if (engineAsset) {
+                            engineAsset.resource[path] = valueOld[i];
+                            engineAsset.resource.update();
+                        }
+                    }
+                    editor.call('viewport:render');
+                    valueOld = null;
+                }
+            };
+        };
 
 
         // properties panel
@@ -932,13 +990,16 @@ editor.once('load', function() {
 
 
         // map
+        var fieldAmbientMapHover = handleTextureHover('aoMap');
         var fieldAmbientMap = editor.call('attributes:addField', {
             parent: panelAmbient,
             type: 'asset',
             kind: 'texture',
             name: 'Ambient Occlusion',
             link: assets,
-            path: 'data.aoMap'
+            path: 'data.aoMap',
+            over: fieldAmbientMapHover.over,
+            leave: fieldAmbientMapHover.leave
         });
         fieldAmbientMap.parent.class.add('channel');
         fieldAmbientMap.on('change', function(value) {
@@ -1063,13 +1124,16 @@ editor.once('load', function() {
         editor.call('attributes:reference:asset:material:diffuseOverview:attach', panelDiffuse, panelDiffuse.headerElement);
 
         // diffuse map
+        var fieldDiffuseMapHover = handleTextureHover('diffuseMap');
         var fieldDiffuseMap = editor.call('attributes:addField', {
             parent: panelDiffuse,
             type: 'asset',
             kind: 'texture',
             name: 'Diffuse',
             link: assets,
-            path: 'data.diffuseMap'
+            path: 'data.diffuseMap',
+            over: fieldDiffuseMapHover.over,
+            leave: fieldDiffuseMapHover.leave
         });
         fieldDiffuseMap.parent.class.add('channel');
         fieldDiffuseMap.on('change', function(value) {
@@ -1230,13 +1294,16 @@ editor.once('load', function() {
         panelSpecular.append(panelMetalness);
 
         // metalness map
+        var fieldMetalnessMapHover = handleTextureHover('metalnessMap');
         var fieldMetalnessMap = editor.call('attributes:addField', {
             parent: panelMetalness,
             type: 'asset',
             kind: 'texture',
             name: 'Metalness',
             link: assets,
-            path: 'data.metalnessMap'
+            path: 'data.metalnessMap',
+            over: fieldMetalnessMapHover.over,
+            leave: fieldMetalnessMapHover.leave
         });
         fieldMetalnessMap.parent.class.add('channel');
         fieldMetalnessMap.on('change', function(value) {
@@ -1372,13 +1439,16 @@ editor.once('load', function() {
         panelSpecular.append(panelSpecularWorkflow);
 
         // specular map
+        var fieldSpecularMapHover = handleTextureHover('specularMap');
         var fieldSpecularMap = editor.call('attributes:addField', {
             parent: panelSpecularWorkflow,
             type: 'asset',
             kind: 'texture',
             name: 'Specular',
             link: assets,
-            path: 'data.specularMap'
+            path: 'data.specularMap',
+            over: fieldSpecularMapHover.over,
+            leave: fieldSpecularMapHover.leave
         });
         fieldSpecularMap.parent.class.add('channel');
         fieldSpecularMap.on('change', function(value) {
@@ -1508,13 +1578,16 @@ editor.once('load', function() {
 
 
         // map (gloss)
+        var fieldGlossMapHover = handleTextureHover('glossMap');
         var fieldGlossMap = editor.call('attributes:addField', {
             parent: panelSpecular,
             type: 'asset',
             kind: 'texture',
             name: 'Glossiness',
             link: assets,
-            path: 'data.glossMap'
+            path: 'data.glossMap',
+            over: fieldGlossMapHover.over,
+            leave: fieldGlossMapHover.leave
         });
         fieldGlossMap.parent.class.add('channel');
         fieldGlossMap.on('change', function(value) {
@@ -1657,13 +1730,16 @@ editor.once('load', function() {
         editor.call('attributes:reference:asset:material:emissiveOverview:attach', panelEmissive, panelEmissive.headerElement);
 
         // map
+        var fieldEmissiveMapHover = handleTextureHover('emissiveMap');
         var fieldEmissiveMap = editor.call('attributes:addField', {
             parent: panelEmissive,
             type: 'asset',
             kind: 'texture',
             name: 'Emissive',
             link: assets,
-            path: 'data.emissiveMap'
+            path: 'data.emissiveMap',
+            over: fieldEmissiveMapHover.over,
+            leave: fieldEmissiveMapHover.leave
         });
         fieldEmissiveMap.parent.class.add('channel');
         fieldEmissiveMap.on('change', function(value) {
@@ -1856,13 +1932,16 @@ editor.once('load', function() {
         editor.call('attributes:reference:asset:material:blendType:attach', fieldBlendType.parent.innerElement.firstChild.ui);
 
         // map
+        var fieldOpacityMapHover = handleTextureHover('opacityMap');
         var fieldOpacityMap = editor.call('attributes:addField', {
             parent: panelOpacity,
             type: 'asset',
             kind: 'texture',
             name: 'Opacity',
             link: assets,
-            path: 'data.opacityMap'
+            path: 'data.opacityMap',
+            over: fieldOpacityMapHover.over,
+            leave: fieldOpacityMapHover.leave
         });
         fieldOpacityMap.parent.class.add('channel');
         fieldOpacityMap.on('change', filterBlendFields);
@@ -2036,13 +2115,16 @@ editor.once('load', function() {
         editor.call('attributes:reference:asset:material:normalOverview:attach', panelNormal, panelNormal.headerElement);
 
         // map (normals)
+        var fieldNormalMapHover = handleTextureHover('normalMap');
         var fieldNormalMap = editor.call('attributes:addField', {
             parent: panelNormal,
             type: 'asset',
             kind: 'texture',
             name: 'Normals',
             link: assets,
-            path: 'data.normalMap'
+            path: 'data.normalMap',
+            over: fieldNormalMapHover.over,
+            leave: fieldNormalMapHover.leave
         });
         fieldNormalMap.on('change', function(value) {
             fieldNormalsOffset[0].parent.hidden = filterNormalOffset();
@@ -2158,13 +2240,16 @@ editor.once('load', function() {
         editor.call('attributes:reference:asset:material:parallaxOverview:attach', panelParallax, panelParallax.headerElement);
 
         // height map
+        var fieldHeightMapHover = handleTextureHover('heightMap');
         var fieldHeightMap = editor.call('attributes:addField', {
             parent: panelParallax,
             type: 'asset',
             kind: 'texture',
             name: 'Heightmap',
             link: assets,
-            path: 'data.heightMap'
+            path: 'data.heightMap',
+            over: fieldHeightMapHover.over,
+            leave: fieldHeightMapHover.leave
         });
         fieldHeightMap.parent.class.add('channel');
         fieldHeightMap.on('change', function(value) {
@@ -2304,13 +2389,16 @@ editor.once('load', function() {
             fieldReflectionSphere.parent.hidden = ! fieldReflectionSphere.value && ! fieldReflectionSphere.class.contains('null') && (fieldReflectionCubeMap.value || fieldReflectionCubeMap.class.contains('null'));
         };
         // spheremap
+        var fieldReflectionSphereHover = handleTextureHover('sphereMap');
         var fieldReflectionSphere = editor.call('attributes:addField', {
             parent: panelReflection,
             type: 'asset',
             kind: 'texture',
             name: 'Sphere Map',
             link: assets,
-            path: 'data.sphereMap'
+            path: 'data.sphereMap',
+            over: fieldReflectionSphereHover.over,
+            leave: fieldReflectionSphereHover.leave
         });
         fieldReflectionSphere.on('change', filterReflectionMaps);
         // reference
@@ -2437,13 +2525,16 @@ editor.once('load', function() {
         editor.call('attributes:reference:asset:material:lightMapOverview:attach', panelLightMap, panelLightMap.headerElement);
 
         // map
+        var fieldLightMapHover = handleTextureHover('lightMap');
         var fieldLightMap = editor.call('attributes:addField', {
             parent: panelLightMap,
             type: 'asset',
             kind: 'texture',
             name: 'Lightmap',
             link: assets,
-            path: 'data.lightMap'
+            path: 'data.lightMap',
+            over: fieldLightMapHover.over,
+            leave: fieldLightMapHover.leave
         });
         fieldLightMap.parent.class.add('channel');
         fieldLightMap.on('change', function (value) {
