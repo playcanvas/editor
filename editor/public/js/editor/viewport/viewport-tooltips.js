@@ -33,11 +33,8 @@ editor.once('load', function() {
                 var entity = node._getEntity && node._getEntity();
                 if (entity)
                     name = entity.name;
-            } else if (node.model && node.model.asset && node.model.model && picked && picked.node &&
-                       editor.call('selector:type') === 'entity' &&
-                       editor.call('selector:count') === 1 &&
-                       editor.call('selector:items')[0].entity === node) {
-                // selected entity
+            } else if (node.model && node.model.asset && node.model.model && picked && picked.node) {
+                // entity model meshInstance
                 name = node.name + ' &#8594; ' + picked.node.name;
             } else {
                 // normal entity

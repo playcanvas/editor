@@ -317,22 +317,19 @@ pc.script.create( "designer_camera", function (app) {
     };
 
     DesignerCamera.prototype.onKeyDown = function (e) {
-        if (e.target && e.target.tagName.toLowerCase() === 'input') {
+        if (e.target && e.target.tagName.toLowerCase() === 'input')
             return;
-        }
 
-        if (this.isOrbiting || this.isPanning || this.entity.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
+        if (this.isOrbiting || this.isPanning || this.entity.camera.projection === pc.PROJECTION_ORTHOGRAPHIC)
             return;
-        }
 
         if (this.flyModeKeys[e.which] !== undefined && ! e.altKey && ! e.ctrlKey && ! e.metaKey) {
             this.flyModeKeys[e.which] = true;
             this.toggleFlyMode(true);
         }
 
-        if (this.flyMode && (e.which in this.flyModeKeys || e.shiftKey || e.altKey || e.ctrlKey)) {
+        if (this.flyMode && (e.which in this.flyModeKeys || e.shiftKey || e.altKey || e.ctrlKey))
             this.calculateFlySpeed(e);
-        }
     };
 
     DesignerCamera.prototype.toggleFlyMode = function (toggle) {

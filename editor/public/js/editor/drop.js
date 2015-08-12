@@ -6,6 +6,18 @@ editor.once('load', function() {
     overlay.classList.add('drop-overlay');
     editor.call('layout.root').append(overlay);
 
+    var imgDrag = new Image();
+    // imgDrag.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAACWCAYAAAAfduJyAAAAFUlEQVQoU2NkYGBgYBwlRsNgJKQDAOAfAJflUZweAAAAAElFTkSuQmCC';
+    // imgDrag.style.display = 'none';
+
+    var parts = [ 'top', 'right', 'bottom', 'left' ];
+    for(var i = 0; i < parts.length; i++) {
+        var part = document.createElement('div');
+        part.classList.add('drop-overlay-hole-part', parts[i]);
+        editor.call('layout.root').append(part);
+        parts[i] = part;
+    }
+
     // areas
     var areas = document.createElement('div');
     areas.classList.add('drop-areas');
@@ -63,11 +75,13 @@ editor.once('load', function() {
         if (! editor.call('permissions:write'))
             return;
 
+        evt.dataTransfer.dropEffect = 'move';
+
         if (dragOver) return;
         dragOver = true;
 
         activate(true);
-    });
+    }, false);
 
     window.addEventListener('dragleave', function(evt) {
         evt.preventDefault();
@@ -95,10 +109,20 @@ editor.once('load', function() {
     var evtDragOver = function(e) {
         e.preventDefault();
         this.classList.add('over');
+
+        if (this._ref && this._ref.over) {
+            var data = currentData;
+            if (currentType == 'files')
+                data = e.dataTransfer.files;
+            this._ref.over(currentType, data);
+        }
     };
     var evtDragLeave = function(e) {
         e.preventDefault();
         this.classList.remove('over');
+
+        if (this._ref && this._ref.leave)
+            this._ref.leave();
     };
 
     var fixChromeFlexBox = function(item) {
@@ -129,18 +153,26 @@ editor.once('load', function() {
     editor.method('drop:target', function(obj) {
         items.push(obj);
         obj.element = document.createElement('div');
+        obj.element._ref = obj;
         obj.element.classList.add('drop-area');
+        if (obj.hole)
+            obj.element.classList.add('hole');
         areas.appendChild(obj.element);
 
         obj.evtDrop = function(e) {
             e.preventDefault();
-            obj.element.classList.remove('over');
 
             var data = currentData;
             if (currentType == 'files')
                 data = e.dataTransfer.files;
 
             obj.drop(currentType, data);
+
+            // leave event
+            if (obj.element.classList.contains('over')) {
+                if (obj.leave) obj.leave();
+                obj.element.classList.remove('over');
+            }
         };
 
         obj.element.addEventListener('dragenter', evtDragOver, false);
@@ -179,6 +211,8 @@ editor.once('load', function() {
             if (! editor.call('permissions:write'))
                 return evt.preventDefault();
 
+            evt.dataTransfer.effectAllowed = 'move';
+            evt.dataTransfer.setDragImage(imgDrag, 0, 0);
             evt.dataTransfer.setData('Text', args.type);
             currentType = args.type;
             currentData = args.data;
@@ -219,11 +253,37 @@ editor.once('load', function() {
 
                 if (visible) {
                     items[i].element.style.display = 'block';
-                    items[i].element.style.left = (rect.left + 1) + 'px';
-                    items[i].element.style.top = (rect.top + 1) + 'px';
-                    items[i].element.style.width = (rect.width - 2) + 'px';
-                    items[i].element.style.height = (rect.height - 2) + 'px';
-                    items[i].ref.classList.add('drop-ref-highlight');
+
+                    if (items[i].hole) {
+                        items[i].element.style.left = (rect.left + 2) + 'px';
+                        items[i].element.style.top = (rect.top + 2) + 'px';
+                        items[i].element.style.width = (rect.width - 4) + 'px';
+                        items[i].element.style.height = (rect.height - 4) + 'px';
+
+                        overlay.classList.remove('active');
+
+                        parts[0].classList.add('active');
+                        parts[0].style.height = rect.top + 'px';
+
+                        parts[1].classList.add('active');
+                        parts[1].style.top = rect.top + 'px';
+                        parts[1].style.bottom = window.innerHeight - rect.bottom + 'px';
+                        parts[1].style.width = window.innerWidth - rect.right + 'px';
+
+                        parts[2].classList.add('active');
+                        parts[2].style.height = window.innerHeight - rect.bottom + 'px';
+
+                        parts[3].classList.add('active');
+                        parts[3].style.top = rect.top + 'px';
+                        parts[3].style.bottom = window.innerHeight - rect.bottom + 'px';
+                        parts[3].style.width = rect.left + 'px';
+                    } else {
+                        items[i].element.style.left = (rect.left + 1) + 'px';
+                        items[i].element.style.top = (rect.top + 1) + 'px';
+                        items[i].element.style.width = (rect.width - 2) + 'px';
+                        items[i].element.style.height = (rect.height - 2) + 'px';
+                        items[i].ref.classList.add('drop-ref-highlight');
+                    }
                 } else {
                     items[i].element.style.display = 'none';
 
@@ -234,6 +294,9 @@ editor.once('load', function() {
                 }
             }
         } else {
+            for(var i = 0; i < parts.length; i++)
+                parts[i].classList.remove('active');
+
             for(var i = 0; i < items.length; i++) {
                 if (! items[i].ref.classList.contains('drop-ref-highlight'))
                     continue;

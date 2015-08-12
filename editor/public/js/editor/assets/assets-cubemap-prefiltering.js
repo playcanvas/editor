@@ -187,8 +187,6 @@ editor.once('load', function () {
 
         var cubemap;
         var onLoad = function() {
-            console.log(cubemap);
-
             if (app.graphicsDevice.extTextureFloatRenderable && cubemap.rgbm) {
                 prefilterHdrCubemap(assetCubeMap, cubemap, callback);
             } else {
