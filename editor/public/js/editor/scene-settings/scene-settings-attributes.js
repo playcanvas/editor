@@ -6,6 +6,8 @@ editor.once('load', function() {
     editor.on('attributes:inspect[designerSettings]', function() {
         editor.call('attributes:header', 'Settings');
 
+        var app = editor.call('viewport:framework');
+
         var filteredFields = [ ];
 
         var addFiltered = function (field, filter) {
@@ -67,6 +69,16 @@ editor.once('load', function() {
         editor.call('attributes:reference:settings:ambientColor:attach', fieldGlobalAmbient.parent.innerElement.firstChild.ui);
 
 
+        // skyboxHover
+        var skyboxOld = null;
+        var hoverSkybox = null;
+        var setSkybox = function() {
+            if (! hoverSkybox)
+                return;
+
+            app.scene.setSkybox(hoverSkybox.resources);
+            editor.call('viewport:render');
+        }
         // skybox
         var fieldSkybox = editor.call('attributes:addField', {
             parent: panelEnvironment,
@@ -74,7 +86,31 @@ editor.once('load', function() {
             type: 'asset',
             kind: 'cubemap',
             link: sceneSettings,
-            path: 'render.skybox'
+            path: 'render.skybox',
+            over: function(type, data) {
+                skyboxOld = app.assets.get(sceneSettings.get('render.skybox')) || null;
+
+                hoverSkybox = app.assets.get(parseInt(data.id, 10));
+                if (hoverSkybox) {
+                    if (sceneSettings.get('render.skyboxMip') === 0)
+                        hoverSkybox.loadFaces = true;
+
+                    app.assets.load(hoverSkybox);
+                    hoverSkybox.on('load', setSkybox);
+                    setSkybox();
+                }
+            },
+            leave: function() {
+                if (skyboxOld) {
+                    app.scene.setSkybox(skyboxOld.resources)
+                    skyboxOld = null;
+                    editor.call('viewport:render');
+                }
+                if (hoverSkybox) {
+                    hoverSkybox.off('load', setSkybox);
+                    hoverSkybox = null;
+                }
+            }
         });
         // reference
         editor.call('attributes:reference:settings:skybox:attach', fieldSkybox._label);
