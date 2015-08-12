@@ -13,7 +13,7 @@ editor.once('load', function() {
 
         // edit
         var btnEdit = new ui.Button();
-        btnEdit.text = (editor.call('permissions:write') ? 'Edit' : 'View') + ' Script';
+        btnEdit.text = editor.call('permissions:write') ? 'Edit' : 'View';
         btnEdit.class.add('edit-script');
         btnEdit.element.addEventListener('click', function(evt) {
             window.open('/editor/code/' + config.project.id + '/' + asset.get('filename'));
