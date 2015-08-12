@@ -521,12 +521,6 @@ editor.once('load', function() {
                 if (assets[i].get(path) === null)
                     missingPaths[assets[i].get('id') + '.' + path] = true;
             });
-
-            // set initial default data but don't sync to sharejs
-            var sync = assets[i].sync.enabled;
-            assets[i].sync.enabled = false;
-            assets[i].set('data', editor.call('material:default', assets[i].get('data')));
-            assets[i].sync.enabled = sync;
         }
 
         var app = editor.call('viewport:framework');
