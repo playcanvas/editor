@@ -78,24 +78,45 @@ editor.once('load', function() {
 
             var nodeItems = [ ];
 
-            // create node fields
-            var mapping = asset.get('data.mapping');
-            for(var i = 0; i < mapping.length; i++) {
-                nodeItems[i] = editor.call('attributes:addField', {
+            var addField = function(ind) {
+                var engineAsset = editor.call('viewport:framework').assets.get(asset.get('id'));
+                var valueBefore = null;
+
+                nodeItems[ind] = editor.call('attributes:addField', {
                     parent: panelNodes,
                     type: 'asset',
                     kind: 'material',
-                    name: 'node ' + i,
+                    name: 'node ' + ind,
                     link: asset,
-                    path: 'data.mapping.' + i + '.material'
+                    path: 'data.mapping.' + ind + '.material',
+                    over: function(type, data) {
+                        valueBefore = asset.get('data.mapping.' + ind + '.material') || null;
+                        if (engineAsset) {
+                            engineAsset.data.mapping[ind].material = parseInt(data.id, 10);
+                            engineAsset.fire('change', engineAsset, 'data', engineAsset.data, engineAsset.data);
+                            editor.call('viewport:render');
+                        }
+                    },
+                    leave: function() {
+                        if (valueBefore) {
+                            engineAsset.data.mapping[ind].material = valueBefore;
+                            engineAsset.fire('change', engineAsset, 'data', engineAsset.data, engineAsset.data);
+                            editor.call('viewport:render');
+                        }
+                    }
                 });
 
-                nodeItems[i].parent.class.add('node-' + i);
+                nodeItems[ind].parent.class.add('node-' + ind);
 
-                nodeItems[i].parent.on('click', function() {
+                nodeItems[ind].parent.on('click', function() {
                     this.class.remove('active');
                 });
             }
+
+            // create node fields
+            var mapping = asset.get('data.mapping');
+            for(var i = 0; i < mapping.length; i++)
+                addField(i);
 
             panelNodes.on('destroy', function () {
                 root.class.remove('asset-preview', 'animate');

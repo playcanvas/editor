@@ -706,6 +706,14 @@ editor.once('load', function() {
                             return;
 
                         field.value = parseInt(data.id, 10);
+                    },
+                    over: function(type, data) {
+                        if (args.over)
+                            args.over(type, data);
+                    },
+                    leave: function() {
+                        if (args.leave)
+                            args.leave();
                     }
                 });
                 field.on('destroy', function() {

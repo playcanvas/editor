@@ -162,17 +162,17 @@ editor.once('load', function() {
         obj.evtDrop = function(e) {
             e.preventDefault();
 
-            var data = currentData;
-            if (currentType == 'files')
-                data = e.dataTransfer.files;
-
-            obj.drop(currentType, data);
-
             // leave event
             if (obj.element.classList.contains('over')) {
                 if (obj.leave) obj.leave();
                 obj.element.classList.remove('over');
             }
+
+            var data = currentData;
+            if (currentType == 'files')
+                data = e.dataTransfer.files;
+
+            obj.drop(currentType, data);
         };
 
         obj.element.addEventListener('dragenter', evtDragOver, false);
