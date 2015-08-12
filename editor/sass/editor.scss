@@ -417,6 +417,37 @@ strong {
         visibility: visible;
     }
 }
+.drop-overlay-hole-part {
+    position: absolute;
+    background-color: rgba(#20292b, .3);
+    width: auto;
+    height: auto;
+    z-index: 201;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 100ms, visibility 100ms;
+
+    &.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    &.top {
+        top: 0;
+        left: 0;
+        right: 0;
+    }
+    &.right {
+        right: 0;
+    }
+    &.bottom {
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
+    &.left {
+        left: 0;
+    }
+}
 .drop-areas {
     position: absolute;
     top: 0;
@@ -441,9 +472,16 @@ strong {
         width: auto;
         height: auto;
         border: none;
-        // border: 2px solid $text-active;
         background-color: rgba($text-active, .4);
+        transition: background-color 100ms;
 
+        &.hole {
+            outline: 2px solid $text-active;
+            background-color: rgba($text-active, .4);
+            &.over {
+                background-color: transparent;
+            }
+        }
         &.over {
             background-color: rgba($text-active, .7);
         }

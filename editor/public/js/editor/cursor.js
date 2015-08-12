@@ -1,12 +1,26 @@
 editor.once('load', function() {
     'use strict';
 
+    var cursorType = '';
+
     editor.method('cursor:set', function(type) {
+        if (cursorType === type)
+            return;
+
+        cursorType = type;
         document.body.style.cursor = type;
+        document.body.style.mozCursor = '-moz-' + type;
+        document.body.style.webkitCursor = '-webkit-' + type;
     });
 
     editor.method('cursor:clear', function() {
+        if (! cursorType)
+            return;
+
+        cursorType = '';
         document.body.style.cursor = '';
+        document.body.style.mozCursor = '';
+        document.body.style.webkitCursor = '';
     });
 
     var hiddenTime = 0;
@@ -20,7 +34,7 @@ editor.once('load', function() {
     var lastY = 0;
 
     // move tooltip
-    window.addEventListener('mousemove', function(evt) {
+    var onMove = function(evt) {
         lastX = evt.clientX;
         lastY = evt.clientY;
 
@@ -28,7 +42,9 @@ editor.once('load', function() {
             return;
 
         tooltip.style.transform = 'translate(' + evt.clientX + 'px,' + evt.clientY + 'px)';
-    }, false);
+    };
+    window.addEventListener('mousemove', onMove, false);
+    window.addEventListener('dragover', onMove, false);
 
     // set tooltip text
     editor.method('cursor:text', function(text) {

@@ -107,5 +107,6 @@ editor.once('load', function() {
     }, false);
 
     window.addEventListener('mousemove', evtMouseMove, false);
+    window.addEventListener('dragover', evtMouseMove, false);
     window.addEventListener('mouseup', evtMouseUp, false);
 });
