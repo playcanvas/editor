@@ -13,11 +13,11 @@ editor.once('load', function() {
 
         // edit
         var btnEdit = new ui.Button();
-        btnEdit.text = 'Edit';
+        btnEdit.text = editor.call('permissions:write') ? 'Edit' : 'View';
         btnEdit.class.add('edit-script');
-        btnEdit.on('click', function(evt) {
+        btnEdit.element.addEventListener('click', function(evt) {
             window.open('/editor/asset/' + asset.get('id'));
-        });
+        }, false);
         panel.append(btnEdit);
 
         // loading
