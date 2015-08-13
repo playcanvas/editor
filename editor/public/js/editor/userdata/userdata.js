@@ -6,10 +6,10 @@ editor.once('load', function() {
     editor.on('userdata:' + config.self.id + ':raw', function (data) {
         userdata.patch(data);
 
-        if (!userdata.sync) {
+        if (! userdata.sync) {
             userdata.sync = new ObserverSync({
                 item: userdata,
-                paths: ['cameras']
+                paths: [ 'cameras' ]
             });
 
             // client > server

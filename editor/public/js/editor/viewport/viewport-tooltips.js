@@ -33,6 +33,11 @@ editor.once('load', function() {
                 var entity = node._getEntity && node._getEntity();
                 if (entity)
                     name = entity.name;
+            } else if (node._userCamera) {
+                name = '@';
+                editor.call('users:loadOne', node._userCamera, function(data) {
+                    name = '@' + (data && data.username || 'anonymous');
+                });
             } else if (node.model && node.model.asset && node.model.model && picked && picked.node) {
                 // entity model meshInstance
                 name = node.name + ' &#8594; ' + picked.node.name;

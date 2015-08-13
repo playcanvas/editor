@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var permissions = {};
+    var permissions = { };
 
     // cache permissions in a dictionary
     ['read', 'write', 'admin'].forEach(function (access) {
