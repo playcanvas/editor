@@ -26,16 +26,16 @@ editor.once('load', function() {
         img.src = '/api/' + id + '/thumbnail?size=32';
         link.appendChild(img);
 
-        editor.call('users:loadOne', id, function (user) {
-            link.href = '/' + user.username;
-            link.tooltip.text = user.username;
-        });
-
         link.tooltip = Tooltip.attach({
             target: link,
             text: '',
-            align: 'top',
+            align: 'bottom',
             root: root
+        });
+
+        editor.call('users:loadOne', id, function (user) {
+            link.href = '/' + user.username;
+            link.tooltip.text = user.username;
         });
 
         reflow();

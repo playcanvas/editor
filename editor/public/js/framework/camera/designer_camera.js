@@ -105,6 +105,7 @@ pc.script.create( "designer_camera", function (app) {
         this.lowerCaseName = this.entity.getName().toLowerCase();
 
         this.lastUserDataUpdate = Date.now();
+        this.queueUserData = { };
     };
 
     DesignerCamera.prototype.destroy = function () {
@@ -695,33 +696,38 @@ pc.script.create( "designer_camera", function (app) {
         } else {
             var userdata = editor.call('userdata');
             var now = Date.now();
-            var shouldUpdateUserData = (now - this.lastUserDataUpdate >= 500);
+            var shouldUpdateUserData = (now - this.lastUserDataUpdate >= 250);
 
-            if (data.position !== undefined) {
+            if (data.position !== undefined)
                 this.entity.setLocalPosition(data.position);
-                if (shouldUpdateUserData)
-                    userdata.set('cameras.' + this.lowerCaseName + '.position', [Number(data.position.x.toFixed(4)), Number(data.position.y.toFixed(4)), Number(data.position.z.toFixed(4))]);
-            }
 
-            if (data.rotation !== undefined) {
+            if (data.rotation !== undefined)
                 this.entity.setLocalEulerAngles(data.rotation);
-                if (shouldUpdateUserData)
-                    userdata.set('cameras.' + this.lowerCaseName + '.rotation', [Number(data.rotation.x.toFixed(4)), Number(data.rotation.y.toFixed(4)), Number(data.rotation.z.toFixed(4))]);
-            }
 
-            if (data.orthoHeight !== undefined) {
+            if (data.orthoHeight !== undefined)
                 this.entity.camera.orthoHeight = data.orthoHeight;
-                if (shouldUpdateUserData)
-                    userdata.set('cameras.' + this.lowerCaseName + '.orthoHeight', Number(data.orthoHeight.toFixed(4)));
-            }
 
-            if (data.focus !== undefined) {
-                if (shouldUpdateUserData)
-                    userdata.set('cameras.' + this.lowerCaseName + '.focus', [Number(data.focus.x.toFixed(4)), Number(data.focus.y.toFixed(4)), Number(data.focus.z.toFixed(4))]);
-            }
-
-            if (shouldUpdateUserData)
+            if (shouldUpdateUserData) {
                 this.lastUserDataUpdate = now;
+
+                var pos = this.entity.getLocalPosition();
+                var rot = this.entity.getLocalEulerAngles();
+                var focus = this.transition.focusEnd;
+
+                var state = {
+                    position: [ parseFloat(pos.x.toFixed(4), 10), parseFloat(pos.y.toFixed(4), 10), parseFloat(pos.z.toFixed(4), 10) ],
+                    rotation: [ parseFloat(rot.x.toFixed(4), 10), parseFloat(rot.y.toFixed(4), 10), parseFloat(rot.z.toFixed(4), 10) ],
+                    focus: [ parseFloat(focus.x.toFixed(4), 10), parseFloat(focus.y.toFixed(4), 10), parseFloat(focus.z.toFixed(4), 10) ],
+                    orthoHeight: parseFloat(this.entity.camera.orthoHeight.toFixed(4), 10)
+                };
+
+                userdata.set('cameras.' + this.lowerCaseName + '.position', state.position);
+                userdata.set('cameras.' + this.lowerCaseName + '.rotation', state.rotation);
+                userdata.set('cameras.' + this.lowerCaseName + '.focus', state.focus);
+
+                if (this.entity.camera.projection === pc.PROJECTION_ORTHOGRAPHIC)
+                    userdata.set('cameras.' + this.lowerCaseName + '.orthoHeight', state.orthoHeight);
+            }
         }
     };
 

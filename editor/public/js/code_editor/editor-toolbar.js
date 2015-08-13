@@ -163,9 +163,8 @@ editor.once('load', function () {
         users.innerHTML = '';
 
         // add users
-        for (var id in data) {
+        for (var id in data)
             createUser(id);
-        }
     });
 
     editor.on('whoisonline:add', createUser);;
