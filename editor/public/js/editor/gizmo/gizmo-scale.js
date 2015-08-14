@@ -304,9 +304,6 @@ editor.once('load', function() {
             moving = true;
             mouseTap = tap;
 
-            evtTapMove = editor.on('viewport:tap:move', onTapMove);
-            evtTapEnd = editor.once('viewport:tap:end', onTapEnd);
-
             if (gizmo.root.enabled) {
                 pickStart.copy(pickPlane(tap.x, tap.y));
                 pickStart.x -= 1;
@@ -319,21 +316,37 @@ editor.once('load', function() {
         };
 
         var onTapMove = function(tap) {
+            if (! moving)
+                return;
+
             mouseTap = tap;
         };
 
         var onTapEnd = function(tap) {
             editor.emit('camera:toggle', true);
 
+            if (! moving)
+                return;
+
             moving = false;
             mouseTap = tap;
-
-            evtTapMove.unbind();
-            evtTapEnd.unbind();
 
             editor.emit('gizmo:scale:end');
             editor.call('gizmo:scale:visible', true);
         };
+
+        editor.on('viewport:hover', function(state) {
+            if (state || ! moving)
+                return;
+
+            moving = false;
+
+            editor.emit('gizmo:scale:end');
+            editor.call('gizmo:scale:visible', true);
+        });
+
+        evtTapMove = editor.on('viewport:tap:move', onTapMove);
+        evtTapEnd = editor.once('viewport:tap:end', onTapEnd);
     });
 
     var createMaterial = function(color) {
