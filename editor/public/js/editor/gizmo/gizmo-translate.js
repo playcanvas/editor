@@ -330,13 +330,13 @@ editor.once('load', function() {
         };
 
         var onTapStart = function(tap) {
+            if (moving)
+                return;
+
             editor.emit('camera:toggle', false);
 
             moving = true;
             mouseTap = tap;
-
-            evtTapMove = editor.on('viewport:tap:move', onTapMove);
-            evtTapEnd = editor.once('viewport:tap:end', onTapEnd);
 
             if (gizmo.root.enabled)
                 pickStart.copy(pickPlane(tap.x, tap.y));
@@ -346,6 +346,9 @@ editor.once('load', function() {
         };
 
         var onTapMove = function(tap) {
+            if (! moving)
+                return;
+
             mouseTap = tap;
             mouseTapMoved = true;
         };
@@ -353,15 +356,28 @@ editor.once('load', function() {
         var onTapEnd = function(tap) {
             editor.emit('camera:toggle', true);
 
+            if (! moving)
+                return;
+
             moving = false;
             mouseTap = tap;
-
-            evtTapMove.unbind();
-            evtTapEnd.unbind();
 
             editor.emit('gizmo:translate:end');
             editor.call('gizmo:translate:visible', true);
         };
+
+        editor.on('viewport:hover', function(state) {
+            if (state || ! moving)
+                return;
+
+            moving = false;
+
+            editor.emit('gizmo:translate:end');
+            editor.call('gizmo:translate:visible', true);
+        });
+
+        evtTapMove = editor.on('viewport:tap:move', onTapMove);
+        evtTapEnd = editor.on('viewport:tap:end', onTapEnd);
     });
 
     var createMaterial = function(color) {
