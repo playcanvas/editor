@@ -14,6 +14,10 @@ editor.once('load', function() {
     panel.append(hierarchy);
 
 
+    // return hirarchy
+    editor.method('entities:hierarchy', function () {
+        return hierarchy;
+    });
 
     // list item selected
     hierarchy.on('select', function(item) {

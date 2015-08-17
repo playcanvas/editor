@@ -743,6 +743,66 @@ editor.once('load', function() {
                 panelFields.appendChild(fieldTitle.element);
                 break;
 
+            // entity picker
+            case 'entity':
+                var initial = args.link ? args.link[0].get(args.path) : null;
+
+                field = new ui.Button();
+                field.class.add('add-entity');
+                field.flexGrow = 1;
+
+                panel.append(field);
+
+                var icon = document.createElement('span');
+                icon.classList.add('icon');
+
+                icon.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    setValue(null);
+                    if (args.link)
+                        args.link[0].set(args.path, null);
+                });
+
+                var setValue = function (value) {
+                    if (value) {
+                        var entity = editor.call('entities:get', value);
+                        field.text = entity ? entity.get('name') : value;
+                        field.element.appendChild(icon);
+                    } else {
+                        field.text = 'Select Entity';
+                    }
+                };
+
+                setValue(initial);
+
+                field.on('click', function () {
+                    var evtEntityPick = editor.once('picker:entity', function (entity) {
+                        if (entity) {
+                            setValue(entity.get('resource_id'));
+
+                            if (args.link) {
+                                args.link[0].set(args.path, entity.get('resource_id'));
+                            }
+                        } else {
+                            setValue(null);
+                        }
+
+                        evtEntityPick = null;
+                    });
+
+                    initial = args.link ? args.link[0].get(args.path) : null;
+                    editor.call('picker:entity', initial);
+
+                    editor.once('picker:entity:close', function () {
+                        if (evtEntityPick) {
+                            evtEntityPick.unbind();
+                            evtEntityPick = null;
+                        }
+                    });
+                });
+
+                break;
+
             case 'image':
                 panel.flex = false;
 

@@ -1,5 +1,17 @@
 editor.once('load', function () {
-    var VALID_TYPES = ['number', 'string', 'boolean', 'asset', 'rgb', 'rgba', 'vector', 'enumeration'];
+    var VALID_TYPES = [
+        'number',
+        'string',
+        'boolean',
+        'asset',
+        'rgb',
+        'rgba',
+        'vector',
+        'enumeration',
+        'entity'
+    ];
+
+    var REGEX_GUID = /^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$/;
 
     var validators = {
         'number': function (url, attribute) {
@@ -81,6 +93,14 @@ editor.once('load', function () {
                 }
             } else {
                 throw attributeErrorMsg(url, attribute, "Missing enumerations from attribute options");
+            }
+        },
+
+        'entity': function (url, attribute) {
+            validateValue(url, attribute, 'string', null);
+
+            if (attribute.defaultValue && !REGEX_GUID.test(attribute.defaultValue)) {
+                throw attributeErrorMsg(url, attribute, "Value is not a valid Entity resource id");
             }
         }
     };
