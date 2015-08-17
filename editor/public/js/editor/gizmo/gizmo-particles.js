@@ -153,6 +153,8 @@ editor.once('load', function () {
         for(var i = 0; i < items.length; i++)
             ids[items[i].get('resource_id')] = items[i];
 
+        var render = false;
+
         // remove
         for(var key in entities) {
             if (ids[key])
@@ -161,6 +163,7 @@ editor.once('load', function () {
             pool.push(entities[key]);
             entities[key].unlink();
             delete entities[key];
+            render = true;
         }
 
         // add
@@ -174,7 +177,11 @@ editor.once('load', function () {
 
             gizmo.link(ids[key]);
             entities[key] = gizmo;
+            render = true;
         }
+
+        if (render)
+            editor.call('viewport:render');
     });
 
     editor.once('viewport:load', function() {
