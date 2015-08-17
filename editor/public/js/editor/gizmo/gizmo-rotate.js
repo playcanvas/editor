@@ -297,6 +297,9 @@ editor.once('load', function() {
         };
 
         var onTapStart = function(tap) {
+            if (moving)
+                return;
+
             editor.emit('camera:toggle', false);
 
             moving = true;
@@ -343,7 +346,7 @@ editor.once('load', function() {
         });
 
         evtTapMove = editor.on('viewport:tap:move', onTapMove);
-        evtTapEnd = editor.once('viewport:tap:end', onTapEnd);
+        evtTapEnd = editor.on('viewport:tap:end', onTapEnd);
     });
 
     var createMaterial = function(color) {
