@@ -853,6 +853,61 @@ strong {
                 }
             }
         }
+
+       .add-entity {
+            position: relative;
+            font-size: 12px;
+            font-family: inconsolatamedium;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            padding-right: 20px;
+            padding-left: 8px;
+            height: 22px;
+            line-height: 22px;
+            background-color: $bcg-dark;
+
+            &[placeholder] {
+                &:after {
+                    font-size: 24px;
+                    line-height: 14px;
+                }
+            }
+
+            &.null {
+                color: $text-darkest;
+            }
+
+            &:hover {
+                cursor: pointer;
+                background-color: $bcg-darkest;
+                color: $text-primary;
+            }
+
+            > .icon {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 22px;
+                height: 22px;
+                line-height: 20px;
+                margin: 0;
+                padding: 0;
+                border: none;
+                @extend .font-icon;
+                font-size: 16px;
+                text-align: center;
+
+                &:hover {
+                    color: $text-active;
+                }
+
+                &:after {
+                    content: '\E436';
+                }
+            }
+
+        }
     }
     .ui-list {
         &.model-nodes {

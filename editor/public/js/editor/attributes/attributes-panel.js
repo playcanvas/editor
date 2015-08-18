@@ -743,6 +743,83 @@ editor.once('load', function() {
                 panelFields.appendChild(fieldTitle.element);
                 break;
 
+            // entity picker
+            case 'entity':
+                field = new ui.Label();
+                field.class.add('add-entity');
+                field.flexGrow = 1;
+                field.class.add('null');
+
+                field.text = 'Select Entity';
+                field.placeholder = '...';
+
+                panel.append(field);
+
+                var icon = document.createElement('span');
+                icon.classList.add('icon');
+
+                icon.addEventListener('click', function (e) {
+                    e.stopPropagation();
+
+                    if (editor.call('permissions:write'))
+                        field.text = '';
+                });
+
+                field.on('change', function (value) {
+                    if (value) {
+                        var entity = editor.call('entities:get', value);
+                        field.element.innerHTML = entity ? entity.get('name') : value;
+                        field.element.appendChild(icon);
+                        field.placeholder = '';
+                        field.class.remove('null');
+                    } else {
+                        field.element.innerHTML = 'Select Entity';
+                        field.placeholder = '...';
+                        field.class.add('null');
+                    }
+                });
+
+                linkField();
+
+                field.on('click', function () {
+                    var evtEntityPick = editor.once('picker:entity', function (entity) {
+                        field.text = entity ? entity.get('resource_id') : null;
+                        evtEntityPick = null;
+                    });
+
+                    var initialValue = null;
+                    if (args.link) {
+                        if (! args.link instanceof Array) {
+                            args.link = [args.link];
+                        }
+
+                        // get initial value only if it's the same for all
+                        // links otherwise set it to null
+                        for (var i = 0, len = args.link.length; i < len; i++) {
+                            var val = args.link[i].get(args.path);
+                            if (initialValue !== val) {
+                                if (initialValue) {
+                                    initialValue = null;
+                                    break;
+                                } else {
+                                    initialValue = val;
+                                }
+                            }
+                        }
+                    }
+
+                    editor.call('picker:entity', initialValue);
+
+                    editor.once('picker:entity:close', function () {
+                        if (evtEntityPick) {
+                            evtEntityPick.unbind();
+                            evtEntityPick = null;
+                        }
+                    });
+                });
+
+                break;
+
             case 'image':
                 panel.flex = false;
 

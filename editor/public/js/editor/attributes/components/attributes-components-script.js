@@ -9,7 +9,8 @@ editor.once('load', function() {
         'rgb': 'rgb',
         'rgba': 'rgb', // TEMP
         'vector': 'vec3',
-        'enumeration': 'number'
+        'enumeration': 'number',
+        'entity': 'entity'
     };
 
     // index entities with script components
