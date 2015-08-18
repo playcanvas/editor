@@ -339,8 +339,8 @@ editor.once('load', function() {
 
         gradient = args.gradient !== undefined ? args.gradient : false;
         gradientCanvas.style.display = gradient ? 'block' : 'none';
-        fieldRandomize.hidden = gradient;
-        labelRandomize.hidden = gradient;
+        fieldRandomize.hidden = gradient || args.hideRandomize;
+        labelRandomize.hidden = gradient || args.hideRandomize;
 
         maxVertical = args.max;
         fieldValue.max = args.max;

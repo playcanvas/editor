@@ -10,7 +10,8 @@ editor.once('load', function() {
         'rgba': 'rgb', // TEMP
         'vector': 'vec3',
         'enumeration': 'number',
-        'entity': 'entity'
+        'entity': 'entity',
+        'curve': 'curveset'
     };
 
     // index entities with script components
@@ -362,14 +363,38 @@ editor.once('load', function() {
             var field;
 
             if (scriptAttributeTypes[attribute.type] !== 'assets') {
-                field = editor.call('attributes:addField', {
+                var args = {
                     parent: parent,
                     name: attribute.displayName || attribute.name,
                     type: scriptAttributeTypes[attribute.type],
                     enum: choices,
                     link: scripts,
                     path: 'attributes.' + attribute.name + '.value'
-                });
+                };
+
+                if (attribute.type === 'curve') {
+                    // find entity of first script
+                    var firstEntity = scripts[0]._parent;
+                    while (firstEntity._parent) {
+                        firstEntity = firstEntity._parent;
+                    }
+
+                    var scriptIndex = firstEntity.getRaw('components.script.scripts').indexOf(scripts[0]);
+                    args.curves = attribute.options.curves;
+                    args.min = attribute.options.min;
+                    args.max = attribute.options.max;
+                    args.gradient = attribute.options.color;
+                    args.hideRandomize = true;
+                    args.link = firstEntity;
+                    args.path = 'components.script.scripts.' + scriptIndex + '.attributes.' + attribute.name + '.value';
+                }
+
+                field = editor.call('attributes:addField', args);
+
+                if (attribute.type === 'curve') {
+                    if (entities.length > 1)
+                        field.disabled = true;
+                }
             }
 
             if (attribute.type !== 'enumeration' && scriptAttributeTypes[attribute.type] === 'number') {

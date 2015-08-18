@@ -92,7 +92,10 @@ app.once('load', function() {
     var consoleError = console.error;
     console.error = function (msg) {
         consoleError.call(this, msg);
-        append(msg, 'error');
+        if (typeof(msg) === 'string')
+            append(msg, 'error');
+        else
+            append(msg.message, 'error');
     };
 
 });

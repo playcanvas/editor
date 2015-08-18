@@ -8,7 +8,8 @@ editor.once('load', function () {
         'rgba',
         'vector',
         'enumeration',
-        'entity'
+        'entity',
+        'curve'
     ];
 
     var REGEX_GUID = /^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$/i;
@@ -102,6 +103,85 @@ editor.once('load', function () {
             if (attribute.defaultValue && !REGEX_GUID.test(attribute.defaultValue)) {
                 throw attributeErrorMsg(url, attribute, "Value is not a valid Entity resource id");
             }
+        },
+
+        'curve': function (url, attribute) {
+            if (!attribute.options)
+                attribute.options = {};
+
+            if (attribute.options.color !== undefined) {
+                if (attribute.options.color !== true && attribute.options.color !== false) {
+                    throw attributeErrorMsg(url, attribute, "Color field must be a boolean");
+                }
+            }
+
+            if (!attribute.options.curves) {
+                attribute.options.curves = attribute.options.color ? ['R', 'G', 'B'] : ['Value'];
+            } else {
+                if (!attribute.options.curves.length) {
+                    throw attributeErrorMsg(url, attribute, "Curves option must be a non-empty string array");
+                } else if (attribute.options.color && attribute.options.curves.length !== 3) {
+                    throw attributeErrorMsg(url, attribute, "Color must have exactly 3 curves");
+                } else if (attribute.options.curves.length > 3) {
+                    throw attributeErrorMsg(url, attribute, "Curves option cannot exceed 3 elements");
+                }
+            }
+
+            if (attribute.defaultValue !== null && attribute.defaultValue !== undefined) {
+                if (typeof attribute.defaultValue !== 'object')
+                    throw attributeErrorMsg(url, attribute, "Invalid default value for curve attribute");
+
+                var validData = {
+                    type: attribute.defaultValue.type,
+                    keys: attribute.defaultValue.keys
+                };
+
+                attribute.defaultValue = validData;
+
+                if (validData.type !== undefined) {
+                    if (validData.type !== 0 && validData.type !== 1 && validData.type !== 2) {
+                        throw attributeErrorMsg(url, attribute, "Invalid type. Needs to be one of: 0, 1, 2");
+                    }
+                }
+
+                if (!validData.keys instanceof Array) {
+                    throw attributeErrorMsg(url, attribute, "Invalid keys. Needs to be an array");
+                }
+
+                if (attribute.options.curves.length > 1) {
+                    if (validData.keys.length !== 0 && validData.keys.length !== attribute.options.curves.length) {
+                        throw attributeErrorMsg(url, attribute, 'Invalid keys. Needs to be an array of ' + attribute.options.curves.length + ' arrays');
+                    } else {
+                        for (var i = 0, len = validData.keys.length; i < len; i++) {
+                            if (!validData.keys[i] instanceof Array) {
+                                throw attributeErrorMsg(url, attribute, 'Invalid keys. Needs to be an array of ' + len + ' arrays');
+                            } else {
+                                var len2 = validData.keys[i].length;
+                                if (len2 % 2 !== 0)
+                                    throw attributeErrorMsg(url, attribute, 'Invalid keys. Array must hold an even amount of numbers');
+
+                                for (var j = 0; j < len2; j++) {
+                                    if (typeof validData.keys[i][j] !== 'number')
+                                        throw attributeErrorMsg(url, attribute, 'Invalid keys. Array values must be numbers');
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                attribute.defaultValue = {
+                    type: 1,
+                    keys: []
+                };
+
+                if (attribute.options.curves.length === 1)
+                    attribute.defaultValue.keys = [0, 0];
+                else {
+                    for (var i = 0; i < attribute.options.curves.length; i++) {
+                        attribute.defaultValue.keys.push([0, 0]);
+                    }
+                }
+            }
         }
     };
 
@@ -193,7 +273,9 @@ editor.once('load', function () {
                         step: attr.options.step,
                         type: attr.options.type,
                         decimalPrecision: attr.options.decimalPrecision,
-                        enumerations: attr.options.enumerations
+                        enumerations: attr.options.enumerations,
+                        curves: attr.options.curves,
+                        color: attr.options.color
                     } : {}
                 };
             } catch (e) {
