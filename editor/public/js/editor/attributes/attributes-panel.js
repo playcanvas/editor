@@ -760,7 +760,9 @@ editor.once('load', function() {
 
                 icon.addEventListener('click', function (e) {
                     e.stopPropagation();
-                    field.text = '';
+
+                    if (editor.call('permissions:write'))
+                        field.text = '';
                 });
 
                 field.on('change', function (value) {
