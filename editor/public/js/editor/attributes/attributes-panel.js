@@ -103,6 +103,20 @@ editor.once('load', function() {
                 } else {
                     args.field.class.remove('null');
                 }
+            } else if (args.type === 'entity') {
+                for(var i = 1; i < args.link.length; i++) {
+                    if (value !== args.link[i].get(args.path)) {
+                        value = 'various';
+                        different = true;
+                        break;
+                    }
+                }
+                if (different) {
+                    args.field.class.add('null');
+                    args.field.text = 'various';
+                } else {
+                    args.field.class.remove('null');
+                }
             } else {
                 for(var i = 1; i < args.link.length; i++) {
                     var v = args.link[i].get(args.path);
@@ -771,7 +785,9 @@ editor.once('load', function() {
                         field.element.innerHTML = entity ? entity.get('name') : value;
                         field.element.appendChild(icon);
                         field.placeholder = '';
-                        field.class.remove('null');
+
+                        if (value !== 'various')
+                            field.class.remove('null');
                     } else {
                         field.element.innerHTML = 'Select Entity';
                         field.placeholder = '...';
