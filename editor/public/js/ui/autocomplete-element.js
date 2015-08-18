@@ -192,7 +192,7 @@ AutoCompleteElement.prototype.filter = function (value) {
     value = value.toLowerCase();
 
     this._childElements.forEach(function (element, i) {
-        if (value && element.innerHTML.indexOf(value) === 0) {
+        if (value && element.innerHTML.toLowerCase().indexOf(value) === 0) {
             element.classList.remove('hidden');
             this._visibleElements.push(element);
         } else {
