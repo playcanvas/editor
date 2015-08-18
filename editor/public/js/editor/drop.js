@@ -32,14 +32,14 @@ editor.once('load', function() {
     var items = [ ];
     var itemOver = null;
 
-    var activate = function(type) {
+    var activate = function(state) {
         if (! editor.call('permissions:write'))
             return;
 
-        if (active === type)
+        if (active === state)
             return;
 
-        active = type;
+        active = state;
 
         if (active) {
             overlay.classList.add('active');
@@ -52,6 +52,8 @@ editor.once('load', function() {
 
         editor.emit('drop:active', active);
     };
+
+    editor.method('drop:activate', activate);
 
 
     // prevent drop file of redirecting
@@ -235,7 +237,14 @@ editor.once('load', function() {
     });
 
 
+    editor.method('drop:set', function(type, data) {
+        currentType = type || '',
+        currentData = data || { };
+    });
+
+
     editor.on('drop:active', function(state) {
+        console.log(state);
         if (state) {
             for(var i = 0; i < items.length; i++) {
                 var visible = ! items[i].disabled;

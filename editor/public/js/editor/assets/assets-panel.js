@@ -109,14 +109,6 @@ editor.once('load', function() {
         item.class.add('type-' + asset.get('type'));
         grid.append(item);
 
-        editor.call('drop:item', {
-            element: item.element,
-            type: 'asset.' + asset.get('type'),
-            data: {
-                id: asset.get('id')
-            }
-        });
-
         assetsIndex[asset.get('id')] = item;
 
         var fileSize = asset.get('file.size');
