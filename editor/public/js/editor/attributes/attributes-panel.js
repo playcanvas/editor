@@ -745,11 +745,13 @@ editor.once('load', function() {
 
             // entity picker
             case 'entity':
-                var initial = args.link ? args.link[0].get(args.path) : null;
-
-                field = new ui.Button();
+                field = new ui.Label();
                 field.class.add('add-entity');
                 field.flexGrow = 1;
+                field.class.add('null');
+
+                field.text = 'Select Entity';
+                field.placeholder = '...';
 
                 panel.append(field);
 
@@ -758,40 +760,53 @@ editor.once('load', function() {
 
                 icon.addEventListener('click', function (e) {
                     e.stopPropagation();
-                    setValue(null);
-                    if (args.link)
-                        args.link[0].set(args.path, null);
+                    field.text = '';
                 });
 
-                var setValue = function (value) {
+                field.on('change', function (value) {
                     if (value) {
                         var entity = editor.call('entities:get', value);
-                        field.text = entity ? entity.get('name') : value;
+                        field.element.innerHTML = entity ? entity.get('name') : value;
                         field.element.appendChild(icon);
+                        field.placeholder = '';
+                        field.class.remove('null');
                     } else {
-                        field.text = 'Select Entity';
+                        field.element.innerHTML = 'Select Entity';
+                        field.placeholder = '...';
+                        field.class.add('null');
                     }
-                };
+                });
 
-                setValue(initial);
+                linkField();
 
                 field.on('click', function () {
                     var evtEntityPick = editor.once('picker:entity', function (entity) {
-                        if (entity) {
-                            setValue(entity.get('resource_id'));
-
-                            if (args.link) {
-                                args.link[0].set(args.path, entity.get('resource_id'));
-                            }
-                        } else {
-                            setValue(null);
-                        }
-
+                        field.text = entity ? entity.get('resource_id') : null;
                         evtEntityPick = null;
                     });
 
-                    initial = args.link ? args.link[0].get(args.path) : null;
-                    editor.call('picker:entity', initial);
+                    var initialValue = null;
+                    if (args.link) {
+                        if (! args.link instanceof Array) {
+                            args.link = [args.link];
+                        }
+
+                        // get initial value only if it's the same for all
+                        // links otherwise set it to null
+                        for (var i = 0, len = args.link.length; i < len; i++) {
+                            var val = args.link[i].get(args.path);
+                            if (initialValue !== val) {
+                                if (initialValue) {
+                                    initialValue = null;
+                                    break;
+                                } else {
+                                    initialValue = val;
+                                }
+                            }
+                        }
+                    }
+
+                    editor.call('picker:entity', initialValue);
 
                     editor.once('picker:entity:close', function () {
                         if (evtEntityPick) {
