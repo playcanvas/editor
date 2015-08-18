@@ -11,7 +11,7 @@ editor.once('load', function () {
         'entity'
     ];
 
-    var REGEX_GUID = /^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$/;
+    var REGEX_GUID = /^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$/i;
 
     var validators = {
         'number': function (url, attribute) {
