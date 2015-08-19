@@ -385,6 +385,7 @@ editor.once('load', function() {
                     args.max = attribute.options.max;
                     args.gradient = attribute.options.color;
                     args.hideRandomize = true;
+                    // use entity as the link for the curve so that history will work as expected
                     args.link = firstEntity;
                     args.path = 'components.script.scripts.' + scriptIndex + '.attributes.' + attribute.name + '.value';
 
