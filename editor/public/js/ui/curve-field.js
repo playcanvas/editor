@@ -27,7 +27,7 @@ function CurveField(args) {
 
     this._name = args.name;
 
-    this._gradientRendering = !!(args.gradient);
+    this.gradient = !!(args.gradient);
 }
 CurveField.prototype = Object.create(ui.Element.prototype);
 
@@ -154,7 +154,7 @@ CurveField.prototype._setValue = function (value) {
 };
 
 CurveField.prototype._render = function () {
-    if (this._gradientRendering) {
+    if (this.gradient) {
         this._renderGradient();
     } else {
         this._renderCurves();

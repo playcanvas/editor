@@ -328,6 +328,10 @@ editor.once('load', function() {
 
     // Sets value for the picker and render it
     function setValue (value, args) {
+        // sanity checks mostly for script 'curve' attributes
+        if (! value instanceof Array || value.length === 0 || value[0].keys === undefined)
+            return;
+
         suspendEvents = true;
         numCurves = value[0].keys[0].length ? value[0].keys.length : 1;
 
@@ -631,7 +635,7 @@ editor.once('load', function() {
         ctx.lineWidth = gradientCanvas.height;
 
         var keys = [];
-        for (var i = 0; i < 3; i++) {
+        for (var i = 0; i < curves.length; i++) {
             var k = curves[i].keys;
             var ka = [];
             for (var j = 0, len = k.length; j < len; j++ ) {

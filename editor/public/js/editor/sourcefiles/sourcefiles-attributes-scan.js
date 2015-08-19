@@ -113,6 +113,9 @@ editor.once('load', function () {
                 if (attribute.options.color !== true && attribute.options.color !== false) {
                     throw attributeErrorMsg(url, attribute, "Color field must be a boolean");
                 }
+
+                attribute.options.min = 0;
+                attribute.options.max = 1;
             }
 
             if (!attribute.options.curves) {

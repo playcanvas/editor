@@ -387,11 +387,46 @@ editor.once('load', function() {
                     args.hideRandomize = true;
                     args.link = firstEntity;
                     args.path = 'components.script.scripts.' + scriptIndex + '.attributes.' + attribute.name + '.value';
+
+                    // when argument options change make sure we refresh the curve pickers
+                    var evtOptionsChanged = scripts[0].on('attributes.' + attribute.name + '.options:set', function (value, oldValue) {
+                        // do this in a timeout to make sure it's done after all of the
+                        // attribute fields have been updated like the 'defaultValue' field
+                        setTimeout(function () {
+                            // argument options changed so get new options and set args
+                            var options = value;
+                            args.curves = options.curves;
+                            args.min = options.min;
+                            args.max = options.max;
+                            args.gradient = options.color;
+
+                            // reset field value which will trigger a refresh of the curve picker as well
+                            var attributeValue = scripts[0].get('attributes.' + attribute.name + '.value');
+                            if (oldValue && value.curves.length !== oldValue.curves.length) {
+                                attributeValue = scripts[0].get('attributes.' + attribute.name + '.defaultValue');
+                                scripts[0].set('attributes.' + attribute.name + '.value', attributeValue);
+                            }
+
+                            field.gradient = args.gradient;
+                            field.value = [attributeValue];
+                        });
+                    });
+                    events.push(evtOptionsChanged);
+                    var optionsChangedIdx = events.length - 1;
+
+                    // if we change the attribute type then don't listen to options changes
+                    events.push(scripts[0].on('attributes.' + attribute.name + '.type:set', function (value) {
+                        if (value !== 'curve') {
+                            evtOptionsChanged.unbind();
+                            events.splice(optionsChangedIdx, 1);
+                        }
+                    }));
                 }
 
                 field = editor.call('attributes:addField', args);
 
                 if (attribute.type === 'curve') {
+
                     if (entities.length > 1)
                         field.disabled = true;
                 }
