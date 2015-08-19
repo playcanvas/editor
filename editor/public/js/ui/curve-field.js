@@ -27,7 +27,7 @@ function CurveField(args) {
 
     this._name = args.name;
 
-    this._gradientRendering = !!(args.gradient);
+    this.gradient = !!(args.gradient);
 }
 CurveField.prototype = Object.create(ui.Element.prototype);
 
@@ -143,72 +143,6 @@ Object.defineProperty(CurveField.prototype, 'value', {
         return this._value;
     },
     set: function(value) {
-        if (this._link) {
-            var oldValues = [];
-
-            var enabled = this._link.history.enabled;
-            this._suspendEvents = true;
-            this._link.history.enabled = false;
-
-            this._paths.forEach(function (path, index) {
-                // remember old values so that we can undo later
-                oldValues.push(this._link.get(path));
-
-                this._link.set(path, value ? value[index] : null);
-            }.bind(this));
-
-            this._suspendEvents = false;
-            this._link.history.enabled = enabled;
-
-            // record undo action to handle setting all paths as one action
-            var action = {
-                name: 'entity.' + this._link.resource_id + '.components.particlesystem.' + this._name,
-                combine: this._link.history.combine,
-                undo: function () {
-                    // temporarily disable history
-                    var enabled = this._link.history.enabled;
-                    this._link.history.enabled = false;
-                    this._suspendEvents = true;
-
-                    // set old values
-                    this._paths.forEach(function (path, index) {
-                        this._link.set(path, oldValues[index]);
-                    }.bind(this));
-
-                    // re-enable history
-                    this._suspendEvents = false;
-                    this._link.history.enabled = enabled;
-
-                    this._setValue(oldValues);
-                }.bind(this),
-                redo: function () {
-                    // disable history
-                    var enabled = this._link.history.enabled;
-                    this._link.history.enabled = false;
-                    this._suspendEvents = true;
-
-                    // re-set values
-                    this._paths.forEach(function (path, index) {
-                        this._link.set(path, value ? value[index] : null);
-                    }.bind(this));
-
-                    // re-enable history
-                    this._suspendEvents = false;
-                    this._link.history.enabled = enabled;
-
-                    this._setValue(value);
-                }.bind(this)
-            };
-
-            // raise history event
-            if (action.combine) {
-                this._link.history.emit('record', 'update', action);
-            } else {
-                this._link.history.emit('record', 'add', action);
-            }
-
-        }
-
         this._setValue(value);
     }
 });
@@ -220,7 +154,7 @@ CurveField.prototype._setValue = function (value) {
 };
 
 CurveField.prototype._render = function () {
-    if (this._gradientRendering) {
+    if (this.gradient) {
         this._renderGradient();
     } else {
         this._renderCurves();
