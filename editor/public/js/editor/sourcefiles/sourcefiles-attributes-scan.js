@@ -190,7 +190,7 @@ editor.once('load', function () {
 
     var validateValue = function (url, attribute, correctType, valueIfUndefined) {
         var type = pc.type(attribute.defaultValue);
-        if (type === 'undefined') {
+        if (type === 'undefined' || type === 'null') {
             attribute.defaultValue = valueIfUndefined;
         } else if (type !== correctType) {
             throw attributeErrorMsg(url, attribute, 'Value is not of type ' + correctType);
