@@ -168,27 +168,18 @@ editor.once('load', function() {
         }
     };
 
-    var mappingMaps = [
-        'diffuse',
-        'specular',
-        'emissive',
-        'normal',
-        'metalness',
-        'gloss',
-        'opacity',
-        'height',
-        'ao',
-        'light'
-    ];
-
     // hook sync to new assets
     editor.on('assets:add', function(asset) {
         if (asset.sync)
             return;
 
         // convert material data to flat
-        if (asset.get('type') === 'material')
+        if (asset.get('type') === 'material') {
+            // store missing tilings / offset before we set default values
+            editor.call('material:rememberMissingFields', asset);
+
             asset.set('data', editor.call('material:default', asset.get('data')));
+        }
 
         asset.sync = new ObserverSync({
             item: asset,

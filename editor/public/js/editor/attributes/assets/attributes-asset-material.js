@@ -500,6 +500,19 @@ editor.once('load', function() {
         return obj;
     });
 
+    editor.method('material:rememberMissingFields', function (asset) {
+        // check missing tilings / offsets
+        mappingMaps.forEach(function (map) {
+            var path = 'data.' + map + 'MapTiling';
+            if (asset.get(path) === null)
+                missingPaths[asset.get('id') + '.' + path] = true;
+
+            path = 'data.' + map + 'MapOffset';
+            if (asset.get(path) === null)
+                missingPaths[asset.get('id') + '.' + path] = true;
+        });
+    });
+
     // Contains paths in this form: id.data.property
     // Holds material properties that are not in the db.
     // Used to set initial values for offsets and tilings
@@ -510,17 +523,6 @@ editor.once('load', function() {
         for(var i = 0; i < assets.length; i++) {
             if (assets[i].get('type') !== 'material')
                 return;
-
-            // check missing tilings / offsets
-            mappingMaps.forEach(function (map) {
-                var path = 'data.' + map + 'MapTiling';
-                if (assets[i].get(path) === null)
-                    missingPaths[assets[i].get('id') + '.' + path] = true;
-
-                path = 'data.' + map + 'MapOffset';
-                if (assets[i].get(path) === null)
-                    missingPaths[assets[i].get('id') + '.' + path] = true;
-            });
         }
 
         var app = editor.call('viewport:framework');
