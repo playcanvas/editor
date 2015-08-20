@@ -251,11 +251,11 @@ CurveField.prototype._renderGradient = function () {
     var swizzle = [0, 1, 2, 3];
     if (this.curveNames && this.curveNames.length === 1) {
         if (this.curveNames[0] === 'g') {
-            swizzle = [1, 0, 1, 1];
+            swizzle = [1, 0, 2, 3];
         } else if (this.curveNames[0] === 'b') {
-            swizzle = [1, 1, 0, 1];
+            swizzle = [2, 1, 0, 3];
         } else if (this.curveNames[0] === 'a') {
-            swizzle = [1, 1, 1, 0];
+            swizzle = [3, 1, 2, 0];
         }
     }
 

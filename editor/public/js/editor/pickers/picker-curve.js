@@ -425,7 +425,7 @@ editor.once('load', function() {
 
         // refresh toggle colors in case we are rendering single color curves
         for (var i = 0; i < curveToggles.length; i++) {
-            curveToggles[i].style.color = colors.curves[swizzle.indexOf(i)];
+            curveToggles[i].style.color = colors.curves[swizzle[i]];
         }
 
         render();
@@ -554,7 +554,7 @@ editor.once('load', function() {
     // Draws a pair of curves with their in-between filling. If the second
     // curve is null then only the first curve will be rendered
     function drawCurvePair (curve1, curve2) {
-        var colorIndex = swizzle.indexOf(curves.indexOf(curve1) % numCurves);
+        var colorIndex = swizzle[curves.indexOf(curve1) % numCurves];
 
         context.strokeStyle = colors.curves[colorIndex];
         context.fillStyle = colors.curveFilling[colorIndex];
@@ -605,7 +605,7 @@ editor.once('load', function() {
 
     // Draws the anchors for the specified curve
     function drawCurveAnchors (curve) {
-        var colorIndex = swizzle.indexOf(curves.indexOf(curve) % numCurves);
+        var colorIndex = swizzle[curves.indexOf(curve) % numCurves];
         curve.keys.forEach(function (anchor) {
             if (anchor !== hoveredAnchor && anchor !== selectedAnchor) {
                 var color = colors.anchors[colorIndex];
@@ -654,11 +654,11 @@ editor.once('load', function() {
         var result = [0, 1, 2, 3];
         if (gradient && curves.length === 1) {
             if (curveNames[0] === 'g') {
-                result = [1, 0, 1, 1];
+                result = [1, 0, 2, 3];
             } else if (curveNames[0] === 'b') {
-                result = [1, 1, 0, 1];
+                result = [2, 1, 0, 3];
             } else if (curveNames[0] === 'a') {
-                result = [1, 1, 1, 0];
+                result = [3, 1, 2, 0];
             }
         }
 
