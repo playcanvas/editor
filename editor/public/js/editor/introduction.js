@@ -290,17 +290,18 @@ editor.once('load', function() {
 
     // if never seen introduction
     editor.on('realtime:connected', function() {
-        // if (! config.self.openedEditor) {
-            if (editor.call('permissions:write')) {
-                stepNext();
-            } else {
-                editor.on('permissions:set:' + config.self.id, function () {
-                    if (stepCurrent !== -1 || ! editor.call('permissions:write') || config.self.openedEditor)
-                        return;
+        if (config.self.openedEditor)
+            return;
 
-                    stepNext();
-                });
-            }
-        // }
+        if (editor.call('permissions:write')) {
+            stepNext();
+        } else {
+            editor.on('permissions:set:' + config.self.id, function () {
+                if (stepCurrent !== -1 || ! editor.call('permissions:write') || config.self.openedEditor)
+                    return;
+
+                stepNext();
+            });
+        }
     });
 });
