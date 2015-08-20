@@ -16,6 +16,23 @@ function CurveField(args) {
     this.element.appendChild(this.canvas.element);
     this.canvas.on('resize', this._render.bind(this));
 
+    // create checkerboard pattern
+    this.checkerboardCanvas = new ui.Canvas();
+    var size = 17;
+    var halfSize = size/2;
+    this.checkerboardCanvas.width = size;
+    this.checkerboardCanvas.height = size;
+    var ctx = this.checkerboardCanvas.element.getContext('2d');
+    ctx.fillStyle = '#'
+    ctx.fillStyle = "#949a9c";
+    ctx.fillRect(0,0,halfSize,halfSize);
+    ctx.fillRect(halfSize,halfSize,halfSize,halfSize);
+    ctx.fillStyle = "#657375";
+    ctx.fillRect(halfSize,0,halfSize,halfSize);
+    ctx.fillRect(0,halfSize,halfSize,halfSize);
+
+    this.checkerboard = this.canvas.element.getContext('2d').createPattern(this.checkerboardCanvas.element, 'repeat');
+
     this._value = null;
 
     // curve field can contain multiple curves
@@ -26,6 +43,8 @@ function CurveField(args) {
     this._suspendEvents = false;
 
     this._name = args.name;
+
+    this.curveNames = args.curves;
 
     this.gradient = !!(args.gradient);
 }
@@ -169,11 +188,9 @@ CurveField.prototype._renderCurves = function () {
 
     // draw background
     context.clearRect(0, 0, canvas.width, canvas.height);
-    // context.fillStyle = '#293538';
-    // context.fillRect(0, 0, canvas.width, canvas.height);
 
-    var curveColors = ['rgb(255, 0, 0)', 'rgb(0, 255, 0)', 'rgb(133, 133, 252)'];
-    var fillColors = ['rgba(255, 0, 0, 0.5)', 'rgba(0, 255, 0, 0.5)', 'rgba(133, 133, 252, 0.5)'];
+    var curveColors = ['rgb(255, 0, 0)', 'rgb(0, 255, 0)', 'rgb(133, 133, 252)', 'rgb(255, 255, 255)'];
+    var fillColors = ['rgba(255, 0, 0, 0.5)', 'rgba(0, 255, 0, 0.5)', 'rgba(133, 133, 252, 0.5)', 'rgba(255, 255, 255, 0.5)'];
 
     var minMax = this._getMinMaxValues(value);
 
@@ -228,29 +245,44 @@ CurveField.prototype._renderGradient = function () {
     var context = canvas.ctx = canvas.cxt || canvas.getContext('2d');
     var value = this.value && this.value.length ? this.value[0] : null;
 
-    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = this.checkerboard;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    var swizzle = [0, 1, 2, 3];
+    if (this.curveNames && this.curveNames.length === 1) {
+        if (this.curveNames[0] === 'g') {
+            swizzle = [1, 0, 1, 1];
+        } else if (this.curveNames[0] === 'b') {
+            swizzle = [1, 1, 0, 1];
+        } else if (this.curveNames[0] === 'a') {
+            swizzle = [1, 1, 1, 0];
+        }
+    }
+
 
     if (value && value.keys && value.keys.length) {
         var rgb = [];
-        var color = new pc.Color();
 
-        var curve = new pc.CurveSet(value.keys);
+        var curve = this.curveNames && this.curveNames.length === 1 ? new pc.CurveSet([value.keys]) : new pc.CurveSet(value.keys);
         curve.type = value.type;
 
         var precision = 2;
 
-        context.lineWidth = canvas.height;
+        var gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
 
         for (var t = precision; t < canvas.width; t += precision) {
             curve.value(t / canvas.width, rgb);
-            color.set(rgb[0], rgb[1], rgb[2]);
 
-            context.beginPath();
-            context.moveTo(t - precision, canvas.height * 0.5);
-            context.lineTo(t, canvas.height * 0.5);
-            context.strokeStyle = color.toString();
-            context.stroke();
+            var rgba = Math.round((rgb[swizzle[0]] || 0) * 255) + ',' +
+                       Math.round((rgb[swizzle[1]] || 0) * 255) + ',' +
+                       Math.round((rgb[swizzle[2]] || 0) * 255) + ',' +
+                       (isNaN(rgb[swizzle[3]]) ? 1 : rgb[swizzle[3]]);
+
+            gradient.addColorStop(t / canvas.width, 'rgba(' + rgba + ')');
         }
+
+        context.fillStyle = gradient;
+        context.fillRect(0, 0, canvas.width, canvas.height);
 
     } else {
         // no keys in the curve so just render black color

@@ -14,6 +14,48 @@ editor.once('load', function() {
     overlay.transparent = true;
     overlay.hidden = true;
 
+    // color variables
+    var colors = {
+        bg: '#293538',
+        gridLines: '#20292b',
+        anchors: ['rgb(255, 0, 0)', 'rgb(0, 255, 0)', 'rgb(133, 133, 252)', 'rgb(255, 255, 255)'],
+        curves: ['rgb(255, 0, 0)', 'rgb(0, 255, 0)', 'rgb(133, 133, 252)', 'rgb(255, 255, 255)'],
+        curveFilling: ['rgba(255, 0, 0, 0.5)', 'rgba(0, 255, 0, 0.5)', 'rgba(133, 133, 252, 0.5)', 'rgba(255, 255, 255, 0.5)'],
+        text: 'white',
+        highlightedLine: 'yellow'
+    };
+
+    // canvas variables
+    var padding = 10;
+    var axisSpacing = 20;
+    var anchorRadius = 4;
+    var curveHoverRadius = 8;
+    var anchorHoverRadius = 8;
+    var textSize = 10;
+
+    // input related variables
+    var curves = []; // holds all the curves
+    var enabledCurves = []; // holds the rendered order of the curves
+    var numCurves; // number of pairs of curves
+    var betweenCurves = false;
+    var curveType = 1;
+    var curveNames = [];
+    var verticalValue = 5;
+    var verticalTopValue = 5;
+    var verticalBottomValue = -5;
+    var maxVertical = null;
+    var minVertical = null;
+    var hoveredAnchor = null;
+    var hoveredCurve = null;
+    var selectedAnchor = null;
+    var selectedAnchorIndex = -1;
+    var selectedCurve = null;
+    var selectedCurveIndex = -1;
+    var dragging = false;
+    var gradient = false;
+
+    var swizzle = [0, 1, 2, 3];
+
     var root = editor.call('layout.root');
     root.append(overlay);
 
@@ -148,10 +190,10 @@ editor.once('load', function() {
         toggleCurve(curves[i], enabled);
     };
 
-    var curveTogglesClasses = ['third', 'second', 'first'];
-    for (var i = 0; i < 3; i++) {
+    for (var i = 0; i < colors.curves.length; i++) {
         var btn = new ui.Button();
-        btn.class.add('picker-curve-toggle', 'active', curveTogglesClasses[i]);
+        btn.class.add('picker-curve-toggle', 'active');
+        btn.element.style.color = colors.curves[3 - i];
         curveToggles.splice(0, 0, btn);
         header.append(btn);
 
@@ -162,6 +204,19 @@ editor.once('load', function() {
     var canvas = new ui.Canvas();
     canvas.resize(panel.clientWidth, 200);
     panel.appendChild(canvas.element);
+
+    // canvas for checkerboard pattern
+    var checkerboardCanvas = new ui.Canvas();
+    checkerboardCanvas.width = 16;
+    checkerboardCanvas.height = 16;
+    var pctx = checkerboardCanvas.element.getContext('2d');
+    pctx.fillStyle = "#949a9c";
+    pctx.fillRect(0,0,8,8);
+    pctx.fillRect(8,8,8,8);
+    pctx.fillStyle = "#657375";
+    pctx.fillRect(8,0,8,8);
+    pctx.fillRect(0,8,8,8);
+    var checkerboardPattern = canvas.element.getContext('2d').createPattern(checkerboardCanvas.element, 'repeat');
 
     // gradient canvas
     var gradientCanvas = new ui.Canvas();
@@ -265,46 +320,6 @@ editor.once('load', function() {
 
     var context = canvas.element.getContext('2d');
 
-    // canvas variables
-    var padding = 10;
-    var axisSpacing = 20;
-    var anchorRadius = 4;
-    var curveHoverRadius = 8;
-    var anchorHoverRadius = 8;
-    var textSize = 10;
-
-    // color variables
-    var colors = {
-        bg: '#293538',
-        gridLines: '#20292b',
-        anchors: ['rgb(255, 0, 0)', 'rgb(0, 255, 0)', 'rgb(133, 133, 252)'],
-        curves: ['rgb(255, 0, 0)', 'rgb(0, 255, 0)', 'rgb(133, 133, 252)'],
-        curveFilling: ['rgba(255, 0, 0, 0.5)', 'rgba(0, 255, 0, 0.5)', 'rgba(133, 133, 252, 0.5)'],
-        text: 'white',
-        highlightedLine: 'white'
-    };
-
-    // input related variables
-    var curves = []; // holds all the curves
-    var enabledCurves = []; // holds the rendered order of the curves
-    var numCurves; // number of pairs of curves
-    var betweenCurves = false;
-    var curveType = 1;
-    var curveNames = [];
-    var verticalValue = 5;
-    var verticalTopValue = 5;
-    var verticalBottomValue = -5;
-    var maxVertical = null;
-    var minVertical = null;
-    var hoveredAnchor = null;
-    var hoveredCurve = null;
-    var selectedAnchor = null;
-    var selectedAnchorIndex = -1;
-    var selectedCurve = null;
-    var selectedCurveIndex = -1;
-    var dragging = false;
-    var gradient = false;
-
     function cleanup () {
         selectedCurveIndex = -1;
         selectedAnchorIndex = -1;
@@ -358,7 +373,7 @@ editor.once('load', function() {
         verticalBottomValue = args.min !== undefined ? Math.max(-verticalValue, args.min) : -verticalValue;
 
         curveNames = args.curves || [];
-        for (var i = 0; i < 3; i++) {
+        for (var i = 0; i < colors.curves.length; i++) {
             if (i < numCurves) {
                 curveToggles[i].text = curveNames[i];
                 curveToggles[i].class.remove('hidden');
@@ -403,6 +418,14 @@ editor.once('load', function() {
 
         if (shouldResetZoom()) {
             resetZoom();
+        }
+
+        // refresh swizzle
+        swizzle = getColorSwizzle();
+
+        // refresh toggle colors in case we are rendering single color curves
+        for (var i = 0; i < curveToggles.length; i++) {
+            curveToggles[i].style.color = colors.curves[swizzle.indexOf(i)];
         }
 
         render();
@@ -531,7 +554,7 @@ editor.once('load', function() {
     // Draws a pair of curves with their in-between filling. If the second
     // curve is null then only the first curve will be rendered
     function drawCurvePair (curve1, curve2) {
-        var colorIndex = curves.indexOf(curve1) % numCurves;
+        var colorIndex = swizzle.indexOf(curves.indexOf(curve1) % numCurves);
 
         context.strokeStyle = colors.curves[colorIndex];
         context.fillStyle = colors.curveFilling[colorIndex];
@@ -582,7 +605,7 @@ editor.once('load', function() {
 
     // Draws the anchors for the specified curve
     function drawCurveAnchors (curve) {
-        var colorIndex = curves.indexOf(curve) % numCurves;
+        var colorIndex = swizzle.indexOf(curves.indexOf(curve) % numCurves);
         curve.keys.forEach(function (anchor) {
             if (anchor !== hoveredAnchor && anchor !== selectedAnchor) {
                 var color = colors.anchors[colorIndex];
@@ -624,15 +647,30 @@ editor.once('load', function() {
         }
     }
 
+    // if we only have one curve then
+    // use 'swizzle' - an array of indexes
+    // that remaps other arrays to different colors
+    var getColorSwizzle = function () {
+        var result = [0, 1, 2, 3];
+        if (gradient && curves.length === 1) {
+            if (curveNames[0] === 'g') {
+                result = [1, 0, 1, 1];
+            } else if (curveNames[0] === 'b') {
+                result = [1, 1, 0, 1];
+            } else if (curveNames[0] === 'a') {
+                result = [1, 1, 1, 0];
+            }
+        }
+
+        return result;
+    };
+
     // Draws color gradient for a set of curves
     function renderColorGradient () {
         var ctx = gradientCanvas.element.getContext('2d');
         var t;
         var rgb = [];
-        var precision = 1;
-        var color = new pc.Color();
-
-        ctx.lineWidth = gradientCanvas.height;
+        var precision = 2;
 
         var keys = [];
         for (var i = 0; i < curves.length; i++) {
@@ -647,16 +685,24 @@ editor.once('load', function() {
         var curveset = new pc.CurveSet(keys);
         curveset.type = curveType;
 
-        for (t = precision; t < gradientCanvas.width; t += precision) {
-            curveset.value(t / gradientCanvas.width, rgb);
-            color.set(rgb[0], rgb[1], rgb[2]);
+        ctx.fillStyle = checkerboardPattern;
+        ctx.fillRect(0, 0, gradientCanvas.width, gradientCanvas.height);
 
-            ctx.beginPath();
-            ctx.moveTo(t - precision, gradientCanvas.height * 0.5);
-            ctx.lineTo(t, gradientCanvas.height * 0.5);
-            ctx.strokeStyle = color.toString();
-            ctx.stroke();
+        var gradient = ctx.createLinearGradient(0, 0, gradientCanvas.width, gradientCanvas.height);
+
+        for (t = 0; t <= gradientCanvas.width; t += precision) {
+
+            curveset.value(t / gradientCanvas.width, rgb);
+            var rgba = Math.round((rgb[swizzle[0]] || 0) * 255) + ',' +
+                       Math.round((rgb[swizzle[1]] || 0) * 255) + ',' +
+                       Math.round((rgb[swizzle[2]] || 0) * 255) + ',' +
+                       (isNaN(rgb[swizzle[3]]) ? 1 : rgb[swizzle[3]]);
+
+            gradient.addColorStop(t / gradientCanvas.width, 'rgba(' + rgba + ')');
         }
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, gradientCanvas.width, gradientCanvas.height);
     }
 
     // Calculate the anchor value based on the specified coordinates
