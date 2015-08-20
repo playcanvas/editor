@@ -663,7 +663,7 @@ editor.once('load', function() {
                             if (src.startsWith('data:image/png;base64')) {
                                 field.image = asset.get('thumbnails.m');
                             } else {
-                                field.image = config.url.home + asset.get('thumbnails.m');
+                                field.image = config.url.home + asset.get('thumbnails.m') + '?t=' + asset.get('file.hash');
                             }
                         } else {
                             field.image = '/editor/scene/img/asset-placeholder-' + asset.get('type') + '.png';
@@ -696,7 +696,7 @@ editor.once('load', function() {
                     if (! asset)
                         return field.image = config.url.home + '/editor/scene/img/asset-placeholder-texture.png';
 
-                    evtThumbnailChange = asset.on('thumbnails.m:set', updateThumbnail);
+                    evtThumbnailChange = asset.on('file.hash.m:set', updateThumbnail);
                     updateThumbnail();
 
                     fieldTitle.text = asset.get('name');

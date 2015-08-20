@@ -197,7 +197,9 @@ editor.once('load', function() {
         var setting = false;
 
         asset.on('*:set', function (path, value) {
-            if (setting || ! value || ! path.startsWith('file')) return;
+            if (setting || (! (path.startsWith('file') && value) && ! (path === 'has_thumbnail' && value && asset.get('file.url'))))
+                return;
+
             setting = true;
 
             // reset file url

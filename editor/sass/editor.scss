@@ -2229,6 +2229,23 @@ strong {
             }
         }
     }
+    &.arrow-bottom-right {
+        > .content {
+            margin-top: -16px;
+            margin-left: -308px;
+
+            &:after {
+                content: '';
+                width: 0;
+                height: 0;
+                position: absolute;
+                bottom: -32px;
+                right: 16px;
+                border: 16px solid transparent;
+                border-top-color: $bcg-darkest;
+            }
+        }
+    }
     > .overlay {
         background-color: transparent;
     }
