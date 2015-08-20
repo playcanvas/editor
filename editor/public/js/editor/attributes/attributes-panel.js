@@ -1040,7 +1040,7 @@ editor.once('load', function() {
             type: 'asset.' + type,
             filter: function(type, data) {
                 // type
-                if (assetType && assetType !== '*' && type !== 'asset.' + assetType)
+                if ((assetType && assetType !== '*' && type !== 'asset.' + assetType) || type !== 'asset')
                     return false;
 
                 // overflowed
@@ -1059,7 +1059,7 @@ editor.once('load', function() {
                 return false;
             },
             drop: function(type, data) {
-                if (assetType && assetType !== '*' && type !== 'asset.' + assetType)
+                if ((assetType && assetType !== '*' && type !== 'asset.' + assetType) || type !== 'asset')
                     return;
 
                 var records = [ ];
