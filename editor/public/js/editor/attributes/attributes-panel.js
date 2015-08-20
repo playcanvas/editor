@@ -906,11 +906,13 @@ editor.once('load', function() {
                 field.flexGrow = 1;
                 field.text = args.text || '';
 
-                if (args.value)
-                    field.value = args.value;
+                if (args.link) {
+                    var link = args.link;
+                    if (args.link instanceof Array)
+                        link = args.link[0];
 
-                if (args.link)
-                    field.link(args.link, args.paths || [args.path]);
+                    field.link(link, args.paths || [args.path]);
+                }
 
                 var curvePickerOn = false;
 
@@ -934,8 +936,10 @@ editor.once('load', function() {
                         var evtPickerChanged = editor.on('picker:curve:change', function (path, value) {
                             var combine;
                             if (field._link) {
-                                combine = field._link.history.combine;
-                                field._link.history.combine = !first;
+                                if (field._link.history) {
+                                    combine = field._link.history.combine;
+                                    field._link.history.combine = !first;
+                                }
 
                                 if (args.paths) {
                                     path = args.paths[parseInt(path[0])] + path.substring(1);
@@ -945,7 +949,8 @@ editor.once('load', function() {
 
                                 field._link.set(path, value);
 
-                                field._link.history.combine = combine;
+                                if (field._link.history)
+                                    field._link.history.combine = combine;
 
                                 // set second graph keys to be the same as the first
                                 // if betweenCurves if false
@@ -953,10 +958,17 @@ editor.once('load', function() {
                                     if (path.indexOf(args.paths[0]) === 0) {
                                         if ((path.indexOf('.keys') !== -1 || path.indexOf('betweenCurves') !== -1)) {
                                             if (! field._link.get(args.paths[0] + '.betweenCurves')) {
-                                                var history = field._link.history.enabled;
-                                                field._link.history.enabled = false;
+                                                var history;
+                                                if (field._link.history) {
+                                                    history = field._link.history.enabled;
+                                                    field._link.history.enabled = false;
+                                                }
+
                                                 field._link.set(args.paths[1] + '.keys', field._link.get(args.paths[0] + '.keys'));
-                                                field._link.history.enabled = history;
+
+                                                if (field._link.history) {
+                                                    field._link.history.enabled = history;
+                                                }
                                             }
                                         }
                                     }

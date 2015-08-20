@@ -10,7 +10,8 @@ editor.once('load', function() {
         'rgba': 'rgb', // TEMP
         'vector': 'vec3',
         'enumeration': 'number',
-        'entity': 'entity'
+        'entity': 'entity',
+        'curve': 'curveset'
     };
 
     // index entities with script components
@@ -362,14 +363,74 @@ editor.once('load', function() {
             var field;
 
             if (scriptAttributeTypes[attribute.type] !== 'assets') {
-                field = editor.call('attributes:addField', {
+                var args = {
                     parent: parent,
                     name: attribute.displayName || attribute.name,
                     type: scriptAttributeTypes[attribute.type],
                     enum: choices,
                     link: scripts,
                     path: 'attributes.' + attribute.name + '.value'
-                });
+                };
+
+                if (attribute.type === 'curve') {
+                    // find entity of first script
+                    var firstEntity = scripts[0]._parent;
+                    while (firstEntity._parent) {
+                        firstEntity = firstEntity._parent;
+                    }
+
+                    var scriptIndex = firstEntity.getRaw('components.script.scripts').indexOf(scripts[0]);
+                    args.curves = attribute.options.curves;
+                    args.min = attribute.options.min;
+                    args.max = attribute.options.max;
+                    args.gradient = attribute.options.color;
+                    args.hideRandomize = true;
+                    // use entity as the link for the curve so that history will work as expected
+                    args.link = firstEntity;
+                    args.path = 'components.script.scripts.' + scriptIndex + '.attributes.' + attribute.name + '.value';
+
+                    // when argument options change make sure we refresh the curve pickers
+                    var evtOptionsChanged = scripts[0].on('attributes.' + attribute.name + '.options:set', function (value, oldValue) {
+                        // do this in a timeout to make sure it's done after all of the
+                        // attribute fields have been updated like the 'defaultValue' field
+                        setTimeout(function () {
+                            // argument options changed so get new options and set args
+                            var options = value;
+                            args.curves = options.curves;
+                            args.min = options.min;
+                            args.max = options.max;
+                            args.gradient = options.color;
+
+                            // reset field value which will trigger a refresh of the curve picker as well
+                            var attributeValue = scripts[0].get('attributes.' + attribute.name + '.value');
+                            if (oldValue && value.curves.length !== oldValue.curves.length) {
+                                attributeValue = scripts[0].get('attributes.' + attribute.name + '.defaultValue');
+                                scripts[0].set('attributes.' + attribute.name + '.value', attributeValue);
+                            }
+
+                            field.gradient = args.gradient;
+                            field.value = [attributeValue];
+                        });
+                    });
+                    events.push(evtOptionsChanged);
+                    var optionsChangedIdx = events.length - 1;
+
+                    // if we change the attribute type then don't listen to options changes
+                    events.push(scripts[0].on('attributes.' + attribute.name + '.type:set', function (value) {
+                        if (value !== 'curve') {
+                            evtOptionsChanged.unbind();
+                            events.splice(optionsChangedIdx, 1);
+                        }
+                    }));
+                }
+
+                field = editor.call('attributes:addField', args);
+
+                if (attribute.type === 'curve') {
+
+                    if (entities.length > 1)
+                        field.disabled = true;
+                }
             }
 
             if (attribute.type !== 'enumeration' && scriptAttributeTypes[attribute.type] === 'number') {
