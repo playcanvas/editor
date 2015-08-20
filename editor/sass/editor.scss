@@ -2645,7 +2645,6 @@ strong {
         border: 1px solid #000;
         width: 470px;
         background-color: transparent;
-        white-space: nowrap;
         transition: none;
 
         > .picker-curve-panel {
@@ -2692,6 +2691,7 @@ strong {
                 .ui-button {
                     float: right;
                     font-size: 11px;
+                    line-height: 22px;
                 }
             }
         }
