@@ -71,7 +71,25 @@ editor.once('load', function() {
 
         dragScroll = 0;
         window.addEventListener('mousemove', dragEvt, false);
+
+        var resourceId = hierarchy._dragItems[0].entity.get('resource_id');
+        editor.call('drop:set', 'entity', { resource_id: resourceId });
+        editor.call('drop:activate', true);
     });
+
+    hierarchy.on('dragend', function() {
+        editor.call('drop:activate', false);
+        editor.call('drop:set');
+    });
+
+
+    var target = editor.call('drop:target', {
+        ref: hierarchy.innerElement,
+        type: 'entity',
+        hole: true,
+        passThrough: true
+    });
+    target.element.style.outline = 'none';
 
 
     // reparenting

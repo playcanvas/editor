@@ -699,7 +699,7 @@ editor.once('load', function() {
                     evtThumbnailChange = asset.on('thumbnails.m:set', updateThumbnail);
                     updateThumbnail();
 
-                    fieldTitle.text = asset.get('file.filename') || asset.get('name');
+                    fieldTitle.text = asset.get('name');
                 };
                 field.on('change', updateField);
 
@@ -834,8 +834,33 @@ editor.once('load', function() {
                     });
                 });
 
-                break;
+                var dropRef = editor.call('drop:target', {
+                    ref: field.element,
+                    filter: function(type, data) {
+                        var rectA = root.innerElement.getBoundingClientRect();
+                        var rectB = field.element.getBoundingClientRect();
+                        return type === 'entity' && data.resource_id !== field.value && rectB.top > rectA.top && rectB.bottom < rectA.bottom;
+                    },
+                    drop: function(type, data) {
+                        if (type !== 'entity')
+                            return;
 
+                        field.value = data.resource_id;
+                    },
+                    over: function(type, data) {
+                        if (args.over)
+                            args.over(type, data);
+                    },
+                    leave: function() {
+                        if (args.leave)
+                            args.leave();
+                    }
+                });
+                field.on('destroy', function() {
+                    dropRef.unregister();
+                });
+
+                break;
             case 'image':
                 panel.flex = false;
 

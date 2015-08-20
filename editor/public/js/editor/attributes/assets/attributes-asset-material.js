@@ -625,7 +625,9 @@ editor.once('load', function() {
 
                     var attachTexture = function(ind) {
                         var engineAsset = app.assets.get(parseInt(assets[ind].get('id'), 10));
-                        if (engineAsset) {
+                        app.assets.load(engineAsset);
+
+                        if (engineAsset && engineAsset.resource) {
                             valueOld[ind] = engineAsset.resource[path];
 
                             if (texture.resource) {
@@ -659,7 +661,9 @@ editor.once('load', function() {
 
                     for(var i = 0; i < assets.length; i++) {
                         var engineAsset = app.assets.get(parseInt(assets[i].get('id'), 10));
-                        if (engineAsset) {
+                        app.assets.load(engineAsset);
+
+                        if (engineAsset && engineAsset.resource) {
                             engineAsset.resource[path] = valueOld[i];
                             engineAsset.resource.update();
                         }
