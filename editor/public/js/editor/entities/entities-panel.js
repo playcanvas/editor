@@ -77,81 +77,19 @@ editor.once('load', function() {
         editor.call('drop:activate', true);
     });
 
-    hierarchy.on('dragout', function() {
-        console.log('dragout');
-        var resourceId = hierarchy._dragItems[0].entity.get('resource_id');
-        editor.call('drop:set', 'entity', { resource_id: resourceId });
-        editor.call('drop:activate', true);
-    });
-
-    hierarchy.on('dragin', function() {
-        console.log('dragin');
+    hierarchy.on('dragend', function() {
         editor.call('drop:activate', false);
         editor.call('drop:set');
     });
 
-    hierarchy.on('dragend', function() {
-        console.log('dragend');
-        // editor.call('drop:activate', false);
-        // editor.call('drop:set');
-    });
 
-
-    editor.call('drop:target', {
+    var target = editor.call('drop:target', {
         ref: hierarchy.innerElement,
         type: 'entity',
         hole: true,
-        drop: function(type, data) {
-            // if (evtPickHover)
-            //     evtPickHover.unbind();
-
-            // if (! hoverEntity || ! hoverEntity.model)
-            //     return;
-
-            // var entity = editor.call('entities:get', hoverEntity.getGuid());
-            // if (! entity)
-            //     return;
-
-            // if (entity.get('components.model.type') === 'asset') {
-            //     // model asset
-            //     var ind = hoverEntity.model.model.meshInstances.indexOf(hoverMeshInstance);
-            //     if (ind === -1)
-            //         return;
-
-            //     var asset = editor.call('assets:get', entity.get('components.model.asset'));
-            //     if (! asset)
-            //         return;
-
-            //     if (asset.has('data.mapping.' + ind + '.material'))
-            //         asset.set('data.mapping.' + ind + '.material', hoverMaterial.id);
-            // } else {
-            //     // primitive model
-            //     entity.set('components.model.materialAsset', hoverMaterial.id);
-            // }
-        },
-        over: function(type, data) {
-            editor.call('drop:activate', false);
-            editor.call('drop:set');
-            console.log("drop:target OVER");
-            // hoverMaterial = app.assets.get(parseInt(data.id, 10));
-            // if (! hoverMaterial)
-            //     return;
-
-            // app.assets.load(hoverMaterial);
-
-            // hoverAsset = null;
-            // hoverEntity = null;
-            // hoverMeshInstance = null;
-
-            // evtPickHover = editor.on('viewport:pick:hover', onPickHover);
-        },
-        leave: function() {
-            // evtPickHover.unbind();
-            // evtPickHover = null;
-
-            // onLeave();
-        }
+        passThrough: true
     });
+    target.element.style.outline = 'none';
 
 
     // reparenting
