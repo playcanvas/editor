@@ -118,7 +118,7 @@ editor.once('load', function() {
 
         itemOver = this;
 
-        if (this._ref && this._ref.over) {
+        if (this._ref && this._ref.over && currentType) {
             var data = currentData;
             if (currentType == 'files' && e.dataTransfer)
                 data = e.dataTransfer.files;
@@ -129,7 +129,7 @@ editor.once('load', function() {
         if (e) e.preventDefault();
         this.classList.remove('over');
 
-        if (this._ref && this._ref.leave)
+        if (this._ref && this._ref.leave && currentType)
             this._ref.leave();
 
         if (itemOver === this)
@@ -179,7 +179,7 @@ editor.once('load', function() {
 
             // leave event
             if (obj.element.classList.contains('over')) {
-                if (obj.leave) obj.leave();
+                if (obj.leave && currentType) obj.leave();
                 obj.element.classList.remove('over');
             }
 
