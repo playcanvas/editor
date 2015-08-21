@@ -284,8 +284,6 @@ editor.once('load', function() {
                 }
             }
 
-            console.log(toDestroy);
-
             var i = toDestroy.length;
             while(i--) {
                 toDestroy[i].destroy();
@@ -410,7 +408,6 @@ editor.once('load', function() {
 
                     // when argument options change make sure we refresh the curve pickers
                     var evtOptionsChanged = scripts[0].on('attributes.' + attribute.name + '.options:set', function (value, oldValue) {
-                        console.log('options changed');
                         // do this in a timeout to make sure it's done after all of the
                         // attribute fields have been updated like the 'defaultValue' field
                         setTimeout(function () {
