@@ -1,5 +1,20 @@
 editor.once('load', function () {
-    var VALID_TYPES = ['number', 'string', 'boolean', 'asset', 'rgb', 'rgba', 'vector', 'enumeration'];
+    var VALID_TYPES = [
+        'number',
+        'string',
+        'boolean',
+        'asset',
+        'rgb',
+        'rgba',
+        'vector',
+        'enumeration',
+        'entity',
+        'curve',
+        'colorcurve'
+    ];
+
+    var REGEX_GUID = /^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$/i;
+    var REGEX_COLOR_CURVE = /^((r((gba?)?))|g|b|a)$/; // r or g or b or rgb or rgba
 
     var validators = {
         'number': function (url, attribute) {
@@ -82,12 +97,180 @@ editor.once('load', function () {
             } else {
                 throw attributeErrorMsg(url, attribute, "Missing enumerations from attribute options");
             }
+        },
+
+        'entity': function (url, attribute) {
+            validateValue(url, attribute, 'string', null);
+
+            if (attribute.defaultValue && !REGEX_GUID.test(attribute.defaultValue)) {
+                throw attributeErrorMsg(url, attribute, "Value is not a valid Entity resource id");
+            }
+        },
+
+        'curve': function (url, attribute) {
+            if (!attribute.options)
+                attribute.options = {};
+
+            if (!attribute.options.curves) {
+                attribute.options.curves = ['Value'];
+            } else {
+                if (!attribute.options.curves.length) {
+                    throw attributeErrorMsg(url, attribute, "Curves option must be a non-empty string array");
+                } else if (attribute.options.curves.length > 4) {
+                    throw attributeErrorMsg(url, attribute, "Curves option cannot exceed 4 elements");
+                }
+            }
+
+            if (attribute.defaultValue !== null && attribute.defaultValue !== undefined) {
+                if (typeof attribute.defaultValue !== 'object')
+                    throw attributeErrorMsg(url, attribute, "Invalid default value for curve attribute");
+
+                var validData = {
+                    type: attribute.defaultValue.type,
+                    keys: attribute.defaultValue.keys
+                };
+
+                attribute.defaultValue = validData;
+
+                if (validData.type !== undefined) {
+                    if (validData.type !== 0 && validData.type !== 1 && validData.type !== 2) {
+                        throw attributeErrorMsg(url, attribute, "Invalid type. Needs to be one of: 0, 1, 2");
+                    }
+                }
+
+                if (!validData.keys instanceof Array) {
+                    throw attributeErrorMsg(url, attribute, "Invalid keys. Needs to be an array");
+                }
+
+                if (attribute.options.curves.length > 1) {
+                    if (validData.keys.length !== 0 && validData.keys.length !== attribute.options.curves.length) {
+                        throw attributeErrorMsg(url, attribute, 'Invalid keys. Needs to be an array of ' + attribute.options.curves.length + ' arrays');
+                    } else {
+                        for (var i = 0, len = validData.keys.length; i < len; i++) {
+                            if (!validData.keys[i] instanceof Array) {
+                                throw attributeErrorMsg(url, attribute, 'Invalid keys. Needs to be an array of ' + len + ' arrays');
+                            } else {
+                                var len2 = validData.keys[i].length;
+                                if (len2 % 2 !== 0)
+                                    throw attributeErrorMsg(url, attribute, 'Invalid keys. Array must hold an even amount of numbers');
+
+                                for (var j = 0; j < len2; j++) {
+                                    if (typeof validData.keys[i][j] !== 'number')
+                                        throw attributeErrorMsg(url, attribute, 'Invalid keys. Array values must be numbers');
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if (attribute.options.curves.length === 1) {
+                        if (validData.keys.length % 2 !== 0)
+                            throw attributeErrorMsg(url, attribute, 'Invalid keys. Array must hold an even amount of numbers');
+
+                        for (var i = 0, len = validData.keys.length; i < len; i++) {
+                            if (typeof validData.keys[i] !== 'number')
+                                throw attributeErrorMsg(url, attribute, 'Invalid keys. Array values must be numbers');
+                        }
+                    }
+                }
+            } else {
+                attribute.defaultValue = {
+                    type: 1,
+                    keys: []
+                };
+
+                if (attribute.options.curves.length === 1)
+                    attribute.defaultValue.keys = [0, 0];
+                else {
+                    for (var i = 0; i < attribute.options.curves.length; i++) {
+                        attribute.defaultValue.keys.push([0, 0]);
+                    }
+                }
+            }
+        },
+
+        'colorcurve': function (url, attribute) {
+            if (!attribute.options)
+                attribute.options = {};
+
+            if (!attribute.options.type) {
+                attribute.options.type = 'rgb';
+            } else {
+                if (!REGEX_COLOR_CURVE.test(attribute.options.type)) {
+                    throw attributeErrorMsg(url, attribute, "Color curve type can be one of 'r', 'g', 'b', 'a', 'rgb', 'rgba'");
+                }
+            }
+
+            if (attribute.defaultValue !== null && attribute.defaultValue !== undefined) {
+                if (typeof attribute.defaultValue !== 'object')
+                    throw attributeErrorMsg(url, attribute, "Invalid default value for curve attribute");
+
+                var validData = {
+                    type: attribute.defaultValue.type,
+                    keys: attribute.defaultValue.keys
+                };
+
+                attribute.defaultValue = validData;
+
+                if (validData.type !== undefined) {
+                    if (validData.type !== 0 && validData.type !== 1 && validData.type !== 2) {
+                        throw attributeErrorMsg(url, attribute, "Invalid type. Needs to be one of: 0, 1, 2");
+                    }
+                }
+
+                if (!validData.keys instanceof Array) {
+                    throw attributeErrorMsg(url, attribute, "Invalid keys. Needs to be an array");
+                }
+
+                if (attribute.options.type.length > 1) {
+                    if (validData.keys.length !== 0 && validData.keys.length !== attribute.options.type.length) {
+                        throw attributeErrorMsg(url, attribute, 'Invalid keys. Needs to be an array of ' + attribute.options.type.length + ' arrays');
+                    } else {
+                        for (var i = 0, len = validData.keys.length; i < len; i++) {
+                            if (!validData.keys[i] instanceof Array) {
+                                throw attributeErrorMsg(url, attribute, 'Invalid keys. Needs to be an array of ' + len + ' arrays');
+                            } else {
+                                var len2 = validData.keys[i].length;
+                                if (len2 % 2 !== 0)
+                                    throw attributeErrorMsg(url, attribute, 'Invalid keys. Array must hold an even amount of numbers');
+
+                                for (var j = 0; j < len2; j++) {
+                                    if (typeof validData.keys[i][j] !== 'number')
+                                        throw attributeErrorMsg(url, attribute, 'Invalid keys. Array values must be numbers');
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if (attribute.options.type.length === 1) {
+                        if (validData.keys.length % 2 !== 0)
+                            throw attributeErrorMsg(url, attribute, 'Invalid keys. Array must hold an even amount of numbers');
+
+                        for (var i = 0, len = validData.keys.length; i < len; i++) {
+                            if (typeof validData.keys[i] !== 'number')
+                                throw attributeErrorMsg(url, attribute, 'Invalid keys. Array values must be numbers');
+                        }
+                    }
+                }
+            } else {
+                attribute.defaultValue = {
+                    type: 1,
+                    keys: []
+                };
+
+                if (attribute.options.type.length === 1)
+                    attribute.defaultValue.keys = [0, 0];
+                else {
+                    for (var i = 0; i < attribute.options.type.length; i++) {
+                        attribute.defaultValue.keys.push([0, 0]);
+                    }
+                }
+            }
         }
     };
 
     var validateValue = function (url, attribute, correctType, valueIfUndefined) {
         var type = pc.type(attribute.defaultValue);
-        if (type === 'undefined') {
+        if (type === 'undefined' || type === 'null') {
             attribute.defaultValue = valueIfUndefined;
         } else if (type !== correctType) {
             throw attributeErrorMsg(url, attribute, 'Value is not of type ' + correctType);
@@ -173,7 +356,9 @@ editor.once('load', function () {
                         step: attr.options.step,
                         type: attr.options.type,
                         decimalPrecision: attr.options.decimalPrecision,
-                        enumerations: attr.options.enumerations
+                        enumerations: attr.options.enumerations,
+                        curves: attr.options.curves,
+                        color: attr.options.color
                     } : {}
                 };
             } catch (e) {

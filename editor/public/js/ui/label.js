@@ -51,6 +51,16 @@ Object.defineProperty(Label.prototype, 'text', {
     }
 });
 
+Object.defineProperty(Label.prototype, 'value', {
+    get: function () {
+        return this.text;
+    },
+
+    set: function (value) {
+        this.text = value;
+    }
+});
+
 Object.defineProperty(Label.prototype, 'placeholder', {
     get: function() {
         return this.element.getAttribute('placeholder');

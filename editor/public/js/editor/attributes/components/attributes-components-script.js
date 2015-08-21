@@ -9,7 +9,10 @@ editor.once('load', function() {
         'rgb': 'rgb',
         'rgba': 'rgb', // TEMP
         'vector': 'vec3',
-        'enumeration': 'number'
+        'enumeration': 'number',
+        'entity': 'entity',
+        'curve': 'curveset',
+        'colorcurve': 'curveset'
     };
 
     // index entities with script components
@@ -271,14 +274,17 @@ editor.once('load', function() {
             for(var i = 0; i < children.length; i++) {
                 var attribute = children[i].ui.attribute;
                 var attributeType = children[i].ui.attributeType;
+                var attributeUiType = children[i].ui.attributeUiType;
 
-                if (attributes.indexOf(attribute) === -1 || attributeType !== scriptAttributeTypes[script.get('attributes.' + attribute + '.type')]) {
+                if (attributes.indexOf(attribute) === -1 || attributeUiType !== script.get('attributes.' + attribute + '.type')) {
                     toDestroy.push(children[i].ui);
                 } else {
                     list.push(attribute);
                     index[attribute] = children[i].ui;
                 }
             }
+
+            console.log(toDestroy);
 
             var i = toDestroy.length;
             while(i--) {
@@ -361,14 +367,90 @@ editor.once('load', function() {
             var field;
 
             if (scriptAttributeTypes[attribute.type] !== 'assets') {
-                field = editor.call('attributes:addField', {
+                var args = {
                     parent: parent,
                     name: attribute.displayName || attribute.name,
                     type: scriptAttributeTypes[attribute.type],
                     enum: choices,
                     link: scripts,
                     path: 'attributes.' + attribute.name + '.value'
-                });
+                };
+
+                if (attribute.type === 'curve' || attribute.type === 'colorcurve') {
+                    // find entity of first script
+                    var firstEntity = scripts[0]._parent;
+                    while (firstEntity._parent) {
+                        firstEntity = firstEntity._parent;
+                    }
+
+                    var scriptIndex = firstEntity.getRaw('components.script.scripts').indexOf(scripts[0]);
+
+                    var setCurvePickerArgs = function (options) {
+                        if (attribute.type === 'curve') {
+                            args.curves = options.curves;
+                            args.min = options.min;
+                            args.max = options.max;
+                            args.gradient = false;
+                        } else {
+                            args.curves = options.type.split('');
+                            args.min = 0;
+                            args.max = 1;
+                            args.gradient = true;
+                        }
+                    };
+
+                    setCurvePickerArgs(attribute.options);
+
+                    // use entity as the link for the curve so that history will work as expected
+                    args.link = firstEntity;
+                    args.path = 'components.script.scripts.' + scriptIndex + '.attributes.' + attribute.name + '.value';
+                    args.hideRandomize = true;
+
+                    var curveType = attribute.type;
+
+                    // when argument options change make sure we refresh the curve pickers
+                    var evtOptionsChanged = scripts[0].on('attributes.' + attribute.name + '.options:set', function (value, oldValue) {
+                        console.log('options changed');
+                        // do this in a timeout to make sure it's done after all of the
+                        // attribute fields have been updated like the 'defaultValue' field
+                        setTimeout(function () {
+                            // argument options changed so get new options and set args
+                            var options = value;
+
+                            var prevNumCurves = args.curves.length;
+
+                            setCurvePickerArgs(options);
+
+                            // reset field value which will trigger a refresh of the curve picker as well
+                            var attributeValue = scripts[0].get('attributes.' + attribute.name + '.value');
+                            if (prevNumCurves !== args.curves.length) {
+                                attributeValue = scripts[0].get('attributes.' + attribute.name + '.defaultValue');
+                                scripts[0].set('attributes.' + attribute.name + '.value', attributeValue);
+                            }
+
+                            field.curveNames = args.curves;
+                            field.value = [attributeValue];
+                        });
+                    });
+                    events.push(evtOptionsChanged);
+
+                    // if we change the attribute type then don't listen to options changes
+                    var evtTypeChanged = scripts[0].on('attributes.' + attribute.name + '.type:set', function (value) {
+                        if (value !== curveType) {
+                            evtOptionsChanged.unbind();
+                            evtTypeChanged.unbind();
+                        }
+                    });
+
+                    events.push(evtTypeChanged);
+                }
+
+                field = editor.call('attributes:addField', args);
+
+                if (attribute.type === 'curve' || attribute.type === 'colorcurve') {
+                    if (entities.length > 1)
+                        field.disabled = true;
+                }
             }
 
             if (attribute.type !== 'enumeration' && scriptAttributeTypes[attribute.type] === 'number') {
@@ -447,7 +529,8 @@ editor.once('load', function() {
             }));
 
             fieldParent.attribute = attribute.name;
-            fieldParent.attributeType = scriptAttributeTypes[attribute.type];
+            fieldParent.attributeUiType = scriptAttributeTypes[attribute.type];
+            fieldParent.attributeType = attribute.type;
 
             return fieldParent;
         };

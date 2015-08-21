@@ -474,6 +474,7 @@ strong {
         border: none;
         background-color: rgba($text-active, .4);
         transition: background-color 100ms;
+        pointer-events: all;
 
         &.hole {
             outline: 2px solid $text-active;
@@ -813,7 +814,7 @@ strong {
                         margin: 3px;
                         padding: 0 28px 0 8px;
                         overflow: hidden;
-                        text-overflow: ellipsis;
+                        text-overflow: clip;
                         font-family: inconsolatamedium;
                         font-size: 12px;
                         background-color: $bcg-dark;
@@ -829,6 +830,8 @@ strong {
                         &:after {
                             font-size: 24px;
                             line-height: 14px;
+                            height: 22px;
+                            background-color: $bcg-dark;
                         }
                     }
                 }
@@ -852,6 +855,61 @@ strong {
                     }
                 }
             }
+        }
+
+       .add-entity {
+            position: relative;
+            font-size: 12px;
+            font-family: inconsolatamedium;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            padding-right: 20px;
+            padding-left: 8px;
+            height: 22px;
+            line-height: 22px;
+            background-color: $bcg-dark;
+
+            &[placeholder] {
+                &:after {
+                    font-size: 24px;
+                    line-height: 14px;
+                }
+            }
+
+            &.null {
+                color: $text-darkest;
+            }
+
+            &:hover {
+                cursor: pointer;
+                background-color: $bcg-darkest;
+                color: $text-primary;
+            }
+
+            > .icon {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 22px;
+                height: 22px;
+                line-height: 20px;
+                margin: 0;
+                padding: 0;
+                border: none;
+                @extend .font-icon;
+                font-size: 16px;
+                text-align: center;
+
+                &:hover {
+                    color: $text-active;
+                }
+
+                &:after {
+                    content: '\E436';
+                }
+            }
+
         }
     }
     .ui-list {
@@ -1600,18 +1658,18 @@ strong {
         }
         > .label {
             @extend .font-regular;
-
             position: absolute;
             right: 0;
             left: 0;
-            bottom: 8px;
+            bottom: 4px;
             width: auto;
             max-width: 100px;
+            max-height: 40px;
+            word-break: break-all;
             line-height: 14px;
             margin: 0px;
             padding: 2px;
             font-size: 12px;
-            text-overflow: ellipsis;
             text-align: center;
             overflow: hidden;
             color: $text-primary;
@@ -2171,6 +2229,23 @@ strong {
             }
         }
     }
+    &.arrow-bottom-right {
+        > .content {
+            margin-top: -16px;
+            margin-left: -308px;
+
+            &:after {
+                content: '';
+                width: 0;
+                height: 0;
+                position: absolute;
+                bottom: -32px;
+                right: 16px;
+                border: 16px solid transparent;
+                border-top-color: $bcg-darkest;
+            }
+        }
+    }
     > .overlay {
         background-color: transparent;
     }
@@ -2587,7 +2662,6 @@ strong {
         border: 1px solid #000;
         width: 470px;
         background-color: transparent;
-        white-space: nowrap;
         transition: none;
 
         > .picker-curve-panel {
@@ -2634,6 +2708,7 @@ strong {
                 .ui-button {
                     float: right;
                     font-size: 11px;
+                    line-height: 22px;
                 }
             }
         }
@@ -2641,6 +2716,9 @@ strong {
 }
 
 .ui-label.cursor-tooltip {
+    font-family: "Lucida Console", Monaco, monospace;
+    font-weight: normal;
+    font-size: 10px;
     display: block;
     position: absolute;
     top: -26px;
@@ -2649,7 +2727,6 @@ strong {
     margin: 0;
     padding: 0 6px;
     line-height: 18px;
-    font-size: 12px;
     opacity: 1;
     visibility: visible;
     transition: opacity 100ms, visibility 100ms;

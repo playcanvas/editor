@@ -123,8 +123,10 @@ editor.once('load', function() {
             evtPickHover = editor.on('viewport:pick:hover', onPickHover);
         },
         leave: function() {
-            evtPickHover.unbind();
-            evtPickHover = null;
+            if (evtPickHover) {
+                evtPickHover.unbind();
+                evtPickHover = null;
+            }
 
             onLeave();
         }

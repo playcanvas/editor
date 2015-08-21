@@ -178,8 +178,7 @@ editor.once('load', function() {
         {
             start: function() {
                 editor.call('whoisonline:panel').style.zIndex = 202;
-                overlay.position(386, 37);
-                overlay.class.add('arrow-top');
+                overlay.class.add('arrow-bottom-right');
                 panelInner = new ui.Panel();
                 panelInner.header = 'Team';
                 panel.append(panelInner);
@@ -188,10 +187,12 @@ editor.once('load', function() {
                     text: 'PlayCanvas lets you <span style="color:#fff">collaborate in real-time</span> with your team. Their avatars will be shown here if they are in scene.'
                 });
                 panelInner.append(label);
+
+                overlay.position(root.element.clientWidth - 320, root.element.clientHeight - 273 - overlay.innerElement.clientHeight);
             },
             end: function() {
                 editor.call('whoisonline:panel').style.zIndex = '';
-                overlay.class.remove('arrow-top');
+                overlay.class.remove('arrow-bottom-right');
                 if (panelInner) {
                     panelInner.destroy();
                     panelInner = null;
@@ -289,17 +290,18 @@ editor.once('load', function() {
 
     // if never seen introduction
     editor.on('realtime:connected', function() {
-        if (! config.self.openedEditor) {
-            if (editor.call('permissions:write')) {
-                stepNext();
-            } else {
-                editor.on('permissions:set:' + config.self.id, function () {
-                    if (stepCurrent !== -1 || ! editor.call('permissions:write') || config.self.openedEditor)
-                        return;
+        if (config.self.openedEditor)
+            return;
 
-                    stepNext();
-                });
-            }
+        if (editor.call('permissions:write')) {
+            stepNext();
+        } else {
+            editor.on('permissions:set:' + config.self.id, function () {
+                if (stepCurrent !== -1 || ! editor.call('permissions:write') || config.self.openedEditor)
+                    return;
+
+                stepNext();
+            });
         }
     });
 });

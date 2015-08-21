@@ -96,10 +96,11 @@ editor.once('load', function() {
     editor.on('messenger:asset.thumbnail', function(data) {
         var gridItem = assetsIndex[parseInt(data.asset.id, 10)];
         if (! gridItem) return;
-        var url = '/api/assets/' + data.asset.id + '/thumbnail/medium.jpg?t=' + (data.asset.hash || gridItem.asset.get('file.hash') || '')
+        var url = '/api/assets/' + data.asset.id + '/thumbnail/medium.jpg?t=' + (gridItem.asset.get('file.hash') || data.asset.hash || '')
         gridItem.thumbnail.style.backgroundImage = 'url(' + url + ')';
         gridItem.thumbnail.classList.remove('placeholder');
     });
+
 
     editor.on('assets:add', function(asset) {
         asset._type = 'asset';

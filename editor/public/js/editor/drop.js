@@ -32,14 +32,14 @@ editor.once('load', function() {
     var items = [ ];
     var itemOver = null;
 
-    var activate = function(type) {
+    var activate = function(state) {
         if (! editor.call('permissions:write'))
             return;
 
-        if (active === type)
+        if (active === state)
             return;
 
-        active = type;
+        active = state;
 
         if (active) {
             overlay.classList.add('active');
@@ -52,6 +52,8 @@ editor.once('load', function() {
 
         editor.emit('drop:active', active);
     };
+
+    editor.method('drop:activate', activate);
 
 
     // prevent drop file of redirecting
@@ -116,9 +118,9 @@ editor.once('load', function() {
 
         itemOver = this;
 
-        if (this._ref && this._ref.over) {
+        if (this._ref && this._ref.over && currentType) {
             var data = currentData;
-            if (currentType == 'files')
+            if (currentType == 'files' && e.dataTransfer)
                 data = e.dataTransfer.files;
             this._ref.over(currentType, data);
         }
@@ -127,7 +129,7 @@ editor.once('load', function() {
         if (e) e.preventDefault();
         this.classList.remove('over');
 
-        if (this._ref && this._ref.leave)
+        if (this._ref && this._ref.leave && currentType)
             this._ref.leave();
 
         if (itemOver === this)
@@ -166,6 +168,10 @@ editor.once('load', function() {
         obj.element.classList.add('drop-area');
         if (obj.hole)
             obj.element.classList.add('hole');
+
+        if (obj.passThrough)
+            obj.element.style.pointerEvents = 'none';
+
         areas.appendChild(obj.element);
 
         obj.evtDrop = function(e) {
@@ -173,28 +179,38 @@ editor.once('load', function() {
 
             // leave event
             if (obj.element.classList.contains('over')) {
-                if (obj.leave) obj.leave();
+                if (obj.leave && currentType) obj.leave();
                 obj.element.classList.remove('over');
             }
 
             var data = currentData;
-            if (currentType == 'files')
+            if (currentType == 'files' && e.dataTransfer)
                 data = e.dataTransfer.files;
 
             obj.drop(currentType, data);
         };
 
         obj.element.addEventListener('dragenter', evtDragOver, false);
+        obj.element.addEventListener('mouseenter', evtDragOver, false);
+
         obj.element.addEventListener('dragleave', evtDragLeave, false);
+        obj.element.addEventListener('mouseleave', evtDragLeave, false);
+
         obj.element.addEventListener('drop', obj.evtDrop, false);
+        obj.element.addEventListener('mouseup', obj.evtDrop, false);
 
         obj.unregister = function() {
             if (! obj.element.classList.contains('drop-area'))
                 return;
 
             obj.element.removeEventListener('dragenter', evtDragOver);
+            obj.element.removeEventListener('mouseenter', evtDragOver);
+
             obj.element.removeEventListener('dragleave', evtDragLeave);
+            obj.element.removeEventListener('mouseleave', evtDragLeave);
+
             obj.element.removeEventListener('drop', obj.evtDrop);
+            obj.element.removeEventListener('mouseup', obj.evtDrop);
 
             var ind = items.indexOf(obj);
             if (ind !== -1)
@@ -235,7 +251,15 @@ editor.once('load', function() {
     });
 
 
+    editor.method('drop:set', function(type, data) {
+        currentType = type || '',
+        currentData = data || { };
+    });
+
+
     editor.on('drop:active', function(state) {
+        areas.style.pointerEvents = '';
+
         if (state) {
             for(var i = 0; i < items.length; i++) {
                 var visible = ! items[i].disabled;
@@ -287,6 +311,9 @@ editor.once('load', function() {
                         parts[3].style.top = rect.top + 'px';
                         parts[3].style.bottom = window.innerHeight - rect.bottom + 'px';
                         parts[3].style.width = rect.left + 'px';
+
+                        if (items[i].passThrough)
+                            areas.style.pointerEvents = 'none';
                     } else {
                         items[i].element.style.left = (rect.left + 1) + 'px';
                         items[i].element.style.top = (rect.top + 1) + 'px';

@@ -103,6 +103,20 @@ editor.once('load', function() {
                 } else {
                     args.field.class.remove('null');
                 }
+            } else if (args.type === 'entity') {
+                for(var i = 1; i < args.link.length; i++) {
+                    if (value !== args.link[i].get(args.path)) {
+                        value = 'various';
+                        different = true;
+                        break;
+                    }
+                }
+                if (different) {
+                    args.field.class.add('null');
+                    args.field.text = 'various';
+                } else {
+                    args.field.class.remove('null');
+                }
             } else {
                 for(var i = 1; i < args.link.length; i++) {
                     var v = args.link[i].get(args.path);
@@ -649,7 +663,7 @@ editor.once('load', function() {
                             if (src.startsWith('data:image/png;base64')) {
                                 field.image = asset.get('thumbnails.m');
                             } else {
-                                field.image = config.url.home + asset.get('thumbnails.m');
+                                field.image = config.url.home + asset.get('thumbnails.m') + '?t=' + asset.get('file.hash');
                             }
                         } else {
                             field.image = '/editor/scene/img/asset-placeholder-' + asset.get('type') + '.png';
@@ -682,10 +696,10 @@ editor.once('load', function() {
                     if (! asset)
                         return field.image = config.url.home + '/editor/scene/img/asset-placeholder-texture.png';
 
-                    evtThumbnailChange = asset.on('thumbnails.m:set', updateThumbnail);
+                    evtThumbnailChange = asset.on('file.hash.m:set', updateThumbnail);
                     updateThumbnail();
 
-                    fieldTitle.text = asset.get('file.filename') || asset.get('name');
+                    fieldTitle.text = asset.get('name');
                 };
                 field.on('change', updateField);
 
@@ -743,6 +757,110 @@ editor.once('load', function() {
                 panelFields.appendChild(fieldTitle.element);
                 break;
 
+            // entity picker
+            case 'entity':
+                field = new ui.Label();
+                field.class.add('add-entity');
+                field.flexGrow = 1;
+                field.class.add('null');
+
+                field.text = 'Select Entity';
+                field.placeholder = '...';
+
+                panel.append(field);
+
+                var icon = document.createElement('span');
+                icon.classList.add('icon');
+
+                icon.addEventListener('click', function (e) {
+                    e.stopPropagation();
+
+                    if (editor.call('permissions:write'))
+                        field.text = '';
+                });
+
+                field.on('change', function (value) {
+                    if (value) {
+                        var entity = editor.call('entities:get', value);
+                        field.element.innerHTML = entity ? entity.get('name') : value;
+                        field.element.appendChild(icon);
+                        field.placeholder = '';
+
+                        if (value !== 'various')
+                            field.class.remove('null');
+                    } else {
+                        field.element.innerHTML = 'Select Entity';
+                        field.placeholder = '...';
+                        field.class.add('null');
+                    }
+                });
+
+                linkField();
+
+                field.on('click', function () {
+                    var evtEntityPick = editor.once('picker:entity', function (entity) {
+                        field.text = entity ? entity.get('resource_id') : null;
+                        evtEntityPick = null;
+                    });
+
+                    var initialValue = null;
+                    if (args.link) {
+                        if (! args.link instanceof Array) {
+                            args.link = [args.link];
+                        }
+
+                        // get initial value only if it's the same for all
+                        // links otherwise set it to null
+                        for (var i = 0, len = args.link.length; i < len; i++) {
+                            var val = args.link[i].get(args.path);
+                            if (initialValue !== val) {
+                                if (initialValue) {
+                                    initialValue = null;
+                                    break;
+                                } else {
+                                    initialValue = val;
+                                }
+                            }
+                        }
+                    }
+
+                    editor.call('picker:entity', initialValue);
+
+                    editor.once('picker:entity:close', function () {
+                        if (evtEntityPick) {
+                            evtEntityPick.unbind();
+                            evtEntityPick = null;
+                        }
+                    });
+                });
+
+                var dropRef = editor.call('drop:target', {
+                    ref: field.element,
+                    filter: function(type, data) {
+                        var rectA = root.innerElement.getBoundingClientRect();
+                        var rectB = field.element.getBoundingClientRect();
+                        return type === 'entity' && data.resource_id !== field.value && rectB.top > rectA.top && rectB.bottom < rectA.bottom;
+                    },
+                    drop: function(type, data) {
+                        if (type !== 'entity')
+                            return;
+
+                        field.value = data.resource_id;
+                    },
+                    over: function(type, data) {
+                        if (args.over)
+                            args.over(type, data);
+                    },
+                    leave: function() {
+                        if (args.leave)
+                            args.leave();
+                    }
+                });
+                field.on('destroy', function() {
+                    dropRef.unregister();
+                });
+
+                break;
             case 'image':
                 panel.flex = false;
 
@@ -788,11 +906,13 @@ editor.once('load', function() {
                 field.flexGrow = 1;
                 field.text = args.text || '';
 
-                if (args.value)
-                    field.value = args.value;
+                if (args.link) {
+                    var link = args.link;
+                    if (args.link instanceof Array)
+                        link = args.link[0];
 
-                if (args.link)
-                    field.link(args.link, args.paths || [args.path]);
+                    field.link(link, args.paths || [args.path]);
+                }
 
                 var curvePickerOn = false;
 
@@ -816,8 +936,10 @@ editor.once('load', function() {
                         var evtPickerChanged = editor.on('picker:curve:change', function (path, value) {
                             var combine;
                             if (field._link) {
-                                combine = field._link.history.combine;
-                                field._link.history.combine = !first;
+                                if (field._link.history) {
+                                    combine = field._link.history.combine;
+                                    field._link.history.combine = !first;
+                                }
 
                                 if (args.paths) {
                                     path = args.paths[parseInt(path[0])] + path.substring(1);
@@ -827,7 +949,8 @@ editor.once('load', function() {
 
                                 field._link.set(path, value);
 
-                                field._link.history.combine = combine;
+                                if (field._link.history)
+                                    field._link.history.combine = combine;
 
                                 // set second graph keys to be the same as the first
                                 // if betweenCurves if false
@@ -835,10 +958,17 @@ editor.once('load', function() {
                                     if (path.indexOf(args.paths[0]) === 0) {
                                         if ((path.indexOf('.keys') !== -1 || path.indexOf('betweenCurves') !== -1)) {
                                             if (! field._link.get(args.paths[0] + '.betweenCurves')) {
-                                                var history = field._link.history.enabled;
-                                                field._link.history.enabled = false;
+                                                var history;
+                                                if (field._link.history) {
+                                                    history = field._link.history.enabled;
+                                                    field._link.history.enabled = false;
+                                                }
+
                                                 field._link.set(args.paths[1] + '.keys', field._link.get(args.paths[0] + '.keys'));
-                                                field._link.history.enabled = history;
+
+                                                if (field._link.history) {
+                                                    field._link.history.enabled = history;
+                                                }
                                             }
                                         }
                                     }
@@ -910,7 +1040,7 @@ editor.once('load', function() {
             type: 'asset.' + type,
             filter: function(type, data) {
                 // type
-                if (assetType && assetType !== '*' && type !== 'asset.' + assetType)
+                if ((assetType && assetType !== '*' && type !== 'asset.' + assetType) || type !== 'asset')
                     return false;
 
                 // overflowed
@@ -929,7 +1059,7 @@ editor.once('load', function() {
                 return false;
             },
             drop: function(type, data) {
-                if (assetType && assetType !== '*' && type !== 'asset.' + assetType)
+                if ((assetType && assetType !== '*' && type !== 'asset.' + assetType) || type !== 'asset')
                     return;
 
                 var records = [ ];

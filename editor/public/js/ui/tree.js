@@ -117,11 +117,15 @@ Tree.prototype._onDragOver = function(item, evt) {
     if (! this._dragging || (item === this._dragItems[0] && ! this._dragOver) || this._dragOver === item)
         return;
 
-    if (this._dragOver)
-        this._dragOver = null;
+    var dragOver = null;
 
     if (item !== this._dragItems[0])
-        this._dragOver = item;
+        dragOver = item;
+
+    if (this._dragOver === null && dragOver)
+        this.emit('dragin');
+
+    this._dragOver = dragOver;
 
     this._updateDragHandle();
     this._onDragMove(evt);
@@ -173,7 +177,7 @@ Tree.prototype._onDragOut = function() {
 
     this._dragOver = null;
     this._updateDragHandle();
-    this.emit('mouseleave');
+    this.emit('dragout');
 };
 
 

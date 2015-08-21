@@ -1,13 +1,9 @@
 editor.once('load', function() {
     'use strict';
 
-
-    var selectorList = null;
-
     var overlay = new ui.Overlay();
     overlay.class.add('picker-asset');
     overlay.center = false;
-    // overlay.transparent = true;
     overlay.hidden = true;
 
     var root = editor.call('layout.root');
