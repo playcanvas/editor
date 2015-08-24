@@ -782,7 +782,12 @@ editor.once('load', function() {
                 field.on('change', function (value) {
                     if (value) {
                         var entity = editor.call('entities:get', value);
-                        field.element.innerHTML = entity ? entity.get('name') : value;
+                        if (!entity) {
+                            field.text = null;
+                            return;
+                        }
+
+                        field.element.innerHTML = entity.get('name');
                         field.element.appendChild(icon);
                         field.placeholder = '';
 
