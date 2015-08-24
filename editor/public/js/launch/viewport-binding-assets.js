@@ -34,7 +34,15 @@ app.once('load', function() {
 
                 timeout = null;
             });
+        });
 
+        // tags add
+        asset.on('tags:insert', function(tag) {
+            assetRegistry.get(asset.get('id')).tags.add(tag);
+        });
+        // tags remove
+        asset.on('tags:remove', function(tag) {
+            assetRegistry.get(asset.get('id')).tags.remove(tag);
         });
     };
 
@@ -57,6 +65,7 @@ app.once('load', function() {
             var data = {
                 id: parseInt(assetJson.id, 10),
                 name: assetJson.name,
+                tags: assetJson.tags,
                 file: assetJson.file ? {
                     filename: assetJson.file.filename,
                     url: assetJson.file.url,
@@ -71,6 +80,8 @@ app.once('load', function() {
             var newAsset = new pc.Asset(data.name, data.type, data.file, data.data);
             newAsset.id = parseInt(assetJson.id, 10);
             assetRegistry.add(newAsset);
+            // tags
+            newAsset.tags.add(data.tags);
 
             attachSetHandler(asset);
         });
@@ -78,9 +89,8 @@ app.once('load', function() {
         // remove assets from asset registry
         app.on('assets:remove', function (asset) {
             var realtimeAsset = assetRegistry.get(asset.get('id'));
-            if (realtimeAsset) {
+            if (realtimeAsset)
                 assetRegistry.remove(realtimeAsset);
-            }
         });
     });
 });

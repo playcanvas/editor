@@ -692,6 +692,87 @@ strong {
             line-height: 24px;
             vertical-align: top;
         }
+        &.field-strings {
+            > .content > .ui-panel {
+                max-width: calc(100% - 89px);
+
+                > .content {
+                    flex-direction: row;
+                    flex-wrap: wrap;
+
+                    padding: 2px;
+
+                    > .tag {
+                        position: relative;
+                        font-family: "Lucida Console", Monaco, monospace;
+                        font-weight: normal;
+                        font-size: 10px;
+                        display: inline-block;
+                        line-height: 21px;
+                        height: 20px;
+                        margin: 1px;
+                        padding: 0 24px 0 8px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                        background-color: $bcg-dark;
+                        cursor: default;
+
+                        &:hover {
+                            color: $text-primary;
+                            background-color: $bcg-darkest;
+                            // padding-right: 26px;
+                            > .icon {
+                                padding-left: 0;
+                            }
+                        }
+                        &.partial {
+                            opacity: .5;
+                        }
+                        > .icon {
+                            @extend .font-icon;
+                            position: absolute;
+                            right: 0;
+                            top: 0;
+                            width: 16px;
+                            line-height: 20px;
+                            padding-right: 1px;
+                            font-size: 12px;
+                            text-align: center;
+                            cursor: pointer;
+                            color: $text-secondary;
+                            border-left: 1px solid $bcg-darker;
+                            background-color: $bcg-dark;
+
+                            &:hover {
+                                color: #d34141;
+                                background-color: $bcg-darkest;
+                                border-left-color: $bcg-darkest;
+                            }
+                        }
+                    }
+                    > .ui-text-field {
+                        width: calc(100% - 27px);
+                        margin: 1px 0 1px 1px;
+                        flex-shrink: 0;
+                        display: block;
+                    }
+                    > .ui-button {
+                        margin: 1px 1px 1px 0;
+                        border-left: none;
+                        padding: 0;
+                        width: 22px;
+                        line-height: 22px;
+                        text-align: center;
+                        @extend .font-icon;
+
+                        &:hover {
+                            color: $text-active;
+                        }
+                    }
+                }
+            }
+        }
         &.field-asset {
             > .content > .top > .controls > .ui-select-field {
                 float: right;
@@ -904,7 +985,6 @@ strong {
                 &:hover {
                     color: $text-active;
                 }
-
                 &:after {
                     content: '\E436';
                 }
