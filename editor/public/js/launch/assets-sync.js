@@ -48,11 +48,13 @@ app.once('load', function() {
                 _asset.id = parseInt(assetData.id);
                 _asset.preload = assetData.preload ? assetData.preload : false;
 
+                // tags
+                _asset.tags.add(assetData['tags']);
+
                 framework.assets.add(_asset);
             } else {
-                for (var key in assetData) {
+                for (var key in assetData)
                     asset.set(key, assetData[key]);
-                }
             }
 
             if (callback)

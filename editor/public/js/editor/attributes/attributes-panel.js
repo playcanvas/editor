@@ -449,6 +449,280 @@ editor.once('load', function() {
                 panel.append(field);
                 break;
 
+            case 'strings':
+                var innerPanel = new ui.Panel();
+                innerPanel.flex = true;
+                innerPanel.flexGrow = 1;
+
+                var events = [ ];
+
+                field = new ui.TextField();
+                field.renderChanges = false;
+                innerPanel.append(field);
+
+                field.element.addEventListener('keydown', function(evt) {
+                    if (evt.keyCode !== 13 || ! field.value)
+                        return;
+
+                    addTag(field.value.trim());
+                    field.value = '';
+                });
+
+                var btnAdd = new ui.Button({
+                    text: '&#58468'
+                });
+                btnAdd.flexGrow = 0;
+                btnAdd.on('click', function() {
+                    if (! field.value)
+                        return;
+
+                    addTag(field.value.trim());
+                    field.value = '';
+                });
+                innerPanel.append(btnAdd);
+
+                var tagItems = { };
+                var tagIndex = { };
+                var tagList = [ ];
+
+                var onRemoveClick = function() {
+                    removeTag(this.tag);
+                };
+
+                var removeTag = function(tag) {
+                    if (! tag || ! tagIndex.hasOwnProperty(tag))
+                        return;
+
+                    var records = [ ];
+
+                    for(var i = 0; i < link.length; i++) {
+                        if (link[i].get(args.path).indexOf(tag) === -1)
+                            continue;
+
+                        records.push({
+                            get: link[i].history !== undefined ? link[i].history._getItemFn : null,
+                            item: link[i],
+                            path: args.path,
+                            value: tag
+                        });
+
+                        historyState(link[i], false);
+                        link[i].removeValue(args.path, tag);
+                        historyState(link[i], true);
+                    }
+
+                    editor.call('history:add', {
+                        name: args.path,
+                        undo: function() {
+                            for(var i = 0; i < records.length; i++) {
+                                var item;
+                                if (records[i].get) {
+                                    item = records[i].get();
+                                    if (! item)
+                                        continue;
+                                } else {
+                                    item = records[i].item;
+                                }
+
+                                historyState(item, false);
+                                item.insert(records[i].path, records[i].value);
+                                historyState(item, true);
+                            }
+                        },
+                        redo: function() {
+                            for(var i = 0; i < records.length; i++) {
+                                var item;
+                                if (records[i].get) {
+                                    item = records[i].get();
+                                    if (! item)
+                                        continue;
+                                } else {
+                                    item = records[i].item;
+                                }
+
+                                historyState(item, false);
+                                item.removeValue(records[i].path, records[i].value);
+                                historyState(item, true);
+                            }
+                        }
+                    });
+                };
+
+                var addTag = function(tag) {
+                    var records = [ ];
+
+                    for(var i = 0; i < link.length; i++) {
+                        if (link[i].get(args.path).indexOf(tag) !== -1)
+                            continue;
+
+                        records.push({
+                            get: link[i].history !== undefined ? link[i].history._getItemFn : null,
+                            item: link[i],
+                            path: args.path,
+                            value: tag
+                        });
+
+                        historyState(link[i], false);
+                        link[i].insert(args.path, tag);
+                        historyState(link[i], true);
+                    }
+
+                    editor.call('history:add', {
+                        name: args.path,
+                        undo: function() {
+                            for(var i = 0; i < records.length; i++) {
+                                var item;
+                                if (records[i].get) {
+                                    item = records[i].get();
+                                    if (! item)
+                                        continue;
+                                } else {
+                                    item = records[i].item;
+                                }
+
+                                historyState(item, false);
+                                item.removeValue(records[i].path, records[i].value);
+                                historyState(item, true);
+                            }
+                        },
+                        redo: function() {
+                            for(var i = 0; i < records.length; i++) {
+                                var item;
+                                if (records[i].get) {
+                                    item = records[i].get();
+                                    if (! item)
+                                        continue;
+                                } else {
+                                    item = records[i].item;
+                                }
+
+                                historyState(item, false);
+                                item.insert(records[i].path, records[i].value);
+                                historyState(item, true);
+                            }
+                        }
+                    });
+                };
+
+                var onInsert = function(tag) {
+                    if (! tagIndex.hasOwnProperty(tag)) {
+                        tagIndex[tag] = 0;
+                        tagList.push(tag);
+                    }
+
+                    tagIndex[tag]++;
+                    insertElement(tag);
+                };
+
+                var onRemove = function(tag) {
+                    if (! tagIndex[tag])
+                        return;
+
+                    tagIndex[tag]--;
+
+                    if (! tagIndex[tag]) {
+                        innerPanel.innerElement.removeChild(tagItems[tag]);
+                        var ind = tagList.indexOf(tag);
+                        if (ind !== -1)
+                            tagList.splice(ind, 1);
+
+                        delete tagItems[tag];
+                        delete tagIndex[tag];
+                    } else {
+                        if (tagIndex[tag] === link.length) {
+                            tagItems[tag].classList.remove('partial');
+                        } else {
+                            tagItems[tag].classList.add('partial');
+                        }
+                    }
+                };
+
+                var insertElement = function(tag) {
+                    if (! tagItems[tag]) {
+                        sortTags();
+
+                        var item = document.createElement('div');
+                        tagItems[tag] = item;
+                        item.classList.add('tag');
+                        item.textContent = tag;
+
+                        var icon = document.createElement('span');
+                        icon.innerHTML = '&#58422;';
+                        icon.classList.add('icon');
+                        icon.tag = tag;
+                        icon.addEventListener('click', onRemoveClick, false);
+                        item.appendChild(icon);
+
+                        var ind = tagList.indexOf(tag);
+                        if (tagItems[tagList[ind + 1]]) {
+                            innerPanel.appendBefore(item, tagItems[tagList[ind + 1]]);
+                        } else {
+                            innerPanel.appendBefore(item, field);
+                        }
+                    }
+
+                    if (tagIndex[tag] === link.length) {
+                        tagItems[tag].classList.remove('partial');
+                    } else {
+                        tagItems[tag].classList.add('partial');
+                    }
+                };
+
+                var sortTags = function() {
+                    tagList.sort(function(a, b) {
+                        if (a > b) {
+                            return 1;
+                        } else if (a < b) {
+                            return -1;
+                        } else {
+                            return 0;
+                        }
+                    });
+                };
+
+                if (args.placeholder)
+                    field.placeholder = args.placeholder;
+
+                // list
+                var link = args.link;
+                if (! (args.link instanceof Array))
+                    link = [ link ];
+
+                for(var i = 0; i < link.length; i++) {
+                    var tags = link[i].get(args.path);
+
+                    events.push(link[i].on('tags:insert', onInsert));
+                    events.push(link[i].on('tags:remove', onRemove));
+
+                    if (! tags)
+                        continue;
+
+                    for(var t = 0; t < tags.length; t++) {
+                        if (! tags[t])
+                            continue;
+
+                        if (! tagIndex.hasOwnProperty(tags[t])) {
+                            tagIndex[tags[t]] = 0;
+                            tagList.push(tags[t]);
+                        }
+
+                        tagIndex[tags[t]]++;
+                    }
+                }
+
+                sortTags();
+
+                for(var i = 0; i < tagList.length; i++)
+                    insertElement(tagList[i]);
+
+                panel.once('destroy', function() {
+                    for(var i = 0; i < events.length; i++)
+                        events[i].unbind();
+                });
+
+                panel.append(innerPanel);
+                break;
+
             case 'number':
                 if (args.enum) {
                     field = new ui.SelectField({
@@ -782,7 +1056,12 @@ editor.once('load', function() {
                 field.on('change', function (value) {
                     if (value) {
                         var entity = editor.call('entities:get', value);
-                        field.element.innerHTML = entity ? entity.get('name') : value;
+                        if (!entity) {
+                            field.text = null;
+                            return;
+                        }
+
+                        field.element.innerHTML = entity.get('name');
                         field.element.appendChild(icon);
                         field.placeholder = '';
 
@@ -938,7 +1217,7 @@ editor.once('load', function() {
                             if (field._link) {
                                 if (field._link.history) {
                                     combine = field._link.history.combine;
-                                    field._link.history.combine = !first;
+                                    field._link.history.combine = ! first;
                                 }
 
                                 if (args.paths) {
@@ -954,26 +1233,18 @@ editor.once('load', function() {
 
                                 // set second graph keys to be the same as the first
                                 // if betweenCurves if false
-                                if (args.paths) {
-                                    if (path.indexOf(args.paths[0]) === 0) {
-                                        if ((path.indexOf('.keys') !== -1 || path.indexOf('betweenCurves') !== -1)) {
-                                            if (! field._link.get(args.paths[0] + '.betweenCurves')) {
-                                                var history;
-                                                if (field._link.history) {
-                                                    history = field._link.history.enabled;
-                                                    field._link.history.enabled = false;
-                                                }
-
-                                                field._link.set(args.paths[1] + '.keys', field._link.get(args.paths[0] + '.keys'));
-
-                                                if (field._link.history) {
-                                                    field._link.history.enabled = history;
-                                                }
-                                            }
-                                        }
+                                if (args.paths && path.indexOf(args.paths[0]) === 0 && (path.indexOf('.keys') !== -1 || path.indexOf('betweenCurves') !== -1) && ! field._link.get(args.paths[0] + '.betweenCurves')) {
+                                    var history;
+                                    if (field._link.history) {
+                                        history = field._link.history.enabled;
+                                        field._link.history.enabled = false;
                                     }
-                                }
 
+                                    field._link.set(args.paths[1] + '.keys', field._link.get(args.paths[0] + '.keys'));
+
+                                    if (field._link.history)
+                                        field._link.history.enabled = history;
+                                }
                             }
 
                             first = false;

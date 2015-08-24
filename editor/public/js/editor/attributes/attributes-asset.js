@@ -45,6 +45,32 @@
                 value: assets.length
             });
 
+            // size
+            var size = 0;
+            var scriptSelected = true;
+
+            for(var i = 0; i < assets.length; i++) {
+                size += assets[i].get('file.size') || 0;
+
+                // scripts are not real assets, and have no preload option
+                if (assets[i].get('type') === 'script')
+                    scriptSelected = false;
+            }
+
+            if (scriptSelected) {
+                // tags
+                var fieldTags = editor.call('attributes:addField', {
+                    parent: panel,
+                    name: 'Tags',
+                    placeholder: 'Add Tag',
+                    type: 'strings',
+                    link: assets,
+                    path: 'tags'
+                });
+                // reference
+                editor.call('attributes:reference:asset:tags:attach', fieldTags.parent.innerElement.firstChild.ui);
+            }
+
             // type
             var fieldType = editor.call('attributes:addField', {
                 parent: panel,
@@ -55,19 +81,6 @@
             editor.call('attributes:reference:asset:type:attach', fieldType.parent.innerElement.firstChild.ui);
             if (type)
                 editor.call('attributes:reference:asset:' + type + ':asset:attach', fieldType);
-
-            // size
-            var size = 0;
-            var preload = true;
-
-            for(var i = 0; i < assets.length; i++) {
-                size += assets[i].get('file.size') || 0;
-
-                // scripts are not real assets, and have no preload option
-                if (assets[i].get('type') === 'script') {
-                    preload = false;
-                }
-            }
 
             var fieldSize = editor.call('attributes:addField', {
                 parent: panel,
@@ -97,7 +110,7 @@
             // reference
             editor.call('attributes:reference:asset:size:attach', fieldSize.parent.innerElement.firstChild.ui);
 
-            if (preload) {
+            if (scriptSelected) {
                 var fieldType = editor.call('attributes:addField', {
                     parent: panel,
                     name: 'Preload',
@@ -142,6 +155,18 @@
                 // reference
                 editor.call('attributes:reference:asset:name:attach', fieldName.parent.innerElement.firstChild.ui);
 
+                // tags
+                var fieldTags = editor.call('attributes:addField', {
+                    parent: panel,
+                    name: 'Tags',
+                    placeholder: 'Add Tag',
+                    type: 'strings',
+                    link: asset,
+                    path: 'tags'
+                });
+                // reference
+                editor.call('attributes:reference:asset:tags:attach', fieldTags.parent.innerElement.firstChild.ui);
+
                 // type
                 var fieldType = editor.call('attributes:addField', {
                     parent: panel,
@@ -155,14 +180,15 @@
                 // reference
                 editor.call('attributes:reference:asset:' + asset.get('type') + ':asset:attach', fieldType);
 
-                var fieldType = editor.call('attributes:addField', {
+                // preload
+                var fieldPreload = editor.call('attributes:addField', {
                     parent: panel,
                     name: 'Preload',
                     type: 'checkbox',
                     link: asset,
                     path: 'preload'
                 });
-                editor.call('attributes:reference:asset:preload:attach', fieldType.parent.innerElement.firstChild.ui);
+                editor.call('attributes:reference:asset:preload:attach', fieldPreload.parent.innerElement.firstChild.ui);
             }
 
             // size
