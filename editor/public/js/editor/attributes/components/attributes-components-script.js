@@ -496,15 +496,27 @@ editor.once('load', function() {
                     evtMaxUnset.unbind();
                 }));
             } else if (scriptAttributeTypes[attribute.type] === 'assets') {
-                // assets
-                field = editor.call('attributes:addAssetsList', {
-                    panel: parent,
-                    title: 'Asset',
-                    type: attribute.options.type || '*',
-                    link: scripts,
-                    path: 'attributes.' + attribute.name + '.value'
-                });
-                field.parent._label.text = attribute.displayName || attribute.name;
+                if (attribute.options.max === 1) {
+                    // asset
+                    field = editor.call('attributes:addField', {
+                        parent: parent,
+                        name: attribute.displayName || attribute.name,
+                        type: 'asset',
+                        kind: attribute.options.type || '*',
+                        link: scripts,
+                        path: 'attributes.' + attribute.name + '.value'
+                    });
+                } else {
+                    // assets
+                    field = editor.call('attributes:addAssetsList', {
+                        panel: parent,
+                        title: 'Asset',
+                        type: attribute.options.type || '*',
+                        link: scripts,
+                        path: 'attributes.' + attribute.name + '.value'
+                    });
+                    field.parent._label.text = attribute.displayName || attribute.name;
+                }
             }
 
             var fieldParent;

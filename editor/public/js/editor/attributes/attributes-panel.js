@@ -987,10 +987,10 @@ editor.once('load', function() {
                     filter: function(type, data) {
                         var rectA = root.innerElement.getBoundingClientRect();
                         var rectB = panel.element.getBoundingClientRect();
-                        return type === 'asset.' + args.kind && parseInt(data.id, 10) !== field.value && rectB.top > rectA.top && rectB.bottom < rectA.bottom;
+                        return (args.kind === '*' || type === 'asset.' + args.kind) && parseInt(data.id, 10) !== field.value && rectB.top > rectA.top && rectB.bottom < rectA.bottom;
                     },
                     drop: function(type, data) {
-                        if (type !== 'asset.' + args.kind)
+                        if (args.kind !== '*' && type !== 'asset.' + args.kind)
                             return;
 
                         field.value = parseInt(data.id, 10);
