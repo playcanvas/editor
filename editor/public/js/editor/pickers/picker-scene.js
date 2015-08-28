@@ -119,6 +119,11 @@ editor.once('load', function() {
     root.append(overlay);
     root.append(dropdownMenu);
 
+    // on overlay show
+    overlay.on('show', function () {
+        editor.emit('picker:scene:open');
+    });
+
     // on overlay hide
     overlay.on('hide', function() {
         container.innerHTML = '';

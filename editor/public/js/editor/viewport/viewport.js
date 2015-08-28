@@ -67,9 +67,7 @@ editor.once('load', function() {
         return flyMode;
     });
 
-    editor.once('scene:raw', function () {
-        // start framework
-        framework.start();
-        editor.emit('viewport:load', framework);
-    });
+    // start framework
+    framework.start();
+    editor.emit('viewport:load', framework);
 });

@@ -25,7 +25,6 @@ editor.once('load', function () {
         Ajax.param('scene.id', config.scene.id);
 
         if (pushState) {
-            console.log('pushing state', id);
             history.pushState(null, 'Editor', '/editor/scene/' + id);
         }
 
@@ -40,7 +39,6 @@ editor.once('load', function () {
 
     window.addEventListener('popstate', function (e) {
         var location = e.path[0].location.pathname;
-        console.log(location);
 
         editor.call('picker:scene:close');
 
@@ -70,6 +68,7 @@ editor.once('load', function () {
         if (parseInt(config.scene.id, 10) === parseInt(data.pack.id, 10)) {
             history.replaceState(null, 'Editor', '/editor/project/' + config.project.id);
             editor.call('scene:unload');
+            editor.call('picker:scene');
         }
     });
 });
