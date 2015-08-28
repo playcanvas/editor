@@ -3,18 +3,13 @@ editor.once('load', function() {
 
     var sceneSettings = editor.call('sceneSettings');
     var app = editor.call('viewport:framework');
-    var viewportLoaded = false;
     var assetsLoaded = false;
+    var sceneSettingsLoaded = false;
     var updating;
-
-    editor.once('viewport:load', function () {
-        viewportLoaded = true;
-        queueApplySettings();
-    });
 
     // queue settings apply
     var queueApplySettings = function() {
-        if (updating || !assetsLoaded || !viewportLoaded)
+        if (!sceneSettingsLoaded || updating || !assetsLoaded)
             return;
 
         updating = true;
@@ -25,7 +20,6 @@ editor.once('load', function() {
     // apply settings
     var applySettings = function() {
         updating = false;
-        app.applySceneSettings(sceneSettings.json());
 
         // apply scene settings
         app.applySceneSettings(sceneSettings.json());
@@ -50,6 +44,7 @@ editor.once('load', function() {
     });
 
     editor.on('sceneSettings:load', function () {
+        sceneSettingsLoaded = true;
         queueApplySettings();
     });
 });

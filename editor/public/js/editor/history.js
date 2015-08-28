@@ -105,6 +105,15 @@ editor.once('load', function() {
         checkCanUndoRedo();
     });
 
+    // clear
+    editor.method('history:clear', function() {
+        if (! actions.length)
+            return;
+        actions = [ ];
+        current = -1;
+        checkCanUndoRedo();
+    });
+
     // hotkey undo
     editor.call('hotkey:register', 'history:undo', {
         key: 'z',

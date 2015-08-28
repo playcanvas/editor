@@ -29,11 +29,18 @@ editor.once('load', function () {
         }
 
         pushState = true;
+
+        // clear history in a timeout
+        // otherwise some select events might remain
+        setTimeout(function () {
+            editor.call('history:clear');
+        });
     });
 
     editor.method('scene:unload', function () {
         var id = config.scene.id;
         config.scene.id = null;
+
         editor.emit('scene:unload', id);
     });
 

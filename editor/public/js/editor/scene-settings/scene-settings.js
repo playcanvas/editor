@@ -15,7 +15,14 @@ editor.once('load', function() {
         if (sync)
             sceneSettings.sync.enabled = false;
 
+        var history = sceneSettings.history ? sceneSettings.history.enabled : false;
+        if (history)
+            sceneSettings.history.enabled = false;
+
         sceneSettings.patch(data.settings);
+
+        if (history)
+            sceneSettings.history.enabled = true;
 
         if (sync)
             sceneSettings.sync.enabled = sync;
