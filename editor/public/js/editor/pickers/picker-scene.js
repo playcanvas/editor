@@ -221,6 +221,8 @@ editor.once('load', function() {
 
     // call picker
     editor.method('picker:scene', function() {
+        if (!overlay.hidden) return;
+
         // load scenes
         editor.call('scenes:list', function (items) {
             scenes = items;
