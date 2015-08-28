@@ -247,9 +247,54 @@ editor.once('load', function() {
                                 continue;
 
                             var value = data.attributes[attributeName].defaultValue;
-                            if (attributeName in oldAttributes && oldAttributes[attributeName].type === data.attributes[attributeName].type) {
-                                value = oldAttributes[attributeName].value !== oldAttributes[attributeName].defaultValue ? oldAttributes[attributeName].value : value;
+                            if (attributeName in oldAttributes) {
+                                var attributeOld = oldAttributes[attributeName];
+                                var attributeNew = data.attributes[attributeName];
+
+                                if (attributeOld.type === 'asset') {
+                                    if (attributeOld.options.type !== attributeNew.options.type) {
+                                        // different asset.type
+                                        if (attributeNew.options.max === 1) {
+                                            if (typeof(attributeNew.defaultValue) === 'number') {
+                                                value = attributeNew.defaultValue;
+                                            } else {
+                                                value = null;
+                                            }
+                                        } else {
+                                            if (attributeNew.defaultValue instanceof Array) {
+                                                value = attributeNew.defaultValue;
+                                            } else {
+                                                value = [ ];
+                                            }
+                                        }
+                                    } else if (attributeOld.options.max === 1 && attributeNew.options.max !== 1) {
+                                        // now multiple assets
+                                        if (attributeOld.value && typeof(attributeOld.value) === 'number') {
+                                            value = [ attributeOld.value ];
+                                        } else if (attributeNew.defaultValue instanceof Array) {
+                                            value = attributeNew.defaultValue;
+                                        } else {
+                                            value = [ ];
+                                        }
+                                    } else if (attributeOld.options.max !== 1 && attributeNew.options.max === 1) {
+                                        // now single asset
+                                        if ((attributeOld.value instanceof Array) && attributeOld.value.length && attributeOld.value[0] && typeof(attributeOld.value[0]) === 'number') {
+                                            value = attributeOld.value[0];
+                                        } else if (typeof(attributeNew.defaultValue) === 'number') {
+                                            value = attributeNew.defaultValue;
+                                        } else {
+                                            value = null;
+                                        }
+                                    } else {
+                                        // old value
+                                        value = attributeOld.value !== attributeOld.defaultValue ? attributeOld.value : value;
+                                    }
+                                } else if (attributeOld.type === data.attributes[attributeName].type) {
+                                    // old value
+                                    value = attributeOld.value !== attributeOld.defaultValue ? attributeOld.value : value;
+                                }
                             }
+
                             data.attributes[attributeName].value = value;
                         }
 
@@ -438,7 +483,6 @@ editor.once('load', function() {
                             evtTypeChanged.unbind();
                         }
                     });
-
                     events.push(evtTypeChanged);
                 }
 
@@ -496,27 +540,56 @@ editor.once('load', function() {
                     evtMaxUnset.unbind();
                 }));
             } else if (scriptAttributeTypes[attribute.type] === 'assets') {
+                var options;
+
                 if (attribute.options.max === 1) {
                     // asset
-                    field = editor.call('attributes:addField', {
+                    options = {
                         parent: parent,
                         name: attribute.displayName || attribute.name,
                         type: 'asset',
                         kind: attribute.options.type || '*',
                         link: scripts,
-                        path: 'attributes.' + attribute.name + '.value'
-                    });
+                        path: 'attributes.' + attribute.name + '.value',
+                        single: true
+                    };
+                    field = editor.call('attributes:addField', options);
                 } else {
                     // assets
-                    field = editor.call('attributes:addAssetsList', {
+                    options = {
                         panel: parent,
                         title: 'Asset',
                         type: attribute.options.type || '*',
                         link: scripts,
                         path: 'attributes.' + attribute.name + '.value'
-                    });
+                    };
+                    field = editor.call('attributes:addAssetsList', options);
                     field.parent._label.text = attribute.displayName || attribute.name;
                 }
+
+                field.options = options;
+
+                // if we change asset `type`
+                var evtAssetTypeChanged = scripts[0].on('attributes.' + attribute.name + '.options.type:set', function (value) {
+                    options.kind = value || '*';
+                });
+                events.push(evtAssetTypeChanged);
+
+                // if we change `max` to change between single/multiple
+                var evtMaxAssetChanged = script.on('attributes.' + attribute.name + '.options.max:set', function(value) {
+                    if ((options.single && value === 1) || (! options.single && value !== 1))
+                        return;
+
+                    setTimeout(function() {
+                        updateAttributeFields(script, parent);
+                    }, 0);
+                });
+                events.push(evtMaxAssetChanged);
+
+                field.once('destroy', function() {
+                    evtAssetTypeChanged.unbind();
+                    evtMaxAssetChanged.unbind();
+                });
             }
 
             var fieldParent;
