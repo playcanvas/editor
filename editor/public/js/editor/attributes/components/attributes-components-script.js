@@ -55,6 +55,26 @@ editor.once('load', function() {
         var events = [ ];
         var scriptsIndex = { };
 
+        for(var i = 0; i < entities.length; i++) {
+            events.push(entities[i].on('components.script:unset', function(valueOld) {
+                if (! valueOld)
+                    return;
+
+                for(var i = 0; i < valueOld.scripts.length; i++) {
+                    var scriptPanel = scriptsIndex[valueOld.scripts[i].url];
+                    if (! scriptPanel)
+                        continue;
+
+                    scriptPanel.count--;
+                    scriptPanel._link.textContent = (scriptPanel.count === entities.length ? '' : '* ') + scriptPanel._originalTitle;
+
+                    if (scriptPanel.count === 0) {
+                        scriptPanel.destroy();
+                        delete scriptsIndex[valueOld.scripts[i].url];
+                    }
+                }
+            }));
+        }
 
         var urlRegex = /^http(s)?:/;
         var jsRegex = /\.js$/;
@@ -824,38 +844,42 @@ editor.once('load', function() {
             return filename;
         };
 
+        var addScriptPanel = function(script, ind) {
+            var panelScript = createScriptPanel(script);
+            if (! panelScript)
+                return;
+
+            scriptsIndex[script.get('url')] = panelScript;
+
+            var panels = panelScripts.innerElement.childNodes;
+
+            if (ind === undefined || ind === panels.length) {
+                // append at the end
+                panelScripts.append(panelScript);
+            } else {
+                // append before panel at next index
+                panelScripts.appendBefore(panelScript, panels[ind]);
+            }
+        };
+
         // add existing scripts and subscribe to scripts Observer list
         for(var i = 0; i < entities.length; i++) {
             var scripts = entities[i].getRaw('components.script.scripts');
 
             if (scripts) {
-                for(var s = 0; s < scripts.length; s++) {
-                    var panelScript = createScriptPanel(scripts[s]);
-                    if (! panelScript)
-                        continue;
-
-                    scriptsIndex[scripts[s].get('url')] = panelScript;
-                    panelScripts.append(panelScript);
-                }
+                for(var s = 0; s < scripts.length; s++)
+                    addScriptPanel(scripts[s]);
             }
+
+            // subscribe to scripts:set
+            events.push(entities[i].on('components.script.scripts:set', function(value, valueOld) {
+                for(var i = 0; i < value.length; i++)
+                    addScriptPanel(value[i]);
+            }));
 
             // subscribe to scripts:insert
             events.push(entities[i].on('components.script.scripts:insert', function (script, ind) {
-                var panelScript = createScriptPanel(script);
-                if (! panelScript)
-                    return;
-
-                scriptsIndex[script.get('url')] = panelScript;
-
-                var panels = panelScripts.innerElement.childNodes;
-
-                if (ind === panels.length) {
-                    // append at the end
-                    panelScripts.append(panelScript);
-                } else {
-                    // append before panel at next index
-                    panelScripts.appendBefore(panelScript, panels[ind]);
-                }
+                addScriptPanel(script, ind);
             }));
 
             events.push(entities[i].on('components.script.scripts:move', function (value, indNew, indOld) {
