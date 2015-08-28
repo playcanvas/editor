@@ -148,9 +148,9 @@ editor.once('load', function() {
             if (! editor.call('permissions:write') || ! scene)
                 return;
 
-            console.trace();
-            console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
-            console.log(op)
+            // console.trace();
+            // console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
+            // console.log(op)
 
             try {
                 scene.submitOp([ op ]);
