@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    editor.once('sceneSettings:load', function(settings) {
+    editor.on('sceneSettings:load', function(settings) {
         settings.history = new ObserverHistory({
             item: settings,
             prefix: 'settings.',

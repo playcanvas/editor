@@ -5,6 +5,7 @@ editor.once('load', function() {
 
     // Set whoisonline
     editor.method('whoisonline:set', function (data) {
+        whoisonline.clear();
         if (data) {
             data.forEach(function (id) {
                 whoisonline.add(id);

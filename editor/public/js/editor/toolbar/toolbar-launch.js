@@ -33,7 +33,7 @@ editor.once('load', function() {
     dropdownMenu.appendChild(launchRemote);
 
     var launchLocal = document.createElement('li');
-    launchLocal.innerHTML = 'Launch (Local)'
+    launchLocal.innerHTML = 'Launch (Local)';
     dropdownMenu.appendChild(launchLocal);
 
     var launchLocally = false;

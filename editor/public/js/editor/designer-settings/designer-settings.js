@@ -47,7 +47,7 @@ editor.once('load', function() {
     });
 
     // load designer settings
-    editor.once('start', function() {
+    editor.on('scene:raw', function() {
         Ajax
         .get('{{url.api}}/scenes/{{scene.id}}/designer_settings/{{self.id}}?access_token={{accessToken}}')
         .on('load', function(status, data) {

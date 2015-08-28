@@ -21,7 +21,7 @@ editor.once('load', function() {
 
     var tooltip = Tooltip.attach({
         target: sceneName.element,
-        text: 'Settings',
+        text: 'Manage Scenes',
         align: 'top',
         root: root
     });
@@ -31,7 +31,7 @@ editor.once('load', function() {
     });
 
     sceneName.on('click', function() {
-        editor.call('selector:set', 'designerSettings', [ editor.call('designerSettings') ]);
+        editor.call('picker:scene');
     });
 
     editor.on('attributes:clear', function() {
@@ -40,5 +40,9 @@ editor.once('load', function() {
 
     editor.on('attributes:inspect[designerSettings]', function() {
         sceneName.class.add('active');
+    });
+
+    editor.on('scene:unload', function () {
+        sceneName.text = '';
     });
 });

@@ -2816,3 +2816,275 @@ strong {
     opacity: 0;
     visibility: hidden;
 }
+
+.ui-overlay.picker-scene {
+    &.center {
+        > .content {
+            top: calc(50% - 5 * 64px / 2);
+            left: calc(50% - 250px);
+            width: 500px;
+            max-width: 100%;
+            height: 5*64px;
+            font-size: 14px;
+
+            > .picker-scene-panel {
+                > .picker-scene-header {
+                    height: 64px;
+                    line-height: 64px;
+                    background-color: $bcg-dark;
+                    color: $text-darkest;
+                    position: relative;
+
+                    @extend .noSelect;
+
+                    > .picker-scene-icon {
+                        position: absolute;
+                        left: 15px;
+                        top: -1px;
+                        font-size: 25px;
+
+                        &:after {
+                            content: '\E185'
+                        }
+                    }
+
+                    > .picker-scene-close {
+                        position: absolute;
+                        right: 15px;
+                        top: 0px;
+                        font-size: 20px;
+
+                        &:after {
+                            content: '\E436';
+                        }
+
+                        &:hover {
+                            color: $text-active;
+                            cursor: pointer;
+                        }
+                    }
+
+                    > .picker-scene-title {
+                        @extend .font-bold;
+                         -webkit-font-smoothing: antialiased;
+                        -moz-osx-font-smoothing: grayscale;
+                        font-smoothing: antialiased;
+                        color: $text-primary;
+                        padding-left: 54px;
+                        font-size: 16px;
+                    }
+
+                }
+
+                > .picker-scene-content {
+                    height: 3*64px;
+                    overflow: hidden;
+                    overflow-y: auto;
+
+                    > ul {
+                        list-style: none;
+                        margin: 0;
+                        padding: 0;
+
+                        > li {
+                            @extend .font-regular;
+                            overflow: hidden;
+
+                            height: 63px;
+                            line-height: 63px;
+                            padding-left: 55px;
+                            padding-right: 15px;
+                            position: relative;
+                            border-bottom: 1px solid $bcg-dark;
+
+                            > .scene-name {
+                                position: absolute;
+                                cursor: pointer;
+                                left: 55px;
+                                top: 15px;
+                                max-width: 330px;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                white-space: nowrap;
+                                line-height: 1;
+                                color: $text-primary;
+
+                                &:hover {
+                                    text-decoration: none;
+                                    color: $text-active;
+                                }
+                            }
+
+                            &.current {
+                                > .scene-name {
+                                    pointer-events: none;
+                                }
+                            }
+
+                            > .scene-primary {
+                                @extend .font-icon;
+                                @extend .noSelect;
+                                top: -2px;
+                                left: 15px;
+                                color: $text-darkest;
+                                font-size: 30px;
+                                position: absolute;
+                                cursor: pointer;
+
+                                &:hover {
+                                    color: $text-dark;
+                                }
+                            }
+
+                            &.primary > .scene-primary {
+                                color: #40d47e;
+                            }
+
+                            &.current:after {
+                                @extend .font-bold;
+                                content: 'CURRENT';
+                                position: absolute;
+                                top: 21px;
+                                right: 54px;
+                                line-height: 23px;
+                                text-align: center;
+                                height: 20px;
+                                width: 70px;
+                                color: $bcg-darkest;
+                                background-color: #40d47e;
+                                font-size: 12px;
+                            }
+
+                            > .scene-date {
+                                position: absolute;
+                                left: 55px;
+                                top: 35px;
+                                font-size: 12px;
+                                color: $text-darkest;
+                                line-height: 1;
+                            }
+
+                            > .scene-dropdown {
+                                position: absolute;
+                                display: block;
+                                right: 15px;
+                                top: 20px;
+                                width: 22px;
+                                height: 22px;
+                                background-color: $bcg-dark;
+
+                                > .scene-dropdown-icon {
+                                    color: $text-darkest;
+                                    transform: rotate(90deg);
+                                    position: absolute;
+                                    left: 3px;
+                                    top: -19px;
+                                    font-size: 20px;
+                                }
+
+                                &:hover {
+                                    background-color: $bcg-darkest;
+                                    cursor: pointer;
+                                }
+
+                                &.clicked {
+                                    background-color: $bcg-darkest;
+
+                                    > .scene-dropdown-icon {
+                                        color: $text-primary;
+                                        transform: rotate(-90deg);
+                                        transform-origin: 40% 50%;
+                                    }
+
+                                    > ul {
+                                        display: block;
+                                    }
+                                }
+
+                                > ul {
+                                    display: none;
+                                    margin: 0;
+                                    padding: 0;
+                                    position: absolute;
+                                    right: 0;
+                                    top: 100%;
+                                    list-style: none;
+                                    z-index: 100;
+
+                                    > li {
+                                        height: 45px;
+                                        line-height: 45px;
+                                        padding: 0 10px;
+                                        width: 150px;
+                                        background-color: $bcg-dark;
+                                        color: $text-dark;
+                                        @extend .noSelect;
+
+                                        &:hover {
+                                            background-color: #829193;
+                                            color: $text-primary;
+                                            cursor: pointer;
+                                        }
+                                    }
+                                }
+
+                            }
+
+                        }
+                    }
+                }
+
+                > .picker-scene-footer {
+                    height: 64px;
+                    line-height: 64px;
+                    background-color: $bcg-dark;
+                    position: relative;
+
+                    > .picker-scene-new {
+                        position: absolute;
+                        right: 10px;
+                        top: 15px;
+                        height: 34px;
+                        width: 70px + 34px;
+                        line-height: 34px;
+                        font-size: 14px;
+                        @extend .noSelect;
+                        cursor: pointer;
+
+                        color: $text-primary;
+
+                        > .left, > .right {
+                            display: inline-block;
+                            height: 34px;
+                            line-height: 34px;
+                            float: left;
+                            text-align: center;
+                        }
+
+                        > .left {
+                            background-color: #829193;
+                            width: 70px;
+                        }
+
+                        > .right {
+                            @extend .font-icon;
+                            background-color: $text-darkest;
+                            width: 34px;
+                        }
+
+                        &:not(.disabled):hover {
+                            > .right {
+                                background-color: #829193;
+                            }
+                        }
+
+                        &.disabled {
+                            cursor: not-allowed;
+                            opacity: 0.5;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

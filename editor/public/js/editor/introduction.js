@@ -289,7 +289,7 @@ editor.once('load', function() {
     };
 
     // if never seen introduction
-    editor.on('realtime:connected', function() {
+    editor.on('scene:raw', function() {
         if (config.self.openedEditor)
             return;
 
