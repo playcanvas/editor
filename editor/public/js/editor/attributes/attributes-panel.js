@@ -1084,7 +1084,7 @@ editor.once('load', function() {
 
                     var initialValue = null;
                     if (args.link) {
-                        if (! args.link instanceof Array) {
+                        if (! (args.link instanceof Array)) {
                             args.link = [args.link];
                         }
 

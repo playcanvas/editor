@@ -122,7 +122,7 @@ editor.once('load', function () {
             }
 
             if (attribute.defaultValue !== null && attribute.defaultValue !== undefined) {
-                if (typeof attribute.defaultValue !== 'object')
+                if (typeof attribute.defaultValue !== 'object' || attribute.defaultValue instanceof Array)
                     throw attributeErrorMsg(url, attribute, "Invalid default value for curve attribute");
 
                 var validData = {
@@ -138,7 +138,7 @@ editor.once('load', function () {
                     }
                 }
 
-                if (!validData.keys instanceof Array) {
+                if (!(validData.keys instanceof Array)) {
                     throw attributeErrorMsg(url, attribute, "Invalid keys. Needs to be an array");
                 }
 
@@ -147,7 +147,7 @@ editor.once('load', function () {
                         throw attributeErrorMsg(url, attribute, 'Invalid keys. Needs to be an array of ' + attribute.options.curves.length + ' arrays');
                     } else {
                         for (var i = 0, len = validData.keys.length; i < len; i++) {
-                            if (!validData.keys[i] instanceof Array) {
+                            if (!(validData.keys[i] instanceof Array)) {
                                 throw attributeErrorMsg(url, attribute, 'Invalid keys. Needs to be an array of ' + len + ' arrays');
                             } else {
                                 var len2 = validData.keys[i].length;
@@ -201,7 +201,7 @@ editor.once('load', function () {
             }
 
             if (attribute.defaultValue !== null && attribute.defaultValue !== undefined) {
-                if (typeof attribute.defaultValue !== 'object')
+                if (typeof attribute.defaultValue !== 'object' || attribute.defaultValue instanceof Array)
                     throw attributeErrorMsg(url, attribute, "Invalid default value for curve attribute");
 
                 var validData = {
@@ -217,7 +217,7 @@ editor.once('load', function () {
                     }
                 }
 
-                if (!validData.keys instanceof Array) {
+                if (!(validData.keys instanceof Array)) {
                     throw attributeErrorMsg(url, attribute, "Invalid keys. Needs to be an array");
                 }
 
@@ -226,7 +226,7 @@ editor.once('load', function () {
                         throw attributeErrorMsg(url, attribute, 'Invalid keys. Needs to be an array of ' + attribute.options.type.length + ' arrays');
                     } else {
                         for (var i = 0, len = validData.keys.length; i < len; i++) {
-                            if (!validData.keys[i] instanceof Array) {
+                            if (!(validData.keys[i] instanceof Array)) {
                                 throw attributeErrorMsg(url, attribute, 'Invalid keys. Needs to be an array of ' + len + ' arrays');
                             } else {
                                 var len2 = validData.keys[i].length;
