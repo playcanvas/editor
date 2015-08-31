@@ -30,7 +30,6 @@ editor.once('load', function() {
             type: 'number',
             precision: 2,
             step: .1,
-            min: 0,
             link: entities,
             path: 'components.animation.speed'
         });
