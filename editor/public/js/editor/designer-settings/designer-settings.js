@@ -47,7 +47,7 @@ editor.once('load', function() {
     });
 
     // load designer settings
-    editor.on('scene:raw', function() {
+    var loadSettings = function () {
         Ajax
         .get('{{url.api}}/scenes/{{scene.id}}/designer_settings/{{self.id}}?access_token={{accessToken}}')
         .on('load', function(status, data) {
@@ -64,5 +64,17 @@ editor.once('load', function() {
             designerSettings.history = true;
             designerSettings.sync = true;
         });
-    });
+    };
+
+    // if we already have a scene id then load settings otherwise
+    // wait for a scene id to be loaded and then load settings
+    if (config.scene.id) {
+        loadSettings();
+        // wait for first scene:raw to pass then register on scene:raw to reload settings
+        editor.once('scene:raw', function () {
+            editor.on('scene:raw', loadSettings);
+        });
+    } else  {
+        editor.on('scene:raw', loadSettings);
+    }
 });
