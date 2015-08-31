@@ -55,6 +55,26 @@ editor.once('load', function() {
         var events = [ ];
         var scriptsIndex = { };
 
+        for(var i = 0; i < entities.length; i++) {
+            events.push(entities[i].on('components.script:unset', function(valueOld) {
+                if (! valueOld)
+                    return;
+
+                for(var i = 0; i < valueOld.scripts.length; i++) {
+                    var scriptPanel = scriptsIndex[valueOld.scripts[i].url];
+                    if (! scriptPanel)
+                        continue;
+
+                    scriptPanel.count--;
+                    scriptPanel._link.textContent = (scriptPanel.count === entities.length ? '' : '* ') + scriptPanel._originalTitle;
+
+                    if (scriptPanel.count === 0) {
+                        scriptPanel.destroy();
+                        delete scriptsIndex[valueOld.scripts[i].url];
+                    }
+                }
+            }));
+        }
 
         var urlRegex = /^http(s)?:/;
         var jsRegex = /\.js$/;
@@ -247,9 +267,54 @@ editor.once('load', function() {
                                 continue;
 
                             var value = data.attributes[attributeName].defaultValue;
-                            if (attributeName in oldAttributes && oldAttributes[attributeName].type === data.attributes[attributeName].type) {
-                                value = oldAttributes[attributeName].value !== oldAttributes[attributeName].defaultValue ? oldAttributes[attributeName].value : value;
+                            if (attributeName in oldAttributes) {
+                                var attributeOld = oldAttributes[attributeName];
+                                var attributeNew = data.attributes[attributeName];
+
+                                if (attributeOld.type === 'asset') {
+                                    if (attributeOld.options.type !== attributeNew.options.type) {
+                                        // different asset.type
+                                        if (attributeNew.options.max === 1) {
+                                            if (typeof(attributeNew.defaultValue) === 'number') {
+                                                value = attributeNew.defaultValue;
+                                            } else {
+                                                value = null;
+                                            }
+                                        } else {
+                                            if (attributeNew.defaultValue instanceof Array) {
+                                                value = attributeNew.defaultValue;
+                                            } else {
+                                                value = [ ];
+                                            }
+                                        }
+                                    } else if (attributeOld.options.max === 1 && attributeNew.options.max !== 1) {
+                                        // now multiple assets
+                                        if (attributeOld.value && typeof(attributeOld.value) === 'number') {
+                                            value = [ attributeOld.value ];
+                                        } else if (attributeNew.defaultValue instanceof Array) {
+                                            value = attributeNew.defaultValue;
+                                        } else {
+                                            value = [ ];
+                                        }
+                                    } else if (attributeOld.options.max !== 1 && attributeNew.options.max === 1) {
+                                        // now single asset
+                                        if ((attributeOld.value instanceof Array) && attributeOld.value.length && attributeOld.value[0] && typeof(attributeOld.value[0]) === 'number') {
+                                            value = attributeOld.value[0];
+                                        } else if (typeof(attributeNew.defaultValue) === 'number') {
+                                            value = attributeNew.defaultValue;
+                                        } else {
+                                            value = null;
+                                        }
+                                    } else {
+                                        // old value
+                                        value = attributeOld.value !== attributeOld.defaultValue ? attributeOld.value : value;
+                                    }
+                                } else if (attributeOld.type === data.attributes[attributeName].type) {
+                                    // old value
+                                    value = attributeOld.value !== attributeOld.defaultValue ? attributeOld.value : value;
+                                }
                             }
+
                             data.attributes[attributeName].value = value;
                         }
 
@@ -438,7 +503,6 @@ editor.once('load', function() {
                             evtTypeChanged.unbind();
                         }
                     });
-
                     events.push(evtTypeChanged);
                 }
 
@@ -496,15 +560,56 @@ editor.once('load', function() {
                     evtMaxUnset.unbind();
                 }));
             } else if (scriptAttributeTypes[attribute.type] === 'assets') {
-                // assets
-                field = editor.call('attributes:addAssetsList', {
-                    panel: parent,
-                    title: 'Asset',
-                    type: attribute.options.type || '*',
-                    link: scripts,
-                    path: 'attributes.' + attribute.name + '.value'
+                var options;
+
+                if (attribute.options.max === 1) {
+                    // asset
+                    options = {
+                        parent: parent,
+                        name: attribute.displayName || attribute.name,
+                        type: 'asset',
+                        kind: attribute.options.type || '*',
+                        link: scripts,
+                        path: 'attributes.' + attribute.name + '.value',
+                        single: true
+                    };
+                    field = editor.call('attributes:addField', options);
+                } else {
+                    // assets
+                    options = {
+                        panel: parent,
+                        title: 'Asset',
+                        type: attribute.options.type || '*',
+                        link: scripts,
+                        path: 'attributes.' + attribute.name + '.value'
+                    };
+                    field = editor.call('attributes:addAssetsList', options);
+                    field.parent._label.text = attribute.displayName || attribute.name;
+                }
+
+                field.options = options;
+
+                // if we change asset `type`
+                var evtAssetTypeChanged = scripts[0].on('attributes.' + attribute.name + '.options.type:set', function (value) {
+                    options.kind = value || '*';
                 });
-                field.parent._label.text = attribute.displayName || attribute.name;
+                events.push(evtAssetTypeChanged);
+
+                // if we change `max` to change between single/multiple
+                var evtMaxAssetChanged = script.on('attributes.' + attribute.name + '.options.max:set', function(value) {
+                    if ((options.single && value === 1) || (! options.single && value !== 1))
+                        return;
+
+                    setTimeout(function() {
+                        updateAttributeFields(script, parent);
+                    }, 0);
+                });
+                events.push(evtMaxAssetChanged);
+
+                field.once('destroy', function() {
+                    evtAssetTypeChanged.unbind();
+                    evtMaxAssetChanged.unbind();
+                });
             }
 
             var fieldParent;
@@ -739,38 +844,42 @@ editor.once('load', function() {
             return filename;
         };
 
+        var addScriptPanel = function(script, ind) {
+            var panelScript = createScriptPanel(script);
+            if (! panelScript)
+                return;
+
+            scriptsIndex[script.get('url')] = panelScript;
+
+            var panels = panelScripts.innerElement.childNodes;
+
+            if (ind === undefined || ind === panels.length) {
+                // append at the end
+                panelScripts.append(panelScript);
+            } else {
+                // append before panel at next index
+                panelScripts.appendBefore(panelScript, panels[ind]);
+            }
+        };
+
         // add existing scripts and subscribe to scripts Observer list
         for(var i = 0; i < entities.length; i++) {
             var scripts = entities[i].getRaw('components.script.scripts');
 
             if (scripts) {
-                for(var s = 0; s < scripts.length; s++) {
-                    var panelScript = createScriptPanel(scripts[s]);
-                    if (! panelScript)
-                        continue;
-
-                    scriptsIndex[scripts[s].get('url')] = panelScript;
-                    panelScripts.append(panelScript);
-                }
+                for(var s = 0; s < scripts.length; s++)
+                    addScriptPanel(scripts[s]);
             }
+
+            // subscribe to scripts:set
+            events.push(entities[i].on('components.script.scripts:set', function(value, valueOld) {
+                for(var i = 0; i < value.length; i++)
+                    addScriptPanel(value[i]);
+            }));
 
             // subscribe to scripts:insert
             events.push(entities[i].on('components.script.scripts:insert', function (script, ind) {
-                var panelScript = createScriptPanel(script);
-                if (! panelScript)
-                    return;
-
-                scriptsIndex[script.get('url')] = panelScript;
-
-                var panels = panelScripts.innerElement.childNodes;
-
-                if (ind === panels.length) {
-                    // append at the end
-                    panelScripts.append(panelScript);
-                } else {
-                    // append before panel at next index
-                    panelScripts.appendBefore(panelScript, panels[ind]);
-                }
+                addScriptPanel(script, ind);
             }));
 
             events.push(entities[i].on('components.script.scripts:move', function (value, indNew, indOld) {

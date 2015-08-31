@@ -42,6 +42,17 @@ editor.once('load', function() {
     });
 
 
+    // clear
+    editor.method('history:clear', function() {
+        if (! actions.length)
+            return;
+
+        actions = [ ];
+        current = -1;
+        checkCanUndoRedo();
+    });
+
+
     // add action
     editor.method('history:add', function(action) {
         // some history needs erasing
