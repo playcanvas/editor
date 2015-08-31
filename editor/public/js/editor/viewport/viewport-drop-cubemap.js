@@ -107,6 +107,9 @@ editor.once('load', function() {
         type: 'asset.cubemap',
         hole: true,
         drop: function(type, data) {
+            if (!config.scene.id)
+                return;
+
             if (evtPickHover) {
                 evtPickHover.unbind();
                 evtPickHover = null;
@@ -143,6 +146,9 @@ editor.once('load', function() {
             }
         },
         over: function(type, data) {
+            if (!config.scene.id)
+                return;
+
             hoverCubemap = app.assets.get(parseInt(data.id, 10));
             if (! hoverCubemap)
                 return;
@@ -158,6 +164,9 @@ editor.once('load', function() {
             onHover(null, null);
         },
         leave: function() {
+            if (!config.scene.id)
+                return;
+
             if (evtPickHover) {
                 evtPickHover.unbind();
                 evtPickHover = null;

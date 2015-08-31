@@ -82,6 +82,9 @@ editor.once('load', function() {
         type: 'asset.material',
         hole: true,
         drop: function(type, data) {
+            if (!config.scene.id)
+                return;
+
             if (evtPickHover)
                 evtPickHover.unbind();
 
@@ -110,6 +113,9 @@ editor.once('load', function() {
             }
         },
         over: function(type, data) {
+            if (!config.scene.id)
+                return;
+
             hoverMaterial = app.assets.get(parseInt(data.id, 10));
             if (! hoverMaterial)
                 return;
@@ -123,6 +129,9 @@ editor.once('load', function() {
             evtPickHover = editor.on('viewport:pick:hover', onPickHover);
         },
         leave: function() {
+            if (!config.scene.id)
+                return;
+
             if (evtPickHover) {
                 evtPickHover.unbind();
                 evtPickHover = null;
