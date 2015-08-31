@@ -237,7 +237,8 @@ editor.once('load', function() {
                 return evt.preventDefault();
 
             evt.dataTransfer.effectAllowed = 'move';
-            evt.dataTransfer.setDragImage(imgDrag, 0, 0);
+            if (evt.dataTransfer.setDragImage)
+                evt.dataTransfer.setDragImage(imgDrag, 0, 0);
             evt.dataTransfer.setData('Text', args.type);
             currentType = args.type;
             currentData = args.data;
