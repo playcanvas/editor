@@ -344,7 +344,7 @@ editor.once('load', function() {
     // Sets value for the picker and render it
     function setValue (value, args) {
         // sanity checks mostly for script 'curve' attributes
-        if (! value instanceof Array || value.length === 0 || value[0].keys === undefined)
+        if (!(value instanceof Array) || value.length === 0 || value[0].keys === undefined)
             return;
 
         suspendEvents = true;

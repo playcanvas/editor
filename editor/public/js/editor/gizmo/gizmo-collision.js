@@ -81,10 +81,11 @@ editor.once('load', function () {
                 this.entity.setLocalScale(1, 1, 1);
             } else if (this.type === 'mesh') {
                 this.asset = collision.asset;
+                this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
                 this.createWireframe(collision.asset)
-                this.entity.setLocalScale(1, 1, 1);
-                if (! this.entity.model.model) {
+                if (! this.asset) {
                     this.entity.enabled = false;
+                    this.entity.model.model = null;
                     return;
                 }
             } else {
@@ -124,12 +125,14 @@ editor.once('load', function () {
                 mat = materials['capsuleBehind-' + axesNames[collision.axis]];
                 break;
             case 'mesh':
+                this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
+
                 if (collision.asset !== this.asset) {
                     this.asset = collision.asset;
                     this.createWireframe(collision.asset);
-                    this.entity.setLocalScale(1, 1, 1);
-                    if (! this.entity.model.model) {
+                    if (! this.asset) {
                         this.entity.enabled = false;
+                        this.entity.model.model = null;
                         return;
                     }
                 }

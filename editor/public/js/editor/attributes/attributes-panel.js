@@ -987,10 +987,10 @@ editor.once('load', function() {
                     filter: function(type, data) {
                         var rectA = root.innerElement.getBoundingClientRect();
                         var rectB = panel.element.getBoundingClientRect();
-                        return type === 'asset.' + args.kind && parseInt(data.id, 10) !== field.value && rectB.top > rectA.top && rectB.bottom < rectA.bottom;
+                        return (args.kind === '*' || type === 'asset.' + args.kind) && parseInt(data.id, 10) !== field.value && rectB.top > rectA.top && rectB.bottom < rectA.bottom;
                     },
                     drop: function(type, data) {
-                        if (type !== 'asset.' + args.kind)
+                        if (args.kind !== '*' && type !== 'asset.' + args.kind)
                             return;
 
                         field.value = parseInt(data.id, 10);
@@ -1084,7 +1084,7 @@ editor.once('load', function() {
 
                     var initialValue = null;
                     if (args.link) {
-                        if (! args.link instanceof Array) {
+                        if (! (args.link instanceof Array)) {
                             args.link = [args.link];
                         }
 
@@ -1311,7 +1311,7 @@ editor.once('load', function() {
             type: 'asset.' + type,
             filter: function(type, data) {
                 // type
-                if ((assetType && assetType !== '*' && type !== 'asset.' + assetType) || type !== 'asset')
+                if ((assetType && assetType !== '*' && type !== 'asset.' + assetType) || ! type.startsWith('asset'))
                     return false;
 
                 // overflowed
@@ -1330,7 +1330,7 @@ editor.once('load', function() {
                 return false;
             },
             drop: function(type, data) {
-                if ((assetType && assetType !== '*' && type !== 'asset.' + assetType) || type !== 'asset')
+                if ((assetType && assetType !== '*' && type !== 'asset.' + assetType) || ! type.startsWith('asset'))
                     return;
 
                 var records = [ ];
@@ -1537,6 +1537,21 @@ editor.once('load', function() {
             });
         };
 
+        var removeAsset = function(assetId) {
+            var item = assetIndex[assetId];
+
+            if (! item)
+                return;
+
+            item.count--;
+
+            if (item.count === 0) {
+                item.destroy();
+            } else {
+                item.text = (item.count === link.length ? '' : '* ') + item._assetText;
+            }
+        };
+
         // on adding new asset
         itemAdd.on('click', function() {
             // call picker
@@ -1621,10 +1636,33 @@ editor.once('load', function() {
                     addAsset(assets[a]);
             }
 
-            events.push(link[i].on(path + ':set', function(assets) {
+            events.push(link[i].on(path + ':set', function(assets, assetsOld) {
+                if (! (assets instanceof Array))
+                    return;
+
+                if (! (assetsOld instanceof Array))
+                    assetsOld = [ ];
+
+                var assetIds = { };
                 for(var a = 0; a < assets.length; a++)
-                    addAsset(assets[a]);
-            }))
+                    assetIds[assets[a]] = true;
+
+                var assetOldIds = { };
+                for(var a = 0; a < assetsOld.length; a++)
+                    assetOldIds[assetsOld[a]] = true;
+
+                // remove
+                for(var id in assetOldIds) {
+                    if (assetIds[id])
+                        continue;
+
+                    removeAsset(id);
+                }
+
+                // add
+                for(var id in assetIds)
+                    addAsset(id);
+            }));
 
             events.push(link[i].on(path + ':insert', function(assetId, ind) {
                 var before;
@@ -1636,23 +1674,10 @@ editor.once('load', function() {
                 addAsset(assetId, before);
             }));
 
-            events.push(link[i].on(path + ':remove', function(assetId) {
-                var item = assetIndex[assetId];
-
-                if (! item)
-                    return;
-
-                item.count--;
-
-                if (item.count === 0) {
-                    item.destroy();
-                } else {
-                    item.text = (item.count === link.length ? '' : '* ') + item._assetText;
-                }
-            }));
+            events.push(link[i].on(path + ':remove', removeAsset));
         }
 
-        panel.once('destroy', function() {
+        fieldAssetsList.once('destroy', function() {
             for(var i = 0; i < events.length; i++)
                 events[i].unbind();
         });
