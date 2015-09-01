@@ -48,8 +48,6 @@ editor.once('load', function() {
     content.appendChild(progressBar.element);
     progressBar.hidden = true;
 
-    var isDeleting = false;
-
     // dropdown menu for each scene
     var dropdownMenu = ui.Menu.fromData({
         'scene-duplicate': {
@@ -90,17 +88,15 @@ editor.once('load', function() {
         'scene-delete': {
             title: 'Delete Scene',
             filter: function () {
-                return editor.call('permissions:write') && !isDeleting;
+                return editor.call('permissions:write');
             },
             select: function () {
                 var ok = confirm('Are you sure you want to delete this Scene?');
                 if (!ok) return;
 
-                isDeleting = true;
-                onSceneDeleted(dropdownScene.id);
-                editor.call('scenes:delete', dropdownScene.id, function () {
-                    isDeleting = false;
-                });
+                var id = dropdownScene.id;
+                onSceneDeleted(id);
+                editor.call('scenes:delete', id);
             }
         }
     });
@@ -175,7 +171,6 @@ editor.once('load', function() {
         container.innerHTML = '';
         dropdowns = {};
         scenes = [];
-        isDeleting = false;
         editor.emit('picker:scene:close');
     });
 
