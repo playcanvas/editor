@@ -2837,11 +2837,12 @@ strong {
 .ui-overlay.picker-scene {
     &.center {
         > .content {
-            top: calc(50% - 5 * 64px / 2);
+            top: calc(50% - (2 * 64px + 3 * 66px) / 2);
             left: calc(50% - 250px);
             width: 500px;
+            height: auto;
             max-width: 100%;
-            height: 5*64px;
+            max-height: 64px*2 + 3.5*66px;
             font-size: 14px;
 
             > .picker-scene-panel {
@@ -2896,7 +2897,7 @@ strong {
                 }
 
                 > .picker-scene-content {
-                    height: 3*64px;
+                    max-height: 3.5*66px;
                     overflow: hidden;
                     overflow-y: auto;
 
@@ -2909,8 +2910,8 @@ strong {
                             @extend .font-regular;
                             overflow: hidden;
 
-                            height: 63px;
-                            line-height: 63px;
+                            height: 65px;
+                            line-height: 65px;
                             padding-left: 55px;
                             padding-right: 15px;
                             position: relative;
@@ -2991,6 +2992,7 @@ strong {
                                 width: 22px;
                                 height: 22px;
                                 background-color: $bcg-dark;
+                                overflow: hidden;
 
                                 > .scene-dropdown-icon {
                                     color: $text-darkest;
