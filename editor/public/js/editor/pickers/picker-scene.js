@@ -48,6 +48,8 @@ editor.once('load', function() {
     content.appendChild(progressBar.element);
     progressBar.hidden = true;
 
+    var isDeleting = false;
+
     // dropdown menu for each scene
     var dropdownMenu = ui.Menu.fromData({
         'scene-duplicate': {
@@ -62,13 +64,16 @@ editor.once('load', function() {
         'scene-delete': {
             title: 'Delete Scene',
             filter: function () {
-                return editor.call('permissions:write');
+                return editor.call('permissions:write') && !isDeleting;
             },
             select: function () {
                 var ok = confirm('Are you sure you want to delete this Scene?');
                 if (!ok) return;
 
-                editor.call('scenes:delete', dropdownScene.id);
+                isDeleting = true;
+                editor.call('scenes:delete', dropdownScene.id, function () {
+                    isDeleting = false;
+                });
             }
         }
     });
@@ -143,6 +148,7 @@ editor.once('load', function() {
         container.innerHTML = '';
         dropdowns = {};
         scenes = [];
+        isDeleting = false;
         editor.emit('picker:scene:close');
     });
 
@@ -272,6 +278,7 @@ editor.once('load', function() {
 
         for (var i = 0; i < scenes.length; i++) {
             if (parseInt(scenes[i].id, 10) === parseInt(data.pack.id, 10)) {
+                // close dropdown menu if current scene deleted
                 if (dropdownScene === scenes[i])
                     dropdownMenu.open = false;
 
@@ -280,6 +287,7 @@ editor.once('load', function() {
             }
         }
 
+        // if loaded scene deleted do not allow closing popup
         if (!config.scene.id || parseInt(config.scene.id, 10) === parseInt(data.pack.id, 10)) {
             close.classList.add('hidden');
             overlay.clickable = false;
