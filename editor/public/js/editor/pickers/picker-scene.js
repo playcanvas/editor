@@ -58,8 +58,33 @@ editor.once('load', function() {
                 return editor.call('permissions:write');
             },
             select: function () {
-                var newName = dropdownScene.name + ' 2';
-                editor.call('scenes:duplicate', dropdownScene.id);
+                var name = dropdownScene.name;
+                var regex = /^(.*?) ([0-9]+)$/;
+                var numberPart = 2;
+                var namePart = dropdownScene.name;
+                var matches = dropdownScene.name.match(regex);
+                if (matches && matches.length === 3) {
+                    namePart = matches[1];
+                    numberPart = parseInt(matches[2], 10);
+                }
+
+                // create duplicate scene name
+                while (true)  {
+                    name = namePart + ' ' + numberPart;
+                    var found = true;
+                    for (var i = 0; i < scenes.length; i++) {
+                        if (scenes[i].name === name) {
+                            numberPart++;
+                            found = false;
+                            break;
+                        }
+                    }
+
+                    if (found)
+                        break;
+                }
+
+                editor.call('scenes:duplicate', dropdownScene.id, name);
             }
         },
         'scene-delete': {

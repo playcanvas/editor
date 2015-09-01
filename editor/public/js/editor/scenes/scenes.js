@@ -30,10 +30,11 @@ editor.once('load', function () {
     });
 
     // Duplicate scene and pass result to callback
-    editor.method('scenes:duplicate', function (sceneId, callback) {
+    editor.method('scenes:duplicate', function (sceneId, newName, callback) {
         Ajax.post('{{url.api}}/scenes?access_token={{accessToken}}', {
             project_id: config.project.id,
-            duplicate_from: sceneId
+            duplicate_from: sceneId,
+            name: newName
         })
         .on('load', function (status, data) {
             if (callback)
