@@ -71,6 +71,7 @@ editor.once('load', function() {
                 if (!ok) return;
 
                 isDeleting = true;
+                onSceneDeleted(dropdownScene.id);
                 editor.call('scenes:delete', dropdownScene.id, function () {
                     isDeleting = false;
                 });
@@ -271,19 +272,18 @@ editor.once('load', function() {
         overlay.hidden = true;
     });
 
-    // subscribe to messenger pack.delete
-    editor.on('messenger:pack.delete', function (data) {
+    var onSceneDeleted = function (sceneId) {
         if (overlay.hidden) return;
 
-        var row = document.getElementById('picker-scene-' + data.pack.id);
+        var row = document.getElementById('picker-scene-' + sceneId);
         if (row) {
             row.parentElement.removeChild(row);
         }
 
-        delete dropdowns[data.pack.id];
+        delete dropdowns[sceneId];
 
         for (var i = 0; i < scenes.length; i++) {
-            if (parseInt(scenes[i].id, 10) === parseInt(data.pack.id, 10)) {
+            if (parseInt(scenes[i].id, 10) === parseInt(sceneId, 10)) {
                 // close dropdown menu if current scene deleted
                 if (dropdownScene === scenes[i])
                     dropdownMenu.open = false;
@@ -294,12 +294,16 @@ editor.once('load', function() {
         }
 
         // if loaded scene deleted do not allow closing popup
-        if (!config.scene.id || parseInt(config.scene.id, 10) === parseInt(data.pack.id, 10)) {
+        if (!config.scene.id || parseInt(config.scene.id, 10) === parseInt(sceneId, 10)) {
             close.classList.add('hidden');
             overlay.clickable = false;
         }
-    });
+    };
 
+    // subscribe to messenger pack.delete
+    editor.on('messenger:pack.delete', function (data) {
+        onSceneDeleted(data.pack.id);
+    });
 
     // subscribe to messenger pack.new
     editor.on('messenger:pack.new', function (data) {
