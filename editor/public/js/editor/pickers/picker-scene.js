@@ -348,6 +348,15 @@ editor.once('load', function() {
 
     editor.on('project:primaryScene', onPrimarySceneChanged);
 
+    // handle permission changes
+    editor.on('permissions:set:' + config.self.id, function () {
+        if (editor.call('permissions:write')) {
+            newScene.classList.remove('disabled');
+        } else {
+            newScene.classList.add('disabled');
+        }
+    });
+
     // open picker if no scene is loaded
     if (!config.scene.id)
         editor.call('picker:scene');
