@@ -8,18 +8,45 @@ editor.once('load', function() {
     panel.class.add('widget-title');
     viewport.append(panel);
 
+    var home = new ui.Label();
+    home.text = '&#58661;';
+    home.class.add('home');
+    panel.append(home);
+
+    home.on('click', function () {
+        window.open('/', '_blank');
+    });
+
+    Tooltip.attach({
+        target: home.element,
+        text: 'Dashboard',
+        align: 'top',
+        root: root
+    });
+
     var projectName = new ui.Label();
     projectName.text = config.project.name;
     projectName.class.add('project-name');
     projectName.renderChanges = false;
     panel.append(projectName);
 
+    projectName.on('click', function (argument) {
+        window.open('/project/' + config.project.id, '_blank');
+    });
+
+    Tooltip.attach({
+        target: projectName.element,
+        text: 'Project',
+        align: 'top',
+        root: root
+    });
+
     var sceneName = new ui.Label();
     sceneName.class.add('scene-name');
     sceneName.renderChanges = false;
     panel.append(sceneName);
 
-    var tooltip = Tooltip.attach({
+    Tooltip.attach({
         target: sceneName.element,
         text: 'Settings',
         align: 'top',
@@ -40,5 +67,33 @@ editor.once('load', function() {
 
     editor.on('attributes:inspect[designerSettings]', function() {
         sceneName.class.add('active');
+    });
+
+    editor.on('scene:unload', function () {
+        sceneName.text = '';
+    });
+
+    var sceneList = new ui.Label();
+    sceneList.text = 'Scene Menu';
+    sceneList.class.add('scene-list');
+    panel.append(sceneList);
+
+    Tooltip.attach({
+        target: sceneList.element,
+        text: 'Manage Scenes',
+        align: 'top',
+        root: root
+    });
+
+    sceneList.on('click', function () {
+        editor.call('picker:scene');
+    });
+
+    editor.on('picker:scene:open', function () {
+        sceneList.class.add('active');
+    });
+
+    editor.on('picker:scene:close', function () {
+        sceneList.class.remove('active');
     });
 });

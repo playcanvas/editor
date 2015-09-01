@@ -7,6 +7,9 @@ editor.once('load', function() {
         ref: canvas.element,
         type: 'asset.model',
         drop: function(type, data) {
+            if (!config.scene.id)
+                return;
+
             if (type !== 'asset.model')
                 return;
 

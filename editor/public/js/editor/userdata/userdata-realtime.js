@@ -3,13 +3,8 @@ editor.once('load', function() {
 
     var userData = null;
 
-    editor.on('scene:raw', function () {
-        if (editor.call('permissions:read'))
-            loadUserData();
-    });
-
     var loadUserData = function () {
-        if (! userData) {
+        if (! userData && config.scene.id) {
             userData = editor.call('realtime:subscribe:userdata', config.scene.id, config.self.id);
         }
     };
@@ -62,7 +57,7 @@ editor.once('load', function() {
 
     // subscribe to permission changes for userdata
     editor.on('permissions:set:' + config.self.id, function () {
-        if (editor.call('permissions:read')) {
+        if (editor.call('permissions:read') && config.scene.id) {
             loadUserData();
         } else {
             if (userData) {
@@ -78,4 +73,17 @@ editor.once('load', function() {
             userData = null;
         }
     });
+
+    editor.on('scene:unload', function () {
+        if (userData) {
+            userData.destroy();
+            userData = null;
+        }
+    });
+
+    editor.on('scene:raw', function () {
+        if (editor.call('permissions:read'))
+            loadUserData();
+    });
+
 });
