@@ -1775,6 +1775,8 @@ strong {
         line-height: 30px;
         color: rgba($text-primary, .75);
 
+        @extend .font-regular;
+
         &:after {
             width: 30px;
             height: 30px;
@@ -1809,6 +1811,8 @@ strong {
         > li {
             padding: 0px 9px 0px 10px;
             line-height: 32px;
+
+            @extend .font-regular;
         }
     }
 }
@@ -1948,10 +1952,10 @@ strong {
         }
 
         > .home, > .project-name, > .scene-name, > .scene-list {
-            height: 30px;
-            min-height: 30px;
-            line-height: 30px;
-            padding: 0 8px;
+            height: 32px;
+            min-height: 32px;
+            line-height: 32px;
+            padding: 0 10px;
             margin: 0 2px 0 0;
             color: rgba(#fff, 0.75);
             background-color: rgba(41, 53, 56, 0.5);
@@ -1970,7 +1974,6 @@ strong {
 
         > .project-name, > .scene-name, > .scene-list {
             font-size: 12px;
-            font-family: inconsolatamedium;
         }
 
         > .scene-list {
