@@ -1975,7 +1975,7 @@ strong {
 
         > .scene-list {
             display: block;
-            width: 100px;
+            width: 90px;
             font-size: 13px;
 
             &:before {
@@ -2920,6 +2920,7 @@ strong {
                             &:not(.current):hover {
                                 background-color: #414f52;
                                 cursor: pointer;
+
                                 > .scene-name {
                                     color: $text-active;
                                 }
@@ -2936,17 +2937,6 @@ strong {
                                 white-space: nowrap;
                                 line-height: 1;
                                 color: $text-primary;
-
-                                &:hover {
-                                    text-decoration: none;
-                                    color: $text-active;
-                                }
-                            }
-
-                            &.current {
-                                > .scene-name {
-                                    pointer-events: none;
-                                }
                             }
 
                             > .scene-primary {
@@ -2978,7 +2968,7 @@ strong {
                                 text-align: center;
                                 height: 18px;
                                 width: 55px;
-                                color: $bcg-darkest;
+                                color: $bcg-primary;
                                 background-color: #40d47e;
                                 font-size: 10px;
                             }
@@ -3003,7 +2993,7 @@ strong {
                                 overflow: hidden;
 
                                 > .scene-dropdown-icon {
-                                    color: $bcg-dark;
+                                    color: $bcg-primary;
                                     transform: rotate(90deg);
                                     position: absolute;
                                     left: 3px;
