@@ -5,6 +5,7 @@ editor.once('load', function() {
     var overlay = new ui.Overlay();
     overlay.class.add('picker-scene');
     overlay.hidden = true;
+    overlay.clickable = false;
 
     // picker panel
     var panel = document.createElement('div');
@@ -128,6 +129,12 @@ editor.once('load', function() {
     // on overlay show
     overlay.on('show', function () {
         editor.emit('picker:scene:open');
+        overlay.clickable = !!config.scene.id;
+        if (config.scene.id) {
+            close.classList.remove('hidden');
+        } else {
+            close.classList.add('hidden');
+        }
     });
 
     // on overlay hide
@@ -265,9 +272,17 @@ editor.once('load', function() {
 
         for (var i = 0; i < scenes.length; i++) {
             if (parseInt(scenes[i].id, 10) === parseInt(data.pack.id, 10)) {
+                if (dropdownScene === scenes[i])
+                    dropdownMenu.open = false;
+
                 scenes.splice(i, 1);
                 break;
             }
+        }
+
+        if (!config.scene.id || parseInt(config.scene.id, 10) === parseInt(data.pack.id, 10)) {
+            close.classList.add('hidden');
+            overlay.clickable = false;
         }
     });
 
