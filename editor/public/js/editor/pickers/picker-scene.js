@@ -42,6 +42,11 @@ editor.once('load', function() {
     var container = document.createElement('ul');
     content.appendChild(container);
 
+    // progress bar
+    var progressBar = new ui.Progress({progress: 1});
+    content.appendChild(progressBar.element);
+    progressBar.hidden = true;
+
     // dropdown menu for each scene
     var dropdownMenu = ui.Menu.fromData({
         'scene-duplicate': {
@@ -107,9 +112,10 @@ editor.once('load', function() {
         if (! editor.call('permissions:write'))
             return;
 
+        editor.call('picker:scene:close');
+
         editor.call('scenes:new', function (scene) {
             editor.call('scene:load', scene.id, true);
-            editor.call('picker:scene:close');
         });
     });
 
@@ -126,6 +132,7 @@ editor.once('load', function() {
 
     // on overlay hide
     overlay.on('hide', function() {
+        progressBar.hidden = true;
         container.innerHTML = '';
         dropdowns = {};
         scenes = [];
@@ -223,8 +230,11 @@ editor.once('load', function() {
     editor.method('picker:scene', function() {
         if (!overlay.hidden) return;
 
+        progressBar.hidden = false;
+
         // load scenes
         editor.call('scenes:list', function (items) {
+            progressBar.hidden = true;
             scenes = items;
             sortScenes(scenes);
             scenes.forEach(function (scene) {
