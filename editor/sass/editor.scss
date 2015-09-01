@@ -1976,7 +1976,6 @@ strong {
         > .scene-list {
             display: block;
             width: 90px;
-            font-size: 13px;
 
             &:before {
                 content: '\E185';
@@ -2995,6 +2994,7 @@ strong {
                                 > .scene-dropdown-icon {
                                     color: $bcg-primary;
                                     transform: rotate(90deg);
+                                    transform-origin: 10px 32px 0px;
                                     position: absolute;
                                     left: 3px;
                                     top: -19px;
