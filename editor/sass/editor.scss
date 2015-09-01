@@ -1944,12 +1944,13 @@ strong {
     > .content {
         > .home {
             @extend .font-icon;
+            font-size: 14px;
         }
 
         > .home, > .project-name, > .scene-name, > .scene-list {
-            height: 28px;
-            min-height: 28px;
-            line-height: 28px;
+            height: 30px;
+            min-height: 30px;
+            line-height: 30px;
             padding: 0 8px;
             margin: 0 2px 0 0;
             color: rgba(#fff, 0.75);
@@ -1967,14 +1968,21 @@ strong {
             margin-bottom: 4px;
         }
 
+        > .project-name, > .scene-name, > .scene-list {
+            font-size: 12px;
+            font-family: inconsolatamedium;
+        }
+
         > .scene-list {
             display: block;
             width: 100px;
+            font-size: 13px;
 
             &:before {
                 content: '\E185';
                 @extend .font-icon;
                 margin-right: 7px;
+                font-size: 14px;
             }
         }
     }
@@ -2862,6 +2870,8 @@ strong {
                         right: 15px;
                         top: 0px;
                         font-size: 20px;
+                        width: 40px;
+                        text-align: right;
 
                         &:after {
                             content: '\E436';
@@ -3092,7 +3102,7 @@ strong {
                         }
 
                         &.disabled {
-                            cursor: not-allowed;
+                            pointer-events: none;
                             opacity: 0.5;
                         }
                     }
