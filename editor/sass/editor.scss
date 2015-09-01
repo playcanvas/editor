@@ -2917,6 +2917,14 @@ strong {
                             position: relative;
                             border-bottom: 1px solid $bcg-dark;
 
+                            &:not(.current):hover {
+                                background-color: #414f52;
+                                cursor: pointer;
+                                > .scene-name {
+                                    color: $text-active;
+                                }
+                            }
+
                             > .scene-name {
                                 position: absolute;
                                 cursor: pointer;
@@ -2964,15 +2972,15 @@ strong {
                                 @extend .font-bold;
                                 content: 'CURRENT';
                                 position: absolute;
-                                top: 21px;
+                                top: 22px;
                                 right: 54px;
-                                line-height: 23px;
+                                line-height: 18px;
                                 text-align: center;
-                                height: 20px;
-                                width: 70px;
+                                height: 18px;
+                                width: 55px;
                                 color: $bcg-darkest;
                                 background-color: #40d47e;
-                                font-size: 12px;
+                                font-size: 10px;
                             }
 
                             > .scene-date {
@@ -2991,11 +2999,11 @@ strong {
                                 top: 20px;
                                 width: 22px;
                                 height: 22px;
-                                background-color: $bcg-dark;
+                                background-color: $text-darkest;
                                 overflow: hidden;
 
                                 > .scene-dropdown-icon {
-                                    color: $text-darkest;
+                                    color: $bcg-dark;
                                     transform: rotate(90deg);
                                     position: absolute;
                                     left: 3px;
@@ -3006,6 +3014,10 @@ strong {
                                 &:hover {
                                     background-color: $bcg-darkest;
                                     cursor: pointer;
+
+                                    > .scene-dropdown-icon {
+                                        color: white;
+                                    }
                                 }
 
                                 &.clicked {

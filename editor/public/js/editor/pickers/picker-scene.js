@@ -184,10 +184,6 @@ editor.once('load', function() {
         var name = document.createElement('span');
         name.classList.add('scene-name');
         name.innerHTML = scene.name;
-        name.addEventListener('click', function () {
-            editor.call('picker:scene:close');
-            editor.call('scene:load', scene.id);
-        });
 
         row.appendChild(name);
 
@@ -215,6 +211,16 @@ editor.once('load', function() {
             dropdownMenu.open = true;
             var rect = dropdown.getBoundingClientRect();
             dropdownMenu.position(rect.right - dropdownMenu.innerElement.clientWidth, rect.bottom);
+        });
+
+        row.addEventListener('click', function (e) {
+            if (e.target === row || e.target === name || e.target === date) {
+                if (parseInt(config.scene.id, 10) === parseInt(scene.id, 10))
+                    return;
+
+                editor.call('picker:scene:close');
+                editor.call('scene:load', scene.id);
+            }
         });
 
         return row;
