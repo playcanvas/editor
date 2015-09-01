@@ -2841,18 +2841,18 @@ strong {
 .ui-overlay.picker-scene {
     &.center {
         > .content {
-            top: calc(50% - (2 * 64px + 3 * 66px) / 2);
+            top: calc(50% - (2 * 54px + 3 * 66px) / 2);
             left: calc(50% - 250px);
             width: 500px;
             height: auto;
             max-width: 100%;
-            max-height: 64px*2 + 3.5*66px;
+            max-height: 54px*2 + 3.5*66px;
             font-size: 14px;
 
             > .picker-scene-panel {
                 > .picker-scene-header {
-                    height: 64px;
-                    line-height: 64px;
+                    height: 54px;
+                    line-height: 54px;
                     background-color: $bcg-dark;
                     color: $text-darkest;
                     position: relative;
@@ -2946,8 +2946,10 @@ strong {
                             > .scene-primary {
                                 @extend .font-icon;
                                 @extend .noSelect;
-                                top: -2px;
+                                top: 12px;
                                 left: 15px;
+                                line-height: 1;
+                                height: 30px;
                                 color: $text-darkest;
                                 font-size: 30px;
                                 position: absolute;
@@ -3067,18 +3069,18 @@ strong {
                 }
 
                 > .picker-scene-footer {
-                    height: 64px;
-                    line-height: 64px;
+                    height: 54px;
+                    line-height: 54px;
                     background-color: $bcg-dark;
                     position: relative;
 
                     > .picker-scene-new {
                         position: absolute;
                         right: 10px;
-                        top: 15px;
-                        height: 34px;
-                        width: 70px + 34px;
-                        line-height: 34px;
+                        top: 10px;
+                        height: 32px;
+                        width: 70px + 32px;
+                        line-height: 32px;
                         font-size: 14px;
                         @extend .noSelect;
                         cursor: pointer;
@@ -3087,26 +3089,27 @@ strong {
 
                         > .left, > .right {
                             display: inline-block;
-                            height: 34px;
-                            line-height: 34px;
+                            height: 32px;
+                            line-height: 32px;
                             float: left;
                             text-align: center;
                         }
 
                         > .left {
-                            background-color: #829193;
+                            background-color: #5f6f72;
                             width: 70px;
                         }
 
                         > .right {
                             @extend .font-icon;
-                            background-color: $text-darkest;
-                            width: 34px;
+                            font-size: 16px;
+                            background-color: transparentize(#5f6f72, 0.25);
+                            width: 32px;
                         }
 
                         &:not(.disabled):hover {
                             > .right {
-                                background-color: #829193;
+                                background-color: #5f6f72;
                             }
                         }
 

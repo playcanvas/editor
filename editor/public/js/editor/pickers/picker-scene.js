@@ -58,6 +58,7 @@ editor.once('load', function() {
                 return editor.call('permissions:write');
             },
             select: function () {
+                var newName = dropdownScene.name + ' 2';
                 editor.call('scenes:duplicate', dropdownScene.id);
             }
         },
@@ -170,6 +171,8 @@ editor.once('load', function() {
         row.appendChild(primary);
         primary.addEventListener('click', function () {
             var prevPrimary = config.project.primaryScene;
+            config.project.primaryScene = scene.id;
+            onPrimarySceneChanged(scene.id, prevPrimary);
             editor.call('project:setPrimaryScene', scene.id);
         });
 
@@ -339,7 +342,7 @@ editor.once('load', function() {
     });
 
     var onPrimarySceneChanged = function (newValue, oldValue) {
-        if (overlay.hidden) return;
+        if (overlay.hidden || parseInt(newValue, 10) === parseInt(oldValue, 10)) return;
 
         sortScenes(scenes);
 
