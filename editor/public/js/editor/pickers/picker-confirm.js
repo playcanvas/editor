@@ -71,10 +71,12 @@ editor.once('load', function() {
 
     // on overlay hide
     overlay.on('hide', function() {
-        timeoutClass = setTimeout(function() {
-            overlay.class.remove(className);
-            className = '';
-        }, 100);
+        if (className) {
+            timeoutClass = setTimeout(function() {
+                overlay.class.remove(className);
+                className = '';
+            }, 100);
+        }
 
         editor.emit('picker:confirm:close');
     });

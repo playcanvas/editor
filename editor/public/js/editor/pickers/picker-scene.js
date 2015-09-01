@@ -91,12 +91,12 @@ editor.once('load', function() {
                 return editor.call('permissions:write');
             },
             select: function () {
-                var ok = confirm('Are you sure you want to delete this Scene?');
-                if (!ok) return;
-
-                var id = dropdownScene.id;
-                onSceneDeleted(id);
-                editor.call('scenes:delete', id);
+                editor.call('picker:confirm', 'Are you sure you want to delete this Scene?');
+                editor.once('picker:confirm:yes', function () {
+                    var id = dropdownScene.id;
+                    onSceneDeleted(id);
+                    editor.call('scenes:delete', id);
+                });
             }
         }
     });

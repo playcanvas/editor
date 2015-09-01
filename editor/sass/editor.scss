@@ -2441,6 +2441,10 @@ strong {
     }
 }
 
+.picker-confirm {
+    z-index: 10000;
+}
+
 .picker-confirm.center {
     > .content {
         width: 288px;
