@@ -486,6 +486,9 @@ editor.once('load', function() {
                 var tagList = [ ];
 
                 var onRemoveClick = function() {
+                    if (innerPanel.disabled)
+                        return;
+
                     removeTag(this.tag);
                 };
 

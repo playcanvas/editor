@@ -727,6 +727,16 @@ strong {
             > .content > .ui-panel {
                 max-width: calc(100% - 89px);
 
+                &.disabled > .content {
+                    > .tag {
+                        opacity: .5;
+
+                        > .icon {
+                            cursor: default;
+                        }
+                    }
+                }
+
                 > .content {
                     flex-direction: row;
                     flex-wrap: wrap;

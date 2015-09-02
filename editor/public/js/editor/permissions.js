@@ -15,7 +15,7 @@ editor.once('load', function() {
     });
 
     editor.method('permissions:read', function (userId) {
-        if (!userId) userId = config.self.id;
+        if (! userId) userId = config.self.id;
 
         return userId in permissions;
     });

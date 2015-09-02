@@ -8,18 +8,20 @@ editor.once('load', function() {
         var asset = assets[0];
         var events = [ ];
 
-        // panel
-        var panel = editor.call('attributes:addPanel');
-        panel.class.add('component');
+        if (! config.project.privateAssets || (config.project.privateAssets && editor.call('permissions:read'))) {
+            // panel
+            var panel = editor.call('attributes:addPanel');
+            panel.class.add('component');
 
-        // download
-        var btnDownload = new ui.Button();
-        btnDownload.text = 'Download';
-        btnDownload.class.add('download-asset');
-        btnDownload.element.addEventListener('click', function(evt) {
-            window.open(asset.get('file.url'));
-        }, false);
-        panel.append(btnDownload);
+            // download
+            var btnDownload = new ui.Button();
+            btnDownload.text = 'Download';
+            btnDownload.class.add('download-asset');
+            btnDownload.element.addEventListener('click', function(evt) {
+                window.open(asset.get('file.url'));
+            }, false);
+            panel.append(btnDownload);
+        }
 
         // related assets
         var panelRelated = editor.call('attributes:addPanel', {
@@ -47,9 +49,9 @@ editor.once('load', function() {
             item.class.add('type-' + asset.get('type'));
             list.append(item);
 
-            item.on('click', function() {
+            item.element.addEventListener('click', function() {
                 editor.call('selector:set', 'asset', [ asset ]);
-            });
+            }, false);
 
             var assetEvents = [ ];
 

@@ -252,7 +252,7 @@
                 editor.call('attributes:reference:asset:size:attach', fieldSize.parent.innerElement.firstChild.ui);
             }
 
-            if (! asset.get('source') && asset.get('type') === 'model') {
+            if (! asset.get('source') && asset.get('type') === 'model' && (! config.project.privateAssets || (config.project.privateAssets && editor.call('permissions:read')))) {
                 // export archive
                 var fieldExport = editor.call('attributes:addField', {
                     parent: panel,
