@@ -12,6 +12,9 @@ editor.once('load', function() {
     panel.classList.add('picker-scene-panel');
     overlay.append(panel);
 
+    if (!editor.call('permissions:write'))
+        panel.classList.add('disabled');
+
     // header
     var header = document.createElement('div');
     header.classList.add('picker-scene-header');
@@ -122,8 +125,6 @@ editor.once('load', function() {
     // new scene button
     var newScene = document.createElement('div');
     newScene.classList.add('picker-scene-new');
-    if (!editor.call('permissions:write'))
-        newScene.classList.add('disabled');
 
     var newSceneLeft = document.createElement('span');
     newSceneLeft.innerHTML = 'NEW';
@@ -190,6 +191,9 @@ editor.once('load', function() {
         primary.innerHTML = '&#57989;';
         row.appendChild(primary);
         primary.addEventListener('click', function () {
+            if (!editor.call('permissions:write'))
+                return;
+
             var prevPrimary = config.project.primaryScene;
             config.project.primaryScene = scene.id;
             onPrimarySceneChanged(scene.id, prevPrimary);
@@ -378,9 +382,9 @@ editor.once('load', function() {
     // handle permission changes
     editor.on('permissions:set:' + config.self.id, function () {
         if (editor.call('permissions:write')) {
-            newScene.classList.remove('disabled');
+            panel.classList.remove('disabled');
         } else {
-            newScene.classList.add('disabled');
+            panel.classList.add('disabled');
         }
     });
 
