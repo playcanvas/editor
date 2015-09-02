@@ -1855,7 +1855,7 @@ strong {
 
             &:hover {
                 > .content > .ui-button {
-                    background-color: rgba($bcg-darker, .75);
+                    color: $text-primary;
                 }
             }
             > .content {
@@ -1870,7 +1870,7 @@ strong {
                     font-size: 24px;
                     text-align: center;
                     color: rgba($text-primary, .75);
-                    background-color: rgba($bcg-darker, .5);
+                    background-color: $text-active;
 
                     &:hover {
                         color: $text-primary;
