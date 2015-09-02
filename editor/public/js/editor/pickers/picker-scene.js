@@ -190,6 +190,9 @@ editor.once('load', function() {
         primary.innerHTML = '&#57989;';
         row.appendChild(primary);
         primary.addEventListener('click', function () {
+            if (!editor.call('permissions:write'))
+                return;
+
             var prevPrimary = config.project.primaryScene;
             config.project.primaryScene = scene.id;
             onPrimarySceneChanged(scene.id, prevPrimary);
