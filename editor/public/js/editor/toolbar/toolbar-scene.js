@@ -8,22 +8,6 @@ editor.once('load', function() {
     panel.class.add('widget-title');
     viewport.append(panel);
 
-    var home = new ui.Label();
-    home.text = '&#58661;';
-    home.class.add('home');
-    panel.append(home);
-
-    home.on('click', function () {
-        window.open('/', '_blank');
-    });
-
-    Tooltip.attach({
-        target: home.element,
-        text: 'Dashboard',
-        align: 'top',
-        root: root
-    });
-
     var projectName = new ui.Label();
     projectName.text = config.project.name;
     projectName.class.add('project-name');
@@ -48,7 +32,7 @@ editor.once('load', function() {
 
     Tooltip.attach({
         target: sceneName.element,
-        text: 'Settings',
+        text: 'Scene Settings',
         align: 'top',
         root: root
     });
@@ -74,7 +58,6 @@ editor.once('load', function() {
     });
 
     var sceneList = new ui.Label();
-    sceneList.text = 'Scene Menu';
     sceneList.class.add('scene-list');
     panel.append(sceneList);
 
