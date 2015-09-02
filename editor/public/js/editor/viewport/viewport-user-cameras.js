@@ -181,7 +181,7 @@ editor.once('load', function() {
         editor.call('viewport:render');
 
         // server > client
-        editor.on('realtime:userdata:' + userId + ':op:cameras', function(op) {
+        var evt = editor.on('realtime:userdata:' + userId + ':op:cameras', function(op) {
             if (op.p.length !== 3 || ! op.oi || op.p[1] !== 'perspective')
                 return;
 
@@ -193,6 +193,19 @@ editor.once('load', function() {
                 editor.call('viewport:render');
             }
         });
+
+        var unload = function () {
+            if (evt) {
+                evt.unbind();
+                evt = null;
+            }
+
+            removeUser(userId);
+        };
+
+        editor.once('scene:unload', unload);
+        editor.once('realtime:disconnected', unload);
+
     };
 
     // Add user who comes online
@@ -200,28 +213,39 @@ editor.once('load', function() {
         // ignore the logged in user
         if (userId === config.self.id) return;
 
-        // do not add users without read access
-        if (editor.call('permissions:read', userId))
-            addUser(userId);
+        var add = function () {
+            // do not add users without read access
+            if (editor.call('permissions:read', userId))
+                addUser(userId);
 
-        // subscribe to project permission changes
-        editor.on('permissions:set:' + userId, function () {
-            if (editor.call('permissions:read', userId)) {
-                if (! userdata[userId]) {
-                    // WORKAROUND
-                    // wait a bit before adding, for userdata to be created at sharejs
-                    setTimeout(function () {
-                        addUser(userId);
-                    }, 500);
+            // subscribe to project permission changes
+            editor.on('permissions:set:' + userId, function () {
+                if (editor.call('permissions:read', userId)) {
+                    if (! userdata[userId]) {
+                        // WORKAROUND
+                        // wait a bit before adding, for userdata to be created at sharejs
+                        setTimeout(function () {
+                            addUser(userId);
+                        }, 500);
+                    }
+                } else {
+                    removeUser(userId);
                 }
-            } else {
-                removeUser(userId);
-            }
-        });
+            });
+        };
+
+        if (!config.scene.id) {
+            editor.once('scene:raw', add);
+        } else {
+            add();
+        }
+
     });
 
     // Remove user who goes offline
     editor.on('whoisonline:remove', function (userId) {
+        if (userId === config.self.id) return;
+
         removeUser(userId);
         editor.unbind('permissions:set:' + userId);
     });

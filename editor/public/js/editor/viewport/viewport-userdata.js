@@ -3,10 +3,10 @@ editor.once('load', function() {
 
     var framework = editor.call('viewport:framework');
 
-    if (! editor.call('permissions:read'))
-        return;
+    editor.on('userdata:load', function (userdata) {
+        if (! editor.call('permissions:read'))
+            return;
 
-    editor.once('userdata:load', function (userdata) {
         var cameras = framework ? framework.cameras : null;
         // get framework cameras and restore transforms and camera data
         // from userdata
@@ -36,7 +36,7 @@ editor.once('load', function() {
                 camera.focus = new pc.Vec3(focus[0], focus[1], focus[2]);
 
             // if we already have a designer_camera script initialized then re-set the focus
-            if (camera.script && camera.script.designer_camera)
+            if (camera.script && camera.script.designer_camera && camera.focus)
                 camera.script.designer_camera.focus.copy(camera.focus);
         });
 

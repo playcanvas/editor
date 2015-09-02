@@ -8,6 +8,7 @@ editor.on('load', function() {
         hierarchyOverlay.hidden = true;
     });
     hierarchyOverlay.append(p);
+    p.hidden = true;
 
     var loadedEntities = false;
 
@@ -37,7 +38,17 @@ editor.on('load', function() {
     });
 
 
-    p.progress = .1;
-
     editor.call('attributes:clear');
+
+    editor.on('scene:unload', function () {
+        editor.call('entities:clear');
+        editor.call('attributes:clear');
+    });
+
+    editor.on('scene:beforeload', function () {
+        hierarchyOverlay.hidden = false;
+        p.hidden = false;
+        p.progress = .1;
+    });
+
 });

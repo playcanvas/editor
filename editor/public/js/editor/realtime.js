@@ -35,8 +35,8 @@ editor.once('load', function() {
                             editor.emit('realtime:authenticated');
 
                             // load scene
-                            if (! scene)
-                                loadScene();
+                            if (! scene && config.scene.id)
+                                editor.call('realtime:loadScene', config.scene.id);
                         }
                     } else if (msg.data.startsWith('whoisonline:')) {
                         data = msg.data.slice('whoisonline:'.length);
@@ -116,8 +116,8 @@ editor.once('load', function() {
                 editor.emit('realtime:' + type + ':op:' + op.p[0], op);
         };
 
-        var loadScene = function() {
-            scene = connection.get('scenes', '' + config.scene.id);
+        editor.method('realtime:loadScene', function (id) {
+            scene = connection.get('scenes', '' + id);
 
             // error
             scene.on('error', function(err) {
@@ -135,12 +135,13 @@ editor.once('load', function() {
                 });
 
                 // notify of scene load
+                editor.emit('scene:load', id);
                 editor.emit('scene:raw', scene.getSnapshot());
             });
 
             // subscribe for realtime events
             scene.subscribe();
-        };
+        });
 
         // write scene operations
         editor.method('realtime:scene:op', function(op) {
@@ -165,6 +166,15 @@ editor.once('load', function() {
 
         editor.on('realtime:connected', function () {
             editor.emit('permissions:writeState', editor.call('permissions:write'));
+        });
+
+        editor.on('scene:unload', function (id) {
+            if (scene) {
+                scene.destroy();
+                scene = null;
+
+                connection.socket.send('close:scene:' + id);
+            }
         });
     });
 });

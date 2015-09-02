@@ -289,17 +289,19 @@ editor.once('load', function() {
     };
 
     // if never seen introduction
-    editor.on('realtime:connected', function() {
+    editor.on('scene:raw', function() {
         if (config.self.openedEditor)
             return;
 
         if (editor.call('permissions:write')) {
+            editor.call('picker:scene:close');
             stepNext();
         } else {
             editor.on('permissions:set:' + config.self.id, function () {
                 if (stepCurrent !== -1 || ! editor.call('permissions:write') || config.self.openedEditor)
                     return;
 
+                editor.call('picker:scene:close');
                 stepNext();
             });
         }

@@ -233,4 +233,13 @@ editor.once('load', function() {
             console.error('realtime operation on missing asset: ' + op.p[1]);
         }
     });
+
+    // handle disconnection
+    editor.on('realtime:disconnected', function () {
+        var viewport = editor.call('viewport:framework');
+        if (!viewport) return;
+
+        // clear ALL asset registry events
+        viewport.assets._callbacks = {};
+    });
 });

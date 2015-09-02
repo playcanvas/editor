@@ -4,11 +4,12 @@ editor.once('load', function() {
     var sceneSettings = editor.call('sceneSettings');
     var app = editor.call('viewport:framework');
     var assetsLoaded = false;
+    var sceneSettingsLoaded = false;
     var updating;
 
     // queue settings apply
     var queueApplySettings = function() {
-        if (updating || !assetsLoaded)
+        if (!sceneSettingsLoaded || updating || !assetsLoaded)
             return;
 
         updating = true;
@@ -19,7 +20,18 @@ editor.once('load', function() {
     // apply settings
     var applySettings = function() {
         updating = false;
+
+        // apply scene settings
         app.applySceneSettings(sceneSettings.json());
+
+        // need to update all materials on scene settings change
+        for(var i = 0; i < app.assets._assets.length; i++) {
+            if (app.assets._assets[i].type !== 'material' || !app.assets._assets[i].resource)
+                continue;
+
+            app.assets._assets[i].resource.update();
+        }
+
         editor.call('viewport:render');
     };
 
@@ -31,18 +43,8 @@ editor.once('load', function() {
         queueApplySettings();
     });
 
-    editor.once('sceneSettings:load', function () {
+    editor.on('sceneSettings:load', function () {
+        sceneSettingsLoaded = true;
         queueApplySettings();
-
-        // apply scene settings
-        app.applySceneSettings(sceneSettings.json());
-
-        // need to update all materials on scene settings change
-        for(var i = 0; i < app.assets._assets.length; i++) {
-            if (app.assets._assets[i].type !== 'material')
-                continue;
-
-            app.assets._assets[i].resource.update();
-        }
     });
 });

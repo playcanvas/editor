@@ -713,6 +713,13 @@ editor.once('load', function() {
                 }
             }
         },
+        'scenes': {
+            title: 'Scenes',
+            icon: '&#57733;',
+            select: function() {
+                editor.call('picker:scene');
+            }
+        },
         'settings': {
             title: 'Settings',
             icon: '&#58152;',

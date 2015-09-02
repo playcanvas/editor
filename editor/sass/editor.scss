@@ -1762,9 +1762,10 @@ strong {
     position: absolute;
     top: 2px;
     right: 74px;
-    margin: 2px;
+    margin: 2px 0;
 
-    line-height: 30px;
+    height: 31px;
+    line-height: 33px;
     padding: 0px 10px;
 
     background-color: rgba($bcg-darker, .5);
@@ -1772,13 +1773,15 @@ strong {
 
     > .value {
         min-height: 30px;
-        line-height: 30px;
+        line-height: 32px;
         color: rgba($text-primary, .75);
 
+        @extend .font-regular;
+
         &:after {
-            width: 30px;
-            height: 30px;
-            line-height: 30px;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
             content: '\E126';
             color: rgba($text-primary, .5);
 
@@ -1809,6 +1812,8 @@ strong {
         > li {
             padding: 0px 9px 0px 10px;
             line-height: 32px;
+
+            @extend .font-regular;
         }
     }
 }
@@ -1822,10 +1827,10 @@ strong {
     > .content {
         > .ui-button.expand {
             float: right;
-            width: 32px;
-            height: 32px;
+            width: 33px;
+            height: 33px;
             line-height: 30px;
-            margin: 0 4px 0 0;
+            margin: 0 2px 0 0;
             padding: 0;
             border: none;
             @extend .font-icon;
@@ -1851,14 +1856,14 @@ strong {
 
             &:hover {
                 > .content > .ui-button {
-                    background-color: rgba($bcg-darker, .75);
+                    color: $text-primary;
                 }
             }
             > .content {
                 > .ui-button {
-                    width: 32px;
-                    height: 32px;
-                    line-height: 30px;
+                    width: 33px;
+                    height: 33px;
+                    line-height: 32px;
                     margin: 0;
                     padding: 0;
                     border: none;
@@ -1866,7 +1871,7 @@ strong {
                     font-size: 24px;
                     text-align: center;
                     color: rgba($text-primary, .75);
-                    background-color: rgba($bcg-darker, .5);
+                    background-color: $text-active;
 
                     &:hover {
                         color: $text-primary;
@@ -1876,7 +1881,7 @@ strong {
 
                 > ul.dropdown-menu {
                     position: absolute;
-                    top: 32px;
+                    top: 33px;
                     right: 0;
                     padding: 0;
                     margin: 0;
@@ -1942,30 +1947,45 @@ strong {
     background-color: transparent;
 
     > .content {
-        > .project-name {
-            height: 28px;
-            min-height: 28px;
-            line-height: 28px;
-            padding: 0 8px;
-            margin: 0 0 4px 0;
+        > .project-name, > .scene-name, > .scene-list {
+            height: 33px;
+            min-height: 33px;
+            line-height: 34px;
+            padding: 0 10px;
+            font-size: 12px;
+            margin: 0 2px 0 0;
             color: rgba(#fff, 0.75);
             background-color: rgba(41, 53, 56, 0.5);
-            cursor: default;
-        }
-        > .scene-name {
-            display: block;
-            color: rgba(#fff, 0.75);
-            background-color: rgba(41, 53, 56, 0.5);
-            padding: 0 8px;
-            margin: 0;
-            height: 28px;
-            line-height: 28px;
             cursor: pointer;
 
             &:hover,
             &.active {
                 background-color: rgba(41, 53, 56, 0.75);
                 color: #fff;
+            }
+
+            &:before {
+                @extend .font-icon;
+                font-size: 14px;
+                margin-right: 7px;
+                float: left;
+                line-height: 32px;
+            }
+
+        }
+
+        > .project-name:before {
+            content: '\E525';
+        }
+
+        > .scene-name:before {
+            content: '\E328';
+        }
+
+        > .scene-list {
+            &:before {
+                content: '\E185';
+                margin-right: 0px;
             }
         }
     }
@@ -2420,6 +2440,10 @@ strong {
     }
 }
 
+.picker-confirm {
+    z-index: 10000;
+}
+
 .picker-confirm.center {
     > .content {
         width: 288px;
@@ -2815,4 +2839,290 @@ strong {
     display: block;
     opacity: 0;
     visibility: hidden;
+}
+
+.ui-overlay.picker-scene {
+    &.center {
+        > .content {
+            top: calc(50% - (2 * 54px + 3 * 66px) / 2);
+            left: calc(50% - 250px);
+            width: 500px;
+            height: auto;
+            max-width: 100%;
+            max-height: 54px*2 + 3.5*66px;
+            font-size: 14px;
+
+            > .picker-scene-panel {
+                > .picker-scene-header {
+                    height: 54px;
+                    line-height: 54px;
+                    background-color: $bcg-dark;
+                    color: $text-darkest;
+                    position: relative;
+
+                    @extend .noSelect;
+
+                    > .picker-scene-icon {
+                        position: absolute;
+                        left: 15px;
+                        top: -1px;
+                        font-size: 25px;
+
+                        &:after {
+                            content: '\E185'
+                        }
+                    }
+
+                    > .picker-scene-close {
+                        position: absolute;
+                        right: 15px;
+                        top: 0px;
+                        font-size: 20px;
+                        width: 40px;
+                        text-align: right;
+
+                        &:after {
+                            content: '\E436';
+                        }
+
+                        &:hover {
+                            color: $text-active;
+                            cursor: pointer;
+                        }
+                    }
+
+                    > .picker-scene-title {
+                        @extend .font-bold;
+                         -webkit-font-smoothing: antialiased;
+                        -moz-osx-font-smoothing: grayscale;
+                        font-smoothing: antialiased;
+                        color: $text-primary;
+                        padding-left: 54px;
+                        font-size: 16px;
+                    }
+
+                }
+
+                > .picker-scene-content {
+                    max-height: 3.5*66px;
+                    overflow: hidden;
+                    overflow-y: auto;
+
+                    > ul {
+                        list-style: none;
+                        margin: 0;
+                        padding: 0;
+
+                        > li {
+                            @extend .font-regular;
+                            overflow: hidden;
+
+                            height: 65px;
+                            line-height: 65px;
+                            padding-left: 55px;
+                            padding-right: 15px;
+                            position: relative;
+                            border-bottom: 1px solid $bcg-dark;
+
+                            &:not(.current):hover {
+                                background-color: #414f52;
+                                cursor: pointer;
+
+                                > .scene-name {
+                                    color: $text-active;
+                                }
+                            }
+
+                            > .scene-name {
+                                position: absolute;
+                                cursor: pointer;
+                                left: 55px;
+                                top: 15px;
+                                max-width: 330px;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                white-space: nowrap;
+                                line-height: 1;
+                                color: $text-primary;
+                            }
+
+                            > .scene-primary {
+                                @extend .font-icon;
+                                @extend .noSelect;
+                                top: 12px;
+                                left: 15px;
+                                line-height: 1;
+                                height: 30px;
+                                color: $text-darkest;
+                                font-size: 30px;
+                                position: absolute;
+                                cursor: pointer;
+
+                                &:hover {
+                                    color: $text-dark;
+                                }
+                            }
+
+                            &.primary > .scene-primary {
+                                color: #40d47e;
+                            }
+
+                            &.current:after {
+                                @extend .font-bold;
+                                content: 'CURRENT';
+                                position: absolute;
+                                top: 22px;
+                                right: 54px;
+                                line-height: 18px;
+                                text-align: center;
+                                height: 18px;
+                                width: 55px;
+                                color: $bcg-primary;
+                                background-color: #40d47e;
+                                font-size: 10px;
+                            }
+
+                            > .scene-date {
+                                position: absolute;
+                                left: 55px;
+                                top: 35px;
+                                font-size: 12px;
+                                color: $text-darkest;
+                                line-height: 1;
+                            }
+
+                            > .scene-dropdown {
+                                position: absolute;
+                                display: block;
+                                right: 15px;
+                                top: 20px;
+                                width: 22px;
+                                height: 22px;
+                                background-color: $text-darkest;
+                                overflow: hidden;
+
+                                > .scene-dropdown-icon {
+                                    color: $bcg-primary;
+                                    transform: rotate(90deg);
+                                    transform-origin: 10px 32px 0px;
+                                    position: absolute;
+                                    left: 3px;
+                                    top: -19px;
+                                    font-size: 20px;
+                                }
+
+                                &:hover {
+                                    background-color: $bcg-darkest;
+                                    cursor: pointer;
+
+                                    > .scene-dropdown-icon {
+                                        color: white;
+                                    }
+                                }
+
+                                &.clicked {
+                                    background-color: $bcg-darkest;
+
+                                    > .scene-dropdown-icon {
+                                        color: $text-primary;
+                                        transform: rotate(-90deg);
+                                        transform-origin: 40% 50%;
+                                    }
+
+                                    > ul {
+                                        display: block;
+                                    }
+                                }
+
+                                > ul {
+                                    display: none;
+                                    margin: 0;
+                                    padding: 0;
+                                    position: absolute;
+                                    right: 0;
+                                    top: 100%;
+                                    list-style: none;
+                                    z-index: 100;
+
+                                    > li {
+                                        height: 45px;
+                                        line-height: 45px;
+                                        padding: 0 10px;
+                                        width: 150px;
+                                        background-color: $bcg-dark;
+                                        color: $text-dark;
+                                        @extend .noSelect;
+
+                                        &:hover {
+                                            background-color: #829193;
+                                            color: $text-primary;
+                                            cursor: pointer;
+                                        }
+                                    }
+                                }
+
+                            }
+
+                        }
+                    }
+
+                    .ui-progress {
+                        width: 100%;
+                    }
+                }
+
+                > .picker-scene-footer {
+                    height: 54px;
+                    line-height: 54px;
+                    background-color: $bcg-dark;
+                    position: relative;
+
+                    > .picker-scene-new {
+                        position: absolute;
+                        right: 10px;
+                        top: 10px;
+                        height: 32px;
+                        width: 70px + 32px;
+                        line-height: 32px;
+                        font-size: 14px;
+                        @extend .noSelect;
+                        cursor: pointer;
+
+                        color: $text-primary;
+
+                        > .left, > .right {
+                            display: inline-block;
+                            height: 32px;
+                            line-height: 32px;
+                            float: left;
+                            text-align: center;
+                        }
+
+                        > .left {
+                            background-color: #5f6f72;
+                            width: 70px;
+                        }
+
+                        > .right {
+                            @extend .font-icon;
+                            font-size: 16px;
+                            background-color: transparentize(#5f6f72, 0.25);
+                            width: 32px;
+                        }
+
+                        &:not(.disabled):hover {
+                            > .right {
+                                background-color: #5f6f72;
+                            }
+                        }
+
+                        &.disabled {
+                            pointer-events: none;
+                            opacity: 0.5;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

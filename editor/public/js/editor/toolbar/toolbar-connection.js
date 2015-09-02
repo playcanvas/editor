@@ -83,17 +83,22 @@ editor.once('load', function() {
         overlay.hidden = false;
     };
 
+
     editor.on('realtime:error', onError);
     editor.on('realtime:scene:error', onError);
     editor.on('realtime:userdata:error', onError);
     editor.on('realtime:assets:error', onError);
 
     editor.on('messenger:pack.delete', function (data) {
-        if (data.pack.id === parseInt(config.scene.id, 10)) {
+        if (config.scene.id && data.pack.id === parseInt(config.scene.id, 10)) {
             setIconClass('error');
             content.innerHTML = 'This scene has been deleted.';
             overlay.hidden = false;
         }
+    });
+
+    editor.on('scene:unload', function () {
+        overlay.hidden = true;
     });
 
     var clearIconClass = function () {

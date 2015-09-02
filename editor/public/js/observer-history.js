@@ -8,6 +8,8 @@ function ObserverHistory(args) {
     this._prefix = args.prefix || '';
     this._getItemFn = args.getItemFn;
 
+    this._events = [];
+
     this._initialize();
 }
 ObserverHistory.prototype = Object.create(Events.prototype);
@@ -16,7 +18,7 @@ ObserverHistory.prototype = Object.create(Events.prototype);
 ObserverHistory.prototype._initialize = function() {
     var self = this;
 
-    this.item.on('*:set', function(path, value, valueOld) {
+    this._events.push(this.item.on('*:set', function(path, value, valueOld) {
         if (! self._enabled) return;
 
         // need jsonify
@@ -64,9 +66,9 @@ ObserverHistory.prototype._initialize = function() {
             // add
             self.emit('record', 'add', data);
         }
-    });
+    }));
 
-    this.item.on('*:unset', function(path, valueOld) {
+    this._events.push(this.item.on('*:unset', function(path, valueOld) {
         if (! self._enabled) return;
 
         // action
@@ -91,9 +93,9 @@ ObserverHistory.prototype._initialize = function() {
         };
 
         self.emit('record', 'add', data);
-    });
+    }));
 
-    this.item.on('*:insert', function(path, value, ind) {
+    this._events.push(this.item.on('*:insert', function(path, value, ind) {
         if (! self._enabled) return;
 
         // need jsonify
@@ -122,9 +124,9 @@ ObserverHistory.prototype._initialize = function() {
         };
 
         self.emit('record', 'add', data);
-    });
+    }));
 
-    this.item.on('*:remove', function(path, value, ind) {
+    this._events.push(this.item.on('*:remove', function(path, value, ind) {
         if (! self._enabled) return;
 
         // need jsonify
@@ -153,9 +155,9 @@ ObserverHistory.prototype._initialize = function() {
         };
 
         self.emit('record', 'add', data);
-    });
+    }));
 
-    this.item.on('*:move', function(path, value, ind, indOld) {
+    this._events.push(this.item.on('*:move', function(path, value, ind, indOld) {
         if (! self._enabled) return;
 
         // action
@@ -180,9 +182,17 @@ ObserverHistory.prototype._initialize = function() {
         };
 
         self.emit('record', 'add', data);
-    });
+    }));
 };
 
+ObserverHistory.prototype.destroy = function () {
+    this._events.forEach(function (evt) {
+        evt.unbind();
+    });
+
+    this._events.length = 0;
+    this.item = null;
+};
 
 Object.defineProperty(ObserverHistory.prototype, 'enabled', {
     get: function() {
