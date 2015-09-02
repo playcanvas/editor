@@ -3225,12 +3225,21 @@ strong {
                                 background-color: #5f6f72;
                             }
                         }
+                    }
+                }
 
-                        &.disabled {
+                &.disabled {
+                    > .picker-scene-content > ul > li > .scene-primary {
+                        pointer-events: none;
+                    }
+
+                    > .picker-scene-footer {
+                        > .picker-scene-new {
                             pointer-events: none;
                             opacity: 0.5;
                         }
                     }
+
                 }
             }
         }
