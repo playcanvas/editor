@@ -14,6 +14,7 @@ editor.once('load', function() {
     var currentAsset = null;
     var gridSelected = null;
     var assetsPanelFolded = false;
+    var assetsPanelSources = false;
     var assetsPanelFilter = '';
     var assetsPanelSearch = '';
     // elements
@@ -71,6 +72,8 @@ editor.once('load', function() {
     overlay.on('hide', function() {
         // show all assets back
         editor.call('assets:filter:type:disabled', false);
+        editor.call('assets:filter:sources:disabled', false);
+        editor.call('assets:filter:sources', assetsPanelSources);
         editor.call('assets:filter:type', assetsPanelFilter);
         editor.call('assets:filter:search', assetsPanelSearch);
         // fold back assets panel if needed
@@ -91,12 +94,15 @@ editor.once('load', function() {
     // open asset picker
     editor.method('picker:asset', function(type, asset) {
         // show only asset assets
+        assetsPanelSources = editor.call('assets:filter:sources');
         assetsPanelFilter = editor.call('assets:filter:type');
         assetsPanelSearch = editor.call('assets:filter:search');
         // initial grid selected items
         gridSelected = assetsGrid.selected;
         // filters
         editor.call('assets:filter:type', (type === '*') ? 'all' : type);
+        editor.call('assets:filter:sources', false);
+        editor.call('assets:filter:sources:disabled', true);
         editor.call('assets:filter:type:disabled', (! type || type === '*') ? false : true);
         // disable selector
         editor.call('selector:enabled', false);

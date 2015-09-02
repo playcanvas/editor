@@ -3,7 +3,7 @@ editor.once('load', function() {
 
     editor.on('attributes:inspect[asset]', function(assets) {
         for(var i = 0; i < assets.length; i++) {
-            if (assets[i].get('type') !== 'texture')
+            if (assets[i].get('type') !== 'texture' || assets[i].get('source'))
                 return;
         }
 

@@ -95,7 +95,10 @@ editor.once('load', function() {
 
     editor.on('messenger:asset.thumbnail', function(data) {
         var gridItem = assetsIndex[parseInt(data.asset.id, 10)];
-        if (! gridItem) return;
+
+        if (! gridItem || gridItem.asset.get('source'))
+            return;
+
         var url = '/api/assets/' + data.asset.id + '/thumbnail/medium.jpg?t=' + (gridItem.asset.get('file.hash') || data.asset.hash || '')
         gridItem.thumbnail.style.backgroundImage = 'url(' + url + ')';
         gridItem.thumbnail.classList.remove('placeholder');
@@ -120,28 +123,36 @@ editor.once('load', function() {
 
         assetsIndex[asset.get('id')] = item;
 
+        // source
+        if (asset.get('source')) {
+            item.hidden = true;
+            item.class.add('source');
+        }
+
         var fileSize = asset.get('file.size');
 
-        // update thumbnails change
-        asset.on('thumbnails.m:set', function(value) {
-            var url = value;
-            if (value.startsWith('/api'))
-                return;
+        if (! asset.get('source')) {
+            // update thumbnails change
+            asset.on('thumbnails.m:set', function(value) {
+                var url = value;
+                if (value.startsWith('/api'))
+                    return;
 
-            thumbnail.style.backgroundImage = 'url(' + url + ')';
-            thumbnail.classList.remove('placeholder');
-        });
+                thumbnail.style.backgroundImage = 'url(' + url + ')';
+                thumbnail.classList.remove('placeholder');
+            });
 
-        asset.on('thumbnails.m:unset', function() {
-            thumbnail.style.backgroundImage = 'none';
-            thumbnail.classList.add('placeholder');
-        });
+            asset.on('thumbnails.m:unset', function() {
+                thumbnail.style.backgroundImage = 'none';
+                thumbnail.classList.add('placeholder');
+            });
+        }
 
         var thumbnail = item.thumbnail = document.createElement('div');
         thumbnail.classList.add('thumbnail');
         item.element.appendChild(thumbnail);
 
-        if (asset.has('thumbnails')) {
+        if (asset.has('thumbnails') && ! asset.get('source')) {
             thumbnail.style.backgroundImage = 'url("' + config.url.home + asset.get('thumbnails.m') + '")';
         } else {
             thumbnail.classList.add('placeholder');
@@ -162,17 +173,21 @@ editor.once('load', function() {
             if (this.get('data'))
                 this.set('data.name', this.get('name'));
         });
-        // used event
-        var evtUnused = editor.on('assets:used:' + asset.get('id'), function(state) {
-            if (state) {
-                item.class.remove('unused');
-            } else {
+
+        if (! asset.get('source')) {
+            // used event
+            var evtUnused = editor.on('assets:used:' + asset.get('id'), function(state) {
+                if (state) {
+                    item.class.remove('unused');
+                } else {
+                    item.class.add('unused');
+                }
+            });
+            // used state
+            if (! editor.call('assets:used:get', asset.get('id')))
                 item.class.add('unused');
-            }
-        });
-        // used state
-        if (! editor.call('assets:used:get', asset.get('id')))
-            item.class.add('unused');
+        }
+
         // clean events
         item.on('destroy', function() {
             editor.call('selector:remove', asset);

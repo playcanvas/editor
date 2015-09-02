@@ -987,10 +987,10 @@ editor.once('load', function() {
                     filter: function(type, data) {
                         var rectA = root.innerElement.getBoundingClientRect();
                         var rectB = panel.element.getBoundingClientRect();
-                        return (args.kind === '*' || type === 'asset.' + args.kind) && parseInt(data.id, 10) !== field.value && rectB.top > rectA.top && rectB.bottom < rectA.bottom;
+                        return (args.kind === '*' || type === 'asset.' + args.kind) && parseInt(data.id, 10) !== field.value && ! editor.call('assets:get', parseInt(data.id, 10)).get('source') && rectB.top > rectA.top && rectB.bottom < rectA.bottom;
                     },
                     drop: function(type, data) {
-                        if (args.kind !== '*' && type !== 'asset.' + args.kind)
+                        if ((args.kind !== '*' && type !== 'asset.' + args.kind) || editor.call('assets:get', parseInt(data.id, 10)).get('source'))
                             return;
 
                         field.value = parseInt(data.id, 10);
@@ -1311,7 +1311,7 @@ editor.once('load', function() {
             type: 'asset.' + type,
             filter: function(type, data) {
                 // type
-                if ((assetType && assetType !== '*' && type !== 'asset.' + assetType) || ! type.startsWith('asset'))
+                if ((assetType && assetType !== '*' && type !== 'asset.' + assetType) || ! type.startsWith('asset') || editor.call('assets:get', parseInt(data.id, 10)).get('source'))
                     return false;
 
                 // overflowed
@@ -1330,7 +1330,7 @@ editor.once('load', function() {
                 return false;
             },
             drop: function(type, data) {
-                if ((assetType && assetType !== '*' && type !== 'asset.' + assetType) || ! type.startsWith('asset'))
+                if ((assetType && assetType !== '*' && type !== 'asset.' + assetType) || ! type.startsWith('asset') || editor.call('assets:get', parseInt(data.id, 10)).get('source'))
                     return;
 
                 var records = [ ];

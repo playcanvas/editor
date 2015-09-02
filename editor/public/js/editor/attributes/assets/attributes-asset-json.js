@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     editor.on('attributes:inspect[asset]', function(assets) {
-        if (assets.length !== 1 || assets[0].get('type') !== 'json')
+        if (assets.length !== 1 || assets[0].get('type') !== 'json' || assets[0].get('source'))
             return;
 
         var asset = assets[0];
