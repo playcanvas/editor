@@ -12,15 +12,16 @@ app.once('load', function() {
             return item.filename;
         });
 
-        app.emit("sourcefiles:load", filenames)
+        app.emit("sourcefiles:load", filenames);
     };
 
-    // load assets
+    // load scripts
     Ajax.get("{{url.home}}{{project.repositoryUrl}}" + "?access_token={{accessToken}}")
         .on('load', function(status, data) {
             onLoad(data);
         })
         .on('error', function(status, evt) {
             console.log(status, evt);
+            app.emit("sourcefiles:load", []);
         });
 });
