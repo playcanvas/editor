@@ -4,7 +4,7 @@ editor.once('load', function() {
     var create = function(data) {
         var assetId = data.asset.id;
 
-        if (data.asset.source === false && data.asset.status !== 'complete')
+        if (data.asset.source === false && data.asset.status && data.asset.status !== 'complete')
             return;
 
         var asset = editor.call('assets:get', assetId);
