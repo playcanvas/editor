@@ -186,13 +186,17 @@ editor.once('load', function() {
             // used state
             if (! editor.call('assets:used:get', asset.get('id')))
                 item.class.add('unused');
+
+            // clean events
+            item.once('destroy', function() {
+                evtUnused.unbind();
+            });
         }
 
         // clean events
-        item.on('destroy', function() {
+        item.once('destroy', function() {
             editor.call('selector:remove', asset);
             evtNameSet.unbind();
-            evtUnused.unbind();
             delete assetsIndex[asset.get('id')];
         });
     });
