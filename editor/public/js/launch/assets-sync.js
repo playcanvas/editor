@@ -97,7 +97,7 @@ app.once('load', function() {
     // load all assets
     app.on('realtime:authenticated', function() {
         Ajax
-        .get('{{url.api}}/projects/{{project.id}}/assets?view=designer&access_token={{accessToken}}')
+        .get('{{url.api}}/projects/{{project.id}}/assets?view=launcher&access_token={{accessToken}}')
         .on('load', function(status, data) {
             onLoad(data);
         })
