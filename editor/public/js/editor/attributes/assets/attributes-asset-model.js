@@ -19,13 +19,12 @@ editor.once('load', function() {
     };
 
     editor.on('attributes:inspect[asset]', function(assets) {
-        if (assets.length !== 1 || assets[0].get('type') !== 'model')
+        if (assets.length !== 1 || assets[0].get('type') !== 'model' || assets[0].get('source'))
             return;
 
         var asset = assets[0];
 
         if (asset.has('data.mapping') && asset.get('data.mapping').length) {
-
             var root = editor.call('attributes.rootPanel');
 
             // preview

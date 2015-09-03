@@ -410,6 +410,9 @@ a:visited {
     line-height: 22px;
     border-bottom: 1px solid #1a1a1a;
     transition: opacity 100ms;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 
     &:last-child {
         border-bottom: none;

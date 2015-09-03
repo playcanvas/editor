@@ -179,6 +179,9 @@ editor.once('load', function() {
 
     // assets
     editor.on('assets:add', function(asset) {
+        if (asset.get('source'))
+            return;
+
         var type = asset.get('type');
 
         if (onSetMethods[type]) {

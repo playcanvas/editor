@@ -238,7 +238,7 @@ strong {
         position: absolute;
         top: -32px;
         left: 8px;
-        width: 464px;
+        width: 541px;
 
         &:after {
             content: '\E122';
@@ -282,11 +282,53 @@ strong {
             }
         }
         > .filters {
-            margin-left: 16px;
+            margin-left: 8px;
             float: right;
             background-color: transparent;
 
             > .content {
+                > .ui-button.sources {
+                    width: 86px;
+                    height: 32px;
+                    line-height: 32px;
+                    border: none;
+                    padding: 0;
+                    margin: 0;
+                    @extend .font-bold;
+                    font-size: 12px;
+                    color: $text-dark;
+                    background-color: transparent;
+
+                    &:before {
+                        @extend .font-icon;
+                        content: '\E211';
+                        float: left;
+                        font-size: 18px;
+                        line-height: 30px;
+                        padding-right: 4px;
+                        margin-left: 8px;
+                        color: $text-darkest;
+                    }
+                    &.active {
+                        color: $text-active;
+                        background-color: $bcg-darkest;
+
+                        &:before {
+                            color: $text-active;
+                        }
+                        &:hover {
+                            background-color: mix($bcg-darker, $bcg-darkest, 33%);
+                        }
+                    }
+                    &:hover {
+                        color: $text-primary;
+                        background-color: mix($bcg-darker, $bcg-darkest, 66%);
+
+                        &:before {
+                            color: $text-primary;
+                        }
+                    }
+                }
                 > .ui-select-field.options {
                     margin: 0;
                     height: 32px;
@@ -676,6 +718,15 @@ strong {
                     overflow: hidden;
                     text-overflow: ellipsis;
                 }
+                > .export-model-archive {
+                    cursor: pointer;
+
+                    &:hover {
+                        color: $text-active;
+                        text-decoration: underline;
+                        @extend .noSelect;
+                    }
+                }
             }
         }
         .ui-label.label-field {
@@ -695,6 +746,16 @@ strong {
         &.field-strings {
             > .content > .ui-panel {
                 max-width: calc(100% - 89px);
+
+                &.disabled > .content {
+                    > .tag {
+                        opacity: .5;
+
+                        > .icon {
+                            cursor: default;
+                        }
+                    }
+                }
 
                 > .content {
                     flex-direction: row;
@@ -1060,6 +1121,53 @@ strong {
                 }
             }
         }
+        &.related-assets {
+            > .ui-list-item {
+                &:before {
+                    content: '\E211';
+                    @extend .font-icon;
+                    font-size: 14px;
+                    padding-right: 8px;
+                    color: $text-darkest;
+                }
+                &.type-animation:before {
+                    content: '\E274';
+                }
+                &.type-audio:before {
+                    content: '\E262';
+                }
+                &.type-cubemap:before {
+                    content: '\E515';
+                }
+                &.type-json:before {
+                    content: '\E353';
+                }
+                &.type-material:before {
+                    content: '\E547';
+                }
+                &.type-model:before {
+                    content: '\E417';
+                }
+                &.type-scene:before {
+                    content: '\E417';
+                }
+                &.type-script:before {
+                    content: '\E353';
+                }
+                &.type-texture:before {
+                    content: '\E236';
+                }
+                &.type-text:before {
+                    content: '\E284';
+                }
+                &.type-html:before {
+                    content: '\E353';
+                }
+                &.type-css:before {
+                    content: '\E353';
+                }
+            }
+        }
     }
     .cubemap-viewport {
         > .content {
@@ -1266,6 +1374,18 @@ strong {
 
                 &:before {
                     content: '\E442';
+                    padding-right: 8px;
+                    @extend .font-icon;
+                    font-size: 16px;
+                    text-align: center;
+                }
+            }
+            > .ui-button.download-asset {
+                display: block;
+                text-align: center;
+
+                &:before {
+                    content: '\E365';
                     padding-right: 8px;
                     @extend .font-icon;
                     font-size: 16px;
@@ -1567,21 +1687,22 @@ strong {
         width: 104px;
         height: 104px;
         position: relative;
+        background-color: $bcg-darker;
 
         &.type-animation {
             > .thumbnail.placeholder:after {
                 content: '\E274';
             }
-            > .icon:after {
-                content: '\E274';
+            > .icon {
+                display: none;
             }
         }
         &.type-audio {
             > .thumbnail.placeholder:after {
                 content: '\E262';
             }
-            > .icon:after {
-                content: '\E262';
+            > .icon {
+                display: none;
             }
         }
         &.type-cubemap {
@@ -1596,16 +1717,16 @@ strong {
             > .thumbnail.placeholder:after {
                 content: '\E353';
             }
-            > .icon:after {
-                content: '\E353';
+            > .icon {
+                display: none;
             }
         }
         &.type-material {
             > .thumbnail.placeholder:after {
                 content: '\E547';
             }
-            > .icon:after {
-                content: '';
+            > .icon {
+                display: none;
             }
         }
         &.type-model {
@@ -1628,44 +1749,46 @@ strong {
             > .thumbnail.placeholder:after {
                 content: '\E353';
             }
-            > .icon:after {
-                content: '\E353';
+            > .icon {
+                display: none;
             }
         }
         &.type-texture {
             > .thumbnail.placeholder:after {
                 content: '\E236';
             }
-            > .icon:after {
-                content: '';
+            > .icon {
+                display: none;
             }
         }
         &.type-text {
             > .thumbnail.placeholder:after {
                 content: '\E284';
             }
-            > .icon:after {
-                content: '\E284';
+            > .icon {
+                display: none;
             }
         }
         &.type-html {
             > .thumbnail.placeholder:after {
                 content: '\E353';
             }
-            > .icon:after {
-                content: '\E353';
+            > .icon {
+                display: none;
             }
         }
         &.type-css {
             > .thumbnail.placeholder:after {
                 content: '\E353';
             }
-            > .icon:after {
-                content: '\E353';
+            > .icon {
+                display: none;
             }
         }
 
         &:hover {
+            background-color: mix($bcg-darkest, $bcg-dark, 50%);
+
             > .thumbnail {
                 color: $text-primary;
             }
@@ -1673,34 +1796,38 @@ strong {
                 background-color: mix($bcg-darkest, $bcg-dark, 50%);
             }
             > .icon {
-                color: $text-primary;
+                color: mix($bcg-darkest, $bcg-dark, 50%);
             }
         }
         &.selected {
+            background-color: $bcg-darkest;
+
             > .thumbnail {
                 color: $text-primary;
             }
             > .label {
                 background-color: $bcg-darkest;
             }
+            > .icon {
+                color: $bcg-darkest;
+            }
             &:hover {
+                background-color: mix($bcg-darkest, $bcg-darker, 75%);
+
                 > .label {
                     background-color: mix($bcg-darkest, $bcg-darker, 75%);
                 }
             }
         }
         &.unused {
-            &:after {
+            > .label:before {
                 @extend .font-icon;
-                content: '\E532';
-                position: absolute;
-                top: 4px;
-                right: 4px;
-                width: 16px;
-                height: 16px;
-                line-height: 16px;
-                text-align: center;
-                color: $text-dark;
+                content: '\E243';
+                font-size: 14px;
+                line-height: 14px;
+                display: inline-block;
+                width: 12px;
+                color: $text-darkest;
             }
         }
         > .thumbnail {
@@ -1720,17 +1847,30 @@ strong {
                 font-weight: 100;
             }
         }
+        &.source {
+            > .thumbnail {
+                border: 2px dotted rgba($text-darkest, .5);
+                width: 60px;
+                height: 60px;
+                line-height: 56px;
+            }
+            > .icon {
+                display: none;
+            }
+        }
         > .icon {
             position: absolute;
             width: 22px;
             height: 22px;
-            top: 4px;
-            left: 4px;
+            top: 0;
+            left: 0;
             @extend .font-icon;
             font-size: 18px;
             font-weight: 100;
-            line-height: 20px;
+            line-height: 22px;
             text-align: center;
+            color: $bcg-darker;
+            background-color: $text-darkest;
 
             &:after {
                 content: '\E211';
@@ -3115,12 +3255,21 @@ strong {
                                 background-color: #5f6f72;
                             }
                         }
+                    }
+                }
 
-                        &.disabled {
+                &.disabled {
+                    > .picker-scene-content > ul > li > .scene-primary {
+                        pointer-events: none;
+                    }
+
+                    > .picker-scene-footer {
+                        > .picker-scene-new {
                             pointer-events: none;
                             opacity: 0.5;
                         }
                     }
+
                 }
             }
         }

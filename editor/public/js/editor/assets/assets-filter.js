@@ -22,8 +22,12 @@ editor.once('load', function() {
 
         var visible = true;
 
+        // source
+        if (! btnSources.class.contains('active') && item.get('source'))
+            visible = false;
+
         // type
-        if (filterField.value !== 'all') {
+        if (visible && filterField.value !== 'all') {
             if (type === 'asset') {
                 visible = item.get('type') === filterField.value;
             } else if (type === 'script') {
@@ -49,6 +53,28 @@ editor.once('load', function() {
 
         return visible;
     };
+
+    // source assets
+    var btnSources = new ui.Button({
+        text: 'Sources'
+    });
+    btnSources.class.add('sources');
+    btnSources.on('click', function() {
+        if (this.class.contains('active')) {
+            this.class.remove('active');
+        } else {
+            this.class.add('active');
+        }
+        editor.call('assets:panel:filter', filter);
+    });
+    panelFilters.append(btnSources);
+
+    var tooltipSources = Tooltip.attach({
+        target: btnSources.element,
+        text: 'Show Source Assets',
+        align: 'bottom',
+        root: root
+    });
 
     // options
     var filterField = new ui.SelectField({
@@ -93,6 +119,26 @@ editor.once('load', function() {
     });
     filterField.on('close', function() {
         tooltipFilter.disabled = false;
+    });
+
+    editor.method('assets:filter:sources', function(state) {
+        if (state === undefined)
+            return btnSources.class.contains('active');
+
+        if (btnSources.class.contains('active') === !! state)
+            return;
+
+        if (state) {
+            btnSources.class.add('active');
+        } else {
+            btnSources.class.remove('active');
+        }
+
+        editor.call('assets:panel:filter', filter);
+    });
+
+    editor.method('assets:filter:sources:disabled', function(state) {
+        btnSources.disabled = state;
     });
 
     editor.method('assets:filter:search', function(query) {
