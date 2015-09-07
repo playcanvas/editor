@@ -429,11 +429,15 @@ editor.once('load', function() {
 
             var field;
 
+            var type = scriptAttributeTypes[attribute.type];
+            if (attribute.type === 'enumeration' && choices.length >= 2 && typeof(choices[1].v) === 'string')
+                type = 'string';
+
             if (scriptAttributeTypes[attribute.type] !== 'assets') {
                 var args = {
                     parent: parent,
                     name: attribute.displayName || attribute.name,
-                    type: scriptAttributeTypes[attribute.type],
+                    type: type,
                     enum: choices,
                     link: scripts,
                     path: 'attributes.' + attribute.name + '.value'
