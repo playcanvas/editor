@@ -129,6 +129,15 @@ app.once('load', function() {
                 var parent = app.call('entities:get', obj.get('parent'));
                 if (parent && parent.entity)
                     entity.reparent(parent.entity);
+            } else if (path === 'components.model.type' && value === 'asset') {
+                // WORKAROUND
+                // entity deletes asset when switching to primitive, restore it
+                // do this in a timeout to allow the model type to change first
+                setTimeout(function () {
+                    var assetId = obj.get('components.model.asset');
+                    if (assetId)
+                        entity.model.asset = assetId;
+                });
             }
         });
 

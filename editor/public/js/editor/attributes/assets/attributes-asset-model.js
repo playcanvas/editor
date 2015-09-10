@@ -18,6 +18,12 @@ editor.once('load', function() {
         });
     };
 
+    var panelNodes = null;
+
+    editor.method('attributes:asset:model:nodesPanel', function () {
+        return panelNodes;
+    });
+
     editor.on('attributes:inspect[asset]', function(assets) {
         if (assets.length !== 1 || assets[0].get('type') !== 'model' || assets[0].get('source'))
             return;
@@ -67,7 +73,7 @@ editor.once('load', function() {
             });
 
             // nodes panel
-            var panelNodes = editor.call('attributes:addPanel', {
+            panelNodes = editor.call('attributes:addPanel', {
                 name: 'Mesh Instances'
             });
             panelNodes.class.add('component');
@@ -110,7 +116,7 @@ editor.once('load', function() {
                 nodeItems[ind].parent.on('click', function() {
                     this.class.remove('active');
                 });
-            }
+            };
 
             // create node fields
             var mapping = asset.get('data.mapping');
@@ -121,6 +127,7 @@ editor.once('load', function() {
                 root.class.remove('asset-preview', 'animate');
                 canvas.parentNode.removeChild(canvas);
                 evtPanelResize.unbind();
+                panelNodes = null;
             });
 
             // template nodes
@@ -158,7 +165,7 @@ editor.once('load', function() {
                     loading.progress = 1;
                 })
                 .on('progress', function(progress) {
-                    loading.progress = .1 + progress * .8;
+                    loading.progress = 0.1 + progress * 0.8;
                 })
                 .on('error', function() {
                     loading.failed = true;
@@ -173,10 +180,12 @@ editor.once('load', function() {
                     editor.call('attributes.rootPanel').append(error);
 
                     loading.progress = 1;
-                })
+                });
 
-                loading.progress = .1;
+                loading.progress = 0.1;
             }
+
+            return panelNodes;
         }
     });
 });

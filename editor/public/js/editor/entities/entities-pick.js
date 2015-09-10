@@ -33,13 +33,21 @@ editor.once('load', function() {
                     if (instance !== picked)
                         continue;
 
-                    // get model asset
-                    var asset = editor.call('assets:get', node.model.asset);
-                    if (! asset) break;
-
                     var index = i;
-                    // select model asset
-                    editor.call('selector:set', 'asset', [ asset ]);
+
+                    // if the model component has a material mapping then
+                    // open the model component otherwise go to the model asset
+                    if (node.model.mapping && node.model.mapping[i] !== undefined) {
+                        editor.call('selector:set', 'entity', [entity]);
+                    } else {
+                        // get model asset
+                        var asset = editor.call('assets:get', node.model.asset);
+                        if (! asset) break;
+
+                        // select model asset
+                        editor.call('selector:set', 'asset', [ asset ]);
+                    }
+
                     // highlight selected node
                     setTimeout(function() {
                         var node = editor.call('attributes.rootPanel').element.querySelector('.field-asset.node-' + index);
