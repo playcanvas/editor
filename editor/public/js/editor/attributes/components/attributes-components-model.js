@@ -144,7 +144,7 @@ editor.once('load', function() {
 
         // add button to add material override
         var overrideBtn = new ui.Button({
-            text: 'Override Material'
+            text: 'Materials'
         });
         overrideBtn.class.add('override-material');
         panelMaterials.append(overrideBtn);
