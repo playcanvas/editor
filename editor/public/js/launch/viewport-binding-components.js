@@ -61,8 +61,14 @@ app.once('load', function() {
 
             var parts = path.split('.');
             var component = parts[1];
+            var property = parts[2];
 
-            if (entity[component]) {
+            if (property) {
+                // edit component property
+                var value = obj.get('components.' + component + '.' + property);
+                entity[component][property] = editor.call('components:convertValue', component, property, value);
+            }
+            else if (entity[component]) {
                 // remove component
                 framework.systems[component].removeComponent(entity);
             }
