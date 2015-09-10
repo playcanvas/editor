@@ -2163,6 +2163,10 @@ strong {
 }
 
 .ui-panel.override-material {
+    > .content {
+        padding: 0 !important;
+    }
+
     .ui-button.remove {
         @extend .font-icon;
         line-height: 66px;

@@ -121,6 +121,7 @@ editor.once('load', function() {
 
         var panelMaterials = editor.call('attributes:addPanel');
         panelMaterials.class.add('component', 'override-material');
+        panel.append(panelMaterials);
 
         // check if we should show the override button
         // mainly if all entities have a model component
