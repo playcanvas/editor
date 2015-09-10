@@ -156,10 +156,11 @@ editor.once('load', function() {
 
         // get one of the Entities to use for finding the mesh instances names
         var engineEntity = framework.root.findByGuid(entities[0].get('resource_id'));
-        var meshInstances = engineEntity.model.model.meshInstances;
 
         var addOverride = function (index) {
             var valuesBefore;
+
+            var meshInstances = engineEntity.model.model.meshInstances;
 
             var field = editor.call('attributes:addField', {
                 parent: panelMaterials,
@@ -167,7 +168,7 @@ editor.once('load', function() {
                 kind: 'material',
                 name: meshInstances[index] ? meshInstances[index].node.name : 'node ' + index,
                 link: entities,
-                path: 'components.model.mapping.' + key,
+                path: 'components.model.mapping.' + index,
                 over: function(type, data) {
                     valuesBefore = entities.map(function (entity) {
                         var path = 'components.model.mapping.' + index;
@@ -222,13 +223,53 @@ editor.once('load', function() {
                 entities.forEach(function (entity) {
                     entity.unset('components.model.mapping.' + index);
                 });
-                field.parent.destroy();
             });
         };
 
         // add field for each mapping
         for (var key in allMappings) {
-            addOverride(parseInt(key, 10));
+            addOverride(key);
         }
+
+        // subscribe to mapping change events
+        entities.forEach(function (entity) {
+            events.push(entity.on('components.model.mapping:set', function (value) {
+                if (! value) value = {};
+
+                // remove deleted overrides
+                for (var key in allMappings) {
+                    if (value[key] === undefined) {
+                        var field = panelMaterials.element.querySelector('.field-asset.node-' + key);
+                        if (field)
+                            field.parentElement.removeChild(field);
+
+                        delete allMappings[key];
+                    }
+                }
+
+                // add new
+                setTimeout(function () {
+                    for (var key in value) {
+                        if (allMappings[key] === undefined) {
+                            allMappings[key] = true;
+                            addOverride(key);
+                        }
+                    }
+                });
+
+            }));
+
+            events.push(entity.on('*:unset', function (path, value) {
+                if (path.indexOf('components.model.mapping') !== 0) return;
+
+                var parts = path.split('.');
+                var index = parts[parts.length-1];
+                var field = panelMaterials.element.querySelector('.field-asset.node-' + index);
+                if (field)
+                    field.parentElement.removeChild(field);
+
+                delete allMappings[index];
+            }));
+        });
     });
 });
