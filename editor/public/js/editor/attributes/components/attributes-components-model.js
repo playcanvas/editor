@@ -36,6 +36,7 @@ editor.once('load', function() {
         fieldType.on('change', function(value) {
             fieldAsset.parent.hidden = value !== 'asset';
             fieldMaterial.parent.hidden = value === 'asset' || value === '';
+            toggleOverrides();
         });
         // reference
         editor.call('attributes:reference:model:type:attach', fieldType.parent.innerElement.firstChild.ui);
@@ -105,5 +106,129 @@ editor.once('load', function() {
             for(var i = 0; i < events.length; i++)
                 events[i].unbind();
         });
+
+
+        // gather all mappings for all selected entities
+        var allMappings = {};
+        for (var i = 0, len = entities.length; i < len; i++) {
+            var mapping = entities[i].get('components.model.mapping');
+            if (mapping) {
+                for (var key in mapping) {
+                    allMappings[key] = true;
+                }
+            }
+        }
+
+        var panelMaterials = editor.call('attributes:addPanel');
+        panelMaterials.class.add('component', 'override-material');
+
+        // check if we should show the override button
+        // mainly if all entities have a model component
+        // and are referencing an asset
+        var toggleOverrides = function ()  {
+            var referencedModelAsset = entities[0].get('components.model.asset');
+            for (var i = 0, len = entities.length; i < len; i++) {
+                if (entities[i].get('components.model.type') !== 'asset' ||
+                    entities[i].get('components.model.asset') !== referencedModelAsset) {
+                    panelMaterials.hidden = true;
+                    return;
+                }
+            }
+
+            panelMaterials.hidden = false;
+        };
+
+        // turn override panel off / on
+        toggleOverrides();
+
+        // add button to add material override
+        var overrideBtn = new ui.Button({
+            text: 'Override Material'
+        });
+        overrideBtn.class.add('override-material');
+        panelMaterials.append(overrideBtn);
+
+        overrideBtn.on('click', function () {
+            editor.call('picker:node', entities);
+        });
+
+        var framework = editor.call('viewport:framework');
+
+        // get one of the Entities to use for finding the mesh instances names
+        var engineEntity = framework.root.findByGuid(entities[0].get('resource_id'));
+        var meshInstances = engineEntity.model.model.meshInstances;
+
+        var addOverride = function (index) {
+            var valuesBefore;
+
+            var field = editor.call('attributes:addField', {
+                parent: panelMaterials,
+                type: 'asset',
+                kind: 'material',
+                name: meshInstances[index] ? meshInstances[index].node.name : 'node ' + index,
+                link: entities,
+                path: 'components.model.mapping.' + key,
+                over: function(type, data) {
+                    valuesBefore = entities.map(function (entity) {
+                        var path = 'components.model.mapping.' + index;
+                        return entity.has(path) ? entity.get(path) : undefined;
+                    });
+
+                    entities.forEach(function (entity) {
+                        var engineEntity = framework.root.findByGuid(entity.get('resource_id'));
+                        if (engineEntity) {
+                            var mapping = engineEntity.model.mapping;
+                            mapping[index] = parseInt(data.id, 10);
+                            engineEntity.model.mapping = mapping;
+                        }
+                    });
+
+                    editor.call('viewport:render');
+                },
+                leave: function() {
+                    if (!valuesBefore) return;
+
+                    entities.forEach(function (entity, i) {
+                        var engineEntity = framework.root.findByGuid(entity.get('resource_id'));
+                        if (engineEntity) {
+                            var mapping = engineEntity.model.mapping;
+                            if (valuesBefore[i] === undefined)
+                                delete mapping[index];
+                            else
+                                mapping[index] = valuesBefore[i] === null ? null : parseInt(valuesBefore[i], 10);
+
+                            engineEntity.model.mapping = mapping;
+                        }
+                    });
+
+                    editor.call('viewport:render');
+                }
+            });
+
+            field.parent.class.add('node-' + index);
+
+            field.parent.on('click', function () {
+                field.parent.class.remove('active');
+            });
+
+            // button to remove mapping entry
+            var removeButton = new ui.Button({
+                text: '&#58657;'
+            });
+            removeButton.class.add('remove');
+            field.parent.append(removeButton);
+
+            removeButton.on('click', function () {
+                entities.forEach(function (entity) {
+                    entity.unset('components.model.mapping.' + index);
+                });
+                field.parent.destroy();
+            });
+        };
+
+        // add field for each mapping
+        for (var key in allMappings) {
+            addOverride(parseInt(key, 10));
+        }
     });
 });

@@ -1392,6 +1392,10 @@ strong {
                     text-align: center;
                 }
             }
+            > .ui-button.override-material {
+                display: block;
+                text-align: center;
+            }
         }
 
         > .content {
@@ -2156,6 +2160,90 @@ strong {
             visibility: hidden;
         }
     }
+}
+
+.ui-panel.override-material {
+    .ui-button.remove {
+        @extend .font-icon;
+        line-height: 66px;
+        height: 66px;
+        width: 40px;
+        padding: 0;
+        font-size: 18px;
+        text-align: center;
+    }
+}
+
+.ui-panel.picker-node {
+
+    > .content {
+        padding: 0 !important;
+
+        & > .field-asset {
+            border-bottom: 1px solid $bcg-darkest;
+
+            > .content {
+                padding: 0px 6px;
+                background-color: $bcg-primary;
+
+                > .ui-image-field {
+                    background-color: $bcg-primary;
+                    border-color: transparent;
+
+                    &:after {
+                        display: none;
+                    }
+                }
+
+                > .top {
+                    .ui-button {
+                        display: none;
+                    }
+
+                    .ui-label {
+                        background-color: $bcg-primary;
+                        border-color: transparent;
+                        &:after {
+                            display: none;
+                        }
+                    }
+
+                    > .ui-label {
+                        color: white;
+                        left: -8px;
+                        font-size: 14px;
+                    }
+                }
+            }
+
+            &:not(.disabled):hover {
+                & > .content {
+                    cursor: pointer;
+                    background-color: $bcg-darkest;
+
+                    > .ui-image-field {
+                        pointer-events: none;
+                        background-color: $bcg-darkest;
+                    }
+
+                    > .top {
+                        .ui-label {
+                            pointer-events: none;
+                            background-color: $bcg-darkest;
+                        }
+                    }
+                }
+            }
+
+            &.disabled {
+                & > .content {
+                    pointer-events: none;
+                    opacity: 0.25;
+                }
+            }
+        }
+    }
+
 }
 
 .ui-overlay.script-priorities {
