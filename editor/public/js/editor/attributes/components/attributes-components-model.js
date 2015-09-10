@@ -248,14 +248,12 @@ editor.once('load', function() {
                 }
 
                 // add new
-                setTimeout(function () {
-                    for (var key in value) {
-                        if (allMappings[key] === undefined) {
-                            allMappings[key] = true;
-                            addOverride(key);
-                        }
+                for (var key in value) {
+                    if (allMappings[key] === undefined) {
+                        allMappings[key] = true;
+                        addOverride(key);
                     }
-                });
+                }
 
             }));
 
