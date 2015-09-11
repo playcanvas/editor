@@ -158,6 +158,52 @@ editor.once('load', function() {
         // get one of the Entities to use for finding the mesh instances names
         var engineEntity = framework.root.findByGuid(entities[0].get('resource_id'));
 
+        var removeOverride = function (index) {
+            var resourceIds = [];
+            var previous = [];
+
+            entities.forEach(function (entity) {
+                resourceIds.push(entity.get('resource_id'));
+                var history = entity.history.enabled;
+                entity.history.enabled = false;
+                previous.push(entity.has('components.model.mapping.' + index) ? entity.get('components.model.mapping.' + index) : undefined);
+                entity.unset('components.model.mapping.' + index);
+                entity.history.enabled = history;
+            });
+
+            editor.call('history:add', {
+                name: 'entities.' + (resourceIds.length > 1 ? '*' : resourceIds[0]) + '.components.model.mapping',
+                undo: function() {
+                    for(var i = 0; i < resourceIds.length; i++) {
+                        var item = editor.call('entities:get', resourceIds[i]);
+                        if (! item)
+                            continue;
+
+                        var history = item.history.enabled;
+                        item.history.enabled = false;
+                        if (previous[i] === undefined)
+                            item.unset('components.model.mapping.' + index);
+                        else
+                            item.set('components.model.mapping.' + index, previous[i]);
+
+                        item.history.enabled = history;
+                    }
+                },
+                redo: function() {
+                    for(var i = 0; i < resourceIds.length; i++) {
+                        var item = editor.call('entities:get', resourceIds[i]);
+                        if (! item)
+                            continue;
+
+                        var history = item.history.enabled;
+                        item.history.enabled = false;
+                        item.unset('components.model.mapping.' + index);
+                        item.history.enabled = history;
+                    }
+                }
+            });
+        };
+
         var addOverride = function (index) {
             var valuesBefore;
 
@@ -221,9 +267,7 @@ editor.once('load', function() {
             field.parent.append(removeButton);
 
             removeButton.on('click', function () {
-                entities.forEach(function (entity) {
-                    entity.unset('components.model.mapping.' + index);
-                });
+                removeOverride(index);
             });
         };
 

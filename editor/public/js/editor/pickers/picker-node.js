@@ -40,16 +40,79 @@ editor.once('load', function() {
     });
 
     var addMapping = function (index, assetId) {
+        var resourceIds = [];
+        var actions = [];
+
         for (var i = 0, len = currentEntities.length; i < len; i++) {
-            if (!currentEntities[i].get('components.model.mapping')) {
+
+            resourceIds.push(currentEntities[i].get('resource_id'));
+
+            var history = currentEntities[i].history.enabled;
+            currentEntities[i].history.enabled = false;
+
+            if (! currentEntities[i].get('components.model.mapping')) {
                 var mapping = {};
                 mapping[index] = parseInt(assetId, 10);
+
+                actions.push({
+                    path: 'components.model.mapping',
+                    undo: undefined,
+                    redo: mapping
+                });
+
                 currentEntities[i].set('components.model.mapping', mapping);
             } else {
-                currentEntities[i].set('components.model.mapping.' + index, parseInt(assetId, 10));
+                var value = currentEntities[i].has('components.model.mapping.' + index) ?
+                            currentEntities[i].get('components.model.mapping.' + index) :
+                            undefined;
+                var id = parseInt(assetId, 10);
+
+                actions.push({
+                    path: 'components.model.mapping.' + index,
+                    undo: value,
+                    redo: id
+                });
+
+                currentEntities[i].set('components.model.mapping.' + index, id);
             }
 
+            currentEntities[i].history.enabled = history;
         }
+
+        editor.call('history:add', {
+            name: 'entities.' + (resourceIds.length > 1 ? '*' : resourceIds[0]) + '.components.model.mapping',
+            undo: function() {
+                for(var i = 0; i < resourceIds.length; i++) {
+                    var item = editor.call('entities:get', resourceIds[i]);
+                    if (! item)
+                        continue;
+
+                    var history = item.history.enabled;
+                    item.history.enabled = false;
+
+                    if (actions[i].undo === undefined)
+                        item.unset(actions[i].path);
+                    else
+                        item.set(actions[i].path, actions[i].undo);
+
+                    item.history.enabled = history;
+                }
+            },
+            redo: function() {
+                for(var i = 0; i < resourceIds.length; i++) {
+                    var item = editor.call('entities:get', resourceIds[i]);
+                    if (! item)
+                        continue;
+
+                    var history = item.history.enabled;
+                    item.history.enabled = false;
+                    item.set(actions[i].path, actions[i].redo);
+                    item.history.enabled = history;
+                }
+            }
+        });
+
+
     };
 
     var addClickEvent = function (field, index) {
