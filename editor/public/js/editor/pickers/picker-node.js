@@ -26,7 +26,11 @@ editor.once('load', function() {
     // on close asset picker
     overlay.on('hide', function() {
         // select entities again
+        editor.call('selector:history', false);
         editor.call('selector:set', 'entity', currentEntities);
+        editor.once('selector:change', function () {
+            editor.call('selector:history', true);
+        });
 
         // emit event
         editor.emit('picker:node:close');
@@ -57,7 +61,7 @@ editor.once('load', function() {
 
     var isAlreadyOverriden = function (index) {
         for (var i = 0, len = currentEntities.length; i < len; i++) {
-            if (currentEntities[i].get('components.model.mapping.' + index))
+            if (currentEntities[i].has('components.model.mapping.' + index))
                 return true;
         }
 
@@ -74,9 +78,12 @@ editor.once('load', function() {
 
         // select model asset
         currentAsset = editor.call('assets:get', entities[0].get('components.model.asset'));
+        editor.call('selector:history', false);
         editor.call('selector:set', 'asset', [currentAsset]);
 
         editor.once('attributes:inspect[asset]', function () {
+            editor.call('selector:history', true);
+
             // get mesh instances panel
             var panelNodes = editor.call('attributes:asset:model:nodesPanel');
             panelNodes.style.zIndex = 102;

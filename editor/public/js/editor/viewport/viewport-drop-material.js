@@ -106,13 +106,13 @@ editor.once('load', function() {
                 if (ind === -1)
                     return;
 
-                var mapping = entity.get('components.model.mapping');
-                if (! mapping)
-                    mapping = {};
-
-                mapping[ind] = parseInt(hoverMaterial.id, 10);
-                entity.set('components.model.mapping', mapping);
-
+                if (!entity.get('components.model.mapping')) {
+                    var mapping = {};
+                    mapping[ind] = parseInt(hoverMaterial.id, 10);
+                    entity.set('components.model.mapping', mapping);
+                } else {
+                   entity.set('components.model.mapping.' + ind, parseInt(hoverMaterial.id, 10));
+                }
             } else {
                 // primitive model
                 entity.set('components.model.materialAsset', hoverMaterial.id);

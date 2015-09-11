@@ -246,8 +246,8 @@ Observer.prototype.set = function(path, value, silent) {
             if (silent)
                 state = obj.silence();
 
-            obj.emit(path + ':set', value, null);
-            obj.emit('*:set', path, value, null);
+            obj.emit(path + ':set', value, undefined);
+            obj.emit('*:set', path, value, undefined);
 
             if (silent)
                 obj.silenceRestore(state);

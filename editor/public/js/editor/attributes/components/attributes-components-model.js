@@ -234,7 +234,11 @@ editor.once('load', function() {
 
         // subscribe to mapping change events
         entities.forEach(function (entity) {
-            events.push(entity.on('components.model.mapping:set', function (value) {
+            events.push(entity.on('*:set', function (path) {
+                if (! /^components.model.mapping/.test(path)) return;
+
+                var value = entity.get('components.model.mapping');
+
                 if (! value) value = {};
 
                 // remove deleted overrides
@@ -259,7 +263,7 @@ editor.once('load', function() {
             }));
 
             events.push(entity.on('*:unset', function (path, value) {
-                if (path.indexOf('components.model.mapping') !== 0) return;
+                if (! /^components.model.mapping/.test(path)) return;
 
                 var parts = path.split('.');
                 var index = parts[parts.length-1];
