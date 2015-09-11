@@ -283,6 +283,10 @@ body {
         border: 1px solid $editor-search;
     }
 
+    span.cm-bracket {
+        color: $editor-text-color;
+    }
+
     .CodeMirror-matchingbracket {
         text-decoration: underline;
         color: $editor-text-color !important;

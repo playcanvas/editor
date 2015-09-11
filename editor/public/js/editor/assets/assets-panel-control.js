@@ -97,6 +97,16 @@ editor.once('load', function() {
     });
     menu.append(menuText);
 
+    // shader
+    var menuShader = new ui.MenuItem({
+        text: 'New Shader',
+        value: 'shader'
+    });
+    menuShader.on('select', function () {
+        editor.call('assets:createShader');
+    });
+    menu.append(menuShader);
+
     // controls
     var controls = new ui.Panel();
     controls.enabled = false;
