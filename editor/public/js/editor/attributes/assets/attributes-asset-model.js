@@ -125,9 +125,20 @@ editor.once('load', function() {
 
             panelNodes.on('destroy', function () {
                 root.class.remove('asset-preview', 'animate');
+                if (canvas.parentNode)
+                    canvas.parentNode.removeChild(canvas);
+                evtPanelResize.unbind();
+                if (evtHide)
+                    evtHide.unbind();
+                panelNodes = null;
+            });
+
+            // hide preview when asset info is hidden
+            var evtHide = editor.once('attributes:assets:toggleInfo', function (toggle) {
+                evtHide = null;
+                root.class.remove('asset-preview', 'animate');
                 canvas.parentNode.removeChild(canvas);
                 evtPanelResize.unbind();
-                panelNodes = null;
             });
 
             // template nodes

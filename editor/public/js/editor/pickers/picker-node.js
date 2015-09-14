@@ -25,6 +25,10 @@ editor.once('load', function() {
 
     // on close asset picker
     overlay.on('hide', function() {
+        // reset root header
+        var root = editor.call('attributes.rootPanel');
+        root.style.zIndex = '';
+
         // select entities again
         editor.call('selector:history', false);
         editor.call('selector:set', 'entity', currentEntities);
@@ -147,16 +151,32 @@ editor.once('load', function() {
         editor.once('attributes:inspect[asset]', function () {
             editor.call('selector:history', true);
 
+            // change header name
+            editor.call('attributes:header', 'Entity Materials');
+
+            // hide asset info
+            editor.emit('attributes:assets:toggleInfo', false);
+
             // get mesh instances panel
             var panelNodes = editor.call('attributes:asset:model:nodesPanel');
             panelNodes.style.zIndex = 102;
             panelNodes.style.overflow = 'visible';
 
+            var root = editor.call('attributes.rootPanel');
+            root.style.zIndex = 102;
+
             // flash panel
             panelNodes.flash();
 
             // add special class
-            panelNodes.class.add('picker-node');
+            panelNodes.class.add('picker-node', 'noHeader');
+
+            // add help
+            var help = new ui.Label({
+                text: '<h5>SELECT MESH INSTANCE</h5>Choose a mesh instance to customize the material for ' + (currentEntities.length > 1 ? 'these Entities.' : 'this Entity.')
+            });
+            help.class.add('help');
+            panelNodes.prepend(help);
 
             // add click events for each mesh instance field
             var fields = panelNodes.element.getElementsByClassName('field-asset');
