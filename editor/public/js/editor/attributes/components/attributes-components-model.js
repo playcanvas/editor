@@ -259,6 +259,8 @@ editor.once('load', function() {
                         var engineEntity = framework.root.findByGuid(entity.get('resource_id'));
                         if (engineEntity) {
                             var mapping = engineEntity.model.mapping;
+                            if (! mapping) return;
+
                             if (valuesBefore[i] === undefined)
                                 delete mapping[index];
                             else
