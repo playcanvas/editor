@@ -1396,8 +1396,8 @@ strong {
                 }
             }
             > .ui-button.override-material {
-                display: block;
                 text-align: center;
+                flex-grow: 1;
             }
         }
 
@@ -2195,7 +2195,11 @@ strong {
         padding: 0 !important;
 
         & > .field-asset {
-            border-bottom: 1px solid $bcg-darkest;
+            border-top: 1px solid #2b3638;
+
+            &:last-child {
+                border-bottom: 1px solid #2b3638;
+            }
 
             > .content {
                 padding: 0px 6px;
@@ -2256,6 +2260,22 @@ strong {
                     opacity: 0.25;
                 }
             }
+        }
+    }
+
+    .help {
+        font-size: 12px;
+        padding: 8px 20px;
+        background-color: #2f3c3f;
+        margin: 0;
+        color: white;
+        @extend .font-regular;
+
+        h5 {
+            font-size: 12px;
+            margin: 0;
+            color: $text-active;
+            @extend .font-bold;
         }
     }
 

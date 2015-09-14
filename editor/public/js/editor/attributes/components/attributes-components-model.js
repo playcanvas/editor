@@ -36,7 +36,7 @@ editor.once('load', function() {
         fieldType.on('change', function(value) {
             fieldAsset.parent.hidden = value !== 'asset';
             fieldMaterial.parent.hidden = value === 'asset' || value === '';
-            toggleOverrides();
+            toggleMaterials();
         });
         // reference
         editor.call('attributes:reference:model:type:attach', fieldType.parent.innerElement.firstChild.ui);
@@ -119,6 +119,10 @@ editor.once('load', function() {
             }
         }
 
+        var panelMaterialButtons = editor.call('attributes:addPanel');
+        panelMaterialButtons.class.add('flex', 'component', 'override-material');
+        panel.append(panelMaterialButtons);
+
         var panelMaterials = editor.call('attributes:addPanel');
         panelMaterials.class.add('component', 'override-material');
         panel.append(panelMaterials);
@@ -126,30 +130,43 @@ editor.once('load', function() {
         // check if we should show the override button
         // mainly if all entities have a model component
         // and are referencing an asset
-        var toggleOverrides = function ()  {
+        var toggleMaterials = function ()  {
             var referencedModelAsset = entities[0].get('components.model.asset');
             for (var i = 0, len = entities.length; i < len; i++) {
                 if (entities[i].get('components.model.type') !== 'asset' ||
                     entities[i].get('components.model.asset') !== referencedModelAsset) {
                     panelMaterials.hidden = true;
+                    panelMaterialButtons.hidden = true;
                     return;
                 }
             }
 
             panelMaterials.hidden = false;
+            panelMaterialButtons.hidden = false;
         };
 
         // turn override panel off / on
-        toggleOverrides();
+        toggleMaterials();
+
+        var assetMaterials = new ui.Button({
+            text: 'Asset Materials'
+        });
+
+        assetMaterials.class.add('override-material');
+        panelMaterialButtons.append(assetMaterials);
+        assetMaterials.on('click', function () {
+            var modelAsset = editor.call('assets:get', entities[0].get('components.model.asset'));
+            editor.call('selector:set', 'asset', [modelAsset]);
+        });
 
         // add button to add material override
-        var overrideBtn = new ui.Button({
-            text: 'Materials'
+        var entityMaterials = new ui.Button({
+            text: 'Entity Materials'
         });
-        overrideBtn.class.add('override-material');
-        panelMaterials.append(overrideBtn);
+        entityMaterials.class.add('override-material');
+        panelMaterialButtons.append(entityMaterials);
 
-        overrideBtn.on('click', function () {
+        entityMaterials.on('click', function () {
             editor.call('picker:node', entities);
         });
 
@@ -226,8 +243,10 @@ editor.once('load', function() {
                         var engineEntity = framework.root.findByGuid(entity.get('resource_id'));
                         if (engineEntity) {
                             var mapping = engineEntity.model.mapping;
-                            mapping[index] = parseInt(data.id, 10);
-                            engineEntity.model.mapping = mapping;
+                            if (engineEntity.model.mapping && engineEntity.model.mapping[index] !== undefined) {
+                                mapping[index] = parseInt(data.id, 10);
+                                engineEntity.model.mapping = mapping;
+                            }
                         }
                     });
 
@@ -240,6 +259,8 @@ editor.once('load', function() {
                         var engineEntity = framework.root.findByGuid(entity.get('resource_id'));
                         if (engineEntity) {
                             var mapping = engineEntity.model.mapping;
+                            if (! mapping) return;
+
                             if (valuesBefore[i] === undefined)
                                 delete mapping[index];
                             else

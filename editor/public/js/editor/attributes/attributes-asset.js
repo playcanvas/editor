@@ -15,6 +15,7 @@
         '1': 'no'
     };
 
+    var assetsPanel = null;
 
     editor.on('attributes:inspect[asset]', function(assets) {
         // unfold panel
@@ -42,7 +43,10 @@
         // panel
         var panel = editor.call('attributes:addPanel');
         panel.class.add('component');
-
+        assetsPanel = panel;
+        panel.once('destroy', function () {
+            assetsPanel = null;
+        });
 
         if (multi) {
             var fieldFilename = editor.call('attributes:addField', {
@@ -265,6 +269,12 @@
                     window.open('/api/assets/' + asset.get('id') + '/download_model?access_token=' + config.accessToken);
                 });
             }
+        }
+    });
+
+    editor.on('attributes:assets:toggleInfo', function (enabled) {
+        if (assetsPanel) {
+            assetsPanel.hidden = !enabled;
         }
     });
 })();
