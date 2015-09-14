@@ -243,8 +243,10 @@ editor.once('load', function() {
                         var engineEntity = framework.root.findByGuid(entity.get('resource_id'));
                         if (engineEntity) {
                             var mapping = engineEntity.model.mapping;
-                            mapping[index] = parseInt(data.id, 10);
-                            engineEntity.model.mapping = mapping;
+                            if (engineEntity.model.mapping[index] !== undefined) {
+                                mapping[index] = parseInt(data.id, 10);
+                                engineEntity.model.mapping = mapping;
+                            }
                         }
                     });
 

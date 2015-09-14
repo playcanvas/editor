@@ -127,12 +127,14 @@ editor.once('load', function() {
     };
 
     var isAlreadyOverriden = function (index) {
-        for (var i = 0, len = currentEntities.length; i < len; i++) {
+        var len = currentEntities.length;
+        var overrideCount = 0;
+        for (var i = 0; i < len; i++) {
             if (currentEntities[i].has('components.model.mapping.' + index))
-                return true;
+                overrideCount++;
         }
 
-        return false;
+        return overrideCount && overrideCount === len;
     };
 
 

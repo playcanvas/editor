@@ -164,6 +164,8 @@ editor.once('load', function() {
             // set link value
             args.field._changing = true;
             for(var i = 0; i < args.link.length; i++) {
+                if (args.type === 'asset' && !args.link[i].has(args.path)) continue;
+
                 items.push({
                     get: args.link[i].history !== undefined ? args.link[i].history._getItemFn : null,
                     item: args.link[i],
