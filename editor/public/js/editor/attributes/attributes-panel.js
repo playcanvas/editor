@@ -164,10 +164,12 @@ editor.once('load', function() {
             // set link value
             args.field._changing = true;
             for(var i = 0; i < args.link.length; i++) {
+                if (args.type === 'asset' && !args.link[i].has(args.path)) continue;
+
                 items.push({
                     get: args.link[i].history !== undefined ? args.link[i].history._getItemFn : null,
                     item: args.link[i],
-                    value: args.link[i].get(args.path)
+                    value: args.link[i].has(args.path) ? args.link[i].get(args.path) : undefined
                 });
 
                 historyState(args.link[i], false);
@@ -196,7 +198,10 @@ editor.once('load', function() {
                                 different = true;
 
                             historyState(item, false);
-                            item.set(args.path, items[i].value);
+                            if (items[i].value === undefined)
+                                item.unset(args.path);
+                            else
+                                item.set(args.path, items[i].value);
                             historyState(item, true);
                         }
 
@@ -218,6 +223,10 @@ editor.once('load', function() {
                             }
 
                             historyState(item, false);
+                            if (value === undefined)
+                                item.unset(args.path);
+                            else
+                                item.set(args.path, value);
                             item.set(args.path, value);
                             historyState(item, true);
                         }

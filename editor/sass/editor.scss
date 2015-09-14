@@ -1392,6 +1392,10 @@ strong {
                     text-align: center;
                 }
             }
+            > .ui-button.override-material {
+                text-align: center;
+                flex-grow: 1;
+            }
         }
 
         > .content {
@@ -2156,6 +2160,114 @@ strong {
             visibility: hidden;
         }
     }
+}
+
+.ui-panel.override-material {
+    > .content {
+        padding: 0 !important;
+    }
+
+    .ui-button.remove {
+        @extend .font-icon;
+        line-height: 66px;
+        height: 66px;
+        width: 40px;
+        padding: 0;
+        font-size: 18px;
+        text-align: center;
+    }
+}
+
+.ui-panel.picker-node {
+
+    > .content {
+        padding: 0 !important;
+
+        & > .field-asset {
+            border-top: 1px solid #2b3638;
+
+            &:last-child {
+                border-bottom: 1px solid #2b3638;
+            }
+
+            > .content {
+                padding: 0px 6px;
+                background-color: $bcg-primary;
+
+                > .ui-image-field {
+                    background-color: $bcg-primary;
+                    border-color: transparent;
+
+                    &:after {
+                        display: none;
+                    }
+                }
+
+                > .top {
+                    .ui-button {
+                        display: none;
+                    }
+
+                    .ui-label {
+                        background-color: $bcg-primary;
+                        border-color: transparent;
+                        &:after {
+                            display: none;
+                        }
+                    }
+
+                    > .ui-label {
+                        color: white;
+                        left: -8px;
+                        font-size: 14px;
+                    }
+                }
+            }
+
+            &:not(.disabled):hover {
+                & > .content {
+                    cursor: pointer;
+                    background-color: $bcg-darkest;
+
+                    > .ui-image-field {
+                        pointer-events: none;
+                        background-color: $bcg-darkest;
+                    }
+
+                    > .top {
+                        .ui-label {
+                            pointer-events: none;
+                            background-color: $bcg-darkest;
+                        }
+                    }
+                }
+            }
+
+            &.disabled {
+                & > .content {
+                    pointer-events: none;
+                    opacity: 0.25;
+                }
+            }
+        }
+    }
+
+    .help {
+        font-size: 12px;
+        padding: 8px 20px;
+        background-color: #2f3c3f;
+        margin: 0;
+        color: white;
+        @extend .font-regular;
+
+        h5 {
+            font-size: 12px;
+            margin: 0;
+            color: $text-active;
+            @extend .font-bold;
+        }
+    }
+
 }
 
 .ui-overlay.script-priorities {

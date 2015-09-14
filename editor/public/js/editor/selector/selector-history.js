@@ -22,17 +22,19 @@ editor.once('load', function() {
         editor.call('history:add', {
             name: (items.length === 0) ? 'deselect' : ('select ' + type),
             undo: function() {
+                var prev = selectorHistory;
                 selectorHistory = false;
                 editor.call('selector:set', oldType, oldItems);
                 editor.once('selector:change', function() {
-                    selectorHistory = true;
+                    selectorHistory = prev;
                 });
             },
             redo: function() {
+                var prev = selectorHistory;
                 selectorHistory = false;
                 editor.call('selector:set', type, items);
                 editor.once('selector:change', function() {
-                    selectorHistory = true;
+                    selectorHistory = prev;
                 });
             }
         });
@@ -58,4 +60,5 @@ editor.once('load', function() {
 
         selectorHistory = toggle;
     });
+
 });

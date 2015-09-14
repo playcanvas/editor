@@ -122,9 +122,12 @@ editor.once('load', function() {
             if (hoverEntity) {
                 var materialId;
                 if (hoverEntity.model.type === 'asset') {
-                    if (hoverEntity.model.asset) {
+                    var ind = hoverEntity.model.model.meshInstances.indexOf(hoverMeshInstance);
+
+                    if (hoverEntity.model.mapping && hoverEntity.model.mapping[ind]) {
+                        materialId = hoverEntity.model.mapping[ind];
+                    } else if (hoverEntity.model.asset) {
                         var modelAsset = editor.call('assets:get', hoverEntity.model.asset);
-                        var ind = hoverEntity.model.model.meshInstances.indexOf(hoverMeshInstance);
 
                         if (modelAsset && ind !== -1)
                             materialId = modelAsset.get('data.mapping.' + ind + '.material');
