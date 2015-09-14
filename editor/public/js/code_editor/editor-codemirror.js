@@ -24,6 +24,8 @@ editor.once('load', function () {
             options.mode = 'css';
         } else if (config.asset.type === 'json') {
             options.mode = 'javascript';
+        } else if (config.asset.type === 'shader') {
+            options.mode = 'glsl';
         } else {
             options.mode = 'text';
             options.lineWrapping = true;

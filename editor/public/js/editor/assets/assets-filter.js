@@ -89,6 +89,7 @@ editor.once('load', function() {
             material: 'Material',
             model: 'Model',
             script: 'Script',
+            shader: 'Shader',
             text: 'Text',
             texture: 'Texture'
         }

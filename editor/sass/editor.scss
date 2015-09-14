@@ -1166,6 +1166,9 @@ strong {
                 &.type-css:before {
                     content: '\E353';
                 }
+                &.type-shader:before {
+                    content: '\E353';
+                }
             }
         }
     }
@@ -1782,6 +1785,14 @@ strong {
             }
         }
         &.type-css {
+            > .thumbnail.placeholder:after {
+                content: '\E353';
+            }
+            > .icon {
+                display: none;
+            }
+        }
+        &.type-shader {
             > .thumbnail.placeholder:after {
                 content: '\E353';
             }
