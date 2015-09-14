@@ -243,7 +243,7 @@ editor.once('load', function() {
                         var engineEntity = framework.root.findByGuid(entity.get('resource_id'));
                         if (engineEntity) {
                             var mapping = engineEntity.model.mapping;
-                            if (engineEntity.model.mapping[index] !== undefined) {
+                            if (engineEntity.model.mapping && engineEntity.model.mapping[index] !== undefined) {
                                 mapping[index] = parseInt(data.id, 10);
                                 engineEntity.model.mapping = mapping;
                             }
