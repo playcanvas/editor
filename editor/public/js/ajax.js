@@ -140,7 +140,17 @@ AjaxRequest.prototype._onLoad = function() {
     } else {
         try {
             var json = JSON.parse(this._xhr.responseText);
-            this.emit('error', this._xhr.status, json.message);
+            var msg = json.message;
+            if (! msg) {
+                if (json.response && json.response.error && json.response.error.length)
+                    msg = json.response.error[0];
+            }
+
+            if (! msg) {
+                msg = this._xhr.responseText;
+            }
+
+            this.emit('error', this._xhr.status, msg);
         } catch (ex) {
             this.emit('error', this._xhr.status);
         }
