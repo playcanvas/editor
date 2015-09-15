@@ -1476,7 +1476,8 @@ editor.once('load', function() {
             parent: panel,
             name: 'Assets',
             type: 'element',
-            element: fieldAssetsList
+            element: fieldAssetsList,
+            reference: args.reference
         });
         fieldAssets.class.add('assets');
 

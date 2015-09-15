@@ -440,29 +440,35 @@ editor.once('load', function() {
 
             var field;
 
-            var runtimeType = scriptAttributeRuntimeTypes[attribute.type];
+            var reference = {
+                title: attribute.name,
+                subTitle: scriptAttributeRuntimeTypes[attribute.type]
+            };
+
+            if (attribute.displayName !== attribute.name)
+                reference.description = attribute.displayName;
 
             var type = scriptAttributeTypes[attribute.type];
             if (attribute.type === 'enumeration' && choices.length >= 2 && typeof(choices[1].v) === 'string') {
                 type = 'string';
-                runtimeType = scriptAttributeRuntimeTypes[type];
+                reference.subTitle = scriptAttributeRuntimeTypes[type];
             } else if (attribute.type === 'asset') {
                 if (attribute.options.max === 1) {
-                    runtimeType = '{Number}';
+                    reference.subTitle = '{Number}';
                 } else {
-                    runtimeType = '[Number]';
+                    reference.subTitle = '[Number]';
                 }
             } else if (attribute.type === 'curve') {
                 if (attribute.options.curves.length > 1) {
-                    runtimeType = '{pc.CurveSet}';
+                    reference.subTitle = '{pc.CurveSet}';
                 } else {
-                    runtimeType = '{pc.Curve}';
+                    reference.subTitle = '{pc.Curve}';
                 }
             } else if (attribute.type === 'colorcurve') {
                 if (attribute.options.type.length === 1) {
-                    runtimeType = '{pc.Curve}';
+                    reference.subTitle = '{pc.Curve}';
                 } else {
-                    runtimeType = '{pc.CurveSet}';
+                    reference.subTitle = '{pc.CurveSet}';
                 }
             }
 
@@ -474,11 +480,7 @@ editor.once('load', function() {
                     enum: choices,
                     link: scripts,
                     path: 'attributes.' + attribute.name + '.value',
-                    reference: {
-                        title: attribute.name,
-                        subTitle: runtimeType,
-                        description: attribute.displayName || attribute.name
-                    }
+                    reference: reference
                 };
 
                 if (attribute.type === 'curve' || attribute.type === 'colorcurve') {
@@ -614,11 +616,7 @@ editor.once('load', function() {
                         link: scripts,
                         path: 'attributes.' + attribute.name + '.value',
                         single: true,
-                        reference: {
-                            title: attribute.name,
-                            subTitle: runtimeType,
-                            description: attribute.displayName || attribute.name
-                        }
+                        reference: reference
                     };
                     field = editor.call('attributes:addField', options);
                 } else {
@@ -629,11 +627,7 @@ editor.once('load', function() {
                         type: attribute.options.type || '*',
                         link: scripts,
                         path: 'attributes.' + attribute.name + '.value',
-                        reference: {
-                            title: attribute.name,
-                            subTitle: runtimeType,
-                            description: attribute.displayName || attribute.name
-                        }
+                        reference: reference
                     };
                     field = editor.call('attributes:addAssetsList', options);
                     field.parent._label.text = attribute.displayName || attribute.name;
