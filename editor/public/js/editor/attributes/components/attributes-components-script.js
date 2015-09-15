@@ -15,6 +15,17 @@ editor.once('load', function() {
         'colorcurve': 'curveset'
     };
 
+    var scriptAttributeRuntimeTypes = {
+        'number': '{Number}',
+        'string': '{String}',
+        'boolean': '{Boolean}',
+        'rgb': '{pc.Color}',
+        'rgba': '{pc.Color}',
+        'vector': '{pc.Vec3}',
+        'enumeration': '{Number}',
+        'entity': '{pc.Entity}'
+    };
+
     // index entities with script components
     // so we can easily find them when we need
     // to refresh script attributes
@@ -429,9 +440,31 @@ editor.once('load', function() {
 
             var field;
 
+            var runtimeType = scriptAttributeRuntimeTypes[attribute.type];
+
             var type = scriptAttributeTypes[attribute.type];
-            if (attribute.type === 'enumeration' && choices.length >= 2 && typeof(choices[1].v) === 'string')
+            if (attribute.type === 'enumeration' && choices.length >= 2 && typeof(choices[1].v) === 'string') {
                 type = 'string';
+                runtimeType = scriptAttributeRuntimeTypes[type];
+            } else if (attribute.type === 'asset') {
+                if (attribute.options.max === 1) {
+                    runtimeType = '{Number}';
+                } else {
+                    runtimeType = '[Number]';
+                }
+            } else if (attribute.type === 'curve') {
+                if (attribute.options.curves.length > 1) {
+                    runtimeType = '{pc.CurveSet}';
+                } else {
+                    runtimeType = '{pc.Curve}';
+                }
+            } else if (attribute.type === 'colorcurve') {
+                if (attribute.options.type.length === 1) {
+                    runtimeType = '{pc.Curve}';
+                } else {
+                    runtimeType = '{pc.CurveSet}';
+                }
+            }
 
             if (scriptAttributeTypes[attribute.type] !== 'assets') {
                 var args = {
@@ -440,7 +473,12 @@ editor.once('load', function() {
                     type: type,
                     enum: choices,
                     link: scripts,
-                    path: 'attributes.' + attribute.name + '.value'
+                    path: 'attributes.' + attribute.name + '.value',
+                    reference: {
+                        title: attribute.name,
+                        subTitle: runtimeType,
+                        description: attribute.displayName || attribute.name
+                    }
                 };
 
                 if (attribute.type === 'curve' || attribute.type === 'colorcurve') {
@@ -575,7 +613,12 @@ editor.once('load', function() {
                         kind: attribute.options.type || '*',
                         link: scripts,
                         path: 'attributes.' + attribute.name + '.value',
-                        single: true
+                        single: true,
+                        reference: {
+                            title: attribute.name,
+                            subTitle: runtimeType,
+                            description: attribute.displayName || attribute.name
+                        }
                     };
                     field = editor.call('attributes:addField', options);
                 } else {
@@ -585,7 +628,12 @@ editor.once('load', function() {
                         title: 'Asset',
                         type: attribute.options.type || '*',
                         link: scripts,
-                        path: 'attributes.' + attribute.name + '.value'
+                        path: 'attributes.' + attribute.name + '.value',
+                        reference: {
+                            title: attribute.name,
+                            subTitle: runtimeType,
+                            description: attribute.displayName || attribute.name
+                        }
                     };
                     field = editor.call('attributes:addAssetsList', options);
                     field.parent._label.text = attribute.displayName || attribute.name;
