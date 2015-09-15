@@ -112,8 +112,13 @@ editor.once('load', function() {
 
                 if (countUndefined && countUndefined != args.link.length) {
                     args.field.class.add('star');
+                    if (! /^\* /.test(args.field._title.text))
+                        args.field._title.text = '* ' + args.field._title.text;
                 } else {
                     args.field.class.remove('star');
+                    if (/^\* /.test(args.field._title.text))
+                        args.field._title.text = args.field._title.text.substring(2);
+
                 }
 
                 if (different) {
