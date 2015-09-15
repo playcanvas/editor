@@ -437,6 +437,20 @@ editor.once('load', function() {
             label.class.add('label-field');
             panel._label = label;
             panel.append(label);
+
+            if (args.reference) {
+                var tooltip = editor.call('attributes:reference', {
+                    element: label.element,
+                    title: args.reference.title,
+                    subTitle: args.reference.subTitle,
+                    description: args.reference.description
+                });
+
+                tooltip.attach({
+                    target: label,
+                    element: label.element
+                });
+            }
         }
 
         var field;
@@ -1462,7 +1476,8 @@ editor.once('load', function() {
             parent: panel,
             name: 'Assets',
             type: 'element',
-            element: fieldAssetsList
+            element: fieldAssetsList,
+            reference: args.reference
         });
         fieldAssets.class.add('assets');
 
