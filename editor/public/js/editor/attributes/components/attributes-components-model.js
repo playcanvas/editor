@@ -114,7 +114,10 @@ editor.once('load', function() {
             var mapping = entities[i].get('components.model.mapping');
             if (mapping) {
                 for (var key in mapping) {
-                    allMappings[key] = true;
+                    if (!allMappings[key])
+                        allMappings[key] = [entities[i].get('resource_id')];
+                    else
+                        allMappings[key].push(entities[i].get('resource_id'));
                 }
             }
         }
@@ -306,22 +309,35 @@ editor.once('load', function() {
 
                 if (! value) value = {};
 
+                var resourceId = entity.get('resource_id');
+
                 // remove deleted overrides
                 for (var key in allMappings) {
                     if (value[key] === undefined) {
-                        var field = panelMaterials.element.querySelector('.field-asset.node-' + key);
-                        if (field)
-                            field.parentElement.removeChild(field);
+                        var ind = allMappings[key].indexOf(resourceId);
+                        if (ind !== -1) {
+                            allMappings[key].splice(ind, 1);
+                            if (allMappings[key].length === 0) {
+                                var field = panelMaterials.element.querySelector('.field-asset.node-' + key);
+                                if (field)
+                                    field.parentElement.removeChild(field);
 
-                        delete allMappings[key];
+                                delete allMappings[key];
+                            }
+                        }
                     }
                 }
 
+
                 // add new
                 for (var key in value) {
-                    if (allMappings[key] === undefined) {
-                        allMappings[key] = true;
+                    if (!allMappings[key]) {
+                        allMappings[key] = [resourceId];
                         addOverride(key);
+                    }
+                    else {
+                        if (allMappings[key].indexOf(resourceId) === -1)
+                            allMappings[key].push(resourceId);
                     }
                 }
 
@@ -332,11 +348,22 @@ editor.once('load', function() {
 
                 var parts = path.split('.');
                 var index = parts[parts.length-1];
+                if (!allMappings[index]) return;
+
+                var resourceId = entity.get('resource_id');
+
+                var ind = allMappings[index].indexOf(resourceId);
+                if (ind === -1) return;
+
+                allMappings[index].splice(ind, 1);
+                if (allMappings[index].length) return;
+
+                delete allMappings[index];
+
                 var field = panelMaterials.element.querySelector('.field-asset.node-' + index);
                 if (field)
                     field.parentElement.removeChild(field);
 
-                delete allMappings[index];
             }));
         });
     });
