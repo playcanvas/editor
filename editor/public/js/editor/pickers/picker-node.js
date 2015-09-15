@@ -49,8 +49,6 @@ editor.once('load', function() {
 
         for (var i = 0, len = currentEntities.length; i < len; i++) {
 
-            resourceIds.push(currentEntities[i].get('resource_id'));
-
             var history = currentEntities[i].history.enabled;
             currentEntities[i].history.enabled = false;
 
@@ -65,19 +63,23 @@ editor.once('load', function() {
                 });
 
                 currentEntities[i].set('components.model.mapping', mapping);
+
+                resourceIds.push(currentEntities[i].get('resource_id'));
             } else {
-                var value = currentEntities[i].has('components.model.mapping.' + index) ?
-                            currentEntities[i].get('components.model.mapping.' + index) :
-                            undefined;
+                if (currentEntities[i].has('components.model.mapping.' + index))
+                    continue;
+
                 var id = parseInt(assetId, 10);
 
                 actions.push({
                     path: 'components.model.mapping.' + index,
-                    undo: value,
+                    undo: undefined,
                     redo: id
                 });
 
                 currentEntities[i].set('components.model.mapping.' + index, id);
+
+                resourceIds.push(currentEntities[i].get('resource_id'));
             }
 
             currentEntities[i].history.enabled = history;

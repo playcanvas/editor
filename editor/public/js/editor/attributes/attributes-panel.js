@@ -73,7 +73,7 @@ editor.once('load', function() {
 
         update = function() {
             var different = false;
-            var value = args.link[0].get(args.path);
+            var value = args.link[0].has(args.path) ? args.link[0].get(args.path) : undefined;
             if (args.type === 'rgb') {
                 if (value) {
                     for(var i = 1; i < args.link.length; i++) {
@@ -90,13 +90,37 @@ editor.once('load', function() {
                     });
                 }
             } else if (args.type === 'asset') {
+                var countUndefined = value === undefined ? 1 : 0;
                 for(var i = 1; i < args.link.length; i++) {
-                    if ((value || 0) !== (args.link[i].get(args.path) || 0)) {
-                        value = args.enum ? '' : null;
-                        different = true;
-                        break;
+                    if (!args.link[i].has(args.path)) {
+                        countUndefined++;
+                        continue;
                     }
+
+                    var val = args.link[i].get(args.path);
+
+                    if ((value || 0) !== (args.link[i].get(args.path) || 0)) {
+                        if (value !== undefined) {
+                            value = args.enum ? '' : null;
+                            different = true;
+                            break;
+                        }
+                    }
+
+                    value = val;
                 }
+
+                if (countUndefined && countUndefined != args.link.length) {
+                    args.field.class.add('star');
+                    if (! /^\* /.test(args.field._title.text))
+                        args.field._title.text = '* ' + args.field._title.text;
+                } else {
+                    args.field.class.remove('star');
+                    if (/^\* /.test(args.field._title.text))
+                        args.field._title.text = args.field._title.text.substring(2);
+
+                }
+
                 if (different) {
                     args.field.class.add('null');
                     args.field._title.text = 'various';
@@ -129,14 +153,14 @@ editor.once('load', function() {
             }
 
             args.field._changing = true;
-            args.field.value = value;
+            args.field.value = (value === undefined ? null : value);
             args.field._changing = false;
 
             if (args.enum) {
                 var opt = args.field.optionElements[''];
                 if (opt) opt.style.display = value !== '' ? 'none' : '';
             } else {
-                args.field.proxy = value === null ? '...' : null;
+                args.field.proxy = value == null ? '...' : null;
             }
         };
 
@@ -376,8 +400,10 @@ editor.once('load', function() {
         update();
         args.field.on('change', changeField);
 
-        for(var i = 0; i < args.link.length; i++)
+        for(var i = 0; i < args.link.length; i++) {
             events.push(args.link[i].on(args.path + ':set', changeFieldQueue));
+            events.push(args.link[i].on(args.path + ':unset', changeFieldQueue));
+        }
 
         args.field.once('destroy', function() {
             for(var i = 0; i < events.length; i++)
@@ -972,8 +998,12 @@ editor.once('load', function() {
                         evtThumbnailChange = null;
                     }
 
-                    if (! value)
+                    if (! value) {
+                        if (field.class.contains('star'))
+                            fieldTitle.text = '* ' + fieldTitle.text;
+
                         return field.empty = true;
+                    }
 
                     field.empty = false;
 
@@ -986,6 +1016,9 @@ editor.once('load', function() {
                     updateThumbnail();
 
                     fieldTitle.text = asset.get('name');
+
+                    if (field.class.contains('star'))
+                        fieldTitle.text = '* ' + fieldTitle.text;
                 };
                 field.on('change', updateField);
 

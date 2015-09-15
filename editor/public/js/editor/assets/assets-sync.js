@@ -114,11 +114,20 @@ editor.once('load', function() {
 
         Ajax
         .post('{{url.api}}/assets?access_token={{accessToken}}', data)
-        .on('error', function(status, evt) {
+        .on('error', function(status, err) {
             if (evtAssetAdd)
                 evtAssetAdd.unbind();
 
-            console.log(status, evt);
+            if (! err) {
+                console.error(status);
+                return;
+            }
+
+            if (/Disk allowance/.test(err)) {
+                err += '. <a href="/account" target="_blank">UPGRADE</a> to get more disk space.';
+            }
+
+            editor.call('status:error', err);
         });
     });
 

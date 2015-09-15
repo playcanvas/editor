@@ -1166,6 +1166,9 @@ strong {
                 &.type-css:before {
                     content: '\E353';
                 }
+                &.type-shader:before {
+                    content: '\E353';
+                }
             }
         }
     }
@@ -1358,11 +1361,31 @@ strong {
 
             > .ui-button.add-component {
                 display: block;
-                text-align: center;
+                background-color: $bcg-dark;
+                text-transform: uppercase;
+                font-size: 12px;
+                border: none;
+                margin-top: 5px;
+                position: relative;
+                padding-left: 30px;
+                height: 26px;
+                line-height: 28px;
+
+                &:hover {
+                    background-color: $bcg-darkest;
+
+                    &:before {
+                        color: $text-active;
+                    }
+                }
+
+                @extend .font-bold;
 
                 &:before {
+                    position: absolute;
+                    top: -1px;
+                    left: 8px;
                     content: '\E464';
-                    padding-right: 8px;
                     @extend .font-icon;
                     font-size: 16px;
                     text-align: center;
@@ -1393,8 +1416,39 @@ strong {
                 }
             }
             > .ui-button.override-material {
-                text-align: center;
                 flex-grow: 1;
+                background-color: $bcg-dark;
+
+                &:hover {
+                    background-color: $bcg-darkest;
+
+                    &:before {
+                        color: $text-active;
+                    }
+                }
+
+                text-transform: uppercase;
+                font-size: 10px;
+                border: none;
+                position: relative;
+                height: 28px;
+                line-height: 30px;
+                padding-left: 28px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+
+                @extend .font-bold;
+
+                &:before {
+                    position: absolute;
+                    top: -1px;
+                    left: 8px;
+                    content: '\E117';
+                    @extend .font-icon;
+                    font-size: 16px;
+                    text-align: center;
+                }
             }
         }
 
@@ -1789,6 +1843,14 @@ strong {
                 display: none;
             }
         }
+        &.type-shader {
+            > .thumbnail.placeholder:after {
+                content: '\E353';
+            }
+            > .icon {
+                display: none;
+            }
+        }
 
         &:hover {
             background-color: mix($bcg-darkest, $bcg-dark, 50%);
@@ -2001,6 +2063,7 @@ strong {
             &:hover {
                 > .content > .ui-button {
                     color: $text-primary;
+                    background-color: $text-active;
                 }
             }
             > .content {
@@ -2015,12 +2078,7 @@ strong {
                     font-size: 24px;
                     text-align: center;
                     color: rgba($text-primary, .75);
-                    background-color: $text-active;
-
-                    &:hover {
-                        color: $text-primary;
-                        background-color: $text-active;
-                    }
+                    background-color: rgba($bcg-darker, .5);
                 }
 
                 > ul.dropdown-menu {
@@ -2127,9 +2185,14 @@ strong {
         }
 
         > .scene-list {
+            width: 33px;
+            padding: 0;
             &:before {
                 content: '\E185';
                 margin-right: 0px;
+                width: 33px;
+                height: 33px;
+                text-align: center;
             }
         }
     }
