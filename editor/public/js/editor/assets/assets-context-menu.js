@@ -71,7 +71,7 @@ editor.once('load', function() {
         } else {
             menuItemDuplicate.hidden = true;
 
-            if (/^((html)|(css)|(json)|(text)|(script))$/.test(currentAsset.get('type'))) {
+            if (/^((html)|(css)|(json)|(text)|(script)|(shader))$/.test(currentAsset.get('type'))) {
                 if (editor.call('selector:type') === 'asset') {
                     var items = editor.call('selector:items');
                     menuItemEdit.hidden = (items.length > 1 && items.indexOf(currentAsset) !== -1);

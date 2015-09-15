@@ -562,7 +562,7 @@ editor.once('load', function() {
                             return false;
 
                         var items = editor.call('selector:items');
-                        return items.length === 1 && /^((html)|(css)|(json)|(text)|(script))$/.test(items[0].get('type'));
+                        return items.length === 1 && /^((html)|(css)|(json)|(text)|(script)|(shader)$/.test(items[0].get('type'));
                     },
                     select: function() {
                         var type = editor.call('selector:type');
