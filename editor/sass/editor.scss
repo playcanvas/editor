@@ -1633,6 +1633,12 @@ strong {
                 color: $text-primary;
             }
         }
+        &.highlight {
+            .text {
+                color: $text-active;
+            }
+        }
+
         &.c-script > .title > .icon:after {
             content: '\E284';
         }

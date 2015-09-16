@@ -377,4 +377,15 @@ editor.once('load', function() {
         return uiItemIndex[resourceId];
     });
 
+    // highlight entity
+    editor.method('entities:panel:highlight', function (resourceId, highlight) {
+        var item = uiItemIndex[resourceId];
+        if (!item) return;
+
+        if (highlight)
+            item.class.add('highlight');
+        else
+            item.class.remove('highlight');
+    });
+
 });

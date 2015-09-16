@@ -562,7 +562,8 @@ editor.once('load', function() {
                             return false;
 
                         var items = editor.call('selector:items');
-                        return items.length === 1 && /^((html)|(css)|(json)|(text)|(script)|(shader)$/.test(items[0].get('type'));
+                        return items.length === 1 &&
+                               ['html', 'css', 'json', 'text', 'script', 'shader'].indexOf(items[0].get('type')) !== -1;
                     },
                     select: function() {
                         var type = editor.call('selector:type');
