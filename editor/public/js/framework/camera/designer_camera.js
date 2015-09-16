@@ -255,18 +255,14 @@ pc.script.create( "designer_camera", function (app) {
         editor.call('viewport:render');
     };
 
-    DesignerCamera.prototype.onMouseWheel = function (e) {
-        if (e.event.target !== app.graphicsDevice.canvas) {
-            return;
-        }
-
+    DesignerCamera.prototype.zoom = function (factor) {
         switch (this.entity.camera.projection) {
             case pc.PROJECTION_ORTHOGRAPHIC:
-                var delta = e.wheel * 10;
+                var delta = factor * 10;
                 this.updateViewWindow(delta);
                 break;
             case pc.PROJECTION_PERSPECTIVE:
-                this.dolly(e.wheel);
+                this.dolly(factor);
                 break;
             default:
                 break;
@@ -280,6 +276,14 @@ pc.script.create( "designer_camera", function (app) {
         this.undoTimeout = setTimeout(function () {
             this.combineHistory = false;
         }.bind(this), 250);
+    };
+
+    DesignerCamera.prototype.onMouseWheel = function (e) {
+        if (e.event.target !== app.graphicsDevice.canvas) {
+            return;
+        }
+
+        this.zoom(e.wheel);
     };
 
     DesignerCamera.prototype.onMouseUp = function (e) {
@@ -425,7 +429,10 @@ pc.script.create( "designer_camera", function (app) {
         var right = e.buttons[pc.MOUSEBUTTON_RIGHT];
         var isOrtho = (this.entity.camera.projection === pc.PROJECTION_ORTHOGRAPHIC);
 
-        if (!this.flyMode && !this.isOrbiting && !this.isLookingAround && (middle || (left && (e.shiftKey || isOrtho)))) {
+        if (right && e.altKey) {
+            var sign = e.dy > 0 ? 1 : -1;
+            this.zoom(Math.sqrt(e.dx*e.dx + e.dy*e.dy) * 0.1 * sign);
+        } else if (!this.flyMode && !this.isOrbiting && !this.isLookingAround && (middle || (left && (e.shiftKey || isOrtho)))) {
             this.pan([e.dx, e.dy]);
             this.isPanning = true;
             // app.toggleGizmoInteraction(false);
