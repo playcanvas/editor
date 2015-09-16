@@ -1135,13 +1135,8 @@ editor.once('load', function() {
 
                 linkField();
 
-                field.on('click', function () {
-                    var evtEntityPick = editor.once('picker:entity', function (entity) {
-                        field.text = entity ? entity.get('resource_id') : null;
-                        evtEntityPick = null;
-                    });
-
-                    var initialValue = null;
+                var getCurrentEntity = function () {
+                    var entity = null;
                     if (args.link) {
                         if (! (args.link instanceof Array)) {
                             args.link = [args.link];
@@ -1151,16 +1146,27 @@ editor.once('load', function() {
                         // links otherwise set it to null
                         for (var i = 0, len = args.link.length; i < len; i++) {
                             var val = args.link[i].get(args.path);
-                            if (initialValue !== val) {
-                                if (initialValue) {
-                                    initialValue = null;
+                            if (entity !== val) {
+                                if (entity) {
+                                    entity = null;
                                     break;
                                 } else {
-                                    initialValue = val;
+                                    entity = val;
                                 }
                             }
                         }
                     }
+
+                    return entity;
+                };
+
+                field.on('click', function () {
+                    var evtEntityPick = editor.once('picker:entity', function (entity) {
+                        field.text = entity ? entity.get('resource_id') : null;
+                        evtEntityPick = null;
+                    });
+
+                    var initialValue = getCurrentEntity();
 
                     editor.call('picker:entity', initialValue);
 
@@ -1169,6 +1175,22 @@ editor.once('load', function() {
                             evtEntityPick.unbind();
                             evtEntityPick = null;
                         }
+                    });
+                });
+
+                // highlight on hover
+                field.on('hover', function () {
+                    var entity = getCurrentEntity();
+                    if (! entity) return;
+
+                    editor.call('entities:panel:highlight', entity, true);
+
+                    field.once('blur', function () {
+                        editor.call('entities:panel:highlight', entity, false);
+                    });
+
+                    field.once('click', function () {
+                        editor.call('entities:panel:highlight', entity, false);
                     });
                 });
 
