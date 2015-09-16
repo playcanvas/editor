@@ -4,7 +4,7 @@ editor.once('load', function () {
     var canvas = document.createElement('canvas');
 
     // set up graphics
-    var device = new pc.GraphicsDevice(canvas);
+    var device = new pc.GraphicsDevice(canvas, {premultipliedAlpha: false});
 
     // create resource loader and asset registry
     var loader = new pc.ResourceLoader();
