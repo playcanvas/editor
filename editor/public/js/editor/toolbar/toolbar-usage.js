@@ -23,11 +23,11 @@ editor.once('load', function () {
     var refreshUsage = function () {
         var diff = config.owner.diskAllowance - config.owner.size;
         var upgrade = '<a href="/account" target="_blank">UPGRADE</a> to get more disk space.';
-        if (diff > 0 && diff < 50000000) {
+        if (diff > 0 && diff < 30000000) {
             label.text = 'You are close to your disk allowance limit. ' + upgrade;
             panel.hidden = false;
         } else if (diff < 0) {
-            lable.text = 'You are over your disk allowance limit. ' + upgrade;
+            label.text = 'You are over your disk allowance limit. ' + upgrade;
             panel.hidden = false;
         } else {
             panel.hidden = true;
