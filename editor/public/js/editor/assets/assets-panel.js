@@ -125,8 +125,10 @@ editor.once('load', function() {
 
         // source
         if (asset.get('source')) {
-            item.hidden = true;
             item.class.add('source');
+
+            if (! editor.call('assets:filter:sources'))
+                item.hidden = true;
         }
 
         var fileSize = asset.get('file.size');
@@ -134,11 +136,10 @@ editor.once('load', function() {
         if (! asset.get('source')) {
             // update thumbnails change
             asset.on('thumbnails.m:set', function(value) {
-                var url = value;
                 if (value.startsWith('/api'))
-                    return;
+                    value += '?t=' + asset.get('file.hash');
 
-                thumbnail.style.backgroundImage = 'url(' + url + ')';
+                thumbnail.style.backgroundImage = 'url(' + value + ')';
                 thumbnail.classList.remove('placeholder');
             });
 

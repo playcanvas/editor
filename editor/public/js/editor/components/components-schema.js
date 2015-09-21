@@ -67,6 +67,7 @@ editor.once('load', function() {
                 clearDepthBuffer: true,
                 projection: 0,
                 fov: 45,
+                frustumCulling: true,
                 orthoHeight: 100,
                 nearClip: 0.3,
                 farClip: 1000,

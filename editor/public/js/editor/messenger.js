@@ -19,4 +19,6 @@ editor.on('start', function() {
     messenger.on('message', function(evt) {
         editor.emit('messenger:' + evt.name, evt.data);
     });
+
+    window.msg = messenger;
 });

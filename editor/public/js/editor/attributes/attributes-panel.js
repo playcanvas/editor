@@ -127,7 +127,7 @@ editor.once('load', function() {
                 } else {
                     args.field.class.remove('null');
                 }
-            } else if (args.type === 'entity') {
+            } else if (args.type === 'entity' || ! args.type) {
                 for(var i = 1; i < args.link.length; i++) {
                     if (value !== args.link[i].get(args.path)) {
                         value = 'various';
@@ -1361,11 +1361,11 @@ editor.once('load', function() {
                 field = new ui.Label();
                 field.flexGrow = 1;
                 field.text = args.value || '';
+
                 if (args.placeholder)
                     field.placeholder = args.placeholder;
 
-                if (args.link)
-                    field.link(args.link, args.path);
+                linkField();
 
                 panel.append(field);
                 break;
