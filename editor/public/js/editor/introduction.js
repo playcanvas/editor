@@ -58,7 +58,7 @@ editor.once('load', function() {
                 panel.append(panelInner);
 
                 var label = new ui.Label({
-                    text: 'New Beta <span style="color:#fff">Editor</span>. Please give us <span style="color:#fff">feedback</span> using the <span class="font-icon" style="color:#fff">&#58488;</span> comment button in the toolbar.'
+                    text: 'New <span style="color:#fff">Editor</span>. Please give us <span style="color:#fff">feedback</span> using the <span class="font-icon" style="color:#fff">&#58488;</span> comment button in the toolbar.'
                 });
                 panelInner.append(label);
 
@@ -209,7 +209,6 @@ editor.once('load', function() {
                 launch.style.backgroundColor = '#f60';
                 launch.style.color = '#fff';
 
-                btnNext.text = 'Close';
                 overlay.position(root.element.clientWidth - 340, 37);
                 overlay.class.add('arrow-top-right');
                 panelInner = new ui.Panel();
@@ -220,8 +219,6 @@ editor.once('load', function() {
                     text: 'Click the <span class="font-icon" style="color:#fff">&#57922;</span> <span style="color:#fff">PLAY</span> button to launch your game.<br/><br/>You can continue to edit your scene here, changes will be automatically applied to the launched game in real-time.'
                 });
                 panelInner.append(label);
-
-                btnSkip.hidden = true;
             },
             end: function() {
                 var launch = document.querySelector('.top-controls > .content > .launch > .content > .ui-button.icon');
@@ -230,17 +227,51 @@ editor.once('load', function() {
                 launch.style.backgroundColor = '';
                 launch.style.color = '';
 
-                btnNext.text = 'Next';
                 overlay.class.remove('arrow-top-right');
-
-                btnSkip.hidden = false;
 
                 if (panelInner) {
                     panelInner.destroy();
                     panelInner = null;
                 }
             }
-        }
+        },
+
+        // dashboard
+        {
+            start: function() {
+                var home = document.querySelector('.widget-title');
+                home.style.zIndex = 202;
+                overlay.class.add('arrow-top');
+                panelInner = new ui.Panel();
+                panelInner.header = 'Dashboard';
+                panel.append(panelInner);
+
+                btnNext.text = 'Close';
+
+                var label = new ui.Label({
+                    text: 'This is the name of your <span style="color:#fff">Project</span>. Click here to go to the <span style="color:#fff">Project Dashboard</span>.'
+                });
+                panelInner.append(label);
+
+                overlay.position(412, 40);
+
+                btnSkip.hidden = true;
+            },
+            end: function() {
+                var home = document.querySelector('.widget-title');
+                home.style.zIndex = '';
+                overlay.class.remove('arrow-top');
+
+                btnNext.text = 'Next';
+
+                if (panelInner) {
+                    panelInner.destroy();
+                    panelInner = null;
+                }
+
+                btnSkip.hidden = false;
+            }
+        },
     ];
 
     // bullets
