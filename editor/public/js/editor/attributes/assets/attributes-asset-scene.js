@@ -84,7 +84,9 @@ editor.once('load', function() {
         if (textures && textures.length)
             addTextures(textures);
         // might be set later
-        events.push(asset.on('meta.textures:set', addTextures));
+        events.push(asset.on('meta.textures:set', function() {
+            addTextures(asset.get('meta.textures'));
+        }));
         events.push(asset.on('meta.textures:unset', function() {
             fieldTextures.clear();
         }));
