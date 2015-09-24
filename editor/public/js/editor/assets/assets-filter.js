@@ -9,13 +9,6 @@ editor.once('load', function() {
     panelFilters.class.add('filters');
     assetsPanel.headerAppend(panelFilters);
 
-    // label
-    // var filterLabel = new ui.Label({
-    //     text: 'Filter:'
-    // });
-    // filterLabel.class.add('label');
-    // panelFilters.append(filterLabel);
-
     var filter = function(type, item) {
         if (! item)
             return false;

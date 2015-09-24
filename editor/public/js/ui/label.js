@@ -40,11 +40,16 @@ Object.defineProperty(Label.prototype, 'text', {
     set: function(value) {
         if (this._link) {
             if (! this._link.set(this.path, value)) {
-                this.element.innerHTML = this._link.get(this.path);
+                value = this._link.get(this.path);
+                this.element.innerHTML = value;
             }
         } else {
             if (this._text === value) return;
+
             this._text = value;
+            if (value === undefined || value === null)
+                this._text = '';
+
             this.element.innerHTML = this._text;
             this.emit('change', value);
         }

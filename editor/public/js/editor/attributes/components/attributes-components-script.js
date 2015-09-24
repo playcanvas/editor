@@ -473,6 +473,10 @@ editor.once('load', function() {
             }
 
             if (scriptAttributeTypes[attribute.type] !== 'assets') {
+                var type = scriptAttributeTypes[attribute.type];
+                if (attribute.type === 'enumeration' && choices.length >= 2 && typeof(choices[1].v) === 'string')
+                    type = 'string';
+
                 var args = {
                     parent: parent,
                     name: attribute.displayName || attribute.name,

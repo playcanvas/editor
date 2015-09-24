@@ -77,6 +77,16 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:camera:projection:attach', fieldProjection.parent.innerElement.firstChild.ui);
 
+        // frustumCulling
+        var fieldFrustumCulling = editor.call('attributes:addField', {
+            parent: panel,
+            type: 'checkbox',
+            name: 'Frustum Culling',
+            link: entities,
+            path: 'components.camera.frustumCulling'
+        });
+        // reference
+        editor.call('attributes:reference:camera:frustumCulling:attach', fieldFrustumCulling.parent.innerElement.firstChild.ui);
 
         // camera.fov
         var fieldFov = editor.call('attributes:addField', {

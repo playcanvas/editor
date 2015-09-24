@@ -7,6 +7,8 @@ editor.once('load', function() {
                 return;
         }
 
+        var events = [ ];
+
         if (assets.length > 1)
             editor.call('attributes:header', assets.length + ' Textures');
 
@@ -18,39 +20,76 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:texture:asset:attach', paramsPanel, paramsPanel.headerElement);
 
-
-
-        // dimensions
-        if (assets.length === 1) {
-            var fieldDimensions = editor.call('attributes:addField', {
-                parent: paramsPanel,
-                name: 'Dimensions',
-                value: '...'
-            });
-            fieldDimensions.renderChanges = false;
-            // reference
-            editor.call('attributes:reference:asset:texture:dimensions:attach', fieldDimensions.parent.innerElement.firstChild.ui);
-        }
-
-
-
-        // hdr
-        var fieldHdr = editor.call('attributes:addField', {
+        // width
+        var fieldWidth = editor.call('attributes:addField', {
             parent: paramsPanel,
-            name: 'HDR',
-            value: assets[0].get('data.rgbm') ? 'yes' : 'no'
+            name: 'Width',
+            link: assets,
+            path: 'meta.width',
+            placeholder: 'pixels'
         });
-        if (assets.length > 1) {
-            var hdr = assets[0].get('data.rgbm');
-            for(var i = 1; i < assets.length; i++) {
-                if (hdr !== assets[i].get('data.rgbm')) {
-                    hdr = 'various';
-                    break;
-                }
-            }
-            fieldHdr.value = hdr;
-        }
+        // reference
+        editor.call('attributes:reference:asset:texture:width:attach', fieldWidth.parent.innerElement.firstChild.ui);
 
+        // height
+        var fieldHeight = editor.call('attributes:addField', {
+            parent: paramsPanel,
+            name: 'Height',
+            link: assets,
+            path: 'meta.height',
+            placeholder: 'pixels'
+        });
+        // reference
+        editor.call('attributes:reference:asset:texture:height:attach', fieldHeight.parent.innerElement.firstChild.ui);
+
+        // depth
+        var fieldDepth = editor.call('attributes:addField', {
+            parent: paramsPanel,
+            name: 'Depth',
+            link: assets,
+            path: 'meta.depth',
+            placeholder: 'bit'
+        });
+        var checkDepthField = function() {
+            if (! fieldDepth.value)
+                fieldDepth.element.innerHTML = 'unknown';
+        };
+        checkDepthField();
+        fieldDepth.on('change', checkDepthField);
+        // reference
+        editor.call('attributes:reference:asset:texture:depth:attach', fieldDepth.parent.innerElement.firstChild.ui);
+
+        // rgbm
+        var fieldRgbm = editor.call('attributes:addField', {
+            parent: paramsPanel,
+            name: 'Rgbm',
+            link: assets,
+            path: 'data.rgbm'
+        });
+        var checkRgbmField = function() {
+            if (! fieldRgbm.value)
+                fieldRgbm.element.innerHTML = 'false';
+        };
+        checkRgbmField();
+        fieldRgbm.on('change', checkRgbmField);
+        // reference
+        editor.call('attributes:reference:asset:texture:rgbm:attach', fieldRgbm.parent.innerElement.firstChild.ui);
+
+        // alpha
+        var fieldAlpha = editor.call('attributes:addField', {
+            parent: paramsPanel,
+            name: 'Alpha',
+            link: assets,
+            path: 'meta.alpha'
+        });
+        var checkAlphaField = function() {
+            if (! fieldAlpha.value)
+                fieldAlpha.element.innerHTML = 'false';
+        };
+        checkAlphaField();
+        fieldAlpha.on('change', checkAlphaField);
+        // reference
+        editor.call('attributes:reference:asset:texture:alpha:attach', fieldAlpha.parent.innerElement.firstChild.ui);
 
 
         // filtering
@@ -235,7 +274,11 @@ editor.once('load', function() {
             // so that we can measure the texture size
             var imageOriginal = new Image();
             imageOriginal.onload = function() {
-                fieldDimensions.text = imageOriginal.naturalWidth + ' x ' + imageOriginal.naturalHeight;
+                if (fieldWidth.value)
+                    return;
+
+                fieldWidth.element.innerHTML = imageOriginal.naturalWidth;
+                fieldHeight.element.innerHTML = imageOriginal.naturalHeight;
             };
             imageOriginal.src = config.url.home + assets[0].get('file.url') + '?t=' + assets[0].get('file.hash');
 
@@ -254,7 +297,7 @@ editor.once('load', function() {
                 image.onload = function() {
                     root.class.add('animate');
                 };
-                image.src = config.url.home + assets[0].get('thumbnails.xl');
+                image.src = config.url.home + assets[0].get('thumbnails.xl') + '?t=' + assets[0].get('file.hash');
             }
 
             image.addEventListener('click', function() {
@@ -280,5 +323,10 @@ editor.once('load', function() {
                 root.class.remove('asset-preview', 'animate');
             });
         }
+
+        paramsPanel.once('destroy', function() {
+            for(var i = 0; i < events.length; i++)
+                events[i].unbind();
+        });
     });
 });
