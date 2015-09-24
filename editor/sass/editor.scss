@@ -41,6 +41,12 @@ strong {
     left: 0;
     width: auto;
     height: auto;
+    max-height: 100%;
+
+    > .content {
+        max-height: 100%;
+        overflow: hidden;
+    }
 }
 
 #ui-toolbar {
@@ -646,6 +652,7 @@ strong {
         }
         > .asset-preview {
             display: block;
+            max-height: 500px;
             width: calc(50% - 16px);
             padding: 0 25%;
             border: 8px solid $bcg-darker;
