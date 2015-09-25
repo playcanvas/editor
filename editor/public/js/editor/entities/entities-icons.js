@@ -276,6 +276,7 @@ editor.once('load', function() {
     });
 
     var designerSettings = editor.call('designerSettings');
+    editor.call('viewport:icons:size', designerSettings.get('icons_size'));
     designerSettings.on('icons_size:set', function(size) {
         editor.call('viewport:icons:size', size);
     });
