@@ -84,7 +84,7 @@ editor.once('load', function() {
 
 
     var target = editor.call('drop:target', {
-        ref: hierarchy.innerElement,
+        ref: panel.innerElement,
         type: 'entity',
         hole: true,
         passThrough: true
