@@ -252,7 +252,7 @@ editor.once('load', function() {
             placeholder: 'Softening',
             type: 'number',
             link: entities,
-            path: 'components.particlesystem.depthWrite'
+            path: 'components.particlesystem.depthSoftening'
         });
         // reference
         editor.call('attributes:reference:particlesystem:depthSoftening:attach', fieldDepthSoftening);
