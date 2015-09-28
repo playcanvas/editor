@@ -381,17 +381,24 @@ Observer.prototype.set = function(path, value, silent) {
                 return false;
             }
         } else {
-            if (node._data[key] === value)
+            var data;
+            if (! node.hasOwnProperty('_data') && node.hasOwnProperty(key)) {
+                data = node;
+            } else {
+                data = node._data;
+            }
+
+            if (data[key] === value)
                 return false;
 
             if (silent)
                 state = obj.silence();
 
-            var valueOld = node._data[key];
+            var valueOld = data[key];
             if (! (valueOld instanceof Observer))
                 valueOld = obj.json(valueOld);
 
-            node._data[key] = value;
+            data[key] = value;
 
             obj.emit(path + ':set', value, valueOld);
             obj.emit('*:set', path, value, valueOld);
