@@ -11,7 +11,7 @@ editor.once('load', function() {
     fileInput.style.display = 'none';
     fileInput.addEventListener('change', function() {
         if (!editor.call('assets:canUploadFiles', this.files)) {
-            var msg = 'Disk allowance exceeded. <a href="/account" target="_blank">UPGRADE</a> to get more disk space.';
+            var msg = 'Disk allowance exceeded. <a href="/upgrade" target="_blank">UPGRADE</a> to get more disk space.';
             editor.call('status:error', msg);
             return;
         }

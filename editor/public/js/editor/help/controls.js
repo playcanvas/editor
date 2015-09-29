@@ -5,6 +5,7 @@ editor.once('load', function() {
 
     var overlay = new ui.Overlay();
     overlay.class.add('help-controls');
+    overlay.style.zIndex = 203;
     overlay.center = true;
     overlay.hidden = true;
 
@@ -20,6 +21,7 @@ editor.once('load', function() {
     btnClose.text = '&#58422;';
     btnClose.on('click', function() {
         overlay.hidden = true;
+        editor.emit('help:controls:close');
     });
     header.element.appendChild(btnClose.element);
 
