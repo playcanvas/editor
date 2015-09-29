@@ -5,6 +5,7 @@ editor.once('load', function() {
 
     var overlay = new ui.Overlay();
     overlay.class.add('help-controls');
+    overlay.style.zIndex = 203;
     overlay.center = true;
     overlay.hidden = true;
 
