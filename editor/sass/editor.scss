@@ -2534,6 +2534,66 @@ strong {
     }
 }
 
+.ui-overlay.demo {
+    > .content {
+        width: 480px;
+        height: auto;
+        top: calc(50% - 200px);
+        left: calc(50% - 240px);
+        padding: 20px 20px;
+        background-color: $bcg-darkest;
+
+        > .ui-panel > .content {
+            background-color: $bcg-darkest;
+
+            > .ui-label {
+                background-color: $bcg-darkest;
+                display: block;
+                border: none;
+                padding: 0;
+                margin: 0 0 20px 0;
+            }
+
+            > .build-level {
+                font-size: 16px;
+                color: $text-active;
+            }
+
+            > .header {
+                font-size: 22px;
+                color: #fff;
+            }
+
+            > .main {
+                display: block;
+                line-height: 1;
+                .font-icon {
+                    background-color: #4a5a5d;
+                    padding: 5px;
+                    text-align: center;
+                    display: inline-block;
+                    color: #fff;
+                    margin-left: 10px;
+                    margin-right: 10px;
+                    font-size: 20px;
+
+                    &.launch {
+                        background-color: $text-active;
+                    }
+                }
+            }
+
+            > .close {
+                background-color: #4a5a5d;
+                width: 80px;
+                height: 40px;
+                line-height: 40px;
+                text-align: center;
+            }
+        }
+    }
+}
+
 .connection-overlay {
     > .content {
         width: 400px;
