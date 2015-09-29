@@ -58,7 +58,7 @@ editor.once('load', function() {
                 panel.append(panelInner);
 
                 var label = new ui.Label({
-                    text: 'New <span style="color:#fff">Editor</span>. Please give us <span style="color:#fff">feedback</span> using the <span class="font-icon" style="color:#fff">&#58488;</span> comment button in the toolbar.'
+                    text: 'This is the <span style="color:#fff">PlayCanvas Editor</span>. Please give us <span style="color:#fff">feedback</span> using the <span class="font-icon" style="color:#fff">&#58488;</span> comment button in the toolbar.'
                 });
                 panelInner.append(label);
 
