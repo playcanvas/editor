@@ -176,7 +176,7 @@ editor.once('load', function() {
                 // scale to screen space
                 if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
                     var dot = vecA.copy(posGizmo).sub(posCamera).dot(camera.forward);
-                    var denom = 1280 * Math.tan(camera.camera.fov * pc.math.DEG_TO_RAD);
+                    var denom = 1280 / Math.tan(camera.camera.fov * pc.math.DEG_TO_RAD);
                     scale = Math.max(0.0001, (dot / denom) * 150) * gizmoSize;
                 } else {
                     scale = camera.camera.orthoHeight / 3 * gizmoSize;

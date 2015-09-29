@@ -106,4 +106,80 @@ canvas:focus {
     top: 5px;
 }
 
+body > #dev-tools {
+    position: absolute;
+    z-index: 10001;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: auto;
+    height: 300px;
+    background-color: #303030;
+    overflow: hidden;
+    cursor: default;
+    border-top: 1px solid #202020;
 
+    &.dragging {
+        cursor: -webkit-grabbing;
+        cursor: -moz-grabbing;
+    }
+    > .overview {
+        position: absolute;
+        left: 300px;
+        top: 0px;
+        display: block;
+        background-color: #202020;
+    }
+    > .timeline {
+        position: absolute;
+        left: 300px;
+        top: 24px;
+        display: block;
+        background-color: #303030;
+    }
+    > .frame {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 299px;
+        height: 300px;
+        border-right: 1px solid #202020;
+        overflow: auto;
+        color: #fff;
+        font-size: 12px;
+        font-family: 'Courier New', monospace;
+
+        > .panel {
+            overflow: hidden;
+
+            > .header {
+                text-transform: uppercase;
+                height: 24px;
+                line-height: 24px;
+                padding: 0 8px;
+                font-size: 14px;
+                background-color: #202020;
+                cursor: pointer;
+            }
+            > .row {
+                overflow: hidden;
+                margin: 4px 8px;
+
+                > .title {
+                    float: left;
+                    width: 150px;
+                }
+                > .field {
+                    float: left;
+                }
+            }
+            &.folded {
+                height: 24px;
+
+                > .header {
+                    color: mix(#202020, #fff, 50%);
+                }
+            }
+        }
+    }
+}
