@@ -58,7 +58,7 @@ editor.once('load', function() {
                 panel.append(panelInner);
 
                 var label = new ui.Label({
-                    text: 'New <span style="color:#fff">Editor</span>. Please give us <span style="color:#fff">feedback</span> using the <span class="font-icon" style="color:#fff">&#58488;</span> comment button in the toolbar.'
+                    text: 'This is the <span style="color:#fff">PlayCanvas Editor</span>. Please give us <span style="color:#fff">feedback</span> using the <span class="font-icon" style="color:#fff">&#58488;</span> comment button in the toolbar.'
                 });
                 panelInner.append(label);
 
@@ -77,7 +77,7 @@ editor.once('load', function() {
         {
             start: function() {
                 editor.call('layout.toolbar').style.zIndex = 202;
-                overlay.position(45, 67);
+                overlay.position(45, 27);
                 overlay.class.add('arrow-left');
                 panelInner = new ui.Panel();
                 panelInner.header = 'Menu & Toolbar';
@@ -109,7 +109,7 @@ editor.once('load', function() {
                 panel.append(panelInner);
 
                 var label = new ui.Label({
-                    text: 'This is your <span style="color:#fff">scene hierarchy</span> made up of <span style="color:#fff">Entities</span>, which can be given new behaviours by adding <span style="color:#fff">Components</span>.<br/><br/><span class="font-icon" style="color:#fff">&#58468;</span> Add, <span class="font-icon" style="color:#fff">&#57908;</span> Duplicate and <span class="font-icon" style="color:#fff">&#58657;</span> Delete Entities using the controls in this panel.'
+                    text: 'This is your <span style="color:#fff">scene hierarchy</span> made up of <span style="color:#fff">Entities</span>, which can be given new behaviours by adding <span style="color:#fff">Components</span>.<br/><br/>Use the controls in this panel to <span class="font-icon" style="color:#fff">&#58468;</span> Add, <span class="font-icon" style="color:#fff">&#57908;</span> Duplicate and <span class="font-icon" style="color:#fff">&#58657;</span> Delete Entities.'
                 });
                 panelInner.append(label);
             },
@@ -133,7 +133,7 @@ editor.once('load', function() {
                 panel.append(panelInner);
 
                 var label = new ui.Label({
-                    text: '<span style="color:#fff">Drag`n`Drop</span> files from your computer to upload or use the <span class="font-icon" style="color:#fff">&#58468;</span> Add button to create new assets.<br/><br/>You can filter and <span class="font-icon" style="color:#fff">&#58163;</span> search your assets using the controls at the top.'
+                    text: '<span style="color:#fff">Drag`n`Drop</span> files from your computer to upload assets or use the <span class="font-icon" style="color:#fff">&#58468;</span> Add button to create new assets.<br/><br/>You can filter and <span class="font-icon" style="color:#fff">&#58163;</span> search your assets using the controls at the top.'
                 });
                 panelInner.append(label);
 
@@ -200,6 +200,35 @@ editor.once('load', function() {
             }
         },
 
+        // dashboard
+        {
+            start: function() {
+                var home = document.querySelector('.widget-title');
+                home.style.zIndex = 202;
+                overlay.class.add('arrow-top');
+                panelInner = new ui.Panel();
+                panelInner.header = 'Dashboard';
+                panel.append(panelInner);
+
+                var label = new ui.Label({
+                    text: 'This is the name of your <span style="color:#fff">Project</span>. Click here to go to the <span style="color:#fff">Project Dashboard</span>. You can create a new project by visiting your <a href="/' + config.self.username + '" target="_blank">Dashboard</a>.'
+                });
+                panelInner.append(label);
+
+                overlay.position(412, 40);
+            },
+            end: function() {
+                var home = document.querySelector('.widget-title');
+                home.style.zIndex = '';
+                overlay.class.remove('arrow-top');
+
+                if (panelInner) {
+                    panelInner.destroy();
+                    panelInner = null;
+                }
+            }
+        },
+
         // launch
         {
             start: function() {
@@ -215,10 +244,14 @@ editor.once('load', function() {
                 panelInner.header = 'Launch';
                 panel.append(panelInner);
 
+                btnNext.text = 'Close';
+
                 var label = new ui.Label({
-                    text: 'Click the <span class="font-icon" style="color:#fff">&#57922;</span> <span style="color:#fff">PLAY</span> button to launch your game.<br/><br/>You can continue to edit your scene here, changes will be automatically applied to the launched game in real-time.'
+                    text: 'We have created a sample project for you. Click the <span class="font-icon" style="color:#fff">&#57922;</span> <span style="color:#fff">Launch</span> button and use the arrows keys to play the game.<br/><br/>You can continue to edit the scene here, changes will be automatically applied to the launched game in real-time.'
                 });
                 panelInner.append(label);
+
+                btnSkip.hidden = true;
             },
             end: function() {
                 var launch = document.querySelector('.top-controls > .content > .launch > .content > .ui-button.icon');
@@ -228,39 +261,6 @@ editor.once('load', function() {
                 launch.style.color = '';
 
                 overlay.class.remove('arrow-top-right');
-
-                if (panelInner) {
-                    panelInner.destroy();
-                    panelInner = null;
-                }
-            }
-        },
-
-        // dashboard
-        {
-            start: function() {
-                var home = document.querySelector('.widget-title');
-                home.style.zIndex = 202;
-                overlay.class.add('arrow-top');
-                panelInner = new ui.Panel();
-                panelInner.header = 'Dashboard';
-                panel.append(panelInner);
-
-                btnNext.text = 'Close';
-
-                var label = new ui.Label({
-                    text: 'This is the name of your <span style="color:#fff">Project</span>. Click here to go to the <span style="color:#fff">Project Dashboard</span>.'
-                });
-                panelInner.append(label);
-
-                overlay.position(412, 40);
-
-                btnSkip.hidden = true;
-            },
-            end: function() {
-                var home = document.querySelector('.widget-title');
-                home.style.zIndex = '';
-                overlay.class.remove('arrow-top');
 
                 btnNext.text = 'Next';
 
@@ -272,6 +272,8 @@ editor.once('load', function() {
                 btnSkip.hidden = false;
             }
         },
+
+
     ];
 
     // bullets
