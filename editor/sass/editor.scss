@@ -2570,11 +2570,14 @@ strong {
                 .font-icon {
                     background-color: #4a5a5d;
                     padding: 5px;
+                    width: 20px;
+                    height: 20px;
+                    line-height: 20px;
                     text-align: center;
                     display: inline-block;
                     color: #fff;
-                    margin-left: 10px;
-                    margin-right: 10px;
+                    margin-left: 5px;
+                    margin-right: 5px;
                     font-size: 20px;
 
                     &.launch {
