@@ -49,7 +49,7 @@ editor.once('load', function() {
         })
         .on('error', function(status, data) {
             if (/Disk allowance/.test(data)) {
-                data += '. <a href="/account" target="_blank">UPGRADE</a> to get more disk space.';
+                data += '. <a href="/upgrade" target="_blank">UPGRADE</a> to get more disk space.';
             }
 
             editor.call('status:error', data);

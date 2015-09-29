@@ -124,7 +124,7 @@ editor.once('load', function() {
             }
 
             if (/Disk allowance/.test(err)) {
-                err += '. <a href="/account" target="_blank">UPGRADE</a> to get more disk space.';
+                err += '. <a href="/upgrade" target="_blank">UPGRADE</a> to get more disk space.';
             }
 
             editor.call('status:error', err);
