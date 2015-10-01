@@ -3832,7 +3832,7 @@ strong {
         opacity: 1;
         left: 5px;
         top: 5px;
-        box-shadow: 0 0 0 0px #fff;
+        box-shadow: 0 0 0 0px $text-active;
     }
 
     100% {
@@ -3841,7 +3841,7 @@ strong {
         opacity: 0;
         left: -19px;
         top: -18px;
-        box-shadow: 0 0 0 6px #fff;
+        box-shadow: 0 0 0 6px $text-active;
     }
 }
 
@@ -3872,7 +3872,7 @@ strong {
         border-radius: 50%;
         width: 24px;
         height: 24px;
-        background: #fff;
+        background: $text-active;
 
         -webkit-box-shadow: 7px 7px 5px 0px rgba(0,0,0,0.1);
         -moz-box-shadow: 7px 7px 5px 0px rgba(0,0,0,0.1);
@@ -3898,7 +3898,7 @@ strong {
 
     &:active, &.active {
         > .center {
-            background: $text-active;
+            background: #fff;
         }
     }
 }
