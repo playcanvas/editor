@@ -21,26 +21,20 @@ editor.once('load', function() {
     overlay.append(panel);
 
     // contents
-    var buildLevel = new ui.Label({
-        text: 'Build A Level'
-    });
-    buildLevel.class.add('build-level');
-    panel.append(buildLevel);
-
     var header = new ui.Label({
-        text: "Here's a simple game to get you started."
+        text: "Editor Intro"
     });
     header.class.add('header');
     panel.append(header);
 
     var main = new ui.Label({
-        text: 'Use Duplicate <span class="font-icon">&#57908;</span> and Translate <span class="font-icon">&#58454;</span> to design a new level.<br/><br/>Launch <span class="font-icon launch">&#57922;</span> the game to try it.'
+        text: "Your first project is a simple ball rolling game we've made for you. To learn how to use PlayCanvas why don't you finish the level we've started and then design some more? We'll pop up some more messages to help you along the way."
     });
     main.class.add('main');
     panel.append(main);
 
     var close = new ui.Button({
-        text: "GOT IT"
+        text: "LET'S GO"
     });
     close.class.add('close');
     panel.append(close);
@@ -48,7 +42,7 @@ editor.once('load', function() {
         overlay.hidden = true;
     });
 
-    editor.once('help:controls:close', function() {
+    editor.once('scene:raw', function() {
         overlay.hidden = false;
     });
 

@@ -21,7 +21,6 @@ editor.once('load', function() {
     btnClose.text = '&#58422;';
     btnClose.on('click', function() {
         overlay.hidden = true;
-        editor.emit('help:controls:close');
     });
     header.element.appendChild(btnClose.element);
 
@@ -107,5 +106,13 @@ editor.once('load', function() {
 
     editor.method('help:controls', function() {
         overlay.hidden = false;
+    });
+
+    overlay.on('show', function () {
+        editor.emit('help:controls:open');
+    });
+
+    overlay.on('hide', function () {
+        editor.emit('help:controls:close');
     });
 });
