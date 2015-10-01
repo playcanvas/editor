@@ -2441,6 +2441,8 @@ strong {
 }
 
 .ui-overlay.help-controls {
+    @extend .noSelect;
+
     > .content {
         width: 512px;
         height: auto;
