@@ -8,6 +8,10 @@ editor.once('load', function() {
     panel.class.add('widget-title');
     viewport.append(panel);
 
+    editor.method('layout.toolbar.scene', function () {
+        return panel;
+    });
+
     var projectName = new ui.Label();
     projectName.text = config.project.name;
     projectName.class.add('project-name');

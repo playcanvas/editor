@@ -711,6 +711,13 @@ editor.once('load', function() {
                     select: function() {
                         window.open('http://answers.playcanvas.com/');
                     }
+                },
+                'resetTips': {
+                    title: 'Reset Tips',
+                    icon: '&#58209;',
+                    select: function () {
+                        editor.call('editor:tips:reset');
+                    }
                 }
             }
         },

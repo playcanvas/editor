@@ -51,4 +51,12 @@ editor.once('load', function() {
     editor.once('help:controls:close', function() {
         overlay.hidden = false;
     });
+
+    overlay.on('show', function () {
+        editor.emit('help:demo:show');
+    });
+
+    overlay.on('hide', function () {
+        editor.emit('help:demo:close');
+    });
 });
