@@ -50,8 +50,8 @@ Bubble.prototype.position = function (x, y) {
     var left = (x || 0);
     var top = (y || 0);
 
-    this.element.style.left = left + 'px';
-    this.element.style.top = top + 'px';
+    this.element.style.left = (typeof left === 'number') ? left + 'px' : left;
+    this.element.style.top = (typeof top === 'number') ? top + 'px' : top;
 };
 
 window.ui.Bubble = Bubble;

@@ -8,13 +8,14 @@ editor.once('load', function () {
     var bubbleDemo1 = function () {
         var bubble = editor.call(
             'guide:bubble',
-            'Complete this level (1 / 3)',
-            "Let's duplicate one of those platforms. Click on a platform in the 3D view and hit Ctrl+D to duplicate it.",
-            50,
-            80,
+            'Complete this level (1 / 4)',
+            "Let's duplicate one of those platforms. Click on a platform in the 3D view to select it.",
+            '50%',
+            '50%',
             'left',
             editor.call('layout.viewport')
         );
+
 
         return bubble;
     };
@@ -22,10 +23,25 @@ editor.once('load', function () {
     var bubbleDemo2 = function () {
         var bubble = editor.call(
             'guide:bubble',
-            'Complete this level (2 / 3)',
+            'Complete this level (2 / 4)',
+            "Hit Ctrl+D to duplicate the selected platform.",
+            '50%',
+            '50%',
+            'left',
+            editor.call('layout.viewport')
+        );
+
+
+        return bubble;
+    };
+
+    var bubbleDemo3 = function () {
+        var bubble = editor.call(
+            'guide:bubble',
+            'Complete this level (3 / 4)',
             "Use the arrows of the Translate tool to move the platform. Try to fill that gap so that the ball can safely reach the rightmost platform.",
-            50,
-            80,
+            '50%',
+            '50%',
             'left',
             editor.call('layout.viewport')
         );
@@ -33,10 +49,10 @@ editor.once('load', function () {
         return bubble;
     };
 
-    var bubbleDemo3 = function () {
+    var bubbleDemo4 = function () {
         return editor.call(
             'guide:bubble',
-            'Complete this level (3 / 3)',
+            'Complete this level (4 / 4)',
             "Click <span class='font-icon'>&#57922;</span> <strong>Launch</strong> to play the game. Use the arrow keys to move the ball. The game will open in a new tab so just switch back to the Editor tab when you're done.<br/><br/>Any changes you make to the scene will automatically update the launched game.",
             46,
             29,
@@ -125,14 +141,13 @@ editor.once('load', function () {
             'Entity Inspector',
             'This is the <strong>Entity Inspector</strong>. Here you can enable or disable an Entity, edit its name or its position / rotation and scale. <br/><br/>If you want to add behaviours to your Entity click on Add Component.',
             0,
-            0,
+            100,
             'right',
             editor.call('layout.viewport')
         );
 
         bubble.element.style.left = '';
         bubble.element.style.right = '6px';
-        bubble.element.style.top = '100px';
 
         return bubble;
     };
@@ -222,7 +237,7 @@ editor.once('load', function () {
         openedDemo = true;
 
         editor.once('help:demo:close', function () {
-            // Ajax.post('/editor/scene/{{scene.id}}/opened', { });
+            Ajax.post('/editor/scene/{{scene.id}}/opened', { });
 
             // show some demo specific bubbles first
             setTimeout(function () {
@@ -232,8 +247,12 @@ editor.once('load', function () {
                             setTimeout(function () {
                                 bubbleDemo3().on('deactivate', function () {
                                     setTimeout(function () {
-                                        showBubbles(0);
-                                    }, 3000);
+                                        bubbleDemo4().on('deactivate', function () {
+                                            setTimeout(function () {
+                                                showBubbles(0);
+                                            }, 3000);
+                                        });
+                                    }, 2000);
                                 });
                             }, 2000);
                         });
