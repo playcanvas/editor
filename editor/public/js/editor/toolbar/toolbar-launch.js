@@ -10,6 +10,9 @@ editor.once('load', function() {
     panel.class.add('top-controls');
     viewport.append(panel);
 
+    editor.method('layout.toolbar.launch', function () {
+        return panel;
+    });
 
     // launch
     var launch = new ui.Panel();
