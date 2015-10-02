@@ -412,9 +412,9 @@ editor.once('load', function() {
 
         fieldColorMap.on('change', function (value) {
             fieldAnimatedTexture.parent.hidden = !value && !fieldNormalMap.value;
-            panelFrames.hidden = fieldAnimatedTexture.parent.hidden;
-            panelAnimationPlayback.hidden = fieldAnimatedTexture.parent.hidden;
-            panelAnimationLoop.hidden = fieldAnimatedTexture.parent.hidden;
+            panelFrames.hidden = !value || fieldAnimatedTexture.parent.hidden;
+            panelAnimationPlayback.hidden = !value || fieldAnimatedTexture.parent.hidden;
+            panelAnimationLoop.hidden = !value || fieldAnimatedTexture.parent.hidden;
         });
 
 
@@ -432,9 +432,9 @@ editor.once('load', function() {
 
         fieldNormalMap.on('change', function (value) {
             fieldAnimatedTexture.parent.hidden = !value && !fieldColorMap.value;
-            panelFrames.hidden = fieldAnimatedTexture.parent.hidden;
-            panelAnimationPlayback.hidden = fieldAnimatedTexture.parent.hidden;
-            panelAnimationLoop.hidden = fieldAnimatedTexture.parent.hidden;
+            panelFrames.hidden = !value || fieldAnimatedTexture.parent.hidden;
+            panelAnimationPlayback.hidden = !value || fieldAnimatedTexture.parent.hidden;
+            panelAnimationLoop.hidden = !value || fieldAnimatedTexture.parent.hidden;
         });
 
         // animated texture
@@ -451,9 +451,9 @@ editor.once('load', function() {
         fieldAnimatedTexture.parent.hidden = !fieldColorMap.value && !fieldNormalMap.value;
 
         fieldAnimatedTexture.on('change', function (value) {
-            panelFrames.hidden = !value;
-            panelAnimationPlayback.hidden = !value;
-            panelAnimationLoop.hidden = !value;
+            panelFrames.hidden = !value || fieldAnimatedTexture.parent.hidden;
+            panelAnimationPlayback.hidden = !value || fieldAnimatedTexture.parent.hidden;
+            panelAnimationLoop.hidden = !value || fieldAnimatedTexture.parent.hidden;
         });
 
         // frames
