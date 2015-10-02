@@ -24,7 +24,7 @@ editor.once('load', function () {
         var bubble = editor.call(
             'guide:bubble',
             'Complete this level (2 / 4)',
-            "Hit Ctrl+D to duplicate the selected platform.",
+            'Hit Ctrl+D or click the <span class="font-icon">&#57908;</span> button to duplicate the selected platform.',
             '50%',
             '50%',
             'left',
