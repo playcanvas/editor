@@ -412,9 +412,9 @@ editor.once('load', function() {
 
         fieldColorMap.on('change', function (value) {
             fieldAnimatedTexture.parent.hidden = !value && !fieldNormalMap.value;
-            panelFrames.hidden = !value || fieldAnimatedTexture.parent.hidden;
-            panelAnimationPlayback.hidden = !value || fieldAnimatedTexture.parent.hidden;
-            panelAnimationLoop.hidden = !value || fieldAnimatedTexture.parent.hidden;
+            panelFrames.hidden = !fieldAnimatedTexture.value || fieldAnimatedTexture.parent.hidden;
+            panelAnimationPlayback.hidden = !fieldAnimatedTexture.value || fieldAnimatedTexture.parent.hidden;
+            panelAnimationLoop.hidden = !fieldAnimatedTexture.value || fieldAnimatedTexture.parent.hidden;
         });
 
 
@@ -432,9 +432,9 @@ editor.once('load', function() {
 
         fieldNormalMap.on('change', function (value) {
             fieldAnimatedTexture.parent.hidden = !value && !fieldColorMap.value;
-            panelFrames.hidden = !value || fieldAnimatedTexture.parent.hidden;
-            panelAnimationPlayback.hidden = !value || fieldAnimatedTexture.parent.hidden;
-            panelAnimationLoop.hidden = !value || fieldAnimatedTexture.parent.hidden;
+            panelFrames.hidden = !fieldAnimatedTexture.value || fieldAnimatedTexture.parent.hidden;
+            panelAnimationPlayback.hidden = !fieldAnimatedTexture.value || fieldAnimatedTexture.parent.hidden;
+            panelAnimationLoop.hidden = !fieldAnimatedTexture.value || fieldAnimatedTexture.parent.hidden;
         });
 
         // animated texture
