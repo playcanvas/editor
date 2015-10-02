@@ -5,9 +5,9 @@ editor.once('load', function() {
         'camera_near_clip': 0.1,
         'camera_far_clip': 1000,
         'camera_clear_color': [
-            0.832,
-            0.832,
-            0.832,
+            0.722,
+            0.722,
+            0.722,
             1
         ],
         'grid_divisions': 8,

@@ -63,7 +63,7 @@ editor.once('load', function() {
             default: {
                 enabled: true,
                 clearColorBuffer: true,
-                clearColor: [0.832, 0.832, 0.832, 1],
+                clearColor: [0.722, 0.722, 0.722, 1],
                 clearDepthBuffer: true,
                 projection: 0,
                 fov: 45,
