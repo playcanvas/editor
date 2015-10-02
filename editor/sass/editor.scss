@@ -3766,9 +3766,9 @@ strong {
         width: 2px;
         height: 2px;
         opacity: 1;
-        left: 4px;
-        top: 4px;
-        box-shadow: 0 0 0 0px #fff;
+        left: 5px;
+        top: 5px;
+        box-shadow: 0 0 0 0px $text-active;
     }
 
     100% {
@@ -3777,7 +3777,7 @@ strong {
         opacity: 0;
         left: -19px;
         top: -18px;
-        box-shadow: 0 0 0 6px #fff;
+        box-shadow: 0 0 0 6px $text-active;
     }
 }
 
@@ -3786,9 +3786,9 @@ strong {
         width: 2px;
         height: 2px;
         opacity: 1;
-        left: 4px;
-        top: 4px;
-        box-shadow: 0 0 0 0px #fff;
+        left: 5px;
+        top: 5px;
+        box-shadow: 0 0 0 0px $text-active;
     }
 
     100% {
@@ -3797,7 +3797,7 @@ strong {
         opacity: 0;
         left: -19px;
         top: -18px;
-        box-shadow: 0 0 0 6px #fff;
+        box-shadow: 0 0 0 6px $text-active;
     }
 }
 @-ms-keyframes pulseline {
@@ -3805,9 +3805,9 @@ strong {
         width: 2px;
         height: 2px;
         opacity: 1;
-        left: 4px;
-        top: 4px;
-        box-shadow: 0 0 0 0px #fff;
+        left: 5px;
+        top: 5px;
+        box-shadow: 0 0 0 0px $text-active;
     }
 
     100% {
@@ -3816,7 +3816,7 @@ strong {
         opacity: 0;
         left: -19px;
         top: -18px;
-        box-shadow: 0 0 0 6px #fff;
+        box-shadow: 0 0 0 6px $text-active;
     }
 }
 @-o-keyframes pulseline {
@@ -3824,9 +3824,9 @@ strong {
         width: 2px;
         height: 2px;
         opacity: 1;
-        left: 4px;
-        top: 4px;
-        box-shadow: 0 0 0 0px #fff;
+        left: 5px;
+        top: 5px;
+        box-shadow: 0 0 0 0px $text-active;
     }
 
     100% {
@@ -3835,7 +3835,7 @@ strong {
         opacity: 0;
         left: -19px;
         top: -18px;
-        box-shadow: 0 0 0 6px #fff;
+        box-shadow: 0 0 0 6px $text-active;
     }
 }
 @keyframes pulseline {
@@ -3899,6 +3899,11 @@ strong {
 
         > .pulse {
             display: none;
+            -webkit-animation: none;
+            -moz-animation: none;
+            -ms-animation: none;
+            -o-animation: none;
+            animation: none;
         }
 
         > .center {
