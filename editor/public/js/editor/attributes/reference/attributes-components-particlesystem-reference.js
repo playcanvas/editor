@@ -29,30 +29,30 @@ editor.once('load', function() {
             description: 'A curve defining how each particle\'s opacity changes over time. If two curves are specified in the curve editor, the opacity will be a random lerp between both curves.',
             url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.ParticleSystemComponent.html#alphaGraph'
         }, {
-            title: 'animTexTilesX',
+            title: 'animTilesX',
             subTitle: '{Number}',
             description: 'Number of horizontal tiles in the sprite sheet',
-            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.ParticleSystemComponent.html#animTexTilesX'
+            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.ParticleSystemComponent.html#animTilesX'
         }, {
-            title: 'animTexTilesY',
+            title: 'animTilesY',
             subTitle: '{Number}',
             description: 'Number of vertical tiles in the sprite sheet',
-            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.ParticleSystemComponent.html#animTexTilesY'
+            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.ParticleSystemComponent.html#animTilesY'
         }, {
-            title: 'animTexNumFrames',
+            title: 'animNumFrames',
             subTitle: '{Number}',
             description: 'Number of sprite sheet frames to play',
-            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.ParticleSystemComponent.html#animTexNumFrames'
+            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.ParticleSystemComponent.html#animNumFrames'
         }, {
-            title: 'animTexSpeed',
+            title: 'animSpeed',
             subTitle: '{Number}',
             description: 'Sprite sheet animation speed. 1 = particle lifetime, 2 = twice during lifetime etc...',
-            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.ParticleSystemComponent.html#animTexSpeed'
+            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.ParticleSystemComponent.html#animSpeed'
         }, {
-            title: 'animTexLoop',
+            title: 'animLoop',
             subTitle: '{Boolean}',
             description: 'If true then the sprite sheet animation will repeat indefinitely',
-            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.ParticleSystemComponent.html#animTexLoop'
+            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.ParticleSystemComponent.html#animLoop'
         }, {
             title: 'blend',
             subTitle: '{pc.BLEND_*}',
@@ -103,11 +103,6 @@ editor.once('load', function() {
             subTitle: '{Number}',
             description: 'Scales the color of particles to allow them to have arbitrary brightness.',
             url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.ParticleSystemComponent.html#intensity'
-        }, {
-            title: 'isAnimTex',
-            subTitle: '{Boolean}',
-            description: 'If true then the color map will be used as a sprite sheet. Each particle will be rendered as an animated sprite.',
-            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.ParticleSystemComponent.html#isAnimTex'
         }, {
             title: 'lifetime',
             subTitle: '{Number}',

@@ -411,12 +411,10 @@ editor.once('load', function() {
         editor.call('attributes:reference:particlesystem:colorMap:attach', fieldColorMap._label);
 
         fieldColorMap.on('change', function (value) {
-            fieldAnimatedTexture.parent.hidden = !value && !fieldNormalMap.value;
-            panelFrames.hidden = !fieldAnimatedTexture.value || fieldAnimatedTexture.parent.hidden;
-            panelAnimationPlayback.hidden = !fieldAnimatedTexture.value || fieldAnimatedTexture.parent.hidden;
-            panelAnimationLoop.hidden = !fieldAnimatedTexture.value || fieldAnimatedTexture.parent.hidden;
+            panelFrames.hidden = !value && !fieldNormalMap.value;
+            fieldAnimatedTextureNumFrames.parent.hidden = panelFrames.hidden;
+            panelAnimationPlayback.hidden = panelFrames.hidden;
         });
-
 
         // normalMapAsset
         var fieldNormalMap = editor.call('attributes:addField', {
@@ -431,35 +429,15 @@ editor.once('load', function() {
         editor.call('attributes:reference:particlesystem:normalMap:attach', fieldNormalMap._label);
 
         fieldNormalMap.on('change', function (value) {
-            fieldAnimatedTexture.parent.hidden = !value && !fieldColorMap.value;
-            panelFrames.hidden = !fieldAnimatedTexture.value || fieldAnimatedTexture.parent.hidden;
-            panelAnimationPlayback.hidden = !fieldAnimatedTexture.value || fieldAnimatedTexture.parent.hidden;
-            panelAnimationLoop.hidden = !fieldAnimatedTexture.value || fieldAnimatedTexture.parent.hidden;
-        });
-
-        // animated texture
-        var fieldAnimatedTexture = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Animated Texture',
-            type: 'checkbox',
-            link: entities,
-            path: 'components.particlesystem.isAnimTex'
-        });
-        // reference
-        editor.call('attributes:reference:particlesystem:isAnimTex:attach', fieldAnimatedTexture.parent.innerElement.firstChild.ui);
-
-        fieldAnimatedTexture.parent.hidden = !fieldColorMap.value && !fieldNormalMap.value;
-
-        fieldAnimatedTexture.on('change', function (value) {
-            panelFrames.hidden = !value || fieldAnimatedTexture.parent.hidden;
-            panelAnimationPlayback.hidden = !value || fieldAnimatedTexture.parent.hidden;
-            panelAnimationLoop.hidden = !value || fieldAnimatedTexture.parent.hidden;
+            panelFrames.hidden = !value && !fieldColorMap.value;
+            fieldAnimatedTextureNumFrames.hidden = panelFrames.hidden;
+            panelAnimationPlayback.hidden = panelFrames.hidden;
         });
 
         // frames
         var panelFrames = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Frames'
+            name: 'Map Tiles'
         });
 
         var label = panelFrames;
@@ -471,50 +449,51 @@ editor.once('load', function() {
             parent: panelFrames,
             type: 'number',
             placeholder: 'X',
-            min: 0,
+            min: 1,
             link: entities,
-            path: 'components.particlesystem.animTexTilesX'
+            path: 'components.particlesystem.animTilesX'
         });
         fieldAnimatedTextureTilesX.style.width = '50%';
         // reference
-        editor.call('attributes:reference:particlesystem:animTexTilesX:attach', fieldAnimatedTextureTilesX.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:particlesystem:animTilesX:attach', fieldAnimatedTextureTilesX.parent.innerElement.firstChild.ui);
 
         // number of y tiles
         var fieldAnimatedTextureTilesY = editor.call('attributes:addField', {
             parent: panelFrames,
             type: 'number',
             placeholder: 'Y',
-            min: 0,
+            min: 1,
             link: entities,
-            path: 'components.particlesystem.animTexTilesY'
+            path: 'components.particlesystem.animTilesY'
         });
         fieldAnimatedTextureTilesY.style.width = '50%';
         // reference
-        editor.call('attributes:reference:particlesystem:animTexTilesY:attach', fieldAnimatedTextureTilesY.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:particlesystem:animTilesY:attach', fieldAnimatedTextureTilesY.parent.innerElement.firstChild.ui);
 
-        panelFrames.hidden = !fieldAnimatedTexture.value || fieldAnimatedTexture.parent.hidden;
+        panelFrames.hidden = !fieldColorMap.value && !fieldNormalMap.value;
+
+        // frames to play
+        var fieldAnimatedTextureNumFrames = editor.call('attributes:addField', {
+            parent: panel,
+            type: 'number',
+            name: 'Frame Count',
+            min: 1,
+            link: entities,
+            path: 'components.particlesystem.animNumFrames'
+        });
+        // reference
+        editor.call('attributes:reference:particlesystem:animNumFrames:attach', fieldAnimatedTextureNumFrames.parent.innerElement.firstChild.nextSibling.ui);
+
+        fieldAnimatedTextureNumFrames.parent.hidden = !fieldColorMap.value && !fieldNormalMap.value;
 
         var panelAnimationPlayback = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Playback'
+            name: 'Animation'
         });
 
         var label = panelAnimationPlayback;
         panelAnimationPlayback = panelAnimationPlayback.parent;
         label.destroy();
-
-        // frames to play
-        var fieldAnimatedTextureNumFrames = editor.call('attributes:addField', {
-            parent: panelAnimationPlayback,
-            type: 'number',
-            placeholder: 'Total',
-            min: 0,
-            link: entities,
-            path: 'components.particlesystem.animTexNumFrames'
-        });
-        fieldAnimatedTextureNumFrames.style.width = '50%';
-        // reference
-        editor.call('attributes:reference:particlesystem:animTexNumFrames:attach', fieldAnimatedTextureNumFrames.parent.innerElement.firstChild.ui);
 
         // animation speed
         var fieldAnimatedTextureSpeed = editor.call('attributes:addField', {
@@ -522,42 +501,31 @@ editor.once('load', function() {
             placeholder: 'Speed',
             type: 'number',
             link: entities,
-            path: 'components.particlesystem.animTexSpeed'
+            path: 'components.particlesystem.animSpeed'
         });
         fieldAnimatedTextureSpeed.style.width = '50%';
         // reference
-        editor.call('attributes:reference:particlesystem:animTexSpeed:attach', fieldAnimatedTextureSpeed.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:particlesystem:animSpeed:attach', fieldAnimatedTextureSpeed.parent.innerElement.firstChild.ui);
 
-        panelAnimationPlayback.hidden = !fieldAnimatedTexture.value || fieldAnimatedTexture.parent.hidden;
-
-        var panelAnimationLoop = editor.call('attributes:addField', {
-            parent: panel,
-            name: ' '
-        });
-
-        var label = panelAnimationLoop;
-        panelAnimationLoop = panelAnimationLoop.parent;
-        label.destroy();
 
         // animation loop
         var fieldAnimatedTextureLoop = editor.call('attributes:addField', {
-            parent: panelAnimationLoop,
+            parent: panelAnimationPlayback,
             type: 'checkbox',
             link: entities,
-            path: 'components.particlesystem.animTexLoop'
+            path: 'components.particlesystem.animLoop'
         });
 
         // label
         var label = new ui.Label({ text: 'Loop' });
         label.class.add('label-infield');
         label.style.paddingRight = '12px';
-        panelAnimationLoop.append(label);
-
-        panelAnimationLoop.hidden = !fieldAnimatedTexture.value || fieldAnimatedTexture.parent.hidden;
+        panelAnimationPlayback.append(label);
 
         // reference
-        editor.call('attributes:reference:particlesystem:animTexLoop:attach', label);
+        editor.call('attributes:reference:particlesystem:animLoop:attach', label);
 
+        panelAnimationPlayback.hidden = !fieldColorMap.value && !fieldNormalMap.value;
 
         // mesh
         var fieldMesh = editor.call('attributes:addField', {
