@@ -40,7 +40,7 @@ editor.once('load', function () {
     var input = new ui.TextField();
     input.renderChanges = false;
     input.keyChange = true;
-    input.elementInput.placeholder = 'How do I...';
+    input.elementInput.placeholder = 'How do I...?';
     panel.append(input);
 
     var close = new ui.Button({
