@@ -88,8 +88,10 @@ editor.once('load', function () {
 
         if (data.img) {
             img.src = data.img;
-            img.onload = adjustTop;
-            img.style.display = 'block';
+            img.onload = function () {
+                img.style.display = 'block';
+                adjustTop();
+            };
         } else {
             if (data.video) {
                 video.src = data.video.url + '?controls=2&showinfo=0&enablejsapi=1';
@@ -97,9 +99,9 @@ editor.once('load', function () {
                 video.height = data.video.height * Math.min(1, content.element.getBoundingClientRect().width / data.video.width);
                 video.style.display = 'block';
             }
-
-            adjustTop();
         }
+
+        adjustTop();
 
         docs.unbind('click');
 

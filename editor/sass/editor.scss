@@ -2604,13 +2604,15 @@ strong {
             > .content {
                 padding: 20px;
 
-                img, iframe {
+                img {
                     margin-bottom: 20px;
                     max-width: 100%;
                 }
 
                 iframe {
                     border: none;
+                    margin-bottom: 20px;
+                    max-width: 100%;
                 }
 
                 > .ui-label {

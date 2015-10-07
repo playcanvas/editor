@@ -79,46 +79,67 @@ editor.once('load', function () {
     menu.elementOverlay.parentElement.removeChild(menu.elementOverlay);
 
     var suggestions = [];
+
+    var sortTimeout;
+
     editor.method('help:howdoi:register', function (data) {
         suggestions.push(data);
 
-        var menuItem = new ui.MenuItem({
-            text: data.title
-        });
+        if (sortTimeout)
+            clearTimeout(sortTimeout);
 
-        menuItem.on('select', function () {
-            editor.call('help:howdoi:popup', data);
-            input.value = '';
-        });
-        menu.append(menuItem);
-
-        input.elementInput.addEventListener('keydown', function (e) {
-            if (focusedMenuItem === menuItem.element && e.keyCode === 13) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                menuItem.emit('select');
-                input.elementInput.blur();
-                menu.open = false;
-            }
-        });
-
-        menuItem.element.addEventListener('mouseenter', function () {
-            if (focusedMenuItem && focusedMenuItem !== menuItem.element)
-                focusedMenuItem.classList.remove('focused');
-
-            focusedMenuItem = menuItem.element;
-            focusedMenuItem.classList.add('focused');
-        });
-
-        menuItem.element.addEventListener('mouseleave', function () {
-            if (focusedMenuItem && focusedMenuItem === menuItem.element) {
-                focusedMenuItem.classList.remove('focused');
-                focusedMenuItem = null;
-            }
-        });
-
+        sortTimeout = setTimeout(sort, 100);
     });
+
+    var sort = function () {
+        suggestions.sort(function (a, b) {
+            if (a.title < b.title)
+                return -1;
+
+            if (a.title > b.title)
+                return 1;
+
+            return 0;
+        });
+
+        suggestions.forEach(function (data) {
+            var menuItem = new ui.MenuItem({
+                text: data.title
+            });
+
+            menuItem.on('select', function () {
+                editor.call('help:howdoi:popup', data);
+                input.value = '';
+            });
+            menu.append(menuItem);
+
+            input.elementInput.addEventListener('keydown', function (e) {
+                if (focusedMenuItem === menuItem.element && e.keyCode === 13) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    menuItem.emit('select');
+                    input.elementInput.blur();
+                    menu.open = false;
+                }
+            });
+
+            menuItem.element.addEventListener('mouseenter', function () {
+                if (focusedMenuItem && focusedMenuItem !== menuItem.element)
+                    focusedMenuItem.classList.remove('focused');
+
+                focusedMenuItem = menuItem.element;
+                focusedMenuItem.classList.add('focused');
+            });
+
+            menuItem.element.addEventListener('mouseleave', function () {
+                if (focusedMenuItem && focusedMenuItem === menuItem.element) {
+                    focusedMenuItem.classList.remove('focused');
+                    focusedMenuItem = null;
+                }
+            });
+        });
+    };
 
     input.elementInput.addEventListener('focus', function () {
         menu.open = true;
@@ -126,54 +147,56 @@ editor.once('load', function () {
     });
 
     input.on('change', function (value) {
-        var indices = filterSuggestions(value);
-        for (var i = 0, len = menu.innerElement.childNodes.length; i < len; i++) {
-            var child = menu.innerElement.childNodes[i];
-            if (indices.indexOf(i) !== -1) {
-                child.classList.remove('hidden');
-            } else {
-                child.classList.add('hidden');
-            }
-        }
+        filterSuggestions(value);
     });
 
     var filterSuggestions = function (text) {
-        if (! text)
-            return suggestions.map(function (s, i) {
-                return i;
-            });
 
-        var valid = [];
+        var valid;
 
-        // fuzzy search query
-        var query = [];
+        if (text) {
+            valid = [];
 
-        var i, len;
-        for (i = 0, len = text.length; i < len; i++) {
-            if (text[i] === ' ')
-                continue;
+            // fuzzy search query
+            var query = [];
 
-            query.push(text[i]);
-            query.push('.*?');
-        }
+            var i, len;
+            for (i = 0, len = text.length; i < len; i++) {
+                if (text[i] === ' ')
+                    continue;
 
-        var regex = new RegExp(query.join(''), 'i');
-        for (i = 0, len = suggestions.length; i < len; i++) {
-            var suggestion = suggestions[i];
-            if (regex.test(suggestion.title)) {
-                valid.push(i);
-                continue;
+                query.push(text[i]);
+                query.push('.*?');
             }
 
-            for (var j = 0, len2 = suggestion.keywords.length; j < len2; j++) {
-                if (regex.test(suggestion.keywords[j])) {
+            var regex = new RegExp(query.join(''), 'i');
+            for (i = 0, len = suggestions.length; i < len; i++) {
+                var suggestion = suggestions[i];
+                if (regex.test(suggestion.title)) {
                     valid.push(i);
                     continue;
                 }
+
+                for (var j = 0, len2 = suggestion.keywords.length; j < len2; j++) {
+                    if (regex.test(suggestion.keywords[j])) {
+                        valid.push(i);
+                        continue;
+                    }
+                }
+            }
+
+            for (var i = 0, len = menu.innerElement.childNodes.length; i < len; i++) {
+                if (valid.indexOf(i) === -1)
+                    menu.innerElement.childNodes[i].classList.add('hidden');
+                else
+                    menu.innerElement.childNodes[i].classList.remove('hidden');
+            }
+
+        } else {
+            for (var i = 0, len = menu.innerElement.childNodes.length; i < len; i++) {
+                menu.innerElement.childNodes[i].classList.remove('hidden');
             }
         }
-
-        return valid;
     };
 
 
