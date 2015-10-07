@@ -5,6 +5,8 @@ editor.once('load', function () {
 
     var bubbles = [];
 
+    var timeouts = {};
+
     var bubbleDemo1 = function () {
         var bubble = editor.call(
             'guide:bubble',
@@ -152,10 +154,15 @@ editor.once('load', function () {
         return bubble;
     };
 
-    var showBubble = function (name, bubbleFn, delay, callback) {
-        if (config.self.tips[name] !== false) return false;
+    var showBubble = function (name, bubbleFn, delay, force, callback) {
+        if (!force && config.self.tips[name] !== false) return false;
 
-        setTimeout(function () {
+        if (timeouts[name])
+            clearTimeout(timeouts[name]);
+
+        timeouts[name] = setTimeout(function () {
+            delete timeouts[name];
+
             var bubble = bubbleFn();
             bubbles.push(bubble);
 
@@ -170,6 +177,10 @@ editor.once('load', function () {
 
         return true;
     };
+
+    editor.method('guide:bubble:show', function (name, bubbleFn, delay, force, callback) {
+        showBubble(name, bubbleFn, delay, force, callback);
+    });
 
     var showEntityBubbleOnSelect = function () {
         if (config.self.tips.entityInspector === false) {
@@ -224,7 +235,8 @@ editor.once('load', function () {
          'entityInspector',
          'mainMenu',
          'controls',
-         'launch'].forEach(function (tip) {
+         'launch',
+         'howdoi'].forEach(function (tip) {
             config.self.tips[tip] = false;
          });
 

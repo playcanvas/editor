@@ -176,8 +176,15 @@ a:visited {
                     width: 2048px;
 
                     -webkit-transform: rotate(90deg);
+                    -moz-transform: rotate(90deg);
+                    -ms-transform: rotate(90deg);
+                    -o-transform: rotate(90deg);
                     transform: rotate(90deg);
+
                     -webkit-transform-origin: 0% 100%;
+                    -moz-transform-origin: 0% 100%;
+                    -ms-transform-origin: 0% 100%;
+                    -o-transform-origin: 0% 100%;
                     transform-origin: 0% 100%;
                 }
                 > .content {
