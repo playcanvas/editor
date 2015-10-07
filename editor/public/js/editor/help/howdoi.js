@@ -3,9 +3,39 @@ editor.once('load', function () {
 
     var viewport = editor.call('layout.viewport');
 
+    var designerSettings = editor.call('designerSettings');
+
+    var focusedMenuItem = null;
+
     var panel = new ui.Panel();
     panel.class.add('help-howdoi');
     viewport.append(panel);
+    panel.hidden = true;
+
+    editor.once('designerSettings:load', function () {
+        panel.hidden = !designerSettings.get('help');
+    });
+
+
+    panel.on('show', function () {
+        editor.emit('help:howdoi:open');
+
+        designerSettings.set('help', true);
+    });
+
+    panel.on('hide', function () {
+        editor.emit('help:howdoi:close');
+
+        designerSettings.set('help', false);
+
+        if (!config.self.tips['howdoi'])
+            editor.call('guide:bubble:show', 'howdoi', bubble, 200, true);
+    });
+
+    // open / close panel depending on designer settings
+    designerSettings.on('help:set', function (value) {
+        panel.hidden = !value;
+    });
 
     var input = new ui.TextField();
     input.renderChanges = false;
@@ -21,10 +51,6 @@ editor.once('load', function () {
 
     close.on('click', function () {
         panel.hidden = true;
-        editor.emit('help:howdoi:close');
-
-        if (!config.self.tips['howdoi'])
-            editor.call('guide:bubble:show', 'howdoi', bubble, 200, true);
     });
 
     var bubble = function () {
@@ -44,8 +70,7 @@ editor.once('load', function () {
     };
 
     editor.method('help:howdoi', function () {
-        panel.hidden = false;
-        editor.emit('help:howdoi:open');
+        panel.hidden = !panel.hidden;
     });
 
     var menu = new ui.Menu();
@@ -78,26 +103,27 @@ editor.once('load', function () {
             }
         });
 
-    });
+        menuItem.element.addEventListener('mouseenter', function () {
+            if (focusedMenuItem && focusedMenuItem !== menuItem.element)
+                focusedMenuItem.classList.remove('focused');
 
-    // var timeout;
+            focusedMenuItem = menuItem.element;
+            focusedMenuItem.classList.add('focused');
+        });
+
+        menuItem.element.addEventListener('mouseleave', function () {
+            if (focusedMenuItem && focusedMenuItem === menuItem.element) {
+                focusedMenuItem.classList.remove('focused');
+                focusedMenuItem = null;
+            }
+        });
+
+    });
 
     input.elementInput.addEventListener('focus', function () {
         menu.open = true;
         input.elementInput.focus();
-
-        // if (timeout) {
-        //     clearTimeout(timeout);
-        //     timeout = null;
-        // }
     });
-
-    // input.elementInput.addEventListener('blur', function () {
-    //     timeout = setTimeout(function () {
-    //         menu.open = false;
-    //         timeout = null;
-    //     }, 100);
-    // });
 
     input.on('change', function (value) {
         var indices = filterSuggestions(value);
@@ -108,7 +134,7 @@ editor.once('load', function () {
             } else {
                 child.classList.add('hidden');
             }
-        };
+        }
     });
 
     var filterSuggestions = function (text) {
@@ -121,7 +147,9 @@ editor.once('load', function () {
 
         // fuzzy search query
         var query = [];
-        for (var i = 0, len = text.length; i < len; i++) {
+
+        var i, len;
+        for (i = 0, len = text.length; i < len; i++) {
             if (text[i] === ' ')
                 continue;
 
@@ -130,7 +158,7 @@ editor.once('load', function () {
         }
 
         var regex = new RegExp(query.join(''), 'i');
-        for (var i = 0, len = suggestions.length; i < len; i++) {
+        for (i = 0, len = suggestions.length; i < len; i++) {
             var suggestion = suggestions[i];
             if (regex.test(suggestion.title)) {
                 valid.push(i);
@@ -149,6 +177,7 @@ editor.once('load', function () {
     };
 
 
+    // handle clicking outside menu in order to close it
     var click = function (e) {
         var parent = e.target;
         while (parent) {
@@ -163,19 +192,26 @@ editor.once('load', function () {
         menu.open = false;
     };
 
-    var focusedMenuItem;
-
+    // handle arrow keys to focus next / previous suggestion
     var key = function (e) {
+        var result;
+
         // up arrow
         if (e.keyCode === 38) {
-            focusNextSuggestion(false);
+            result = focusNextSuggestion(false);
         }
         // down arrow
         else if (e.keyCode === 40) {
-            focusNextSuggestion(true);
+            result = focusNextSuggestion(true);
+        }
+
+        if (result) {
+            e.preventDefault();
+            e.stopPropagation();
         }
     };
 
+    // Focus next or previous suggestion
     var focusNextSuggestion = function (forward) {
         var next = forward ? menu.innerElement.firstChild : menu.innerElement.lastChild;
         if (focusedMenuItem) {
@@ -186,15 +222,13 @@ editor.once('load', function () {
                     next = focusedMenuItem.nextSibling;
             } else {
                 if (focusedMenuItem.previousSibling)
-                    next = focusedMenuItem.nextSibling;
+                    next = focusedMenuItem.previousSibling;
             }
         }
 
         var valueBeforeLoop = next;
 
         while (next.classList.contains('hidden')) {
-            next = next.nextSibling || menu.innerElement.firstChild;
-
             if (forward) {
                 next = next.nextSibling || menu.innerElement.firstChild;
             } else {
@@ -207,7 +241,18 @@ editor.once('load', function () {
 
         focusedMenuItem = next;
         focusedMenuItem.classList.add('focused');
-        focusedMenuItem.scrollIntoView();
+
+        // scroll into view if needed
+        var focusedRect = focusedMenuItem.getBoundingClientRect();
+        var menuRect = menu.innerElement.getBoundingClientRect();
+
+        if (focusedRect.bottom > menuRect.bottom)
+            menu.innerElement.scrollTop += focusedRect.bottom - menuRect.bottom;
+        else if (focusedRect.top < menuRect.top) {
+            menu.innerElement.scrollTop -= menuRect.top - focusedRect.top;
+        }
+
+        return true;
     };
 
     menu.on('open', function (open) {
@@ -221,6 +266,11 @@ editor.once('load', function () {
             window.removeEventListener('click', click);
             window.removeEventListener('keydown', key);
             input.class.remove('focus');
+            if (focusedMenuItem) {
+                focusedMenuItem.classList.remove('focused');
+                focusedMenuItem = null;
+            }
+
         }
 
     });

@@ -7,6 +7,7 @@ editor.once('load', function() {
         text: '?'
     });
     button.class.add('icon', 'help-howdoi');
+    button.style.fontSize = '21px';
     toolbar.append(button);
 
     button.on('click', function() {

@@ -47,11 +47,21 @@ editor.once('load', function () {
     panel.append(docs);
     docs.hidden = true;
 
+    var key = function (e) {
+        // close on esc
+        if (e.keyCode === 27) {
+            overlay.hidden = true;
+        }
+    };
+
     overlay.on('show', function () {
         editor.emit('help:howdoi:popup:open');
+        window.addEventListener('keydown', key);
     });
 
     overlay.on('hide', function () {
+        window.removeEventListener('keydown', key);
+
         editor.emit('help:howdoi:popup:close');
         // stop video
         video.contentWindow.postMessage('{"event":"command","func":"stopVideo","args":""}', '*');

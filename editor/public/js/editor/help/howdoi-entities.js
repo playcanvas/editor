@@ -68,11 +68,50 @@ editor.once('load', function () {
     editor.call('help:howdoi:register', {
         title: 'Create a shape like a box, sphere etc.',
         text: 'You can add primitive shapes like boxes, spheres and others by adding a <strong>Model Component</strong> on an Entity and changing its type to the desired shape.<br/><br/>You can also right click on an Entity and select New Entity/Box to add a box (similarly for other shapes).',
-        keywords: ['add', 'component', 'model', 'box', 'sphere', 'cylinder', 'cone', 'cube', 'plane', 'shape', 'primitive'],
+        keywords: ['component', 'model', 'box', 'sphere', 'cylinder', 'cone', 'cube', 'plane', 'shape', 'primitive'],
         docs: 'http://developer.playcanvas.com/en/user-manual/packs/components/model/',
         img: 'https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/instructions/new_box.gif'
     });
 
 
+    // model component
+    editor.call('help:howdoi:register', {
+        title: 'Render a 3D model',
+        text: 'To render a 3D model you need to add a <strong>Model Component</strong> to an Entity and drag a <strong>Model Asset</strong> on the Asset field. Alternatively you can drag and drop a Model Asset from the Assets Panel into the 3D Viewport.',
+        keywords: ['component', 'model', '3d', 'fbx', 'mesh'],
+        docs: 'http://developer.playcanvas.com/en/user-manual/packs/components/model/',
+        img: 'https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/instructions/new_model.gif'
+    });
 
+    // audio
+    editor.call('help:howdoi:register', {
+        title: 'Play a sound',
+        text: 'To play sounds you need to add an <a href="http://developer.playcanvas.com/en/user-manual/packs/components/audiosource/" target="_blank">AudioSource</a> component to an Entity and drag <a href="http://developer.playcanvas.com/en/user-manual/assets/audio/" target="_blank">Audio assets</a> on the Assets field. In order to hear the sounds you also need to add an <a href="http://developer.playcanvas.com/en/user-manual/packs/components/audiolistener/" target="_blank">AudioListener</a> component to an Entity - usually to the Camera Entity.<br/><br/>You can create Audio assets by dragging audio files from your computer into the Assets panel.',
+        keywords: ['component', 'audio', 'sound', 'music', 'audiosource', 'audiolistener'],
+        docs: 'http://developer.playcanvas.com/en/tutorials/beginner/basic-audio/',
+    });
+
+    // physics
+    editor.call('help:howdoi:register', {
+        title: 'Use physics',
+        text: 'To give physical properties to an Entity you need to add a <a href="http://developer.playcanvas.com/en/user-manual/packs/components/collision/" target="_blank">Collision</a> component to it and a <a href="http://developer.playcanvas.com/en/user-manual/packs/components/rigidbody/" target="_blank">RigidBody</a> component. The Collision component gives a physical shape to the Entity and the RigidBody component makes the Entity be simulated by the physics engine.<br/><br/>You can change the built-in <a href="http://developer.playcanvas.com/en/user-manual/designer/settings/#gravity" target="_blank">gravity</a> from the <a href="http://developer.playcanvas.com/en/user-manual/designer/settings/" target="_blank">Scene Settings</a>.',
+        keywords: ['component', 'physics', 'collision', 'rigid', 'body', 'gravity', 'ammo', 'trigger'],
+        docs: 'http://developer.playcanvas.com/en/tutorials/intermediate/collision-and-triggers/',
+    });
+
+    // light
+    editor.call('help:howdoi:register', {
+        title: 'Create a light',
+        text: 'You can create a light by adding a <strong>Light</strong> component to an Entity. You can also select right click on an Entity and select New Entity / Directional Light to create a new directional light and similarly for spot lights and point lights.',
+        keywords: ['component', 'light', 'sun', 'shadows', 'directional', 'spot', 'point'],
+        docs: 'http://developer.playcanvas.com/en/user-manual/packs/components/light/',
+    });
+
+    // shadows
+    editor.call('help:howdoi:register', {
+        title: 'Use real-time shadows',
+        text: 'Real-time shadows are rendered for each light source that has <strong>Cast Shadows</strong> enabled. To enable shadows, select an Entity with a Light component and enable Cast Shadows. You also need to enable Cast Shadows on any Model components in your scene.',
+        keywords: ['real-time', 'shadows', 'light', 'realism', 'pbr'],
+        docs: 'http://developer.playcanvas.com/en/user-manual/shadows/',
+    });
 });

@@ -712,6 +712,13 @@ editor.once('load', function() {
                         window.open('http://answers.playcanvas.com/');
                     }
                 },
+                'howdoi': {
+                    title: 'How do I...',
+                    icon: '?',
+                    select: function () {
+                        editor.call('help:howdoi');
+                    }
+                },
                 'resetTips': {
                     title: 'Reset Tips',
                     icon: '&#58209;',

@@ -14,7 +14,8 @@ editor.once('load', function() {
         'grid_division_size': 1,
         'snap_increment': 1,
         'icons_size': .2,
-        'local_server': 'http://localhost:51000'
+        'local_server': 'http://localhost:51000',
+        'help': true
     });
     designerSettings.sync = false;
 
@@ -63,6 +64,8 @@ editor.once('load', function() {
 
             designerSettings.history = true;
             designerSettings.sync = true;
+
+            editor.emit('designerSettings:load');
         });
     };
 
