@@ -80,66 +80,48 @@ editor.once('load', function () {
 
     var suggestions = [];
 
-    var sortTimeout;
-
     editor.method('help:howdoi:register', function (data) {
-        suggestions.push(data);
+        var menuItem = new ui.MenuItem({
+            text: data.title
+        });
 
-        if (sortTimeout)
-            clearTimeout(sortTimeout);
+        menuItem.on('select', function () {
+            editor.call('help:howdoi:popup', data);
+            input.value = '';
+        });
+        menu.append(menuItem);
 
-        sortTimeout = setTimeout(sort, 100);
+        input.elementInput.addEventListener('keydown', function (e) {
+            if (focusedMenuItem === menuItem.element && e.keyCode === 13) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                menuItem.emit('select');
+                input.elementInput.blur();
+                menu.open = false;
+            }
+        });
+
+        menuItem.element.addEventListener('mouseenter', function () {
+            if (focusedMenuItem && focusedMenuItem !== menuItem.element)
+                focusedMenuItem.classList.remove('focused');
+
+            focusedMenuItem = menuItem.element;
+            focusedMenuItem.classList.add('focused');
+        });
+
+        menuItem.element.addEventListener('mouseleave', function () {
+            if (focusedMenuItem && focusedMenuItem === menuItem.element) {
+                focusedMenuItem.classList.remove('focused');
+                focusedMenuItem = null;
+            }
+        });
+
+        suggestions.push({
+            data: data,
+            menuItem: menuItem
+        });
     });
-
-    var sort = function () {
-        suggestions.sort(function (a, b) {
-            if (a.title < b.title)
-                return -1;
-
-            if (a.title > b.title)
-                return 1;
-
-            return 0;
-        });
-
-        suggestions.forEach(function (data) {
-            var menuItem = new ui.MenuItem({
-                text: data.title
-            });
-
-            menuItem.on('select', function () {
-                editor.call('help:howdoi:popup', data);
-                input.value = '';
-            });
-            menu.append(menuItem);
-
-            input.elementInput.addEventListener('keydown', function (e) {
-                if (focusedMenuItem === menuItem.element && e.keyCode === 13) {
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    menuItem.emit('select');
-                    input.elementInput.blur();
-                    menu.open = false;
-                }
-            });
-
-            menuItem.element.addEventListener('mouseenter', function () {
-                if (focusedMenuItem && focusedMenuItem !== menuItem.element)
-                    focusedMenuItem.classList.remove('focused');
-
-                focusedMenuItem = menuItem.element;
-                focusedMenuItem.classList.add('focused');
-            });
-
-            menuItem.element.addEventListener('mouseleave', function () {
-                if (focusedMenuItem && focusedMenuItem === menuItem.element) {
-                    focusedMenuItem.classList.remove('focused');
-                    focusedMenuItem = null;
-                }
-            });
-        });
-    };
 
     input.elementInput.addEventListener('focus', function () {
         menu.open = true;
@@ -151,52 +133,110 @@ editor.once('load', function () {
     });
 
     var filterSuggestions = function (text) {
-
         var valid;
 
-        if (text) {
-            valid = [];
+        // sort suggestions by title first
+        suggestions.sort(function (a, b) {
+            if (a.data.title < b.data.title)
+                return -1;
 
-            // fuzzy search query
+            if (a.data.title > b.data.title)
+                return 1;
+
+            if (a.data.title === b.data.title)
+                return 0;
+        });
+
+        if (text) {
             var query = [];
 
-            var i, len;
-            for (i = 0, len = text.length; i < len; i++) {
-                if (text[i] === ' ')
-                    continue;
+            // turn each word in a regex
+            var words = text.split(' ');
+            words.forEach(function (word) {
+                word = word.replace(/[^\w]/g, ''); // remove invalid chars
+                if (! word.length) return;
 
-                query.push(text[i]);
-                query.push('.*?');
-            }
+                query.push(new RegExp('(^|\\s)' + word.replace(/[^\w]/, ''), 'i'));
+            });
 
-            var regex = new RegExp(query.join(''), 'i');
-            for (i = 0, len = suggestions.length; i < len; i++) {
-                var suggestion = suggestions[i];
-                if (regex.test(suggestion.title)) {
-                    valid.push(i);
-                    continue;
-                }
 
-                for (var j = 0, len2 = suggestion.keywords.length; j < len2; j++) {
-                    if (regex.test(suggestion.keywords[j])) {
-                        valid.push(i);
-                        continue;
+            suggestions.forEach(function (suggestion) {
+                suggestion.score = 0;
+            });
+
+            var matched = suggestions.slice();
+            var foundSomeMatches = false;
+
+            // Score suggestions for each word in the text
+            // Each word filters the results more and more
+            query.forEach(function (q, index) {
+                var stageMatches = [];
+
+                matched.forEach(function (suggestion) {
+                    // reset score and make menu item hidden
+                    if (index === 0) {
+                        suggestion.score = 0;
+                        suggestion.menuItem.class.add('hidden');
                     }
+
+                    var title = suggestion.data.title;
+                    var keywords = suggestion.data.keywords;
+
+                    var score = 0;
+
+                    // match the title and increase score
+                    // if match is closer to the start the score is bigger
+                    var match = q.exec(title);
+                    if (match) {
+                        score += 1 / (match.index || 0.1);
+                    }
+
+                    // add to the score for each matched keyword
+                    for (var i = 0, len = keywords.length; i < len; i++) {
+                        match = q.exec(keywords[i]);
+                        if (match) {
+                            score++;
+                        }
+                    }
+
+                    // add suggestion to this stage's matches
+                    // each subsequent stage has less and less matches
+                    if (score) {
+                        suggestion.score += score;
+                        stageMatches.push(suggestion);
+                    }
+                });
+
+                if (stageMatches.length === 0) {
+                    // if the first few words have no matches then
+                    // skip them until we find some matches first
+                    if (foundSomeMatches)
+                        matched = stageMatches;
+                } else {
+                    foundSomeMatches = true;
+                    matched = stageMatches;
                 }
-            }
+            });
 
-            for (var i = 0, len = menu.innerElement.childNodes.length; i < len; i++) {
-                if (valid.indexOf(i) === -1)
-                    menu.innerElement.childNodes[i].classList.add('hidden');
-                else
-                    menu.innerElement.childNodes[i].classList.remove('hidden');
-            }
+            // sort matches by score
+            matched.sort(function (a, b) {
+                return b.score - a.score;
+            });
 
+            // show matches
+            for (i = matched.length - 1; i >= 0; i--) {
+                matched[i].menuItem.class.remove('hidden');
+                menu.innerElement.insertBefore(matched[i].menuItem.element, menu.innerElement.firstChild);
+            }
         } else {
-            for (var i = 0, len = menu.innerElement.childNodes.length; i < len; i++) {
-                menu.innerElement.childNodes[i].classList.remove('hidden');
+            // show all suggestions
+            for (i = suggestions.length - 1; i >= 0; i--) {
+                suggestions[i].menuItem.class.remove('hidden');
+                menu.innerElement.insertBefore(suggestions[i].menuItem.element, menu.innerElement.firstChild);
             }
+
         }
+
     };
 
 
@@ -285,6 +325,8 @@ editor.once('load', function () {
             input.class.add('focus');
             menu.innerElement.scrollTop = 0;
             close.hidden = true;
+
+            filterSuggestions();
         }
         else {
             window.removeEventListener('click', click);

@@ -1,10 +1,6 @@
 editor.once('load', function () {
     'use strict';
 
-    var isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-    var ctrl = isMac ? 'Cmd' : 'Ctrl';
-    var del = 'Delete';
-
     // create asset
     editor.call('help:howdoi:register', {
         title: 'Upload Assets',
@@ -16,7 +12,7 @@ editor.once('load', function () {
     // delete asset
     editor.call('help:howdoi:register', {
         title: 'Delete an Asset',
-        text: 'To delete an Asset select it and press ' + del + ' or right click on it and select Delete.',
+        text: 'To delete an Asset select it and press Delete or right click on it and select Delete.',
         keywords: ['asset', 'delete', 'remove']
     });
 

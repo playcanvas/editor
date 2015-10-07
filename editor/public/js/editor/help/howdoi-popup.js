@@ -24,10 +24,12 @@ editor.once('load', function () {
     panel.append(video);
 
     var header = new ui.Label();
+    header.renderChanges = false;
     header.class.add('header');
     panel.append(header);
 
     var content = new ui.Label();
+    content.renderChanges = false;
     panel.append(content);
 
     var close = new ui.Button({

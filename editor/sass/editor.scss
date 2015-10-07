@@ -2586,8 +2586,6 @@ strong {
 }
 
 .ui-overlay.help-howdoi {
-    @extend .noSelect;
-
     > .content {
         width: 400px;
         left: calc(50% - 200px);
