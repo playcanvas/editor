@@ -2539,21 +2539,19 @@ strong {
 
         > .close {
             position: absolute;
-            left: 100%;
-            width: 33px;
-            height: 31px;
-            line-height: 31px;
+            right: 8px;
+            top: 3px;
             padding: 0;
-            text-align: center;
             margin: 0;
-            background-color: rgba(41, 53, 56, 0.75);
+            font-size: 12px;
+            background-color: transparent;
             color: $text-primary;
             border-color: transparent;
-            @extend .font-icon;
+            opacity: 0.5;
             @extend .noSelect;
 
             &:hover {
-                color: $text-active;
+                opacity: 1;
             }
         }
 
@@ -2581,6 +2579,7 @@ strong {
                         color: $text-primary;
                     }
                 }
+
             }
         }
     }

@@ -44,7 +44,7 @@ editor.once('load', function () {
     panel.append(input);
 
     var close = new ui.Button({
-        text: '&#58422;'
+        text: 'Hide <span class="font-icon">&#58422;</span>'
     });
     close.class.add('close');
     panel.append(close);
@@ -284,6 +284,7 @@ editor.once('load', function () {
             window.addEventListener('keydown', key);
             input.class.add('focus');
             menu.innerElement.scrollTop = 0;
+            close.hidden = true;
         }
         else {
             window.removeEventListener('click', click);
@@ -293,7 +294,7 @@ editor.once('load', function () {
                 focusedMenuItem.classList.remove('focused');
                 focusedMenuItem = null;
             }
-
+            close.hidden = false;
         }
 
     });
