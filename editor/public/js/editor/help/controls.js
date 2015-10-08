@@ -68,6 +68,10 @@ editor.once('load', function() {
             buttons: [ '1', '2', '3' ],
             title: 'Translate / Rotate / Scale Gizmo',
             icons: [ '&#57667;', '&#57670;', '&#58454;' ]
+        }, {
+            buttons: ['Shift', '$+', '?'],
+            title: 'How do I...?',
+            icons: [ '?']
         }
     ];
 
@@ -110,9 +114,17 @@ editor.once('load', function() {
 
     overlay.on('show', function () {
         editor.emit('help:controls:open');
+        window.addEventListener('keydown', onKey);
     });
 
     overlay.on('hide', function () {
         editor.emit('help:controls:close');
+        window.removeEventListener('keydown', onKey);
     });
+
+    var onKey = function (e) {
+        if (e.keyCode === 27) {
+            overlay.hidden = true;
+        }
+    };
 });
