@@ -20,14 +20,20 @@ editor.once('load', function () {
     panel.on('show', function () {
         editor.emit('help:howdoi:open');
 
+        var history = designerSettings.history.enabled;
+        designerSettings.history.enabled = false;
         designerSettings.set('help', true);
+        designerSettings.history.enabled = history;
     });
 
     // events when panel is hidden
     panel.on('hide', function () {
         editor.emit('help:howdoi:close');
 
+        var history = designerSettings.history.enabled;
+        designerSettings.history.enabled = false;
         designerSettings.set('help', false);
+        designerSettings.history.enabled = history;
 
         if (!config.self.tips['howdoi'])
             editor.call('guide:bubble:show', 'howdoi', bubble, 200, true);
