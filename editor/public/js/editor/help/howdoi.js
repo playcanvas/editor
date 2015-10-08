@@ -115,11 +115,13 @@ editor.once('load', function () {
         menu.append(menuItem);
 
         input.elementInput.addEventListener('keydown', function (e) {
-            if (focusedMenuItem === menuItem.element && e.keyCode === 13) {
-                e.preventDefault();
-                e.stopPropagation();
+            if (e.keyCode === 13) {
+                if (focusedMenuItem === menuItem.element) {
+                    e.preventDefault();
+                    e.stopPropagation();
 
-                openPopup();
+                    openPopup();
+                }
             }
         });
 
@@ -129,9 +131,38 @@ editor.once('load', function () {
         });
     });
 
+    input.elementInput.addEventListener('keydown', function (e) {
+        if (e.keyCode === 27) {
+            if (input.value) {
+                input.value = '';
+                input.elementInput.focus();
+            } else {
+                menu.open = false;
+            }
+        }
+    });
+
+    var blurTimeout;
     input.elementInput.addEventListener('focus', function () {
+        if (blurTimeout) {
+            clearTimeout(blurTimeout);
+            blurTimeout = null;
+        }
+
         menu.open = true;
         input.elementInput.focus();
+    });
+
+    input.elementInput.addEventListener('blur', function () {
+        if (menu.open) {
+            if (blurTimeout)
+                clearTimeout(blurTimeout);
+
+            blurTimeout = setTimeout(function () {
+                menu.open = false;
+                blurTimeout = null;
+            });
+        }
     });
 
     input.on('change', function (value) {
@@ -343,6 +374,7 @@ editor.once('load', function () {
                 focusedMenuItem = null;
             }
             close.hidden = false;
+            input.value = '';
         }
 
     });
