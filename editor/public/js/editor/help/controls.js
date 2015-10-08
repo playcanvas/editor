@@ -70,6 +70,10 @@ editor.once('load', function() {
             icons: [ '&#57667;', '&#57670;', '&#58454;' ]
         }, {
             buttons: ['Shift', '$+', '?'],
+            title: 'Controls',
+            icons: [ '&#57976;']
+        }, {
+            buttons: ['Ctrl', '$+', 'Space'],
             title: 'How do I...?',
             icons: [ '?']
         }
@@ -127,4 +131,14 @@ editor.once('load', function() {
             overlay.hidden = true;
         }
     };
+
+    // hotkey
+    editor.call('hotkey:register', 'help:controls', {
+        key: 'forward slash',
+        shift: true,
+        callback: function() {
+            editor.call('help:controls');
+        }
+    });
+
 });
