@@ -458,8 +458,8 @@ editor.once('load', function () {
 
     // hotkey
     editor.call('hotkey:register', 'help:howdoi', {
-        key: 'forward slash',
-        shift: true,
+        key: 'space',
+        ctrl: true,
         callback: function() {
             editor.call('help:howdoi');
         }
