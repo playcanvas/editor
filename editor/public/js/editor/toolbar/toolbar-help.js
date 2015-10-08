@@ -11,7 +11,7 @@ editor.once('load', function() {
     toolbar.append(button);
 
     button.on('click', function() {
-        editor.call('help:howdoi');
+        editor.call('help:howdoi:toggle');
     });
 
     editor.on('help:howdoi:open', function () {
