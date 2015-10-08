@@ -85,21 +85,16 @@ editor.once('load', function () {
             text: data.title
         });
 
-        menuItem.on('select', function () {
+        var openPopup = function () {
             editor.call('help:howdoi:popup', data);
             input.value = '';
-        });
-        menu.append(menuItem);
+            input.elementInput.blur();
+            menu.open = false;
+        };
 
-        input.elementInput.addEventListener('keydown', function (e) {
-            if (focusedMenuItem === menuItem.element && e.keyCode === 13) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                menuItem.emit('select');
-                input.elementInput.blur();
-                menu.open = false;
-            }
+        menuItem.element.addEventListener('mousedown', function (e) {
+            e.stopPropagation() ;
+            openPopup();
         });
 
         menuItem.element.addEventListener('mouseenter', function () {
@@ -114,6 +109,17 @@ editor.once('load', function () {
             if (focusedMenuItem && focusedMenuItem === menuItem.element) {
                 focusedMenuItem.classList.remove('focused');
                 focusedMenuItem = null;
+            }
+        });
+
+        menu.append(menuItem);
+
+        input.elementInput.addEventListener('keydown', function (e) {
+            if (focusedMenuItem === menuItem.element && e.keyCode === 13) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                openPopup();
             }
         });
 
