@@ -20,14 +20,20 @@ editor.once('load', function () {
     panel.on('show', function () {
         editor.emit('help:howdoi:open');
 
+        var history = designerSettings.history;
+        designerSettings.history = false;
         designerSettings.set('help', true);
+        designerSettings.history = history;
     });
 
     // events when panel is hidden
     panel.on('hide', function () {
         editor.emit('help:howdoi:close');
 
+        var history = designerSettings.history;
+        designerSettings.history = false;
         designerSettings.set('help', false);
+        designerSettings.history = history;
 
         if (!config.self.tips['howdoi'])
             editor.call('guide:bubble:show', 'howdoi', bubble, 200, true);
@@ -434,6 +440,19 @@ editor.once('load', function () {
     // method to hide show the widget
     editor.method('help:howdoi', function () {
         panel.hidden = !panel.hidden;
+        setTimeout(function () {
+            input.elementInput.focus();
+        });
     });
+
+    // hotkey
+    editor.call('hotkey:register', 'help:howdoi', {
+        key: 'forward slash',
+        shift: true,
+        callback: function() {
+            editor.call('help:howdoi');
+        }
+    });
+
 
 });
