@@ -2593,10 +2593,25 @@ strong {
 }
 
 .ui-overlay.help-howdoi {
+    text-align: center;
+
+    // ghost element to help
+    // center vertically
+    &:before {
+        content: '';
+          display: inline-block;
+          height: 100%;
+          vertical-align: middle;
+    }
     > .content {
-        width: 400px;
-        left: calc(50% - 200px);
+        text-align: left;
+        display: inline-block;
+        vertical-align: middle;
+
         top: initial;
+        left: initial;
+        position: relative;
+        width: 400px;
         background-color: #fff;
         height: auto;
         max-height: 100%;

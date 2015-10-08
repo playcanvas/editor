@@ -72,13 +72,6 @@ editor.once('load', function () {
         img.src = '';
     });
 
-    var adjustTop = function () {
-        var rect = panel.innerElement.getBoundingClientRect();
-        if (rect.height > document.body.getBoundingClientRect().height)
-            overlay.innerElement.style.top = '0';
-        else
-            overlay.innerElement.style.top = 'calc(50% - ' + rect.height/2 + 'px)';
-    };
 
     editor.method('help:howdoi:popup', function (data) {
         overlay.hidden = false;
@@ -92,7 +85,6 @@ editor.once('load', function () {
             img.src = data.img;
             img.onload = function () {
                 img.style.display = 'block';
-                adjustTop();
             };
         } else {
             if (data.video) {
@@ -102,8 +94,6 @@ editor.once('load', function () {
                 video.style.display = 'block';
             }
         }
-
-        adjustTop();
 
         docs.unbind('click');
 

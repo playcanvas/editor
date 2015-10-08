@@ -2,27 +2,28 @@ editor.once('load', function () {
     'use strict';
 
     var viewport = editor.call('layout.viewport');
-
     var designerSettings = editor.call('designerSettings');
-
     var focusedMenuItem = null;
 
+    // create main panel
     var panel = new ui.Panel();
     panel.class.add('help-howdoi');
     viewport.append(panel);
     panel.hidden = true;
 
+    // hide / show panel based on designer settings
     editor.once('designerSettings:load', function () {
         panel.hidden = !designerSettings.get('help');
     });
 
-
+    // events when panel is shown
     panel.on('show', function () {
         editor.emit('help:howdoi:open');
 
         designerSettings.set('help', true);
     });
 
+    // events when panel is hidden
     panel.on('hide', function () {
         editor.emit('help:howdoi:close');
 
@@ -32,27 +33,7 @@ editor.once('load', function () {
             editor.call('guide:bubble:show', 'howdoi', bubble, 200, true);
     });
 
-    // open / close panel depending on designer settings
-    designerSettings.on('help:set', function (value) {
-        panel.hidden = !value;
-    });
-
-    var input = new ui.TextField();
-    input.renderChanges = false;
-    input.keyChange = true;
-    input.elementInput.placeholder = 'How do I...?';
-    panel.append(input);
-
-    var close = new ui.Button({
-        text: 'Hide <span class="font-icon">&#58422;</span>'
-    });
-    close.class.add('close');
-    panel.append(close);
-
-    close.on('click', function () {
-        panel.hidden = true;
-    });
-
+    // bubble that appears after closing the widget for the first time
     var bubble = function () {
         var bubble = editor.call(
             'guide:bubble',
@@ -69,10 +50,30 @@ editor.once('load', function () {
         return bubble;
     };
 
-    editor.method('help:howdoi', function () {
-        panel.hidden = !panel.hidden;
+    // open / close panel depending on designer settings
+    designerSettings.on('help:set', function (value) {
+        panel.hidden = !value;
     });
 
+    // input field
+    var input = new ui.TextField();
+    input.renderChanges = false;
+    input.keyChange = true;
+    input.elementInput.placeholder = 'How do I...?';
+    panel.append(input);
+
+    // close button
+    var close = new ui.Button({
+        text: 'Hide <span class="font-icon">&#58422;</span>'
+    });
+    close.class.add('close');
+    panel.append(close);
+
+    close.on('click', function () {
+        panel.hidden = true;
+    });
+
+    // menu with all the suggestions
     var menu = new ui.Menu();
     menu.open = false;
     panel.append(menu);
@@ -80,40 +81,72 @@ editor.once('load', function () {
 
     var suggestions = [];
 
+    // method to register new suggestions
     editor.method('help:howdoi:register', function (data) {
+
+        // create new menu item
         var menuItem = new ui.MenuItem({
             text: data.title
         });
 
+        menu.append(menuItem);
+
+        // add suggestion
+        suggestions.push({
+            data: data,
+            menuItem: menuItem
+        });
+
+        // method that opens the popup for this menu item
         var openPopup = function () {
+            // store popup event
+            storeEvent(input.value, data.title);
+
+            // open popup
             editor.call('help:howdoi:popup', data);
+            // reset input value and blur field
             input.value = '';
             input.elementInput.blur();
+            // hide menu
             menu.open = false;
         };
 
+        // open popup on mousedown instead of 'click' because
+        // for some reason the 'click' event doesn't always work here
         menuItem.element.addEventListener('mousedown', function (e) {
             e.stopPropagation() ;
             openPopup();
         });
 
-        menuItem.element.addEventListener('mouseenter', function () {
+        // focus element on mouse enter
+        var mouseEnter = function () {
             if (focusedMenuItem && focusedMenuItem !== menuItem.element)
                 focusedMenuItem.classList.remove('focused');
 
             focusedMenuItem = menuItem.element;
             focusedMenuItem.classList.add('focused');
-        });
 
-        menuItem.element.addEventListener('mouseleave', function () {
+            // remove mouseenter listener until mouseleave fires to prevent
+            // an issue with Firefox
+            menuItem.element.removeEventListener('mouseenter', mouseEnter);
+        };
+
+        menuItem.element.addEventListener('mouseenter', mouseEnter);
+
+        // unfocus element on mouse leave
+        var mouseLeave = function () {
             if (focusedMenuItem && focusedMenuItem === menuItem.element) {
                 focusedMenuItem.classList.remove('focused');
                 focusedMenuItem = null;
             }
-        });
 
-        menu.append(menuItem);
+            menuItem.element.addEventListener('mouseenter', mouseEnter);
+        };
 
+        menuItem.element.addEventListener('mouseleave', mouseLeave);
+
+
+        // on enter open the popup
         input.elementInput.addEventListener('keydown', function (e) {
             if (e.keyCode === 13) {
                 if (focusedMenuItem === menuItem.element) {
@@ -125,15 +158,13 @@ editor.once('load', function () {
             }
         });
 
-        suggestions.push({
-            data: data,
-            menuItem: menuItem
-        });
     });
 
+    // on esc delete the input text or hide the widget if no text is there
     input.elementInput.addEventListener('keydown', function (e) {
         if (e.keyCode === 27) {
             if (input.value) {
+                storeEvent(input.value);
                 input.value = '';
                 input.elementInput.focus();
             } else {
@@ -143,21 +174,27 @@ editor.once('load', function () {
     });
 
     var blurTimeout;
+
+    // on focus open the menu and then refocus the input field
     input.elementInput.addEventListener('focus', function () {
+        menu.open = true;
+        input.elementInput.focus();
+
         if (blurTimeout) {
             clearTimeout(blurTimeout);
             blurTimeout = null;
         }
 
-        menu.open = true;
-        input.elementInput.focus();
     });
 
+    // on blur hide the menu
     input.elementInput.addEventListener('blur', function () {
         if (menu.open) {
             if (blurTimeout)
                 clearTimeout(blurTimeout);
 
+            // timeout necessary because when we focus the field and open the
+            // menu the input field gets blurred
             blurTimeout = setTimeout(function () {
                 menu.open = false;
                 blurTimeout = null;
@@ -165,6 +202,16 @@ editor.once('load', function () {
         }
     });
 
+    // Store event for when viewing (or not viewing) a topic
+    var storeEvent = function (search, topic) {
+        Ajax.post('/editor/scene/{{scene.id}}/events', {
+            name: 'editor:help',
+            title: topic,
+            text: search
+        });
+    };
+
+    // filter suggestions as the user types
     input.on('change', function (value) {
         filterSuggestions(value);
     });
@@ -355,6 +402,7 @@ editor.once('load', function () {
         return true;
     };
 
+    // handle open event
     menu.on('open', function (open) {
         if (open) {
             window.addEventListener('click', click);
@@ -374,9 +422,18 @@ editor.once('load', function () {
                 focusedMenuItem = null;
             }
             close.hidden = false;
+
+            if (input.value)
+                storeEvent(input.value);
+
             input.value = '';
         }
 
+    });
+
+    // method to hide show the widget
+    editor.method('help:howdoi', function () {
+        panel.hidden = !panel.hidden;
     });
 
 });
