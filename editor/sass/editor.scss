@@ -114,6 +114,13 @@ strong {
                 }
             }
 
+            &.help-howdoi {
+                position: absolute;
+                left: 0;
+                bottom: 90px;
+                background-color: $bcg-darker;
+            }
+
             &.help-controls {
                 position: absolute;
                 left: 0;
@@ -604,7 +611,13 @@ strong {
                     @extend .font-icon;
                     content: '\E111';
                     float: right;
+
+                    -webkit-transform: rotate(-90deg);
+                    -moz-transform: rotate(-90deg);
+                    -ms-transform: rotate(-90deg);
+                    -o-transform: rotate(-90deg);
                     transform: rotate(-90deg);
+
                     width: 32px;
                     height: 32px;
                     line-height: 32px;
@@ -626,6 +639,10 @@ strong {
             max-width: auto;
         }
         > .ui-header:after {
+            -webkit-transform: rotate(90deg);
+            -moz-transform: rotate(90deg);
+            -ms-transform: rotate(90deg);
+            -o-transform: rotate(90deg);
             transform: rotate(90deg);
         }
     }
@@ -1603,9 +1620,17 @@ strong {
     &.foldable {
         &.horizontal.resizable-right {
             > .ui-header:after {
+                -webkit-transform: rotate(90deg);
+                -moz-transform: rotate(90deg);
+                -ms-transform: rotate(90deg);
+                -o-transform: rotate(90deg);
                 transform: rotate(90deg);
             }
             &.folded > .ui-header:after {
+                -webkit-transform: rotate(-90deg);
+                -moz-transform: rotate(-90deg);
+                -ms-transform: rotate(-90deg);
+                -o-transform: rotate(-90deg);
                 transform: rotate(-90deg);
             }
         }
@@ -2024,13 +2049,11 @@ strong {
             content: '\E126';
             color: rgba($text-primary, .5);
 
-            transform: rotate(90deg);
             -webkit-transform: rotate(90deg);
             -moz-transform: rotate(90deg);
             -o-transform: rotate(90deg);
             -ms-transform: rotate(90deg);
-            -ms-transform: rotate(90deg);
-            -webkit-transform: rotate(90deg);
+            transform: rotate(90deg);
         }
     }
 
@@ -2445,6 +2468,245 @@ strong {
 
     .not-visible {
         visibility: hidden;
+    }
+}
+
+.ui-panel.help-howdoi {
+    background-color: rgba(41, 53, 56, 0.5);
+    padding: 0;
+    height: 33px;
+    line-height: 33px;
+
+    margin: 0;
+
+    position: absolute;
+    top: 4px;
+    left: 33%;
+    width: 29%;
+
+    > .content {
+        > .ui-text-field {
+            background-color: transparent;
+            border: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+
+            &:before {
+                @extend .font-icon;
+                font-size: 14px;
+                content: '\E333';
+                color: $text-primary;
+                opacity: 0.5;
+                vertical-align: top;
+                padding-left: 10px;
+            }
+
+            > input {
+                background-color: transparent;
+                margin: 0;
+                padding: 0 10px;
+                color: $text-primary;
+                width: calc(100% - 50px);
+
+                @extend .font-regular;
+
+                &::-webkit-input-placeholder {
+                    color: $text-primary;
+                    opacity: 0.75;
+                }
+
+                &::-moz-placeholder {
+                    color: $text-primary;
+                }
+
+                &:-ms-input-placeholder {
+                    color: $text-primary;
+                    opacity: 0.75;
+                }
+            }
+
+            &.focus {
+                background-color: $bcg-darkest;
+                > input {
+                    background-color: $bcg-darkest;
+                }
+
+                border-bottom: 1px solid $text-active;
+            }
+        }
+
+        > .close {
+            position: absolute;
+            right: 8px;
+            top: 3px;
+            padding: 0;
+            margin: 0;
+            font-size: 12px;
+            background-color: transparent;
+            color: $text-primary;
+            border-color: transparent;
+            opacity: 0.5;
+            @extend .noSelect;
+
+            &:hover {
+                opacity: 1;
+            }
+        }
+
+        > .ui-menu {
+            position: initial;
+
+            > .inner {
+                position: initial;
+                width: 100%;
+                max-height: 6.5 * 33px;
+                overflow-x: hidden;
+                overflow-y: auto;
+
+                > .ui-menu-item {
+
+                    width: 100%;
+
+                    &:hover > .title {
+                        background-color: transparent;
+                    }
+
+                    &.focused > .title {
+                        background-color: $text-darkest;
+                    }
+
+                    > .title {
+                        font-size: 12px;
+                        color: $text-primary;
+
+                        width: 100%;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+                }
+
+            }
+        }
+    }
+}
+
+.ui-overlay.help-howdoi {
+    text-align: center;
+
+    // ghost element to help
+    // center vertically
+    &:before {
+        content: '';
+          display: inline-block;
+          height: 100%;
+          vertical-align: middle;
+    }
+    > .content {
+        text-align: left;
+        display: inline-block;
+        vertical-align: middle;
+
+        top: initial;
+        left: initial;
+        position: relative;
+        width: 400px;
+        background-color: #fff;
+        height: auto;
+        max-height: 100%;
+        overflow: auto;
+
+        > .ui-panel {
+            background-color: transparent;
+
+            > .content {
+                padding: 20px;
+
+                img {
+                    margin-bottom: 20px;
+                    max-width: 100%;
+                }
+
+                iframe {
+                    border: none;
+                    margin-bottom: 20px;
+                    max-width: 100%;
+                }
+
+                > .ui-label {
+                    margin: 0;
+                    padding: 0;
+                    background-color: transparent;
+                    color: $text-darkest;
+                    margin-bottom: 45px;
+
+                    &.header {
+                        color: $text-active;
+                        @extend .font-bold;
+                        font-size: 16px;
+                        margin-bottom: 10px;
+                    }
+
+                    .font-icon {
+                        font-size: 16px;
+                    }
+                }
+
+                > .close, > .docs {
+                    position: absolute;
+                    bottom: 20px;
+                    margin: 0;
+                    height: 30px;
+                    line-height: 30px;
+                    color: #fff;
+                    font-size: 12px;
+                    @extend .font-bold;
+                }
+
+                > .docs {
+                    left: 118px;
+                    width: 90px;
+                    background-color: $text-active;
+                    border-color: $text-active;
+
+                    &:after {
+                        display: inline-block;
+                        position: absolute;
+                        top: -1px;
+                        left: 100%;
+                        width: 32px;
+                        height: 32px;
+                        text-align: center;
+                        content: '\E112';
+                        @extend .font-icon;
+                        font-size: 20px;
+
+                        -webkit-transform: rotate(90deg);
+                        -moz-transform: rotate(90deg);
+                        -ms-transform: rotate(90deg);
+                        -o-transform: rotate(90deg);
+                        transform: rotate(90deg);
+                        background-color: transparentize($text-active, 0.5);
+                    }
+
+                    &:hover:after {
+                        background-color: $text-active;
+                    }
+                }
+
+                > .close {
+                    left: 20px;
+                    width: 60px;
+                    text-align: center;
+
+                    &:hover {
+                        background-color: $text-active;
+                        border-color: $text-active;
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -3588,8 +3850,19 @@ strong {
 
                                 > .scene-dropdown-icon {
                                     color: $bcg-primary;
+
+                                    -webkit-transform: rotate(90deg);
+                                    -moz-transform: rotate(90deg);
+                                    -ms-transform: rotate(90deg);
+                                    -o-transform: rotate(90deg);
                                     transform: rotate(90deg);
+
+                                    -webkit-transform-origin: 10px 32px 0px;
+                                    -moz-transform-origin: 10px 32px 0px;
+                                    -ms-transform-origin: 10px 32px 0px;
+                                    -o-transform-origin: 10px 32px 0px;
                                     transform-origin: 10px 32px 0px;
+
                                     position: absolute;
                                     left: 3px;
                                     top: -19px;
@@ -3610,7 +3883,17 @@ strong {
 
                                     > .scene-dropdown-icon {
                                         color: $text-primary;
+
+                                        -webkit-transform: rotate(-90deg);
+                                        -moz-transform: rotate(-90deg);
+                                        -ms-transform: rotate(-90deg);
+                                        -o-transform: rotate(-90deg);
                                         transform: rotate(-90deg);
+
+                                        -webkit-transform-origin: 40% 50%;
+                                        -moz-transform-origin: 40% 50%;
+                                        -ms-transform-origin: 40% 50%;
+                                        -o-transform-origin: 40% 50%;
                                         transform-origin: 40% 50%;
                                     }
 
