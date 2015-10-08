@@ -437,12 +437,23 @@ editor.once('load', function () {
 
     });
 
-    // method to hide show the widget
+    var toggleWidget = function (toggle) {
+        panel.hidden = !toggle;
+        if (toggle) {
+            setTimeout(function () {
+                input.elementInput.focus();
+            });
+        }
+    };
+
+    // method to show the widget
     editor.method('help:howdoi', function () {
-        panel.hidden = !panel.hidden;
-        setTimeout(function () {
-            input.elementInput.focus();
-        });
+        toggleWidget(true);
+    });
+
+    // method to toggle the widget
+    editor.method('help:howdoi:toggle', function () {
+        toggleWidget(panel.hidden);
     });
 
     // hotkey
