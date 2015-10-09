@@ -39,6 +39,10 @@ editor.once('load', function () {
         designerSettings.history = false;
         designerSettings.set('help', true);
         designerSettings.history = history;
+
+        editor.on('scene:name', positionWidget);
+        editor.on('viewport:resize', positionWidget);
+        positionWidget();
     });
 
     // events when panel is hidden
@@ -49,6 +53,9 @@ editor.once('load', function () {
         designerSettings.history = false;
         designerSettings.set('help', false);
         designerSettings.history = history;
+
+        editor.unbind('scene:name', positionWidget);
+        editor.unbind('viewport:resize', positionWidget);
 
         if (!config.self.tips['howdoi'])
             editor.call('guide:bubble:show', 'howdoi', bubble, 200, true);
@@ -480,5 +487,33 @@ editor.once('load', function () {
         }
     });
 
+    // position widget between top elements in viewport
+    var positionWidget = function () {
+        var canvasRect = editor.call('viewport:canvas').element.getBoundingClientRect();
+
+        var titleWidget = document.querySelector('.widget-title');
+        var titleWidgetRect = titleWidget ? titleWidget.getBoundingClientRect() : null;
+
+        var topLeftWidth = titleWidgetRect ? titleWidgetRect.right - canvasRect.left : 0;
+
+        var topControls = document.querySelector('.viewport-camera');
+        var topControlsRect = topControls ? topControls.getBoundingClientRect() : null;
+
+        var topRightWidth = topControlsRect ? canvasRect.left + canvasRect.width - topControlsRect.left : 0;
+
+        var width = canvasRect.width - topLeftWidth - topRightWidth - 20;
+        if (width < 150) {
+            panel.class.add('hidden');
+        } else {
+            panel.class.remove('hidden');
+
+            if (width > 400)
+                width = 400;
+        }
+
+
+        panel.style.width = width + 'px';
+        panel.style.left = (topLeftWidth + (((topControlsRect.left - titleWidgetRect.right) - width) / 2)) + 'px';
+    };
 
 });
