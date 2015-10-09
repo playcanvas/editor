@@ -11,36 +11,9 @@ editor.once('load', function () {
     var panel = new ui.Panel();
     overlay.append(panel);
 
-    var img = new Image();
-    panel.append(img);
-    img.style.display = 'none';
-    img.draggable = false;
-
-    var video = document.createElement('iframe');
-    video.width = '360';
-    video.height = '360';
-    video.setAttribute('allowFullScreen', '');
-    video.style.display = 'none';
-    panel.append(video);
-
-    var header = new ui.Label();
-    header.renderChanges = false;
-    header.class.add('header');
-    panel.append(header);
-
     var content = new ui.Label();
     content.renderChanges = false;
     panel.append(content);
-
-    var close = new ui.Button({
-        text: 'GOT IT'
-    });
-    close.class.add('close');
-    panel.append(close);
-
-    close.on('click', function () {
-        overlay.hidden = true;
-    });
 
     var docs = new ui.Button({
         text: 'View Docs'
@@ -63,49 +36,21 @@ editor.once('load', function () {
 
     overlay.on('hide', function () {
         window.removeEventListener('keydown', key);
-
         editor.emit('help:howdoi:popup:close');
-        // stop video
-        video.contentWindow.postMessage('{"event":"command","func":"stopVideo","args":""}', '*');
-
-        // clear img
-        img.src = '';
     });
 
 
     editor.method('help:howdoi:popup', function (data) {
         overlay.hidden = false;
-        header.text = data.title;
         content.text = data.text;
 
-        img.style.display = 'none';
-        video.style.display = 'none';
-
-        if (data.img) {
-            img.src = data.img;
-            img.onload = function () {
-                img.style.display = 'block';
-            };
-        } else {
-            if (data.video) {
-                video.src = data.video.url + '?controls=2&showinfo=0&enablejsapi=1';
-                video.width = data.video.width;
-                video.height = data.video.height * Math.min(1, content.element.getBoundingClientRect().width / data.video.width);
-                video.style.display = 'block';
-            }
-        }
-
-        docs.unbind('click');
-
-        if (data.docs) {
-            docs.hidden = false;
-            docs.on('click', function () {
-                window.open(data.docs, '_blank');
-            });
-        } else {
-            docs.hidden = true;
-        }
-
+        setTimeout(function () {
+            var closeButton = panel.innerElement.querySelector('.close');
+            if (closeButton)
+                closeButton.addEventListener('click', function () {
+                    overlay.hidden = true;
+                });
+        });
     });
 
 });
