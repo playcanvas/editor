@@ -2623,88 +2623,99 @@ strong {
             > .content {
                 padding: 20px;
 
-                img {
-                    margin-bottom: 20px;
-                    max-width: 100%;
-                }
-
-                iframe {
-                    border: none;
-                    margin-bottom: 20px;
-                    max-width: 100%;
-                }
-
                 > .ui-label {
                     margin: 0;
                     padding: 0;
                     background-color: transparent;
                     color: $text-darkest;
-                    margin-bottom: 45px;
+                    margin-bottom: 30px;
 
-                    &.header {
+                    h2 {
                         color: $text-active;
                         @extend .font-bold;
                         font-size: 16px;
+                        margin-top: 0;
                         margin-bottom: 10px;
                     }
 
                     .font-icon {
                         font-size: 16px;
                     }
-                }
 
-                > .close, > .docs {
-                    position: absolute;
-                    bottom: 20px;
-                    margin: 0;
-                    height: 30px;
-                    line-height: 30px;
-                    color: #fff;
-                    font-size: 12px;
-                    @extend .font-bold;
-                }
+                    img, iframe {
+                        border: none;
+                        max-width: 100%;
+                    }
 
-                > .docs {
-                    left: 118px;
-                    width: 90px;
-                    background-color: $text-active;
-                    border-color: $text-active;
-
-                    &:after {
-                        display: inline-block;
+                    button, a.docs {
                         position: absolute;
-                        top: -1px;
-                        left: 100%;
-                        width: 32px;
-                        height: 32px;
+                        bottom: 20px;
+                        @extend .font-bold;
+                        background-color: $bcg-darkest;
+                        border: none;
+                        color: $text-primary;
+                        height: 30px;
+                        line-height: 30px;
+                        font-size: 12px;
+                        padding: 0;
+                        margin: 0;
+                        cursor: pointer;
+
+                        &:active, &:focus {
+                            outline: none;
+                        }
+                    }
+
+                    .close {
+                        width: 80px;
+                        left: 20px;
                         text-align: center;
-                        content: '\E112';
-                        @extend .font-icon;
-                        font-size: 20px;
 
-                        -webkit-transform: rotate(90deg);
-                        -moz-transform: rotate(90deg);
-                        -ms-transform: rotate(90deg);
-                        -o-transform: rotate(90deg);
-                        transform: rotate(90deg);
-                        background-color: transparentize($text-active, 0.5);
+                        &:hover {
+                            background-color: $text-active;
+                            border-color: $text-active;
+                        }
                     }
 
-                    &:hover:after {
-                        background-color: $text-active;
-                    }
-                }
+                    a.docs {
+                        position: absolute;
+                        bottom: 20px;
+                        left: 118px;
+                        display: block;
+                        padding: 0 10px;
+                        text-decoration: none;
 
-                > .close {
-                    left: 20px;
-                    width: 60px;
-                    text-align: center;
-
-                    &:hover {
                         background-color: $text-active;
                         border-color: $text-active;
+
+                        &:after {
+                            display: inline-block;
+                            position: absolute;
+                            vertical-align: top;
+                            top: 0px;
+                            left: 100%;
+                            width: 30px;
+                            height: 30px;
+                            text-align: center;
+                            content: '\E112';
+                            @extend .font-icon;
+                            font-size: 20px;
+
+                            -webkit-transform: rotate(90deg);
+                            -moz-transform: rotate(90deg);
+                            -ms-transform: rotate(90deg);
+                            -o-transform: rotate(90deg);
+                            transform: rotate(90deg);
+                            background-color: transparentize($text-active, 0.5);
+                        }
+
+                        &:hover:after {
+                            background-color: $text-active;
+                        }
                     }
                 }
+
+
             }
         }
     }
