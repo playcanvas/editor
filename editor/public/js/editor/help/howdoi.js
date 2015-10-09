@@ -11,9 +11,24 @@ editor.once('load', function () {
     viewport.append(panel);
     panel.hidden = true;
 
+    var tipsLoaded = false;
+    editor.once('help:howdoi:load', function () {
+        tipsLoaded = true;
+        checkShow();
+    });
+
+    var settingsLoaded = false;
+
+    var checkShow = function () {
+        if (tipsLoaded && settingsLoaded) {
+            panel.hidden = !designerSettings.get('help');
+        }
+    };
+
     // hide / show panel based on designer settings
     editor.once('designerSettings:load', function () {
-        panel.hidden = !designerSettings.get('help');
+        settingsLoaded = true;
+        checkShow();
     });
 
     // events when panel is shown
