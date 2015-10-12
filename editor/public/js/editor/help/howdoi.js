@@ -489,7 +489,10 @@ editor.once('load', function () {
 
     // position widget between top elements in viewport
     var positionWidget = function () {
-        var canvasRect = editor.call('viewport:canvas').element.getBoundingClientRect();
+        var canvas = editor.call('viewport:canvas');
+        if (! canvas) return;
+
+        var canvasRect = canvas.element.getBoundingClientRect();
 
         var titleWidget = document.querySelector('.widget-title');
         var titleWidgetRect = titleWidget ? titleWidget.getBoundingClientRect() : null;

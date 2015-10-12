@@ -2,6 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     var canvas = editor.call('viewport:canvas');
+    if (! canvas) return;
 
     function Tap(evt, rect) {
         this.x = this.lx = this.sx = evt.clientX - rect.left;

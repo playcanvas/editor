@@ -110,6 +110,21 @@ editor.once('load', function () {
         );
     };
 
+    var bubbleStore = function () {
+        var bubble = editor.call(
+            'guide:bubble',
+            'Asset Library',
+            '<img width="424" height="133" src="https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/instructions/asset_library.jpg"/><br/><br/>Click the <strong>Library</strong> button to open the Asset Library. Add free 3D models and assets from the library into your scene with a single click.',
+            620,
+            -36,
+            'bottom-right',
+            editor.call('layout.assets').element
+        );
+
+        bubble.style.zIndex = 'initial';
+        return bubble;
+    };
+
     var bubbleMenu = function () {
         return editor.call(
             'guide:bubble',
@@ -213,6 +228,10 @@ editor.once('load', function () {
         if (showBubble('assets', bubbleAssets, delay))
             delay += nextDelay;
 
+        // show store bubble for existing users as well
+        if (!config.self.tips.store && showBubble('store', bubbleStore, delay, true))
+            delay += nextDelay;
+
         if (showBubble('controls', bubbleControls, delay))
             delay += nextDelay;
 
@@ -231,6 +250,7 @@ editor.once('load', function () {
 
         ['hierarchy',
          'assets',
+         'store',
          'dashboard',
          'entityInspector',
          'mainMenu',

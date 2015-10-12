@@ -77,6 +77,7 @@ editor.once('load', function() {
 
     setTimeout(function() {
         canvas = editor.call('viewport:canvas');
-        canvas.on('resize', reflow);
+        if (canvas)
+            canvas.on('resize', reflow);
     });
 });

@@ -2,6 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     var canvas = editor.call('viewport:canvas');
+    if (! canvas) return;
 
     var dropRef = editor.call('drop:target', {
         ref: canvas.element,

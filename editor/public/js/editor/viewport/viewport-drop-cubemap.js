@@ -2,6 +2,9 @@ editor.once('load', function() {
     'use strict';
 
     var app = editor.call('viewport:framework');
+    if (! app)
+        return;
+
     var canvas = editor.call('viewport:canvas');
     var evtPickHover = null;
     var evtViewportHover = null;

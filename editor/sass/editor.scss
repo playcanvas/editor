@@ -59,7 +59,7 @@ strong {
         bottom: 0;
         width: 45px;
         height: auto;
-        background-color: #293538;
+        background-color: $bcg-darker;
 
         > .ui-button {
             display: block;
@@ -206,7 +206,7 @@ strong {
         left: 0;
         width: auto;
         height: auto;
-        // background-color: #293538;
+        // background-color: $bcg-darker;
 
         opacity: 1;
         visibility: visible;
@@ -253,6 +253,10 @@ strong {
                 > .filters {
                     display: none;
                 }
+
+                > .ui-button.store {
+                    display: none;
+                }
             }
         }
     }
@@ -260,7 +264,7 @@ strong {
         position: absolute;
         top: -32px;
         left: 8px;
-        width: 542px;
+        width: 650px;
 
         &:after {
             content: '\E122';
@@ -358,6 +362,7 @@ strong {
                     border: none;
                     font-size: 12px;
                     vertical-align: top;
+                    background-color: transparent;
 
                     > .value {
                         @extend .font-bold;
@@ -385,8 +390,7 @@ strong {
                     width: 192px;
                     height: 32px;
                     border: none;
-                    border-left: 1px solid $bcg-dark;
-                    background-color: #293538;
+                    background-color: $bcg-darker;
 
                     &.active,
                     &:hover,
@@ -421,7 +425,7 @@ strong {
                     &:after {
                         content: '\E333';
                         line-height: 32px;
-                        background-color: #293538;
+                        background-color: $bcg-darker;
                         @extend .font-icon;
                         font-size: 18px;
                         text-align: center;
@@ -454,6 +458,33 @@ strong {
                         cursor: pointer;
                     }
                 }
+            }
+        }
+
+        > .ui-button.store {
+            float: right;
+            position: relative;
+            font-size: 12px;
+            width: 90px;
+            height: 32px;
+            line-height: 32px;
+            margin: 0;
+            background-color: $bcg-darker;
+            border-color: transparent;
+
+            &:after {
+                @extend .font-icon;
+                content: '\E123';
+                position: absolute;
+                right: 5px;
+                top: -1px;
+                font-size: 20px;
+                font-weight: 200;
+                color: $text-darkest;
+            }
+
+            &:hover:after {
+                color: $text-active;
             }
         }
     }
@@ -1530,12 +1561,12 @@ strong {
         }
 
         .ui-panel.component-script {
-            border-top: 1px solid #293538;
-            border-left: 1px solid #293538;
-            border-right: 1px solid #293538;
+            border-top: 1px solid $bcg-darker;
+            border-left: 1px solid $bcg-darker;
+            border-right: 1px solid $bcg-darker;
 
             &:last-child {
-                border-bottom: 1px solid #293538;
+                border-bottom: 1px solid $bcg-darker;
             }
             > .ui-header {
                 background-color: #2c393c;
@@ -3273,6 +3304,10 @@ strong {
                     > .font-icon {
                         color: $text-darkest;
                         font-size: 20px;
+                    }
+
+                    img {
+                        max-width: 100%;
                     }
                 }
             }
