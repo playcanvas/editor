@@ -19,6 +19,8 @@ editor.once('load', function() {
 
     // apply settings
     var applySettings = function() {
+        if (! app) return;
+
         updating = false;
 
         // apply scene settings
