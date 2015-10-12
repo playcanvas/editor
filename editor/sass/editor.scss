@@ -3305,6 +3305,10 @@ strong {
                         color: $text-darkest;
                         font-size: 20px;
                     }
+
+                    img {
+                        max-width: 100%;
+                    }
                 }
             }
         }
