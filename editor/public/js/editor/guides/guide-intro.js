@@ -110,6 +110,21 @@ editor.once('load', function () {
         );
     };
 
+    var bubbleStore = function () {
+        var bubble = editor.call(
+            'guide:bubble',
+            'Library',
+            'Open the Asset Library for a variety of free 3D models to add to your scene',
+            560,
+            -36,
+            'bottom',
+            editor.call('layout.assets').element
+        );
+
+        bubble.style.zIndex = 'initial';
+        return bubble;
+    };
+
     var bubbleMenu = function () {
         return editor.call(
             'guide:bubble',
@@ -213,6 +228,10 @@ editor.once('load', function () {
         if (showBubble('assets', bubbleAssets, delay))
             delay += nextDelay;
 
+        // show store bubble for existing users as well
+        if (!config.self.tips.store && showBubble('store', bubbleStore, delay, true))
+            delay += nextDelay;
+
         if (showBubble('controls', bubbleControls, delay))
             delay += nextDelay;
 
@@ -231,6 +250,7 @@ editor.once('load', function () {
 
         ['hierarchy',
          'assets',
+         'store',
          'dashboard',
          'entityInspector',
          'mainMenu',
