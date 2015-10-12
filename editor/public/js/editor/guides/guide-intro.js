@@ -115,7 +115,7 @@ editor.once('load', function () {
             'guide:bubble',
             'Library',
             'Open the Asset Library for a variety of free 3D models to add to your scene',
-            560,
+            640,
             -36,
             'bottom',
             editor.call('layout.assets').element
