@@ -22,6 +22,7 @@ editor.once('load', function () {
     panel.append(fieldName);
 
     var fieldError = new ui.Label();
+    fieldError.renderChanges = false;
     fieldError.class.add('error');
     panel.append(fieldError);
     fieldError.hidden = true;
