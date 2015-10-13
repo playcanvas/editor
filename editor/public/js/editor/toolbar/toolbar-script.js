@@ -27,12 +27,6 @@ editor.once('load', function () {
     panel.append(fieldError);
     fieldError.hidden = true;
 
-    var btnOk = new ui.Button({
-        text: 'OK'
-    });
-
-    panel.append(btnOk);
-
     // close overlay on esc
     var onKey = function (e) {
         if (e.keyCode === 27) {
@@ -66,7 +60,7 @@ editor.once('load', function () {
         fieldError.hidden = false;
     };
 
-    var onOk = function () {
+    var onSubmit = function () {
         fieldError.hidden = true;
 
         if (! validateFilename(fieldName.value)) {
@@ -89,13 +83,10 @@ editor.once('load', function () {
         });
     };
 
-    // submit on ok
-    btnOk.on('click', onOk);
-
     // submit on enter
     fieldName.elementInput.addEventListener('keydown', function (e) {
         if (e.keyCode === 13) {
-            onOk();
+            onSubmit();
         }
     });
 

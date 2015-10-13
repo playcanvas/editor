@@ -2470,11 +2470,30 @@ strong {
         height: auto;
         padding: 10px 20px;
         left: calc(50% - 200px);
+        background-color: $bcg-dark;
 
         > .ui-panel > .content {
 
+            background-color: $bcg-dark;
+
             > .ui-text-field {
                 width: 100%;
+                background-color: $bcg-darker;
+                margin-top: 8px;
+
+                height: 32px;
+                line-height: 32px;
+
+                &.active,
+                &:hover,
+                &:focus,
+                &.focus {
+                    background-color: $bcg-darkest;
+                }
+            }
+
+            > .ui-label {
+                background-color: transparent;
             }
 
             > .ui-label.action {
@@ -2485,22 +2504,9 @@ strong {
                 color: #fb222f;
                 font-size: 12px;
                 position: absolute;
-                top: 27px;
+                top: 37px;
                 right: 0;
                 @extend .font-bold;
-            }
-
-            > .ui-button {
-                float: right;
-                font-size: 12px;
-                @extend .font-bold;
-                color: $text-primary;
-                width: 60px;
-                text-align: center;
-
-                &:hover {
-                    background-color: $text-active;
-                }
             }
         }
     }
