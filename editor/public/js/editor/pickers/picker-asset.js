@@ -134,6 +134,13 @@ editor.once('load', function() {
                 assetsGrid.element.focus();
             }
         }, 100);
+
+        // if no assets then show message
+        var visible = assetsGrid.element.querySelectorAll('.ui-grid-item:not(.hidden)');
+        if (visible.length === 0) {
+            var msg = type === 'script' ? 'scripts' : type + ' assets';
+            editor.call('assets:panel:message', 'There are no ' + msg + '. Click on the <span class="font-icon" style="font-size: 18px">&#58468;</span> button to add one.');
+        }
     });
 
 

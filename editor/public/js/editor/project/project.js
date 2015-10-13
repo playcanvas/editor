@@ -17,6 +17,12 @@ editor.once('load', function() {
         });
     });
 
+    editor.method('project:get', function (callback) {
+        loadAndExecute(function () {
+            callback(project);
+        });
+    });
+
     // Saves specified data to server
     editor.method('project:save', function (data, success, error) {
         Ajax.put('{{url.api}}/projects/{{project.id}}?access_token={{accessToken}}', data)

@@ -26,6 +26,17 @@ editor.once('load', function() {
         grid.enabled = state;
     });
 
+    var labelNoAssets = new ui.Label();
+    labelNoAssets.renderChanges = false;
+    labelNoAssets.class.add('no-assets');
+    labelNoAssets.hidden = true;
+    assetsPanel.append(labelNoAssets);
+
+    editor.method('assets:panel:message', function (msg) {
+        labelNoAssets.text = msg;
+        labelNoAssets.hidden = !msg;
+    });
+
     var scriptsIndex = { };
     var assetsIndex = { };
     grid.assetsIndex = assetsIndex;
@@ -75,13 +86,13 @@ editor.once('load', function() {
 
     // filter assets in grid
     editor.method('assets:panel:filter', function(fn) {
+        labelNoAssets.hidden = true;
+
         grid.forEach(function(gridItem) {
             if (gridItem.asset) {
                 gridItem.hidden = ! fn('asset', gridItem.asset);
             } else if (gridItem.script) {
                 gridItem.hidden = ! fn('script', gridItem.script);
-            } else {
-                return true;
             }
         });
     });
@@ -243,16 +254,19 @@ editor.once('load', function() {
         file.on('destroy', function() {
             item.destroy();
         });
+
+        editor.call('drop:item', {
+            element: item.element,
+            type: 'asset.script',
+            data: {
+                filename: file.get('filename')
+            }
+        });
     };
     var removeSourceFile = function(file) {
         file.destroy();
     };
 
-    editor.once('sourcefiles:load', function(files) {
-        for(var i = 0; i < files.data.length; i++) {
-            editor.emit('sourcefiles:add', files.data[i]);
-        }
-    });
     editor.on('sourcefiles:add', addSourceFile);
     editor.on('sourcefiles:remove', removeSourceFile);
 });
