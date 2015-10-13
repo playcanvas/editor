@@ -341,11 +341,20 @@ editor.once('load', function() {
             });
             btnDefaultScript.class.add('add');
             btnDefaultScript.class.add('loading-screen');
+
+            var repositories = editor.call('repositories');
+            // disable create button for non directory repos
+            btnDefaultScript.disabled = repositories.get('current') !== 'directory';
+
             panelButtons.append(btnDefaultScript);
 
+            var tooltipText = 'Create a default loading screen script.';
+            if (btnDefaultScript.disabled) {
+                tooltipText += '<br/><small><em>(Disabled because you are synced to an external code repository)</em></small>';
+            }
             Tooltip.attach({
                 target: btnDefaultScript.element,
-                text: 'Create a default loading screen script',
+                html:  tooltipText,
                 align: 'right',
                 root: root
             });
