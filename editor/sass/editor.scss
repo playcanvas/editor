@@ -488,6 +488,10 @@ strong {
             }
         }
     }
+
+    .ui-label.no-assets {
+        padding: 10px;
+    }
 }
 
 .drop-ref-highlight {
@@ -1514,6 +1518,43 @@ strong {
                     text-align: center;
                 }
             }
+
+            > .ui-button.add-script {
+                margin: 0 0 8px 0;
+                background-color: $bcg-dark;
+
+                &:hover {
+                    background-color: $bcg-darkest;
+
+                    &:before {
+                        color: $text-active;
+                    }
+                }
+
+                text-transform: uppercase;
+                font-size: 12px;
+                border: none;
+                position: relative;
+                height: 28px;
+                line-height: 30px;
+                padding-left: 28px;
+                width: calc(100% - 36px);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+
+                @extend .font-bold;
+
+                &:before {
+                    position: absolute;
+                    top: -1px;
+                    left: 8px;
+                    content: '\E464';
+                    @extend .font-icon;
+                    font-size: 16px;
+                    text-align: center;
+                }
+            }
         }
 
         > .content {
@@ -2418,6 +2459,51 @@ strong {
         }
     }
 
+}
+
+.ui-overlay.new-script {
+    z-index: 110;
+
+    > .content {
+        width: 400px;
+        max-height: 100px;
+        height: auto;
+        padding: 10px 20px;
+        left: calc(50% - 200px);
+
+        > .ui-panel > .content {
+
+            > .ui-text-field {
+                width: 100%;
+            }
+
+            > .ui-label.action {
+                display: block;
+            }
+
+            > .ui-label.error {
+                color: #fb222f;
+                font-size: 12px;
+                position: absolute;
+                top: 27px;
+                right: 0;
+                @extend .font-bold;
+            }
+
+            > .ui-button {
+                float: right;
+                font-size: 12px;
+                @extend .font-bold;
+                color: $text-primary;
+                width: 60px;
+                text-align: center;
+
+                &:hover {
+                    background-color: $text-active;
+                }
+            }
+        }
+    }
 }
 
 .ui-overlay.script-priorities {

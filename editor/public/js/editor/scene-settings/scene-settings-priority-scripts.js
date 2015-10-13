@@ -69,11 +69,11 @@ editor.once('load', function() {
     var root = editor.call('layout.root');
 
     var overlay = new ui.Overlay();
-    overlay.class.add("script-priorities")
+    overlay.class.add("script-priorities");
     overlay.hidden = true;
 
     var label = new ui.Label();
-    label.text = "Script Loading Priority"
+    label.text = "Script Loading Priority";
     label.class.add('title');
     overlay.append(label);
 

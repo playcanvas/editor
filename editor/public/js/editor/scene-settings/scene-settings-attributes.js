@@ -7,6 +7,7 @@ editor.once('load', function() {
         editor.call('attributes:header', 'Settings');
 
         var app = editor.call('viewport:framework');
+        var root = editor.call('layout.root');
 
         var filteredFields = [ ];
 
@@ -339,13 +340,13 @@ editor.once('load', function() {
 
             fieldScriptPicker.style['font-size'] = '11px';
 
-            var remove = new ui.Button();
-            remove.class.add('remove');
-            fieldScriptPicker.parent.append(remove);
-            remove.on("click", function () {
+            var btnRemove = new ui.Button();
+            btnRemove.class.add('remove');
+            fieldScriptPicker.parent.append(btnRemove);
+            btnRemove.on("click", function () {
                 editor.call('project:setLoadingScreenScript', null);
                 fieldScriptPicker.text = "Click to select script";
-                remove.class.add('not-visible');
+                btnRemove.class.add('not-visible');
             });
 
             editor.call('project:getLoadingScreenScript', function (value) {
@@ -353,24 +354,51 @@ editor.once('load', function() {
                     fieldScriptPicker.text = value;
                 } else {
                     fieldScriptPicker.text = "Click to select script";
-                    remove.class.add('not-visible');
+                    btnRemove.class.add('not-visible');
                 }
             });
 
+            var setLoadingScreen = function (filename) {
+                editor.call('project:setLoadingScreenScript', filename);
+                fieldScriptPicker.text = filename;
+                btnRemove.class.remove('not-visible');
+            };
+
             fieldScriptPicker.on('click', function () {
-                editor.once("picker:asset", function (asset) {
-                    var value = asset.get("filename");
-                    editor.call('project:setLoadingScreenScript', value);
-                    fieldScriptPicker.text = value;
-                    remove.class.remove('not-visible');
+                var evtPick = editor.once("picker:asset", function (asset) {
+                    setLoadingScreen(asset.get('filename'));
+                    evtPick = null;
                 });
 
                 // show asset picker
                 editor.call("picker:asset", "script", null);
+
+                editor.once('picker:asset:close', function () {
+                    if (evtPick) {
+                        evtPick.unbind();
+                        evtPick = null;
+                    }
+                });
             });
 
             // reference
             editor.call('attributes:reference:settings:loadingScreenScript:attach', fieldScriptPicker.parent.innerElement.firstChild.ui);
+
+            // drag drop
+            var dropRef = editor.call('drop:target', {
+                ref: panelLoadingScreen.element,
+                filter: function(type, data) {
+                    var rectA = root.innerElement.getBoundingClientRect();
+                    var rectB = panelLoadingScreen.element.getBoundingClientRect();
+                    return type === 'asset.script' && data.filename !== fieldScriptPicker.text && rectB.top > rectA.top && rectB.bottom < rectA.bottom;
+                },
+                drop: function(type, data) {
+                    if (type !== 'asset.script')
+                        return;
+
+                    setLoadingScreen(data.filename);
+                }
+            });
 
         }
 
