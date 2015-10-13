@@ -27,6 +27,8 @@ editor.once('load', function () {
     panel.append(fieldError);
     fieldError.hidden = true;
 
+    var newContent = '';
+
     // close overlay on esc
     var onKey = function (e) {
         if (e.keyCode === 27) {
@@ -47,11 +49,13 @@ editor.once('load', function () {
         fieldName.value = '';
         fieldError.hidden = true;
         fieldError.text = '';
+        newContent = '';
         editor.emit('sourcefiles:new:close');
 
     });
 
-    editor.method('sourcefiles:new', function () {
+    editor.method('sourcefiles:new', function (content) {
+        newContent = content;
         overlay.hidden = false;
     });
 
@@ -75,10 +79,10 @@ editor.once('load', function () {
             if (err) {
                 onError(err);
             } else {
-                overlay.hidden = true;
-
                 // select script
                 editor.call('selector:set', 'asset', [script]);
+
+                overlay.hidden = true;
             }
         });
     };
@@ -112,7 +116,8 @@ editor.once('load', function () {
                 callback('Script with that name already exists.');
             } else {
                 // create script
-                editor.call('sourcefiles:create', filename, function (err, sourcefile) {
+                var content = newContent || editor.call('sourcefiles:skeleton', filename);
+                editor.call('sourcefiles:create', filename, content, function (err, sourcefile) {
                     callback(err, sourcefile);
                 });
             }

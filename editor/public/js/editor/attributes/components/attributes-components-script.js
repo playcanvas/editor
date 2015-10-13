@@ -166,7 +166,7 @@ editor.once('load', function() {
                 editor.call('sourcefiles:content', url, function (err) {
                     // script does not exist so create it
                     if (err === 404) {
-                        editor.call('sourcefiles:create', url);
+                        editor.call('sourcefiles:create', editor.call('sourcefiles:skeleton', url), url);
                     } else if (!err) {
                         refreshScriptAttributes(url);
                     }

@@ -324,13 +324,78 @@ editor.once('load', function() {
         });
 
 
+        // loading screen
+        var panelLoadingScreen = editor.call('attributes:addPanel', {
+            name: 'Loading Screen'
+        });
+        panelLoadingScreen.class.add('component', 'loading-screen');
+
         // custom loading screen script
         if (config.owner.superUser || config.owner.plan.type === 'org') {
-            // loading screen
-            var panelLoadingScreen = editor.call('attributes:addPanel', {
-                name: 'Loading Screen'
+            var panelButtons = new ui.Panel();
+            panelButtons.class.add('flex', 'component');
+            panelLoadingScreen.append(panelButtons);
+
+            var btnDefaultScript = new ui.Button({
+                text: 'Create default'
             });
-            panelLoadingScreen.class.add('component', 'loading-screen');
+            btnDefaultScript.class.add('add');
+            btnDefaultScript.class.add('loading-screen');
+            panelButtons.append(btnDefaultScript);
+
+            Tooltip.attach({
+                target: btnDefaultScript.element,
+                text: 'Create a default loading screen script',
+                align: 'right',
+                root: root
+            });
+
+            btnDefaultScript.on('click', function () {
+                editor.call('selector:enabled', false);
+                editor.call('sourcefiles:new', editor.call('sourcefiles:loadingScreen:skeleton'));
+                var evtNew = editor.once('sourcefiles:add', function (file) {
+                    setLoadingScreen(file.get('filename'));
+                    evtNew = null;
+                });
+
+                editor.once('sourcefiles:new:close', function () {
+                    editor.call('selector:enabled', true);
+                    if (evtNew) {
+                        evtNew.unbind();
+                        evtNew = null;
+                    }
+                });
+            });
+
+            var btnSelectScript = new ui.Button({
+                text: 'Select existing'
+            });
+            btnSelectScript.class.add('loading-screen');
+            panelButtons.append(btnSelectScript);
+
+            btnSelectScript.on('click', function () {
+                var evtPick = editor.once("picker:asset", function (asset) {
+                    setLoadingScreen(asset.get('filename'));
+                    evtPick = null;
+                });
+
+                // show asset picker
+                editor.call("picker:asset", "script", null);
+
+                editor.once('picker:asset:close', function () {
+                    if (evtPick) {
+                        evtPick.unbind();
+                        evtPick = null;
+                    }
+                });
+            });
+
+            Tooltip.attach({
+                target: btnSelectScript.element,
+                text: 'Select an existing loading screen script',
+                align: 'bottom',
+                root: root
+            });
 
             var fieldScriptPicker = editor.call('attributes:addField', {
                 parent: panelLoadingScreen,
@@ -344,25 +409,33 @@ editor.once('load', function() {
             btnRemove.class.add('remove');
             fieldScriptPicker.parent.append(btnRemove);
             btnRemove.on("click", function () {
-                editor.call('project:setLoadingScreenScript', null);
-                fieldScriptPicker.text = "Click to select script";
-                btnRemove.class.add('not-visible');
-            });
-
-            editor.call('project:getLoadingScreenScript', function (value) {
-                if (value) {
-                    fieldScriptPicker.text = value;
-                } else {
-                    fieldScriptPicker.text = "Click to select script";
-                    btnRemove.class.add('not-visible');
-                }
+                setLoadingScreen(null);
             });
 
             var setLoadingScreen = function (filename) {
                 editor.call('project:setLoadingScreenScript', filename);
-                fieldScriptPicker.text = filename;
-                btnRemove.class.remove('not-visible');
+                fieldScriptPicker.text = filename ? filename : 'Select loading screen script';
+                if (filename) {
+                    btnRemove.class.remove('not-visible');
+                } else {
+                    btnRemove.class.add('not-visible');
+                }
+
+                onLoadingScreen(filename);
             };
+
+            var onLoadingScreen = function (filename) {
+                if (filename) {
+                    fieldScriptPicker.text = filename;
+                    fieldScriptPicker.parent.hidden = false;
+                    panelButtons.hidden = true;
+                } else {
+                    fieldScriptPicker.parent.hidden = true;
+                    panelButtons.hidden = false;
+                }
+            };
+
+            editor.call('project:getLoadingScreenScript', onLoadingScreen);
 
             fieldScriptPicker.on('click', function () {
                 var evtPick = editor.once("picker:asset", function (asset) {
@@ -400,6 +473,13 @@ editor.once('load', function() {
                 }
             });
 
+        } else {
+            var labelUpgrade = new ui.Label({
+                text: 'This is an ORG account feature. <a href="/upgrade" target="_blank">UPGRADE</a> to create custom loading screens.'
+            });
+            labelUpgrade.style.fontSize = '12px';
+            labelUpgrade.style.color = '#fff';
+            panelLoadingScreen.append(labelUpgrade);
         }
 
     });

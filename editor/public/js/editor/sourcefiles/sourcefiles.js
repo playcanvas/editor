@@ -71,12 +71,12 @@ editor.once('repositories:load', function (repositories) {
         });
     });
 
-    editor.method('sourcefiles:create', function (url, callback) {
+    editor.method('sourcefiles:create', function (url, content, callback) {
         if (repositories.get('current') !== 'directory') return;
 
         var data = {
             filename: url,
-            content: editor.call('sourcefiles:skeleton', url)
+            content: content
         };
 
         var createUrl = [config.url.api, 'projects', config.project.id, 'repositories', repositories.get('current'), 'sourcefiles', url].join('/');
