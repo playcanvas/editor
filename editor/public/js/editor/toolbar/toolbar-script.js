@@ -82,6 +82,9 @@ editor.once('load', function () {
                 onError(err);
             } else {
                 overlay.hidden = true;
+
+                // select script
+                editor.call('selector:set', 'asset', [script]);
             }
         });
     };
