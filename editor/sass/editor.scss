@@ -1483,7 +1483,7 @@ strong {
                     text-align: center;
                 }
             }
-            > .ui-button.override-material {
+            > .ui-button.override-material, .ui-button.loading-screen {
                 flex-grow: 1;
                 background-color: $bcg-dark;
 
@@ -1512,11 +1512,24 @@ strong {
                     position: absolute;
                     top: -1px;
                     left: 8px;
-                    content: '\E117';
                     @extend .font-icon;
                     font-size: 16px;
                     text-align: center;
                 }
+            }
+
+            > .ui-button.override-material:before {
+                content: '\E117';
+            }
+
+            > .ui-button.loading-screen:before {
+                content: '\E117';
+            }
+
+            > .ui-button.loading-screen.add:before {
+                content: '\E464';
+                font-size: 14px;
+                top: -2px;
             }
 
             > .ui-button.add-script {
@@ -2351,6 +2364,13 @@ strong {
             visibility: hidden;
         }
     }
+
+    > .content {
+        > .ui-panel > .content {
+            padding: 0;
+        }
+    }
+
 }
 
 .ui-panel.override-material {
