@@ -50,15 +50,14 @@ editor.once('load', function() {
                     mapping[hoverEntity._materialIndHover] = hoverEntity._materialBeforeHover;
                 hoverEntity.model.mapping = mapping;
             }
-
-            editor.call('viewport:render');
         } else if (hoverEntity._materialBeforeHover) {
             hoverEntity.model.material = hoverEntity._materialBeforeHover;
-            editor.call('viewport:render');
         }
 
         delete hoverEntity._materialBeforeHover;
         delete hoverEntity._materialIndHover;
+
+        editor.call('viewport:render');
     };
 
     var onHover = function(entity, meshInstance) {
@@ -76,7 +75,7 @@ editor.once('load', function() {
                 var ind = hoverEntity.model.model.meshInstances.indexOf(hoverMeshInstance);
                 if (ind !== -1) {
                     var mapping = hoverEntity.model.mapping;
-                    if (!mapping || mapping[ind] === undefined) {
+                    if (!mapping || !mapping.hasOwnProperty(ind)) {
 
                         hoverAsset = app.assets.get(hoverEntity.model.asset);
                         hoverAsset._materialBeforeHover = hoverAsset.data.mapping[ind].material;
@@ -84,7 +83,7 @@ editor.once('load', function() {
 
                         hoverAsset.data.mapping[ind].material = hoverMaterial.id;
                         hoverAsset.fire('change', hoverAsset, 'data', hoverAsset.data, hoverAsset.data);
-                } else {
+                    } else {
                         hoverEntity._materialBeforeHover = mapping[ind];
                         hoverEntity._materialIndHover = ind;
 
