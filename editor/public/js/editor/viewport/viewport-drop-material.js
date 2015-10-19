@@ -7,6 +7,7 @@ editor.once('load', function() {
     var canvas = editor.call('viewport:canvas');
     var evtPickHover = null;
     var hoverMaterial = null;
+    var hoverAsset = null;
     var hoverEntity = null;
     var hoverMeshInstance = null;
 
@@ -36,20 +37,27 @@ editor.once('load', function() {
             return;
 
         if (hoverEntity.model.type === 'asset') {
-            var mapping = hoverEntity.model.mapping;
-            if (hoverEntity._materialBeforeHover === undefined)
-                delete mapping[hoverEntity._materialIndHover];
-            else
-                mapping[hoverEntity._materialIndHover] = hoverEntity._materialBeforeHover;
-            hoverEntity.model.mapping = mapping;
-            editor.call('viewport:render');
+
+            if (hoverAsset) {
+                hoverAsset.data.mapping[hoverAsset._materialIndHover].material = hoverAsset._materialBeforeHover;
+                hoverAsset.fire('change', hoverAsset, 'data', hoverAsset.data, hoverAsset.data);
+                delete hoverAsset._materialBeforeHover;
+            } else {
+                var mapping = hoverEntity.model.mapping;
+                if (hoverEntity._materialBeforeHover === undefined)
+                    delete mapping[hoverEntity._materialIndHover];
+                else
+                    mapping[hoverEntity._materialIndHover] = hoverEntity._materialBeforeHover;
+                hoverEntity.model.mapping = mapping;
+            }
         } else if (hoverEntity._materialBeforeHover) {
             hoverEntity.model.material = hoverEntity._materialBeforeHover;
-            editor.call('viewport:render');
         }
 
         delete hoverEntity._materialBeforeHover;
         delete hoverEntity._materialIndHover;
+
+        editor.call('viewport:render');
     };
 
     var onHover = function(entity, meshInstance) {
@@ -58,6 +66,7 @@ editor.once('load', function() {
 
         onLeave();
 
+        hoverAsset = null;
         hoverEntity = entity;
         hoverMeshInstance = meshInstance;
 
@@ -66,15 +75,22 @@ editor.once('load', function() {
                 var ind = hoverEntity.model.model.meshInstances.indexOf(hoverMeshInstance);
                 if (ind !== -1) {
                     var mapping = hoverEntity.model.mapping;
+                    if (!mapping || !mapping.hasOwnProperty(ind)) {
 
-                    hoverEntity._materialBeforeHover = mapping ? mapping[ind] : undefined;
-                    hoverEntity._materialIndHover = ind;
+                        hoverAsset = app.assets.get(hoverEntity.model.asset);
+                        hoverAsset._materialBeforeHover = hoverAsset.data.mapping[ind].material;
+                        hoverAsset._materialIndHover = ind;
 
-                    if (! mapping)
-                        mapping = {};
+                        hoverAsset.data.mapping[ind].material = hoverMaterial.id;
+                        hoverAsset.fire('change', hoverAsset, 'data', hoverAsset.data, hoverAsset.data);
+                    } else {
+                        hoverEntity._materialBeforeHover = mapping[ind];
+                        hoverEntity._materialIndHover = ind;
 
-                    mapping[ind] = hoverMaterial.id;
-                    hoverEntity.model.mapping = mapping;
+                        mapping[ind] = hoverMaterial.id;
+                        hoverEntity.model.mapping = mapping;
+                    }
+
                     editor.call('viewport:render');
                 }
             } else {
@@ -107,6 +123,15 @@ editor.once('load', function() {
                 var ind = hoverEntity.model.model.meshInstances.indexOf(hoverMeshInstance);
                 if (ind === -1)
                     return;
+
+                // if we are setting the model asset mapping then set it and return
+                if (hoverAsset) {
+                    var asset = editor.call('assets:get', hoverAsset.id);
+                    if (asset.has('data.mapping.' + ind + '.material'))
+                        asset.set('data.mapping.' + ind + '.material', hoverMaterial.id);
+
+                    return;
+                }
 
                 // set mapping with custom history action
                 // to prevent bug where undoing will set the mapping to
