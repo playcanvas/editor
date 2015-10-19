@@ -76,7 +76,7 @@ editor.once('load', function() {
                 var ind = hoverEntity.model.model.meshInstances.indexOf(hoverMeshInstance);
                 if (ind !== -1) {
                     var mapping = hoverEntity.model.mapping;
-                    if (!mapping || !mapping[ind]) {
+                    if (!mapping || mapping[ind] === undefined) {
 
                         hoverAsset = app.assets.get(hoverEntity.model.asset);
                         hoverAsset._materialBeforeHover = hoverAsset.data.mapping[ind].material;
