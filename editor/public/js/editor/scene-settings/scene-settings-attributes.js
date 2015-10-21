@@ -413,6 +413,7 @@ editor.once('load', function() {
             });
 
             fieldScriptPicker.style['font-size'] = '11px';
+            fieldScriptPicker.parent.hidden = true;
 
             var btnRemove = new ui.Button();
             btnRemove.class.add('remove');
