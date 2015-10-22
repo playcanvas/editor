@@ -426,7 +426,9 @@ editor.once('load', function() {
                 subTitle: scriptAttributeRuntimeTypes[attribute.type]
             };
 
-            if (attribute.displayName !== attribute.name)
+            if (attribute.description)
+                reference.description = attribute.description;
+            else if (attribute.displayName !== attribute.name)
                 reference.description = attribute.displayName;
 
             var type = scriptAttributeTypes[attribute.type];

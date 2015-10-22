@@ -323,13 +323,25 @@ editor.once('load', function () {
                     throw attributeErrorMsg(url, attr, pc.string.format("{0} is not a valid attribute type", attr.type));
                 }
 
-                if (attr.options && attr.options.displayName) {
-                    if (typeof attr.options.displayName !== 'string') {
-                        throw attributeErrorMsg(url, attr, "Display name of attribute must be a string");
+                if (attr.options) {
+                    if (attr.options.displayName) {
+                        if (typeof attr.options.displayName !== 'string') {
+                            throw attributeErrorMsg(url, attr, "Display name of attribute must be a string");
+                        }
+
+                        if (attr.options.displayName.length > 128) {
+                            throw attributeErrorMsg(url, attr, "Display name of attribute cannot exceed 128 characters");
+                        }
                     }
 
-                    if (attr.options.displayName.length > 128) {
-                        throw attributeErrorMsg(url, attr, "Display name of attribute cannot exceed 128 characters");
+                    if (attr.options.description) {
+                        if (typeof attr.options.description !== 'string') {
+                            throw attributeErrorMsg(url, attr, "Description of attribute must be a string");
+                        }
+
+                        if (attr.options.description.length > 1024) {
+                            throw attributeErrorMsg(url, attr, "Description of attribute cannot exceed 1024 characters");
+                        }
                     }
                 }
 
@@ -345,12 +357,12 @@ editor.once('load', function () {
                 validated.attributes[attr.name] = {
                     name: attr.name,
                     displayName: attr.options && attr.options.displayName ? attr.options.displayName : attr.name,
+                    description: attr.options ? attr.options.description : undefined,
                     defaultValue: attr.defaultValue,
                     value: attr.defaultValue,
                     type: attr.type,
                     options: attr.options ? {
                         // Only allowed options
-                        displayName: attr.name,
                         max: attr.options.max,
                         min: attr.options.min,
                         step: attr.options.step,
