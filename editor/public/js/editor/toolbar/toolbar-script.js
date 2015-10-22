@@ -28,6 +28,7 @@ editor.once('load', function () {
     fieldError.hidden = true;
 
     var newContent = '';
+    var creating = false;
 
     // close overlay on esc
     var onKey = function (e) {
@@ -50,6 +51,7 @@ editor.once('load', function () {
         fieldError.hidden = true;
         fieldError.text = '';
         newContent = '';
+        creating = false;
         editor.emit('sourcefiles:new:close');
 
     });
@@ -65,6 +67,11 @@ editor.once('load', function () {
     };
 
     var onSubmit = function () {
+        if (creating)
+            return;
+
+        creating = true;
+
         fieldError.hidden = true;
 
         if (! validateFilename(fieldName.value)) {
@@ -76,6 +83,8 @@ editor.once('load', function () {
             fieldName.value = fieldName.value + '.js';
 
         createScript(fieldName.value, function (err, script) {
+            creating = false;
+
             if (err) {
                 onError(err);
             } else {
