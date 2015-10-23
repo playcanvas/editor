@@ -38,7 +38,7 @@ editor.once('load', function() {
 
         // play
         var btnPlay = new ui.Button({
-            text: '&#57922;'
+            text: '&#57649;'
         });
         btnPlay.disabled = true;
         btnPlay.class.add('audio-play');
@@ -75,7 +75,7 @@ editor.once('load', function() {
         // on play
         audio.addEventListener('play', function() {
             btnPlay.class.add('active');
-            btnPlay.text = '&#57921;';
+            btnPlay.text = '&#57649;';
 
             if (playing)
                 return;
@@ -87,7 +87,7 @@ editor.once('load', function() {
         audio.addEventListener('pause', function() {
             timeline.progress = 0;
             btnPlay.class.remove('active');
-            btnPlay.text = '&#57922;';
+            btnPlay.text = '&#57649;';
 
             clearInterval(playing);
             playing = null;

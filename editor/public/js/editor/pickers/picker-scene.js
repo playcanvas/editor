@@ -22,7 +22,7 @@ editor.once('load', function() {
 
     // icon
     var icon = document.createElement('span');
-    icon.classList.add('picker-scene-icon', 'font-icon');
+    icon.classList.add('picker-scene-icon', 'font-pc-icon');
     header.appendChild(icon);
 
     // title
@@ -33,7 +33,7 @@ editor.once('load', function() {
 
     // close button
     var close = document.createElement('span');
-    close.classList.add('picker-scene-close', 'font-icon');
+    close.classList.add('picker-scene-close', 'font-pc-icon');
     close.addEventListener('click', function () {
         editor.call('picker:scene:close');
     });
@@ -133,7 +133,7 @@ editor.once('load', function() {
 
     var newSceneRight = document.createElement('span');
     newSceneRight.classList.add('right');
-    newSceneRight.innerHTML = '&#58468;';
+    newSceneRight.innerHTML = '&#57632;';
     newScene.appendChild(newSceneRight);
 
     footer.appendChild(newScene);
@@ -188,7 +188,7 @@ editor.once('load', function() {
         // primary scene icon
         var primary = document.createElement('span');
         primary.classList.add('scene-primary');
-        primary.innerHTML = '&#57989;';
+        primary.innerHTML = '&#57891;';
         row.appendChild(primary);
         primary.addEventListener('click', function () {
             if (!editor.call('permissions:write'))
@@ -228,8 +228,7 @@ editor.once('load', function() {
         dropdowns[scene.id] = dropdown;
 
         var dropdownIcon = document.createElement('div');
-        dropdownIcon.classList.add('scene-dropdown-icon', 'font-icon');
-        dropdownIcon.innerHTML = '&#57922;';
+        dropdownIcon.classList.add('scene-dropdown-icon', 'font-pc-icon');
         dropdown.appendChild(dropdownIcon);
 
         dropdown.addEventListener('click', function () {

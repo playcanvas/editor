@@ -5,9 +5,9 @@ editor.once('load', function() {
 
     // settings button
     var button = new ui.Button({
-        text: '&#58152;'
+        text: '&#57652;'
     });
-    button.class.add('icon', 'designer-settings');
+    button.class.add('pc-icon', 'designer-settings');
     toolbar.append(button);
 
     button.on('click', function() {

@@ -184,7 +184,7 @@ editor.once('load', function() {
     panelFilters.append(search);
 
     var searchClear = document.createElement('div');
-    searchClear.innerHTML = '&#58422;';
+    searchClear.innerHTML = '&#57650;';
     searchClear.classList.add('clear');
     search.element.appendChild(searchClear);
 

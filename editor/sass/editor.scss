@@ -80,11 +80,9 @@ strong {
                     background-position: -47px -1px;
                 }
             }
-            &.icon {
+            &.icon, &.pc-icon {
                 color: #9ba1a3;
                 line-height: 43px;
-                @extend .font-icon;
-                font-size: 24px;
                 text-align: center;
                 background-color: #364346;
 
@@ -112,6 +110,16 @@ strong {
                     color: $text-primary;
                     background-color: $bcg-dark;
                 }
+            }
+
+            &.icon {
+                @extend .font-icon;
+                font-size: 24px;
+            }
+
+            &.pc-icon {
+                @extend .font-pc-icon;
+                font-size: 22px;
             }
 
             &.help-howdoi {
@@ -267,8 +275,9 @@ strong {
         width: 650px;
 
         &:after {
-            content: '\E122';
-            font-size: 20px;
+            content: '\E184';
+            font-weight: 200;
+            font-size: 16px;
         }
         > .title {
             margin-right: 16px;
@@ -288,7 +297,7 @@ strong {
                     margin: 0;
                     // margin: 0 0 0 16px;
                     vertical-align: top;
-                    @extend .font-icon;
+                    @extend .font-pc-icon;
                     font-size: 16px;
                     text-align: center;
                     color: $text-dark;
@@ -326,10 +335,10 @@ strong {
                     background-color: transparent;
 
                     &:before {
-                        @extend .font-icon;
-                        content: '\E211';
+                        @extend .font-pc-icon;
+                        content: '\E208';
                         float: left;
-                        font-size: 18px;
+                        font-size: 14px;
                         line-height: 30px;
                         padding-right: 4px;
                         margin-left: 8px;
@@ -371,7 +380,7 @@ strong {
                         &:after {
                             width: 32px;
                             height: 32px;
-                            line-height: 30px;
+                            line-height: 26px;
                         }
                     }
                     > ul > li {
@@ -423,10 +432,10 @@ strong {
                         content: '';
                     }
                     &:after {
-                        content: '\E333';
-                        line-height: 32px;
+                        content: '\E129';
+                        line-height: 28px;
                         background-color: $bcg-darker;
-                        @extend .font-icon;
+                        @extend .font-pc-icon;
                         font-size: 18px;
                         text-align: center;
                     }
@@ -452,7 +461,7 @@ strong {
                         line-height: 32px;
                         text-align: center;
                         color: #d34141;
-                        @extend .font-icon;
+                        @extend .font-pc-icon;
                         font-size: 18px;
                         text-align: center;
                         cursor: pointer;
@@ -473,12 +482,12 @@ strong {
             border-color: transparent;
 
             &:after {
-                @extend .font-icon;
-                content: '\E123';
+                @extend .font-pc-icon;
+                content: '\E169';
                 position: absolute;
                 right: 5px;
                 top: -1px;
-                font-size: 20px;
+                font-size: 16px;
                 font-weight: 200;
                 color: $text-darkest;
             }
@@ -643,21 +652,15 @@ strong {
                 }
 
                 &:after {
-                    @extend .font-icon;
-                    content: '\E111';
+                    @extend .font-pc-icon;
+                    content: '\E166';
                     float: right;
-
-                    -webkit-transform: rotate(-90deg);
-                    -moz-transform: rotate(-90deg);
-                    -ms-transform: rotate(-90deg);
-                    -o-transform: rotate(-90deg);
-                    transform: rotate(-90deg);
 
                     width: 32px;
                     height: 32px;
                     line-height: 32px;
                     margin-left: 16px;
-                    font-size: 18px;
+                    font-size: 20px;
                     text-align: center;
                     background-color: $bcg-primary;
                 }
@@ -688,8 +691,9 @@ strong {
         text-transform: uppercase;
 
         &:after {
-            content: '\E122';
-            font-size: 20px;
+            content: '\E184';
+            font-weight: 200;
+            font-size: 16px;
         }
     }
 
@@ -754,16 +758,16 @@ strong {
             margin: 0;
             content: none;
             text-align: center;
-            font-size: 8px;
+            font-size: 9px;
             line-height: 12px;
-            @extend .font-icon;
+            @extend .font-pc-icon;
             background-color: transparent;
             color: #7f7;
             transition: none;
         }
         &:hover {
             &:after {
-                content: '\E435';
+                content: '\E133';
                 color: mix($bcg-dark, #7f7, 50%);
             }
         }
@@ -771,7 +775,7 @@ strong {
             border-color: mix($bcg-dark, #7f7, 50%);
 
             &:after {
-                content: '\E435';
+                content: '\E133';
             }
         }
     }
@@ -859,7 +863,7 @@ strong {
                             opacity: .5;
                         }
                         > .icon {
-                            @extend .font-icon;
+                            @extend .font-pc-icon;
                             position: absolute;
                             right: 0;
                             top: 0;
@@ -893,7 +897,7 @@ strong {
                         width: 22px;
                         line-height: 22px;
                         text-align: center;
-                        @extend .font-icon;
+                        @extend .font-pc-icon;
 
                         &:hover {
                             color: $text-active;
@@ -984,7 +988,7 @@ strong {
                             color: $text-dark;
                             height: 28px;
                             line-height: 28px;
-                            @extend .font-icon;
+                            @extend .font-pc-icon;
                             font-size: 18px;
                             text-align: center;
                             text-align: center;
@@ -1107,7 +1111,7 @@ strong {
                 margin: 0;
                 padding: 0;
                 border: none;
-                @extend .font-icon;
+                @extend .font-pc-icon;
                 font-size: 16px;
                 text-align: center;
 
@@ -1115,7 +1119,7 @@ strong {
                     color: $text-active;
                 }
                 &:after {
-                    content: '\E436';
+                    content: '\E120';
                 }
             }
 
@@ -1153,12 +1157,12 @@ strong {
                     margin: 0;
                     padding: 0;
                     border: none;
-                    @extend .font-icon;
+                    @extend .font-pc-icon;
                     font-size: 16px;
                     text-align: center;
 
                     &:after {
-                        content: '\E464';
+                        content: '\E120';
                     }
                 }
             }
@@ -1176,7 +1180,7 @@ strong {
                     margin: 0;
                     padding: 0;
                     border: none;
-                    @extend .font-icon;
+                    @extend .font-pc-icon;
                     font-size: 18px;
                     text-align: center;
 
@@ -1184,7 +1188,7 @@ strong {
                         color: #d34141;
                     }
                     &:after {
-                        content: '\E436';
+                        content: '\E120';
                     }
                 }
             }
@@ -1192,47 +1196,47 @@ strong {
         &.related-assets {
             > .ui-list-item {
                 &:before {
-                    content: '\E211';
-                    @extend .font-icon;
+                    content: '\E209';
+                    @extend .font-pc-icon;
                     font-size: 14px;
                     padding-right: 8px;
                     color: $text-darkest;
                 }
                 &.type-animation:before {
-                    content: '\E274';
+                    content: '\E213';
                 }
                 &.type-audio:before {
-                    content: '\E262';
+                    content: '\E210';
                 }
                 &.type-cubemap:before {
-                    content: '\E515';
+                    content: '\E220';
                 }
                 &.type-json:before {
-                    content: '\E353';
+                    content: '\E207';
                 }
                 &.type-material:before {
-                    content: '\E547';
+                    content: '\E195';
                 }
                 &.type-model:before {
-                    content: '\E417';
+                    content: '\E188';
                 }
                 &.type-scene:before {
-                    content: '\E417';
+                    content: '\E188';
                 }
                 &.type-script:before {
-                    content: '\E353';
-                }
-                &.type-texture:before {
                     content: '\E236';
                 }
+                &.type-texture:before {
+                    content: '\E201';
+                }
                 &.type-text:before {
-                    content: '\E284';
+                    content: '\E209';
                 }
                 &.type-html:before {
-                    content: '\E353';
+                    content: '\E205';
                 }
                 &.type-css:before {
-                    content: '\E353';
+                    content: '\E206';
                 }
                 &.type-shader:before {
                     content: '\E353';
@@ -1294,8 +1298,8 @@ strong {
                     line-height: 20px;
                     background-color: #364346;
                     cursor: pointer;
-                    @extend .font-icon;
-                    font-size: 18px;
+                    @extend .font-pc-icon;
+                    font-size: 16px;
                     text-align: center;
 
                     &:hover {
@@ -1303,7 +1307,7 @@ strong {
                         background-color: #20292b;
                     }
                     &:after {
-                        content: '\E521';
+                        content: '\E125';
                     }
                 }
             }
@@ -1349,12 +1353,12 @@ strong {
                 > .title {
                     &:before {
                         content: '\E243';
-                        @extend .font-icon;
+                        @extend .font-pc-icon;
                         font-size: 18px;
                         float: left;
                         width: 24px;
                         margin-right: 4px;
-                        line-height: 30px;
+                        line-height: 26px;
                         text-align: center;
                         color: $text-active;
                     }
@@ -1372,12 +1376,12 @@ strong {
                     float: right;
                     width: 32px;
                     height: 32px;
-                    line-height: 30px;
+                    line-height: 27px;
                     margin: 0;
                     padding: 0;
                     border: none;
-                    @extend .font-icon;
-                    font-size: 18px;
+                    @extend .font-pc-icon;
+                    font-size: 16px;
                     text-align: center;
                     background-color: transparent;
 
@@ -1386,42 +1390,41 @@ strong {
                         background-color: #20292b;
                     }
                     &:after {
-                        content: '\E521';
+                        content: '\E125';
                     }
                 }
             }
 
             &.script > header > .title:before {
-                content: '\E284';
+                content: '\E236';
             }
             &.model > header > .title:before {
-                content: '\E417';
+                content: '\E188';
                 // font-size: 16px;
             }
             &.animation > header > .title:before {
-                content: '\E274';
+                content: '\E198';
             }
             &.audiosource > header > .title:before {
-                content: '\E254';
-                font-size: 20px;
+                content: '\E197';
             }
             &.collision > header > .title:before {
-                content: '\E327';
+                content: '\E187';
             }
             &.rigidbody > header > .title:before {
-                content: '\E328';
+                content: '\E190';
             }
             &.particlesystem > header > .title:before {
-                content: '\E458';
+                content: '\E199';
             }
             &.light > header > .title:before {
-                content: '\E318';
+                content: '\E194';
             }
             &.audiolistener > header > .title:before {
-                content: '\E267';
+                content: '\E196';
             }
             &.camera > header > .title:before {
-                content: '\E584';
+                content: '\E212';
             }
         }
         > .content {
@@ -1451,10 +1454,10 @@ strong {
 
                 &:before {
                     position: absolute;
-                    top: -1px;
+                    top: -2px;
                     left: 8px;
-                    content: '\E464';
-                    @extend .font-icon;
+                    content: '\E120';
+                    @extend .font-pc-icon;
                     font-size: 16px;
                     text-align: center;
                 }
@@ -1464,9 +1467,9 @@ strong {
                 text-align: center;
 
                 &:before {
-                    content: '\E442';
+                    content: '\E130';
                     padding-right: 8px;
-                    @extend .font-icon;
+                    @extend .font-pc-icon;
                     font-size: 16px;
                     text-align: center;
                 }
@@ -1476,9 +1479,9 @@ strong {
                 text-align: center;
 
                 &:before {
-                    content: '\E365';
+                    content: '\E228';
                     padding-right: 8px;
-                    @extend .font-icon;
+                    @extend .font-pc-icon;
                     font-size: 16px;
                     text-align: center;
                 }
@@ -1512,22 +1515,24 @@ strong {
                     position: absolute;
                     top: -1px;
                     left: 8px;
-                    @extend .font-icon;
+                    @extend .font-pc-icon;
                     font-size: 16px;
                     text-align: center;
                 }
             }
 
             > .ui-button.override-material:before {
-                content: '\E117';
+                content: '\E184';
+                font-weight: 200;
             }
 
             > .ui-button.loading-screen:before {
-                content: '\E117';
+                content: '\E184';
+                font-weight: 200;
             }
 
             > .ui-button.loading-screen.add:before {
-                content: '\E464';
+                content: '\E120';
                 font-size: 14px;
                 top: -2px;
             }
@@ -1560,10 +1565,10 @@ strong {
 
                 &:before {
                     position: absolute;
-                    top: -1px;
+                    top: -2px;
                     left: 8px;
-                    content: '\E464';
-                    @extend .font-icon;
+                    content: '\E120';
+                    @extend .font-pc-icon;
                     font-size: 16px;
                     text-align: center;
                 }
@@ -1572,7 +1577,7 @@ strong {
 
         > .content {
             .ui-button.audio-play {
-                @extend .font-icon;
+                @extend .font-pc-icon;
                 float: left;
                 width: 26px;
                 height: 26px;
@@ -1582,7 +1587,7 @@ strong {
                 -webkit-flex-shrink: 0;
                 margin: 0 0 0 4px;
                 padding: 0;
-                font-size: 24px;
+                font-size: 20px;
 
                 &.active {
                     color: $text-active;
@@ -1646,7 +1651,7 @@ strong {
                     padding: 0;
                     background-color: transparent;
                     border: none;
-                    @extend .font-icon;
+                    @extend .font-pc-icon;
                     font-size: 18px;
                     text-align: center;
 
@@ -1657,19 +1662,18 @@ strong {
                 }
 
                 > .refresh {
-                    font-size: 20px;
                     line-height: 28px;
                     &:after {
-                        content: '\E145';
+                        content: '\E128';
                     }
                 }
                 > .move-up:after {
-                    content: '\E112';
+                    content: '\E161';
                 }
                 > .move-down {
                     line-height: 32px;
                     &:after {
-                        content: '\E111';
+                        content: '\E163';
                     }
                 }
                 > .remove {
@@ -1677,7 +1681,7 @@ strong {
                         color: #d34141;
                     }
                     &:after {
-                        content: '\E521';
+                        content: '\E125';
                     }
                 }
             }
@@ -1726,8 +1730,9 @@ strong {
         white-space: nowrap;
 
         &:after {
-            content: '\E122';
-            font-size: 20px;
+            content: '\E184';
+            font-weight: 200;
+            font-size: 16px;
         }
         > .title {
             max-width: calc(100% - 96px);
@@ -1751,10 +1756,10 @@ strong {
                 color: $text-primary;
             }
             > .icon:after {
-                content: '\E243';
-                line-height: 21px;
-                @extend .font-icon;
-                font-size: 18px;
+                content: '\E185';
+                line-height: 18px;
+                @extend .font-pc-icon;
+                font-size: 16px;
                 text-align: center;
                 background-color: transparent;
                 color: $text-darkest;
@@ -1762,7 +1767,7 @@ strong {
         }
         &.container {
             > .title > .icon:after {
-                content: '\E422';
+                content: '\E139';
             }
         }
         &.selected {
@@ -1777,35 +1782,34 @@ strong {
         }
 
         &.c-script > .title > .icon:after {
-            content: '\E284';
+            content: '\E236';
         }
         &.c-model > .title > .icon:after {
-            content: '\E417';
-            font-size: 16px;
+            content: '\E188';
         }
         &.c-animation > .title > .icon:after {
-            content: '\E274';
+            content: '\E198';
         }
         &.c-audiosource > .title > .icon:after {
-            content: '\E254';
+            content: '\E197';
         }
         &.c-collision > .title > .icon:after {
-            content: '\E327';
+            content: '\E187';
         }
         &.c-rigidbody > .title > .icon:after {
-            content: '\E328';
+            content: '\E190';
         }
         &.c-particlesystem > .title > .icon:after {
-            content: '\E458';
+            content: '\E199';
         }
         &.c-light > .title > .icon:after {
-            content: '\E318';
+            content: '\E194';
         }
         &.c-audiolistener > .title > .icon:after {
-            content: '\E267';
+            content: '\E196';
         }
         &.c-camera > .title > .icon:after {
-            content: '\E584';
+            content: '\E212';
         }
         &.rename {
             > .title {
@@ -1855,7 +1859,7 @@ strong {
             border: none;
             padding: 0;
             color: #9ba1a3;
-            @extend .font-icon;
+            @extend .font-pc-icon;
             font-size: 16px;
             text-align: center;
             background-color: transparent;
@@ -1892,7 +1896,7 @@ strong {
 
         &.type-animation {
             > .thumbnail.placeholder:after {
-                content: '\E274';
+                content: '\E213';
             }
             > .icon {
                 display: none;
@@ -1900,7 +1904,7 @@ strong {
         }
         &.type-audio {
             > .thumbnail.placeholder:after {
-                content: '\E262';
+                content: '\E210';
             }
             > .icon {
                 display: none;
@@ -1908,15 +1912,15 @@ strong {
         }
         &.type-cubemap {
             > .thumbnail.placeholder:after {
-                content: '\E515';
+                content: '\E220';
             }
             > .icon:after {
-                content: '\E515';
+                content: '\E220';
             }
         }
         &.type-json {
             > .thumbnail.placeholder:after {
-                content: '\E353';
+                content: '\E207';
             }
             > .icon {
                 display: none;
@@ -1924,7 +1928,7 @@ strong {
         }
         &.type-material {
             > .thumbnail.placeholder:after {
-                content: '\E547';
+                content: '\E195';
             }
             > .icon {
                 display: none;
@@ -1932,23 +1936,24 @@ strong {
         }
         &.type-model {
             > .thumbnail.placeholder:after {
-                content: '\E417';
+                content: '\E188';
             }
             > .icon:after {
-                content: '\E417';
+                content: '\E188';
             }
         }
         &.type-scene {
             > .thumbnail.placeholder:after {
-                content: '\E417';
+                content: '\E188';
             }
             > .icon:after {
-                content: '\E417';
+                content: '\E188';
             }
         }
         &.type-script {
             > .thumbnail.placeholder:after {
-                content: '\E353';
+                content: '\E236';
+                font-size: 60px;
             }
             > .icon {
                 display: none;
@@ -1956,7 +1961,7 @@ strong {
         }
         &.type-texture {
             > .thumbnail.placeholder:after {
-                content: '\E236';
+                content: '\E201';
             }
             > .icon {
                 display: none;
@@ -1964,7 +1969,7 @@ strong {
         }
         &.type-text {
             > .thumbnail.placeholder:after {
-                content: '\E284';
+                content: '\E209';
             }
             > .icon {
                 display: none;
@@ -1972,7 +1977,7 @@ strong {
         }
         &.type-html {
             > .thumbnail.placeholder:after {
-                content: '\E353';
+                content: '\E205';
             }
             > .icon {
                 display: none;
@@ -1980,7 +1985,7 @@ strong {
         }
         &.type-css {
             > .thumbnail.placeholder:after {
-                content: '\E353';
+                content: '\E206';
             }
             > .icon {
                 display: none;
@@ -2030,9 +2035,9 @@ strong {
         }
         &.unused {
             > .label:before {
-                @extend .font-icon;
-                content: '\E243';
-                font-size: 14px;
+                @extend .font-pc-icon;
+                content: '\E185';
+                font-size: 8px;
                 line-height: 14px;
                 display: inline-block;
                 width: 12px;
@@ -2051,7 +2056,7 @@ strong {
             color: $text-darkest;
 
             &.placeholder:after {
-                @extend .font-icon;
+                @extend .font-pc-icon;
                 font-size: 48px;
                 font-weight: 100;
             }
@@ -2073,16 +2078,16 @@ strong {
             height: 22px;
             top: 0;
             left: 0;
-            @extend .font-icon;
+            @extend .font-pc-icon;
             font-size: 18px;
             font-weight: 100;
-            line-height: 22px;
+            line-height: 19px;
             text-align: center;
             color: $bcg-darker;
             background-color: $text-darkest;
 
             &:after {
-                content: '\E211';
+                content: '\E208';
             }
         }
         > .label {
@@ -2130,15 +2135,10 @@ strong {
         &:after {
             width: 32px;
             height: 32px;
-            line-height: 32px;
-            content: '\E126';
+            line-height: 28px;
+            font-size: 16px;
+            content: '\E183';
             color: rgba($text-primary, .5);
-
-            -webkit-transform: rotate(90deg);
-            -moz-transform: rotate(90deg);
-            -o-transform: rotate(90deg);
-            -ms-transform: rotate(90deg);
-            transform: rotate(90deg);
         }
     }
 
@@ -2149,7 +2149,8 @@ strong {
         > .value {
             color: $text-primary;
             &:after {
-                content: '\E126';
+                content: '\E183';
+                font-size: 16px;
                 color: $text-primary;
             }
         }
@@ -2180,8 +2181,8 @@ strong {
             margin: 0 2px 0 0;
             padding: 0;
             border: none;
-            @extend .font-icon;
-            font-size: 24px;
+            @extend .font-pc-icon;
+            font-size: 22px;
             text-align: center;
             color: rgba($text-primary, .75);
             background-color: rgba($bcg-darker, .5);
@@ -2211,12 +2212,12 @@ strong {
                 > .ui-button {
                     width: 33px;
                     height: 33px;
-                    line-height: 32px;
+                    line-height: 30px;
                     margin: 0;
                     padding: 0;
                     border: none;
-                    @extend .font-icon;
-                    font-size: 24px;
+                    @extend .font-pc-icon;
+                    font-size: 22px;
                     text-align: center;
                     color: rgba($text-primary, .75);
                     background-color: rgba($bcg-darker, .5);
@@ -2244,12 +2245,12 @@ strong {
                             background-color: $bcg-darker;
                         }
                         &.ticked:after {
-                            @extend .font-icon;
+                            @extend .font-pc-icon;
                             font-size: 14px;
                             line-height: 14px;
                             font-weight: 100;
                             float: right;
-                            content: '\E435';
+                            content: '\E133';
                         }
                     }
                 }
@@ -2308,7 +2309,7 @@ strong {
             }
 
             &:before {
-                @extend .font-icon;
+                @extend .font-pc-icon;
                 font-size: 14px;
                 margin-right: 7px;
                 float: left;
@@ -2318,18 +2319,18 @@ strong {
         }
 
         > .project-name:before {
-            content: '\E525';
+            content: '\E140';
         }
 
         > .scene-name:before {
-            content: '\E328';
+            content: '\E134';
         }
 
         > .scene-list {
             width: 33px;
             padding: 0;
             &:before {
-                content: '\E185';
+                content: '\E147';
                 margin-right: 0px;
                 width: 33px;
                 height: 33px;
@@ -2346,7 +2347,7 @@ strong {
         height: 24px;
         top: 0;
         right: 0;
-        @extend .font-icon;
+        @extend .font-pc-icon;
         text-align: center;
         border: none;
         color: #5b7073;
@@ -2357,7 +2358,7 @@ strong {
         }
 
         &:after {
-            content: '\E521';
+            content: '\E125';
         }
 
         &.not-visible {
@@ -2379,12 +2380,12 @@ strong {
     }
 
     .ui-button.remove {
-        @extend .font-icon;
+        @extend .font-pc-icon;
         line-height: 66px;
         height: 66px;
         width: 40px;
         padding: 0;
-        font-size: 18px;
+        font-size: 16px;
         text-align: center;
     }
 }
@@ -2562,9 +2563,9 @@ strong {
             text-align: center;
 
             &:before {
-                content: '\E464';
+                content: '\E120';
                 padding-right: 8px;
-                @extend .font-icon;
+                @extend .font-pc-icon;
             }
         }
     }
@@ -2584,8 +2585,8 @@ strong {
         padding: 0;
         background-color: transparent;
         border: none;
-        @extend .font-icon;
-        font-size: 18px;
+        @extend .font-pc-icon;
+        font-size: 16px;
         text-align: center;
 
         &:hover {
@@ -2595,18 +2596,18 @@ strong {
     }
 
     .move-up:after {
-        content: '\E112';
+        content: '\E161';
     }
 
     .move-down {
         line-height: 32px;
         &:after {
-            content: '\E111';
+            content: '\E163';
         }
     }
 
     .remove:after {
-        content: '\E521';
+        content: '\E125';
     }
 
     .not-visible {
@@ -2635,9 +2636,10 @@ strong {
             height: 100%;
 
             &:before {
-                @extend .font-icon;
+                @extend .font-pc-icon;
                 font-size: 14px;
-                content: '\E333';
+                content: '\E129';
+                line-height: 30px;
                 color: $text-primary;
                 opacity: 0.5;
                 vertical-align: top;
@@ -2680,7 +2682,7 @@ strong {
 
         > .close {
             position: absolute;
-            right: 8px;
+            right: 18px;
             top: 3px;
             padding: 0;
             margin: 0;
@@ -2693,6 +2695,13 @@ strong {
 
             &:hover {
                 opacity: 1;
+            }
+
+            > .font-pc-icon {
+                display: block;
+                position: absolute;
+                top: -1px;
+                right: -12px;
             }
         }
 
@@ -2779,7 +2788,7 @@ strong {
                         margin-bottom: 10px;
                     }
 
-                    .font-icon {
+                    .font-icon, .font-pc-icon {
                         font-size: 16px;
                     }
 
@@ -2838,15 +2847,10 @@ strong {
                             width: 30px;
                             height: 30px;
                             text-align: center;
-                            content: '\E112';
-                            @extend .font-icon;
+                            content: '\E166';
+                            @extend .font-pc-icon;
                             font-size: 20px;
 
-                            -webkit-transform: rotate(90deg);
-                            -moz-transform: rotate(90deg);
-                            -ms-transform: rotate(90deg);
-                            -o-transform: rotate(90deg);
-                            transform: rotate(90deg);
                             background-color: transparentize($text-active, 0.5);
                         }
 
@@ -2882,12 +2886,12 @@ strong {
             background-color: $bcg-darker;
 
             > .icon {
-                @extend .font-icon;
+                @extend .font-pc-icon;
                 font-size: 24px;
                 margin-right: 8px;
             }
             > .close {
-                @extend .font-icon;
+                @extend .font-pc-icon;
                 float: right;
                 margin: 0;
                 padding: 0;
@@ -2949,7 +2953,7 @@ strong {
                 line-height: 38px;
 
                 > .icon {
-                    @extend .font-icon;
+                    @extend .font-pc-icon;
                     float: right;
                     margin: 0 8px;
                     font-size: 18px;
@@ -3413,7 +3417,7 @@ strong {
                     color: $text-darkest;
                     margin: 0;
 
-                    > .font-icon {
+                    > .font-pc-icon {
                         color: $text-darkest;
                         font-size: 20px;
                     }
@@ -3506,9 +3510,9 @@ strong {
                     padding: 0 16px;
                 }
                 &:after {
-                    content: '\E521';
-                    @extend .font-icon;
-                    font-size: 18px;
+                    content: '\E125';
+                    @extend .font-pc-icon;
+                    font-size: 16px;
                     float: right;
                     width: 31px;
                     padding-right: 1px;
@@ -3535,8 +3539,8 @@ strong {
                     background-color: $bcg-darkest;
                 }
                 &:after {
-                    content: '\E436';
-                    @extend .font-icon;
+                    content: '\E132';
+                    @extend .font-pc-icon;
                     text-align: center;
                     font-size: 18px;
                 }
@@ -3873,7 +3877,7 @@ strong {
                         font-size: 25px;
 
                         &:after {
-                            content: '\E185'
+                            content: '\E147'
                         }
                     }
 
@@ -3886,7 +3890,7 @@ strong {
                         text-align: right;
 
                         &:after {
-                            content: '\E436';
+                            content: '\E132';
                         }
 
                         &:hover {
@@ -3951,7 +3955,7 @@ strong {
                             }
 
                             > .scene-primary {
-                                @extend .font-icon;
+                                @extend .font-pc-icon;
                                 @extend .noSelect;
                                 top: 12px;
                                 left: 15px;
@@ -4005,24 +4009,13 @@ strong {
                                 background-color: $text-darkest;
                                 overflow: hidden;
 
-                                > .scene-dropdown-icon {
+                                > .scene-dropdown-icon:before {
+                                    content: '\E159';
+                                    @extend .font-pc-icon;
                                     color: $bcg-primary;
-
-                                    -webkit-transform: rotate(90deg);
-                                    -moz-transform: rotate(90deg);
-                                    -ms-transform: rotate(90deg);
-                                    -o-transform: rotate(90deg);
-                                    transform: rotate(90deg);
-
-                                    -webkit-transform-origin: 10px 32px 0px;
-                                    -moz-transform-origin: 10px 32px 0px;
-                                    -ms-transform-origin: 10px 32px 0px;
-                                    -o-transform-origin: 10px 32px 0px;
-                                    transform-origin: 10px 32px 0px;
-
                                     position: absolute;
-                                    left: 3px;
-                                    top: -19px;
+                                    left: 2px;
+                                    top: -22px;
                                     font-size: 20px;
                                 }
 
@@ -4038,20 +4031,9 @@ strong {
                                 &.clicked {
                                     background-color: $bcg-darkest;
 
-                                    > .scene-dropdown-icon {
+                                    > .scene-dropdown-icon:before {
                                         color: $text-primary;
-
-                                        -webkit-transform: rotate(-90deg);
-                                        -moz-transform: rotate(-90deg);
-                                        -ms-transform: rotate(-90deg);
-                                        -o-transform: rotate(-90deg);
-                                        transform: rotate(-90deg);
-
-                                        -webkit-transform-origin: 40% 50%;
-                                        -moz-transform-origin: 40% 50%;
-                                        -ms-transform-origin: 40% 50%;
-                                        -o-transform-origin: 40% 50%;
-                                        transform-origin: 40% 50%;
+                                        content: '\E157';
                                     }
 
                                     > ul {
@@ -4129,7 +4111,7 @@ strong {
                         }
 
                         > .right {
-                            @extend .font-icon;
+                            @extend .font-pc-icon;
                             font-size: 16px;
                             background-color: transparentize(#5f6f72, 0.25);
                             width: 32px;
@@ -4193,7 +4175,7 @@ strong {
         line-height: 30px;
         text-align: center;
 
-        @extend .font-icon;
+        @extend .font-pc-icon;
 
         &:hover {
             opacity: 1;

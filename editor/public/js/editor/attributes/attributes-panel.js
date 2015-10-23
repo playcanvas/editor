@@ -518,7 +518,7 @@ editor.once('load', function() {
                 });
 
                 var btnAdd = new ui.Button({
-                    text: '&#58468'
+                    text: '&#57632'
                 });
                 btnAdd.flexGrow = 0;
                 btnAdd.on('click', function() {
@@ -699,7 +699,7 @@ editor.once('load', function() {
                         item.textContent = tag;
 
                         var icon = document.createElement('span');
-                        icon.innerHTML = '&#58422;';
+                        icon.innerHTML = '&#57650;';
                         icon.classList.add('icon');
                         icon.tag = tag;
                         icon.addEventListener('click', onRemoveClick, false);
@@ -930,14 +930,14 @@ editor.once('load', function() {
                 fieldTitle.placeholder = '...';
 
                 var btnEdit = new ui.Button({
-                    text: '&#58214;'
+                    text: '&#57648;'
                 });
                 btnEdit.disabled = true;
                 btnEdit.parent = panel;
                 btnEdit.flexGrow = 0;
 
                 var btnRemove = new ui.Button({
-                    text: '&#58422;'
+                    text: '&#57650;'
                 });
                 btnRemove.disabled = true;
                 btnRemove.parent = panel;

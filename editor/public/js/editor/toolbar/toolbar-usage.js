@@ -12,7 +12,7 @@ editor.once('load', function () {
     panel.append(label);
 
     var btnClose = new ui.Button({
-        text: '&#58422;'
+        text: '&#57650;'
     });
     panel.append(btnClose);
     btnClose.class.add('close');

@@ -11,6 +11,7 @@ editor.once('load', function() {
     // edit
     var menuItemEdit = new ui.MenuItem({
         text: 'Edit',
+        icon: '&#57648;',
         value: 'edit'
     });
     menuItemEdit.on('select', function() {
@@ -22,6 +23,7 @@ editor.once('load', function() {
     // duplicate
     var menuItemDuplicate = new ui.MenuItem({
         text: 'Duplicate',
+        icon: '&#57638;',
         value: 'duplicate'
     });
     menuItemDuplicate.on('select', function() {
@@ -33,6 +35,7 @@ editor.once('load', function() {
     // delete
     var menuItemDelete = new ui.MenuItem({
         text: 'Delete',
+        icon: '&#57637;',
         value: 'delete'
     });
     menuItemDelete.on('select', function() {
