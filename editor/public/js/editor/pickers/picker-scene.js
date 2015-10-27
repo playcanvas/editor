@@ -22,7 +22,7 @@ editor.once('load', function() {
 
     // icon
     var icon = document.createElement('span');
-    icon.classList.add('picker-scene-icon', 'font-pc-icon');
+    icon.classList.add('picker-scene-icon', 'font-icon');
     header.appendChild(icon);
 
     // title
@@ -33,7 +33,7 @@ editor.once('load', function() {
 
     // close button
     var close = document.createElement('span');
-    close.classList.add('picker-scene-close', 'font-pc-icon');
+    close.classList.add('picker-scene-close', 'font-icon');
     close.addEventListener('click', function () {
         editor.call('picker:scene:close');
     });
@@ -228,7 +228,7 @@ editor.once('load', function() {
         dropdowns[scene.id] = dropdown;
 
         var dropdownIcon = document.createElement('div');
-        dropdownIcon.classList.add('scene-dropdown-icon', 'font-pc-icon');
+        dropdownIcon.classList.add('scene-dropdown-icon', 'font-icon');
         dropdown.appendChild(dropdownIcon);
 
         dropdown.addEventListener('click', function () {

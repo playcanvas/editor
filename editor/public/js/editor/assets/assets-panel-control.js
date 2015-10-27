@@ -171,7 +171,7 @@ editor.once('load', function() {
 
     // delete
     var btnDelete = new ui.Button({
-        text: '&#57636;'
+        text: '&#57637;'
     });
     btnDelete.disabled = true;
     btnDelete.class.add('delete');

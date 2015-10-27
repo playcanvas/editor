@@ -117,7 +117,7 @@ a:visited {
                 right: auto;
                 left: 0;
                 content: '\E180';
-                @extend .font-pc-icon;
+                @extend .font-icon;
                 font-size: 14px;
                 text-align: center;
                 margin: 0;
@@ -256,7 +256,7 @@ a:visited {
             width: 16px;
             height: 16px;
             margin: 3px;
-            @extend .font-pc-icon;
+            @extend .font-icon;
             font-size: 10px;
             text-align: center;
             color: $text-secondary;
@@ -455,7 +455,7 @@ a:visited {
     &.container {
         > .title:after {
             content: '\E160';
-            @extend .font-pc-icon;
+            @extend .font-icon;
             font-size: 16px;
             text-align: center;
             background-color: transparent;
@@ -492,7 +492,7 @@ a:visited {
             }
         }
         > .icon {
-            @extend .font-pc-icon;
+            @extend .font-icon;
             font-size: 14px;
             text-align: center;
             background-color: transparent;
@@ -911,7 +911,7 @@ a:visited {
             line-height: 20px;
             padding: 0;
             margin: 0;
-            @extend .font-pc-icon;
+            @extend .font-icon;
             font-size: 18px;
             text-align: center;
             color: $text-darkest;

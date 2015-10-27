@@ -118,7 +118,7 @@ strong {
             }
 
             &.pc-icon {
-                @extend .font-pc-icon;
+                @extend .font-icon;
                 font-size: 22px;
             }
 
@@ -297,7 +297,7 @@ strong {
                     margin: 0;
                     // margin: 0 0 0 16px;
                     vertical-align: top;
-                    @extend .font-pc-icon;
+                    @extend .font-icon;
                     font-size: 16px;
                     text-align: center;
                     color: $text-dark;
@@ -335,7 +335,7 @@ strong {
                     background-color: transparent;
 
                     &:before {
-                        @extend .font-pc-icon;
+                        @extend .font-icon;
                         content: '\E208';
                         float: left;
                         font-size: 14px;
@@ -435,7 +435,7 @@ strong {
                         content: '\E129';
                         line-height: 28px;
                         background-color: $bcg-darker;
-                        @extend .font-pc-icon;
+                        @extend .font-icon;
                         font-size: 18px;
                         text-align: center;
                     }
@@ -461,7 +461,7 @@ strong {
                         line-height: 32px;
                         text-align: center;
                         color: #d34141;
-                        @extend .font-pc-icon;
+                        @extend .font-icon;
                         font-size: 18px;
                         text-align: center;
                         cursor: pointer;
@@ -482,7 +482,7 @@ strong {
             border-color: transparent;
 
             &:after {
-                @extend .font-pc-icon;
+                @extend .font-icon;
                 content: '\E169';
                 position: absolute;
                 right: 5px;
@@ -652,7 +652,7 @@ strong {
                 }
 
                 &:after {
-                    @extend .font-pc-icon;
+                    @extend .font-icon;
                     content: '\E166';
                     float: right;
 
@@ -760,7 +760,7 @@ strong {
             text-align: center;
             font-size: 9px;
             line-height: 12px;
-            @extend .font-pc-icon;
+            @extend .font-icon;
             background-color: transparent;
             color: #7f7;
             transition: none;
@@ -863,7 +863,7 @@ strong {
                             opacity: .5;
                         }
                         > .icon {
-                            @extend .font-pc-icon;
+                            @extend .font-icon;
                             position: absolute;
                             right: 0;
                             top: 0;
@@ -897,7 +897,7 @@ strong {
                         width: 22px;
                         line-height: 22px;
                         text-align: center;
-                        @extend .font-pc-icon;
+                        @extend .font-icon;
 
                         &:hover {
                             color: $text-active;
@@ -988,7 +988,7 @@ strong {
                             color: $text-dark;
                             height: 28px;
                             line-height: 28px;
-                            @extend .font-pc-icon;
+                            @extend .font-icon;
                             font-size: 18px;
                             text-align: center;
                             text-align: center;
@@ -1111,7 +1111,7 @@ strong {
                 margin: 0;
                 padding: 0;
                 border: none;
-                @extend .font-pc-icon;
+                @extend .font-icon;
                 font-size: 16px;
                 text-align: center;
 
@@ -1157,7 +1157,7 @@ strong {
                     margin: 0;
                     padding: 0;
                     border: none;
-                    @extend .font-pc-icon;
+                    @extend .font-icon;
                     font-size: 16px;
                     text-align: center;
 
@@ -1180,7 +1180,7 @@ strong {
                     margin: 0;
                     padding: 0;
                     border: none;
-                    @extend .font-pc-icon;
+                    @extend .font-icon;
                     font-size: 18px;
                     text-align: center;
 
@@ -1197,7 +1197,7 @@ strong {
             > .ui-list-item {
                 &:before {
                     content: '\E209';
-                    @extend .font-pc-icon;
+                    @extend .font-icon;
                     font-size: 14px;
                     padding-right: 8px;
                     color: $text-darkest;
@@ -1298,7 +1298,7 @@ strong {
                     line-height: 20px;
                     background-color: #364346;
                     cursor: pointer;
-                    @extend .font-pc-icon;
+                    @extend .font-icon;
                     font-size: 16px;
                     text-align: center;
 
@@ -1353,7 +1353,7 @@ strong {
                 > .title {
                     &:before {
                         content: '\E243';
-                        @extend .font-pc-icon;
+                        @extend .font-icon;
                         font-size: 18px;
                         float: left;
                         width: 24px;
@@ -1380,7 +1380,7 @@ strong {
                     margin: 0;
                     padding: 0;
                     border: none;
-                    @extend .font-pc-icon;
+                    @extend .font-icon;
                     font-size: 16px;
                     text-align: center;
                     background-color: transparent;
@@ -1457,7 +1457,7 @@ strong {
                     top: -2px;
                     left: 8px;
                     content: '\E120';
-                    @extend .font-pc-icon;
+                    @extend .font-icon;
                     font-size: 16px;
                     text-align: center;
                 }
@@ -1469,7 +1469,7 @@ strong {
                 &:before {
                     content: '\E130';
                     padding-right: 8px;
-                    @extend .font-pc-icon;
+                    @extend .font-icon;
                     font-size: 16px;
                     text-align: center;
                 }
@@ -1481,7 +1481,7 @@ strong {
                 &:before {
                     content: '\E228';
                     padding-right: 8px;
-                    @extend .font-pc-icon;
+                    @extend .font-icon;
                     font-size: 16px;
                     text-align: center;
                 }
@@ -1515,7 +1515,7 @@ strong {
                     position: absolute;
                     top: -1px;
                     left: 8px;
-                    @extend .font-pc-icon;
+                    @extend .font-icon;
                     font-size: 16px;
                     text-align: center;
                 }
@@ -1568,7 +1568,7 @@ strong {
                     top: -2px;
                     left: 8px;
                     content: '\E120';
-                    @extend .font-pc-icon;
+                    @extend .font-icon;
                     font-size: 16px;
                     text-align: center;
                 }
@@ -1577,7 +1577,7 @@ strong {
 
         > .content {
             .ui-button.audio-play {
-                @extend .font-pc-icon;
+                @extend .font-icon;
                 float: left;
                 width: 26px;
                 height: 26px;
@@ -1651,7 +1651,7 @@ strong {
                     padding: 0;
                     background-color: transparent;
                     border: none;
-                    @extend .font-pc-icon;
+                    @extend .font-icon;
                     font-size: 18px;
                     text-align: center;
 
@@ -1758,7 +1758,7 @@ strong {
             > .icon:after {
                 content: '\E185';
                 line-height: 18px;
-                @extend .font-pc-icon;
+                @extend .font-icon;
                 font-size: 16px;
                 text-align: center;
                 background-color: transparent;
@@ -1859,7 +1859,7 @@ strong {
             border: none;
             padding: 0;
             color: #9ba1a3;
-            @extend .font-pc-icon;
+            @extend .font-icon;
             font-size: 16px;
             text-align: center;
             background-color: transparent;
@@ -2035,7 +2035,7 @@ strong {
         }
         &.unused {
             > .label:before {
-                @extend .font-pc-icon;
+                @extend .font-icon;
                 content: '\E185';
                 font-size: 8px;
                 line-height: 14px;
@@ -2056,7 +2056,7 @@ strong {
             color: $text-darkest;
 
             &.placeholder:after {
-                @extend .font-pc-icon;
+                @extend .font-icon;
                 font-size: 48px;
                 font-weight: 100;
             }
@@ -2078,7 +2078,7 @@ strong {
             height: 22px;
             top: 0;
             left: 0;
-            @extend .font-pc-icon;
+            @extend .font-icon;
             font-size: 18px;
             font-weight: 100;
             line-height: 19px;
@@ -2181,7 +2181,7 @@ strong {
             margin: 0 2px 0 0;
             padding: 0;
             border: none;
-            @extend .font-pc-icon;
+            @extend .font-icon;
             font-size: 22px;
             text-align: center;
             color: rgba($text-primary, .75);
@@ -2216,7 +2216,7 @@ strong {
                     margin: 0;
                     padding: 0;
                     border: none;
-                    @extend .font-pc-icon;
+                    @extend .font-icon;
                     font-size: 22px;
                     text-align: center;
                     color: rgba($text-primary, .75);
@@ -2245,7 +2245,7 @@ strong {
                             background-color: $bcg-darker;
                         }
                         &.ticked:after {
-                            @extend .font-pc-icon;
+                            @extend .font-icon;
                             font-size: 14px;
                             line-height: 14px;
                             font-weight: 100;
@@ -2309,7 +2309,7 @@ strong {
             }
 
             &:before {
-                @extend .font-pc-icon;
+                @extend .font-icon;
                 font-size: 14px;
                 margin-right: 7px;
                 float: left;
@@ -2347,7 +2347,7 @@ strong {
         height: 24px;
         top: 0;
         right: 0;
-        @extend .font-pc-icon;
+        @extend .font-icon;
         text-align: center;
         border: none;
         color: #5b7073;
@@ -2380,7 +2380,7 @@ strong {
     }
 
     .ui-button.remove {
-        @extend .font-pc-icon;
+        @extend .font-icon;
         line-height: 66px;
         height: 66px;
         width: 40px;
@@ -2565,7 +2565,7 @@ strong {
             &:before {
                 content: '\E120';
                 padding-right: 8px;
-                @extend .font-pc-icon;
+                @extend .font-icon;
             }
         }
     }
@@ -2585,7 +2585,7 @@ strong {
         padding: 0;
         background-color: transparent;
         border: none;
-        @extend .font-pc-icon;
+        @extend .font-icon;
         font-size: 16px;
         text-align: center;
 
@@ -2636,7 +2636,7 @@ strong {
             height: 100%;
 
             &:before {
-                @extend .font-pc-icon;
+                @extend .font-icon;
                 font-size: 14px;
                 content: '\E129';
                 line-height: 30px;
@@ -2697,7 +2697,7 @@ strong {
                 opacity: 1;
             }
 
-            > .font-pc-icon {
+            > .font-icon {
                 display: block;
                 position: absolute;
                 top: -1px;
@@ -2788,7 +2788,7 @@ strong {
                         margin-bottom: 10px;
                     }
 
-                    .font-icon, .font-pc-icon {
+                    .font-icon, .font-icon {
                         font-size: 16px;
                     }
 
@@ -2848,7 +2848,7 @@ strong {
                             height: 30px;
                             text-align: center;
                             content: '\E166';
-                            @extend .font-pc-icon;
+                            @extend .font-icon;
                             font-size: 20px;
 
                             background-color: transparentize($text-active, 0.5);
@@ -2886,12 +2886,12 @@ strong {
             background-color: $bcg-darker;
 
             > .icon {
-                @extend .font-pc-icon;
+                @extend .font-icon;
                 font-size: 24px;
                 margin-right: 8px;
             }
             > .close {
-                @extend .font-pc-icon;
+                @extend .font-icon;
                 float: right;
                 margin: 0;
                 padding: 0;
@@ -2953,7 +2953,7 @@ strong {
                 line-height: 38px;
 
                 > .icon {
-                    @extend .font-pc-icon;
+                    @extend .font-icon;
                     float: right;
                     margin: 0 8px;
                     font-size: 18px;
@@ -3417,7 +3417,7 @@ strong {
                     color: $text-darkest;
                     margin: 0;
 
-                    > .font-pc-icon {
+                    > .font-icon {
                         color: $text-darkest;
                         font-size: 20px;
                     }
@@ -3511,7 +3511,7 @@ strong {
                 }
                 &:after {
                     content: '\E125';
-                    @extend .font-pc-icon;
+                    @extend .font-icon;
                     font-size: 16px;
                     float: right;
                     width: 31px;
@@ -3540,7 +3540,7 @@ strong {
                 }
                 &:after {
                     content: '\E132';
-                    @extend .font-pc-icon;
+                    @extend .font-icon;
                     text-align: center;
                     font-size: 18px;
                 }
@@ -3955,7 +3955,7 @@ strong {
                             }
 
                             > .scene-primary {
-                                @extend .font-pc-icon;
+                                @extend .font-icon;
                                 @extend .noSelect;
                                 top: 12px;
                                 left: 15px;
@@ -4011,7 +4011,7 @@ strong {
 
                                 > .scene-dropdown-icon:before {
                                     content: '\E159';
-                                    @extend .font-pc-icon;
+                                    @extend .font-icon;
                                     color: $bcg-primary;
                                     position: absolute;
                                     left: 2px;
@@ -4111,7 +4111,7 @@ strong {
                         }
 
                         > .right {
-                            @extend .font-pc-icon;
+                            @extend .font-icon;
                             font-size: 16px;
                             background-color: transparentize(#5f6f72, 0.25);
                             width: 32px;
@@ -4175,7 +4175,7 @@ strong {
         line-height: 30px;
         text-align: center;
 
-        @extend .font-pc-icon;
+        @extend .font-icon;
 
         &:hover {
             opacity: 1;
