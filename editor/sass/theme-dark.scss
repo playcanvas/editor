@@ -536,35 +536,101 @@ a:visited {
     }
 }
 
-.ui-grid {
+.ui-tree.assets {
+    background-color: $bcg-darker;
     border-left: 1px solid $bcg-dark;
+    width: calc(100% - 5px);
 
-    &.flash {
-        @extend .ui-flash;
+    .ui-tree-item {
+        &.selected {
+            > .title {
+                > .icon {
+                    color: #fff;
+                }
+            }
+        }
+        &.container {
+            > .title {
+                &:hover {
+                    &:before {
+                        background-color: $text-active;
+                    }
+                }
+                &:before {
+                    background-color: mix($text-darkest, $bcg-darker, 30%);
+                }
+            }
+
+            &.open {
+                > .title:before {
+                    background-color: mix($text-darkest, $bcg-darker, 30%);
+                }
+            }
+        }
+        > .title {
+            &:hover {
+                > .icon {
+                    color: #fff;
+                }
+            }
+            > .icon {
+                color: $text-darkest;
+                &:after {
+                    @extend .font-icon;
+                    content: '\E139';
+                    font-size: 14px;
+                    line-height: 23px;
+                    text-align: center;
+                    background-color: transparent;
+                }
+            }
+        }
+        &.current {
+            > .title {
+                color: $text-active;
+                > .icon {
+                    color: $text-active;
+                }
+            }
+        }
     }
 }
 
-.ui-grid-item {
-    color: $text-secondary;
-    margin: 0;
-    outline: none;
+.ui-panel.folders {
+    background-color: $bcg-darker;
+}
 
-    &.disabled.selected {
-        background-color: $bcg-darkest;
+.ui-panel.files {
+    border-left: 1px solid $bcg-darkest;
+}
+
+.ui-grid.assets {
+    &.flash {
+        @extend .ui-flash;
     }
-    &:hover,
-    &:focus {
-        color: $text-primary;
-        background-color: mix($bcg-darkest, $bcg-dark, 50%);
-        outline: none;
-    }
-    &.selected {
-        color: $text-active;
-        background-color: $bcg-darkest;
+
+    .ui-grid-item {
+        color: $text-secondary;
+        margin: 0;
         outline: none;
 
-        &:hover {
-            background-color: mix($bcg-darkest, $bcg-darker, 75%);
+        &.disabled.selected {
+            background-color: $bcg-darkest;
+        }
+        &:hover,
+        &:focus {
+            color: $text-primary;
+            background-color: mix($bcg-darkest, $bcg-dark, 50%);
+            outline: none;
+        }
+        &.selected {
+            color: $text-active;
+            background-color: $bcg-darkest;
+            outline: none;
+
+            &:hover {
+                background-color: mix($bcg-darkest, $bcg-darker, 75%);
+            }
         }
     }
 }

@@ -1,7 +1,7 @@
 editor.once('load', function () {
     'use strict';
 
-    var whoisonline = {};
+    var whoisonline = { };
 
     editor.method('whoisonline:set', function (list) {
         for (var i = 0; i < list.length; i++)

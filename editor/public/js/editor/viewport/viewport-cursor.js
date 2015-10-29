@@ -13,7 +13,9 @@ editor.once('load', function() {
 
         if (! inViewport) {
             state = false;
-            editor.call('cursor:set', '');
+
+            if (! editor.call('drop:active'))
+                editor.call('cursor:set', '');
         }
     });
 

@@ -1,11 +1,12 @@
 "use strict";
 
-function ObserverList(data, options) {
+function ObserverList(options) {
     Events.call(this);
     options = options || { };
 
     this.data = [ ];
     this._indexed = { };
+    this.sorted = options.sorted || null;
     this.index = options.index || null;
 }
 
@@ -48,6 +49,72 @@ ObserverList.prototype.indexOf = function(item) {
 };
 
 
+ObserverList.prototype.position = function(b, fn) {
+    var l = this.data;
+    var min = 0;
+    var max = l.length - 1;
+    var cur;
+    var a, i;
+    fn = fn || this.sorted;
+
+    while (min <= max) {
+        cur = Math.floor((min + max) / 2);
+        a = l[cur];
+
+        i = fn(a, b);
+        if (i === 0)
+            return cur;
+
+        if (i === 1) {
+            min = cur + 1;
+        } else {
+            max = cur - 1;
+        }
+    }
+
+    return -1;
+};
+
+
+ObserverList.prototype.positionNextClosest = function(b, fn) {
+    var l = this.data;
+    var min = 0;
+    var max = l.length - 1;
+    var cur;
+    var a, i;
+    fn = fn || this.sorted;
+
+    if (l.length === 0)
+        return -1;
+
+    if (b < l[0])
+        return 0;
+
+    while (min <= max) {
+        cur = Math.floor((min + max) / 2);
+        a = l[cur];
+
+        i = fn(a, b);
+        if (i === 0)
+            return cur;
+
+        if (i === 1) {
+            min = cur + 1;
+        } else {
+            max = cur - 1;
+        }
+    }
+
+    if (fn(a, b) === -1)
+        return cur;
+
+    if (cur + 1 === l.length)
+        return -1;
+
+    return cur + 1;
+};
+
+
 ObserverList.prototype.has = function(item) {
     if (this.index) {
         var index = (item instanceof Observer && item.get(this.index)) || item[this.index]
@@ -60,15 +127,43 @@ ObserverList.prototype.has = function(item) {
 
 ObserverList.prototype.add = function(item) {
     if (this.has(item))
-        return;
+        return null;
 
     var index = this.data.length;
     if (this.index) {
         index = (item instanceof Observer && item.get(this.index)) || item[this.index];
         this._indexed[index] = item;
     }
-    this.data.push(item);
+
+    var pos = 0;
+
+    if (this.sorted) {
+        pos = this.positionNextClosest(item);
+        if (pos !== -1) {
+            this.data.splice(pos, 0, item);
+        } else {
+            this.data.push(item);
+            pos = this.data.length - 1;
+        }
+    } else {
+        this.data.push(item);
+        pos = this.data.length - 1;
+    }
+
     this.emit('add', item, index);
+
+    return pos;
+};
+
+
+ObserverList.prototype.move = function(item, pos) {
+    var ind = this.data.indexOf(item);
+    this.data.splice(ind, 1);
+    if (pos === -1) {
+        this.data.push(item);
+    } else {
+        this.data.splice(pos, 0, item);
+    }
 };
 
 

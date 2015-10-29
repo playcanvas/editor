@@ -15,17 +15,16 @@ editor.once('load', function() {
         var btnEdit = new ui.Button();
         btnEdit.text = editor.call('permissions:write') ? 'Edit' : 'View';
         btnEdit.class.add('edit-script');
+        btnEdit.hidden = ! asset.has('file.url');
         btnEdit.element.addEventListener('click', function(evt) {
             window.open('/editor/asset/' + asset.get('id'));
         }, false);
         panel.append(btnEdit);
-
-        // loading
-        var loading = editor.call('attributes:addField', {
-            type: 'progress'
+        var evtFileUrl = asset.on('file.url:set', function() {
+            btnEdit.hidden = false;
         });
-        loading.on('progress:100', function() {
-            this.destroy();
+        var evtFileUrlUnset = asset.on('file.url:unset', function() {
+            btnEdit.hidden = true;
         });
 
         var panelRaw = editor.call('attributes:addPanel', {
@@ -35,12 +34,17 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:html:asset:attach', panelRaw, panelRaw.headerElement);
 
+        // loading
+        var loading = editor.call('attributes:addField', {
+            type: 'progress'
+        });
+        loading.progress = 1;
+
         // code
         var fieldCode = editor.call('attributes:addField', {
             parent: panelRaw,
             type: 'code'
         });
-        fieldCode.hidden = true;
         fieldCode.style.margin = '-8px -6px';
 
         var fieldError = new ui.Label({
@@ -51,6 +55,14 @@ editor.once('load', function() {
         editor.call('attributes.rootPanel').append(fieldError);
 
         var loadContent = function() {
+            if (asset.get('file.size') > 128 * 1024) {
+                panelRaw.hidden = true;
+                loading.hidden = true;
+                return;
+            } else {
+                panelRaw.hidden = false;
+                loading.hidden = false;
+            }
             // load data
             new AjaxRequest({
                 url: '{{url.home}}/' + asset.get('file.url') + '?t=' + asset.get('file.hash'),
@@ -60,26 +72,25 @@ editor.once('load', function() {
                 fieldCode.text = data;
                 fieldCode.hidden = false;
                 fieldError.hidden = true;
-                loading.progress = 1;
-            })
-            .on('progress', function(progress) {
-                loading.progress = .1 + progress * .8;
+                loading.hidden = true;
             })
             .on('error', function() {
+                loading.hidden = false;
                 loading.failed = true;
                 fieldCode.hidden = true;
                 fieldError.hidden = false;
-                loading.progress = 1;
             });
-            loading.progress = .1;
         };
-        loadContent();
+        if (asset.has('file.url'))
+            loadContent();
 
         var evtReload = asset.on('file.hash:set', function() {
             loadContent();
         });
         panel.once('destroy', function() {
             evtReload.unbind();
+            evtFileUrl.unbind();
+            evtFileUrlUnset.unbind();
         });
     });
 });

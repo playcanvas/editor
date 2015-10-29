@@ -44,16 +44,30 @@ editor.once('load', function() {
         if (active) {
             overlay.classList.add('active');
             areas.classList.add('active');
+            editor.call('cursor:set', 'grabbing');
         } else {
             overlay.classList.remove('active');
             areas.classList.remove('active');
             dragOver = false;
+            currentType = '';
+            currentData = { };
+            editor.emit('drop:set', currentType, currentData);
+            editor.call('cursor:clear');
         }
+
+        var onMouseUp = function() {
+            window.removeEventListener('mouseup', onMouseUp);
+            activate(false);
+        };
+        window.addEventListener('mouseup', onMouseUp, false);
 
         editor.emit('drop:active', active);
     };
 
     editor.method('drop:activate', activate);
+    editor.method('drop:active', function() {
+        return active;
+    });
 
 
     // prevent drop file of redirecting
@@ -66,8 +80,10 @@ editor.once('load', function() {
         if (dragOver) return;
         dragOver = true;
 
-        if (! currentType)
+        if (! currentType) {
             currentType = 'files';
+            editor.emit('drop:set', currentType, currentData);
+        }
 
         activate(true);
     }, false);
@@ -177,6 +193,9 @@ editor.once('load', function() {
         obj.evtDrop = function(e) {
             e.preventDefault();
 
+            if (! currentType)
+                return;
+
             // leave event
             if (obj.element.classList.contains('over')) {
                 if (obj.leave && currentType) obj.leave();
@@ -187,7 +206,8 @@ editor.once('load', function() {
             if (currentType == 'files' && e.dataTransfer)
                 data = e.dataTransfer.files;
 
-            obj.drop(currentType, data);
+            if (obj.drop)
+                obj.drop(currentType, data);
         };
 
         obj.element.addEventListener('dragenter', evtDragOver, false);
@@ -196,8 +216,12 @@ editor.once('load', function() {
         obj.element.addEventListener('dragleave', evtDragLeave, false);
         obj.element.addEventListener('mouseleave', evtDragLeave, false);
 
-        obj.element.addEventListener('drop', obj.evtDrop, false);
-        obj.element.addEventListener('mouseup', obj.evtDrop, false);
+        var dropOn = obj.element;
+        if (obj.passThrough)
+            dropOn = obj.ref;
+
+        dropOn.addEventListener('drop', obj.evtDrop, false);
+        dropOn.addEventListener('mouseup', obj.evtDrop, false);
 
         obj.unregister = function() {
             if (! obj.element.classList.contains('drop-area'))
@@ -209,8 +233,8 @@ editor.once('load', function() {
             obj.element.removeEventListener('dragleave', evtDragLeave);
             obj.element.removeEventListener('mouseleave', evtDragLeave);
 
-            obj.element.removeEventListener('drop', obj.evtDrop);
-            obj.element.removeEventListener('mouseup', obj.evtDrop);
+            dropOn.removeEventListener('drop', obj.evtDrop);
+            dropOn.removeEventListener('mouseup', obj.evtDrop);
 
             var ind = items.indexOf(obj);
             if (ind !== -1)
@@ -233,21 +257,18 @@ editor.once('load', function() {
         args.element.draggable = true;
 
         args.element.addEventListener('dragstart', function(evt) {
-            if (! editor.call('permissions:write'))
-                return evt.preventDefault();
+            evt.preventDefault();
+            evt.stopPropagation();
 
-            evt.dataTransfer.effectAllowed = 'move';
-            if (evt.dataTransfer.setDragImage)
-                evt.dataTransfer.setDragImage(imgDrag, 0, 0);
-            evt.dataTransfer.setData('Text', args.type);
+            if (! editor.call('permissions:write'))
+                return;
+
             currentType = args.type;
             currentData = args.data;
             itemOver = null;
-        }, false);
+            editor.emit('drop:set', currentType, currentData);
 
-        args.element.addEventListener('dragend', function(evt) {
-            currentType = '';
-            currentData = { };
+            activate(true);
         }, false);
     });
 
@@ -255,6 +276,8 @@ editor.once('load', function() {
     editor.method('drop:set', function(type, data) {
         currentType = type || '',
         currentData = data || { };
+
+        editor.emit('drop:set', currentType, currentData);
     });
 
 
@@ -262,6 +285,11 @@ editor.once('load', function() {
         areas.style.pointerEvents = '';
 
         if (state) {
+            var bottom = 0;
+            var top = window.innerHeight;
+            var left = window.innerWidth;
+            var right = 0;
+
             for(var i = 0; i < items.length; i++) {
                 var visible = ! items[i].disabled;
 
@@ -297,21 +325,33 @@ editor.once('load', function() {
 
                         overlay.classList.remove('active');
 
+                        if (top > rect.top)
+                            top = rect.top;
+
+                        if (bottom < rect.bottom)
+                            bottom = rect.bottom;
+
+                        if (left > rect.left)
+                            left = rect.left;
+
+                        if (right < rect.right)
+                            right = rect.right;
+
                         parts[0].classList.add('active');
-                        parts[0].style.height = rect.top + 'px';
+                        parts[0].style.height = top + 'px';
 
                         parts[1].classList.add('active');
-                        parts[1].style.top = rect.top + 'px';
-                        parts[1].style.bottom = window.innerHeight - rect.bottom + 'px';
-                        parts[1].style.width = window.innerWidth - rect.right + 'px';
+                        parts[1].style.top = top + 'px';
+                        parts[1].style.bottom = (window.innerHeight - bottom) + 'px';
+                        parts[1].style.width = (window.innerWidth - right) + 'px';
 
                         parts[2].classList.add('active');
-                        parts[2].style.height = window.innerHeight - rect.bottom + 'px';
+                        parts[2].style.height = (window.innerHeight - bottom) + 'px';
 
                         parts[3].classList.add('active');
-                        parts[3].style.top = rect.top + 'px';
-                        parts[3].style.bottom = window.innerHeight - rect.bottom + 'px';
-                        parts[3].style.width = rect.left + 'px';
+                        parts[3].style.top = top + 'px';
+                        parts[3].style.bottom = (window.innerHeight - bottom) + 'px';
+                        parts[3].style.width = left + 'px';
 
                         if (items[i].passThrough)
                             areas.style.pointerEvents = 'none';

@@ -164,36 +164,49 @@ editor.once('load', function() {
                 });
 
                 // load data
-                Ajax
-                .get('{{url.home}}/' + asset.get('file.url'))
-                .on('load', function(status, data) {
-                    asset._nodes = [ ];
-                    for(var i = 0; i < data.model.meshInstances.length; i++) {
-                        asset._nodes[data.model.meshInstances[i].mesh] = data.model.nodes[data.model.meshInstances[i].node].name;
-                    }
-                    nodesTemplate();
+                var loadData = function() {
+                    Ajax
+                    .get('{{url.home}}/' + asset.get('file.url'))
+                    .on('load', function(status, data) {
+                        asset._nodes = [ ];
+                        for(var i = 0; i < data.model.meshInstances.length; i++) {
+                            asset._nodes[data.model.meshInstances[i].mesh] = data.model.nodes[data.model.meshInstances[i].node].name;
+                        }
+                        nodesTemplate();
 
-                    loading.progress = 1;
-                })
-                .on('progress', function(progress) {
-                    loading.progress = 0.1 + progress * 0.8;
-                })
-                .on('error', function() {
-                    loading.failed = true;
+                        loading.progress = 1;
+                    })
+                    .on('progress', function(progress) {
+                        loading.progress = 0.1 + progress * 0.8;
+                    })
+                    .on('error', function() {
+                        loading.failed = true;
 
-                    var error = new ui.Label({ text: 'failed loading detailed data' });
-                    error.textContent = 'failed loading data';
-                    error.style.display = 'block';
-                    error.style.textAlign = 'center';
-                    error.style.fontWeight = '100';
-                    error.style.fontSize = '12px';
-                    error.style.color = '#f66';
-                    editor.call('attributes.rootPanel').append(error);
+                        var error = new ui.Label({ text: 'failed loading detailed data' });
+                        error.textContent = 'failed loading data';
+                        error.style.display = 'block';
+                        error.style.textAlign = 'center';
+                        error.style.fontWeight = '100';
+                        error.style.fontSize = '12px';
+                        error.style.color = '#f66';
+                        editor.call('attributes.rootPanel').append(error);
 
-                    loading.progress = 1;
+                        loading.progress = 1;
+                    });
+
+                    loading.progress = 0.1;
+                }
+
+                if (asset.has('file.url'))
+                    loadData();
+
+                var evtReload = asset.on('file.hash:set', function() {
+                    loadData();
                 });
 
-                loading.progress = 0.1;
+                panelNodes.once('destroy', function() {
+                    evtReload.unbind();
+                });
             }
 
             return panelNodes;

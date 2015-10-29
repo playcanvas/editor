@@ -5,9 +5,7 @@ editor.once('load', function () {
         pc.script.createLoadingScreen(function (app) {
             var showSplash = function () {
                 // splash
-                var splash = document.createElement('a');
-                splash.href = 'https://playcanvas.com/explore';
-                splash.target = "_blank";
+                var splash = document.createElement('div');
                 splash.id = 'application-splash';
                 document.body.appendChild(splash);
                 splash.style.display = 'none';

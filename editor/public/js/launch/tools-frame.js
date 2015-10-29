@@ -122,6 +122,10 @@ app.once('load', function() {
         title: 'Cameras',
         panel: panelFrame
     }, {
+        key: [ 'frame', 'cullTime' ],
+        title: 'Cull Time',
+        panel: panelFrame
+    }, {
         key: [ 'frame', 'shaders' ],
         title: 'Shaders',
         panel: panelFrame

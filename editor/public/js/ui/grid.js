@@ -8,11 +8,29 @@ function Grid() {
     this.element.tabIndex = 0;
     this.element.classList.add('ui-grid');
 
+    this.elementDrag = document.createElement('div');
+    this.elementDrag.classList.add('drag-handle');
+    this.element.appendChild(this.elementDrag);
+
+    // var self = this;
+    // this.elementDrag.addEventListener('mousemove', function(evt) {
+    //     evt.preventDefault();
+    //     evt.stopPropagation();
+
+    //     self._onDragMove(evt);
+    // });
+    // this.element.addEventListener('mouseleave', function(evt) {
+    //     self._onDragOut();
+    // });
+
     this._lastSelect = null;
     this._selecting = false;
 
     this.on('select', this._onSelect);
     this.on('beforeDeselect', this._onBeforeDeselect);
+
+    this.on('append', this._onAppend);
+    this.on('remove', this._onRemove);
 }
 Grid.prototype = Object.create(ui.ContainerElement.prototype);
 
@@ -28,11 +46,12 @@ Grid.prototype._onSelect = function(item) {
             var el = this.element.firstChild;
             var start = false;
             var elementStart = null;
-            var elementEnd = null;
 
             this._selecting = true;
 
-            while(! elementEnd && el) {
+            var c = 100;
+
+            while(el && c--) {
                 if (el === this._lastSelect.element || el === item.element) {
                     if (start)
                         break;
@@ -114,6 +133,141 @@ Grid.prototype.forEach = function(fn) {
         child = child.nextSibling;
     };
 };
+
+// Grid.prototype._onDragStart = function(item) {
+//     if (this._dragging)
+//         return;
+
+//     this.class.add('dragging');
+
+//     this._dragItems = [ item ];
+//     item.class.add('dragged');
+
+//     this._dragging = true;
+//     this._updateDragHandle();
+
+//     this.emit('dragstart');
+// };
+
+
+// Grid.prototype._onDragOver = function(item, evt) {
+//     if (! this._dragging || (item === this._dragItems[0] && ! this._dragOver) || this._dragOver === item)
+//         return;
+
+//     var dragOver = null;
+
+//     if (item !== this._dragItems[0])
+//         dragOver = item;
+
+//     if (this._dragOver === null && dragOver)
+//         this.emit('dragin');
+
+//     if (dragOver)
+//         this.emit('dragover', dragOver);
+
+//     if (this._dragOver === -1) {
+//         this._dragOver = null;
+//     } else {
+//         this._dragOver = dragOver;
+//     }
+
+//     this._updateDragHandle();
+//     this._onDragMove(evt);
+// };
+
+
+// Grid.prototype._hoverCalculate = function(evt) {
+//     if (! this._dragOver)
+//         return;
+
+//     var oldArea = this._dragArea;
+//     var oldDragOver = this._dragOver;
+
+//     this._dragArea = 'inside';
+
+//     if (oldArea !== this._dragArea || oldDragOver !== this._dragOver)
+//         this._updateDragHandle();
+// };
+
+
+// Grid.prototype._onDragMove = function(evt) {
+//     this._hoverCalculate(evt);
+//     this.emit('dragmove', evt);
+// };
+
+
+// Grid.prototype._onDragOut = function() {
+//     if (! this._dragging || ! this._dragOver)
+//         return;
+
+//     this._dragOver = null;
+//     this._updateDragHandle();
+//     this.emit('dragout');
+// };
+
+
+// Grid.prototype._onDragEnd = function() {
+//     if (! this._dragging)
+//         return;
+
+//     this._dragging = false;
+
+//     this.class.remove('dragging');
+
+//     for(var i = 0; i < this._dragItems.length; i++)
+//         this._dragItems[i].class.remove('dragged');
+
+//     if (this._dragOver && this._dragOver !== this._dragItems[i])
+//         this.emit('drop', this._dragItems, this._dragOver);
+
+//     this._dragItems = [ ];
+//     this._dragOver = null;
+
+//     this.emit('dragend');
+// };
+
+
+// Grid.prototype._updateDragHandle = function() {
+//     if (! this._dragging)
+//         return;
+
+//     if (! this._dragOver) {
+//         this.elementDrag.classList.add('hidden');
+//     } else {
+//         var rect = this._dragOver.element.getBoundingClientRect();
+
+//         this.elementDrag.classList.remove('before', 'inside', 'after', 'hidden')
+//         this.elementDrag.classList.add(this._dragArea);
+
+//         this.elementDrag.style.top = rect.top  + 'px';
+//         this.elementDrag.style.left = rect.left + 'px';
+//         this.elementDrag.style.width = (rect.width - 4) + 'px';
+//         this.elementDrag.style.height = (rect.height - 4) + 'px';
+//     }
+// };
+
+
+// Grid.prototype._onAppend = function(item) {
+//     item.grid = this;
+//     var self = this;
+
+//     item.on('dragstart', function() {
+//         self._onDragStart(this);
+//     });
+//     item.on('mouseover', function(evt) {
+//         self._onDragOver(this, evt);
+//     });
+//     item.on('dragend', function() {
+//         self._onDragEnd();
+//     });
+// };
+
+// Grid.prototype._onRemove = function(item) {
+//     item.grid = null;
+//     item.unbind('dragstart');
+//     item.unbind('mouseover');
+//     item.unbind('dragend');
+// };
 
 
 Object.defineProperty(Grid.prototype, 'selected', {

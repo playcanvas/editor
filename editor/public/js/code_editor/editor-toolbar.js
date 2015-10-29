@@ -167,6 +167,6 @@ editor.once('load', function () {
             createUser(id);
     });
 
-    editor.on('whoisonline:add', createUser);;
+    editor.on('whoisonline:add', createUser);
     editor.on('whoisonline:remove', deleteUser);
 });

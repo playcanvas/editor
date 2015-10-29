@@ -268,11 +268,16 @@ strong {
             }
         }
     }
+    > .content {
+        display: flex;
+        -webkit-flex: flex;
+        flex-wrap: nowrap;
+    }
     > .ui-header {
         position: absolute;
         top: -32px;
         left: 8px;
-        width: 650px;
+        width: 563px;
 
         &:after {
             content: '\E184';
@@ -581,7 +586,7 @@ strong {
         border: none;
         background-color: rgba($text-active, .4);
         transition: background-color 100ms;
-        pointer-events: all;
+        pointer-events: auto;
 
         &.hole {
             outline: 2px solid $text-active;
@@ -589,6 +594,12 @@ strong {
             &.over {
                 background-color: transparent;
             }
+            &.assets-drop-area {
+                outline: none;
+            }
+        }
+        &.no-pointer {
+            pointer-events: none;
         }
         &.over {
             background-color: rgba($text-active, .7);
@@ -1209,6 +1220,9 @@ strong {
                 }
                 &.type-cubemap:before {
                     content: '\E220';
+                }
+                &.type-folder:before {
+                    content: '\E139';
                 }
                 &.type-json:before {
                     content: '\E207';
@@ -1889,7 +1903,24 @@ strong {
     }
 }
 
+.ui-tree.assets {
+    display: block;
+    flex-shrink: 0;
+    flex-grow: 0;
+    height: calc(100% - 4px);
+}
+
+.ui-panel.files {
+    > .content {
+        background-color: $bcg-darker;
+    }
+}
+
 .ui-grid.assets {
+    align-content: flex-start;
+    flex-grow: 1;
+    flex-shrink: 1;
+
     > .ui-grid-item {
         width: 104px;
         height: 104px;
@@ -1915,6 +1946,15 @@ strong {
         &.type-cubemap {
             > .thumbnail.placeholder:after {
                 content: '\E220';
+            }
+            > .icon {
+                display: none;
+            }
+        }
+        &.type-folder {
+            > .thumbnail.placeholder:after {
+                content: '\E139';
+                font-size: 58px;
             }
             > .icon {
                 display: none;
@@ -2045,6 +2085,58 @@ strong {
                 width: 12px;
                 color: $text-darkest;
             }
+            &.type-folder {
+                > .label:before {
+                    content: none;
+                }
+            }
+        }
+        &.task {
+            &.failed:after {
+                $first: rgba(#f77, 1);
+                $second: rgba(darken(#f77, 17%), 1);
+
+                background: $text-active;
+                background: -webkit-gradient(left top, right bottom, color-stop(0%, $first), color-stop(25%, $first), color-stop(26%, $second), color-stop(50%, $second), color-stop(51%, $first), color-stop(75%, $first), color-stop(76%, $second), color-stop(100%, $second));
+                background: -webkit-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+                background: -moz-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+                background: -ms-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+                background: -o-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+                background: linear-gradient(135deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+                background-position: 0px 0px;
+                background-size: 24px 24px;
+                background-repeat: repeat;
+
+                -webkit-animation: none;
+                animation: none;
+            }
+            &:after {
+                content: '';
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                width: auto;
+                height: 4px;
+                background-color: $text-darkest;
+
+                $first: rgba($text-active, 1);
+                $second: rgba(darken($text-active, 17%), 1);
+
+                background: $text-active;
+                background: -webkit-gradient(left top, right bottom, color-stop(0%, $first), color-stop(25%, $first), color-stop(26%, $second), color-stop(50%, $second), color-stop(51%, $first), color-stop(75%, $first), color-stop(76%, $second), color-stop(100%, $second));
+                background: -webkit-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+                background: -moz-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+                background: -ms-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+                background: -o-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+                background: linear-gradient(135deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+                background-position: 0px 0px;
+                background-size: 24px 24px;
+                background-repeat: repeat;
+
+                -webkit-animation: task-background 1000ms linear infinite;
+                animation: task-background 1000ms linear infinite;
+            }
         }
         > .thumbnail {
             width: 64px;
@@ -2112,6 +2204,31 @@ strong {
             background-color: rgba($bcg-darker, 0.8);
         }
     }
+}
+
+.assets-drop-border {
+    display: none;
+    position: fixed;
+    width: auto;
+    height: auto;
+    z-index: 4;
+    margin-top: -1px;
+    margin-left: -1px;
+    border: 4px solid #f60;
+    pointer-events: none;
+
+    &.active {
+        display: block;
+    }
+}
+
+@-webkit-keyframes task-background {
+    from { background-position: 0px 0; }
+    to { background-position: 24px 0; }
+}
+@keyframes task-background {
+    from { background-position: 0px 0; }
+    to { background-position: 24px 0; }
 }
 
 .ui-select-field.viewport-camera {
