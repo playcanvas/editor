@@ -369,10 +369,10 @@ editor.once('load', function() {
                 prefilterBtn.disabled = true;
                 editor.call('assets:cubemaps:prefilter', assets[0], function (err) {
                     // re-enable button
-                    prefilterBtn.disabled = false;
-                    if (err) {
-                        editor.call('status:error', err);
-                    }
+                    if (err)
+                        return editor.call('status:error', err);
+
+                    prefilterBtn.disabled = true;
                 });
             });
 
@@ -384,21 +384,13 @@ editor.once('load', function() {
             prefilterPanel.append(clearPrefilteredBtn);
 
             var clearPrefiltered = function () {
-                // send PUT request so that the file's size
-                // will properly be removed from the cached
-                // usage
-                var updated = {
-                    name: assets[0].get('name'),
-                    scope: assets[0].get('scope'),
-                    file: null
-                };
-
-                Ajax.put('{{url.api}}/assets/' + assets[0].get('id') + '?access_token={{accessToken}}', updated);
+                editor.call('realtime:send', 'cubemap:clear:', parseInt(assets[0].get('id'), 10));
             };
 
             clearPrefilteredBtn.on('click', clearPrefiltered);
 
             var evtFileChange = assets[0].on('file:set', function (value) {
+                prefilterBtn.disabled = false;
                 togglePrefilterFields(!!value);
             });
 
@@ -408,23 +400,24 @@ editor.once('load', function() {
 
             var hasAllTextures = function () {
                 var textures = assets[0].get('data.textures');
-                if (textures && textures.length === 6) {
-                    for (var i = 0; i < 6; i++) {
-                        if (isNaN(parseInt(textures[i], 10) )) {
-                            return false;
-                        }
-                    }
-                    return true;
+                if (! textures || textures.length !== 6)
+                    return false;
+
+                for (var i = 0; i < 6; i++) {
+                    if (isNaN(parseInt(textures[i], 10)))
+                        return false;
                 }
-                return false;
+
+                return true;
             };
 
             // show prefilter button or clear prefiltering button depending
             // on current cubemap 'file' field
             var togglePrefilterFields = function (isPrefiltered) {
-                prefilterPanel.hidden = !hasAllTextures();
+                prefilterPanel.hidden = ! hasAllTextures();
                 prefilterBtn.hidden = isPrefiltered;
-                clearPrefilteredBtn.hidden = !isPrefiltered;
+                prefilterBtn.disabled = !! assets[0].get('task');
+                clearPrefilteredBtn.hidden = ! isPrefiltered;
             };
 
             togglePrefilterFields(!!assets[0].get('file'));

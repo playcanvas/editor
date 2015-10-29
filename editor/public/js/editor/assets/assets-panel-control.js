@@ -17,7 +17,11 @@ editor.once('load', function() {
         }
 
         for(var i = 0; i < this.files.length; i++) {
-            editor.call('assets:uploadFile', this.files[i], this.files[i].name);
+            editor.call('assets:uploadFile', {
+                file: this.files[i],
+                name: this.files[i].name,
+                parent: editor.call('assets:panel:currentFolder')
+            });
         }
         this.value = null;
     }, false);
@@ -36,6 +40,16 @@ editor.once('load', function() {
         fileInput.click();
     });
     menu.append(menuUpload);
+
+    // folder
+    var menuFolder = new ui.MenuItem({
+        text: 'New Folder',
+        value: 'folder'
+    });
+    menuFolder.on('select', function() {
+        editor.call('assets:createFolder');
+    });
+    menu.append(menuFolder);
 
     // material
     var menuMaterial = new ui.MenuItem({

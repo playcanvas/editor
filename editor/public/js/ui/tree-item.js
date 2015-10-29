@@ -9,6 +9,7 @@ function TreeItem(args) {
 
     this.element = document.createElement('div');
     this.element.classList.add('ui-tree-item');
+    this.element.ui = this;
 
     this.elementTitle = document.createElement('div');
     this.elementTitle.classList.add('title');
@@ -26,26 +27,17 @@ function TreeItem(args) {
     this.elementTitle.appendChild(this.elementText);
 
     this._children = 0;
+    this.selectable = true;
 
     this._onClickEvt = this._onClick.bind(this);
     this._onDblClickEvt = this._onDblClick.bind(this);
     this.elementTitle.addEventListener('click', this._onClickEvt, false);
     this.elementTitle.addEventListener('dblclick', this._onDblClickEvt, false);
 
-    // this.elementTitle.addEventListener('dblclick', function() {
-    //     if (self.open) {
-    //         self.open = false;
-    //         self.selected = true;
-    //     }
-    // }, false);
-
     this._dragRelease = null;
     this._dragging = false;
     this.elementTitle.addEventListener('dragstart', this._onDragStart.bind(this), false);
-    // this.element.addEventListener('dragenter', this._onDragEnter.bind(this), false);
     this.elementTitle.addEventListener('mouseover', this._onMouseOver.bind(this), false);
-    // this.element.addEventListener('dragend', this._onDragEnd.bind(this), false);
-    // this.element.addEventListener('mouseup', this._onMouseUp.bind(this), false);
 
     this.on('destroy', this._onDestroy);
     this.on('append', this._onAppend);
@@ -307,7 +299,7 @@ TreeItem.prototype._onRemove = function(item) {
 
 
 TreeItem.prototype._onClick = function(evt) {
-    if (evt.button !== 0)
+    if (evt.button !== 0 || ! this.selectable)
         return;
 
     var rect = this.elementTitle.getBoundingClientRect();
@@ -365,7 +357,7 @@ TreeItem.prototype._onDblClick = function(evt) {
 };
 
 TreeItem.prototype._onDragStart = function(evt) {
-    if (this.tree.disabled) {
+    if (this.tree.disabled || ! this.tree.draggable) {
         evt.stopPropagation();
         evt.preventDefault();
         return;
@@ -430,25 +422,6 @@ Object.defineProperty(TreeItem.prototype, 'selected', {
 });
 
 
-// Object.defineProperty(TreeItem.prototype, 'tree', {
-//     get: function() {
-//         return this._tree;
-//     },
-//     set: function(value) {
-//         if (this._tree)
-//             return;
-
-//         this._tree = value;
-
-//         // if (this._children) {
-//         //     for(var i = 1; i < this.element.childNodes.length; i++) {
-//         //         this.element.childNodes[i].ui.tree = this._tree;
-//         //     }
-//         // }
-//     }
-// });
-
-
 Object.defineProperty(TreeItem.prototype, 'text', {
     get: function() {
         return this.elementText.textContent;
@@ -473,9 +446,11 @@ Object.defineProperty(TreeItem.prototype, 'open', {
         if (value) {
             this.class.add('open');
             this.emit('open');
+            this.tree.emit('open', this);
         } else {
             this.class.remove('open');
             this.emit('close');
+            this.tree.emit('close', this);
         }
     }
 });

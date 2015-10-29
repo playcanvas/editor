@@ -9,11 +9,9 @@ editor.once('load', function() {
             name: 'New Css',
             type: 'css',
             source: false,
-            preload: true,
-            asset: {
-                filename: "asset.css",
-                data: ''
-            },
+            parent: editor.call('assets:panel:currentFolder'),
+            filename: 'asset.css',
+            file: new Blob([ '\n' ], { type: 'text/css' }),
             scope: {
                 type: 'project',
                 id: config.project.id

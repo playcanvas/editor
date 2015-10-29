@@ -18,6 +18,11 @@ function GridItem(args) {
     this.element.removeEventListener('click', this._evtClick);
     this.element.addEventListener('click', this._onClick.bind(this), false);
 
+    // this._dragRelease = null;
+    // this._dragging = false;
+    // this.element.addEventListener('dragstart', this._onDragStart.bind(this), false);
+    // this.element.addEventListener('mouseover', this._onMouseOver.bind(this), false);
+
     // space > click
     this.element.addEventListener('keydown', function(evt) {
         if (evt.keyCode !== 32 || self.disabled)
@@ -45,6 +50,45 @@ GridItem.prototype._onClick = function() {
     this.selected = ! this.selected;
     this._clicked = false;
 };
+
+
+// GridItem.prototype._onDragStart = function(evt) {
+//     if (this.parent.disabled) {
+//         evt.stopPropagation();
+//         evt.preventDefault();
+//         return;
+//     }
+
+//     this._dragging = true;
+
+//     if (this._dragRelease)
+//         window.removeEventListener('mouseup', this._dragRelease);
+
+//     this._dragRelease = this._onMouseUp.bind(this);
+//     window.addEventListener('mouseup', this._dragRelease, false);
+
+//     evt.stopPropagation();
+//     evt.preventDefault();
+
+//     this.emit('dragstart');
+// };
+
+
+// GridItem.prototype._onMouseOver = function(evt) {
+//     evt.stopPropagation();
+//     this.emit('mouseover', evt);
+// };
+
+// GridItem.prototype._onMouseUp = function(evt) {
+//     window.removeEventListener('mouseup', this._dragRelease);
+//     this._dragRelease = null;
+
+//     evt.preventDefault();
+//     evt.stopPropagation();
+
+//     this._dragging = false;
+//     this.emit('dragend');
+// };
 
 
 Object.defineProperty(GridItem.prototype, 'text', {

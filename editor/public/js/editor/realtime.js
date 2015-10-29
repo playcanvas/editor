@@ -52,6 +52,18 @@ editor.once('load', function() {
                         } else {
                             sharejsMessage(msg);
                         }
+                    } else if (msg.data.startsWith('fs:')) {
+                        data = msg.data.slice('fs:'.length);
+                        var ind = data.indexOf(':');
+                        if (ind !== -1) {
+                            var op = data.slice(0, ind);
+                            if (op === 'paths') {
+                                data = JSON.parse(data.slice(ind + 1));
+                                editor.call('assets:fs:paths:patch', data);
+                            }
+                        } else {
+                            sharejsMessage(msg);
+                        }
                     } else {
                         sharejsMessage(msg);
                     }
@@ -158,6 +170,10 @@ editor.once('load', function() {
                 console.error(e);
                 editor.emit('realtime:scene:error', e);
             }
+        });
+
+        editor.method('realtime:send', function(name, data) {
+            socket.send(name + JSON.stringify(data));
         });
 
         editor.on('realtime:disconnected', function () {

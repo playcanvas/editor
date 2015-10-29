@@ -270,35 +270,22 @@ editor.once('load', function() {
 
         // preview
         if (assets.length === 1) {
-            // image to load original file
-            // so that we can measure the texture size
-            var imageOriginal = new Image();
-            imageOriginal.onload = function() {
-                if (fieldWidth.value)
-                    return;
-
-                fieldWidth.element.innerHTML = imageOriginal.naturalWidth;
-                fieldHeight.element.innerHTML = imageOriginal.naturalHeight;
-            };
-            imageOriginal.src = config.url.home + assets[0].get('file.url') + '?t=' + assets[0].get('file.hash');
-
             var root = editor.call('attributes.rootPanel');
 
-            // image for preview - use thumbnail if present otherwise
-            // use original file
-            var image;
-            if (! assets[0].get('thumbnails.xl')) {
-                image = imageOriginal;
-                requestAnimationFrame(function() {
-                    root.class.add('animate');
-                });
-            } else {
-                image = new Image();
-                image.onload = function() {
-                    root.class.add('animate');
-                };
-                image.src = config.url.home + assets[0].get('thumbnails.xl') + '?t=' + assets[0].get('file.hash');
-            }
+            var reloadImage = function() {
+                if (assets[0].get('has_thumbnail') && assets[0].get('thumbnails.xl') && assets[0].get('file.hash')) {
+                    image.src = config.url.home + assets[0].get('file.url') + '?t=' + assets[0].get('file.hash');
+                    image.style.display = '';
+                } else {
+                    image.style.display = 'none';
+                }
+            };
+
+            var image = new Image();
+            image.onload = function() {
+                root.class.add('animate');
+            };
+            reloadImage();
 
             image.addEventListener('click', function() {
                 if (root.element.classList.contains('large')) {
@@ -312,13 +299,14 @@ editor.once('load', function() {
             root.class.add('asset-preview');
             root.element.insertBefore(image, root.innerElement);
 
-            var evtImgUpdate = assets[0].on('file.hash:set', function(hash) {
-                image.src = config.url.home + assets[0].get('file.url') + '?t=' + assets[0].get('file.hash');
-            });
+            var events = [ ];
+            events.push(assets[0].on('file.hash:set', reloadImage));
+            events.push(assets[0].on('has_thumbnail:set', reloadImage));
+            events.push(assets[0].on('thumbnails.xl:set', reloadImage));
 
             paramsPanel.on('destroy', function() {
-                // scrollEvt.unbind();
-                evtImgUpdate.unbind();
+                for(var i = 0; i < events.length; i++)
+                    events[i].unbind();
                 image.parentNode.removeChild(image);
                 root.class.remove('asset-preview', 'animate');
             });

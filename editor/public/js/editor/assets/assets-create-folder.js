@@ -1,17 +1,16 @@
 editor.once('load', function() {
     'use strict';
 
-    editor.method('assets:createJson', function () {
+    editor.method('assets:createFolder', function () {
         if (! editor.call('permissions:write'))
             return;
 
         var asset = {
-            name: 'New Json',
-            type: 'json',
+            name: 'New Folder',
+            type: 'folder',
             source: false,
+            data: null,
             parent: editor.call('assets:panel:currentFolder'),
-            filename: 'asset.json',
-            file: new Blob([ '{ }' ], { type: 'application/json' }),
             scope: {
                 type: 'project',
                 id: config.project.id

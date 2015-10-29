@@ -32,7 +32,7 @@ app.once('load', function() {
 
                         editor.emit('realtime:authenticated');
                     }
-                } else if (!msg.data.startsWith('permissions') && !msg.data.startsWith('whoisonline')) {
+                } else if (! msg.data.startsWith('permissions') && ! msg.data.startsWith('whoisonline')) {
                     sharejsMessage(msg);
                 }
             } catch (e) {

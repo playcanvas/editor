@@ -9,11 +9,9 @@ editor.once('load', function() {
             name: 'New Text',
             type: 'text',
             source: false,
-            preload: true,
-            asset: {
-                filename: "asset.txt",
-                data: ''
-            },
+            parent: editor.call('assets:panel:currentFolder'),
+            filename: 'asset.txt',
+            file: new Blob([ '\n' ], { type: 'text/plain' }),
             scope: {
                 type: 'project',
                 id: config.project.id

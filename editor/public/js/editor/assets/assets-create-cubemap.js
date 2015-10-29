@@ -9,9 +9,10 @@ editor.once('load', function() {
             name: 'New Cubemap',
             type: 'cubemap',
             source: false,
+            parent: editor.call('assets:panel:currentFolder'),
             data: {
                 name: 'New Cubemap',
-                textures: [null, null, null, null, null, null],
+                textures: [ null, null, null, null, null, null ],
                 minFilter: 5, // linear mipmap linear
                 magFilter: 1, // linear
                 anisotropy: 1

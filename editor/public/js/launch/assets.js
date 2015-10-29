@@ -1,8 +1,9 @@
 app.once('load', function() {
     'use strict';
 
-    var assets = new ObserverList();
-    assets.index = 'id';
+    var assets = new ObserverList({
+        index: 'id'
+    });
 
     // list assets
     app.method('assets:list', function () {

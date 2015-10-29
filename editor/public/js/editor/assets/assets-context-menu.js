@@ -92,14 +92,20 @@ editor.once('load', function() {
         var item = editor.call('assets:panel:get', asset.get('id'));
         if (! item) return;
 
-        // attach contextmenu event
-        item.element.addEventListener('contextmenu', function(evt) {
+        var contextMenuHandler = function(evt) {
             if (! editor.call('permissions:write')) return;
 
             currentAsset = asset;
             menu.open = true;
             menu.position(evt.clientX + 1, evt.clientY);
-        });
+        };
+
+        // grid
+        item.element.addEventListener('contextmenu', contextMenuHandler, false);
+
+        // tree
+        if (item.tree)
+            item.tree.elementTitle.addEventListener('contextmenu', contextMenuHandler, false);
     });
 
     editor.on('sourcefiles:add', function(asset) {

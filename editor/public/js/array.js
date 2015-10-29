@@ -33,3 +33,26 @@ Object.defineProperty(Array.prototype, 'match', {
         return true;
     }
 });
+
+
+Array.prototype.binaryIndexOf = function(b) {
+    var min = 0;
+    var max = this.length - 1;
+    var cur;
+    var a;
+
+    while (min <= max) {
+        cur = Math.floor((min + max) / 2);
+        a = this[cur];
+
+        if (a < b) {
+            min = cur + 1;
+        } else if (a > b) {
+            max = cur - 1;
+        } else {
+            return cur;
+        }
+    }
+
+    return -1;
+};

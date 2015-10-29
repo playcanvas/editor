@@ -143,7 +143,7 @@ app.once('load', function() {
     var update = function() {
         timeNow = now() - timeBeginning;
 
-        if (scroll.auto && Math.abs(scroll.time + capacity - timeNow) < 100)
+        if (scroll.auto)
             scroll.time = Math.max(0, timeNow - capacity);
 
         if (mouse.click) {
@@ -192,6 +192,8 @@ app.once('load', function() {
     };
 
     root.addEventListener('mousemove', function(evt) {
+        evt.stopPropagation();
+
         var rect = root.getBoundingClientRect();
         mouse.x = evt.clientX - (rect.left + 300);
         mouse.y = evt.clientY - rect.top;
@@ -204,6 +206,8 @@ app.once('load', function() {
     }, false);
 
     root.addEventListener('mousedown', function(evt) {
+        evt.stopPropagation();
+
         if (evt.button !== 0 || mouse.click || mouse.down || ! mouse.hover)
             return;
 
@@ -211,6 +215,8 @@ app.once('load', function() {
     }, false);
 
     root.addEventListener('mouseup', function(evt) {
+        evt.stopPropagation();
+
         if (evt.button !== 0 || ! mouse.down)
             return;
 
@@ -229,6 +235,8 @@ app.once('load', function() {
     }, false);
 
     root.addEventListener('mousewheel', function(evt) {
+        evt.stopPropagation();
+
         if (! mouse.hover)
             return;
 

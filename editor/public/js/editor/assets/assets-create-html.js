@@ -9,10 +9,9 @@ editor.once('load', function() {
             name: 'New Html',
             type: 'html',
             source: false,
-            asset: {
-                filename: "asset.html",
-                data: ''
-            },
+            parent: editor.call('assets:panel:currentFolder'),
+            filename: 'asset.html',
+            file: new Blob([ '\n' ], { type: 'text/html' }),
             scope: {
                 type: 'project',
                 id: config.project.id

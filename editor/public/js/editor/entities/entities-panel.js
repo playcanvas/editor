@@ -13,6 +13,15 @@ editor.once('load', function() {
     hierarchy.class.add('hierarchy');
     panel.append(hierarchy);
 
+    var resizeTree = function() {
+        hierarchy.element.style.width = '';
+        hierarchy.element.style.width = (panel.innerElement.scrollWidth - 5) + 'px';
+    };
+    panel.on('resize', resizeTree);
+    hierarchy.on('open', resizeTree);
+    hierarchy.on('close', resizeTree);
+    setInterval(resizeTree, 500);
+
 
     // return hirarchy
     editor.method('entities:hierarchy', function () {
@@ -194,6 +203,7 @@ editor.once('load', function() {
         });
 
         entity.reparenting = false;
+        resizeTree();
     });
 
 
@@ -236,6 +246,7 @@ editor.once('load', function() {
     // entity removed
     editor.on('entities:remove', function(entity) {
         uiItemIndex[entity.get('resource_id')].destroy();
+        resizeTree();
     });
 
 
@@ -279,6 +290,7 @@ editor.once('load', function() {
         // name change
         entity.on('name:set', function(value) {
             element.text = value;
+            resizeTree();
         });
 
         entity.on('enabled:set', function(value) {
@@ -339,6 +351,8 @@ editor.once('load', function() {
                 element.append(item);
             }
         });
+
+        resizeTree();
     });
 
 

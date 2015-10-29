@@ -12,6 +12,7 @@ editor.once('load', function() {
             type: 'material',
             source: false,
             data: data,
+            parent: editor.call('assets:panel:currentFolder'),
             scope: {
                 type: 'project',
                 id: config.project.id

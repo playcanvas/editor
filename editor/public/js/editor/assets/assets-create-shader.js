@@ -9,11 +9,9 @@ editor.once('load', function() {
             name: 'New Shader',
             type: 'shader',
             source: false,
-            preload: true,
-            asset: {
-                filename: "asset.glsl",
-                data: ''
-            },
+            parent: editor.call('assets:panel:currentFolder'),
+            filename: 'asset.glsl',
+            file: new Blob([ '\n' ], { type: 'text/x-glsl' }),
             scope: {
                 type: 'project',
                 id: config.project.id
