@@ -63,7 +63,7 @@ editor.once('load', function() {
             default: {
                 enabled: true,
                 clearColorBuffer: true,
-                clearColor: [0.73, 0.73, 0.73, 1],
+                clearColor: [0.722, 0.722, 0.722, 1],
                 clearDepthBuffer: true,
                 projection: 0,
                 fov: 45,
@@ -134,6 +134,11 @@ editor.once('load', function() {
                 emitterExtents: [0, 0, 0],
                 emitterRadius: 0,
                 initialVelocity: 0,
+                animTilesX: 1,
+                animTilesY: 1,
+                animNumFrames: 1,
+                animSpeed: 1,
+                animLoop: true,
                 wrap: false,
                 wrapBounds: [0,0,0],
                 colorMapAsset: null,
@@ -247,30 +252,32 @@ editor.once('load', function() {
     editor.method('components:convertValue', function (component, property, value) {
         var result = value;
 
-        var data = schema[component];
-        if (data && data.types) {
-            var type = data.types[property];
-            switch (type) {
-                case 'rgb':
-                    result = new pc.Color(value[0], value[1], value[2]);
-                    break;
-                case 'rgba':
-                    result = new pc.Color(value[0], value[1], value[2], value[3]);
-                    break;
-                case 'vec3':
-                    result = new pc.Vec3(value[0], value[1], value[2]);
-                    break;
-                case 'vec4':
-                    result = new pc.Vec4(value[0], value[1], value[2], value[3]);
-                    break;
-                case 'curveset':
-                    result = new pc.CurveSet(value.keys);
-                    result.type = value.type;
-                    break;
-                case 'curve':
-                    result = new pc.Curve(value.keys);
-                    result.type = value.type;
-                    break;
+        if (value) {
+            var data = schema[component];
+            if (data && data.types) {
+                var type = data.types[property];
+                switch (type) {
+                    case 'rgb':
+                        result = new pc.Color(value[0], value[1], value[2]);
+                        break;
+                    case 'rgba':
+                        result = new pc.Color(value[0], value[1], value[2], value[3]);
+                        break;
+                    case 'vec3':
+                        result = new pc.Vec3(value[0], value[1], value[2]);
+                        break;
+                    case 'vec4':
+                        result = new pc.Vec4(value[0], value[1], value[2], value[3]);
+                        break;
+                    case 'curveset':
+                        result = new pc.CurveSet(value.keys);
+                        result.type = value.type;
+                        break;
+                    case 'curve':
+                        result = new pc.Curve(value.keys);
+                        result.type = value.type;
+                        break;
+                }
             }
         }
 

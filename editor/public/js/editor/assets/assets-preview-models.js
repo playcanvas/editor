@@ -1,6 +1,7 @@
 editor.once('load', function () {
 
     var data = editor.call('preview:prepare');
+    if (! data) return;
 
     var canvas = data.canvas;
     var assets = data.assets;

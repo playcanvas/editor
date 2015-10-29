@@ -5,16 +5,17 @@ editor.once('load', function() {
         'camera_near_clip': 0.1,
         'camera_far_clip': 1000,
         'camera_clear_color': [
-            0.729411780834198,
-            0.729411780834198,
-            0.6941176652908325,
+            0.722,
+            0.722,
+            0.722,
             1
         ],
         'grid_divisions': 8,
         'grid_division_size': 1,
         'snap_increment': 1,
         'icons_size': .2,
-        'local_server': 'http://localhost:51000'
+        'local_server': 'http://localhost:51000',
+        'help': true
     });
     designerSettings.sync = false;
 
@@ -63,6 +64,8 @@ editor.once('load', function() {
 
             designerSettings.history = true;
             designerSettings.sync = true;
+
+            editor.emit('designerSettings:load');
         });
     };
 

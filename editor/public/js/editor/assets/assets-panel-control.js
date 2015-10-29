@@ -51,15 +51,15 @@ editor.once('load', function() {
     });
     menu.append(menuFolder);
 
-    // material
-    var menuMaterial = new ui.MenuItem({
-        text: 'New Material',
-        value: 'material'
+    // css
+    var menuCss = new ui.MenuItem({
+        text: 'New Css',
+        value: 'css'
     });
-    menuMaterial.on('select', function() {
-        editor.call('assets:createMaterial');
+    menuCss.on('select', function () {
+        editor.call('assets:createCss');
     });
-    menu.append(menuMaterial);
+    menu.append(menuCss);
 
     // cubemap
     var menuCubemap = new ui.MenuItem({
@@ -81,16 +81,6 @@ editor.once('load', function() {
     });
     menu.append(menuHtml);
 
-    // css
-    var menuCss = new ui.MenuItem({
-        text: 'New Css',
-        value: 'css'
-    });
-    menuCss.on('select', function () {
-        editor.call('assets:createCss');
-    });
-    menu.append(menuCss);
-
     // json
     var menuJson = new ui.MenuItem({
         text: 'New Json',
@@ -101,15 +91,30 @@ editor.once('load', function() {
     });
     menu.append(menuJson);
 
-    // text
-    var menuText = new ui.MenuItem({
-        text: 'New Text',
-        value: 'text'
+    // material
+    var menuMaterial = new ui.MenuItem({
+        text: 'New Material',
+        value: 'material'
     });
-    menuText.on('select', function () {
-        editor.call('assets:createText');
+    menuMaterial.on('select', function() {
+        editor.call('assets:createMaterial');
     });
-    menu.append(menuText);
+    menu.append(menuMaterial);
+
+    // script
+    var menuScript = new ui.MenuItem({
+        text: 'New Script',
+        value: 'script'
+    });
+    menuScript.on('select', function () {
+        editor.call('sourcefiles:new');
+    });
+    menu.append(menuScript);
+
+    editor.on('repositories:load', function (repositories) {
+        if (repositories.get('current') !== 'directory')
+            menuScript.disabled = true;
+    });
 
     // shader
     var menuShader = new ui.MenuItem({
@@ -120,6 +125,16 @@ editor.once('load', function() {
         editor.call('assets:createShader');
     });
     menu.append(menuShader);
+
+    // text
+    var menuText = new ui.MenuItem({
+        text: 'New Text',
+        value: 'text'
+    });
+    menuText.on('select', function () {
+        editor.call('assets:createText');
+    });
+    menu.append(menuText);
 
     // controls
     var controls = new ui.Panel();

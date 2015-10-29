@@ -2,6 +2,8 @@ editor.once('load', function() {
     'use strict';
 
     var framework = editor.call('viewport:framework');
+    if (! framework) return;
+
     var assets = framework.assets;
 
     editor.call('assets:registry:bind', assets);

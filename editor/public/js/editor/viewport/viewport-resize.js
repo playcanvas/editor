@@ -5,6 +5,9 @@ editor.once('load', function() {
     var canvas = editor.call('viewport:canvas');
     var framework = editor.call('viewport:framework');
 
+    if (! canvas)
+        return;
+
 
     // once canvas resized
     // notify framework

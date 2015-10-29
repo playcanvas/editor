@@ -54,16 +54,23 @@ app.once('load', function() {
             // check if this is a playcanvas script
             var codeEditorUrl = null;
             var target = null;
-            var parts = url.split('//')[1].split('/');
-            if (parts.length > 9) {
-                // if this is a playcanvas script
-                // then create a URL that will open the code editor
-                // at that line and column
-                if (url.indexOf("api/files/code") >= 0) {
-                    target = '/editor/code/' + parts[4] + '/' + parts.slice(9).join('/');
-                    codeEditorUrl = target + '?line=' + line + '&col=' + col;
+
+            // if this is a playcanvas script
+            // then create a URL that will open the code editor
+            // at that line and column
+            if (url.indexOf("api/files/code") >= 0) {
+                var parts = url.split('//')[1].split('/');
+
+                target = '/editor/code/' + parts[4] + '/';
+                if (parts.length > 9) {
+                    target += parts.slice(9).join('/');
+                } else {
+                    target += parts.slice(6).join('/');
                 }
-            } else {
+
+                codeEditorUrl = target + '?line=' + line + '&col=' + col;
+            }
+             else {
                 codeEditorUrl = url;
             }
 

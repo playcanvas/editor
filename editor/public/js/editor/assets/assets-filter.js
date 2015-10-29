@@ -149,6 +149,19 @@ editor.once('load', function() {
 
         if (! filter((asset.get('type') === 'script') ? 'script' : 'asset', asset))
             editor.call('assets:panel:get', asset.get('id')).hidden = true;
+        else
+            editor.call('assets:panel:message', null); // clear possible no assets message
+    });
+
+    editor.on('sourcefiles:add', function (file) {
+        if (filterField.value === 'all' && ! search.value)
+            return;
+
+        if (! filter('script', file))
+            editor.call('assets:panel:get', file.get('filename')).hidden = true;
+        else
+            editor.call('assets:panel:message', null); // clear possible no assets message
+
     });
 
     // search

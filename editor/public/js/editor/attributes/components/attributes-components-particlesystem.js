@@ -410,6 +410,11 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:particlesystem:colorMap:attach', fieldColorMap._label);
 
+        fieldColorMap.on('change', function (value) {
+            panelFrames.hidden = !value && !fieldNormalMap.value;
+            fieldAnimatedTextureNumFrames.parent.hidden = panelFrames.hidden;
+            panelAnimationPlayback.hidden = panelFrames.hidden;
+        });
 
         // normalMapAsset
         var fieldNormalMap = editor.call('attributes:addField', {
@@ -423,6 +428,104 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:particlesystem:normalMap:attach', fieldNormalMap._label);
 
+        fieldNormalMap.on('change', function (value) {
+            panelFrames.hidden = !value && !fieldColorMap.value;
+            fieldAnimatedTextureNumFrames.hidden = panelFrames.hidden;
+            panelAnimationPlayback.hidden = panelFrames.hidden;
+        });
+
+        // frames
+        var panelFrames = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Map Tiles'
+        });
+
+        var label = panelFrames;
+        panelFrames = panelFrames.parent;
+        label.destroy();
+
+        // number of x tiles
+        var fieldAnimatedTextureTilesX = editor.call('attributes:addField', {
+            parent: panelFrames,
+            type: 'number',
+            placeholder: 'X',
+            min: 1,
+            link: entities,
+            path: 'components.particlesystem.animTilesX'
+        });
+        fieldAnimatedTextureTilesX.style.width = '50%';
+        // reference
+        editor.call('attributes:reference:particlesystem:animTilesX:attach', fieldAnimatedTextureTilesX.parent.innerElement.firstChild.ui);
+
+        // number of y tiles
+        var fieldAnimatedTextureTilesY = editor.call('attributes:addField', {
+            parent: panelFrames,
+            type: 'number',
+            placeholder: 'Y',
+            min: 1,
+            link: entities,
+            path: 'components.particlesystem.animTilesY'
+        });
+        fieldAnimatedTextureTilesY.style.width = '50%';
+        // reference
+        editor.call('attributes:reference:particlesystem:animTilesY:attach', fieldAnimatedTextureTilesY.parent.innerElement.firstChild.ui);
+
+        panelFrames.hidden = !fieldColorMap.value && !fieldNormalMap.value;
+
+        // frames to play
+        var fieldAnimatedTextureNumFrames = editor.call('attributes:addField', {
+            parent: panel,
+            type: 'number',
+            name: 'Frame Count',
+            min: 1,
+            link: entities,
+            path: 'components.particlesystem.animNumFrames'
+        });
+        // reference
+        editor.call('attributes:reference:particlesystem:animNumFrames:attach', fieldAnimatedTextureNumFrames.parent.innerElement.firstChild.nextSibling.ui);
+
+        fieldAnimatedTextureNumFrames.parent.hidden = !fieldColorMap.value && !fieldNormalMap.value;
+
+        var panelAnimationPlayback = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Animation'
+        });
+
+        var label = panelAnimationPlayback;
+        panelAnimationPlayback = panelAnimationPlayback.parent;
+        label.destroy();
+
+        // animation speed
+        var fieldAnimatedTextureSpeed = editor.call('attributes:addField', {
+            parent: panelAnimationPlayback,
+            placeholder: 'Speed',
+            type: 'number',
+            link: entities,
+            path: 'components.particlesystem.animSpeed'
+        });
+        fieldAnimatedTextureSpeed.style.width = '50%';
+        // reference
+        editor.call('attributes:reference:particlesystem:animSpeed:attach', fieldAnimatedTextureSpeed.parent.innerElement.firstChild.ui);
+
+
+        // animation loop
+        var fieldAnimatedTextureLoop = editor.call('attributes:addField', {
+            parent: panelAnimationPlayback,
+            type: 'checkbox',
+            link: entities,
+            path: 'components.particlesystem.animLoop'
+        });
+
+        // label
+        var label = new ui.Label({ text: 'Loop' });
+        label.class.add('label-infield');
+        label.style.paddingRight = '12px';
+        panelAnimationPlayback.append(label);
+
+        // reference
+        editor.call('attributes:reference:particlesystem:animLoop:attach', label);
+
+        panelAnimationPlayback.hidden = !fieldColorMap.value && !fieldNormalMap.value;
 
         // mesh
         var fieldMesh = editor.call('attributes:addField', {

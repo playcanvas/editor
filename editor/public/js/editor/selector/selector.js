@@ -119,7 +119,7 @@ editor.once('load', function() {
         // make sure items still exist
         if (type === 'asset') {
             items = items.filter(function(item) {
-                return !! editor.call('assets:get', item.get('id'));
+                return item.get('type') === 'script' || !! editor.call('assets:get', item.get('id'));
             });
         } else if (type === 'entity') {
             items = items.filter(function(item) {

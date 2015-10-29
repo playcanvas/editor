@@ -21,7 +21,6 @@ editor.once('load', function() {
     btnClose.text = '&#58422;';
     btnClose.on('click', function() {
         overlay.hidden = true;
-        editor.emit('help:controls:close');
     });
     header.element.appendChild(btnClose.element);
 
@@ -29,6 +28,7 @@ editor.once('load', function() {
     var imgTop = new Image();
     imgTop.src = 'https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/help-controls.png';
     imgTop.classList.add('top');
+    imgTop.draggable = false;
     overlay.append(imgTop);
 
     var items = [
@@ -68,6 +68,14 @@ editor.once('load', function() {
             buttons: [ '1', '2', '3' ],
             title: 'Translate / Rotate / Scale Gizmo',
             icons: [ '&#57667;', '&#57670;', '&#58454;' ]
+        }, {
+            buttons: ['Shift', '$+', '?'],
+            title: 'Controls',
+            icons: [ '&#57976;']
+        }, {
+            buttons: ['Ctrl', '$+', 'Space'],
+            title: 'How do I...?',
+            icons: [ '?']
         }
     ];
 
@@ -107,4 +115,30 @@ editor.once('load', function() {
     editor.method('help:controls', function() {
         overlay.hidden = false;
     });
+
+    overlay.on('show', function () {
+        editor.emit('help:controls:open');
+        window.addEventListener('keydown', onKey);
+    });
+
+    overlay.on('hide', function () {
+        editor.emit('help:controls:close');
+        window.removeEventListener('keydown', onKey);
+    });
+
+    var onKey = function (e) {
+        if (e.keyCode === 27) {
+            overlay.hidden = true;
+        }
+    };
+
+    // hotkey
+    editor.call('hotkey:register', 'help:controls', {
+        key: 'forward slash',
+        shift: true,
+        callback: function() {
+            editor.call('help:controls');
+        }
+    });
+
 });

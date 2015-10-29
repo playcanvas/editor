@@ -176,8 +176,15 @@ a:visited {
                     width: 2048px;
 
                     -webkit-transform: rotate(90deg);
+                    -moz-transform: rotate(90deg);
+                    -ms-transform: rotate(90deg);
+                    -o-transform: rotate(90deg);
                     transform: rotate(90deg);
+
                     -webkit-transform-origin: 0% 100%;
+                    -moz-transform-origin: 0% 100%;
+                    -ms-transform-origin: 0% 100%;
+                    -o-transform-origin: 0% 100%;
                     transform-origin: 0% 100%;
                 }
                 > .content {
@@ -364,9 +371,10 @@ a:visited {
     > .content {
         position: relative;
         background-color: #07f;
-        box-shadow: 0 0 16px #000;
         transition: width 100ms, height 100ms, margin-left 100ms, margin-top 100ms;
-        box-shadow: 0 0 16px rgba(0, 0, 0, .5);
+        -webkit-box-shadow: 7px 7px 7px rgba(0, 0, 0, .15);
+        -moz-box-shadow: 7px 7px 7px rgba(0, 0, 0, .15);
+        box-shadow: 7px 7px 7px rgba(0, 0, 0, .15);
     }
 }
 

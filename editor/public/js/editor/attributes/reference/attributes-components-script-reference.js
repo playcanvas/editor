@@ -16,7 +16,7 @@ editor.once('load', function() {
         {
             title: 'scripts',
             subTitle: '{Object[]}',
-            description: 'Add scripts by typing in the name of a new or existing URL.',
+            description: 'Add scripts by clicking on the button or drag scripts on the script component.',
             url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.ScriptComponent.html#scripts'
         }
     ];

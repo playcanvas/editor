@@ -27,7 +27,11 @@ function Tooltip(args) {
 
     this.on('show', this._reflow);
     this.hidden = args.hidden !== undefined ? args.hidden : true;
-    this.text = args.text || '';
+    if (args.html) {
+        this.html = args.html;
+    } else {
+        this.text = args.text || '';
+    }
 
     this.element.addEventListener('mouseover', function(evt) {
         if (! self.hoverable)
@@ -193,10 +197,16 @@ Tooltip.prototype.position = function(x, y) {
 
 
 Tooltip.attach = function(args) {
-    var item = new ui.Tooltip({
-        text: args.text || '',
+    var data = {
         align: args.align
-    });
+    };
+
+    if (args.html)
+        data.html = args.html;
+    else
+        data.text = args.text || '';
+
+    var item = new ui.Tooltip(data);
 
     item.evtHover = function() {
         var rect = args.target.getBoundingClientRect();

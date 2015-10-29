@@ -92,35 +92,27 @@ editor.once('load', function() {
         var scriptNameRegex = /^(?:[\w\d\.-]+\/)*[\w\d\.-]+(?:\.[j|J][s|S](?:[o|O][n|N])?)?$/;
 
         // scripts.add
-        var fieldScriptsAdd = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Add',
-            type: 'string',
-            placeholder: 'Script URL'
+        var btnAddScript = new ui.Button({
+            text: 'Add Script'
         });
-        fieldScriptsAdd.renderChanges = false;
-        fieldScriptsAdd.parent.style.marginBottom = '8px';
-        // reference
-        editor.call('attributes:reference:script:scripts:attach', fieldScriptsAdd.parent.innerElement.firstChild.ui);
+        btnAddScript.class.add('add-script');
+        panel.append(btnAddScript);
 
-        // autocomplete
-        var sourcefiles = editor.call('sourcefiles:get');
+        btnAddScript.on('click', function () {
+            var evtPick = editor.once("picker:asset", function (asset) {
+                addScript(asset.get('filename'));
+                evtPick = null;
+            });
 
-        var autocomplete = new ui.AutoCompleteElement();
-        autocomplete.items = sourcefiles.map(function (sourcefile) {
-            return sourcefile.get('filename');
-        });
-        autocomplete.attach(fieldScriptsAdd);
+            // show asset picker
+            editor.call("picker:asset", "script", null);
 
-        fieldScriptsAdd.element.addEventListener('keydown', function (e) {
-            if (autocomplete.isFocused || e.keyCode !== 13 || ! fieldScriptsAdd.value)
-                return;
-
-            if (addScript(fieldScriptsAdd.value)) {
-                fieldScriptsAdd.value = '';
-            } else {
-                fieldScriptsAdd.elementInput.select();
-            }
+            editor.once('picker:asset:close', function () {
+                if (evtPick) {
+                    evtPick.unbind();
+                    evtPick = null;
+                }
+            });
         });
 
         var panelScripts = new ui.Panel();
@@ -170,23 +162,12 @@ editor.once('load', function() {
             }
 
             if (requestScript) {
-                var fullUrl = editor.call('sourcefiles:url', url);
-
                 // try to get the script and if it doesn't exist create it
-                new AjaxRequest({
-                    url: fullUrl,
-                    notJson: true
-                })
-                .on('load', function(status, data) {
-                    refreshScriptAttributes(url);
-                })
-                .on('error', function (status) {
+                editor.call('sourcefiles:content', url, function (err) {
                     // script does not exist so create it
-                    if (status === 404) {
-                        editor.call('sourcefiles:create', url);
-                    } else if (status === 0) {
-                        // invalid json which is fine because the response is text.
-                        // TODO: fix this it's not really an error
+                    if (err === 404) {
+                        editor.call('sourcefiles:create', editor.call('sourcefiles:skeleton', url), url);
+                    } else if (!err) {
                         refreshScriptAttributes(url);
                     }
                 });
@@ -445,7 +426,9 @@ editor.once('load', function() {
                 subTitle: scriptAttributeRuntimeTypes[attribute.type]
             };
 
-            if (attribute.displayName !== attribute.name)
+            if (attribute.description)
+                reference.description = attribute.description;
+            else if (attribute.displayName !== attribute.name)
                 reference.description = attribute.displayName;
 
             var type = scriptAttributeTypes[attribute.type];
@@ -966,6 +949,41 @@ editor.once('load', function() {
             }));
         }
 
+        // drag drop
+        var dropRef = editor.call('drop:target', {
+            ref: panel.element,
+            filter: function(type, data) {
+                if (type !== 'asset.script') return false;
+
+                var root = editor.call('layout.root');
+                var rectA = root.innerElement.getBoundingClientRect();
+                var rectB = panel.element.getBoundingClientRect();
+                if (rectB.top > rectA.top && rectB.bottom < rectA.bottom) {
+                    for(var i = 0; i < entities.length; i++) {
+                        var addScript = true;
+                        var scripts = entities[i].getRaw('components.script.scripts');
+                        for(var s = 0; s < scripts.length; s++) {
+                            if (scripts[s].get('url') === data.filename) {
+                                return false;
+                            }
+                        }
+                    }
+
+                    return true;
+                }
+
+                return false;
+
+            },
+            drop: function(type, data) {
+                if (type !== 'asset.script')
+                    return;
+
+                addScript(data.filename);
+            }
+        });
+
+        // clean up events
         panel.once('destroy', function() {
             for(var i = 0; i < events.length; i++)
                 events[i].unbind();

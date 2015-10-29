@@ -59,6 +59,8 @@ editor.once('load', function() {
     });
     tooltipDuplicate.class.add('innactive');
 
+    var menuEntities = ui.Menu.fromData(editor.call('menu:entities:new'));
+    root.append(menuEntities);
 
     // controls add
     var btnAdd = new ui.Button({
@@ -66,10 +68,9 @@ editor.once('load', function() {
     });
     btnAdd.class.add('add');
     btnAdd.on('click', function() {
-        var parent = editor.call('entities:selectedFirst');
-        editor.call('entities:new', {
-            parent: parent
-        });
+        menuEntities.open = true;
+        var rect = btnAdd.element.getBoundingClientRect();
+        menuEntities.position(rect.left, rect.top);
     });
     controls.append(btnAdd);
 

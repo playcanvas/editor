@@ -217,6 +217,8 @@ editor.once('load', function () {
                 return;
             }
 
+            var scrollInfo = cm.getScrollInfo();
+
             suppress = true;
             cm.setValue(share.get() || '');
             suppress = false;
@@ -237,7 +239,13 @@ editor.once('load', function () {
             }
 
             var cursorPos = cm.posFromIndex(cursor);
+            var cursorCoords = cm.cursorCoords(cursorPos);
             cm.setCursor(cursorPos);
+
+            // scroll back to where we were if needed
+            if (cursorCoords.top >= scrollInfo.top && cursorCoords.top <= scrollInfo.height) {
+                cm.scrollTo(scrollInfo.left, scrollInfo.top);
+            }
         });
 
         // instantly flush changes

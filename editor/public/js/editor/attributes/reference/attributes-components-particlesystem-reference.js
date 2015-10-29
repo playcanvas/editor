@@ -29,6 +29,31 @@ editor.once('load', function() {
             description: 'A curve defining how each particle\'s opacity changes over time. If two curves are specified in the curve editor, the opacity will be a random lerp between both curves.',
             url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.ParticleSystemComponent.html#alphaGraph'
         }, {
+            title: 'animTilesX',
+            subTitle: '{Number}',
+            description: 'Number of horizontal tiles in the sprite sheet',
+            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.ParticleSystemComponent.html#animTilesX'
+        }, {
+            title: 'animTilesY',
+            subTitle: '{Number}',
+            description: 'Number of vertical tiles in the sprite sheet',
+            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.ParticleSystemComponent.html#animTilesY'
+        }, {
+            title: 'animNumFrames',
+            subTitle: '{Number}',
+            description: 'Number of sprite sheet frames to play',
+            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.ParticleSystemComponent.html#animNumFrames'
+        }, {
+            title: 'animSpeed',
+            subTitle: '{Number}',
+            description: 'Sprite sheet animation speed. 1 = particle lifetime, 2 = twice during lifetime etc...',
+            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.ParticleSystemComponent.html#animSpeed'
+        }, {
+            title: 'animLoop',
+            subTitle: '{Boolean}',
+            description: 'If true then the sprite sheet animation will repeat indefinitely',
+            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.ParticleSystemComponent.html#animLoop'
+        }, {
             title: 'blend',
             subTitle: '{pc.BLEND_*}',
             description: 'The blending mode determines how particles are composited when they are written to the frame buffer. Let\'s consider that Prgb is the RGB color of a particle\'s pixel, Pa is its alpha value, and Drgb is the RGB color already in the frame buffer.',
