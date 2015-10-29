@@ -4,9 +4,9 @@ editor.once('load', function() {
     var toolbar = editor.call('layout.toolbar');
 
     var button = new ui.Button({
-        text: '&#57976;'
+        text: '&#57654;'
     });
-    button.class.add('icon', 'help-controls');
+    button.class.add('pc-icon', 'help-controls');
     toolbar.append(button);
 
     button.on('click', function() {

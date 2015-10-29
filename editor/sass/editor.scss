@@ -80,11 +80,9 @@ strong {
                     background-position: -47px -1px;
                 }
             }
-            &.icon {
+            &.icon, &.pc-icon {
                 color: #9ba1a3;
                 line-height: 43px;
-                @extend .font-icon;
-                font-size: 24px;
                 text-align: center;
                 background-color: #364346;
 
@@ -112,6 +110,16 @@ strong {
                     color: $text-primary;
                     background-color: $bcg-dark;
                 }
+            }
+
+            &.icon {
+                @extend .font-icon;
+                font-size: 24px;
+            }
+
+            &.pc-icon {
+                @extend .font-icon;
+                font-size: 20px;
             }
 
             &.help-howdoi {
@@ -272,8 +280,9 @@ strong {
         width: 563px;
 
         &:after {
-            content: '\E122';
-            font-size: 20px;
+            content: '\E184';
+            font-weight: 200;
+            font-size: 14px;
         }
         > .title {
             margin-right: 16px;
@@ -291,10 +300,9 @@ strong {
                     border: none;
                     padding: 0;
                     margin: 0;
-                    // margin: 0 0 0 16px;
                     vertical-align: top;
                     @extend .font-icon;
-                    font-size: 16px;
+                    font-size: 14px;
                     text-align: center;
                     color: $text-dark;
                     background-color: transparent;
@@ -332,10 +340,10 @@ strong {
 
                     &:before {
                         @extend .font-icon;
-                        content: '\E211';
+                        content: '\E352';
                         float: left;
-                        font-size: 18px;
-                        line-height: 30px;
+                        font-size: 14px;
+                        line-height: 34px;
                         padding-right: 4px;
                         margin-left: 8px;
                         color: $text-darkest;
@@ -376,7 +384,7 @@ strong {
                         &:after {
                             width: 32px;
                             height: 32px;
-                            line-height: 30px;
+                            line-height: 32px;
                         }
                     }
                     > ul > li {
@@ -428,11 +436,11 @@ strong {
                         content: '';
                     }
                     &:after {
-                        content: '\E333';
+                        content: '\E129';
                         line-height: 32px;
                         background-color: $bcg-darker;
                         @extend .font-icon;
-                        font-size: 18px;
+                        font-size: 14px;
                         text-align: center;
                     }
                     &.not-empty {
@@ -479,11 +487,11 @@ strong {
 
             &:after {
                 @extend .font-icon;
-                content: '\E123';
+                content: '\E169';
                 position: absolute;
                 right: 5px;
-                top: -1px;
-                font-size: 20px;
+                top: 0px;
+                font-size: 14px;
                 font-weight: 200;
                 color: $text-darkest;
             }
@@ -655,20 +663,14 @@ strong {
 
                 &:after {
                     @extend .font-icon;
-                    content: '\E111';
+                    content: '\E166';
                     float: right;
-
-                    -webkit-transform: rotate(-90deg);
-                    -moz-transform: rotate(-90deg);
-                    -ms-transform: rotate(-90deg);
-                    -o-transform: rotate(-90deg);
-                    transform: rotate(-90deg);
 
                     width: 32px;
                     height: 32px;
                     line-height: 32px;
                     margin-left: 16px;
-                    font-size: 18px;
+                    font-size: 20px;
                     text-align: center;
                     background-color: $bcg-primary;
                 }
@@ -699,8 +701,9 @@ strong {
         text-transform: uppercase;
 
         &:after {
-            content: '\E122';
-            font-size: 20px;
+            content: '\E184';
+            font-weight: 200;
+            font-size: 14px;
         }
     }
 
@@ -765,7 +768,7 @@ strong {
             margin: 0;
             content: none;
             text-align: center;
-            font-size: 8px;
+            font-size: 9px;
             line-height: 12px;
             @extend .font-icon;
             background-color: transparent;
@@ -774,7 +777,7 @@ strong {
         }
         &:hover {
             &:after {
-                content: '\E435';
+                content: '\E133';
                 color: mix($bcg-dark, #7f7, 50%);
             }
         }
@@ -782,7 +785,7 @@ strong {
             border-color: mix($bcg-dark, #7f7, 50%);
 
             &:after {
-                content: '\E435';
+                content: '\E133';
             }
         }
     }
@@ -994,9 +997,9 @@ strong {
                         > .ui-button {
                             color: $text-dark;
                             height: 28px;
-                            line-height: 28px;
+                            line-height: 32px;
                             @extend .font-icon;
-                            font-size: 18px;
+                            font-size: 16px;
                             text-align: center;
                             text-align: center;
                             background: transparent;
@@ -1012,7 +1015,7 @@ strong {
                             }
                             &:last-child {
                                 margin-right: 4px;
-                                line-height: 26px;
+                                line-height: 32px;
 
                                 &:hover {
                                     color: #d34141;
@@ -1126,7 +1129,7 @@ strong {
                     color: $text-active;
                 }
                 &:after {
-                    content: '\E436';
+                    content: '\E120';
                 }
             }
 
@@ -1169,7 +1172,7 @@ strong {
                     text-align: center;
 
                     &:after {
-                        content: '\E464';
+                        content: '\E120';
                     }
                 }
             }
@@ -1195,7 +1198,7 @@ strong {
                         color: #d34141;
                     }
                     &:after {
-                        content: '\E436';
+                        content: '\E120';
                     }
                 }
             }
@@ -1203,50 +1206,50 @@ strong {
         &.related-assets {
             > .ui-list-item {
                 &:before {
-                    content: '\E211';
+                    content: '\E209';
                     @extend .font-icon;
                     font-size: 14px;
                     padding-right: 8px;
                     color: $text-darkest;
                 }
                 &.type-animation:before {
-                    content: '\E274';
+                    content: '\E213';
                 }
                 &.type-audio:before {
-                    content: '\E262';
+                    content: '\E210';
                 }
                 &.type-cubemap:before {
-                    content: '\E515';
+                    content: '\E220';
                 }
                 &.type-folder:before {
-                    content: '\E422';
+                    content: '\E139';
                 }
                 &.type-json:before {
-                    content: '\E353';
+                    content: '\E207';
                 }
                 &.type-material:before {
-                    content: '\E547';
+                    content: '\E195';
                 }
                 &.type-model:before {
-                    content: '\E417';
+                    content: '\E188';
                 }
                 &.type-scene:before {
-                    content: '\E417';
+                    content: '\E188';
                 }
                 &.type-script:before {
-                    content: '\E353';
-                }
-                &.type-texture:before {
                     content: '\E236';
                 }
+                &.type-texture:before {
+                    content: '\E201';
+                }
                 &.type-text:before {
-                    content: '\E284';
+                    content: '\E209';
                 }
                 &.type-html:before {
-                    content: '\E353';
+                    content: '\E205';
                 }
                 &.type-css:before {
-                    content: '\E353';
+                    content: '\E206';
                 }
                 &.type-shader:before {
                     content: '\E353';
@@ -1309,7 +1312,7 @@ strong {
                     background-color: #364346;
                     cursor: pointer;
                     @extend .font-icon;
-                    font-size: 18px;
+                    font-size: 16px;
                     text-align: center;
 
                     &:hover {
@@ -1317,7 +1320,8 @@ strong {
                         background-color: #20292b;
                     }
                     &:after {
-                        content: '\E521';
+                        content: '\E124';
+                        font-weight: 200;
                     }
                 }
             }
@@ -1364,11 +1368,11 @@ strong {
                     &:before {
                         content: '\E243';
                         @extend .font-icon;
-                        font-size: 18px;
+                        font-size: 14px;
                         float: left;
                         width: 24px;
                         margin-right: 4px;
-                        line-height: 30px;
+                        line-height: 32px;
                         text-align: center;
                         color: $text-active;
                     }
@@ -1386,12 +1390,12 @@ strong {
                     float: right;
                     width: 32px;
                     height: 32px;
-                    line-height: 30px;
+                    line-height: 32px;
                     margin: 0;
                     padding: 0;
                     border: none;
                     @extend .font-icon;
-                    font-size: 18px;
+                    font-size: 14px;
                     text-align: center;
                     background-color: transparent;
 
@@ -1400,42 +1404,42 @@ strong {
                         background-color: #20292b;
                     }
                     &:after {
-                        content: '\E521';
+                        content: '\E124';
+                        font-weight: 200;
                     }
                 }
             }
 
             &.script > header > .title:before {
-                content: '\E284';
+                content: '\E236';
             }
             &.model > header > .title:before {
-                content: '\E417';
+                content: '\E188';
                 // font-size: 16px;
             }
             &.animation > header > .title:before {
-                content: '\E274';
+                content: '\E198';
             }
             &.audiosource > header > .title:before {
-                content: '\E254';
-                font-size: 20px;
+                content: '\E197';
             }
             &.collision > header > .title:before {
-                content: '\E327';
+                content: '\E187';
             }
             &.rigidbody > header > .title:before {
-                content: '\E328';
+                content: '\E189';
             }
             &.particlesystem > header > .title:before {
-                content: '\E458';
+                content: '\E199';
             }
             &.light > header > .title:before {
-                content: '\E318';
+                content: '\E194';
             }
             &.audiolistener > header > .title:before {
-                content: '\E267';
+                content: '\E196';
             }
             &.camera > header > .title:before {
-                content: '\E584';
+                content: '\E212';
             }
         }
         > .content {
@@ -1465,11 +1469,11 @@ strong {
 
                 &:before {
                     position: absolute;
-                    top: -1px;
+                    top: 0px;
                     left: 8px;
-                    content: '\E464';
+                    content: '\E120';
                     @extend .font-icon;
-                    font-size: 16px;
+                    font-size: 14px;
                     text-align: center;
                 }
             }
@@ -1478,7 +1482,7 @@ strong {
                 text-align: center;
 
                 &:before {
-                    content: '\E442';
+                    content: '\E130';
                     padding-right: 8px;
                     @extend .font-icon;
                     font-size: 16px;
@@ -1490,7 +1494,7 @@ strong {
                 text-align: center;
 
                 &:before {
-                    content: '\E365';
+                    content: '\E228';
                     padding-right: 8px;
                     @extend .font-icon;
                     font-size: 16px;
@@ -1524,26 +1528,30 @@ strong {
 
                 &:before {
                     position: absolute;
-                    top: -1px;
+                    top: 0px;
                     left: 8px;
                     @extend .font-icon;
-                    font-size: 16px;
+                    font-size: 14px;
                     text-align: center;
                 }
             }
 
             > .ui-button.override-material:before {
-                content: '\E117';
+                content: '\E184';
+                font-size: 14px;
+                font-weight: 200;
             }
 
             > .ui-button.loading-screen:before {
-                content: '\E117';
+                content: '\E184';
+                font-size: 14px;
+                font-weight: 200;
             }
 
             > .ui-button.loading-screen.add:before {
-                content: '\E464';
+                content: '\E120';
                 font-size: 14px;
-                top: -2px;
+                top: 0px;
             }
 
             > .ui-button.add-script {
@@ -1574,11 +1582,11 @@ strong {
 
                 &:before {
                     position: absolute;
-                    top: -1px;
+                    top: 0px;
                     left: 8px;
-                    content: '\E464';
+                    content: '\E120';
                     @extend .font-icon;
-                    font-size: 16px;
+                    font-size: 14px;
                     text-align: center;
                 }
             }
@@ -1590,13 +1598,13 @@ strong {
                 float: left;
                 width: 26px;
                 height: 26px;
-                line-height: 24px;
+                line-height: 26px;
                 text-align: center;
                 flex-shrink: 0;
                 -webkit-flex-shrink: 0;
                 margin: 0 0 0 4px;
                 padding: 0;
-                font-size: 24px;
+                font-size: 14px;
 
                 &.active {
                     color: $text-active;
@@ -1655,13 +1663,13 @@ strong {
                     float: right;
                     width: 32px;
                     height: 32px;
-                    line-height: 30px;
+                    line-height: 32px;
                     margin: 0;
                     padding: 0;
                     background-color: transparent;
                     border: none;
                     @extend .font-icon;
-                    font-size: 18px;
+                    font-size: 14px;
                     text-align: center;
 
                     &:hover {
@@ -1671,19 +1679,16 @@ strong {
                 }
 
                 > .refresh {
-                    font-size: 20px;
-                    line-height: 28px;
                     &:after {
-                        content: '\E145';
+                        content: '\E128';
                     }
                 }
                 > .move-up:after {
-                    content: '\E112';
+                    content: '\E254';
                 }
                 > .move-down {
-                    line-height: 32px;
                     &:after {
-                        content: '\E111';
+                        content: '\E252';
                     }
                 }
                 > .remove {
@@ -1691,7 +1696,8 @@ strong {
                         color: #d34141;
                     }
                     &:after {
-                        content: '\E521';
+                        content: '\E124';
+                        font-weight: 200;
                     }
                 }
             }
@@ -1740,8 +1746,9 @@ strong {
         white-space: nowrap;
 
         &:after {
-            content: '\E122';
-            font-size: 20px;
+            content: '\E184';
+            font-weight: 200;
+            font-size: 14px;
         }
         > .title {
             max-width: calc(100% - 96px);
@@ -1765,10 +1772,10 @@ strong {
                 color: $text-primary;
             }
             > .icon:after {
-                content: '\E243';
-                line-height: 21px;
+                content: '\E185';
+                line-height: 22px;
                 @extend .font-icon;
-                font-size: 18px;
+                font-size: 14px;
                 text-align: center;
                 background-color: transparent;
                 color: $text-darkest;
@@ -1776,7 +1783,7 @@ strong {
         }
         &.container {
             > .title > .icon:after {
-                content: '\E422';
+                content: '\E139';
             }
         }
         &.selected {
@@ -1791,35 +1798,34 @@ strong {
         }
 
         &.c-script > .title > .icon:after {
-            content: '\E284';
+            content: '\E236';
         }
         &.c-model > .title > .icon:after {
-            content: '\E417';
-            font-size: 16px;
+            content: '\E188';
         }
         &.c-animation > .title > .icon:after {
-            content: '\E274';
+            content: '\E198';
         }
         &.c-audiosource > .title > .icon:after {
-            content: '\E254';
+            content: '\E197';
         }
         &.c-collision > .title > .icon:after {
-            content: '\E327';
+            content: '\E187';
         }
         &.c-rigidbody > .title > .icon:after {
-            content: '\E328';
+            content: '\E189';
         }
         &.c-particlesystem > .title > .icon:after {
-            content: '\E458';
+            content: '\E199';
         }
         &.c-light > .title > .icon:after {
-            content: '\E318';
+            content: '\E194';
         }
         &.c-audiolistener > .title > .icon:after {
-            content: '\E267';
+            content: '\E196';
         }
         &.c-camera > .title > .icon:after {
-            content: '\E584';
+            content: '\E212';
         }
         &.rename {
             > .title {
@@ -1870,7 +1876,7 @@ strong {
             padding: 0;
             color: #9ba1a3;
             @extend .font-icon;
-            font-size: 16px;
+            font-size: 14px;
             text-align: center;
             background-color: transparent;
 
@@ -1923,7 +1929,7 @@ strong {
 
         &.type-animation {
             > .thumbnail.placeholder:after {
-                content: '\E274';
+                content: '\E213';
             }
             > .icon {
                 display: none;
@@ -1931,7 +1937,7 @@ strong {
         }
         &.type-audio {
             > .thumbnail.placeholder:after {
-                content: '\E262';
+                content: '\E210';
             }
             > .icon {
                 display: none;
@@ -1939,15 +1945,15 @@ strong {
         }
         &.type-cubemap {
             > .thumbnail.placeholder:after {
-                content: '\E515';
+                content: '\E220';
             }
-            > .icon:after {
-                content: '\E515';
+            > .icon {
+                display: none;
             }
         }
         &.type-folder {
             > .thumbnail.placeholder:after {
-                content: '\E422';
+                content: '\E139';
                 font-size: 58px;
             }
             > .icon {
@@ -1956,7 +1962,7 @@ strong {
         }
         &.type-json {
             > .thumbnail.placeholder:after {
-                content: '\E353';
+                content: '\E207';
             }
             > .icon {
                 display: none;
@@ -1964,7 +1970,7 @@ strong {
         }
         &.type-material {
             > .thumbnail.placeholder:after {
-                content: '\E547';
+                content: '\E195';
             }
             > .icon {
                 display: none;
@@ -1972,23 +1978,24 @@ strong {
         }
         &.type-model {
             > .thumbnail.placeholder:after {
-                content: '\E417';
+                content: '\E188';
             }
             > .icon:after {
-                content: '\E417';
+                content: '\E188';
             }
         }
         &.type-scene {
             > .thumbnail.placeholder:after {
-                content: '\E417';
+                content: '\E188';
             }
             > .icon:after {
-                content: '\E417';
+                content: '\E188';
             }
         }
         &.type-script {
             > .thumbnail.placeholder:after {
-                content: '\E353';
+                content: '\E236';
+                font-size: 60px;
             }
             > .icon {
                 display: none;
@@ -1996,7 +2003,7 @@ strong {
         }
         &.type-texture {
             > .thumbnail.placeholder:after {
-                content: '\E236';
+                content: '\E201';
             }
             > .icon {
                 display: none;
@@ -2004,7 +2011,7 @@ strong {
         }
         &.type-text {
             > .thumbnail.placeholder:after {
-                content: '\E284';
+                content: '\E209';
             }
             > .icon {
                 display: none;
@@ -2012,7 +2019,7 @@ strong {
         }
         &.type-html {
             > .thumbnail.placeholder:after {
-                content: '\E353';
+                content: '\E205';
             }
             > .icon {
                 display: none;
@@ -2020,7 +2027,7 @@ strong {
         }
         &.type-css {
             > .thumbnail.placeholder:after {
-                content: '\E353';
+                content: '\E206';
             }
             > .icon {
                 display: none;
@@ -2028,7 +2035,7 @@ strong {
         }
         &.type-shader {
             > .thumbnail.placeholder:after {
-                content: '\E353';
+                content: '\E219';
             }
             > .icon {
                 display: none;
@@ -2071,8 +2078,8 @@ strong {
         &.unused {
             > .label:before {
                 @extend .font-icon;
-                content: '\E243';
-                font-size: 14px;
+                content: '\E185';
+                font-size: 8px;
                 line-height: 14px;
                 display: inline-block;
                 width: 12px;
@@ -2166,7 +2173,7 @@ strong {
             top: 0;
             left: 0;
             @extend .font-icon;
-            font-size: 18px;
+            font-size: 14px;
             font-weight: 100;
             line-height: 22px;
             text-align: center;
@@ -2174,7 +2181,7 @@ strong {
             background-color: $text-darkest;
 
             &:after {
-                content: '\E211';
+                content: '\E208';
             }
         }
         > .label {
@@ -2248,14 +2255,9 @@ strong {
             width: 32px;
             height: 32px;
             line-height: 32px;
-            content: '\E126';
+            font-size: 14px;
+            content: '\E183';
             color: rgba($text-primary, .5);
-
-            -webkit-transform: rotate(90deg);
-            -moz-transform: rotate(90deg);
-            -o-transform: rotate(90deg);
-            -ms-transform: rotate(90deg);
-            transform: rotate(90deg);
         }
     }
 
@@ -2266,7 +2268,8 @@ strong {
         > .value {
             color: $text-primary;
             &:after {
-                content: '\E126';
+                content: '\E183';
+                font-size: 14px;
                 color: $text-primary;
             }
         }
@@ -2293,12 +2296,12 @@ strong {
             float: right;
             width: 33px;
             height: 33px;
-            line-height: 30px;
+            line-height: 33px;
             margin: 0 2px 0 0;
             padding: 0;
             border: none;
             @extend .font-icon;
-            font-size: 24px;
+            font-size: 16px;
             text-align: center;
             color: rgba($text-primary, .75);
             background-color: rgba($bcg-darker, .5);
@@ -2328,12 +2331,12 @@ strong {
                 > .ui-button {
                     width: 33px;
                     height: 33px;
-                    line-height: 32px;
+                    line-height: 33px;
                     margin: 0;
                     padding: 0;
                     border: none;
                     @extend .font-icon;
-                    font-size: 24px;
+                    font-size: 20px;
                     text-align: center;
                     color: rgba($text-primary, .75);
                     background-color: rgba($bcg-darker, .5);
@@ -2366,7 +2369,7 @@ strong {
                             line-height: 14px;
                             font-weight: 100;
                             float: right;
-                            content: '\E435';
+                            content: '\E133';
                         }
                     }
                 }
@@ -2429,24 +2432,24 @@ strong {
                 font-size: 14px;
                 margin-right: 7px;
                 float: left;
-                line-height: 32px;
+                line-height: 34px;
             }
 
         }
 
         > .project-name:before {
-            content: '\E525';
+            content: '\E140';
         }
 
         > .scene-name:before {
-            content: '\E328';
+            content: '\E134';
         }
 
         > .scene-list {
             width: 33px;
             padding: 0;
             &:before {
-                content: '\E185';
+                content: '\E147';
                 margin-right: 0px;
                 width: 33px;
                 height: 33px;
@@ -2474,7 +2477,8 @@ strong {
         }
 
         &:after {
-            content: '\E521';
+            content: '\E124';
+            font-weight: 200;
         }
 
         &.not-visible {
@@ -2501,7 +2505,7 @@ strong {
         height: 66px;
         width: 40px;
         padding: 0;
-        font-size: 18px;
+        font-size: 14px;
         text-align: center;
     }
 }
@@ -2679,7 +2683,7 @@ strong {
             text-align: center;
 
             &:before {
-                content: '\E464';
+                content: '\E120';
                 padding-right: 8px;
                 @extend .font-icon;
             }
@@ -2702,7 +2706,7 @@ strong {
         background-color: transparent;
         border: none;
         @extend .font-icon;
-        font-size: 18px;
+        font-size: 16px;
         text-align: center;
 
         &:hover {
@@ -2712,18 +2716,19 @@ strong {
     }
 
     .move-up:after {
-        content: '\E112';
+        content: '\E161';
     }
 
     .move-down {
         line-height: 32px;
         &:after {
-            content: '\E111';
+            content: '\E163';
         }
     }
 
     .remove:after {
-        content: '\E521';
+        content: '\E124';
+        font-weight: 200;
     }
 
     .not-visible {
@@ -2754,7 +2759,8 @@ strong {
             &:before {
                 @extend .font-icon;
                 font-size: 14px;
-                content: '\E333';
+                content: '\E129';
+                line-height: 34px;
                 color: $text-primary;
                 opacity: 0.5;
                 vertical-align: top;
@@ -2797,8 +2803,8 @@ strong {
 
         > .close {
             position: absolute;
-            right: 8px;
-            top: 3px;
+            right: 18px;
+            top: 4px;
             padding: 0;
             margin: 0;
             font-size: 12px;
@@ -2810,6 +2816,13 @@ strong {
 
             &:hover {
                 opacity: 1;
+            }
+
+            > .font-icon {
+                display: block;
+                position: absolute;
+                top: -1px;
+                right: -12px;
             }
         }
 
@@ -2896,7 +2909,7 @@ strong {
                         margin-bottom: 10px;
                     }
 
-                    .font-icon {
+                    .font-icon, .font-icon {
                         font-size: 16px;
                     }
 
@@ -2955,15 +2968,10 @@ strong {
                             width: 30px;
                             height: 30px;
                             text-align: center;
-                            content: '\E112';
+                            content: '\E166';
                             @extend .font-icon;
                             font-size: 20px;
 
-                            -webkit-transform: rotate(90deg);
-                            -moz-transform: rotate(90deg);
-                            -ms-transform: rotate(90deg);
-                            -o-transform: rotate(90deg);
-                            transform: rotate(90deg);
                             background-color: transparentize($text-active, 0.5);
                         }
 
@@ -3000,7 +3008,7 @@ strong {
 
             > .icon {
                 @extend .font-icon;
-                font-size: 24px;
+                font-size: 20px;
                 margin-right: 8px;
             }
             > .close {
@@ -3012,7 +3020,7 @@ strong {
                 width: 48px;
                 height: 48px;
                 line-height: 48px;
-                font-size: 24px;
+                font-size: 20px;
                 text-align: center;
                 color: $text-darkest;
                 background-color: transparent;
@@ -3623,9 +3631,11 @@ strong {
                     padding: 0 16px;
                 }
                 &:after {
-                    content: '\E521';
+                    content: '\E124';
+                    font-weight: 200;
                     @extend .font-icon;
-                    font-size: 18px;
+                    font-size: 14px;
+                    font-weight: 200;
                     float: right;
                     width: 31px;
                     padding-right: 1px;
@@ -3652,7 +3662,7 @@ strong {
                     background-color: $bcg-darkest;
                 }
                 &:after {
-                    content: '\E436';
+                    content: '\E132';
                     @extend .font-icon;
                     text-align: center;
                     font-size: 18px;
@@ -3986,11 +3996,11 @@ strong {
                     > .picker-scene-icon {
                         position: absolute;
                         left: 15px;
-                        top: -1px;
-                        font-size: 25px;
+                        top: 0px;
+                        font-size: 20px;
 
                         &:after {
-                            content: '\E185'
+                            content: '\E147'
                         }
                     }
 
@@ -4003,7 +4013,7 @@ strong {
                         text-align: right;
 
                         &:after {
-                            content: '\E436';
+                            content: '\E132';
                         }
 
                         &:hover {
@@ -4070,12 +4080,12 @@ strong {
                             > .scene-primary {
                                 @extend .font-icon;
                                 @extend .noSelect;
-                                top: 12px;
+                                top: 15px;
                                 left: 15px;
                                 line-height: 1;
-                                height: 30px;
+                                height: 20px;
                                 color: $text-darkest;
-                                font-size: 30px;
+                                font-size: 20px;
                                 position: absolute;
                                 cursor: pointer;
 
@@ -4122,25 +4132,14 @@ strong {
                                 background-color: $text-darkest;
                                 overflow: hidden;
 
-                                > .scene-dropdown-icon {
+                                > .scene-dropdown-icon:before {
+                                    content: '\E159';
+                                    @extend .font-icon;
                                     color: $bcg-primary;
-
-                                    -webkit-transform: rotate(90deg);
-                                    -moz-transform: rotate(90deg);
-                                    -ms-transform: rotate(90deg);
-                                    -o-transform: rotate(90deg);
-                                    transform: rotate(90deg);
-
-                                    -webkit-transform-origin: 10px 32px 0px;
-                                    -moz-transform-origin: 10px 32px 0px;
-                                    -ms-transform-origin: 10px 32px 0px;
-                                    -o-transform-origin: 10px 32px 0px;
-                                    transform-origin: 10px 32px 0px;
-
                                     position: absolute;
                                     left: 3px;
                                     top: -19px;
-                                    font-size: 20px;
+                                    font-size: 16px;
                                 }
 
                                 &:hover {
@@ -4155,20 +4154,9 @@ strong {
                                 &.clicked {
                                     background-color: $bcg-darkest;
 
-                                    > .scene-dropdown-icon {
+                                    > .scene-dropdown-icon:before {
                                         color: $text-primary;
-
-                                        -webkit-transform: rotate(-90deg);
-                                        -moz-transform: rotate(-90deg);
-                                        -ms-transform: rotate(-90deg);
-                                        -o-transform: rotate(-90deg);
-                                        transform: rotate(-90deg);
-
-                                        -webkit-transform-origin: 40% 50%;
-                                        -moz-transform-origin: 40% 50%;
-                                        -ms-transform-origin: 40% 50%;
-                                        -o-transform-origin: 40% 50%;
-                                        transform-origin: 40% 50%;
+                                        content: '\E157';
                                     }
 
                                     > ul {
@@ -4247,7 +4235,6 @@ strong {
 
                         > .right {
                             @extend .font-icon;
-                            font-size: 16px;
                             background-color: transparentize(#5f6f72, 0.25);
                             width: 32px;
                         }

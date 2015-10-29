@@ -20,7 +20,7 @@ editor.once('load', function() {
     panel.append(launch);
 
     var buttonLaunch = new ui.Button({
-        text: '&#57922;'
+        text: '&#57649;'
     });
     buttonLaunch.class.add('icon');
     launch.append(buttonLaunch);
@@ -127,7 +127,7 @@ editor.once('load', function() {
 
     // fullscreen
     var buttonExpand = new ui.Button({
-        text: '&#57665;'
+        text: '&#57639;'
     });
     buttonExpand.class.add('icon', 'expand');
     panel.append(buttonExpand);

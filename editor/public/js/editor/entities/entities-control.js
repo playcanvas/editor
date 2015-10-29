@@ -14,9 +14,10 @@ editor.once('load', function() {
 
     // controls delete
     var btnDelete = new ui.Button({
-        text: '&#58657;'
+        text: '&#57636;'
     });
     btnDelete.class.add('delete');
+    btnDelete.style.fontWeight = 200;
     btnDelete.on('click', function() {
         var type = editor.call('selector:type');
 
@@ -38,7 +39,7 @@ editor.once('load', function() {
 
     // controls duplicate
     var btnDuplicate = new ui.Button({
-        text: '&#57908;'
+        text: '&#57638;'
     });
     btnDuplicate.disabled = true;
     btnDuplicate.class.add('duplicate');
@@ -64,7 +65,7 @@ editor.once('load', function() {
 
     // controls add
     var btnAdd = new ui.Button({
-        text: '&#58468;'
+        text: '&#57632;'
     });
     btnAdd.class.add('add');
     btnAdd.on('click', function() {

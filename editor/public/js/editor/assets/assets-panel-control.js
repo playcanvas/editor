@@ -150,7 +150,7 @@ editor.once('load', function() {
     // add
     var btnNew = new ui.Button();
     btnNew.class.add('create-asset');
-    btnNew.text = '&#58468;';
+    btnNew.text = '&#57632;';
     btnNew.on('click', function(evt) {
         var rect = btnNew.element.getBoundingClientRect();
         menu.position(rect.right, rect.top);
@@ -185,8 +185,9 @@ editor.once('load', function() {
 
     // delete
     var btnDelete = new ui.Button({
-        text: '&#58657;'
+        text: '&#57636;'
     });
+    btnDelete.style.fontWeight = 200;
     btnDelete.disabled = true;
     btnDelete.class.add('delete');
     btnDelete.on('click', function() {

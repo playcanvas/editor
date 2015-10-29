@@ -13,16 +13,16 @@ editor.once('load', function() {
     toolbar.append(logo);
 
     var componentsLogos = {
-        'animation': '&#57972;',
-        'audiolistener': '&#57959;',
-        'audiosource': '&#57940;',
-        'camera': '&#58756;',
-        'collision': '&#58151;',
-        'light': '&#58136;',
-        'model': '&#58391;',
-        'particlesystem': '&#58456;',
-        'rigidbody': '&#58152;',
-        'script': '&#57988;'
+        'animation': '&#57875;',
+        'audiolistener': '&#57750;',
+        'audiosource': '&#57751;',
+        'camera': '&#57874;',
+        'collision': '&#57735;',
+        'light': '&#57748;',
+        'model': '&#57736;',
+        'particlesystem': '&#57753;',
+        'rigidbody': '&#57737;',
+        'script': '&#57910;'
     };
 
     var addComponent = function (entity, component) {
@@ -212,7 +212,7 @@ editor.once('load', function() {
             items: {
                 'undo': {
                     title: 'Undo',
-                    icon: '&#57654;',
+                    icon: '&#57620;',
                     filter: function() {
                         return editor.call('history:canUndo');
                     },
@@ -222,7 +222,7 @@ editor.once('load', function() {
                 },
                 'redo': {
                     title: 'Redo',
-                    icon: '&#57655;',
+                    icon: '&#57621;',
                     filter: function() {
                         return editor.call('history:canRedo');
                     },
@@ -232,7 +232,7 @@ editor.once('load', function() {
                 },
                 'enable': {
                     title: 'Enable',
-                    icon: '&#58421;',
+                    icon: '&#57651;',
                     filter: function() {
                         if (! editor.call('permissions:write'))
                             return false;
@@ -263,7 +263,7 @@ editor.once('load', function() {
                 },
                 'disable': {
                     title: 'Disable',
-                    icon: '&#58422;',
+                    icon: '&#57650;',
                     filter: function() {
                         if (! editor.call('permissions:write'))
                             return false;
@@ -294,7 +294,7 @@ editor.once('load', function() {
                 },
                 'copy': {
                     title: 'Copy',
-                    icon: '&#57891;',
+                    icon: '&#58193;',
                     filter: function () {
                         if (! editor.call('permissions:write'))
                             return false;
@@ -308,7 +308,7 @@ editor.once('load', function() {
                 },
                 'paste': {
                     title: 'Paste',
-                    icon: '&#57892;',
+                    icon: '&#58184;',
                     filter: function () {
                         if (! editor.call('permissions:write'))
                             return false;
@@ -325,7 +325,7 @@ editor.once('load', function() {
                 },
                 'edit': {
                     title: 'Edit',
-                    icon: '&#58434;',
+                    icon: '&#57648;',
                     filter: function() {
                         var type = editor.call('selector:type');
                         if (! type || type !== 'asset')
@@ -345,7 +345,7 @@ editor.once('load', function() {
                 },
                 'duplicate': {
                     title: 'Duplicate',
-                    icon: '&#57908;',
+                    icon: '&#57638;',
                     filter: function() {
                         if (! editor.call('permissions:write'))
                             return false;
@@ -378,7 +378,7 @@ editor.once('load', function() {
                 },
                 'delete': {
                     title: 'Delete',
-                    icon: '&#58657;',
+                    icon: '&#57636;',
                     filter: function() {
                         if (! editor.call('permissions:write'))
                             return false;
@@ -424,7 +424,7 @@ editor.once('load', function() {
             items: {
                 'launch-remote': {
                     title: 'Launch',
-                    icon: '&#57922;',
+                    icon: '&#57649;',
                     select: function() {
                         var url = window.location.href.replace(/^https/, 'http') + '/launch';
                         window.open(url, 'pc.launch.' + config.scene.id);
@@ -432,7 +432,7 @@ editor.once('load', function() {
                 },
                 'launch-local': {
                     title: 'Launch (Local)',
-                    icon: '&#57922;',
+                    icon: '&#57649;',
                     filter: function() {
                         return editor.call('permissions:write');
                     },
@@ -449,49 +449,49 @@ editor.once('load', function() {
             items: {
                 'controls': {
                     title: 'Controls',
-                    icon: '&#57976;',
+                    icon: '&#57654;',
                     select: function() {
                         editor.call('help:controls');
                     }
                 },
                 'reference': {
                     title: 'Reference',
-                    icon: '&#57890;',
+                    icon: '&#57906;',
                     select: function() {
                         window.open('http://developer.playcanvas.com/en/engine/api/stable/');
                     }
                 },
                 'learn': {
                     title: 'Learn',
-                    icon: '&#57890;',
+                    icon: '&#57906;',
                     select: function() {
                         window.open('http://developer.playcanvas.com/en/');
                     }
                 },
                 'forum': {
                     title: 'Forum',
-                    icon: '&#58488;',
+                    icon: '&#57907;',
                     select: function() {
                         window.open('http://forum.playcanvas.com/');
                     }
                 },
                 'answers': {
                     title: 'Answers',
-                    icon: '?',
+                    icon: '&#57656;',
                     select: function() {
                         window.open('http://answers.playcanvas.com/');
                     }
                 },
                 'howdoi': {
                     title: 'How do I...',
-                    icon: '?',
+                    icon: '&#57656;',
                     select: function () {
                         editor.call('help:howdoi');
                     }
                 },
                 'resetTips': {
                     title: 'Reset Tips',
-                    icon: '&#58209;',
+                    icon: '&#57656;',
                     select: function () {
                         editor.call('editor:tips:reset');
                     }
@@ -500,14 +500,14 @@ editor.once('load', function() {
         },
         'scenes': {
             title: 'Scenes',
-            icon: '&#57733;',
+            icon: '&#57671;',
             select: function() {
                 editor.call('picker:scene');
             }
         },
         'settings': {
             title: 'Settings',
-            icon: '&#58152;',
+            icon: '&#57652;',
             filter: function() {
                 return editor.call('permissions:write') && editor.call('selector:type') !== 'designerSettings' && ! editor.call('viewport:expand:state');
             },
@@ -517,7 +517,7 @@ editor.once('load', function() {
         },
         'priorityScripts': {
             title: 'Script Priority',
-            icon: '&#58152;',
+            icon: '&#57652;',
             filter: function() {
                 return editor.call('permissions:write');
             },
@@ -527,7 +527,7 @@ editor.once('load', function() {
         },
         'feedback': {
             title: 'Feedback',
-            icon: '&#58488;',
+            icon: '&#57625;',
             select: function() {
                 window.open('http://forum.playcanvas.com/t/playcanvas-editor-feedback/616');
             }

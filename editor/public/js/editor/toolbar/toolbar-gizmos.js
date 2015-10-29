@@ -9,15 +9,15 @@ editor.once('load', function() {
 
     // create gizmo type buttons
     [{
-        icon: '&#58454;',
+        icon: '&#57617;',
         tooltip: 'Translate',
         op: 'translate'
     }, {
-        icon: '&#57670;',
+        icon: '&#57619;',
         tooltip: 'Rotate',
         op: 'rotate'
     }, {
-        icon: '&#57667;',
+        icon: '&#57618;',
         tooltip: 'Scale',
         op: 'scale'
     }].forEach(function (item) {
@@ -25,7 +25,7 @@ editor.once('load', function() {
             text: item.icon
         });
         button.op = item.op;
-        button.class.add('icon');
+        button.class.add('pc-icon');
 
         gizmoButtons[item.op] = button;
 
@@ -65,9 +65,9 @@ editor.once('load', function() {
 
     // coordinate system
     var buttonWorld = new ui.Button({
-        text: '&#58645;'
+        text: '&#57624;'
     });
-    buttonWorld.class.add('icon', 'active');
+    buttonWorld.class.add('pc-icon', 'active');
     toolbar.append(buttonWorld);
 
     buttonWorld.on('click', function () {
@@ -95,9 +95,9 @@ editor.once('load', function() {
 
     // toggle grid snap
     var buttonSnap = new ui.Button({
-        text: '&#58663;'
+        text: '&#57622;'
     });
-    buttonSnap.class.add('icon');
+    buttonSnap.class.add('pc-icon');
     buttonSnap.on('click', function () {
         if (this.class.contains('active')) {
             this.class.remove('active');
@@ -124,10 +124,10 @@ editor.once('load', function() {
 
     // focus on entity
     var buttonFocus = new ui.Button({
-        text: '&#58756;'
+        text: '&#57623;'
     });
     buttonFocus.disabled = true;
-    buttonFocus.class.add('icon');
+    buttonFocus.class.add('pc-icon');
     buttonFocus.on('click', function() {
         editor.call('viewport:focus');
     });

@@ -4,10 +4,9 @@ editor.once('load', function() {
     var toolbar = editor.call('layout.toolbar');
 
     var button = new ui.Button({
-        text: '?'
+        text: '&#57656;'
     });
-    button.class.add('icon', 'help-howdoi');
-    button.style.fontSize = '21px';
+    button.class.add('pc-icon', 'help-howdoi');
     toolbar.append(button);
 
     button.on('click', function() {

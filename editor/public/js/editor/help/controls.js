@@ -11,14 +11,14 @@ editor.once('load', function() {
 
     // header
     var header = new ui.Label();
-    header.text = '<span class="icon">&#57976;</span>Controls';
+    header.text = '<span class="icon">&#57654;</span>Controls';
     header.class.add('header');
     overlay.append(header);
 
     // close
     var btnClose = new ui.Button();
     btnClose.class.add('close');
-    btnClose.text = '&#58422;';
+    btnClose.text = '&#57650;';
     btnClose.on('click', function() {
         overlay.hidden = true;
     });
@@ -35,47 +35,47 @@ editor.once('load', function() {
         {
             buttons: [ 'Ctrl', '$+', 'N' ],
             title: 'New Entity',
-            icons: [ '&#58468;' ]
+            icons: [ '&#57632;' ]
         }, {
             buttons: [ 'Ctrl', '$+', 'C' ],
             title: 'Copy Entity',
-            icons: [ '&#57891;' ]
+            icons: [ '&#58193;' ]
         }, {
             buttons: [ 'Ctrl', '$+', 'V' ],
             title: 'Paste Entity',
-            icons: [ '&#57892;' ]
+            icons: [ '&#58184;' ]
         }, {
             buttons: [ 'Ctrl', '$+', 'D' ],
             title: 'Duplicate Entity',
-            icons: [ '&#57908;' ]
+            icons: [ '&#57638;' ]
         }, {
             buttons: [ 'Ctrl', '$+', 'Z' ],
             title: 'Undo',
-            icons: [ '&#57654;' ]
+            icons: [ '&#57620;' ]
         }, {
             buttons: [ 'Ctrl', '$+', 'Y' ],
             title: 'Redo',
-            icons: [ '&#57655;' ]
+            icons: [ '&#57621;' ]
         }, {
             buttons: [ 'Ctrl', '$+', 'Enter' ],
             title: 'Launch Game',
-            icons: [ '&#57922;' ]
+            icons: [ '&#57649;' ]
         }, {
             buttons: [ 'Space' ],
             title: 'Hide Panels',
-            icons: [ '&#57665;' ]
+            icons: [ '&#57639;' ]
         }, {
             buttons: [ '1', '2', '3' ],
             title: 'Translate / Rotate / Scale Gizmo',
-            icons: [ '&#57667;', '&#57670;', '&#58454;' ]
+            icons: [ '&#57618;', '&#57619;', '&#57617;' ]
         }, {
             buttons: ['Shift', '$+', '?'],
             title: 'Controls',
-            icons: [ '&#57976;']
+            icons: [ '&#57654;']
         }, {
             buttons: ['Ctrl', '$+', 'Space'],
             title: 'How do I...?',
-            icons: [ '?']
+            icons: [ '&#57656;']
         }
     ];
 
