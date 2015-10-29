@@ -92,7 +92,7 @@ editor.once('load', function () {
 
     // close button
     var close = new ui.Button({
-        text: 'Hide <span class="font-icon">&#57650;</span>'
+        text: 'Hide <span class="font-icon" style="position: absolute; top: 0">&#57650;</span>'
     });
     close.class.add('close');
     panel.append(close);

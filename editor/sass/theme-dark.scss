@@ -124,7 +124,7 @@ a:visited {
                 padding: 0;
                 width: 32px;
                 height: 32px;
-                line-height: 30px;
+                line-height: 32px;
                 color: $text-active;
                 background-color: transparent;
                 transform: rotate(90deg);
@@ -261,7 +261,7 @@ a:visited {
             text-align: center;
             color: $text-secondary;
             text-align: center;
-            line-height: 15px;
+            line-height: 16px;
             background: transparent;
             font-weight: bold;
             background-color: $bcg-dark;
@@ -908,11 +908,11 @@ a:visited {
             content: '\E159';
             width: 22px;
             height: 22px;
-            line-height: 20px;
+            line-height: 22px;
             padding: 0;
             margin: 0;
             @extend .font-icon;
-            font-size: 18px;
+            font-size: 14px;
             text-align: center;
             color: $text-darkest;
             background-color: transparent;

@@ -21,7 +21,7 @@ editor.once('load', function() {
         'light': '&#57748;',
         'model': '&#57736;',
         'particlesystem': '&#57753;',
-        'rigidbody': '&#57744;',
+        'rigidbody': '&#57737;',
         'script': '&#57910;'
     };
 
@@ -294,7 +294,7 @@ editor.once('load', function() {
                 },
                 'copy': {
                     title: 'Copy',
-                    icon: '&#57891;',
+                    icon: '&#58193;',
                     filter: function () {
                         if (! editor.call('permissions:write'))
                             return false;
@@ -308,7 +308,7 @@ editor.once('load', function() {
                 },
                 'paste': {
                     title: 'Paste',
-                    icon: '&#57892;',
+                    icon: '&#58184;',
                     filter: function () {
                         if (! editor.call('permissions:write'))
                             return false;
@@ -378,7 +378,7 @@ editor.once('load', function() {
                 },
                 'delete': {
                     title: 'Delete',
-                    icon: '&#57637;',
+                    icon: '&#57636;',
                     filter: function() {
                         if (! editor.call('permissions:write'))
                             return false;

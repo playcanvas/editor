@@ -295,10 +295,9 @@ strong {
                     border: none;
                     padding: 0;
                     margin: 0;
-                    // margin: 0 0 0 16px;
                     vertical-align: top;
                     @extend .font-icon;
-                    font-size: 16px;
+                    font-size: 14px;
                     text-align: center;
                     color: $text-dark;
                     background-color: transparent;
@@ -336,10 +335,10 @@ strong {
 
                     &:before {
                         @extend .font-icon;
-                        content: '\E208';
+                        content: '\E352';
                         float: left;
                         font-size: 14px;
-                        line-height: 30px;
+                        line-height: 34px;
                         padding-right: 4px;
                         margin-left: 8px;
                         color: $text-darkest;
@@ -380,7 +379,7 @@ strong {
                         &:after {
                             width: 32px;
                             height: 32px;
-                            line-height: 26px;
+                            line-height: 32px;
                         }
                     }
                     > ul > li {
@@ -433,10 +432,10 @@ strong {
                     }
                     &:after {
                         content: '\E129';
-                        line-height: 28px;
+                        line-height: 32px;
                         background-color: $bcg-darker;
                         @extend .font-icon;
-                        font-size: 18px;
+                        font-size: 14px;
                         text-align: center;
                     }
                     &.not-empty {
@@ -486,8 +485,8 @@ strong {
                 content: '\E169';
                 position: absolute;
                 right: 5px;
-                top: -1px;
-                font-size: 16px;
+                top: 0px;
+                font-size: 14px;
                 font-weight: 200;
                 color: $text-darkest;
             }
@@ -987,9 +986,9 @@ strong {
                         > .ui-button {
                             color: $text-dark;
                             height: 28px;
-                            line-height: 28px;
+                            line-height: 32px;
                             @extend .font-icon;
-                            font-size: 18px;
+                            font-size: 16px;
                             text-align: center;
                             text-align: center;
                             background: transparent;
@@ -1005,7 +1004,7 @@ strong {
                             }
                             &:last-child {
                                 margin-right: 4px;
-                                line-height: 26px;
+                                line-height: 32px;
 
                                 &:hover {
                                     color: #d34141;
@@ -1307,7 +1306,8 @@ strong {
                         background-color: #20292b;
                     }
                     &:after {
-                        content: '\E125';
+                        content: '\E124';
+                        font-weight: 200;
                     }
                 }
             }
@@ -1354,11 +1354,11 @@ strong {
                     &:before {
                         content: '\E243';
                         @extend .font-icon;
-                        font-size: 18px;
+                        font-size: 14px;
                         float: left;
                         width: 24px;
                         margin-right: 4px;
-                        line-height: 26px;
+                        line-height: 32px;
                         text-align: center;
                         color: $text-active;
                     }
@@ -1376,12 +1376,12 @@ strong {
                     float: right;
                     width: 32px;
                     height: 32px;
-                    line-height: 27px;
+                    line-height: 32px;
                     margin: 0;
                     padding: 0;
                     border: none;
                     @extend .font-icon;
-                    font-size: 16px;
+                    font-size: 14px;
                     text-align: center;
                     background-color: transparent;
 
@@ -1390,7 +1390,8 @@ strong {
                         background-color: #20292b;
                     }
                     &:after {
-                        content: '\E125';
+                        content: '\E124';
+                        font-weight: 200;
                     }
                 }
             }
@@ -1412,7 +1413,7 @@ strong {
                 content: '\E187';
             }
             &.rigidbody > header > .title:before {
-                content: '\E190';
+                content: '\E189';
             }
             &.particlesystem > header > .title:before {
                 content: '\E199';
@@ -1454,11 +1455,11 @@ strong {
 
                 &:before {
                     position: absolute;
-                    top: -2px;
+                    top: 0px;
                     left: 8px;
                     content: '\E120';
                     @extend .font-icon;
-                    font-size: 16px;
+                    font-size: 14px;
                     text-align: center;
                 }
             }
@@ -1513,10 +1514,10 @@ strong {
 
                 &:before {
                     position: absolute;
-                    top: -1px;
+                    top: 0px;
                     left: 8px;
                     @extend .font-icon;
-                    font-size: 16px;
+                    font-size: 14px;
                     text-align: center;
                 }
             }
@@ -1536,7 +1537,7 @@ strong {
             > .ui-button.loading-screen.add:before {
                 content: '\E120';
                 font-size: 14px;
-                top: -2px;
+                top: 0px;
             }
 
             > .ui-button.add-script {
@@ -1567,11 +1568,11 @@ strong {
 
                 &:before {
                     position: absolute;
-                    top: -2px;
+                    top: 0px;
                     left: 8px;
                     content: '\E120';
                     @extend .font-icon;
-                    font-size: 16px;
+                    font-size: 14px;
                     text-align: center;
                 }
             }
@@ -1583,13 +1584,13 @@ strong {
                 float: left;
                 width: 26px;
                 height: 26px;
-                line-height: 24px;
+                line-height: 26px;
                 text-align: center;
                 flex-shrink: 0;
                 -webkit-flex-shrink: 0;
                 margin: 0 0 0 4px;
                 padding: 0;
-                font-size: 20px;
+                font-size: 14px;
 
                 &.active {
                     color: $text-active;
@@ -1648,13 +1649,13 @@ strong {
                     float: right;
                     width: 32px;
                     height: 32px;
-                    line-height: 30px;
+                    line-height: 32px;
                     margin: 0;
                     padding: 0;
                     background-color: transparent;
                     border: none;
                     @extend .font-icon;
-                    font-size: 18px;
+                    font-size: 14px;
                     text-align: center;
 
                     &:hover {
@@ -1664,18 +1665,16 @@ strong {
                 }
 
                 > .refresh {
-                    line-height: 28px;
                     &:after {
                         content: '\E128';
                     }
                 }
                 > .move-up:after {
-                    content: '\E161';
+                    content: '\E254';
                 }
                 > .move-down {
-                    line-height: 32px;
                     &:after {
-                        content: '\E163';
+                        content: '\E252';
                     }
                 }
                 > .remove {
@@ -1683,7 +1682,8 @@ strong {
                         color: #d34141;
                     }
                     &:after {
-                        content: '\E125';
+                        content: '\E124';
+                        font-weight: 200;
                     }
                 }
             }
@@ -1759,7 +1759,7 @@ strong {
             }
             > .icon:after {
                 content: '\E185';
-                line-height: 16px;
+                line-height: 22px;
                 @extend .font-icon;
                 font-size: 14px;
                 text-align: center;
@@ -1799,7 +1799,7 @@ strong {
             content: '\E187';
         }
         &.c-rigidbody > .title > .icon:after {
-            content: '\E190';
+            content: '\E189';
         }
         &.c-particlesystem > .title > .icon:after {
             content: '\E199';
@@ -1916,8 +1916,8 @@ strong {
             > .thumbnail.placeholder:after {
                 content: '\E220';
             }
-            > .icon:after {
-                content: '\E220';
+            > .icon {
+                display: none;
             }
         }
         &.type-json {
@@ -2081,9 +2081,9 @@ strong {
             top: 0;
             left: 0;
             @extend .font-icon;
-            font-size: 18px;
+            font-size: 14px;
             font-weight: 100;
-            line-height: 19px;
+            line-height: 22px;
             text-align: center;
             color: $bcg-darker;
             background-color: $text-darkest;
@@ -2137,7 +2137,7 @@ strong {
         &:after {
             width: 32px;
             height: 32px;
-            line-height: 28px;
+            line-height: 32px;
             font-size: 14px;
             content: '\E183';
             color: rgba($text-primary, .5);
@@ -2179,7 +2179,7 @@ strong {
             float: right;
             width: 33px;
             height: 33px;
-            line-height: 30px;
+            line-height: 33px;
             margin: 0 2px 0 0;
             padding: 0;
             border: none;
@@ -2214,7 +2214,7 @@ strong {
                 > .ui-button {
                     width: 33px;
                     height: 33px;
-                    line-height: 30px;
+                    line-height: 33px;
                     margin: 0;
                     padding: 0;
                     border: none;
@@ -2315,7 +2315,7 @@ strong {
                 font-size: 14px;
                 margin-right: 7px;
                 float: left;
-                line-height: 32px;
+                line-height: 34px;
             }
 
         }
@@ -2360,7 +2360,8 @@ strong {
         }
 
         &:after {
-            content: '\E125';
+            content: '\E124';
+            font-weight: 200;
         }
 
         &.not-visible {
@@ -2387,7 +2388,7 @@ strong {
         height: 66px;
         width: 40px;
         padding: 0;
-        font-size: 16px;
+        font-size: 14px;
         text-align: center;
     }
 }
@@ -2609,7 +2610,8 @@ strong {
     }
 
     .remove:after {
-        content: '\E125';
+        content: '\E124';
+        font-weight: 200;
     }
 
     .not-visible {
@@ -2641,7 +2643,7 @@ strong {
                 @extend .font-icon;
                 font-size: 14px;
                 content: '\E129';
-                line-height: 30px;
+                line-height: 34px;
                 color: $text-primary;
                 opacity: 0.5;
                 vertical-align: top;
@@ -2685,7 +2687,7 @@ strong {
         > .close {
             position: absolute;
             right: 18px;
-            top: 3px;
+            top: 4px;
             padding: 0;
             margin: 0;
             font-size: 12px;
@@ -2889,7 +2891,7 @@ strong {
 
             > .icon {
                 @extend .font-icon;
-                font-size: 24px;
+                font-size: 20px;
                 margin-right: 8px;
             }
             > .close {
@@ -2901,7 +2903,7 @@ strong {
                 width: 48px;
                 height: 48px;
                 line-height: 48px;
-                font-size: 24px;
+                font-size: 20px;
                 text-align: center;
                 color: $text-darkest;
                 background-color: transparent;
@@ -3512,9 +3514,11 @@ strong {
                     padding: 0 16px;
                 }
                 &:after {
-                    content: '\E125';
+                    content: '\E124';
+                    font-weight: 200;
                     @extend .font-icon;
-                    font-size: 16px;
+                    font-size: 14px;
+                    font-weight: 200;
                     float: right;
                     width: 31px;
                     padding-right: 1px;
@@ -3875,8 +3879,8 @@ strong {
                     > .picker-scene-icon {
                         position: absolute;
                         left: 15px;
-                        top: -1px;
-                        font-size: 25px;
+                        top: 0px;
+                        font-size: 20px;
 
                         &:after {
                             content: '\E147'
@@ -3959,12 +3963,12 @@ strong {
                             > .scene-primary {
                                 @extend .font-icon;
                                 @extend .noSelect;
-                                top: 12px;
+                                top: 15px;
                                 left: 15px;
                                 line-height: 1;
-                                height: 30px;
+                                height: 20px;
                                 color: $text-darkest;
-                                font-size: 30px;
+                                font-size: 20px;
                                 position: absolute;
                                 cursor: pointer;
 
@@ -4016,9 +4020,9 @@ strong {
                                     @extend .font-icon;
                                     color: $bcg-primary;
                                     position: absolute;
-                                    left: 2px;
-                                    top: -22px;
-                                    font-size: 20px;
+                                    left: 3px;
+                                    top: -19px;
+                                    font-size: 16px;
                                 }
 
                                 &:hover {
@@ -4114,7 +4118,6 @@ strong {
 
                         > .right {
                             @extend .font-icon;
-                            font-size: 16px;
                             background-color: transparentize(#5f6f72, 0.25);
                             width: 32px;
                         }

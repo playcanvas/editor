@@ -39,11 +39,11 @@ editor.once('load', function() {
         }, {
             buttons: [ 'Ctrl', '$+', 'C' ],
             title: 'Copy Entity',
-            icons: [ '&#57891;' ]
+            icons: [ '&#58193;' ]
         }, {
             buttons: [ 'Ctrl', '$+', 'V' ],
             title: 'Paste Entity',
-            icons: [ '&#57892;' ]
+            icons: [ '&#58184;' ]
         }, {
             buttons: [ 'Ctrl', '$+', 'D' ],
             title: 'Duplicate Entity',

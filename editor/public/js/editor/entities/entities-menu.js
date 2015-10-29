@@ -12,7 +12,7 @@ editor.once('load', function() {
         'spot': '&#57747;',
         'model': '&#57736;',
         'particlesystem': '&#57753;',
-        'rigidbody': '&#57744;',
+        'rigidbody': '&#57737;',
         'script': '&#57910;'
     };
 

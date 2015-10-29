@@ -17,6 +17,7 @@ editor.once('load', function() {
         text: '&#57636;'
     });
     btnDelete.class.add('delete');
+    btnDelete.style.fontWeight = 200;
     btnDelete.on('click', function() {
         var type = editor.call('selector:type');
 

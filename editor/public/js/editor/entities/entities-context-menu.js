@@ -17,7 +17,7 @@ editor.once('load', function() {
         'light': '&#57748;',
         'model': '&#57736;',
         'particlesystem': '&#57753;',
-        'rigidbody': '&#57744;',
+        'rigidbody': '&#57737;',
         'script': '&#57910;'
     };
 
@@ -256,7 +256,7 @@ editor.once('load', function() {
 
         menuData['copy'] = {
             title: 'Copy',
-            icon: '&#57891;',
+            icon: '&#58193;',
             filter: function() {
                 return items.length === 1;
             },
@@ -267,7 +267,7 @@ editor.once('load', function() {
 
         menuData['paste'] = {
             title: 'Paste',
-            icon: '&#57892;',
+            icon: '&#58184;',
             filter: function () {
                 return items.length === 1 && ! editor.call('entities:clipboard:empty');
             },
@@ -289,7 +289,7 @@ editor.once('load', function() {
 
         menuData['delete'] = {
             title: 'Delete',
-            icon: '&#57637;',
+            icon: '&#57636;',
             filter: function () {
                 var root = editor.call('entities:root');
                 for(var i = 0; i < items.length; i++) {

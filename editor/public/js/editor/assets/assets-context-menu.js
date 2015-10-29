@@ -35,9 +35,10 @@ editor.once('load', function() {
     // delete
     var menuItemDelete = new ui.MenuItem({
         text: 'Delete',
-        icon: '&#57637;',
+        icon: '&#57636;',
         value: 'delete'
     });
+    menuItemDelete.style.fontWeight = 200;
     menuItemDelete.on('select', function() {
         var asset = currentAsset;
         var assetType = asset.get('type');
