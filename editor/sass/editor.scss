@@ -119,7 +119,7 @@ strong {
 
             &.pc-icon {
                 @extend .font-icon;
-                font-size: 22px;
+                font-size: 20px;
             }
 
             &.help-howdoi {
@@ -277,7 +277,7 @@ strong {
         &:after {
             content: '\E184';
             font-weight: 200;
-            font-size: 16px;
+            font-size: 14px;
         }
         > .title {
             margin-right: 16px;
@@ -693,7 +693,7 @@ strong {
         &:after {
             content: '\E184';
             font-weight: 200;
-            font-size: 16px;
+            font-size: 14px;
         }
     }
 
@@ -1523,11 +1523,13 @@ strong {
 
             > .ui-button.override-material:before {
                 content: '\E184';
+                font-size: 14px;
                 font-weight: 200;
             }
 
             > .ui-button.loading-screen:before {
                 content: '\E184';
+                font-size: 14px;
                 font-weight: 200;
             }
 
@@ -1732,7 +1734,7 @@ strong {
         &:after {
             content: '\E184';
             font-weight: 200;
-            font-size: 16px;
+            font-size: 14px;
         }
         > .title {
             max-width: calc(100% - 96px);
@@ -1757,9 +1759,9 @@ strong {
             }
             > .icon:after {
                 content: '\E185';
-                line-height: 18px;
+                line-height: 16px;
                 @extend .font-icon;
-                font-size: 16px;
+                font-size: 14px;
                 text-align: center;
                 background-color: transparent;
                 color: $text-darkest;
@@ -1860,7 +1862,7 @@ strong {
             padding: 0;
             color: #9ba1a3;
             @extend .font-icon;
-            font-size: 16px;
+            font-size: 14px;
             text-align: center;
             background-color: transparent;
 
@@ -1993,7 +1995,7 @@ strong {
         }
         &.type-shader {
             > .thumbnail.placeholder:after {
-                content: '\E353';
+                content: '\E219';
             }
             > .icon {
                 display: none;
@@ -2136,7 +2138,7 @@ strong {
             width: 32px;
             height: 32px;
             line-height: 28px;
-            font-size: 16px;
+            font-size: 14px;
             content: '\E183';
             color: rgba($text-primary, .5);
         }
@@ -2150,7 +2152,7 @@ strong {
             color: $text-primary;
             &:after {
                 content: '\E183';
-                font-size: 16px;
+                font-size: 14px;
                 color: $text-primary;
             }
         }
@@ -2182,7 +2184,7 @@ strong {
             padding: 0;
             border: none;
             @extend .font-icon;
-            font-size: 22px;
+            font-size: 20px;
             text-align: center;
             color: rgba($text-primary, .75);
             background-color: rgba($bcg-darker, .5);
@@ -2217,7 +2219,7 @@ strong {
                     padding: 0;
                     border: none;
                     @extend .font-icon;
-                    font-size: 22px;
+                    font-size: 20px;
                     text-align: center;
                     color: rgba($text-primary, .75);
                     background-color: rgba($bcg-darker, .5);

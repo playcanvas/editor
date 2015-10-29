@@ -7,7 +7,6 @@ editor.once('load', function() {
         text: '&#57656;'
     });
     button.class.add('pc-icon', 'help-howdoi');
-    button.style.fontSize = '21px';
     toolbar.append(button);
 
     button.on('click', function() {

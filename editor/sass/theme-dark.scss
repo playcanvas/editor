@@ -456,11 +456,11 @@ a:visited {
         > .title:after {
             content: '\E160';
             @extend .font-icon;
-            font-size: 16px;
+            font-size: 14px;
             text-align: center;
             background-color: transparent;
             color: $text-dark;
-            line-height: 16px;
+            line-height: 14px;
         }
         &.hover > .title {
             color: $text-primary;
