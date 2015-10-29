@@ -165,7 +165,7 @@ editor.once('load', function() {
     var treeScripts;
 
     treeRoot.elementTitle.addEventListener('mouseover', function() {
-        if (! dragging || grid.dragOver === null)
+        if (! dragging || grid.dragOver === null || (! draggingData.id && ! draggingData.ids))
             return;
 
         // already in that folder
@@ -455,12 +455,13 @@ editor.once('load', function() {
 
     var createScriptFolder = function() {
         gridScripts = new ui.GridItem();
-        gridScripts.class.add('type-folder');
+        gridScripts.class.add('type-folder', 'scripts');
         grid.append(gridScripts);
 
         gridScripts.tree = treeScripts = new ui.TreeItem({
             text: 'scripts'
         });
+        gridScripts.tree.class.add('scripts');
         gridScripts.tree.on('select', function() {
             this.selected = false;
         });
@@ -587,10 +588,13 @@ editor.once('load', function() {
                     // multi-drag
                     if (draggingData.ids.indexOf(parseInt(asset.get('id'), 10)) !== -1)
                         return;
-                } else {
+                } else if (draggingData.id) {
                     // single-drag
                     if (parseInt(asset.get('id'), 10) === parseInt(draggingData.id, 10))
                         return;
+                } else {
+                    // script file drag
+                    return;
                 }
 
 

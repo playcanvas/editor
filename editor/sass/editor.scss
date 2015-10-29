@@ -2041,6 +2041,14 @@ strong {
                 display: none;
             }
         }
+        &.scripts {
+            > .thumbnail.placeholder:after {
+                content: '\E423';
+            }
+            > .icon {
+                display: none;
+            }
+        }
 
         &:hover {
             background-color: mix($bcg-darkest, $bcg-dark, 50%);
