@@ -2042,8 +2042,17 @@ strong {
             }
         }
         &.scripts {
-            > .thumbnail.placeholder:after {
-                content: '\E423';
+            > .thumbnail.placeholder:before {
+                content: 's';
+                display: block;
+                position: absolute;
+                top: 12px;
+                left: 20px;
+                width: 64px;
+                line-height: 58px;
+                text-align: center;
+                color: $bcg-darker;
+                font-size: 32px;
             }
             > .icon {
                 display: none;
@@ -2168,7 +2177,7 @@ strong {
                 border: 2px dotted rgba($text-darkest, .5);
                 width: 60px;
                 height: 60px;
-                line-height: 56px;
+                line-height: 64px;
             }
             > .icon {
                 display: none;

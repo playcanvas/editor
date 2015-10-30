@@ -6,6 +6,10 @@ editor.once('load', function() {
             return;
 
         var msg = 'Delete Asset?';
+
+        if (items.length === 1 && items[0].get('type') === 'folder')
+            msg = 'Delete Folder?';
+
         if (items.length > 1)
             msg = 'Delete ' + items.length + ' Assets?';
 

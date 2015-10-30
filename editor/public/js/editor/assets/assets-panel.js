@@ -135,12 +135,24 @@ editor.once('load', function() {
             if (! type || grid.dragOver === undefined || ! type.startsWith('asset'))
                 return;
 
+            var items = editor.call('selector:items');
             var assets = [ ];
+
+            var addAsset = function(id) {
+                var asset = editor.call('assets:get', id);
+
+                // deselect moved asset
+                if (items.indexOf(asset) !== -1)
+                    editor.call('selector:remove', asset);
+
+                assets.push(asset);
+            };
+
             if (data.ids) {
                 for(var i = 0; i < data.ids.length; i++)
-                    assets.push(editor.call('assets:get', data.ids[i]));
+                    addAsset(data.ids[i]);
             } else {
-                assets.push(editor.call('assets:get', data.id));
+                addAsset(data.id);
             }
             editor.call('assets:fs:move', assets, grid.dragOver);
         }
@@ -232,11 +244,23 @@ editor.once('load', function() {
                 return;
 
             var assets = [ ];
+            var items = editor.call('selector:items');
+
+            var addAsset = function(id) {
+                var asset = editor.call('assets:get', id);
+
+                // deselect moved asset
+                if (items.indexOf(asset) !== -1)
+                    editor.call('selector:remove', asset);
+
+                assets.push(asset);
+            };
+
             if (data.ids) {
                 for(var i = 0; i < data.ids.length; i++)
-                    assets.push(editor.call('assets:get', data.ids[i]));
+                    addAsset(data.ids[i]);
             } else {
-                assets.push(editor.call('assets:get', data.id));
+                addAsset(data.id);
             }
 
             editor.call('assets:fs:move', assets, grid.dragOver);
@@ -378,6 +402,8 @@ editor.once('load', function() {
                 gridItem.hidden = ! fn('script', gridItem.script);
             }
         });
+
+        gridScripts.hidden = ! fn('scripts', 'scripts');
     });
 
 
@@ -747,6 +773,8 @@ editor.once('load', function() {
 
                 resizeTree();
             }
+
+            keepScriptsAtTop();
         });
 
         var evtPathSet = asset.on('path:set', function(path, pathOld) {
@@ -775,6 +803,8 @@ editor.once('load', function() {
                 if (currentFolder === asset)
                     editor.emit('assets:panel:currentFolder', currentFolder);
             }
+
+            keepScriptsAtTop();
         });
 
         if (! asset.get('source')) {
@@ -813,6 +843,11 @@ editor.once('load', function() {
 
         resizeTree();
 
+        keepScriptsAtTop();
+    });
+
+    var keepScriptsAtTop = function() {
+        // resort scripts folder in grid
         gridScripts.element.parentNode.removeChild(gridScripts.element);
         var first = grid.element.firstChild;
         if (first) {
@@ -820,7 +855,16 @@ editor.once('load', function() {
         } else {
             grid.element.appendChild(gridScripts.element);
         }
-    });
+
+        // resort scripts folder in tree
+        treeScripts.element.parentNode.removeChild(treeScripts.element);
+        var next = treeRoot.elementTitle.nextSibling;
+        if (next) {
+            treeRoot.element.insertBefore(treeScripts.element, next);
+        } else {
+            treeRoot.element.appendChild(treeScripts.element);
+        }
+    };
 
     editor.on('assets:move', function(asset, pos) {
         var item = assetsIndex[asset.get('id')];

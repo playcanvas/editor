@@ -28,7 +28,7 @@ editor.once('load', function() {
 
         // query
         if (visible && search.value) {
-            var name = item.get(type === 'asset' ? 'name' : 'filename');
+            var name = (type === 'scripts') ? item : item.get(type === 'asset' ? 'name' : 'filename');
             var normalSearch = true;
 
             if (search.value[0] === '*' && search.value.length > 1) {
@@ -46,6 +46,8 @@ editor.once('load', function() {
         if (visible) {
             if (type === 'script' || currentFolder === 'scripts') {
                 visible = currentFolder === 'scripts' && type === 'script';
+            } else if (type === 'scripts') {
+                visible = ! currentFolder;
             } else {
                 var path = item.get('path');
                 if (currentFolder === null) {
