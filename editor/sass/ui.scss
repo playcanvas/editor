@@ -1274,9 +1274,10 @@ a:visited {
 .ui-checkbox {
     display: inline-block;
     vertical-align: text-bottom;
-    border: 1px solid #666;
-    background-color: #000;
-    color: #fff;
+    // border: 1px solid #666;
+    // background-color: #000;
+    // color: #fff;
+
     margin: 4px;
     width: 24px;
     height: 24px;
@@ -1284,7 +1285,7 @@ a:visited {
     transition: opacity 100ms;
 
     &.checked {
-        background-color: #fff;
+        // background-color: #fff;
     }
     &.disabled {
         opacity: $disabled-opacity;
@@ -1292,7 +1293,7 @@ a:visited {
     }
     &:focus {
         outline: none;
-        border-color: #07f;
+        // border-color: #07f;
     }
 }
 

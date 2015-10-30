@@ -743,55 +743,63 @@ strong {
             margin-top: 50%;
         }
     }
+
     .ui-checkbox.tick {
-        width: 12px;
-        height: 12px;
-        border-width: 2px;
+        width: 14px;
+        height: 14px;
+        border: none;
+        border-radius: 0;
+        background-color: transparent;
+        transition: none;
+        margin-top: 8px;
 
         &.null {
             &:after {
-                content: '\00a0';
-                background-color: mix($bcg-primary, $text-darkest, 50%);
-                width: 8px;
-                height: 8px;
-                margin: 2px 0 0 2px;
+                content: '\E315';
             }
             &:hover {
                 &:after {
-                    width: 12px;
-                    height: 12px;
-                    margin: 0;
-                    background-color: transparent;
+                    content: '\E315'
                 }
             }
         }
-        &:after {
-            position: static;
+        &:after, &:before {
+            // content: '\E376';
+            content: '\E360';
+            border-radius: 0;
+            border: none;
+
+            position: absolute;
+            top: 0;
+            left: 0;
             display: block;
             margin: 0;
-            content: none;
             text-align: center;
-            font-size: 9px;
-            line-height: 12px;
+            font-size: 14px;
+            line-height: 14px;
+            width: 14px;
+            height: 14px;
             @extend .font-icon;
-            background-color: transparent;
-            color: #7f7;
             transition: none;
         }
         &:hover {
             &:after {
-                content: '\E133';
-                color: mix($bcg-dark, #7f7, 50%);
+                content: '\E388';
             }
         }
         &.checked {
-            border-color: mix($bcg-dark, #7f7, 50%);
-
             &:after {
-                content: '\E133';
+                // content: '\E383';
+                content: '\E367';
+            }
+
+            &:hover:after {
+                // content: '\E383';
+                content: '\E367';
             }
         }
     }
+
     .ui-panel {
         &.field {
             > .content {
