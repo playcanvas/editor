@@ -133,7 +133,7 @@ editor.once('load', function() {
         var visible = assetsGrid.element.querySelectorAll('.ui-grid-item:not(.hidden)');
         if (visible.length === 0) {
             var msg = type === 'script' ? 'scripts' : type + ' assets';
-            editor.call('assets:panel:message', 'There are no ' + msg + '. Click on the <span class="font-icon" style="font-size: 18px">&#58468;</span> button to add one.');
+            editor.call('assets:panel:message', 'There are no ' + msg + '. Click on the <span class="font-icon" style="font-size: 18px">&#57632;</span> button to add one.');
         }
     });
 

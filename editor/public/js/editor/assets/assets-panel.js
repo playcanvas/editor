@@ -253,7 +253,7 @@ editor.once('load', function() {
     labelNoAssets.renderChanges = false;
     labelNoAssets.class.add('no-assets');
     labelNoAssets.hidden = true;
-    assetsPanel.append(labelNoAssets);
+    files.append(labelNoAssets);
 
     editor.method('assets:panel:message', function (msg) {
         labelNoAssets.text = msg;
