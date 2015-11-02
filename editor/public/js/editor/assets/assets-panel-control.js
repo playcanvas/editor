@@ -8,110 +8,191 @@ editor.once('load', function() {
     var menu = new ui.Menu();
     root.append(menu);
 
-    // upload
-    var menuUpload = new ui.MenuItem({
-        text: 'Upload',
-        value: 'upload'
-    });
-    menuUpload.on('select', function() {
-        editor.call('assets:upload:picker');
-    });
-    menu.append(menuUpload);
+    var assets = {
+        'upload': {
+            title: 'Upload',
+            icon: '&#57909;'
+        },
+        'folder': {
+            title: 'Folder',
+            icon: '&#57657;'
+        },
+        'css': {
+            title: 'CSS',
+            icon: '&#57862;'
+        },
+        'cubemap': {
+            title: 'CubeMap',
+            icon: '&#57879;'
+        },
+        'html': {
+            title: 'HTML',
+            icon: '&#57861;'
+        },
+        'json': {
+            title: 'JSON',
+            icon: '&#57863;'
+        },
+        'material': {
+            title: 'Material',
+            icon: '&#57749;'
+        },
+        'script': {
+            title: 'Script',
+            icon: '&#57910;'
+        },
+        'shader': {
+            title: 'Shader',
+            icon: '&#57881;'
+        },
+        'text': {
+            title: 'Text',
+            icon: '&#57865;'
+        }
+    };
 
-    // folder
-    var menuFolder = new ui.MenuItem({
-        text: 'New Folder',
-        value: 'folder'
-    });
-    menuFolder.on('select', function() {
-        editor.call('assets:create:folder');
-    });
-    menu.append(menuFolder);
+    var addNewMenuItem = function(key, data) {
+        // new folder
+        var item = new ui.MenuItem({
+            text: data.title,
+            icon: data.icon || '',
+            value: key
+        });
+        item.on('select', function() {
+            var args = {
+                parent: editor.call('assets:panel:currentFolder')
+            };
 
-    // css
-    var menuCss = new ui.MenuItem({
-        text: 'New Css',
-        value: 'css'
-    });
-    menuCss.on('select', function () {
-        editor.call('assets:create:css');
-    });
-    menu.append(menuCss);
+            if (key === 'upload') {
+                editor.call('assets:upload:picker', args);
+            } else if (key === 'script') {
+                editor.call('sourcefiles:new');
+            } else {
+                editor.call('assets:create:' + key, args)
+            }
+        });
+        menu.append(item);
 
-    // cubemap
-    var menuCubemap = new ui.MenuItem({
-        text: 'New CubeMap',
-        value: 'cubemap'
-    });
-    menuCubemap.on('select', function() {
-        editor.call('assets:create:cubemap');
-    });
-    menu.append(menuCubemap);
+        if (key === 'script') {
+            editor.on('repositories:load', function (repositories) {
+                if (repositories.get('current') !== 'directory')
+                    item.disabled = true;
+            });
+        }
+    };
 
-    // html
-    var menuHtml = new ui.MenuItem({
-        text: 'New Html',
-        value: 'html'
-    });
-    menuHtml.on('select', function () {
-        editor.call('assets:create:html');
-    });
-    menu.append(menuHtml);
+    var keys = Object.keys(assets);
+    for(var i = 0; i < keys.length; i++) {
+        if (! assets.hasOwnProperty(keys[i]))
+            continue;
 
-    // json
-    var menuJson = new ui.MenuItem({
-        text: 'New Json',
-        value: 'json'
-    });
-    menuJson.on('select', function () {
-        editor.call('assets:create:json');
-    });
-    menu.append(menuJson);
+        addNewMenuItem(keys[i], assets[keys[i]]);
+    }
 
-    // material
-    var menuMaterial = new ui.MenuItem({
-        text: 'New Material',
-        value: 'material'
-    });
-    menuMaterial.on('select', function() {
-        editor.call('assets:create:material');
-    });
-    menu.append(menuMaterial);
+    // // upload
+    // var menuUpload = new ui.MenuItem({
+    //     text: 'Upload',
+    //     value: 'upload'
+    // });
+    // menuUpload.on('select', function() {
+    //     editor.call('assets:upload:picker');
+    // });
+    // menu.append(menuUpload);
 
-    // script
-    var menuScript = new ui.MenuItem({
-        text: 'New Script',
-        value: 'script'
-    });
-    menuScript.on('select', function () {
-        editor.call('sourcefiles:new');
-    });
-    menu.append(menuScript);
+    // // folder
+    // var menuFolder = new ui.MenuItem({
+    //     text: 'New Folder',
+    //     value: 'folder'
+    // });
+    // menuFolder.on('select', function() {
+    //     editor.call('assets:create:folder');
+    // });
+    // menu.append(menuFolder);
 
-    editor.on('repositories:load', function (repositories) {
-        if (repositories.get('current') !== 'directory')
-            menuScript.disabled = true;
-    });
+    // // css
+    // var menuCss = new ui.MenuItem({
+    //     text: 'New Css',
+    //     value: 'css'
+    // });
+    // menuCss.on('select', function () {
+    //     editor.call('assets:create:css');
+    // });
+    // menu.append(menuCss);
 
-    // shader
-    var menuShader = new ui.MenuItem({
-        text: 'New Shader',
-        value: 'shader'
-    });
-    menuShader.on('select', function () {
-        editor.call('assets:create:shader');
-    });
-    menu.append(menuShader);
+    // // cubemap
+    // var menuCubemap = new ui.MenuItem({
+    //     text: 'New CubeMap',
+    //     value: 'cubemap'
+    // });
+    // menuCubemap.on('select', function() {
+    //     editor.call('assets:create:cubemap');
+    // });
+    // menu.append(menuCubemap);
 
-    // text
-    var menuText = new ui.MenuItem({
-        text: 'New Text',
-        value: 'text'
-    });
-    menuText.on('select', function () {
-        editor.call('assets:create:text');
-    });
-    menu.append(menuText);
+    // // html
+    // var menuHtml = new ui.MenuItem({
+    //     text: 'New Html',
+    //     value: 'html'
+    // });
+    // menuHtml.on('select', function () {
+    //     editor.call('assets:create:html');
+    // });
+    // menu.append(menuHtml);
+
+    // // json
+    // var menuJson = new ui.MenuItem({
+    //     text: 'New Json',
+    //     value: 'json'
+    // });
+    // menuJson.on('select', function () {
+    //     editor.call('assets:create:json');
+    // });
+    // menu.append(menuJson);
+
+    // // material
+    // var menuMaterial = new ui.MenuItem({
+    //     text: 'New Material',
+    //     value: 'material'
+    // });
+    // menuMaterial.on('select', function() {
+    //     editor.call('assets:create:material');
+    // });
+    // menu.append(menuMaterial);
+
+    // // script
+    // var menuScript = new ui.MenuItem({
+    //     text: 'New Script',
+    //     value: 'script'
+    // });
+    // menuScript.on('select', function () {
+    //     editor.call('sourcefiles:new');
+    // });
+    // menu.append(menuScript);
+
+    // editor.on('repositories:load', function (repositories) {
+    //     if (repositories.get('current') !== 'directory')
+    //         menuScript.disabled = true;
+    // });
+
+    // // shader
+    // var menuShader = new ui.MenuItem({
+    //     text: 'New Shader',
+    //     value: 'shader'
+    // });
+    // menuShader.on('select', function () {
+    //     editor.call('assets:create:shader');
+    // });
+    // menu.append(menuShader);
+
+    // // text
+    // var menuText = new ui.MenuItem({
+    //     text: 'New Text',
+    //     value: 'text'
+    // });
+    // menuText.on('select', function () {
+    //     editor.call('assets:create:text');
+    // });
+    // menu.append(menuText);
 
     // controls
     var controls = new ui.Panel();
