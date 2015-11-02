@@ -1233,7 +1233,7 @@ strong {
                     content: '\E188';
                 }
                 &.type-script:before {
-                    content: '\E236';
+                    content: '\E392';
                 }
                 &.type-texture:before {
                     content: '\E201';
@@ -1971,8 +1971,7 @@ strong {
         }
         &.type-script {
             > .thumbnail.placeholder:after {
-                content: '\E236';
-                font-size: 60px;
+                content: '\E392';
             }
             > .icon {
                 display: none;
