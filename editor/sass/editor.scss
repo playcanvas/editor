@@ -280,7 +280,7 @@ strong {
         width: 563px;
 
         &:after {
-            content: '\E184';
+            content: '\E183';
             font-weight: 200;
             font-size: 14px;
         }
@@ -688,13 +688,6 @@ strong {
             overflow: visible;
             text-overflow: normal;
             max-width: auto;
-        }
-        > .ui-header:after {
-            -webkit-transform: rotate(90deg);
-            -moz-transform: rotate(90deg);
-            -ms-transform: rotate(90deg);
-            -o-transform: rotate(90deg);
-            transform: rotate(90deg);
         }
     }
     > .ui-header {
@@ -1724,25 +1717,6 @@ strong {
 
 .ui-panel.hierarchy {
     border-left: 1px solid $bcg-darker;
-
-    &.foldable {
-        &.horizontal.resizable-right {
-            > .ui-header:after {
-                -webkit-transform: rotate(90deg);
-                -moz-transform: rotate(90deg);
-                -ms-transform: rotate(90deg);
-                -o-transform: rotate(90deg);
-                transform: rotate(90deg);
-            }
-            &.folded > .ui-header:after {
-                -webkit-transform: rotate(-90deg);
-                -moz-transform: rotate(-90deg);
-                -ms-transform: rotate(-90deg);
-                -o-transform: rotate(-90deg);
-                transform: rotate(-90deg);
-            }
-        }
-    }
 
     > .ui-header {
         z-index: 5;

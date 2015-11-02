@@ -80,8 +80,8 @@ a:visited {
                 color: $text-dark;
 
                 &:after {
-                    transform: rotate(0deg);
                     color: $text-dark;
+                    content: '\E180';
                 }
             }
             &.horizontal {
@@ -89,17 +89,13 @@ a:visited {
 
                 > header {
                     top: -32px;
-
-                    &:after {
-                        transform: rotate(90deg);
-                    }
-                }
-                &.resizable-right > header:after {
-                    transform: rotate(-90deg);
                 }
             }
-            &.resizable-top > header:after {
-                transform: rotate(-90deg);
+
+            &.resizable-top {
+                > header:after {
+                    content: '\E181';
+                }
             }
         }
         > header {
@@ -116,7 +112,7 @@ a:visited {
             &:after {
                 right: auto;
                 left: 0;
-                content: '\E180';
+                content: '\E179';
                 @extend .font-icon;
                 font-size: 14px;
                 text-align: center;
@@ -127,16 +123,28 @@ a:visited {
                 line-height: 32px;
                 color: $text-active;
                 background-color: transparent;
-                transform: rotate(90deg);
-                transition: transform 100ms ease;
             }
         }
         &.horizontal {
             > header:after {
-                transform: rotate(0deg);
+                content: '\E183';
             }
-            &.resizable-right > header:after {
-                transform: rotate(180deg);
+            &.resizable-right {
+                &.folded {
+                    > header:after {
+                        content: '\E181';
+                    }
+                }
+            }
+
+            &.resizable-left {
+                > header:after {
+                    content: '\E183';
+                }
+
+                &.folded > header:after {
+                    content: '\E183';
+                }
             }
         }
     }
