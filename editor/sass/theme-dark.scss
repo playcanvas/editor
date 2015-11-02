@@ -593,6 +593,19 @@ a:visited {
                 }
             }
         }
+        &.scripts {
+            > .title {
+                &:after {
+                    content: 's';
+                    position: absolute;
+                    left: 8px;
+                    top: 0;
+                    font-size: 12px;
+                    color: $bcg-darker;
+                    z-index: 1;
+                }
+            }
+        }
     }
 }
 
