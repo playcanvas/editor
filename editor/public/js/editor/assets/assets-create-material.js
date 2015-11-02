@@ -1,9 +1,11 @@
 editor.once('load', function() {
     'use strict';
 
-    editor.method('assets:createMaterial', function () {
+    editor.method('assets:create:material', function (args) {
         if (! editor.call('permissions:write'))
             return;
+
+        args = args || { };
 
         var data = editor.call('material:default');
 
@@ -12,7 +14,7 @@ editor.once('load', function() {
             type: 'material',
             source: false,
             data: data,
-            parent: editor.call('assets:panel:currentFolder'),
+            parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
             scope: {
                 type: 'project',
                 id: config.project.id

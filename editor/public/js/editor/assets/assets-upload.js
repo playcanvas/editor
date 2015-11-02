@@ -81,4 +81,39 @@ editor.once('load', function() {
         });
     });
 
+    editor.method('assets:upload:picker', function(args) {
+        args = args || { };
+
+        var parent = args.parent || editor.call('assets:panel:currentFolder');
+
+        var fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        // fileInput.accept = '';
+        fileInput.multiple = true;
+        fileInput.style.display = 'none';
+        editor.call('layout.assets').append(fileInput);
+
+        var onChange = function() {
+            if (! editor.call('assets:canUploadFiles', this.files)) {
+                var msg = 'Disk allowance exceeded. <a href="/upgrade" target="_blank">UPGRADE</a> to get more disk space.';
+                editor.call('status:error', msg);
+                return;
+            }
+
+            for(var i = 0; i < this.files.length; i++) {
+                editor.call('assets:uploadFile', {
+                    file: this.files[i],
+                    name: this.files[i].name,
+                    parent: parent
+                });
+            }
+            this.value = null;
+            fileInput.removeEventListener('change', onChange);
+        };
+
+        fileInput.addEventListener('change', onChange, false);
+        fileInput.click();
+
+        fileInput.parentNode.removeChild(fileInput);
+    });
 });

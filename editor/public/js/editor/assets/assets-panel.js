@@ -1,6 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
+    var root = editor.call('layout.root');
     var assetsPanel = editor.call('layout.assets');
 
     var dragging = false;
@@ -43,6 +44,10 @@ editor.once('load', function() {
     folders.resizeMin = 100;
     folders.resizeMax = 300;
     assetsPanel.append(folders);
+
+    editor.method('assets:panel:folders', function() {
+        return folders;
+    });
 
     var currentFolder = null;
     editor.method('assets:panel:currentFolder', function(asset) {
@@ -217,11 +222,16 @@ editor.once('load', function() {
     files.scroll = true;
     assetsPanel.append(files);
 
+    editor.method('assets:panel:files', function() {
+        return files;
+    });
+
     // grid
     var grid = new ui.Grid();
     grid.enabled = false;
     grid.class.add('assets');
     files.append(grid);
+
 
     var dropRef = editor.call('drop:target', {
         ref: files.element,
@@ -282,11 +292,11 @@ editor.once('load', function() {
 
     var gridDropBorder = document.createElement('div');
     gridDropBorder.classList.add('assets-drop-border');
-    editor.call('layout.root').append(gridDropBorder);
+    root.append(gridDropBorder);
 
     var treeDropBorder = document.createElement('div');
     treeDropBorder.classList.add('assets-drop-border');
-    editor.call('layout.root').append(treeDropBorder);
+    root.append(treeDropBorder);
 
     tree.on('select', function(item) {
         if (assetsChanged)
@@ -306,18 +316,18 @@ editor.once('load', function() {
 
         if (! item.asset) {
             if (item === treeRoot) {
+                editor.call('assets:filter:search', '');
                 editor.call('assets:panel:currentFolder', null);
-                editor.call('assets:filter:search', '');
             } else if (item === treeScripts) {
-                editor.call('assets:panel:currentFolder', 'scripts');
                 editor.call('assets:filter:search', '');
+                editor.call('assets:panel:currentFolder', 'scripts');
             }
             return;
         }
 
         if (! Tree._ctrl || ! Tree._ctrl()) {
-            editor.call('assets:panel:currentFolder', item.asset);
             editor.call('assets:filter:search', '');
+            editor.call('assets:panel:currentFolder', item.asset);
         }
     });
 
@@ -414,19 +424,23 @@ editor.once('load', function() {
             searching = false;
 
             if (selector.type === 'asset') {
-                var path = selector.items[0].get('path');
-                var mutliPath = false;
+                var script = selector.items[0].get('type') === 'script';
+                var path = script ? [ ] : selector.items[0].get('path');
+                var multiPath = false;
                 for(var i = 1; i < selector.items.length; i++) {
-                    if (! path.equals(selector.items[i].get('path'))) {
-                        mutliPath = true;
+                    var item = selector.items[i];
+                    if (script !== (item.get('type') === 'script') || (! script && ! path.equals(item.get('path')))) {
+                        multiPath = true;
                         break;
                     }
                 }
 
-                if (! mutliPath) {
+                if (! multiPath) {
                     if (path.length) {
                         editor.call('assets:panel:currentFolder', editor.call('assets:get', path[path.length - 1]));
                         assetsIndex[selector.items[0].get('id')].element.focus();
+                    } else if (script) {
+                        editor.call('assets:panel:currentFolder', 'scripts');
                     } else {
                         editor.call('assets:panel:currentFolder', null);
                     }
@@ -539,8 +553,8 @@ editor.once('load', function() {
         // folder open
         gridScripts.element.addEventListener('dblclick', function() {
             tree.clear();
-            editor.call('assets:panel:currentFolder', 'scripts');
             editor.call('assets:filter:search', '');
+            editor.call('assets:panel:currentFolder', 'scripts');
             // change back selection
 
             if (selector.prev.type)
@@ -559,6 +573,38 @@ editor.once('load', function() {
         label.classList.add('label');
         label.textContent = 'scripts';
         gridScripts.element.appendChild(label);
+
+        // context menu
+        var menu = new ui.Menu();
+        root.append(menu);
+
+        // script
+        var menuScript = new ui.MenuItem({
+            text: 'New Script',
+            value: 'script',
+            icon: '&#57910;'
+        });
+        menuScript.on('select', function () {
+            editor.call('sourcefiles:new');
+        });
+        menu.append(menuScript);
+
+        editor.on('repositories:load', function (repositories) {
+            if (repositories.get('current') !== 'directory')
+                menuScript.disabled = true;
+        });
+        var onContextMenu = function(evt) {
+            evt.stopPropagation();
+            evt.preventDefault();
+
+            if (! editor.call('permissions:write'))
+                return;
+
+            menu.position(evt.clientX + 1, evt.clientY);
+            menu.open = true;
+        };
+        gridScripts.element.addEventListener('contextmenu', onContextMenu, false);
+        treeScripts.elementTitle.addEventListener('contextmenu', onContextMenu, false);
 
         resizeTree();
     };
@@ -780,8 +826,8 @@ editor.once('load', function() {
             item.element.addEventListener('dblclick', function() {
                 tree.clear();
                 item.tree.open = true;
-                editor.call('assets:panel:currentFolder', item.asset);
                 editor.call('assets:filter:search', '');
+                editor.call('assets:panel:currentFolder', item.asset);
 
                 // change back selection
                 if (selector.type)

@@ -1,15 +1,17 @@
 editor.once('load', function() {
     'use strict';
 
-    editor.method('assets:createCss', function () {
+    editor.method('assets:create:css', function (args) {
         if (! editor.call('permissions:write'))
             return;
+
+        args = args || { };
 
         var asset = {
             name: 'New Css',
             type: 'css',
             source: false,
-            parent: editor.call('assets:panel:currentFolder'),
+            parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
             filename: 'asset.css',
             file: new Blob([ '\n' ], { type: 'text/css' }),
             scope: {

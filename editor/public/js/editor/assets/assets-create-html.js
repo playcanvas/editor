@@ -1,15 +1,17 @@
 editor.once('load', function() {
     'use strict';
 
-    editor.method('assets:createHtml', function () {
+    editor.method('assets:create:html', function (args) {
         if (! editor.call('permissions:write'))
             return;
+
+        args = args || { };
 
         var asset = {
             name: 'New Html',
             type: 'html',
             source: false,
-            parent: editor.call('assets:panel:currentFolder'),
+            parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
             filename: 'asset.html',
             file: new Blob([ '\n' ], { type: 'text/html' }),
             scope: {

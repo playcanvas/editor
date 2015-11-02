@@ -4,29 +4,6 @@ editor.once('load', function() {
     var root = editor.call('layout.root');
     var assetsPanel = editor.call('layout.assets');
 
-    var fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    // fileInput.accept = '';
-    fileInput.multiple = true;
-    fileInput.style.display = 'none';
-    fileInput.addEventListener('change', function() {
-        if (!editor.call('assets:canUploadFiles', this.files)) {
-            var msg = 'Disk allowance exceeded. <a href="/upgrade" target="_blank">UPGRADE</a> to get more disk space.';
-            editor.call('status:error', msg);
-            return;
-        }
-
-        for(var i = 0; i < this.files.length; i++) {
-            editor.call('assets:uploadFile', {
-                file: this.files[i],
-                name: this.files[i].name,
-                parent: editor.call('assets:panel:currentFolder')
-            });
-        }
-        this.value = null;
-    }, false);
-    assetsPanel.append(fileInput);
-
     // context menu
     var menu = new ui.Menu();
     root.append(menu);
@@ -37,7 +14,7 @@ editor.once('load', function() {
         value: 'upload'
     });
     menuUpload.on('select', function() {
-        fileInput.click();
+        editor.call('assets:upload:picker');
     });
     menu.append(menuUpload);
 
@@ -47,7 +24,7 @@ editor.once('load', function() {
         value: 'folder'
     });
     menuFolder.on('select', function() {
-        editor.call('assets:createFolder');
+        editor.call('assets:create:folder');
     });
     menu.append(menuFolder);
 
@@ -57,7 +34,7 @@ editor.once('load', function() {
         value: 'css'
     });
     menuCss.on('select', function () {
-        editor.call('assets:createCss');
+        editor.call('assets:create:css');
     });
     menu.append(menuCss);
 
@@ -67,7 +44,7 @@ editor.once('load', function() {
         value: 'cubemap'
     });
     menuCubemap.on('select', function() {
-        editor.call('assets:createCubemap');
+        editor.call('assets:create:cubemap');
     });
     menu.append(menuCubemap);
 
@@ -77,7 +54,7 @@ editor.once('load', function() {
         value: 'html'
     });
     menuHtml.on('select', function () {
-        editor.call('assets:createHtml');
+        editor.call('assets:create:html');
     });
     menu.append(menuHtml);
 
@@ -87,7 +64,7 @@ editor.once('load', function() {
         value: 'json'
     });
     menuJson.on('select', function () {
-        editor.call('assets:createJson');
+        editor.call('assets:create:json');
     });
     menu.append(menuJson);
 
@@ -97,7 +74,7 @@ editor.once('load', function() {
         value: 'material'
     });
     menuMaterial.on('select', function() {
-        editor.call('assets:createMaterial');
+        editor.call('assets:create:material');
     });
     menu.append(menuMaterial);
 
@@ -122,7 +99,7 @@ editor.once('load', function() {
         value: 'shader'
     });
     menuShader.on('select', function () {
-        editor.call('assets:createShader');
+        editor.call('assets:create:shader');
     });
     menu.append(menuShader);
 
@@ -132,7 +109,7 @@ editor.once('load', function() {
         value: 'text'
     });
     menuText.on('select', function () {
-        editor.call('assets:createText');
+        editor.call('assets:create:text');
     });
     menu.append(menuText);
 
@@ -167,21 +144,6 @@ editor.once('load', function() {
     menu.on('open', function(state) {
         tooltipAdd.disabled = state;
     });
-
-    // // duplicate
-    // var btnDuplicate = new ui.Button({
-    //     text: '&#57908;'
-    // });
-    // btnDuplicate.disabled = true;
-    // btnDuplicate.class.add('duplicate');
-    // btnDuplicate.on('click', function() {
-    //     // var type = editor.call('selector:type');
-    //     // var items = editor.call('selector:items');
-
-    //     // if (type === 'entity' && items.length)
-    //     //     editor.call('entities:duplicate', items[0]);
-    // });
-    // controls.append(btnDuplicate);
 
     // delete
     var btnDelete = new ui.Button({

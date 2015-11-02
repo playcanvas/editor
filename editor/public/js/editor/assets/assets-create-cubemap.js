@@ -1,15 +1,17 @@
 editor.once('load', function() {
     'use strict';
 
-    editor.method('assets:createCubemap', function () {
+    editor.method('assets:create:cubemap', function (args) {
         if (! editor.call('permissions:write'))
             return;
+
+        args = args || { };
 
         var asset = {
             name: 'New Cubemap',
             type: 'cubemap',
             source: false,
-            parent: editor.call('assets:panel:currentFolder'),
+            parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
             data: {
                 name: 'New Cubemap',
                 textures: [ null, null, null, null, null, null ],

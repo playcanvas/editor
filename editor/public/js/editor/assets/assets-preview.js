@@ -24,9 +24,6 @@ editor.once('load', function () {
         editor.call('preview:render:' + asset.get('type'), asset, 128, function (canvas) {
             var url = canvas.toDataURL('image/png');
             editor.call('preview:setThumbnail', asset, url);
-            // editor.call('preview:setThumbnail', asset, 'thumbnails.m', url);
-            // editor.call('preview:setThumbnail', asset, 'thumbnails.l', url);
-            // editor.call('preview:setThumbnail', asset, 'thumbnails.xl', url);
         });
     });
 
