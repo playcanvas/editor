@@ -124,10 +124,9 @@ editor.once('load', function() {
     folders.append(tree);
 
     var dropRef = editor.call('drop:target', {
-        ref: tree.element,
+        ref: folders.element,
         hole: true,
         passThrough: true,
-        passEvents: tree,
         filter: function(type, data) {
             return type.startsWith('asset');
         },
@@ -235,7 +234,6 @@ editor.once('load', function() {
         ref: files.element,
         hole: true,
         passThrough: true,
-        passEvents: files,
         filter: function(type, data) {
             return type.startsWith('asset');
         },
@@ -277,7 +275,7 @@ editor.once('load', function() {
     labelNoAssets.renderChanges = false;
     labelNoAssets.class.add('no-assets');
     labelNoAssets.hidden = true;
-    assetsPanel.append(labelNoAssets);
+    files.append(labelNoAssets);
 
     editor.method('assets:panel:message', function (msg) {
         labelNoAssets.text = msg;
@@ -644,20 +642,28 @@ editor.once('load', function() {
                         return;
                 }
 
+                var clip = files.element.getBoundingClientRect();
                 var rect = item.element.getBoundingClientRect();
-                gridDropBorder.classList.add('active');
-                gridDropBorder.style.left = rect.left + 'px';
-                gridDropBorder.style.top = rect.top + 'px';
-                gridDropBorder.style.right = (window.innerWidth - rect.right) + 'px';
-                gridDropBorder.style.bottom = (window.innerHeight - rect.bottom) + 'px';
+                var top = Math.max(rect.top, clip.top);
+                var bottom = Math.min(rect.bottom, clip.bottom);
+
+                if ((bottom - top) > 8) {
+                    gridDropBorder.classList.add('active');
+                    gridDropBorder.style.left = rect.left + 'px';
+                    gridDropBorder.style.top = top + 'px';
+                    gridDropBorder.style.right = (window.innerWidth - rect.right) + 'px';
+                    gridDropBorder.style.bottom = (window.innerHeight - bottom) + 'px';
+                }
 
                 var rect = item.tree.elementTitle.getBoundingClientRect();
-                if (rect.height) {
+                top = Math.max(rect.top, clip.top);
+                bottom = Math.min(rect.bottom, clip.bottom);
+                if (rect.height && (bottom - top) > 4) {
                     treeDropBorder.classList.add('active');
                     treeDropBorder.style.left = rect.left + 'px';
-                    treeDropBorder.style.top = rect.top + 'px';
+                    treeDropBorder.style.top = top + 'px';
                     treeDropBorder.style.right = (window.innerWidth - rect.right) + 'px';
-                    treeDropBorder.style.bottom = (window.innerHeight - rect.bottom) + 'px';
+                    treeDropBorder.style.bottom = (window.innerHeight - bottom) + 'px';
                 }
 
                 grid.dragOver = asset;

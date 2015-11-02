@@ -922,7 +922,7 @@ a:visited {
 
         &:after {
             left: 15px;
-            background-color: mix($text-darkest, #7f7, 50%);
+            background-color: #40d47e;
         }
         &:hover,
         &:focus {
@@ -930,7 +930,7 @@ a:visited {
             background-color: $bcg-darkest;
 
             &:after {
-                background-color: #7f7;
+                background-color: #40d47e;
             }
         }
     }
@@ -944,6 +944,25 @@ a:visited {
             &:after {
                 background-color: rgba($text-dark, 0.5);
             }
+        }
+    }
+
+    &.tick {
+        &:after, &:before {
+            color: $bcg-dark;
+            background: transparent;
+        }
+
+        &:hover:after {
+            color: #40d47e;
+        }
+
+        &.checked:after {
+            color: #40d47e;
+            background: transparent;
+        }
+        &.checked:hover:after {
+            color: mix(#40d47e, $bcg-dark, 50%);
         }
     }
 }
@@ -974,7 +993,7 @@ a:visited {
             content: '\E159';
             width: 22px;
             height: 22px;
-            line-height: 22px;
+            line-height: 26px;
             padding: 0;
             margin: 0;
             @extend .font-icon;

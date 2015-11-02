@@ -136,8 +136,6 @@ editor.once('load', function() {
         editor.call('viewport:expand');
     });
     editor.on('viewport:expand', function(state) {
-        buttonExpand.text = state ? '&#57656;' : '&#57665;';
-
         if (state) {
             tooltipExpand.text = 'Show Panels';
             buttonExpand.class.add('active');
