@@ -22,13 +22,14 @@ editor.once('load', function() {
     var assets = new ObserverList({
         index: 'id',
         sorted: function(a, b) {
-            var f = (a._data['type'] === 'folder') - (b._data['type'] === 'folder');
+            var f = (b._data['type'] === 'folder') - (a._data['type'] === 'folder');
+
             if (f !== 0)
                 return f;
 
-            if (a._data['name'].toLowerCase() < b._data['name'].toLowerCase()) {
+            if (a._data['name'].toLowerCase() > b._data['name'].toLowerCase()) {
                 return 1;
-            } else if (a._data['name'].toLowerCase() > b._data['name'].toLowerCase()) {
+            } else if (a._data['name'].toLowerCase() < b._data['name'].toLowerCase()) {
                 return -1;
             } else {
                 return 0;
@@ -55,13 +56,14 @@ editor.once('load', function() {
 
             var ind = assets.data.indexOf(this);
             var pos = assets.positionNextClosest(this, function(a, b) {
-                var f = (a._data['type'] === 'folder') - (b._data['type'] === 'folder');
+                var f = (b._data['type'] === 'folder') - (a._data['type'] === 'folder');
+
                 if (f !== 0)
                     return f;
 
-                if ((a === b ? nameOld : a._data['name'].toLowerCase()) < name) {
+                if ((a === b ? nameOld : a._data['name'].toLowerCase()) > name) {
                     return 1;
-                } else if ((a === b ? nameOld : a._data['name'].toLowerCase()) > name) {
+                } else if ((a === b ? nameOld : a._data['name'].toLowerCase()) < name) {
                     return -1;
                 } else {
                     return 0;

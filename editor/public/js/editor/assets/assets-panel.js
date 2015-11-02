@@ -373,8 +373,10 @@ editor.once('load', function() {
 
             grid.selected = assets;
         } else {
-            tree.clear();
-            grid.selected = [ ];
+            if (! (gridScripts.selected && grid.selected.length === 1)) {
+                tree.clear();
+                grid.selected = [ ];
+            }
         }
 
         assetsChanged = false;
@@ -497,7 +499,8 @@ editor.once('load', function() {
             gridScripts.tree.open = true;
             editor.call('assets:panel:currentFolder', 'scripts');
             // change back selection
-            editor.call('selector:set', selector.prev.type, selector.prev.items);
+            if (selector.type)
+                editor.call('selector:set', selector.prev.type, selector.prev.items);
         }, false);
 
         var thumbnail = gridScripts.thumbnail = document.createElement('div');
@@ -736,7 +739,8 @@ editor.once('load', function() {
                 editor.call('assets:panel:currentFolder', item.asset);
 
                 // change back selection
-                editor.call('selector:set', selector.prev.type, selector.prev.items);
+                if (selector.type)
+                    editor.call('selector:set', selector.prev.type, selector.prev.items);
             }, false);
         }
 
@@ -840,8 +844,8 @@ editor.once('load', function() {
             delete assetsIndex[asset.get('id')];
         });
 
-        var children = grid.element.children;
-        if (children[pos]) {
+        var children = Array.prototype.slice.call(grid.element.children, 1);
+        if (pos !== -1 && children[pos]) {
             grid.appendBefore(item, children[pos]);
         } else {
             grid.append(item);

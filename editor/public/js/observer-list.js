@@ -62,13 +62,13 @@ ObserverList.prototype.position = function(b, fn) {
         a = l[cur];
 
         i = fn(a, b);
-        if (i === 0)
-            return cur;
 
         if (i === 1) {
+            max = cur - 1;
+        } else if (i === -1) {
             min = cur + 1;
         } else {
-            max = cur - 1;
+            return cur;
         }
     }
 
@@ -87,7 +87,7 @@ ObserverList.prototype.positionNextClosest = function(b, fn) {
     if (l.length === 0)
         return -1;
 
-    if (b < l[0])
+    if (fn(l[0], b) === 0)
         return 0;
 
     while (min <= max) {
@@ -95,20 +95,20 @@ ObserverList.prototype.positionNextClosest = function(b, fn) {
         a = l[cur];
 
         i = fn(a, b);
-        if (i === 0)
-            return cur;
 
         if (i === 1) {
+            max = cur - 1;
+        } else if (i === -1) {
             min = cur + 1;
         } else {
-            max = cur - 1;
+            return cur;
         }
     }
 
-    if (fn(a, b) === -1)
+    if (fn(a, b) === 1)
         return cur;
 
-    if (cur + 1 === l.length)
+    if ((cur + 1) === l.length)
         return -1;
 
     return cur + 1;
@@ -143,7 +143,6 @@ ObserverList.prototype.add = function(item) {
             this.data.splice(pos, 0, item);
         } else {
             this.data.push(item);
-            pos = this.data.length - 1;
         }
     } else {
         this.data.push(item);
