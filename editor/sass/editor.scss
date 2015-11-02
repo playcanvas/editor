@@ -743,63 +743,55 @@ strong {
             margin-top: 50%;
         }
     }
-
     .ui-checkbox.tick {
-        width: 14px;
-        height: 14px;
-        border: none;
-        border-radius: 0;
-        background-color: transparent;
-        transition: none;
-        margin-top: 8px;
+        width: 12px;
+        height: 12px;
+        border-width: 2px;
 
         &.null {
             &:after {
-                content: '\E315';
+                content: '\00a0';
+                background-color: mix($bcg-primary, $text-darkest, 50%);
+                width: 8px;
+                height: 8px;
+                margin: 2px 0 0 2px;
             }
             &:hover {
                 &:after {
-                    content: '\E315'
+                    width: 12px;
+                    height: 12px;
+                    margin: 0;
+                    background-color: transparent;
                 }
             }
         }
-        &:after, &:before {
-            // content: '\E376';
-            content: '\E360';
-            border-radius: 0;
-            border: none;
-
-            position: absolute;
-            top: 0;
-            left: 0;
+        &:after {
+            position: static;
             display: block;
             margin: 0;
+            content: none;
             text-align: center;
-            font-size: 14px;
-            line-height: 14px;
-            width: 14px;
-            height: 14px;
+            font-size: 9px;
+            line-height: 12px;
             @extend .font-icon;
+            background-color: transparent;
+            color: #7f7;
             transition: none;
         }
         &:hover {
             &:after {
-                content: '\E388';
+                content: '\E133';
+                color: mix($bcg-dark, #7f7, 50%);
             }
         }
         &.checked {
-            &:after {
-                // content: '\E383';
-                content: '\E367';
-            }
+            border-color: mix($bcg-dark, #7f7, 50%);
 
-            &:hover:after {
-                // content: '\E383';
-                content: '\E367';
+            &:after {
+                content: '\E133';
             }
         }
     }
-
     .ui-panel {
         &.field {
             > .content {
