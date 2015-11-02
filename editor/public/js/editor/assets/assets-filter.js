@@ -43,7 +43,7 @@ editor.once('load', function() {
         }
 
         // folder
-        if (visible) {
+        if (visible && ! search.value) {
             if (type === 'script' || currentFolder === 'scripts') {
                 visible = currentFolder === 'scripts' && type === 'script';
             } else if (type === 'scripts') {

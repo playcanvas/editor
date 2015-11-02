@@ -108,14 +108,6 @@ editor.once('load', function() {
         draggingData = data;
     });
 
-    editor.on('selector:change', function(type, items) {
-        selector.prev.type = selector.type;
-        selector.prev.items = selector.items;
-
-        selector.type = type;
-        selector.items = items;
-    });
-
     // tree
     var tree = new ui.Tree();
     tree.enabled = false;
@@ -373,11 +365,17 @@ editor.once('load', function() {
 
             grid.selected = assets;
         } else {
-            if (! (gridScripts.selected && grid.selected.length === 1)) {
-                tree.clear();
+            if (! (gridScripts.selected && grid.selected.length === 1) || ! selector.type)
                 grid.selected = [ ];
-            }
+
+            tree.clear();
         }
+
+        selector.prev.type = selector.type;
+        selector.prev.items = selector.items;
+
+        selector.type = type;
+        selector.items = items;
 
         assetsChanged = false;
     });
@@ -493,13 +491,17 @@ editor.once('load', function() {
         });
         treeRoot.append(gridScripts.tree);
 
+        gridScripts.on('select', function() {
+            editor.call('selector:clear');
+        });
+
         // folder open
         gridScripts.element.addEventListener('dblclick', function() {
             tree.clear();
             gridScripts.tree.open = true;
             editor.call('assets:panel:currentFolder', 'scripts');
             // change back selection
-            if (selector.type)
+            if (selector.prev.type)
                 editor.call('selector:set', selector.prev.type, selector.prev.items);
         }, false);
 
