@@ -14,6 +14,7 @@ editor.once('load', function() {
             items: [ ]
         }
     };
+    var searching = false;
 
     var overlay = new ui.Panel();
     overlay.class.add('overlay');
@@ -306,14 +307,18 @@ editor.once('load', function() {
         if (! item.asset) {
             if (item === treeRoot) {
                 editor.call('assets:panel:currentFolder', null);
+                editor.call('assets:filter:search', '');
             } else if (item === treeScripts) {
                 editor.call('assets:panel:currentFolder', 'scripts');
+                editor.call('assets:filter:search', '');
             }
             return;
         }
 
-        if (! Tree._ctrl || ! Tree._ctrl())
+        if (! Tree._ctrl || ! Tree._ctrl()) {
             editor.call('assets:panel:currentFolder', item.asset);
+            editor.call('assets:filter:search', '');
+        }
     });
 
     tree.on('deselect', function(item) {
@@ -400,6 +405,37 @@ editor.once('load', function() {
                 gridItem.hidden = ! fn('script', gridItem.script);
             }
         });
+
+        var type = editor.call('assets:filter:type');
+        var search = editor.call('assets:filter:search');
+
+        // navigate to selected assets folder
+        if (searching && ! search) {
+            searching = false;
+
+            if (selector.type === 'asset') {
+                var path = selector.items[0].get('path');
+                var mutliPath = false;
+                for(var i = 1; i < selector.items.length; i++) {
+                    if (! path.equals(selector.items[i].get('path'))) {
+                        mutliPath = true;
+                        break;
+                    }
+                }
+
+                if (! mutliPath) {
+                    if (path.length) {
+                        editor.call('assets:panel:currentFolder', editor.call('assets:get', path[path.length - 1]));
+                        assetsIndex[selector.items[0].get('id')].element.focus();
+                    } else {
+                        editor.call('assets:panel:currentFolder', null);
+                    }
+                }
+            }
+        }
+
+        if (search)
+            searching = true;
 
         gridScripts.hidden = ! fn('scripts', 'scripts');
     });
@@ -500,6 +536,7 @@ editor.once('load', function() {
             tree.clear();
             gridScripts.tree.open = true;
             editor.call('assets:panel:currentFolder', 'scripts');
+            editor.call('assets:filter:search', '');
             // change back selection
             if (selector.prev.type)
                 editor.call('selector:set', selector.prev.type, selector.prev.items);
@@ -739,6 +776,7 @@ editor.once('load', function() {
                 tree.clear();
                 item.tree.open = true;
                 editor.call('assets:panel:currentFolder', item.asset);
+                editor.call('assets:filter:search', '');
 
                 // change back selection
                 if (selector.type)

@@ -16,6 +16,7 @@ editor.once('load', function() {
     var assetsPanelFolded = false;
     var assetsPanelFilter = '';
     var assetsPanelSearch = '';
+    var assetsPanelFolder = null;
     // elements
     var assetsGrid = editor.call('assets:grid');
     var assetsPanel = editor.call('layout.assets');
@@ -73,6 +74,7 @@ editor.once('load', function() {
         editor.call('assets:filter:type:disabled', false);
         editor.call('assets:filter:type', assetsPanelFilter);
         editor.call('assets:filter:search', assetsPanelSearch);
+        editor.call('assets:panel:currentFolder', assetsPanelFolder);
         // fold back assets panel if needed
         if (assetsPanelFolded)
             assetsPanel.folded = true;
@@ -93,6 +95,10 @@ editor.once('load', function() {
         // show only asset assets
         assetsPanelFilter = editor.call('assets:filter:type');
         assetsPanelSearch = editor.call('assets:filter:search');
+        assetsPanelFolder = editor.call('assets:panel:currentFolder');
+        // navigate to scripts folder
+        if (type === 'script')
+            editor.call('assets:panel:currentFolder', 'scripts');
         // initial grid selected items
         gridSelected = assetsGrid.selected;
         // filters

@@ -47,7 +47,7 @@ editor.once('load', function() {
             if (type === 'script' || currentFolder === 'scripts') {
                 visible = currentFolder === 'scripts' && type === 'script';
             } else if (type === 'scripts') {
-                visible = ! currentFolder;
+                visible = ! currentFolder && filterField.value === 'all';
             } else {
                 var path = item.get('path');
                 if (currentFolder === null) {
@@ -93,7 +93,6 @@ editor.once('load', function() {
             filterField.class.add('not-empty');
         } else {
             filterField.class.remove('not-empty');
-            // filterField.elementValue.textContent = 'Filter';
         }
         editor.call('assets:panel:filter', filter);
     });
