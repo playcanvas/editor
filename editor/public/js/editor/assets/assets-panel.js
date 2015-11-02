@@ -379,8 +379,8 @@ editor.once('load', function() {
         selector.prev.type = selector.type;
         selector.prev.items = selector.items;
 
-        selector.type = type;
-        selector.items = items;
+        selector.type = editor.call('selector:type');
+        selector.items = editor.call('selector:items');
 
         assetsChanged = false;
     });
@@ -529,15 +529,20 @@ editor.once('load', function() {
 
         gridScripts.on('select', function() {
             editor.call('selector:clear');
+
+            if (! selector.type) {
+                selector.prev.type = null;
+                selector.prev.items = [ ];
+            }
         });
 
         // folder open
         gridScripts.element.addEventListener('dblclick', function() {
             tree.clear();
-            gridScripts.tree.open = true;
             editor.call('assets:panel:currentFolder', 'scripts');
             editor.call('assets:filter:search', '');
             // change back selection
+
             if (selector.prev.type)
                 editor.call('selector:set', selector.prev.type, selector.prev.items);
         }, false);
