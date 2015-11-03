@@ -115,7 +115,7 @@ editor.once('load', function () {
             'guide:bubble',
             'Asset Library',
             '<img width="424" height="133" src="https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/instructions/asset_library.jpg"/><br/><br/>Click the <strong>Library</strong> button to open the Asset Library. Add free 3D models and assets from the library into your scene with a single click.',
-            620,
+            560,
             -36,
             'bottom-right',
             editor.call('layout.assets').element
