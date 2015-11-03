@@ -67,9 +67,10 @@
                     scriptSelected = true;
             }
 
-            var source = assets[0].get('source') + 0;
+            var source = (assets[0].get('type') === 'folder') ? 1 : assets[0].get('source') + 0;
+
             for(var i = 1; i < assets.length; i++) {
-                if ((assets[i].get('source') + 0) !== source) {
+                if ((assets[i].get('type') === 'folder' ? 1 : assets[i].get('source') + 0) !== source) {
                     source = -1;
                     break;
                 }
@@ -183,7 +184,7 @@
                 // reference
                 editor.call('attributes:reference:asset:name:attach', fieldName.parent.innerElement.firstChild.ui);
 
-                if (! asset.get('source')) {
+                if (! asset.get('source') && asset.get('type') !== 'folder') {
                     // tags
                     var fieldTags = editor.call('attributes:addField', {
                         parent: panel,
@@ -198,10 +199,14 @@
                 }
 
                 // runtime
+                var runtime = sourceRuntimeOptions[asset.get('source') + 0];
+                if (asset.get('type') === 'folder')
+                    runtime = sourceRuntimeOptions[1];
+
                 var fieldRuntime = editor.call('attributes:addField', {
                     parent: panel,
                     name: 'Runtime',
-                    value: sourceRuntimeOptions[asset.get('source') + 0]
+                    value: runtime
                 });
                 // reference
                 editor.call('attributes:reference:asset:runtime:attach', fieldRuntime.parent.innerElement.firstChild.ui);
@@ -218,7 +223,7 @@
                 if (! asset.get('source'))
                     editor.call('attributes:reference:asset:' + asset.get('type') + ':asset:attach', fieldType);
 
-                if (! asset.get('source')) {
+                if (! asset.get('source') && asset.get('type') !== 'folder') {
                     // preload
                     var fieldPreload = editor.call('attributes:addField', {
                         parent: panel,
