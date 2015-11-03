@@ -40,7 +40,7 @@ editor.once('load', function() {
         },
         'css': {
             title: 'CSS',
-            icon: '&#57862;'
+            icon: '&#57864;'
         },
         'cubemap': {
             title: 'CubeMap',
@@ -48,11 +48,11 @@ editor.once('load', function() {
         },
         'html': {
             title: 'HTML',
-            icon: '&#57861;'
+            icon: '&#57864;'
         },
         'json': {
             title: 'JSON',
-            icon: '&#57863;'
+            icon: '&#57864;'
         },
         'material': {
             title: 'Material',
@@ -60,15 +60,15 @@ editor.once('load', function() {
         },
         'script': {
             title: 'Script',
-            icon: '&#57910;'
+            icon: '&#57864;'
         },
         'shader': {
             title: 'Shader',
-            icon: '&#57881;'
+            icon: '&#57864;'
         },
         'text': {
             title: 'Text',
-            icon: '&#57865;'
+            icon: '&#57864;'
         }
     };
 
