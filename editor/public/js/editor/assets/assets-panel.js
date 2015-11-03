@@ -941,11 +941,12 @@ editor.once('load', function() {
             delete assetsIndex[asset.get('id')];
         });
 
-        var children = Array.prototype.slice.call(grid.element.children, 1);
-        if (pos !== -1 && children[pos]) {
-            grid.appendBefore(item, children[pos]);
-        } else {
+        // append to grid
+        var assets = editor.call('assets:raw');
+        if (pos === -1 || ! assets.data[pos + 1]) {
             grid.append(item);
+        } else {
+            grid.appendBefore(item, assetsIndex[assets.data[pos + 1].get('id')]);
         }
 
         resizeTree();

@@ -968,6 +968,18 @@ editor.once('load', function() {
                     var asset = editor.call('assets:get', this.value);
                     if (! asset) return;
                     editor.call('selector:set', 'asset', [ asset ]);
+
+                    if (asset.get('type') === 'script') {
+                        editor.call('assets:panel:currentFolder', 'scripts');
+                    } else {
+                        var path = asset.get('path');
+                        if (path.length) {
+                            editor.call('assets:panel:currentFolder', editor.call('assets:get', path[path.length - 1]));
+                        } else {
+                            editor.call('assets:panel:currentFolder', null);
+                        }
+                    }
+
                 });
                 btnEdit.on('click', function() {
                     field.emit('click');

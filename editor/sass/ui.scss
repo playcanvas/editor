@@ -927,12 +927,6 @@ a:visited {
         color: #999;
         background-color: rgba(0, 0, 0, .7);
     }
-    &:hover,
-    &.focus {
-        &:after {
-            content: none;
-        }
-    }
 }
 
 .ui-number-field {

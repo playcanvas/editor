@@ -115,10 +115,15 @@ editor.once('load', function() {
             if (gridItem) {
                 assetsGrid.selected = [ gridItem ];
                 // navigate to folder of referenced file
-                if (type !== 'script') {
+                if (type === 'script') {
+                    editor.call('assets:panel:currentFolder', 'scripts');
+                } else {
                     var path = currentAsset.get('path');
-                    if (path.length)
+                    if (path.length) {
                         editor.call('assets:panel:currentFolder', editor.call('assets:get', path[path.length - 1]));
+                    } else {
+                        editor.call('assets:panel:currentFolder', null);
+                    }
                 }
             }
         }
