@@ -85,6 +85,11 @@ editor.once('load', function() {
             });
 
             connection.on('error', function(msg) {
+                if (connection.state === 'connected') {
+                    console.log(msg);
+                    return;
+                }
+
                 editor.emit('realtime:error', msg);
             });
 
