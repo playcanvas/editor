@@ -493,6 +493,9 @@ editor.once('load', function() {
 
     var treeFindClosest = function(item, b, nameOld) {
         var l = Array.prototype.slice.call(item.element.childNodes, 1);
+        if (item === treeRoot)
+            l = l.slice(1);
+
         var min = 0;
         var max = l.length - 1;
         var cur;
@@ -502,17 +505,20 @@ editor.once('load', function() {
         if (l.length === 0)
             return -1;
 
+        if (((a === b) ? nameOld.toLowerCase() : l[0].ui.text.toLowerCase()) === bN)
+            return 0;
+
         while (min <= max) {
             cur = Math.floor((min + max) / 2);
             a = l[cur];
 
-            aN = (a === b) ? nameOld : a.ui.text.toLowerCase();
+            aN = (a === b) ? nameOld.toLowerCase() : a.ui.text.toLowerCase();
             bN = b.text.toLowerCase();
 
-            if (aN < bN) {
-                min = cur + 1;
-            } else if (aN > bN) {
+            if (aN > bN) {
                 max = cur - 1;
+            } else if (aN < bN) {
+                min = cur + 1;
             } else {
                 return cur;
             }
@@ -521,7 +527,7 @@ editor.once('load', function() {
         if (aN > bN)
             return cur;
 
-        if (cur + 1 === l.length)
+        if ((cur + 1) === l.length)
             return -1;
 
         return cur + 1;
