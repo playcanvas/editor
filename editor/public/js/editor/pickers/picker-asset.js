@@ -14,13 +14,32 @@ editor.once('load', function() {
     var currentAsset = null;
     var gridSelected = null;
     var assetsPanelFolded = false;
-    var assetsPanelSources = false;
     var assetsPanelFilter = '';
     var assetsPanelSearch = '';
+    var assetsPanelFolder = null;
     // elements
     var assetsGrid = editor.call('assets:grid');
     var assetsPanel = editor.call('layout.assets');
 
+    // empty filter messages
+    var getNoResultsMessage = function (type, filter) {
+        var result;
+        if (type === 'script') {
+            result = 'There are no scripts. Click on the <span class="font-icon" style="font-size: 18px">&#57632;</span> button to add one';
+        } else if (type === 'material' || type === 'cubemap' || type === 'text' || type === 'json' || type === 'html' || type === 'shader' || type === 'css') {
+            result = 'There are no ' + type + 's in this folder. Click on the <span class="font-icon" style="font-size: 18px">&#57632;</span> button to add one';
+        } else {
+            result = 'There are no ' + type + 's in this folder. Add one by uploading a ' + type + ' file';
+        }
+
+        if (filter) {
+            result += ' or change your search term.';
+        } else {
+            result += '.';
+        }
+
+        return result;
+    };
 
     // esc to close
     editor.call('hotkey:register', 'picker:assets:close', {
@@ -72,10 +91,9 @@ editor.once('load', function() {
     overlay.on('hide', function() {
         // show all assets back
         editor.call('assets:filter:type:disabled', false);
-        editor.call('assets:filter:sources:disabled', false);
-        editor.call('assets:filter:sources', assetsPanelSources);
         editor.call('assets:filter:type', assetsPanelFilter);
         editor.call('assets:filter:search', assetsPanelSearch);
+        editor.call('assets:panel:currentFolder', assetsPanelFolder);
         // fold back assets panel if needed
         if (assetsPanelFolded)
             assetsPanel.folded = true;
@@ -94,15 +112,16 @@ editor.once('load', function() {
     // open asset picker
     editor.method('picker:asset', function(type, asset) {
         // show only asset assets
-        assetsPanelSources = editor.call('assets:filter:sources');
         assetsPanelFilter = editor.call('assets:filter:type');
         assetsPanelSearch = editor.call('assets:filter:search');
+        assetsPanelFolder = editor.call('assets:panel:currentFolder');
+        // navigate to scripts folder
+        if (type === 'script')
+            editor.call('assets:panel:currentFolder', 'scripts');
         // initial grid selected items
         gridSelected = assetsGrid.selected;
         // filters
         editor.call('assets:filter:type', (type === '*') ? 'all' : type);
-        editor.call('assets:filter:sources', false);
-        editor.call('assets:filter:sources:disabled', true);
         editor.call('assets:filter:type:disabled', (! type || type === '*') ? false : true);
         // disable selector
         editor.call('selector:enabled', false);
@@ -112,8 +131,20 @@ editor.once('load', function() {
         if (currentAsset) {
             var gridItem = assetsGrid.assetsIndex[currentAsset.get('id')];
             // select in grid
-            if (gridItem)
+            if (gridItem) {
                 assetsGrid.selected = [ gridItem ];
+                // navigate to folder of referenced file
+                if (type === 'script') {
+                    editor.call('assets:panel:currentFolder', 'scripts');
+                } else {
+                    var path = currentAsset.get('path');
+                    if (path.length) {
+                        editor.call('assets:panel:currentFolder', editor.call('assets:get', path[path.length - 1]));
+                    } else {
+                        editor.call('assets:panel:currentFolder', null);
+                    }
+                }
+            }
         }
         // show asset panel in front
         assetsPanel.style.zIndex = 102;
@@ -138,8 +169,8 @@ editor.once('load', function() {
         // if no assets then show message
         var visible = assetsGrid.element.querySelectorAll('.ui-grid-item:not(.hidden)');
         if (visible.length === 0) {
-            var msg = type === 'script' ? 'scripts' : type + ' assets';
-            editor.call('assets:panel:message', 'There are no ' + msg + '. Click on the <span class="font-icon" style="font-size: 18px">&#58468;</span> button to add one.');
+            var msg = getNoResultsMessage(type, assetsPanelSearch);
+            editor.call('assets:panel:message', msg);
         }
     });
 

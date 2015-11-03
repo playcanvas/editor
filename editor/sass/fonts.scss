@@ -1,12 +1,17 @@
 @font-face {
-    font-family: 'ui-font-solid';
-    src: url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/uifont-solid.eot');
-    src: url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/uifont-solid.eot?#iefix') format('embedded-opentype'),
-         url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/uifont-solid.ttf') format('truetype'),
-         url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/uifont-solid.svg') format('svg');
+    font-family: 'pc-icon';
+    src: url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/pcicon-regular.eot');
+    src: url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/pcicon-regular.eot?#iefix') format('embedded-opentype'),
+         url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/pcicon-regular.woff2') format('woff2'),
+         url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/pcicon-regular.woff') format('woff'),
+         url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/pcicon-regular.ttf') format('truetype'),
+         url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/pcicon-regular.svg#playicons8regular') format('svg');
+
     font-weight: normal;
     font-style: normal;
 }
+
+
 
 
 @font-face {
@@ -54,7 +59,7 @@
 }
 
 .font-icon {
-    font-family: 'ui-font-solid';
+    font-family: 'pc-icon';
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-smoothing: antialiased;

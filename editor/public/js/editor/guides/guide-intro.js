@@ -26,7 +26,7 @@ editor.once('load', function () {
         var bubble = editor.call(
             'guide:bubble',
             'Complete this level (2 / 4)',
-            'Hit Ctrl+D or click the <span class="font-icon">&#57908;</span> button to duplicate the selected platform.',
+            'Hit Ctrl+D or click the <span class="font-icon">&#57638;</span> button to duplicate the selected platform.',
             '50%',
             '50%',
             'left',
@@ -55,7 +55,7 @@ editor.once('load', function () {
         return editor.call(
             'guide:bubble',
             'Complete this level (4 / 4)',
-            "Click <span class='font-icon'>&#57922;</span> <strong>Launch</strong> to play the game. Use the arrow keys to move the ball. The game will open in a new tab so just switch back to the Editor tab when you're done.<br/><br/>Any changes you make to the scene will automatically update the launched game.",
+            "Click <span class='font-icon'>&#57649;</span> <strong>Launch</strong> to play the game. Use the arrow keys to move the ball. The game will open in a new tab so just switch back to the Editor tab when you're done.<br/><br/>Any changes you make to the scene will automatically update the launched game.",
             46,
             29,
             'top-right',
@@ -67,7 +67,7 @@ editor.once('load', function () {
         return editor.call(
             'guide:bubble',
             'Scene Hierarchy',
-            'This is your <strong>Scene Hierarchy</strong> made up of <strong>Entities</strong>, which can be given new behaviours by adding Components.<br/><br/> <span class="font-icon">&#58468;</span> Add, <span class="font-icon">&#57908;</span> Duplicate and <span class="font-icon">&#58657;</span> Delete Entities using the controls in this panel.',
+            'This is your <strong>Scene Hierarchy</strong> made up of <strong>Entities</strong>, which can be given new behaviours by adding Components.<br/><br/> <span class="font-icon">&#57632;</span> Add, <span class="font-icon">&#57638;</span> Duplicate and <span class="font-icon">&#57636;</span> Delete Entities using the controls in this panel.',
             360,
             60,
             'left'
@@ -78,7 +78,7 @@ editor.once('load', function () {
         return editor.call(
             'guide:bubble',
             'Launch Preview',
-            'Click <span class="font-icon">&#57922;</span> <strong>Launch</strong> to preview your scene. Any changes you make to your scene while in the Editor will automatically update the launched scene.',
+            'Click <span class="font-icon">&#57649;</span> <strong>Launch</strong> to preview your scene. Any changes you make to your scene while in the Editor will automatically update the launched scene.',
             46,
             29,
             'top-right',
@@ -102,7 +102,7 @@ editor.once('load', function () {
         return editor.call(
             'guide:bubble',
             'Assets',
-            '<strong>Drag`n`Drop</strong> files from your computer to upload assets or use the <span class="font-icon">&#58468;</span> Add button to create new assets.<br/><br/>You can filter and <span class="font-icon">&#58163;</span> search your assets using the controls at the top.',
+            '<strong>Drag`n`Drop</strong> files from your computer to upload assets or use the <span class="font-icon">&#57632;</span> Add button to create new assets.<br/><br/>You can filter and <span class="font-icon">&#57641;</span> search your assets using the controls at the top.',
             54,
             -39,
             'bottom',

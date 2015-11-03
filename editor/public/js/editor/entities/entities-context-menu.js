@@ -9,17 +9,18 @@ editor.once('load', function() {
     var menu;
 
     var componentsLogos = {
-        'animation': '&#57972;',
-        'audiolistener': '&#57959;',
-        'audiosource': '&#57940;',
-        'camera': '&#58756;',
-        'collision': '&#58151;',
-        'light': '&#58136;',
-        'model': '&#58391;',
-        'particlesystem': '&#58456;',
-        'rigidbody': '&#58152;',
-        'script': '&#57988;'
+        'animation': '&#57875;',
+        'audiolistener': '&#57750;',
+        'audiosource': '&#57751;',
+        'camera': '&#57874;',
+        'collision': '&#57735;',
+        'light': '&#57748;',
+        'model': '&#57736;',
+        'particlesystem': '&#57753;',
+        'rigidbody': '&#57737;',
+        'script': '&#57910;'
     };
+
 
     var getSelection = function() {
         var selection = editor.call('selector:items');
@@ -235,7 +236,7 @@ editor.once('load', function() {
 
         menuData['disable'] = {
             title: 'Disable',
-            icon: '&#58422;',
+            icon: '&#57650;',
             hide: function () {
                 if (items.length === 1) {
                     return ! items[0].get('enabled');
@@ -255,7 +256,7 @@ editor.once('load', function() {
 
         menuData['copy'] = {
             title: 'Copy',
-            icon: '&#57891;',
+            icon: '&#58193;',
             filter: function() {
                 return items.length === 1;
             },
@@ -266,7 +267,7 @@ editor.once('load', function() {
 
         menuData['paste'] = {
             title: 'Paste',
-            icon: '&#57892;',
+            icon: '&#58184;',
             filter: function () {
                 return items.length === 1 && ! editor.call('entities:clipboard:empty');
             },
@@ -277,7 +278,7 @@ editor.once('load', function() {
 
         menuData['duplicate'] = {
             title: 'Duplicate',
-            icon: '&#57908;',
+            icon: '&#57638;',
             filter: function () {
                 return items.length === 1 && entity !== editor.call('entities:root');
             },
@@ -288,7 +289,7 @@ editor.once('load', function() {
 
         menuData['delete'] = {
             title: 'Delete',
-            icon: '&#58657;',
+            icon: '&#57636;',
             filter: function () {
                 var root = editor.call('entities:root');
                 for(var i = 0; i < items.length; i++) {

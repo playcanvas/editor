@@ -133,7 +133,7 @@ editor.once('load', function() {
 
     var newSceneRight = document.createElement('span');
     newSceneRight.classList.add('right');
-    newSceneRight.innerHTML = '&#58468;';
+    newSceneRight.innerHTML = '&#57632;';
     newScene.appendChild(newSceneRight);
 
     footer.appendChild(newScene);
@@ -188,7 +188,7 @@ editor.once('load', function() {
         // primary scene icon
         var primary = document.createElement('span');
         primary.classList.add('scene-primary');
-        primary.innerHTML = '&#57989;';
+        primary.innerHTML = '&#57891;';
         row.appendChild(primary);
         primary.addEventListener('click', function () {
             if (!editor.call('permissions:write'))
@@ -229,7 +229,6 @@ editor.once('load', function() {
 
         var dropdownIcon = document.createElement('div');
         dropdownIcon.classList.add('scene-dropdown-icon', 'font-icon');
-        dropdownIcon.innerHTML = '&#57922;';
         dropdown.appendChild(dropdownIcon);
 
         dropdown.addEventListener('click', function () {

@@ -53,6 +53,26 @@ editor.once('load', function() {
         doc.subscribe();
     });
 
+    editor.method('assets:fs:paths:patch', function(data) {
+        var connection = editor.call('realtime:connection');
+        var assets = connection.collections.assets;
+
+        for(var i = 0; i < data.length; i++) {
+            if (! assets.hasOwnProperty(data[i].id))
+                continue;
+
+            // force snapshot path data
+            assets[data[i].id].snapshot.path = data[i].path;
+
+            // sync observer
+            editor.emit('realtime:op:assets', {
+                p: [ 'path' ],
+                oi: data[i].path,
+                od: null
+            }, data[i].id);
+        }
+    });
+
     var onLoad = function(data) {
         editor.call('assets:progress', .5);
 
@@ -102,51 +122,64 @@ editor.once('load', function() {
 
     // create asset
     editor.method('assets:create', function (data) {
+        var assetId = null;
         var evtAssetAdd = editor.once('assets:add', function(asset) {
+            if (! evtAssetAdd && assetId !== parseInt(asset.get('id'), 10))
+                return;
+
             evtAssetAdd = null;
             editor.call('selector:set', 'asset', [ asset ]);
+            // navigate to folder too
+            var path = asset.get('path');
+            if (path.length) {
+                editor.call('assets:panel:currentFolder', editor.call('assets:get', path[path.length - 1]));
+            } else {
+                editor.call('assets:panel:currentFolder', null);
+            }
         });
 
         editor.once('selector:change', function() {
-            if (evtAssetAdd)
+            if (evtAssetAdd) {
                 evtAssetAdd.unbind();
+                evtAssetAdd = null;
+            }
         });
 
-        Ajax
-        .post('{{url.api}}/assets?access_token={{accessToken}}', data)
-        .on('error', function(status, err) {
+        editor.call('assets:uploadFile', data, function(err, res) {
             if (evtAssetAdd)
-                evtAssetAdd.unbind();
+                evtAssetAdd = null;
 
-            if (! err) {
-                console.error(status);
+            if (err) {
+                editor.call('status:error', err);
+
+                // TODO
+                // disk allowance error
+
                 return;
             }
 
-            if (/Disk allowance/.test(err)) {
-                err += '. <a href="/upgrade" target="_blank">UPGRADE</a> to get more disk space.';
-            }
-
-            editor.call('status:error', err);
+            assetId = res.asset.id;
         });
     });
 
     // delete asset
-    editor.method('assets:delete', function(asset) {
-        if (asset.get('type') === 'script') {
-            editor.emit('sourcefiles:remove', asset);
+    editor.method('assets:delete', function(list) {
+        if (! (list instanceof Array))
+            list = [ list ];
 
-            Ajax
-            .delete('{{url.api}}/projects/' + config.project.id + '/repositories/directory/sourcefiles/' + asset.get('filename') + '?access_token={{accessToken}}');
-        } else {
-            editor.call('assets:remove', asset);
+        var assets = [ ];
 
-            Ajax
-            .delete('{{url.api}}/assets/' + asset.get('id') + '?access_token={{accessToken}}')
-            .on('error', function(status, evt) {
-                console.log(status, evt);
-            });
+        for(var i = 0; i < list.length; i++) {
+            if (list[i].get('type') === 'script') {
+                editor.emit('sourcefiles:remove', list[i]);
+                Ajax.delete('{{url.api}}/projects/' + config.project.id + '/repositories/directory/sourcefiles/' + list[i].get('filename') + '?access_token={{accessToken}}');
+            } else {
+                assets.push(list[i]);
+            }
         }
+
+        if (assets.length)
+            editor.call('assets:fs:delete', assets);
     });
 
     editor.on('assets:remove', function (asset) {

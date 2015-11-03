@@ -97,7 +97,7 @@ editor.on('load', function() {
     assetsPanel.resizable = 'top';
     assetsPanel.resizeMin = 106;
     assetsPanel.resizeMax = 106 * 6;
-    assetsPanel.headerSize = 1;
+    assetsPanel.headerSize = -1;
     center.append(assetsPanel);
     // expose
     editor.method('layout.assets', function() { return assetsPanel; });

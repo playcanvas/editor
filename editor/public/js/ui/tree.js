@@ -26,11 +26,14 @@ function Tree() {
     this.on('append', this._onAppend);
     this.on('remove', this._onRemove);
 
+    this.draggable = true;
     this._dragging = false;
     this._dragItems = [ ];
     this._dragOver = null;
     this._dragArea = 'inside';
     this._evtDragMove = null;
+    this.reordering = true;
+    this.dragInstant = true;
 
     this._selected = [ ];
 }
@@ -89,7 +92,7 @@ Tree.prototype.clear = function() {
 
 
 Tree.prototype._onDragStart = function(item) {
-    if (this._dragging)
+    if (! this.draggable || this._dragging)
         return;
 
     this.class.add('dragging');
@@ -114,7 +117,7 @@ Tree.prototype._onDragStart = function(item) {
 
 
 Tree.prototype._onDragOver = function(item, evt) {
-    if (! this._dragging || (item === this._dragItems[0] && ! this._dragOver) || this._dragOver === item)
+    if (! this.draggable || ! this._dragging || (item === this._dragItems[0] && ! this._dragOver) || this._dragOver === item)
         return;
 
     var dragOver = null;
@@ -133,7 +136,7 @@ Tree.prototype._onDragOver = function(item, evt) {
 
 
 Tree.prototype._hoverCalculate = function(evt) {
-    if (! this._dragOver)
+    if (! this.draggable || ! this._dragOver)
         return;
 
     var rect = this.elementDrag.getBoundingClientRect();
@@ -148,12 +151,12 @@ Tree.prototype._hoverCalculate = function(evt) {
         } else {
             this._dragArea = 'inside';
         }
-    } else if (area <= 1 && this._dragOver.prev !== this._dragItems[0]) {
+    } else if (this.reordering && area <= 1 && this._dragOver.prev !== this._dragItems[0]) {
         this._dragArea = 'before';
-    } else if (area >= 4 && this._dragOver.next !== this._dragItems[0] && (this._dragOver._children === 0 || ! this._dragOver.open)) {
+    } else if (this.reordering && area >= 4 && this._dragOver.next !== this._dragItems[0] && (this._dragOver._children === 0 || ! this._dragOver.open)) {
         this._dragArea = 'after';
     } else {
-        if (this._dragOver === this._dragItems[0].parent && this._dragOver.open) {
+        if (this.reordering && this._dragOver === this._dragItems[0].parent && this._dragOver.open) {
             this._dragArea = 'before';
         } else {
             this._dragArea = 'inside';
@@ -166,13 +169,16 @@ Tree.prototype._hoverCalculate = function(evt) {
 
 
 Tree.prototype._onDragMove = function(evt) {
+    if (! this.draggable)
+        return;
+
     this._hoverCalculate(evt);
     this.emit('dragmove', evt);
 };
 
 
 Tree.prototype._onDragOut = function() {
-    if (! this._dragging || ! this._dragOver)
+    if (! this.draggable || ! this._dragging || ! this._dragOver)
         return;
 
     this._dragOver = null;
@@ -182,7 +188,7 @@ Tree.prototype._onDragOut = function() {
 
 
 Tree.prototype._onDragEnd = function() {
-    if (! this._dragging)
+    if (! this.draggable || ! this._dragging)
         return;
 
     this._dragging = false;
@@ -197,19 +203,30 @@ Tree.prototype._onDragEnd = function() {
             var oldParent = this._dragItems[i].parent;
 
             if (oldParent !== this._dragOver || this._dragArea !== 'inside') {
-                if (this._dragItems[i].parent)
-                    this._dragItems[i].parent.remove(this._dragItems[i]);
+                var newParent = null;
 
-                if (this._dragArea === 'before') {
-                    this._dragOver.parent.appendBefore(this._dragItems[i], this._dragOver);
-                } else if (this._dragArea === 'inside') {
-                    this._dragOver.open = true;
-                    this._dragOver.append(this._dragItems[i]);
-                } else if (this._dragArea === 'after') {
-                    this._dragOver.parent.appendAfter(this._dragItems[i], this._dragOver);
+                if (this.dragInstant) {
+                    if (this._dragItems[i].parent)
+                        this._dragItems[i].parent.remove(this._dragItems[i]);
                 }
 
-                this.emit('reparent', this._dragItems[i], oldParent);
+                if (this._dragArea === 'before') {
+                    newParent = this._dragOver.parent;
+                    if (this.dragInstant)
+                        this._dragOver.parent.appendBefore(this._dragItems[i], this._dragOver);
+                } else if (this._dragArea === 'inside') {
+                    newParent = this._dragOver;
+                    if (this.dragInstant) {
+                        this._dragOver.open = true;
+                        this._dragOver.append(this._dragItems[i]);
+                    }
+                } else if (this._dragArea === 'after') {
+                    newParent = this._dragOver.parent;
+                    if (this.dragInstant)
+                        this._dragOver.parent.appendAfter(this._dragItems[i], this._dragOver);
+                }
+
+                this.emit('reparent', this._dragItems[i], oldParent, newParent);
             }
         }
     }
@@ -224,7 +241,7 @@ Tree.prototype._onDragEnd = function() {
 
 
 Tree.prototype._updateDragHandle = function() {
-    if (! this._dragging)
+    if (! this.draggable || ! this._dragging)
         return;
 
     if (! this._dragOver) {

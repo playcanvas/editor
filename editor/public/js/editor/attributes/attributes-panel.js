@@ -518,7 +518,7 @@ editor.once('load', function() {
                 });
 
                 var btnAdd = new ui.Button({
-                    text: '&#58468'
+                    text: '&#57632'
                 });
                 btnAdd.flexGrow = 0;
                 btnAdd.on('click', function() {
@@ -699,7 +699,7 @@ editor.once('load', function() {
                         item.textContent = tag;
 
                         var icon = document.createElement('span');
-                        icon.innerHTML = '&#58422;';
+                        icon.innerHTML = '&#57650;';
                         icon.classList.add('icon');
                         icon.tag = tag;
                         icon.addEventListener('click', onRemoveClick, false);
@@ -930,21 +930,21 @@ editor.once('load', function() {
                 fieldTitle.placeholder = '...';
 
                 var btnEdit = new ui.Button({
-                    text: '&#58214;'
+                    text: '&#57648;'
                 });
                 btnEdit.disabled = true;
                 btnEdit.parent = panel;
                 btnEdit.flexGrow = 0;
 
                 var btnRemove = new ui.Button({
-                    text: '&#58422;'
+                    text: '&#57650;'
                 });
                 btnRemove.disabled = true;
                 btnRemove.parent = panel;
                 btnRemove.flexGrow = 0;
 
                 fieldTitle.on('click', function() {
-                    var asset = editor.call('assets:get', this.value);
+                    var asset = editor.call('assets:get', field.value);
                     editor.call('picker:asset', args.kind, asset);
 
                     evtPick = editor.once('picker:asset', function(asset) {
@@ -968,6 +968,18 @@ editor.once('load', function() {
                     var asset = editor.call('assets:get', this.value);
                     if (! asset) return;
                     editor.call('selector:set', 'asset', [ asset ]);
+
+                    if (asset.get('type') === 'script') {
+                        editor.call('assets:panel:currentFolder', 'scripts');
+                    } else {
+                        var path = asset.get('path');
+                        if (path.length) {
+                            editor.call('assets:panel:currentFolder', editor.call('assets:get', path[path.length - 1]));
+                        } else {
+                            editor.call('assets:panel:currentFolder', null);
+                        }
+                    }
+
                 });
                 btnEdit.on('click', function() {
                     field.emit('click');

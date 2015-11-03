@@ -4,9 +4,9 @@ editor.once('load', function() {
     var toolbar = editor.call('layout.toolbar');
 
     var contact = new ui.Button({
-        text: '&#58488;'
+        text: '&#57625;'
     });
-    contact.class.add('icon');
+    contact.class.add('pc-icon');
     toolbar.append(contact);
 
     Tooltip.attach({

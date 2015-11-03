@@ -12,6 +12,4 @@ editor.once('load', function () {
     btnStore.on('click', function () {
         window.open('https://store.playcanvas.com/', '_blank');
     });
-
-
 });

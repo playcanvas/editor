@@ -20,10 +20,16 @@ editor.once('load', function() {
     // remove
     editor.on('messenger:asset.delete', function(data) {
         var asset = editor.call('assets:get', data.asset.id);
-
-        if (! asset)
-            return;
-
+        if (! asset) return;
         editor.call('assets:remove', asset);
+    });
+
+    // remove multiple
+    editor.on('messenger:assets.delete', function(data) {
+        for(var i = 0; i < data.assets.length; i++) {
+            var asset = editor.call('assets:get', parseInt(data.assets[i], 10));
+            if (! asset) continue;
+            editor.call('assets:remove', asset);
+        }
     });
 });

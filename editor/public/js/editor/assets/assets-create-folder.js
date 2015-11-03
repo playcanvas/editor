@@ -1,19 +1,18 @@
 editor.once('load', function() {
     'use strict';
 
-    editor.method('assets:create:text', function (args) {
+    editor.method('assets:create:folder', function (args) {
         if (! editor.call('permissions:write'))
             return;
 
         args = args || { };
 
         var asset = {
-            name: 'New Text',
-            type: 'text',
+            name: 'New Folder',
+            type: 'folder',
             source: false,
+            data: null,
             parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
-            filename: 'asset.txt',
-            file: new Blob([ '\n' ], { type: 'text/plain' }),
             scope: {
                 type: 'project',
                 id: config.project.id

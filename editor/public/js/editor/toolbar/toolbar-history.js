@@ -7,9 +7,9 @@ editor.once('load', function() {
 
     // undo
     var buttonUndo = new ui.Button({
-        text: '&#57654;'
+        text: '&#57620;'
     });
-    buttonUndo.class.add('icon');
+    buttonUndo.class.add('pc-icon');
     buttonUndo.enabled = editor.call('history:canUndo');
     toolbar.append(buttonUndo);
 
@@ -37,9 +37,9 @@ editor.once('load', function() {
 
     // redo
     var buttonRedo = new ui.Button({
-        text: '&#57655;'
+        text: '&#57621;'
     });
-    buttonRedo.class.add('icon');
+    buttonRedo.class.add('pc-icon');
     buttonRedo.enabled = editor.call('history:canRedo');
     toolbar.append(buttonRedo);
 

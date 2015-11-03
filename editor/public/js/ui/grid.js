@@ -13,6 +13,9 @@ function Grid() {
 
     this.on('select', this._onSelect);
     this.on('beforeDeselect', this._onBeforeDeselect);
+
+    this.on('append', this._onAppend);
+    this.on('remove', this._onRemove);
 }
 Grid.prototype = Object.create(ui.ContainerElement.prototype);
 
@@ -28,11 +31,12 @@ Grid.prototype._onSelect = function(item) {
             var el = this.element.firstChild;
             var start = false;
             var elementStart = null;
-            var elementEnd = null;
 
             this._selecting = true;
 
-            while(! elementEnd && el) {
+            var c = 100;
+
+            while(el && c--) {
                 if (el === this._lastSelect.element || el === item.element) {
                     if (start)
                         break;
@@ -114,7 +118,6 @@ Grid.prototype.forEach = function(fn) {
         child = child.nextSibling;
     };
 };
-
 
 Object.defineProperty(Grid.prototype, 'selected', {
     get: function() {

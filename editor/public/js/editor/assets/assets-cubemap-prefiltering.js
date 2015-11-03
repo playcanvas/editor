@@ -78,7 +78,12 @@ editor.once('load', function () {
                     var blob = new Blob([dds], {type: 'image/dds'});
 
                     // upload blob as dds
-                    editor.call('assets:uploadFile', blob, assetCubeMap.get('name') + '.dds', assetCubeMap, function (err, data) {
+                    editor.call('assets:uploadFile', {
+                        file: blob,
+                        name: assetCubeMap.get('name') + '.dds',
+                        asset: assetCubeMap,
+                        type: 'cubemap'
+                    }, function (err, data) {
                         if (!err) {
                             callback();
                         } else {
@@ -151,7 +156,12 @@ editor.once('load', function () {
                 var blob = new Blob([ dds ], { type: 'image/dds' });
 
                 // upload blob as dds
-                editor.call('assets:uploadFile', blob, assetCubeMap.get('name') + '.dds', assetCubeMap, function (err, data) {
+                editor.call('assets:uploadFile', {
+                    file: blob,
+                    name: assetCubeMap.get('name') + '.dds',
+                    asset: assetCubeMap,
+                    type: 'cubemap'
+                }, function (err, data) {
                     if (callback)
                         callback(null);
                 });

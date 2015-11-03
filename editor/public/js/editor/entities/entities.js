@@ -1,8 +1,9 @@
 editor.once('load', function() {
     'use strict';
 
-    var entities = new ObserverList();
-    entities.index = 'resource_id';
+    var entities = new ObserverList({
+        index: 'resource_id'
+    });
 
     var entityRoot = null;
 

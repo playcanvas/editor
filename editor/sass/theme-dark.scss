@@ -80,8 +80,8 @@ a:visited {
                 color: $text-dark;
 
                 &:after {
-                    transform: rotate(0deg);
                     color: $text-dark;
+                    content: '\E180';
                 }
             }
             &.horizontal {
@@ -89,17 +89,13 @@ a:visited {
 
                 > header {
                     top: -32px;
-
-                    &:after {
-                        transform: rotate(90deg);
-                    }
-                }
-                &.resizable-right > header:after {
-                    transform: rotate(-90deg);
                 }
             }
-            &.resizable-top > header:after {
-                transform: rotate(-90deg);
+
+            &.resizable-top {
+                > header:after {
+                    content: '\E181';
+                }
             }
         }
         > header {
@@ -116,7 +112,7 @@ a:visited {
             &:after {
                 right: auto;
                 left: 0;
-                content: '\E113';
+                content: '\E179';
                 @extend .font-icon;
                 font-size: 14px;
                 text-align: center;
@@ -124,19 +120,31 @@ a:visited {
                 padding: 0;
                 width: 32px;
                 height: 32px;
-                line-height: 30px;
+                line-height: 32px;
                 color: $text-active;
                 background-color: transparent;
-                transform: rotate(90deg);
-                transition: transform 100ms ease;
             }
         }
         &.horizontal {
             > header:after {
-                transform: rotate(0deg);
+                content: '\E183';
             }
-            &.resizable-right > header:after {
-                transform: rotate(180deg);
+            &.resizable-right {
+                &.folded {
+                    > header:after {
+                        content: '\E181';
+                    }
+                }
+            }
+
+            &.resizable-left {
+                > header:after {
+                    content: '\E183';
+                }
+
+                &.folded > header:after {
+                    content: '\E183';
+                }
             }
         }
     }
@@ -252,7 +260,7 @@ a:visited {
     &.container {
         // plus icon
         > .title:before {
-            content: '\E464';
+            content: '\E120';
             width: 16px;
             height: 16px;
             margin: 3px;
@@ -261,7 +269,7 @@ a:visited {
             text-align: center;
             color: $text-secondary;
             text-align: center;
-            line-height: 15px;
+            line-height: 16px;
             background: transparent;
             font-weight: bold;
             background-color: $bcg-dark;
@@ -273,7 +281,7 @@ a:visited {
         // minus icon
         &.open {
             > .title:before {
-                content: '\E465';
+                content: '\E121';
                 color: $text-secondary;
                 background-color: $bcg-dark;
             }
@@ -454,13 +462,13 @@ a:visited {
     }
     &.container {
         > .title:after {
-            content: '\E113';
+            content: '\E160';
             @extend .font-icon;
             font-size: 14px;
             text-align: center;
             background-color: transparent;
             color: $text-dark;
-            line-height: 16px;
+            line-height: 14px;
         }
         &.hover > .title {
             color: $text-primary;
@@ -536,35 +544,114 @@ a:visited {
     }
 }
 
-.ui-grid {
+.ui-tree.assets {
+    background-color: $bcg-darker;
     border-left: 1px solid $bcg-dark;
+    width: calc(100% - 5px);
 
-    &.flash {
-        @extend .ui-flash;
+    .ui-tree-item {
+        &.selected {
+            > .title {
+                > .icon {
+                    color: #fff;
+                }
+            }
+        }
+        &.container {
+            > .title {
+                &:hover {
+                    &:before {
+                        background-color: $text-active;
+                    }
+                }
+                &:before {
+                    background-color: mix($text-darkest, $bcg-darker, 30%);
+                }
+            }
+
+            &.open {
+                > .title:before {
+                    background-color: mix($text-darkest, $bcg-darker, 30%);
+                }
+            }
+        }
+        > .title {
+            &:hover {
+                > .icon {
+                    color: #fff;
+                }
+            }
+            > .icon {
+                color: $text-darkest;
+                &:after {
+                    @extend .font-icon;
+                    content: '\E139';
+                    font-size: 14px;
+                    line-height: 23px;
+                    text-align: center;
+                    background-color: transparent;
+                }
+            }
+        }
+        &.current {
+            > .title {
+                color: $text-active;
+                > .icon {
+                    color: $text-active;
+                }
+            }
+        }
+        &.scripts {
+            > .title {
+                &:after {
+                    content: 's';
+                    position: absolute;
+                    left: 8px;
+                    top: 0;
+                    font-size: 12px;
+                    color: $bcg-darker;
+                    z-index: 1;
+                }
+            }
+        }
     }
 }
 
-.ui-grid-item {
-    color: $text-secondary;
-    margin: 0;
-    outline: none;
+.ui-panel.folders {
+    background-color: $bcg-darker;
+}
 
-    &.disabled.selected {
-        background-color: $bcg-darkest;
+.ui-panel.files {
+    border-left: 1px solid $bcg-darkest;
+}
+
+.ui-grid.assets {
+    &.flash {
+        @extend .ui-flash;
     }
-    &:hover,
-    &:focus {
-        color: $text-primary;
-        background-color: mix($bcg-darkest, $bcg-dark, 50%);
-        outline: none;
-    }
-    &.selected {
-        color: $text-active;
-        background-color: $bcg-darkest;
+
+    .ui-grid-item {
+        color: $text-secondary;
+        margin: 0;
         outline: none;
 
-        &:hover {
-            background-color: mix($bcg-darkest, $bcg-darker, 75%);
+        &.disabled.selected {
+            background-color: $bcg-darkest;
+        }
+        &:hover,
+        &:focus {
+            color: $text-primary;
+            background-color: mix($bcg-darkest, $bcg-dark, 50%);
+            outline: none;
+        }
+        &.selected {
+            color: $text-active;
+            background-color: $bcg-darkest;
+            outline: none;
+
+            &:hover {
+                background-color: mix($bcg-darkest, $bcg-darker, 75%);
+            }
         }
     }
 }
@@ -896,7 +983,7 @@ a:visited {
             color: $text-primary;
 
             &:after {
-                content: '\E113';
+                content: '\E159';
                 color: $text-active;
             }
         }
@@ -905,18 +992,17 @@ a:visited {
         color: $text-secondary;
 
         &:after {
-            content: '\E113';
+            content: '\E159';
             width: 22px;
             height: 22px;
-            line-height: 20px;
+            line-height: 26px;
             padding: 0;
             margin: 0;
             @extend .font-icon;
-            font-size: 18px;
+            font-size: 14px;
             text-align: center;
             color: $text-darkest;
             background-color: transparent;
-            transform: rotate(90deg);
         }
     }
     > ul {

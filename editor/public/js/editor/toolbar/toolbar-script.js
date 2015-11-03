@@ -89,6 +89,7 @@ editor.once('load', function () {
                 onError(err);
             } else {
                 // select script
+                editor.call('assets:panel:currentFolder', 'scripts');
                 editor.call('selector:set', 'asset', [script]);
 
                 overlay.hidden = true;

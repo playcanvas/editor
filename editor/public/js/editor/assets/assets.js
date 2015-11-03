@@ -19,13 +19,73 @@ EVENTS
 editor.once('load', function() {
     'use strict';
 
-    var assets = new ObserverList();
-    assets.index = 'id';
+    var assets = new ObserverList({
+        index: 'id',
+        sorted: function(a, b) {
+            var f = (b._data['type'] === 'folder') - (a._data['type'] === 'folder');
 
+            if (f !== 0)
+                return f;
+
+            if (a._data['name'].toLowerCase() > b._data['name'].toLowerCase()) {
+                return 1;
+            } else if (a._data['name'].toLowerCase() < b._data['name'].toLowerCase()) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+    });
+
+
+    // return assets ObserverList
+    editor.method('assets:raw', function() {
+        return assets;
+    });
 
     // allow adding assets
     editor.method('assets:add', function(asset) {
-        assets.add(asset);
+        var pos = assets.add(asset);
+
+        if (pos === null)
+            return;
+
+        asset.on('name:set', function(name, nameOld) {
+            name = name.toLowerCase();
+            nameOld = nameOld.toLowerCase();
+
+            var ind = assets.data.indexOf(this);
+            var pos = assets.positionNextClosest(this, function(a, b) {
+                var f = (b._data['type'] === 'folder') - (a._data['type'] === 'folder');
+
+                if (f !== 0)
+                    return f;
+
+                if ((a === b ? nameOld : a._data['name'].toLowerCase()) > name) {
+                    return 1;
+                } else if ((a === b ? nameOld : a._data['name'].toLowerCase()) < name) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            });
+
+            if (pos === -1 && (ind + 1) == assets.data.length)
+                return;
+
+            if (ind !== -1 && (ind + 1 === pos) || (ind === pos))
+                return;
+
+            if (ind < pos)
+                pos--;
+
+            assets.move(this, pos);
+            editor.emit('assets:move', asset, pos);
+        });
+
+        // publish added asset
+        editor.emit('assets:add[' + asset.get('id') + ']', asset, pos);
+        editor.emit('assets:add', asset, pos);
     });
 
     // allow removing assets
@@ -61,12 +121,6 @@ editor.once('load', function() {
 
     editor.method('assets:list', function () {
         return assets.array();
-    });
-
-    // publish added asset
-    assets.on('add', function(asset) {
-        editor.emit('assets:add[' + asset.get('id') + ']', asset);
-        editor.emit('assets:add', asset);
     });
 
     // publish remove asset

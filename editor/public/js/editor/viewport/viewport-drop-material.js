@@ -106,7 +106,7 @@ editor.once('load', function() {
         type: 'asset.material',
         hole: true,
         drop: function(type, data) {
-            if (!config.scene.id)
+            if (! config.scene.id)
                 return;
 
             if (evtPickHover)
@@ -199,7 +199,7 @@ editor.once('load', function() {
             }
         },
         over: function(type, data) {
-            if (!config.scene.id)
+            if (! config.scene.id)
                 return;
 
             hoverMaterial = app.assets.get(parseInt(data.id, 10));

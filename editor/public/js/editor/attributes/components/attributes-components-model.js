@@ -285,8 +285,9 @@ editor.once('load', function() {
 
             // button to remove mapping entry
             var removeButton = new ui.Button({
-                text: '&#58657;'
+                text: '&#57636;'
             });
+            removeButton.style.fontWeight = 200;
             removeButton.class.add('remove');
             field.parent.append(removeButton);
 

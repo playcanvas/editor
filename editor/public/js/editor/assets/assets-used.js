@@ -184,6 +184,9 @@ editor.once('load', function() {
 
         var type = asset.get('type');
 
+        if (type === 'folder')
+            return;
+
         if (onSetMethods[type]) {
             asset.on('*:set', onSetMethods[type]);
 
@@ -214,9 +217,8 @@ editor.once('load', function() {
         entity.on('*:insert', onSetMethods['entity-insert']);
         entity.on('*:remove', onSetMethods['entity-remove']);
 
-        for(var key in keys['entity']) {
+        for(var key in keys['entity'])
             updateAsset(entity.get('resource_id'), null, entity.get(key));
-        }
     });
 
     // scene settings

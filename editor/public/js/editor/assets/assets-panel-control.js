@@ -4,123 +4,195 @@ editor.once('load', function() {
     var root = editor.call('layout.root');
     var assetsPanel = editor.call('layout.assets');
 
-    var fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    // fileInput.accept = '';
-    fileInput.multiple = true;
-    fileInput.style.display = 'none';
-    fileInput.addEventListener('change', function() {
-        if (!editor.call('assets:canUploadFiles', this.files)) {
-            var msg = 'Disk allowance exceeded. <a href="/upgrade" target="_blank">UPGRADE</a> to get more disk space.';
-            editor.call('status:error', msg);
-            return;
-        }
-
-        for(var i = 0; i < this.files.length; i++) {
-            editor.call('assets:uploadFile', this.files[i], this.files[i].name);
-        }
-        this.value = null;
-    }, false);
-    assetsPanel.append(fileInput);
-
     // context menu
     var menu = new ui.Menu();
     root.append(menu);
 
-    // upload
-    var menuUpload = new ui.MenuItem({
-        text: 'Upload',
-        value: 'upload'
-    });
-    menuUpload.on('select', function() {
-        fileInput.click();
-    });
-    menu.append(menuUpload);
+    var assets = {
+        'upload': {
+            title: 'Upload',
+            icon: '&#57909;'
+        },
+        'folder': {
+            title: 'Folder',
+            icon: '&#57657;'
+        },
+        'css': {
+            title: 'CSS',
+            icon: '&#57864;'
+        },
+        'cubemap': {
+            title: 'CubeMap',
+            icon: '&#57879;'
+        },
+        'html': {
+            title: 'HTML',
+            icon: '&#57864;'
+        },
+        'json': {
+            title: 'JSON',
+            icon: '&#57864;'
+        },
+        'material': {
+            title: 'Material',
+            icon: '&#57749;'
+        },
+        'script': {
+            title: 'Script',
+            icon: '&#57864;'
+        },
+        'shader': {
+            title: 'Shader',
+            icon: '&#57864;'
+        },
+        'text': {
+            title: 'Text',
+            icon: '&#57864;'
+        }
+    };
 
-    // css
-    var menuCss = new ui.MenuItem({
-        text: 'New Css',
-        value: 'css'
-    });
-    menuCss.on('select', function () {
-        editor.call('assets:createCss');
-    });
-    menu.append(menuCss);
+    var addNewMenuItem = function(key, data) {
+        // new folder
+        var item = new ui.MenuItem({
+            text: data.title,
+            icon: data.icon || '',
+            value: key
+        });
+        item.on('select', function() {
+            var args = {
+                parent: editor.call('assets:panel:currentFolder')
+            };
 
-    // cubemap
-    var menuCubemap = new ui.MenuItem({
-        text: 'New CubeMap',
-        value: 'cubemap'
-    });
-    menuCubemap.on('select', function() {
-        editor.call('assets:createCubemap');
-    });
-    menu.append(menuCubemap);
+            if (key === 'upload') {
+                editor.call('assets:upload:picker', args);
+            } else if (key === 'script') {
+                editor.call('sourcefiles:new');
+            } else {
+                editor.call('assets:create:' + key, args)
+            }
+        });
+        menu.append(item);
 
-    // html
-    var menuHtml = new ui.MenuItem({
-        text: 'New Html',
-        value: 'html'
-    });
-    menuHtml.on('select', function () {
-        editor.call('assets:createHtml');
-    });
-    menu.append(menuHtml);
+        if (key === 'script') {
+            editor.on('repositories:load', function (repositories) {
+                if (repositories.get('current') !== 'directory')
+                    item.disabled = true;
+            });
+        }
+    };
 
-    // json
-    var menuJson = new ui.MenuItem({
-        text: 'New Json',
-        value: 'json'
-    });
-    menuJson.on('select', function () {
-        editor.call('assets:createJson');
-    });
-    menu.append(menuJson);
+    var keys = Object.keys(assets);
+    for(var i = 0; i < keys.length; i++) {
+        if (! assets.hasOwnProperty(keys[i]))
+            continue;
 
-    // material
-    var menuMaterial = new ui.MenuItem({
-        text: 'New Material',
-        value: 'material'
-    });
-    menuMaterial.on('select', function() {
-        editor.call('assets:createMaterial');
-    });
-    menu.append(menuMaterial);
+        addNewMenuItem(keys[i], assets[keys[i]]);
+    }
 
-    // script
-    var menuScript = new ui.MenuItem({
-        text: 'New Script',
-        value: 'script'
-    });
-    menuScript.on('select', function () {
-        editor.call('sourcefiles:new');
-    });
-    menu.append(menuScript);
+    // // upload
+    // var menuUpload = new ui.MenuItem({
+    //     text: 'Upload',
+    //     value: 'upload'
+    // });
+    // menuUpload.on('select', function() {
+    //     editor.call('assets:upload:picker');
+    // });
+    // menu.append(menuUpload);
 
-    editor.on('repositories:load', function (repositories) {
-        if (repositories.get('current') !== 'directory')
-            menuScript.disabled = true;
-    });
+    // // folder
+    // var menuFolder = new ui.MenuItem({
+    //     text: 'New Folder',
+    //     value: 'folder'
+    // });
+    // menuFolder.on('select', function() {
+    //     editor.call('assets:create:folder');
+    // });
+    // menu.append(menuFolder);
 
-    // shader
-    var menuShader = new ui.MenuItem({
-        text: 'New Shader',
-        value: 'shader'
-    });
-    menuShader.on('select', function () {
-        editor.call('assets:createShader');
-    });
-    menu.append(menuShader);
+    // // css
+    // var menuCss = new ui.MenuItem({
+    //     text: 'New Css',
+    //     value: 'css'
+    // });
+    // menuCss.on('select', function () {
+    //     editor.call('assets:create:css');
+    // });
+    // menu.append(menuCss);
 
-    // text
-    var menuText = new ui.MenuItem({
-        text: 'New Text',
-        value: 'text'
-    });
-    menuText.on('select', function () {
-        editor.call('assets:createText');
-    });
-    menu.append(menuText);
+    // // cubemap
+    // var menuCubemap = new ui.MenuItem({
+    //     text: 'New CubeMap',
+    //     value: 'cubemap'
+    // });
+    // menuCubemap.on('select', function() {
+    //     editor.call('assets:create:cubemap');
+    // });
+    // menu.append(menuCubemap);
+
+    // // html
+    // var menuHtml = new ui.MenuItem({
+    //     text: 'New Html',
+    //     value: 'html'
+    // });
+    // menuHtml.on('select', function () {
+    //     editor.call('assets:create:html');
+    // });
+    // menu.append(menuHtml);
+
+    // // json
+    // var menuJson = new ui.MenuItem({
+    //     text: 'New Json',
+    //     value: 'json'
+    // });
+    // menuJson.on('select', function () {
+    //     editor.call('assets:create:json');
+    // });
+    // menu.append(menuJson);
+
+    // // material
+    // var menuMaterial = new ui.MenuItem({
+    //     text: 'New Material',
+    //     value: 'material'
+    // });
+    // menuMaterial.on('select', function() {
+    //     editor.call('assets:create:material');
+    // });
+    // menu.append(menuMaterial);
+
+    // // script
+    // var menuScript = new ui.MenuItem({
+    //     text: 'New Script',
+    //     value: 'script'
+    // });
+    // menuScript.on('select', function () {
+    //     editor.call('sourcefiles:new');
+    // });
+    // menu.append(menuScript);
+
+    // editor.on('repositories:load', function (repositories) {
+    //     if (repositories.get('current') !== 'directory')
+    //         menuScript.disabled = true;
+    // });
+
+    // // shader
+    // var menuShader = new ui.MenuItem({
+    //     text: 'New Shader',
+    //     value: 'shader'
+    // });
+    // menuShader.on('select', function () {
+    //     editor.call('assets:create:shader');
+    // });
+    // menu.append(menuShader);
+
+    // // text
+    // var menuText = new ui.MenuItem({
+    //     text: 'New Text',
+    //     value: 'text'
+    // });
+    // menuText.on('select', function () {
+    //     editor.call('assets:create:text');
+    // });
+    // menu.append(menuText);
 
     // controls
     var controls = new ui.Panel();
@@ -136,7 +208,7 @@ editor.once('load', function() {
     // add
     var btnNew = new ui.Button();
     btnNew.class.add('create-asset');
-    btnNew.text = '&#58468;';
+    btnNew.text = '&#57632;';
     btnNew.on('click', function(evt) {
         var rect = btnNew.element.getBoundingClientRect();
         menu.position(rect.right, rect.top);
@@ -154,25 +226,11 @@ editor.once('load', function() {
         tooltipAdd.disabled = state;
     });
 
-    // // duplicate
-    // var btnDuplicate = new ui.Button({
-    //     text: '&#57908;'
-    // });
-    // btnDuplicate.disabled = true;
-    // btnDuplicate.class.add('duplicate');
-    // btnDuplicate.on('click', function() {
-    //     // var type = editor.call('selector:type');
-    //     // var items = editor.call('selector:items');
-
-    //     // if (type === 'entity' && items.length)
-    //     //     editor.call('entities:duplicate', items[0]);
-    // });
-    // controls.append(btnDuplicate);
-
     // delete
     var btnDelete = new ui.Button({
-        text: '&#58657;'
+        text: '&#57636;'
     });
+    btnDelete.style.fontWeight = 200;
     btnDelete.disabled = true;
     btnDelete.class.add('delete');
     btnDelete.on('click', function() {

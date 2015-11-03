@@ -8,9 +8,9 @@ editor.once('load', function() {
             return;
 
         cursorType = type;
-        document.body.style.cursor = type;
-        document.body.style.mozCursor = '-moz-' + type;
-        document.body.style.webkitCursor = '-webkit-' + type;
+        document.body.style.setProperty('cursor', type, 'important');
+        document.body.style.setProperty('cursor', '-moz-' + type, 'important');
+        document.body.style.setProperty('cursor', '-webkit-' + type, 'important');
     });
 
     editor.method('cursor:clear', function() {
@@ -19,8 +19,6 @@ editor.once('load', function() {
 
         cursorType = '';
         document.body.style.cursor = '';
-        document.body.style.mozCursor = '';
-        document.body.style.webkitCursor = '';
     });
 
     var hiddenTime = 0;

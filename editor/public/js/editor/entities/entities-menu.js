@@ -2,16 +2,18 @@ editor.once('load', function() {
     'use strict';
 
     var componentsLogos = {
-        'animation': '&#57972;',
-        'audiolistener': '&#57959;',
-        'audiosource': '&#57940;',
-        'camera': '&#58756;',
-        'collision': '&#58151;',
-        'light': '&#58136;',
-        'model': '&#58391;',
-        'particlesystem': '&#58456;',
-        'rigidbody': '&#58152;',
-        'script': '&#57988;'
+        'animation': '&#57875;',
+        'audiolistener': '&#57750;',
+        'audiosource': '&#57751;',
+        'camera': '&#57874;',
+        'collision': '&#57735;',
+        'directional': '&#57746;',
+        'point': '&#57745;',
+        'spot': '&#57747;',
+        'model': '&#57736;',
+        'particlesystem': '&#57753;',
+        'rigidbody': '&#57737;',
+        'script': '&#57910;'
     };
 
     editor.method('menu:entities:new', function (getParentFn) {
@@ -21,7 +23,7 @@ editor.once('load', function() {
         return {
             'add-new-entity': {
                 title: 'Entity',
-                icon: '&#58468;',
+                icon: '&#57632;',
                 select: function() {
                     editor.call('entities:new', {parent: getParentFn()});
                 }
@@ -179,7 +181,7 @@ editor.once('load', function() {
             },
             'add-new-directional': {
                 title: 'Directional Light',
-                icon: componentsLogos.light,
+                icon: componentsLogos.directional,
                 select: function() {
                     var component = editor.call('components:getDefault', 'light');
                     component.type = 'directional';
@@ -195,7 +197,7 @@ editor.once('load', function() {
             },
             'add-new-point': {
                 title: 'Point Light',
-                icon: componentsLogos.light,
+                icon: componentsLogos.point,
                 select: function() {
                     var component = editor.call('components:getDefault', 'light');
                     component.type = 'point';
@@ -212,7 +214,7 @@ editor.once('load', function() {
             },
             'add-new-spot': {
                 title: 'Spot Light',
-                icon: componentsLogos.light,
+                icon: componentsLogos.spot,
                 select: function() {
                     var component = editor.call('components:getDefault', 'light');
                     component.type = 'spot';

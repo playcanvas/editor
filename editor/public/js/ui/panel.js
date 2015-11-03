@@ -309,7 +309,7 @@ Panel.prototype._resizeMove = function(evt) {
 
             var height = Math.max(this._resizeLimits.min, Math.min(this._resizeLimits.max, (this._resizeData.height + offsetY)));
 
-            this.style.height = (height + (this.headerSize || 32)) + 'px';
+            this.style.height = (height + (this.headerSize === -1 ? 0 : this.headerSize || 32)) + 'px';
             this._innerElement.style.height = height + 'px';
         }
     }

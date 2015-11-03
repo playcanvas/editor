@@ -3,8 +3,9 @@ app.once('load', function() {
 
     var framework = app.call('viewport');
 
-    var entities = new ObserverList();
-    entities.index = 'resource_id';
+    var entities = new ObserverList({
+        index: 'resource_id'
+    });
 
     // on adding
     entities.on('add', function(obj) {

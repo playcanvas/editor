@@ -3,6 +3,8 @@ editor.once('load', function() {
 
     var root = editor.call('layout.root');
     var assetsPanel = editor.call('layout.assets');
+    var currentFolder = null;
+    var currentPath = [ ];
 
     // filters
     var panelFilters = new ui.Panel();
@@ -15,10 +17,6 @@ editor.once('load', function() {
 
         var visible = true;
 
-        // source
-        if (! btnSources.class.contains('active') && item.get('source'))
-            visible = false;
-
         // type
         if (visible && filterField.value !== 'all') {
             if (type === 'asset') {
@@ -30,7 +28,7 @@ editor.once('load', function() {
 
         // query
         if (visible && search.value) {
-            var name = item.get(type === 'asset' ? 'name' : 'filename');
+            var name = (type === 'scripts') ? item : item.get(type === 'asset' ? 'name' : 'filename');
             var normalSearch = true;
 
             if (search.value[0] === '*' && search.value.length > 1) {
@@ -44,30 +42,28 @@ editor.once('load', function() {
                 visible = name.toLowerCase().indexOf(search.value.toLowerCase()) !== -1;
         }
 
+        // folder
+        if (visible && ! search.value) {
+            if (type === 'script' || currentFolder === 'scripts') {
+                visible = currentFolder === 'scripts' && type === 'script';
+            } else if (type === 'scripts') {
+                visible = ! currentFolder && filterField.value === 'all';
+            } else {
+                var path = item.get('path');
+                if (currentFolder === null) {
+                    visible = path.length === 0;
+                } else {
+                    visible = (path.length === currentPath.length + 1) && path[path.length - 1] === currentFolder;
+                }
+            }
+        }
+
         return visible;
     };
+    editor.method('assets:panel:filter:default', function() {
+        return filter;
+    });
 
-    // source assets
-    var btnSources = new ui.Button({
-        text: 'Sources'
-    });
-    btnSources.class.add('sources');
-    btnSources.on('click', function() {
-        if (this.class.contains('active')) {
-            this.class.remove('active');
-        } else {
-            this.class.add('active');
-        }
-        editor.call('assets:panel:filter', filter);
-    });
-    panelFilters.append(btnSources);
-
-    var tooltipSources = Tooltip.attach({
-        target: btnSources.element,
-        text: 'Show Source Assets',
-        align: 'bottom',
-        root: root
-    });
 
     // options
     var filterField = new ui.SelectField({
@@ -97,7 +93,6 @@ editor.once('load', function() {
             filterField.class.add('not-empty');
         } else {
             filterField.class.remove('not-empty');
-            // filterField.elementValue.textContent = 'Filter';
         }
         editor.call('assets:panel:filter', filter);
     });
@@ -113,26 +108,6 @@ editor.once('load', function() {
     });
     filterField.on('close', function() {
         tooltipFilter.disabled = false;
-    });
-
-    editor.method('assets:filter:sources', function(state) {
-        if (state === undefined)
-            return btnSources.class.contains('active');
-
-        if (btnSources.class.contains('active') === !! state)
-            return;
-
-        if (state) {
-            btnSources.class.add('active');
-        } else {
-            btnSources.class.remove('active');
-        }
-
-        editor.call('assets:panel:filter', filter);
-    });
-
-    editor.method('assets:filter:sources:disabled', function(state) {
-        btnSources.disabled = state;
     });
 
     editor.method('assets:filter:search', function(query) {
@@ -151,6 +126,22 @@ editor.once('load', function() {
 
     editor.method('assets:filter:type:disabled', function(state) {
         filterField.disabled = state;
+    });
+
+    editor.on('assets:panel:currentFolder', function(asset) {
+        if (asset) {
+            if (typeof(asset) === 'string') {
+                currentFolder = 'scripts';
+                currentPath = null;
+            } else {
+                currentFolder = parseInt(asset.get('id'));
+                currentPath = asset.get('path');
+            }
+        } else {
+            currentFolder = null;
+            currentPath = null;
+        }
+        editor.call('assets:panel:filter', filter);
     });
 
     editor.on('assets:add', function(asset) {
@@ -184,7 +175,7 @@ editor.once('load', function() {
     panelFilters.append(search);
 
     var searchClear = document.createElement('div');
-    searchClear.innerHTML = '&#58422;';
+    searchClear.innerHTML = '&#57650;';
     searchClear.classList.add('clear');
     search.element.appendChild(searchClear);
 
