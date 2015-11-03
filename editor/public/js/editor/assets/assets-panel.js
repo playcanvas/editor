@@ -588,7 +588,7 @@ editor.once('load', function() {
         var menuScript = new ui.MenuItem({
             text: 'New Script',
             value: 'script',
-            icon: '&#57910;'
+            icon: '&#57864;'
         });
         menuScript.on('select', function () {
             editor.call('sourcefiles:new');

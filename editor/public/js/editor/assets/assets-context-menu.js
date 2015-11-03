@@ -12,7 +12,7 @@ editor.once('load', function() {
     // edit
     var menuItemNewScript = new ui.MenuItem({
         text: 'New Script',
-        icon: '&#57910;',
+        icon: '&#57864;',
         value: 'script'
     });
     menuItemNewScript.on('select', function() {
@@ -191,7 +191,7 @@ editor.once('load', function() {
             }
 
             // edit
-            if (['html', 'css', 'json', 'text', 'script', 'shader'].indexOf(currentAsset.get('type')) !== -1) {
+            if (currentAsset.get('source') === false && ['html', 'css', 'json', 'text', 'script', 'shader'].indexOf(currentAsset.get('type')) !== -1) {
                 if (editor.call('selector:type') === 'asset') {
                     var items = editor.call('selector:items');
                     menuItemEdit.hidden = (items.length > 1 && items.indexOf(currentAsset) !== -1);
