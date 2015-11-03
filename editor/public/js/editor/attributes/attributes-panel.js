@@ -944,7 +944,7 @@ editor.once('load', function() {
                 btnRemove.flexGrow = 0;
 
                 fieldTitle.on('click', function() {
-                    var asset = editor.call('assets:get', this.value);
+                    var asset = editor.call('assets:get', field.value);
                     editor.call('picker:asset', args.kind, asset);
 
                     evtPick = editor.once('picker:asset', function(asset) {

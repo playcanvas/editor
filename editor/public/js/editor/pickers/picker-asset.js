@@ -112,8 +112,15 @@ editor.once('load', function() {
         if (currentAsset) {
             var gridItem = assetsGrid.assetsIndex[currentAsset.get('id')];
             // select in grid
-            if (gridItem)
+            if (gridItem) {
                 assetsGrid.selected = [ gridItem ];
+                // navigate to folder of referenced file
+                if (type !== 'script') {
+                    var path = currentAsset.get('path');
+                    if (path.length)
+                        editor.call('assets:panel:currentFolder', editor.call('assets:get', path[path.length - 1]));
+                }
+            }
         }
         // show asset panel in front
         assetsPanel.style.zIndex = 102;

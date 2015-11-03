@@ -88,8 +88,6 @@ editor.once('load', function() {
                 args.parent = editor.call('assets:panel:currentFolder');
             }
 
-            console.log(args.parent && args.parent.get('name'));
-
             if (key === 'upload') {
                 editor.call('assets:upload:picker', args);
             } else if (key === 'script') {
