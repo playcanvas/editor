@@ -40,7 +40,6 @@ editor.once('load', function() {
             }
 
             for(var i = 0; i < data.length; i++) {
-
                 var currentFolder = editor.call('assets:panel:currentFolder');
                 var path = [ ];
 
@@ -51,14 +50,14 @@ editor.once('load', function() {
                 var ext = data[i].name.split('.');
                 if (ext.length === 1)
                     continue;
-                ext = ext[ext.length - 1];
+                ext = ext[ext.length - 1].toLowerCase();
 
                 var source = ! targetExtensions[ext];
                 var type = extToType[ext];
 
                 // can we override another asset?
                 var asset = editor.call('assets:findOne', function(item) {
-                    return item.get('name') === data[i].name && item.get('path').match(path) && item.get('source') === source && item.get('type') === type;
+                    return item.get('name').toLowerCase() === data[i].name.toLowerCase() && item.get('path').match(path) && item.get('source') === source && item.get('type') === type;
                 });
 
                 editor.call('assets:uploadFile', {
