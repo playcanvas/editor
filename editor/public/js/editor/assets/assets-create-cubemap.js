@@ -11,6 +11,7 @@ editor.once('load', function() {
             name: 'New Cubemap',
             type: 'cubemap',
             source: false,
+            preload: true,
             parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
             data: {
                 name: 'New Cubemap',

@@ -13,6 +13,7 @@ editor.once('load', function() {
             name: 'New Material',
             type: 'material',
             source: false,
+            preload: true,
             data: data,
             parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
             scope: {

@@ -11,6 +11,7 @@ editor.once('load', function() {
             name: 'New Css',
             type: 'css',
             source: false,
+            preload: true,
             parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
             filename: 'asset.css',
             file: new Blob([ '\n' ], { type: 'text/css' }),

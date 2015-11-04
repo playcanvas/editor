@@ -11,6 +11,7 @@ editor.once('load', function() {
             name: 'New Html',
             type: 'html',
             source: false,
+            preload: true,
             parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
             filename: 'asset.html',
             file: new Blob([ '\n' ], { type: 'text/html' }),

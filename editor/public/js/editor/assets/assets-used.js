@@ -148,10 +148,26 @@ editor.once('load', function() {
             updateAsset(this.get('id'), value);
         },
         'entity': function(path, value, valueOld) {
-            if (! keys['entity'][path])
+            if (path.startsWith('components.model.mapping.')) {
+                var parts = path.split('.');
+                if (parts.length !== 4)
+                    return;
+            } else if (! keys['entity'][path]) {
                 return;
+            }
 
             updateAsset(this.get('resource_id'), valueOld, value);
+        },
+        'entity-unset': function(path, value) {
+            if (path.startsWith('components.model.mapping.')) {
+                var parts = path.split('.');
+                if (parts.length !== 4)
+                    return;
+            } else if (! keys['entity'][path]) {
+                return;
+            }
+
+            updateAsset(this.get('resource_id'), value, null);
         },
         'entity-insert': function(path, value) {
             if (path.startsWith('components.script.scripts.')) {
@@ -214,11 +230,22 @@ editor.once('load', function() {
     // entities
     editor.on('entities:add', function(entity) {
         entity.on('*:set', onSetMethods['entity']);
+        entity.on('*:unset', onSetMethods['entity-unset']);
         entity.on('*:insert', onSetMethods['entity-insert']);
         entity.on('*:remove', onSetMethods['entity-remove']);
 
         for(var key in keys['entity'])
             updateAsset(entity.get('resource_id'), null, entity.get(key));
+
+        var mappings = entity.get('components.model.mapping');
+        if (mappings) {
+            for(var ind in mappings) {
+                if (! mappings.hasOwnProperty(ind) || ! mappings[ind])
+                    continue;
+
+                updateAsset(entity.get('resource_id'), null, mappings[ind]);
+            }
+        }
     });
 
     // scene settings

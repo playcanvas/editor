@@ -83,11 +83,13 @@ editor.once('load', function() {
                 var id = editor.call('sceneSettings').get('render.skybox');
                 if (id) {
                     var engineCubemap = app.assets.get(id);
-                    hoverSkybox = engineCubemap.resources;
+                    if (engineCubemap)
+                        hoverSkybox = engineCubemap.resources;
                 }
             }
 
-            app.scene.setSkybox(hoverCubemap.resources);
+            if (hoverCubemap)
+                app.scene.setSkybox(hoverCubemap.resources);
 
             editor.call('viewport:render');
         }
