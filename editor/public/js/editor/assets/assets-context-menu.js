@@ -173,7 +173,7 @@ editor.once('load', function() {
 
     // filter buttons
     menu.on('open', function() {
-        menuItemNewScript.hidden = ! (currentAsset !== undefined && editor.call('assets:panel:currentFolder') === 'scripts');
+        menuItemNewScript.hidden = ! (currentAsset === null && editor.call('assets:panel:currentFolder') === 'scripts');
         menuItemNew.hidden = ! menuItemNewScript.hidden;
 
         if (currentAsset) {
