@@ -11,6 +11,7 @@ editor.once('load', function() {
             name: 'New Json',
             type: 'json',
             source: false,
+            preload: true,
             parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
             filename: 'asset.json',
             file: new Blob([ '{ }' ], { type: 'application/json' }),

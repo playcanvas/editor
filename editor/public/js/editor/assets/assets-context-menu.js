@@ -173,7 +173,7 @@ editor.once('load', function() {
 
     // filter buttons
     menu.on('open', function() {
-        menuItemNewScript.hidden = ! (currentAsset !== undefined && editor.call('assets:panel:currentFolder') === 'scripts');
+        menuItemNewScript.hidden = ! ((currentAsset === null || (currentAsset && currentAsset.get('type') === 'script')) && editor.call('assets:panel:currentFolder') === 'scripts');
         menuItemNew.hidden = ! menuItemNewScript.hidden;
 
         if (currentAsset) {
@@ -191,7 +191,7 @@ editor.once('load', function() {
             }
 
             // edit
-            if (currentAsset.get('source') === false && ['html', 'css', 'json', 'text', 'script', 'shader'].indexOf(currentAsset.get('type')) !== -1) {
+            if (! currentAsset.get('source') && ['html', 'css', 'json', 'text', 'script', 'shader'].indexOf(currentAsset.get('type')) !== -1) {
                 if (editor.call('selector:type') === 'asset') {
                     var items = editor.call('selector:items');
                     menuItemEdit.hidden = (items.length > 1 && items.indexOf(currentAsset) !== -1);

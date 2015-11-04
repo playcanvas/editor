@@ -40,6 +40,10 @@ editor.once('load', function() {
         if (args.data)
             form.append('data', JSON.stringify(args.data));
 
+        // preload
+        if (args.preload)
+            form.append('preload', JSON.stringify(args.preload));
+
         // file
         if (args.file && args.file.size)
             form.append('file', args.file, args.filename || args.name);

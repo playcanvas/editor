@@ -1885,6 +1885,14 @@ strong {
     flex-shrink: 0;
     flex-grow: 0;
     height: calc(100% - 4px);
+
+    .ui-tree-item {
+        > .title {
+            > .text {
+                @extend .font-regular;
+            }
+        }
+    }
 }
 
 .ui-panel.files {

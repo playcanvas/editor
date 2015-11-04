@@ -26,28 +26,26 @@ Grid.prototype._onSelect = function(item) {
 
     if (Grid._shift && Grid._shift()) {
         // multi select from-to
-        var items = this.element.querySelectorAll('.ui-grid-item.selected');
         if (this._lastSelect) {
-            var el = this.element.firstChild;
-            var start = false;
-            var elementStart = null;
-
             this._selecting = true;
 
-            var c = 100;
+            var children = Array.prototype.slice.call(this.element.children, 0);
 
-            while(el && c--) {
-                if (el === this._lastSelect.element || el === item.element) {
-                    if (start)
-                        break;
+            var startInd = children.indexOf(this._lastSelect.element);
+            var endInd = children.indexOf(item.element);
 
-                    start = true;
-                }
+            // swap if backwards
+            if (startInd > endInd) {
+                var t = startInd;
+                startInd = endInd;
+                endInd = t;
+            }
 
-                if (start && ! el.ui.hidden)
-                    el.ui.selected = true;
+            for(var i = startInd; i < endInd; i++) {
+                if (children[i].ui.hidden)
+                    continue;
 
-                el = el.nextSibling;
+                children[i].ui.selected = true;
             }
 
             this._selecting = false;
@@ -130,6 +128,9 @@ Object.defineProperty(Grid.prototype, 'selected', {
         return items;
     },
     set: function(value) {
+        if (this._selecting)
+            return;
+
         this._selecting = true;
 
         // deselecting

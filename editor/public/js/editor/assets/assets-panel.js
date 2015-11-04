@@ -73,6 +73,15 @@ editor.once('load', function() {
         // current folder style add
         if (currentFolder && typeof(currentFolder) !== 'string') {
             assetsIndex[currentFolder.get('id')].tree.class.add('current');
+
+            // open tree up
+            var path = currentFolder.get('path');
+            for(var i = 0; i < path.length; i++) {
+                if (! assetsIndex[path[i]] || ! assetsIndex[path[i]].tree)
+                    continue;
+
+                assetsIndex[path[i]].tree.open = true;
+            }
         } else if (currentFolder === null) {
             treeRoot.class.add('current');
         } else if (currentFolder === 'scripts') {
@@ -366,15 +375,26 @@ editor.once('load', function() {
 
         if (type === 'asset') {
             tree.clear();
+            items = items.slice(0);
             var assets = items.slice(0);
 
-            for(var i = 0; i < assets.length; i++) {
-                if (assets[i].get('type') === 'script') {
-                    assets[i] = scriptsIndex[assets[i].get('filename')];
+            for(var i = 0; i < items.length; i++) {
+                if (items[i].get('type') === 'script') {
+                    assets[i] = scriptsIndex[items[i].get('filename')];
                 } else {
-                    assets[i] = assetsIndex[assets[i].get('id')];
-                    if (assets[i].tree)
+                    assets[i] = assetsIndex[items[i].get('id')];
+                    if (assets[i].tree) {
                         assets[i].tree.selected = true;
+
+                        // open tree up
+                        var path = items[i].get('path');
+                        for(var n = 0; n < path.length; n++) {
+                            if (! assetsIndex[path[n]] || ! assetsIndex[path[n]].tree)
+                                continue;
+
+                            assetsIndex[path[n]].tree.open = true;
+                        }
+                    }
                 }
             }
 

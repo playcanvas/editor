@@ -11,6 +11,7 @@ editor.once('load', function() {
             name: 'New Text',
             type: 'text',
             source: false,
+            preload: true,
             parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
             filename: 'asset.txt',
             file: new Blob([ '\n' ], { type: 'text/plain' }),
