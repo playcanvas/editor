@@ -73,6 +73,15 @@ editor.once('load', function() {
         // current folder style add
         if (currentFolder && typeof(currentFolder) !== 'string') {
             assetsIndex[currentFolder.get('id')].tree.class.add('current');
+
+            // open tree up
+            var path = currentFolder.get('path');
+            for(var i = 0; i < path.length; i++) {
+                if (! assetsIndex[path[i]] || ! assetsIndex[path[i]].tree)
+                    continue;
+
+                assetsIndex[path[i]].tree.open = true;
+            }
         } else if (currentFolder === null) {
             treeRoot.class.add('current');
         } else if (currentFolder === 'scripts') {
@@ -373,8 +382,18 @@ editor.once('load', function() {
                     assets[i] = scriptsIndex[assets[i].get('filename')];
                 } else {
                     assets[i] = assetsIndex[assets[i].get('id')];
-                    if (assets[i].tree)
+                    if (assets[i].tree) {
                         assets[i].tree.selected = true;
+
+                        // open tree up
+                        var path = assets[i].asset.get('path');
+                        for(var i = 0; i < path.length; i++) {
+                            if (! assetsIndex[path[i]] || ! assetsIndex[path[i]].tree)
+                                continue;
+
+                            assetsIndex[path[i]].tree.open = true;
+                        }
+                    }
                 }
             }
 
