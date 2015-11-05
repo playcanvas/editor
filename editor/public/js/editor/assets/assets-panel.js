@@ -636,6 +636,40 @@ editor.once('load', function() {
     };
     createScriptFolder();
 
+    // select all hotkey
+    // ctrl + a
+    editor.call('hotkey:register', 'asset:select-all', {
+        ctrl: true,
+        key: 'a',
+        callback: function() {
+            var assets = [ ];
+
+            if (currentFolder === 'scripts') {
+                // scripts
+                assets = editor.call('sourcefiles:list');
+
+            } else if (currentFolder) {
+                // in folder
+                var path = currentFolder.get('path').concat([ parseInt(currentFolder.get('id'), 10) ]);
+                assets = editor.call('assets:find', function(asset) {
+                    return asset.get('path').equals(path);
+                }).map(function(i) { return i[1]; });
+
+            } else {
+                // in root
+                assets = editor.call('assets:find', function(asset) {
+                    return ! asset.get('path').length;
+                }).map(function(i) { return i[1]; });
+            }
+
+            if (assets && assets.length) {
+                editor.call('selector:set', 'asset', assets);
+            } else {
+                editor.call('selector:clear');
+            }
+        }
+    });
+
     editor.on('assets:add', function(asset, pos) {
         asset._type = 'asset';
 
