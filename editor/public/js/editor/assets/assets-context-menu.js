@@ -85,7 +85,7 @@ editor.once('load', function() {
             if (currentAsset && currentAsset.get('type') === 'folder') {
                 args.parent = currentAsset;
             } else if (currentAsset === undefined) {
-                args.parent = editor.call('assets:panel:currentFolder');
+                args.parent = null;
             }
 
             if (key === 'upload') {
