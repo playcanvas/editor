@@ -10,7 +10,8 @@ editor.once('load', function() {
         var asset = {
             name: 'New Folder',
             type: 'folder',
-            source: false,
+            source: true,
+            preload: false,
             data: null,
             parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
             scope: {
