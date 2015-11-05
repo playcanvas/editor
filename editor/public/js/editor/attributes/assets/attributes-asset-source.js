@@ -8,7 +8,7 @@ editor.once('load', function() {
         var asset = assets[0];
         var events = [ ];
 
-        if ((! config.project.privateAssets || (config.project.privateAssets && editor.call('permissions:read'))) && asset.get('type') !== 'scene') {
+        if ((! config.project.privateAssets || (config.project.privateAssets && editor.call('permissions:read'))) && asset.get('type') !== 'scene' && asset.get('type') !== 'folder') {
             // panel
             var panel = editor.call('attributes:addPanel');
             panel.class.add('component');

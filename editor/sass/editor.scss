@@ -2033,7 +2033,7 @@ strong {
                 top: 12px;
                 left: 20px;
                 width: 64px;
-                line-height: 58px;
+                line-height: 64px;
                 text-align: center;
                 color: $bcg-darker;
                 font-size: 32px;
@@ -2142,7 +2142,7 @@ strong {
         > .thumbnail {
             width: 64px;
             height: 64px;
-            line-height: 60px;
+            line-height: 64px;
             margin: 12px 20px;
             background-position: center center;
             background-size: 64px 64px;
@@ -2161,7 +2161,13 @@ strong {
                 border: 2px dotted rgba($text-darkest, .5);
                 width: 60px;
                 height: 60px;
-                line-height: 64px;
+            }
+            &.type-folder {
+                > .thumbnail {
+                    border: none;
+                    width: 64px;
+                    height: 64px;
+                }
             }
             > .icon {
                 display: none;

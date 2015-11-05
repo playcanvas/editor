@@ -25,13 +25,13 @@
 
         var asset = assets[0];
         var multi = assets.length > 1;
-        var type = (asset.get('source') ? 'source ' : '') + asset.get('type');
+        var type = ((asset.get('source') && asset.get('type') !== 'folder') ? 'source ' : '') + asset.get('type');
 
         if (multi) {
             editor.call('attributes:header', assets.length + ' assets');
 
             for(var i = 0; i < assets.length; i++) {
-                if (type !== (assets[i].get('source') ? 'source ' : '') + assets[i].get('type')) {
+                if (type !== ((asset.get('source') && asset.get('type') !== 'folder') ? 'source ' : '') + assets[i].get('type')) {
                     type = null;
                     break;
                 }
