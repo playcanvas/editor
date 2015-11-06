@@ -124,7 +124,10 @@ app.once('load', function() {
     }, {
         key: [ 'frame', 'cullTime' ],
         title: 'Cull Time',
-        panel: panelFrame
+        panel: panelFrame,
+        format: function(value) {
+            return value.toFixed(3);
+        }
     }, {
         key: [ 'frame', 'shaders' ],
         title: 'Shaders',
@@ -151,15 +154,24 @@ app.once('load', function() {
     }, {
         key: [ 'frame', 'updateTime' ],
         title: 'Update Time',
-        panel: panelFrame
+        panel: panelFrame,
+        format: function(value) {
+            return value.toFixed(2);
+        }
     }, {
         key: [ 'frame', 'physicsTime' ],
         title: 'Physics Time',
-        panel: panelFrame
+        panel: panelFrame,
+        format: function(value) {
+            return value.toFixed(2);
+        }
     }, {
         key: [ 'frame', 'renderTime' ],
         title: 'Render Time',
-        panel: panelFrame
+        panel: panelFrame,
+        format: function(value) {
+            return value.toFixed(2);
+        }
     }, {
         key: [ 'scene', 'meshInstances' ],
         title: 'Mesh Instances',
@@ -263,6 +275,7 @@ app.once('load', function() {
 
         for(var i = 0; i < fields.length; i++) {
             var value = viewport.stats[fields[i].key[0]][fields[i].key[1]];
+
             if (fields[i].format)
                 value = fields[i].format(value);
 

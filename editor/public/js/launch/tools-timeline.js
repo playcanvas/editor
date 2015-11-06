@@ -121,33 +121,45 @@ app.once('load', function() {
         delete cacheAssetLoading[asset.id];
     });
 
-    // subscribe to shader compile start
-    viewport.graphicsDevice.on('shader:compile:start', function(evt) {
+    var onShaderStart = function(evt) {
         if (! enabled) return;
 
+        var time = evt.timestamp;
+        if (editor.call('tools:epoc'))
+            time -= app.call('tools:time:beginning');
+
         var item = addEvent({
-            time: evt.timestamp - app.call('tools:time:beginning'),
+            time: time,
             time2: -1,
             kind: 'shader'
         });
 
         cacheShaderCompile.push(evt.target);
         cacheShaderCompileEvents[cacheShaderCompile.length - 1] = item;
-    });
+    };
 
-    // subscribe to shader compile end
-    viewport.graphicsDevice.on('shader:compile:end', function(evt) {
+    var onShaderEnd = function(evt) {
         if (! enabled) return;
 
         var ind = cacheShaderCompile.indexOf(evt.target);
         if (ind === -1)
             return;
 
-        cacheShaderCompileEvents[ind].t2 = evt.timestamp - app.call('tools:time:beginning');
+        var time = evt.timestamp;
+        if (editor.call('tools:epoc'))
+            time -= app.call('tools:time:beginning');
+
+        cacheShaderCompileEvents[ind].t2 = time;
         app.emit('tools:timeline:update', cacheShaderCompileEvents[ind]);
         cacheShaderCompile.splice(ind, 1);
         cacheShaderCompileEvents.splice(ind, 1);
-    });
+    };
+
+    // subscribe to shader compile and linking
+    viewport.graphicsDevice.on('shader:compile:start', onShaderStart);
+    viewport.graphicsDevice.on('shader:link:start', onShaderStart);
+    viewport.graphicsDevice.on('shader:compile:end', onShaderEnd);
+    viewport.graphicsDevice.on('shader:link:end', onShaderEnd);
 
     // add performance.timing events if available
     if (performance.timing) {

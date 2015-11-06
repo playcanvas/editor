@@ -15,6 +15,11 @@ app.once('load', function() {
     var timeNow = now() - timeBeginning;
     var timeHover = 0;
 
+    var epoc = ! window.performance || ! performance.now || ! performance.timing;
+    editor.method('tools:epoc', function() {
+        return epoc;
+    });
+
     app.method('tools:time:now', function() { return now() - timeBeginning; });
     app.method('tools:time:beginning', function() { return timeBeginning; });
     app.method('tools:time:hover', function() { return timeHover; });
