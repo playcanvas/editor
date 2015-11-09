@@ -1401,7 +1401,7 @@ editor.once('load', function() {
         // drop
         var dropRef = editor.call('drop:target', {
             ref: fieldAssetsList.element,
-            type: 'asset.' + type,
+            type: 'asset.' + assetType,
             filter: function(type, data) {
                 // type
                 if ((assetType && assetType !== '*' && type !== 'asset.' + assetType) || ! type.startsWith('asset') || editor.call('assets:get', parseInt(data.id, 10)).get('source'))
