@@ -86,6 +86,7 @@ editor.once('load', function() {
             treeRoot.class.add('current');
         } else if (currentFolder === 'scripts') {
             treeScripts.class.add('current');
+            editor.call('assets:filter:type', 'all');
         }
 
         gridScripts.hidden = currentFolder !== null;
