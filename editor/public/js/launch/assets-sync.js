@@ -14,6 +14,11 @@ app.once('load', function() {
 
         // error
         doc.on('error', function (err) {
+            if (connection.state === 'connected') {
+                console.log(err);
+                return;
+            }
+
             app.emit('realtime:assets:error', err);
         });
 

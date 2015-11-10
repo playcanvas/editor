@@ -274,10 +274,6 @@ a:visited {
             font-weight: bold;
             background-color: $bcg-dark;
         }
-        > .title:hover:before {
-            color: $bcg-darkest;
-            background-color: $text-active;
-        }
         // minus icon
         &.open {
             > .title:before {
@@ -561,11 +557,15 @@ a:visited {
             > .title {
                 &:hover {
                     &:before {
-                        background-color: $text-active;
+                        color: $text-secondary;
                     }
                 }
                 &:before {
                     background-color: mix($text-darkest, $bcg-darker, 30%);
+
+                    &:hover {
+                        background-color: $text-active;
+                    }
                 }
             }
 
