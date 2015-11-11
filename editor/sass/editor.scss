@@ -1120,7 +1120,7 @@ strong {
                 right: 0;
                 width: 22px;
                 height: 22px;
-                line-height: 20px;
+                line-height: 22px;
                 margin: 0;
                 padding: 0;
                 border: none;
@@ -1132,7 +1132,7 @@ strong {
                     color: $text-active;
                 }
                 &:after {
-                    content: '\E120';
+                    content: '\E132';
                 }
             }
 
@@ -1166,7 +1166,7 @@ strong {
                     right: 0;
                     width: 22px;
                     height: 22px;
-                    line-height: 20px;
+                    line-height: 22px;
                     margin: 0;
                     padding: 0;
                     border: none;
@@ -1189,19 +1189,19 @@ strong {
                     right: 0;
                     width: 22px;
                     height: 22px;
-                    line-height: 20px;
+                    line-height: 22px;
                     margin: 0;
                     padding: 0;
                     border: none;
                     @extend .font-icon;
-                    font-size: 18px;
+                    font-size: 16px;
                     text-align: center;
 
                     &:hover {
                         color: #d34141;
                     }
                     &:after {
-                        content: '\E120';
+                        content: '\E132';
                     }
                 }
             }
