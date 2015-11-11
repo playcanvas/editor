@@ -25,7 +25,7 @@ var start = function(id, filename) {
             var data = JSON.parse(this.responseText);
 
             var unwrap = new Unwrap();
-            unwrap.unwrapJsonModel(data, false);
+            unwrap.unwrapJsonModel(data, true);
 
             postMessage({
                 name: 'finish',
@@ -65,7 +65,7 @@ var abort = function(id) {
     delete jobs[id];
 };
 
-var Unwrap=function(){this.resolution=1024;this.padding=8;this.paddingUv=this.padding/this.resolution};
+var Unwrap=function(){this.resolution=1024;this.padding=2;this.paddingUv=this.padding/this.resolution};
 Unwrap.prototype={swap:function(a,b,c){var d=a[b];a[b]=a[c];a[c]=d},crossNormalize:function(a,b){var c=a.y*b.z-a.z*b.y,d=a.z*b.x-a.x*b.z,h=a.x*b.y-a.y*b.x,k=Math.sqrt(c*c+d*d+h*h);return{x:c/k,y:d/k,z:h/k}},triNormal:function(a,b,c,d,h,k,f,e,g){a-=d;b-=h;c-=k;d-=f;h-=e;g=k-g;k=b*g-c*h;g=c*d-a*g;a=a*h-b*d;b=Math.sqrt(k*k+g*g+a*a);return{x:k/b,y:g/b,z:a/b}},cubeFaceFromNormal:function(a){var b=Math.abs(a.x),c=Math.abs(a.y),d=Math.abs(a.z);return b>c&&b>d?0>a.x?0:1:c>b&&c>d?0>a.y?2:3:0>a.z?4:5},boxUnwrap:function(a,
 b){Date.now();var c=b.length/3,d,h,k,f,e,g,m,r,u,t=0,l;d=0;var p=[];for(l=0;6>l;l++)p[l]=[];for(l=0;l<a.length;l+=3)d=b[3*a[l]],h=b[3*a[l]+1],k=b[3*a[l]+2],f=b[3*a[l+1]],e=b[3*a[l+1]+1],g=b[3*a[l+1]+2],m=b[3*a[l+2]],r=b[3*a[l+2]+1],u=b[3*a[l+2]+2],d=this.triNormal(d,h,k,f,e,g,m,r,u),d=this.cubeFaceFromNormal(d),p[d].push(a[l]),p[d].push(a[l+1]),p[d].push(a[l+2]);for(l=1;6>l;l++);h=[];e=[];for(f=0;6>f;f++)for(d=f+1;6>d;d++)for(l=0;l<p[f].length;l++){h=[];for(j=0;j<p[d].length;j++)p[f][l]===p[d][j]&&
 h.push(j);if(0<h.length){for(j=0;j<h.length;j++)p[d][h[j]]=c;e.push(p[f][l]);c++;t++}}for(l=0;l<t;l++)b.push(b[3*e[l]]),b.push(b[3*e[l]+1]),b.push(b[3*e[l]+2]);c=[];t=[{x:-1,y:0,z:0},{x:1,y:0,z:0},{x:0,y:-1,z:0},{x:0,y:1,z:0},{x:0,y:0,z:-1},{x:0,y:0,z:1}];for(f=offset=0;6>f;f++)for(l=t[f],g=this.crossNormalize(l,.5<Math.abs(l.y)?{x:1,y:0,z:0}:{x:0,y:1,z:0}),m=this.crossNormalize(l,g),g=this.crossNormalize(l,m),l=0;l<p[f].length;l++)a[offset]=p[f][l],d=b[3*a[offset]],h=b[3*a[offset]+1],k=b[3*a[offset]+

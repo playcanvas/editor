@@ -60,7 +60,7 @@ editor.once('load', function() {
 
                 asset._nodes = [ ];
                 for(var i = 0; i < data.model.meshInstances.length; i++)
-                    asset._nodes[data.model.meshInstances[i].mesh] = data.model.nodes[data.model.meshInstances[i].node].name;
+                    asset._nodes[i] = data.model.nodes[data.model.meshInstances[i].node].name;
 
                 if (nodesTemplate)
                     nodesTemplate();
