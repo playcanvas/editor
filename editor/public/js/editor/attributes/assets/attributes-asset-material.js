@@ -50,7 +50,7 @@ editor.once('load', function() {
             'enum': [
                 { v: '', t: '...' },
                 { v: 0, t: 'Off' },
-                { v: 1, t: 'Miltiply' },
+                { v: 1, t: 'Multiply' },
                 { v: 2, t: 'Gloss Based' }
             ]
         },
