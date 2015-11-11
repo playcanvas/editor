@@ -1113,7 +1113,7 @@ strong {
                 right: 0;
                 width: 22px;
                 height: 22px;
-                line-height: 20px;
+                line-height: 22px;
                 margin: 0;
                 padding: 0;
                 border: none;
@@ -1125,7 +1125,7 @@ strong {
                     color: $text-active;
                 }
                 &:after {
-                    content: '\E120';
+                    content: '\E132';
                 }
             }
 
