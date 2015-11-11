@@ -216,7 +216,7 @@ editor.once('load', function() {
 
         menuData['enable'] = {
             title: 'Enable',
-            icon: '&#58421;',
+            icon: '&#57651;',
             hide: function () {
                 if (items.length === 1) {
                     return items[0].get('enabled');
