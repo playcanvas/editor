@@ -118,7 +118,7 @@ editor.once('load', function () {
             onLoaded();
 
             var onChange = function (asset, attribute, newValue, oldValue) {
-                if (attribute === 'file') {
+                if (attribute === 'file' && newValue) {
                     if (timeout) {
                         clearTimeout(timeout);
                     }

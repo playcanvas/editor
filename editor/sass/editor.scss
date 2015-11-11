@@ -805,6 +805,13 @@ strong {
                         @extend .noSelect;
                     }
                 }
+                > .ui-button.generate-uv1 {
+                    margin: 0;
+                    line-height: 26px;
+                    font-size: 12px;
+                    text-transform: uppercase;
+                    margin-right: 3px;
+                }
             }
         }
         .ui-label.label-field {
