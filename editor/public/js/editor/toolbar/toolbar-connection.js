@@ -76,8 +76,9 @@ editor.once('load', function() {
         content.innerHTML = 'Cannot connect to the server. Please try again later.';
     });
 
-    var onError = function (error) {
-        console.log('Realtime error: ' + error);
+    var onError = function (err) {
+        console.log(err);
+        console.trace();
         setIconClass('error');
         content.innerHTML = 'Error while saving changes. Please refresh the editor.';
         overlay.hidden = false;

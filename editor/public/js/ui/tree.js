@@ -57,10 +57,8 @@ Tree.prototype._onItemClick = function(item) {
         var selected = item.selected && ((this._selected.indexOf(item) === -1) || (this._selected.length === 1 && this._selected[0] === item));
         this.clear();
 
-        if (! selected) {
-            item.open = true;
+        if (! selected)
             item.selected = true;
-        }
     }
 };
 

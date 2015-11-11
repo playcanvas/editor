@@ -28,10 +28,14 @@ editor.once('load', function() {
             component.type = 'asset';
             component.asset = parseInt(asset.get('id'), 10);
 
+            var name = asset.get('name');
+            if (/\.json$/i.test(name))
+                name = name.slice(0, -5) || 'Untitled';
+
             // new entity
             editor.call('entities:new', {
                 parent: parent,
-                name: asset.get('name'),
+                name: name,
                 components: {
                     model: component
                 }

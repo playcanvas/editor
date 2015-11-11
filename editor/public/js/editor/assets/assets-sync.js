@@ -20,6 +20,11 @@ editor.once('load', function() {
 
         // error
         doc.on('error', function (err) {
+            if (connection.state === 'connected') {
+                console.log(err);
+                return;
+            }
+
             editor.emit('realtime:assets:error', err);
         });
 

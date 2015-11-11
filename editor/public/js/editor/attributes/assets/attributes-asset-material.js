@@ -45,8 +45,14 @@ editor.once('load', function() {
             'type': 'vec2',
         },
         occludeSpecular: {
-            'default': true,
-            'type': 'boolean'
+            'default': 1,
+            'type': 'int',
+            'enum': [
+                { v: '', t: '...' },
+                { v: 0, t: 'Off' },
+                { v: 1, t: 'Miltiply' },
+                { v: 2, t: 'Gloss Based' }
+            ]
         },
         diffuse: {
             'default': [ 1, 1, 1 ],
@@ -1102,7 +1108,8 @@ editor.once('load', function() {
         // occludeSpecular
         var fieldOccludeSpecular = editor.call('attributes:addField', {
             parent: panelAmbient,
-            type: 'checkbox',
+            type: 'number',
+            enum: mapping.occludeSpecular.enum,
             name: 'Occlude Specular',
             link: assets,
             path: 'data.occludeSpecular'
