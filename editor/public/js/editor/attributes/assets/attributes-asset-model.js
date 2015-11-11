@@ -29,6 +29,116 @@ editor.once('load', function() {
             return;
 
         var asset = assets[0];
+        var nodesTemplate;
+
+        if (asset._loading && asset._hash !== asset.get('file.hash')) {
+            asset._loading = 0;
+            asset._uv1 = false;
+            asset._nodes = null;
+        }
+
+        // load data
+        var loadingData = false;
+        var loadData = function() {
+            if (asset._loading)
+                return;
+
+            asset._hash = asset.get('file.hash');
+            asset._loading = 1;
+            asset._uv1 = false;
+            asset._nodes = null;
+            loading.hidden = false;
+
+            Ajax
+            .get('{{url.home}}/' + asset.get('file.url'))
+            .on('load', function(status, data) {
+                asset._loading = 2;
+
+                asset._uv1 = data.model.vertices[0].hasOwnProperty('texCoord1');
+                fieldUV1.value = asset._uv1 ? 'available' : 'unavailable';
+                generateUV1.hidden = asset._uv1;
+
+                asset._nodes = [ ];
+                for(var i = 0; i < data.model.meshInstances.length; i++)
+                    asset._nodes[i] = data.model.nodes[data.model.meshInstances[i].node].name;
+
+                if (nodesTemplate)
+                    nodesTemplate();
+
+                loading.progress = 1;
+            })
+            .on('progress', function(progress) {
+                loading.progress = 0.1 + progress * 0.8;
+            })
+            .on('error', function() {
+                loading.failed = true;
+
+                var error = new ui.Label({ text: 'failed loading detailed data' });
+                error.textContent = 'failed loading data';
+                error.style.display = 'block';
+                error.style.textAlign = 'center';
+                error.style.fontWeight = '100';
+                error.style.fontSize = '12px';
+                error.style.color = '#f66';
+                editor.call('attributes.rootPanel').append(error);
+
+                loading.progress = 1;
+            });
+
+            loading.progress = 0.1;
+        };
+
+        // loading
+        var loading = editor.call('attributes:addField', {
+            type: 'progress'
+        });
+        loading.on('progress:100', function() {
+            this.hidden = true;
+        });
+        if (asset._loading)
+            loading.hidden = true;
+
+        if (asset.has('file.url') && ! asset._loading)
+            loadData();
+
+        var evtReload = asset.on('file.hash:set', function(value) {
+            asset._loading = 0;
+            loadData();
+        });
+
+        var panelMeta = editor.call('attributes:addPanel', {
+            name: 'Meta'
+        });
+        panelMeta.class.add('component');
+
+        if (config.owner.plan.id !== 3)
+            panelMeta.hidden = true;
+
+        panelMeta.once('destroy', function() {
+            evtReload.unbind();
+        });
+
+        var fieldUV1 = editor.call('attributes:addField', {
+            parent: panelMeta,
+            name: 'UV1',
+            value: asset._uv1 ? 'available' : 'unavailable'
+        });
+
+        var generateUV1 = new ui.Button({
+            text: 'Generate'
+        });
+        generateUV1.on('click', function() {
+            if (! editor.call('permissions:write'))
+                return;
+
+            editor.call('assets:model:unwrap', asset);
+            generateUV1.enabled = false;
+        });
+        generateUV1.class.add('generate-uv1');
+        fieldUV1.parent.append(generateUV1);
+
+        if (asset._uv1)
+            generateUV1.hidden = true;
 
         if (asset.has('data.mapping') && asset.get('data.mapping').length) {
             var root = editor.call('attributes.rootPanel');
@@ -142,7 +252,7 @@ editor.once('load', function() {
             });
 
             // template nodes
-            var nodesTemplate = function() {
+            nodesTemplate = function() {
                 for(var i = 0; i < asset._nodes.length; i++) {
                     if (! nodeItems[i])
                         continue;
@@ -151,63 +261,9 @@ editor.once('load', function() {
                 }
             };
 
-            if (asset._nodes) {
+            if (asset._nodes)
                 // already loaded
                 nodesTemplate();
-            } else {
-                // loading
-                var loading = editor.call('attributes:addField', {
-                    type: 'progress'
-                });
-                loading.on('progress:100', function() {
-                    this.destroy();
-                });
-
-                // load data
-                var loadData = function() {
-                    Ajax
-                    .get('{{url.home}}/' + asset.get('file.url'))
-                    .on('load', function(status, data) {
-                        asset._nodes = [ ];
-                        for(var i = 0; i < data.model.meshInstances.length; i++) {
-                            asset._nodes[data.model.meshInstances[i].mesh] = data.model.nodes[data.model.meshInstances[i].node].name;
-                        }
-                        nodesTemplate();
-
-                        loading.progress = 1;
-                    })
-                    .on('progress', function(progress) {
-                        loading.progress = 0.1 + progress * 0.8;
-                    })
-                    .on('error', function() {
-                        loading.failed = true;
-
-                        var error = new ui.Label({ text: 'failed loading detailed data' });
-                        error.textContent = 'failed loading data';
-                        error.style.display = 'block';
-                        error.style.textAlign = 'center';
-                        error.style.fontWeight = '100';
-                        error.style.fontSize = '12px';
-                        error.style.color = '#f66';
-                        editor.call('attributes.rootPanel').append(error);
-
-                        loading.progress = 1;
-                    });
-
-                    loading.progress = 0.1;
-                }
-
-                if (asset.has('file.url'))
-                    loadData();
-
-                var evtReload = asset.on('file.hash:set', function() {
-                    loadData();
-                });
-
-                panelNodes.once('destroy', function() {
-                    evtReload.unbind();
-                });
-            }
 
             return panelNodes;
         }
