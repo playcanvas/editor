@@ -1536,7 +1536,7 @@ Doc.prototype.createContext = function() {
 
     // This is dangerous, but really really useful for debugging. I hope people
     // don't depend on it.
-    _doc: this,
+    _doc: this
   };
 
   if (type.api) {
@@ -1669,7 +1669,7 @@ Query.prototype._execute = function() {
     id: this.id,
     c: this.collection,
     o: {},
-    q: this.query,
+    q: this.query
   };
 
   if (this.docMode) {
