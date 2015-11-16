@@ -53,7 +53,7 @@ editor.once('load', function () {
     // When history state changes make sure we load the
     // correct scene based on the new URL
     window.addEventListener('popstate', function (e) {
-        var location = e.path[0].location.pathname;
+        var location = window.location.href;
 
         // close scene picker
         editor.call('picker:scene:close');
