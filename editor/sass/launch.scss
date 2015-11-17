@@ -149,6 +149,23 @@ body > #dev-tools {
         font-size: 12px;
         font-family: 'Courier New', monospace;
 
+        &::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        &::-webkit-scrollbar-track {
+            background: #303030;
+        }
+        &::-webkit-scrollbar-thumb {
+            background: #202020;
+        }
+        &::-webkit-scrollbar-thumb:hover {
+            background: #fff;
+        }
+        &::-webkit-scrollbar-corner {
+            background: #303030;
+        }
+
         > .panel {
             overflow: hidden;
 
