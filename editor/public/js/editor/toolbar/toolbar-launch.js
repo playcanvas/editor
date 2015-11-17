@@ -54,12 +54,15 @@ editor.once('load', function() {
     launchButtons['local,profile']._launch = 'local,profile';
     dropdownMenu.appendChild(launchButtons['local,profile']);
 
+    var switchDefaultLaunch = function(type) {
+        launchButtons[launchButton].classList.remove('ticked');
+        launchButton = type;
+        launchButtons[launchButton].classList.add('ticked');
+    };
+
     var onLaunchClick = function() {
-        if (launchButton !== this._launch) {
-            launchButtons[launchButton].classList.remove('ticked');
-            launchButton = this._launch;
-            launchButtons[launchButton].classList.add('ticked');
-        }
+        if (launchButton !== this._launch)
+            switchDefaultLaunch(this._launch);
 
         dropdownMenu.style.visibility = 'hidden';
         launchApp();
@@ -93,6 +96,13 @@ editor.once('load', function() {
 
         window.open(url, 'pc.launch.' + config.scene.id);
     };
+
+    editor.method('launch', function(type) {
+        if (type && launchButtons.hasOwnProperty(type))
+            switchDefaultLaunch(type);
+
+        launchApp();
+    });
 
     editor.call('hotkey:register', 'launch', {
         key: 'enter',
