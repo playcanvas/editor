@@ -112,6 +112,8 @@ editor.once('load', function() {
             name: 'Meta'
         });
         panelMeta.class.add('component');
+        if (config.owner.plan.id !== 3)
+            panelMeta.hidden = true;
 
         var fieldMetaVertices = editor.call('attributes:addField', {
             parent: panelMeta,
