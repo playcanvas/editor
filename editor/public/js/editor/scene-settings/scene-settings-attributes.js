@@ -265,7 +265,7 @@ editor.once('load', function() {
             step: .01,
             min: 0,
             link: sceneSettings,
-            path: 'render.fog_density',
+            path: 'render.fog_density'
         }), fogFilter);
         // reference
         editor.call('attributes:reference:settings:fogDensity:attach', fieldFogDensity.parent.innerElement.firstChild.ui);
@@ -281,7 +281,7 @@ editor.once('load', function() {
             step: 1,
             min: 0,
             link: sceneSettings,
-            path: 'render.fog_start',
+            path: 'render.fog_start'
         });
         fieldFogDistance.style.width = '32px';
         addFiltered(fieldFogDistance, fogFilter);

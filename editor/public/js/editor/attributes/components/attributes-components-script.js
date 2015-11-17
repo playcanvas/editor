@@ -549,7 +549,7 @@ editor.once('load', function() {
                 field.flexGrow = 1;
                 field.style.width = '32px';
 
-                // friction slider
+                // slider
                 var slider = editor.call('attributes:addField', {
                     panel: field.parent,
                     min: attribute.options.min || 0,
@@ -562,19 +562,26 @@ editor.once('load', function() {
                 slider.style.width = '32px';
                 slider.flexGrow = 4;
 
-                var evtMin = scripts[0].on('attributes.' + attribute.name + '.options.min:set', function(value) {
+                var sliderHidden = function() {
+                    var min = script.get('attributes.' + attribute.name + '.options.min');
+                    var max = script.get('attributes.' + attribute.name + '.options.max');
+                    slider.hidden = min == null || max == null || isNaN(min) || isNaN(max);
+                };
+                sliderHidden();
+
+                var evtMin = script.on('attributes.' + attribute.name + '.options.min:set', function(value) {
                     slider.min = value;
-                    slider.hidden = isNaN(scripts[0].get('attributes.' + attribute.name + '.options.min')) || isNaN(scripts[0].get('attributes.' + attribute.name + '.options.max'));
+                    sliderHidden();
                 });
                 events.push(evtMin)
 
-                var evtMax = scripts[0].on('attributes.' + attribute.name + '.options.max:set', function(value) {
+                var evtMax = script.on('attributes.' + attribute.name + '.options.max:set', function(value) {
                     slider.max = value;
-                    slider.hidden = isNaN(scripts[0].get('attributes.' + attribute.name + '.options.min')) || isNaN(scripts[0].get('attributes.' + attribute.name + '.options.max'));
+                    sliderHidden();
                 });
                 events.push(evtMax);
 
-                var evtMinUnset = scripts[0].on('attributes.' + attribute.name + '.options.min:unset', function() {
+                var evtMinUnset = script.on('attributes.' + attribute.name + '.options.min:unset', function() {
                     slider.hidden = true;
                 });
                 events.push(evtMinUnset);

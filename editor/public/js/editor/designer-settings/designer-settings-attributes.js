@@ -78,7 +78,7 @@ editor.once('load', function() {
         var fieldFarClip = new ui.NumberField({
             precision: 1,
             step: 1,
-            min: 0,
+            min: 0
         });
         fieldFarClip.placeholder = 'Size';
         fieldFarClip.style.width = '32px';

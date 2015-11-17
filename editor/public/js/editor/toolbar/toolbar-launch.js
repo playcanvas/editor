@@ -30,16 +30,87 @@ editor.once('load', function() {
     dropdownMenu.style.visibility = 'hidden';
     launch.append(dropdownMenu);
 
-    var launchRemote = document.createElement('li');
-    launchRemote.classList.add('ticked');
-    launchRemote.innerHTML = 'Launch'
-    dropdownMenu.appendChild(launchRemote);
+    var launchButton = 'default';
+    var launchButtons = { };
 
-    var launchLocal = document.createElement('li');
-    launchLocal.innerHTML = 'Launch (Local)';
-    dropdownMenu.appendChild(launchLocal);
+    launchButtons['default'] = document.createElement('li');
+    launchButtons['default'].classList.add('ticked');
+    launchButtons['default'].innerHTML = 'Launch';
+    launchButtons['default']._launch = 'default';
+    dropdownMenu.appendChild(launchButtons['default']);
 
-    var launchLocally = false;
+    launchButtons['profile'] = document.createElement('li');
+    launchButtons['profile'].innerHTML = 'Launch (Profiler)'
+    launchButtons['profile']._launch = 'profile';
+    dropdownMenu.appendChild(launchButtons['profile']);
+
+    launchButtons['local'] = document.createElement('li');
+    launchButtons['local'].innerHTML = 'Launch (Local)';
+    launchButtons['local']._launch = 'local';
+    dropdownMenu.appendChild(launchButtons['local']);
+
+    launchButtons['local,profile'] = document.createElement('li');
+    launchButtons['local,profile'].innerHTML = 'Launch (Local, Profiler)'
+    launchButtons['local,profile']._launch = 'local,profile';
+    dropdownMenu.appendChild(launchButtons['local,profile']);
+
+    var switchDefaultLaunch = function(type) {
+        launchButtons[launchButton].classList.remove('ticked');
+        launchButton = type;
+        launchButtons[launchButton].classList.add('ticked');
+    };
+
+    var onLaunchClick = function() {
+        if (launchButton !== this._launch)
+            switchDefaultLaunch(this._launch);
+
+        dropdownMenu.style.visibility = 'hidden';
+        launchApp();
+    };
+
+    for(var key in launchButtons) {
+        if (! launchButtons.hasOwnProperty(key))
+            continue;
+
+        launchButtons[key].addEventListener('click', onLaunchClick, false);
+    }
+
+    buttonLaunch.on('click', function () {
+        launchApp();
+    });
+
+    var launchApp = function () {
+        var url = window.location.href.replace(/^https/, 'http') + '/launch';
+        var settings = editor.call('designerSettings');
+
+        var query = [ ];
+
+        if (launchButton.indexOf('local') !== -1)
+            query.push('local=' + settings.get('local_server'));
+
+        if (launchButton.indexOf('profile') !== -1)
+            query.push('profile=true');
+
+        if (query.length)
+            url += '?' + query.join('&');
+
+        window.open(url, 'pc.launch.' + config.scene.id);
+    };
+
+    editor.method('launch', function(type) {
+        if (type && launchButtons.hasOwnProperty(type))
+            switchDefaultLaunch(type);
+
+        launchApp();
+    });
+
+    editor.call('hotkey:register', 'launch', {
+        key: 'enter',
+        ctrl: true,
+        callback: launchApp
+    });
+
+
     var timeout;
 
     // show dropdown menu
@@ -77,51 +148,6 @@ editor.once('load', function() {
             dropdownMenu.style.visibility = 'hidden';
             timeout = null;
         }, 50);
-    });
-
-    // launch remote
-    launchRemote.addEventListener('click', function () {
-        launchLocally = false;
-        launchRemote.classList.add('ticked');
-        launchLocal.classList.remove('ticked');
-        dropdownMenu.style.visibility = 'hidden';
-        launchApp();
-    });
-
-    launchLocal.addEventListener('click', function () {
-        launchLocally = true;
-        launchLocal.classList.add('ticked');
-        launchRemote.classList.remove('ticked');
-        dropdownMenu.style.visibility = 'hidden';
-        launchApp();
-    });
-
-    buttonLaunch.on('click', function () {
-        launchApp();
-    });
-
-    var launchApp = function () {
-        var url = window.location.href.replace(/^https/, 'http') + '/launch';
-        var settings = editor.call('designerSettings');
-
-        if (launchLocally)
-            url += '?local=' + settings.get('local_server');
-
-        window.open(url, 'pc.launch.' + config.scene.id);
-    };
-
-    editor.call('hotkey:register', 'launch', {
-        key: 'enter',
-        ctrl: true,
-        callback: function() {
-            var url = window.location.href.replace(/^https/, 'http') + '/launch';
-            var settings = editor.call('designerSettings');
-
-            if (launchLocally)
-                url += '?local=' + settings.get('local_server');
-
-            window.open(url, 'pc.launch.' + config.scene.id);
-        }
     });
 
 

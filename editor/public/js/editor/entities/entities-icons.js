@@ -10,7 +10,7 @@ editor.once('load', function() {
     var dirtifyKeys = [
         'enabled:set',
         'components.model.type:set',
-        'components.model.asset:set',
+        'components.model.asset:set'
     ];
     var dirtifyLocalKeys = {
         'light': [

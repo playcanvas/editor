@@ -426,8 +426,14 @@ editor.once('load', function() {
                     title: 'Launch',
                     icon: '&#57649;',
                     select: function() {
-                        var url = window.location.href.replace(/^https/, 'http') + '/launch';
-                        window.open(url, 'pc.launch.' + config.scene.id);
+                        editor.call('launch', 'default');
+                    }
+                },
+                'launch-profile': {
+                    title: 'Launch (Profiler)',
+                    icon: '&#57649;',
+                    select: function() {
+                        editor.call('launch', 'profile');
                     }
                 },
                 'launch-local': {
@@ -437,11 +443,19 @@ editor.once('load', function() {
                         return editor.call('permissions:write');
                     },
                     select: function() {
-                        var settings = editor.call('designerSettings');
-                        var url = window.location.href.replace(/^https/, 'http') + '/launch?local=' + settings.get('local_server');
-                        window.open(url, 'pc.launch.' + config.scene.id);
+                        editor.call('launch', 'local');
                     }
-                }
+                },
+                'launch-local-profile': {
+                    title: 'Launch (Local, Profiler)',
+                    icon: '&#57649;',
+                    filter: function() {
+                        return editor.call('permissions:write');
+                    },
+                    select: function() {
+                        editor.call('launch', 'local,profile');
+                    }
+                },
             }
         },
         'help': {
