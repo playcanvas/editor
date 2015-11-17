@@ -105,6 +105,9 @@ editor.once('load', function() {
     window.addEventListener('dragleave', function(evt) {
         evt.preventDefault();
 
+        if (evt.clientX !== 0 || evt.clientY !== 0)
+            return;
+
         if (! editor.call('permissions:write'))
             return;
 
@@ -127,6 +130,7 @@ editor.once('load', function() {
 
     var evtDragOver = function(e) {
         e.preventDefault();
+        e.stopPropagation();
         this.classList.add('over');
 
         if (itemOver && itemOver !== this)
