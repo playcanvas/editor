@@ -325,6 +325,8 @@ editor.once('load', function() {
         selectedAnchorIndex = -1;
         changing = false;
         dragging = false;
+        window.removeEventListener('mouseup', onMouseUp);
+        window.removeEventListener('mousemove', onMouseMove);
     }
 
     function resetCurve (curve) {
@@ -772,8 +774,8 @@ editor.once('load', function() {
 
     function updateFields (anchor) {
          suspendEvents = true;
-         fieldTime.value = anchor ? anchor[0].toFixed(2) : 0;
-         fieldValue.value = anchor ? anchor[1].toFixed(2) : 0;
+         fieldTime.value = anchor ? +anchor[0].toFixed(3) : 0;
+         fieldValue.value = anchor ? +anchor[1].toFixed(3) : 0;
          suspendEvents = false;
     }
 
@@ -806,7 +808,7 @@ editor.once('load', function() {
             for (var i = curve.keys.length - 1; i > 0; i--) {
                 var key = curve.keys[i];
                 var prevKey = curve.keys[i-1];
-                if (key[0].toFixed(2) === prevKey[0].toFixed(2)) {
+                if (key[0].toFixed(3) === prevKey[0].toFixed(3)) {
                     curve.keys.splice(i, 1);
 
                     changedCurves[i] = true;
@@ -1139,11 +1141,8 @@ editor.once('load', function() {
     });
 
     // Handles mouse move
-    panel.addEventListener('mousemove', function (e) {
-        if (dragging && e.target !== canvas.element) {
-            e.preventDefault();
-            return false;
-        }
+    var onMouseMove = function (e) {
+        e.preventDefault();
 
         var coords = getTargetCoords(e);
 
@@ -1176,10 +1175,10 @@ editor.once('load', function() {
                 render();
             }
         }
-    });
+    };
 
     // Handles mouse up
-    panel.addEventListener('mouseup', function (e) {
+    var onMouseUp = function (e) {
         toggleTextSelection(true);
 
         if (changing) {
@@ -1190,7 +1189,7 @@ editor.once('load', function() {
             dragging = false;
             changing = false;
         }
-    });
+    };
 
     // call picker
     editor.method('picker:curve', function (value, args) {
@@ -1204,6 +1203,9 @@ editor.once('load', function() {
         suspendEvents = false;
 
         setValue(value, args || {});
+
+        window.addEventListener('mouseup', onMouseUp);
+        window.addEventListener('mousemove', onMouseMove);
     });
 
     editor.method('picker:curve:close', function () {
