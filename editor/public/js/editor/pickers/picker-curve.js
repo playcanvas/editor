@@ -327,6 +327,8 @@ editor.once('load', function() {
         dragging = false;
         window.removeEventListener('mouseup', onMouseUp);
         window.removeEventListener('mousemove', onMouseMove);
+        window.removeEventListener('mousewheel', onMouseWheel);
+        window.removeEventListener('DOMMouseScroll', onMouseWheel);
     }
 
     function resetCurve (curve) {
@@ -463,9 +465,9 @@ editor.once('load', function() {
 
         // draw vertical axis values
         var left = gridLeft() - textSize * 2;
-        drawText(verticalTopValue, left, gridTop() + textSize * 0.5);
-        drawText(+Number((verticalTopValue + verticalBottomValue) * 0.5).toFixed(1), left, gridTop() + (gridHeight() + textSize) * 0.5);
-        drawText(verticalBottomValue, left, gridBottom() + textSize * 0.5);
+        drawText(+verticalTopValue.toFixed(2), left, gridTop() + textSize * 0.5);
+        drawText(+((verticalTopValue + verticalBottomValue) * 0.5).toFixed(2), left, gridTop() + (gridHeight() + textSize) * 0.5);
+        drawText(+verticalBottomValue.toFixed(2), left, gridBottom() + textSize * 0.5);
 
         // draw horizontal axis values
         drawText('0.0', left + textSize * 2, gridBottom() + 2 * textSize);
@@ -600,7 +602,9 @@ editor.once('load', function() {
 
         var coords = [0, 0];
         coords[0] = gridLeft() + time * gridWidth();
-        coords[1] = pc.math.lerp(gridTop(), gridTop() + gridHeight(), (value - verticalTopValue) / (verticalBottomValue - verticalTopValue));
+
+        var top = gridTop();
+        coords[1] = top + gridHeight() * (value - verticalTopValue) / (verticalBottomValue - verticalTopValue);
 
         return coords;
     }
@@ -718,6 +722,42 @@ editor.once('load', function() {
     // Calculate the anchor time based on the specified coordinates
     function calculateAnchorTime (coords) {
         return pc.math.clamp((coords[0] - gridLeft()) / gridWidth(), 0, 1);
+    }
+
+    // zoom in - out based on delta
+    function adjustZoom (delta) {
+        var speed = delta * (verticalTopValue - verticalBottomValue) / 10;
+
+        var verticalTop = verticalTopValue - speed;
+        var verticalBottom = verticalBottomValue + speed;
+
+        // if we have a hovered or selected anchor then try to focus on
+        // that when zooming in
+        var focus = hoveredAnchor || selectedAnchor;
+        if (delta > 0 && focus) {
+            var value = focus[1];
+            var mid = (verticalTopValue + verticalBottomValue) / 2;
+            verticalTop += (value - mid) * delta;
+            verticalBottom += (value - mid) * delta;
+        } else if (delta > 0 && minVertical != null) {
+            verticalBottom = verticalBottomValue;
+        }
+
+        // keep limits
+        if (maxVertical != null && verticalTop > maxVertical)
+            verticalTop = maxVertical;
+
+        if (minVertical != null && verticalBottom < minVertical)
+            verticalBottom = minVertical;
+
+        // try not to bring values too close together
+        if (+(verticalTop - verticalBottom).toFixed(2) <= 0.01)
+            return;
+
+        verticalTopValue = verticalTop;
+        verticalBottomValue = verticalBottom;
+
+        render();
     }
 
     function resetZoom () {
@@ -1191,6 +1231,19 @@ editor.once('load', function() {
         }
     };
 
+    // Handle mouse wheel
+    var onMouseWheel = function (e) {
+        var delta = 0;
+        if (e.detail)
+            delta = -1 * e.detail * 0.05;
+        else if (e.wheelDelta)
+            delta = e.wheelDelta / 120;
+
+        console.log(delta);
+        if (delta !== 0)
+            adjustZoom(delta);
+    };
+
     // call picker
     editor.method('picker:curve', function (value, args) {
         // show overlay
@@ -1206,6 +1259,8 @@ editor.once('load', function() {
 
         window.addEventListener('mouseup', onMouseUp);
         window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mousewheel', onMouseWheel);
+        window.addEventListener('DOMMouseScroll', onMouseWheel);
     });
 
     editor.method('picker:curve:close', function () {
