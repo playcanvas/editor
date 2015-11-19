@@ -77,6 +77,7 @@ editor.once('load', function() {
             html: 'Html',
             material: 'Material',
             model: 'Model',
+            scene: 'Model (source)',
             script: 'Script',
             shader: 'Shader',
             text: 'Text',
