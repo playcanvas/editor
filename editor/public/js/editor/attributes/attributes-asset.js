@@ -23,15 +23,14 @@
         if (panel.folded)
             panel.folded = false;
 
-        var asset = assets[0];
         var multi = assets.length > 1;
-        var type = ((asset.get('source') && asset.get('type') !== 'folder') ? 'source ' : '') + asset.get('type');
+        var type = ((assets[0].get('source') && assets[0].get('type') !== 'folder') ? 'source ' : '') + assets[0].get('type');
 
         if (multi) {
             editor.call('attributes:header', assets.length + ' assets');
 
             for(var i = 0; i < assets.length; i++) {
-                if (type !== ((asset.get('source') && asset.get('type') !== 'folder') ? 'source ' : '') + assets[i].get('type')) {
+                if (type !== ((assets[0].get('source') && assets[0].get('type') !== 'folder') ? 'source ' : '') + assets[i].get('type')) {
                     type = null;
                     break;
                 }
@@ -55,13 +54,8 @@
                 value: assets.length
             });
 
-            // size
-            var size = 0;
             var scriptSelected = false;
-
             for(var i = 0; i < assets.length; i++) {
-                size += assets[i].get('file.size') || 0;
-
                 // scripts are not real assets, and have no preload option
                 if (! scriptSelected && assets[i].get('type') === 'script')
                     scriptSelected = true;
@@ -111,23 +105,26 @@
                 editor.call('attributes:reference:asset:' + type + ':asset:attach', fieldType);
 
             // size
+            var sizeCalculate = function() {
+                var size = 0;
+
+                for(var i = 0; i < assets.length; i++)
+                    size += assets[i].get('file.size') || 0;
+
+                fieldSize.value = bytesToHuman(size);
+            };
             var fieldSize = editor.call('attributes:addField', {
                 parent: panel,
-                name: 'Size',
-                value: bytesToHuman(size)
+                name: 'Size'
             });
+            sizeCalculate();
 
             var evtSize = [ ];
             for(var i = 0; i < assets.length; i++) {
-                evtSize.push(asset.on('file:set', function (value, valueOld) {
-                    size = size - ((valueOld && valueOld.size) || 0) + ((value && value.size) || 0);
-                    fieldSize.text = bytesToHuman(size);
-                }));
-
-                evtSize.push(asset.on('file.size:set', function(value, valueOld) {
-                    size = size - (valueOld || 0) + (value || 0);
-                    fieldSize.text = bytesToHuman(size);
-                }));
+                evtSize.push(assets[i].on('file:set', sizeCalculate));
+                evtSize.push(assets[i].on('file:unset', sizeCalculate));
+                evtSize.push(assets[i].on('file.size:set', sizeCalculate));
+                evtSize.push(assets[i].on('file.size:unset', sizeCalculate));
             }
 
             panel.once('destroy', function () {
@@ -151,13 +148,13 @@
             }
 
         } else {
-            if (asset.get('type') === 'script') {
+            if (assets[0].get('type') === 'script') {
                 // filename
                 var fieldFilename = editor.call('attributes:addField', {
                     parent: panel,
                     name: 'Filename',
                     // type: 'string',
-                    link: asset,
+                    link: assets[0],
                     path: 'filename'
                 });
                 // reference
@@ -167,7 +164,7 @@
                 var fieldId = editor.call('attributes:addField', {
                     parent: panel,
                     name: 'ID',
-                    link: asset,
+                    link: assets[0],
                     path: 'id'
                 });
                 // reference
@@ -178,20 +175,20 @@
                     parent: panel,
                     name: 'Name',
                     type: 'string',
-                    link: asset,
+                    link: assets[0],
                     path: 'name'
                 });
                 // reference
                 editor.call('attributes:reference:asset:name:attach', fieldName.parent.innerElement.firstChild.ui);
 
-                if (! asset.get('source') && asset.get('type') !== 'folder') {
+                if (! assets[0].get('source') && assets[0].get('type') !== 'folder') {
                     // tags
                     var fieldTags = editor.call('attributes:addField', {
                         parent: panel,
                         name: 'Tags',
                         placeholder: 'Add Tag',
                         type: 'strings',
-                        link: asset,
+                        link: assets[0],
                         path: 'tags'
                     });
                     // reference
@@ -199,8 +196,8 @@
                 }
 
                 // runtime
-                var runtime = sourceRuntimeOptions[asset.get('source') + 0];
-                if (asset.get('type') === 'folder')
+                var runtime = sourceRuntimeOptions[assets[0].get('source') + 0];
+                if (assets[0].get('type') === 'folder')
                     runtime = sourceRuntimeOptions[1];
 
                 var fieldRuntime = editor.call('attributes:addField', {
@@ -220,16 +217,16 @@
                 // reference
                 editor.call('attributes:reference:asset:type:attach', fieldType.parent.innerElement.firstChild.ui);
                 // reference type
-                if (! asset.get('source'))
-                    editor.call('attributes:reference:asset:' + asset.get('type') + ':asset:attach', fieldType);
+                if (! assets[0].get('source'))
+                    editor.call('attributes:reference:asset:' + assets[0].get('type') + ':asset:attach', fieldType);
 
-                if (! asset.get('source') && asset.get('type') !== 'folder') {
+                if (! assets[0].get('source') && assets[0].get('type') !== 'folder') {
                     // preload
                     var fieldPreload = editor.call('attributes:addField', {
                         parent: panel,
                         name: 'Preload',
                         type: 'checkbox',
-                        link: asset,
+                        link: assets[0],
                         path: 'preload'
                     });
                     editor.call('attributes:reference:asset:preload:attach', fieldPreload.parent.innerElement.firstChild.ui);
@@ -237,18 +234,18 @@
             }
 
             // size
-            if (asset.has('file')) {
+            if (assets[0].has('file')) {
                 var fieldSize = editor.call('attributes:addField', {
                     parent: panel,
                     name: 'Size',
-                    value: bytesToHuman(asset.get('file.size'))
+                    value: bytesToHuman(assets[0].get('file.size'))
                 });
 
-                var evtFileSet = asset.on('file:set', function (value) {
+                var evtFileSet = assets[0].on('file:set', function (value) {
                     fieldSize.text = bytesToHuman(value ? value.size : 0);
                 });
 
-                var evtFileSizeSet = asset.on('file.size:set', function(value) {
+                var evtFileSizeSet = assets[0].on('file.size:set', function(value) {
                     fieldSize.text = bytesToHuman(value);
                 });
 
@@ -261,7 +258,7 @@
                 editor.call('attributes:reference:asset:size:attach', fieldSize.parent.innerElement.firstChild.ui);
             }
 
-            if (! asset.get('source') && asset.get('type') === 'model' && (! config.project.privateAssets || (config.project.privateAssets && editor.call('permissions:read')))) {
+            if (! assets[0].get('source') && assets[0].get('type') === 'model' && (! config.project.privateAssets || (config.project.privateAssets && editor.call('permissions:read')))) {
                 // export archive
                 var fieldExport = editor.call('attributes:addField', {
                     parent: panel,
@@ -271,7 +268,7 @@
                 fieldExport.flexGrow = 'initial';
                 fieldExport.class.add('export-model-archive');
                 fieldExport.on('click', function() {
-                    window.open('/api/assets/' + asset.get('id') + '/download_model?access_token=' + config.accessToken);
+                    window.open('/api/assets/' + assets[0].get('id') + '/download_model?access_token=' + config.accessToken);
                 });
             }
         }

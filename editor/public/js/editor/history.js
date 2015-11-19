@@ -116,6 +116,11 @@ editor.once('load', function() {
         checkCanUndoRedo();
     });
 
+    // list history
+    editor.method('history:list', function () {
+        return actions.slice();
+    });
+
     // hotkey undo
     editor.call('hotkey:register', 'history:undo', {
         key: 'z',

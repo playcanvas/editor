@@ -24,44 +24,54 @@ editor.once('load', function() {
         return panelNodes;
     });
 
+    var panelToggles = {
+        'meta': true,
+        'pipeline': true,
+        'nodes': false
+    };
+
     editor.on('attributes:inspect[asset]', function(assets) {
-        if (assets.length !== 1 || assets[0].get('type') !== 'model' || assets[0].get('source'))
-            return;
+        for(var i = 0; i < assets.length; i++) {
+            if (assets[i].get('type') !== 'model' || assets[i].get('source'))
+                return;
+        }
+
+        if (assets.length > 1)
+            editor.call('attributes:header', assets.length + ' Models');
 
         var events = [ ];
-        var asset = assets[0];
-        var nodesTemplate;
 
-        if (asset._loading && asset._hash !== asset.get('file.hash')) {
-            asset._loading = 0;
-            asset._uv1 = false;
-            asset._nodes = null;
+        var nodesTemplate;
+        if (assets.length === 1 && assets[0]._loading && assets[0]._hash !== assets[0].get('file.hash')) {
+            assets[0]._loading = 0;
+            assets[0]._uv1 = false;
+            assets[0]._nodes = null;
         }
 
         // load data
         var loadingData = false;
         var loadData = function() {
-            if (asset._loading)
+            if (assets.length !== 1 || assets[0]._loading)
                 return;
 
-            asset._hash = asset.get('file.hash');
-            asset._loading = 1;
-            asset._uv1 = false;
-            asset._nodes = null;
+            assets[0]._hash = assets[0].get('file.hash');
+            assets[0]._loading = 1;
+            assets[0]._uv1 = false;
+            assets[0]._nodes = null;
             loading.hidden = false;
 
             Ajax
-            .get('{{url.home}}/' + asset.get('file.url'))
+            .get('{{url.home}}/' + assets[0].get('file.url'))
             .on('load', function(status, data) {
-                asset._loading = 2;
+                assets[0]._loading = 2;
 
-                asset._uv1 = data.model.vertices[0] && data.model.vertices[0].hasOwnProperty('texCoord1');
-                fieldUV1.value = asset._uv1 ? 'available' : 'unavailable';
+                assets[0]._uv1 = data.model.vertices[0] && data.model.vertices[0].hasOwnProperty('texCoord1');
+                fieldUV1.value = assets[0]._uv1 ? 'available' : 'unavailable';
                 autoUnwrap.enabled = true;
 
-                asset._nodes = [ ];
+                assets[0]._nodes = [ ];
                 for(var i = 0; i < data.model.meshInstances.length; i++)
-                    asset._nodes[i] = data.model.nodes[data.model.meshInstances[i].node].name;
+                    assets[0]._nodes[i] = data.model.nodes[data.model.meshInstances[i].node].name;
 
                 if (nodesTemplate)
                     nodesTemplate();
@@ -90,72 +100,146 @@ editor.once('load', function() {
         };
 
         // loading
-        var loading = editor.call('attributes:addField', {
-            type: 'progress'
-        });
-        loading.on('progress:100', function() {
-            this.hidden = true;
-        });
-        if (asset._loading)
-            loading.hidden = true;
+        var loading
+        if (assets.length === 1) {
+            loading = editor.call('attributes:addField', {
+                type: 'progress'
+            });
+            loading.on('progress:100', function() {
+                this.hidden = true;
+            });
+            if (assets[0]._loading)
+                loading.hidden = true;
 
-        if (asset.has('file.url') && ! asset._loading)
-            loadData();
+            if (assets[0].has('file.url') && ! assets[0]._loading)
+                loadData();
 
-        events.push(asset.on('file.hash:set', function(value) {
-            asset._loading = 0;
-            loadData();
-        }));
+            events.push(assets[0].on('file.hash:set', function(value) {
+                assets[0]._loading = 0;
+                loadData();
+            }));
+        }
 
 
         var panelMeta = editor.call('attributes:addPanel', {
             name: 'Meta'
         });
         panelMeta.class.add('component');
-        if (config.owner.plan.id !== 3)
-            panelMeta.hidden = true;
-
-        var fieldMetaVertices = editor.call('attributes:addField', {
-            parent: panelMeta,
-            name: 'Vertices',
-            link: assets,
-            path: 'meta.vertices'
+        panelMeta.foldable = true;
+        panelMeta.folded = panelToggles['meta'];
+        panelMeta.on('fold', function() {
+            panelToggles['meta'] = true;
+        });
+        panelMeta.on('unfold', function() {
+            panelToggles['meta'] = false;
         });
 
-        var fieldMetaTriangles = editor.call('attributes:addField', {
-            parent: panelMeta,
-            name: 'Triangles',
-            link: assets,
-            path: 'meta.triangles'
+        var btnGetMeta = new ui.Button({
+            text: 'Calculate Meta'
         });
+        btnGetMeta.class.add('calculate-meta');
+        var btnGetMetaVisibility = function() {
+            var visible = false;
+            for(var i = 0; i < assets.length; i++) {
+                if (! visible && ! assets[i].get('meta'))
+                    visible = true;
+            }
+            btnGetMeta.hidden = ! visible;
+        };
+        btnGetMeta.on('click', function() {
+            if (! editor.call('permissions:write'))
+                return;
 
-        var fieldMetaMeshes = editor.call('attributes:addField', {
-            parent: panelMeta,
-            name: 'Meshes',
-            link: assets,
-            path: 'meta.meshes'
-        });
+            for(var i = 0; i < assets.length; i++) {
+                if (assets[i].get('meta'))
+                    continue;
 
-        var fieldMetaMeshInstances = editor.call('attributes:addField', {
-            parent: panelMeta,
-            name: 'Mesh Instances',
-            link: assets,
-            path: 'meta.meshInstances'
+                editor.call('realtime:send', 'pipeline', {
+                    name: 'meta',
+                    id: assets[i].get('id')
+                });
+            }
+            this.enabled = false;
         });
+        panelMeta.append(btnGetMeta);
 
-        var fieldMetaNodes = editor.call('attributes:addField', {
-            parent: panelMeta,
-            name: 'Nodes',
-            link: assets,
-            path: 'meta.nodes'
-        });
+        btnGetMetaVisibility();
+        for(var i = 0; i < assets.length; i++) {
+            if (btnGetMeta.hidden && ! assets[i].get('meta'))
+                btnGetMeta.hidden = false;
 
-        var fieldMetaSkins = editor.call('attributes:addField', {
-            parent: panelMeta,
-            name: 'Skins',
-            link: assets,
-            path: 'meta.skins'
-        });
+            events.push(assets[i].on('meta:set', function() {
+                btnGetMetaVisibility();
+            }));
+            events.push(assets[i].on('meta:unset', function() {
+                btnGetMeta.hidden = false;
+            }));
+        }
+
+        var recalculateMeta = function(key) {
+            var value = 0;
+            var noValue = true;
+            for(var i = 0; i < assets.length; i++) {
+                if (! assets[i].has('meta.' + key))
+                    continue;
+                value += assets[i].get('meta.' + key);
+                noValue = false;
+            }
+            metaFields[key].field.value = noValue ? '' : value + '';
+        };
+
+        var metaFields = {
+            vertices: {
+                title: 'Vertices',
+            },
+            triangles: {
+                title: 'Triangles',
+            },
+            meshes: {
+                title: 'Meshes',
+            },
+            meshInstances: {
+                title: 'Mesh Instances',
+            },
+            nodes: {
+                title: 'Nodes',
+            },
+            skins: {
+                title: 'Skins',
+            }
+        };
+
+        var keys = Object.keys(metaFields);
+
+        var addMetaField = function(key) {
+            metaFields[key].field = editor.call('attributes:addField', {
+                parent: panelMeta,
+                name: metaFields[key].title
+            });
+            recalculateMeta(key);
+
+            for(var a = 0; a < assets.length; a++) {
+                events.push(assets[a].on('meta:unset', function() {
+                    recalculateMeta(key);
+                }));
+                events.push(assets[a].on('meta:set', function() {
+                    recalculateMeta(key);
+                }));
+                events.push(assets[a].on('meta.' + key + ':set', function() {
+                    recalculateMeta(key);
+                }));
+                events.push(assets[a].on('meta.' + key + ':unset', function() {
+                    recalculateMeta(key);
+                }));
+            }
+        };
+
+        for(var i = 0; i < keys.length; i++) {
+            if (! metaFields.hasOwnProperty(keys[i]))
+                continue;
+
+            addMetaField(keys[i]);
+        }
 
         var calculateAttributes = function() {
             var attributes = { };
@@ -206,15 +290,42 @@ editor.once('load', function() {
             name: 'Pipeline'
         });
         panelPipeline.class.add('component');
+        panelPipeline.foldable = true;
+        panelPipeline.folded = panelToggles['pipeline'];
+        panelPipeline.on('fold', function() {
+            panelToggles['pipeline'] = true;
+        });
+        panelPipeline.on('unfold', function() {
+            panelToggles['pipeline'] = false;
+        });
 
         if (config.owner.plan.id !== 3)
             panelPipeline.hidden = true;
 
+        var uv1Options = [ 'unavailable', 'available', 'various' ];
+        var checkUV1 = function() {
+            var uv1 = assets[0].get('meta.attributes.texCoord1') ? 1 : 0;
+            for(var i = 1; i < assets.length; i++) {
+                var t1 = assets[i].get('meta.attributes.texCoord1');
+
+                if ((t1 ? 1 : 0) !== uv1) {
+                    uv1 = 2;
+                    break;
+                }
+            }
+            fieldUV1.value = uv1Options[uv1];
+        }
+
         var fieldUV1 = editor.call('attributes:addField', {
             parent: panelPipeline,
-            name: 'UV1',
-            value: asset._uv1 ? 'available' : 'unavailable'
+            name: 'UV1'
         });
+        checkUV1();
+
+        for(var i = 0; i < assets.length; i++) {
+            events.push(assets[i].on('meta.attributes.texCoord1:set', checkUV1));
+            events.push(assets[i].on('meta.attributes.texCoord1:unset', checkUV1));
+        }
 
         var autoUnwrap = new ui.Button({
             text: 'Auto-Unwrap'
@@ -223,13 +334,15 @@ editor.once('load', function() {
             if (! editor.call('permissions:write'))
                 return;
 
-            editor.call('assets:model:unwrap', asset);
+            for(var i = 0; i < assets.length; i++)
+                editor.call('assets:model:unwrap', assets[i]);
+
             autoUnwrap.enabled = false;
         });
         autoUnwrap.class.add('generate-uv1');
         fieldUV1.parent.append(autoUnwrap);
 
-        if (asset.has('data.mapping') && asset.get('data.mapping').length) {
+        if (assets.length === 1 && assets[0].has('data.mapping') && assets[0].get('data.mapping').length) {
             var root = editor.call('attributes.rootPanel');
 
             // preview
@@ -256,7 +369,7 @@ editor.once('load', function() {
                 // resize canvas
                 canvas.width = root.element.clientWidth;
                 canvas.height = canvas.width;
-                editor.call('preview:render:model', asset, canvas.width, function (sourceCanvas) {
+                editor.call('preview:render:model', assets[0], canvas.width, function (sourceCanvas) {
                     ctx.drawImage(sourceCanvas, 0, 0);
                 });
             };
@@ -276,6 +389,14 @@ editor.once('load', function() {
                 name: 'Mesh Instances'
             });
             panelNodes.class.add('component');
+            panelNodes.foldable = true;
+            panelNodes.folded = panelToggles['nodes'];
+            panelNodes.on('fold', function() {
+                panelToggles['nodes'] = true;
+            });
+            panelNodes.on('unfold', function() {
+                panelToggles['nodes'] = false;
+            });
 
             // reference
             editor.call('attributes:reference:asset:model:meshInstances:attach', panelNodes, panelNodes.headerElement);
@@ -283,7 +404,7 @@ editor.once('load', function() {
             var nodeItems = [ ];
 
             var addField = function(ind) {
-                var engineAsset = editor.call('viewport:framework').assets.get(asset.get('id'));
+                var engineAsset = editor.call('viewport:framework').assets.get(assets[0].get('id'));
                 var valueBefore = null;
 
                 nodeItems[ind] = editor.call('attributes:addField', {
@@ -291,10 +412,10 @@ editor.once('load', function() {
                     type: 'asset',
                     kind: 'material',
                     name: 'node ' + ind,
-                    link: asset,
+                    link: assets[0],
                     path: 'data.mapping.' + ind + '.material',
                     over: function(type, data) {
-                        valueBefore = asset.get('data.mapping.' + ind + '.material') || null;
+                        valueBefore = assets[0].get('data.mapping.' + ind + '.material') || null;
                         if (engineAsset) {
                             engineAsset.data.mapping[ind].material = parseInt(data.id, 10);
                             engineAsset.fire('change', engineAsset, 'data', engineAsset.data, engineAsset.data);
@@ -318,7 +439,7 @@ editor.once('load', function() {
             };
 
             // create node fields
-            var mapping = asset.get('data.mapping');
+            var mapping = assets[0].get('data.mapping');
             for(var i = 0; i < mapping.length; i++)
                 addField(i);
 
@@ -341,17 +462,20 @@ editor.once('load', function() {
 
             // template nodes
             nodesTemplate = function() {
-                panelNodes.header = 'Mesh Instances [' + asset._nodes.length + ']'
+                if (! panelNodes)
+                    return;
 
-                for(var i = 0; i < asset._nodes.length; i++) {
+                panelNodes.header = 'Mesh Instances [' + assets[0]._nodes.length + ']'
+
+                for(var i = 0; i < assets[0]._nodes.length; i++) {
                     if (! nodeItems[i])
                         continue;
 
-                    nodeItems[i]._label.text = asset._nodes[i];
+                    nodeItems[i]._label.text = assets[0]._nodes[i];
                 }
             };
 
-            if (asset._nodes)
+            if (assets[0]._nodes)
                 // already loaded
                 nodesTemplate();
 
