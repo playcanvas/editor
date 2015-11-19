@@ -52,7 +52,9 @@ editor.once('load', function() {
     var selectedCurve = null;
     var selectedCurveIndex = -1;
     var dragging = false;
+    var scrolling = false;
     var gradient = false;
+    var mouseY = 0;
 
     var swizzle = [0, 1, 2, 3];
 
@@ -499,6 +501,7 @@ editor.once('load', function() {
         selectedAnchorIndex = -1;
         changing = false;
         dragging = false;
+        scrolling = false;
         window.removeEventListener('mouseup', onMouseUp);
         window.removeEventListener('mousemove', onMouseMove);
         window.removeEventListener('mousewheel', onMouseWheel);
@@ -631,6 +634,8 @@ editor.once('load', function() {
         renderGrid();
         renderCurves();
         renderHighlightedAnchors();
+        renderMask();
+        renderText();
 
         if (gradient) {
             renderColorGradient();
@@ -654,16 +659,6 @@ editor.once('load', function() {
             var x = gridLeft() + gridWidth() * i / 10;
             drawLine([x, gridTop()], [x, gridBottom()], colors.gridLines);
         }
-
-        // draw vertical axis values
-        var left = gridLeft() - textSize * 2;
-        drawText(+verticalTopValue.toFixed(2), left, gridTop() + textSize * 0.5);
-        drawText(+((verticalTopValue + verticalBottomValue) * 0.5).toFixed(2), left, gridTop() + (gridHeight() + textSize) * 0.5);
-        drawText(+verticalBottomValue.toFixed(2), left, gridBottom() + textSize * 0.5);
-
-        // draw horizontal axis values
-        drawText('0.0', left + textSize * 2, gridBottom() + 2 * textSize);
-        drawText('1.0', gridRight() - textSize * 2, gridBottom() + 2 * textSize);
     }
 
     function gridWidth () {
@@ -845,6 +840,32 @@ editor.once('load', function() {
         }
     }
 
+    // renders a quad in the same color as the bg color
+    // to hide the portion of the curves that is outside the grid
+    function renderMask () {
+        context.fillStyle = colors.bg;
+
+        var offset = anchorRadius + 1;
+
+        // top
+        context.fillRect(0, 0, canvas.width, gridTop() - offset);
+
+        // bottom
+        context.fillRect(0, gridBottom() + offset, canvas.width, 33 - offset);
+    }
+
+    function renderText () {
+        // draw vertical axis values
+        var left = gridLeft() - textSize * 2;
+        drawText(+verticalTopValue.toFixed(2), left, gridTop() + textSize * 0.5);
+        drawText(+((verticalTopValue + verticalBottomValue) * 0.5).toFixed(2), left, gridTop() + (gridHeight() + textSize) * 0.5);
+        drawText(+verticalBottomValue.toFixed(2), left, gridBottom() + textSize * 0.5);
+
+        // draw horizontal axis values
+        drawText('0.0', left + textSize * 2, gridBottom() + 2 * textSize);
+        drawText('1.0', gridRight() - textSize * 2, gridBottom() + 2 * textSize);
+    }
+
     // if we only have one curve then
     // use 'swizzle' - an array of indexes
     // that remaps other arrays to different colors
@@ -918,6 +939,10 @@ editor.once('load', function() {
 
     // zoom in - out based on delta
     function adjustZoom (delta) {
+        var maxDelta = 1;
+        if (delta > maxDelta) delta = maxDelta;
+        else if (delta < -maxDelta) delta = -maxDelta;
+
         var speed = delta * (verticalTopValue - verticalBottomValue) / 10;
 
         var verticalTop = verticalTopValue - speed;
@@ -974,6 +999,28 @@ editor.once('load', function() {
         }
 
         return oldVerticalTop != verticalTopValue || oldVerticalBottom != verticalBottomValue;
+    }
+
+    function scroll (delta) {
+        var range = verticalTopValue - verticalBottomValue;
+        var fraction = delta / gridHeight();
+        var diff = range * fraction;
+
+        if (maxVertical != null && verticalTopValue + diff > maxVertical) {
+            diff = maxVertical - verticalTopValue;
+        }
+
+        if (minVertical != null && verticalBottomValue + diff < minVertical) {
+            diff = minVertical - verticalBottomValue;
+            if (maxVertical != null && verticalTopValue + diff > maxVertical) {
+                diff = maxVertical - verticalTopValue;
+            }
+        }
+
+        verticalTopValue += diff;
+        verticalBottomValue += diff;
+
+        render();
     }
 
     function getCurvesMinMax (curves) {
@@ -1163,7 +1210,7 @@ editor.once('load', function() {
             canvas.element.style.cursor = 'pointer';
             updateFields(anchor);
         } else {
-            canvas.element.style.cursor = 'default';
+            canvas.element.style.cursor = '';
             updateFields(selectedAnchor);
         }
     }
@@ -1345,6 +1392,7 @@ editor.once('load', function() {
         if (e.button === 0) {
             dragging = true;
             changing = true;
+            scrolling = false;
 
             // if we are clicking on an empty area
             if (!hoveredAnchor) {
@@ -1373,6 +1421,13 @@ editor.once('load', function() {
                 // if we are hovered over a graph or an anchor then select it
                 setSelected(hoveredCurve, hoveredAnchor);
                 editor.emit('picker:curve:change', [getKeysPath(selectedCurve)], [serializeCurveKeys(selectedCurve)]);
+            }
+        } else if (e.button === 2) {
+            if (! dragging) {
+                scrolling = true;
+                mouseY = e.y;
+
+                panel.classList.add('scroll');
             }
         }
 
@@ -1411,6 +1466,12 @@ editor.once('load', function() {
 
             render();
         } else {
+
+            if (scrolling) {
+                scroll(e.y - mouseY);
+                mouseY = e.y;
+            }
+
             // mouse is moving without selected anchors so just check for hovered anchors or hovered curves
             var hovered = getHoveredAnchor(coords);
             if (hovered.curve != hoveredCurve || hovered.anchor != hoveredAnchor) {
@@ -1438,6 +1499,9 @@ editor.once('load', function() {
 
             editor.emit('picker:curve:change:end');
         } else if (e.button === 2 && !dragging) {
+            scrolling = false;
+            panel.classList.remove('scroll');
+
             // delete anchor on right click
             if (hoveredAnchor) {
                 deleteAnchor(hoveredCurve, hoveredAnchor);

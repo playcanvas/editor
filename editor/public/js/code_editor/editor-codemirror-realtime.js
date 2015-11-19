@@ -286,6 +286,11 @@ editor.once('load', function () {
 
     });
 
+    // started saving so flush changes
+    editor.on('editor:save:start', function () {
+        flushInterval();
+    });
+
     editor.on('editor:beforeQuit', function () {
         // flush changes before leaving the window
         flushInterval();
