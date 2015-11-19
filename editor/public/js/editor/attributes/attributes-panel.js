@@ -1294,53 +1294,103 @@ editor.once('load', function() {
 
                         curvePickerOn = true;
 
-                        var first = true;
-
                         // position picker
                         var rectPicker = editor.call('picker:curve:rect');
                         var rectField = field.element.getBoundingClientRect();
                         editor.call('picker:curve:position', rectField.right - rectPicker.width, rectField.bottom);
 
-                        var evtPickerStartChange = editor.on('picker:curve:change:start', function () {
-                            first = true;
+                        args.keepZoom = false;
+
+                        var combine = false;
+
+                        var evtChangeStart = editor.on('picker:curve:change:start', function () {
+                            combine = true;
                         });
 
-                        var evtPickerChanged = editor.on('picker:curve:change', function (path, value) {
-                            var combine;
-                            if (field._link) {
-                                if (field._link.history) {
-                                    combine = field._link.history.combine;
-                                    field._link.history.combine = ! first;
-                                }
+                        var evtChangeEnd = editor.on('picker:curve:change:end', function () {
+                            combine = false;
+                        });
 
+                        var evtPickerChanged = editor.on('picker:curve:change', function (paths, values) {
+                            if (! field._link) return;
+
+                            var previous = {
+                                paths: [],
+                                values: []
+                            };
+
+                            var path;
+                            for (var i = 0, len = paths.length; i < len; i++) {
                                 if (args.paths) {
-                                    path = args.paths[parseInt(path[0])] + path.substring(1);
+                                    path = args.paths[parseInt(paths[i][0])] + paths[i].substring(1);
                                 } else {
-                                    path = args.path + path.substring(1);
+                                    path = args.path + paths[i].substring(1);
                                 }
 
-                                field._link.set(path, value);
-
-                                if (field._link.history)
-                                    field._link.history.combine = combine;
-
-                                // set second graph keys to be the same as the first
-                                // if betweenCurves if false
-                                if (args.paths && path.indexOf(args.paths[0]) === 0 && (path.indexOf('.keys') !== -1 || path.indexOf('betweenCurves') !== -1) && ! field._link.get(args.paths[0] + '.betweenCurves')) {
-                                    var history;
-                                    if (field._link.history) {
-                                        history = field._link.history.enabled;
-                                        field._link.history.enabled = false;
-                                    }
-
-                                    field._link.set(args.paths[1] + '.keys', field._link.get(args.paths[0] + '.keys'));
-
-                                    if (field._link.history)
-                                        field._link.history.enabled = history;
-                                }
+                                previous.paths.push(path);
+                                previous.values.push(field._link.get(path));
                             }
 
-                            first = false;
+
+                            var undo = function () {
+                                if (! field._link)
+                                    return;
+
+                                args.keepZoom = true;
+
+                                history = false;
+                                if (field._link.history) {
+                                    history = field._link.history.enabled;
+                                    field._link.history.enabled = false;
+                                }
+
+                                for (var i = 0, len = previous.paths.length; i < len; i++) {
+                                    field._link.set(previous.paths[i], previous.values[i]);
+                                }
+
+                                if (field._link.history)
+                                    field._link.history.enabled = history;
+
+                                args.keepZoom = false;
+                            };
+
+                            var redo = function () {
+                                if (! field._link)
+                                    return;
+
+                                args.keepZoom = true;
+
+                                var history = false;
+                                if (field._link.history) {
+                                    history = field._link.history.enabled;
+                                    field._link.history.enabled = false;
+                                }
+
+                                for (var i = 0, len = paths.length; i < len; i++) {
+                                    if (args.paths) {
+                                        path = args.paths[parseInt(paths[i][0])] + paths[i].substring(1);
+                                    } else {
+                                        path = args.path + paths[i].substring(1);
+                                    }
+
+                                    field._link.set(path, values[i]);
+                                }
+
+                                if (field._link.history)
+                                    field._link.history.enabled = history;
+
+                                args.keepZoom = false;
+                            };
+
+                            redo();
+
+                            // add custom history event
+                            editor.call('history:' + (combine ? 'update' : 'add'), {
+                                name: path + '.curves',
+                                undo: undo,
+                                redo: redo
+                            });
+
                         });
 
                         var evtRefreshPicker = field.on('change', function (value) {
@@ -1349,8 +1399,9 @@ editor.once('load', function() {
 
                         editor.once('picker:curve:close', function () {
                             evtRefreshPicker.unbind();
-                            evtPickerStartChange.unbind();
                             evtPickerChanged.unbind();
+                            evtChangeStart.unbind();
+                            evtChangeEnd.unbind();
                             curvePickerOn = false;
                         });
                     }

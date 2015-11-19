@@ -106,20 +106,28 @@ editor.once('load', function() {
     fieldType.value = 1;
 
     fieldType.on('change', function (value) {
-        if (suspendEvents) return;
-
         changing = true;
 
         curveType = value;
 
-        editor.emit('picker:curve:change:start');
+        var paths, values;
+
+        if (! suspendEvents) {
+            paths = [];
+            values = [];
+        }
 
         // set type for each curve
         curves.forEach(function (curve, i) {
             curve.type = value;
-            var path = i.toString() + '.type';
-            editor.emit('picker:curve:change', path, value);
+            if (! suspendEvents) {
+                paths.push(i.toString() + '.type');
+                values.push(curveType);
+            }
         });
+
+        if (! suspendEvents)
+            editor.emit('picker:curve:change', paths, values);
 
         render();
 
@@ -138,29 +146,45 @@ editor.once('load', function() {
 
     var fieldRandomize = new ui.Checkbox();
     fieldRandomize.on('change', function (value) {
-        if (suspendEvents) return;
-
         var i;
 
         changing = true;
 
         betweenCurves = value;
 
-        editor.emit('picker:curve:change:start');
-        editor.emit('picker:curve:change', '0.betweenCurves', betweenCurves);
+        var paths, values;
+
+        if (! suspendEvents) {
+            paths = ['0.betweenCurves'];
+            values = [betweenCurves];
+        }
 
         if (!betweenCurves) {
-            // disable the secondary graph
             for (i = 0; i < numCurves; i++) {
+                if (! curves[i + numCurves]) continue;
+
+                // disable the secondary graph
                 toggleCurve(curves[i + numCurves], false);
+
+                // make keys of secondary graph to be the same
+                // as the primary graph
+                if (! suspendEvents) {
+                    paths.push(getKeysPath(curves[i + numCurves]));
+                    values.push(serializeCurveKeys(curves[i]));
+                }
             }
         } else {
             // enable the secondary graphs if their respective primary graphs are enabled
             for (i = 0; i < numCurves; i++) {
+                if (! curves[i + numCurves]) continue;
+
                 // we might have a different value for the secondary graphs
                 // when we re-enable betweenCurves so fire change event
                 // to make sure the different values are saved
-                onCurveKeysChanged(curves[i + numCurves]);
+                if (! suspendEvents) {
+                    paths.push(getKeysPath(curves[i + numCurves]));
+                    values.push(serializeCurveKeys(curves[i + numCurves]));
+                }
 
                 var isEnabled = enabledCurves.indexOf(curves[i]) >= 0;
                 toggleCurve(curves[i + numCurves], false);
@@ -169,6 +193,9 @@ editor.once('load', function() {
                 }
             }
         }
+
+        if (! suspendEvents)
+            editor.emit('picker:curve:change', paths, values);
 
         changing = false;
     });
@@ -261,9 +288,6 @@ editor.once('load', function() {
         var newAnchorTime = fieldTime.value;
         var newAnchorValue = fieldValue.value;
 
-        // start editing
-        editor.emit('picker:curve:change:start');
-
         // set time for the selected anchor
         updateAnchor(selectedCurve, selectedAnchor, newAnchorTime, newAnchorValue);
 
@@ -280,7 +304,7 @@ editor.once('load', function() {
 
     // reset zoom
     var btnResetZoom = new ui.Button({
-        text: 'Reset Zoom'
+        text: '&#57623;'
     });
 
     btnResetZoom.flexGrow = 1;
@@ -293,20 +317,31 @@ editor.once('load', function() {
 
     footer.append(btnResetZoom);
 
+    Tooltip.attach({
+        target: btnResetZoom.element,
+        text: 'Reset Zoom',
+        align: 'bottom',
+        root: root
+    });
+
     // reset curve
     var btnResetCurve = new ui.Button({
-        text: 'Reset Curve'
+        text: '&#57680;'
     });
 
     btnResetCurve.flexGrow = 1;
+
+    Tooltip.attach({
+        target: btnResetCurve.element,
+        text: 'Reset Curve',
+        align: 'bottom',
+        root: root
+    });
 
     btnResetCurve.on('click', function () {
         // reset keys of selected curve
         if (selectedCurve) {
             changing = true;
-
-            // start editing
-            editor.emit('picker:curve:change:start');
 
             resetCurve(selectedCurve);
 
@@ -317,6 +352,145 @@ editor.once('load', function() {
     });
 
     footer.append(btnResetCurve);
+
+    var btnCopy = new ui.Button({
+        text: '&#58193'
+    });
+
+    btnCopy.on('click', function () {
+        var data = {
+            primaryKeys: [],
+            secondaryKeys: [],
+            betweenCurves: betweenCurves,
+            curveType: curveType
+        };
+
+        for (var i = 0; i < numCurves; i++) {
+            data.primaryKeys.push(serializeCurveKeys(curves[i]));
+        }
+
+        for (var i = 0; i < numCurves; i++) {
+            if (! curves[numCurves + i]) continue;
+
+            if (betweenCurves) {
+                data.secondaryKeys.push(serializeCurveKeys(curves[numCurves + i]));
+            } else {
+                data.secondaryKeys.push(serializeCurveKeys(curves[i]));
+            }
+        }
+
+        editor.call('localStorage:set', 'playcanvas_editor_clipboard_curves', data);
+    });
+
+    Tooltip.attach({
+        target: btnCopy.element,
+        text: 'Copy',
+        align: 'bottom',
+        root: root
+    });
+
+    footer.append(btnCopy);
+
+    var btnPaste = new ui.Button({
+        text: '&#58184'
+    });
+
+    btnPaste.on('click', function () {
+        var data = editor.call('localStorage:get', 'playcanvas_editor_clipboard_curves');
+        if (! data) return;
+
+        var paths = [];
+        var values = [];
+
+        curveType = data.curveType;
+        betweenCurves = data.betweenCurves && !fieldRandomize.hidden;
+
+        var copyKeys = function (i, data) {
+            if (data && curves[i]) {
+                var keys = data;
+
+                // clamp keys to min max values
+                if (minVertical != null || maxVertical != null) {
+                    keys = [];
+                    for (var j = 0, len = data.length; j < len; j += 2) {
+                        keys.push(data[j]);
+
+                        var value = data[j+1];
+                        if (minVertical != null && value < minVertical)
+                            keys.push(minVertical);
+                        else if (maxVertical != null && value > maxVertical)
+                            keys.push(maxVertical);
+                        else
+                            keys.push(value);
+                    }
+                }
+
+                curves[i] = new pc.Curve(keys);
+                curves[i].type = curveType;
+
+                paths.push(getKeysPath(curves[i]));
+                values.push(keys);
+
+                if (fieldType.value !== curveType) {
+                    paths.push(i.toString() + '.type');
+                    values.push(curveType);
+                }
+            }
+        };
+
+        for (var i = 0; i < numCurves; i++) {
+            copyKeys(i, data.primaryKeys[i]);
+        }
+
+        for (var i = 0; i < numCurves; i++) {
+            copyKeys(i + numCurves, data.secondaryKeys[i]);
+        }
+
+        enabledCurves.length = 0;
+        for (var i = 0; i < numCurves; i++)  {
+            if (curveToggles[i].class.contains('active')) {
+                enabledCurves.push(curves[i]);
+                if (betweenCurves) {
+                    enabledCurves.push(curves[i+numCurves]);
+                }
+            }
+        }
+
+        setHovered(null, null);
+        setSelected(enabledCurves[0], null);
+
+        var suspend = suspendEvents;
+        suspendEvents = true;
+
+        if (fieldRandomize.value !== betweenCurves) {
+            fieldRandomize.value = betweenCurves;
+            paths.push('0.betweenCurves');
+            values.push(betweenCurves);
+        }
+
+        if (fieldType.value !== curveType) {
+            fieldType.value = curveType;
+        }
+
+        suspendEvents = suspend;
+
+        if (! suspendEvents)
+            editor.emit('picker:curve:change', paths, values);
+
+        if (shouldResetZoom())
+            resetZoom();
+
+        render();
+    });
+
+    Tooltip.attach({
+        target: btnPaste.element,
+        text: 'Paste',
+        align: 'bottom',
+        root: root
+    });
+
+    footer.append(btnPaste);
 
     var context = canvas.element.getContext('2d');
 
@@ -332,17 +506,32 @@ editor.once('load', function() {
     }
 
     function resetCurve (curve) {
+        var suspend = suspendEvents;
+        suspendEvents = true;
+
         curve.keys.length = 0;
         createAnchor(curve, 0, 0);
-        updateFields([0, 0]);
+        fieldTime.value = 0;
+        fieldValue.value = 0;
         setSelected(curve, null);
+
+        var paths = [getKeysPath(curve)];
+        var values = [serializeCurveKeys(curve)];
 
         // reset secondary curve too
         var otherCurve = getOtherCurve(curve);
         if (otherCurve) {
             otherCurve.keys.length = 0;
             createAnchor(otherCurve, 0, 0);
+
+            paths.push(getKeysPath(otherCurve));
+            values.push(serializeCurveKeys(otherCurve));
         }
+
+        suspendEvents = suspend;
+
+        if (! suspendEvents)
+            editor.emit('picker:curve:change', paths, values);
     }
 
     // Sets value for the picker and render it
@@ -351,7 +540,9 @@ editor.once('load', function() {
         if (!(value instanceof Array) || value.length === 0 || value[0].keys === undefined)
             return;
 
+        var suspend = suspendEvents;
         suspendEvents = true;
+
         numCurves = value[0].keys[0].length ? value[0].keys.length : 1;
 
         betweenCurves = value[0].betweenCurves;
@@ -370,11 +561,6 @@ editor.once('load', function() {
 
         minVertical = args.min;
         fieldValue.min = args.min;
-
-        verticalValue = args.verticalValue !== undefined ? args.verticalValue : 5;
-
-        verticalTopValue = args.max !== undefined ? Math.min(verticalValue, args.max) : verticalValue;
-        verticalBottomValue = args.min !== undefined ? Math.max(-verticalValue, args.min) : -verticalValue;
 
         curveNames = args.curves || [];
         for (var i = 0; i < colors.curves.length; i++) {
@@ -418,10 +604,16 @@ editor.once('load', function() {
 
         setHovered(null, null);
 
-        suspendEvents = false;
+        suspendEvents = suspend;
 
-        if (shouldResetZoom()) {
-            resetZoom();
+        if (!args.keepZoom) {
+            verticalValue = args.verticalValue !== undefined ? args.verticalValue : 5;
+            verticalTopValue = args.max !== undefined ? Math.min(verticalValue, args.max) : verticalValue;
+            verticalBottomValue = args.min !== undefined ? Math.max(-verticalValue, args.min) : -verticalValue;
+
+            if (shouldResetZoom()) {
+                resetZoom();
+            }
         }
 
         // refresh swizzle
@@ -813,10 +1005,11 @@ editor.once('load', function() {
     }
 
     function updateFields (anchor) {
-         suspendEvents = true;
-         fieldTime.value = anchor ? +anchor[0].toFixed(3) : 0;
-         fieldValue.value = anchor ? +anchor[1].toFixed(3) : 0;
-         suspendEvents = false;
+        var suspend = suspendEvents;
+        suspendEvents = true;
+        fieldTime.value = anchor ? +anchor[0].toFixed(3) : 0;
+        fieldValue.value = anchor ? +anchor[1].toFixed(3) : 0;
+        suspendEvents = suspend;
     }
 
     function getTargetCoords (e) {
@@ -844,6 +1037,12 @@ editor.once('load', function() {
     function collapseAnchors () {
         var changedCurves = {};
 
+        var paths, values;
+        if (! suspendEvents) {
+            paths = [];
+            values = [];
+        }
+
         enabledCurves.forEach(function (curve) {
             for (var i = curve.keys.length - 1; i > 0; i--) {
                 var key = curve.keys[i];
@@ -865,18 +1064,29 @@ editor.once('load', function() {
         });
 
 
-        for (var index in changedCurves) {
-            var curve = curves[parseInt(index)];
-            if (curve) {
-                onCurveKeysChanged(curve);
+        if (! suspendEvents) {
+            for (var index in changedCurves) {
+                var curve = curves[parseInt(index)];
+                if (curve) {
+                    paths.push(getKeysPath(curve));
+                    values.push(serializeCurveKeys(curve));
+                }
+            }
+
+            if (paths.length) {
+                editor.emit('picker:curve:change', paths, values);
             }
         }
+
     }
 
     // Creates and returns an anchor and fires change event
     function createAnchor (curve, time, value) {
         var anchor = curve.add(time, value);
-        onCurveKeysChanged(curve);
+
+        if (! suspendEvents)
+            onCurveKeysChanged(curve);
+
         return anchor;
     }
 
@@ -892,7 +1102,8 @@ editor.once('load', function() {
             selectedAnchorIndex = curve.keys.indexOf(selectedAnchor);
         }
 
-        onCurveKeysChanged(curve);
+        if (! suspendEvents)
+            onCurveKeysChanged(curve);
     }
 
     // Deletes an anchor from the curve and fires change event
@@ -906,7 +1117,8 @@ editor.once('load', function() {
         if (curve.keys.length === 0) {
             createAnchor(curve, 0, 0);
         } else {
-            onCurveKeysChanged(curve);
+            if (! suspendEvents)
+                onCurveKeysChanged(curve);
         }
     }
 
@@ -928,7 +1140,7 @@ editor.once('load', function() {
     }
 
     function onCurveKeysChanged (curve) {
-        editor.emit('picker:curve:change', getKeysPath(curve), serializeCurveKeys(curve));
+        editor.emit('picker:curve:change', [getKeysPath(curve)], [serializeCurveKeys(curve)]);
     }
 
     // Make the specified curve appear in front of the others
@@ -1073,10 +1285,6 @@ editor.once('load', function() {
             }
         }
 
-        if (shouldResetZoom()) {
-            resetZoom();
-        }
-
         render();
     }
 
@@ -1128,12 +1336,13 @@ editor.once('load', function() {
         var point = getTargetCoords(e);
         var inGrid = areCoordsInGrid(point);
 
-        editor.emit('picker:curve:change:start');
-
         // collapse anchors on mouse down because we might
         // have placed another anchor on top of another by directly
         // editing its time through the input fields
+        var suspend = suspendEvents;
+        suspendEvents = true;
         collapseAnchors();
+        suspendEvents = suspend;
 
         // select or add anchor on left click
         if (e.button === 0) {
@@ -1153,6 +1362,9 @@ editor.once('load', function() {
                     var value = calculateAnchorValue(point);
                     var anchor = createAnchor(curve, time, value);
 
+                    // combine changes from now on until mouse is up
+                    editor.emit('picker:curve:change:start');
+
                     // select the new anchor and make it hovered
                     setSelected(curve, anchor);
                     setHovered(curve, anchor);
@@ -1160,6 +1372,7 @@ editor.once('load', function() {
             } else {
                 // if we are hovered over a graph or an anchor then select it
                 setSelected(hoveredCurve, hoveredAnchor);
+                editor.emit('picker:curve:change', [getKeysPath(selectedCurve)], [serializeCurveKeys(selectedCurve)]);
             }
         }
         else {
@@ -1206,6 +1419,10 @@ editor.once('load', function() {
 
             updateAnchor(selectedCurve, selectedAnchor, time, value);
             updateFields(selectedAnchor);
+
+            // combine changes from now on
+            editor.emit('picker:curve:change:start');
+
             render();
         } else {
             // mouse is moving without selected anchors so just check for hovered anchors or hovered curves
@@ -1220,6 +1437,8 @@ editor.once('load', function() {
     // Handles mouse up
     var onMouseUp = function (e) {
         toggleTextSelection(true);
+
+        editor.emit('picker:curve:change:end');
 
         if (changing) {
             // collapse anchors on mouse up because we might have
@@ -1239,7 +1458,6 @@ editor.once('load', function() {
         else if (e.wheelDelta)
             delta = e.wheelDelta / 120;
 
-        console.log(delta);
         if (delta !== 0)
             adjustZoom(delta);
     };
@@ -1249,11 +1467,12 @@ editor.once('load', function() {
         // show overlay
         overlay.hidden = false;
 
+        var suspend = suspendEvents;
         suspendEvents = true;
         curveToggles.forEach(function (toggle) {
             toggle.class.add('active');
         });
-        suspendEvents = false;
+        suspendEvents = suspend;
 
         setValue(value, args || {});
 
