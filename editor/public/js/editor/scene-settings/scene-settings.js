@@ -19,6 +19,9 @@ editor.once('load', function() {
         if (history)
             sceneSettings.history.enabled = false;
 
+        if (data.settings.priority_scripts === undefined)
+            data.settings.priority_scripts = [];
+
         sceneSettings.patch(data.settings);
 
         if (history)
