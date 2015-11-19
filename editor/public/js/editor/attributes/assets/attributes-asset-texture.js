@@ -91,6 +91,22 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:asset:texture:alpha:attach', fieldAlpha.parent.innerElement.firstChild.ui);
 
+        // interlaced
+        var fieldInterlaced = editor.call('attributes:addField', {
+            parent: paramsPanel,
+            name: 'Interlaced',
+            link: assets,
+            path: 'meta.interlaced'
+        });
+        var checkInterlacedField = function() {
+            if (! fieldInterlaced.value)
+                fieldInterlaced.element.innerHTML = 'false';
+        };
+        checkInterlacedField();
+        fieldInterlaced.on('change', checkInterlacedField);
+        // reference
+        editor.call('attributes:reference:asset:texture:interlaced:attach', fieldInterlaced.parent.innerElement.firstChild.ui);
+
 
         // filtering
         var fieldFiltering = editor.call('attributes:addField', {
