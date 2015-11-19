@@ -3976,6 +3976,11 @@ strong {
                     height: 22px;
                 }
             }
+
+            &.scroll {
+                cursor: -webkit-grabbing;
+                cursor: -moz-grabbing;
+            }
         }
     }
 }
