@@ -1328,9 +1328,6 @@ editor.once('load', function() {
             return;
         }
 
-        dragging = true;
-        changing = true;
-
         toggleTextSelection(false);
 
         var point = getTargetCoords(e);
@@ -1346,6 +1343,9 @@ editor.once('load', function() {
 
         // select or add anchor on left click
         if (e.button === 0) {
+            dragging = true;
+            changing = true;
+
             // if we are clicking on an empty area
             if (!hoveredAnchor) {
 
@@ -1373,20 +1373,6 @@ editor.once('load', function() {
                 // if we are hovered over a graph or an anchor then select it
                 setSelected(hoveredCurve, hoveredAnchor);
                 editor.emit('picker:curve:change', [getKeysPath(selectedCurve)], [serializeCurveKeys(selectedCurve)]);
-            }
-        }
-        else {
-            // delete anchor on right click
-            if (hoveredAnchor) {
-                deleteAnchor(hoveredCurve, hoveredAnchor);
-
-                // clean up selected anchor
-                if (selectedAnchor == hoveredAnchor) {
-                    setSelected(selectedCurve, null);
-                }
-
-                // clean up hovered anchor
-                setHovered(null, null);
             }
         }
 
@@ -1438,15 +1424,34 @@ editor.once('load', function() {
     var onMouseUp = function (e) {
         toggleTextSelection(true);
 
-        editor.emit('picker:curve:change:end');
+        if (e.button === 0) {
+            if (changing) {
+                // collapse anchors on mouse up because we might have
+                // placed an anchor on top of another one
+                collapseAnchors();
 
-        if (changing) {
-            // collapse anchors on mouse up because we might have
-            // placed an anchor on top of another one
-            collapseAnchors();
+                dragging = false;
+                changing = false;
 
-            dragging = false;
-            changing = false;
+                render();
+            }
+
+            editor.emit('picker:curve:change:end');
+        } else if (e.button === 2 && !dragging) {
+            // delete anchor on right click
+            if (hoveredAnchor) {
+                deleteAnchor(hoveredCurve, hoveredAnchor);
+
+                // clean up selected anchor
+                if (selectedAnchor == hoveredAnchor) {
+                    setSelected(selectedCurve, null);
+                }
+
+                // clean up hovered anchor
+                setHovered(null, null);
+
+                render();
+            }
         }
     };
 
