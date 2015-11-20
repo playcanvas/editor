@@ -447,6 +447,7 @@ editor.once('load', function() {
                 { v: 2, t: 'Alpha' },
                 { v: 1, t: 'Additive' },
                 { v: 6, t: 'Additive Alpha' },
+                { v: 8, t: 'Screen' },
                 { v: 4, t: 'Premultiplied Alpha' },
                 { v: 5, t: 'Multiply' },
                 { v: 7, t: 'Modulate 2x' }

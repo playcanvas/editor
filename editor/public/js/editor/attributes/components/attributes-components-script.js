@@ -9,6 +9,9 @@ editor.once('load', function() {
         'rgb': 'rgb',
         'rgba': 'rgb', // TEMP
         'vector': 'vec3',
+        'vec2': 'vec2',
+        'vec3': 'vec3',
+        'vec4': 'vec4',
         'enumeration': 'number',
         'entity': 'entity',
         'curve': 'curveset',
@@ -22,6 +25,9 @@ editor.once('load', function() {
         'rgb': '{pc.Color}',
         'rgba': '{pc.Color}',
         'vector': '{pc.Vec3}',
+        'vec2': '{pc.Vec2}',
+        'vec3': '{pc.Vec3}',
+        'vec4': '{pc.Vec4}',
         'enumeration': '{Number}',
         'entity': '{pc.Entity}'
     };
