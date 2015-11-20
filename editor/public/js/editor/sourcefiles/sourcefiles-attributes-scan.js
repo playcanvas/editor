@@ -7,6 +7,9 @@ editor.once('load', function () {
         'rgb',
         'rgba',
         'vector',
+        'vec2',
+        'vec3',
+        'vec4',
         'enumeration',
         'entity',
         'curve',
@@ -29,7 +32,6 @@ editor.once('load', function () {
             }
         },
 
-
         'boolean': function (url, attribute) {
             validateValue(url, attribute, 'boolean', false);
         },
@@ -41,6 +43,18 @@ editor.once('load', function () {
 
         'vector': function (url, attribute) {
             validateArrayValue(url, attribute, [0,0,0], 3, 'number');
+        },
+
+        'vec2': function (url, attribute) {
+            validateArrayValue(url, attribute, [0,0], 2, 'number');
+        },
+
+        'vec3': function (url, attribute) {
+            validateArrayValue(url, attribute, [0,0,0], 3, 'number');
+        },
+
+        'vec4': function (url, attribute) {
+            validateArrayValue(url, attribute, [0,0,0,0], 4, 'number');
         },
 
         'rgb': function (url, attribute) {
