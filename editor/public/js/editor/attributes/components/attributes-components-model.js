@@ -55,6 +55,92 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:model:asset:attach', fieldAsset._label);
 
+        var changingAsset = false;
+
+        // if the assets changes then remove material overrides
+        fieldAsset.on('beforechange', function (value) {
+            var resourceIds = [];
+            var mappings = {};
+
+            entities.forEach(function (entity) {
+                if (entity.has('components.model.mapping') && entity.get('components.model.asset') !== parseInt(value, 10)) {
+                    resourceIds.push(entity.get('resource_id'));
+                    mappings[entity.get('resource_id')] = entity.get('components.model.mapping');
+                }
+            });
+
+            fieldAsset.once('change', function (value) {
+                if (changingAsset) return;
+
+                changingAsset = true;
+
+                // modify last history action to include changing
+                // the mapping
+                var lastHistoryAction = editor.call('history:current');
+                var lastUndo = lastHistoryAction.undo;
+                var lastRedo = lastHistoryAction.redo;
+
+                resourceIds.forEach(function (id) {
+                    var entity = editor.call('entities:get', id);
+                    if (! entity) return;
+                    var history = entity.history.enabled;
+                    entity.history.enabled = false;
+                    entity.unset('components.model.mapping');
+                    entity.history.enabled = history;
+                });
+
+                lastHistoryAction.undo = function () {
+                    changingAsset = true;
+
+                    // execute last actions undo first
+                    lastUndo();
+
+                    // do this in a timeout so that the
+                    // 'change' event of fieldAsset is fired first
+                    setTimeout(function () {
+                        resourceIds.forEach(function (id) {
+                            var entity = editor.call('entities:get', id);
+                            if (! entity) return;
+
+                            var history = entity.history.enabled;
+                            entity.history.enabled = false;
+                            entity.set('components.model.mapping', mappings[id]);
+                            entity.history.enabled = history;
+                        });
+
+                        changingAsset = false;
+
+                    });
+
+                };
+
+                lastHistoryAction.redo = function () {
+                    changingAsset = true;
+
+                    // execute last actions redo first
+                    lastRedo();
+
+                    // do this in a timeout so that the
+                    // 'change' event of fieldAsset is fired first
+                    setTimeout(function () {
+                        resourceIds.forEach(function (id) {
+                            var entity = editor.call('entities:get', id);
+                            if (! entity) return;
+
+                            var history = entity.history.enabled;
+                            entity.history.enabled = false;
+                            entity.unset('components.model.mapping');
+                            entity.history.enabled = history;
+                        });
+
+                        changingAsset = false;
+                    });
+
+                };
+
+                changingAsset = false;
+            });
+        });
 
         // material
         var fieldMaterial = editor.call('attributes:addField', {

@@ -30,7 +30,11 @@ editor.once('load', function() {
 
         isSaving = true;
         editor.emit('editor:save:start');
-        editor.call('realtime:send', 'doc:save:', parseInt(config.asset.id, 10));
+
+        // wait a bit so that the sharejs document is flushed
+        setTimeout(function () {
+            editor.call('realtime:send', 'doc:save:', parseInt(config.asset.id, 10));
+        }, 200);
     });
 
     editor.method('editor:isReadonly', function () {

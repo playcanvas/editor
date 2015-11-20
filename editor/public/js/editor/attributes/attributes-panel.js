@@ -153,7 +153,7 @@ editor.once('load', function() {
             }
 
             args.field._changing = true;
-            args.field.value = (value === undefined ? null : value);
+            args.field.value = value;
             args.field._changing = false;
 
             if (args.enum) {
@@ -948,6 +948,7 @@ editor.once('load', function() {
                     editor.call('picker:asset', args.kind, asset);
 
                     evtPick = editor.once('picker:asset', function(asset) {
+                        field.emit('beforechange', asset.get('id'));
                         field.value = asset.get('id');
                         evtPick = null;
                     });
@@ -986,6 +987,7 @@ editor.once('load', function() {
                 });
 
                 btnRemove.on('click', function() {
+                    field.emit('beforechange', null);
                     field.value = null;
                 });
 
@@ -1064,6 +1066,7 @@ editor.once('load', function() {
                         if ((args.kind !== '*' && type !== 'asset.' + args.kind) || editor.call('assets:get', parseInt(data.id, 10)).get('source'))
                             return;
 
+                        field.emit('beforechange', parseInt(data.id, 10));
                         field.value = parseInt(data.id, 10);
                     },
                     over: function(type, data) {
