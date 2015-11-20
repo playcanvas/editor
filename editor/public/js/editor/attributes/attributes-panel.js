@@ -153,7 +153,7 @@ editor.once('load', function() {
             }
 
             args.field._changing = true;
-            args.field.value = (value === undefined ? null : value);
+            args.field.value = value;
             args.field._changing = false;
 
             if (args.enum) {
