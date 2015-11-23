@@ -29,6 +29,17 @@ editor.once('load', function() {
     });
     menu.append(menuItemNew);
 
+    var downloadable = {
+        'texture': 1,
+        'html': 1,
+        'css': 1,
+        'glsl': 1,
+        'scene': 1,
+        'json': 1,
+        'audio': 1,
+        'text': 1
+    };
+
     var assets = {
         'upload': {
             title: 'Upload',
@@ -115,6 +126,18 @@ editor.once('load', function() {
     }
 
 
+    // download
+    var menuItemDownload = new ui.MenuItem({
+        text: 'Download',
+        icon: '&#57896;',
+        value: 'download'
+    });
+    menuItemDownload.on('select', function() {
+        window.open(currentAsset.get('file.url'));
+    });
+    menu.append(menuItemDownload);
+
+
     // edit
     var menuItemEdit = new ui.MenuItem({
         text: 'Edit',
@@ -177,6 +200,9 @@ editor.once('load', function() {
         menuItemNew.hidden = ! menuItemNewScript.hidden;
 
         if (currentAsset) {
+            // download
+            menuItemDownload.hidden = ! ((! config.project.privateAssets || (config.project.privateAssets && editor.call('permissions:read'))) && currentAsset.get('type') !== 'folder' && (currentAsset.get('source') || downloadable[currentAsset.get('type')]) && currentAsset.get('file.url'));
+
             // duplicate
             if (currentAsset.get('type') === 'material') {
                 menuItemEdit.hidden = true;
@@ -206,6 +232,7 @@ editor.once('load', function() {
             menuItemDelete.hidden = false;
         } else {
             // no asset
+            menuItemDownload.hidden = true;
             menuItemDuplicate.hidden = true;
             menuItemEdit.hidden = true;
             menuItemDelete.hidden = true;
