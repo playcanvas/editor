@@ -152,7 +152,7 @@ SelectField.prototype.open = function() {
     if (top + this.elementOptions.clientHeight > window.innerHeight) {
         top = window.innerHeight - this.elementOptions.clientHeight + 1;
     } else if (top < 0) {
-        top = Math.round(rect.top);
+        top = 0;
     }
 
     this.elementOptions.style.top = top + 'px';
