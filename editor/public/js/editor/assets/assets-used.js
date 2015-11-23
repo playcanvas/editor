@@ -212,16 +212,14 @@ editor.once('load', function() {
             if (onSetMethods[type + '-remove'])
                 asset.on('*:remove', onSetMethods[type + '-remove']);
 
-            for(var key in keys[type]) {
+            for(var key in keys[type])
                 updateAsset(asset.get('id'), null, asset.get(key));
-            }
 
             if (type === 'model') {
                 var mapping = asset.get('data.mapping');
                 if (mapping) {
-                    for(var i = 0; i < mapping.length; i++) {
+                    for(var i = 0; i < mapping.length; i++)
                         updateAsset(asset.get('id'), null, mapping[i].material);
-                    }
                 }
             }
         }
