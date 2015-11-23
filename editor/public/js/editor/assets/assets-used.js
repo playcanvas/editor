@@ -246,6 +246,15 @@ editor.once('load', function() {
                 updateAsset(entity.get('resource_id'), null, mappings[ind]);
             }
         }
+
+        for(var key in keys['entity-lists']) {
+            var items = entity.get(key);
+            if (! items || ! items.length)
+                continue;
+
+            for(var i = 0; i < items.length; i++)
+                updateAsset(entity.get('resource_id'), null, items[i]);
+        }
     });
 
     // scene settings
