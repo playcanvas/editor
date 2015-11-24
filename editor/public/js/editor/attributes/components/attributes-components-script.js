@@ -558,8 +558,8 @@ editor.once('load', function() {
                 // slider
                 var slider = editor.call('attributes:addField', {
                     panel: field.parent,
-                    min: attribute.options.min || 0,
-                    max: attribute.options.max || 1,
+                    min: isNaN(attribute.options.min) ? 0 : attribute.options.min,
+                    max: isNaN(attribute.options.max) ? 1 : attribute.options.max,
                     type: 'number',
                     slider: true,
                     link: scripts,
