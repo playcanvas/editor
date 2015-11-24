@@ -1608,9 +1608,7 @@ strong {
                     text-align: center;
                 }
             }
-        }
 
-        > .content {
             .ui-button.audio-play {
                 @extend .font-icon;
                 float: left;
@@ -1636,6 +1634,29 @@ strong {
                 width: calc(100% - 42px);
                 margin: 11px 0 0 8px;
                 height: 4px;
+            }
+
+            .ui-list.source-textures {
+                > .ui-list-item {
+                    position: relative;
+
+                    > .ui-button.download {
+                        @extend .font-icon;
+
+                        position: absolute;
+                        display: block;
+                        top: 0;
+                        right: 0;
+                        width: 22px;
+                        height: 22px;
+                        line-height: 22px;
+                        margin: 0;
+                        padding: 0;
+                        border: none;
+                        font-size: 16px;
+                        text-align: center;
+                    }
+                }
             }
         }
 

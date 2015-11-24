@@ -67,7 +67,8 @@ editor.once('load', function() {
             name: 'Textures',
             type: 'element',
             element: new ui.List()
-        })
+        });
+        fieldTextures.class.add('source-textures');
         fieldTextures.flexGrow = 1;
         // add all textures
         var addTextures = function(list) {
@@ -76,6 +77,16 @@ editor.once('load', function() {
                 var item = new ui.ListItem({
                     text: list[i].name
                 });
+                var download = new ui.Button({
+                    text: '&#57896;'
+                });
+                download.name = list[i].name;
+                download.on('click', function() {
+                    window.open(assets[0].get('file.url').split('/').slice(0, -1).concat([ 'content', 'textures', this.name ]).join('/'));
+                });
+                download.class.add('download');
+                download.parent = item;
+                item.element.appendChild(download.element);
                 fieldTextures.append(item);
             }
         };

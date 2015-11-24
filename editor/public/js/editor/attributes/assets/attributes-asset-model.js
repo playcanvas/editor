@@ -411,7 +411,7 @@ editor.once('load', function() {
                     parent: panelNodes,
                     type: 'asset',
                     kind: 'material',
-                    name: 'node ' + ind,
+                    name: '[' + ind + '] node',
                     link: assets[0],
                     path: 'data.mapping.' + ind + '.material',
                     over: function(type, data) {
@@ -471,7 +471,7 @@ editor.once('load', function() {
                     if (! nodeItems[i])
                         continue;
 
-                    nodeItems[i]._label.text = assets[0]._nodes[i];
+                    nodeItems[i]._label.text = '[' + i + '] ' + assets[0]._nodes[i];
                 }
             };
 

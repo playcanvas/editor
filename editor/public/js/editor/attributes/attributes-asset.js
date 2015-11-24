@@ -84,14 +84,16 @@
                 editor.call('attributes:reference:asset:tags:attach', fieldTags.parent.innerElement.firstChild.ui);
             }
 
-            // runtime
-            var fieldRuntime = editor.call('attributes:addField', {
-                parent: panel,
-                name: 'Runtime',
-                value: sourceRuntimeOptions[source]
-            });
-            // reference
-            editor.call('attributes:reference:asset:runtime:attach', fieldRuntime.parent.innerElement.firstChild.ui);
+            if (! scriptSelected) {
+                // runtime
+                var fieldRuntime = editor.call('attributes:addField', {
+                    parent: panel,
+                    name: 'Runtime',
+                    value: sourceRuntimeOptions[source]
+                });
+                // reference
+                editor.call('attributes:reference:asset:runtime:attach', fieldRuntime.parent.innerElement.firstChild.ui);
+            }
 
             // type
             var fieldType = editor.call('attributes:addField', {
@@ -104,38 +106,7 @@
             if (type)
                 editor.call('attributes:reference:asset:' + type + ':asset:attach', fieldType);
 
-            // size
-            var sizeCalculate = function() {
-                var size = 0;
-
-                for(var i = 0; i < assets.length; i++)
-                    size += assets[i].get('file.size') || 0;
-
-                fieldSize.value = bytesToHuman(size);
-            };
-            var fieldSize = editor.call('attributes:addField', {
-                parent: panel,
-                name: 'Size'
-            });
-            sizeCalculate();
-
-            var evtSize = [ ];
-            for(var i = 0; i < assets.length; i++) {
-                evtSize.push(assets[i].on('file:set', sizeCalculate));
-                evtSize.push(assets[i].on('file:unset', sizeCalculate));
-                evtSize.push(assets[i].on('file.size:set', sizeCalculate));
-                evtSize.push(assets[i].on('file.size:unset', sizeCalculate));
-            }
-
-            panel.once('destroy', function () {
-                for(var i = 0; i < evtSize.length; i++) {
-                    evtSize[i].unbind();
-                }
-            });
-
-            // reference
-            editor.call('attributes:reference:asset:size:attach', fieldSize.parent.innerElement.firstChild.ui);
-
+            // preload
             if (! scriptSelected && source === 0) {
                 var fieldPreload = editor.call('attributes:addField', {
                     parent: panel,
@@ -147,6 +118,82 @@
                 editor.call('attributes:reference:asset:preload:attach', fieldPreload.parent.innerElement.firstChild.ui);
             }
 
+            if (! scriptSelected) {
+                // size
+                var sizeCalculate = function() {
+                    var size = 0;
+
+                    for(var i = 0; i < assets.length; i++)
+                        size += assets[i].get('file.size') || 0;
+
+                    fieldSize.value = bytesToHuman(size);
+                };
+                var fieldSize = editor.call('attributes:addField', {
+                    parent: panel,
+                    name: 'Size'
+                });
+                sizeCalculate();
+
+                var evtSize = [ ];
+                for(var i = 0; i < assets.length; i++) {
+                    evtSize.push(assets[i].on('file:set', sizeCalculate));
+                    evtSize.push(assets[i].on('file:unset', sizeCalculate));
+                    evtSize.push(assets[i].on('file.size:set', sizeCalculate));
+                    evtSize.push(assets[i].on('file.size:unset', sizeCalculate));
+                }
+
+                panel.once('destroy', function () {
+                    for(var i = 0; i < evtSize.length; i++) {
+                        evtSize[i].unbind();
+                    }
+                });
+
+                // reference
+                editor.call('attributes:reference:asset:size:attach', fieldSize.parent.innerElement.firstChild.ui);
+            }
+
+
+            if (! scriptSelected && source === 0) {
+                // source
+                var fieldSource = editor.call('attributes:addField', {
+                    parent: panel,
+                    name: 'Source',
+                    value: 'none'
+                });
+                var sourceId = assets[0].get('source_asset_id');
+                for(var i = 1; i < assets.length; i++) {
+                    if (sourceId !== assets[i].get('source_asset_id')) {
+                        sourceId = 0;
+                        fieldSource.value = 'various';
+                        break;
+                    }
+                }
+                fieldSource.on('click', function() {
+                    if (! sourceId)
+                        return;
+
+                    var asset = editor.call('assets:get', sourceId);
+
+                    if (! asset)
+                        return;
+
+                    editor.call('selector:set', 'asset', [ asset ]);
+                });
+                if (sourceId) {
+                    var source = editor.call('assets:get', sourceId);
+                    if (source) {
+                        fieldSource.value = source.get('name');
+                        fieldSource.class.add('export-model-archive');
+
+                        var evtSourceName = source.on('name:set', function(value) {
+                            fieldSource.value = value;
+                        });
+                        fieldSource.once('destroy', function() {
+                            evtSourceName.unbind();
+                        });
+                    }
+                }
+            }
         } else {
             if (assets[0].get('type') === 'script') {
                 // filename
@@ -207,30 +254,32 @@
                 });
                 // reference
                 editor.call('attributes:reference:asset:runtime:attach', fieldRuntime.parent.innerElement.firstChild.ui);
+            }
 
-                // type
-                var fieldType = editor.call('attributes:addField', {
+
+            // type
+            var fieldType = editor.call('attributes:addField', {
+                parent: panel,
+                name: 'Type',
+                value: type
+            });
+            // reference
+            editor.call('attributes:reference:asset:type:attach', fieldType.parent.innerElement.firstChild.ui);
+            // reference type
+            if (! assets[0].get('source'))
+                editor.call('attributes:reference:asset:' + assets[0].get('type') + ':asset:attach', fieldType);
+
+
+            if (assets[0].get('type') !== 'script' && assets[0].get('type') !== 'folder' && ! assets[0].get('source')) {
+                // preload
+                var fieldPreload = editor.call('attributes:addField', {
                     parent: panel,
-                    name: 'Type',
-                    value: type
+                    name: 'Preload',
+                    type: 'checkbox',
+                    link: assets[0],
+                    path: 'preload'
                 });
-                // reference
-                editor.call('attributes:reference:asset:type:attach', fieldType.parent.innerElement.firstChild.ui);
-                // reference type
-                if (! assets[0].get('source'))
-                    editor.call('attributes:reference:asset:' + assets[0].get('type') + ':asset:attach', fieldType);
-
-                if (! assets[0].get('source') && assets[0].get('type') !== 'folder') {
-                    // preload
-                    var fieldPreload = editor.call('attributes:addField', {
-                        parent: panel,
-                        name: 'Preload',
-                        type: 'checkbox',
-                        link: assets[0],
-                        path: 'preload'
-                    });
-                    editor.call('attributes:reference:asset:preload:attach', fieldPreload.parent.innerElement.firstChild.ui);
-                }
+                editor.call('attributes:reference:asset:preload:attach', fieldPreload.parent.innerElement.firstChild.ui);
             }
 
             // size
@@ -256,6 +305,41 @@
 
                 // reference
                 editor.call('attributes:reference:asset:size:attach', fieldSize.parent.innerElement.firstChild.ui);
+            }
+
+            if (assets[0].get('type') !== 'script' && ! assets[0].get('source')) {
+                // source
+                var fieldSource = editor.call('attributes:addField', {
+                    parent: panel,
+                    name: 'Source',
+                    value: 'none'
+                });
+                var sourceId = assets[0].get('source_asset_id');
+                fieldSource.on('click', function() {
+                    if (! sourceId)
+                        return;
+
+                    var asset = editor.call('assets:get', sourceId);
+
+                    if (! asset)
+                        return;
+
+                    editor.call('selector:set', 'asset', [ asset ]);
+                });
+                if (sourceId) {
+                    var source = editor.call('assets:get', sourceId);
+                    if (source) {
+                        fieldSource.value = source.get('name');
+                        fieldSource.class.add('export-model-archive');
+
+                        var evtSourceName = source.on('name:set', function(value) {
+                            fieldSource.value = value;
+                        });
+                        fieldSource.once('destroy', function() {
+                            evtSourceName.unbind();
+                        });
+                    }
+                }
             }
 
             if (! assets[0].get('source') && assets[0].get('type') === 'model' && (! config.project.privateAssets || (config.project.privateAssets && editor.call('permissions:read')))) {

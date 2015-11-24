@@ -29,54 +29,53 @@ editor.once('load', function() {
     });
     menu.append(menuItemNew);
 
-    var assets = {
-        'upload': {
-            title: 'Upload',
-            icon: '&#57909;'
-        },
-        'folder': {
-            title: 'Folder',
-            icon: '&#57657;'
-        },
-        'css': {
-            title: 'CSS',
-            icon: '&#57864;'
-        },
-        'cubemap': {
-            title: 'CubeMap',
-            icon: '&#57879;'
-        },
-        'html': {
-            title: 'HTML',
-            icon: '&#57864;'
-        },
-        'json': {
-            title: 'JSON',
-            icon: '&#57864;'
-        },
-        'material': {
-            title: 'Material',
-            icon: '&#57749;'
-        },
-        'script': {
-            title: 'Script',
-            icon: '&#57864;'
-        },
-        'shader': {
-            title: 'Shader',
-            icon: '&#57864;'
-        },
-        'text': {
-            title: 'Text',
-            icon: '&#57864;'
-        }
+    var downloadable = {
+        'texture': 1,
+        'html': 1,
+        'css': 1,
+        'shader': 1,
+        'scene': 1,
+        'json': 1,
+        'audio': 1,
+        'text': 1
     };
 
-    var addNewMenuItem = function(key, data) {
+    var icons = {
+        'upload': '&#57909;',
+        'folder': '&#57657;',
+        'css': '&#57864;',
+        'cubemap': '&#57879;',
+        'html': '&#57864;',
+        'json': '&#57864;',
+        'material': '&#57749;',
+        'script': '&#57864;',
+        'shader': '&#57864;',
+        'text': '&#57864;',
+        'texture': '&#57857;',
+        'model': '&#57735;',
+        'scene': '&#57735;',
+        'animation': '&#57875;',
+        'audio': '&#57872;'
+    };
+
+    var assets = {
+        'upload': 'Upload',
+        'folder': 'Folder',
+        'css': 'CSS',
+        'cubemap': 'CubeMap',
+        'html': 'HTML',
+        'json': 'JSON',
+        'material': 'Material',
+        'script': 'Script',
+        'shader': 'Shader',
+        'text': 'Text'
+    };
+
+    var addNewMenuItem = function(key, title) {
         // new folder
         var item = new ui.MenuItem({
-            text: data.title,
-            icon: data.icon || '',
+            text: title,
+            icon: icons[key] || '',
             value: key
         });
         item.on('select', function() {
@@ -113,6 +112,27 @@ editor.once('load', function() {
 
         addNewMenuItem(keys[i], assets[keys[i]]);
     }
+
+
+    // related
+    var menuItemReferences = new ui.MenuItem({
+        text: 'References',
+        icon: '&#57622;',
+        value: 'references'
+    });
+    menu.append(menuItemReferences);
+
+
+    // download
+    var menuItemDownload = new ui.MenuItem({
+        text: 'Download',
+        icon: '&#57896;',
+        value: 'download'
+    });
+    menuItemDownload.on('select', function() {
+        window.open(currentAsset.get('file.url'));
+    });
+    menu.append(menuItemDownload);
 
 
     // edit
@@ -177,6 +197,9 @@ editor.once('load', function() {
         menuItemNew.hidden = ! menuItemNewScript.hidden;
 
         if (currentAsset) {
+            // download
+            menuItemDownload.hidden = ! ((! config.project.privateAssets || (config.project.privateAssets && editor.call('permissions:read'))) && currentAsset.get('type') !== 'folder' && (currentAsset.get('source') || downloadable[currentAsset.get('type')]) && currentAsset.get('file.url'));
+
             // duplicate
             if (currentAsset.get('type') === 'material') {
                 menuItemEdit.hidden = true;
@@ -204,11 +227,88 @@ editor.once('load', function() {
 
             // delete
             menuItemDelete.hidden = false;
+
+            // references
+            if (! currentAsset.get('source')) {
+                var ref = editor.call('assets:used:index')[currentAsset.get('id')];
+                if (ref && ref.count && ref.ref) {
+                    menuItemReferences.hidden = false;
+
+                    while(menuItemReferences.innerElement.firstChild)
+                        menuItemReferences.innerElement.firstChild.ui.destroy();
+
+                    var menuItems = [ ];
+
+                    var addReferenceItem = function(type, id) {
+                        var menuItem = new ui.MenuItem();
+                        var item = null;
+
+                        if (type === 'designerSettings') {
+                            menuItem.text = 'Scene Settings';
+                            menuItem.icon = '&#57652;';
+                            item = editor.call('designerSettings');
+                            if (! item) return;
+                        } else {
+                            if (type === 'entity') {
+                                item = editor.call('entities:get', id);
+                                menuItem.icon = '&#57734;';
+                            } else if (type === 'asset') {
+                                item = editor.call('assets:get', id);
+                                menuItem.icon = icons[item.get('type')] || '';
+                            }
+                            if (! item) return;
+                            menuItem.text = item.get('name');
+                        }
+
+                        menuItems.push({
+                            name: menuItem.text,
+                            type: type,
+                            element: menuItem
+                        });
+
+                        menuItem.on('select', function() {
+                            editor.call('selector:set', type, [ item ]);
+                        });
+                    };
+
+                    for(var key in ref.ref)
+                        addReferenceItem(ref.ref[key].type, key);
+
+                    var typeSort = {
+                        'designerSettings': 1,
+                        'asset': 2,
+                        'entity': 3
+                    };
+
+                    menuItems.sort(function(a, b) {
+                        if (a.type !== b.type) {
+                            return typeSort[a.type] - typeSort[b.type];
+                        } else {
+                            if (a.name > b.name) {
+                                return 1;
+                            } else if (a.name < b.name) {
+                                return -1;
+                            } else {
+                                return 0;
+                            }
+                        }
+                    });
+
+                    for(var i = 0; i < menuItems.length; i++)
+                        menuItemReferences.append(menuItems[i].element);
+                } else {
+                    menuItemReferences.hidden = true;
+                }
+            } else {
+                menuItemReferences.hidden = true;
+            }
         } else {
             // no asset
+            menuItemDownload.hidden = true;
             menuItemDuplicate.hidden = true;
             menuItemEdit.hidden = true;
             menuItemDelete.hidden = true;
+            menuItemReferences.hidden = true;
         }
     });
 

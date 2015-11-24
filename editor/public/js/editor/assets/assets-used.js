@@ -40,7 +40,7 @@ editor.once('load', function() {
             // 'components.script.scripts': true
         }
     };
-    var updateAsset = function(referer, oldId, newId) {
+    var updateAsset = function(referer, type, oldId, newId) {
         if (oldId && index[oldId] !== undefined) {
             index[oldId].count--;
 
@@ -75,6 +75,7 @@ editor.once('load', function() {
 
             if (! index[newId].ref[referer]) {
                 index[newId].ref[referer] = [ ];
+                index[newId].ref[referer].type = type;
 
                 index[newId].ref[referer][0] = editor.on('assets:used:' + referer, function(state) {
                     if (! index[newId])
@@ -92,12 +93,16 @@ editor.once('load', function() {
                 });
 
                 // referer can be destroyed
+                var itemType = 'asset';
                 var item = editor.call('assets:get', referer);
-                if (! item)
+                if (! item) {
                     item = editor.call('entities:get', referer);
+                    itemType = 'entity';
+                }
+
                 if (item) {
                     index[newId].ref[referer][1] = item.once('destroy', function() {
-                        updateAsset(referer, newId);
+                        updateAsset(referer, itemType, newId);
                     });
                 }
 
@@ -118,34 +123,34 @@ editor.once('load', function() {
             if (! keys['cubemap'][path])
                 return;
 
-            updateAsset(this.get('id'), valueOld, value);
+            updateAsset(this.get('id'), 'asset', valueOld, value);
         },
         'material': function(path, value, valueOld) {
             if (! keys['material'][path])
                 return;
 
-            updateAsset(this.get('id'), valueOld, value);
+            updateAsset(this.get('id'), 'asset', valueOld, value);
         },
         'model': function(path, value, valueOld) {
             if (path.startsWith('data.mapping.') && path.slice(-8) === 'material')
-                updateAsset(this, valueOld, value);
+                updateAsset(this, 'asset', valueOld, value);
 
             if (! keys['model'][path])
                 return;
 
-            updateAsset(this.get('id'), valueOld, value);
+            updateAsset(this.get('id'), 'asset', valueOld, value);
         },
         'model-insert': function(path, value) {
             if (! path.startsWith('data.mapping.'))
                 return;
 
-            updateAsset(this.get('id'), null, value);
+            updateAsset(this.get('id'), 'asset', null, value);
         },
         'model-remove': function(path, value) {
             if (! path.startsWith('data.mapping.'))
                 return;
 
-            updateAsset(this.get('id'), value);
+            updateAsset(this.get('id'), 'asset', value);
         },
         'entity': function(path, value, valueOld) {
             if (path.startsWith('components.model.mapping.')) {
@@ -156,7 +161,7 @@ editor.once('load', function() {
                 return;
             }
 
-            updateAsset(this.get('resource_id'), valueOld, value);
+            updateAsset(this.get('resource_id'), 'entity', valueOld, value);
         },
         'entity-unset': function(path, value) {
             if (path.startsWith('components.model.mapping.')) {
@@ -167,7 +172,7 @@ editor.once('load', function() {
                 return;
             }
 
-            updateAsset(this.get('resource_id'), value, null);
+            updateAsset(this.get('resource_id'), 'entity', value, null);
         },
         'entity-insert': function(path, value) {
             if (path.startsWith('components.script.scripts.')) {
@@ -178,7 +183,7 @@ editor.once('load', function() {
                 return;
             }
 
-            updateAsset(this.get('resource_id'), null, value);
+            updateAsset(this.get('resource_id'), 'entity', null, value);
         },
         'entity-remove': function(path, value) {
             if (path.startsWith('components.script.scripts.')) {
@@ -189,7 +194,7 @@ editor.once('load', function() {
                 return;
             }
 
-            updateAsset(this.get('resource_id'), value, null);
+            updateAsset(this.get('resource_id'), 'entity', value, null);
         }
     };
 
@@ -213,13 +218,13 @@ editor.once('load', function() {
                 asset.on('*:remove', onSetMethods[type + '-remove']);
 
             for(var key in keys[type])
-                updateAsset(asset.get('id'), null, asset.get(key));
+                updateAsset(asset.get('id'), 'asset', null, asset.get(key));
 
             if (type === 'model') {
                 var mapping = asset.get('data.mapping');
                 if (mapping) {
                     for(var i = 0; i < mapping.length; i++)
-                        updateAsset(asset.get('id'), null, mapping[i].material);
+                        updateAsset(asset.get('id'), 'asset', null, mapping[i].material);
                 }
             }
         }
@@ -233,7 +238,7 @@ editor.once('load', function() {
         entity.on('*:remove', onSetMethods['entity-remove']);
 
         for(var key in keys['entity'])
-            updateAsset(entity.get('resource_id'), null, entity.get(key));
+            updateAsset(entity.get('resource_id'), 'entity', null, entity.get(key));
 
         var mappings = entity.get('components.model.mapping');
         if (mappings) {
@@ -241,7 +246,7 @@ editor.once('load', function() {
                 if (! mappings.hasOwnProperty(ind) || ! mappings[ind])
                     continue;
 
-                updateAsset(entity.get('resource_id'), null, mappings[ind]);
+                updateAsset(entity.get('resource_id'), 'entity', null, mappings[ind]);
             }
         }
 
@@ -251,14 +256,14 @@ editor.once('load', function() {
                 continue;
 
             for(var i = 0; i < items.length; i++)
-                updateAsset(entity.get('resource_id'), null, items[i]);
+                updateAsset(entity.get('resource_id'), 'entity', null, items[i]);
         }
     });
 
     // scene settings
     var sceneSettings = editor.call('sceneSettings');
     sceneSettings.on('render.skybox:set', function(value, valueOld) {
-        updateAsset('sceneSettings', valueOld, value);
+        updateAsset('sceneSettings', 'designerSettings', valueOld, value);
     });
 
     editor.method('assets:used:index', function() {
