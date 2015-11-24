@@ -73,7 +73,7 @@ Slider.prototype._onLinkChange = function(value) {
 
 
 Slider.prototype._updateHandle = function(value) {
-    this.elementHandle.style.left = (Math.max(0, Math.min(1, (value || 0) / (this._max - this._min))) * 100) + '%';
+    this.elementHandle.style.left = (Math.max(0, Math.min(1, ((value || 0) - this._min) / (this._max - this._min))) * 100) + '%';
 };
 
 
@@ -85,7 +85,7 @@ Slider.prototype._handleEvt = function(evt) {
     var x = Math.max(0, Math.min(1, (evt.clientX - rect.left) / rect.width));
 
     var range = this._max - this._min;
-    var value = (x * range);
+    var value = (x * range) + this._min;
     value = parseFloat(value.toFixed(this.precision), 10);
 
     this._updateHandle(value);
