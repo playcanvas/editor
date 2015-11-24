@@ -240,6 +240,10 @@ editor.once('load', function() {
         var assetMaterials = new ui.Button({
             text: 'Asset Materials'
         });
+        assetMaterials.disabled = ! editor.call('assets:get', entities[0].get('components.model.asset'));
+        events.push(entities[0].on('components.model.asset:set', function(value) {
+            assetMaterials.disabled = entityMaterials.disabled = ! value || ! editor.call('assets:get', value);
+        }));
 
         assetMaterials.class.add('override-material');
         panelMaterialButtons.append(assetMaterials);
@@ -252,6 +256,7 @@ editor.once('load', function() {
         var entityMaterials = new ui.Button({
             text: 'Entity Materials'
         });
+        entityMaterials.disabled = assetMaterials.disabled;
         entityMaterials.class.add('override-material');
         panelMaterialButtons.append(entityMaterials);
 
@@ -312,6 +317,9 @@ editor.once('load', function() {
 
         var addOverride = function (index) {
             var valuesBefore;
+
+            if (! engineEntity.model.model)
+                return;
 
             var meshInstances = engineEntity.model.model.meshInstances;
 
