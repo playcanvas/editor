@@ -4,10 +4,10 @@ editor.once('load', function() {
     var app = editor.call('viewport:framework');
     var defaultSize = new pc.Vec3(1, 1, 1);
     var defaultSizeSmall = new pc.Vec3(.2, .2, .2);
-    var aabb = new pc.shape.Aabb();
-    var aabbA = new pc.shape.Aabb();
-    var aabbB = new pc.shape.Aabb();
-    var aabbC = new pc.shape.Aabb();
+    var aabb = new pc.BoundingBox();
+    var aabbA = new pc.BoundingBox();
+    var aabbB = new pc.BoundingBox();
+    var aabbC = new pc.BoundingBox();
 
     var calculateChildAABB = function(entity) {
         aabbB.center.copy(entity.getPosition());
@@ -61,6 +61,9 @@ editor.once('load', function() {
 
         var items = editor.call('selector:items');
 
+        aabb.center.set(0, 0, 0);
+        aabb.halfExtents.copy(defaultSizeSmall);
+
         // calculate aabb for selected entities
         for(var i = 0; i < items.length; i++) {
             var entity = items[i].entity;
@@ -70,7 +73,7 @@ editor.once('load', function() {
 
             aabbA.center.copy(entity.getPosition());
             aabbA.halfExtents.copy(defaultSizeSmall);
-            calculateChildAABB(entity)
+            calculateChildAABB(entity);
 
             if (i === 0) {
                 aabb.copy(aabbA);

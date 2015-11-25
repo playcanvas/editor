@@ -185,7 +185,7 @@ editor.once('load', function() {
                 value += assets[i].get('meta.' + key);
                 noValue = false;
             }
-            metaFields[key].field.value = noValue ? '' : value + '';
+            metaFields[key].field.value = noValue ? '' : value.toLocaleString();
         };
 
         var metaFields = {
