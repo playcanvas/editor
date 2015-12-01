@@ -14,6 +14,7 @@ editor.once('load', function () {
         indentUnit: 4,
         unComment: true,
         continueComments: true,
+        styleActiveLine: true,
         readOnly: editor.call('editor:isReadonly') ? true : false
     };
 
