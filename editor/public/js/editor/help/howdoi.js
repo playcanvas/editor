@@ -202,9 +202,11 @@ editor.once('load', function () {
     });
 
     var blurTimeout;
+    var focusing = false;
 
     // on focus open the menu and then refocus the input field
     input.elementInput.addEventListener('focus', function () {
+        focusing = true;
         menu.open = true;
         input.elementInput.focus();
 
@@ -213,10 +215,16 @@ editor.once('load', function () {
             blurTimeout = null;
         }
 
+        setTimeout(function () {
+            focusing = false;
+        });
+
     });
 
     // on blur hide the menu
     input.elementInput.addEventListener('blur', function () {
+        if (focusing) return;
+
         if (menu.open) {
             if (blurTimeout)
                 clearTimeout(blurTimeout);
