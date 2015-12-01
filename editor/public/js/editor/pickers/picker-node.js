@@ -163,6 +163,9 @@ editor.once('load', function() {
 
             // get mesh instances panel
             var panelNodes = editor.call('attributes:asset:model:nodesPanel');
+            if (! panelNodes)
+                return;
+
             panelNodes.style.zIndex = 102;
             panelNodes.style.overflow = 'visible';
 

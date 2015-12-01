@@ -14,6 +14,10 @@ editor.once('load', function() {
         sceneName = name;
     });
 
+    var foldStates = {
+        'editor': true
+    };
+
     // inspecting
     editor.on('attributes:inspect[designerSettings]', function() {
 
@@ -50,9 +54,15 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:settings:name:attach', fieldName.parent.innerElement.firstChild.ui);
 
+
+        // editor
         var panel = editor.call('attributes:addPanel', {
-            name: 'Editor Settings'
+            name: 'Editor'
         });
+        panel.foldable = true;
+        panel.folded = foldStates['editor'];
+        panel.on('fold', function() { foldStates['editor'] = true; });
+        panel.on('unfold', function() { foldStates['editor'] = false; });
         panel.class.add('component');
         // reference
         editor.call('attributes:reference:settings:designer:attach', panel, panel.headerElement);

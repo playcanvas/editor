@@ -39,6 +39,8 @@ editor.once('load', function() {
                 return;
             }
 
+            var pathSensitive = editor.call('assets:pipeline:settings', 'pathSensitive');
+
             for(var i = 0; i < data.length; i++) {
                 var currentFolder = editor.call('assets:panel:currentFolder');
                 var path = [ ];
@@ -56,15 +58,30 @@ editor.once('load', function() {
                 var type = extToType[ext];
 
                 // can we override another asset?
+                var sourceAsset = null;
                 var asset = editor.call('assets:findOne', function(item) {
-                    return item.get('name').toLowerCase() === data[i].name.toLowerCase() && item.get('path').match(path) && item.get('source') === source && item.get('type') === type;
+                    // check files in current folder only
+                    if (! item.get('path').equals(path))
+                        return;
+
+                    // try locate source when dropping on its targets
+                    if (! pathSensitive && source && ! item.get('source') && item.get('source_asset_id')) {
+                        var itemSource = editor.call('assets:get', item.get('source_asset_id'));
+                        if (itemSource && itemSource.get('type') === type && itemSource.get('name').toLowerCase() === data[i].name.toLowerCase()) {
+                            sourceAsset = itemSource;
+                            return;
+                        }
+                    }
+
+                    return item.get('source') === source && item.get('type') === type && item.get('name').toLowerCase() === data[i].name.toLowerCase();
                 });
 
                 editor.call('assets:uploadFile', {
-                    asset: asset ? asset[1] : null,
+                    asset: asset ? asset[1] : sourceAsset,
                     file: data[i],
                     name: data[i].name,
-                    parent: editor.call('assets:panel:currentFolder')
+                    parent: editor.call('assets:panel:currentFolder'),
+                    pipeline: true
                 });
             }
         }

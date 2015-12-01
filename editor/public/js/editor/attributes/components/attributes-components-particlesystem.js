@@ -202,7 +202,7 @@ editor.once('load', function() {
         labelHalfLambert.style.paddingRight = '12px';
         panelLighting.append(labelHalfLambert);
         // state
-        fieldHalfLambert.hidden = labelHalfLambert.hidden = ! fieldHalfLambert.value && ! fieldHalfLambert.class.contains('null');
+        fieldHalfLambert.hidden = labelHalfLambert.hidden = ! fieldLighting.value && ! fieldLighting.class.contains('null');
         fieldLighting.on('change', function(value) {
             fieldHalfLambert.hidden = labelHalfLambert.hidden = ! value && ! this.class.contains('null');
         });

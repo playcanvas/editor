@@ -126,7 +126,7 @@ editor.once('load', function() {
     editor.call('assets:progress', .1);
 
     // create asset
-    editor.method('assets:create', function (data) {
+    editor.method('assets:create', function (data, fn) {
         var assetId = null;
         var evtAssetAdd = editor.once('assets:add', function(asset) {
             if (! evtAssetAdd && assetId !== parseInt(asset.get('id'), 10))
@@ -160,10 +160,15 @@ editor.once('load', function() {
                 // TODO
                 // disk allowance error
 
+                fn(err);
+
                 return;
             }
 
             assetId = res.asset.id;
+
+            if (fn)
+                fn(err, assetId);
         });
     });
 
@@ -275,6 +280,8 @@ editor.once('load', function() {
     editor.on('realtime:op:assets', function(op, id) {
         var asset = editor.call('assets:get', id);
         if (asset) {
+            // console.log('in: ' + id + ' [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
+            // console.log(op);
             asset.sync.write(op);
         } else {
             console.error('realtime operation on missing asset: ' + op.p[1]);

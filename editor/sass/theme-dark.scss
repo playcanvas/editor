@@ -922,7 +922,7 @@ a:visited {
         border-color: $bcg-darkest;
         background-color: $bcg-darkest;
 
-        &:after {
+        &.component-toggle:after {
             background-color: #d34141;
         }
     }
@@ -941,12 +941,12 @@ a:visited {
         border-color: $bcg-darker;
         background-color: $bcg-dark;
 
-        &:after {
+        &.component-toggle:after {
             left: 15px;
             background-color: mix($text-darkest, #7f7, 50%);
         }
-        &:hover,
-        &:focus {
+        &.component-toggle:hover,
+        &.component-toggle:focus {
             border-color: $bcg-darkest;
             background-color: $bcg-darkest;
 

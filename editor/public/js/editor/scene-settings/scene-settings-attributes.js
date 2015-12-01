@@ -3,6 +3,20 @@ editor.once('load', function() {
 
     var sceneSettings = editor.call('sceneSettings');
 
+    editor.method('designerSettings:panel:unfold', function(panel) {
+        var element = editor.call('layout.right').innerElement.querySelector('.ui-panel.component.foldable.' + panel);
+        if (element && element.ui)
+            element.ui.folded = false;
+    });
+
+    var foldStates = {
+        'physics': true,
+        'environment': true,
+        'camera': true,
+        'fog': true,
+        'loading': true
+    };
+
     editor.on('attributes:inspect[designerSettings]', function() {
         editor.call('attributes:header', 'Settings');
 
@@ -30,10 +44,14 @@ editor.once('load', function() {
         };
 
 
-        // physics settings
+        // physics
         var physicsPanel = editor.call('attributes:addPanel', {
-            name: 'Physics Settings'
+            name: 'Physics'
         });
+        physicsPanel.foldable = true;
+        physicsPanel.folded = foldStates['physics'];
+        physicsPanel.on('fold', function() { foldStates['physics'] = true; });
+        physicsPanel.on('unfold', function() { foldStates['physics'] = false; });
         physicsPanel.class.add('component');
 
         // gravity
@@ -55,6 +73,10 @@ editor.once('load', function() {
         var panelEnvironment = editor.call('attributes:addPanel', {
             name: 'Environment'
         });
+        panelEnvironment.foldable = true;
+        panelEnvironment.folded = foldStates['environment'];
+        panelEnvironment.on('fold', function() { foldStates['environment'] = true; });
+        panelEnvironment.on('unfold', function() { foldStates['environment'] = false; });
         panelEnvironment.class.add('component');
 
 
@@ -167,6 +189,10 @@ editor.once('load', function() {
         var panelCamera = editor.call('attributes:addPanel', {
             name: 'Camera'
         });
+        panelCamera.foldable = true;
+        panelCamera.folded = foldStates['camera'];
+        panelCamera.on('fold', function() { foldStates['camera'] = true; });
+        panelCamera.on('unfold', function() { foldStates['camera'] = false; });
         panelCamera.class.add('component');
 
 
@@ -235,6 +261,10 @@ editor.once('load', function() {
         var panelFog = editor.call('attributes:addPanel', {
             name: 'Fog'
         });
+        panelFog.foldable = true;
+        panelFog.folded = foldStates['fog'];
+        panelFog.on('fold', function() { foldStates['fog'] = true; });
+        panelFog.on('unfold', function() { foldStates['fog'] = false; });
         panelFog.class.add('component');
 
 
@@ -328,6 +358,10 @@ editor.once('load', function() {
         var panelLoadingScreen = editor.call('attributes:addPanel', {
             name: 'Loading Screen'
         });
+        panelLoadingScreen.foldable = true;
+        panelLoadingScreen.folded = foldStates['loading'];
+        panelLoadingScreen.on('fold', function() { foldStates['loading'] = true; });
+        panelLoadingScreen.on('unfold', function() { foldStates['loading'] = false; });
         panelLoadingScreen.class.add('component', 'loading-screen');
 
         // custom loading screen script

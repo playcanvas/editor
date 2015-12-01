@@ -25,11 +25,11 @@ Grid.prototype._onSelect = function(item) {
         return;
 
     if (Grid._shift && Grid._shift()) {
+        var children = Array.prototype.slice.call(this.element.childNodes, 0);
+
         // multi select from-to
         if (this._lastSelect) {
             this._selecting = true;
-
-            var children = Array.prototype.slice.call(this.element.children, 0);
 
             var startInd = children.indexOf(this._lastSelect.element);
             var endInd = children.indexOf(item.element);
@@ -42,7 +42,7 @@ Grid.prototype._onSelect = function(item) {
             }
 
             for(var i = startInd; i < endInd; i++) {
-                if (children[i].ui.hidden)
+                if (! children[i] || ! children[i].ui || children[i].ui.hidden)
                     continue;
 
                 children[i].ui.selected = true;

@@ -99,9 +99,44 @@ editor.once('load', function() {
         }, {
             name: 'loadingScreenScript',
             title: 'Loading Screen Script',
-            subTitle: '{String}',
             description: 'The name of the script to use for creating the loading screen of the application. The script needs to call pc.script.createLoadingScreen.',
             url: 'http://developer.playcanvas.com/en/engine/api/stable/symbols/pc.script.html#createLoadingScreen'
+        }, {
+            name: 'asset-tasks',
+            title: 'Asset Tasks',
+            description: 'Settings for defining default behaviour rules for asset pipeline jobs: assets extracting, textures resizing, etc.'
+        }, {
+            name: 'asset-tasks:auto',
+            title: 'Auto-Run',
+            description: 'Automatically run pipeline on uploaded assets with default settings.'
+        }, {
+            name: 'asset-tasks:texturePot',
+            title: 'Texture Power of Two',
+            description: 'Auto-resize textures to Nearest Power of Two resolution. Textures with NPOT resolution are not filtered and can be rendered pixelated. Although if imagery uploaded to be used as UI image, auto-resize is not desired option.'
+        }, {
+            name: 'asset-tasks:pathSensitive',
+            title: 'Path Sensitive',
+            description: 'If not Path Sensitive, on uploads it will try to link asset being uploaded to original source file. Uploading to folder with target asset can be detected and source asset located in other folders. Additionally if target assets are located in different folders, with non Path Sensitive setting, it will update target assets in different folders as far as they originate from that source, have desired asset type and same asset name.'
+        }, {
+            name: 'asset-tasks:overwrite',
+            title: 'Overwrite',
+            description: 'Overwrite existing target assets with assets from model archives or ignore assets from model archive if target asset already exists.'
+        }, {
+            name: 'asset-tasks:overwrite:model',
+            title: 'Overwrite Model',
+            description: 'On model archive uploads, if target model asset exists, it will be updated when this option is enabled.'
+        }, {
+            name: 'asset-tasks:overwrite:animation',
+            title: 'Overwrite Animation',
+            description: 'On model archive uploads, if target animation asset exists, it will be updated when this option is enabled.'
+        }, {
+            name: 'asset-tasks:overwrite:material',
+            title: 'Overwrite Material',
+            description: 'On model archive uploads, if target material asset exists, it will be updated when this option is enabled.'
+        }, {
+            name: 'asset-tasks:overwrite:texture',
+            title: 'Overwrite Texture',
+            description: 'On model archive uploads, if target texture asset exists, it will be updated when this option is enabled.'
         }
     ];
 
