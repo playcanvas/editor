@@ -53,9 +53,9 @@ editor.once('load', function() {
                     refreshPriorityList();
                 });
 
-                item.element.appendChild(remove.element);
-                item.element.appendChild(moveUp.element);
-                item.element.appendChild(moveDown.element);
+                item.element.insertBefore(remove.element, item.element.lastChild);
+                item.element.insertBefore(moveDown.element, item.element.lastChild);
+                item.element.insertBefore(moveUp.element, item.element.lastChild);
 
                 priorityList.append(item);
             });
@@ -97,7 +97,7 @@ editor.once('load', function() {
             var value = asset.get("filename");
             if (priorityScripts.indexOf(value) < 0) {
                 priorityScripts.push(value);
-                if (sceneSettings.get('priority_scripts')) {
+                if (sceneSettings.has('priority_scripts')) {
                     sceneSettings.insert("priority_scripts", value);
                 } else {
                     sceneSettings.set('priority_scripts', priorityScripts);
@@ -117,6 +117,10 @@ editor.once('load', function() {
     var priorityList = new ui.List();
     sceneSettings.on("priority_scripts:set", function (scripts) {
         priorityScripts = scripts.slice();
+        refreshPriorityList();
+    });
+    sceneSettings.on("priority_scripts:unset", function () {
+        priorityScripts = [];
         refreshPriorityList();
     });
     panel.append(priorityList);
