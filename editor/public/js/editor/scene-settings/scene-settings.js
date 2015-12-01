@@ -19,10 +19,10 @@ editor.once('load', function() {
         if (history)
             sceneSettings.history.enabled = false;
 
-        if (data.settings.priority_scripts === undefined)
-            data.settings.priority_scripts = [];
-
         sceneSettings.patch(data.settings);
+
+        if (data.settings.priority_scripts === undefined && sceneSettings.has('priority_scripts'))
+            sceneSettings.unset('priority_scripts');
 
         if (history)
             sceneSettings.history.enabled = true;

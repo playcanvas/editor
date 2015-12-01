@@ -946,6 +946,7 @@ a:visited {
     > input.field {
         @extend .fieldFont;
         width: calc(100% - 16px);
+        height: 100%;
         padding: 0 8px;
         line-height: 22px;
         color: #fff;
@@ -1033,6 +1034,7 @@ a:visited {
     }
     > input.field {
         @extend .fieldFont;
+        height: 100%;
         width: calc(100% - 16px);
         padding: 0 8px;
         line-height: 22px;

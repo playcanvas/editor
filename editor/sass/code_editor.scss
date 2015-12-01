@@ -7,6 +7,9 @@ $editor-text-color: #f8f4f0;
 $editor-gutter-fg: #5b7073;
 $editor-line-highlight: #324447;//#163a43;
 $editor-selection: #677173; //#324447;//#275C69;
+$editor-activeline-bg: transparent;
+$editor-activeline-linenumber-bg: lighten($editor-bg, 10);
+$editor-activeline-linenumber: #B1B8BA;
 $editor-tooltip-bg: #324447;
 $editor-hint-line: #b1b8ba;
 $editor-hint-line-active: $editor-text-color;
@@ -402,6 +405,17 @@ li.CodeMirror-hint-active {
     line-height: 1.5;
 
     @extend .font-regular;
+}
+
+.CodeMirror-activeline-background {
+    background-color: $editor-activeline-bg;
+}
+
+.CodeMirror-activeline-gutter {
+    background-color: $editor-activeline-linenumber-bg;
+    .CodeMirror-linenumber {
+        color: $editor-activeline-linenumber;
+    }
 }
 
 .CodeMirror-fhint {

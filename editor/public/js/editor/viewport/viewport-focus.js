@@ -110,6 +110,16 @@ editor.once('load', function() {
         transition.focusStart.copy(transition.focusEnd);
         transition.focusEnd.copy(aabb.center);
         transition.startTime = pc.time.now();
+
+        if (camera.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
+            transition.orthoHeightStart = camera.camera.orthoHeight;
+            transition.orthoHeightEnd = averageExtent * 1.1;
+
+            // move camera back 1000 meters so that the speed for moving around can remain constant
+            transition.eyeEnd.add2(transition.focusEnd, camWtm.getZ().scale(1000));
+        }
+
+
         transition.active = true;
 
         editor.call('viewport:frameSelectionStart');
