@@ -714,11 +714,11 @@ editor.once('load', function() {
                 renderedCurveIndices[index] = true;
 
                 var otherCurve = getOtherCurve(curve);
-                drawCurvePair(curve, otherCurve);
+                drawCurvePair(curve, betweenCurves ? otherCurve : null);
 
                 drawCurveAnchors(curve);
 
-                if (otherCurve) {
+                if (betweenCurves && otherCurve) {
                     var otherIndex = curves.indexOf(otherCurve);
                     if (!renderedCurveIndices[otherIndex]) {
                         drawCurveAnchors(otherCurve);
@@ -732,13 +732,11 @@ editor.once('load', function() {
     // If the specified curve is the primary returns the secondary
     // otherwise if the specified curve is the secondary returns the primary
     function getOtherCurve (curve) {
-        if (betweenCurves) {
-            var ind = curves.indexOf(curve);
-            if (ind < numCurves) {
-                return curves[numCurves + ind];
-            } else {
-                return curves[ind - numCurves];
-            }
+        var ind = curves.indexOf(curve);
+        if (ind < numCurves) {
+            return curves[numCurves + ind];
+        } else {
+            return curves[ind - numCurves];
         }
     }
 
@@ -1231,10 +1229,13 @@ editor.once('load', function() {
             selectedAnchorIndex = anchor ? curve.keys.indexOf(anchor) : -1;
 
             // render curve pair in front of the others
-            var otherCurve = getOtherCurve(curve);
-            if (otherCurve) {
-                sendCurveToFront(otherCurve);
+            if (betweenCurves) {
+                var otherCurve = getOtherCurve(curve);
+                if (otherCurve) {
+                    sendCurveToFront(otherCurve);
+                }
             }
+
 
             sendCurveToFront(curve);
         } else {
@@ -1302,14 +1303,17 @@ editor.once('load', function() {
                 enabledCurves.splice(index, 1);
             }
 
-            // remove it's matching curve too
-            var otherCurve = getOtherCurve(curve);
-            if (otherCurve) {
-                index = enabledCurves.indexOf(otherCurve);
-                if (index >= 0) {
-                    enabledCurves.splice(index, 1);
+            // remove its matching curve too
+            if (betweenCurves) {
+                var otherCurve = getOtherCurve(curve);
+                if (otherCurve) {
+                    index = enabledCurves.indexOf(otherCurve);
+                    if (index >= 0) {
+                        enabledCurves.splice(index, 1);
+                    }
                 }
             }
+
 
             // if the selected curve was disabled select the next enabled one
             if (selectedCurve === curve || selectedCurve === otherCurve) {
