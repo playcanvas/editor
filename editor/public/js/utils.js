@@ -54,3 +54,26 @@ if (! String.prototype.endsWith) {
         }
     });
 }
+
+// element.classList.add polyfill
+(function () {
+    /*global DOMTokenList */
+    var dummy  = document.createElement('div'),
+        dtp    = DOMTokenList.prototype,
+        toggle = dtp.toggle,
+        add    = dtp.add,
+        rem    = dtp.remove;
+
+    dummy.classList.add('class1', 'class2');
+
+    // Older versions of the HTMLElement.classList spec didn't allow multiple
+    // arguments, easy to test for
+    if (!dummy.classList.contains('class2')) {
+        dtp.add    = function () {
+            Array.prototype.forEach.call(arguments, add.bind(this));
+        };
+        dtp.remove = function () {
+            Array.prototype.forEach.call(arguments, rem.bind(this));
+        };
+    }
+})();
