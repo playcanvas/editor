@@ -1338,6 +1338,8 @@ strong {
                 > .ui-checkbox.component-toggle {
                     float: right;
                     margin: 7px 4px 0 0;
+                    border-radius: 8px;
+                    background-color: $bcg-primary;
                 }
                 > .ui-button.component-remove {
                     float: right;
@@ -1713,43 +1715,55 @@ strong {
 }
 
 .ui-checkbox.tick {
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
     overflow: hidden;
     // border-width: 2px;
 
     &.null {
         &:after {
-            background-color: mix($bcg-primary, $text-darkest, 50%);
-            left: 3px;
+            color: mix($bcg-primary, $text-darkest, 50%);
+            left: 0;
         }
         &:hover:after {
-            background-color: $text-primary;
+            color: $text-primary;
         }
     }
     &:after {
+        @extend .font-icon;
         position: absolute;
         margin: 0;
-        content: '\00a0';
-        width: 8px;
-        height: 8px;
-        left: 3px;
-        top: 3px;
+        content: none;
+        width: 12px;
+        height: 12px;
+        line-height: 13px;
+        font-weight: bold;
+        font-size: 11px;
+        text-align: center;
+        left: 0;
+        top: 0;
         border-radius: 0;
         background-color: transparent;
         transition: none;
     }
     &:hover {
         &:after {
-            background-color: $text-primary;
+            content: '\E133';
+            color: $text-primary;
         }
         &.checked:after {
-            background-color: $text-dark;
-            opacity: .5;
+            color: $text-primary;
+            background-color: mix($text-dark, $bcg-darkest, 50%);
+            // opacity: .5;
         }
     }
-    &.checked:after {
+    &.checked {
         background-color: $text-dark;
+
+        &:after {
+            content: '\E133';
+            color: $bcg-dark;
+        }
     }
 }
 
