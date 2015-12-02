@@ -98,7 +98,7 @@ editor.once('load', function() {
     });
 
 
-    var textureConvertOptions = function(meta) {
+    editor.method('assets:jobs:texture-convert-options', function(meta) {
         var options = {
             new: false
         };
@@ -128,98 +128,64 @@ editor.once('load', function() {
             options.depthConvert = true;
 
         return options;
-    };
+    });
 
 
-    editor.method('assets:jobs:add', function(asset) {
-        if (jobs[asset.get('id')])
-            return;
+    editor.method('assets:jobs:thumbnails', function(source, target) {
+        source = source || target;
 
-        if ([ 'texture', 'scene' ].indexOf(asset.get('type')) === -1)
-            return;
-
-        var events = [ ];
-
-        var item = jobs[asset.get('id')] = new ui.ListItem();
-        item.asset = asset;
-        item.text = asset.get('name');
-
-        events.push(asset.on('name:set', function(value) {
-            item.text = asset.get('name');
-        }));
-        events.push(asset.once('destroy', function() {
-            editor.call('assets:jobs:remove', asset.get('id'));
-        }));
-
-        list.append(item);
-
-        // remove on right click
-        item.element.addEventListener('contextmenu', function() {
-            editor.call('assets:jobs:remove', asset.get('id'));
-        }, false);
-
-        // var checkArea = document.createElement('div');
-        // checkArea.classList.add('tick');
-        // checkArea.addEventListener('click', function(evt) {
-        //     evt.stopPropagation();
-        // }, false);
-        // item.element.appendChild(checkArea);
-
-        // var check = new ui.Checkbox();
-        // check.parent = item;
-        // check.class.add('tick');
-        // checkArea.appendChild(check.element);
-
-        var auto = new ui.Button({
-            text: '&#57649;'
-        });
-        auto.class.add('auto');
-        auto.parent = item;
-        item.element.appendChild(auto.element);
-
-        number.textContent = list.innerElement.childNodes.length;
-
-        item.once('destroy', function() {
-            for(var i = 0; i < events.length; i++)
-                events[i].unbind();
-        });
-
-        var generateThumbnails = function(source, target) {
-            source = source || asset;
-
-            var task = {
-                source: {
-                    asset: {
-                        id: source.get('id'),
-                        filename: source.get('file.filename')
-                    }
+        var task = {
+            source: {
+                asset: {
+                    id: source.get('id'),
+                    filename: source.get('file.filename')
                 }
-            };
-
-            if (target) {
-                task.target = {
-                    asset: {
-                        id: target.get('id'),
-                        filename: target.get('file.filename')
-                    }
-                }
-            } else {
-                task.target = task.source;
             }
-
-            if (! task.source.asset.filename || ! task.target.asset.filename)
-                return;
-
-            editor.call('realtime:send', 'pipeline', {
-                name: 'thumbnails',
-                data: task
-            });
         };
 
-        var convertAuto = function() {
+        if (target) {
+            task.target = {
+                asset: {
+                    id: target.get('id'),
+                    filename: target.get('file.filename')
+                }
+            }
+        } else {
+            task.target = task.source;
+        }
+
+        if (! task.source.asset.filename || ! task.target.asset.filename)
+            return;
+
+        editor.call('realtime:send', 'pipeline', {
+            name: 'thumbnails',
+            data: task
+        });
+    });
+
+
+    editor.method('assets:jobs:convert', function(asset, options) {
+        if (options) {
+            editor.call('realtime:send', 'pipeline', {
+                name: 'convert',
+                data: options
+            });
+        } else {
+            // auto convert
+            var item = jobs[asset.get('id')];
             var meta = asset.get('meta');
 
-            item.class.add('processing');
+            var events = [ ];
+
+            if (item) {
+                events = item.events;
+                item.class.add('processing');
+            } else {
+                asset.once('destroy', function() {
+                    for(var i = 0; i < events.length; i++)
+                        events[i].unbind();
+                });
+            }
 
             if (asset.get('type') === 'texture') {
                 var task = {
@@ -235,7 +201,7 @@ editor.once('load', function() {
                     target: { }
                 };
 
-                task.options = textureConvertOptions(meta);
+                task.options = editor.call('assets:jobs:texture-convert-options', meta);
 
                 if (! task.options.new) {
                     task.target = task.source;
@@ -245,15 +211,19 @@ editor.once('load', function() {
                         data: task
                     });
 
-                    events.push(asset.once('file.hash:set', function() {
+                    events.push(asset.once('file:set', function() {
                         editor.call('assets:jobs:remove', asset.get('id'));
-                        setTimeout(generateThumbnails, 0);
+                        setTimeout(function() {
+                            editor.call('assets:jobs:thumbnails', null, asset);
+                        }, 0);
                     }));
 
                     // no changes to asset
                     if (Object.keys(task.options).length === 2 && task.options.format === meta.format) {
                         editor.call('assets:jobs:remove', asset.get('id'));
-                        setTimeout(generateThumbnails, 0);
+                        setTimeout(function() {
+                            editor.call('assets:jobs:thumbnails', null, asset);
+                        }, 0);
                     }
                 } else {
                     var filename = asset.get('file.filename').split('.');
@@ -288,13 +258,13 @@ editor.once('load', function() {
                             data: task
                         });
 
-                        events.push(target.once('file.hash:set', function() {
+                        events.push(target.once('file:set', function() {
                             editor.call('assets:jobs:remove', asset.get('id'));
                             setTimeout(function() {
                                 if (target.get('data.rgbm')) {
-                                    generateThumbnails(asset, target);
+                                    editor.call('assets:jobs:thumbnails', asset, target);
                                 } else {
-                                    generateThumbnails(target, target);
+                                    editor.call('assets:jobs:thumbnails', null, target);
                                 }
                             }, 0);
                         }));
@@ -416,7 +386,7 @@ editor.once('load', function() {
                         textures[i].override = editor.call('assets:pipeline:settings', 'overwriteTexture');;
                     }
 
-                    textures[i].options = textureConvertOptions(textures[i].meta);
+                    textures[i].options = editor.call('assets:jobs:texture-convert-options', textures[i].meta);
                 }
 
                 var task = {
@@ -446,6 +416,54 @@ editor.once('load', function() {
 
                 editor.call('assets:jobs:remove', asset.get('id'));
             }
+        }
+    });
+
+
+    editor.method('assets:jobs:add', function(asset) {
+        if (jobs[asset.get('id')])
+            return;
+
+        if ([ 'texture', 'scene' ].indexOf(asset.get('type')) === -1)
+            return;
+
+        var events = [ ];
+
+        var item = jobs[asset.get('id')] = new ui.ListItem();
+        item.events = events;
+        item.asset = asset;
+        item.text = asset.get('name');
+
+        events.push(asset.on('name:set', function(value) {
+            item.text = asset.get('name');
+        }));
+        events.push(asset.once('destroy', function() {
+            editor.call('assets:jobs:remove', asset.get('id'));
+        }));
+
+        list.append(item);
+
+        // remove on right click
+        item.element.addEventListener('contextmenu', function() {
+            editor.call('assets:jobs:remove', asset.get('id'));
+        }, false);
+
+        var auto = new ui.Button({
+            text: '&#57649;'
+        });
+        auto.class.add('auto');
+        auto.parent = item;
+        item.element.appendChild(auto.element);
+
+        number.textContent = list.innerElement.childNodes.length;
+
+        item.once('destroy', function() {
+            for(var i = 0; i < events.length; i++)
+                events[i].unbind();
+        });
+
+        var convertAuto = function() {
+            editor.call('assets:jobs:convert', asset);
         };
 
         auto.on('click', convertAuto);
@@ -468,14 +486,16 @@ editor.once('load', function() {
                 var filename = asset.get('file.filename');
 
                 if (filename) {
-                    generateThumbnails();
+                    editor.call('assets:jobs:thumbnails', null, asset);
                 } else {
                     events.push(asset.once('file.filename:set', function() {
-                        generateThumbnails();
+                        editor.call('assets:jobs:thumbnails', null, asset);
                     }));
                 }
             }
         }
+
+        return item;
     });
 
 

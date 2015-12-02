@@ -158,10 +158,14 @@ editor.once('load', function() {
 
 
 
+        // TODO
+        // divider
+
+
         // castShadows
         var fieldCastShadows = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Cast Shadows',
+            name: 'Shadows',
             type: 'checkbox',
             link: entities,
             path: 'components.light.castShadows'
@@ -183,7 +187,7 @@ editor.once('load', function() {
         // shadowDistance
         var fieldShadowDistance = editor.call('attributes:addField', {
             parent: panelShadows,
-            name: 'Shadow Distance',
+            name: 'Distance',
             type: 'number',
             precision: 2,
             step: 1,
@@ -202,7 +206,7 @@ editor.once('load', function() {
         // shadowResolution
         var fieldShadowResolution = editor.call('attributes:addField', {
             parent: panelShadows,
-            name: 'Shadow Resolution',
+            name: 'Resolution',
             type: 'number',
             enum: [
                 { v: '', t: '...' },
@@ -222,7 +226,7 @@ editor.once('load', function() {
         // shadowBias
         var fieldShadowBias = editor.call('attributes:addField', {
             parent: panelShadows,
-            name: 'Shadow Bias',
+            name: 'Bias',
             type: 'number',
             precision: 3,
             step: .001,
