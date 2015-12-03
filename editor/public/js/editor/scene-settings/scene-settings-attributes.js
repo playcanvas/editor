@@ -431,6 +431,7 @@ editor.once('load', function() {
             link: projectSettings,
             path: 'use_device_pixel_ratio'
         });
+        fieldPixelRatio.parent.innerElement.firstChild.style.width = 'auto';
         editor.call('attributes:reference:settings:project:pixelRatio:attach', fieldPixelRatio.parent.innerElement.firstChild.ui);
 
 
