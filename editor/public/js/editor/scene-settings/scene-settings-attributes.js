@@ -53,6 +53,43 @@ editor.once('load', function() {
         physicsPanel.on('unfold', function() { foldStates['physics'] = false; });
         physicsPanel.class.add('component');
 
+        var projectSettings = editor.call('project:settings');
+
+        // enable 3d physics
+        var fieldPhysics = editor.call('attributes:addField', {
+            parent: physicsPanel,
+            name: 'Enable',
+            type: 'checkbox'
+        });
+        editor.call('attributes:reference:settings:project:physics:attach', fieldPhysics.parent.innerElement.firstChild.ui);
+
+        var changing = false;
+        fieldPhysics.value = projectSettings.get('libraries').indexOf('physics-engine-3d') !== -1;
+        fieldPhysics.on('change', function (value) {
+            if (changing) return;
+            changing = true;
+            if (value) {
+                projectSettings.set('libraries', ['physics-engine-3d']);
+            } else {
+                projectSettings.set('libraries', []);
+            }
+            changing = false;
+        });
+
+        var evtPhysicsChange = projectSettings.on('*:set', function (path, value, oldValue) {
+            if (path === 'libraries') {
+                if (changing) return;
+                changing = true;
+                fieldPhysics.value = value.indexOf('physics-engine-3d') !== -1;
+                changing = false;
+            }
+        });
+
+        physicsPanel.on('destroy', function () {
+            evtPhysicsChange.unbind();
+        });
+
+
         // gravity
         var fieldGravity = editor.call('attributes:addField', {
             parent: physicsPanel,
@@ -330,6 +367,71 @@ editor.once('load', function() {
         }), fogFilter);
         // reference
         editor.call('attributes:reference:settings:fogColor:attach', fieldFogColor.parent.innerElement.firstChild.ui);
+
+        // divider
+        var divider = document.createElement('div');
+        divider.classList.add('fields-divider');
+        panelRendering.append(divider);
+
+        // Resolution related
+        var fieldWidth = editor.call('attributes:addField', {
+            parent: panelRendering,
+            name: 'Resolution',
+            placeholder: 'w',
+            type: 'number',
+            link: projectSettings,
+            path: 'width',
+            precision: 0,
+            min: 1
+        });
+
+        editor.call('attributes:reference:settings:project:width:attach', fieldWidth);
+
+        var fieldHeight = editor.call('attributes:addField', {
+            panel: fieldWidth.parent,
+            placeholder: 'h',
+            type: 'number',
+            link: projectSettings,
+            path: 'height',
+            precision: 0,
+            min: 1
+        });
+        editor.call('attributes:reference:settings:project:height:attach', fieldHeight);
+
+        var fieldResolutionMode = editor.call('attributes:addField', {
+            panel: fieldWidth.parent,
+            type: 'string',
+            enum: {
+                'FIXED': 'Fixed',
+                'AUTO': 'Auto'
+            },
+            link: projectSettings,
+            path: 'resolution_mode'
+        });
+        editor.call('attributes:reference:settings:project:resolutionMode:attach', fieldResolutionMode);
+
+        var fieldFillMode = editor.call('attributes:addField', {
+            parent: panelRendering,
+            name: 'Fill mode',
+            type: 'string',
+            enum: {
+                'NONE': 'None',
+                'KEEP_ASPECT': 'Keep aspect ratio',
+                'FILL_WINDOW': 'Fill window',
+            },
+            link: projectSettings,
+            path: 'fill_mode'
+        });
+        editor.call('attributes:reference:settings:project:fillMode:attach', fieldFillMode.parent.innerElement.firstChild.ui);
+
+        var fieldPixelRatio = editor.call('attributes:addField', {
+            parent: panelRendering,
+            name: 'Device Pixel Ratio',
+            type: 'checkbox',
+            link: projectSettings,
+            path: 'use_device_pixel_ratio'
+        });
+        editor.call('attributes:reference:settings:project:pixelRatio:attach', fieldPixelRatio.parent.innerElement.firstChild.ui);
 
 
         filter();
