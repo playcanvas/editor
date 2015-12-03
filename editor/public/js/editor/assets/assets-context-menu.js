@@ -125,7 +125,7 @@ editor.once('load', function() {
 
     // extract
     var menuItemExtract = new ui.MenuItem({
-        text: 'Extract',
+        text: 'Re-Import',
         icon: '&#57896;',
         value: 'extract'
     });
