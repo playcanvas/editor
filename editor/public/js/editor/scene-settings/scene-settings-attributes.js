@@ -53,6 +53,43 @@ editor.once('load', function() {
         physicsPanel.on('unfold', function() { foldStates['physics'] = false; });
         physicsPanel.class.add('component');
 
+        var projectSettings = editor.call('project:settings');
+
+        // enable 3d physics
+        var fieldPhysics = editor.call('attributes:addField', {
+            parent: physicsPanel,
+            name: 'Enable',
+            type: 'checkbox'
+        });
+        editor.call('attributes:reference:settings:project:physics:attach', fieldPhysics.parent.innerElement.firstChild.ui);
+
+        var changing = false;
+        fieldPhysics.value = projectSettings.get('libraries').indexOf('physics-engine-3d') !== -1;
+        fieldPhysics.on('change', function (value) {
+            if (changing) return;
+            changing = true;
+            if (value) {
+                projectSettings.set('libraries', ['physics-engine-3d']);
+            } else {
+                projectSettings.set('libraries', []);
+            }
+            changing = false;
+        });
+
+        var evtPhysicsChange = projectSettings.on('*:set', function (path, value, oldValue) {
+            if (path === 'libraries') {
+                if (changing) return;
+                changing = true;
+                fieldPhysics.value = value.indexOf('physics-engine-3d') !== -1;
+                changing = false;
+            }
+        });
+
+        physicsPanel.on('destroy', function () {
+            evtPhysicsChange.unbind();
+        });
+
+
         // gravity
         var fieldGravity = editor.call('attributes:addField', {
             parent: physicsPanel,

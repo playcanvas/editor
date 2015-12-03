@@ -2,7 +2,6 @@ editor.once('load', function() {
     'use strict';
 
     var folded = true;
-    var changing = false;
 
     editor.on('attributes:inspect[designerSettings]', function() {
         var settings = editor.call('project:settings');
@@ -68,25 +67,6 @@ editor.once('load', function() {
         });
         editor.call('attributes:reference:settings:project:fillMode:attach', fieldFillMode.parent.innerElement.firstChild.ui);
 
-        var fieldPhysics = editor.call('attributes:addField', {
-            parent: panel,
-            name: '3D Physics',
-            type: 'checkbox'
-        });
-        editor.call('attributes:reference:settings:project:physics:attach', fieldPhysics.parent.innerElement.firstChild.ui);
-
-        fieldPhysics.value = settings.get('libraries').indexOf('physics-engine-3d') !== -1;
-        fieldPhysics.on('change', function (value) {
-            if (changing) return;
-            changing = true;
-            if (value) {
-                settings.set('libraries', ['physics-engine-3d']);
-            } else {
-                settings.set('libraries', []);
-            }
-            changing = false;
-        });
-
         var fieldPixelRatio = editor.call('attributes:addField', {
             parent: panel,
             name: 'Device Pixel Ratio',
@@ -95,19 +75,6 @@ editor.once('load', function() {
             path: 'use_device_pixel_ratio'
         });
         editor.call('attributes:reference:settings:project:pixelRatio:attach', fieldPixelRatio.parent.innerElement.firstChild.ui);
-
-        var evtChange = settings.on('*:set', function (path, value, oldValue) {
-            if (path === 'libraries') {
-                if (changing) return;
-                changing = true;
-                fieldPhysics.value = value.indexOf('physics-engine-3d') !== -1;
-                changing = false;
-            }
-        });
-
-        panel.on('destroy', function () {
-            evtChange.unbind();
-        });
     });
 
 });

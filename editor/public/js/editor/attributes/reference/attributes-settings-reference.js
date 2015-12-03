@@ -123,12 +123,12 @@ editor.once('load', function() {
             description: 'Resolution Mode decides whether the canvas resolution will change when it is resized.'
         }, {
             name: 'project:physics',
-            title: 'Enable 3D Physics',
-            description: 'Enable to use 3D physics in your Application.'
+            title: 'Enable Physics',
+            description: 'When enabled the Physics library code is included in your project.'
         }, {
             name: 'project:pixelRatio',
-            title: 'Use Device Pixel Ratio',
-            description: 'Enable if you want to use the device pixel ratio.'
+            title: 'Device Pixel Ratio',
+            description: 'When enabled the canvas resolution will be calculated including the device pixel ratio.'
         }, {
             name: 'asset-tasks',
             title: 'Asset Tasks',

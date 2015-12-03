@@ -30,8 +30,12 @@ editor.once('load', function() {
         entity.set('components.' + component, componentData);
 
         // if it's a collision or rigidbody component then enable physics
-        if (component === 'collision' || component === 'rigidbody')
-            editor.call('project:settings').set('libraries', ['physics-engine-3d']);
+        if (component === 'collision' || component === 'rigidbody') {
+            var settings = editor.call('project:settings');
+            settings.history = false;
+            settings.set('libraries', ['physics-engine-3d']);
+            settings.history = true;
+        }
     };
 
     var hasScript = function (entity, url) {
