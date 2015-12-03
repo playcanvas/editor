@@ -13,6 +13,21 @@ editor.once('load', function() {
         return config.owner.size + totalSize <= config.owner.diskAllowance;
     });
 
+    editor.method('assets:upload:script', function(file) {
+        var reader = new FileReader();
+
+        reader.addEventListener('load', function() {
+            editor.call('sourcefiles:create', file.name, reader.result, function(err) {
+                if (err)
+                    return;
+
+                editor.call('assets:panel:currentFolder', 'scripts');
+            });
+        }, false);
+
+        reader.readAsText(file);
+    });
+
     editor.method('assets:uploadFile', function (args, fn) {
         // NOTE
         // non-file form data should be above file,
@@ -128,11 +143,16 @@ editor.once('load', function() {
             }
 
             for(var i = 0; i < this.files.length; i++) {
-                editor.call('assets:uploadFile', {
-                    file: this.files[i],
-                    name: this.files[i].name,
-                    parent: parent
-                });
+
+                if (/\.js$/i.test(this.files[i].name)) {
+                    editor.call('assets:upload:script', this.files[i]);
+                } else {
+                    editor.call('assets:uploadFile', {
+                        file: this.files[i],
+                        name: this.files[i].name,
+                        parent: parent
+                    });
+                }
             }
             this.value = null;
             fileInput.removeEventListener('change', onChange);
