@@ -51,16 +51,17 @@ editor.once('load', function() {
 
         var fieldSearchRelatedAssets = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Search Related Assets',
+            name: 'Search related assets',
             type: 'checkbox',
             link: settings,
             path: 'searchRelatedAssets'
         });
+        fieldSearchRelatedAssets.parent.innerElement.firstChild.style.width = 'auto';
         editor.call('attributes:reference:settings:asset-tasks:searchRelatedAssets:attach', fieldSearchRelatedAssets.parent.innerElement.firstChild.ui);
 
         var fieldOverwrite = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Overwrite Assets on Extraction:'
+            name: 'Overwriting behaviour:'
         });
         fieldOverwrite.parent.innerElement.firstChild.style.width = 'auto';
         editor.call('attributes:reference:settings:asset-tasks:overwrite:attach', fieldOverwrite.parent.innerElement.firstChild.ui);

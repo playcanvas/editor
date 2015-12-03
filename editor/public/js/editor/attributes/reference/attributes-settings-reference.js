@@ -135,35 +135,34 @@ editor.once('load', function() {
             description: 'Settings for defining default behaviour rules for asset pipeline jobs: assets extracting, textures resizing, etc.'
         }, {
             name: 'asset-tasks:auto',
-            title: 'Auto-Run',
+            title: 'Auto-run',
             description: 'Automatically run the asset import pipeline when you upload a new asset.'
         }, {
             name: 'asset-tasks:texturePot',
-            title: 'Texture Power of Two',
+            title: 'Texture power of two',
             description: 'When a texture is imported it will be resized to use the nearest power of two resolution.'
         }, {
             name: 'asset-tasks:searchRelatedAssets',
-            title: 'Search Related Assets',
+            title: 'Search related assets',
             description: 'If enabled, importing a source asset will update target assets where ever they are located. If disabled, assets will only be updated if they are in the same folder, otherwise new assets will be created.'
         }, {
             name: 'asset-tasks:overwrite',
-            title: 'Overwrite',
-            description: 'Overwriting Behaviour.'
+            title: 'Overwrite Behaviour'
         }, {
             name: 'asset-tasks:overwrite:model',
-            title: 'Overwrite Model',
+            title: 'Overwrite model',
             description: 'When a model is imported, overwrite a previously imported model asset.'
         }, {
             name: 'asset-tasks:overwrite:animation',
-            title: 'Overwrite Animation',
+            title: 'Overwrite animation',
             description: 'When a model is imported, overwrite previously imported animation assets.'
         }, {
             name: 'asset-tasks:overwrite:material',
-            title: 'Overwrite Material',
+            title: 'Overwrite material',
             description: 'When a model is imported, overwrite previously imported material assets.'
         }, {
             name: 'asset-tasks:overwrite:texture',
-            title: 'Overwrite Texture',
+            title: 'Overwrite texture',
             description: 'When a model is imported, overwrite previously imported texture assets.'
         }
     ];
