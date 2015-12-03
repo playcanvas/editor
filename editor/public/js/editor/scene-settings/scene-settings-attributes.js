@@ -260,7 +260,7 @@ editor.once('load', function() {
         // fog type
         var fieldFogType = editor.call('attributes:addField', {
             parent: panelRendering,
-            name: 'Type',
+            name: 'Fog',
             type: 'string',
             enum: {
                 'none': 'None',
