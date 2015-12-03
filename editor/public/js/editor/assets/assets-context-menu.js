@@ -126,7 +126,7 @@ editor.once('load', function() {
     // extract
     var menuItemExtract = new ui.MenuItem({
         text: 'Re-Import',
-        icon: '&#57896;',
+        icon: '&#57889;',
         value: 'extract'
     });
     menuItemExtract.on('select', function() {
@@ -141,7 +141,7 @@ editor.once('load', function() {
     // re-import
     var menuItemReImport = new ui.MenuItem({
         text: 'Re-Import',
-        icon: '&#57896;',
+        icon: '&#57889;',
         value: 're-import'
     });
     menuItemReImport.on('select', function() {
