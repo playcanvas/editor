@@ -11,9 +11,7 @@ editor.once('load', function() {
 
     var foldStates = {
         'physics': true,
-        'environment': true,
-        'camera': true,
-        'fog': true,
+        'rendering': true,
         'loading': true
     };
 
@@ -70,19 +68,19 @@ editor.once('load', function() {
 
 
         // environment
-        var panelEnvironment = editor.call('attributes:addPanel', {
-            name: 'Environment'
+        var panelRendering = editor.call('attributes:addPanel', {
+            name: 'Rendering'
         });
-        panelEnvironment.foldable = true;
-        panelEnvironment.folded = foldStates['environment'];
-        panelEnvironment.on('fold', function() { foldStates['environment'] = true; });
-        panelEnvironment.on('unfold', function() { foldStates['environment'] = false; });
-        panelEnvironment.class.add('component');
+        panelRendering.foldable = true;
+        panelRendering.folded = foldStates['rendering'];
+        panelRendering.on('fold', function() { foldStates['rendering'] = true; });
+        panelRendering.on('unfold', function() { foldStates['rendering'] = false; });
+        panelRendering.class.add('component');
 
 
         // ambient
         var fieldGlobalAmbient = editor.call('attributes:addField', {
-            parent: panelEnvironment,
+            parent: panelRendering,
             name: 'Ambient Color',
             type: 'rgb',
             link: sceneSettings,
@@ -104,7 +102,7 @@ editor.once('load', function() {
         }
         // skybox
         var fieldSkybox = editor.call('attributes:addField', {
-            parent: panelEnvironment,
+            parent: panelRendering,
             name: 'Skybox',
             type: 'asset',
             kind: 'cubemap',
@@ -141,7 +139,7 @@ editor.once('load', function() {
 
         // skyboxIntensity
         var fieldSkyboxIntensity = editor.call('attributes:addField', {
-            parent: panelEnvironment,
+            parent: panelRendering,
             name: 'Intensity',
             type: 'number',
             precision: 3,
@@ -168,7 +166,7 @@ editor.once('load', function() {
 
         // skyboxMip
         var fieldSkyboxIntensity = editor.call('attributes:addField', {
-            parent: panelEnvironment,
+            parent: panelRendering,
             name: 'Mip',
             type: 'number',
             enum: {
@@ -185,20 +183,15 @@ editor.once('load', function() {
         editor.call('attributes:reference:settings:skyboxMip:attach', fieldSkyboxIntensity.parent.innerElement.firstChild.ui);
 
 
-        // camera
-        var panelCamera = editor.call('attributes:addPanel', {
-            name: 'Camera'
-        });
-        panelCamera.foldable = true;
-        panelCamera.folded = foldStates['camera'];
-        panelCamera.on('fold', function() { foldStates['camera'] = true; });
-        panelCamera.on('unfold', function() { foldStates['camera'] = false; });
-        panelCamera.class.add('component');
+        // divider
+        var divider = document.createElement('div');
+        divider.classList.add('fields-divider');
+        panelRendering.append(divider);
 
 
         // tonemapping
         var fieldTonemapping = editor.call('attributes:addField', {
-            parent: panelCamera,
+            parent: panelRendering,
             name: 'Tonemapping',
             type: 'number',
             enum: {
@@ -214,7 +207,7 @@ editor.once('load', function() {
 
         // exposure
         var fieldExposure = editor.call('attributes:addField', {
-            parent: panelCamera,
+            parent: panelRendering,
             name: 'Exposure',
             type: 'number',
             precision: 2,
@@ -242,7 +235,7 @@ editor.once('load', function() {
 
         // gamma correction
         var fieldGammaCorrection = editor.call('attributes:addField', {
-            parent: panelCamera,
+            parent: panelRendering,
             name: 'Gamma',
             type: 'number',
             enum: {
@@ -257,20 +250,15 @@ editor.once('load', function() {
         editor.call('attributes:reference:settings:gammaCorrection:attach', fieldGammaCorrection.parent.innerElement.firstChild.ui);
 
 
-        // fog
-        var panelFog = editor.call('attributes:addPanel', {
-            name: 'Fog'
-        });
-        panelFog.foldable = true;
-        panelFog.folded = foldStates['fog'];
-        panelFog.on('fold', function() { foldStates['fog'] = true; });
-        panelFog.on('unfold', function() { foldStates['fog'] = false; });
-        panelFog.class.add('component');
+        // divider
+        var divider = document.createElement('div');
+        divider.classList.add('fields-divider');
+        panelRendering.append(divider);
 
 
         // fog type
         var fieldFogType = editor.call('attributes:addField', {
-            parent: panelFog,
+            parent: panelRendering,
             name: 'Type',
             type: 'string',
             enum: {
@@ -288,7 +276,7 @@ editor.once('load', function() {
 
         // fog density
         var fieldFogDensity = addFiltered(editor.call('attributes:addField', {
-            parent: panelFog,
+            parent: panelRendering,
             name: 'Density',
             type: 'number',
             precision: 3,
@@ -303,7 +291,7 @@ editor.once('load', function() {
 
         // fog distance near
         var fieldFogDistance = editor.call('attributes:addField', {
-            parent: panelFog,
+            parent: panelRendering,
             name: 'Distance',
             placeholder: 'Start',
             type: 'number',
@@ -333,7 +321,7 @@ editor.once('load', function() {
 
         // fog color
         var fieldFogColor = addFiltered(editor.call('attributes:addField', {
-            parent: panelFog,
+            parent: panelRendering,
             name: 'Color',
             type: 'rgb',
             link: sceneSettings,
