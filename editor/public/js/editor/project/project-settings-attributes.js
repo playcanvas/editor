@@ -14,7 +14,7 @@ editor.once('load', function() {
         panel.folded = folded;
         panel.on('fold', function() { folded = true; });
         panel.on('unfold', function() { folded = false; });
-        panel.class.add('component', 'pipeline');
+        panel.class.add('component');
         // reference
         editor.call('attributes:reference:settings:project:attach', panel, panel.headerElement);
 
