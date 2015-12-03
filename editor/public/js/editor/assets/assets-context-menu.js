@@ -126,10 +126,13 @@ editor.once('load', function() {
     // extract
     var menuItemExtract = new ui.MenuItem({
         text: 'Re-Import',
-        icon: '&#57896;',
+        icon: '&#57889;',
         value: 'extract'
     });
     menuItemExtract.on('select', function() {
+        if (! currentAsset.get('meta'))
+            return;
+
         editor.call('assets:jobs:convert', currentAsset);
     });
     menu.append(menuItemExtract);
@@ -138,7 +141,7 @@ editor.once('load', function() {
     // re-import
     var menuItemReImport = new ui.MenuItem({
         text: 'Re-Import',
-        icon: '&#57896;',
+        icon: '&#57889;',
         value: 're-import'
     });
     menuItemReImport.on('select', function() {
@@ -194,6 +197,9 @@ editor.once('load', function() {
                 }, 0);
             });
         } else if (source.get('type') === 'scene') {
+            if (! source.get('meta'))
+                return;
+
             var type = target.get('type');
 
             if (type === 'texture') {
@@ -351,7 +357,7 @@ editor.once('load', function() {
                 if (sourceId) {
                     var source = editor.call('assets:get', sourceId)
                     if (source) {
-                        if (source.get('type') === 'scene' && [ 'texture', 'material' ].indexOf(currentAsset.get('type')) !== -1) {
+                        if (source.get('type') === 'scene' && ([ 'texture', 'material' ].indexOf(currentAsset.get('type')) !== -1 || ! source.get('meta'))) {
                             menuItemReImport.hidden = true;
                         } else if (currentAsset.get('type') === 'animation' && ! source.get('meta.animation.available')) {
                             menuItemReImport.hidden = true;
@@ -440,7 +446,7 @@ editor.once('load', function() {
             } else {
                 menuItemReferences.hidden = true;
                 menuItemReImport.hidden = true;
-                menuItemExtract.hidden = [ 'scene', 'texture' ].indexOf(currentAsset.get('type')) === -1;
+                menuItemExtract.hidden = [ 'scene', 'texture' ].indexOf(currentAsset.get('type')) === -1 || ! currentAsset.get('meta');
             }
         } else {
             // no asset
