@@ -368,6 +368,71 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:settings:fogColor:attach', fieldFogColor.parent.innerElement.firstChild.ui);
 
+        // divider
+        var divider = document.createElement('div');
+        divider.classList.add('fields-divider');
+        panelRendering.append(divider);
+
+        // Resolution related
+        var fieldWidth = editor.call('attributes:addField', {
+            parent: panelRendering,
+            name: 'Resolution',
+            placeholder: 'w',
+            type: 'number',
+            link: projectSettings,
+            path: 'width',
+            precision: 0,
+            min: 1
+        });
+
+        editor.call('attributes:reference:settings:project:width:attach', fieldWidth);
+
+        var fieldHeight = editor.call('attributes:addField', {
+            panel: fieldWidth.parent,
+            placeholder: 'h',
+            type: 'number',
+            link: projectSettings,
+            path: 'height',
+            precision: 0,
+            min: 1
+        });
+        editor.call('attributes:reference:settings:project:height:attach', fieldHeight);
+
+        var fieldResolutionMode = editor.call('attributes:addField', {
+            panel: fieldWidth.parent,
+            type: 'string',
+            enum: {
+                'FIXED': 'Fixed',
+                'AUTO': 'Auto'
+            },
+            link: projectSettings,
+            path: 'resolution_mode'
+        });
+        editor.call('attributes:reference:settings:project:resolutionMode:attach', fieldResolutionMode);
+
+        var fieldFillMode = editor.call('attributes:addField', {
+            parent: panelRendering,
+            name: 'Fill mode',
+            type: 'string',
+            enum: {
+                'NONE': 'None',
+                'KEEP_ASPECT': 'Keep aspect ratio',
+                'FILL_WINDOW': 'Fill window',
+            },
+            link: projectSettings,
+            path: 'fill_mode'
+        });
+        editor.call('attributes:reference:settings:project:fillMode:attach', fieldFillMode.parent.innerElement.firstChild.ui);
+
+        var fieldPixelRatio = editor.call('attributes:addField', {
+            parent: panelRendering,
+            name: 'Device Pixel Ratio',
+            type: 'checkbox',
+            link: projectSettings,
+            path: 'use_device_pixel_ratio'
+        });
+        editor.call('attributes:reference:settings:project:pixelRatio:attach', fieldPixelRatio.parent.innerElement.firstChild.ui);
+
 
         filter();
 
