@@ -20,7 +20,7 @@ editor.once('load', function() {
         link.userId = id;
         link.href = '/' + id;
         link.target = "_blank";
-        panel.prepend(link);
+        panel.append(link);
 
         var img = document.createElement('img');
         img.src = '/api/' + id + '/thumbnail?size=32';
@@ -37,8 +37,6 @@ editor.once('load', function() {
             link.href = '/' + user.username;
             link.tooltip.text = user.username;
         });
-
-        reflow();
     });
 
 
@@ -49,7 +47,6 @@ editor.once('load', function() {
                 if (child.tooltip)
                     child.tooltip.destroy();
                 panel.innerElement.removeChild(child);
-                reflow()
                 return;
             }
         }
@@ -58,26 +55,5 @@ editor.once('load', function() {
 
     editor.method('whoisonline:panel', function() {
         return panel;
-    });
-
-    // offset whoisonline if assets panel header overlaps
-    var canvas = null;
-    var panelAssets =  editor.call('layout.assets');
-
-    var reflow = function() {
-        if (! canvas)
-            return;
-
-        if ((8 + panelAssets.headerElement.clientWidth + panel.element.clientWidth) > canvas.width) {
-            panel.class.add('offset');
-        } else {
-            panel.class.remove('offset');
-        }
-    };
-
-    setTimeout(function() {
-        canvas = editor.call('viewport:canvas');
-        if (canvas)
-            canvas.on('resize', reflow);
     });
 });

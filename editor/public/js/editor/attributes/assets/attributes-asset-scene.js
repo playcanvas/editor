@@ -55,10 +55,17 @@ editor.once('load', function() {
         // animation
         var fieldAnimation = editor.call('attributes:addField', {
             parent: panelMeta,
-            name: 'Animation',
-            link: asset,
-            path: 'meta.animation.available'
+            name: 'Animation'
         });
+        var animationCheck = function(available) {
+            if (available) {
+                fieldAnimation.value = 'yes';
+            } else {
+                fieldAnimation.value = 'no';
+            }
+        };
+        animationCheck(asset.get('meta.animation.available'));
+        events.push(asset.on('meta.animation.available:set', animationCheck));
 
 
         // textures
@@ -68,8 +75,16 @@ editor.once('load', function() {
             type: 'element',
             element: new ui.List()
         });
+        fieldTextures.parent.class.add('field');
         fieldTextures.class.add('source-textures');
         fieldTextures.flexGrow = 1;
+        fieldTextures.selectable = false;
+        // no textures
+        var fieldNoTextures = new ui.Label({
+            text: 'no'
+        });
+        fieldNoTextures.class.add('no-data');
+        fieldTextures.parent.appendBefore(fieldNoTextures, fieldTextures);
         // add all textures
         var addTextures = function(list) {
             fieldTextures.clear();
@@ -89,17 +104,30 @@ editor.once('load', function() {
                 item.element.appendChild(download.element);
                 fieldTextures.append(item);
             }
+
+            if (list.length) {
+                fieldNoTextures.hidden = true;
+                fieldTextures.hidden = false;
+            } else {
+                fieldTextures.hidden = true;
+                fieldNoTextures.hidden = false;
+            }
         };
         // already available
         var textures = asset.get('meta.textures');
-        if (textures && textures.length)
+        if (textures && textures.length) {
             addTextures(textures);
+        } else {
+            fieldTextures.hidden = true;
+        }
         // might be set later
         events.push(asset.on('meta.textures:set', function() {
             addTextures(asset.get('meta.textures'));
         }));
         events.push(asset.on('meta.textures:unset', function() {
             fieldTextures.clear();
+            fieldTextures.hidden = true;
+            fieldNoTextures.hidden = false;
         }));
 
 
@@ -109,8 +137,9 @@ editor.once('load', function() {
             name: 'Materials',
             type: 'element',
             element: new ui.List()
-        })
+        });
         fieldMaterials.flexGrow = 1;
+        fieldMaterials.selectable = false;
         // add all materials
         var addMaterials = function(list) {
             fieldMaterials.clear();

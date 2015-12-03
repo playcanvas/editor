@@ -276,7 +276,7 @@ strong {
     > .ui-header {
         position: absolute;
         top: -32px;
-        left: 8px;
+        left: 4px;
         width: 563px;
 
         &:after {
@@ -734,55 +734,6 @@ strong {
         }
         > .content {
             margin-top: 50%;
-        }
-    }
-    .ui-checkbox.tick {
-        width: 12px;
-        height: 12px;
-        border-width: 2px;
-
-        &.null {
-            &:after {
-                content: '\00a0';
-                background-color: mix($bcg-primary, $text-darkest, 50%);
-                width: 8px;
-                height: 8px;
-                margin: 2px 0 0 2px;
-            }
-            &:hover {
-                &:after {
-                    width: 12px;
-                    height: 12px;
-                    margin: 0;
-                    background-color: transparent;
-                }
-            }
-        }
-        &:after {
-            position: static;
-            display: block;
-            margin: 0;
-            content: none;
-            text-align: center;
-            font-size: 9px;
-            line-height: 12px;
-            @extend .font-icon;
-            background-color: transparent;
-            color: #7f7;
-            transition: none;
-        }
-        &:hover {
-            &:after {
-                content: '\E133';
-                color: mix($bcg-dark, #7f7, 50%);
-            }
-        }
-        &.checked {
-            border-color: mix($bcg-dark, #7f7, 50%);
-
-            &:after {
-                content: '\E133';
-            }
         }
     }
     .ui-panel {
@@ -1365,7 +1316,6 @@ strong {
         &.entity {
             > header {
                 border-top: 1px solid $bcg-dark;
-                background-color: transparent;
 
                 > .title {
                     &:before {
@@ -1388,6 +1338,8 @@ strong {
                 > .ui-checkbox.component-toggle {
                     float: right;
                     margin: 7px 4px 0 0;
+                    border-radius: 8px;
+                    background-color: $bcg-primary;
                 }
                 > .ui-button.component-remove {
                     float: right;
@@ -1448,6 +1400,11 @@ strong {
         > .content {
             padding: 8px 6px;
 
+            .fields-divider {
+                height: 1px;
+                background-color: $bcg-dark;
+                margin: 4px 0;
+            }
             > .ui-button.add-component {
                 display: block;
                 background-color: $bcg-dark;
@@ -1636,6 +1593,10 @@ strong {
                 height: 4px;
             }
 
+            .ui-label.no-data {
+                line-height: 24px;
+                height: 24px;
+            }
             .ui-list.source-textures {
                 > .ui-list-item {
                     position: relative;
@@ -1754,6 +1715,59 @@ strong {
 
         &.hidden {
             display: none;
+        }
+    }
+}
+
+.ui-checkbox.tick {
+    width: 12px;
+    height: 12px;
+    overflow: hidden;
+    // border-width: 2px;
+
+    &.null {
+        &:after {
+            color: mix($bcg-primary, $text-darkest, 50%);
+            left: 0;
+        }
+        &:hover:after {
+            color: $text-primary;
+        }
+    }
+    &:after {
+        @extend .font-icon;
+        position: absolute;
+        margin: 0;
+        content: none;
+        width: 12px;
+        height: 12px;
+        line-height: 13px;
+        font-weight: bold;
+        font-size: 11px;
+        text-align: center;
+        left: 0;
+        top: 0;
+        border-radius: 0;
+        background-color: transparent;
+        transition: none;
+    }
+    &:hover {
+        &:after {
+            content: '\E133';
+            color: $text-primary;
+        }
+        &.checked:after {
+            color: $text-primary;
+            background-color: mix($text-dark, $bcg-darkest, 50%);
+            // opacity: .5;
+        }
+    }
+    &.checked {
+        background-color: $text-dark;
+
+        &:after {
+            content: '\E133';
+            color: $bcg-dark;
         }
     }
 }
@@ -2430,23 +2444,177 @@ strong {
 
 .ui-panel.whoisonline {
     position: absolute;
-    bottom: 2px;
-    right: 2px;
+    bottom: 34px;
+    left: 2px;
     background-color: transparent;
     padding: 2px;
-
-    &.offset {
-        bottom: 34px;
-    }
 
     > .content {
         > a {
             display: block;
-            margin-left: 4px;
+            margin-right: 4px;
             float: left;
 
             > img {
                 display: block;
+            }
+        }
+    }
+}
+
+.ui-panel.pipeline-widget {
+    position: absolute;
+    bottom: 0;
+    right: 4px;
+    width: 240px;
+
+    &.offset {
+        right: auto;
+    }
+    > .ui-header {
+        padding-right: 8px;
+
+        > .number {
+            margin: 0;
+            float: right;
+            line-height: 32px;
+            pointer-events: none;
+        }
+    }
+    > .content {
+        width: 240px;
+        height: 160px;
+        background-color: $bcg-darker;
+
+        > .jobs {
+            margin: 0;
+            border: none;
+            height: calc(159px - 32px);
+            overflow-y: auto;
+            background-color: $bcg-primary;
+            border-bottom: 1px solid $bcg-darker;
+
+            &.disabled {
+                opacity: .9;
+
+                > .ui-list-item {
+                    cursor: default;
+
+                    &.selected {
+                        &:hover {
+                            color: $text-secondary;
+                        }
+                    }
+                    &.processing {
+                        &:hover {
+                            color: $text-active;
+                        }
+                    }
+                    &:hover {
+                        color: $text-secondary;
+                        background-color: transparent;
+                    }
+                    // > .tick {
+                    //     opacity: 0;
+                    // }
+                    > .ui-button.auto {
+                        opacity: 0;
+                    }
+                }
+            }
+            > .ui-list-item {
+                height: 31px;
+                line-height: 31px;
+                padding: 0 0 0 12px;
+                background-color: transparent;
+                border-bottom: 1px solid $bcg-dark;
+
+                &.selected {
+                    color: $text-secondary;
+
+                    &:hover {
+                        color: $text-primary;
+                    }
+                }
+                &.processing {
+                    color: $text-active;
+                    cursor: default;
+
+                    &.selected:hover {
+                        color: $text-active;
+                    }
+                    // > .tick {
+                    //     visibility: hidden;
+                    // }
+                    > .ui-button.auto {
+                        display: none;
+                    }
+                }
+                &:hover {
+                    background-color: $bcg-dark;
+                }
+                // > .tick {
+                //     float: left;
+                //     padding: 0 7px 0 8px;
+
+                //     > .ui-checkbox {
+                //         margin: 7px 0 0 0;
+                //     }
+                // }
+                > span {
+                    @extend .font-regular;
+                }
+                > .ui-button.auto {
+                    @extend .font-icon;
+                    margin: 0;
+                    border: none;
+                    float: right;
+                    width: 32px;
+                    height: 31px;
+                    line-height: 31px;
+                    text-align: center;
+                    padding: 0;
+                }
+            }
+        }
+        > .ui-button {
+            @extend .font-icon;
+            position: absolute;
+            bottom: 0;
+            margin: 0;
+            padding: 0;
+            border: none;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            text-align: center;
+            background-color: $bcg-primary;
+
+            &.toggle {
+                opacity: 0.5;
+
+                &.active {
+                    opacity: 1;
+                    color: $text-primary;
+                    background-color: $bcg-darkest;
+
+                    &:hover,
+                    &:focus {
+                        background-color: mix($bcg-dark, $bcg-darkest, 50%);
+                    }
+                }
+                &.auto {
+                    right: 32px;
+                }
+            }
+            &:hover,
+            &:focus {
+                opacity: 1;
+                color: $text-primary;
+                background-color: $bcg-dark;
+            }
+            &.settings {
+                right: 0px;
             }
         }
     }

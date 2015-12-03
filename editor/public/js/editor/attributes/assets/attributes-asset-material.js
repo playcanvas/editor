@@ -1586,6 +1586,12 @@ editor.once('load', function() {
         editor.call('attributes:reference:asset:material:specularMapTint:attach', labelSpecularTint);
 
 
+        // divider
+        var divider = document.createElement('div');
+        divider.classList.add('fields-divider');
+        panelSpecular.append(divider);
+
+
         // map (gloss)
         var fieldGlossMapHover = handleTextureHover('glossMap');
         var fieldGlossMap = editor.call('attributes:addField', {

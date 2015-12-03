@@ -29,12 +29,21 @@ editor.once('load', function() {
             form.append('asset', args.asset.get('id'));
 
         // parent folder
-        if (args.parent && (args.parent instanceof Observer))
-            form.append('parent', args.parent.get('id'));
+        if (args.parent) {
+            if (args.parent instanceof Observer) {
+                form.append('parent', args.parent.get('id'));
+            } else {
+                form.append('parent', args.parent + '');
+            }
+        }
 
         // type
         if (args.type)
             form.append('type', args.type);
+
+        // source_asset_id
+        if (args.source_asset_id)
+            form.append('source_asset_id', args.source_asset_id);
 
         // data
         if (args.data)
@@ -42,6 +51,10 @@ editor.once('load', function() {
 
         // preload
         form.append('preload', true);
+
+        // filename
+        if (args.filename)
+            form.append('filename', args.filename);
 
         // file
         if (args.file && args.file.size)
@@ -65,6 +78,17 @@ editor.once('load', function() {
 
         Ajax(data)
         .on('load', function(status, data) {
+            if (args.pipeline) {
+                var asset = editor.call('assets:get', data.asset.id);
+                if (asset) {
+                    editor.call('assets:jobs:add', asset);
+                } else {
+                    var evt = editor.once('assets:add[' + data.asset.id + ']', function(asset) {
+                        editor.call('assets:jobs:add', asset);
+                    });
+                }
+            }
+
             editor.call('status:text', data);
             editor.call('status:job', 'asset-upload:' + job);
             if (fn)

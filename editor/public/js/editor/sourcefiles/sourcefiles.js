@@ -86,17 +86,21 @@ editor.once('repositories:load', function (repositories) {
         .put(createUrl, data)
         .on('load', function (status, data) {
 
-            var file = new Observer({
-                filename: url
+            var file = sourcefiles.findOne(function(f) {
+                return f.get('filename') === url;
             });
 
-            sourcefiles.add(file);
+            if (! file) {
+                file = new Observer({
+                    filename: url
+                });
 
-            editor.emit('sourcefiles:add', file);
-
-            if (callback) {
-                callback(null, file);
+                sourcefiles.add(file);
+                editor.emit('sourcefiles:add', file);
             }
+
+            if (callback)
+                callback(null, file);
         })
         .on('error', function (status, msg) {
             if (callback)

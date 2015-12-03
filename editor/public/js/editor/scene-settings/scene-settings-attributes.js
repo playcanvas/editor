@@ -2,6 +2,19 @@ editor.once('load', function() {
     'use strict';
 
     var sceneSettings = editor.call('sceneSettings');
+    var projectSettings = editor.call('project:settings');
+
+    editor.method('designerSettings:panel:unfold', function(panel) {
+        var element = editor.call('layout.right').innerElement.querySelector('.ui-panel.component.foldable.' + panel);
+        if (element && element.ui)
+            element.ui.folded = false;
+    });
+
+    var foldStates = {
+        'physics': true,
+        'rendering': true,
+        'loading': true
+    };
 
     editor.on('attributes:inspect[designerSettings]', function() {
         editor.call('attributes:header', 'Settings');
@@ -30,11 +43,52 @@ editor.once('load', function() {
         };
 
 
-        // physics settings
+        // physics
         var physicsPanel = editor.call('attributes:addPanel', {
-            name: 'Physics Settings'
+            name: 'Physics'
         });
+        physicsPanel.foldable = true;
+        physicsPanel.folded = foldStates['physics'];
+        physicsPanel.on('fold', function() { foldStates['physics'] = true; });
+        physicsPanel.on('unfold', function() { foldStates['physics'] = false; });
         physicsPanel.class.add('component');
+
+        var projectSettings = editor.call('project:settings');
+
+        // enable 3d physics
+        var fieldPhysics = editor.call('attributes:addField', {
+            parent: physicsPanel,
+            name: 'Enable',
+            type: 'checkbox'
+        });
+        editor.call('attributes:reference:settings:project:physics:attach', fieldPhysics.parent.innerElement.firstChild.ui);
+
+        var changing = false;
+        fieldPhysics.value = projectSettings.get('libraries').indexOf('physics-engine-3d') !== -1;
+        fieldPhysics.on('change', function (value) {
+            if (changing) return;
+            changing = true;
+            if (value) {
+                projectSettings.set('libraries', ['physics-engine-3d']);
+            } else {
+                projectSettings.set('libraries', []);
+            }
+            changing = false;
+        });
+
+        var evtPhysicsChange = projectSettings.on('*:set', function (path, value, oldValue) {
+            if (path === 'libraries') {
+                if (changing) return;
+                changing = true;
+                fieldPhysics.value = value.indexOf('physics-engine-3d') !== -1;
+                changing = false;
+            }
+        });
+
+        physicsPanel.on('destroy', function () {
+            evtPhysicsChange.unbind();
+        });
+
 
         // gravity
         var fieldGravity = editor.call('attributes:addField', {
@@ -52,15 +106,19 @@ editor.once('load', function() {
 
 
         // environment
-        var panelEnvironment = editor.call('attributes:addPanel', {
-            name: 'Environment'
+        var panelRendering = editor.call('attributes:addPanel', {
+            name: 'Rendering'
         });
-        panelEnvironment.class.add('component');
+        panelRendering.foldable = true;
+        panelRendering.folded = foldStates['rendering'];
+        panelRendering.on('fold', function() { foldStates['rendering'] = true; });
+        panelRendering.on('unfold', function() { foldStates['rendering'] = false; });
+        panelRendering.class.add('component');
 
 
         // ambient
         var fieldGlobalAmbient = editor.call('attributes:addField', {
-            parent: panelEnvironment,
+            parent: panelRendering,
             name: 'Ambient Color',
             type: 'rgb',
             link: sceneSettings,
@@ -82,7 +140,7 @@ editor.once('load', function() {
         }
         // skybox
         var fieldSkybox = editor.call('attributes:addField', {
-            parent: panelEnvironment,
+            parent: panelRendering,
             name: 'Skybox',
             type: 'asset',
             kind: 'cubemap',
@@ -119,7 +177,7 @@ editor.once('load', function() {
 
         // skyboxIntensity
         var fieldSkyboxIntensity = editor.call('attributes:addField', {
-            parent: panelEnvironment,
+            parent: panelRendering,
             name: 'Intensity',
             type: 'number',
             precision: 3,
@@ -146,7 +204,7 @@ editor.once('load', function() {
 
         // skyboxMip
         var fieldSkyboxIntensity = editor.call('attributes:addField', {
-            parent: panelEnvironment,
+            parent: panelRendering,
             name: 'Mip',
             type: 'number',
             enum: {
@@ -163,16 +221,15 @@ editor.once('load', function() {
         editor.call('attributes:reference:settings:skyboxMip:attach', fieldSkyboxIntensity.parent.innerElement.firstChild.ui);
 
 
-        // camera
-        var panelCamera = editor.call('attributes:addPanel', {
-            name: 'Camera'
-        });
-        panelCamera.class.add('component');
+        // divider
+        var divider = document.createElement('div');
+        divider.classList.add('fields-divider');
+        panelRendering.append(divider);
 
 
         // tonemapping
         var fieldTonemapping = editor.call('attributes:addField', {
-            parent: panelCamera,
+            parent: panelRendering,
             name: 'Tonemapping',
             type: 'number',
             enum: {
@@ -188,7 +245,7 @@ editor.once('load', function() {
 
         // exposure
         var fieldExposure = editor.call('attributes:addField', {
-            parent: panelCamera,
+            parent: panelRendering,
             name: 'Exposure',
             type: 'number',
             precision: 2,
@@ -216,7 +273,7 @@ editor.once('load', function() {
 
         // gamma correction
         var fieldGammaCorrection = editor.call('attributes:addField', {
-            parent: panelCamera,
+            parent: panelRendering,
             name: 'Gamma',
             type: 'number',
             enum: {
@@ -231,17 +288,16 @@ editor.once('load', function() {
         editor.call('attributes:reference:settings:gammaCorrection:attach', fieldGammaCorrection.parent.innerElement.firstChild.ui);
 
 
-        // fog
-        var panelFog = editor.call('attributes:addPanel', {
-            name: 'Fog'
-        });
-        panelFog.class.add('component');
+        // divider
+        var divider = document.createElement('div');
+        divider.classList.add('fields-divider');
+        panelRendering.append(divider);
 
 
         // fog type
         var fieldFogType = editor.call('attributes:addField', {
-            parent: panelFog,
-            name: 'Type',
+            parent: panelRendering,
+            name: 'Fog',
             type: 'string',
             enum: {
                 'none': 'None',
@@ -258,7 +314,7 @@ editor.once('load', function() {
 
         // fog density
         var fieldFogDensity = addFiltered(editor.call('attributes:addField', {
-            parent: panelFog,
+            parent: panelRendering,
             name: 'Density',
             type: 'number',
             precision: 3,
@@ -273,7 +329,7 @@ editor.once('load', function() {
 
         // fog distance near
         var fieldFogDistance = editor.call('attributes:addField', {
-            parent: panelFog,
+            parent: panelRendering,
             name: 'Distance',
             placeholder: 'Start',
             type: 'number',
@@ -303,7 +359,7 @@ editor.once('load', function() {
 
         // fog color
         var fieldFogColor = addFiltered(editor.call('attributes:addField', {
-            parent: panelFog,
+            parent: panelRendering,
             name: 'Color',
             type: 'rgb',
             link: sceneSettings,
@@ -311,6 +367,72 @@ editor.once('load', function() {
         }), fogFilter);
         // reference
         editor.call('attributes:reference:settings:fogColor:attach', fieldFogColor.parent.innerElement.firstChild.ui);
+
+        // divider
+        var divider = document.createElement('div');
+        divider.classList.add('fields-divider');
+        panelRendering.append(divider);
+
+        // Resolution related
+        var fieldWidth = editor.call('attributes:addField', {
+            parent: panelRendering,
+            name: 'Resolution',
+            placeholder: 'w',
+            type: 'number',
+            link: projectSettings,
+            path: 'width',
+            precision: 0,
+            min: 1
+        });
+
+        editor.call('attributes:reference:settings:project:width:attach', fieldWidth);
+
+        var fieldHeight = editor.call('attributes:addField', {
+            panel: fieldWidth.parent,
+            placeholder: 'h',
+            type: 'number',
+            link: projectSettings,
+            path: 'height',
+            precision: 0,
+            min: 1
+        });
+        editor.call('attributes:reference:settings:project:height:attach', fieldHeight);
+
+        var fieldResolutionMode = editor.call('attributes:addField', {
+            panel: fieldWidth.parent,
+            type: 'string',
+            enum: {
+                'FIXED': 'Fixed',
+                'AUTO': 'Auto'
+            },
+            link: projectSettings,
+            path: 'resolution_mode'
+        });
+        editor.call('attributes:reference:settings:project:resolutionMode:attach', fieldResolutionMode);
+
+        var fieldFillMode = editor.call('attributes:addField', {
+            parent: panelRendering,
+            name: 'Fill mode',
+            type: 'string',
+            enum: {
+                'NONE': 'None',
+                'KEEP_ASPECT': 'Keep aspect ratio',
+                'FILL_WINDOW': 'Fill window',
+            },
+            link: projectSettings,
+            path: 'fill_mode'
+        });
+        editor.call('attributes:reference:settings:project:fillMode:attach', fieldFillMode.parent.innerElement.firstChild.ui);
+
+        var fieldPixelRatio = editor.call('attributes:addField', {
+            parent: panelRendering,
+            name: 'Device Pixel Ratio',
+            type: 'checkbox',
+            link: projectSettings,
+            path: 'use_device_pixel_ratio'
+        });
+        fieldPixelRatio.parent.innerElement.firstChild.style.width = 'auto';
+        editor.call('attributes:reference:settings:project:pixelRatio:attach', fieldPixelRatio.parent.innerElement.firstChild.ui);
 
 
         filter();
@@ -328,6 +450,10 @@ editor.once('load', function() {
         var panelLoadingScreen = editor.call('attributes:addPanel', {
             name: 'Loading Screen'
         });
+        panelLoadingScreen.foldable = true;
+        panelLoadingScreen.folded = foldStates['loading'];
+        panelLoadingScreen.on('fold', function() { foldStates['loading'] = true; });
+        panelLoadingScreen.on('unfold', function() { foldStates['loading'] = false; });
         panelLoadingScreen.class.add('component', 'loading-screen');
 
         // custom loading screen script
@@ -423,15 +549,13 @@ editor.once('load', function() {
             });
 
             var setLoadingScreen = function (filename) {
-                editor.call('project:setLoadingScreenScript', filename);
+                projectSettings.set('loading_screen_script', filename);
                 fieldScriptPicker.text = filename ? filename : 'Select loading screen script';
                 if (filename) {
                     btnRemove.class.remove('not-visible');
                 } else {
                     btnRemove.class.add('not-visible');
                 }
-
-                onLoadingScreen(filename);
             };
 
             var onLoadingScreen = function (filename) {
@@ -445,7 +569,13 @@ editor.once('load', function() {
                 }
             };
 
-            editor.call('project:getLoadingScreenScript', onLoadingScreen);
+            var evtLoadingScreen = projectSettings.on('loading_screen_script:set', onLoadingScreen);
+
+            panelLoadingScreen.on('destroy', function () {
+                evtLoadingScreen.unbind();
+            });
+
+            onLoadingScreen(projectSettings.get('loading_screen_script'));
 
             fieldScriptPicker.on('click', function () {
                 var evtPick = editor.once("picker:asset", function (asset) {

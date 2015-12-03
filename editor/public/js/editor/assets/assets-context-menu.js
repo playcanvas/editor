@@ -123,6 +123,127 @@ editor.once('load', function() {
     menu.append(menuItemReferences);
 
 
+    // extract
+    var menuItemExtract = new ui.MenuItem({
+        text: 'Re-Import',
+        icon: '&#57889;',
+        value: 'extract'
+    });
+    menuItemExtract.on('select', function() {
+        if (! currentAsset.get('meta'))
+            return;
+
+        editor.call('assets:jobs:convert', currentAsset);
+    });
+    menu.append(menuItemExtract);
+
+
+    // re-import
+    var menuItemReImport = new ui.MenuItem({
+        text: 'Re-Import',
+        icon: '&#57889;',
+        value: 're-import'
+    });
+    menuItemReImport.on('select', function() {
+        var target = currentAsset;
+        var sourceId = target.get('source_asset_id');
+
+        if (target.get('source') || ! sourceId)
+            return;
+
+        var source = editor.call('assets:get', sourceId);
+
+        if (! source)
+            return;
+
+        var task = {
+            source: {
+                asset: {
+                    id: source.get('id'),
+                    source: true,
+                    type: source.get('type'),
+                    filename: source.get('file.filename'),
+                    scope: source.get('scope'),
+                    user_id: source.get('user_id')
+                }
+            }
+        };
+
+        if (source.get('type') === 'texture') {
+            task.target = {
+                asset: {
+                    id: target.get('id'),
+                    type: target.get('type'),
+                    filename: target.get('file.filename'),
+                    scope: target.get('scope'),
+                    user_id: target.get('user_id')
+                }
+            };
+
+            task.options = editor.call('assets:jobs:texture-convert-options', source.get('meta'));
+
+            editor.call('realtime:send', 'pipeline', {
+                name: 'convert',
+                data: task
+            });
+
+            target.once('file:set', function(value) {
+                setTimeout(function() {
+                    if (target.get('data.rgbm')) {
+                        editor.call('assets:jobs:thumbnails', source, target);
+                    } else {
+                        editor.call('assets:jobs:thumbnails', null, target);
+                    }
+                }, 0);
+            });
+        } else if (source.get('type') === 'scene') {
+            if (! source.get('meta'))
+                return;
+
+            var type = target.get('type');
+
+            if (type === 'texture') {
+                // TODO
+                return;
+            } else if (type === 'material') {
+                // TODO
+                return;
+            } else if (type === 'animation') {
+                if (! source.get('meta.animation.available'))
+                    return;
+
+                task.target = {
+                    asset: {
+                        id: parseInt(target.get('id'), 10),
+                        type: target.get('type'),
+                        filename: target.get('file.filename'),
+                        scope: target.get('scope'),
+                        user_id: target.get('user_id')
+                    }
+                };
+            } else if (type === 'model') {
+                task.target = {
+                    asset: {
+                        id: parseInt(target.get('id'), 10),
+                        type: target.get('type'),
+                        filename: target.get('file.filename'),
+                        scope: target.get('scope'),
+                        user_id: target.get('user_id')
+                    }
+                };
+            } else {
+                return;
+            }
+
+            editor.call('realtime:send', 'pipeline', {
+                name: 'convert',
+                data: task
+            });
+        }
+    });
+    menu.append(menuItemReImport);
+
+
     // download
     var menuItemDownload = new ui.MenuItem({
         text: 'Download',
@@ -228,8 +349,31 @@ editor.once('load', function() {
             // delete
             menuItemDelete.hidden = false;
 
-            // references
             if (! currentAsset.get('source')) {
+                menuItemExtract.hidden = true;
+
+                // re-import
+                var sourceId = currentAsset.get('source_asset_id');
+                if (sourceId) {
+                    var source = editor.call('assets:get', sourceId)
+                    if (source) {
+                        if (source.get('type') === 'scene' && ([ 'texture', 'material' ].indexOf(currentAsset.get('type')) !== -1 || ! source.get('meta'))) {
+                            menuItemReImport.hidden = true;
+                        } else if (currentAsset.get('type') === 'animation' && ! source.get('meta.animation.available')) {
+                            menuItemReImport.hidden = true;
+                        } else if (currentAsset.get('type') === 'material' && ! currentAsset.has('meta.index')) {
+                            menuItemReImport.hidden = true;
+                        } else {
+                            menuItemReImport.hidden = false;
+                        }
+                    } else {
+                        menuItemReImport.hidden = true;
+                    }
+                } else {
+                    menuItemReImport.hidden = true;
+                }
+
+                // references
                 var ref = editor.call('assets:used:index')[currentAsset.get('id')];
                 if (ref && ref.count && ref.ref) {
                     menuItemReferences.hidden = false;
@@ -301,9 +445,13 @@ editor.once('load', function() {
                 }
             } else {
                 menuItemReferences.hidden = true;
+                menuItemReImport.hidden = true;
+                menuItemExtract.hidden = [ 'scene', 'texture' ].indexOf(currentAsset.get('type')) === -1 || ! currentAsset.get('meta');
             }
         } else {
             // no asset
+            menuItemExtract.hidden = true;
+            menuItemReImport.hidden = true;
             menuItemDownload.hidden = true;
             menuItemDuplicate.hidden = true;
             menuItemEdit.hidden = true;

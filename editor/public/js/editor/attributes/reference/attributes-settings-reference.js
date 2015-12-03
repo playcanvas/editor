@@ -99,9 +99,71 @@ editor.once('load', function() {
         }, {
             name: 'loadingScreenScript',
             title: 'Loading Screen Script',
-            subTitle: '{String}',
             description: 'The name of the script to use for creating the loading screen of the application. The script needs to call pc.script.createLoadingScreen.',
             url: 'http://developer.playcanvas.com/en/engine/api/stable/symbols/pc.script.html#createLoadingScreen'
+        }, {
+            name: 'project',
+            title: 'Project Settings',
+            description: 'Settings that affect the entire Project and not just this Scene.'
+        }, {
+            name: 'project:width',
+            title: 'Resolution Width',
+            description: 'The width of your application in pixels.'
+        }, {
+            name: 'project:height',
+            title: 'Resolution Height',
+            description: 'The height of your application in pixels.'
+        }, {
+            name: 'project:fillMode',
+            title: 'Fill Mode',
+            description: 'Fill Mode decides how the canvas fills the browser window.'
+        }, {
+            name: 'project:resolutionMode',
+            title: 'Resolution Mode',
+            description: 'Resolution Mode decides whether the canvas resolution will change when it is resized.'
+        }, {
+            name: 'project:physics',
+            title: 'Enable Physics',
+            description: 'When enabled the Physics library code is included in your project.'
+        }, {
+            name: 'project:pixelRatio',
+            title: 'Device Pixel Ratio',
+            description: 'When enabled the canvas resolution will be calculated including the device pixel ratio.'
+        }, {
+            name: 'asset-tasks',
+            title: 'Asset Tasks',
+            description: 'Settings for defining default behaviour rules for asset pipeline jobs: assets extracting, textures resizing, etc.'
+        }, {
+            name: 'asset-tasks:auto',
+            title: 'Auto-run',
+            description: 'Automatically run the asset import pipeline when you upload a new asset.'
+        }, {
+            name: 'asset-tasks:texturePot',
+            title: 'Texture power of two',
+            description: 'When a texture is imported it will be resized to use the nearest power of two resolution.'
+        }, {
+            name: 'asset-tasks:searchRelatedAssets',
+            title: 'Search related assets',
+            description: 'If enabled, importing a source asset will update target assets where ever they are located. If disabled, assets will only be updated if they are in the same folder, otherwise new assets will be created.'
+        }, {
+            name: 'asset-tasks:overwrite',
+            title: 'Overwrite Behaviour'
+        }, {
+            name: 'asset-tasks:overwrite:model',
+            title: 'Overwrite model',
+            description: 'When a model is imported, overwrite a previously imported model asset.'
+        }, {
+            name: 'asset-tasks:overwrite:animation',
+            title: 'Overwrite animation',
+            description: 'When a model is imported, overwrite previously imported animation assets.'
+        }, {
+            name: 'asset-tasks:overwrite:material',
+            title: 'Overwrite material',
+            description: 'When a model is imported, overwrite previously imported material assets.'
+        }, {
+            name: 'asset-tasks:overwrite:texture',
+            title: 'Overwrite texture',
+            description: 'When a model is imported, overwrite previously imported texture assets.'
         }
     ];
 

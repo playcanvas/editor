@@ -53,8 +53,12 @@ editor.once('load', function() {
         }
 
         // if it's a collision or rigidbody component then enable physics
-        if (component === 'collision' || component === 'rigidbody')
-            editor.call('project:enablePhysics');
+        if (component === 'collision' || component === 'rigidbody') {
+            var settings = editor.call('project:settings');
+            settings.history = false;
+            settings.set('libraries', ['physics-engine-3d']);
+            settings.history = true;
+        }
 
         editor.call('history:add', {
             name: 'entities.' + component,

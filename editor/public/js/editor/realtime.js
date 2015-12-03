@@ -64,6 +64,8 @@ editor.once('load', function() {
                         } else {
                             sharejsMessage(msg);
                         }
+                    } else if (msg.data.startsWith('project:save:error')) {
+                        console.error('Error saving project setting: ' + msg.data.slice(19));
                     } else {
                         sharejsMessage(msg);
                     }

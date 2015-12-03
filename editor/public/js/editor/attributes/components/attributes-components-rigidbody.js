@@ -127,8 +127,7 @@ editor.once('load', function() {
         // friction
         var fieldFriction = editor.call('attributes:addField', {
             parent: panel,
-            name: '',
-            placeholder: 'Friction',
+            name: 'Friction',
             type: 'number',
             precision: 2,
             step: .01,
@@ -139,13 +138,27 @@ editor.once('load', function() {
         });
         fieldFriction.style.width = '32px';
         // reference
-        editor.call('attributes:reference:rigidbody:friction:attach', fieldFriction);
+        editor.call('attributes:reference:rigidbody:friction:attach', fieldFriction.parent.innerElement.firstChild.ui);
+
+
+        // friction slider
+        var fieldFrictionSlider = editor.call('attributes:addField', {
+            panel: fieldFriction.parent,
+            precision: 3,
+            min: 0,
+            max: 1,
+            type: 'number',
+            slider: true,
+            link: entities,
+            path: 'components.rigidbody.friction'
+        });
+        fieldFrictionSlider.flexGrow = 4;
 
 
         // restitution
         var fieldRestitution = editor.call('attributes:addField', {
-            panel: fieldFriction.parent,
-            placeholder: 'Restitution',
+            parent: panel,
+            name: 'Restitution',
             type: 'number',
             precision: 2,
             step: .01,
@@ -155,32 +168,13 @@ editor.once('load', function() {
             path: 'components.rigidbody.restitution'
         });
         fieldRestitution.style.width = '32px';
+        // reference
+        editor.call('attributes:reference:rigidbody:restitution:attach', fieldRestitution.parent.innerElement.firstChild.ui);
 
-
-        var panelFrictionRestitution = editor.call('attributes:addField', {
-            parent: panel,
-            name: ''
-        });
-        var label = panelFrictionRestitution;
-        panelFrictionRestitution = panelFrictionRestitution.parent;
-        label.destroy();
-
-        // friction slider
-        var fieldFrictionSlider = editor.call('attributes:addField', {
-            panel: panelFrictionRestitution,
-            precision: 3,
-            min: 0,
-            max: 1,
-            type: 'number',
-            slider: true,
-            link: entities,
-            path: 'components.rigidbody.friction'
-        });
-        fieldFrictionSlider.flexGrow = 1;
 
         // restitution slider
         var fieldRestitutionSlider = editor.call('attributes:addField', {
-            panel: panelFrictionRestitution,
+            panel: fieldRestitution.parent,
             precision: 3,
             min: 0,
             max: 1,
@@ -189,6 +183,6 @@ editor.once('load', function() {
             link: entities,
             path: 'components.rigidbody.restitution'
         });
-        fieldRestitutionSlider.flexGrow = 1;
+        fieldRestitutionSlider.flexGrow = 4;
     });
 });

@@ -181,15 +181,15 @@ app.once('load', function() {
     });
 
     if (canvas.classList) {
-        canvas.classList.add('fill-mode-' + config.project.settings.fillMode);
+        canvas.classList.add('fill-mode-' + config.project.settings.fill_mode);
     }
 
-    if (config.project.settings.useDevicePixelRatio) {
+    if (config.project.settings.use_device_pixel_ratio) {
         application.graphicsDevice.maxPixelRatio = window.devicePixelRatio;
     }
 
-    application.setCanvasResolution(config.project.settings.resolutionMode, config.project.settings.width, config.project.settings.height);
-    application.setCanvasFillMode(config.project.settings.fillMode, config.project.settings.width, config.project.settings.height);
+    application.setCanvasResolution(config.project.settings.resolution_mode, config.project.settings.width, config.project.settings.height);
+    application.setCanvasFillMode(config.project.settings.fill_mode, config.project.settings.width, config.project.settings.height);
 
     application._loadLibraries(libraryUrls, function (err) {
         libraries = true;
@@ -199,8 +199,18 @@ app.once('load', function() {
         init();
     });
 
-    // css media query for aspect ratio changes
-    var css  = "@media screen and (min-aspect-ratio: " + config.project.settings.width + "/" + config.project.settings.height + ") {";
+    var style = document.head.querySelector ? document.head.querySelector('style') : null;
+
+    // append css to style
+    var createCss = function () {
+        if (! document.head.querySelector)
+            return;
+
+        if (! style)
+            style = document.head.querySelector('style');
+
+        // css media query for aspect ratio changes
+        var css  = "@media screen and (min-aspect-ratio: " + config.project.settings.width + "/" + config.project.settings.height + ") {";
         css += "    #application-canvas.fill-mode-KEEP_ASPECT {";
         css += "        width: auto;";
         css += "        height: 100%;";
@@ -208,17 +218,52 @@ app.once('load', function() {
         css += "    }";
         css += "}";
 
-    // append css to style
-    if (document.head.querySelector) {
-        var appendCss = function () {
-            var style = document.head.querySelector('style');
-            style.innerHTML += css;
-        };
+        style.innerHTML = css;
+    };
 
-        appendCss();
-    }
+    createCss();
 
+    var refreshResolutionProperties = function () {
+        application.setCanvasResolution(config.project.settings.resolution_mode, config.project.settings.width, config.project.settings.height);
+        application.setCanvasFillMode(config.project.settings.fill_mode, config.project.settings.width, config.project.settings.height);
+        reflow();
+    };
 
+    // listen for project setting changes
+    var projectSettings = app.call('project:settings');
+
+    projectSettings.on('width:set', function (value) {
+        config.project.settings.width = value;
+        createCss();
+        refreshResolutionProperties();
+    });
+    projectSettings.on('height:set', function (value) {
+        config.project.settings.height = value;
+        createCss();
+        refreshResolutionProperties();
+    });
+
+    projectSettings.on('fill_mode:set', function (value, oldValue) {
+        config.project.settings.fill_mode = value;
+        if (canvas.classList) {
+            if (oldValue)
+                canvas.classList.remove('fill-mode-' + oldValue);
+
+            canvas.classList.add('fill-mode-' + value);
+        }
+
+        refreshResolutionProperties();
+    });
+
+    projectSettings.on('resolution_mode:set', function (value) {
+        config.project.settings.resolution_mode = value;
+        refreshResolutionProperties();
+    });
+
+    projectSettings.on('use_device_pixel_ratio:set', function (value) {
+        config.project.settings.use_device_pixel_ratio = value;
+        application.graphicsDevice.maxPixelRatio = value ? window.devicePixelRatio : 1;
+    });
 
     window.addEventListener('resize', reflow, false);
     window.addEventListener('orientationchange', reflow, false);

@@ -133,7 +133,7 @@ editor.once('load', function() {
         },
         'model': function(path, value, valueOld) {
             if (path.startsWith('data.mapping.') && path.slice(-8) === 'material')
-                updateAsset(this, 'asset', valueOld, value);
+                updateAsset(this.get('id'), 'asset', valueOld, value);
 
             if (! keys['model'][path])
                 return;

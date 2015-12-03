@@ -305,7 +305,123 @@ editor.once('load', function() {
                         if (type !== 'asset.texture')
                             return;
 
-                        setAssetFace(ind, editor.call('assets:get', parseInt(data.id, 10)));
+                        var asset = editor.call('assets:get', parseInt(data.id, 10));
+
+                        // try matching patterns of texture names
+                        // to autoset  all 6 faces for empty cubemaps
+                        try {
+                            var empty = true;
+                            var faces = assets[0].get('data.textures');
+                            for(var i = 0; i < faces.length; i++) {
+                                if (faces[i]) {
+                                    empty = false;
+                                    break;
+                                }
+                            }
+
+                            if (empty) {
+                                var name = asset.get('name');
+                                var check = /((neg|pos)(x|y|z)|(right|left|top|up|bottom|down|front|forward|back|backward)|[0-6])(\.|$)/i;
+                                var match = name.match(check);
+
+                                if (match != null) {
+                                    match = match.index;
+
+                                    var part = '';
+                                    if (match) part = name.slice(0, match).toLowerCase();
+                                    var i = name.indexOf('.', match);
+                                    if (i > 0) part += name.slice(i);
+
+                                    var sort = {
+                                        '0': 0,
+                                        'posx': 0,
+                                        'right': 0,
+
+                                        '1': 1,
+                                        'negx': 1,
+                                        'left': 1,
+
+                                        '2': 2,
+                                        'posy': 2,
+                                        'top': 2,
+                                        'up': 2,
+
+                                        '3': 3,
+                                        'negy': 3,
+                                        'bottom': 3,
+                                        'down': 3,
+
+                                        '4': 4,
+                                        'posz': 4,
+                                        'front': 4,
+                                        'forward': 4,
+
+                                        '5': 5,
+                                        'negz': 5,
+                                        'back': 5,
+                                        'backward': 5,
+
+                                        '6': 6,
+                                    };
+                                    var faceAssets = editor.call('assets:find', function(a) {
+                                        if (a.get('source') || a.get('type') !== 'texture')
+                                            return;
+
+                                        if (! a.get('path').equals(asset.get('path')))
+                                            return;
+
+                                        if (a.get('meta.width') !== asset.get('meta.width') || a.get('meta.height') !== asset.get('meta.height'))
+                                            return;
+
+                                        var name = a.get('name').toLowerCase();
+                                        var m = name.match(check);
+
+                                        if (m === null)
+                                            return;
+
+                                        m = m.index;
+
+                                        var p = '';
+                                        if (m) p = name.slice(0, m).toLowerCase();
+                                        var i = name.indexOf('.', m);
+                                        if (i > 0) p += name.slice(i);
+
+                                        return p === part;
+                                    });
+
+                                    if (faceAssets.length === 6) {
+                                        var allFaces = [ ];
+
+                                        for(var i = 0; i < faceAssets.length; i++) {
+                                            var p = faceAssets[i][1].get('name').toLowerCase();
+                                            if (match) p = p.slice(match);
+                                            var m = p.indexOf('.');
+                                            if (m > 0) p = p.slice(0, m);
+
+                                            faceAssets[i] = {
+                                                asset: faceAssets[i][1],
+                                                face: sort[p]
+                                            }
+                                        }
+
+                                        faceAssets.sort(function(a, b) {
+                                            return a.face - b.face;
+                                        });
+
+
+                                        for(var i = 0; i < faceAssets.length; i++)
+                                            setAssetFace(i, faceAssets[i].asset);
+
+                                        return;
+                                    }
+                                }
+                            }
+                        } catch(ex) {
+                            console.error(ex.message);
+                            console.error(ex.stack);
+                        }
+
+                        setAssetFace(ind, asset);
                     }
                 });
                 previewPanel.on('destroy', function() {
