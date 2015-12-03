@@ -41,21 +41,6 @@ editor.once('load', function() {
 
             // var searchRelatedAssets = editor.call('assets:pipeline:settings', 'searchRelatedAssets');
 
-            var readScriptFile = function(file) {
-                var reader = new FileReader();
-
-                reader.addEventListener('load', function() {
-                    editor.call('sourcefiles:create', file.name, reader.result, function(err) {
-                        if (err)
-                            return;
-
-                        editor.call('assets:panel:currentFolder', 'scripts');
-                    });
-                }, false);
-
-                reader.readAsText(file);
-            };
-
             for(var i = 0; i < data.length; i++) {
                 var currentFolder = editor.call('assets:panel:currentFolder');
                 var path = [ ];
@@ -70,7 +55,7 @@ editor.once('load', function() {
                 ext = ext[ext.length - 1].toLowerCase();
 
                 if (ext === 'js') {
-                    readScriptFile(data[i]);
+                    editor.call('assets:upload:script', data[i]);
                 } else {
                     var source = ! targetExtensions[ext];
                     var type = extToType[ext];
