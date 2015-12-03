@@ -36,7 +36,7 @@ editor.once('load', function() {
 
     Tooltip.attach({
         target: sceneName.element,
-        text: 'Scene Settings',
+        text: 'Settings',
         align: 'top',
         root: root
     });
