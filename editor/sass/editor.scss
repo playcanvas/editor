@@ -1316,7 +1316,6 @@ strong {
         &.entity {
             > header {
                 border-top: 1px solid $bcg-dark;
-                background-color: transparent;
 
                 > .title {
                     &:before {
@@ -1339,6 +1338,8 @@ strong {
                 > .ui-checkbox.component-toggle {
                     float: right;
                     margin: 7px 4px 0 0;
+                    border-radius: 8px;
+                    background-color: $bcg-primary;
                 }
                 > .ui-button.component-remove {
                     float: right;
@@ -1716,49 +1717,52 @@ strong {
 .ui-checkbox.tick {
     width: 12px;
     height: 12px;
-    border-width: 2px;
+    overflow: hidden;
+    // border-width: 2px;
 
     &.null {
         &:after {
-            content: '\00a0';
-            background-color: mix($bcg-primary, $text-darkest, 50%);
-            width: 8px;
-            height: 8px;
-            margin: 2px 0 0 2px;
+            color: mix($bcg-primary, $text-darkest, 50%);
+            left: 0;
         }
-        &:hover {
-            &:after {
-                width: 12px;
-                height: 12px;
-                margin: 0;
-                background-color: transparent;
-            }
+        &:hover:after {
+            color: $text-primary;
         }
     }
     &:after {
-        position: static;
-        display: block;
+        @extend .font-icon;
+        position: absolute;
         margin: 0;
         content: none;
+        width: 12px;
+        height: 12px;
+        line-height: 13px;
+        font-weight: bold;
+        font-size: 11px;
         text-align: center;
-        font-size: 9px;
-        line-height: 12px;
-        @extend .font-icon;
+        left: 0;
+        top: 0;
+        border-radius: 0;
         background-color: transparent;
-        color: #7f7;
         transition: none;
     }
     &:hover {
         &:after {
             content: '\E133';
-            color: mix($bcg-dark, #7f7, 50%);
+            color: $text-primary;
+        }
+        &.checked:after {
+            color: $text-primary;
+            background-color: mix($text-dark, $bcg-darkest, 50%);
+            // opacity: .5;
         }
     }
     &.checked {
-        border-color: mix($bcg-dark, #7f7, 50%);
+        background-color: $text-dark;
 
         &:after {
             content: '\E133';
+            color: $bcg-dark;
         }
     }
 }

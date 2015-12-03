@@ -321,7 +321,7 @@ editor.once('load', function() {
 
                             if (empty) {
                                 var name = asset.get('name');
-                                var check = /((neg|pos)(x|y|z)|(right|left|top|up|bottom|down|front|forward|back|backward)|[0-5])(\.|$)/i;
+                                var check = /((neg|pos)(x|y|z)|(right|left|top|up|bottom|down|front|forward|back|backward)|[0-6])(\.|$)/i;
                                 var match = name.match(check);
 
                                 if (match != null) {
@@ -359,7 +359,9 @@ editor.once('load', function() {
                                         '5': 5,
                                         'negz': 5,
                                         'back': 5,
-                                        'backward': 5
+                                        'backward': 5,
+
+                                        '6': 6,
                                     };
                                     var faceAssets = editor.call('assets:find', function(a) {
                                         if (a.get('source') || a.get('type') !== 'texture')

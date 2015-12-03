@@ -41,11 +41,26 @@ editor.once('load', function() {
 
             var pathSensitive = editor.call('assets:pipeline:settings', 'pathSensitive');
 
+            var readScriptFile = function(file) {
+                var reader = new FileReader();
+
+                reader.addEventListener('load', function() {
+                    editor.call('sourcefiles:create', file.name, reader.result, function(err) {
+                        if (err)
+                            return;
+
+                        editor.call('assets:panel:currentFolder', 'scripts');
+                    });
+                }, false);
+
+                reader.readAsText(file);
+            };
+
             for(var i = 0; i < data.length; i++) {
                 var currentFolder = editor.call('assets:panel:currentFolder');
                 var path = [ ];
 
-                if (currentFolder)
+                if (currentFolder && currentFolder.get)
                     path = currentFolder.get('path').concat(parseInt(currentFolder.get('id'), 10));
 
                 var source = false;
@@ -54,35 +69,41 @@ editor.once('load', function() {
                     continue;
                 ext = ext[ext.length - 1].toLowerCase();
 
-                var source = ! targetExtensions[ext];
-                var type = extToType[ext];
+                if (ext === 'js') {
+                    readScriptFile(data[i]);
+                } else {
+                    var source = ! targetExtensions[ext];
+                    var type = extToType[ext];
 
-                // can we override another asset?
-                var sourceAsset = null;
-                var asset = editor.call('assets:findOne', function(item) {
-                    // check files in current folder only
-                    if (! item.get('path').equals(path))
-                        return;
-
-                    // try locate source when dropping on its targets
-                    if (! pathSensitive && source && ! item.get('source') && item.get('source_asset_id')) {
-                        var itemSource = editor.call('assets:get', item.get('source_asset_id'));
-                        if (itemSource && itemSource.get('type') === type && itemSource.get('name').toLowerCase() === data[i].name.toLowerCase()) {
-                            sourceAsset = itemSource;
+                    // can we override another asset?
+                    var sourceAsset = null;
+                    var asset = editor.call('assets:findOne', function(item) {
+                        // check files in current folder only
+                        if (! item.get('path').equals(path))
                             return;
+
+                        // try locate source when dropping on its targets
+                        /*
+                        if (! pathSensitive && source && ! item.get('source') && item.get('source_asset_id')) {
+                            var itemSource = editor.call('assets:get', item.get('source_asset_id'));
+                            if (itemSource && itemSource.get('type') === type && itemSource.get('name').toLowerCase() === data[i].name.toLowerCase()) {
+                                sourceAsset = itemSource;
+                                return;
+                            }
                         }
-                    }
+                        */
 
-                    return item.get('source') === source && item.get('type') === type && item.get('name').toLowerCase() === data[i].name.toLowerCase();
-                });
+                        return item.get('source') === source && item.get('type') === type && item.get('name').toLowerCase() === data[i].name.toLowerCase();
+                    });
 
-                editor.call('assets:uploadFile', {
-                    asset: asset ? asset[1] : sourceAsset,
-                    file: data[i],
-                    name: data[i].name,
-                    parent: editor.call('assets:panel:currentFolder'),
-                    pipeline: true
-                });
+                    editor.call('assets:uploadFile', {
+                        asset: asset ? asset[1] : sourceAsset,
+                        file: data[i],
+                        name: data[i].name,
+                        parent: editor.call('assets:panel:currentFolder'),
+                        pipeline: true
+                    });
+                }
             }
         }
     });
