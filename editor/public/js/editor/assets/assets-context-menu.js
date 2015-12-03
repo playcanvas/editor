@@ -130,6 +130,9 @@ editor.once('load', function() {
         value: 'extract'
     });
     menuItemExtract.on('select', function() {
+        if (! currentAsset.get('meta'))
+            return;
+
         editor.call('assets:jobs:convert', currentAsset);
     });
     menu.append(menuItemExtract);
@@ -194,6 +197,9 @@ editor.once('load', function() {
                 }, 0);
             });
         } else if (source.get('type') === 'scene') {
+            if (! source.get('meta'))
+                return;
+
             var type = target.get('type');
 
             if (type === 'texture') {
@@ -440,7 +446,7 @@ editor.once('load', function() {
             } else {
                 menuItemReferences.hidden = true;
                 menuItemReImport.hidden = true;
-                menuItemExtract.hidden = [ 'scene', 'texture' ].indexOf(currentAsset.get('type')) === -1;
+                menuItemExtract.hidden = [ 'scene', 'texture' ].indexOf(currentAsset.get('type')) === -1 && currentAsset.get('meta');
             }
         } else {
             // no asset
