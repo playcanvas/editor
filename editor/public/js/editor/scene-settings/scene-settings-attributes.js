@@ -2,6 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     var sceneSettings = editor.call('sceneSettings');
+    var projectSettings = editor.call('project:settings');
 
     editor.method('designerSettings:panel:unfold', function(panel) {
         var element = editor.call('layout.right').innerElement.querySelector('.ui-panel.component.foldable.' + panel);
@@ -457,15 +458,13 @@ editor.once('load', function() {
             });
 
             var setLoadingScreen = function (filename) {
-                editor.call('project:setLoadingScreenScript', filename);
+                projectSettings.set('loading_screen_script', filename);
                 fieldScriptPicker.text = filename ? filename : 'Select loading screen script';
                 if (filename) {
                     btnRemove.class.remove('not-visible');
                 } else {
                     btnRemove.class.add('not-visible');
                 }
-
-                onLoadingScreen(filename);
             };
 
             var onLoadingScreen = function (filename) {
@@ -479,7 +478,13 @@ editor.once('load', function() {
                 }
             };
 
-            editor.call('project:getLoadingScreenScript', onLoadingScreen);
+            var evtLoadingScreen = projectSettings.on('loading_screen_script:set', onLoadingScreen);
+
+            panelLoadingScreen.on('destroy', function () {
+                evtLoadingScreen.unbind();
+            });
+
+            onLoadingScreen(projectSettings.get('loading_screen_script'));
 
             fieldScriptPicker.on('click', function () {
                 var evtPick = editor.once("picker:asset", function (asset) {
