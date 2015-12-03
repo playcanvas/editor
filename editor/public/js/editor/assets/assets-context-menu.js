@@ -357,7 +357,7 @@ editor.once('load', function() {
                 if (sourceId) {
                     var source = editor.call('assets:get', sourceId)
                     if (source) {
-                        if (source.get('type') === 'scene' && [ 'texture', 'material' ].indexOf(currentAsset.get('type')) !== -1) {
+                        if (source.get('type') === 'scene' && ([ 'texture', 'material' ].indexOf(currentAsset.get('type')) !== -1 || ! source.get('meta'))) {
                             menuItemReImport.hidden = true;
                         } else if (currentAsset.get('type') === 'animation' && ! source.get('meta.animation.available')) {
                             menuItemReImport.hidden = true;
@@ -446,7 +446,7 @@ editor.once('load', function() {
             } else {
                 menuItemReferences.hidden = true;
                 menuItemReImport.hidden = true;
-                menuItemExtract.hidden = [ 'scene', 'texture' ].indexOf(currentAsset.get('type')) === -1 && currentAsset.get('meta');
+                menuItemExtract.hidden = [ 'scene', 'texture' ].indexOf(currentAsset.get('type')) === -1 || ! currentAsset.get('meta');
             }
         } else {
             // no asset
