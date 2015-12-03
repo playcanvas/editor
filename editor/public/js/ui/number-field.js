@@ -190,9 +190,12 @@ Object.defineProperty(NumberField.prototype, 'value', {
             if (value === undefined)
                 value = null;
 
-            if (this._lastValue !== value) {
-                this._lastValue = value;
-                this.elementInput.value = value;
+            var different = this._lastValue !== value;
+
+            this._lastValue = value;
+            this.elementInput.value = value;
+
+            if (different) {
                 this.emit('change', value);
             }
         }

@@ -206,9 +206,10 @@ editor.once('load', function () {
 
     // on focus open the menu and then refocus the input field
     input.elementInput.addEventListener('focus', function () {
+        if (focusing) return;
+
         focusing = true;
         menu.open = true;
-        input.elementInput.focus();
 
         if (blurTimeout) {
             clearTimeout(blurTimeout);
@@ -216,6 +217,7 @@ editor.once('load', function () {
         }
 
         setTimeout(function () {
+            input.elementInput.focus();
             focusing = false;
         });
 
@@ -225,17 +227,7 @@ editor.once('load', function () {
     input.elementInput.addEventListener('blur', function () {
         if (focusing) return;
 
-        if (menu.open) {
-            if (blurTimeout)
-                clearTimeout(blurTimeout);
-
-            // timeout necessary because when we focus the field and open the
-            // menu the input field gets blurred
-            blurTimeout = setTimeout(function () {
-                menu.open = false;
-                blurTimeout = null;
-            });
-        }
+        menu.open = false;
     });
 
     // Store event for when viewing (or not viewing) a topic

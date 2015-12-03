@@ -102,6 +102,34 @@ editor.once('load', function() {
             description: 'The name of the script to use for creating the loading screen of the application. The script needs to call pc.script.createLoadingScreen.',
             url: 'http://developer.playcanvas.com/en/engine/api/stable/symbols/pc.script.html#createLoadingScreen'
         }, {
+            name: 'project',
+            title: 'Project Settings',
+            description: 'Settings that affect the entire Project and not just this Scene.'
+        }, {
+            name: 'project:width',
+            title: 'Resolution Width',
+            description: 'The width of your application in pixels.'
+        }, {
+            name: 'project:height',
+            title: 'Resolution Height',
+            description: 'The height of your application in pixels.'
+        }, {
+            name: 'project:fillMode',
+            title: 'Fill Mode',
+            description: 'Fill Mode decides how the canvas fills the browser window.'
+        }, {
+            name: 'project:resolutionMode',
+            title: 'Resolution Mode',
+            description: 'Resolution Mode decides whether the canvas resolution will change when it is resized.'
+        }, {
+            name: 'project:physics',
+            title: 'Enable 3D Physics',
+            description: 'Enable to use 3D physics in your Application.'
+        }, {
+            name: 'project:pixelRatio',
+            title: 'Use Device Pixel Ratio',
+            description: 'Enable if you want to use the device pixel ratio.'
+        }, {
             name: 'asset-tasks',
             title: 'Asset Tasks',
             description: 'Settings for defining default behaviour rules for asset pipeline jobs: assets extracting, textures resizing, etc.'
