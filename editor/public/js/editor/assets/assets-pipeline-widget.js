@@ -234,7 +234,7 @@ editor.once('load', function() {
                         if (a.get('name') !== filename || a.get('source_asset_id') !== asset.get('id'))
                             return false;
 
-                        if (editor.call('assets:pipeline:settings', 'pathSensitive') && ! a.get('path').equals(path))
+                        if (editor.call('assets:pipeline:settings', 'searchRelatedAssets') && ! a.get('path').equals(path))
                             return false;
 
                         return true;
@@ -317,7 +317,7 @@ editor.once('load', function() {
                     if (a.get('source_asset_id') !== asset.get('id') || a.get('name') !== nameModel || a.get('type') !== 'model')
                         return false;
 
-                    if (editor.call('assets:pipeline:settings', 'pathSensitive') && ! a.get('path').equals(path))
+                    if (editor.call('assets:pipeline:settings', 'searchRelatedAssets') && ! a.get('path').equals(path))
                         return false;
 
                     return true;
@@ -335,7 +335,7 @@ editor.once('load', function() {
                         if (a.get('source_asset_id') !== asset.get('id') || a.get('name') !== nameModel || a.get('type') !== 'animation')
                             return false;
 
-                        if (editor.call('assets:pipeline:settings', 'pathSensitive') && ! a.get('path').equals(path))
+                        if (editor.call('assets:pipeline:settings', 'searchRelatedAssets') && ! a.get('path').equals(path))
                             return false;
 
                         return true;
@@ -353,7 +353,7 @@ editor.once('load', function() {
                         if (a.get('source_asset_id') !== asset.get('id') || a.get('name') !== materials[i].name || a.get('type') !== 'material')
                             return false;
 
-                        if (editor.call('assets:pipeline:settings', 'pathSensitive') && ! a.get('path').equals(path))
+                        if (editor.call('assets:pipeline:settings', 'searchRelatedAssets') && ! a.get('path').equals(path))
                             return false;
 
                         return true;
@@ -375,7 +375,7 @@ editor.once('load', function() {
                         if (a.get('source_asset_id') !== asset.get('id') || a.get('name').toLowerCase() !== name || a.get('type') !== 'texture' || a.get('source'))
                             return false;
 
-                        if (editor.call('assets:pipeline:settings', 'pathSensitive') && ! a.get('path').equals(path))
+                        if (editor.call('assets:pipeline:settings', 'searchRelatedAssets') && ! a.get('path').equals(path))
                             return false;
 
                         return true;

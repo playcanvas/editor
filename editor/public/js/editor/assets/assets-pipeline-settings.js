@@ -4,7 +4,7 @@ editor.once('load', function() {
     var settings = new Observer({
         'auto': true,
         'texturePot': true,
-        'pathSensitive': false,
+        'searchRelatedAssets': true,
         'overwriteModel': true,
         'overwriteAnimation': true,
         'overwriteMaterial': false,
@@ -49,14 +49,14 @@ editor.once('load', function() {
         });
         editor.call('attributes:reference:settings:asset-tasks:texturePot:attach', fieldTexturePOT.parent.innerElement.firstChild.ui);
 
-        var fieldPathSensitive = editor.call('attributes:addField', {
+        var fieldSearchRelatedAssets = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Path Sensitive',
+            name: 'Search Related Assets',
             type: 'checkbox',
             link: settings,
-            path: 'pathSensitive'
+            path: 'searchRelatedAssets'
         });
-        editor.call('attributes:reference:settings:asset-tasks:pathSensitive:attach', fieldPathSensitive.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:settings:asset-tasks:searchRelatedAssets:attach', fieldSearchRelatedAssets.parent.innerElement.firstChild.ui);
 
         var fieldOverwrite = editor.call('attributes:addField', {
             parent: panel,

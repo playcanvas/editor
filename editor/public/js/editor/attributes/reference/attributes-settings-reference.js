@@ -108,35 +108,35 @@ editor.once('load', function() {
         }, {
             name: 'asset-tasks:auto',
             title: 'Auto-Run',
-            description: 'Automatically run pipeline on uploaded assets with default settings.'
+            description: 'Automatically run the asset import pipeline when you upload a new asset.'
         }, {
             name: 'asset-tasks:texturePot',
             title: 'Texture Power of Two',
-            description: 'Auto-resize textures to Nearest Power of Two resolution. Textures with NPOT resolution are not filtered and can be rendered pixelated. Although if imagery uploaded to be used as UI image, auto-resize is not desired option.'
+            description: 'When a texture is imported it will be resized to use the nearest power of two resolution.'
         }, {
-            name: 'asset-tasks:pathSensitive',
-            title: 'Path Sensitive',
-            description: 'If not Path Sensitive, on uploads it will try to link asset being uploaded to original source file. Uploading to folder with target asset can be detected and source asset located in other folders. Additionally if target assets are located in different folders, with non Path Sensitive setting, it will update target assets in different folders as far as they originate from that source, have desired asset type and same asset name.'
+            name: 'asset-tasks:searchRelatedAssets',
+            title: 'Search Related Assets',
+            description: 'If enabled, importing a source asset will update target assets where ever they are located. If disabled, assets will only be updated if they are in the same folder, otherwise new assets will be created.'
         }, {
             name: 'asset-tasks:overwrite',
             title: 'Overwrite',
-            description: 'Overwrite existing target assets with assets from model archives or ignore assets from model archive if target asset already exists.'
+            description: 'Overwriting Behaviour.'
         }, {
             name: 'asset-tasks:overwrite:model',
             title: 'Overwrite Model',
-            description: 'On model archive uploads, if target model asset exists, it will be updated when this option is enabled.'
+            description: 'When a model is imported, overwrite a previously imported model asset.'
         }, {
             name: 'asset-tasks:overwrite:animation',
             title: 'Overwrite Animation',
-            description: 'On model archive uploads, if target animation asset exists, it will be updated when this option is enabled.'
+            description: 'When a model is imported, overwrite previously imported animation assets.'
         }, {
             name: 'asset-tasks:overwrite:material',
             title: 'Overwrite Material',
-            description: 'On model archive uploads, if target material asset exists, it will be updated when this option is enabled.'
+            description: 'When a model is imported, overwrite previously imported material assets.'
         }, {
             name: 'asset-tasks:overwrite:texture',
             title: 'Overwrite Texture',
-            description: 'On model archive uploads, if target texture asset exists, it will be updated when this option is enabled.'
+            description: 'When a model is imported, overwrite previously imported texture assets.'
         }
     ];
 

@@ -157,9 +157,10 @@ editor.once('load', function() {
         fieldOuterConeAngle.style.width = '32px';
 
 
-
-        // TODO
         // divider
+        var divider = document.createElement('div');
+        divider.classList.add('fields-divider');
+        panel.append(divider);
 
 
         // castShadows

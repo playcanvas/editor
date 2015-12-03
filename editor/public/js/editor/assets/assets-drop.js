@@ -39,7 +39,7 @@ editor.once('load', function() {
                 return;
             }
 
-            var pathSensitive = editor.call('assets:pipeline:settings', 'pathSensitive');
+            // var searchRelatedAssets = editor.call('assets:pipeline:settings', 'searchRelatedAssets');
 
             var readScriptFile = function(file) {
                 var reader = new FileReader();
@@ -84,7 +84,7 @@ editor.once('load', function() {
 
                         // try locate source when dropping on its targets
                         /*
-                        if (! pathSensitive && source && ! item.get('source') && item.get('source_asset_id')) {
+                        if (searchRelatedAssets && source && ! item.get('source') && item.get('source_asset_id')) {
                             var itemSource = editor.call('assets:get', item.get('source_asset_id'));
                             if (itemSource && itemSource.get('type') === type && itemSource.get('name').toLowerCase() === data[i].name.toLowerCase()) {
                                 sourceAsset = itemSource;

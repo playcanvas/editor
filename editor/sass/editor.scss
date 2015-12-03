@@ -1400,6 +1400,11 @@ strong {
         > .content {
             padding: 8px 6px;
 
+            .fields-divider {
+                height: 1px;
+                background-color: $bcg-dark;
+                margin: 4px 0;
+            }
             > .ui-button.add-component {
                 display: block;
                 background-color: $bcg-dark;

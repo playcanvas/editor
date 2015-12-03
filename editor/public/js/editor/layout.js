@@ -55,13 +55,13 @@ editor.on('load', function() {
     hierarchyPanel.enabled = false;
     hierarchyPanel.class.add('hierarchy');
     hierarchyPanel.flexShrink = false;
-    hierarchyPanel.style.width = '320px';
-    hierarchyPanel.innerElement.style.width = '320px';
+    hierarchyPanel.style.width = '256px';
+    hierarchyPanel.innerElement.style.width = '256px';
     hierarchyPanel.foldable = true;
     hierarchyPanel.horizontal = true;
     hierarchyPanel.scroll = true;
     hierarchyPanel.resizable = 'right';
-    hierarchyPanel.resizeMin = 256;
+    hierarchyPanel.resizeMin = 196;
     hierarchyPanel.resizeMax = 512;
     middle.append(hierarchyPanel);
     // expose
