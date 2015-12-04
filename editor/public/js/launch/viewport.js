@@ -177,7 +177,11 @@ app.once('load', function() {
         touch: !!('ontouchstart' in window) ? new pc.input.TouchDevice(canvas) : null,
         keyboard: new pc.input.Keyboard(window),
         gamepads: new pc.input.GamePads(),
-        scriptPrefix: scriptPrefix
+        scriptPrefix: scriptPrefix,
+        graphicsDeviceOptions: {
+            alpha: config.project.settings.transparent_canvas === false ? false : true,
+            preserveDrawingBuffer: !!config.project.settings.preserve_drawing_buffer
+        }
     });
 
     if (canvas.classList) {

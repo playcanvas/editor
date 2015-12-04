@@ -2,6 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     var settings = new Observer(config.project.settings);
+    settings.sync = true;
 
     var changing = false;
 
@@ -17,7 +18,7 @@ editor.once('load', function() {
 
         config.project.settings[path] = value;
 
-        if (changing || !editor.call('permissions:write'))
+        if (changing || !settings.sync || !editor.call('permissions:write'))
             return;
 
         var data = {

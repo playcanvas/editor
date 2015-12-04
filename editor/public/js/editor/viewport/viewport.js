@@ -11,7 +11,10 @@ editor.once('load', function() {
     var framework = new pc.editor.Designer(canvas.element, {
         mouse: new pc.input.Mouse(canvas.element),
         touch: !!('ontouchstart' in window) ? new pc.input.TouchDevice(canvas.element) : null,
-        designerSettings: settings.json()
+        designerSettings: settings.json(),
+        graphicsDeviceOptions: {
+            alpha: false
+        }
     });
 
     settings.on('*:set', function() {
