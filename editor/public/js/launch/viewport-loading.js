@@ -4,15 +4,13 @@ editor.once('load', function () {
     editor.method('viewport:loadingScreen', function () {
         pc.script.createLoadingScreen(function (app) {
             var showSplash = function () {
-                // splash wrapper
-                var wrapper = document.createElement('div');
-                wrapper.id = 'application-splash-wrapper';
-                document.body.appendChild(wrapper);
+                // hide canvas
+                app.graphicsDevice.canvas.style.display = 'none';
 
                 // splash
                 var splash = document.createElement('div');
                 splash.id = 'application-splash';
-                wrapper.appendChild(splash);
+                document.body.appendChild(splash);
                 splash.style.display = 'none';
 
                 var logo = document.createElement('img');
@@ -33,8 +31,11 @@ editor.once('load', function () {
             };
 
             var hideSplash = function () {
-                var splash = document.getElementById('application-splash-wrapper');
+                var splash = document.getElementById('application-splash');
                 splash.parentElement.removeChild(splash);
+
+                // show canvas
+                app.graphicsDevice.canvas.style.display = '';
             };
 
             var setProgress = function (value) {
@@ -50,16 +51,6 @@ editor.once('load', function () {
                     'body {',
                     '    background-color: #283538;',
                     '}',
-
-                    '#application-splash-wrapper {',
-                    '    position: absolute;',
-                    '    top: 0;',
-                    '    left: 0;',
-                    '    height: 100%;',
-                    '    width: 100%;',
-                    '    background-color: #283538;',
-                    '}',
-
                     '#application-splash {',
                     '    position: absolute;',
                     '    top: calc(50% - 28px);',
@@ -114,6 +105,5 @@ editor.once('load', function () {
             app.on('preload:progress', setProgress);
             app.on('start', hideSplash);
         });
-
     });
 });
