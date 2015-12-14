@@ -147,6 +147,7 @@ editor.once('load', function() {
     header.append(labelRandomize);
 
     var fieldRandomize = new ui.Checkbox();
+    fieldRandomize.class.add('component-toggle');
     fieldRandomize.on('change', function (value) {
         var i;
 

@@ -1338,7 +1338,6 @@ strong {
                 > .ui-checkbox.component-toggle {
                     float: right;
                     margin: 7px 4px 0 0;
-                    border-radius: 8px;
                     background-color: $bcg-primary;
                 }
                 > .ui-button.component-remove {
@@ -1751,15 +1750,32 @@ strong {
         background-color: transparent;
         transition: none;
     }
+    &.null {
+        &:after {
+            @extend .font-regular;
+            content: '?';
+            color: $text-dark;
+            font-weight: bold;
+            background-color: transparent;
+        }
+        &:hover {
+            &:after {
+                @extend .font-icon;
+                content: '\E133';
+                color: $text-primary;
+                background-color: transparent;
+            }
+        }
+    }
     &:hover {
         &:after {
+            @extend .font-icon;
             content: '\E133';
             color: $text-primary;
         }
         &.checked:after {
             color: $text-primary;
             background-color: mix($text-dark, $bcg-darkest, 50%);
-            // opacity: .5;
         }
     }
     &.checked {
