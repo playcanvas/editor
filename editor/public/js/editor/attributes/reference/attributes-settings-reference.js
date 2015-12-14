@@ -128,7 +128,15 @@ editor.once('load', function() {
         }, {
             name: 'project:pixelRatio',
             title: 'Device Pixel Ratio',
-            description: 'When enabled the canvas resolution will be calculated including the device pixel ratio.'
+            description: 'When enabled the canvas resolution will be calculated including the device pixel ratio. Enabling this might affect performance.'
+        }, {
+            name: 'project:transparentCanvas',
+            title: 'Transparent Canvas',
+            description: 'When enabled the canvas will blend with the web page.'
+        }, {
+            name: 'project:preserveDrawingBuffer',
+            title: 'Preserve drawing buffer',
+            description: 'When enabled the drawing buffer will be preserved until its explicitely cleared. Useful if you want to take screenshots.'
         }, {
             name: 'asset-tasks',
             title: 'Asset Tasks',

@@ -435,6 +435,35 @@ editor.once('load', function() {
         editor.call('attributes:reference:settings:project:pixelRatio:attach', fieldPixelRatio.parent.innerElement.firstChild.ui);
 
 
+        var fieldTransparentCanvas = editor.call('attributes:addField', {
+            parent: panelRendering,
+            name: 'Transparent Canvas',
+            type: 'checkbox',
+            link: projectSettings,
+            path: 'transparent_canvas'
+        });
+        fieldTransparentCanvas.parent.innerElement.firstChild.style.width = 'auto';
+        editor.call('attributes:reference:settings:project:transparentCanvas:attach', fieldTransparentCanvas.parent.innerElement.firstChild.ui);
+
+        // value not migrated so show it as 'true' by default
+        if (! projectSettings.has('transparent_canvas')) {
+            projectSettings.sync = false;
+            projectSettings.history = false;
+            projectSettings.set('transparent_canvas', true);
+            projectSettings.sync = true;
+            projectSettings.history = true;
+        }
+
+        var fieldPreserveDrawingBuffer = editor.call('attributes:addField', {
+            parent: panelRendering,
+            name: 'Preserve Drawing Buffer',
+            type: 'checkbox',
+            link: projectSettings,
+            path: 'preserve_drawing_buffer'
+        });
+        fieldPreserveDrawingBuffer.parent.innerElement.firstChild.style.width = 'auto';
+        editor.call('attributes:reference:settings:project:preserveDrawingBuffer:attach', fieldPreserveDrawingBuffer.parent.innerElement.firstChild.ui);
+
         filter();
 
         // filter fields when scene settings change
