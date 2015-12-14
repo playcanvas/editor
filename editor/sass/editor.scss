@@ -1652,10 +1652,16 @@ strong {
                 > .title {
                     max-width: calc(100% - 128px);
 
-                    > a {
+                    > .link {
                         overflow: hidden;
                         text-overflow: ellipsis;
                         display: block;
+                        color: $text-active;
+                        cursor: pointer;
+
+                        &:hover {
+                            text-decoration: underline;
+                        }
                     }
                 }
                 > .move-down, > .move-up, > .refresh, > .remove {

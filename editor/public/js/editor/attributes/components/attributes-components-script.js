@@ -695,7 +695,8 @@ editor.once('load', function() {
             panelScript.class.add('component-script');
             panelScript.count = 1;
 
-            var href = document.createElement('a');
+            var href = document.createElement('div');
+            href.classList.add('link');
 
             var url = script.get('url');
             var lowerUrl = url.toLowerCase();
@@ -706,8 +707,10 @@ editor.once('load', function() {
             panelScript._originalTitle = script.get('name') || getFilenameFromUrl(url);
             panelScript._link = href;
             href.textContent = (panelScript.count === entities.length ? '' : '* ') + panelScript._originalTitle;
-            href.target = '_blank';
-            href.href = isExternalUrl ? url : '/editor/code/' + config.project.id + '/' + url;
+            href.url = isExternalUrl ? url : 'https://' + window.location.host + '/editor/code/' + config.project.id + '/' + url;
+            href.addEventListener('click', function() {
+                window.open(this.url, this.url);
+            });
             panelScript.headerElementTitle.textContent = '';
             panelScript.headerElementTitle.appendChild(href);
 
