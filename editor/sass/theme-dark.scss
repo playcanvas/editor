@@ -967,6 +967,9 @@ a:visited {
             }
         }
     }
+    &.component-toggle {
+        border-radius: 8px;
+    }
 }
 
 .ui-select-field {
