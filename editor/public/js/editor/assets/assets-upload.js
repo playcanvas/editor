@@ -48,7 +48,9 @@ editor.once('load', function() {
             if (args.parent instanceof Observer) {
                 form.append('parent', args.parent.get('id'));
             } else {
-                form.append('parent', args.parent + '');
+                var id = parseInt(args.parent, 10);
+                if (! isNaN(id))
+                    form.append('parent', id + '');
             }
         }
 
