@@ -18,11 +18,11 @@ editor.once('load', function() {
             title: 'pc.Animation',
             subTitle: '{Class}',
             description: 'An animation is a sequence of keyframe arrays which map to the nodes of a skeletal hierarchy. It controls how the nodes of the hierarchy are transformed over time.',
-            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.Animation.html'
+            url: 'http://developer.playcanvas.com/api/pc.Animation.html'
         }, {
             title: 'duration',
             description: 'Duration of the animation in seconds.',
-            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.Animation.html'
+            url: 'http://developer.playcanvas.com/api/pc.Animation.html'
         }
     ];
 
