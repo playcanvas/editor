@@ -1751,15 +1751,32 @@ strong {
         background-color: transparent;
         transition: none;
     }
+    &.null {
+        &:after {
+            @extend .font-regular;
+            content: '?';
+            color: $text-dark;
+            font-weight: bold;
+            background-color: transparent;
+        }
+        &:hover {
+            &:after {
+                @extend .font-icon;
+                content: '\E133';
+                color: $text-primary;
+                background-color: transparent;
+            }
+        }
+    }
     &:hover {
         &:after {
+            @extend .font-icon;
             content: '\E133';
             color: $text-primary;
         }
         &.checked:after {
             color: $text-primary;
             background-color: mix($text-dark, $bcg-darkest, 50%);
-            // opacity: .5;
         }
     }
     &.checked {
