@@ -17,7 +17,7 @@ editor.once('load', function() {
             title: 'scripts',
             subTitle: '{Object[]}',
             description: 'Add scripts by clicking on the button or drag scripts on the script component.',
-            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.ScriptComponent.html#scripts'
+            url: 'http://developer.playcanvas.com/api/pc.ScriptComponent.html#scripts'
         }
     ];
 
@@ -26,7 +26,7 @@ editor.once('load', function() {
         title: 'pc.ScriptComponent',
         subTitle: '{pc.Component}',
         description: 'The ScriptComponent allows you to extend the functionality of an Entity by attaching your own javascript files to be executed with access to the Entity. For more details on scripting see Scripting.',
-        url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.ScriptComponent.html'
+        url: 'http://developer.playcanvas.com/api/pc.ScriptComponent.html'
     });
 
     // fields reference

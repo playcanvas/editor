@@ -17,27 +17,27 @@ editor.once('load', function() {
             title: 'enabled',
             subTitle: '{Boolean}',
             description: 'If unchecked, entity wont be processed nor any of its components.',
-            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.Entity.html'
+            url: 'http://developer.playcanvas.com/api/pc.Entity.html'
         }, {
             title: 'name',
             subTitle: '{String}',
             description: 'Human-readable name for this graph node.',
-            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.Entity.html'
+            url: 'http://developer.playcanvas.com/api/pc.Entity.html'
         }, {
             title: 'position',
             subTitle: '{pc.Vec3}',
             description: 'Position in Local Space',
-            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.Entity.html'
+            url: 'http://developer.playcanvas.com/api/pc.Entity.html'
         }, {
             title: 'rotation',
             subTitle: '{pc.Vec3}',
             description: 'Rotation in Local Space',
-            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.Entity.html'
+            url: 'http://developer.playcanvas.com/api/pc.Entity.html'
         }, {
             title: 'scale',
             subTitle: '{pc.Vec3}',
             description: 'Scale in Local Space',
-            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.Entity.html'
+            url: 'http://developer.playcanvas.com/api/pc.Entity.html'
         },
     ];
 

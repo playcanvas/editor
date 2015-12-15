@@ -42,6 +42,21 @@ app.once('load', function() {
         element.innerHTML = msg.replace(/\n/g, '<br/>');
         if (cls)
             element.classList.add(cls);
+
+        var links = element.querySelectorAll('.code-link');
+        for(var i = 0; i < links.length; i++) {
+            links[i].addEventListener('click', function(evt) {
+                evt.preventDefault();
+                var scope = window;
+
+                // TODO
+                // possible only when launcher and editor are within same domain (HTTPS)
+                // var scope = window.opener || window;
+
+                scope.open(this.getAttribute('href') + this.getAttribute('query'), this.getAttribute('href')).focus();
+            }, false);
+        }
+
         panel.appendChild(element);
 
         panel.classList.remove('hidden');
@@ -52,7 +67,8 @@ app.once('load', function() {
     window.onerror = function (msg, url, line, col, e) {
         if (url) {
             // check if this is a playcanvas script
-            var codeEditorUrl = null;
+            var codeEditorUrl = '';
+            var query = '';
             var target = null;
 
             // if this is a playcanvas script
@@ -68,16 +84,16 @@ app.once('load', function() {
                     target += parts.slice(6).join('/');
                 }
 
-                codeEditorUrl = target + '?line=' + line + '&col=' + col;
-            }
-             else {
+                codeEditorUrl = 'https://' + window.location.host + target;
+                query = '?line=' + line + '&col=' + col;
+            } else {
                 codeEditorUrl = url;
             }
 
             var slash = url.lastIndexOf('/');
             var relativeUrl = url.slice(slash + 1);
 
-            append(pc.string.format('<a href="{0}" target="{1}">[{2}:{3}]</a>: {4}', codeEditorUrl, target, relativeUrl, line, msg), 'error');
+            append(pc.string.format('<a href="{0}" query="{1}" target="{2}" class="code-link">[{3}:{4}]</a>: {5}', codeEditorUrl, query, target, relativeUrl, line, msg), 'error');
 
             // append stacktrace as well
             if (e && e.stack) {

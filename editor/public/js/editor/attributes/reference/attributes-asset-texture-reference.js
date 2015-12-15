@@ -18,43 +18,43 @@ editor.once('load', function() {
             title: 'pc.Texture',
             subTitle: '{Class}',
             description: 'Textures assets are image files which are used as part of a material to give a 3D model a realistic appearance.',
-            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.Texture.html'
+            url: 'http://developer.playcanvas.com/api/pc.Texture.html'
         }, {
             name: 'dimensions',
             title: 'width / height',
             subTitle: '{Number}',
             description: 'The width and height of the texture.',
-            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.Texture.html#width'
+            url: 'http://developer.playcanvas.com/api/pc.Texture.html#width'
         }, {
             title: 'magFilter',
             subTitle: '{pc.FILTER_*}',
             description: 'The magnification filter to be applied to the texture.',
-            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.Texture.html#magFilter'
+            url: 'http://developer.playcanvas.com/api/pc.Texture.html#magFilter'
         }, {
             title: 'mipFilter',
             subTitle: '{pc.FILTER_*}',
             description: 'The minification mipmap filter to be applied to the texture.',
-            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.Texture.html#mipFilter'
+            url: 'http://developer.playcanvas.com/api/pc.Texture.html#mipFilter'
         }, {
             title: 'minFilter',
             subTitle: '{pc.FILTER_*}',
             description: 'The minification filter to be applied to the texture.',
-            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.Texture.html#minFilter'
+            url: 'http://developer.playcanvas.com/api/pc.Texture.html#minFilter'
         }, {
             title: 'addressU',
             subTitle: '{pc.ADDRESS_*}',
             description: 'The addressing mode to be applied to the texture.',
-            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.Texture.html#addressU'
+            url: 'http://developer.playcanvas.com/api/pc.Texture.html#addressU'
         }, {
             title: 'addressV',
             subTitle: '{pc.ADDRESS_*}',
             description: 'The addressing mode to be applied to the texture.',
-            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.Texture.html#addressV'
+            url: 'http://developer.playcanvas.com/api/pc.Texture.html#addressV'
         }, {
             title: 'anisotropy',
             subTitle: '{Number}',
             description: 'Integer value specifying the level of anisotropic to apply to the texture ranging from 1 (no anisotropic filtering) to the pc.GraphicsDevice property maxAnisotropy.',
-            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.Texture.html#anisotropy'
+            url: 'http://developer.playcanvas.com/api/pc.Texture.html#anisotropy'
         }
     ];
 

@@ -17,7 +17,7 @@ editor.once('load', function() {
             title: 'meshInstances',
             subTitle: '{pc.MeshInstance[]}',
             description: 'An array of meshInstances contained in this model. Materials are defined for each individual Mesh Instance.',
-            url: 'http://developer.playcanvas.com/engine/api/stable/symbols/pc.Model.html#meshInstances'
+            url: 'http://developer.playcanvas.com/api/pc.Model.html#meshInstances'
         }
     ];
 

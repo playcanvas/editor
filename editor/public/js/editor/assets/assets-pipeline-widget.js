@@ -12,6 +12,10 @@ editor.once('load', function() {
     panel.foldable = true;
     panel.folded = true;
     panel.scroll = true;
+    panel.hidden = ! editor.call('permissions:write');
+    editor.on('permissions:writeState', function(state) {
+        panel.hidden = ! state;
+    });
     viewport.append(panel);
 
     // number
@@ -54,6 +58,9 @@ editor.once('load', function() {
     });
     toggleAuto.class.add('toggle', 'auto', 'active');
     toggleAuto.on('click', function () {
+        if (! editor.call('permissions:write'))
+            return;
+
         editor.call('assets:pipeline:settings', 'auto', ! editor.call('assets:pipeline:settings', 'auto'));
     });
     var toggleAutoSet = function(state) {
@@ -445,6 +452,9 @@ editor.once('load', function() {
 
         // remove on right click
         item.element.addEventListener('contextmenu', function() {
+            if (! editor.call('permissions:write'))
+                return;
+
             editor.call('assets:jobs:remove', asset.get('id'));
         }, false);
 
@@ -463,6 +473,9 @@ editor.once('load', function() {
         });
 
         var convertAuto = function() {
+            if (! editor.call('permissions:write'))
+                return;
+
             editor.call('assets:jobs:convert', asset);
         };
 
