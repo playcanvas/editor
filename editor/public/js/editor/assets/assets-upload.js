@@ -3,6 +3,31 @@ editor.once('load', function() {
 
     var uploadJobs = 0;
 
+    var targetExtensions = [ 'jpg', 'jpeg', 'png', 'css', 'html', 'json', 'xml', 'txt', 'vert', 'frag', 'glsl', 'mp3', 'ogg', 'wav', 'mp4' ];
+    var tmp = { };
+    for(var i = 0; i < targetExtensions.length; i++)
+        tmp[targetExtensions[i]] = true;
+    targetExtensions = tmp;
+
+
+    var typeToExt = {
+        'scene': [ 'fbx', 'dae', 'obj', '3ds' ],
+        'text': [ 'txt', 'xml' ],
+        'html': [ 'html' ],
+        'css': [ 'css' ],
+        'json': [ 'json' ],
+        'texture': [ 'tif', 'tga', 'png', 'jpg', 'jpeg', 'gif', 'bmp', 'dds', 'hdr', 'exr' ],
+        'audio': [ 'wav', 'mp3', 'mp4', 'ogg' ],
+        'shader': [ 'glsl', 'frag', 'vert' ]
+    };
+    var extToType = { };
+    for(var type in typeToExt) {
+        for(var i = 0; i < typeToExt[type].length; i++) {
+            extToType[typeToExt[type][i]] = type;
+        }
+    }
+
+
     editor.method('assets:canUploadFiles', function (files) {
         // check usage first
         var totalSize = 0;
@@ -125,6 +150,66 @@ editor.once('load', function() {
         });
     });
 
+    editor.method('assets:upload:files', function(files) {
+        if (! editor.call('assets:canUploadFiles', files)) {
+            var msg = 'Disk allowance exceeded. <a href="/upgrade" target="_blank">UPGRADE</a> to get more disk space.';
+            editor.call('status:error', msg);
+            return;
+        }
+
+        var currentFolder = editor.call('assets:panel:currentFolder');
+
+        for(var i = 0; i < files.length; i++) {
+            var path = [ ];
+
+            if (currentFolder && currentFolder.get)
+                path = currentFolder.get('path').concat(parseInt(currentFolder.get('id'), 10));
+
+            var source = false;
+            var ext = files[i].name.split('.');
+            if (ext.length === 1)
+                continue;
+
+            ext = ext[ext.length - 1].toLowerCase();
+
+            if (ext === 'js') {
+                editor.call('assets:upload:script', files[i]);
+            } else {
+                var source = ! targetExtensions[ext];
+                var type = extToType[ext];
+
+                // can we override another asset?
+                var sourceAsset = null;
+                var asset = editor.call('assets:findOne', function(item) {
+                    // check files in current folder only
+                    if (! item.get('path').equals(path))
+                        return;
+
+                    // try locate source when dropping on its targets
+                    /*
+                    if (searchRelatedAssets && source && ! item.get('source') && item.get('source_asset_id')) {
+                        var itemSource = editor.call('assets:get', item.get('source_asset_id'));
+                        if (itemSource && itemSource.get('type') === type && itemSource.get('name').toLowerCase() === files[i].name.toLowerCase()) {
+                            sourceAsset = itemSource;
+                            return;
+                        }
+                    }
+                    */
+
+                    return item.get('source') === source && item.get('type') === type && item.get('name').toLowerCase() === files[i].name.toLowerCase();
+                });
+
+                editor.call('assets:uploadFile', {
+                    asset: asset ? asset[1] : sourceAsset,
+                    file: files[i],
+                    name: files[i].name,
+                    parent: editor.call('assets:panel:currentFolder'),
+                    pipeline: true
+                });
+            }
+        }
+    });
+
     editor.method('assets:upload:picker', function(args) {
         args = args || { };
 
@@ -138,24 +223,8 @@ editor.once('load', function() {
         editor.call('layout.assets').append(fileInput);
 
         var onChange = function() {
-            if (! editor.call('assets:canUploadFiles', this.files)) {
-                var msg = 'Disk allowance exceeded. <a href="/upgrade" target="_blank">UPGRADE</a> to get more disk space.';
-                editor.call('status:error', msg);
-                return;
-            }
+            editor.call('assets:upload:files', this.files);
 
-            for(var i = 0; i < this.files.length; i++) {
-
-                if (/\.js$/i.test(this.files[i].name)) {
-                    editor.call('assets:upload:script', this.files[i]);
-                } else {
-                    editor.call('assets:uploadFile', {
-                        file: this.files[i],
-                        name: this.files[i].name,
-                        parent: parent
-                    });
-                }
-            }
             this.value = null;
             fileInput.removeEventListener('change', onChange);
         };
