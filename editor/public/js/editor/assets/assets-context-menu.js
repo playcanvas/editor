@@ -412,6 +412,13 @@ editor.once('load', function() {
 
                         menuItem.on('select', function() {
                             editor.call('selector:set', type, [ item ]);
+
+                            // unfold rendering tab
+                            if (type === 'designerSettings') {
+                                setTimeout(function() {
+                                    editor.call('designerSettings:panel:unfold', 'rendering');
+                                }, 0);
+                            }
                         });
                     };
 

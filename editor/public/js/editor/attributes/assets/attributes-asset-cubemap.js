@@ -167,7 +167,6 @@ editor.once('load', function() {
         editor.call('attributes:reference:asset:cubemap:anisotropy:attach', fieldAnisotropy.parent.innerElement.firstChild.ui);
 
 
-
         if (assets.length === 1) {
             // preview
             var previewPanel = editor.call('attributes:addPanel', {
@@ -176,6 +175,15 @@ editor.once('load', function() {
             previewPanel.class.add('cubemap-viewport', 'component');
             // reference
             editor.call('attributes:reference:asset:cubemap:slots:attach', previewPanel, previewPanel.headerElement);
+
+
+            // error
+            var labelError = new ui.Label({
+                text: 'error'
+            });
+            labelError.class.add('asset-loading-error');
+            labelError.hidden = true;
+            editor.call('attributes.rootPanel').append(labelError);
 
 
             // faces
@@ -189,6 +197,60 @@ editor.once('load', function() {
             };
             var side = [ 2, 1, 4, 0, 5, 3 ];
             var faces = [ ];
+
+            var checkValid = function() {
+                var invalid = invalidFaces();
+
+                if (invalid) {
+                    labelError.text = invalid;
+                    labelError.hidden = false;
+                } else {
+                    labelError.hidden = true;
+                }
+            };
+
+            var invalidFaces = function() {
+                var faces = assets[0].get('data.textures');
+
+                if (! (faces instanceof Array))
+                    return 'missing faces information';
+
+                for(var i = 0; i < 6; i++) {
+                    if (! faces[i])
+                        return 'set face textures';
+                }
+
+                var width = 0;
+                var height = 0;
+
+                for(var i = 0; i < 6; i++) {
+                    var asset = editor.call('assets:get', faces[i]);
+                    if (! asset)
+                        return 'missing face asset';
+
+                    if (! asset.has('meta.width') || ! asset.has('meta.height'))
+                        return 'no texture resolution data available';
+
+                    var w = asset.get('meta.width');
+                    var h = asset.get('meta.height');
+
+                    if ((w & (w - 1)) !== 0 || (h & (h - 1)) !== 0)
+                        return 'face textures should have power of two resolution';
+
+                    if (w !== h)
+                        return 'face textures should have square resolution';
+
+                    if (i === 0) {
+                        width = w;
+                        height = h;
+                    } else {
+                        if (width !== w || height !== h)
+                            return 'face textures should have same resolution';
+                    }
+                }
+
+                return false;
+            };
 
             // set face texture
             var setTexture = function(face, assetId) {
@@ -450,7 +512,8 @@ editor.once('load', function() {
                 face.evt = assets[0].on('data.textures.' + ind + ':set', function(value) {
                     clearPrefiltered();
                     setTexture(face, value);
-                    prefilterPanel.hidden = !hasAllTextures();
+                    prefilterPanel.hidden = !! invalidFaces();
+                    checkValid();
                 });
             };
 
@@ -464,6 +527,7 @@ editor.once('load', function() {
                 for(var i = 0; i < faces.length; i++)
                     faces[i].evt.unbind();
             });
+
 
             // prefiltering
             var prefilterPanel = editor.call('attributes:addPanel', {
@@ -507,36 +571,25 @@ editor.once('load', function() {
 
             var evtFileChange = assets[0].on('file:set', function (value) {
                 prefilterBtn.disabled = false;
-                togglePrefilterFields(!!value);
+                togglePrefilterFields(!! value);
             });
 
             prefilterPanel.once('destroy', function () {
                 evtFileChange.unbind();
             });
 
-            var hasAllTextures = function () {
-                var textures = assets[0].get('data.textures');
-                if (! textures || textures.length !== 6)
-                    return false;
-
-                for (var i = 0; i < 6; i++) {
-                    if (isNaN(parseInt(textures[i], 10)))
-                        return false;
-                }
-
-                return true;
-            };
 
             // show prefilter button or clear prefiltering button depending
             // on current cubemap 'file' field
             var togglePrefilterFields = function (isPrefiltered) {
-                prefilterPanel.hidden = ! hasAllTextures();
+                prefilterPanel.hidden = !! invalidFaces();
                 prefilterBtn.hidden = isPrefiltered;
                 prefilterBtn.disabled = !! assets[0].get('task');
                 clearPrefilteredBtn.hidden = ! isPrefiltered;
             };
 
             togglePrefilterFields(!!assets[0].get('file'));
+            checkValid();
         }
     });
 });
