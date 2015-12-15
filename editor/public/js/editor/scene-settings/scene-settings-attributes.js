@@ -113,7 +113,7 @@ editor.once('load', function() {
         panelRendering.folded = foldStates['rendering'];
         panelRendering.on('fold', function() { foldStates['rendering'] = true; });
         panelRendering.on('unfold', function() { foldStates['rendering'] = false; });
-        panelRendering.class.add('component');
+        panelRendering.class.add('component', 'rendering');
 
 
         // ambient
