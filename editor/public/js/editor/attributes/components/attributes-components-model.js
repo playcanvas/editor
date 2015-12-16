@@ -188,6 +188,19 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:model:receiveShadows:attach', label);
 
+
+        // lightmapped
+        var fieldLightmapped = editor.call('attributes:addField', {
+            parent: panel,
+            type: 'checkbox',
+            name: 'Lightmapped',
+            link: entities,
+            path: 'components.model.lightmapped'
+        });
+        // reference
+        editor.call('attributes:reference:model:lightmapped:attach', label);
+
+
         panel.on('destroy', function() {
             for(var i = 0; i < events.length; i++)
                 events[i].unbind();
