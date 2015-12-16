@@ -38,6 +38,24 @@ editor.once('load', function() {
         editor.call('attributes:reference:light:type:attach', fieldType.parent.innerElement.firstChild.ui);
 
 
+        // mode
+        var fieldMode = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Mode',
+            type: 'number',
+            enum: [
+                { v: '', t: '...' },
+                { v: 0, t: 'Full' },
+                { v: 1, t: 'Dynamic' },
+                { v: 2, t: 'Bake' }
+            ],
+            link: entities,
+            path: 'components.light.mode'
+        });
+        // reference
+        editor.call('attributes:reference:light:mode:attach', fieldMode.parent.innerElement.firstChild.ui);
+
+
         // color
         var fieldColor = editor.call('attributes:addField', {
             parent: panel,

@@ -18,6 +18,7 @@ editor.once('load', function() {
             default: {
                 enabled: true,
                 type: 'directional',
+                mode: 0,
                 color: [1, 1, 1],
                 intensity: 1,
                 castShadows: false,
@@ -105,6 +106,7 @@ editor.once('load', function() {
                 materialAsset: null,
                 castShadows: false,
                 receiveShadows: true,
+                lightmapped: false
             }
         },
 
