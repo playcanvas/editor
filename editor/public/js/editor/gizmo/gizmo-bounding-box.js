@@ -141,8 +141,6 @@ editor.once('load', function () {
     editor.once('viewport:load', function() {
         app = editor.call('viewport:framework');
 
-        console.log('bb')
-
         editor.on('viewport:postUpdate', function() {
             if (! entities.length)
                 return;
