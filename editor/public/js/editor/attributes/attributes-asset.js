@@ -342,7 +342,7 @@
                 }
             }
 
-            if (! assets[0].get('source') && assets[0].get('type') === 'model' && (! config.project.privateAssets || (config.project.privateAssets && editor.call('permissions:read')))) {
+            if (! assets[0].get('source') && ['model', 'animation'].indexOf(assets[0].get('type')) !== -1 && (! config.project.privateAssets || (config.project.privateAssets && editor.call('permissions:read')))) {
                 // export archive
                 var fieldExport = editor.call('attributes:addField', {
                     parent: panel,
@@ -352,7 +352,7 @@
                 fieldExport.flexGrow = 'initial';
                 fieldExport.class.add('export-model-archive');
                 fieldExport.on('click', function() {
-                    window.open('/api/assets/' + assets[0].get('id') + '/download_model?access_token=' + config.accessToken);
+                    window.open('/api/assets/' + assets[0].get('id') + '/download_' + assets[0].get('type') + '?access_token=' + config.accessToken);
                 });
             }
         }
