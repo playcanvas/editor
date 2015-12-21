@@ -342,18 +342,20 @@
                 }
             }
 
-            if (! assets[0].get('source') && ['model', 'animation'].indexOf(assets[0].get('type')) !== -1 && (! config.project.privateAssets || (config.project.privateAssets && editor.call('permissions:read')))) {
-                // export archive
-                var fieldExport = editor.call('attributes:addField', {
-                    parent: panel,
-                    name: 'Export',
-                    value: 'archive'
+            // download
+            if (editor.call('permissions:read') && assets[0].get('type') !== 'folder' && assets[0].get('type') !== 'script') {
+                // download
+                var btnDownload = new ui.Button();
+                btnDownload.text = 'Download';
+                btnDownload.class.add('download-asset');
+                btnDownload.element.addEventListener('click', function(evt) {
+                    if (assets[0].get('source') || assets[0].get('type') === 'texture' || assets[0].get('type') === 'audio') {
+                        window.open(assets[0].get('file.url'));
+                    } else {
+                        window.open('/api/assets/' + assets[0].get('id') + '/download?access_token=' + config.accessToken);
+                    }
                 });
-                fieldExport.flexGrow = 'initial';
-                fieldExport.class.add('export-model-archive');
-                fieldExport.on('click', function() {
-                    window.open('/api/assets/' + assets[0].get('id') + '/download_' + assets[0].get('type') + '?access_token=' + config.accessToken);
-                });
+                panel.append(btnDownload);
             }
         }
     });

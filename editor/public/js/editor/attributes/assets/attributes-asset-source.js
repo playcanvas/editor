@@ -8,21 +8,6 @@ editor.once('load', function() {
         var asset = assets[0];
         var events = [ ];
 
-        if ((! config.project.privateAssets || (config.project.privateAssets && editor.call('permissions:read'))) && asset.get('type') !== 'scene' && asset.get('type') !== 'folder') {
-            // panel
-            var panel = editor.call('attributes:addPanel');
-            panel.class.add('component');
-
-            // download
-            var btnDownload = new ui.Button();
-            btnDownload.text = 'Download';
-            btnDownload.class.add('download-asset');
-            btnDownload.element.addEventListener('click', function(evt) {
-                window.open(asset.get('file.url'));
-            }, false);
-            panel.append(btnDownload);
-        }
-
         // related assets
         var panelRelated = editor.call('attributes:addPanel', {
             name: 'Related Assets'
