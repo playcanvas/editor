@@ -12,16 +12,6 @@ editor.once('load', function() {
         var panel = editor.call('attributes:addPanel');
         panel.class.add('component');
 
-        // download
-        var btnDownload = new ui.Button();
-        btnDownload.text = 'Download';
-        btnDownload.class.add('download-asset');
-        btnDownload.element.addEventListener('click', function(evt) {
-            window.open(asset.get('file.url'));
-        }, false);
-        panel.append(btnDownload);
-
-
         // contents
         var panelContents = editor.call('attributes:addPanel', {
             name: 'Contents'
