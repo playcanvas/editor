@@ -106,7 +106,8 @@ editor.once('load', function() {
                 materialAsset: null,
                 castShadows: false,
                 receiveShadows: true,
-                lightmapped: false
+                lightmapped: false,
+                lightMapSizeMultiplier: 1.0
             }
         },
 

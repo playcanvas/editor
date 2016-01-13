@@ -189,16 +189,38 @@ editor.once('load', function() {
         editor.call('attributes:reference:model:receiveShadows:attach', label);
 
 
-        // lightmapped
-        var fieldLightmapped = editor.call('attributes:addField', {
+        // lightMapped
+        var fieldLightMapped = editor.call('attributes:addField', {
             parent: panel,
             type: 'checkbox',
-            name: 'Lightmapped',
+            name: 'LightMapped',
             link: entities,
-            path: 'components.model.lightmapped'
+            path: 'components.model.lightMapped'
         });
         // reference
-        editor.call('attributes:reference:model:lightmapped:attach', label);
+        editor.call('attributes:reference:model:lightMapped:attach', fieldLightMapped.parent.innerElement.firstChild.ui);
+
+
+
+
+        // lightMapSizeMultiplier
+        var fieldLightMapSizeMultiplier = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'LM Size Multiplier',
+            type: 'number',
+            precision: 3,
+            step: .05,
+            min: 0,
+            max: 32,
+            link: entities,
+            path: 'components.model.lightMapSizeMultiplier'
+        });
+        fieldLightMapSizeMultiplier.parent.hidden = ! fieldLightMapped.value && ! fieldLightMapped.class.contains('null');
+        fieldLightMapped.on('change', function() {
+            fieldLightMapSizeMultiplier.parent.hidden = ! fieldLightMapped.value && ! fieldLightMapped.class.contains('null');
+        });
+        // reference
+        editor.call('attributes:reference:model:lightMapSizeMultiplier:attach', fieldLightMapSizeMultiplier.parent.innerElement.firstChild.ui);
 
 
         panel.on('destroy', function() {
