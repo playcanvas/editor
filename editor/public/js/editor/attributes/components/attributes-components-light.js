@@ -38,22 +38,36 @@ editor.once('load', function() {
         editor.call('attributes:reference:light:type:attach', fieldType.parent.innerElement.firstChild.ui);
 
 
-        // mode
-        var fieldMode = editor.call('attributes:addField', {
+        // dynamic
+        var fieldDynamic = editor.call('attributes:addField', {
             parent: panel,
             name: 'Mode',
-            type: 'number',
-            enum: [
-                { v: '', t: '...' },
-                { v: 0, t: 'Full' },
-                { v: 1, t: 'Dynamic' },
-                { v: 2, t: 'Bake' }
-            ],
+            type: 'checkbox',
             link: entities,
-            path: 'components.light.mode'
+            path: 'components.light.dynamic'
         });
+        // label
+        var label = new ui.Label({ text: 'Dynamic' });
+        label.class.add('label-infield');
+        label.style.paddingRight = '12px';
+        fieldDynamic.parent.append(label);
         // reference
-        editor.call('attributes:reference:light:mode:attach', fieldMode.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:light:dynamic:attach', label);
+
+
+        // bake
+        var fieldReceiveShadows = editor.call('attributes:addField', {
+            panel: fieldDynamic.parent,
+            type: 'checkbox',
+            link: entities,
+            path: 'components.light.bake'
+        });
+        // label
+        var label = new ui.Label({ text: 'Bake' });
+        label.class.add('label-infield');
+        fieldDynamic.parent.append(label);
+        // reference
+        editor.call('attributes:reference:light:bake:attach', label);
 
 
         // color

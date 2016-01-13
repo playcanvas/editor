@@ -18,7 +18,8 @@ editor.once('load', function() {
             default: {
                 enabled: true,
                 type: 'directional',
-                mode: 0,
+                dynamic: true,
+                bake: false,
                 color: [1, 1, 1],
                 intensity: 1,
                 castShadows: false,
