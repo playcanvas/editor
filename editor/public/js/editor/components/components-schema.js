@@ -20,7 +20,7 @@ editor.once('load', function() {
                 type: 'directional',
                 dynamic: true,
                 baked: false,
-                lightmap: false,
+                lightMap: false,
                 color: [1, 1, 1],
                 intensity: 1,
                 castShadows: false,
