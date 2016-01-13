@@ -55,19 +55,40 @@ editor.once('load', function() {
         editor.call('attributes:reference:light:dynamic:attach', label);
 
 
-        // bake
-        var fieldReceiveShadows = editor.call('attributes:addField', {
+        // lightMap
+        var fieldLightMap = editor.call('attributes:addField', {
             panel: fieldDynamic.parent,
             type: 'checkbox',
             link: entities,
-            path: 'components.light.bake'
+            path: 'components.light.lightMap'
         });
         // label
-        var label = new ui.Label({ text: 'Bake' });
+        var label = new ui.Label({ text: 'LightMap' });
         label.class.add('label-infield');
+        label.style.paddingRight = '12px';
         fieldDynamic.parent.append(label);
         // reference
-        editor.call('attributes:reference:light:bake:attach', label);
+        editor.call('attributes:reference:light:lightMap:attach', label);
+
+
+        // baked
+        var fieldBaked = editor.call('attributes:addField', {
+            panel: fieldDynamic.parent,
+            type: 'checkbox',
+            link: entities,
+            path: 'components.light.baked'
+        });
+        // label
+        var labelBaked = new ui.Label({ text: 'Baked' });
+        labelBaked.class.add('label-infield');
+        fieldDynamic.parent.append(labelBaked);
+        // disable/enable
+        fieldBaked.disabled = labelBaked.disabled = !! fieldLightMap.value;
+        fieldLightMap.on('change', function() {
+            fieldBaked.disabled = labelBaked.disabled = !! fieldLightMap.value;
+        });
+        // reference
+        editor.call('attributes:reference:light:baked:attach', labelBaked);
 
 
         // color
