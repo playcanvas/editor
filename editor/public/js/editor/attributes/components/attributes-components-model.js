@@ -190,7 +190,7 @@ editor.once('load', function() {
 
 
         // lightMapCast
-        var fieldLightMapReceive = editor.call('attributes:addField', {
+        var fieldLightMapCast = editor.call('attributes:addField', {
             parent: panel,
             type: 'checkbox',
             name: 'LightMap',
@@ -201,14 +201,14 @@ editor.once('load', function() {
         var label = new ui.Label({ text: 'Cast' });
         label.class.add('label-infield');
         label.style.paddingRight = '12px';
-        fieldLightMapReceive.parent.append(label);
+        fieldLightMapCast.parent.append(label);
         // reference
         editor.call('attributes:reference:model:lightMapCast:attach', label);
 
 
         // lightMapReceive
-        var fieldLightMapCast = editor.call('attributes:addField', {
-            panel: fieldLightMapReceive.parent,
+        var fieldLightMapReceive = editor.call('attributes:addField', {
+            panel: fieldLightMapCast.parent,
             type: 'checkbox',
             link: entities,
             path: 'components.model.lightMapReceive'
@@ -216,7 +216,7 @@ editor.once('load', function() {
         // label
         var label = new ui.Label({ text: 'Receive' });
         label.class.add('label-infield');
-        fieldLightMapCast.parent.append(label);
+        fieldLightMapReceive.parent.append(label);
         // reference
         editor.call('attributes:reference:model:lightMapReceive:attach', label);
 
