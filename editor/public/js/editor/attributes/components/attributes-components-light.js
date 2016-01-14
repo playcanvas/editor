@@ -41,7 +41,7 @@ editor.once('load', function() {
         // dynamic
         var fieldDynamic = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Mode',
+            name: 'Affect',
             type: 'checkbox',
             link: entities,
             path: 'components.light.dynamic'

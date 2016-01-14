@@ -189,18 +189,36 @@ editor.once('load', function() {
         editor.call('attributes:reference:model:receiveShadows:attach', label);
 
 
-        // lightMapped
-        var fieldLightMapped = editor.call('attributes:addField', {
+        // lightMapCast
+        var fieldLightMapReceive = editor.call('attributes:addField', {
             parent: panel,
             type: 'checkbox',
-            name: 'LightMapped',
+            name: 'LightMap',
             link: entities,
-            path: 'components.model.lightMapped'
+            path: 'components.model.lightMapCast'
         });
+        // label
+        var label = new ui.Label({ text: 'Cast' });
+        label.class.add('label-infield');
+        label.style.paddingRight = '12px';
+        fieldLightMapReceive.parent.append(label);
         // reference
-        editor.call('attributes:reference:model:lightMapped:attach', fieldLightMapped.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:model:lightMapCast:attach', label);
 
 
+        // lightMapReceive
+        var fieldLightMapCast = editor.call('attributes:addField', {
+            panel: fieldLightMapReceive.parent,
+            type: 'checkbox',
+            link: entities,
+            path: 'components.model.lightMapReceive'
+        });
+        // label
+        var label = new ui.Label({ text: 'Receive' });
+        label.class.add('label-infield');
+        fieldLightMapCast.parent.append(label);
+        // reference
+        editor.call('attributes:reference:model:lightMapReceive:attach', label);
 
 
         // lightMapSizeMultiplier
@@ -215,9 +233,9 @@ editor.once('load', function() {
             link: entities,
             path: 'components.model.lightMapSizeMultiplier'
         });
-        fieldLightMapSizeMultiplier.parent.hidden = ! fieldLightMapped.value && ! fieldLightMapped.class.contains('null');
-        fieldLightMapped.on('change', function() {
-            fieldLightMapSizeMultiplier.parent.hidden = ! fieldLightMapped.value && ! fieldLightMapped.class.contains('null');
+        fieldLightMapSizeMultiplier.parent.hidden = ! fieldLightMapReceive.value && ! fieldLightMapReceive.class.contains('null');
+        fieldLightMapReceive.on('change', function() {
+            fieldLightMapSizeMultiplier.parent.hidden = ! fieldLightMapReceive.value && ! fieldLightMapReceive.class.contains('null');
         });
         // reference
         editor.call('attributes:reference:model:lightMapSizeMultiplier:attach', fieldLightMapSizeMultiplier.parent.innerElement.firstChild.ui);
