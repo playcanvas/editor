@@ -2473,6 +2473,9 @@ strong {
     background-color: transparent;
     padding: 2px;
 
+    &.expanded {
+        bottom: 2px;
+    }
     > .content {
         > a {
             display: block;
