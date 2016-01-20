@@ -60,7 +60,7 @@ editor.once('load', function() {
     create({
         title: 'pc.AudioSourceComponent',
         subTitle: '{pc.Component}',
-        description: 'Specifies the listener\'s position in 3D space. All 3D audio playback will be relative to this position.',
+        description: 'The AudioSource Component controls playback of an audio sample. This class will be deprecated in favor of {@link pc.SoundComponent}.',
         url: 'http://developer.playcanvas.com/api/pc.AudioSourceComponent.html'
     });
 

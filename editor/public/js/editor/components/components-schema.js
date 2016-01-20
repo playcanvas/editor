@@ -61,6 +61,33 @@ editor.once('load', function() {
             }
         },
 
+        sound: {
+            title: 'Sound',
+            default: {
+                enabled: true,
+                volume: 1,
+                pitch: 1,
+                positional: true,
+                refDistance: 1,
+                maxDistance: 10000,
+                rollOffFactor: 1,
+                distanceModel: 'inverse',
+                slots: {
+                    '1': {
+                        name: 'Slot 1',
+                        loop: false,
+                        autoPlay: true,
+                        overlap: false,
+                        asset: null,
+                        startTime: 0,
+                        duration: null,
+                        volume: 1,
+                        pitch: 1
+                    }
+                }
+            }
+        },
+
         camera: {
             title: 'Camera',
             default: {
@@ -291,7 +318,15 @@ editor.once('load', function() {
     });
 
     editor.method('components:list', function () {
-        return list.slice(0);
+        var result = list.slice(0);
+
+        // hide new sound component if not a super user
+        if (! config.owner.superUser) {
+            var idx = result.indexOf('sound');
+            result.splice(idx, 1);
+        }
+
+        return result;
     });
 
     editor.method('components:schema', function () {

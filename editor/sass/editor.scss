@@ -1379,6 +1379,9 @@ strong {
             &.audiosource > header > .title:before {
                 content: '\E197';
             }
+            &.sound > header > .title:before {
+                content: '\E197';
+            }
             &.collision > header > .title:before {
                 content: '\E187';
             }
@@ -1530,7 +1533,7 @@ strong {
                 top: 0px;
             }
 
-            > .ui-button.add-script {
+            > .ui-button.add-script, .ui-button.add-sound-slot {
                 margin: 0 0 8px 0;
                 background-color: $bcg-dark;
 
@@ -1865,6 +1868,9 @@ strong {
             content: '\E198';
         }
         &.c-audiosource > .title > .icon:after {
+            content: '\E197';
+        }
+        &.c-sound > .title > .icon:after {
             content: '\E197';
         }
         &.c-collision > .title > .icon:after {
@@ -4511,6 +4517,48 @@ strong {
                     }
 
                 }
+            }
+        }
+    }
+}
+
+.ui-panel.sound-slots {
+    > .content {
+        padding-top: 8px;
+    }
+
+    .ui-panel.sound-slot {
+        margin-bottom: 2px;
+
+        > .content {
+            padding: 8px 6px;
+        }
+
+        .ui-text-field.error {
+            border-color: #fb222f;
+        }
+
+        .remove {
+            @extend .font-icon;
+
+            float: right;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            margin: 0;
+            padding: 0;
+            border: none;
+            font-size: 14px;
+            text-align: center;
+            background-color: transparent;
+
+            &:hover {
+                background-color: $bcg-darkest;
+            }
+
+            &:after {
+                content: '\E124';
+                font-weight: 200;
             }
         }
     }

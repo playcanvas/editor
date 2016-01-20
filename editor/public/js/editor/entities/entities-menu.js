@@ -5,6 +5,7 @@ editor.once('load', function() {
         'animation': '&#57875;',
         'audiolistener': '&#57750;',
         'audiosource': '&#57751;',
+        'sound': '&#57751;',
         'camera': '&#57874;',
         'collision': '&#57735;',
         'directional': '&#57746;',
@@ -50,6 +51,23 @@ editor.once('load', function() {
                         parent: getParentFn(),
                         components: {
                             audiosource: editor.call('components:getDefault', 'audiosource')
+                        }
+                    });
+                }
+            },
+            'add-new-sound': {
+                title: 'Sound',
+                icon: componentsLogos.sound,
+                hide: function () {
+                    // only allow super users for now
+                    return !config.owner.superUser;
+                },
+                select: function() {
+                    editor.call('entities:new', {
+                        name: 'Sound',
+                        parent: getParentFn(),
+                        components: {
+                            sound: editor.call('components:getDefault', 'sound')
                         }
                     });
                 }
