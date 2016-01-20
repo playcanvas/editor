@@ -92,7 +92,7 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:audiosource:volume:attach', fieldVolume.parent.innerElement.firstChild.ui);
 
-        // metalness slider
+        // volume slider
         var fieldVolumeSlider = editor.call('attributes:addField', {
             panel: fieldVolume.parent,
             precision: 2,

@@ -59,6 +59,33 @@ editor.once('load', function() {
             }
         },
 
+        sound: {
+            title: 'Sound',
+            default: {
+                enabled: true,
+                volume: 1,
+                pitch: 1,
+                positional: true,
+                refDistance: 1,
+                maxDistance: 10000,
+                rollOffFactor: 1,
+                distanceModel: 'inverse',
+                slots: {
+                    '1': {
+                        name: 'Slot 1',
+                        loop: false,
+                        autoPlay: true,
+                        overlap: false,
+                        asset: null,
+                        startTime: 0,
+                        duration: null,
+                        volume: 1,
+                        pitch: 1
+                    }
+                }
+            }
+        },
+
         camera: {
             title: 'Camera',
             default: {
