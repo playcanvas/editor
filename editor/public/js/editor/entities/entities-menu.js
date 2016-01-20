@@ -58,6 +58,10 @@ editor.once('load', function() {
             'add-new-sound': {
                 title: 'Sound',
                 icon: componentsLogos.sound,
+                hide: function () {
+                    // only allow super users for now
+                    return !config.owner.superUser;
+                },
                 select: function() {
                     editor.call('entities:new', {
                         name: 'Sound',
