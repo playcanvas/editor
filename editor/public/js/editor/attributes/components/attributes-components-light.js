@@ -38,22 +38,57 @@ editor.once('load', function() {
         editor.call('attributes:reference:light:type:attach', fieldType.parent.innerElement.firstChild.ui);
 
 
-        // mode
-        var fieldMode = editor.call('attributes:addField', {
+        // dynamic
+        var fieldDynamic = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Mode',
-            type: 'number',
-            enum: [
-                { v: '', t: '...' },
-                { v: 0, t: 'Full' },
-                { v: 1, t: 'Dynamic' },
-                { v: 2, t: 'Bake' }
-            ],
+            name: 'Affect',
+            type: 'checkbox',
             link: entities,
-            path: 'components.light.mode'
+            path: 'components.light.dynamic'
+        });
+        // label
+        var label = new ui.Label({ text: 'Dynamic' });
+        label.class.add('label-infield');
+        label.style.paddingRight = '12px';
+        fieldDynamic.parent.append(label);
+        // reference
+        editor.call('attributes:reference:light:dynamic:attach', label);
+
+
+        // lightMap
+        var fieldLightMap = editor.call('attributes:addField', {
+            panel: fieldDynamic.parent,
+            type: 'checkbox',
+            link: entities,
+            path: 'components.light.lightMap'
+        });
+        // label
+        var label = new ui.Label({ text: 'LightMap' });
+        label.class.add('label-infield');
+        label.style.paddingRight = '12px';
+        fieldDynamic.parent.append(label);
+        // reference
+        editor.call('attributes:reference:light:lightMap:attach', label);
+
+
+        // baked
+        var fieldBaked = editor.call('attributes:addField', {
+            panel: fieldDynamic.parent,
+            type: 'checkbox',
+            link: entities,
+            path: 'components.light.baked'
+        });
+        // label
+        var labelBaked = new ui.Label({ text: 'Baked' });
+        labelBaked.class.add('label-infield');
+        fieldDynamic.parent.append(labelBaked);
+        // disable/enable
+        fieldBaked.disabled = labelBaked.disabled = !! fieldLightMap.value;
+        fieldLightMap.on('change', function() {
+            fieldBaked.disabled = labelBaked.disabled = !! fieldLightMap.value;
         });
         // reference
-        editor.call('attributes:reference:light:mode:attach', fieldMode.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:light:baked:attach', labelBaked);
 
 
         // color

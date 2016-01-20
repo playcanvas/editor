@@ -523,6 +523,13 @@ editor.once('load', function() {
                 editor.call('picker:scene');
             }
         },
+        'bake': {
+            title: 'Bake LightMaps',
+            icon: '&#57745;',
+            select: function() {
+                editor.call('viewport:framework').lightMapper.bake();
+            }
+        },
         'settings': {
             title: 'Settings',
             icon: '&#57652;',

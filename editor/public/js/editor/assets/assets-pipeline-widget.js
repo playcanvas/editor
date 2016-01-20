@@ -12,11 +12,15 @@ editor.once('load', function() {
     panel.foldable = true;
     panel.folded = true;
     panel.scroll = true;
-    panel.hidden = ! editor.call('permissions:write');
+    panel.hidden = ! editor.call('permissions:write') || editor.call('viewport:expand:state');
     editor.on('permissions:writeState', function(state) {
-        panel.hidden = ! state;
+        panel.hidden = ! state || editor.call('viewport:expand:state');
     });
     viewport.append(panel);
+
+    editor.on('viewport:expand', function(state) {
+        panel.hidden = ! editor.call('permissions:write') || state;
+    });
 
     // number
     var number = document.createElement('span');

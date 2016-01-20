@@ -294,6 +294,28 @@ editor.once('load', function() {
         panelRendering.append(divider);
 
 
+        // lightMapSizeMultiplier
+        var fieldLightMapSizeMultiplier = editor.call('attributes:addField', {
+            parent: panelRendering,
+            name: 'LightMap Size Multiplier',
+            type: 'number',
+            precision: 3,
+            step: .05,
+            min: 0,
+            max: 32,
+            link: sceneSettings,
+            path: 'render.lightMapSizeMultiplier'
+        });
+        // reference
+        editor.call('attributes:reference:settings:lightMapSizeMultiplier:attach', fieldLightMapSizeMultiplier.parent.innerElement.firstChild.ui);
+
+
+        // divider
+        var divider = document.createElement('div');
+        divider.classList.add('fields-divider');
+        panelRendering.append(divider);
+
+
         // fog type
         var fieldFogType = editor.call('attributes:addField', {
             parent: panelRendering,

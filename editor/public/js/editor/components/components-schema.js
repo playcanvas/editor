@@ -18,7 +18,9 @@ editor.once('load', function() {
             default: {
                 enabled: true,
                 type: 'directional',
-                mode: 0,
+                dynamic: true,
+                baked: false,
+                lightMap: false,
                 color: [1, 1, 1],
                 intensity: 1,
                 castShadows: false,
@@ -133,7 +135,9 @@ editor.once('load', function() {
                 materialAsset: null,
                 castShadows: false,
                 receiveShadows: true,
-                lightmapped: false
+                lightMapCast: true,
+                lightMapReceive: false,
+                lightMapSizeMultiplier: 1.0
             }
         },
 
