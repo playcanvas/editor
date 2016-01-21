@@ -76,7 +76,7 @@ editor.once('load', function() {
                     '1': {
                         name: 'Slot 1',
                         loop: false,
-                        autoPlay: true,
+                        autoPlay: false,
                         overlap: false,
                         asset: null,
                         startTime: 0,

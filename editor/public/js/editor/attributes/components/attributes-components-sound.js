@@ -460,7 +460,7 @@ editor.once('load', function() {
             entities[0].set('components.sound.slots.' + (keyName), {
                 name: name,
                 loop: false,
-                autoPlay: true,
+                autoPlay: false,
                 overlap: false,
                 asset: null,
                 startTime: 0,
