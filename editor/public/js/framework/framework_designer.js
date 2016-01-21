@@ -7,15 +7,14 @@ pc.extend(pc.editor, function() {
     var Designer = function (canvas, options) {
         this._inTools = true;
 
-        var context = this;
-        context.assets._prefix = '../../api/';
+        this.assets._prefix = '../../api/';
 
-        this.scene = new pc.Scene();
+        if (! this.scene)
+            this.scene = new pc.Scene();
 
-        for (var key in context.systems) {
-            if (context.systems.hasOwnProperty(key)) {
-                context.systems[key]._inTools = true;
-            }
+        for (var key in this.systems) {
+            if (this.systems.hasOwnProperty(key))
+                this.systems[key]._inTools = true;
         }
 
         this.grid = null;

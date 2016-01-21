@@ -12,6 +12,7 @@ editor.once('load', function() {
         'animation': '&#57875;',
         'audiolistener': '&#57750;',
         'audiosource': '&#57751;',
+        'sound': '&#57751;',
         'camera': '&#57874;',
         'collision': '&#57735;',
         'light': '&#57748;',
@@ -326,7 +327,7 @@ editor.once('load', function() {
 
                     addComponent(entity, component);
                 }
-            }
+            };
         };
 
         var components = editor.call('components:schema');

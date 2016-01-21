@@ -8,6 +8,14 @@ editor.once('load', function() {
     panel.class.add('whoisonline');
     viewport.append(panel);
 
+    editor.on('viewport:expand', function(state) {
+        if (state) {
+            panel.class.add('expanded');
+        } else {
+            panel.class.remove('expanded');
+        }
+    });
+
 
     editor.on('whoisonline:add', function (id) {
         for(var i = 0; i < panel.innerElement.childNodes.length; i++) {

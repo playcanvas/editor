@@ -38,6 +38,65 @@ editor.once('load', function() {
         editor.call('attributes:reference:light:type:attach', fieldType.parent.innerElement.firstChild.ui);
 
 
+        // dynamic
+        var fieldDynamic = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Affect',
+            type: 'checkbox',
+            link: entities,
+            path: 'components.light.dynamic'
+        });
+        // label
+        var label = new ui.Label({ text: 'Dynamic' });
+        label.class.add('label-infield');
+        label.style.paddingRight = '12px';
+        fieldDynamic.parent.append(label);
+        // reference
+        editor.call('attributes:reference:light:dynamic:attach', label);
+
+
+        // lightMap
+        var fieldLightMap = editor.call('attributes:addField', {
+            panel: fieldDynamic.parent,
+            type: 'checkbox',
+            link: entities,
+            path: 'components.light.lightMap'
+        });
+        // label
+        var label = new ui.Label({ text: 'LightMap' });
+        label.class.add('label-infield');
+        label.style.paddingRight = '12px';
+        fieldDynamic.parent.append(label);
+        // reference
+        editor.call('attributes:reference:light:lightMap:attach', label);
+
+
+        // baked
+        var fieldBaked = editor.call('attributes:addField', {
+            panel: fieldDynamic.parent,
+            type: 'checkbox',
+            link: entities,
+            path: 'components.light.baked'
+        });
+        // label
+        var labelBaked = new ui.Label({ text: 'Baked' });
+        labelBaked.class.add('label-infield');
+        fieldDynamic.parent.append(labelBaked);
+        // disable/enable
+        fieldBaked.disabled = labelBaked.disabled = !! fieldLightMap.value;
+        fieldLightMap.on('change', function() {
+            fieldBaked.disabled = labelBaked.disabled = !! fieldLightMap.value;
+        });
+        // reference
+        editor.call('attributes:reference:light:baked:attach', labelBaked);
+
+
+        if (! config.owner.superUser) {
+            fieldLightMap.parent.hidden = true;
+            fieldDynamic.parent.hidden = true;
+            fieldBaked.parent.hidden = true;
+        }
+
         // color
         var fieldColor = editor.call('attributes:addField', {
             parent: panel,
