@@ -71,7 +71,7 @@ editor.once('load', function() {
                 refDistance: 1,
                 maxDistance: 10000,
                 rollOffFactor: 1,
-                distanceModel: 'inverse',
+                distanceModel: 'linear',
                 slots: {
                     '1': {
                         name: 'Slot 1',
