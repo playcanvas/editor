@@ -2,7 +2,7 @@ var now = function() {
     return performance.timing.navigationStart + performance.now();
 };
 
-if (! performance.now || ! performance.timing)
+if (! performance || ! performance.now || ! performance.timing)
     now = Date.now;
 
 var start = now();
