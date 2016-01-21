@@ -526,6 +526,9 @@ editor.once('load', function() {
         'bake': {
             title: 'Bake LightMaps',
             icon: '&#57745;',
+            hide: function () {
+                return ! config.owner.superUser;
+            },
             select: function() {
                 editor.call('viewport:framework').lightMapper.bake();
             }

@@ -287,28 +287,28 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:settings:gammaCorrection:attach', fieldGammaCorrection.parent.innerElement.firstChild.ui);
 
+        if(config.owner.superUser) {
+            // divider
+            var divider = document.createElement('div');
+            divider.classList.add('fields-divider');
+            panelRendering.append(divider);
 
-        // divider
-        var divider = document.createElement('div');
-        divider.classList.add('fields-divider');
-        panelRendering.append(divider);
 
-
-        // lightMapSizeMultiplier
-        var fieldLightMapSizeMultiplier = editor.call('attributes:addField', {
-            parent: panelRendering,
-            name: 'LightMap Size Multiplier',
-            type: 'number',
-            precision: 3,
-            step: .05,
-            min: 0,
-            max: 32,
-            link: sceneSettings,
-            path: 'render.lightMapSizeMultiplier'
-        });
-        // reference
-        editor.call('attributes:reference:settings:lightMapSizeMultiplier:attach', fieldLightMapSizeMultiplier.parent.innerElement.firstChild.ui);
-
+            // lightMapSizeMultiplier
+            var fieldLightMapSizeMultiplier = editor.call('attributes:addField', {
+                parent: panelRendering,
+                name: 'LightMap Size Multiplier',
+                type: 'number',
+                precision: 3,
+                step: .05,
+                min: 0,
+                max: 32,
+                link: sceneSettings,
+                path: 'render.lightMapSizeMultiplier'
+            });
+            // reference
+            editor.call('attributes:reference:settings:lightMapSizeMultiplier:attach', fieldLightMapSizeMultiplier.parent.innerElement.firstChild.ui);
+        }
 
         // divider
         var divider = document.createElement('div');

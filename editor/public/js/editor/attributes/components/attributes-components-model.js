@@ -240,6 +240,12 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:model:lightMapSizeMultiplier:attach', fieldLightMapSizeMultiplier.parent.innerElement.firstChild.ui);
 
+        if (! config.owner.superUser) {
+            fieldLightMapReceive.parent.hidden = true;
+            fieldLightMapCast.parent.hidden = true;
+            fieldLightMapSizeMultiplier.parent.hidden = true;
+        }
+
 
         panel.on('destroy', function() {
             for(var i = 0; i < events.length; i++)

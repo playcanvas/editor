@@ -91,6 +91,12 @@ editor.once('load', function() {
         editor.call('attributes:reference:light:baked:attach', labelBaked);
 
 
+        if (! config.owner.superUser) {
+            fieldLightMap.parent.hidden = true;
+            fieldDynamic.parent.hidden = true;
+            fieldBaked.parent.hidden = true;
+        }
+
         // color
         var fieldColor = editor.call('attributes:addField', {
             parent: panel,

@@ -1,6 +1,9 @@
 editor.once('load', function() {
     'use strict';
 
+    if (! config.owner.superUser)
+        return;
+
     var root = editor.call('layout.root');
     var toolbar = editor.call('layout.toolbar');
 
