@@ -206,7 +206,7 @@ pc.extend(pc.editor, function() {
         var root = context.root;
         context.root.syncHierarchy();
 
-        this.fire('preRender', null);
+        this.fire('prerender', null);
 
         var device = this.graphicsDevice;
         var dw = device.width;
