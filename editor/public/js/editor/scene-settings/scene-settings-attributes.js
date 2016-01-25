@@ -203,7 +203,7 @@ editor.once('load', function() {
 
 
         // skyboxMip
-        var fieldSkyboxIntensity = editor.call('attributes:addField', {
+        var fieldSkyboxMip = editor.call('attributes:addField', {
             parent: panelRendering,
             name: 'Mip',
             type: 'number',
@@ -218,7 +218,7 @@ editor.once('load', function() {
             path: 'render.skyboxMip'
         });
         // reference
-        editor.call('attributes:reference:settings:skyboxMip:attach', fieldSkyboxIntensity.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:settings:skyboxMip:attach', fieldSkyboxMip.parent.innerElement.firstChild.ui);
 
 
         // divider
