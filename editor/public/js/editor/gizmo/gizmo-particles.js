@@ -107,7 +107,9 @@ editor.once('load', function () {
         }));
 
         this.entity = new pc.Entity();
-        this.entity.addComponent('model');
+        this.entity.addComponent('model', {
+            lightMapCast: false
+        });
 
         container.addChild(this.entity);
     };

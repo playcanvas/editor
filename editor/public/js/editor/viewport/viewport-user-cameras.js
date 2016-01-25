@@ -151,19 +151,26 @@ editor.once('load', function() {
 
         // add user camera
         var camera = cameras[userId] = new pc.Entity(app);
-        camera.addComponent('model');
+        camera.addComponent('model', {
+            lightMapCast: false
+        });
         camera.model.model = cameraModel.clone();
         container.addChild(camera);
 
         var cameraInner = new pc.Entity(app);
-        cameraInner.addComponent('model');
+        cameraInner.addComponent('model', {
+            lightMapCast: false
+        });
         cameraInner.model.model = cameraModel.clone();
         cameraInner.model.model.meshInstances[0].material = materialBehind;
         camera.addChild(cameraInner);
 
         var cameraQuad = new pc.Entity(app);
         cameraQuad._userCamera = userId;
-        cameraQuad.addComponent('model', { type: 'plane' });
+        cameraQuad.addComponent('model', {
+            type: 'plane',
+            lightMapCast: false
+        });
         cameraQuad.model.material = materialQuad;
         cameraQuad.rotate(90, 0, 0);
         cameraQuad.setLocalScale(close * horiz * 2, 1, close * vert * 2);
