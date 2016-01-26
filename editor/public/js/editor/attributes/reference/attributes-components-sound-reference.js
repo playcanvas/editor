@@ -26,7 +26,7 @@ editor.once('load', function() {
         }, {
             title: 'pitch',
             subTitle: '{Number}',
-            description: 'The pitch to playback the audio at. A value of 1 means the audio is played back at the original pitch.',
+            description: 'The pitch to playback the audio at. A value of 1 means the audio is played back at the original pitch. The pitch of each slot is multiplied with this value.',
             url: 'http://developer.playcanvas.com/api/pc.SoundComponent.html#pitch'
         }, {
             title: 'rollOffFactor',
@@ -36,7 +36,7 @@ editor.once('load', function() {
         }, {
             title: 'volume',
             subTitle: '{Number}',
-            description: 'The volume modifier to play the audio with.',
+            description: 'The volume modifier to play the audio with. The volume of each slot is multiplied with this value.',
             url: 'http://developer.playcanvas.com/api/pc.SoundComponent.html#volume'
         }, {
             title: 'distanceModel',
