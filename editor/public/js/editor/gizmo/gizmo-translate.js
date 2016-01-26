@@ -429,7 +429,8 @@ editor.once('load', function() {
         planeX.axis = 'x';
         planeX.plane = true;
         planeX.addComponent('model', {
-            type: 'plane'
+            type: 'plane',
+            lightMapCast: false
         });
         planeX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(planeX);
@@ -445,7 +446,8 @@ editor.once('load', function() {
         planeY.axis = 'y';
         planeY.plane = true;
         planeY.addComponent('model', {
-            type: 'plane'
+            type: 'plane',
+            lightMapCast: false
         });
         planeY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(planeY);
@@ -461,7 +463,8 @@ editor.once('load', function() {
         planeZ.axis = 'z';
         planeZ.plane = true;
         planeZ.addComponent('model', {
-            type: 'plane'
+            type: 'plane',
+            lightMapCast: false
         });
         planeZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(planeZ);
@@ -476,7 +479,8 @@ editor.once('load', function() {
         obj.hoverable.push(lineX);
         lineX.axis = 'x';
         lineX.addComponent('model', {
-            type: 'cylinder'
+            type: 'cylinder',
+            lightMapCast: false
         });
         lineX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(lineX);
@@ -490,7 +494,8 @@ editor.once('load', function() {
         obj.hoverable.push(lineY);
         lineY.axis = 'y';
         lineY.addComponent('model', {
-            type: 'cylinder'
+            type: 'cylinder',
+            lightMapCast: false
         });
         lineY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(lineY);
@@ -504,7 +509,8 @@ editor.once('load', function() {
         obj.hoverable.push(lineZ);
         lineZ.axis = 'z';
         lineZ.addComponent('model', {
-            type: 'cylinder'
+            type: 'cylinder',
+            lightMapCast: false
         });
         lineZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(lineZ);
@@ -518,7 +524,8 @@ editor.once('load', function() {
         obj.hoverable.push(arrowX);
         arrowX.axis = 'x';
         arrowX.addComponent('model', {
-            type: 'cone'
+            type: 'cone',
+            lightMapCast: false
         });
         arrowX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(arrowX);
@@ -532,7 +539,8 @@ editor.once('load', function() {
         obj.hoverable.push(arrowY);
         arrowY.axis = 'y';
         arrowY.addComponent('model', {
-            type: 'cone'
+            type: 'cone',
+            lightMapCast: false
         });
         arrowY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(arrowY);
@@ -546,7 +554,8 @@ editor.once('load', function() {
         obj.hoverable.push(arrowZ);
         arrowZ.axis = 'z';
         arrowZ.addComponent('model', {
-            type: 'cone'
+            type: 'cone',
+            lightMapCast: false
         });
         arrowZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(arrowZ);

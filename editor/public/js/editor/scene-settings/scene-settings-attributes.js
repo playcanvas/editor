@@ -13,7 +13,8 @@ editor.once('load', function() {
     var foldStates = {
         'physics': true,
         'rendering': true,
-        'loading': true
+        'loading': true,
+        'audio': true
     };
 
     editor.on('attributes:inspect[designerSettings]', function() {
@@ -203,7 +204,7 @@ editor.once('load', function() {
 
 
         // skyboxMip
-        var fieldSkyboxIntensity = editor.call('attributes:addField', {
+        var fieldSkyboxMip = editor.call('attributes:addField', {
             parent: panelRendering,
             name: 'Mip',
             type: 'number',
@@ -218,7 +219,7 @@ editor.once('load', function() {
             path: 'render.skyboxMip'
         });
         // reference
-        editor.call('attributes:reference:settings:skyboxMip:attach', fieldSkyboxIntensity.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:settings:skyboxMip:attach', fieldSkyboxMip.parent.innerElement.firstChild.ui);
 
 
         // divider
@@ -496,6 +497,27 @@ editor.once('load', function() {
             evtFilter.unbind();
         });
 
+        if (projectSettings.has('use_legacy_audio')) {
+
+            var panelAudio = editor.call('attributes:addPanel', {
+                name: 'Audio'
+            });
+            panelAudio.foldable = true;
+            panelAudio.folded = foldStates['audio'];
+            panelAudio.on('fold', function() { foldStates['audio'] = true; });
+            panelAudio.on('unfold', function() { foldStates['audio'] = false; });
+            panelAudio.class.add('component', 'audio');
+
+            var fieldLegacyAudio = editor.call('attributes:addField', {
+                parent: panelAudio,
+                name: 'Use Legacy Audio',
+                type: 'checkbox',
+                link: projectSettings,
+                path: 'use_legacy_audio'
+            });
+            fieldLegacyAudio.parent.innerElement.firstChild.style.width = 'auto';
+            editor.call('attributes:reference:settings:project:useLegacyAudio:attach', fieldLegacyAudio.parent.innerElement.firstChild.ui);
+        }
 
         // loading screen
         var panelLoadingScreen = editor.call('attributes:addPanel', {

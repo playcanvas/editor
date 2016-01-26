@@ -563,7 +563,7 @@ editor.once('load', function() {
     };
 
     var makeMenuComponentItem = function(key) {
-        return {
+        var data = {
             title: components[key].title,
             icon: componentsLogos[key],
             filter: function() {
@@ -582,7 +582,15 @@ editor.once('load', function() {
 
                 addComponent(entity, component);
             }
+        };
+
+        if (key === 'audiosource') {
+            data.hide = function () {
+                return !editor.call('project:settings').get('use_legacy_audio');
+            };
         }
+
+        return data;
     };
 
     var components = editor.call('components:schema');

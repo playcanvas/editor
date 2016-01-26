@@ -169,6 +169,20 @@ editor.once('load', function () {
         return bubble;
     };
 
+    var bubbleSoundComponent = function () {
+        var bubble = editor.call(
+            'guide:bubble',
+            'Sound Component',
+            'The Sound Component allows the Entity to play sounds. To play a sound you need to create a "slot", give it a name and assign an Audio Asset to it. If you set it to Auto Play the slot will begin playback when the application is loaded. Otherwise play it by script. You can create multiple slots to play different sounds. Check out this <a href="http://developer.playcanvas.com/en/tutorials/beginner/basic-audio/" target="_blank">tutorial</a> for more.',
+            10,
+            10,
+            'right',
+            document.querySelector('.ui-panel.sound')
+        );
+
+        return bubble;
+    };
+
     var showBubble = function (name, bubbleFn, delay, force, callback) {
         if (!force && config.self.tips[name] !== false) return false;
 
@@ -197,19 +211,8 @@ editor.once('load', function () {
         showBubble(name, bubbleFn, delay, force, callback);
     });
 
-    var showEntityBubbleOnSelect = function () {
-        if (config.self.tips.entityInspector === false) {
-            var evtEntitySelect = editor.on('selector:change', function (type, items) {
-                if (type !== 'entity') return;
 
-                evtEntitySelect.unbind();
-
-                showBubble('entityInspector', bubbleEntity, nextDelay);
-            });
-        }
-    };
-
-
+    var selectEvents = null;
     var showBubbles = function (initialDelay) {
         var delay = initialDelay;
 
@@ -235,7 +238,62 @@ editor.once('load', function () {
         if (showBubble('controls', bubbleControls, delay))
             delay += nextDelay;
 
-        showEntityBubbleOnSelect();
+        // entity bubble on select entity
+        if (config.self.tips.entityInspector === false) {
+            var evtEntitySelect = editor.on('selector:change', function (type, items) {
+                if (type !== 'entity') return;
+
+                evtEntitySelect.unbind();
+
+                showBubble('entityInspector', bubbleEntity, nextDelay);
+            });
+        }
+
+        // sound component bubble
+        if (!config.self.tips.soundComponent) {
+            var evtEntityWithSoundSelect = editor.on('selector:change', function (type, items) {
+
+                if (selectEvents) {
+                    selectEvents.forEach(function (evt) {
+                        evt.unbind();
+                    });
+                    selectEvents = null;
+                }
+
+                if (type !== 'entity') {
+                    return;
+                }
+
+                var showSoundBubble = function () {
+                    showBubble('soundComponent', bubbleSoundComponent, nextDelay, true);
+
+                    evtEntityWithSoundSelect.unbind();
+
+                    if (selectEvents) {
+                        selectEvents.forEach(function (evt) {
+                            evt.unbind();
+                        });
+
+                        selectEvents = null;
+                    }
+                };
+
+                for (var i = 0; i < items.length; i++) {
+                    if (items[i].has('components.sound')) {
+                        showSoundBubble();
+                        return;
+                    }
+                }
+
+                // if a sound component is added show bubble
+                if (! selectEvents) selectEvents = [];
+
+                for (var i = 0; i < items.length; i++) {
+                    selectEvents.push(items[i].on('components.sound:set', showSoundBubble));
+                }
+            });
+        }
+
     };
 
     editor.method('editor:tips:reset', function () {
@@ -253,6 +311,7 @@ editor.once('load', function () {
          'store',
          'dashboard',
          'entityInspector',
+         'soundComponent',
          'mainMenu',
          'controls',
          'launch',
