@@ -13,7 +13,8 @@ editor.once('load', function() {
     var foldStates = {
         'physics': true,
         'rendering': true,
-        'loading': true
+        'loading': true,
+        'audio': true
     };
 
     editor.on('attributes:inspect[designerSettings]', function() {
@@ -496,6 +497,24 @@ editor.once('load', function() {
             evtFilter.unbind();
         });
 
+        var panelAudio = editor.call('attributes:addPanel', {
+            name: 'Audio'
+        });
+        panelAudio.foldable = true;
+        panelAudio.folded = foldStates['audio'];
+        panelAudio.on('fold', function() { foldStates['audio'] = true; });
+        panelAudio.on('unfold', function() { foldStates['audio'] = false; });
+        panelAudio.class.add('component', 'audio');
+
+        var fieldLegacyAudio = editor.call('attributes:addField', {
+            parent: panelAudio,
+            name: 'Use Legacy Audio',
+            type: 'checkbox',
+            link: projectSettings,
+            path: 'use_legacy_audio'
+        });
+        fieldLegacyAudio.parent.innerElement.firstChild.style.width = 'auto';
+        editor.call('attributes:reference:settings:project:useLegacyAudio:attach', fieldLegacyAudio.parent.innerElement.firstChild.ui);
 
         // loading screen
         var panelLoadingScreen = editor.call('attributes:addPanel', {

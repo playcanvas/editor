@@ -45,6 +45,9 @@ editor.once('load', function() {
             'add-new-audiosource': {
                 title: 'Audio Source',
                 icon: componentsLogos.audiosource,
+                hide: function () {
+                    return ! editor.call('project:settings').get('use_legacy_audio');
+                },
                 select: function() {
                     editor.call('entities:new', {
                         name: 'Audio Source',
@@ -58,10 +61,6 @@ editor.once('load', function() {
             'add-new-sound': {
                 title: 'Sound',
                 icon: componentsLogos.sound,
-                hide: function () {
-                    // only allow super users for now
-                    return !config.owner.superUser;
-                },
                 select: function() {
                     editor.call('entities:new', {
                         name: 'Sound',

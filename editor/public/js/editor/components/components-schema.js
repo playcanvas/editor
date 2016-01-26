@@ -318,15 +318,7 @@ editor.once('load', function() {
     });
 
     editor.method('components:list', function () {
-        var result = list.slice(0);
-
-        // hide new sound component if not a super user
-        if (! config.owner.superUser) {
-            var idx = result.indexOf('sound');
-            result.splice(idx, 1);
-        }
-
-        return result;
+        return list.slice(0);
     });
 
     editor.method('components:schema', function () {
