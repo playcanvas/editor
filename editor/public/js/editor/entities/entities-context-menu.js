@@ -309,7 +309,7 @@ editor.once('load', function() {
         };
 
         var makeMenuComponentItem = function(key) {
-            return {
+            var data = {
                 title: components[key].title,
                 icon: componentsLogos[key],
                 filter: function() {
@@ -318,6 +318,7 @@ editor.once('load', function() {
 
                     return ! items[0].has('components.' + key);
                 },
+
                 select: function() {
                     if (items.length !== 1)
                         return false;
@@ -328,6 +329,14 @@ editor.once('load', function() {
                     addComponent(entity, component);
                 }
             };
+
+            if (key === 'audiosource') {
+                data.hide = function () {
+                    return !editor.call('project:settings').get('use_legacy_audio');
+                };
+            }
+
+            return data;
         };
 
         var components = editor.call('components:schema');

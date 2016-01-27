@@ -19,6 +19,8 @@ editor.once('load', function() {
     }
     menuAddComponent.on('open', function() {
         var items = editor.call('selector:items');
+
+        var legacyAudio = editor.call('project:settings').get('use_legacy_audio');
         for(var i = 0; i < list.length; i++) {
             var different = false;
             var disabled = items[0].has('components.' + list[i]);
@@ -30,6 +32,10 @@ editor.once('load', function() {
                 }
             }
             this.findByPath([ list[i] ]).disabled = different ? false : disabled;
+
+            if (list[i] === 'audiosource') {
+                this.findByPath([list[i]]).hidden = !legacyAudio;
+            }
         }
     });
     menuAddComponent.on('select', function(path) {
