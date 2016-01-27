@@ -15,7 +15,14 @@ editor.once('load', function() {
     toolbar.append(buttonBake);
 
     buttonBake.on('click', function () {
-        editor.call('viewport:framework').lightMapper.bake();
+        editor.call('lightMapper:bake');
+    });
+    editor.on('lightMapper:uv1Missing', function(state) {
+        if (state) {
+            buttonBake.class.add('active');
+        } else {
+            buttonBake.class.remove('active');
+        }
     });
 
 
@@ -44,12 +51,106 @@ editor.once('load', function() {
     btnAutoUnwrap.parent = tooltipBake;
     elUV1.appendChild(btnAutoUnwrap.element);
     btnAutoUnwrap.on('click', function() {
-        console.log('call auto-unwrap');
+        if (! uv1Missing)
+            return;
+
+        var assetIds = Object.keys(uv1MissingAssets);
+        for(var i = 0; i < assetIds.length; i++) {
+            if (! uv1MissingAssets.hasOwnProperty(assetIds[i]))
+                continue;
+
+            var asset = uv1MissingAssets[assetIds[i]];
+            editor.call('assets:model:unwrap', asset);
+        }
+    });
+
+
+    // bake
+    editor.method('lightMapper:bake', function() {
+        var entities = editor.call('entities:list').filter(function(e) {
+            return e.get('components.model.lightMapReceive');
+        });
+
+        uv1MissingAssets = { };
+        var areaJobs = { };
+        var jobs = 0;
+
+        var readyForBake = function() {
+            editor.call('viewport:framework').lightMapper.bake();
+            editor.call('viewport:render');
+        };
+
+        // validate lightmapped entities
+        for(var i = 0; i < entities.length; i++) {
+            var obj = entities[i];
+
+            // might be primitive
+            if (obj.get('components.model.type') !== 'asset')
+                continue;
+
+            // might have no model asset attached
+            var assetId = obj.get('components.model.asset');
+            if (! assetId)
+                continue;
+
+            // model asset might be missing
+            var asset = editor.call('assets:get', assetId);
+            if (! asset)
+                continue;
+
+            // check if asset has uv1
+            var uv1 = asset.has('meta.attributes.texCoord1');
+            if (! uv1) {
+                // uv1 might be missing
+                if (! uv1MissingAssets[assetId])
+                    uv1MissingAssets[assetId] = asset;
+                continue;
+            }
+
+            // check if asset has area
+            var area = asset.get('data.area');
+            if (! area && ! areaJobs[assetId]) {
+                // if area not available
+                // recalculate area
+                areaJobs[assetId] = asset;
+                jobs++;
+                editor.call('assets:model:area', asset, function() {
+                    jobs--;
+
+                    if (jobs === 0)
+                        readyForBake();
+                });
+            }
+        }
+
+        editor.call('lightMapper:uv1missing', Object.keys(uv1MissingAssets).length !== 0);
+
+        if (jobs === 0)
+            readyForBake();
+    });
+
+
+    // hotkey ctrl+b
+    editor.call('hotkey:register', 'lightMapper:bake', {
+        key: 'b',
+        ctrl: true,
+        callback: function() {
+            editor.call('lightMapper:bake');
+        }
     });
 
 
     // manage if uv1 is missing
     var uv1Missing = false;
+    var uv1MissingAssets = { };
+
+    editor.on('assets:model:unwrap', function(asset) {
+        if (! uv1MissingAssets[asset.get('id')])
+            return;
+
+        delete uv1MissingAssets[asset.get('id')];
+        editor.call('lightMapper:uv1missing', Object.keys(uv1MissingAssets).length !== 0);
+    })
 
     editor.method('lightMapper:uv1missing', function(state) {
         if (state === undefined)
@@ -68,6 +169,57 @@ editor.once('load', function() {
         } else {
             elUV1.classList.add('hidden');
         }
+    });
+
+
+    var entityAssetLoading = { };
+
+    var rebakeEntity = function(entity) {
+        var receive = entity.get('components.model.lightMapReceive');
+        if (! receive)
+            return;
+
+        var assetId = entity.get('components.model.asset');
+        if (! assetId)
+            return;
+
+        var app = editor.call('viewport:framework');
+
+        var asset = app.assets.get(parseInt(assetId, 10));
+        if (! asset || ! asset.resource) {
+            var loading = entityAssetLoading[entity.get('resource_id')];
+            if (loading) {
+                if (loading.assetId === assetId)
+                    return;
+
+                app.assets.off('load:' + loading.assetId, loading.fn);
+                delete entityAssetLoading[entity.get('resource_id')];
+            }
+
+            loading = {
+                assetId: assetId,
+                fn: function(asset) {
+                    delete entityAssetLoading[entity.get('resource_id')];
+
+                    if (asset.id !== parseInt(entity.get('components.model.asset'), 10))
+                        return;
+
+                    rebakeEntity(entity);
+                }
+            };
+            app.assets.once('load:' + assetId, loading.fn);
+            return;
+        }
+
+        console.log("!", entity.get('name'), asset.name);
+        setTimeout(function() {
+            editor.call('lightMapper:bake');
+        }, 0);
+    };
+
+
+    editor.on('entities:add', function(entity) {
+        rebakeEntity(entity);
     });
 });
 

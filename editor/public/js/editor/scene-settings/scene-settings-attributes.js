@@ -299,10 +299,7 @@ editor.once('load', function() {
                 parent: panelRendering,
                 name: 'LightMap Size Multiplier',
                 type: 'number',
-                precision: 3,
-                step: .05,
                 min: 0,
-                max: 32,
                 link: sceneSettings,
                 path: 'render.lightMapSizeMultiplier'
             });

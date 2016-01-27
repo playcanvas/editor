@@ -226,10 +226,7 @@ editor.once('load', function() {
             parent: panel,
             name: 'LM Size Multiplier',
             type: 'number',
-            precision: 3,
-            step: .05,
             min: 0,
-            max: 32,
             link: entities,
             path: 'components.model.lightMapSizeMultiplier'
         });
