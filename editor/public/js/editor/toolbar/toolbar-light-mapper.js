@@ -77,7 +77,7 @@ editor.once('load', function() {
         var jobs = 0;
 
         var readyForBake = function() {
-            app.lightMapper.bake();
+            app.lightmapper.bake();
             editor.call('viewport:render');
         };
 
