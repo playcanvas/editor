@@ -116,9 +116,9 @@ editor.once('load', function() {
         worker.onmessage = function(evt) {
             if (evt.data.name && evt.data.name === 'finish') {
                 // save area
-                asset.set('data.area', evt.data.area || 0);
+                asset.set('data.area', evt.data.area || null);
                 // callback
-                if (fn) fn(null, asset, evt.data.area || 0);
+                if (fn) fn(null, asset, evt.data.area || null);
             }
         };
 

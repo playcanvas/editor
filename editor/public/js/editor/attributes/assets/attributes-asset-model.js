@@ -68,7 +68,6 @@ editor.once('load', function() {
                 // assets[0]._uv1 = data.model.vertices[0] && data.model.vertices[0].hasOwnProperty('texCoord1');
                 // fieldUV1.value = assets[0]._uv1 ? 'available' : 'unavailable';
                 autoUnwrap.enabled = true;
-                calculateArea.enabled = true;
 
                 assets[0]._nodes = [ ];
                 for(var i = 0; i < data.model.meshInstances.length; i++)
@@ -403,49 +402,6 @@ editor.once('load', function() {
         events.push(editor.on('assets:model:unwrap:progress:' + assets[0].get('id'), function(progress) {
             progressUnwrap.progress = progress / 100;
         }));
-
-        // area
-        var fieldArea = editor.call('attributes:addField', {
-            parent: panelPipeline,
-            name: 'Area'
-        });
-        var recalculateArea = function() {
-            var value = 0;
-            var noValue = true;
-            for(var i = 0; i < assets.length; i++) {
-                if (! assets[i].has('data.area'))
-                    continue;
-                value += assets[i].get('data.area');
-                noValue = false;
-            }
-            fieldArea.value = noValue ? 'unknown' : value.toLocaleString();
-
-            calculateArea.enabled = true;
-        };
-        for(var i = 0; i < assets.length; i++) {
-            events.push(assets[i].on('data.area:set', recalculateArea));
-            events.push(assets[i].on('data.area:unset', recalculateArea));
-        }
-
-        var calculateArea = new ui.Button({
-            text: 'Recalculate'
-        });
-        calculateArea.on('click', function() {
-            if (! editor.call('permissions:write'))
-                return;
-
-            for(var i = 0; i < assets.length; i++)
-                editor.call('assets:model:area', assets[i], function() {
-                    calculateArea.enabled = true;
-                });
-
-            calculateArea.enabled = false;
-        });
-        calculateArea.class.add('generate-uv1');
-        fieldArea.parent.append(calculateArea);
-
-        recalculateArea();
-
 
         if (assets.length === 1 && assets[0].has('data.mapping') && assets[0].get('data.mapping').length) {
             var root = editor.call('attributes.rootPanel');
