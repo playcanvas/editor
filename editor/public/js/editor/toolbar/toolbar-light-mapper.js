@@ -4,6 +4,7 @@ editor.once('load', function() {
     if (! config.owner.superUser)
         return;
 
+    var app;
     var root = editor.call('layout.root');
     var toolbar = editor.call('layout.toolbar');
 
@@ -76,7 +77,7 @@ editor.once('load', function() {
         var jobs = 0;
 
         var readyForBake = function() {
-            editor.call('viewport:framework').lightMapper.bake();
+            app.lightMapper.bake();
             editor.call('viewport:render');
         };
 
@@ -172,8 +173,8 @@ editor.once('load', function() {
     });
 
 
+    // track entities model assets loading state to re-bake
     var entityAssetLoading = { };
-
     var rebakeEntity = function(entity) {
         var receive = entity.get('components.model.lightMapReceive');
         if (! receive)
@@ -182,8 +183,6 @@ editor.once('load', function() {
         var assetId = entity.get('components.model.asset');
         if (! assetId)
             return;
-
-        var app = editor.call('viewport:framework');
 
         var asset = app.assets.get(parseInt(assetId, 10));
         if (! asset || ! asset.resource) {
@@ -211,12 +210,46 @@ editor.once('load', function() {
             return;
         }
 
-        console.log("!", entity.get('name'), asset.name);
         setTimeout(function() {
-            editor.call('lightMapper:bake');
+            // TODO
+            // trigger entity re-baking
         }, 0);
     };
 
+    editor.once('viewport:load', function() {
+        app = editor.call('viewport:framework');
+
+        // bake once all assets are loaded on first time-load
+        var loadingAssets = { };
+        var onLoadStart = function(asset) {
+            loadingAssets[asset.id] = true;
+            asset.once('load', function() {
+                delete loadingAssets[asset.id];
+
+                if (Object.keys(loadingAssets).length === 0) {
+                    app.assets.off('load:start', onLoadStart);
+                    editor.once('viewport:update', function() {
+                        editor.call('lightMapper:bake');
+                    });
+                }
+            });
+        };
+        app.assets.on('load:start', onLoadStart);
+
+        // re-bake on scene switches
+        editor.on('scene:load', function() {
+            // needs to wait 3 frames
+            // before it is safe to re-bake
+            // don't ask why :D
+            editor.once('viewport:update', function() {
+                editor.once('viewport:update', function() {
+                    editor.once('viewport:update', function() {
+                        editor.call('lightMapper:bake');
+                    });
+                });
+            });
+        });
+    });
 
     editor.on('entities:add', function(entity) {
         rebakeEntity(entity);

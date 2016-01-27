@@ -168,10 +168,26 @@ editor.once('load', function() {
         // label
         var label = new ui.Label({ text: 'Cast' });
         label.class.add('label-infield');
-        label.style.paddingRight = '12px';
+        label.style.paddingRight = '8px';
         fieldCastShadows.parent.append(label);
         // reference
         editor.call('attributes:reference:model:castShadows:attach', label);
+
+
+        // castShadowsLightMap
+        var fieldCastShadowsLightMap = editor.call('attributes:addField', {
+            panel: fieldCastShadows.parent,
+            type: 'checkbox',
+            link: entities,
+            path: 'components.model.castShadowsLightMap'
+        });
+        // label
+        var label = new ui.Label({ text: 'Cast Lightmap' });
+        label.class.add('label-infield');
+        label.style.paddingRight = '8px';
+        fieldCastShadows.parent.append(label);
+        // reference
+        editor.call('attributes:reference:model:castShadowsLightMap:attach', label);
 
 
         // receiveShadows
@@ -189,58 +205,38 @@ editor.once('load', function() {
         editor.call('attributes:reference:model:receiveShadows:attach', label);
 
 
-        // lightMapCast
-        var fieldLightMapCast = editor.call('attributes:addField', {
+        // lightMapped
+        var fieldLightMapped = editor.call('attributes:addField', {
             parent: panel,
-            type: 'checkbox',
-            name: 'LightMap',
-            link: entities,
-            path: 'components.model.lightMapCast'
-        });
-        // label
-        var label = new ui.Label({ text: 'Cast' });
-        label.class.add('label-infield');
-        label.style.paddingRight = '12px';
-        fieldLightMapCast.parent.append(label);
-        // reference
-        editor.call('attributes:reference:model:lightMapCast:attach', label);
-
-
-        // lightMapReceive
-        var fieldLightMapReceive = editor.call('attributes:addField', {
-            panel: fieldLightMapCast.parent,
+            name: 'Lightmapped',
             type: 'checkbox',
             link: entities,
-            path: 'components.model.lightMapReceive'
+            path: 'components.model.lightMapped'
         });
-        // label
-        var label = new ui.Label({ text: 'Receive' });
-        label.class.add('label-infield');
-        fieldLightMapReceive.parent.append(label);
+        fieldLightMapped.style.marginBottom = '9px';
         // reference
-        editor.call('attributes:reference:model:lightMapReceive:attach', label);
+        editor.call('attributes:reference:model:lightMapped:attach', label);
 
 
         // lightMapSizeMultiplier
         var fieldLightMapSizeMultiplier = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'LM Size Multiplier',
+            panel: fieldLightMapped.parent,
+            placeholder: 'Size Multiplier',
             type: 'number',
             min: 0,
             link: entities,
             path: 'components.model.lightMapSizeMultiplier'
         });
-        fieldLightMapSizeMultiplier.parent.hidden = ! fieldLightMapReceive.value && ! fieldLightMapReceive.class.contains('null');
-        fieldLightMapReceive.on('change', function() {
-            fieldLightMapSizeMultiplier.parent.hidden = ! fieldLightMapReceive.value && ! fieldLightMapReceive.class.contains('null');
+        fieldLightMapSizeMultiplier.hidden = ! fieldLightMapped.value && ! fieldLightMapped.class.contains('null');
+        fieldLightMapped.on('change', function() {
+            fieldLightMapSizeMultiplier.hidden = ! fieldLightMapped.value && ! fieldLightMapped.class.contains('null');
         });
         // reference
-        editor.call('attributes:reference:model:lightMapSizeMultiplier:attach', fieldLightMapSizeMultiplier.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:model:lightMapSizeMultiplier:attach', fieldLightMapSizeMultiplier.innerElement.firstChild.ui);
 
         if (! config.owner.superUser) {
-            fieldLightMapReceive.parent.hidden = true;
-            fieldLightMapCast.parent.hidden = true;
-            fieldLightMapSizeMultiplier.parent.hidden = true;
+            fieldLightMapped.parent.hidden = true;
+            fieldCastShadowsLightMap.parent.hidden = true;
         }
 
 
