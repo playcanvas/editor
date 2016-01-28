@@ -406,7 +406,7 @@ editor.once('load', function() {
         planeX.plane = true;
         planeX.addComponent('model', {
             type: 'cylinder',
-            lightMapCast: false
+            castShadowsLightmap: false
         });
         planeX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(planeX);
@@ -421,7 +421,7 @@ editor.once('load', function() {
         planeY.plane = true;
         planeY.addComponent('model', {
             type: 'cylinder',
-            lightMapCast: false
+            castShadowsLightmap: false
         });
         planeY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(planeY);
@@ -436,7 +436,7 @@ editor.once('load', function() {
         planeZ.plane = true;
         planeZ.addComponent('model', {
             type: 'cylinder',
-            lightMapCast: false
+            castShadowsLightmap: false
         });
         planeZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(planeZ);
@@ -448,7 +448,7 @@ editor.once('load', function() {
         var sphere = obj.sphere = new pc.Entity();
         sphere.addComponent('model', {
             type: 'sphere',
-            lightMapCast: false
+            castShadowsLightmap: false
         });
         sphere.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(sphere);
