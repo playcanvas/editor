@@ -56,7 +56,7 @@ editor.once('load', function() {
 
 
         // affectDynamic
-        var fieldDynamic = editor.call('attributes:addField', {
+        var fieldAffectDynamic = editor.call('attributes:addField', {
             parent: panel,
             name: 'Affect',
             type: 'checkbox',
@@ -67,35 +67,35 @@ editor.once('load', function() {
         var label = new ui.Label({ text: 'Dynamic' });
         label.class.add('label-infield');
         label.style.paddingRight = '12px';
-        fieldDynamic.parent.append(label);
+        fieldAffectDynamic.parent.append(label);
         // reference
         editor.call('attributes:reference:light:affectDynamic:attach', label);
 
 
-        // affectLightMapped
-        var fieldBaked = editor.call('attributes:addField', {
-            panel: fieldDynamic.parent,
+        // affectLightmapped
+        var fieldAffectLightmapped = editor.call('attributes:addField', {
+            panel: fieldAffectDynamic.parent,
             type: 'checkbox',
             link: entities,
-            path: 'components.light.affectLightMapped'
+            path: 'components.light.affectLightmapped'
         });
         // label
         var labelBaked = new ui.Label({ text: 'Lightmapped' });
         labelBaked.class.add('label-infield');
-        fieldDynamic.parent.append(labelBaked);
+        fieldAffectDynamic.parent.append(labelBaked);
         // reference
-        editor.call('attributes:reference:light:affectLightMapped:attach', labelBaked);
-        // disable/enable affectLightMapped flag
-        fieldBaked.disabled = labelBaked.disabled = !! fieldLightMap.value;
+        editor.call('attributes:reference:light:affectLightmapped:attach', labelBaked);
+        // disable/enable affectLightmapped flag
+        fieldAffectLightmapped.disabled = labelBaked.disabled = !! fieldLightMap.value;
         fieldLightMap.on('change', function() {
-            fieldBaked.disabled = labelBaked.disabled = !! fieldLightMap.value;
+            fieldAffectLightmapped.disabled = labelBaked.disabled = !! fieldLightMap.value;
         });
 
 
         if (! config.owner.superUser) {
             fieldLightMap.parent.hidden = true;
-            fieldDynamic.parent.hidden = true;
-            fieldBaked.parent.hidden = true;
+            fieldAffectDynamic.parent.hidden = true;
+            fieldAffectLightmapped.parent.hidden = true;
         }
 
         // color

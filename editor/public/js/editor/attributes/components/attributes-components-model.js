@@ -174,12 +174,12 @@ editor.once('load', function() {
         editor.call('attributes:reference:model:castShadows:attach', label);
 
 
-        // castShadowsLightMap
-        var fieldCastShadowsLightMap = editor.call('attributes:addField', {
+        // castShadowsLightmap
+        var fieldCastShadowsLightmap = editor.call('attributes:addField', {
             panel: fieldCastShadows.parent,
             type: 'checkbox',
             link: entities,
-            path: 'components.model.castShadowsLightMap'
+            path: 'components.model.castShadowsLightmap'
         });
         // label
         var label = new ui.Label({ text: 'Cast Lightmap' });
@@ -187,7 +187,7 @@ editor.once('load', function() {
         label.style.paddingRight = '8px';
         fieldCastShadows.parent.append(label);
         // reference
-        editor.call('attributes:reference:model:castShadowsLightMap:attach', label);
+        editor.call('attributes:reference:model:castShadowsLightmap:attach', label);
 
 
         // receiveShadows
@@ -205,38 +205,38 @@ editor.once('load', function() {
         editor.call('attributes:reference:model:receiveShadows:attach', label);
 
 
-        // lightMapped
-        var fieldLightMapped = editor.call('attributes:addField', {
+        // lightmapped
+        var fieldLightmapped = editor.call('attributes:addField', {
             parent: panel,
             name: 'Lightmapped',
             type: 'checkbox',
             link: entities,
-            path: 'components.model.lightMapped'
+            path: 'components.model.lightmapped'
         });
-        fieldLightMapped.style.marginBottom = '9px';
+        fieldLightmapped.style.marginBottom = '9px';
         // reference
-        editor.call('attributes:reference:model:lightMapped:attach', label);
+        editor.call('attributes:reference:model:lightmapped:attach', label);
 
 
-        // lightMapSizeMultiplier
-        var fieldLightMapSizeMultiplier = editor.call('attributes:addField', {
-            panel: fieldLightMapped.parent,
+        // lightmapSizeMultiplier
+        var fieldLightmapSizeMultiplier = editor.call('attributes:addField', {
+            panel: fieldLightmapped.parent,
             placeholder: 'Size Multiplier',
             type: 'number',
             min: 0,
             link: entities,
-            path: 'components.model.lightMapSizeMultiplier'
+            path: 'components.model.lightmapSizeMultiplier'
         });
-        fieldLightMapSizeMultiplier.hidden = ! fieldLightMapped.value && ! fieldLightMapped.class.contains('null');
-        fieldLightMapped.on('change', function() {
-            fieldLightMapSizeMultiplier.hidden = ! fieldLightMapped.value && ! fieldLightMapped.class.contains('null');
+        fieldLightmapSizeMultiplier.hidden = ! fieldLightmapped.value && ! fieldLightmapped.class.contains('null');
+        fieldLightmapped.on('change', function() {
+            fieldLightmapSizeMultiplier.hidden = ! fieldLightmapped.value && ! fieldLightmapped.class.contains('null');
         });
         // reference
-        editor.call('attributes:reference:model:lightMapSizeMultiplier:attach', fieldLightMapSizeMultiplier.innerElement.firstChild.ui);
+        editor.call('attributes:reference:model:lightmapSizeMultiplier:attach', fieldLightmapSizeMultiplier.innerElement.firstChild.ui);
 
         if (! config.owner.superUser) {
-            fieldLightMapped.parent.hidden = true;
-            fieldCastShadowsLightMap.parent.hidden = true;
+            fieldLightmapped.parent.hidden = true;
+            fieldCastShadowsLightmap.parent.hidden = true;
         }
 
 

@@ -295,17 +295,17 @@ editor.once('load', function() {
             panelRendering.append(divider);
 
 
-            // lightMapSizeMultiplier
-            var fieldLightMapSizeMultiplier = editor.call('attributes:addField', {
+            // lightmapSizeMultiplier
+            var fieldLightmapSizeMultiplier = editor.call('attributes:addField', {
                 parent: panelRendering,
-                name: 'LightMap Size Multiplier',
+                name: 'Lightmap Size Multiplier',
                 type: 'number',
                 min: 0,
                 link: sceneSettings,
-                path: 'render.lightMapSizeMultiplier'
+                path: 'render.lightmapSizeMultiplier'
             });
             // reference
-            editor.call('attributes:reference:settings:lightMapSizeMultiplier:attach', fieldLightMapSizeMultiplier.parent.innerElement.firstChild.ui);
+            editor.call('attributes:reference:settings:lightmapSizeMultiplier:attach', fieldLightmapSizeMultiplier.parent.innerElement.firstChild.ui);
         }
 
         // divider

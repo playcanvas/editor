@@ -14,6 +14,14 @@ editor.once('load', function() {
             }
         }
 
+        // model
+        if(entity.has('components.model')) {
+            // lightmapSizeMultiplier
+            if (! entity.has('components.model.lightmapSizeMultiplier')) {
+                entity.set('components.model.lightmapSizeMultiplier', 1.0);
+            }
+        }
+
         entity.history.enabled = true;
     });
 });
