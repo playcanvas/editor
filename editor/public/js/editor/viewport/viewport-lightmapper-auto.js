@@ -47,9 +47,12 @@ editor.once('load', function() {
         setTimeout(function() {
             // TODO
             // trigger entity re-baking
+            // editor.call('lightmapper:bake');
             console.log("rebake");
         }, 0);
     };
+
+    var bakingNextFrame = false;
 
     editor.once('viewport:load', function() {
         app = editor.call('viewport:framework');
@@ -64,8 +67,12 @@ editor.once('load', function() {
                 if (Object.keys(loadingAssets).length === 0) {
                     app.assets.off('load:start', onLoadStart);
                     editor.once('viewport:update', function() {
+                        if (! bakingNextFrame)
+                            return;
+
+                        bakingNextFrame = false;
                         // TODO
-                        //editor.call('lightmapper:bake');
+                        // editor.call('lightmapper:bake');
                     });
                 }
             });
@@ -77,22 +84,55 @@ editor.once('load', function() {
             // needs to wait 3 frames
             // before it is safe to re-bake
             // don't ask why :D
+            bakingNextFrame = true;
+
             editor.once('viewport:update', function() {
                 editor.once('viewport:update', function() {
                     editor.once('viewport:update', function() {
+                        if (! bakingNextFrame)
+                            return;
+
+                        bakingNextFrame = false;
                         // TODO
-                        //editor.call('lightmapper:bake');
+                        // editor.call('lightmapper:bake');
                     });
                 });
             });
         });
     });
 
-    editor.on('entities:add', function(entity) {
-        var fields = [ 'type', 'asset', 'lightmapped', 'castShadowsLightmap', 'receiveShadows', 'lightmapSizeMultiplier' ];
-        var rabake = function() { rebakeEntity(entity); };
 
-        for(var i = 0; i < fields.length; i++)
-            entity.on('components.model.' + fields[i] + ':set', rabake);
+
+    editor.on('entities:add', function(entity) {
+        var fieldsLocal = [
+            'components.model.lightmapped',
+            'components.model.lightmapSizeMultiplier',
+            'components.model.receiveShadows'
+        ];
+        var fieldsGlobal = [
+            'enabled',
+            'components.model.enabled',
+            'components.model.type',
+            'components.model.asset',
+            'components.model.castShadowsLightmap'
+        ];
+        var rabakeLocal = function() { rebakeEntity(entity); };
+        var rabakeGlobal = function() {
+            bakingNextFrame = true;
+            editor.once('viewport:update', function() {
+                if (! bakingNextFrame)
+                    return;
+
+                bakingNextFrame = false;
+                // TODO
+                // editor.call('lightmapper:bake');
+            });
+        };
+
+        for(var i = 0; i < fieldsLocal.length; i++)
+            entity.on(fieldsLocal[i] + ':set', rabakeLocal);
+
+        for(var i = 0; i < fieldsGlobal.length; i++)
+            entity.on(fieldsGlobal[i] + ':set', rabakeGlobal);
     });
 });

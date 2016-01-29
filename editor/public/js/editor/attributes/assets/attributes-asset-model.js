@@ -403,6 +403,43 @@ editor.once('load', function() {
             progressUnwrap.progress = progress / 100;
         }));
 
+        // area
+        var fieldArea = editor.call('attributes:addField', {
+            parent: panelPipeline,
+            name: 'Area',
+            link: assets,
+            path: 'data.area'
+        });
+
+        // uv1Area
+        var fieldUv1Area = editor.call('attributes:addField', {
+            parent: panelPipeline,
+            name: 'UV1 Area',
+            link: assets,
+            path: 'data.uv1Area'
+        });
+
+        // multiArea
+        editor.call('attributes:addField', {
+            parent: panelPipeline,
+            name: 'Multi Area X',
+            link: assets,
+            path: 'data.multiArea.x'
+        });
+        editor.call('attributes:addField', {
+            parent: panelPipeline,
+            name: 'Multi Area Y',
+            link: assets,
+            path: 'data.multiArea.y'
+        });
+        editor.call('attributes:addField', {
+            parent: panelPipeline,
+            name: 'Multi Area Z',
+            link: assets,
+            path: 'data.multiArea.z'
+        });
+
+
         if (assets.length === 1 && assets[0].has('data.mapping') && assets[0].get('data.mapping').length) {
             var root = editor.call('attributes.rootPanel');
 

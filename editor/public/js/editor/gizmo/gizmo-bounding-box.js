@@ -46,7 +46,7 @@ editor.once('load', function () {
                     points[ind * 4].add(aabb.center);
 
                     points[ind * 4 + 1].copy(points[ind * 4]);
-                    points[ind * 4 + 1].x -= aabb.halfExtents.z * .5 * x;
+                    points[ind * 4 + 1].x -= aabb.halfExtents.x * .5 * x;
 
                     points[ind * 4 + 2].copy(points[ind * 4]);
                     points[ind * 4 + 2].y -= aabb.halfExtents.y * .5 * y;
