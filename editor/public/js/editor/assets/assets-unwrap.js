@@ -33,8 +33,6 @@ editor.once('load', function() {
                     // save area
                     asset.set('data.area', evt.data.area);
 
-                    console.log(evt.data);
-
                     var blob = new Blob([
                         JSON.stringify(data)
                     ], {

@@ -252,7 +252,7 @@ editor.once('load', function() {
         // resolution
         var fieldResolution = editor.call('attributes:addField', {
             parent: panel,
-            name: 'LM Resolution',
+            name: 'Lightmap Size',
             value: '?'
         });
         fieldResolution.style.marginBottom = '5px';

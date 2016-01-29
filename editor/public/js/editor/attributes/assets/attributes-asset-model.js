@@ -65,8 +65,6 @@ editor.once('load', function() {
             .on('load', function(status, data) {
                 assets[0]._loading = 2;
 
-                // assets[0]._uv1 = data.model.vertices[0] && data.model.vertices[0].hasOwnProperty('texCoord1');
-                // fieldUV1.value = assets[0]._uv1 ? 'available' : 'unavailable';
                 autoUnwrap.enabled = true;
 
                 assets[0]._nodes = [ ];
@@ -361,9 +359,19 @@ editor.once('load', function() {
         fieldPadding.parent.append(autoUnwrap);
 
         // unwrap progress
+        var fieldUnwrapProgress = editor.call('attributes:addField', {
+            parent: panelPipeline,
+            name: 'Unwrapping',
+        });
+        var field = fieldUnwrapProgress;
+        fieldUnwrapProgress = fieldUnwrapProgress.parent;
+        field.destroy();
+        fieldUnwrapProgress.hidden = editor.call('assets:model:unwrapping', assets[0])
+
+        // unwrap progress
         var progressUnwrap = new ui.Progress();
         progressUnwrap.class.add('field-progress');
-        fieldPadding.parent.append(progressUnwrap);
+        fieldUnwrapProgress.append(progressUnwrap);
 
         // unwrap cancel
         var autoUnwrapCancel = new ui.Button({
@@ -379,14 +387,12 @@ editor.once('load', function() {
             unwrapState();
         });
         autoUnwrapCancel.class.add('generate-uv1');
-        fieldPadding.parent.append(autoUnwrapCancel);
+        fieldUnwrapProgress.append(autoUnwrapCancel);
 
         var unwrapState = function() {
             var worker = editor.call('assets:model:unwrapping', assets[0]);
-            progressUnwrap.hidden = ! worker;
-            autoUnwrapCancel.hidden = ! worker;
-            autoUnwrap.hidden = ! progressUnwrap.hidden;
-            fieldPadding.hidden = ! progressUnwrap.hidden;
+            fieldUnwrapProgress.hidden = ! worker;
+            fieldPadding.parent.hidden = ! fieldUnwrapProgress.hidden;
 
             if (worker)
                 progressUnwrap.progress = worker.progress / 100;
@@ -402,42 +408,6 @@ editor.once('load', function() {
         events.push(editor.on('assets:model:unwrap:progress:' + assets[0].get('id'), function(progress) {
             progressUnwrap.progress = progress / 100;
         }));
-
-        // area
-        var fieldArea = editor.call('attributes:addField', {
-            parent: panelPipeline,
-            name: 'Area',
-            link: assets,
-            path: 'data.area'
-        });
-
-        // uv1Area
-        var fieldUv1Area = editor.call('attributes:addField', {
-            parent: panelPipeline,
-            name: 'UV1 Area',
-            link: assets,
-            path: 'data.uv1Area'
-        });
-
-        // multiArea
-        editor.call('attributes:addField', {
-            parent: panelPipeline,
-            name: 'Multi Area X',
-            link: assets,
-            path: 'data.multiArea.x'
-        });
-        editor.call('attributes:addField', {
-            parent: panelPipeline,
-            name: 'Multi Area Y',
-            link: assets,
-            path: 'data.multiArea.y'
-        });
-        editor.call('attributes:addField', {
-            parent: panelPipeline,
-            name: 'Multi Area Z',
-            link: assets,
-            path: 'data.multiArea.z'
-        });
 
 
         if (assets.length === 1 && assets[0].has('data.mapping') && assets[0].get('data.mapping').length) {
@@ -576,8 +546,6 @@ editor.once('load', function() {
             if (assets[0]._nodes)
                 // already loaded
                 nodesTemplate();
-
-            return panelNodes;
         }
 
         panelMeta.once('destroy', function() {

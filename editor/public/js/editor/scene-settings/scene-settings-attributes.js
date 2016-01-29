@@ -13,6 +13,7 @@ editor.once('load', function() {
     var foldStates = {
         'physics': true,
         'rendering': true,
+        'lightmapping': true,
         'loading': true,
         'audio': true
     };
@@ -288,24 +289,6 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:settings:gammaCorrection:attach', fieldGammaCorrection.parent.innerElement.firstChild.ui);
 
-        if(config.owner.superUser) {
-            // divider
-            var divider = document.createElement('div');
-            divider.classList.add('fields-divider');
-            panelRendering.append(divider);
-
-            // lightmapSizeMultiplier
-            var fieldLightmapSizeMultiplier = editor.call('attributes:addField', {
-                parent: panelRendering,
-                name: 'Lightmap Size Multiplier',
-                type: 'number',
-                min: 0,
-                link: sceneSettings,
-                path: 'render.lightmapSizeMultiplier'
-            });
-            // reference
-            editor.call('attributes:reference:settings:lightmapSizeMultiplier:attach', fieldLightmapSizeMultiplier.parent.innerElement.firstChild.ui);
-        }
 
         // divider
         var divider = document.createElement('div');
@@ -514,6 +497,46 @@ editor.once('load', function() {
             fieldLegacyAudio.parent.innerElement.firstChild.style.width = 'auto';
             editor.call('attributes:reference:settings:project:useLegacyAudio:attach', fieldLegacyAudio.parent.innerElement.firstChild.ui);
         }
+
+
+
+        // lightmapping
+        if(config.owner.superUser) {
+            var panelLightmapping = editor.call('attributes:addPanel', {
+                name: 'Lightmapping'
+            });
+            panelLightmapping.foldable = true;
+            panelLightmapping.folded = foldStates['lightmapping'];
+            panelLightmapping.on('fold', function() { foldStates['lightmapping'] = true; });
+            panelLightmapping.on('unfold', function() { foldStates['lightmapping'] = false; });
+            panelLightmapping.class.add('component', 'lightmapping');
+
+            // lightmapSizeMultiplier
+            var fieldLightmapSizeMultiplier = editor.call('attributes:addField', {
+                parent: panelLightmapping,
+                name: 'Size Multiplier',
+                type: 'number',
+                min: 0,
+                link: sceneSettings,
+                path: 'render.lightmapSizeMultiplier'
+            });
+            // reference
+            editor.call('attributes:reference:settings:lightmapSizeMultiplier:attach', fieldLightmapSizeMultiplier.parent.innerElement.firstChild.ui);
+
+            // lightmapMaxResolution
+            var fieldLightmapMaxResolution = editor.call('attributes:addField', {
+                parent: panelLightmapping,
+                name: 'Max Resolution',
+                type: 'number',
+                min: 2,
+                link: sceneSettings,
+                path: 'render.lightmapMaxResolution'
+            });
+            // reference
+            editor.call('attributes:reference:settings:lightmapMaxResolution:attach', fieldLightmapMaxResolution.parent.innerElement.firstChild.ui);
+        }
+
+
 
         // loading screen
         var panelLoadingScreen = editor.call('attributes:addPanel', {
