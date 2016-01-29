@@ -32,8 +32,6 @@ editor.once('load', function() {
 
                     // save area
                     asset.set('data.area', evt.data.area);
-                    asset.set('data.multiArea', evt.data.multiArea);
-                    asset.set('data.uv1Area', evt.data.uv1Area);
 
                     console.log(evt.data);
 
@@ -121,8 +119,6 @@ editor.once('load', function() {
             if (evt.data.name && evt.data.name === 'finish') {
                 // save area
                 asset.set('data.area', evt.data.area || null);
-                asset.set('data.multiArea', evt.data.multiArea || null);
-                asset.set('data.uv1Area', evt.data.uv1Area || null);
                 // callback
                 if (fn) fn(null, asset, evt.data.area || null);
             }

@@ -5,15 +5,12 @@ editor.once('load', function() {
         return;
 
     var app = editor.call('viewport:framework');
+    var entityAssetLoading = { };
+    var bakingNextFrame = false;
 
 
     // track entities model assets loading state to re-bake
-    var entityAssetLoading = { };
     var rebakeEntity = function(entity) {
-        var receive = entity.get('components.model.lightmapped');
-        if (! receive)
-            return;
-
         var assetId = entity.get('components.model.asset');
         if (! assetId)
             return;
@@ -48,11 +45,27 @@ editor.once('load', function() {
             // TODO
             // trigger entity re-baking
             // editor.call('lightmapper:bake');
-            console.log("rebake");
+            console.log('rebake self');
+            // editor.call('lightmapper:bake', [ entity ]);
         }, 0);
     };
 
-    var bakingNextFrame = false;
+    var rebakeScene = function() {
+        if (bakingNextFrame)
+            return;
+
+        bakingNextFrame = true;
+        editor.once('viewport:update', function() {
+            if (! bakingNextFrame)
+                return;
+
+            bakingNextFrame = false;
+            // TODO
+            console.log('rebake global');
+            // editor.call('lightmapper:bake');
+        });
+    };
+
 
     editor.once('viewport:load', function() {
         app = editor.call('viewport:framework');
@@ -73,6 +86,7 @@ editor.once('load', function() {
                         bakingNextFrame = false;
                         // TODO
                         // editor.call('lightmapper:bake');
+                        console.log('rebake global');
                     });
                 }
             });
@@ -95,12 +109,12 @@ editor.once('load', function() {
                         bakingNextFrame = false;
                         // TODO
                         // editor.call('lightmapper:bake');
+                        console.log('rebake global');
                     });
                 });
             });
         });
     });
-
 
 
     editor.on('entities:add', function(entity) {
@@ -117,22 +131,11 @@ editor.once('load', function() {
             'components.model.castShadowsLightmap'
         ];
         var rabakeLocal = function() { rebakeEntity(entity); };
-        var rabakeGlobal = function() {
-            bakingNextFrame = true;
-            editor.once('viewport:update', function() {
-                if (! bakingNextFrame)
-                    return;
-
-                bakingNextFrame = false;
-                // TODO
-                // editor.call('lightmapper:bake');
-            });
-        };
 
         for(var i = 0; i < fieldsLocal.length; i++)
             entity.on(fieldsLocal[i] + ':set', rabakeLocal);
 
         for(var i = 0; i < fieldsGlobal.length; i++)
-            entity.on(fieldsGlobal[i] + ':set', rabakeGlobal);
+            entity.on(fieldsGlobal[i] + ':set', rebakeScene);
     });
 });

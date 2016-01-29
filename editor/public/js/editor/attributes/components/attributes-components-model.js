@@ -185,6 +185,7 @@ editor.once('load', function() {
         var label = new ui.Label({ text: 'Cast Lightmap' });
         label.class.add('label-infield');
         label.style.paddingRight = '8px';
+        label.style.whiteSpace = 'nowrap';
         fieldCastShadows.parent.append(label);
         // reference
         editor.call('attributes:reference:model:castShadowsLightmap:attach', label);
@@ -213,26 +214,98 @@ editor.once('load', function() {
             link: entities,
             path: 'components.model.lightmapped'
         });
-        fieldLightmapped.style.marginBottom = '9px';
         // reference
         editor.call('attributes:reference:model:lightmapped:attach', label);
+        // uv1 is missing
+        var label = new ui.Label({ text: 'UV1 is missing' });
+        label.class.add('label-infield');
+        label.style.color = '#f66';
+        fieldLightmapped.parent.append(label);
+
+        var checkUV1Missing = function() {
+            var missing = false;
+            for(var i = 0; i < entities.length; i++) {
+                var e = entities[i];
+                if (! e.has('components.model') || ! e.get('components.model.lightmapped') || e.get('components.model.type') !== 'asset' || ! e.get('components.model.asset'))
+                    continue;
+
+                var assetId = e.get('components.model.asset');
+                var asset = editor.call('assets:get', assetId);
+                if (! asset)
+                    continue;
+
+                if (! asset.has('meta.attributes.texCoord1')) {
+                    missing = true;
+                    break;
+                }
+            }
+
+            label.hidden = ! missing;
+        };
+        checkUV1Missing();
+        fieldLightmapped.on('change', function() {
+            checkUV1Missing();
+            collectResolutions();
+        });
+
+
+        // resolution
+        var fieldResolution = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'LM Resolution',
+            value: '?'
+        });
+        fieldResolution.style.marginBottom = '5px';
+        fieldResolution.style.paddingLeft = '0px';
+        fieldResolution.style.minWidth = '32px';
+        fieldResolution.flexGrow = 0;
+        fieldResolution.flexShrink = 0;
+        // show/hide
+        fieldResolution.parent.hidden = ! fieldLightmapped.value && ! fieldLightmapped.class.contains('null');
+        fieldLightmapped.on('change', function() {
+            fieldResolution.parent.hidden = ! fieldLightmapped.value && ! fieldLightmapped.class.contains('null');
+        });
+        // reference
+        editor.call('attributes:reference:model:resolution:attach', label);
+
+        // calculate resolutions for lightmap
+        var collectResolutions = function() {
+            var lightmapper = editor.call('viewport:framework').lightmapper;
+            var res = lightmapper.calculateLightmapSize(entities[0].entity);
+            var min = res;
+            var max = res;
+
+            for(var i = 1; i < entities.length; i++) {
+                if (! entities[i].get('components.model.lightmapped'))
+                    continue;
+
+                var r = lightmapper.calculateLightmapSize(entities[i].entity);
+                if (r > max) {
+                    max = r;
+                } else if (r < min) {
+                    min = r;
+                }
+            }
+
+            fieldResolution.value = (min !== max) ? (min + ' - ' + max) : res;
+        };
+        collectResolutions();
 
 
         // lightmapSizeMultiplier
         var fieldLightmapSizeMultiplier = editor.call('attributes:addField', {
-            panel: fieldLightmapped.parent,
+            panel: fieldResolution.parent,
             placeholder: 'Size Multiplier',
             type: 'number',
             min: 0,
             link: entities,
             path: 'components.model.lightmapSizeMultiplier'
         });
-        fieldLightmapSizeMultiplier.hidden = ! fieldLightmapped.value && ! fieldLightmapped.class.contains('null');
-        fieldLightmapped.on('change', function() {
-            fieldLightmapSizeMultiplier.hidden = ! fieldLightmapped.value && ! fieldLightmapped.class.contains('null');
+        fieldLightmapSizeMultiplier.on('change', function() {
+            collectResolutions();
         });
         // reference
-        editor.call('attributes:reference:model:lightmapSizeMultiplier:attach', fieldLightmapSizeMultiplier.innerElement.firstChild.ui);
+        editor.call('attributes:reference:model:lightmapSizeMultiplier:attach', fieldLightmapSizeMultiplier);
 
         if (! config.owner.superUser) {
             fieldLightmapped.parent.hidden = true;

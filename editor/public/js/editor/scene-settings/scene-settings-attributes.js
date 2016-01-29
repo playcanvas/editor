@@ -294,7 +294,6 @@ editor.once('load', function() {
             divider.classList.add('fields-divider');
             panelRendering.append(divider);
 
-
             // lightmapSizeMultiplier
             var fieldLightmapSizeMultiplier = editor.call('attributes:addField', {
                 parent: panelRendering,

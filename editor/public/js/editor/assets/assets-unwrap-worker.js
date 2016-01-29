@@ -52,16 +52,12 @@ var start = function(id, filename, padding) {
             };
             unwrap.unwrapJsonModel(data, true, padding, true);
             var area = unwrap.calculateAreaOfJsonModel(data);
-            var multiArea = unwrap.calculateMultiAreaOfJsonModel(data);
-            var uv1Area = unwrap.calculateUv1AreaOfJsonModel(data);
 
             postMessage({
                 name: 'finish',
                 id: id,
                 data: data,
-                area: area,
-                multiArea: multiArea,
-                uv1Area: uv1Area
+                area: area
             });
             close();
         }
@@ -81,15 +77,11 @@ var area = function(id, filename) {
         } else {
             var unwrap = new Unwrap();
             var area = unwrap.calculateAreaOfJsonModel(data);
-            var multiArea = unwrap.calculateMultiAreaOfJsonModel(data);
-            var uv1Area = unwrap.calculateUv1AreaOfJsonModel(data);
 
             postMessage({
                 name: 'finish',
                 id: id,
-                area: area,
-                multiArea: multiArea,
-                uv1Area: uv1Area
+                area: area
             });
             close();
         }

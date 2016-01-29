@@ -9,10 +9,12 @@ editor.once('load', function() {
 
 
     // bake
-    editor.method('lightmapper:bake', function() {
-        var entities = editor.call('entities:list').filter(function(e) {
-            return e.get('components.model.lightmapped');
-        });
+    editor.method('lightmapper:bake', function(entities) {
+        if (! entities) {
+            entities = editor.call('entities:list').filter(function(e) {
+                return e.get('components.model.lightmapped');
+            });
+        }
 
         uv1MissingAssets = { };
         var areaJobs = { };
