@@ -271,23 +271,27 @@ editor.once('load', function() {
         // calculate resolutions for lightmap
         var collectResolutions = function() {
             var lightmapper = editor.call('viewport:framework').lightmapper;
-            var res = lightmapper.calculateLightmapSize(entities[0].entity);
-            var min = res;
-            var max = res;
+            var min = Infinity;
+            var max = -Infinity;
 
-            for(var i = 1; i < entities.length; i++) {
-                if (! entities[i].get('components.model.lightmapped'))
+            for(var i = 0; i < entities.length; i++) {
+                if (! entities[i].get('components.model.lightmapped') || ! entities[i].entity.model || (! entities[i].entity.model.asset && entities[i].entity.type === 'asset'))
                     continue;
 
-                var r = lightmapper.calculateLightmapSize(entities[i].entity);
-                if (r > max) {
-                    max = r;
-                } else if (r < min) {
-                    min = r;
-                }
+                var size = lightmapper.calculateLightmapSize(entities[i].entity);
+
+                if (size > max)
+                    max = size;
+
+                if (size < min)
+                    min = size;
             }
 
-            fieldResolution.value = (min !== max) ? (min + ' - ' + max) : res;
+            if (min) {
+                fieldResolution.value = (min !== max) ? (min + ' - ' + max) : min;
+            } else {
+                fieldResolution.value = '?';
+            }
         };
         collectResolutions();
 
