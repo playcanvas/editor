@@ -238,12 +238,23 @@ editor.once('load', function () {
             status.appendChild(img);
         }
 
+        var nameRow = document.createElement('div');
+        nameRow.classList.add('name-row');
+        item.element.appendChild(nameRow);
+
         // app name
         var name = new ui.Label({
             text: app.name
         });
         name.class.add('name');
-        item.element.appendChild(name.element);
+        nameRow.appendChild(name.element);
+
+        // app version
+        var version = new ui.Label({
+            text: app.version
+        });
+        version.class.add('version');
+        nameRow.appendChild(version.element);
 
         // row below name
         var info = document.createElement('div');

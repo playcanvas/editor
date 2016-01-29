@@ -5209,19 +5209,29 @@ strong {
                     }
                 }
 
-                > .name {
-                    font-size: 14px;
+                > .name-row {
                     position: absolute;
-                    cursor: pointer;
                     left: 90px;
                     top: 15px;
-                    max-width: 330px;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
                     line-height: 1;
-                    color: $text-primary;
+
+                    > .name, > .version {
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                    }
+
+                    > .name {
+                        font-size: 14px;
+                        max-width: 270px;
+                        color: $text-primary;
+                    }
+
+                    > .version {
+                        max-width: 50px;
+                    }
                 }
+
 
                 > .info {
                     position: absolute;
