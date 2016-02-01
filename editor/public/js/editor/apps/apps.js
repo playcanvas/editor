@@ -33,6 +33,19 @@ editor.once('load', function () {
         });
     });
 
+    // Download app
+    editor.method('apps:download', function (data, callback, error) {
+        Ajax.post('{{url.api}}/apps/download?access_token={{accessToken}}', data)
+        .on('load', function (status, result) {
+            if (callback)
+                callback(result.response[0]);
+        })
+        .on('error', function () {
+            if (error)
+                error.apply(this, arguments);
+        });
+    });
+
     // Delete a app
     editor.method('apps:delete', function (appId, callback) {
         Ajax.delete('{{url.api}}/apps/' + appId + '?access_token={{accessToken}}')

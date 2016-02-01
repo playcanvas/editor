@@ -9,6 +9,16 @@ editor.once('load', function () {
     editor.call('picker:project:registerPanel', 'publish-download', 'Download New Build', panel);
     editor.call('picker:project:registerPanel', 'publish-new', 'Publish New Build', panel);
 
+    editor.method('picker:publish:new', function () {
+        editor.call('picker:project', 'publish-new');
+        panel.class.remove('download-mode');
+    });
+
+    editor.method('picker:publish:download', function () {
+        editor.call('picker:project', 'publish-download');
+        panel.class.add('download-mode');
+    });
+
     // info panel
     var panelInfo = new ui.Panel();
     panelInfo.class.add('info');
@@ -19,8 +29,64 @@ editor.once('load', function () {
     imageField.classList.add('image');
     panelInfo.append(imageField);
 
-    imageField.style.background = 'url("' + config.url.static + '/platform/images/common/blank_project.png' + '")';
-    imageField.style.backgroundSize = '180%';
+    var clearAppImage = function () {
+        imageField.classList.remove('progress');
+        imageField.classList.add('blank');
+        imageField.style.backgroundImage = 'url("' + config.url.static + '/platform/images/common/blank_project.png' + '")';
+    };
+
+    var setAppImage = function (url) {
+        imageField.classList.remove('progress');
+        imageField.classList.remove('blank');
+        imageField.style.backgroundImage = 'url("' + url + '")';
+    };
+
+    clearAppImage();
+
+    // hidden file picker used to upload image
+    var fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+
+    imageField.addEventListener('click', function () {
+        if (! editor.call('permissions:write'))
+            return;
+
+        fileInput.click();
+    });
+
+    var imageS3Key = null;
+    var isUploadingImage = false;
+
+    fileInput.addEventListener('change', function () {
+        if (isUploadingImage)
+            return;
+
+        isUploadingImage = true;
+        refreshButtonsState();
+
+        imageField.classList.remove('blank');
+        imageField.classList.add('progress');
+        imageField.style.backgroundImage = 'url("/images/common/ajax-loader.gif")';
+
+        var file = fileInput.files[0];
+        fileInput.value = null;
+
+        editor.call('images:upload', file, function (data) {
+            imageS3Key = data.s3Key;
+            console.log(imageS3Key)
+            isUploadingImage = false;
+            refreshButtonsState();
+
+            setAppImage(data.url);
+        }, function (status, data) {
+            // error
+            isUploadingImage = false;
+            refreshButtonsState();
+
+            clearAppImage();
+        });
+    });
 
     var group = document.createElement('span');
     panelInfo.append(group);
@@ -45,9 +111,11 @@ editor.once('load', function () {
 
     inputName.elementInput.addEventListener('keyup', function (e) {
         inputNameError.hidden = inputName.elementInput.value.length <= 1000;
+        refreshButtonsState();
     });
 
     label = new ui.Label({text: 'Click on the image to upload artwork. 720 x 720px'});
+    label.class.add('image-click');
     group.appendChild(label.element);
 
     // description
@@ -73,6 +141,7 @@ editor.once('load', function () {
         }
 
         inputDescError.hidden = inputDescription.value.length < 10000;
+        refreshButtonsState();
     });
     panelDescription.append(inputDescription);
 
@@ -99,6 +168,7 @@ editor.once('load', function () {
 
     inputVersion.elementInput.addEventListener('keyup', function (e) {
         inputVersionError.hidden = inputVersion.value.length <= 20;
+        refreshButtonsState();
     });
 
     // release notes
@@ -125,6 +195,7 @@ editor.once('load', function () {
         }
 
         inputNotesError.hidden = inputNotes.value.length <= 10000;
+        refreshButtonsState();
     });
 
     // scenes
@@ -188,6 +259,9 @@ editor.once('load', function () {
         if (inputNotes.value)
             data.release_notes = inputNotes.value;
 
+        if (imageS3Key)
+            data.image_s3_key = imageS3Key;
+
         editor.call('apps:new', data, function () {
             editor.call('picker:publish');
         }, function () {
@@ -195,19 +269,145 @@ editor.once('load', function () {
         });
     });
 
-    var refreshButtonsState = function () {
-        btnPublish.disabled = !inputName.value ||
-                              !selectedScenes.length ||
-                              inputName.value.length > 1000 ||
-                              inputDescription.value.length > 10000 ||
-                              inputNotes.value.length > 10000 ||
-                              inputVersion.value.length > 20;
+    // web download button
+    var btnWebDownload = new ui.Button({
+        text: 'Web Download'
+    });
+    btnWebDownload.class.add('web-download');
+    panel.append(btnWebDownload);
+
+    var urlToDownload = null;
+
+    // download app for specified target (web or ios)
+    var download = function (target) {
+        // post data
+        var data = {
+            name: inputName.value,
+            project_id: config.project.id,
+            source_pack_ids: selectedScenes.map(function (scene) { return scene.id; }),
+            target: target
+        };
+
+        // ajax call
+        editor.call('apps:download', data, function (job) {
+            // show download progress
+            panelDownloadProgress.hidden = false;
+            btnDownloadReady.hidden = true;
+            downloadProgressIconWrapper.classList.remove('success');
+            downloadProgressIconWrapper.classList.remove('error');
+
+            downloadProgressTitle.class.remove('error');
+            downloadProgressTitle.text = 'Preparing build...';
+
+            // when job is updated get the job and
+            // proceed depending on job status
+            var evt = editor.on('messenger:job.update', function (msg) {
+                if (msg.job.id === job.id) {
+                    evt.unbind();
+
+                    // get job
+                    Ajax.get('{{url.api}}/jobs/' + job.id + '?access_token={{accessToken}}')
+                    .on('load', function (status, data) {
+                        var job = data.response[0];
+                        // success ?
+                        if (job.status === 'complete') {
+                            downloadProgressIconWrapper.classList.add('success');
+                            downloadProgressTitle.text = 'Your build is ready';
+                            urlToDownload = job.data.download_url;
+                            btnDownloadReady.hidden = false;
+                        }
+                        // handle error
+                        else if (job.status === 'error') {
+                            downloadProgressIconWrapper.classList.add('error');
+                            downloadProgressTitle.class.add('error');
+                            downloadProgressTitle.text = job.messages[0];
+                        }
+                    }).on('error', function () {
+                        // error
+                        downloadProgressIconWrapper.classList.add('error');
+                        downloadProgressTitle.class.add('error');
+                        downloadProgressTitle.text = 'Error: Could not start download';
+                    });
+                }
+            });
+            events.push(evt);
+        }, function () {
+            // error
+            console.error(arguments);
+        });
     };
 
-    inputName.on('change', refreshButtonsState);
-    inputVersion.on('change', refreshButtonsState);
-    inputDescription.addEventListener('change', refreshButtonsState);
-    inputNotes.addEventListener('change', refreshButtonsState);
+    btnWebDownload.on('click', function () {
+        download('web');
+    });
+
+    // ios download button
+    var btnIosDownload = new ui.Button({
+        text: 'iOS Download'
+    });
+    btnIosDownload.class.add('ios-download');
+    panel.append(btnIosDownload);
+
+    btnIosDownload.on('click', function () {
+        if (config.self.plan.type === 'free') {
+            editor.call('picker:confirm', 'You need a PRO account to be able to download for iOS. Would you like to upgrade?', function () {
+                window.open('/upgrade');
+            });
+
+            return;
+        }
+        download('ios');
+    });
+
+    // download progress
+    var panelDownloadProgress = document.createElement('div');
+    panelDownloadProgress.classList.add('progress');
+    panel.append(panelDownloadProgress);
+
+    // icon
+    var downloadProgressIconWrapper = document.createElement('span');
+    downloadProgressIconWrapper.classList.add('icon');
+    panelDownloadProgress.appendChild(downloadProgressIconWrapper);
+
+    var downloadProgressImg = new Image();
+    downloadProgressIconWrapper.appendChild(downloadProgressImg);
+    downloadProgressImg.src = "/images/common/ajax-loader.gif";
+
+    // progress info
+    var downloadProgressInfo = document.createElement('span');
+    downloadProgressInfo.classList.add('progress-info');
+    panelDownloadProgress.appendChild(downloadProgressInfo);
+
+    var downloadProgressTitle = new ui.Label({text: 'Preparing build'});
+    downloadProgressTitle.renderChanges = false;
+    downloadProgressTitle.class.add('progress-title');
+    downloadProgressInfo.appendChild(downloadProgressTitle.element);
+
+    var btnDownloadReady = new ui.Button({text: 'Download'});
+    btnDownloadReady.class.add('download-ready');
+    downloadProgressInfo.appendChild(btnDownloadReady.element);
+
+    btnDownloadReady.on('click', function () {
+        if (urlToDownload) {
+            window.open(urlToDownload);
+        }
+
+        editor.call('picker:publish');
+    });
+
+    var refreshButtonsState = function () {
+        var disabled = !inputName.value ||
+                       !selectedScenes.length ||
+                       inputName.value.length > 1000 ||
+                       inputDescription.value.length > 10000 ||
+                       inputNotes.value.length > 10000 ||
+                       inputVersion.value.length > 20 ||
+                       isUploadingImage;
+
+        btnPublish.disabled = disabled;
+        btnWebDownload.disabled = disabled;
+        btnIosDownload.disabled = disabled;
+    };
 
     var createSceneItem = function (scene) {
         var row = new ui.ListItem();
@@ -364,6 +564,7 @@ editor.once('load', function () {
 
     // on show
     panel.on('show', function () {
+        panelDownloadProgress.hidden = true;
         container.element.innerHTML = '';
         inputName.value = '';
         inputDescription.value = '';
@@ -388,7 +589,11 @@ editor.once('load', function () {
     // on hide
     panel.on('hide', function () {
         scenes = [];
+        imageS3Key = null;
+        isUploadingImage = false;
         selectedScenes = [];
+        urlToDownload = null;
+        clearAppImage();
         destroyTooltips();
         destroyEvents();
     });

@@ -48,7 +48,7 @@ editor.once('load', function () {
     panel.append(btnDownload);
 
     btnDownload.on('click', function () {
-        editor.call('picker:project', 'publish-download');
+        editor.call('picker:publish:download');
     });
 
     // publish button
@@ -58,7 +58,7 @@ editor.once('load', function () {
     panel.append(btnPublish);
 
     btnPublish.on('click', function () {
-        editor.call('picker:project', 'publish-new');
+        editor.call('picker:publish:new');
     });
 
     // app whose dropdown was last clicked
@@ -230,7 +230,7 @@ editor.once('load', function () {
 
         if (app.task.status === 'complete') {
             img = new Image();
-            img.src = app.thumbnails.s;
+            img.src = app.thumbnails ? app.thumbnails.s : config.project.image;
             status.appendChild(img);
         } else if (app.task.status === 'running') {
             img = new Image();
@@ -291,7 +291,7 @@ editor.once('load', function () {
         });
         error.hidden = app.task.status !== 'error';
         error.class.add('error');
-        info.appendChild(error.element);
+        item.element.appendChild(error.element);
 
         // release notes
         var releaseNotes = app.release_notes || '';
@@ -304,6 +304,7 @@ editor.once('load', function () {
         });
         notes.renderChanges = false;
         notes.class.add('notes');
+        notes.hidden = !error.hidden;
         item.element.appendChild(notes.element);
 
         // dropdown
