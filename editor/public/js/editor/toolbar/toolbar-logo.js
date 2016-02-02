@@ -523,6 +523,13 @@ editor.once('load', function() {
                 editor.call('picker:scene');
             }
         },
+        'publishing': {
+            title: 'Publishing',
+            icon: '&#57911;',
+            select: function() {
+                editor.call('picker:publish');
+            }
+        },
         'bake': {
             title: 'Bake LightMaps',
             icon: '&#57745;',
