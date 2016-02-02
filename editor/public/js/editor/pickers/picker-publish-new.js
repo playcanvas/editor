@@ -236,6 +236,8 @@ editor.once('load', function () {
     // holds selected scenes
     var selectedScenes = [];
 
+    var jobInProgress = false;
+
     // publish button
     var btnPublish = new ui.Button({
         text: 'Publish Now'
@@ -244,6 +246,13 @@ editor.once('load', function () {
     panel.append(btnPublish);
 
     btnPublish.on('click', function () {
+        if (jobInProgress)
+            return;
+
+        jobInProgress = true;
+
+        refreshButtonsState();
+
         var data = {
             name: inputName.value,
             project_id: config.project.id,
@@ -263,8 +272,10 @@ editor.once('load', function () {
             data.image_s3_key = imageS3Key;
 
         editor.call('apps:new', data, function () {
+            jobInProgress = false;
             editor.call('picker:publish');
         }, function () {
+            jobInProgress = false;
             console.log(arguments);
         });
     });
@@ -280,6 +291,10 @@ editor.once('load', function () {
 
     // download app for specified target (web or ios)
     var download = function (target) {
+        jobInProgress = true;
+
+        refreshButtonsState();
+
         // post data
         var data = {
             name: inputName.value,
@@ -315,29 +330,45 @@ editor.once('load', function () {
                             downloadProgressTitle.text = 'Your build is ready';
                             urlToDownload = job.data.download_url;
                             btnDownloadReady.hidden = false;
+                            jobInProgress = false;
+
+                            refreshButtonsState();
                         }
                         // handle error
                         else if (job.status === 'error') {
                             downloadProgressIconWrapper.classList.add('error');
                             downloadProgressTitle.class.add('error');
                             downloadProgressTitle.text = job.messages[0];
+                            jobInProgress = false;
+
+                            refreshButtonsState();
                         }
                     }).on('error', function () {
                         // error
                         downloadProgressIconWrapper.classList.add('error');
                         downloadProgressTitle.class.add('error');
                         downloadProgressTitle.text = 'Error: Could not start download';
+                        jobInProgress = false;
+
+                        refreshButtonsState();
                     });
                 }
             });
             events.push(evt);
         }, function () {
+            jobInProgress = false;
+
+            refreshButtonsState();
+
             // error
             console.error(arguments);
         });
     };
 
     btnWebDownload.on('click', function () {
+        if (jobInProgress)
+            return;
+
         download('web');
     });
 
@@ -349,6 +380,9 @@ editor.once('load', function () {
     panel.append(btnIosDownload);
 
     btnIosDownload.on('click', function () {
+        if (jobInProgress)
+            return;
+
         if (config.self.plan.type === 'free') {
             editor.call('picker:confirm', 'You need a PRO account to be able to download for iOS. Would you like to upgrade?', function () {
                 window.open('/upgrade');
@@ -402,7 +436,8 @@ editor.once('load', function () {
                        inputDescription.value.length > 10000 ||
                        inputNotes.value.length > 10000 ||
                        inputVersion.value.length > 20 ||
-                       isUploadingImage;
+                       isUploadingImage ||
+                       jobInProgress;
 
         btnPublish.disabled = disabled;
         btnWebDownload.disabled = disabled;
@@ -593,6 +628,7 @@ editor.once('load', function () {
         isUploadingImage = false;
         selectedScenes = [];
         urlToDownload = null;
+        jobInProgress = false;
         clearAppImage();
         destroyTooltips();
         destroyEvents();
