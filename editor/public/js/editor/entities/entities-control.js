@@ -48,7 +48,7 @@ editor.once('load', function() {
         var items = editor.call('selector:items');
 
         if (type === 'entity' && items.length)
-            editor.call('entities:duplicate', items[0]);
+            editor.call('entities:duplicate', items);
     });
     controls.append(btnDuplicate);
 

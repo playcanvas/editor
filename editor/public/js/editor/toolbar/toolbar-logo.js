@@ -361,7 +361,10 @@ editor.once('load', function() {
                         var items = editor.call('selector:items');
 
                         if (type === 'entity') {
-                            return items.length === 1;
+                            if (items.indexOf(editor.call('entities:root')) !== -1)
+                                return false;
+
+                            return items.length > 0;
                         } else if (type === 'asset') {
                             return items.length === 1 && items[0].get('type') === 'material';
                         } else {
@@ -374,7 +377,7 @@ editor.once('load', function() {
                         var items = editor.call('selector:items');
 
                         if (type === 'entity') {
-                            editor.call('entities:duplicate', items[0]);
+                            editor.call('entities:duplicate', items);
                         } else if (type === 'asset') {
                             editor.call('assets:duplicate', items[0]);
                         }

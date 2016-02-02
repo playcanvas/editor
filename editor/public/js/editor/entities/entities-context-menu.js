@@ -285,10 +285,15 @@ editor.once('load', function() {
             title: 'Duplicate',
             icon: '&#57638;',
             filter: function () {
-                return items.length === 1 && entity !== editor.call('entities:root');
+                var items = getSelection();
+
+                if (items.indexOf(editor.call('entities:root')) !== -1)
+                    return false;
+
+                return items.length > 0;
             },
             select: function() {
-                editor.call('entities:duplicate', entity);
+                editor.call('entities:duplicate', getSelection());
             }
         };
 
