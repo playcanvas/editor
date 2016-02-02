@@ -481,7 +481,7 @@ editor.once('load', function () {
             if (value) {
                 // put primary scene in the beginning
                 if (config.project.primaryScene === scene.id) {
-                    selectedScenes.splice(0, 0, value);
+                    selectedScenes.splice(0, 0, scene);
                 } else {
                     // if not primary scene just add to the list
                     selectedScenes.push(scene);
