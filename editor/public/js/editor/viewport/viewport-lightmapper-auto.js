@@ -128,7 +128,8 @@ editor.once('load', function() {
             'components.model.enabled',
             'components.model.type',
             'components.model.asset',
-            'components.model.castShadowsLightmap'
+            'components.model.castShadowsLightmap',
+            'components.light.bake'
         ];
         var rabakeLocal = function() { rebakeEntity(entity); };
 
@@ -138,4 +139,8 @@ editor.once('load', function() {
         for(var i = 0; i < fieldsGlobal.length; i++)
             entity.on(fieldsGlobal[i] + ':set', rebakeScene);
     });
+
+    editor.on('gizmo:translate:end', rebakeScene);
+    editor.on('gizmo:rotate:end', rebakeScene);
+    editor.on('gizmo:scale:end', rebakeScene);
 });
