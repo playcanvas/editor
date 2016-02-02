@@ -4555,7 +4555,6 @@ strong {
                             > .image {
                                 width: 187px;
                                 height: 187px;
-                                border-top: 1px solid $border-primary;
                                 border-bottom: 1px solid $border-primary;
                                 background-size: 100%;
 
@@ -4755,10 +4754,6 @@ strong {
             &:not(.current):not(.disabled):hover {
                 background-color: #414f52;
                 cursor: pointer;
-
-                > .name {
-                    color: $text-active;
-                }
             }
 
             &.current {
