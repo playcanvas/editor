@@ -322,8 +322,12 @@ pc.script.create( "designer_camera", function (app) {
     };
 
     DesignerCamera.prototype.onKeyDown = function (e) {
-        if (e.target && e.target.tagName.toLowerCase() === 'input')
-            return;
+        if (e.target) {
+            var tag = e.target.tagName;
+            if (/(input)|(textarea)/i.test(tag)) {
+                return;
+            }
+        }
 
         if (this.isOrbiting || this.isPanning || this.entity.camera.projection === pc.PROJECTION_ORTHOGRAPHIC)
             return;
@@ -386,7 +390,14 @@ pc.script.create( "designer_camera", function (app) {
     };
 
     DesignerCamera.prototype.onKeyUp = function (e) {
-        if (e.target && e.target.tagName.toLowerCase() === 'input' || this.entity.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
+        if (e.target) {
+            var tag = e.target.tagName;
+            if (/(input)|(textarea)/i.test(tag)) {
+                return;
+            }
+        }
+
+        if (this.entity.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
             return;
         }
 
