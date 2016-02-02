@@ -4569,6 +4569,10 @@ strong {
                             .name {
                                 font-size: 14px;
                                 color: $text-primary;
+                                max-width: 100%;
+                                overflow: hidden;
+                                white-space: nowrap;
+                                text-overflow: ellipsis;
                             }
                         }
 
