@@ -31,6 +31,7 @@ editor.once('load', function () {
     fileInput.type = 'file';
     fileInput.accept = 'image/*';
 
+    var currentSelection = null;
     var uploadingImage = false;
 
     projectImg.addEventListener('click', function () {
@@ -180,6 +181,8 @@ editor.once('load', function () {
 
     // handle hide
     overlay.on('hide', function () {
+        currentSelection = null;
+
         // unsubscribe from keydown
         window.removeEventListener('keydown', onKeyDown);
 
@@ -200,6 +203,11 @@ editor.once('load', function () {
     // activate menu option
     var select = function (name) {
         if (! name) return;
+
+        if (currentSelection === name)
+            return;
+
+        currentSelection = name;
 
         // if this is not a scene URL disallow closing the popup
         if (!config.scene.id) {
