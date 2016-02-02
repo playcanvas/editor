@@ -4551,14 +4551,24 @@ strong {
                         height: 100%;
                         border-right: 1px solid $border-primary;
 
-                        img {
-                            width: 187px;
-                            height: 187px;
-                            border-top: 1px solid $border-primary;
-                            border-bottom: 1px solid $border-primary;
+                        > .content {
+                            > .image {
+                                width: 187px;
+                                height: 187px;
+                                border-top: 1px solid $border-primary;
+                                border-bottom: 1px solid $border-primary;
+                                background-size: 100%;
 
-                            &.hover:hover {
-                                cursor: pointer;
+                                &.progress {
+                                    background-size: 17%;
+                                    background-position: 50%;
+                                    background-repeat: no-repeat;
+                                    background-color: $bcg-darkest;
+                                }
+
+                                &.hover:hover {
+                                    cursor: pointer;
+                                }
                             }
                         }
 

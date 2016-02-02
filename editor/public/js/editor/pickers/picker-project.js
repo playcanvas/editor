@@ -21,8 +21,9 @@ editor.once('load', function () {
     leftPanel.class.add('left');
 
     // project image
-    var projectImg = new Image();
-    projectImg.src = config.project.image;
+    var projectImg = document.createElement('div');
+    projectImg.classList.add('image');
+    projectImg.style.backgroundImage = 'url("' + config.project.image + '")';
     leftPanel.append(projectImg);
 
     // hidden file input to upload project image
@@ -45,6 +46,9 @@ editor.once('load', function () {
 
         if (uploadingImage)
             return;
+
+        projectImg.style.backgroundImage = 'url("/images/common/ajax-loader.gif")';
+        projectImg.classList.add('progress');
 
         uploadingImage = true;
 
@@ -164,6 +168,9 @@ editor.once('load', function () {
     overlay.on('show', function () {
         window.addEventListener('keydown', onKeyDown);
 
+        projectImg.classList.remove('progress');
+        projectImg.style.backgroundImage = 'url("' + config.project.image + '")';
+
         if (editor.call('permissions:write')) {
             projectImg.classList.add('hover');
         } else {
@@ -218,7 +225,8 @@ editor.once('load', function () {
     // subscribe to project image
     editor.on('messenger:project.image', function (data) {
         config.project.image = data.project.thumbnails.m;
-        projectImg.src = data.project.thumbnails.m;
+        projectImg.style.backgroundImage = 'url("' + data.project.thumbnails.m + '")';
+        projectImg.classList.remove('progress');
     });
 
 
