@@ -135,14 +135,14 @@ strong {
             &.help-howdoi {
                 position: absolute;
                 left: 0;
-                bottom: 90px;
+                bottom: 135px;
                 background-color: $bcg-darker;
             }
 
             &.help-controls {
                 position: absolute;
                 left: 0;
-                bottom: 45px;
+                bottom: 90px;
                 background-color: $bcg-darker;
             }
 
@@ -150,6 +150,13 @@ strong {
                 position: absolute;
                 left: 0;
                 bottom: 0;
+                background-color: $bcg-darker;
+            }
+
+            &.publish {
+                position: absolute;
+                left: 0;
+                bottom: 45px;
                 background-color: $bcg-darker;
             }
         }

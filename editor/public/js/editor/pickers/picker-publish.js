@@ -41,16 +41,6 @@ editor.once('load', function () {
     var container = new ui.List();
     panel.append(container);
 
-    // download button
-    var btnDownload = new ui.Button({text: 'Download'});
-    btnDownload.class.add('download');
-    handlePermissions(btnDownload);
-    panel.append(btnDownload);
-
-    btnDownload.on('click', function () {
-        editor.call('picker:publish:download');
-    });
-
     // publish button
     var btnPublish = new ui.Button({text: 'Publish'});
     btnPublish.class.add('publish');
@@ -59,6 +49,16 @@ editor.once('load', function () {
 
     btnPublish.on('click', function () {
         editor.call('picker:publish:new');
+    });
+
+    // download button
+    var btnDownload = new ui.Button({text: 'Download'});
+    btnDownload.class.add('download');
+    handlePermissions(btnDownload);
+    panel.append(btnDownload);
+
+    btnDownload.on('click', function () {
+        editor.call('picker:publish:download');
     });
 
     // app whose dropdown was last clicked
@@ -502,6 +502,7 @@ editor.once('load', function () {
     // on show
     panel.on('show', function () {
         loadApps();
+        editor.emit('picker:publish:open');
     });
 
     // on hide
