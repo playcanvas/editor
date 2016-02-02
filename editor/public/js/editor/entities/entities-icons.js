@@ -41,7 +41,7 @@ editor.once('load', function() {
         };
         this.entity.addComponent('model', {
             type: 'plane',
-            lightMapCast: false
+            castShadowsLightmap: false
         });
 
         this.behind = new pc.Entity(app);
@@ -50,7 +50,7 @@ editor.once('load', function() {
         this.entity.addChild(this.behind);
         this.behind.addComponent('model', {
             type: 'plane',
-            lightMapCast: false
+            castShadowsLightmap: false
         });
         this.behind.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         this.behind.model.model.meshInstances[0].pick = false;

@@ -4,6 +4,7 @@ editor.once('load', function() {
     if (! config.owner.superUser)
         return;
 
+    var app;
     var root = editor.call('layout.root');
     var toolbar = editor.call('layout.toolbar');
 
@@ -15,7 +16,14 @@ editor.once('load', function() {
     toolbar.append(buttonBake);
 
     buttonBake.on('click', function () {
-        editor.call('viewport:framework').lightMapper.bake();
+        editor.call('lightmapper:bake');
+    });
+    editor.on('lightmapper:uv1Missing', function(state) {
+        if (state) {
+            buttonBake.class.add('active');
+        } else {
+            buttonBake.class.remove('active');
+        }
     });
 
 
@@ -44,22 +52,55 @@ editor.once('load', function() {
     btnAutoUnwrap.parent = tooltipBake;
     elUV1.appendChild(btnAutoUnwrap.element);
     btnAutoUnwrap.on('click', function() {
-        console.log('call auto-unwrap');
+        if (! uv1Missing)
+            return;
+
+        var assetIds = Object.keys(uv1MissingAssets);
+        for(var i = 0; i < assetIds.length; i++) {
+            if (! uv1MissingAssets.hasOwnProperty(assetIds[i]))
+                continue;
+
+            var asset = uv1MissingAssets[assetIds[i]];
+            editor.call('assets:model:unwrap', asset);
+        }
+    });
+
+
+    // hotkey ctrl+b
+    editor.call('hotkey:register', 'lightmapper:bake', {
+        key: 'b',
+        ctrl: true,
+        callback: function() {
+            editor.call('lightmapper:bake');
+        }
     });
 
 
     // manage if uv1 is missing
     var uv1Missing = false;
+    var uv1MissingAssets = { };
 
-    editor.method('lightMapper:uv1missing', function(state) {
-        if (state === undefined)
+    editor.on('assets:model:unwrap', function(asset) {
+        if (! uv1MissingAssets[asset.get('id')])
+            return;
+
+        delete uv1MissingAssets[asset.get('id')];
+        editor.call('lightmapper:uv1missing', uv1MissingAssets);
+    })
+
+    editor.method('lightmapper:uv1missing', function(assets) {
+        if (assets === undefined)
             return uv1Missing;
+
+        uv1MissingAssets = assets;
+
+        var state = Object.keys(assets).length !== 0
 
         if (uv1Missing === state)
             return;
 
         uv1Missing = state;
-        editor.emit('lightMapper:uv1Missing', uv1Missing);
+        editor.emit('lightmapper:uv1Missing', uv1Missing);
     });
 
     tooltipBake.on('show', function() {
@@ -70,5 +111,3 @@ editor.once('load', function() {
         }
     });
 });
-
-

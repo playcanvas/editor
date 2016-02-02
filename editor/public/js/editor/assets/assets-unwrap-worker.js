@@ -1,16 +1,10 @@
-var jobs = { };
-
 onmessage = function(evt) {
     if (! evt.data.name)
         return;
 
     switch(evt.data.name) {
         case 'start':
-            abort(evt.data.id);
-            start(evt.data.id, evt.data.filename);
-            break;
-        case 'abort':
-            abort(evt.data.id);
+            start(evt.data.id, evt.data.filename, evt.data.padding);
             break;
         case 'area':
             area(evt.data.id, evt.data.filename);
@@ -19,11 +13,9 @@ onmessage = function(evt) {
 };
 
 var loadFile = function(id, filename, fn) {
-    var job = { };
+    var xhr = new XMLHttpRequest();
 
-    job.xhr = new XMLHttpRequest();
-
-    job.xhr.addEventListener('load', function() {
+    xhr.addEventListener('load', function() {
         try {
             var data = JSON.parse(this.responseText);
             fn(null, data);
@@ -31,18 +23,16 @@ var loadFile = function(id, filename, fn) {
             fn(e);
         }
     });
-    job.xhr.addEventListener('error', function() {
+    xhr.addEventListener('error', function() {
         fn(e);
     });
 
-    job.xhr.open('GET', '/api/files/assets/' + id + '/1/' + filename, true);
-    job.xhr.send(null);
-
-    return job;
+    xhr.open('GET', '/api/files/assets/' + id + '/1/' + filename, true);
+    xhr.send(null);
 };
 
-var start = function(id, filename) {
-    jobs[id] = loadFile(id, filename, function(err, data) {
+var start = function(id, filename, padding) {
+    loadFile(id, filename, function(err, data) {
         if (err) {
             postMessage({
                 name: 'error',
@@ -50,36 +40,33 @@ var start = function(id, filename) {
                 err: err.message,
                 stack: err.stack.split('\n')
             });
-            abort(id);
+            close();
         } else {
             var unwrap = new Unwrap();
             unwrap.progress = function(p) {
-                console.log('unwrap', p);
+                postMessage({
+                    name: 'progress',
+                    id: id,
+                    progress: p
+                });
             };
-            var result = unwrap.unwrapJsonModel(data, true, 2, true);
+            unwrap.unwrapJsonModel(data, true, padding, true);
+            var a = unwrap.calculateMultiAreaOfJsonModel(data);
+            a.uv = unwrap.calculateUv1AreaOfJsonModel(data);
 
             postMessage({
                 name: 'finish',
                 id: id,
                 data: data,
-                area: result.totalArea
+                area: a
             });
-            delete job[id];
+            close();
         }
     });
-
-    postMessage('started ' + id);
-};
-
-var abort = function(id) {
-    if (! jobs[id])
-        return;
-
-    delete jobs[id];
 };
 
 var area = function(id, filename) {
-    jobs[id] = loadFile(id, filename, function(err, data) {
+    loadFile(id, filename, function(err, data) {
         if (err) {
             postMessage({
                 name: 'error',
@@ -87,45 +74,45 @@ var area = function(id, filename) {
                 err: err.message,
                 stack: err.stack.split('\n')
             });
-            abort(id);
+            close();
         } else {
             var unwrap = new Unwrap();
-            var area = unwrap.calculateAreaOfJsonModel(data);
+            var a = unwrap.calculateMultiAreaOfJsonModel(data);
+            a.uv = unwrap.calculateUv1AreaOfJsonModel(data);
 
             postMessage({
                 name: 'finish',
                 id: id,
-                area: area
+                area: a
             });
-            delete job[id];
+            close();
         }
     });
-
-    postMessage('started area ' + id);
 };
 
 var Unwrap=function(){};
-Unwrap.prototype={now:performance.now&&performance.timing?function(){return performance.now()}:Date.now,swap:function(a,c,e){var h=a[c];a[c]=a[e];a[e]=h},crossNormalize:function(a,c){var e=a.y*c.z-a.z*c.y,h=a.z*c.x-a.x*c.z,d=a.x*c.y-a.y*c.x,f=Math.sqrt(e*e+h*h+d*d);return{x:e/f,y:h/f,z:d/f}},triNormal:function(a,c,e,h,d,f,g,l,b){a-=h;c-=d;e-=f;h-=g;d-=l;b=f-b;f=c*b-e*d;b=e*h-a*b;a=a*d-c*h;c=Math.sqrt(f*f+b*b+a*a);return{x:f/c,y:b/c,z:a/c}},cubeFaceFromNormal:function(a){var c=Math.abs(a.x),e=Math.abs(a.y),
-h=Math.abs(a.z);return c>=e&&c>=h?0>a.x?0:1:e>=c&&e>=h?0>a.y?2:3:0>a.z?4:5},boxUnwrap:function(a,c){var e=this.now(),h=c.length/3,d,f,g,l,b,m,n,u,r,v=0,k;d=0;var p=[];for(k=0;6>k;k++)p[k]=[];for(k=0;k<a.length;k+=3)d=c[3*a[k]],f=c[3*a[k]+1],g=c[3*a[k]+2],l=c[3*a[k+1]],b=c[3*a[k+1]+1],m=c[3*a[k+1]+2],n=c[3*a[k+2]],u=c[3*a[k+2]+1],r=c[3*a[k+2]+2],d=this.triNormal(d,f,g,l,b,m,n,u,r),d=this.cubeFaceFromNormal(d),p[d].push(a[k]),p[d].push(a[k+1]),p[d].push(a[k+2]);for(k=1;6>k;k++);f=[];b=[];for(l=0;6>
-l;l++)for(d=l+1;6>d;d++)for(k=0;k<p[l].length;k++){f=[];for(j=0;j<p[d].length;j++)p[l][k]===p[d][j]&&f.push(j);if(0<f.length){for(j=0;j<f.length;j++)p[d][f[j]]=h;b.push(p[l][k]);h++;v++}}for(k=0;k<v;k++)c.push(c[3*b[k]]),c.push(c[3*b[k]+1]),c.push(c[3*b[k]+2]);h=[];m=[{x:-1,y:0,z:0},{x:1,y:0,z:0},{x:0,y:-1,z:0},{x:0,y:1,z:0},{x:0,y:0,z:-1},{x:0,y:0,z:1}];for(l=offset=0;6>l;l++)for(k=m[l],n=this.crossNormalize(k,.5<Math.abs(k.y)?{x:1,y:0,z:0}:{x:0,y:1,z:0}),u=this.crossNormalize(k,n),n=this.crossNormalize(k,
-u),k=0;k<p[l].length;k++)a[offset]=p[l][k],d=c[3*a[offset]],f=c[3*a[offset]+1],g=c[3*a[offset]+2],h[2*a[offset]]=n.x*d+n.y*f+n.z*g,h[2*a[offset]+1]=u.x*d+u.y*f+u.z*g,offset++;console.log("BoxUnwrap time: "+(this.now()-e)/1E3);console.log("Added "+v+" verts");return{append:b,uv:h}},findCharts:function(a){var c=this.now(),e,h,d,f=[],g=0,l;for(e=0;e<a.length;e++){d=3*Math.floor(e/3);g=Math.max(d,g);0===e%3&&(l=3);for(h=g;h<a.length;h++)a[e]===a[h]&&(h=3*Math.floor(h/3),this.swap(a,g,h),this.swap(a,g+
-1,h+1),this.swap(a,g+2,h+2),h+=2,g+=3,l--);2===e%3&&3>l&&(0<f.length&&f[f.length-1]>d?f[f.length-1]=g:f.push(g))}for(e=a=0;e<f.length;e++)f[e]=(f[e]-3*a)/3,a+=f[e];console.log("FindCharts time: "+(this.now()-c)/1E3);console.log("Found "+f.length+" charts");return f},triangleArea:function(a,c,e,h,d,f,g,l,b){h-=a;d-=c;f-=e;g-=a;l-=c;b-=e;a=d*b-f*l;f=f*g-h*b;h=h*l-d*g;return.5*Math.sqrt(a*a+f*f+h*h)},calculateChartArea:function(a,c,e,h){var d,f,g,l,b,m,n,u,r,v,k,p,x,q,w,t=0,A,B,E=[],F=[],H=0,I=0,y,z,
-C,D,G=[];for(d=0;d<c.length;d++){g=c[d];B=A=0;y=z=99999;C=D=-99999;for(f=0;f<g;f++)l=t+f,b=a[3*l],m=a[3*l+1],l=a[3*l+2],n=e[3*b],u=e[3*b+1],r=e[3*b+2],v=e[3*m],k=e[3*m+1],p=e[3*m+2],x=e[3*l],q=e[3*l+1],w=e[3*l+2],A+=this.triangleArea(n,u,r,v,k,p,x,q,w),n=h[2*b],b=h[2*b+1],u=h[2*m],m=h[2*m+1],r=h[2*l],l=h[2*l+1],B+=this.triangleArea(n,b,0,u,m,0,r,l,0),y=Math.min(y,n),y=Math.min(y,u),y=Math.min(y,r),z=Math.min(z,b),z=Math.min(z,m),z=Math.min(z,l),C=Math.max(C,n),C=Math.max(C,u),C=Math.max(C,r),D=Math.max(D,
-b),D=Math.max(D,m),D=Math.max(D,l);0===A&&(console.warn("Zero area"),B=A=.01,C=y+.01,D=z+.01);isNaN(A)&&(console.warn("NaN area"),B=A=.01,C=y+.01,D=z+.01);0===B&&(console.warn("Zero UV area"),B=.01,C=y+.01,D=z+.01);H+=A;E.push(A);t+=g;G[d]={x:0,y:0,z:0,w:0};G[d].x=y;G[d].y=z;G[d].z=C-G[d].x;G[d].w=D-G[d].y;I+=B;F.push(B)}return{areas:E,areasT:F,totalArea:H,totalAreaT:I,aabbs:G}},normalizeCharts:function(a,c,e,h,d,f){a=e.areas;h=e.areasT;f=e.totalArea;var g=[];for(e=0;e<c.length;e++)d=.8*Math.sqrt(1/
-h[e]*(a[e]/f)),g.push(d);return g},fits:function(a,c){return a.z<=c.z&&a.w<=c.w},fitsExactly:function(a,c){return a.z===c.z&&a.w===c.w},findHoles:function(a,c,e,h,d,f,g,l){var b;e=Math.floor((a.aabb.z*this.resolution-2*this.padding)/4);var m=Math.floor((a.aabb.w*this.resolution-2*this.padding)/4);if(0>=e||0>=m)return[];if(1E3<e||1E3<m)return console.log("findHoles error"),[];var n=new Uint8Array(e*m),u=0;for(b=0;b<d.length&&b!==c;b++)u+=d[b];var r=d[c],v=g[c].x*l,k=g[c].y*l,p=g[c].z*l,x=g[c].w*l,
-q,w,t;for(b=0;b<r;b++){d=f[3*(u+b)];g=f[3*(u+b)+1];c=f[3*(u+b)+2];q=h[2*d]*l;w=h[2*d+1]*l;var A=h[2*g]*l,B=h[2*g+1]*l,E=h[2*c]*l,F=h[2*c+1]*l;q=(q-v)/p;A=(A-v)/p;E=(E-v)/p;w=(w-k)/x;B=(B-k)/x;F=(F-k)/x;g=c=99999;t=d=-99999;c=Math.min(c,q);c=Math.min(c,A);c=Math.min(c,E);g=Math.min(g,w);g=Math.min(g,B);g=Math.min(g,F);d=Math.max(d,q);d=Math.max(d,A);d=Math.max(d,E);t=Math.max(t,w);t=Math.max(t,B);t=Math.max(t,F);c*=e;d*=e;g*=m;t*=m;c=Math.floor(c)-this.padding;g=Math.floor(g)-this.padding;d=Math.floor(d)+
-this.padding;t=Math.floor(t)+this.padding;0>c&&(c=0);c>=e&&(c=e-1);0>g&&(g=0);g>=m&&(g=m-1);0>d&&(d=0);d>=e&&(d=e-1);0>t&&(t=0);t>=m&&(t=m-1);for(w=g;w<=t;w++)for(q=c;q<=d;q++)n[w*e+q]=255}c=Math.max(e,m);h=[n];b=e;d=m;f=[b];l=[d];for(g=0;8<c;){r=Math.floor(b/2);v=Math.floor(d/2);u=new Uint8Array(r*v);for(w=0;w<v;w++)for(q=0;q<r;q++){for(x=c=0;2>x;x++)for(p=0;2>p;p++)c=Math.max(c,h[g][(2*w+x)*b+(2*q+p)]);u[w*r+q]=c}c=Math.max(r,v);b=r;d=v;g++;h[g]=u;f[g]=r;l[g]=v}k=[];for(b=h.length-1;0<=b;b--)for(r=
-f[b],v=l[b],u=h[b],A=e/r,B=m/v,w=0;w<v;w++)for(q=0;q<r;q++)if(0===u[w*r+q]){g=Math.floor(q*A);t=Math.floor(w*B);d=c=g;g=t;for(var E=c,F=g,H=d,I=t,y=!0,z=0,C=!0;y;){if(0>c||0>g||d>e-1||t>m-1)y=!1;else for(x=g;x<=t;x++){for(p=c;p<=d;p++)if(0<n[x*e+p]){y=!1;break}if(!y)break}if(y)for(p=0;p<k.length;p++)if(!(k[p].maxx<c||k[p].minx>d||k[p].maxy<g||k[p].miny>t)){y=!1;break}if(!y){if(C)break;c=E;g=F;d=H;t=I;z++;if(6>z)y=!0;else break}C=!1;E=c;F=g;H=d;I=t;0===z?(g--,c--):1===z?(t++,d++):2===z?c--:3===z?g--:
-4===z?d++:5===z&&t++}C||k.push({minx:c,miny:g,maxx:d,maxy:t})}for(b=0;b<k.length;b++)n={x:0,y:0,z:0,w:0},n.x=k[b].minx/e*a.aabb.z+a.aabb.x,n.y=k[b].miny/m*a.aabb.w+a.aabb.y,n.z=(k[b].maxx-k[b].minx)/e*a.aabb.z,n.w=(k[b].maxy-k[b].miny)/m*a.aabb.w,k[b]={aabb:n,id:-1,child:[],leaf:!0,insideHole:!0};return k},insertToAtlas:function(a,c,e,h,d,f,g,l){if(a.leaf){if(0<=a.id||!this.fits(e,a.aabb))return null;if(this.fitsExactly(e,a.aabb))return a.id=c,this.fillHoles&&(c=this.findHoles(a,c,e,h,d,f,g,l),0<
-c.length&&(a.leaf=!1,a.child=c)),a;var b={x:0,y:0,z:0,w:0},m={x:0,y:0,z:0,w:0};a.aabb.z-e.z>a.aabb.w-e.w?(b.x=a.aabb.x,b.y=a.aabb.y,b.z=e.z,b.w=a.aabb.w,m.x=a.aabb.x+e.z,m.y=a.aabb.y,m.z=a.aabb.z-e.z,m.w=a.aabb.w):(b.x=a.aabb.x,b.y=a.aabb.y,b.z=a.aabb.z,b.w=e.w,m.x=a.aabb.x,m.y=a.aabb.y+e.w,m.z=a.aabb.z,m.w=a.aabb.w-e.w);a.leaf=!1;a.child=[];a.child[0]={aabb:b,id:-1,child:[],leaf:!0,test:!1};a.child[1]={aabb:m,id:-1,child:[],leaf:!0,test:!1};return this.insertToAtlas(a.child[0],c,e,h,d,f,g,l)}for(b=
-0;b<a.child.length;b++)if(m=this.insertToAtlas(a.child[b],c,e,h,d,f,g,l))return m;return null},transformUv:function(a,c){a.x=a.x*c.x+c.z;a.y=a.y*c.y+c.w},packCharts:function(a,c,e,h,d,f,g){var l=this.now(),b,m={aabb:{x:0,y:0,z:1,w:1},id:-1,child:[],leaf:!0,test:!1},n=[],u=[];for(b=0;b<c.length;b++)u[b]=b;u.sort(function(a,b){return Math.max(e[b].z*f[b],e[b].w*f[b])-Math.max(e[a].z*f[a],e[a].w*f[a])});for(var r=0,v=0,k=0,p=0,x=99999,q,w=0;w<e.length;w++){b=u[w];q={x:e[b].x,y:e[b].y,z:e[b].z,w:e[b].w};
-q.x=q.x*f[b]*g;q.y=q.y*f[b]*g;q.z=q.z*f[b]*g;q.w=q.w*f[b]*g;q.z+=2*this.paddingUv;q.w+=2*this.paddingUv;var t=this.insertToAtlas(m,b,q,d,c,a,e,f[b]*g);t?(n[b]=t.aabb,t.insideHole||(v+=n[b].z*n[b].w)):r+=q.z*q.w;k=Math.max(k,q.z);p=Math.max(p,q.w);x=Math.min(x,q.z)}h.usedArea=v;h.maxWidth=k;h.maxHeight=p;h.minWidth=x;if(0<r)return console.log("PackCharts (fail) time: "+(this.now()-l)/1E3+" (can't fit "+r+")"),h.notFitted=r,!1;for(b=0;b<n.length;b++)n[b].z>2*this.paddingUv&&n[b].w>2*this.paddingUv&&
-(n[b].x+=this.paddingUv,n[b].y+=this.paddingUv,n[b].z-=2*this.paddingUv,n[b].w-=2*this.paddingUv);a=[];for(b=0;b<e.length;b++)q={x:e[b].x,y:e[b].y,z:e[b].z,w:e[b].w},q.x=q.x*f[b]*g,q.y=q.y*f[b]*g,q.z=q.z*f[b]*g,q.w=q.w*f[b]*g,c=n[b].z/q.z,h=n[b].w/q.w,a.push({x:c,y:h,z:n[b].x-q.x*c,w:n[b].y-q.y*h});console.log("PackCharts (success) time: "+(this.now()-l)/1E3);return{scaleOffset:a,packedAabbs:n}},transformUv2:function(a,c,e,h){a.x=a.x*c*e;a.y=a.y*c*e;return this.transformUv(a,h)},finalTransformUv:function(a,
-c,e,h,d,f){var g,l,b,m,n,u={x:0,y:0},r={x:0,y:0},v={x:0,y:0},k=0,p=[];for(g=0;g<c.length;g++){chartTris=c[g];for(l=0;l<chartTris;l++)b=k+l,m=a[3*b],n=a[3*b+1],b=a[3*b+2],u.x=e[2*m],u.y=e[2*m+1],r.x=e[2*n],r.y=e[2*n+1],v.x=e[2*b],v.y=e[2*b+1],p[m]||this.transformUv2(u,h[g],d,f[g]),p[n]||this.transformUv2(r,h[g],d,f[g]),p[b]||this.transformUv2(v,h[g],d,f[g]),e[2*m]=u.x,e[2*m+1]=u.y,e[2*n]=r.x,e[2*n+1]=r.y,e[2*b]=v.x,e[2*b+1]=v.y,p[m]=!0,p[n]=!0,p[b]=!0;k+=chartTris}},totalObjectScale:function(a,c){for(var e=
-a.nodes[c].scale,h=e[0],d=e[1],e=e[2],f=a.parents[c],g;0<=f;)g=a.nodes[f].scale,h*=g[0],d*=g[1],e*=g[2],f=a.parents[f];return[h,d,e]},unwrapJsonModel:function(a,c,e,h){this.resolution=1024;this.padding=e;this.paddingUv=this.padding/this.resolution;this.fillHoles=h;var d,f,g,l,b;e=[];var m=[];h=[];var n=[],u=[],r=0,v,k,p,x=[],q=[],w,t;d=.025;b=[];for(d=0;d<a.model.meshInstances.length;d++)if(void 0===b[d])for(b[d]=-1,f=d+1;f<a.model.meshInstances.length;f++)a.model.meshInstances[d].mesh===a.model.meshInstances[f].mesh&&
-(b[d]=0,b[f]=1);for(d=0;d<a.model.meshInstances.length;d++){this.progress&&this.progress(d/a.model.meshInstances.length*30);if(this.cancel)return;b=a.model.meshInstances[d].mesh;f=a.model.meshInstances[d].node;k=a.model.meshes[b].vertices;g=a.model.meshes[b].indices;p=a.model.vertices[k];l=p.position.data;b=p.texCoord0?p.texCoord0.data:null;v=this.totalObjectScale(a.model,f);c&&(b=null);f={uv:b,append:[]};b||(f=this.boxUnwrap(g,l),b=f.uv);l=f.append;for(t in p)if("position"!==t&&p.hasOwnProperty(t)){var A=
-p[t].data,B=p[t].components;for(g=0;g<l.length;g++)for(f=0;f<B;f++)A.push(A[l[g]*B+f])}if(x[k])for(w in b)x[k][w]=b[w];else x[k]=b;q[k]=v}for(d=0;d<a.model.vertices.length;d++){p=a.model.vertices[d];l=p.position.data;b=x[d];v=q[d];u[d]=l.length/3;for(f=0;f<l.length/3;f++)m.push(l[3*f]*v[0]),m.push(l[3*f+1]*v[1]),m.push(l[3*f+2]*v[2]);for(f=0;f<b.length;f++)h.push(b[f]);n[d]=r;r+=l.length/3}for(d=0;d<a.model.meshInstances.length;d++)for(b=a.model.meshInstances[d].mesh,k=a.model.meshes[b].vertices,
-g=a.model.meshes[b].indices,f=0;f<g.length;f++)e.push(g[f]+n[k]);w=this.findCharts(e);c=this.calculateChartArea(e,w,m,h);m=this.normalizeCharts(e,w,c,h);r=1;if(!this.cancel){t=this.packCharts(e,w,c.aabbs,c,h,m,r);for(this.progress&&this.progress(30);!t;){if(this.cancel)return;r/=1+c.notFitted;console.log("divide "+r);t=this.packCharts(e,w,c.aabbs,c,h,m,r)}for(this.progress&&this.progress(50);;){if(this.cancel)return;console.log("Used area: "+c.usedArea);d=(1-c.usedArea)/5;t=r;r+=d;if(r===t)break;
-console.log("grow "+r);t=this.packCharts(e,w,c.aabbs,c,h,m,r);if(!t)break}this.progress&&this.progress(90);r-=d;t=this.packCharts(e,w,c.aabbs,c,h,m,r);d=t.scaleOffset;this.finalTransformUv(e,w,h,m,r,d);for(d=0;d<a.model.vertices.length;d++){b=[];for(f=0;f<2*u[d];f++)b.push(h[2*n[d]+f]);p=a.model.vertices[d];p.texCoord1={data:b,components:2,type:"float32"}}this.progress&&this.progress(100);return{packedAabbs:t.packedAabbs,totalArea:c.totalArea}}},calculateAreaOfJsonModel:function(a){var c,e,h,d,f,
-g,l,b,m,n,u,r,v,k,p=0;for(c=0;c<a.model.meshInstances.length;c++){d=a.model.meshInstances[c].mesh;f=a.model.meshInstances[c].node;h=a.model.meshes[d].vertices;d=a.model.meshes[d].indices;h=a.model.vertices[h];h=h.position.data;g=this.totalObjectScale(a.model,f);f=new Float32Array(h.length);l=h.length/3;for(e=0;e<l;e++)f[3*e]=h[3*e]*g[0],f[3*e+1]=h[3*e+1]*g[1],f[3*e+2]=h[3*e+2]*g[2];e=d.length/3;for(h=0;h<e;h++)b=d[3*h],m=d[3*h+1],n=d[3*h+2],g=f[3*b],l=f[3*b+1],b=f[3*b+2],u=f[3*m],r=f[3*m+1],m=f[3*
-m+2],v=f[3*n],k=f[3*n+1],n=f[3*n+2],p+=this.triangleArea(g,l,b,u,r,m,v,k,n)}return p}};
+Unwrap.prototype={now:performance.now&&performance.timing?function(){return performance.now()}:Date.now,swap:function(a,b,c){var f=a[b];a[b]=a[c];a[c]=f},crossNormalize:function(a,b){var c=a.y*b.z-a.z*b.y,f=a.z*b.x-a.x*b.z,d=a.x*b.y-a.y*b.x,e=Math.sqrt(c*c+f*f+d*d);return{x:c/e,y:f/e,z:d/e}},triNormal:function(a,b,c,f,d,e,g,k,h){a-=f;b-=d;c-=e;f-=g;d-=k;h=e-h;e=b*h-c*d;h=c*f-a*h;a=a*d-b*f;b=Math.sqrt(e*e+h*h+a*a);return{x:e/b,y:h/b,z:a/b}},cubeFaceFromNormal:function(a){var b=Math.abs(a.x),c=Math.abs(a.y),
+f=Math.abs(a.z);return b>=c&&b>=f?0>a.x?0:1:c>=b&&c>=f?0>a.y?2:3:0>a.z?4:5},boxUnwrap:function(a,b){this.now();var c=b.length/3,f,d,e,g,k,h,l,r,v,n=0,m;f=0;var q=[];for(m=0;6>m;m++)q[m]=[];for(m=0;m<a.length;m+=3)f=b[3*a[m]],d=b[3*a[m]+1],e=b[3*a[m]+2],g=b[3*a[m+1]],k=b[3*a[m+1]+1],h=b[3*a[m+1]+2],l=b[3*a[m+2]],r=b[3*a[m+2]+1],v=b[3*a[m+2]+2],f=this.triNormal(f,d,e,g,k,h,l,r,v),f=this.cubeFaceFromNormal(f),q[f].push(a[m]),q[f].push(a[m+1]),q[f].push(a[m+2]);for(m=1;6>m;m++);d=[];k=[];for(g=0;6>g;g++)for(f=
+g+1;6>f;f++)for(m=0;m<q[g].length;m++){d=[];for(j=0;j<q[f].length;j++)q[g][m]===q[f][j]&&d.push(j);if(0<d.length){for(j=0;j<d.length;j++)q[f][d[j]]=c;k.push(q[g][m]);c++;n++}}for(m=0;m<n;m++)b.push(b[3*k[m]]),b.push(b[3*k[m]+1]),b.push(b[3*k[m]+2]);c=[];n=[{x:-1,y:0,z:0},{x:1,y:0,z:0},{x:0,y:-1,z:0},{x:0,y:1,z:0},{x:0,y:0,z:-1},{x:0,y:0,z:1}];for(g=offset=0;6>g;g++)for(m=n[g],h=this.crossNormalize(m,.5<Math.abs(m.y)?{x:1,y:0,z:0}:{x:0,y:1,z:0}),l=this.crossNormalize(m,h),h=this.crossNormalize(m,l),
+m=0;m<q[g].length;m++)a[offset]=q[g][m],f=b[3*a[offset]],d=b[3*a[offset]+1],e=b[3*a[offset]+2],c[2*a[offset]]=h.x*f+h.y*d+h.z*e,c[2*a[offset]+1]=l.x*f+l.y*d+l.z*e,offset++;return{append:k,uv:c}},findCharts:function(a){this.now();var b,c,f,d=[],e=0,g;for(b=0;b<a.length;b++){f=3*Math.floor(b/3);e=Math.max(f,e);0===b%3&&(g=3);for(c=e;c<a.length;c++)a[b]===a[c]&&(c=3*Math.floor(c/3),this.swap(a,e,c),this.swap(a,e+1,c+1),this.swap(a,e+2,c+2),c+=2,e+=3,g--);2===b%3&&3>g&&(0<d.length&&d[d.length-1]>f?d[d.length-
+1]=e:d.push(e))}for(b=a=0;b<d.length;b++)d[b]=(d[b]-3*a)/3,a+=d[b];return d},triangleArea:function(a,b,c,f,d,e,g,k,h){f-=a;d-=b;e-=c;g-=a;k-=b;h-=c;a=d*h-e*k;e=e*g-f*h;f=f*k-d*g;return.5*Math.sqrt(a*a+e*e+f*f)},calculateChartArea:function(a,b,c,f){var d,e,g,k,h,l,r,v,n,m,q,t,p,x,w,u=0,A,B,E=[],F=[],H=0,I=0,y,z,C,D,G=[];for(d=0;d<b.length;d++){g=b[d];B=A=0;y=z=99999;C=D=-99999;for(e=0;e<g;e++)k=u+e,h=a[3*k],l=a[3*k+1],k=a[3*k+2],r=c[3*h],v=c[3*h+1],n=c[3*h+2],m=c[3*l],q=c[3*l+1],t=c[3*l+2],p=c[3*k],
+x=c[3*k+1],w=c[3*k+2],A+=this.triangleArea(r,v,n,m,q,t,p,x,w),r=f[2*h],h=f[2*h+1],v=f[2*l],l=f[2*l+1],n=f[2*k],k=f[2*k+1],B+=this.triangleArea(r,h,0,v,l,0,n,k,0),y=Math.min(y,r),y=Math.min(y,v),y=Math.min(y,n),z=Math.min(z,h),z=Math.min(z,l),z=Math.min(z,k),C=Math.max(C,r),C=Math.max(C,v),C=Math.max(C,n),D=Math.max(D,h),D=Math.max(D,l),D=Math.max(D,k);0===A&&(B=A=.01,C=y+.01,D=z+.01);isNaN(A)&&(B=A=.01,C=y+.01,D=z+.01);0===B&&(B=.01,C=y+.01,D=z+.01);H+=A;E.push(A);u+=g;G[d]={x:0,y:0,z:0,w:0};G[d].x=
+y;G[d].y=z;G[d].z=C-G[d].x;G[d].w=D-G[d].y;I+=B;F.push(B)}return{areas:E,areasT:F,totalArea:H,totalAreaT:I,aabbs:G}},normalizeCharts:function(a,b,c,f,d,e){a=c.areas;f=c.areasT;e=c.totalArea;var g=[];for(c=0;c<b.length;c++)d=.8*Math.sqrt(1/f[c]*(a[c]/e)),g.push(d);return g},fits:function(a,b){return a.z<=b.z&&a.w<=b.w},fitsExactly:function(a,b){return a.z===b.z&&a.w===b.w},findHoles:function(a,b,c,f,d,e,g,k){var h;c=Math.floor((a.aabb.z*this.resolution-2*this.padding)/4);var l=Math.floor((a.aabb.w*
+this.resolution-2*this.padding)/4);if(0>=c||0>=l||1E3<c||1E3<l)return[];var r=new Uint8Array(c*l),v=0;for(h=0;h<d.length&&h!==b;h++)v+=d[h];var n=d[b],m=g[b].x*k,q=g[b].y*k,t=g[b].z*k,p=g[b].w*k,x,w,u;for(h=0;h<n;h++){d=e[3*(v+h)];g=e[3*(v+h)+1];b=e[3*(v+h)+2];x=f[2*d]*k;w=f[2*d+1]*k;var A=f[2*g]*k,B=f[2*g+1]*k,E=f[2*b]*k,F=f[2*b+1]*k;x=(x-m)/t;A=(A-m)/t;E=(E-m)/t;w=(w-q)/p;B=(B-q)/p;F=(F-q)/p;g=b=99999;u=d=-99999;b=Math.min(b,x);b=Math.min(b,A);b=Math.min(b,E);g=Math.min(g,w);g=Math.min(g,B);g=Math.min(g,
+F);d=Math.max(d,x);d=Math.max(d,A);d=Math.max(d,E);u=Math.max(u,w);u=Math.max(u,B);u=Math.max(u,F);b*=c;d*=c;g*=l;u*=l;b=Math.floor(b)-this.padding;g=Math.floor(g)-this.padding;d=Math.floor(d)+this.padding;u=Math.floor(u)+this.padding;0>b&&(b=0);b>=c&&(b=c-1);0>g&&(g=0);g>=l&&(g=l-1);0>d&&(d=0);d>=c&&(d=c-1);0>u&&(u=0);u>=l&&(u=l-1);for(w=g;w<=u;w++)for(x=b;x<=d;x++)r[w*c+x]=255}b=Math.max(c,l);f=[r];h=c;d=l;e=[h];k=[d];for(g=0;8<b;){n=Math.floor(h/2);m=Math.floor(d/2);v=new Uint8Array(n*m);for(w=
+0;w<m;w++)for(x=0;x<n;x++){for(p=b=0;2>p;p++)for(t=0;2>t;t++)b=Math.max(b,f[g][(2*w+p)*h+(2*x+t)]);v[w*n+x]=b}b=Math.max(n,m);h=n;d=m;g++;f[g]=v;e[g]=n;k[g]=m}q=[];for(h=f.length-1;0<=h;h--)for(n=e[h],m=k[h],v=f[h],A=c/n,B=l/m,w=0;w<m;w++)for(x=0;x<n;x++)if(0===v[w*n+x]){g=Math.floor(x*A);u=Math.floor(w*B);d=b=g;g=u;for(var E=b,F=g,H=d,I=u,y=!0,z=0,C=!0;y;){if(0>b||0>g||d>c-1||u>l-1)y=!1;else for(p=g;p<=u;p++){for(t=b;t<=d;t++)if(0<r[p*c+t]){y=!1;break}if(!y)break}if(y)for(t=0;t<q.length;t++)if(!(q[t].maxx<
+b||q[t].minx>d||q[t].maxy<g||q[t].miny>u)){y=!1;break}if(!y){if(C)break;b=E;g=F;d=H;u=I;z++;if(6>z)y=!0;else break}C=!1;E=b;F=g;H=d;I=u;0===z?(g--,b--):1===z?(u++,d++):2===z?b--:3===z?g--:4===z?d++:5===z&&u++}C||q.push({minx:b,miny:g,maxx:d,maxy:u})}for(h=0;h<q.length;h++)r={x:0,y:0,z:0,w:0},r.x=q[h].minx/c*a.aabb.z+a.aabb.x,r.y=q[h].miny/l*a.aabb.w+a.aabb.y,r.z=(q[h].maxx-q[h].minx)/c*a.aabb.z,r.w=(q[h].maxy-q[h].miny)/l*a.aabb.w,q[h]={aabb:r,id:-1,child:[],leaf:!0,insideHole:!0};return q},insertToAtlas:function(a,
+b,c,f,d,e,g,k){if(a.leaf){if(0<=a.id||!this.fits(c,a.aabb))return null;if(this.fitsExactly(c,a.aabb))return a.id=b,this.fillHoles&&(b=this.findHoles(a,b,c,f,d,e,g,k),0<b.length&&(a.leaf=!1,a.child=b)),a;var h={x:0,y:0,z:0,w:0},l={x:0,y:0,z:0,w:0};a.aabb.z-c.z>a.aabb.w-c.w?(h.x=a.aabb.x,h.y=a.aabb.y,h.z=c.z,h.w=a.aabb.w,l.x=a.aabb.x+c.z,l.y=a.aabb.y,l.z=a.aabb.z-c.z,l.w=a.aabb.w):(h.x=a.aabb.x,h.y=a.aabb.y,h.z=a.aabb.z,h.w=c.w,l.x=a.aabb.x,l.y=a.aabb.y+c.w,l.z=a.aabb.z,l.w=a.aabb.w-c.w);a.leaf=!1;
+a.child=[];a.child[0]={aabb:h,id:-1,child:[],leaf:!0,test:!1};a.child[1]={aabb:l,id:-1,child:[],leaf:!0,test:!1};return this.insertToAtlas(a.child[0],b,c,f,d,e,g,k)}for(h=0;h<a.child.length;h++)if(l=this.insertToAtlas(a.child[h],b,c,f,d,e,g,k))return l;return null},transformUv:function(a,b){a.x=a.x*b.x+b.z;a.y=a.y*b.y+b.w},packCharts:function(a,b,c,f,d,e,g){this.now();var k,h={aabb:{x:0,y:0,z:1,w:1},id:-1,child:[],leaf:!0,test:!1},l=[],r=[];for(k=0;k<b.length;k++)r[k]=k;r.sort(function(a,b){return Math.max(c[b].z*
+e[b],c[b].w*e[b])-Math.max(c[a].z*e[a],c[a].w*e[a])});for(var v=0,n=0,m=0,q=0,t=99999,p,x=0;x<c.length;x++){k=r[x];p={x:c[k].x,y:c[k].y,z:c[k].z,w:c[k].w};p.x=p.x*e[k]*g;p.y=p.y*e[k]*g;p.z=p.z*e[k]*g;p.w=p.w*e[k]*g;p.z+=2*this.paddingUv;p.w+=2*this.paddingUv;var w=this.insertToAtlas(h,k,p,d,b,a,c,e[k]*g);w?(l[k]=w.aabb,w.insideHole||(n+=l[k].z*l[k].w)):v+=p.z*p.w;m=Math.max(m,p.z);q=Math.max(q,p.w);t=Math.min(t,p.z)}f.usedArea=n;f.maxWidth=m;f.maxHeight=q;f.minWidth=t;if(0<v)return f.notFitted=v,
+!1;for(k=0;k<l.length;k++)l[k].z>2*this.paddingUv&&l[k].w>2*this.paddingUv&&(l[k].x+=this.paddingUv,l[k].y+=this.paddingUv,l[k].z-=2*this.paddingUv,l[k].w-=2*this.paddingUv);a=[];for(k=0;k<c.length;k++)p={x:c[k].x,y:c[k].y,z:c[k].z,w:c[k].w},p.x=p.x*e[k]*g,p.y=p.y*e[k]*g,p.z=p.z*e[k]*g,p.w=p.w*e[k]*g,b=l[k].z/p.z,f=l[k].w/p.w,a.push({x:b,y:f,z:l[k].x-p.x*b,w:l[k].y-p.y*f});return{scaleOffset:a,packedAabbs:l}},transformUv2:function(a,b,c,f){a.x=a.x*b*c;a.y=a.y*b*c;return this.transformUv(a,f)},finalTransformUv:function(a,
+b,c,f,d,e){var g,k,h,l,r,v={x:0,y:0},n={x:0,y:0},m={x:0,y:0},q=0,t=[];for(g=0;g<b.length;g++){chartTris=b[g];for(k=0;k<chartTris;k++)h=q+k,l=a[3*h],r=a[3*h+1],h=a[3*h+2],v.x=c[2*l],v.y=c[2*l+1],n.x=c[2*r],n.y=c[2*r+1],m.x=c[2*h],m.y=c[2*h+1],t[l]||this.transformUv2(v,f[g],d,e[g]),t[r]||this.transformUv2(n,f[g],d,e[g]),t[h]||this.transformUv2(m,f[g],d,e[g]),c[2*l]=v.x,c[2*l+1]=v.y,c[2*r]=n.x,c[2*r+1]=n.y,c[2*h]=m.x,c[2*h+1]=m.y,t[l]=!0,t[r]=!0,t[h]=!0;q+=chartTris}},totalObjectScale:function(a,b){for(var c=
+a.nodes[b].scale,f=c[0],d=c[1],c=c[2],e=a.parents[b],g;0<=e;)g=a.nodes[e].scale,f*=g[0],d*=g[1],c*=g[2],e=a.parents[e];return[f,d,c]},unwrapJsonModel:function(a,b,c,f){this.resolution=1024;this.padding=c;this.paddingUv=this.padding/this.resolution;this.fillHoles=f;var d,e,g,k,h;c=[];var l=[];f=[];var r=[],v=[],n=0,m,q,t,p=[],x=[],w,u;d=.025;h=[];for(d=0;d<a.model.meshInstances.length;d++)if(void 0===h[d])for(h[d]=-1,e=d+1;e<a.model.meshInstances.length;e++)a.model.meshInstances[d].mesh===a.model.meshInstances[e].mesh&&
+(h[d]=0,h[e]=1);for(d=0;d<a.model.meshInstances.length;d++){this.progress&&this.progress(d/a.model.meshInstances.length*30);if(this.cancel)return;h=a.model.meshInstances[d].mesh;e=a.model.meshInstances[d].node;q=a.model.meshes[h].vertices;g=a.model.meshes[h].indices;t=a.model.vertices[q];k=t.position.data;h=t.texCoord0?t.texCoord0.data:null;m=this.totalObjectScale(a.model,e);b&&(h=null);e={uv:h,append:[]};h||(e=this.boxUnwrap(g,k),h=e.uv);k=e.append;for(u in t)if("position"!==u&&t.hasOwnProperty(u)){var A=
+t[u].data,B=t[u].components;for(g=0;g<k.length;g++)for(e=0;e<B;e++)A.push(A[k[g]*B+e])}if(p[q])for(w in h)p[q][w]=h[w];else p[q]=h;x[q]=m}for(d=0;d<a.model.vertices.length;d++){t=a.model.vertices[d];k=t.position.data;h=p[d];m=x[d];v[d]=k.length/3;for(e=0;e<k.length/3;e++)l.push(k[3*e]*m[0]),l.push(k[3*e+1]*m[1]),l.push(k[3*e+2]*m[2]);for(e=0;e<h.length;e++)f.push(h[e]);r[d]=n;n+=k.length/3}for(d=0;d<a.model.meshInstances.length;d++)for(h=a.model.meshInstances[d].mesh,q=a.model.meshes[h].vertices,
+g=a.model.meshes[h].indices,e=0;e<g.length;e++)c.push(g[e]+r[q]);w=this.findCharts(c);b=this.calculateChartArea(c,w,l,f);l=this.normalizeCharts(c,w,b,f);n=1;if(!this.cancel){u=this.packCharts(c,w,b.aabbs,b,f,l,n);for(this.progress&&this.progress(30);!u;){if(this.cancel)return;n/=1+b.notFitted;u=this.packCharts(c,w,b.aabbs,b,f,l,n)}for(this.progress&&this.progress(50);;){if(this.cancel)return;d=(1-b.usedArea)/5;u=n;n+=d;if(n===u)break;u=this.packCharts(c,w,b.aabbs,b,f,l,n);if(!u)break}this.progress&&
+this.progress(90);n-=d;u=this.packCharts(c,w,b.aabbs,b,f,l,n);d=u.scaleOffset;this.finalTransformUv(c,w,f,l,n,d);for(d=0;d<a.model.vertices.length;d++){h=[];for(e=0;e<2*v[d];e++)h.push(f[2*r[d]+e]);t=a.model.vertices[d];t.texCoord1={data:h,components:2,type:"float32"}}this.progress&&this.progress(100);return{packedAabbs:u.packedAabbs,totalArea:b.totalArea}}},calculateAreaOfJsonModel:function(a){var b,c,f,d,e,g,k,h,l,r,v,n,m,q,t=0;for(b=0;b<a.model.meshInstances.length;b++){d=a.model.meshInstances[b].mesh;
+e=a.model.meshInstances[b].node;f=a.model.meshes[d].vertices;d=a.model.meshes[d].indices;f=a.model.vertices[f];f=f.position.data;g=this.totalObjectScale(a.model,e);e=new Float32Array(f.length);k=f.length/3;for(c=0;c<k;c++)e[3*c]=f[3*c]*g[0],e[3*c+1]=f[3*c+1]*g[1],e[3*c+2]=f[3*c+2]*g[2];c=d.length/3;for(f=0;f<c;f++)h=d[3*f],l=d[3*f+1],r=d[3*f+2],g=e[3*h],k=e[3*h+1],h=e[3*h+2],v=e[3*l],n=e[3*l+1],l=e[3*l+2],m=e[3*r],q=e[3*r+1],r=e[3*r+2],t+=this.triangleArea(g,k,h,v,n,l,m,q,r)}return t},calculateUv1AreaOfJsonModel:function(a){var b,
+c,f,d,e,g,k,h,l,r,v,n=0;for(b=0;b<a.model.meshInstances.length;b++)for(f=a.model.meshInstances[b].mesh,c=a.model.meshes[f].vertices,f=a.model.meshes[f].indices,c=a.model.vertices[c],d=c.texCoord1.data,e=f.length/3,c=0;c<e;c++)g=f[3*c],k=f[3*c+1],h=f[3*c+2],l=d[2*g],g=d[2*g+1],r=d[2*k],k=d[2*k+1],v=d[2*h],h=d[2*h+1],n+=this.triangleArea(l,g,0,r,k,0,v,h,0);return n},calculateMultiAreaOfJsonModel:function(a){var b,c,f,d,e,g,k,h,l,r,v,n,m,q,t,p={x:0,y:0,z:0};for(b=0;b<a.model.meshInstances.length;b++){d=
+a.model.meshInstances[b].mesh;e=a.model.meshInstances[b].node;f=a.model.meshes[d].vertices;d=a.model.meshes[d].indices;f=a.model.vertices[f];f=f.position.data;g=this.totalObjectScale(a.model,e);e=new Float32Array(f.length);k=f.length/3;for(c=0;c<k;c++)e[3*c]=f[3*c]*g[0],e[3*c+1]=f[3*c+1]*g[1],e[3*c+2]=f[3*c+2]*g[2];c=d.length/3;for(f=0;f<c;f++)h=d[3*f],l=d[3*f+1],r=d[3*f+2],g=e[3*h],k=e[3*h+1],h=e[3*h+2],v=e[3*l],n=e[3*l+1],l=e[3*l+2],m=e[3*r],q=e[3*r+1],t=e[3*r+2],r=this.triNormal(g,k,h,v,n,l,m,
+q,t),g=this.triangleArea(g,k,h,v,n,l,m,q,t),0<g&&(p.x+=g*Math.abs(r.x),p.y+=g*Math.abs(r.y),p.z+=g*Math.abs(r.z))}return p}};

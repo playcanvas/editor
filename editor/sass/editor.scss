@@ -804,14 +804,20 @@ strong {
                         @extend .noSelect;
                     }
                 }
+            }
+        }
+        &.field-number, &.field {
+            > .content {
                 > .ui-button.generate-uv1 {
-                    margin: 0;
                     height: 22px;
                     line-height: 22px;
                     font-size: 12px;
                     text-transform: uppercase;
-                    margin-right: 3px;
-                    margin-top: 2px;
+                }
+                > .ui-progress.field-progress {
+                    width: 100%;
+                    height: 8px;
+                    margin: 11px 3px 0 3px;
                 }
             }
         }

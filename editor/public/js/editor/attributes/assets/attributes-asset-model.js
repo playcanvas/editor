@@ -44,7 +44,7 @@ editor.once('load', function() {
         var nodesTemplate;
         if (assets.length === 1 && assets[0]._loading && assets[0]._hash !== assets[0].get('file.hash')) {
             assets[0]._loading = 0;
-            assets[0]._uv1 = false;
+            // assets[0]._uv1 = false;
             assets[0]._nodes = null;
         }
 
@@ -56,7 +56,7 @@ editor.once('load', function() {
 
             assets[0]._hash = assets[0].get('file.hash');
             assets[0]._loading = 1;
-            assets[0]._uv1 = false;
+            // assets[0]._uv1 = false;
             assets[0]._nodes = null;
             loading.hidden = false;
 
@@ -65,10 +65,7 @@ editor.once('load', function() {
             .on('load', function(status, data) {
                 assets[0]._loading = 2;
 
-                assets[0]._uv1 = data.model.vertices[0] && data.model.vertices[0].hasOwnProperty('texCoord1');
-                fieldUV1.value = assets[0]._uv1 ? 'available' : 'unavailable';
                 autoUnwrap.enabled = true;
-                calculateArea.enabled = true;
 
                 assets[0]._nodes = [ ];
                 for(var i = 0; i < data.model.meshInstances.length; i++)
@@ -305,7 +302,7 @@ editor.once('load', function() {
 
         var uv1Options = [ 'unavailable', 'available', 'various' ];
         var checkUV1 = function() {
-            var uv1 = assets[0].get('meta.attributes.texCoord1') ? 1 : 0;
+            var uv1 = assets[0].has('meta.attributes.texCoord1') ? 1 : 0;
             for(var i = 1; i < assets.length; i++) {
                 var t1 = assets[i].get('meta.attributes.texCoord1');
 
@@ -328,6 +325,21 @@ editor.once('load', function() {
             events.push(assets[i].on('meta.attributes.texCoord1:unset', checkUV1));
         }
 
+        // padding
+        var fieldPadding = editor.call('attributes:addField', {
+            parent: panelPipeline,
+            name: 'Padding',
+            type: 'number',
+            value: 2.0,
+            precision: 2
+        });
+        fieldPadding.style.width = '32px';
+
+        // TODO
+        // estimate good padding
+        // padding = (2 / getResolutionFromArea(assetArea)) * 1024
+
+        // unwrap
         var autoUnwrap = new ui.Button({
             text: 'Auto-Unwrap'
         });
@@ -335,55 +347,67 @@ editor.once('load', function() {
             if (! editor.call('permissions:write'))
                 return;
 
-            for(var i = 0; i < assets.length; i++)
-                editor.call('assets:model:unwrap', assets[i]);
+            for(var i = 0; i < assets.length; i++) {
+                editor.call('assets:model:unwrap', assets[i], {
+                    padding: fieldPadding.value
+                });
+            }
 
-            autoUnwrap.enabled = false;
+            unwrapState();
         });
         autoUnwrap.class.add('generate-uv1');
-        fieldUV1.parent.append(autoUnwrap);
+        fieldPadding.parent.append(autoUnwrap);
 
-        // area
-        var fieldArea = editor.call('attributes:addField', {
+        // unwrap progress
+        var fieldUnwrapProgress = editor.call('attributes:addField', {
             parent: panelPipeline,
-            name: 'Area'
+            name: 'Unwrapping',
         });
-        var recalculateArea = function() {
-            var value = 0;
-            var noValue = true;
-            for(var i = 0; i < assets.length; i++) {
-                if (! assets[i].has('data.area'))
-                    continue;
-                value += assets[i].get('data.area');
-                noValue = false;
-            }
-            fieldArea.value = noValue ? 'unknown' : value.toLocaleString();
+        var field = fieldUnwrapProgress;
+        fieldUnwrapProgress = fieldUnwrapProgress.parent;
+        field.destroy();
+        fieldUnwrapProgress.hidden = editor.call('assets:model:unwrapping', assets[0])
 
-            calculateArea.enabled = true;
-        };
-        for(var i = 0; i < assets.length; i++) {
-            events.push(assets[i].on('data.area:set', recalculateArea));
-            events.push(assets[i].on('data.area:unset', recalculateArea));
-        }
+        // unwrap progress
+        var progressUnwrap = new ui.Progress();
+        progressUnwrap.class.add('field-progress');
+        fieldUnwrapProgress.append(progressUnwrap);
 
-        var calculateArea = new ui.Button({
-            text: 'Recalculate'
+        // unwrap cancel
+        var autoUnwrapCancel = new ui.Button({
+            text: 'Cancel'
         });
-        calculateArea.on('click', function() {
+        autoUnwrapCancel.on('click', function() {
             if (! editor.call('permissions:write'))
                 return;
 
             for(var i = 0; i < assets.length; i++)
-                editor.call('assets:model:area', assets[i], function() {
-                    calculateArea.enabled = true;
-                });
+                editor.call('assets:model:unwrap:cancel', assets[i]);
 
-            calculateArea.enabled = false;
+            unwrapState();
         });
-        calculateArea.class.add('generate-uv1');
-        fieldArea.parent.append(calculateArea);
+        autoUnwrapCancel.class.add('generate-uv1');
+        fieldUnwrapProgress.append(autoUnwrapCancel);
 
-        recalculateArea();
+        var unwrapState = function() {
+            var worker = editor.call('assets:model:unwrapping', assets[0]);
+            fieldUnwrapProgress.hidden = ! worker;
+            fieldPadding.parent.hidden = ! fieldUnwrapProgress.hidden;
+
+            if (worker)
+                progressUnwrap.progress = worker.progress / 100;
+        };
+        unwrapState();
+
+        events.push(editor.on('assets:model:unwrap', function(asset) {
+            if (assets.indexOf(asset) === -1)
+                return;
+
+            unwrapState();
+        }));
+        events.push(editor.on('assets:model:unwrap:progress:' + assets[0].get('id'), function(progress) {
+            progressUnwrap.progress = progress / 100;
+        }));
 
 
         if (assets.length === 1 && assets[0].has('data.mapping') && assets[0].get('data.mapping').length) {
@@ -522,8 +546,6 @@ editor.once('load', function() {
             if (assets[0]._nodes)
                 // already loaded
                 nodesTemplate();
-
-            return panelNodes;
         }
 
         panelMeta.once('destroy', function() {

@@ -530,7 +530,7 @@ editor.once('load', function() {
                 return ! config.owner.superUser;
             },
             select: function() {
-                editor.call('viewport:framework').lightMapper.bake();
+                editor.call('lightmapper:bake');
             }
         },
         'settings': {

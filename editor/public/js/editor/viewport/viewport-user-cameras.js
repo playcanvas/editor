@@ -152,14 +152,14 @@ editor.once('load', function() {
         // add user camera
         var camera = cameras[userId] = new pc.Entity(app);
         camera.addComponent('model', {
-            lightMapCast: false
+            castShadowsLightmap: false
         });
         camera.model.model = cameraModel.clone();
         container.addChild(camera);
 
         var cameraInner = new pc.Entity(app);
         cameraInner.addComponent('model', {
-            lightMapCast: false
+            castShadowsLightmap: false
         });
         cameraInner.model.model = cameraModel.clone();
         cameraInner.model.model.meshInstances[0].material = materialBehind;
@@ -169,7 +169,7 @@ editor.once('load', function() {
         cameraQuad._userCamera = userId;
         cameraQuad.addComponent('model', {
             type: 'plane',
-            lightMapCast: false
+            castShadowsLightmap: false
         });
         cameraQuad.model.material = materialQuad;
         cameraQuad.rotate(90, 0, 0);
