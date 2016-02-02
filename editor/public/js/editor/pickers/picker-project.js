@@ -25,6 +25,48 @@ editor.once('load', function () {
     projectImg.src = config.project.image;
     leftPanel.append(projectImg);
 
+    // hidden file input to upload project image
+    var fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+
+    var uploadingImage = false;
+
+    projectImg.addEventListener('click', function () {
+        if (! editor.call('permissions:write'))
+            return;
+
+        fileInput.click();
+    });
+
+    fileInput.addEventListener('change', function () {
+        if (! editor.call('permissions:write'))
+            return;
+
+        if (uploadingImage)
+            return;
+
+        uploadingImage = true;
+
+        var file = fileInput.files[0];
+        fileInput.value = null;
+
+
+        editor.call('images:upload', file, function (data) {
+            editor.call('project:save', {image_url: data.url}, function () {
+                uploadingImage = false;
+
+            }, function () {
+                // error
+                uploadingImage = false;
+
+            });
+        }, function (status, data) {
+            // error
+            uploadingImage = false;
+        });
+    });
+
     // project info
     var info = document.createElement('div');
     info.classList.add('info');
@@ -121,6 +163,12 @@ editor.once('load', function () {
     // handle show
     overlay.on('show', function () {
         window.addEventListener('keydown', onKeyDown);
+
+        if (editor.call('permissions:write')) {
+            projectImg.classList.add('hover');
+        } else {
+            projectImg.classList.remove('hover');
+        }
     });
 
     // handle hide
@@ -166,5 +214,12 @@ editor.once('load', function () {
         rightPanel.headerElementTitle.textContent = menuOptions[name].title;
         rightPanel.innerElement.scrollTop = 0;
     };
+
+    // subscribe to project image
+    editor.on('messenger:project.image', function (data) {
+        config.project.image = data.project.thumbnails.m;
+        projectImg.src = data.project.thumbnails.m;
+    });
+
 
 });

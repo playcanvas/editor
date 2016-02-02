@@ -4543,6 +4543,10 @@ strong {
                             height: 187px;
                             border-top: 1px solid $border-primary;
                             border-bottom: 1px solid $border-primary;
+
+                            &.hover:hover {
+                                cursor: pointer;
+                            }
                         }
 
                         .info {
