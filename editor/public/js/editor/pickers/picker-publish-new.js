@@ -210,6 +210,10 @@ editor.once('load', function () {
     selectAll.class.add('tick');
     panelScenes.append(selectAll);
 
+    label = new ui.Label({text: 'Select all'});
+    panelScenes.append(label);
+    label.class.add('select-all');
+
     // scenes container
     var container = new ui.List();
     container.class.add('scene-list');

@@ -5051,6 +5051,12 @@ strong {
                     > .ui-checkbox {
                         float: right;
                         margin: 0;
+                        margin-top: 2px;
+                    }
+
+                    > .ui-label.select-all {
+                        float: right;
+                        padding-right: 10px;
                     }
 
                     > .ui-list {
