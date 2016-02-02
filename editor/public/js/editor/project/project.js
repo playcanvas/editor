@@ -21,8 +21,7 @@ editor.once('load', function() {
             primary_pack: config.project.primaryScene
         }, success, function (err) {
             config.project.primaryScene = prevPrimary;
-            if (error)
-                error(err);
+            error(err);
         });
     });
 
@@ -42,8 +41,7 @@ editor.once('load', function() {
             primary_app: config.project.primaryApp
         }, success, function (err) {
             config.project.primaryApp = prevPrimary;
-            if (error)
-                error(err);
+            error(err);
         });
     });
 
