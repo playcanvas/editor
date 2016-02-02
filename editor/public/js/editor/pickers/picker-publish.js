@@ -213,9 +213,10 @@ editor.once('load', function () {
         }));
 
         // primary icon tooltip
+        var tooltipText = config.project.primaryApp === app.id ? 'Primary build' : 'Change the projects\'s primary build';
         var tooltip = Tooltip.attach({
             target: primary.element,
-            text: 'Change the projects\'s primary build.',
+            text: tooltipText,
             align: 'right',
             root: editor.call('layout.root')
         });

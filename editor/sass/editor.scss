@@ -4701,15 +4701,6 @@ strong {
             position: relative;
             border-bottom: 1px solid $border-primary;
 
-            &:not(.current):not(.disabled):hover {
-                background-color: #414f52;
-                cursor: pointer;
-
-                > .name {
-                    color: $text-active;
-                }
-            }
-
             &.selected {
                 background-color: transparent;
             }
@@ -4754,21 +4745,37 @@ strong {
 
             &.primary > .primary {
                 color: $text-active;
+
+                &:hover {
+                    color: $text-active;
+                    cursor: default;
+                }
             }
 
-            &.current:after {
-                @extend .font-bold;
-                content: 'CURRENT';
-                position: absolute;
-                top: 24px;
-                right: 40px;
-                line-height: 16px;
-                text-align: center;
-                height: 16px;
-                width: 55px;
-                color: $bcg-primary;
-                background-color: $text-active;
-                font-size: 10px;
+            &:not(.current):not(.disabled):hover {
+                background-color: #414f52;
+                cursor: pointer;
+
+                > .name {
+                    color: $text-active;
+                }
+            }
+
+            &.current {
+                &:after {
+                    @extend .font-bold;
+                    content: 'CURRENT';
+                    position: absolute;
+                    top: 24px;
+                    right: 40px;
+                    line-height: 16px;
+                    text-align: center;
+                    height: 16px;
+                    width: 55px;
+                    color: $bcg-primary;
+                    background-color: $text-active;
+                    font-size: 10px;
+                }
             }
 
             > .date {
@@ -5349,6 +5356,11 @@ strong {
 
                 &.primary > .primary {
                     color: $text-active;
+
+                    &:hover {
+                        color: $text-active;
+                        cursor: default;
+                    }
                 }
 
                 > .status {

@@ -478,9 +478,10 @@ editor.once('load', function () {
         });
 
         // show tooltip for primary scene icon
+        var tooltipText = parseInt(scene.id, 10) === parseInt(config.project.primaryScene, 10) ? 'Primary Scene' : 'Set Primary Scene';
         var tooltip = Tooltip.attach({
             target: primary.element,
-            text: 'Set primary scene',
+            text: tooltipText,
             align: 'right',
             root: editor.call('layout.root')
         });
