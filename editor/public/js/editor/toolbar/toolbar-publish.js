@@ -6,7 +6,7 @@ editor.once('load', function() {
     var button = new ui.Button({
         text: '&#57911;'
     });
-    button.class.add('pc-icon', 'publish');
+    button.class.add('pc-icon');
     toolbar.append(button);
 
     button.on('click', function() {
