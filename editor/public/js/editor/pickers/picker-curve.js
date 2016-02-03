@@ -1114,8 +1114,18 @@ editor.once('load', function() {
             for (var index in changedCurves) {
                 var curve = curves[parseInt(index)];
                 if (curve) {
+                    var val = serializeCurveKeys(curve);
                     paths.push(getKeysPath(curve));
-                    values.push(serializeCurveKeys(curve));
+                    values.push(val.slice(0));
+
+                    // if randomize is false set secondary graph the same as the first
+                    if (! betweenCurves) {
+                        var other = getOtherCurve(curve);
+                        if (other) {
+                            paths.push(getKeysPath(other));
+                            values.push(val);
+                        }
+                    }
                 }
             }
 
@@ -1186,7 +1196,19 @@ editor.once('load', function() {
     }
 
     function onCurveKeysChanged (curve) {
-        editor.emit('picker:curve:change', [getKeysPath(curve)], [serializeCurveKeys(curve)]);
+        var paths = [getKeysPath(curve)];
+        var values = [serializeCurveKeys(curve)];
+
+        // if randomize is false set secondary graph the same as the first
+        if (! betweenCurves) {
+            var other = getOtherCurve(curve);
+            if (other) {
+                paths.push(getKeysPath(other));
+                values.push(values[0].slice(0));
+            }
+        }
+
+        editor.emit('picker:curve:change', paths, values);
     }
 
     // Make the specified curve appear in front of the others
@@ -1425,7 +1447,7 @@ editor.once('load', function() {
             } else {
                 // if we are hovered over a graph or an anchor then select it
                 setSelected(hoveredCurve, hoveredAnchor);
-                editor.emit('picker:curve:change', [getKeysPath(selectedCurve)], [serializeCurveKeys(selectedCurve)]);
+                onCurveKeysChanged(selectedCurve);
             }
         } else if (e.button === 2) {
             if (! dragging) {
