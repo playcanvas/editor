@@ -231,7 +231,7 @@ editor.once('load', function () {
 
         if (app.task.status === 'complete') {
             img = new Image();
-            img.src = app.thumbnails ? app.thumbnails.s : config.project.image;
+            img.src = app.thumbnails ? app.thumbnails.s : (config.project.thumbnails.s || config.url.static + '/platform/images/common/blank_project.png');
             status.appendChild(img);
         } else if (app.task.status === 'running') {
             img = new Image();

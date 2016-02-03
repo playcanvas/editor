@@ -29,10 +29,16 @@ editor.once('load', function () {
     imageField.classList.add('image');
     panelInfo.append(imageField);
 
+    var blankImage = config.url.static + '/platform/images/common/blank_project.png';
+
     var clearAppImage = function () {
         imageField.classList.remove('progress');
-        imageField.classList.add('blank');
-        imageField.style.backgroundImage = 'url("' + config.url.static + '/platform/images/common/blank_project.png' + '")';
+        if (config.project.thumbnails.m) {
+            imageField.style.backgroundImage = 'url("' + config.project.thumbnails.m + '")';
+        } else {
+            imageField.classList.add('blank');
+            imageField.style.backgroundImage = 'url("' + blankImage + '")';
+        }
     };
 
     var setAppImage = function (url) {
@@ -606,10 +612,17 @@ editor.once('load', function () {
     panel.on('show', function () {
         panelDownloadProgress.hidden = true;
         container.element.innerHTML = '';
-        inputName.value = '';
-        inputDescription.value = '';
+        inputName.value = config.project.name;
+        inputDescription.value = config.project.description;
         inputVersion.value = '';
         inputNotes.value = '';
+        imageS3Key = null;
+        if (config.project.thumbnails.xl) {
+            imageS3Key = config.project.thumbnails.xl.substring(config.url.images.length + 1);
+        }
+
+        clearAppImage();
+
         editor.call('scenes:list', function (items) {
             scenes = items;
             // select primary scene
@@ -634,7 +647,6 @@ editor.once('load', function () {
         selectedScenes = [];
         urlToDownload = null;
         jobInProgress = false;
-        clearAppImage();
         destroyTooltips();
         destroyEvents();
     });
