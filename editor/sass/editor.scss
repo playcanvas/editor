@@ -4601,9 +4601,7 @@ strong {
                                 text-transform: uppercase;
                                 font-size: 12px;
                                 @extend .font-bold;
-                                -webkit-font-smoothing: antialiased;
-                                -moz-osx-font-smoothing: grayscale;
-                                font-smoothing: antialiased;
+                                @extend .font-smooth;
 
                                 &:hover, &.active {
                                     color: $text-primary;
@@ -4878,10 +4876,13 @@ strong {
         > .new {
             margin: 15px 0 15px 10px;
             padding: 0;
-            width: 175px;
+            width: 165px;
             height: 34px;
             line-height: 34px;
             font-size: 12px;
+            text-transform: uppercase;
+            @extend .font-bold;
+            @extend .font-smooth;
 
             &:before {
                 @extend .font-icon;
@@ -4890,7 +4891,7 @@ strong {
                 color: $text-secondary;
                 vertical-align: top;
                 padding-right: 10px;
-                padding-left: 30px;
+                padding-left: 20px;
             }
 
             &:not(.disabled):hover:before {
@@ -4976,6 +4977,9 @@ strong {
             height: 34px;
             line-height: 34px;
             font-size: 12px;
+            text-transform: uppercase;
+            @extend .font-bold;
+            @extend .font-smooth;
 
             &:before {
                 @extend .font-icon;
@@ -4983,7 +4987,7 @@ strong {
                 color: $text-secondary;
                 vertical-align: top;
                 padding-right: 10px;
-                padding-left: 30px;
+                padding-left: 20px;
             }
 
             &:not(.disabled):hover:before {
@@ -5228,6 +5232,9 @@ strong {
                     font-size: 12px;
                     line-height: 34px;
                     color: $text-primary;
+                    text-transform: uppercase;
+                    @extend .font-bold;
+                    @extend .font-smooth;
 
                     &:before {
                         @extend .font-icon;
@@ -5235,7 +5242,7 @@ strong {
                         content: '\E245';
                         vertical-align: top;
                         padding-right: 10px;
-                        padding-left: 15px;
+                        padding-left: 10px;
                     }
 
                     &:hover {
@@ -5273,6 +5280,9 @@ strong {
             height: 34px;
             line-height: 34px;
             font-size: 12px;
+            text-transform: uppercase;
+            @extend .font-bold;
+            @extend .font-smooth;
 
             &:before {
                 @extend .font-icon;
@@ -5280,7 +5290,7 @@ strong {
                 color: $text-secondary;
                 vertical-align: top;
                 padding-right: 10px;
-                padding-left: 70px;
+                padding-left: 60px;
             }
 
             &:not(.disabled):hover:before {
@@ -5296,7 +5306,8 @@ strong {
 
         .ui-button.publish {
             &:before {
-                content: '\E226'
+                content: '\E226';
+                padding-left: 70px;
             }
         }
 
