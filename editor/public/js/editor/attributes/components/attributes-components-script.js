@@ -476,7 +476,12 @@ editor.once('load', function() {
                     reference: reference
                 };
 
-                if (attribute.type === 'curve' || attribute.type === 'colorcurve') {
+                if (attribute.type === 'number') {
+                    if (attribute.options && attribute.options.step) {
+                        args.step = attribute.options.step;
+                        console.log('step yes')
+                    }
+                } else if (attribute.type === 'curve' || attribute.type === 'colorcurve') {
                     // find entity of first script
                     var firstEntity = scripts[0]._parent;
                     while (firstEntity._parent) {
