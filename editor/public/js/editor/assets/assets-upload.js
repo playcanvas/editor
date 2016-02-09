@@ -106,7 +106,7 @@ editor.once('load', function() {
         editor.call('status:job', 'asset-upload:' + job, 0);
 
         var data = {
-            url: '/editor/project/{{project.id}}/asset-upload',
+            url: '/editor/project/{{project.id}}/upload/asset',
             method: 'POST',
             query: {
                 'access_token': '{{accessToken}}'

@@ -213,46 +213,127 @@ editor.once('load', function() {
     };
 
     // duplicate entity
-    editor.method('entities:duplicate', function (entity) {
-        var resourceId = entity.get('resource_id');
-        var parentId = childToParent[resourceId];
-        var parent = editor.call('entities:get', parentId);
+    editor.method('entities:duplicate', function (entities) {
+        var root = editor.call('entities:root');
+        var items = entities.slice(0);
+        var entitiesNew = [ ];
+        var entitiesNewData = [ ];
+        var entitiesNewMeta = { };
+        var ids = { };
 
-        var ind = parent.get('children').indexOf(resourceId);
+        // make sure not duplicating root
+        if (items.indexOf(root) !== -1)
+            return;
 
-        var entityNew = duplicateEntity(entity, parent, ind + 1);
-        var data = entityNew.json();
+        // build entities index
+        for(var i = 0; i < items.length; i++) {
+            var id = items[i].get('resource_id');
 
-        var selectorType = editor.call('selector:type');
-        var selectorItems = editor.call('selector:items');
-        if (selectorType === 'entity') {
-            for(var i = 0; i < selectorItems.length; i++)
-                selectorItems[i] = selectorItems[i].get('resource_id');
+            ids[id] = {
+                id: id,
+                entity: items[i],
+                parentId: childToParent[id],
+                ind: editor.call('entities:get', childToParent[id]).get('children').indexOf(id)
+            };
         }
 
+        // filter children off
+        var i = items.length;
+        while(i--) {
+            var item = ids[items[i].get('resource_id')];
+            var parentId = item.parentId;
+
+            while(parentId && parentId !== root.get('resource_id')) {
+                if (ids[parentId]) {
+                    items.splice(i, 1);
+                    delete ids[item.id];
+                    break;
+                }
+                parentId = childToParent[parentId];
+            }
+        }
+
+        // sort by order index within parent
+        items.sort(function(a, b) {
+            return ids[b.get('resource_id')].ind - ids[a.get('resource_id')].ind;
+        });
+
+        // remember current selection
+        var selectorType = editor.call('selector:type');
+        var selectorItems = editor.call('selector:items');
+        for(var i = 0; i < selectorItems.length; i++) {
+            var item = selectorItems[i];
+            if (selectorType === 'entity') {
+                selectorItems[i] = {
+                    type: 'entity',
+                    id: item.get('resource_id')
+                };
+            } else if (selectorType === 'asset') {
+                selectorItems[i] = { };
+                if (selectorItems[i].get('type') === 'script') {
+                    selectorItems[i].type = 'script';
+                    selectorItems[i].id = item.get('filename');
+                } else {
+                    selectorItems[i].type = 'asset';
+                    selectorItems[i].id = item.get('id');
+                }
+            }
+        }
+
+        // duplicate
+        for(var i = 0; i < items.length; i++) {
+            var entity = items[i];
+            var id = entity.get('resource_id');
+            var parent = editor.call('entities:get', childToParent[id]);
+            var entityNew = duplicateEntity(entity, parent, ids[id].ind + 1);
+            entitiesNew.push(entityNew);
+            entitiesNewData.push(entityNew.json());
+            entitiesNewMeta[entityNew.get('resource_id')] = {
+                parentId: childToParent[id],
+                ind: ids[id].ind
+            };
+        }
+
+        // set new selection
         setTimeout(function() {
             editor.call('selector:history', false);
-            editor.call('selector:set', 'entity', [ entityNew ]);
+            editor.call('selector:set', 'entity', entitiesNew);
             editor.once('selector:change', function() {
                 editor.call('selector:history', true);
             });
         }, 0);
 
+        // add history action
         editor.call('history:add', {
-            name: 'duplicate entity ' + resourceId,
+            name: 'duplicate entities',
             undo: function() {
-                var entity = editor.call('entities:get', data.resource_id);
-                if (! entity)
-                    return;
+                // remove duplicated entities
+                for(var i = 0; i < entitiesNewData.length; i++) {
+                    var entity = editor.call('entities:get', entitiesNewData[i].resource_id);
+                    if (! entity)
+                        continue;
 
-                removeEntity(entity);
+                    removeEntity(entity);
+                }
 
-                if (selectorType === 'entity' && selectorItems.length) {
+                // restore selection
+                if (selectorType) {
                     var items = [ ];
                     for(var i = 0; i < selectorItems.length; i++) {
-                        var item = editor.call('entities:get', selectorItems[i]);
-                        if (item)
-                            items.push(item);
+                        var item;
+
+                        if (selectorItems[i].type === 'entity') {
+                            item = editor.call('entities:get', selectorItems[i].id);
+                        } else if (selectorItems[i].type === 'asset') {
+                            item = editor.call('assets:get', selectorItems[i].id);
+                        } else if (selectorItems[i].type === 'script') {
+                            item = editor.call('sourcefiles:get', selectorItems[i].id);
+                        }
+
+                        if (! item)
+                            continue;
+
+                        items.push(item);
                     }
 
                     if (items.length) {
@@ -265,13 +346,34 @@ editor.once('load', function() {
                 }
             },
             redo: function() {
-                var parent = editor.call('entities:get', parentId);
-                if (! parent)
-                    return;
+                var entities = [ ];
 
-                var entity = new Observer(data);
-                childToParent[entity.get('resource_id')] = parent.get('resource_id');
-                addEntity(entity, parent, true, ind + 1);
+                for(var i = 0; i < entitiesNewData.length; i++) {
+                    var id = entitiesNewData[i].resource_id;
+                    var meta = entitiesNewMeta[id];
+                    if (! meta)
+                        continue;
+
+                    var parent = editor.call('entities:get', meta.parentId);
+                    if (! parent)
+                        continue;
+
+                    var entity = new Observer(entitiesNewData[i]);
+                    childToParent[id] = meta.parentId;
+                    addEntity(entity, parent, true, meta.ind + 1);
+
+                    entities.push(entity);
+                }
+
+                if (entities.length) {
+                    setTimeout(function() {
+                        editor.call('selector:history', false);
+                        editor.call('selector:set', 'entity', entities);
+                        editor.once('selector:change', function() {
+                            editor.call('selector:history', true);
+                        });
+                    }, 0);
+                }
             }
         });
     });

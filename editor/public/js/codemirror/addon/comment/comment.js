@@ -93,8 +93,8 @@
     self.operation(function() {
       if (options.fullLines != false) {
         var lastLineHasText = nonWS.test(self.getLine(end));
-        self.replaceRange(pad + endString, Pos(end));
         self.replaceRange(startString + pad, Pos(from.line, 0));
+        self.replaceRange(pad + endString, Pos(end));
         var lead = options.blockCommentLead || mode.blockCommentLead;
         if (lead != null) for (var i = from.line + 1; i <= end; ++i)
           if (i != end || lastLineHasText)
@@ -165,11 +165,12 @@
     if (firstEnd != -1 && lastStart != -1 && lastStart != to.ch) return false;
 
     self.operation(function() {
-      self.replaceRange("", Pos(end, close - (pad && endLine.slice(close - pad.length, close) == pad ? pad.length : 0)),
-                        Pos(end, close + endString.length));
       var openEnd = open + startString.length;
       if (pad && startLine.slice(openEnd, openEnd + pad.length) == pad) openEnd += pad.length;
       self.replaceRange("", Pos(start, open), Pos(start, openEnd));
+
+      self.replaceRange("", Pos(end, close - (pad && endLine.slice(close - pad.length, close) == pad ? pad.length : 0)),
+                        Pos(end, close + endString.length));
       if (lead) for (var i = start + 1; i <= end; ++i) {
         var line = self.getLine(i), found = line.indexOf(lead);
         if (found == -1 || nonWS.test(line.slice(0, found))) continue;

@@ -13,6 +13,7 @@ editor.once('load', function() {
     var foldStates = {
         'physics': true,
         'rendering': true,
+        'lightmapping': true,
         'loading': true,
         'audio': true
     };
@@ -37,10 +38,6 @@ editor.once('load', function() {
             filteredFields.forEach(function (f) {
                 f.element.hidden = !f.filter();
             });
-        };
-
-        var fogFilter = function () {
-            return sceneSettings.get('render') && sceneSettings.get('render.fog') !== 'none';
         };
 
 
@@ -288,28 +285,6 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:settings:gammaCorrection:attach', fieldGammaCorrection.parent.innerElement.firstChild.ui);
 
-        if(config.owner.superUser) {
-            // divider
-            var divider = document.createElement('div');
-            divider.classList.add('fields-divider');
-            panelRendering.append(divider);
-
-
-            // lightMapSizeMultiplier
-            var fieldLightMapSizeMultiplier = editor.call('attributes:addField', {
-                parent: panelRendering,
-                name: 'LightMap Size Multiplier',
-                type: 'number',
-                precision: 3,
-                step: .05,
-                min: 0,
-                max: 32,
-                link: sceneSettings,
-                path: 'render.lightMapSizeMultiplier'
-            });
-            // reference
-            editor.call('attributes:reference:settings:lightMapSizeMultiplier:attach', fieldLightMapSizeMultiplier.parent.innerElement.firstChild.ui);
-        }
 
         // divider
         var divider = document.createElement('div');
@@ -345,7 +320,9 @@ editor.once('load', function() {
             min: 0,
             link: sceneSettings,
             path: 'render.fog_density'
-        }), fogFilter);
+        }), function () {
+            return /^exp/.test(sceneSettings.get('render.fog'));
+        });
         // reference
         editor.call('attributes:reference:settings:fogDensity:attach', fieldFogDensity.parent.innerElement.firstChild.ui);
 
@@ -363,7 +340,9 @@ editor.once('load', function() {
             path: 'render.fog_start'
         });
         fieldFogDistance.style.width = '32px';
-        addFiltered(fieldFogDistance, fogFilter);
+        addFiltered(fieldFogDistance, function () {
+            return sceneSettings.get('render.fog') === 'linear';
+        });
         // reference
         editor.call('attributes:reference:settings:fogDistance:attach', fieldFogDistance.parent.innerElement.firstChild.ui);
 
@@ -387,7 +366,9 @@ editor.once('load', function() {
             type: 'rgb',
             link: sceneSettings,
             path: 'render.fog_color'
-        }), fogFilter);
+        }), function () {
+            return sceneSettings.get('render.fog') !== 'none';
+        });
         // reference
         editor.call('attributes:reference:settings:fogColor:attach', fieldFogColor.parent.innerElement.firstChild.ui);
 
@@ -518,6 +499,46 @@ editor.once('load', function() {
             fieldLegacyAudio.parent.innerElement.firstChild.style.width = 'auto';
             editor.call('attributes:reference:settings:project:useLegacyAudio:attach', fieldLegacyAudio.parent.innerElement.firstChild.ui);
         }
+
+
+
+        // lightmapping
+        if(config.owner.superUser) {
+            var panelLightmapping = editor.call('attributes:addPanel', {
+                name: 'Lightmapping'
+            });
+            panelLightmapping.foldable = true;
+            panelLightmapping.folded = foldStates['lightmapping'];
+            panelLightmapping.on('fold', function() { foldStates['lightmapping'] = true; });
+            panelLightmapping.on('unfold', function() { foldStates['lightmapping'] = false; });
+            panelLightmapping.class.add('component', 'lightmapping');
+
+            // lightmapSizeMultiplier
+            var fieldLightmapSizeMultiplier = editor.call('attributes:addField', {
+                parent: panelLightmapping,
+                name: 'Size Multiplier',
+                type: 'number',
+                min: 0,
+                link: sceneSettings,
+                path: 'render.lightmapSizeMultiplier'
+            });
+            // reference
+            editor.call('attributes:reference:settings:lightmapSizeMultiplier:attach', fieldLightmapSizeMultiplier.parent.innerElement.firstChild.ui);
+
+            // lightmapMaxResolution
+            var fieldLightmapMaxResolution = editor.call('attributes:addField', {
+                parent: panelLightmapping,
+                name: 'Max Resolution',
+                type: 'number',
+                min: 2,
+                link: sceneSettings,
+                path: 'render.lightmapMaxResolution'
+            });
+            // reference
+            editor.call('attributes:reference:settings:lightmapMaxResolution:attach', fieldLightmapMaxResolution.parent.innerElement.firstChild.ui);
+        }
+
+
 
         // loading screen
         var panelLoadingScreen = editor.call('attributes:addPanel', {

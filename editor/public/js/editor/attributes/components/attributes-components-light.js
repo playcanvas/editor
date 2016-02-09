@@ -38,63 +38,64 @@ editor.once('load', function() {
         editor.call('attributes:reference:light:type:attach', fieldType.parent.innerElement.firstChild.ui);
 
 
-        // dynamic
-        var fieldDynamic = editor.call('attributes:addField', {
+        // bake
+        var fieldLightMap = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Lightmap',
+            type: 'checkbox',
+            link: entities,
+            path: 'components.light.bake'
+        });
+        // label
+        var label = new ui.Label({ text: 'Bake' });
+        label.class.add('label-infield');
+        label.style.paddingRight = '12px';
+        fieldLightMap.parent.append(label);
+        // reference
+        editor.call('attributes:reference:light:bake:attach', label);
+
+
+        // affectDynamic
+        var fieldAffectDynamic = editor.call('attributes:addField', {
             parent: panel,
             name: 'Affect',
             type: 'checkbox',
             link: entities,
-            path: 'components.light.dynamic'
+            path: 'components.light.affectDynamic'
         });
         // label
         var label = new ui.Label({ text: 'Dynamic' });
         label.class.add('label-infield');
         label.style.paddingRight = '12px';
-        fieldDynamic.parent.append(label);
+        fieldAffectDynamic.parent.append(label);
         // reference
-        editor.call('attributes:reference:light:dynamic:attach', label);
+        editor.call('attributes:reference:light:affectDynamic:attach', label);
 
 
-        // lightMap
-        var fieldLightMap = editor.call('attributes:addField', {
-            panel: fieldDynamic.parent,
+        // affectLightmapped
+        var fieldAffectLightmapped = editor.call('attributes:addField', {
+            panel: fieldAffectDynamic.parent,
             type: 'checkbox',
             link: entities,
-            path: 'components.light.lightMap'
+            path: 'components.light.affectLightmapped'
         });
         // label
-        var label = new ui.Label({ text: 'LightMap' });
-        label.class.add('label-infield');
-        label.style.paddingRight = '12px';
-        fieldDynamic.parent.append(label);
-        // reference
-        editor.call('attributes:reference:light:lightMap:attach', label);
-
-
-        // baked
-        var fieldBaked = editor.call('attributes:addField', {
-            panel: fieldDynamic.parent,
-            type: 'checkbox',
-            link: entities,
-            path: 'components.light.baked'
-        });
-        // label
-        var labelBaked = new ui.Label({ text: 'Baked' });
+        var labelBaked = new ui.Label({ text: 'Lightmapped' });
         labelBaked.class.add('label-infield');
-        fieldDynamic.parent.append(labelBaked);
-        // disable/enable
-        fieldBaked.disabled = labelBaked.disabled = !! fieldLightMap.value;
-        fieldLightMap.on('change', function() {
-            fieldBaked.disabled = labelBaked.disabled = !! fieldLightMap.value;
-        });
+        fieldAffectDynamic.parent.append(labelBaked);
         // reference
-        editor.call('attributes:reference:light:baked:attach', labelBaked);
+        editor.call('attributes:reference:light:affectLightmapped:attach', labelBaked);
+        // disable/enable affectLightmapped flag
+        fieldAffectLightmapped.disabled = labelBaked.disabled = !! fieldLightMap.value;
+        fieldLightMap.on('change', function() {
+            fieldAffectLightmapped.disabled = labelBaked.disabled = !! fieldLightMap.value;
+        });
 
 
         if (! config.owner.superUser) {
             fieldLightMap.parent.hidden = true;
-            fieldDynamic.parent.hidden = true;
-            fieldBaked.parent.hidden = true;
+            fieldAffectDynamic.parent.hidden = true;
+            fieldAffectLightmapped.parent.hidden = true;
         }
 
         // color

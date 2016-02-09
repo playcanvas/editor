@@ -400,7 +400,7 @@ editor.once('load', function() {
         middle.middle = true;
         middle.addComponent('model', {
             type: 'box',
-            lightMapCast: false
+            castShadowsLightmap: false
         });
         middle.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         middle.model.material.id = 0xFFFFFFFF;
@@ -415,7 +415,7 @@ editor.once('load', function() {
         lineX.axis = 'x';
         lineX.addComponent('model', {
             type: 'cylinder',
-            lightMapCast: false
+            castShadowsLightmap: false
         });
         lineX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(lineX);
@@ -430,7 +430,7 @@ editor.once('load', function() {
         lineY.axis = 'y';
         lineY.addComponent('model', {
             type: 'cylinder',
-            lightMapCast: false
+            castShadowsLightmap: false
         });
         lineY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(lineY);
@@ -445,7 +445,7 @@ editor.once('load', function() {
         lineZ.axis = 'z';
         lineZ.addComponent('model', {
             type: 'cylinder',
-            lightMapCast: false
+            castShadowsLightmap: false
         });
         lineZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(lineZ);
@@ -460,7 +460,7 @@ editor.once('load', function() {
         boxX.axis = 'x';
         boxX.addComponent('model', {
             type: 'box',
-            lightMapCast: false
+            castShadowsLightmap: false
         });
         boxX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(boxX);
@@ -475,7 +475,7 @@ editor.once('load', function() {
         boxY.axis = 'y';
         boxY.addComponent('model', {
             type: 'box',
-            lightMapCast: false
+            castShadowsLightmap: false
         });
         boxY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(boxY);
@@ -490,7 +490,7 @@ editor.once('load', function() {
         boxZ.axis = 'z';
         boxZ.addComponent('model', {
             type: 'box',
-            lightMapCast: false
+            castShadowsLightmap: false
         });
         boxZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(boxZ);

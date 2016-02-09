@@ -1279,6 +1279,8 @@ a:visited {
     height: 24px;
     cursor: pointer;
     transition: opacity 100ms;
+    flex-shrink: 0;
+    -webkit-flex-shrink: 0;
 
     &.checked {
         background-color: #fff;

@@ -1,55 +1,41 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
-    // overlay
-    var overlay = new ui.Overlay();
-    overlay.class.add('picker-scene');
-    overlay.hidden = true;
-    overlay.clickable = false;
+    var panel = new ui.Panel();
+    panel.class.add('picker-scene-panel');
 
-    // picker panel
-    var panel = document.createElement('div');
-    panel.classList.add('picker-scene-panel');
-    overlay.append(panel);
+    editor.call('picker:project:registerMenu', 'scenes', 'Scenes', panel);
+
+    // scene should be the default
+    editor.call('picker:project:setDefaultMenu', 'scenes');
 
     if (!editor.call('permissions:write'))
-        panel.classList.add('disabled');
+        panel.class.add('disabled');
 
-    // header
-    var header = document.createElement('div');
-    header.classList.add('picker-scene-header');
-    panel.appendChild(header);
-
-    // icon
-    var icon = document.createElement('span');
-    icon.classList.add('picker-scene-icon', 'font-icon');
-    header.appendChild(icon);
-
-    // title
-    var title = document.createElement('span');
-    title.innerHTML = 'Scenes';
-    title.classList.add('picker-scene-title');
-    header.appendChild(title);
-
-    // close button
-    var close = document.createElement('span');
-    close.classList.add('picker-scene-close', 'font-icon');
-    close.addEventListener('click', function () {
-        editor.call('picker:scene:close');
+    // progress bar and loading label
+    var loading = new ui.Label({
+        text: 'Loading...'
     });
-    header.appendChild(close);
+    panel.append(loading);
 
-    var content = document.createElement('div');
-    content.classList.add('picker-scene-content');
-    panel.appendChild(content);
-
-    var container = document.createElement('ul');
-    content.appendChild(container);
-
-    // progress bar
     var progressBar = new ui.Progress({progress: 1});
-    content.appendChild(progressBar.element);
     progressBar.hidden = true;
+    panel.append(progressBar);
+
+    var container = new ui.List();
+    container.class.add('scene-list');
+    panel.append(container);
+    container.hidden = true;
+
+    var tooltips = [];
+    var events = [];
+    var scenes = [];
+
+    var toggleProgress = function (toggle) {
+        loading.hidden = !toggle;
+        progressBar.hidden = !toggle;
+        container.hidden = toggle || !scenes.length;
+    };
 
     // dropdown menu for each scene
     var dropdownMenu = ui.Menu.fromData({
@@ -104,41 +90,46 @@ editor.once('load', function() {
         }
     });
 
+    editor.call('layout.root').append(dropdownMenu);
+
     var dropdownScene = null;
-    var dropdowns = {};
-    var scenes = [];
 
-    // when the menu closes remove the 'clicked' class from dropdowns
+    // disables / enables field depending on permissions
+    var handlePermissions = function (field) {
+        field.disabled = ! editor.call('permissions:write');
+        return editor.on('permissions:set:' + config.self.id, function (accessLevel) {
+            if (accessLevel === 'write' || accessLevel == 'admin') {
+                field.disabled = false;
+            } else {
+                field.disabled = true;
+            }
+        });
+    };
+
+    // on closing menu remove 'clicked' class from respective dropdown
     dropdownMenu.on('open', function (open) {
-        if (open) return;
-
-        for (var id in dropdowns) {
-            dropdowns[id].classList.remove('clicked');
+        if (! open && dropdownScene) {
+            var item = document.getElementById('picker-scene-' + dropdownScene.id);
+            if (item) {
+                var clicked = item.querySelector('.clicked');
+                if (clicked) {
+                    clicked.classList.remove('clicked');
+                }
+            }
         }
     });
 
-    // footer
-    var footer = document.createElement('div');
-    footer.classList.add('picker-scene-footer');
-    panel.appendChild(footer);
-
     // new scene button
-    var newScene = document.createElement('div');
-    newScene.classList.add('picker-scene-new');
+    var newScene = new ui.Button({
+        text: 'Add new Scene'
+    });
 
-    var newSceneLeft = document.createElement('span');
-    newSceneLeft.innerHTML = 'NEW';
-    newSceneLeft.classList.add('left');
-    newScene.appendChild(newSceneLeft);
+    handlePermissions(newScene);
+    newScene.class.add('new');
 
-    var newSceneRight = document.createElement('span');
-    newSceneRight.classList.add('right');
-    newSceneRight.innerHTML = '&#57632;';
-    newScene.appendChild(newSceneRight);
+    panel.append(newScene);
 
-    footer.appendChild(newScene);
-
-    newScene.addEventListener('click', function () {
+    newScene.on('click', function () {
         if (! editor.call('permissions:write'))
             return;
 
@@ -149,86 +140,94 @@ editor.once('load', function() {
         });
     });
 
+    // on show
+    panel.on('show', function () {
+        toggleProgress(true);
 
-    // add to root
-    var root = editor.call('layout.root');
-    root.append(overlay);
-    root.append(dropdownMenu);
-
-    // on overlay show
-    overlay.on('show', function () {
-        editor.emit('picker:scene:open');
-        overlay.clickable = !!config.scene.id;
-        if (config.scene.id) {
-            close.classList.remove('hidden');
-        } else {
-            close.classList.add('hidden');
-        }
+        // load scenes
+        editor.call('scenes:list', function (items) {
+            toggleProgress(false);
+            scenes = items;
+            refreshScenes();
+        });
     });
 
-    // on overlay hide
-    overlay.on('hide', function() {
-        progressBar.hidden = true;
-        container.innerHTML = '';
-        dropdowns = {};
+    // on hide
+    panel.on('hide', function() {
+        destroyTooltips();
+        destroyEvents();
         scenes = [];
+
+        // destroy scene items because same row ids
+        // might be used by download / new build popups
+        container.element.innerHTML = '';
+
         editor.emit('picker:scene:close');
     });
 
     // create row for scene
     var createSceneEntry = function (scene) {
-        var row = document.createElement('li');
-        row.id = 'picker-scene-' + scene.id;
+        var row = new ui.ListItem();
+        row.element.id = 'picker-scene-' + scene.id;
+
+        container.append(row);
+
         if (config.scene.id && parseInt(scene.id, 10) === parseInt(config.scene.id, 10))
-            row.classList.add('current');
+            row.class.add('current');
 
         if (parseInt(scene.id, 10) === parseInt(config.project.primaryScene, 10))
-            row.classList.add('primary');
+            row.class.add('primary');
 
         // primary scene icon
-        var primary = document.createElement('span');
-        primary.classList.add('scene-primary');
-        primary.innerHTML = '&#57891;';
-        row.appendChild(primary);
-        primary.addEventListener('click', function () {
-            if (!editor.call('permissions:write'))
+        var primary = new ui.Button({
+            text: '&#57891'
+        });
+        events.push(handlePermissions(primary));
+        primary.class.add('primary');
+        row.element.appendChild(primary.element);
+
+        events.push(primary.on('click', function () {
+            if (!editor.call('permissions:write') || config.project.primaryScene === scene.id)
                 return;
 
             var prevPrimary = config.project.primaryScene;
             config.project.primaryScene = scene.id;
             onPrimarySceneChanged(scene.id, prevPrimary);
             editor.call('project:setPrimaryScene', scene.id);
-        });
+        }));
 
         // show tooltip for primary scene icon
-        Tooltip.attach({
-            target: primary,
-            text: 'Set primary scene',
+        var tooltipText = parseInt(scene.id, 10) === parseInt(config.project.primaryScene, 10) ? 'Primary Scene' : 'Set Primary Scene';
+        var tooltip = Tooltip.attach({
+            target: primary.element,
+            text: tooltipText,
             align: 'right',
-            root: root
+            root: editor.call('layout.root')
         });
+        tooltips.push(tooltip);
 
         // scene name
-        var name = document.createElement('span');
-        name.classList.add('scene-name');
-        name.innerHTML = scene.name;
+        var name = new ui.Label({
+            text: scene.name
+        });
+        name.class.add('name');
 
-        row.appendChild(name);
+        row.element.appendChild(name.element);
 
         // scene date
-        var date = document.createElement('div');
-        date.classList.add('scene-date');
-        date.innerHTML = editor.call('datetime:convert', scene.modified);
-        row.appendChild(date);
+        var date = new ui.Label({
+            text: editor.call('datetime:convert', scene.modified)
+        });
+        date.class.add('date');
+        row.element.appendChild(date.element);
 
         // dropdown
         var dropdown = document.createElement('span');
-        dropdown.classList.add('scene-dropdown');
-        row.appendChild(dropdown);
-        dropdowns[scene.id] = dropdown;
+        dropdown.classList.add('dropdown');
+        row.element.appendChild(dropdown);
 
         var dropdownIcon = document.createElement('div');
-        dropdownIcon.classList.add('scene-dropdown-icon', 'font-icon');
+        dropdownIcon.classList.add('dropdown-icon', 'font-icon');
         dropdown.appendChild(dropdownIcon);
 
         dropdown.addEventListener('click', function () {
@@ -240,15 +239,17 @@ editor.once('load', function() {
             dropdownMenu.position(rect.right - dropdownMenu.innerElement.clientWidth, rect.bottom);
         });
 
-        row.addEventListener('click', function (e) {
-            if (e.target === row || e.target === name || e.target === date) {
-                if (parseInt(config.scene.id, 10) === parseInt(scene.id, 10))
-                    return;
+        if (parseInt(config.scene.id, 10) !== parseInt(scene.id, 10)) {
+            events.push(row.on('click', function (e) {
+                if (e.target === row.element || e.target === name.element || e.target === date.element) {
+                    if (parseInt(config.scene.id, 10) === parseInt(scene.id, 10))
+                        return;
 
-                editor.call('picker:scene:close');
-                editor.call('scene:load', scene.id);
-            }
-        });
+                    editor.call('picker:scene:close');
+                    editor.call('scene:load', scene.id);
+                }
+            }));
+        }
 
         return row;
     };
@@ -272,41 +273,38 @@ editor.once('load', function() {
         });
     };
 
+    var refreshScenes = function () {
+        dropdownMenu.open = false;
+        destroyTooltips();
+        destroyEvents();
+        container.element.innerHTML = '';
+        sortScenes(scenes);
+        container.hidden = scenes.length === 0;
+        scenes.forEach(createSceneEntry);
+    };
+
     // call picker
     editor.method('picker:scene', function() {
-        if (!overlay.hidden) return;
-
-        progressBar.hidden = false;
-
-        // load scenes
-        editor.call('scenes:list', function (items) {
-            progressBar.hidden = true;
-            scenes = items;
-            sortScenes(scenes);
-            scenes.forEach(function (scene) {
-                var row = createSceneEntry(scene);
-                container.appendChild(row);
-            });
-        });
-
-        // show overlay
-        overlay.hidden = false;
+        editor.call('picker:project', 'scenes');
     });
 
     // close picker
     editor.method('picker:scene:close', function() {
-        overlay.hidden = true;
+        editor.call('picker:project:close');
     });
 
     var onSceneDeleted = function (sceneId) {
-        if (overlay.hidden) return;
+        // if loaded scene deleted do not allow closing popup
+        if (!config.scene.id || parseInt(config.scene.id, 10) === parseInt(sceneId, 10)) {
+            editor.call('picker:project:setClosable', false);
+        }
+
+        if (panel.hidden) return;
 
         var row = document.getElementById('picker-scene-' + sceneId);
         if (row) {
             row.parentElement.removeChild(row);
         }
-
-        delete dropdowns[sceneId];
 
         for (var i = 0; i < scenes.length; i++) {
             if (parseInt(scenes[i].id, 10) === parseInt(sceneId, 10)) {
@@ -319,11 +317,10 @@ editor.once('load', function() {
             }
         }
 
-        // if loaded scene deleted do not allow closing popup
-        if (!config.scene.id || parseInt(config.scene.id, 10) === parseInt(sceneId, 10)) {
-            close.classList.add('hidden');
-            overlay.clickable = false;
+        if (! scenes.length) {
+            container.hidden = true;
         }
+
     };
 
     // subscribe to messenger pack.delete
@@ -333,10 +330,10 @@ editor.once('load', function() {
 
     // subscribe to messenger pack.new
     editor.on('messenger:pack.new', function (data) {
-        if (overlay.hidden) return;
+        if (panel.hidden) return;
 
         editor.call('scenes:get', data.pack.id, function (scene) {
-            if (overlay.hidden) return; // check if hidden when Ajax returns
+            if (panel.hidden) return; // check if hidden when Ajax returns
 
             scenes.push({
                 id: scene.id,
@@ -344,48 +341,32 @@ editor.once('load', function() {
                 name: scene.name
             });
 
-            sortScenes(scenes);
-
-            var row = createSceneEntry(scene);
-
-            // put the new row at the right place
-            for (var i = 0; i < scenes.length; i++) {
-                if (parseInt(scenes[i].id, 10) === parseInt(data.pack.id, 10)) {
-                    if (i === 0) {
-                        container.insertBefore(row, container.firstChild);
-                    } else {
-                        var next = i == scenes.length - 1 ? null : document.getElementById('picker-scene-' + scenes[i+1].id);
-                        container.insertBefore(row, next);
-                    }
-
-                    break;
-                }
-            }
+            refreshScenes();
         });
     });
-
-    var onPrimarySceneChanged = function (newValue, oldValue) {
-        if (overlay.hidden || parseInt(newValue, 10) === parseInt(oldValue, 10)) return;
-
-        sortScenes(scenes);
-
-        container.innerHTML = '';
-
-        scenes.forEach(function (scene) {
-            container.appendChild(createSceneEntry(scene));
-        });
-    };
 
     editor.on('project:primaryScene', onPrimarySceneChanged);
 
-    // handle permission changes
-    editor.on('permissions:set:' + config.self.id, function () {
-        if (editor.call('permissions:write')) {
-            panel.classList.remove('disabled');
-        } else {
-            panel.classList.add('disabled');
-        }
-    });
+    var destroyTooltips = function () {
+        tooltips.forEach(function (tooltip) {
+            tooltip.destroy();
+        });
+        tooltips = [];
+    };
+
+    var destroyEvents = function () {
+        events.forEach(function (evt) {
+            evt.unbind();
+        });
+        events = [];
+    };
+
+    var onPrimarySceneChanged = function (newValue, oldValue) {
+        if (panel.hidden || parseInt(newValue, 10) === parseInt(oldValue, 10)) return;
+
+        refreshScenes();
+    };
+
 
     // open picker if no scene is loaded
     if (!config.scene.id)

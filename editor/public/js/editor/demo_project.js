@@ -7,6 +7,10 @@ editor.once('load', function() {
     if (config.project.name !== 'My First Project')
         return;
 
+    // do not show if not owner
+    if (config.owner.id !== config.self.id)
+        return;
+
     var root = editor.call('layout.root');
 
     // overlay

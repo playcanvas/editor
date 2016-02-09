@@ -6,7 +6,7 @@ editor.once('load', function() {
     var contact = new ui.Button({
         text: '&#57625;'
     });
-    contact.class.add('pc-icon');
+    contact.class.add('pc-icon', 'contact');
     toolbar.append(contact);
 
     Tooltip.attach({

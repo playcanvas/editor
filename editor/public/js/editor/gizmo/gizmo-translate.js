@@ -430,7 +430,7 @@ editor.once('load', function() {
         planeX.plane = true;
         planeX.addComponent('model', {
             type: 'plane',
-            lightMapCast: false
+            castShadowsLightmap: false
         });
         planeX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(planeX);
@@ -447,7 +447,7 @@ editor.once('load', function() {
         planeY.plane = true;
         planeY.addComponent('model', {
             type: 'plane',
-            lightMapCast: false
+            castShadowsLightmap: false
         });
         planeY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(planeY);
@@ -464,7 +464,7 @@ editor.once('load', function() {
         planeZ.plane = true;
         planeZ.addComponent('model', {
             type: 'plane',
-            lightMapCast: false
+            castShadowsLightmap: false
         });
         planeZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(planeZ);
@@ -480,7 +480,7 @@ editor.once('load', function() {
         lineX.axis = 'x';
         lineX.addComponent('model', {
             type: 'cylinder',
-            lightMapCast: false
+            castShadowsLightmap: false
         });
         lineX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(lineX);
@@ -495,7 +495,7 @@ editor.once('load', function() {
         lineY.axis = 'y';
         lineY.addComponent('model', {
             type: 'cylinder',
-            lightMapCast: false
+            castShadowsLightmap: false
         });
         lineY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(lineY);
@@ -510,7 +510,7 @@ editor.once('load', function() {
         lineZ.axis = 'z';
         lineZ.addComponent('model', {
             type: 'cylinder',
-            lightMapCast: false
+            castShadowsLightmap: false
         });
         lineZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(lineZ);
@@ -525,7 +525,7 @@ editor.once('load', function() {
         arrowX.axis = 'x';
         arrowX.addComponent('model', {
             type: 'cone',
-            lightMapCast: false
+            castShadowsLightmap: false
         });
         arrowX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(arrowX);
@@ -540,7 +540,7 @@ editor.once('load', function() {
         arrowY.axis = 'y';
         arrowY.addComponent('model', {
             type: 'cone',
-            lightMapCast: false
+            castShadowsLightmap: false
         });
         arrowY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(arrowY);
@@ -555,7 +555,7 @@ editor.once('load', function() {
         arrowZ.axis = 'z';
         arrowZ.addComponent('model', {
             type: 'cone',
-            lightMapCast: false
+            castShadowsLightmap: false
         });
         arrowZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(arrowZ);

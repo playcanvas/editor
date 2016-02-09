@@ -108,7 +108,7 @@ editor.once('load', function () {
 
         this.entity = new pc.Entity();
         this.entity.addComponent('model', {
-            lightMapCast: false
+            castShadowsLightmap: false
         });
 
         container.addChild(this.entity);
