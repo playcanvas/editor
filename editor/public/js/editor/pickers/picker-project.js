@@ -21,9 +21,11 @@ editor.once('load', function () {
     leftPanel.class.add('left');
 
     // project image
+    var blankImage = config.url.static + '/platform/images/common/blank_project.png';
+
     var projectImg = document.createElement('div');
     projectImg.classList.add('image');
-    projectImg.style.backgroundImage = 'url("' + config.project.image + '")';
+    projectImg.style.backgroundImage = 'url("' + (config.project.thumbnails.m || blankImage) + '")';
     leftPanel.append(projectImg);
 
     // hidden file input to upload project image
@@ -170,7 +172,7 @@ editor.once('load', function () {
         window.addEventListener('keydown', onKeyDown);
 
         projectImg.classList.remove('progress');
-        projectImg.style.backgroundImage = 'url("' + config.project.image + '")';
+        projectImg.style.backgroundImage = 'url("' + (config.project.thumbnails.m || blankImage) + '")';
 
         if (editor.call('permissions:write')) {
             projectImg.classList.add('hover');
@@ -232,7 +234,7 @@ editor.once('load', function () {
 
     // subscribe to project image
     editor.on('messenger:project.image', function (data) {
-        config.project.image = data.project.thumbnails.m;
+        config.project.thumbnails = data.project.thumbnails;
         projectImg.style.backgroundImage = 'url("' + data.project.thumbnails.m + '")';
         projectImg.classList.remove('progress');
     });

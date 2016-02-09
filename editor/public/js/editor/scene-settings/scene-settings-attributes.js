@@ -40,10 +40,6 @@ editor.once('load', function() {
             });
         };
 
-        var fogFilter = function () {
-            return sceneSettings.get('render') && sceneSettings.get('render.fog') !== 'none';
-        };
-
 
         // physics
         var physicsPanel = editor.call('attributes:addPanel', {
@@ -324,7 +320,9 @@ editor.once('load', function() {
             min: 0,
             link: sceneSettings,
             path: 'render.fog_density'
-        }), fogFilter);
+        }), function () {
+            return /^exp/.test(sceneSettings.get('render.fog'));
+        });
         // reference
         editor.call('attributes:reference:settings:fogDensity:attach', fieldFogDensity.parent.innerElement.firstChild.ui);
 
@@ -342,7 +340,9 @@ editor.once('load', function() {
             path: 'render.fog_start'
         });
         fieldFogDistance.style.width = '32px';
-        addFiltered(fieldFogDistance, fogFilter);
+        addFiltered(fieldFogDistance, function () {
+            return sceneSettings.get('render.fog') === 'linear';
+        });
         // reference
         editor.call('attributes:reference:settings:fogDistance:attach', fieldFogDistance.parent.innerElement.firstChild.ui);
 
@@ -366,7 +366,9 @@ editor.once('load', function() {
             type: 'rgb',
             link: sceneSettings,
             path: 'render.fog_color'
-        }), fogFilter);
+        }), function () {
+            return sceneSettings.get('render.fog') !== 'none';
+        });
         // reference
         editor.call('attributes:reference:settings:fogColor:attach', fieldFogColor.parent.innerElement.firstChild.ui);
 

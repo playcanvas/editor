@@ -67,12 +67,10 @@ a:visited {
     }
     > header {
         @extend .font-bold;
+        @extend .font-smooth;
         background-color: $bcg-darker;
         color: $text-primary;
         font-size: 12px;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        font-smoothing: antialiased;
     }
     &.foldable {
         &.folded {
