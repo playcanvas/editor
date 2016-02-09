@@ -104,7 +104,7 @@ editor.once('load', function () {
     });
 
     // register panel with project popup
-    editor.call('picker:project:registerMenu', 'publish', 'Publish / Builds', panel);
+    editor.call('picker:project:registerMenu', 'publish', 'Publish', panel);
 
     // open publishing popup
     editor.method('picker:publish', function () {
