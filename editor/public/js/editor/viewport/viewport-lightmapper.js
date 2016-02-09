@@ -23,6 +23,7 @@ editor.once('load', function() {
         var readyForBake = function() {
             app.lightmapper.bake();
             editor.call('viewport:render');
+            editor.emit('lightmapper:baked');
         };
 
         // validate lightmapped entities

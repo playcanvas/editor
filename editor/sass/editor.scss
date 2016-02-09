@@ -702,6 +702,15 @@ strong {
             > .header {
                 display: block;
             }
+            > .auto-toggle {
+                > .ui-checkbox {
+                    margin: 0 8px 0 0;
+                }
+                > .ui-label {
+                    margin: 0;
+                    vertical-align: middle;
+                }
+            }
             > .uv1 {
                 color: $text-secondary;
                 max-width: 200px;

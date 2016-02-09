@@ -313,7 +313,7 @@ editor.once('load', function() {
 
         if (! config.owner.superUser) {
             fieldLightmapped.parent.hidden = true;
-            fieldCastShadowsLightmap.parent.hidden = true;
+            fieldCastShadowsLightmap.hidden = true;
         }
 
 

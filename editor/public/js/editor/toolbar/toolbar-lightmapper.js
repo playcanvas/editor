@@ -36,11 +36,37 @@ editor.once('load', function() {
     tooltipBake.class.add('light-mapper');
     tooltipBake.hoverable = true;
 
+
+    // header
     var elHeader = document.createElement('span');
     elHeader.classList.add('header');
     elHeader.textContent = 'Light Mapper';
     tooltipBake.innerElement.appendChild(elHeader);
 
+
+    // auto toggle
+    var elAuto = document.createElement('div');
+    elAuto.classList.add('auto-toggle');
+    tooltipBake.innerElement.appendChild(elAuto);
+
+    var checkAuto = new ui.Checkbox();
+    checkAuto.class.add('tick');
+    checkAuto.parent = tooltipBake;
+    elAuto.appendChild(checkAuto.element);
+    editor.on('lightmapper:auto', function(state) {
+        checkAuto.value = state;
+    });
+    checkAuto.on('change', function(value) {
+        editor.call('lightmapper:auto', value);
+    });
+
+    var labelAuto = new ui.Label({ text: 'Auto Rebake' });
+    labelAuto.parent = tooltipBake;
+    elAuto.appendChild(labelAuto.element);
+
+
+
+    // uv1 missing
     var elUV1 = document.createElement('div');
     elUV1.classList.add('uv1');
     elUV1.textContent = 'UV1 is missing on some models. Please upload models with UV1 or use ';
