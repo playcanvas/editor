@@ -182,13 +182,13 @@ editor.once('load', function() {
             path: 'components.model.castShadowsLightmap'
         });
         // label
-        var label = new ui.Label({ text: 'Cast Lightmap' });
-        label.class.add('label-infield');
-        label.style.paddingRight = '8px';
-        label.style.whiteSpace = 'nowrap';
-        fieldCastShadows.parent.append(label);
+        var labelCastShadowsLightmap = new ui.Label({ text: 'Cast Lightmap' });
+        labelCastShadowsLightmap.class.add('label-infield');
+        labelCastShadowsLightmap.style.paddingRight = '8px';
+        labelCastShadowsLightmap.style.whiteSpace = 'nowrap';
+        fieldCastShadows.parent.append(labelCastShadowsLightmap);
         // reference
-        editor.call('attributes:reference:model:castShadowsLightmap:attach', label);
+        editor.call('attributes:reference:model:castShadowsLightmap:attach', labelCastShadowsLightmap);
 
 
         // receiveShadows
@@ -314,6 +314,8 @@ editor.once('load', function() {
         if (! config.owner.superUser) {
             fieldLightmapped.parent.hidden = true;
             fieldCastShadowsLightmap.hidden = true;
+            labelCastShadowsLightmap.hidden = true;
+            fieldLightmapSizeMultiplier.parent.hidden = true;
         }
 
 
