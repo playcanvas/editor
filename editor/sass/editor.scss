@@ -4768,7 +4768,7 @@ strong {
                     @extend .font-bold;
                     content: 'CURRENT';
                     position: absolute;
-                    top: 24px;
+                    top: 25px;
                     right: 40px;
                     line-height: 16px;
                     text-align: center;
@@ -4791,75 +4791,27 @@ strong {
 
             > .dropdown {
                 position: absolute;
-                display: block;
+                top: 25px;
                 right: 15px;
-                top: 24px;
                 width: 16px;
                 height: 16px;
+                line-height: 16px;
+                border: none;
+                padding: 0;
+                margin: 0;
+                text-align: center;
+                vertical-align: top;
+
+                @extend .font-icon;
+                font-size: 12px;
+                color: $bcg-darkest;
                 background-color: $text-darkest;
-                overflow: hidden;
 
-                > .dropdown-icon:before {
-                    content: '\E159';
-                    @extend .font-icon;
-                    color: $bcg-primary;
-                    position: absolute;
-                    left: 2.5px;
-                    top: -24px;
-                    font-size: 12px;
-                }
-
-                &:hover {
+                &:hover, &.clicked {
+                    color: $text-primary;
                     background-color: $bcg-darkest;
-                    cursor: pointer;
-
-                    > .dropdown-icon:before {
-                        color: $text-primary;
-                    }
                 }
-
-                &.clicked {
-                    background-color: $bcg-darkest;
-
-                    > .dropdown-icon:before {
-                        color: $text-primary;
-                        content: '\E157';
-                    }
-
-                    > ul {
-                        display: block;
-                    }
-                }
-
-                > ul {
-                    display: none;
-                    margin: 0;
-                    padding: 0;
-                    position: absolute;
-                    right: 0;
-                    top: 100%;
-                    list-style: none;
-                    z-index: 100;
-
-                    > li {
-                        height: 45px;
-                        line-height: 45px;
-                        padding: 0 10px;
-                        width: 150px;
-                        background-color: $bcg-dark;
-                        color: $text-dark;
-                        @extend .noSelect;
-
-                        &:hover {
-                            background-color: #829193;
-                            color: $text-primary;
-                            cursor: pointer;
-                        }
-                    }
-                }
-
             }
-
         }
     }
 }
