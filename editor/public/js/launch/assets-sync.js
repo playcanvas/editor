@@ -74,8 +74,6 @@ app.once('load', function() {
     var onLoad = function(data) {
         app.call('assets:progress', .5);
 
-        data = data.response;
-
         var count = 0;
 
         var load = function (id) {
@@ -125,7 +123,7 @@ app.once('load', function() {
     });
 
     var getFileUrl = function (id, revision, filename) {
-        return '/api/files/assets/' + id + '/' + revision + '/' + filename;
+        return '/api/assets/' + id + '/file/' + filename;
     };
 
     // hook sync to new assets

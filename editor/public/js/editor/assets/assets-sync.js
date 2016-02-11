@@ -81,8 +81,6 @@ editor.once('load', function() {
     var onLoad = function(data) {
         editor.call('assets:progress', .5);
 
-        data = data.response;
-
         var count = 0;
 
         var load = function (id) {
@@ -201,7 +199,7 @@ editor.once('load', function() {
     });
 
     var getFileUrl = function (id, revision, filename) {
-        return '/api/files/assets/' + id + '/' + revision + '/' + filename;
+        return '/api/assets/' + id + '/file/' + filename;
     };
 
     var assetSetThumbnailPaths = function(asset) {
@@ -210,10 +208,10 @@ editor.once('load', function() {
 
         if (asset.get('has_thumbnail')) {
             asset.set('thumbnails', {
-                's': '/api/assets/' + asset.get('id') + '/thumbnail/small.jpg',
-                'm': '/api/assets/' + asset.get('id') + '/thumbnail/medium.jpg',
-                'l': '/api/assets/' + asset.get('id') + '/thumbnail/large.jpg',
-                'xl': '/api/assets/' + asset.get('id') + '/thumbnail/xlarge.jpg'
+                's': '/api/assets/' + asset.get('id') + '/thumbnail/small',
+                'm': '/api/assets/' + asset.get('id') + '/thumbnail/medium',
+                'l': '/api/assets/' + asset.get('id') + '/thumbnail/large',
+                'xl': '/api/assets/' + asset.get('id') + '/thumbnail/xlarge'
             });
         } else {
             asset.unset('thumbnails');
