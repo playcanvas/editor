@@ -114,6 +114,7 @@ editor.once('load', function () {
                 var clicked = item.querySelector('.clicked');
                 if (clicked) {
                     clicked.classList.remove('clicked');
+                    clicked.innerHTML = '&#57689;';
                 }
             }
         }
@@ -222,20 +223,19 @@ editor.once('load', function () {
         row.element.appendChild(date.element);
 
         // dropdown
-        var dropdown = document.createElement('span');
-        dropdown.classList.add('dropdown');
-        row.element.appendChild(dropdown);
+        var dropdown = new ui.Button({
+            text: '&#57689;'
+        });
+        dropdown.class.add('dropdown');
+        row.element.appendChild(dropdown.element);
 
-        var dropdownIcon = document.createElement('div');
-        dropdownIcon.classList.add('dropdown-icon', 'font-icon');
-        dropdown.appendChild(dropdownIcon);
-
-        dropdown.addEventListener('click', function () {
-            dropdown.classList.add('clicked');
+        dropdown.on('click', function () {
+            dropdown.class.add('clicked');
+            dropdown.element.innerHTML = '&#57687;';
 
             dropdownScene = scene;
             dropdownMenu.open = true;
-            var rect = dropdown.getBoundingClientRect();
+            var rect = dropdown.element.getBoundingClientRect();
             dropdownMenu.position(rect.right - dropdownMenu.innerElement.clientWidth, rect.bottom);
         });
 

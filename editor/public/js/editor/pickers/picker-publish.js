@@ -20,6 +20,30 @@ editor.once('load', function () {
         });
     };
 
+    var panelButtons = new ui.Panel();
+    panelButtons.class.add('buttons');
+    panel.append(panelButtons);
+
+    // publish button
+    var btnPublish = new ui.Button({text: 'Publish'});
+    btnPublish.class.add('publish');
+    handlePermissions(btnPublish);
+    panelButtons.append(btnPublish);
+
+    btnPublish.on('click', function () {
+        editor.call('picker:publish:new');
+    });
+
+    // download button
+    var btnDownload = new ui.Button({text: 'Download'});
+    btnDownload.class.add('download');
+    handlePermissions(btnDownload);
+    panelButtons.append(btnDownload);
+
+    btnDownload.on('click', function () {
+        editor.call('picker:publish:download');
+    });
+
     // progress bar and loading label
     var loading = new ui.Label({
         text: 'Loading...'
@@ -40,26 +64,6 @@ editor.once('load', function () {
     // container for apps
     var container = new ui.List();
     panel.append(container);
-
-    // publish button
-    var btnPublish = new ui.Button({text: 'Publish'});
-    btnPublish.class.add('publish');
-    handlePermissions(btnPublish);
-    panel.append(btnPublish);
-
-    btnPublish.on('click', function () {
-        editor.call('picker:publish:new');
-    });
-
-    // download button
-    var btnDownload = new ui.Button({text: 'Download'});
-    btnDownload.class.add('download');
-    handlePermissions(btnDownload);
-    panel.append(btnDownload);
-
-    btnDownload.on('click', function () {
-        editor.call('picker:publish:download');
-    });
 
     // app whose dropdown was last clicked
     var dropdownApp = null;
@@ -104,7 +108,7 @@ editor.once('load', function () {
     });
 
     // register panel with project popup
-    editor.call('picker:project:registerMenu', 'publish', 'Publish / Builds', panel);
+    editor.call('picker:project:registerMenu', 'publish', 'Publish', panel);
 
     // open publishing popup
     editor.method('picker:publish', function () {
