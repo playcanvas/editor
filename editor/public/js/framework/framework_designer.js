@@ -278,6 +278,8 @@ pc.extend(pc.editor, function() {
             var keepRendering = editor.call('viewport:keepRendering');
             this.redraw = keepRendering;
 
+            this.graphicsDevice.updateClientRect();
+
             // Perform ComponentSystem update
             editor.emit('viewport:update', dt);
             pc.ComponentSystem.fire('toolsUpdate', dt);
