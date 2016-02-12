@@ -7,7 +7,7 @@ editor.once('load', function() {
     var app = editor.call('viewport:framework');
     var entityAssetLoading = { };
     var bakingNextFrame = false;
-    var state = true;
+    var state = false;
     var timeLast = 0;
     var timeDelay = 500;
     var queued = false;
