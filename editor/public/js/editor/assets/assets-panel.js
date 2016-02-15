@@ -488,7 +488,7 @@ editor.once('load', function() {
         if (! gridItem || gridItem.asset.get('source'))
             return;
 
-        var url = '/api/assets/' + data.asset.id + '/thumbnail/medium.jpg?t=' + (gridItem.asset.get('file.hash') || data.asset.hash || '')
+        var url = '/api/assets/' + data.asset.id + '/thumbnail/medium?t=' + (gridItem.asset.get('file.hash') || data.asset.hash || '')
         gridItem.thumbnail.style.backgroundImage = 'url(' + url + ')';
         gridItem.thumbnail.classList.remove('placeholder');
     });
