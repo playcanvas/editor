@@ -27,7 +27,7 @@ var loadFile = function(id, filename, fn) {
         fn(e);
     });
 
-    xhr.open('GET', '/api/files/assets/' + id + '/1/' + filename, true);
+    xhr.open('GET', '/api/assets/' + id + '/file/' + filename, true);
     xhr.send(null);
 };
 

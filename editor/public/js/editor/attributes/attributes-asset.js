@@ -352,7 +352,7 @@
                     if (assets[0].get('source') || assets[0].get('type') === 'texture' || assets[0].get('type') === 'audio') {
                         window.open(assets[0].get('file.url'));
                     } else {
-                        window.open('/api/assets/' + assets[0].get('id') + '/download?access_token=' + config.accessToken);
+                        window.open('/api/assets/' + assets[0].get('id') + '/download');
                     }
                 });
                 panel.append(btnDownload);
