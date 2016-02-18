@@ -92,7 +92,7 @@ editor.once('load', function() {
         });
 
 
-        if (! config.owner.superUser) {
+        if (!editor.call("users:isBetaTester")) {
             fieldLightMap.parent.hidden = true;
             fieldAffectDynamic.parent.hidden = true;
             fieldAffectLightmapped.parent.hidden = true;

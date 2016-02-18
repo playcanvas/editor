@@ -30,6 +30,18 @@ editor.once('load', function() {
         if (sync)
             sceneSettings.sync.enabled = sync;
 
+
+        // migrations
+
+        // lightmapSizeMultiplier
+        if (! sceneSettings.has('render.lightmapSizeMultiplier'))
+            sceneSettings.set('render.lightmapSizeMultiplier', 16);
+
+        // lightmapMaxResolution
+        if (! sceneSettings.has('render.lightmapMaxResolution'))
+            sceneSettings.set('render.lightmapMaxResolution', 2048);
+
+
         editor.emit('sceneSettings:load', sceneSettings);
     });
 
