@@ -36,7 +36,7 @@ editor.once('load', function() {
 
     // track entities model assets loading state to re-bake
     var rebakeEntity = function(entity, force) {
-        if (! state && ! force)
+        if (! (state || force))
             return;
 
         if (! entity.has('components.model'))
@@ -84,7 +84,7 @@ editor.once('load', function() {
     };
 
     var rebakeScene = function(force) {
-        if (! state && ! force)
+        if (! (state || force))
             return;
 
         if (bakingNextFrame)
@@ -161,6 +161,10 @@ editor.once('load', function() {
         rebakeScene();
     };
 
+    var evtRebakeScene = function() {
+        rebakeScene();
+    };
+
     // subscribe to model, light and scene changes
     // to do rebaking
     editor.on('entities:add', function(entity) {
@@ -198,10 +202,10 @@ editor.once('load', function() {
 
         // global
         for(var i = 0; i < fieldsGlobal.length; i++)
-            entity.on(fieldsGlobal[i] + ':set', rebakeScene);
+            entity.on(fieldsGlobal[i] + ':set', evtRebakeScene);
     });
 
-    editor.on('gizmo:translate:end', rebakeScene);
-    editor.on('gizmo:rotate:end', rebakeScene);
-    editor.on('gizmo:scale:end', rebakeScene);
+    editor.on('gizmo:translate:end', evtRebakeScene);
+    editor.on('gizmo:rotate:end', evtRebakeScene);
+    editor.on('gizmo:scale:end', evtRebakeScene);
 });
