@@ -232,7 +232,18 @@ editor.once('load', function () {
     // no scenes msg
     var labelNoScenes = new ui.Label({text: 'There are no scenes.'});
     labelNoScenes.class.add('error');
+    labelNoScenes.hidden = true;
     panelNoScenes.append(labelNoScenes);
+
+    // loading scenes
+    var loadingScenes = new ui.Label({
+        text: 'Loading scenes...'
+    });
+    panelNoScenes.append(loadingScenes);
+
+    var progressBar = new ui.Progress({progress: 1});
+    progressBar.hidden = false;
+    panelNoScenes.append(progressBar);
 
     // holds all tooltips
     var tooltips = [];
@@ -596,6 +607,9 @@ editor.once('load', function () {
         sortScenes(scenes);
         panelScenes.hidden = !scenes.length;
         panelNoScenes.hidden = !panelScenes.hidden;
+        labelNoScenes.hidden = scenes.length;
+        loadingScenes.hidden = true;
+        progressBar.hidden = true;
         refreshButtonsState();
         scenes.forEach(createSceneItem);
 
@@ -611,6 +625,10 @@ editor.once('load', function () {
     // on show
     panel.on('show', function () {
         panelDownloadProgress.hidden = true;
+        panelNoScenes.hidden = false;
+        labelNoScenes.hidden = true;
+        loadingScenes.hidden = false;
+        progressBar.hidden = false;
         container.element.innerHTML = '';
         inputName.value = config.project.name;
         inputDescription.value = config.project.description;

@@ -5036,6 +5036,14 @@ strong {
                         padding-right: 10px;
                     }
 
+                    > .ui-progress {
+                        width: 100%;
+                    }
+
+                    > .ui-label.error {
+                        float: none;
+                    }
+
                     > .ui-list {
                         margin-top: 10px;
 
