@@ -93,6 +93,10 @@ app.once('load', function() {
     var panelDrawCalls = addPanel({
         title: 'Draw Calls'
     });
+    // scene
+    var panelLightmap = addPanel({
+        title: 'Lightmapper'
+    });
     // vram
     var panelVram = addPanel({
         title: 'VRAM'
@@ -244,6 +248,30 @@ app.once('load', function() {
             return value.toLocaleString();
         }
     }, {
+        key: [ 'lightmapper', 'renderPasses' ],
+        title: 'Render Passes',
+        panel: panelLightmap,
+        format: function(value) {
+            return value.toLocaleString();
+        }
+    }, {
+        key: [ 'lightmapper', 'lightmapCount' ],
+        title: 'Count',
+        panel: panelLightmap,
+        format: function(value) {
+            return value.toLocaleString();
+        }
+    }, {
+        key: [ 'lightmapper', 'lightmapMem' ],
+        title: 'Memory',
+        panel: panelLightmap,
+        format: bytesToHuman
+    }, {
+        title: 'Baking Time',
+        panel: panelLightmap,
+        custom: 'lightmapperBakingTime',
+        ignore: true
+    }, {
         key: [ 'vram', 'ib' ],
         title: 'Index Buffers',
         panel: panelVram,
@@ -266,6 +294,9 @@ app.once('load', function() {
             title: fields[i].title || fields[i].key[1]
         });
         fields[i].panel.appendChild(fields[i].field);
+
+        if (fields[i].custom)
+            fieldsCustom[fields[i].custom] = fields[i].field;
     }
 
     // update frame fields
@@ -274,6 +305,9 @@ app.once('load', function() {
             return;
 
         for(var i = 0; i < fields.length; i++) {
+            if (fields[i].ignore)
+                continue;
+
             var value = viewport.stats[fields[i].key[0]][fields[i].key[1]];
 
             if (fields[i].format)
