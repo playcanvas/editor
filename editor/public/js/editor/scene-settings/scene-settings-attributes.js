@@ -503,7 +503,7 @@ editor.once('load', function() {
 
 
         // lightmapping
-        if(config.owner.superUser) {
+        if(editor.call("users:isBetaTester")) {
             var panelLightmapping = editor.call('attributes:addPanel', {
                 name: 'Lightmapping'
             });
@@ -551,7 +551,7 @@ editor.once('load', function() {
         panelLoadingScreen.class.add('component', 'loading-screen');
 
         // custom loading screen script
-        if (config.owner.superUser || config.owner.plan.type === 'org') {
+        if (editor.call("users:isSuperUser") || config.owner.plan.type === 'org') {
             var panelButtons = new ui.Panel();
             panelButtons.class.add('flex', 'component');
             panelLoadingScreen.append(panelButtons);

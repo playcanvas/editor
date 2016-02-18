@@ -311,7 +311,7 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:model:lightmapSizeMultiplier:attach', fieldLightmapSizeMultiplier);
 
-        if (! config.owner.superUser) {
+        if (!editor.call("users:isBetaTester")) {
             fieldLightmapped.parent.hidden = true;
             fieldCastShadowsLightmap.hidden = true;
             labelCastShadowsLightmap.hidden = true;
