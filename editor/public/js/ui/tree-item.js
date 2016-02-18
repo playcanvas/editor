@@ -344,6 +344,7 @@ TreeItem.prototype._onDblClick = function(evt) {
             evt.stopPropagation();
         });
         field.on('change', function(value) {
+            value = value.trim();
             if (value)
                 self.entity.set('name', value);
 

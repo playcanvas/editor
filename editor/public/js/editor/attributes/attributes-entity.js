@@ -242,7 +242,8 @@ editor.once('load', function() {
             name: 'Name',
             type: 'string',
             link: entities,
-            path: 'name'
+            path: 'name',
+            trim: true
         });
         // reference
         editor.call('attributes:reference:entity:name:attach', fieldName.parent.innerElement.firstChild.ui);

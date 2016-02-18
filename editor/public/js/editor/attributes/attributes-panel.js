@@ -175,6 +175,9 @@ editor.once('load', function() {
                 this.proxy = value === null ? '...' : null;
             }
 
+            if (args.trim)
+                value = value.trim();
+
             if (args.type === 'rgb') {
                 value = value.map(function(v) {
                     return v / 255;
@@ -187,6 +190,7 @@ editor.once('load', function() {
 
             // set link value
             args.field._changing = true;
+            args.field.value = value;
             for(var i = 0; i < args.link.length; i++) {
                 if (args.type === 'asset' && !args.link[i].has(args.path)) continue;
 
@@ -464,7 +468,8 @@ editor.once('load', function() {
                         type: args.type,
                         slider: args.slider,
                         enum: args.enum,
-                        link: args.link
+                        link: args.link,
+                        trim: args.trim
                     });
                 };
                 if (field instanceof Array) {
