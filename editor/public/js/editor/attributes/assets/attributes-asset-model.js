@@ -297,7 +297,7 @@ editor.once('load', function() {
             panelToggles['pipeline'] = false;
         });
 
-        if (config.owner.plan.id !== 3)
+        if (!editor.call("users:isBetaTester"))
             panelPipeline.hidden = true;
 
         var uv1Options = [ 'unavailable', 'available', 'various' ];
