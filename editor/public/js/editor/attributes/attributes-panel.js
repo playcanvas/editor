@@ -190,7 +190,9 @@ editor.once('load', function() {
 
             // set link value
             args.field._changing = true;
-            args.field.value = value;
+            if (args.type === "string" && args.trim)
+                args.field.value = value;
+
             for(var i = 0; i < args.link.length; i++) {
                 if (args.type === 'asset' && !args.link[i].has(args.path)) continue;
 
