@@ -266,8 +266,8 @@ app.once('load', function() {
             return value.toLocaleString();
         }
     }, {
-        key: [ 'shaders', 'psCompiled' ],
-        title: 'Compiled PS',
+        key: [ 'shaders', 'fsCompiled' ],
+        title: 'Compiled FS',
         panel: panelShaders,
         format: function(value) {
             return value.toLocaleString();
