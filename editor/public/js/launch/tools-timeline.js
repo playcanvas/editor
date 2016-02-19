@@ -9,6 +9,8 @@ app.once('load', function() {
     var cacheAssetLoading = { };
     var cacheShaderCompile = [ ];
     var cacheShaderCompileEvents = [ ];
+    var cacheLightmapper = null;
+    var cacheLightmapperEvent = null;
     var viewport = editor.call('viewport');
 
     // canvas
@@ -49,7 +51,8 @@ app.once('load', function() {
         'shader': '#f60',
         'update': '#06f',
         'render': '#07f',
-        'physics': '#0ff'
+        'physics': '#0ff',
+        'lightmap': '#f6f'
     };
     app.method('tools:timeline:color', function(kind) {
         return kindColors[kind] || '#fff';
@@ -121,6 +124,7 @@ app.once('load', function() {
         delete cacheAssetLoading[asset.id];
     });
 
+
     var onShaderStart = function(evt) {
         if (! enabled) return;
 
@@ -155,11 +159,57 @@ app.once('load', function() {
         cacheShaderCompileEvents.splice(ind, 1);
     };
 
+    var onLightmapperStart = function(evt) {
+        if (! enabled) return;
+
+        var time = evt.timestamp;
+        if (editor.call('tools:epoc'))
+            time -= app.call('tools:time:beginning');
+
+        var item = addEvent({
+            time: time,
+            time2: -1,
+            kind: 'lightmap'
+        });
+
+        cacheLightmapper = evt.target;
+        cacheLightmapperEvent = item;
+    };
+
+    var onLightmapperEnd = function(evt) {
+        if (! enabled) return;
+
+        if (cacheLightmapper !== evt.target)
+            return;
+
+        var time = evt.timestamp;
+        if (editor.call('tools:epoc'))
+            time -= app.call('tools:time:beginning');
+
+        cacheLightmapperEvent.t2 = time;
+        app.emit('tools:timeline:update', cacheLightmapperEvent);
+        cacheLightmapper = null;
+
+        var elapsed = Math.round(cacheLightmapperEvent.t2 - cacheLightmapperEvent.t);
+        var elapsedS = Math.floor(elapsed / 1000);
+        var elapsedM = elapsed % 1000;
+        var time = '';
+
+        if (elapsedS) time += elapsedS + 's ';
+        time += elapsedM + 'ms';
+
+        app.call('tools:frame:field:value', 'lightmapperBakingTime', time);
+    };
+
     // subscribe to shader compile and linking
     viewport.graphicsDevice.on('shader:compile:start', onShaderStart);
     viewport.graphicsDevice.on('shader:link:start', onShaderStart);
     viewport.graphicsDevice.on('shader:compile:end', onShaderEnd);
     viewport.graphicsDevice.on('shader:link:end', onShaderEnd);
+
+    // subscribe to lightmapper baking
+    viewport.graphicsDevice.on('lightmapper:start', onLightmapperStart);
+    viewport.graphicsDevice.on('lightmapper:end', onLightmapperEnd);
 
     // add performance.timing events if available
     if (performance.timing) {
