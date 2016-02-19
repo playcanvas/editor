@@ -308,7 +308,7 @@ app.once('load', function() {
             if (fields[i].ignore)
                 continue;
 
-            if (! viewport.stats[fields[i].key[0]] || ! viewport.stats[fields[i].key[0]][fields[i].key[1]])
+            if (! viewport.stats.hasOwnProperty(fields[i].key[0]) || ! viewport.stats[fields[i].key[0]].hasOwnProperty(fields[i].key[1]))
                 continue;
 
             var value = viewport.stats[fields[i].key[0]][fields[i].key[1]];
