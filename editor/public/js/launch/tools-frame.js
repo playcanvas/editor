@@ -301,11 +301,6 @@ app.once('load', function() {
             return value.toLocaleString();
         }
     }, {
-        key: [ 'lightmapper', 'lightmapMem' ],
-        title: 'Memory',
-        panel: panelLightmap,
-        format: bytesToHuman
-    }, {
         title: 'Baking Time',
         panel: panelLightmap,
         custom: 'lightmapperBakingTime',
@@ -323,6 +318,11 @@ app.once('load', function() {
     }, {
         key: [ 'vram', 'tex' ],
         title: 'Textures',
+        panel: panelVram,
+        format: bytesToHuman
+    }, {
+        key: [ 'lightmapper', 'lightmapMem' ],
+        title: 'Lightmaps',
         panel: panelVram,
         format: bytesToHuman
     }]
