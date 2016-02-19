@@ -273,6 +273,13 @@ app.once('load', function() {
             return value.toLocaleString();
         }
     }, {
+        key: [ 'shaders', 'materialShaders' ],
+        title: 'Materials',
+        panel: panelShaders,
+        format: function(value) {
+            return value.toLocaleString();
+        }
+    }, {
         key: [ 'lightmapper', 'renderPasses' ],
         title: 'Render Passes',
         panel: panelLightmap,
@@ -280,15 +287,15 @@ app.once('load', function() {
             return value.toLocaleString();
         }
     }, {
-        key: [ 'lightmapper', 'lightmapCount' ],
-        title: 'Count',
+        key: [ 'lightmapper', 'shadersLinked' ],
+        title: 'Shaders Linked',
         panel: panelLightmap,
         format: function(value) {
             return value.toLocaleString();
         }
     }, {
-        key: [ 'lightmapper', 'shadersLinked' ],
-        title: 'Shaders Linked',
+        key: [ 'lightmapper', 'lightmapCount' ],
+        title: 'Textures',
         panel: panelLightmap,
         format: function(value) {
             return value.toLocaleString();
