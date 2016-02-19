@@ -93,7 +93,11 @@ app.once('load', function() {
     var panelDrawCalls = addPanel({
         title: 'Draw Calls'
     });
-    // scene
+    // shaders
+    var panelShaders = addPanel({
+        title: 'Shaders'
+    });
+    // lightmapper
     var panelLightmap = addPanel({
         title: 'Lightmapper'
     });
@@ -248,6 +252,27 @@ app.once('load', function() {
             return value.toLocaleString();
         }
     }, {
+        key: [ 'shaders', 'linked' ],
+        title: 'Linked',
+        panel: panelShaders,
+        format: function(value) {
+            return value.toLocaleString();
+        }
+    }, {
+        key: [ 'shaders', 'vsCompiled' ],
+        title: 'Compiled VS',
+        panel: panelShaders,
+        format: function(value) {
+            return value.toLocaleString();
+        }
+    }, {
+        key: [ 'shaders', 'psCompiled' ],
+        title: 'Compiled PS',
+        panel: panelShaders,
+        format: function(value) {
+            return value.toLocaleString();
+        }
+    }, {
         key: [ 'lightmapper', 'renderPasses' ],
         title: 'Render Passes',
         panel: panelLightmap,
@@ -257,6 +282,13 @@ app.once('load', function() {
     }, {
         key: [ 'lightmapper', 'lightmapCount' ],
         title: 'Count',
+        panel: panelLightmap,
+        format: function(value) {
+            return value.toLocaleString();
+        }
+    }, {
+        key: [ 'lightmapper', 'shadersLinked' ],
+        title: 'Shaders Linked',
         panel: panelLightmap,
         format: function(value) {
             return value.toLocaleString();
