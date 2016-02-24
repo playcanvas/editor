@@ -465,7 +465,7 @@ editor.once('load', function () {
 
         // check if we need to refresh UI
         var currentPrimary = document.getElementById('app-' + newValue);
-        if (currentPrimary.classList.contains('primary'))
+        if (currentPrimary && currentPrimary.classList.contains('primary'))
             return;
 
         refreshApps();
