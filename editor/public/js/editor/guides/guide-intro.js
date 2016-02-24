@@ -68,7 +68,7 @@ editor.once('load', function () {
             'guide:bubble',
             'Scene Hierarchy',
             'This is your <strong>Scene Hierarchy</strong> made up of <strong>Entities</strong>, which can be given new behaviours by adding Components.<br/><br/> <span class="font-icon">&#57632;</span> Add, <span class="font-icon">&#57638;</span> Duplicate and <span class="font-icon">&#57636;</span> Delete Entities using the controls in this panel.',
-            360,
+            295,
             60,
             'left'
         );
@@ -148,7 +148,7 @@ editor.once('load', function () {
         );
 
         bubble.element.style.top = '';
-        bubble.element.style.bottom = '72px';
+        bubble.element.style.bottom = '119px';
         return bubble;
     };
 
