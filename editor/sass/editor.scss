@@ -2478,7 +2478,7 @@ strong {
             position: relative;
             background-color: transparent;
 
-            &:hover {
+            &:not(.disabled):hover {
                 > .content > .ui-button {
                     color: $text-primary;
                     background-color: $text-active;
