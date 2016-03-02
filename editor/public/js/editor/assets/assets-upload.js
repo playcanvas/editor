@@ -131,7 +131,6 @@ editor.once('load', function() {
                 }
             }
 
-            editor.call('status:text', data);
             editor.call('status:job', 'asset-upload:' + job);
             if (fn)
                 fn(null, data);
