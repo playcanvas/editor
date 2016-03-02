@@ -149,7 +149,8 @@ editor.once('load', function() {
             source: {
                 asset: {
                     id: source.get('id'),
-                    filename: source.get('file.filename')
+                    filename: source.get('file.filename'),
+                    region: source.get('region')
                 }
             }
         };
@@ -158,9 +159,10 @@ editor.once('load', function() {
             task.target = {
                 asset: {
                     id: target.get('id'),
-                    filename: target.get('file.filename')
+                    filename: target.get('file.filename'),
+                    region: target.get('region')
                 }
-            }
+            };
         } else {
             task.target = task.source;
         }
@@ -206,7 +208,8 @@ editor.once('load', function() {
                             type: asset.get('type'),
                             filename: asset.get('file.filename'),
                             scope: asset.get('scope'),
-                            user_id: asset.get('user_id')
+                            user_id: asset.get('user_id'),
+                            region: asset.get('region')
                         },
                     },
                     target: { }
@@ -260,7 +263,8 @@ editor.once('load', function() {
                                 type: target.get('type'),
                                 filename: filename,
                                 scope: target.get('scope'),
-                                user_id: target.get('user_id')
+                                user_id: target.get('user_id'),
+                                region: target.get('region')
                             }
                         };
 
@@ -298,6 +302,7 @@ editor.once('load', function() {
                             source_asset_id: asset.get('id'),
                             preload: true,
                             data: data,
+                            region: asset.get('region'),
                             parent: path.length ? path[path.length - 1] : null,
                             scope: asset.get('scope')
                         };
@@ -408,7 +413,8 @@ editor.once('load', function() {
                             type: 'scene',
                             filename: asset.get('file.filename'),
                             scope: asset.get('scope'),
-                            user_id: asset.get('user_id')
+                            user_id: asset.get('user_id'),
+                            region: asset.get('region')
                         }
                     },
                     options: {
