@@ -40,7 +40,7 @@ editor.once('load', function () {
     scene.addLight(light);
 
     var setBestCameraPositionForModel = function (model) {
-        var aabb = new pc.shape.Aabb();
+        var aabb = new pc.BoundingBox();
         var meshInstances = model.meshInstances;
         if (meshInstances.length > 0) {
             meshInstances[0].syncAabb();
@@ -84,7 +84,7 @@ editor.once('load', function () {
             meshInstances[i].material = material;
 
             if (meshInstances[i].skinInstance) {
-                meshInstances[i].skinInstance.updateMatrixPalette();
+                meshInstances[i].skinInstance.updateMatrices();
             }
         }
 
