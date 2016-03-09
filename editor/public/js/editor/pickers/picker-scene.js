@@ -134,10 +134,46 @@ editor.once('load', function () {
         if (! editor.call('permissions:write'))
             return;
 
-        editor.call('picker:scene:close');
+        newScene.disabled = true;
 
-        editor.call('scenes:new', function (scene) {
-            editor.call('scene:load', scene.id, true);
+        // add list item
+        var listItem = new ui.ListItem();
+        container.append(listItem);
+
+        // add label
+        var label = new ui.Label({
+            text: 'Enter Scene name and press Enter:'
+        });
+        label.class.add('new-scene-label');
+        listItem.element.appendChild(label.element);
+
+        // add new scene input field
+        var input = new ui.TextField({
+            default: 'Untitled',
+            placeholder: 'Enter Scene name and press Enter'
+        });
+
+        listItem.element.appendChild(input.element);
+
+        input.elementInput.focus();
+        input.elementInput.select();
+
+        var destroyField = function () {
+            listItem.destroy();
+            newScene.disabled = false;
+        };
+
+        input.elementInput.addEventListener('blur', destroyField);
+
+        input.elementInput.addEventListener('keydown', function (e) {
+            if (e.keyCode === 13) {
+                 if (! input.value) return;
+
+                editor.call('picker:scene:close');
+                editor.call('scenes:new', input.value, function (scene) {
+                    editor.call('scene:load', scene.id, true);
+                });
+            }
         });
     });
 

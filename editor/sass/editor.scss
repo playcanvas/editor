@@ -4812,6 +4812,19 @@ strong {
                     background-color: $bcg-darkest;
                 }
             }
+
+            > .new-scene-label {
+                margin-left: 0;
+                margin-right: 0;
+                display: block;
+            }
+
+            > .ui-text-field {
+                display: block;
+                width: 100%;
+                line-height: 1;
+                margin: 0;
+            }
         }
     }
 }

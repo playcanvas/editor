@@ -21,8 +21,14 @@ editor.once('load', function () {
     });
 
     // Create a scene and pass result to callback
-    editor.method('scenes:new', function (callback) {
-        Ajax.post('{{url.api}}/scenes?access_token={{accessToken}}', {project_id: config.project.id})
+    editor.method('scenes:new', function (name, callback) {
+        var data = {
+            project_id: config.project.id
+        };
+
+        if (name) data.name = name;
+
+        Ajax.post('{{url.api}}/scenes?access_token={{accessToken}}', data)
         .on('load', function (status, data) {
             if (callback)
                 callback(data.response[0]);
