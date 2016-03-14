@@ -146,7 +146,7 @@ editor.once('load', function() {
 
         // limit number of results
         if (result.length > (limit || LIMIT_RESULT))
-            result = return.slice(0, limit || LIMIT_RESULT);
+            result = result.slice(0, limit || LIMIT_RESULT);
 
         // return results
         return result;
