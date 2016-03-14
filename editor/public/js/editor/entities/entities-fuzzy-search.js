@@ -59,7 +59,7 @@ editor.once('load', function() {
 
     var stringTokenizer = function(name) {
         var tokens = [ ];
-        var parts = name.toLowerCase().split(/(\s|\-|_)/g);
+        var parts = name.split(/(\s|\-|_)/g);
 
         for(var i = 0; i < parts.length; i++) {
             parts[i] = parts[i].trim();
@@ -84,7 +84,7 @@ editor.once('load', function() {
         var result = [ ];
 
         for(var i = 0; i < entities.length; i++) {
-            var name = entities[i].get('name');
+            var name = entities[i].get('name').toLowerCase().trim();
 
             // check if name contains enough of search characters
             var contains = charsContains(search, name);
