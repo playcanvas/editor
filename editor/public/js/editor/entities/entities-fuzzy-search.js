@@ -87,7 +87,7 @@ editor.once('load', function() {
             var name = entities[i].get('name').toLowerCase().trim();
 
             // direct hit
-            if (name === search) {
+            if (name === search || name.indexOf(search) === 0) {
                 result.push([ entities[i], name, 0, 0 ]);
                 continue;
             }
