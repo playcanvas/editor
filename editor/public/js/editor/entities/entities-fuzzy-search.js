@@ -86,6 +86,12 @@ editor.once('load', function() {
         for(var i = 0; i < entities.length; i++) {
             var name = entities[i].get('name').toLowerCase().trim();
 
+            // direct hit
+            if (name === search) {
+                result.push([ entities[i], 0, true ]);
+                continue;
+            }
+
             // check if name contains enough of search characters
             var contains = charsContains(search, name);
             if (contains / search.length < CONTAINS_CHARS_TOLERANCE)
