@@ -588,7 +588,6 @@ strong {
     left: 0;
     width: auto;
     height: auto;
-    z-index: 220;
     opacity: 0;
     visibility: hidden;
     transition: opacity 100ms, visibility 100ms;
@@ -607,6 +606,7 @@ strong {
         background-color: rgba($text-active, .4);
         transition: background-color 100ms;
         pointer-events: auto;
+        z-index: 220;
 
         &.hole {
             outline: 2px solid $text-active;
@@ -623,6 +623,9 @@ strong {
         }
         &.over {
             background-color: rgba($text-active, .7);
+        }
+        &.drop-area-project-img {
+            z-index: 301; // larger than picker-project
         }
     }
 }
@@ -4535,6 +4538,8 @@ strong {
 }
 
 .ui-overlay.picker-project {
+    z-index: 300; // larger than drop-area's
+
     &.center {
         > .content {
             @extend .font-regular;
@@ -4812,6 +4817,19 @@ strong {
                     background-color: $bcg-darkest;
                 }
             }
+
+            > .new-scene-label {
+                margin-left: 0;
+                margin-right: 0;
+                display: block;
+            }
+
+            > .ui-text-field {
+                display: block;
+                width: 100%;
+                line-height: 1;
+                margin: 0;
+            }
         }
     }
 }
@@ -4991,7 +5009,7 @@ strong {
                         margin-right: 15px;
                         vertical-align: top;
 
-                        background-size: 100%;
+                        background-size: 100% 100%;
 
                         &.progress {
                             background-size: 40%;

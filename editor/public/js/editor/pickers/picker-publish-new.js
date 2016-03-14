@@ -295,9 +295,10 @@ editor.once('load', function () {
         editor.call('apps:new', data, function () {
             jobInProgress = false;
             editor.call('picker:publish');
-        }, function () {
+        }, function (status) {
             jobInProgress = false;
-            console.log(arguments);
+            editor.call('status:error', 'Error while publishing: ' + status);
+            editor.call('picker:publish');
         });
     });
 

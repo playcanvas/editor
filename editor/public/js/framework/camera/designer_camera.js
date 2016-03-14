@@ -258,7 +258,7 @@ pc.script.create( "designer_camera", function (app) {
     DesignerCamera.prototype.zoom = function (factor) {
         switch (this.entity.camera.projection) {
             case pc.PROJECTION_ORTHOGRAPHIC:
-                var delta = factor * 10;
+                var delta = factor;
                 this.updateViewWindow(delta);
                 break;
             case pc.PROJECTION_PERSPECTIVE:
@@ -549,7 +549,7 @@ pc.script.create( "designer_camera", function (app) {
 
             switch (this.entity.camera.projection) {
                 case pc.scene.Projection.ORTHOGRAPHIC:
-                    var delta = ds*TOUCH_ZOOM_FACTOR * 10;
+                    var delta = ds*TOUCH_ZOOM_FACTOR;
                     this.updateViewWindow(delta);
                     break;
                 case pc.scene.Projection.PERSPECTIVE:
