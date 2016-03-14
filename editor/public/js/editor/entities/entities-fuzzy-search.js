@@ -88,7 +88,7 @@ editor.once('load', function() {
 
             // direct hit
             if (name === search) {
-                result.push([ entities[i], 0, true ]);
+                result.push([ entities[i], name, 0, 0 ]);
                 continue;
             }
 
@@ -102,25 +102,25 @@ editor.once('load', function() {
             // using this regexp: (\s|\-|_)
             var tokens = stringTokenizer(name);
             var closest = Infinity;
-            var sub = false;
+            var sub = Infinity;
 
             // for each token
             for(var t = 0; t < tokens.length; t++) {
                 // equal match
                 if (tokens[t] === search) {
                     closest = 0;
-                    sub = true;
+                    sub = t;
                     break;
                 }
 
                 // calculate edit distance
                 var edits = stringsEditDistance(search, tokens[t]);
 
-                if (! sub && tokens[t].indexOf(search) !== -1) { // is a substring
-                    sub = true;
+                if (sub === Infinity && tokens[t].indexOf(search) !== -1) { // is a substring
+                    sub = t;
                     closest = edits;
                     break;
-                } else if (edits < closest) { // new edits candidate
+                } else if (sub === Infinity && edits < closest) { // new edits candidate
                     // make sure number of edits is below edits tolerance
                     if (edits / Math.max(search.length, tokens[t].length) < EDITS_DISTANCE_TOLERANCE)
                         closest = edits;
@@ -134,15 +134,17 @@ editor.once('load', function() {
                 continue;
 
             // add to results
-            result.push([ entities[i], closest, sub ]);
+            result.push([ entities[i], name, closest, sub ]);
         }
 
         // sort result first by substring? then by edits number
         result.sort(function(a, b) {
-            if (a[2] !== b[2]) {
-                return b[2] - a[2];
+            if (a[3] !== b[3]) {
+                return a[3] - b[3];
+            } else if (a[2] !== b[2]) {
+                return a[2] - b[2];
             } else {
-                return a[1] - b[1];
+                return a[1].length - b[1].length;
             }
         });
 
