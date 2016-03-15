@@ -155,7 +155,7 @@ editor.once('load', function() {
                         continue;
                     } else if (subCandidate === Infinity && edits < editsCandidate) {
                         // new edits candidate, not a substring of a token
-                        if ((edits / Math.max(search.length, item.tokens[t].length)) < EDITS_DISTANCE_TOLERANCE) {
+                        if ((edits / Math.max(search.length, item.tokens[t].length)) <= EDITS_DISTANCE_TOLERANCE) {
                             // check if edits tolerance is satisfied
                             editsCandidate = edits;
                         }

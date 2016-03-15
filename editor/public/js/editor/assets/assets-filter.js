@@ -175,6 +175,11 @@ editor.once('load', function() {
     search.renderChanges = false;
     panelFilters.append(search);
 
+    search.element.addEventListener('keydown', function(evt) {
+        if (evt.keyCode === 27)
+            searchClear.click();
+    }, false);
+
     var searchClear = document.createElement('div');
     searchClear.innerHTML = '&#57650;';
     searchClear.classList.add('clear');
