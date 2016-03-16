@@ -15,6 +15,7 @@ editor.once('load', function() {
     var vecB = new pc.Vec3();
     var vecC = new pc.Vec3();
     var vecD = new pc.Vec3();
+    var vecE = new pc.Vec3();
     var quat = new pc.Quat();
     var evtTapStart;
     var evtTapMove;
@@ -230,68 +231,63 @@ editor.once('load', function() {
             var camera = app.activeCamera;
             var scale = 1;
             var mouseWPos = camera.camera.screenToWorld(x, y, 1);
-            var posCamera = camera.getPosition();
             var posGizmo = gizmo.root.getPosition();
-            var mouseDir = vecA.copy(mouseWPos).sub(posCamera).normalize();
+            var rayOrigin = vecA.copy(camera.getPosition());
+            var rayDirection = vecB;
+            var planeNormal = vecC;
 
             if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
-                var dot = vecC.copy(posGizmo).sub(posCamera).dot(camera.forward);
+                rayDirection.copy(mouseWPos).sub(rayOrigin).normalize();
+                var dot = vecC.copy(posGizmo).sub(rayOrigin).dot(camera.forward);
                 var denom = 1280 * Math.tan(camera.camera.fov * pc.math.DEG_TO_RAD);
                 scale = Math.max(0.0001, (dot / denom) * 150) * gizmoSize;
             } else {
+                rayOrigin.add(mouseWPos);
+                camera.getWorldTransform().transformVector(vecD.set(0, 0, -1), rayDirection);
                 scale = camera.camera.orthoHeight / 3 * gizmoSize;
             }
 
-            quat.copy(gizmo.root.getRotation())
+            quat.copy(gizmo.root.getRotation());
 
             // single axis
             if (! hoverMiddle) {
                 // vector based on selected axis
-                vecB.set(0, 0, 0);
-                vecB[hoverAxis] = 1;
+                planeNormal.set(0, 0, 0);
+                planeNormal[hoverAxis] = 1;
                 // rotate vector by gizmo rotation
-                quat.transformVector(vecB, vecB);
+                quat.transformVector(planeNormal, planeNormal);
 
-                vecC
-                .copy(posCamera)
-                .sub(posGizmo)
-                .normalize();
-                vecB.copy(vecC.sub(vecB.scale(vecB.dot(vecC))).normalize());
+                vecE.copy(rayOrigin).sub(posGizmo).normalize();
+                planeNormal.copy(vecE.sub(planeNormal.scale(planeNormal.dot(vecE))).normalize());
             } else {
-                vecB
-                .copy(posCamera)
-                .sub(posGizmo)
-                .normalize();
+                planeNormal.copy(rayOrigin).sub(posGizmo).normalize();
             }
 
-            var rayPlaneDot = vecB.dot(mouseDir);
-            var planeDist = posGizmo.dot(vecB);
-            var pointPlaneDist = (vecB.dot(posCamera) - planeDist) / rayPlaneDot;
-            var pickedPos = mouseDir.scale(-pointPlaneDist).add(posCamera);
+            var rayPlaneDot = planeNormal.dot(rayDirection);
+            var planeDist = posGizmo.dot(planeNormal);
+            var pointPlaneDist = (planeNormal.dot(rayOrigin) - planeDist) / rayPlaneDot;
+            var pickedPos = rayDirection.scale(-pointPlaneDist).add(rayOrigin);
 
             if (! hoverMiddle) {
                 // single axis
-                vecB.set(0, 0, 0);
-                vecB[hoverAxis] = 1;
-                quat.transformVector(vecB, vecB);
-                pickedPos.copy(vecB.scale(vecB.dot(pickedPos)));
+                planeNormal.set(0, 0, 0);
+                planeNormal[hoverAxis] = 1;
+                quat.transformVector(planeNormal, planeNormal);
+                pickedPos.copy(planeNormal.scale(planeNormal.dot(pickedPos)));
                 quat.invert().transformVector(pickedPos, pickedPos);
 
                 // calculate viewing angle
-                vecC
-                .copy(posCamera)
-                .sub(posGizmo)
-                .normalize();
-                quat.transformVector(vecC, vecC);
+                vecE.copy(rayOrigin).sub(posGizmo).normalize();
+                quat.transformVector(vecE, vecE);
 
                 var v = pickedPos[hoverAxis];
                 pickedPos.set(0, 0, 0);
                 pickedPos[hoverAxis] = v / scale;
             } else {
-                vecC.copy(pickedPos).sub(posGizmo).normalize();
+                vecE.copy(pickedPos).sub(posGizmo).normalize();
                 vecD.copy(camera.up).add(camera.right).normalize();
 
-                var v = (pickedPos.sub(posGizmo).length() / scale / 2)  * vecC.dot(vecD);
+                var v = (pickedPos.sub(posGizmo).length() / scale / 2)  * vecE.dot(vecD);
                 pickedPos.set(v, v, v);
             }
 

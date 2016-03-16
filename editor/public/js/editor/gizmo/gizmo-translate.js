@@ -18,7 +18,10 @@ editor.once('load', function() {
     var vecB = new pc.Vec3();
     var vecC = new pc.Vec3();
     var vecD = new pc.Vec3();
+    var vecE = new pc.Vec3();
     var quat = new pc.Quat();
+    var matA = new pc.Mat4();
+    var matB = new pc.Mat4();
     var evtTapStart;
     var evtTapMove;
     var evtTapEnd;
@@ -286,36 +289,39 @@ editor.once('load', function() {
             var camera = app.activeCamera;
 
             var mouseWPos = camera.camera.screenToWorld(x, y, 1);
-            var posCamera = camera.getPosition();
             var posGizmo = gizmo.root.getPosition();
-            var mouseDir = vecA.copy(mouseWPos).sub(posCamera).normalize();
+            var rayOrigin = vecA.copy(camera.getPosition());
+            var rayDirection = vecB;
+            var planeNormal = vecC.set(0, 0, 0);
+            planeNormal[hoverAxis] = 1;
 
-            // vector based on selected axis
-            vecB.set(0, 0, 0);
-            vecB[hoverAxis] = 1;
+            if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
+                rayDirection.copy(mouseWPos).sub(rayOrigin).normalize();
+            } else {
+                rayOrigin.add(mouseWPos);
+                camera.getWorldTransform().transformVector(vecD.set(0, 0, -1), rayDirection);
+            }
+
             // rotate vector by gizmo rotation
-            quat.copy(gizmo.root.getRotation()).transformVector(vecB, vecB);
+            quat.copy(gizmo.root.getRotation()).transformVector(planeNormal, planeNormal);
 
             // single axis
             if (! hoverPlane) {
-                vecC
-                .copy(posCamera)
-                .sub(posGizmo)
-                .normalize();
-                vecB.copy(vecC.sub(vecB.scale(vecB.dot(vecC))).normalize());
+                vecD.copy(rayOrigin).sub(posGizmo).normalize();
+                planeNormal.copy(vecD.sub(planeNormal.scale(planeNormal.dot(vecD))).normalize());
             }
 
-            var rayPlaneDot = vecB.dot(mouseDir);
-            var planeDist = posGizmo.dot(vecB);
-            var pointPlaneDist = (vecB.dot(posCamera) - planeDist) / rayPlaneDot;
-            var pickedPos = mouseDir.scale(-pointPlaneDist).add(posCamera);
+            var rayPlaneDot = planeNormal.dot(rayDirection);
+            var planeDist = posGizmo.dot(planeNormal);
+            var pointPlaneDist = (planeNormal.dot(rayOrigin) - planeDist) / rayPlaneDot;
+            var pickedPos = rayDirection.scale(-pointPlaneDist).add(rayOrigin);
 
             if (! hoverPlane) {
                 // single axis
-                vecB.set(0, 0, 0);
-                vecB[hoverAxis] = 1;
-                quat.transformVector(vecB, vecB);
-                pickedPos.copy(vecB.scale(vecB.dot(pickedPos)));
+                planeNormal.set(0, 0, 0);
+                planeNormal[hoverAxis] = 1;
+                quat.transformVector(planeNormal, planeNormal);
+                pickedPos.copy(planeNormal.scale(planeNormal.dot(pickedPos)));
             }
 
             quat.invert().transformVector(pickedPos, pickedPos);
