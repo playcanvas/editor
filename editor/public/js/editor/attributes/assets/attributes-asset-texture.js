@@ -64,14 +64,9 @@ editor.once('load', function() {
             parent: paramsPanel,
             name: 'Rgbm',
             link: assets,
-            path: 'data.rgbm'
+            path: 'data.rgbm',
+            type: 'boolean'
         });
-        var checkRgbmField = function() {
-            if (! fieldRgbm.value)
-                fieldRgbm.element.innerHTML = 'false';
-        };
-        checkRgbmField();
-        fieldRgbm.on('change', checkRgbmField);
         // reference
         editor.call('attributes:reference:asset:texture:rgbm:attach', fieldRgbm.parent.innerElement.firstChild.ui);
 
