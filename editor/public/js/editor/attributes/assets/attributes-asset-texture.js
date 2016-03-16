@@ -65,7 +65,7 @@ editor.once('load', function() {
             name: 'Rgbm',
             link: assets,
             path: 'data.rgbm',
-            type: 'boolean'
+            type: 'checkbox'
         });
         // reference
         editor.call('attributes:reference:asset:texture:rgbm:attach', fieldRgbm.parent.innerElement.firstChild.ui);
