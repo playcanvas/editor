@@ -53,6 +53,152 @@ Object.defineProperty(Tree.prototype, 'selected', {
 Tree.prototype._onItemClick = function(item) {
     if (Tree._ctrl && Tree._ctrl()) {
         item.selected = ! item.selected;
+    } else if (Tree._shift && Tree._shift() && this._selected.length) {
+        var from = this._selected[this._selected.length - 1];
+        var to = item;
+
+        var up = [ ];
+        var down = [ ];
+
+        var prev = function(refItem) {
+            var result = null;
+            var item = refItem.element.previousSibling;
+            if (item)
+                item = item.ui;
+
+            if (item) {
+                if (item.open && item._children) {
+                    // element above is open, find last available element
+                    var last = item.element.lastChild;
+                    if (last.ui)
+                        last = last.ui;
+
+                    if (last) {
+                        var findLast = function(inside) {
+                            if (inside.open && inside._children) {
+                                return inside.element.lastChild.ui || null;
+                            } else {
+                                return null;
+                            }
+                        }
+
+                        var found = false;
+                        while(! found) {
+                            var deeper = findLast(last);
+                            if (deeper) {
+                                last = deeper;
+                            } else {
+                                found = true;
+                            }
+                        }
+
+                        result = last;
+                    } else {
+                        result = item;
+                    }
+                } else {
+                    result = item;
+                }
+            } else if (refItem.parent && refItem.parent instanceof TreeItem) {
+                result = refItem.parent;
+            }
+
+            return result;
+        };
+
+        var next = function(refItem) {
+            var result = null;
+            var item = refItem.element.nextSibling;
+            if (item)
+                item = item.ui;
+
+            if (refItem.open && refItem._children) {
+                // select a child
+                var first = refItem.element.firstChild.nextSibling;
+                if (first && first.ui) {
+                    result = first.ui;
+                } else if (item) {
+                    result = item;
+                }
+            } else if (item) {
+                // select next item
+                result = item;
+            } else if (refItem.parent && refItem.parent instanceof TreeItem) {
+                // no next element, go to parent
+                var parent = refItem.parent;
+
+                var findNext = function(from) {
+                    var next = from.next;
+                    if (next) {
+                        result = next;
+                    } else if (from.parent instanceof TreeItem) {
+                        return from.parent;
+                    }
+                    return false;
+                }
+
+                while(parent = findNext(parent)) { }
+            }
+
+            return result;
+        };
+
+        var done = false;
+        var path = null;
+        var lookUp = true;
+        var lookDown = true;
+        var lookingUp = true;
+        while(! done && ! path) {
+            lookingUp = ! lookingUp;
+
+            var item = null;
+            var lookFrom = from;
+            if ((! lookDown || lookingUp) && lookUp) {
+                // up
+                if (up.length)
+                    lookFrom = up[up.length - 1];
+
+                item = prev(lookFrom);
+                if (item) {
+                    up.push(item);
+
+                    if (item === to) {
+                        done = true;
+                        path = up;
+                        break;
+                    }
+                } else {
+                    lookUp = false;
+                }
+            } else if (lookDown) {
+                // down
+                if (down.length)
+                    lookFrom = down[down.length - 1];
+
+                item = next(lookFrom);
+                if (item) {
+                    down.push(item);
+
+                    if (item === to) {
+                        done = true;
+                        path = down;
+                        break;
+                    }
+                } else {
+                    lookDown = false;
+                }
+            } else {
+                done = true;
+            }
+        }
+
+        if (path) {
+            for(var i = 0; i < path.length; i++) {
+                path[i].selected = true;
+            }
+        }
+
+
     } else {
         var selected = item.selected && ((this._selected.indexOf(item) === -1) || (this._selected.length === 1 && this._selected[0] === item));
         this.clear();

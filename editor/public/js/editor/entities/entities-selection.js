@@ -18,6 +18,31 @@ editor.once('load', function() {
             return null;
         }
     });
+
+
+    // var lastSelected = null;
+    //
+    // editor.on('selector:add', function(type, obj) {
+    //     if (type === 'entity') {
+    //         lastSelected = obj;
+    //     } else {
+    //         lastSelected = null;
+    //     }
+    // });
+    //
+    // editor.on('selector:remove', function(t, obj) {
+    //     var type = editor.call('selector:type');
+    //     var items = editor.call('selector:items');
+    //
+    //     if (type === 'entity') {
+    //         lastSelected = items[items.length - 1];
+    //     } else {
+    //         lastSelected = null;
+    //     }
+    // });
+    //
+    // editor.on('selector:set', function(type) {
+    //     if (type !== 'entity')
+    //         lastSelected = null;
+    // });
 });
-
-
