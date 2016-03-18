@@ -146,13 +146,20 @@ editor.once('load', function () {
                 return;
 
             firstBB = true;
+            var noEntities = true;
 
-            for(var i = 0; i < entities.length; i++)
+            for(var i = 0; i < entities.length; i++) {
+                if (! entities[i])
+                    continue;
+
+                noEntities = false;
                 editor.call('entities:boundingbox', entities[i]);
+            }
 
-            bbA.halfExtents.add(minExtends);
-
-            editor.call('viewport:render:aabb', bbA);
+            if (! noEntities) {
+                bbA.halfExtents.add(minExtends);
+                editor.call('viewport:render:aabb', bbA);
+            }
         });
     });
 });

@@ -170,13 +170,29 @@ editor.once('load', function() {
             undo: function() {
                 for(var i = 0; i < records.length; i++) {
                     var entity = editor.call('entities:get', records[i].resourceId);
+                    if (! entity) continue;
+
                     var parent = editor.call('entities:get', entity.get('parent'));
                     var parentOld = editor.call('entities:get', records[i].parentIdOld);
-                    if (! parentOld || ! parent || ! entity)
-                        continue;
+                    if (! parentOld || ! parent) continue;
 
                     if (parent.get('children').indexOf(records[i].resourceId) === -1 || parentOld.get('children').indexOf(records[i].resourceId) !== -1)
                         return;
+
+                    // check if not reparenting to own child
+                    var deny = false;
+                    var checkParent = editor.call('entities:get', parentOld.get('parent'));
+                    while(checkParent) {
+                        if (checkParent === entity) {
+                            deny = true;
+                            checkParent = null;
+                            break;
+                        } else {
+                            checkParent = editor.call('entities:get', checkParent.get('parent'));
+                        }
+                    }
+                    if (deny)
+                        continue;
 
                     parent.history.enabled = false;
                     parent.removeValue('children', records[i].resourceId);
@@ -195,13 +211,29 @@ editor.once('load', function() {
             redo: function() {
                 for(var i = 0; i < records.length; i++) {
                     var entity = editor.call('entities:get', records[i].resourceId);
+                    if (! entity) continue;
+
                     var parent = editor.call('entities:get', records[i].parentId);
                     var parentOld = editor.call('entities:get', entity.get('parent'));
-                    if (! parentOld || ! parent || ! entity)
-                        continue;
+                    if (! parentOld || ! parent) continue;
 
                     if (parentOld.get('children').indexOf(records[i].resourceId) === -1 || parent.get('children').indexOf(records[i].resourceId) !== -1)
-                        return;
+                        continue;
+
+                    // check if not reparenting to own child
+                    var deny = false;
+                    var checkParent = editor.call('entities:get', parent.get('parent'));
+                    while(checkParent) {
+                        if (checkParent === entity) {
+                            deny = true;
+                            checkParent = null;
+                            break;
+                        } else {
+                            checkParent = editor.call('entities:get', checkParent.get('parent'));
+                        }
+                    }
+                    if (deny)
+                        continue;
 
                     parentOld.history.enabled = false;
                     parentOld.removeValue('children', records[i].resourceId);
