@@ -448,7 +448,7 @@ editor.once('load', function() {
         var addOverride = function (index) {
             var valuesBefore;
 
-            if (! engineEntity.model.model)
+            if (! engineEntity.model || ! engineEntity.model.model)
                 return;
 
             var meshInstances = engineEntity.model.model.meshInstances;
