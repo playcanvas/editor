@@ -160,6 +160,13 @@ app.once('load', function() {
         title: 'ShadowMaps Updates',
         panel: panelFrame
     }, {
+        key: [ 'frame', 'shadowMapTime' ],
+        title: 'ShadowMaps Time',
+        panel: panelFrame,
+        format: function(value) {
+            return value.toFixed(2);
+        }
+    }, {
         key: [ 'frame', 'updateTime' ],
         title: 'Update Time',
         panel: panelFrame,
@@ -187,6 +194,14 @@ app.once('load', function() {
     }, {
         key: [ 'scene', 'lights' ],
         title: 'Lights',
+        panel: panelScene
+    }, {
+        key: [ 'scene', 'dynamicLights' ],
+        title: 'Lights (Dynamic)',
+        panel: panelScene
+    }, {
+        key: [ 'scene', 'bakedLights' ],
+        title: 'Lights (Baked)',
         panel: panelScene
     }, {
         key: [ 'drawCalls', 'total' ],
@@ -280,15 +295,15 @@ app.once('load', function() {
             return value.toLocaleString();
         }
     }, {
-        key: [ 'lightmapper', 'renderPasses' ],
-        title: 'Render Passes',
-        panel: panelLightmap,
+        key: [ 'shaders', 'compileTime' ],
+        title: 'Compile Time',
+        panel: panelShaders,
         format: function(value) {
-            return value.toLocaleString();
+            return value.toFixed(3);
         }
     }, {
-        key: [ 'lightmapper', 'shadersLinked' ],
-        title: 'Shaders Linked',
+        key: [ 'lightmapper', 'renderPasses' ],
+        title: 'Render Passes',
         panel: panelLightmap,
         format: function(value) {
             return value.toLocaleString();
@@ -301,10 +316,47 @@ app.once('load', function() {
             return value.toLocaleString();
         }
     }, {
-        title: 'Baking Time',
+        key: [ 'lightmapper', 'shadersLinked' ],
+        title: 'Shaders Linked',
         panel: panelLightmap,
-        custom: 'lightmapperBakingTime',
-        ignore: true
+        format: function(value) {
+            return value.toLocaleString();
+        }
+    }, {
+        key: [ 'lightmapper', 'totalRenderTime' ],
+        title: 'Total Render Time',
+        panel: panelLightmap,
+        format: function(value) {
+            return value.toFixed(3);
+        }
+    }, {
+        key: [ 'lightmapper', 'forwardTime' ],
+        title: 'Forward Time',
+        panel: panelLightmap,
+        format: function(value) {
+            return value.toFixed(3);
+        }
+    }, {
+        key: [ 'lightmapper', 'fboTime' ],
+        title: 'FBO Time',
+        panel: panelLightmap,
+        format: function(value) {
+            return value.toFixed(3);
+        }
+    }, {
+        key: [ 'lightmapper', 'shadowMapTime' ],
+        title: 'ShadowMap Time',
+        panel: panelLightmap,
+        format: function(value) {
+            return value.toFixed(3);
+        }
+    }, {
+        key: [ 'lightmapper', 'compileTime' ],
+        title: 'Shader Compile Time',
+        panel: panelLightmap,
+        format: function(value) {
+            return value.toFixed(3);
+        }
     }, {
         key: [ 'vram', 'ib' ],
         title: 'Index Buffers',
@@ -323,6 +375,11 @@ app.once('load', function() {
     }, {
         key: [ 'lightmapper', 'lightmapMem' ],
         title: 'Lightmaps',
+        panel: panelVram,
+        format: bytesToHuman
+    }, {
+        key: [ 'vram', 'totalUsed' ],
+        title: 'Total',
         panel: panelVram,
         format: bytesToHuman
     }]

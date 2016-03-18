@@ -276,7 +276,7 @@ editor.once('load', function() {
             var max = -Infinity;
 
             for(var i = 0; i < entities.length; i++) {
-                if (! entities[i].get('components.model.lightmapped') || ! entities[i].entity.model || (! entities[i].entity.model.asset && entities[i].entity.type === 'asset') || ! framework.assets.get(entities[i].entity.model.asset))
+                if (! entities[i].get('components.model.lightmapped') || ! entities[i].entity.model || (! entities[i].entity.model.asset && entities[i].entity.type === 'asset') || (entities[i].entity.model.asset && ! framework.assets.get(entities[i].entity.model.asset)))
                     continue;
 
                 var size = lightmapper.calculateLightmapSize(entities[i].entity);
