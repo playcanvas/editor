@@ -102,107 +102,117 @@ editor.once('load', function() {
 
 
     // reparenting
-    hierarchy.on('reparent', function(item, parentOld) {
-        var parent = item.parent.entity;
-        var entity = item.entity;
-        parentOld = parentOld.entity;
+    hierarchy.on('reparent', function(items) {
+        var records = [ ];
 
-        var resourceId = entity.get('resource_id');
-        var parentId = parent.get('resource_id');
-        var parentIdOld = parentOld.get('resource_id');
+        // make records and collect relevant data
+        for(var i = 0; i < items.length; i++) {
+            if (items[i].item.entity.reparenting)
+                continue;
 
-        // no need to reparent
-        if (entity.reparenting)
-            return;
+            var record = {
+                item: items[i].item,
+                parent: items[i].item.parent.entity,
+                entity: items[i].item.entity,
+                parentOld: items[i].old.entity,
+                resourceId: items[i].item.entity.get('resource_id'),
+                parentId: items[i].item.parent.entity.get('resource_id'),
+                parentIdOld: items[i].old.entity.get('resource_id')
+            };
 
-        entity.reparenting = true;
+            // relative entity
+            record.indOld = record.parentOld.get('children').indexOf(record.resourceId);
+            record.indNew = Array.prototype.indexOf.call(record.item.parent.innerElement.childNodes, record.item.element) - 1;
 
-        parent.history.enabled = false;
-        parentOld.history.enabled = false;
-        entity.history.enabled = false;
-
-        // relative entity
-        var indOld = parentOld.get('children').indexOf(entity.get('resource_id'));
-        var ind = parent.get('children').indexOf(entity.get('resource_id'));
-        var indNew = -1;
-
-        if (item.next && item.next.entity) {
-            indNew = parent.get('children').indexOf(item.next.entity.get('resource_id'));
-
-            if (parent === parentOld && ind < indNew)
-                indNew--;
+            records.push(record);
         }
 
-        if (parent === parentOld) {
-            // move
-            parent.move('children', ind, indNew);
+        for(var i = 0; i < records.length; i++) {
+            var record = records[i];
 
-        } else {
-            // reparenting
+            record.entity.reparenting = true;
 
-            // remove from old parent
-            parentOld.remove('children', indOld);
+            record.parent.history.enabled = false;
+            record.parentOld.history.enabled = false;
+            record.entity.history.enabled = false;
 
-            // add to new parent children
-            if (indNew !== -1) {
-                // before other item
-                parent.insert('children', entity.get('resource_id'), indNew);
+            if (record.parent === record.parentOld) {
+                // move
+                record.parent.removeValue('children', record.resourceId);
+                record.parent.insert('children', record.resourceId, record.indNew + ((record.indNew > record.indOld) ? (records.length - 1 - i) : 0));
             } else {
-                // at the end
-                parent.insert('children', entity.get('resource_id'));
+                // reparenting
+
+                // remove from old parent
+                record.parentOld.removeValue('children', record.resourceId);
+
+                // add to new parent children
+                if (record.indNew !== -1) {
+                    // before other item
+                    record.parent.insert('children', record.resourceId, record.indNew);
+                } else {
+                    // at the end
+                    record.parent.insert('children', record.resourceId);
+                }
+
+                // set parent
+                record.entity.set('parent', record.parentId);
             }
 
-            // set parent
-            entity.set('parent', parent.get('resource_id'));
+            record.parent.history.enabled = true;
+            record.parentOld.history.enabled = true;
+            record.entity.history.enabled = true;
+            record.entity.reparenting = false;
         }
 
-        parent.history.enabled = true;
-        parentOld.history.enabled = true;
-        entity.history.enabled = true;
-
         editor.call('history:add', {
-            name: 'reparent entity ' + resourceId,
+            name: 'reparent entities',
             undo: function() {
-                var parentOld = editor.call('entities:get', parentIdOld);
-                var parent = editor.call('entities:get', parentId);
-                var entity = editor.call('entities:get', resourceId);
-                if (! parentOld || ! parent || ! entity)
-                    return;
+                for(var i = 0; i < records.length; i++) {
+                    var parentOld = editor.call('entities:get', records[i].parentIdOld);
+                    var parent = editor.call('entities:get', records[i].parentId);
+                    var entity = editor.call('entities:get', records[i].resourceId);
+                    if (! parentOld || ! parent || ! entity)
+                        continue;
 
-                parent.history.enabled = false;
-                parent.removeValue('children', resourceId);
-                parent.history.enabled = true;
+                    parent.history.enabled = false;
+                    parent.removeValue('children', records[i].resourceId);
+                    parent.history.enabled = true;
 
-                parentOld.history.enabled = false;
-                parentOld.insert('children', resourceId, indOld === -1 ? undefined : indOld);
-                parentOld.history.enabled = true;
+                    parentOld.history.enabled = false;
+                    var off = parent !== parentOld ? 0 : ((records[i].indNew < records[i].indOld) ? (records.length - 1 - i) : 0);
+                    parentOld.insert('children', records[i].resourceId, records[i].indOld === -1 ? undefined : records[i].indOld + off);
+                    parentOld.history.enabled = true;
 
-                entity.history.enabled = false;
-                entity.set('parent', parentIdOld);
-                entity.history.enabled = true;
+                    entity.history.enabled = false;
+                    entity.set('parent', records[i].parentIdOld);
+                    entity.history.enabled = true;
+                }
             },
             redo: function() {
-                var parentOld = editor.call('entities:get', parentIdOld);
-                var parent = editor.call('entities:get', parentId);
-                var entity = editor.call('entities:get', resourceId);
-                if (! parentOld || ! parent || ! entity)
-                    return;
+                for(var i = 0; i < records.length; i++) {
+                    var parentOld = editor.call('entities:get', records[i].parentIdOld);
+                    var parent = editor.call('entities:get', records[i].parentId);
+                    var entity = editor.call('entities:get', records[i].resourceId);
+                    if (! parentOld || ! parent || ! entity)
+                        continue;
 
-                parentOld.history.enabled = false;
-                parentOld.removeValue('children', resourceId);
-                parentOld.history.enabled = true;
+                    parentOld.history.enabled = false;
+                    parentOld.removeValue('children', records[i].resourceId);
+                    parentOld.history.enabled = true;
 
-                parent.history.enabled = false;
-                parent.insert('children', resourceId, indNew === -1 ? undefined : indNew);
-                parent.history.enabled = true;
+                    parent.history.enabled = false;
+                    var off = parent !== parentOld ? 0 : ((records[i].indNew > records[i].indOld) ? (records.length - 1 - i) : 0);
+                    parent.insert('children', records[i].resourceId, records[i].indNew + off);
+                    parent.history.enabled = true;
 
-                entity.history.enabled = false;
-                entity.set('parent', parentId);
-                entity.history.enabled = true;
+                    entity.history.enabled = false;
+                    entity.set('parent', records[i].parentId);
+                    entity.history.enabled = true;
+                }
             }
         });
 
-        entity.reparenting = false;
         resizeTree();
     });
 
