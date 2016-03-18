@@ -277,7 +277,7 @@ editor.once('load', function () {
     var addToHistory = function (localOp) {
         // try to concatenate new op with latest op in the undo stack
         var top = undoStack[undoStack.length-1];
-        if (top && top.time && Math.abs(top.time - localOp.time) <= delay && canConcatOps(top.op, localOp.op)) {
+        if (top && top.time && Math.abs(top.time - localOp.time) <= delay /*&& canConcatOps(top.op, localOp.op)*/) {
             top.op = concat(localOp.op, top.op);
             top.time = localOp.time;
         } else {
