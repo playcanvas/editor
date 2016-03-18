@@ -245,7 +245,10 @@ editor.once('load', function () {
     });
 
     // emit change
-    codeMirror.on('change', function (cm, change) {
+    // use 'beforeChange' event so that
+    // we capture the state of the document before it's changed.
+    // This is so that we send correct operations to sharejs.
+    codeMirror.on('beforeChange', function (cm, change) {
         if (isLoading) return;
         editor.emit('editor:change', cm, change);
     });

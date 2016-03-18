@@ -139,8 +139,6 @@ editor.once('load', function () {
             cm.replaceRange(text, from);
             var to = cm.posFromIndex(pos + text.length);
             suppress = false;
-
-            // validate();
         };
 
         share.onRemove = function (pos, length) {
@@ -155,7 +153,6 @@ editor.once('load', function () {
             // apply operation locally
             cm.replaceRange('', from, to);
 
-            // validate();
             suppress = false;
         };
     };
@@ -253,33 +250,13 @@ editor.once('load', function () {
         share._doc.pause();
     };
 
-
     var suppress = false;
-
-    // validate text is correct and if not
-    // replace editor text with snapshot
-    // var validate = function () {
-    //     setTimeout(function () {
-
-    //         var cmText = cm.getValue();
-    //         var otText = share.get() || '';
-
-    //         if (cmText != otText) {
-    //             console.error("Text does not match!", cmText, otText);
-    //             // Replace the editor text with the snapshot.
-    //             suppress = true;
-    //             cm.setValue(otText);
-    //             suppress = false;
-    //         }
-    //     }, 0);
-    // };
 
     // local -> server
     editor.on('editor:change', function (cm, change) {
         if (!share || suppress) return;
 
         applyToShareJS(cm, change);
-        // validate();
 
         // clear redo stack
         redoStack.length = 0;
@@ -330,6 +307,8 @@ editor.once('load', function () {
     function applyToShareJS(cm, change) {
         var startPos = 0;  // Get character position from # of chars in each line.
         var i = 0;         // i goes through all lines.
+        var text;
+        var op;
 
         while (i < change.from.line) {
             startPos += cm.lineInfo(i).text.length + 1;   // Add 1 for '\n'
@@ -338,33 +317,24 @@ editor.once('load', function () {
 
         startPos += change.from.ch;
 
+        // handle delete
         if (change.to.line != change.from.line || change.to.ch != change.from.ch) {
-            // change.removed contains an array of removed lines as strings, so this adds
-            // all the lengths. Later change.removed.length - 1 is added for the \n-chars
-            // (-1 because the linebreak on the last line won't get deleted)
-            var delLen = 0;
-            var text = '';
-            var separator = '';
-            for (var rm = 0; rm < change.removed.length; rm++) {
-              delLen += change.removed[rm].length;
-              text += separator + change.removed[rm];
-              separator = '\n';
-            }
-            delLen += change.removed.length - 1;
+            text = cm.getRange(change.from, change.to);
 
             if (text) {
-                var op = createInsertOp(startPos, text);
+                op = createInsertOp(startPos, text);
                 addToHistory(op);
 
-                share.remove(startPos, delLen);
+                share.remove(startPos, text.length);
             }
         }
 
+        // handle insert
         if (change.text) {
-            var text = change.text.join('\n');
+            text = change.text.join('\n');
 
             if (text) {
-                var op = createRemoveOp(startPos, text.length);
+                op = createRemoveOp(startPos, text.length);
                 addToHistory(op);
             }
 
