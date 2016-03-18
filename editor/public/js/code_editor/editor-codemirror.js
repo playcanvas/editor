@@ -244,14 +244,13 @@ editor.once('load', function () {
             codeMirror.markClean();
     });
 
-    codeMirror.on('changes', function (cm, changes) {
+    // emit change
+    // use 'beforeChange' event so that
+    // we capture the state of the document before it's changed.
+    // This is so that we send correct operations to sharejs.
+    codeMirror.on('beforeChange', function (cm, change) {
         if (isLoading) return;
-
-        // emit changes in reverse order for sharejs to work properly
-        // in cases like multiple cursors
-        var i = changes.length;
-        while (i--)
-            editor.emit('editor:change', cm, changes[i]);
+        editor.emit('editor:change', cm, change);
     });
 
     // permissions changed so set readonly
