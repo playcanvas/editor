@@ -244,10 +244,14 @@ editor.once('load', function () {
             codeMirror.markClean();
     });
 
-    // emit change
-    codeMirror.on('change', function (cm, change) {
+    codeMirror.on('changes', function (cm, changes) {
         if (isLoading) return;
-        editor.emit('editor:change', cm, change);
+
+        // emit changes in reverse order for sharejs to work properly
+        // in cases like multiple cursors
+        var i = changes.length;
+        while (i--)
+            editor.emit('editor:change', cm, changes[i]);
     });
 
     // permissions changed so set readonly

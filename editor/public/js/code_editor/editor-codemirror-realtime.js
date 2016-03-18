@@ -139,8 +139,6 @@ editor.once('load', function () {
             cm.replaceRange(text, from);
             var to = cm.posFromIndex(pos + text.length);
             suppress = false;
-
-            // validate();
         };
 
         share.onRemove = function (pos, length) {
@@ -155,7 +153,6 @@ editor.once('load', function () {
             // apply operation locally
             cm.replaceRange('', from, to);
 
-            // validate();
             suppress = false;
         };
     };
@@ -253,33 +250,13 @@ editor.once('load', function () {
         share._doc.pause();
     };
 
-
     var suppress = false;
-
-    // validate text is correct and if not
-    // replace editor text with snapshot
-    // var validate = function () {
-    //     setTimeout(function () {
-
-    //         var cmText = cm.getValue();
-    //         var otText = share.get() || '';
-
-    //         if (cmText != otText) {
-    //             console.error("Text does not match!", cmText, otText);
-    //             // Replace the editor text with the snapshot.
-    //             suppress = true;
-    //             cm.setValue(otText);
-    //             suppress = false;
-    //         }
-    //     }, 0);
-    // };
 
     // local -> server
     editor.on('editor:change', function (cm, change) {
         if (!share || suppress) return;
 
         applyToShareJS(cm, change);
-        // validate();
 
         // clear redo stack
         redoStack.length = 0;
