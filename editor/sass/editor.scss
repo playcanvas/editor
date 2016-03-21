@@ -1893,6 +1893,7 @@ strong {
         width: 100%;
         height: 24px;
         border: none;
+        border-top: 1px solid $bcg-primary;
         background-color: $bcg-darker;
 
         &.active,
@@ -1962,7 +1963,7 @@ strong {
         }
     }
     &.scrollable > .content {
-        top: 56px;
+        top: 57px;
     }
     > .content {
         > .search-results {
