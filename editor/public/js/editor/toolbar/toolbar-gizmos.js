@@ -179,6 +179,14 @@ editor.once('load', function() {
         }
     });
 
+    // world/local hotkey
+    editor.call('hotkey:register', 'gizmo:world', {
+        key: 'l',
+        callback: function() {
+            buttonWorld.emit('click');
+        }
+    });
+
     // focus
     editor.call('hotkey:register', 'viewport:focus', {
         key: 'f',

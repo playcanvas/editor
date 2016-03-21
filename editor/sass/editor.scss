@@ -588,7 +588,6 @@ strong {
     left: 0;
     width: auto;
     height: auto;
-    z-index: 220;
     opacity: 0;
     visibility: hidden;
     transition: opacity 100ms, visibility 100ms;
@@ -607,6 +606,7 @@ strong {
         background-color: rgba($text-active, .4);
         transition: background-color 100ms;
         pointer-events: auto;
+        z-index: 220;
 
         &.hole {
             outline: 2px solid $text-active;
@@ -623,6 +623,9 @@ strong {
         }
         &.over {
             background-color: rgba($text-active, .7);
+        }
+        &.drop-area-project-img {
+            z-index: 301; // larger than picker-project
         }
     }
 }
@@ -1885,6 +1888,158 @@ strong {
             display: none;
         }
     }
+    > .ui-text-field.search {
+        margin: 0;
+        width: 100%;
+        height: 24px;
+        border: none;
+        border-top: 1px solid $bcg-primary;
+        background-color: $bcg-darker;
+
+        &.active,
+        &:hover,
+        &:focus,
+        &.focus {
+            border-color: $bcg-darkest;
+            background-color: $bcg-darkest;
+            &:before {
+                content: '';
+                padding: 0;
+            }
+            &:after {
+                content: '';
+            }
+        }
+        > input.field {
+            line-height: 24px;
+        }
+        &:before {
+            content: 'Search';
+            position: absolute;
+            color: $text-dark;
+            line-height: 24px;
+            padding: 0 8px;
+            @extend .font-bold;
+            font-size: 12px;
+        }
+        &.not-empty:before {
+            padding: 0;
+            content: '';
+        }
+        &:after {
+            content: '\E129';
+            line-height: 24px;
+            background-color: $bcg-darker;
+            @extend .font-icon;
+            font-size: 14px;
+            text-align: center;
+        }
+        &.not-empty {
+            background-color: $bcg-darkest;
+            > input.field {
+                color: $text-active;
+            }
+            > .clear {
+                display: block;
+            }
+            &:after {
+                content: '';
+            }
+        }
+        > .clear {
+            display: none;
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            color: #d34141;
+            @extend .font-icon;
+            font-size: 18px;
+            text-align: center;
+            cursor: pointer;
+        }
+    }
+    &.scrollable > .content {
+        top: 57px;
+    }
+    > .content {
+        > .search-results {
+            z-index: 1;
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+            width: auto;
+            margin: 2px;
+            border: none;
+            background-color: $bcg-primary;
+
+            > .ui-list-item {
+                @extend .font-regular;
+                font-size: 14px;
+                height: 24px;
+                line-height: 22px;
+                padding: 0 5px;
+                border: none;
+
+                &:before {
+                    content: '\E185';
+                    padding-right: 6px;
+                    line-height: 24px;
+                    @extend .font-icon;
+                    font-size: 14px;
+                    text-align: center;
+                    background-color: transparent;
+                    color: $text-darkest;
+                }
+                &.container:before {
+                    content: '\E139';
+                }
+                &.c-script:before {
+                    content: '\E236';
+                }
+                &.c-model:before {
+                    content: '\E188';
+                }
+                &.c-animation:before {
+                    content: '\E198';
+                }
+                &.c-audiosource:before {
+                    content: '\E197';
+                }
+                &.c-sound:before {
+                    content: '\E197';
+                }
+                &.c-collision:before {
+                    content: '\E187';
+                }
+                &.c-rigidbody:before {
+                    content: '\E189';
+                }
+                &.c-particlesystem:before {
+                    content: '\E199';
+                }
+                &.c-light:before {
+                    content: '\E194';
+                }
+                &.c-audiolistener:before {
+                    content: '\E196';
+                }
+                &.c-camera:before {
+                    content: '\E212';
+                }
+                &:hover > .icon:after {
+                    color: $text-primary;
+                }
+            }
+        }
+    }
+    > .handle {
+        z-index: 1;
+    }
 }
 
 .ui-tree.hierarchy {
@@ -2478,7 +2633,7 @@ strong {
             position: relative;
             background-color: transparent;
 
-            &:hover {
+            &:not(.disabled):hover {
                 > .content > .ui-button {
                     color: $text-primary;
                     background-color: $text-active;
@@ -4535,6 +4690,8 @@ strong {
 }
 
 .ui-overlay.picker-project {
+    z-index: 300; // larger than drop-area's
+
     &.center {
         > .content {
             @extend .font-regular;
@@ -4812,6 +4969,19 @@ strong {
                     background-color: $bcg-darkest;
                 }
             }
+
+            > .new-scene-label {
+                margin-left: 0;
+                margin-right: 0;
+                display: block;
+            }
+
+            > .ui-text-field {
+                display: block;
+                width: 100%;
+                line-height: 1;
+                margin: 0;
+            }
         }
     }
 }
@@ -4991,7 +5161,7 @@ strong {
                         margin-right: 15px;
                         vertical-align: top;
 
-                        background-size: 100%;
+                        background-size: 100% 100%;
 
                         &.progress {
                             background-size: 40%;

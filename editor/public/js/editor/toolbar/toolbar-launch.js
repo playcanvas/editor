@@ -18,6 +18,15 @@ editor.once('load', function() {
     var launch = new ui.Panel();
     launch.class.add('launch');
     panel.append(launch);
+    launch.disabled = true;
+
+    editor.on('scene:load', function () {
+        launch.disabled = false;
+    });
+
+    editor.on('scene:unload', function () {
+        launch.disabled = true;
+    });
 
     var buttonLaunch = new ui.Button({
         text: '&#57649;'
@@ -115,7 +124,7 @@ editor.once('load', function() {
 
     // show dropdown menu
     launch.element.addEventListener('mouseenter', function () {
-        if (! editor.call('permissions:write'))
+        if (! editor.call('permissions:write') || launch.disabled)
             return;
 
         dropdownMenu.style.visibility = 'visible';

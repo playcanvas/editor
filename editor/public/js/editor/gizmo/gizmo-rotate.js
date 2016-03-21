@@ -251,48 +251,45 @@ editor.once('load', function() {
         var pickPlane = function(x, y) {
             var camera = app.activeCamera;
 
-            var posCamera = camera.getPosition();
+            var mouseWPos = camera.camera.screenToWorld(x, y, 1);
             var posGizmo = gizmo.root.getPosition();
-
-            // ray from camera
-            vecA
-            .copy(camera.camera.screenToWorld(x, y, 1))
-            .sub(posCamera)
-            .normalize();
-
-            // plane nomral based on selected axis
-            vecB.set(0, 0, 0);
-            vecB[hoverAxis] = 1;
+            var rayOrigin = vecA.copy(camera.getPosition());
+            var rayDirection = vecB;
+            var planeNormal = vecC.set(0, 0, 0);
+            planeNormal[hoverAxis] = 1;
 
             // rotate plane to local space
-            quat
-            .copy(startRotation)
-            .transformVector(vecB, vecB);
+            quat.copy(startRotation).transformVector(planeNormal, planeNormal);
+
+            // ray from camera
+            if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
+                rayDirection.copy(mouseWPos).sub(rayOrigin).normalize();
+            } else {
+                rayOrigin.copy(mouseWPos);
+                camera.getWorldTransform().transformVector(vecD.set(0, 0, -1), rayDirection);
+            }
 
             // pick the plane
-            vecA
-            .scale(-((vecB.dot(posCamera) - posGizmo.dot(vecB)) / vecB.dot(vecA)))
-            .add(posCamera)
-            .sub(posGizmo) // convert picked point to vector
-            .normalize();
+            var rayPlaneDot = planeNormal.dot(rayDirection);
+            var planeDist = posGizmo.dot(planeNormal);
+            var pointPlaneDist = (planeNormal.dot(rayOrigin) - planeDist) / rayPlaneDot;
+            var pickedPos = rayDirection.scale(-pointPlaneDist).add(rayOrigin).sub(posGizmo);
 
             // rotate vector to world space
-            quat
-            .invert()
-            .transformVector(vecA, vecA);
+            quat.invert().transformVector(pickedPos, pickedPos);
 
             var angle = 0;
             if (hoverAxis === 'x') {
-                angle = Math.atan2(vecA.z, vecA.y) / (Math.PI / 180);
+                angle = Math.atan2(pickedPos.z, pickedPos.y) / (Math.PI / 180);
             } else if (hoverAxis === 'y') {
-                angle = Math.atan2(vecA.x, vecA.z) / (Math.PI / 180);
+                angle = Math.atan2(pickedPos.x, pickedPos.z) / (Math.PI / 180);
             } else if (hoverAxis === 'z') {
-                angle = Math.atan2(vecA.y, vecA.x) / (Math.PI / 180);
+                angle = Math.atan2(pickedPos.y, pickedPos.x) / (Math.PI / 180);
             }
 
             return {
                 angle: angle,
-                point: vecA
+                point: pickedPos
             };
         };
 

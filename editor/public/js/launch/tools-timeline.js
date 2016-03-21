@@ -189,16 +189,6 @@ app.once('load', function() {
         cacheLightmapperEvent.t2 = time;
         app.emit('tools:timeline:update', cacheLightmapperEvent);
         cacheLightmapper = null;
-
-        var elapsed = Math.round(cacheLightmapperEvent.t2 - cacheLightmapperEvent.t);
-        var elapsedS = Math.floor(elapsed / 1000);
-        var elapsedM = elapsed % 1000;
-        var time = '';
-
-        if (elapsedS) time += elapsedS + 's ';
-        time += elapsedM + 'ms';
-
-        app.call('tools:frame:field:value', 'lightmapperBakingTime', time);
     };
 
     // subscribe to shader compile and linking

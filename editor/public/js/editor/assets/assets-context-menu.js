@@ -164,7 +164,8 @@ editor.once('load', function() {
                     type: source.get('type'),
                     filename: source.get('file.filename'),
                     scope: source.get('scope'),
-                    user_id: source.get('user_id')
+                    user_id: source.get('user_id'),
+                    region: source.get('region')
                 }
             }
         };
@@ -176,7 +177,8 @@ editor.once('load', function() {
                     type: target.get('type'),
                     filename: target.get('file.filename'),
                     scope: target.get('scope'),
-                    user_id: target.get('user_id')
+                    user_id: target.get('user_id'),
+                    region: target.get('region')
                 }
             };
 
@@ -218,7 +220,8 @@ editor.once('load', function() {
                         type: target.get('type'),
                         filename: target.get('file.filename'),
                         scope: target.get('scope'),
-                        user_id: target.get('user_id')
+                        user_id: target.get('user_id'),
+                        region: target.get('region')
                     }
                 };
             } else if (type === 'model') {
@@ -228,7 +231,8 @@ editor.once('load', function() {
                         type: target.get('type'),
                         filename: target.get('file.filename'),
                         scope: target.get('scope'),
-                        user_id: target.get('user_id')
+                        user_id: target.get('user_id'),
+                        region: target.get('region')
                     }
                 };
             } else {

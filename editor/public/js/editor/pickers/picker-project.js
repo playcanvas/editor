@@ -28,6 +28,57 @@ editor.once('load', function () {
     projectImg.style.backgroundImage = 'url("' + (config.project.thumbnails.m || blankImage) + '")';
     leftPanel.append(projectImg);
 
+    var uploadProjectImage = function (file) {
+        if (! editor.call('permissions:write'))
+            return;
+
+        if (uploadingImage)
+            return;
+
+        projectImg.style.backgroundImage = 'url("/images/common/ajax-loader.gif")';
+        projectImg.classList.add('progress');
+
+        uploadingImage = true;
+
+        editor.call('images:upload', file, function (data) {
+            editor.call('project:save', {image_url: data.url}, function () {
+                uploadingImage = false;
+
+            }, function () {
+                // error
+                uploadingImage = false;
+
+            });
+        }, function (status, data) {
+            // error
+            uploadingImage = false;
+        });
+    };
+
+    var dropRef = editor.call('drop:target', {
+        ref: projectImg,
+        filter: function (type, data) {
+            return editor.call('permissions:write') &&
+                   ! uploadingImage &&
+                   type === 'files';
+        },
+        drop: function (type, data) {
+            if (type !== 'files')
+                return;
+
+            var file = data[0];
+            if (! file)
+                return;
+
+            if (! /^image\//.test(file.type))
+                return;
+
+            uploadProjectImage(file);
+        }
+    });
+
+    dropRef.element.classList.add('drop-area-project-img');
+
     // hidden file input to upload project image
     var fileInput = document.createElement('input');
     fileInput.type = 'file';
@@ -43,35 +94,12 @@ editor.once('load', function () {
         fileInput.click();
     });
 
+
     fileInput.addEventListener('change', function () {
-        if (! editor.call('permissions:write'))
-            return;
-
-        if (uploadingImage)
-            return;
-
-        projectImg.style.backgroundImage = 'url("/images/common/ajax-loader.gif")';
-        projectImg.classList.add('progress');
-
-        uploadingImage = true;
-
         var file = fileInput.files[0];
         fileInput.value = null;
 
-
-        editor.call('images:upload', file, function (data) {
-            editor.call('project:save', {image_url: data.url}, function () {
-                uploadingImage = false;
-
-            }, function () {
-                // error
-                uploadingImage = false;
-
-            });
-        }, function (status, data) {
-            // error
-            uploadingImage = false;
-        });
+        uploadProjectImage(file);
     });
 
     // project info

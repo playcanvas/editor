@@ -19,5 +19,3 @@ editor.once('load', function() {
         }
     });
 });
-
-
