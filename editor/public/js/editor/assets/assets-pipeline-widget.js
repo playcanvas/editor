@@ -114,6 +114,10 @@ editor.once('load', function() {
             new: false
         };
 
+        // normalize jpeg format
+        if (meta.format === 'jpg')
+            meta.format = 'jpeg';
+
         // target format
         options.format = 'jpeg';
         if (meta.format === 'png' || meta.alpha || meta.depth > 8)
