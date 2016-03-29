@@ -479,7 +479,6 @@ editor.once('load', function() {
         });
 
         if (projectSettings.has('use_legacy_audio')) {
-
             var panelAudio = editor.call('attributes:addPanel', {
                 name: 'Audio'
             });
@@ -551,7 +550,9 @@ editor.once('load', function() {
         panelLoadingScreen.class.add('component', 'loading-screen');
 
         // custom loading screen script
-        if (editor.call("users:isSuperUser") || config.owner.plan.type === 'org') {
+        // TODO scripts2
+        // loading script
+        if (editor.call('project:settings').get('use_legacy_scripts') && (editor.call("users:isSuperUser") || config.owner.plan.type === 'org')) {
             var panelButtons = new ui.Panel();
             panelButtons.class.add('flex', 'component');
             panelLoadingScreen.append(panelButtons);
@@ -581,19 +582,26 @@ editor.once('load', function() {
 
             btnDefaultScript.on('click', function () {
                 editor.call('selector:enabled', false);
-                editor.call('sourcefiles:new', editor.call('sourcefiles:loadingScreen:skeleton'));
-                var evtNew = editor.once('sourcefiles:add', function (file) {
-                    setLoadingScreen(file.get('filename'));
-                    evtNew = null;
-                });
 
-                editor.once('sourcefiles:new:close', function () {
-                    editor.call('selector:enabled', true);
-                    if (evtNew) {
-                        evtNew.unbind();
+                // TODO scripts2
+                if (editor.call('project:settings').get('use_legacy_scripts')) {
+                    editor.call('sourcefiles:new', editor.call('sourcefiles:loadingScreen:skeleton'));
+                    var evtNew = editor.once('sourcefiles:add', function (file) {
+                        setLoadingScreen(file.get('filename'));
                         evtNew = null;
-                    }
-                });
+                    });
+
+                    editor.once('sourcefiles:new:close', function () {
+                        editor.call('selector:enabled', true);
+                        if (evtNew) {
+                            evtNew.unbind();
+                            evtNew = null;
+                        }
+                    });
+                } else {
+                    // create new loading script2
+                    console.log('create script2');
+                }
             });
 
             var btnSelectScript = new ui.Button({

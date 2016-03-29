@@ -8,5 +8,4 @@ editor.once("load", function () {
     editor.method('users:isSuperUser', function (flag) {
         return (config.self && config.self.superUser);
     });
-
-})
+});

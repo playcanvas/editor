@@ -3,6 +3,7 @@ editor.once('load', function() {
 
     var root = editor.call('layout.root');
     var assetsPanel = editor.call('layout.assets');
+    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
 
     var dragging = false;
     var draggingType = '';
@@ -89,7 +90,8 @@ editor.once('load', function() {
             editor.call('assets:filter:type', 'all');
         }
 
-        gridScripts.hidden = currentFolder !== null;
+        if (legacyScripts)
+            gridScripts.hidden = currentFolder !== null;
 
         editor.emit('assets:panel:currentFolder', currentFolder);
     });
@@ -401,7 +403,7 @@ editor.once('load', function() {
 
             grid.selected = assets;
         } else {
-            if (! (gridScripts.selected && grid.selected.length === 1) || ! selector.type)
+            if ((legacyScripts && ! (gridScripts.selected && grid.selected.length === 1)) || ! selector.type)
                 grid.selected = [ ];
 
             tree.clear();
@@ -472,7 +474,8 @@ editor.once('load', function() {
         if (search)
             searching = true;
 
-        gridScripts.hidden = ! fn('scripts', 'scripts');
+        if (legacyScripts)
+            gridScripts.hidden = ! fn('scripts', 'scripts');
     });
 
 
@@ -554,7 +557,7 @@ editor.once('load', function() {
         return cur + 1;
     };
 
-    var createScriptFolder = function() {
+    var createLegacyScriptFolder = function() {
         gridScripts = new ui.GridItem();
         gridScripts.class.add('type-folder', 'scripts');
         grid.append(gridScripts);
@@ -635,7 +638,8 @@ editor.once('load', function() {
 
         resizeTree();
     };
-    createScriptFolder();
+    if (legacyScripts)
+        createLegacyScriptFolder();
 
     // select all hotkey
     // ctrl + a
@@ -936,7 +940,7 @@ editor.once('load', function() {
                 resizeTree();
             }
 
-            keepScriptsAtTop();
+            keepLegacyScriptsAtTop();
         });
 
         var evtPathSet = asset.on('path:set', function(path, pathOld) {
@@ -966,7 +970,7 @@ editor.once('load', function() {
                     editor.emit('assets:panel:currentFolder', currentFolder);
             }
 
-            keepScriptsAtTop();
+            keepLegacyScriptsAtTop();
         });
 
         if (! asset.get('source')) {
@@ -1006,10 +1010,13 @@ editor.once('load', function() {
 
         resizeTree();
 
-        keepScriptsAtTop();
+        keepLegacyScriptsAtTop();
     });
 
-    var keepScriptsAtTop = function() {
+    var keepLegacyScriptsAtTop = function() {
+        if (! legacyScripts)
+            return;
+
         // resort scripts folder in grid
         gridScripts.element.parentNode.removeChild(gridScripts.element);
         var first = grid.element.firstChild;

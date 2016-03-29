@@ -1,6 +1,9 @@
 editor.once('load', function () {
     'use script';
 
+    if (! editor.call('project:settings').get('use_legacy_scripts'))
+        return;
+
     var root = editor.call('layout.root');
     var overlay = new ui.Overlay();
     overlay.class.add('new-script');

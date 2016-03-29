@@ -267,10 +267,18 @@ editor.once('load', function() {
             title: 'Script',
             default: {
                 enabled: true,
-                scripts: [ ]
+                scripts: null
             }
         }
     };
+
+    // TODO scripts2
+    if (editor.call('project:settings').get('use_legacy_scripts')) {
+        schema.script.default.scripts = [ ];
+    } else {
+        schema.script.default.order = [ ];
+        schema.script.default.scripts = { };
+    }
 
     var list = Object.keys(schema).sort(function(a, b) {
         if (a > b) {
@@ -330,5 +338,3 @@ editor.once('load', function() {
     });
 
 });
-
-

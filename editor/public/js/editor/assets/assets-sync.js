@@ -158,15 +158,14 @@ editor.once('load', function() {
                 // TODO
                 // disk allowance error
 
-                fn(err);
+                if (fn) fn(err);
 
                 return;
             }
 
             assetId = res.asset.id;
 
-            if (fn)
-                fn(err, assetId);
+            if (fn) fn(err, assetId);
         });
     });
 

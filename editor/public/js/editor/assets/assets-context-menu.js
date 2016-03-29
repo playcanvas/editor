@@ -16,7 +16,16 @@ editor.once('load', function() {
         value: 'script'
     });
     menuItemNewScript.on('select', function() {
-        editor.call('sourcefiles:new');
+        if (editor.call('project:settings').get('use_legacy_scripts')) {
+            editor.call('sourcefiles:new');
+        } else {
+            editor.call('picker:script-create', function(filename) {
+                editor.call('assets:create:script', {
+                    filename: filename,
+                    boilerplate: true
+                });
+            });
+        }
     });
     menu.append(menuItemNewScript);
 
@@ -90,7 +99,16 @@ editor.once('load', function() {
             if (key === 'upload') {
                 editor.call('assets:upload:picker', args);
             } else if (key === 'script') {
-                editor.call('sourcefiles:new');
+                if (editor.call('project:settings').get('use_legacy_scripts')) {
+                    editor.call('sourcefiles:new');
+                } else {
+                    editor.call('picker:script-create', function(filename) {
+                        editor.call('assets:create:script', {
+                            filename: filename,
+                            boilerplate: true
+                        });
+                    });
+                }
             } else {
                 editor.call('assets:create:' + key, args)
             }

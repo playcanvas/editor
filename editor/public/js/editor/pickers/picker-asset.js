@@ -24,6 +24,8 @@ editor.once('load', function() {
     // empty filter messages
     var getNoResultsMessage = function (type, filter) {
         var result;
+
+        // TODO scripts2
         if (type === 'script') {
             result = 'There are no scripts. Click on the <span class="font-icon" style="font-size: 18px">&#57632;</span> button to add one';
         } else if (type === 'material' || type === 'cubemap' || type === 'text' || type === 'json' || type === 'html' || type === 'shader' || type === 'css') {
@@ -72,6 +74,7 @@ editor.once('load', function() {
             if (item.asset)
                 editor.emit('picker:asset', item.asset);
         } else if (item.script) {
+            // TODO scripts2
             if (overlay.hidden ||
                 (currentType !== '*' && currentType !== "script")) {
                 return;
@@ -116,6 +119,8 @@ editor.once('load', function() {
         assetsPanelSearch = editor.call('assets:filter:search');
         assetsPanelFolder = editor.call('assets:panel:currentFolder');
         // navigate to scripts folder
+
+        // TODO scripts2
         if (type === 'script')
             editor.call('assets:panel:currentFolder', 'scripts');
         // initial grid selected items
@@ -135,6 +140,7 @@ editor.once('load', function() {
                 assetsGrid.selected = [ gridItem ];
                 // navigate to folder of referenced file
                 if (type === 'script') {
+                    // TODO scripts2
                     editor.call('assets:panel:currentFolder', 'scripts');
                 } else {
                     var path = currentAsset.get('path');

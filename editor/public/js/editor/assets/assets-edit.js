@@ -11,7 +11,7 @@ editor.once('load', function() {
     };
 
     editor.method('assets:edit', function (asset) {
-        if (asset.get('type') === 'script') {
+        if (asset.get('type') === 'script' && editor.call('project:settings').get('use_legacy_scripts')) {
             window.open('/editor/code/' + config.project.id + '/' + asset.get('filename'));
         } else {
             window.open('/editor/asset/' + asset.get('id'));

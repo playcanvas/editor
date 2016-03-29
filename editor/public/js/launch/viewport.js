@@ -12,6 +12,7 @@ app.once('load', function() {
     var sceneSettings = null;
     var loadingScreen = false;
     var scriptList = [];
+    var legacyScripts = app.call('project:settings').get('use_legacy_scripts');
 
     // update progress bar
     var setProgress = function (value) {
@@ -40,7 +41,7 @@ app.once('load', function() {
 
     // try to start preload and initialization of application after load event
     var init = function () {
-        if (!done && assets && hierarchy && settings && sourcefiles && libraries && loadingScreen) {
+        if (!done && assets && hierarchy && settings && (! legacyScripts || sourcefiles) && libraries && loadingScreen) {
             // prevent multiple init calls during scene loading
             done = true;
 
@@ -296,12 +297,13 @@ app.once('load', function() {
         init();
     });
 
-    app.on('sourcefiles:load', function (scripts) {
-        scriptList = scripts;
-        sourcefiles = true;
-        init();
-    });
+    if (legacyScripts) {
+        app.on('sourcefiles:load', function (scripts) {
+            scriptList = scripts;
+            sourcefiles = true;
+            init();
+        });
+    }
 
     createLoadingScreen();
-
 });

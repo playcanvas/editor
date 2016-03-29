@@ -19,7 +19,9 @@ editor.once('load', function () {
     };
 
     if (config.asset) {
-        if (config.asset.type === 'html') {
+        if (config.asset.type === 'script') {
+            options.mode = 'javascript';
+        } else if (config.asset.type === 'html') {
             options.mode = 'htmlmixed';
         } else if (config.asset.type === 'css') {
             options.mode = 'css';
