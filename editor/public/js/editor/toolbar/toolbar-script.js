@@ -78,6 +78,7 @@ editor.once('load', function () {
         fieldError.hidden = true;
 
         if (! validateFilename(fieldName.value)) {
+            creating = false;
             onError('Invalid filename');
             return;
         }
@@ -115,7 +116,7 @@ editor.once('load', function () {
         }
     });
 
-    var pattern = new RegExp("^(?:[\\w\\d\\.-]+\\\/)*[\\w\\d\\.-]+(?:\\.js)?$", 'i');
+    var pattern = /^(?:[\w\.-]+\/)*[_\.-]*[A-Za-z][\w_\.-]*?$/i;
     var validateFilename = function (filename) {
         return pattern.test(filename);
     };
