@@ -34,6 +34,7 @@ editor.once('load', function () {
     var clearAppImage = function () {
         imageField.classList.remove('progress');
         if (config.project.thumbnails.m) {
+            imageField.classList.remove('blank');
             imageField.style.backgroundImage = 'url("' + config.project.thumbnails.m + '")';
         } else {
             imageField.classList.add('blank');
