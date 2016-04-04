@@ -11,6 +11,10 @@ editor.once('load', function () {
         realtimeAuthenticated = true;
     });
 
+    editor.on('realtime:disconnected', function () {
+        realtimeAuthenticated = false;
+    });
+
     var evtLoadOnAuthenticated = null;
 
     // Load scene with specified id. If isNew is true
