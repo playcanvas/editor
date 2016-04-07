@@ -5,11 +5,38 @@ editor.once('load', function () {
 
     var deletedScenes = {};
 
+    var realtimeAuthenticated = false;
+
+    editor.on('realtime:authenticated', function () {
+        realtimeAuthenticated = true;
+    });
+
+    editor.on('realtime:disconnected', function () {
+        realtimeAuthenticated = false;
+    });
+
+    var evtLoadOnAuthenticated = null;
+
     // Load scene with specified id. If isNew is true
     // then scene settings will open right after loading the new scene
     editor.method('scene:load', function (id, isNew) {
         if (config.scene.id)
             editor.call('scene:unload');
+
+        if (evtLoadOnAuthenticated) {
+            evtLoadOnAuthenticated.unbind();
+        }
+
+        // if we have not been authenticated with sharejs yet
+        // then defer loading until we are authenticated
+        if (! realtimeAuthenticated) {
+            evtLoadOnAuthenticated = editor.once('realtime:authenticated', function () {
+                evtLoadOnAuthenticated = null;
+                editor.call('scene:load', id, isNew);
+            });
+
+            return;
+        }
 
         editor.emit('scene:beforeload', id);
 
