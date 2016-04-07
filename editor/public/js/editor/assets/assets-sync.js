@@ -1,6 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
+    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
     var syncPaths = [
         'name',
         'preload',
@@ -8,7 +9,6 @@ editor.once('load', function() {
         'data',
         'file'
     ];
-
     var docs = {};
 
     editor.method('loadAsset', function (id, callback) {
@@ -177,7 +177,7 @@ editor.once('load', function() {
         var assets = [ ];
 
         for(var i = 0; i < list.length; i++) {
-            if (list[i].get('type') === 'script') {
+            if (legacyScripts && list[i].get('type') === 'script') {
                 editor.emit('sourcefiles:remove', list[i]);
                 Ajax.delete('{{url.api}}/projects/' + config.project.id + '/repositories/directory/sourcefiles/' + list[i].get('filename') + '?access_token={{accessToken}}');
             } else {

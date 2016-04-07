@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var scriptBoilerplate = "var {className} = new pc.Script('{scriptName}');\n\n{className}.prototype.initialize = function() {\n    // initialize code called once per entity\n};\n\n{className}.prototype.update = function(dt) {\n    // update code called every frame\n};\n";
+    var scriptBoilerplate = "var {className} = new pc.Script('{scriptName}');\n\n{className}.prototype.initialize = function() {\n    // initialize code called once per entity\n};\n\n{className}.prototype.update = function(dt) {\n    // update code called every frame\n};\n\n// to learn more about script anatomy, please read:\n// http://developer.playcanvas.com/en/";
     var filenameValid = /^([^0-9.#<>$+%!`&='{}@\\/:*?"<>|\n])([^#<>$+%!`&='{}@\\/:*?"<>|\n])*$/i;
 
 
@@ -16,7 +16,7 @@ editor.once('load', function() {
         if (args.boilerplate) {
             var name = filename.slice(0, -3);
             var className = args.className || '';
-            var scriptName = args.scriptName || name;
+            var scriptName = args.scriptName || '';
 
             if (! className || ! scriptName) {
                 // tokenize filename
@@ -32,8 +32,13 @@ editor.once('load', function() {
                 }
 
                 if (tokens.length) {
-                    if (! scriptName)
-                        scriptName = tokens.join('-');
+                    if (! scriptName) {
+                        scriptName = tokens[0];
+
+                        for(var i = 1; i < tokens.length; i++) {
+                            scriptName += tokens[i].charAt(0).toUpperCase() + tokens[i].slice(1);
+                        }
+                    }
 
                     if (! className) {
                         for(var i = 0; i < tokens.length; i++) {
@@ -63,12 +68,26 @@ editor.once('load', function() {
             parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
             filename: filename,
             file: new Blob([ args.content || '' ], { type: 'text/javascript' }),
+            data: {
+                order: 100,
+                scripts: { }
+            },
             scope: {
                 type: 'project',
                 id: config.project.id
             }
         };
 
-        editor.call('assets:create', asset);
+        editor.call('assets:create', asset, function(err, assetId) {
+            if (err) return;
+
+            var asset = editor.call('assets:get', assetId);
+            if (! asset) return;
+
+            // parse once file is available
+            asset.once('file.url:set', function() {
+                editor.call('scripts:parse', asset);
+            });
+        });
     });
 });

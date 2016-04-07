@@ -1,6 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
+    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
     var title = 'INSPECTOR';
     var root = editor.call('layout.right');
     root.header = title;
@@ -977,7 +978,7 @@ editor.once('load', function() {
                     if (! asset) return;
                     editor.call('selector:set', 'asset', [ asset ]);
 
-                    if (asset.get('type') === 'script') {
+                    if (legacyScripts && asset.get('type') === 'script') {
                         editor.call('assets:panel:currentFolder', 'scripts');
                     } else {
                         var path = asset.get('path');
@@ -1714,7 +1715,7 @@ editor.once('load', function() {
 
             // on pick
             var evtPick = editor.once('picker:asset', function(asset) {
-                if (asset.get('type') === 'script')
+                if (legacyScripts && asset.get('type') === 'script')
                     return;
 
                 var records = [ ];

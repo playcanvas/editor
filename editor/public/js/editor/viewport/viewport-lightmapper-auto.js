@@ -78,7 +78,7 @@ editor.once('load', function() {
 
         editor.call('viewport:render');
         editor.once('viewport:update', function() {
-            console.log('rebake self');
+            // console.log('rebake self');
             editor.call('lightmapper:bake', [ entity ]);
         });
     };
@@ -108,7 +108,7 @@ editor.once('load', function() {
                 return;
 
             bakingNextFrame = false;
-            console.log('rebake global');
+            // console.log('rebake global');
             editor.call('lightmapper:bake');
         });
     };
