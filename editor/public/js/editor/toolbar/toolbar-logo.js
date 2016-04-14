@@ -541,7 +541,7 @@ editor.once('load', function() {
     };
 
     if (editor.call('project:settings').get('use_legacy_scripts')) {
-        menuData['entity']['itmes']['add-builtin-script'] = {
+        menuData['entity']['items']['add-builtin-script'] = {
             title: 'Add Built-In Script',
             filter: function () {
                 return editor.call('selector:type') === 'entity';

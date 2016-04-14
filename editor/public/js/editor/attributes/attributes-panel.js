@@ -65,6 +65,9 @@ editor.once('load', function() {
     };
 
     editor.method('attributes:linkField', function(args) {
+        if (args.path === 'components.script.scripts.player.attributes.asset') {
+            console.log(args);
+        }
         var update, changeField, changeFieldQueue;
         args.field._changing = false;
         var events = [ ];
@@ -119,7 +122,6 @@ editor.once('load', function() {
                     args.field.class.remove('star');
                     if (/^\* /.test(args.field._title.text))
                         args.field._title.text = args.field._title.text.substring(2);
-
                 }
 
                 if (different) {
@@ -143,18 +145,31 @@ editor.once('load', function() {
                     args.field.class.remove('null');
                 }
             } else {
-                for(var i = 1; i < args.link.length; i++) {
-                    var v = args.link[i].get(args.path);
-                    if ((value || 0) !== (v || 0)) {
-                        value = args.enum ? '' : null;
-                        different = true;
-                        break;
+                var valueFound = false;
+                for(var i = 0; i < args.link.length; i++) {
+                    if (! args.link[i].has(args.path))
+                        continue;
+
+                    if (! valueFound) {
+                        valueFound = true;
+                        value = args.link[i].get(args.path);
+                    } else {
+                        var v = args.link[i].get(args.path);
+                        if ((value || 0) !== (v || 0)) {
+                            value = args.enum ? '' : null;
+                            different = true;
+                            break;
+                        }
                     }
                 }
             }
 
             args.field._changing = true;
             args.field.value = value;
+
+            if (args.type === 'checkbox')
+                args.field._onLinkChange(value);
+
             args.field._changing = false;
 
             if (args.enum) {
@@ -195,7 +210,7 @@ editor.once('load', function() {
                 args.field.value = value;
 
             for(var i = 0; i < args.link.length; i++) {
-                if (args.type === 'asset' && !args.link[i].has(args.path)) continue;
+                if (! args.link[i].has(args.path)) continue;
 
                 items.push({
                     get: args.link[i].history !== undefined ? args.link[i].history._getItemFn : null,
@@ -204,6 +219,7 @@ editor.once('load', function() {
                 });
 
                 historyState(args.link[i], false);
+                console.log('changeField', args.path, value);
                 args.link[i].set(args.path, value);
                 historyState(args.link[i], true);
             }
@@ -405,6 +421,8 @@ editor.once('load', function() {
         }
 
         update();
+        if (args.path === 'components.script.scripts.player.attributes.asset')
+            console.log('linkChangeEvent', args.field);
         args.field.on('change', changeField);
 
         for(var i = 0; i < args.link.length; i++) {
@@ -751,8 +769,8 @@ editor.once('load', function() {
                 for(var i = 0; i < link.length; i++) {
                     var tags = link[i].get(args.path);
 
-                    events.push(link[i].on('tags:insert', onInsert));
-                    events.push(link[i].on('tags:remove', onRemove));
+                    events.push(link[i].on(args.path + ':insert', onInsert));
+                    events.push(link[i].on(args.path + ':remove', onRemove));
 
                     if (! tags)
                         continue;
@@ -956,6 +974,7 @@ editor.once('load', function() {
                     editor.call('picker:asset', args.kind, asset);
 
                     evtPick = editor.once('picker:asset', function(asset) {
+                        console.log(asset.get('id'));
                         field.emit('beforechange', asset.get('id'));
                         field.value = asset.get('id');
                         evtPick = null;
@@ -1022,6 +1041,8 @@ editor.once('load', function() {
                 linkField();
 
                 var updateField = function() {
+                    if (args.path === 'components.script.scripts.player.attributes.asset')
+                        console.log('updateField', field.value);
                     var value = field.value;
 
                     fieldTitle.text = field.class.contains('null') ? 'various' : 'Empty';
@@ -1056,6 +1077,8 @@ editor.once('load', function() {
                     if (field.class.contains('star'))
                         fieldTitle.text = '* ' + fieldTitle.text;
                 };
+                if (args.path === 'components.script.scripts.player.attributes.asset')
+                    console.log('changeEvent', field);
                 field.on('change', updateField);
 
                 if (args.value)
@@ -1570,7 +1593,7 @@ editor.once('load', function() {
 
         var fieldAssets = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Assets',
+            name: args.name || 'Assets',
             type: 'element',
             element: fieldAssetsList,
             reference: args.reference

@@ -5,6 +5,10 @@ editor.once('load', function() {
         return;
 
 
+    // parse script file and its attributes
+    // update attributes accordingly
+
+
     editor.method('scripts:parse', function(asset, fn) {
         var worker = new Worker('/editor/scene/js/editor/assets/assets-script-parse-worker.js');
         worker.asset = asset;
@@ -20,6 +24,8 @@ editor.once('load', function() {
                     var result = evt.data.data;
 
                     var scripts = asset.get('data.scripts');
+
+                    asset.history.enabled = false;
 
                     // remove scripts
                     for(var key in scripts) {
@@ -60,6 +66,7 @@ editor.once('load', function() {
                                 if (! attributes.hasOwnProperty(attr) || ! script.attributes.hasOwnProperty(attr))
                                     continue;
 
+                                console.log(key, attr, attributes[attr])
                                 asset.set('data.scripts.' + key + '.attributes.' + attr, attributes[attr]);
                             }
 
@@ -82,6 +89,8 @@ editor.once('load', function() {
                             }
                         }
                     }
+
+                    asset.history.enabled = true;
 
                     if (fn) fn(null, result);
                     break;

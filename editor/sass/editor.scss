@@ -1552,7 +1552,7 @@ strong {
                             > .ui-header {
                                 background-color: $bcg-dark;
 
-                                > .move-down, > .move-up, > .remove {
+                                > .remove {
                                     float: right;
                                     width: 32px;
                                     height: 32px;
@@ -1566,26 +1566,40 @@ strong {
                                     text-align: center;
 
                                     &:hover {
-                                        color: $text-active;
-                                        background-color: #20292b;
-                                    }
-                                }
-                                > .move-up:after {
-                                    content: '\E161';
-                                }
-                                > .move-down {
-                                    &:after {
-                                        content: '\E163';
-                                    }
-                                }
-                                > .remove {
-                                    &:hover {
                                         color: #d34141;
+                                        background-color: #20292b;
                                     }
                                     &:after {
                                         content: '\E124';
                                         font-weight: 200;
                                     }
+                                }
+                                > .component-toggle-label {
+                                    float: right;
+                                    margin: 0 8px 0 0;
+                                    line-height: 32px;
+                                }
+                                > .ui-checkbox.component-toggle {
+                                    float: right;
+                                    margin: 7px 4px 0 0;
+                                    background-color: $bcg-primary;
+                                }
+                                > .invalid-script {
+                                    float: left;
+                                    width: 32px;
+                                    height: 32px;
+                                    line-height: 34px;
+                                    margin: 0 0 0 -8px;
+                                    text-align: center;
+                                    font-size: 22px;
+                                    font-weight: bold;
+                                    color: #f30;
+                                }
+                            }
+                            > .content {
+                                .label-field {
+                                    line-height: 24px;
+                                    margin-left: 6px;
                                 }
                             }
                         }
@@ -2507,8 +2521,10 @@ strong {
                     display: block;
                     &:after {
                         content: '!';
-                        font-size: 22px;
+                        font-size: 24px;
                         font-weight: bold;
+                        line-height: 26px;
+                        @extend .font-regular;
                     }
                 }
             }

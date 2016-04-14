@@ -267,7 +267,7 @@ editor.once('load', function() {
 
         // console.trace();
         // console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
-        // console.log(op)
+        // console.log(op);
 
         docs[id].submitOp([ op ]);
     });

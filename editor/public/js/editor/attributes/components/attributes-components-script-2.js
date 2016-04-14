@@ -4,6 +4,36 @@ editor.once('load', function() {
     if (editor.call('project:settings').get('use_legacy_scripts'))
         return;
 
+    var attributeTypeToUi = {
+        boolean: 'checkbox',
+        number: 'number',
+        string: 'string',
+        json: 'string',
+        asset: 'asset',
+        entity: 'entity',
+        rgb: 'rgb',
+        rgba: 'rgb',
+        vec2: 'vec2',
+        vec3: 'vec3',
+        vec4: 'vec4',
+        curve: 'curveset'
+    };
+
+    var attributeSubTitles = {
+        boolean: '{Boolean}',
+        number: '{Number}',
+        string: '{String}',
+        json: '{Object}',
+        asset: '{pc.Asset}',
+        entity: '{pc.Entity}',
+        rgb: '{pc.Color}',
+        rgba: '{pc.Color}',
+        vec2: '{pc.Vec2}',
+        vec3: '{pc.Vec3}',
+        vec4: '{pc.Vec4}',
+        curve: '{pc.Curve}'
+    };
+
     editor.on('attributes:inspect[entity]', function(entities) {
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (! panelComponents)
@@ -190,12 +220,17 @@ editor.once('load', function() {
                 if (entities[i].has('components.script.scripts.' + script))
                     continue;
 
-                records.push({
-                    get: entities[i].history._getItemFn
-                });
+                var record = {
+                    get: entities[i].history._getItemFn,
+                    data: {
+                        enabled: true,
+                        attributes: { }
+                    }
+                };
+                records.push(record);
 
                 entities[i].history.enabled = false;
-                entities[i].set('components.script.scripts.' + script, { });
+                entities[i].set('components.script.scripts.' + script, record.data);
                 entities[i].insert('components.script.order', script);
                 entities[i].history.enabled = true;
             }
@@ -219,7 +254,7 @@ editor.once('load', function() {
                         if (! item) continue;
 
                         item.history.enabled = false;
-                        item.set('components.script.scripts.' + script, { });
+                        item.set('components.script.scripts.' + script, records[i].data);
                         item.insert('components.script.order', script);
                         item.history.enabled = true;
                     }
@@ -359,6 +394,7 @@ editor.once('load', function() {
 
         var addScript = function(script) {
             var panel = scriptPanelsIndex[script];
+            var events = [ ];
 
             if (panel) {
                 // check if script is still present in all entities
@@ -375,7 +411,14 @@ editor.once('load', function() {
 
             panel = scriptPanelsIndex[script] = new ui.Panel();
             panel.header = script;
+            panel.attributesIndex = { };
             panelScripts.append(panel);
+            // clean events
+            panel.once('destroy', function() {
+                for(var i = 0; i < events.length; i++)
+                    events[i].unbind();
+                events = null;
+            });
 
             // check if script is present in all entities
             for(var i = 0; i < entities.length; i++) {
@@ -385,10 +428,10 @@ editor.once('load', function() {
                 }
             }
 
+            // remove
             var btnRemove = new ui.Button();
             btnRemove.class.add('remove');
             panel.headerAppend(btnRemove);
-
             btnRemove.on('click', function() {
                 // TODO scripts2
                 // history script order
@@ -400,7 +443,8 @@ editor.once('load', function() {
                         continue;
 
                     records.push({
-                        get: entities[i].history._getItemFn
+                        get: entities[i].history._getItemFn,
+                        data: entities[i].get('components.script.scripts.' + script)
                     });
 
                     entities[i].history.enabled = false;
@@ -417,7 +461,7 @@ editor.once('load', function() {
                             if (! item) continue;
 
                             item.history.enabled = false;
-                            item.set('components.script.scripts.' + script, { });
+                            item.set('components.script.scripts.' + script, records[i].data);
                             item.insert('components.script.order', script);
                             item.history.enabled = true;
                         }
@@ -438,7 +482,105 @@ editor.once('load', function() {
                 removeScript(script);
             });
 
+            // enable/disable
+            var fieldEnabled = editor.call('attributes:addField', {
+                panel: panel,
+                type: 'checkbox',
+                link: entities,
+                path: 'components.script.scripts.' + script + '.enabled'
+            });
+            fieldEnabled.class.remove('tick');
+            fieldEnabled.class.add('component-toggle');
+            fieldEnabled.element.parentNode.removeChild(fieldEnabled.element);
+            panel.headerAppend(fieldEnabled);
+
+            // toggle-label
+            var labelEnabled = new ui.Label();
+            labelEnabled.renderChanges = false;
+            labelEnabled.class.add('component-toggle-label');
+            panel.headerAppend(labelEnabled);
+            labelEnabled.text = fieldEnabled.class.contains('null') ? '?' : (fieldEnabled.value ? 'On' : 'Off');
+            fieldEnabled.on('change', function(value) {
+                labelEnabled.text = fieldEnabled.class.contains('null') ? '?' : (value ? 'On' : 'Off');
+            });
+
+            var scriptAsset = editor.call('assets:scripts:assetByScript', script);
+
+            // invalid sign
+            var labelInvalid = new ui.Label({ text: '!' });
+            labelInvalid.renderChanges = false;
+            labelInvalid.class.add('invalid-script');
+            panel.headerAppend(labelInvalid);
+            labelInvalid.hidden = !! scriptAsset;
+
+            // invalid tooltip
+            var tooltipInvalid = editor.call('attributes:reference', {
+                title: 'Invalid',
+                description: 'test'
+            });
+            tooltipInvalid.attach({
+                target: panel,
+                element: labelInvalid.element
+            });
+
+            var updateInvalidTooltip = function() {
+                var asset = editor.call('assets:scripts:assetByScript', script);
+                var description = '';
+
+                if (editor.call('assets:scripts:collide', script)) {
+                    // collision
+                    description = 'Multiple script assets define \'' + script + '\' Script Object. Please disable preloading for undesirable script assets.';
+                } else {
+                    // no script
+                    description = 'Script Object \'' + script + '\' is not defined in any preloaded script assets. Set preloading to script asset with desirable script object, or create new script asset with definition of \'' + script + '\' script object.';
+                }
+
+                tooltipInvalid.html = editor.call('attributes:reference:template', {
+                    title: 'Invalid',
+                    description: description
+                });
+            };
+            if (! scriptAsset)
+                updateInvalidTooltip();
+
             panelScripts.hidden = false;
+
+            // primary script changed
+            events.push(editor.on('assets:scripts[' + script + ']:primary:set', function(asset) {
+                scriptAsset = asset;
+                labelInvalid.hidden = true;
+            }));
+            events.push(editor.on('assets:scripts[' + script + ']:primary:unset', function(asset) {
+                scriptAsset = null;
+                labelInvalid.hidden = false;
+                updateInvalidTooltip();
+            }));
+
+            // attribute added
+            events.push(editor.on('assets:scripts[' + script + ']:attribute:set', function(asset, name) {
+                if (asset !== scriptAsset)
+                    return;
+
+                var attribute = scriptAsset.get('data.scripts.' + script + '.attributes.' + name);
+                addScriptAttribute(script, name, attribute);
+            }));
+            // attribute removed
+            events.push(editor.on('assets:scripts[' + script + ']:attribute:unset', function(asset, name) {
+                if (asset !== scriptAsset)
+                    return;
+
+                removeScriptAttribute(script, name);
+            }));
+
+            if (scriptAsset) {
+                var attributesOrder = scriptAsset.get('data.scripts.' + script + '.attributesOrder');
+                if (attributesOrder) {
+                    for(var i = 0; i < attributesOrder.length; i++) {
+                        var attribute = scriptAsset.get('data.scripts.' + script + '.attributes.' + attributesOrder[i]);
+                        addScriptAttribute(script, attributesOrder[i], attribute);
+                    }
+                }
+            }
         };
         var removeScript = function(script) {
             if (! scriptPanelsIndex[script])
@@ -466,6 +608,89 @@ editor.once('load', function() {
 
             if (! panelScripts.innerElement.firstChild)
                 panelScripts.hidden = true;
+        };
+        var addScriptAttribute = function(script, name, attribute) {
+            var panelScripts = scriptPanelsIndex[script];
+            if (! panelScripts || panelScripts.attributesIndex[name])
+                return;
+
+            // console.log(attribute);
+
+            var field = null;
+            var panel = new ui.Panel();
+            panelScripts.attributesIndex[name] = panel;
+            panelScripts.append(panel);
+
+            var type = attributeTypeToUi[attribute.type];
+            var subTitle = attributeSubTitles[attribute.type];
+            if (attribute.type === 'curve' && attribute.curves && attribute.curves.length > 1)
+                subTitle = '{pc.CurveSet}';
+            if (attribute.array)
+                subTitle = '[ ' + subTitle + ' ]';
+
+            var reference = {
+                title: name,
+                subTitle: subTitle,
+                description: attribute.description || ''
+            };
+
+            if (attribute.array) {
+                if (attribute.type === 'string') {
+                    type = 'strings';
+                } else {
+                    type = null;
+                }
+            }
+
+            if (attribute.array && attribute.type === 'asset') {
+                field = editor.call('attributes:addAssetsList', {
+                    panel: panel,
+                    title: attribute.title || name,
+                    name: attribute.title || name,
+                    reference: reference,
+                    type: attribute.assetType || '*',
+                    link: entities,
+                    path: 'components.script.scripts.' + script + '.attributes.' + name
+                });
+            } else {
+                var min = isNaN(attribute.min) ? undefined : attribute.min;
+                var max = isNaN(attribute.max) ? undefined : attribute.max;
+                var curves = null;
+                if (attribute.type === 'curve') {
+                    if (attribute.color) {
+                        curves = attribute.color.split('');
+                        min = 0;
+                        max = 1;
+                    } else if (attribute.curves) {
+                        curves = attribute.curves;
+                    } else {
+                        curves = [ 'Value' ];
+                    }
+                }
+                field = editor.call('attributes:addField', {
+                    parent: panel,
+                    name: attribute.title || name,
+                    placeholder: attribute.placeholder || null,
+                    reference: reference,
+                    type: type,
+                    kind: attribute.assetType || '*',
+                    link: entities,
+                    curves: curves,
+                    gradient: !! attribute.color,
+                    min: min,
+                    max: max,
+                    hideRandomize: true,
+                    path: 'components.script.scripts.' + script + '.attributes.' + name
+                });
+            }
+        };
+        var removeScriptAttribute = function(script, name) {
+            var panelScripts = scriptPanelsIndex[script];
+            if (! panelScripts || ! panelScripts.attributesIndex[name])
+                return;
+
+            panelScripts.attributesIndex[name].destroy();
+            delete panelScripts.attributesIndex[name];
         };
 
         var scripts = { };
