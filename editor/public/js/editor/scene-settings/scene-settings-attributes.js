@@ -503,40 +503,38 @@ editor.once('load', function() {
 
 
         // lightmapping
-        if(editor.call("users:isBetaTester")) {
-            var panelLightmapping = editor.call('attributes:addPanel', {
-                name: 'Lightmapping'
-            });
-            panelLightmapping.foldable = true;
-            panelLightmapping.folded = foldStates['lightmapping'];
-            panelLightmapping.on('fold', function() { foldStates['lightmapping'] = true; });
-            panelLightmapping.on('unfold', function() { foldStates['lightmapping'] = false; });
-            panelLightmapping.class.add('component', 'lightmapping');
+        var panelLightmapping = editor.call('attributes:addPanel', {
+            name: 'Lightmapping'
+        });
+        panelLightmapping.foldable = true;
+        panelLightmapping.folded = foldStates['lightmapping'];
+        panelLightmapping.on('fold', function() { foldStates['lightmapping'] = true; });
+        panelLightmapping.on('unfold', function() { foldStates['lightmapping'] = false; });
+        panelLightmapping.class.add('component', 'lightmapping');
 
-            // lightmapSizeMultiplier
-            var fieldLightmapSizeMultiplier = editor.call('attributes:addField', {
-                parent: panelLightmapping,
-                name: 'Size Multiplier',
-                type: 'number',
-                min: 0,
-                link: sceneSettings,
-                path: 'render.lightmapSizeMultiplier'
-            });
-            // reference
-            editor.call('attributes:reference:settings:lightmapSizeMultiplier:attach', fieldLightmapSizeMultiplier.parent.innerElement.firstChild.ui);
+        // lightmapSizeMultiplier
+        var fieldLightmapSizeMultiplier = editor.call('attributes:addField', {
+            parent: panelLightmapping,
+            name: 'Size Multiplier',
+            type: 'number',
+            min: 0,
+            link: sceneSettings,
+            path: 'render.lightmapSizeMultiplier'
+        });
+        // reference
+        editor.call('attributes:reference:settings:lightmapSizeMultiplier:attach', fieldLightmapSizeMultiplier.parent.innerElement.firstChild.ui);
 
-            // lightmapMaxResolution
-            var fieldLightmapMaxResolution = editor.call('attributes:addField', {
-                parent: panelLightmapping,
-                name: 'Max Resolution',
-                type: 'number',
-                min: 2,
-                link: sceneSettings,
-                path: 'render.lightmapMaxResolution'
-            });
-            // reference
-            editor.call('attributes:reference:settings:lightmapMaxResolution:attach', fieldLightmapMaxResolution.parent.innerElement.firstChild.ui);
-        }
+        // lightmapMaxResolution
+        var fieldLightmapMaxResolution = editor.call('attributes:addField', {
+            parent: panelLightmapping,
+            name: 'Max Resolution',
+            type: 'number',
+            min: 2,
+            link: sceneSettings,
+            path: 'render.lightmapMaxResolution'
+        });
+        // reference
+        editor.call('attributes:reference:settings:lightmapMaxResolution:attach', fieldLightmapMaxResolution.parent.innerElement.firstChild.ui);
 
 
 

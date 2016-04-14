@@ -92,12 +92,6 @@ editor.once('load', function() {
         });
 
 
-        if (!editor.call("users:isBetaTester")) {
-            fieldLightMap.parent.hidden = true;
-            fieldAffectDynamic.parent.hidden = true;
-            fieldAffectLightmapped.parent.hidden = true;
-        }
-
         // color
         var fieldColor = editor.call('attributes:addField', {
             parent: panel,

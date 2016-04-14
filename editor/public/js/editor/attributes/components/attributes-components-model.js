@@ -312,13 +312,6 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:model:lightmapSizeMultiplier:attach', fieldLightmapSizeMultiplier);
 
-        if (!editor.call("users:isBetaTester")) {
-            fieldLightmapped.parent.hidden = true;
-            fieldCastShadowsLightmap.hidden = true;
-            labelCastShadowsLightmap.hidden = true;
-            fieldLightmapSizeMultiplier.parent.hidden = true;
-        }
-
 
         panel.on('destroy', function() {
             for(var i = 0; i < events.length; i++)
