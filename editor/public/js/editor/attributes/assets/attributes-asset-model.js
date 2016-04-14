@@ -297,8 +297,6 @@ editor.once('load', function() {
             panelToggles['pipeline'] = false;
         });
 
-        if (!editor.call("users:isBetaTester"))
-            panelPipeline.hidden = true;
 
         var uv1Options = [ 'unavailable', 'available', 'various' ];
         var checkUV1 = function() {

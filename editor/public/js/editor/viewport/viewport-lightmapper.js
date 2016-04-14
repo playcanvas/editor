@@ -1,9 +1,6 @@
 editor.once('load', function() {
     'use strict';
 
-    if (!editor.call("users:isBetaTester"))
-        return;
-
     var app = editor.call('viewport:framework');
     var uv1MissingAssets = { };
 

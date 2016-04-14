@@ -1,9 +1,6 @@
 editor.once('load', function() {
     'use strict';
 
-    if (!editor.call("users:isBetaTester"))
-        return;
-
     var app;
     var root = editor.call('layout.root');
     var toolbar = editor.call('layout.toolbar');

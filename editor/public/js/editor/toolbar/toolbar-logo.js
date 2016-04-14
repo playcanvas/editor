@@ -536,9 +536,6 @@ editor.once('load', function() {
         'bake': {
             title: 'Bake LightMaps',
             icon: '&#57745;',
-            hide: function () {
-                return !editor.call("users:isBetaTester");
-            },
             select: function() {
                 editor.call('lightmapper:bake');
             }
