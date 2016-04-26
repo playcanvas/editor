@@ -5075,6 +5075,14 @@ strong {
             }
         }
 
+        .upgrade {
+            color: #fff;
+            padding: 15px;
+            margin: 0;
+            border-bottom: 1px solid $bcg-darker;
+            display: none;
+        }
+
         textarea {
             display: block;
             border: 1px solid $bcg-darker;
@@ -5260,6 +5268,24 @@ strong {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    &.upgrade {
+        > .content {
+            .upgrade {
+                display: block;
+            }
+
+            .ui-panel {
+                &.info, &.scenes {
+                    display: none;
+                }
+            }
+
+            .ui-button {
+                display: none !important;
             }
         }
     }
