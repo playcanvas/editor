@@ -84,6 +84,12 @@ editor.once('load', function() {
         }
     });
 
+    editor.on('messenger:user.logout', function (msg) {
+        if (msg.user.id === config.self.id) {
+            window.location.reload();
+        }
+    });
+
     editor.on('permissions:set:' + config.self.id, function (accessLevel) {
         var connection = editor.call('realtime:connection');
         editor.emit('permissions:writeState', connection && connection.state === 'connected' && (accessLevel === 'write' || accessLevel === 'admin'));
