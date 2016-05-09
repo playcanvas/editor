@@ -5,10 +5,12 @@ editor.once('load', function() {
         id: 'canvas-3d'
     });
 
+    var keepRendering = false;
     var settings = editor.call('designerSettings');
+    var Designer = editor.call('viewport:designer');
 
-    // create designer framework
-    var framework = new pc.editor.Designer(canvas.element, {
+    // create designer famework
+    var framework = new Designer(canvas.element, {
         mouse: new pc.input.Mouse(canvas.element),
         touch: !!('ontouchstart' in window) ? new pc.input.TouchDevice(canvas.element) : null,
         designerSettings: settings.json(),
@@ -25,11 +27,6 @@ editor.once('load', function() {
     // add canvas
     editor.call('layout.viewport').prepend(canvas);
 
-    var frameSelection = false;
-    var flyMode = false;
-
-    // methods
-
     // get canvas
     editor.method('viewport:canvas', function() {
         return canvas;
@@ -45,25 +42,12 @@ editor.once('load', function() {
         framework.redraw = true;
     });
 
-    editor.method('viewport:frameSelectionStart', function () {
-        frameSelection = true;
-    });
-
-    editor.method('viewport:frameSelectionEnd', function () {
-        frameSelection = false;
-    });
-
-    editor.method('viewport:flyModeStart', function () {
-        flyMode = true;
-    });
-
-    editor.method('viewport:flyModeEnd', function () {
-        flyMode = false;
-    });
-
     // returns true if the viewport should continuously render
-    editor.method('viewport:keepRendering', function () {
-        return frameSelection || flyMode;
+    editor.method('viewport:keepRendering', function (value) {
+        if (typeof(value) === 'boolean')
+            keepRendering = value;
+
+        return keepRendering;
     });
 
     editor.method('viewport:flyMode', function () {

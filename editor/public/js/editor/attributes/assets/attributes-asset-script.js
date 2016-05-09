@@ -39,11 +39,20 @@ editor.once('load', function() {
             // order
             var fieldOrder = editor.call('attributes:addField', {
                 parent: panel,
-                name: 'Loading Priority',
-                type: 'number',
-                min: 0,
-                link: asset,
-                path: 'data.order'
+                name: 'Loading Order'
+            });
+            var btnOrder = new ui.Button({
+                text: 'Manage'
+            });
+            btnOrder.class.add('loading-order');
+            var panelOrder = fieldOrder.parent;
+            panelOrder.innerElement.removeChild(fieldOrder.element);
+            panelOrder.append(btnOrder);
+            btnOrder.on('click', function() {
+                editor.call('selector:set', 'designerSettings', [ editor.call('designerSettings') ]);
+                setTimeout(function() {
+                    editor.call('designerSettings:panel:unfold', 'scripts-order');
+                }, 0);
             });
             // reparent
             var preloadField = panel.innerElement.querySelector('.ui-panel.field-checkbox.preload');
@@ -51,7 +60,6 @@ editor.once('load', function() {
                 fieldOrder.parent.parent.innerElement.removeChild(fieldOrder.parent.element);
                 panel.innerElement.insertBefore(fieldOrder.parent.element, preloadField.nextSibling);
             }
-
             // reference
             editor.call('attributes:reference:asset:script:order:attach', fieldOrder.parent.innerElement.firstChild.ui);
 
@@ -67,8 +75,16 @@ editor.once('load', function() {
                 editor.call('scripts:parse', asset, function(err, result) {
                     btnParse.disabled = false;
 
+                    if (err) {
+                        panelErrors.hidden = false;
+                        panelErrors.clear();
+                        panelErrors.append(new ui.Label({ text: err.message }));
+                        return;
+                    }
+
                     // script validation errors
                     panelErrors.clear();
+
                     if (result.scriptsInvalid.length) {
                         var label = new ui.Label({ text: 'Validation Errors:' });
                         label.class.add('title');
@@ -116,6 +132,19 @@ editor.once('load', function() {
             panelScripts.headerAppend(btnParse);
 
 
+            // has loading script
+            var fieldLoading = new ui.Label({
+                text: 'Has Loading Script'
+            });
+            fieldLoading.class.add('loading');
+            fieldLoading.hidden = ! asset.get('data.loading');
+            panelScripts.append(fieldLoading);
+            events.push(asset.on('data.loading:set', function(value) {
+                fieldLoading.hidden = ! value;
+                checkScriptsEmpty();
+            }));
+
+
             // scripts validation errors
             var panelErrors = new ui.Panel();
             panelErrors.class.add('validation');
@@ -135,15 +164,19 @@ editor.once('load', function() {
             var checkScriptsEmpty = function() {
                 var empty = Object.keys(scriptsPanelIndex).length === 0;
 
-                if (empty && ! noScriptsLabel) {
+                if (empty) {
+                    panelScriptsList.class.add('empty');
+                } else {
+                    panelScriptsList.class.remove('empty');
+                }
+
+                if (empty && ! noScriptsLabel && fieldLoading.hidden) {
                     // no scripts
                     noScriptsLabel = new ui.Label({
-                        text: 'no script objects found'
+                        text: 'No Script Objects found'
                     });
-                    panelScriptsList.class.add('empty');
                     panelScriptsList.append(noScriptsLabel);
                 } else if (! empty && noScriptsLabel) {
-                    panelScriptsList.class.remove('empty');
                     noScriptsLabel.destroy();
                     noScriptsLabel = null;
                 }
@@ -202,18 +235,15 @@ editor.once('load', function() {
 
                 scriptsPanelIndex[script] = panel;
 
-                var attributes = asset.get('data.scripts.' + script + '.attributes');
-                for(var key in attributes) {
-                    if (! attributes.hasOwnProperty(key))
-                        continue;
-
-                    createScriptAttribute(script, key);
-                }
+                var attributesOrder = asset.get('data.scripts.' + script + '.attributesOrder');
+                for(var i = 0; i < attributesOrder.length; i++)
+                    createScriptAttribute(script, attributesOrder[i]);
 
                 checkScriptsEmpty();
             };
 
-            var createScriptAttribute = function(script, attr) {
+            var createScriptAttribute = function(script, attr, ind) {
+                var events = [ ];
                 var panel = scriptsPanelIndex[script];
                 if (! panel) return;
 
@@ -234,27 +264,42 @@ editor.once('load', function() {
                     if (! attribute)
                         return;
 
+                    var subTitle = editor.call('assets:scripts:typeToSubTitle', attribute);
+
+                    fieldType.text = subTitle;
+
                     tooltip.html = editor.call('attributes:reference:template', {
                         title: attr,
-                        subTitle: '{' + attribute.type + '}',
+                        subTitle: subTitle,
                         description: (attribute.description || attribute.title || ''),
                         code: JSON.stringify(attribute, null, 4)
                     });
                 };
                 panel.attributesIndex[attr] = panelAttribute;
-                panel.append(panelAttribute);
+
+                var before = null;
+                if (typeof(ind) === 'number')
+                    before = panel.innerElement.childNodes[ind];
+
+                if (before) {
+                    panel.appendBefore(panelAttribute, before);
+                } else {
+                    panel.append(panelAttribute);
+                }
 
                 var fieldName = panelAttribute.fieldName = new ui.Label({ text: attr });
                 fieldName.class.add('name');
                 panelAttribute.append(fieldName);
 
-                var fieldType = panelAttribute.fieldType = new ui.Label({ text: '[' + attribute.type + ']' });
+                var fieldType = panelAttribute.fieldType = new ui.Label({
+                    text: editor.call('assets:scripts:typeToSubTitle', attribute)
+                });
                 fieldType.class.add('type');
                 panelAttribute.append(fieldType);
 
                 var tooltip = editor.call('attributes:reference', {
                     title: attr,
-                    subTitle: '{' + attribute.type + '}',
+                    subTitle: editor.call('assets:scripts:typeToSubTitle', attribute),
                     description: (attribute.description || attribute.title || ''),
                     code: JSON.stringify(attribute, null, 4)
                 });
@@ -263,11 +308,22 @@ editor.once('load', function() {
                     element: panelAttribute.element
                 });
 
-                var evtType = asset.on('data.scripts.' + script + '.attributes.' + attr + '.type:set', function(value) {
-                    fieldType.text = '[' + value + ']';
-                });
+                events.push(asset.on('*:set', function(path) {
+                    if (panelAttribute.updatingTooltip)
+                        return;
+
+                    if (! path.startsWith('data.scripts.' + script + '.attributes.' + attr))
+                        return;
+
+                    panelAttribute.updatingTooltip = true;
+                    setTimeout(panelAttribute.updateTooltip, 0);
+                }));
+
                 fieldType.once('destroy', function() {
-                    evtType.unbind();
+                    for(var i = 0; i < events.length; i++)
+                        events[i].unbind();
+
+                    events = null;
                 });
             };
 
@@ -291,9 +347,6 @@ editor.once('load', function() {
                 if (parts.length === 3) {
                     // data.scripts.*
                     createScriptPanel(parts[2]);
-                } else if (parts.length === 5 && parts[3] === 'attributes') {
-                    // data.scripts.*.attributes.*
-                    createScriptAttribute(parts[2], parts[4]);
                 } else if (parts.length >= 6 && parts[3] === 'attributes') {
                     // data.scripts.*.attributes.*.**
                     var script = scriptsPanelIndex[parts[2]];
@@ -320,16 +373,6 @@ editor.once('load', function() {
                         delete scriptsPanelIndex[parts[2]];
                         checkScriptsEmpty();
                     }
-                } else if (parts.length === 5 && parts[3] === 'attributes') {
-                    // data.scripts.*.attributes.*
-                    var script = scriptsPanelIndex[parts[2]];
-                    if (! script) return;
-
-                    var attr = script.attributesIndex[parts[4]];
-                    if (! attr) return;
-
-                    attr.destroy();
-                    delete script.attributesIndex[parts[4]];
                 } else if (parts.length >= 6 && parts[3] === 'attributes') {
                     // data.scripts.*.attributes.*.**
                     var script = scriptsPanelIndex[parts[2]];
@@ -340,6 +383,62 @@ editor.once('load', function() {
 
                     attr.updatingTooltip = true;
                     setTimeout(attr.updateTooltip, 0);
+                }
+            }));
+
+            events.push(asset.on('*:insert', function(path, value, ind) {
+                if (! path.startsWith('data.scripts'))
+                    return;
+
+                var parts = path.split('.');
+
+                if (parts.length === 4 && parts[3] === 'attributesOrder') {
+                    // data.scripts.*.attributesOrder
+                    createScriptAttribute(parts[2], value, ind + 1);
+                }
+            }));
+
+            events.push(asset.on('*:remove', function(path, value) {
+                if (! path.startsWith('data.scripts'))
+                    return;
+
+                var parts = path.split('.');
+
+                if (parts.length === 4 && parts[3] === 'attributesOrder') {
+                    // data.scripts.*.attributesOrder
+                    var script = scriptsPanelIndex[parts[2]];
+                    if (! script) return;
+
+                    var attr = script.attributesIndex[value];
+                    if (! attr) return;
+
+                    attr.destroy();
+                    delete script.attributesIndex[value];
+                }
+            }));
+
+            events.push(asset.on('*:move', function(path, value, ind, indOld) {
+                if (! path.startsWith('data.scripts'))
+                    return;
+
+                var parts = path.split('.');
+
+                if (parts.length === 4 && parts[3] === 'attributesOrder') {
+                    var script = scriptsPanelIndex[parts[2]];
+                    if (! script) return;
+
+                    var attr = script.attributesIndex[value];
+                    if (! attr) return;
+
+                    var parent = attr.element.parentNode;
+                    parent.removeChild(attr.element);
+
+                    var next = parent.children[ind + 1];
+                    if (next) {
+                        parent.insertBefore(attr.element, next);
+                    } else {
+                        parent.appendChild(attr.element);
+                    }
                 }
             }));
         }

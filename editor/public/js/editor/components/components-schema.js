@@ -267,16 +267,16 @@ editor.once('load', function() {
             title: 'Script',
             default: {
                 enabled: true,
+                order: [ ],
                 scripts: null
             }
         }
     };
 
-    // TODO scripts2
     if (editor.call('project:settings').get('use_legacy_scripts')) {
         schema.script.default.scripts = [ ];
+        delete schema.script.default.order;
     } else {
-        schema.script.default.order = [ ];
         schema.script.default.scripts = { };
     }
 

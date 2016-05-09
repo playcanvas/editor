@@ -67,12 +67,7 @@ editor.once('load', function() {
         if (! entity)
             return;
 
-        // var framework = editor.call('viewport:framework');
-        // if (framework && framework.selectedEntity === entity)
-        //     framework.deselectEntity();
-
         entity.destroy();
-        obj.entity = null;
         editor.call('viewport:render');
     });
 });

@@ -65,9 +65,6 @@ editor.once('load', function() {
     };
 
     editor.method('attributes:linkField', function(args) {
-        if (args.path === 'components.script.scripts.player.attributes.asset') {
-            console.log(args);
-        }
         var update, changeField, changeFieldQueue;
         args.field._changing = false;
         var events = [ ];
@@ -219,7 +216,6 @@ editor.once('load', function() {
                 });
 
                 historyState(args.link[i], false);
-                console.log('changeField', args.path, value);
                 args.link[i].set(args.path, value);
                 historyState(args.link[i], true);
             }
@@ -421,8 +417,6 @@ editor.once('load', function() {
         }
 
         update();
-        if (args.path === 'components.script.scripts.player.attributes.asset')
-            console.log('linkChangeEvent', args.field);
         args.field.on('change', changeField);
 
         for(var i = 0; i < args.link.length; i++) {
@@ -464,7 +458,7 @@ editor.once('load', function() {
             panel.append(label);
 
             if (args.reference) {
-                var tooltip = editor.call('attributes:reference', {
+                var tooltip = label._tooltip = editor.call('attributes:reference', {
                     element: label.element,
                     title: args.reference.title,
                     subTitle: args.reference.subTitle,
@@ -805,7 +799,7 @@ editor.once('load', function() {
                 if (args.enum) {
                     field = new ui.SelectField({
                         options: args.enum,
-                        number: true
+                        type: 'number'
                     });
                 } else if (args.slider) {
                     field = new ui.Slider();
@@ -836,7 +830,16 @@ editor.once('load', function() {
                 break;
 
             case 'checkbox':
-                field = new ui.Checkbox();
+                if (args.enum) {
+                    field = new ui.SelectField({
+                        options: args.enum,
+                        type: 'boolean'
+                    });
+                    field.flexGrow = 1;
+                } else {
+                    field = new ui.Checkbox();
+                }
+
                 field.value = args.value || 0;
                 field.class.add('tick');
 
@@ -974,7 +977,6 @@ editor.once('load', function() {
                     editor.call('picker:asset', args.kind, asset);
 
                     evtPick = editor.once('picker:asset', function(asset) {
-                        console.log(asset.get('id'));
                         field.emit('beforechange', asset.get('id'));
                         field.value = asset.get('id');
                         evtPick = null;
@@ -1041,8 +1043,6 @@ editor.once('load', function() {
                 linkField();
 
                 var updateField = function() {
-                    if (args.path === 'components.script.scripts.player.attributes.asset')
-                        console.log('updateField', field.value);
                     var value = field.value;
 
                     fieldTitle.text = field.class.contains('null') ? 'various' : 'Empty';
@@ -1077,8 +1077,6 @@ editor.once('load', function() {
                     if (field.class.contains('star'))
                         fieldTitle.text = '* ' + fieldTitle.text;
                 };
-                if (args.path === 'components.script.scripts.player.attributes.asset')
-                    console.log('changeEvent', field);
                 field.on('change', updateField);
 
                 if (args.value)

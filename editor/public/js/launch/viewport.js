@@ -172,6 +172,12 @@ app.once('load', function() {
         scriptPrefix = queryParams.local === 'true' ? 'http://localhost:51000' : queryParams.local;
     }
 
+    // listen for project setting changes
+    var projectSettings = app.call('project:settings');
+
+    // legacy scripts
+    pc.script.legacy = projectSettings.get('use_legacy_scripts');
+
     // playcanvas application
     var application = new pc.Application(canvas, {
         mouse: new pc.input.Mouse(canvas),
@@ -179,6 +185,7 @@ app.once('load', function() {
         keyboard: new pc.input.Keyboard(window),
         gamepads: new pc.input.GamePads(),
         scriptPrefix: scriptPrefix,
+        scriptsOrder: projectSettings.get('scripts') || [ ],
         graphicsDeviceOptions: {
             alpha: config.project.settings.transparent_canvas === false ? false : true,
             preserveDrawingBuffer: !!config.project.settings.preserve_drawing_buffer
@@ -233,9 +240,6 @@ app.once('load', function() {
         application.setCanvasFillMode(config.project.settings.fill_mode, config.project.settings.width, config.project.settings.height);
         reflow();
     };
-
-    // listen for project setting changes
-    var projectSettings = app.call('project:settings');
 
     projectSettings.on('width:set', function (value) {
         config.project.settings.width = value;

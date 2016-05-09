@@ -1,6 +1,8 @@
 editor.once('load', function() {
     'use strict';
 
+    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
+
     var overlay = new ui.Overlay();
     overlay.class.add('picker-asset');
     overlay.center = false;
@@ -25,10 +27,9 @@ editor.once('load', function() {
     var getNoResultsMessage = function (type, filter) {
         var result;
 
-        // TODO scripts2
-        if (type === 'script') {
+        if (legacyScripts && type === 'script') {
             result = 'There are no scripts. Click on the <span class="font-icon" style="font-size: 18px">&#57632;</span> button to add one';
-        } else if (type === 'material' || type === 'cubemap' || type === 'text' || type === 'json' || type === 'html' || type === 'shader' || type === 'css') {
+        } else if (type === 'material' || type === 'cubemap' || type === 'text' || type === 'json' || type === 'html' || type === 'shader' || type === 'css' || (! legacyScripts && type === 'script')) {
             result = 'There are no ' + type + 's in this folder. Click on the <span class="font-icon" style="font-size: 18px">&#57632;</span> button to add one';
         } else {
             result = 'There are no ' + type + 's in this folder. Add one by uploading a ' + type + ' file';
@@ -74,7 +75,6 @@ editor.once('load', function() {
             if (item.asset)
                 editor.emit('picker:asset', item.asset);
         } else if (item.script) {
-            // TODO scripts2
             if (overlay.hidden ||
                 (currentType !== '*' && currentType !== "script")) {
                 return;
@@ -120,8 +120,7 @@ editor.once('load', function() {
         assetsPanelFolder = editor.call('assets:panel:currentFolder');
         // navigate to scripts folder
 
-        // TODO scripts2
-        if (type === 'script')
+        if (legacyScripts && type === 'script')
             editor.call('assets:panel:currentFolder', 'scripts');
         // initial grid selected items
         gridSelected = assetsGrid.selected;
@@ -139,8 +138,7 @@ editor.once('load', function() {
             if (gridItem) {
                 assetsGrid.selected = [ gridItem ];
                 // navigate to folder of referenced file
-                if (type === 'script') {
-                    // TODO scripts2
+                if (legacyScripts && type === 'script') {
                     editor.call('assets:panel:currentFolder', 'scripts');
                 } else {
                     var path = currentAsset.get('path');

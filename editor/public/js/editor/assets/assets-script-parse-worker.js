@@ -11,7 +11,8 @@ onmessage = function(evt) {
 
 var __results = {
     scriptsInvalid: [ ],
-    scripts: { }
+    scripts: { },
+    loading: false
 };
 
 var window = self;
@@ -19,6 +20,11 @@ var window = self;
 var parseScript = function(id, url) {
     // import engine
     importScripts('/local/engine/build/output/playcanvas-latest.js');
+
+    // loading screen override
+    pc.script.createLoadingScreen = function() {
+        __results.loading = true;
+    };
 
     // implement pc.Script
     pc.Script = function(name) {
@@ -80,6 +86,57 @@ var parseScript = function(id, url) {
                     return;
                 }
 
+                if (args.hasOwnProperty('enum')) {
+                    if (! (args.enum instanceof Array)) {
+                        script.attributesInvalid.push('attribute `' + attr + '` args.enum must be an array');
+                        return;
+                    } else if ([ 'boolean', 'string', 'number' ].indexOf(args.type) === -1) {
+                        script.attributesInvalid.push('attribute `' + attr + '` args.enum can be used only with boolean, string or number');
+                        return;
+                    } else {
+                        var emumIndex = { };
+
+                        for(var i = 0; i < args.enum.length; i++) {
+                            if (typeof(args.enum[i]) !== 'object' || args.enum[i] instanceof Array) {
+                                script.attributesInvalid.push('attribute `' + attr + '` args.enum option must be an object');
+                                return;
+                            } else if (Object.keys(args.enum[i]).length !== 1) {
+                                script.attributesInvalid.push('attribute `' + attr + '` args.enum option must have one key');
+                                return;
+                            } else if (args.type === 'number' && typeof(parseInt(args.enum[i][Object.keys(args.enum[i])[0]], 10)) !== 'number') {
+                                script.attributesInvalid.push('attribute `' + attr + '` args.enum option value must be a number');
+                                return;
+                            } else if (args.type === 'string' && typeof(args.enum[i][Object.keys(args.enum[i])[0]]) !== 'string') {
+                                script.attributesInvalid.push('attribute `' + attr + '` args.enum option value must be a string');
+                                return;
+                            } else if (args.type === 'boolean' && typeof(args.enum[i][Object.keys(args.enum[i])[0]]) !== 'boolean') {
+                                script.attributesInvalid.push('attribute `' + attr + '` args.enum option value must be a boolean');
+                                return;
+                            } else if ([ 'rgb', 'rgba', 'vec2', 'vec3', 'vec4' ].indexOf(args.type) !== -1 && ! (args.enum[i][Object.keys(args.enum[i])[0]] instanceof Array)) {
+                                script.attributesInvalid.push('attribute `' + attr + '` args.enum option value must be an array');
+                                return;
+                            }
+                            var key = Object.keys(args.enum[i])[0];
+                            if (emumIndex[key]) {
+                                script.attributesInvalid.push('attribute `' + attr + '` args.enum option `' + key + '` defined more than once');
+                                return;
+                            }
+                        }
+                    }
+
+                    // parse enum to different format
+                    var obj = {
+                        order: [ ],
+                        options: { }
+                    };
+                    for(var i = 0; i < args.enum.length; i++) {
+                        var key = Object.keys(args.enum[i])[0];
+                        obj.order.push(key);
+                        obj.options[key] = args.enum[i][key];
+                    }
+                    args.enum = obj;
+                }
+
                 script.attributesOrder.push(attr);
                 script.attributes[attr] = args;
             }
@@ -97,7 +154,7 @@ var parseScript = function(id, url) {
 
         if (valid) {
             // define script in results
-        __results.scripts[name] = {
+            __results.scripts[name] = {
                 attributesInvalid: [ ],
                 attributesOrder: [ ],
                 attributes: { }

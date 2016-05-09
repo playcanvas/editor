@@ -69,8 +69,8 @@ editor.once('load', function() {
             filename: filename,
             file: new Blob([ args.content || '' ], { type: 'text/javascript' }),
             data: {
-                order: 100,
-                scripts: { }
+                scripts: { },
+                loading: false
             },
             scope: {
                 type: 'project',

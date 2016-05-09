@@ -20,6 +20,11 @@ editor.once('load', function() {
                 // affectLightmapped
                 if (! entity.has('components.light.affectLightmapped'))
                     entity.set('components.light.affectLightmapped', false);
+
+                // shadowUpdateMode
+                var shadowUpdateMode = entity.get('components.light.shadowUpdateMode');
+                if (shadowUpdateMode === null || isNaN(shadowUpdateMode))
+                    entity.set('components.light.shadowUpdateMode', pc.SHADOWUPDATE_REALTIME);
             }
 
             // model

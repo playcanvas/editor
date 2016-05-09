@@ -75,16 +75,22 @@ editor.once('load', function() {
         if (Object.keys(assetToScripts[assetId]).length === 0)
             delete assetToScripts[assetId];
 
+        checkCollisions(null, script);
+
         delete scripts[script][assetId];
         var scriptAssets = Object.keys(scripts[script]).length;
         if (scriptAssets === 0) {
             delete scripts[script];
             var ind = scriptsList.indexOf(script);
             scriptsList.splice(ind, 1);
-        } else if (scriptAssets === 1 && collisionScripts[script]) {
+        } else if (collisionScripts[script] && collisionScripts[script][assetId]) {
+            delete collisionScripts[script][assetId];
             var collisions = collisionScripts[script];
-            delete collisionScripts[script];
-            checkCollisions(asset, script);
+            if (Object.keys(collisionScripts[script]).length === 1)
+                delete collisionScripts[script];
+
+            for(var key in collisions)
+                checkCollisions(collisions[key], script);
         }
 
         editor.emit('assets:scripts:remove', asset, script);
@@ -143,7 +149,9 @@ editor.once('load', function() {
 
             if (collides.length === 1) {
                 primaryScriptSet(collides[0], script);
-            } else if (collides.length !== 1) {
+            } else if (asset && asset.get('preload')) {
+                primaryScriptSet(asset, script);
+            } else {
                 primaryScriptSet(null, script);
             }
         }
@@ -184,7 +192,7 @@ editor.once('load', function() {
         }
 
         // subscribe to changes
-        asset.on('*:set', function(path) {
+        asset.on('*:set', function(path, value, old) {
             if (path === 'preload') {
                 var scripts = Object.keys(this.get('data.scripts'));
                 for(var i = 0; i < scripts.length; i++)
@@ -201,11 +209,18 @@ editor.once('load', function() {
 
             var script = parts[2];
 
-            if (parts.length === 3) // data.scripts.*
+            if (parts.length === 3) {
+                // data.scripts.*
                 addScript(asset, script);
+            } else if (parts.length === 5 && parts[3] === 'attributes') {
+                // data.scripts.*.attributes.*
+                var attr = parts[4];
+                editor.emit('assets:scripts:attribute:change', asset, script, attr, value, old);
+                editor.emit('assets:scripts[' + script + ']:attribute:change', asset, attr, value, old);
+            }
         });
 
-        asset.on('*:unset', function(path) {
+        asset.on('*:unset', function(path, value) {
             if (! path.startsWith('data.scripts.'))
                 return;
 
@@ -219,7 +234,7 @@ editor.once('load', function() {
         });
 
         // add attribute
-        asset.on('*:insert', function(path, value) {
+        asset.on('*:insert', function(path, value, ind) {
             if (! path.startsWith('data.scripts.'))
                 return;
 
@@ -227,10 +242,10 @@ editor.once('load', function() {
             if (parts.length !== 4 || parts[3] !== 'attributesOrder') return;
 
             var script = parts[2];
-            editor.emit('assets:scripts:attribute:set', asset, script, value);
-            editor.emit('assets[' + asset.get('id') + ']:scripts:attribute:set', script, value);
-            editor.emit('assets:scripts[' + script + ']:attribute:set', asset, value);
-            editor.emit('assets[' + asset.get('id') + ']:scripts[' + script + ']:attribute:set', value);
+            editor.emit('assets:scripts:attribute:set', asset, script, value, ind);
+            editor.emit('assets[' + asset.get('id') + ']:scripts:attribute:set', script, value, ind);
+            editor.emit('assets:scripts[' + script + ']:attribute:set', asset, value, ind);
+            editor.emit('assets[' + asset.get('id') + ']:scripts[' + script + ']:attribute:set', value, ind);
         });
 
         // remove attribute
@@ -248,8 +263,21 @@ editor.once('load', function() {
             editor.emit('assets[' + asset.get('id') + ']:scripts[' + script + ']:attribute:unset', value);
         });
 
-        // move attribute
-        // TODO scripts2
+        asset.on('*:move', function(path, value, ind, indOld) {
+            if (! path.startsWith('data.scripts.'))
+                return;
+
+            var parts = path.split('.');
+
+            if (parts.length === 4 && parts[3] === 'attributesOrder') {
+                var script = parts[2];
+
+                editor.emit('assets:scripts:attribute:move', asset, script, value, ind, indOld);
+                editor.emit('assets[' + asset.get('id') + ']:scripts:attribute:move', script, value, ind, indOld);
+                editor.emit('assets:scripts[' + script + ']:attribute:move', asset, value, ind, indOld);
+                editor.emit('assets[' + asset.get('id') + ']:scripts[' + script + ']:attribute:move', value, ind, indOld);
+            }
+        });
 
         asset.once('destroy', function() {
             var scripts = asset.get('data.scripts');
@@ -263,8 +291,6 @@ editor.once('load', function() {
     });
 
     editor.method('assets:scripts:list', function() {
-        // TODO scripts2
-        // return list with points to files script is taken from
         return scriptsList.slice(0);
     });
 

@@ -578,9 +578,19 @@ editor.once('load', function() {
         // TODO scripts2
         // add built-in-scripts for new system
 
-        // TODO scripts2
-        // add scritps order panel
-        delete menuData['priorityScripts'];
+        menuData['priorityScripts'] = {
+            title: 'Scripts Loading Order',
+            icon: '&#57652;',
+            filter: function() {
+                return editor.call('permissions:write');
+            },
+            select: function() {
+                editor.call('selector:set', 'designerSettings', [ editor.call('designerSettings') ]);
+                setTimeout(function() {
+                    editor.call('designerSettings:panel:unfold', 'scripts-order');
+                }, 0);
+            }
+        };
     }
 
     var makeMenuComponentItem = function(key) {

@@ -6,8 +6,12 @@ editor.once('load', function() {
 
     editor.method('designerSettings:panel:unfold', function(panel) {
         var element = editor.call('layout.right').innerElement.querySelector('.ui-panel.component.foldable.' + panel);
-        if (element && element.ui)
+        if (element && element.ui) {
             element.ui.folded = false;
+            setTimeout(function() {
+                element.focus();
+            });
+        }
     });
 
     var foldStates = {
@@ -21,6 +25,7 @@ editor.once('load', function() {
     editor.on('attributes:inspect[designerSettings]', function() {
         editor.call('attributes:header', 'Settings');
 
+        var events = [ ];
         var app = editor.call('viewport:framework');
         var root = editor.call('layout.root');
 
@@ -50,6 +55,7 @@ editor.once('load', function() {
         physicsPanel.on('fold', function() { foldStates['physics'] = true; });
         physicsPanel.on('unfold', function() { foldStates['physics'] = false; });
         physicsPanel.class.add('component');
+        physicsPanel.element.tabIndex = 0;
 
         var projectSettings = editor.call('project:settings');
 
@@ -65,26 +71,66 @@ editor.once('load', function() {
         fieldPhysics.value = projectSettings.get('libraries').indexOf('physics-engine-3d') !== -1;
         fieldPhysics.on('change', function (value) {
             if (changing) return;
+
             changing = true;
             if (value) {
-                projectSettings.set('libraries', ['physics-engine-3d']);
+                projectSettings.insert('libraries', 'physics-engine-3d');
             } else {
-                projectSettings.set('libraries', []);
+                projectSettings.removeValue('libraries', 'physics-engine-3d');
             }
             changing = false;
+
+            editor.call('history:add', {
+                name: 'project.physics',
+                undo: function() {
+                    changing = true;
+                    if (value) {
+                        projectSettings.removeValue('libraries', 'physics-engine-3d');
+                    } else {
+                        projectSettings.insert('libraries', 'physics-engine-3d');
+                    }
+                    changing = false;
+                },
+                redo: function() {
+                    changing = true;
+                    if (value) {
+                        projectSettings.insert('libraries', 'physics-engine-3d');
+                    } else {
+                        projectSettings.removeValue('libraries', 'physics-engine-3d');
+                    }
+                    changing = false;
+                }
+            });
         });
 
-        var evtPhysicsChange = projectSettings.on('*:set', function (path, value, oldValue) {
-            if (path === 'libraries') {
-                if (changing) return;
-                changing = true;
-                fieldPhysics.value = value.indexOf('physics-engine-3d') !== -1;
-                changing = false;
-            }
-        });
+        events.push(projectSettings.on('libraries:set', function (value) {
+            if (changing) return;
+            changing = true;
+            fieldPhysics.value = value.indexOf('physics-engine-3d') !== -1;
+            changing = false;
+        }));
+        events.push(projectSettings.on('libraries:insert', function(value) {
+            if (value !== 'physics-engine-3d')
+                return;
 
-        physicsPanel.on('destroy', function () {
-            evtPhysicsChange.unbind();
+            changing = true;
+            fieldPhysics.value = true;
+            changing = false;
+        }));
+        events.push(projectSettings.on('libraries:remove', function(value) {
+            if (value !== 'physics-engine-3d')
+                return;
+
+            changing = true;
+            fieldPhysics.value = false;
+            changing = false;
+        }));
+
+        physicsPanel.once('destroy', function () {
+            for(var i = 0; i < events.length; i++)
+                events[i].unbind();
+
+            events = null;
         });
 
 
@@ -112,6 +158,7 @@ editor.once('load', function() {
         panelRendering.on('fold', function() { foldStates['rendering'] = true; });
         panelRendering.on('unfold', function() { foldStates['rendering'] = false; });
         panelRendering.class.add('component', 'rendering');
+        panelRendering.element.tabIndex = 0;
 
 
         // ambient
@@ -487,6 +534,7 @@ editor.once('load', function() {
             panelAudio.on('fold', function() { foldStates['audio'] = true; });
             panelAudio.on('unfold', function() { foldStates['audio'] = false; });
             panelAudio.class.add('component', 'audio');
+            panelAudio.element.tabIndex = 0;
 
             var fieldLegacyAudio = editor.call('attributes:addField', {
                 parent: panelAudio,
@@ -511,6 +559,7 @@ editor.once('load', function() {
             panelLightmapping.on('fold', function() { foldStates['lightmapping'] = true; });
             panelLightmapping.on('unfold', function() { foldStates['lightmapping'] = false; });
             panelLightmapping.class.add('component', 'lightmapping');
+            panelLightmapping.element.tabIndex = 0;
 
             // lightmapSizeMultiplier
             var fieldLightmapSizeMultiplier = editor.call('attributes:addField', {
@@ -548,6 +597,7 @@ editor.once('load', function() {
         panelLoadingScreen.on('fold', function() { foldStates['loading'] = true; });
         panelLoadingScreen.on('unfold', function() { foldStates['loading'] = false; });
         panelLoadingScreen.class.add('component', 'loading-screen');
+        panelLoadingScreen.element.tabIndex = 0;
 
         // custom loading screen script
         // TODO scripts2
@@ -713,6 +763,9 @@ editor.once('load', function() {
 
                     setLoadingScreen(data.filename);
                 }
+            });
+            panelLoadingScreen.once('destroy', function() {
+                dropRef.unregister();
             });
 
         } else {

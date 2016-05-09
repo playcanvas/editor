@@ -18,7 +18,7 @@ editor.once('load', function() {
 
         config.project.settings[path] = value;
 
-        if (changing || !settings.sync || !editor.call('permissions:write'))
+        if (changing || ! settings.sync || ! editor.call('permissions:write'))
             return;
 
         var data = {
@@ -29,6 +29,24 @@ editor.once('load', function() {
 
         editor.call('realtime:send', 'project:save', data);
     });
+
+    var onArrayChange = function(path) {
+        if (changing || ! settings.sync || ! editor.call('permissions:write'))
+            return;
+
+        var field = path.split('.')[0];
+        var data = {
+            id: config.project.id,
+            path: 'settings.' + field,
+            value: settings.get(field)
+        };
+
+        editor.call('realtime:send', 'project:save', data);
+    };
+
+    settings.on('*:insert', onArrayChange);
+    settings.on('*:move', onArrayChange);
+    settings.on('*:remove', onArrayChange);
 
     // handle changes by others
     editor.on('messenger:project.update', function (data) {
@@ -46,4 +64,15 @@ editor.once('load', function() {
 
         changing = false;
     });
+
+    // migrate
+    if (! editor.call('project:settings').get('use_legacy_scripts')) {
+        // scripts order
+        if (! (settings.get('scripts') instanceof Array))
+            settings.set('scripts', [ ]);
+
+        pc.script.legacy = false;
+    } else {
+        pc.script.legacy = true;
+    }
 });

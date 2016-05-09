@@ -245,6 +245,41 @@ editor.once('load', function() {
         });
 
 
+        // shadowUpdateMode
+        var fieldShadowUpdateMode = editor.call('attributes:addField', {
+            parent: panelShadows,
+            name: 'Update Mode',
+            type: 'number',
+            enum: [
+                { v: '', t: '...' },
+                { v: pc.SHADOWUPDATE_THISFRAME, t: 'Once' },
+                { v: pc.SHADOWUPDATE_REALTIME, t: 'Realtime' }
+            ],
+            link: entities,
+            path: 'components.light.shadowUpdateMode'
+        });
+        // reference
+        editor.call('attributes:reference:light:shadowUpdateMode:attach', fieldShadowUpdateMode.parent.innerElement.firstChild.ui);
+
+        // updateShadow button
+        var btnUpdateShadow = new ui.Button({
+            text: '&#57640;'
+        });
+        btnUpdateShadow.class.add('shadowUpdate');
+        btnUpdateShadow.hidden = fieldShadowUpdateMode.value !== pc.SHADOWUPDATE_THISFRAME && !! fieldShadowUpdateMode.value;
+        fieldShadowUpdateMode.parent.append(btnUpdateShadow);
+        fieldShadowUpdateMode.on('change', function() {
+            btnUpdateShadow.hidden = fieldShadowUpdateMode.value !== pc.SHADOWUPDATE_THISFRAME && !! fieldShadowUpdateMode.value;
+        });
+        btnUpdateShadow.on('click', function() {
+            for(var i = 0; i < entities.length; i++) {
+                if (entities[i].entity && entities[i].entity.light && entities[i].entity.light.shadowUpdateMode === pc.SHADOWUPDATE_THISFRAME)
+                    entities[i].entity.light.shadowUpdateMode = pc.SHADOWUPDATE_THISFRAME;
+            }
+            editor.call('viewport:render');
+        });
+
+
         // shadowDistance
         var fieldShadowDistance = editor.call('attributes:addField', {
             parent: panelShadows,
@@ -271,13 +306,15 @@ editor.once('load', function() {
             type: 'number',
             enum: [
                 { v: '', t: '...' },
+                { v: 16, t: '16 x 16' },
                 { v: 32, t: '32 x 32' },
                 { v: 64, t: '64 x 64' },
                 { v: 128, t: '128 x 128' },
                 { v: 256, t: '256 x 256' },
                 { v: 512, t: '512 x 512' },
                 { v: 1024, t: '1024 x 1024' },
-                { v: 2048, t: '2048 x 2048' }
+                { v: 2048, t: '2048 x 2048' },
+                { v: 4096, t: '4096 x 4096' }
             ],
             link: entities,
             path: 'components.light.shadowResolution'

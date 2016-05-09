@@ -34,6 +34,24 @@ editor.once('load', function() {
         curve: '{pc.Curve}'
     };
 
+    editor.method('assets:scripts:typeToSubTitle', function(attribute) {
+        var subTitle = attributeSubTitles[attribute.type];
+
+        if (attribute.type === 'curve') {
+            if (attribute.color) {
+                if (attribute.color.length > 1)
+                    subTitle = '{pc.CurveSet}';
+            } else if (attribute.curves && attribute.curves.length > 1) {
+                subTitle = '{pc.CurveSet}';
+            }
+        } else if (attribute.array) {
+            subTitle = '[ ' + subTitle + ' ]';
+        }
+
+        return subTitle;
+    });
+
+
     editor.on('attributes:inspect[entity]', function(entities) {
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (! panelComponents)
@@ -56,6 +74,9 @@ editor.once('load', function() {
             var excludeScriptsIndex = { };
             for(var i = 0; i < entities.length; i++) {
                 var scripts = entities[i].get('components.script.order');
+                if (! scripts)
+                    continue;
+
                 for(var s = 0; s < scripts.length; s++) {
                     excludeScriptsIndex[scripts[s]] = (excludeScriptsIndex[scripts[s]] || 0) + 1;
                     if (excludeScriptsIndex[scripts[s]] === entities.length)
@@ -392,7 +413,180 @@ editor.once('load', function() {
 
         var scriptPanelsIndex = { };
 
-        var addScript = function(script) {
+        // drag is only allowed for single selected entities
+        if (entities.length === 1) {
+            var dragScript = null;
+            var dragScriptInd = null;
+            var dragPlaceholder = null;
+            var dragInd = null;
+            var dragOut = true;
+            var dragScripts = [ ];
+
+            // drop area
+            var target = editor.call('drop:target', {
+                ref: panelScripts.innerElement,
+                type: 'component-script-order',
+                hole: true,
+                passThrough: true
+            });
+            target.element.style.outline = '1px dotted #f60';
+            panelScripts.once('drestroy', function() {
+                target.unregister();
+            });
+
+            var dragCalculateSizes = function() {
+                dragScripts = [ ];
+                var children = panelScripts.innerElement.children;
+
+                for(var i = 0; i < children.length; i++) {
+                    var script = children[i].ui ? children[i].ui.script : children[i].script;
+
+                    dragScripts.push({
+                        script: script,
+                        ind: entities[0].get('components.script.order').indexOf(script),
+                        y: children[i].offsetTop,
+                        height: children[i].clientHeight
+                    });
+                }
+            };
+            var onScriptDragStart = function(evt) {
+                // dragend
+                window.addEventListener('blur', onScriptDragEnd, false);
+                window.addEventListener('mouseup', onScriptDragEnd, false);
+                window.addEventListener('mouseleave', onScriptDragEnd, false);
+                document.body.addEventListener('mouseleave', onScriptDragEnd, false);
+                // dragmove
+                window.addEventListener('mousemove', onScriptDragMove, false);
+
+                scriptPanelsIndex[dragScript].class.add('dragged');
+
+                dragCalculateSizes();
+                for(var i = 0; i < dragScripts.length; i++) {
+                    if (dragScripts[i].script === dragScript)
+                        dragScriptInd = i;
+                }
+
+                var panel = scriptPanelsIndex[dragScript];
+                var parent = panel.element.parentNode;
+                dragPlaceholder = document.createElement('div');
+                dragPlaceholder.script = dragScript;
+                dragPlaceholder.classList.add('dragPlaceholder');
+                dragPlaceholder.style.height = (dragScripts[dragScriptInd].height - 8) + 'px';
+                parent.insertBefore(dragPlaceholder, panel.element);
+                parent.removeChild(panel.element);
+
+                onScriptDragMove(evt);
+
+                editor.call('drop:set', 'component-script-order', { script: dragScript });
+                editor.call('drop:activate', true);
+            };
+            var onScriptDragMove = function(evt) {
+                if (! dragScript) return;
+
+                var rect = panelScripts.innerElement.getBoundingClientRect();
+
+                dragOut = (evt.clientX < rect.left || evt.clientX > rect.right || evt.clientY < rect.top || evt.clientY > rect.bottom);
+
+                if (! dragOut) {
+                    var y = evt.clientY - rect.top;
+                    var ind = null;
+                    var height = dragPlaceholder.clientHeight;
+
+                    var c = 0;
+                    for(var i = 0; i < dragScripts.length; i++) {
+                        if (dragScripts[i].script === dragScript) {
+                            c = i;
+                            break;
+                        }
+                    }
+
+                    // hovered script
+                    for(var i = 0; i < dragScripts.length; i++) {
+                        var off = Math.max(0, dragScripts[i].height - height);
+                        if (c < i) {
+                            if (y >= (dragScripts[i].y + off) && y <= (dragScripts[i].y + dragScripts[i].height)) {
+                                ind = i;
+                                if (ind > dragScriptInd) ind++;
+                                break;
+                            }
+                        } else {
+                            if (y >= dragScripts[i].y && y <= (dragScripts[i].y + dragScripts[i].height - off)) {
+                                ind = i;
+                                if (ind > dragScriptInd) ind++;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (ind !== null && dragInd !== ind) {
+                        dragInd = ind;
+
+                        var parent = dragPlaceholder.parentNode;
+                        parent.removeChild(dragPlaceholder);
+
+                        var ind = dragInd;
+                        if (ind > dragScriptInd) ind--;
+                        var next = parent.children[ind];
+
+                        if (next) {
+                            parent.insertBefore(dragPlaceholder, next);
+                        } else {
+                            parent.appendChild(dragPlaceholder);
+                        }
+
+                        dragCalculateSizes();
+                    }
+                } else {
+                    dragInd = dragScriptInd;
+                    var parent = dragPlaceholder.parentNode;
+                    parent.removeChild(dragPlaceholder);
+                    var next = parent.children[dragScriptInd];
+                    if (next) {
+                        parent.insertBefore(dragPlaceholder, next);
+                    } else {
+                        parent.appendChild(dragPlaceholder);
+                    }
+                    dragCalculateSizes();
+                }
+            };
+            var onScriptDragEnd = function() {
+                // dragend
+                window.removeEventListener('blur', onScriptDragEnd);
+                window.removeEventListener('mouseup', onScriptDragEnd);
+                window.removeEventListener('mouseleave', onScriptDragEnd);
+                document.body.removeEventListener('mouseleave', onScriptDragEnd);
+                // dragmove
+                window.removeEventListener('mousemove', onScriptDragMove);
+
+                if (dragScript) {
+                    scriptPanelsIndex[dragScript].class.remove('dragged');
+
+                    var panel = scriptPanelsIndex[dragScript];
+                    panelScripts.innerElement.removeChild(dragPlaceholder);
+                    var next = panelScripts.innerElement.children[dragScriptInd];
+                    if (next) {
+                        panelScripts.innerElement.insertBefore(panel.element, next);
+                    } else {
+                        panelScripts.innerElement.appendChild(panel.element);
+                    }
+
+                    if (! dragOut && dragInd !== null && dragInd !== dragScriptInd && dragInd !== (dragScriptInd + 1)) {
+                        var ind = dragInd;
+                        if (ind > dragScriptInd) ind--;
+                        entities[0].move('components.script.order', dragScriptInd, ind);
+                    }
+                }
+
+                dragScript = null;
+                dragScripts = [ ];
+                dragInd = null;
+
+                editor.call('drop:activate', false);
+                editor.call('drop:set');
+            };
+        }
+
+        var addScript = function(script, ind) {
             var panel = scriptPanelsIndex[script];
             var events = [ ];
 
@@ -410,15 +604,40 @@ editor.once('load', function() {
             }
 
             panel = scriptPanelsIndex[script] = new ui.Panel();
+            panel.script = script;
             panel.header = script;
             panel.attributesIndex = { };
-            panelScripts.append(panel);
+
+            var next = null;
+            if (typeof(ind) === 'number')
+                next = panelScripts.innerElement.children[ind];
+
+            if (next) {
+                panelScripts.appendBefore(panel, next);
+            } else {
+                panelScripts.append(panel);
+            }
+
             // clean events
             panel.once('destroy', function() {
                 for(var i = 0; i < events.length; i++)
                     events[i].unbind();
                 events = null;
             });
+
+            // drag handle
+            if (entities.length === 1) {
+                panel.handle = document.createElement('div');
+                panel.handle.classList.add('handle');
+                panel.handle.addEventListener('mousedown', function(evt) {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+
+                    dragScript = script;
+                    onScriptDragStart(evt);
+                }, false);
+                panel.headerAppend(panel.handle);
+            }
 
             // check if script is present in all entities
             for(var i = 0; i < entities.length; i++) {
@@ -428,14 +647,18 @@ editor.once('load', function() {
                 }
             }
 
+            panel.headerElementTitle.addEventListener('click', function() {
+                if (! panel.headerElementTitle.classList.contains('link'))
+                    return;
+
+                editor.call('selector:set', 'asset', [ scriptAsset ]);
+            });
+
             // remove
             var btnRemove = new ui.Button();
             btnRemove.class.add('remove');
             panel.headerAppend(btnRemove);
             btnRemove.on('click', function() {
-                // TODO scripts2
-                // history script order
-
                 var records = [ ];
 
                 for(var i = 0; i < entities.length; i++) {
@@ -444,13 +667,17 @@ editor.once('load', function() {
 
                     records.push({
                         get: entities[i].history._getItemFn,
+                        ind: entities[i].get('components.script.order').indexOf(script),
                         data: entities[i].get('components.script.scripts.' + script)
                     });
+                }
 
-                    entities[i].history.enabled = false;
-                    entities[i].unset('components.script.scripts.' + script);
-                    entities[i].removeValue('components.script.order', script);
-                    entities[i].history.enabled = true;
+                for(var i = 0; i < records.length; i++) {
+                    var entity = records[i].get();
+                    entity.history.enabled = false;
+                    entity.unset('components.script.scripts.' + script);
+                    entity.removeValue('components.script.order', script);
+                    entity.history.enabled = true;
                 }
 
                 editor.call('history:add', {
@@ -462,7 +689,7 @@ editor.once('load', function() {
 
                             item.history.enabled = false;
                             item.set('components.script.scripts.' + script, records[i].data);
-                            item.insert('components.script.order', script);
+                            item.insert('components.script.order', script, records[i].ind);
                             item.history.enabled = true;
                         }
                     },
@@ -506,6 +733,9 @@ editor.once('load', function() {
 
             var scriptAsset = editor.call('assets:scripts:assetByScript', script);
 
+            if (scriptAsset)
+                panel.headerElementTitle.classList.add('link');
+
             // invalid sign
             var labelInvalid = new ui.Label({ text: '!' });
             labelInvalid.renderChanges = false;
@@ -529,10 +759,10 @@ editor.once('load', function() {
 
                 if (editor.call('assets:scripts:collide', script)) {
                     // collision
-                    description = 'Multiple script assets define \'' + script + '\' Script Object. Please disable preloading for undesirable script assets.';
+                    description = '\'' + script + '\' Script Object is defined in multiple preloaded assets. Please uncheck preloading for undesirable script assets.';
                 } else {
                     // no script
-                    description = 'Script Object \'' + script + '\' is not defined in any preloaded script assets. Set preloading to script asset with desirable script object, or create new script asset with definition of \'' + script + '\' script object.';
+                    description = '\'' + script + '\' Script Object is not defined in any of preloaded script assets.';
                 }
 
                 tooltipInvalid.html = editor.call('attributes:reference:template', {
@@ -549,20 +779,36 @@ editor.once('load', function() {
             events.push(editor.on('assets:scripts[' + script + ']:primary:set', function(asset) {
                 scriptAsset = asset;
                 labelInvalid.hidden = true;
+                panel.headerElementTitle.classList.add('link');
             }));
             events.push(editor.on('assets:scripts[' + script + ']:primary:unset', function(asset) {
                 scriptAsset = null;
                 labelInvalid.hidden = false;
+                panel.headerElementTitle.classList.remove('link');
                 updateInvalidTooltip();
             }));
 
             // attribute added
-            events.push(editor.on('assets:scripts[' + script + ']:attribute:set', function(asset, name) {
+            events.push(editor.on('assets:scripts[' + script + ']:attribute:set', function(asset, name, ind) {
                 if (asset !== scriptAsset)
                     return;
 
                 var attribute = scriptAsset.get('data.scripts.' + script + '.attributes.' + name);
-                addScriptAttribute(script, name, attribute);
+                addScriptAttribute(script, name, attribute, ind);
+            }));
+            // attribute change
+            events.push(editor.on('assets:scripts[' + script + ']:attribute:change', function(asset, name, attribute, old) {
+                if (asset !== scriptAsset)
+                    return;
+
+                updateScriptAttribute(script, name, attribute, old);
+            }));
+            // attribute move
+            events.push(editor.on('assets:scripts[' + script + ']:attribute:move', function(asset, name, ind, indOld) {
+                if (asset !== scriptAsset)
+                    return;
+
+                moveScriptAttribute(script, name, ind, indOld);
             }));
             // attribute removed
             events.push(editor.on('assets:scripts[' + script + ']:attribute:unset', function(asset, name) {
@@ -609,28 +855,31 @@ editor.once('load', function() {
             if (! panelScripts.innerElement.firstChild)
                 panelScripts.hidden = true;
         };
-        var addScriptAttribute = function(script, name, attribute) {
+        var addScriptAttribute = function(script, name, attribute, ind) {
             var panelScripts = scriptPanelsIndex[script];
             if (! panelScripts || panelScripts.attributesIndex[name])
                 return;
 
-            // console.log(attribute);
-
-            var field = null;
             var panel = new ui.Panel();
+            panel.field = null;
+            panel.args = null;
             panelScripts.attributesIndex[name] = panel;
-            panelScripts.append(panel);
+
+            var next = null;
+            if (typeof(ind) === 'number')
+                next = panelScripts.innerElement.children[ind];
+
+            if (next) {
+                panelScripts.appendBefore(panel, next);
+            } else {
+                panelScripts.append(panel);
+            }
 
             var type = attributeTypeToUi[attribute.type];
-            var subTitle = attributeSubTitles[attribute.type];
-            if (attribute.type === 'curve' && attribute.curves && attribute.curves.length > 1)
-                subTitle = '{pc.CurveSet}';
-            if (attribute.array)
-                subTitle = '[ ' + subTitle + ' ]';
 
             var reference = {
                 title: name,
-                subTitle: subTitle,
+                subTitle: editor.call('assets:scripts:typeToSubTitle', attribute),
                 description: attribute.description || ''
             };
 
@@ -643,7 +892,7 @@ editor.once('load', function() {
             }
 
             if (attribute.array && attribute.type === 'asset') {
-                field = editor.call('attributes:addAssetsList', {
+                panel.args = {
                     panel: panel,
                     title: attribute.title || name,
                     name: attribute.title || name,
@@ -651,11 +900,13 @@ editor.once('load', function() {
                     type: attribute.assetType || '*',
                     link: entities,
                     path: 'components.script.scripts.' + script + '.attributes.' + name
-                });
+                };
+                panel.field = editor.call('attributes:addAssetsList', panel.args);
             } else {
-                var min = isNaN(attribute.min) ? undefined : attribute.min;
-                var max = isNaN(attribute.max) ? undefined : attribute.max;
+                var min = typeof(attribute.min) === 'number' ? attribute.min : undefined;
+                var max = typeof(attribute.max) === 'number' ? attribute.max : undefined;
                 var curves = null;
+                var choices = null;
                 if (attribute.type === 'curve') {
                     if (attribute.color) {
                         curves = attribute.color.split('');
@@ -667,7 +918,19 @@ editor.once('load', function() {
                         curves = [ 'Value' ];
                     }
                 }
-                field = editor.call('attributes:addField', {
+
+                if (attribute.enum) {
+                    choices = [ { v: '', t: '...' } ];
+                    for(var i = 0; i < attribute.enum.order.length; i++) {
+                        var key = attribute.enum.order[i];
+                        choices.push({
+                            v: attribute.enum.options[key],
+                            t: key
+                        });
+                    }
+                }
+
+                panel.args = {
                     parent: panel,
                     name: attribute.title || name,
                     placeholder: attribute.placeholder || null,
@@ -675,14 +938,43 @@ editor.once('load', function() {
                     type: type,
                     kind: attribute.assetType || '*',
                     link: entities,
+                    enum: choices,
                     curves: curves,
                     gradient: !! attribute.color,
                     min: min,
                     max: max,
                     hideRandomize: true,
                     path: 'components.script.scripts.' + script + '.attributes.' + name
-                });
+                };
+                panel.field = editor.call('attributes:addField', panel.args);
+
+                if (type === 'number') {
+                    panel.slider = editor.call('attributes:addField', {
+                        panel: panel.field.parent,
+                        type: 'number',
+                        slider: true,
+                        link: entities,
+                        min: min,
+                        max: max,
+                        path: 'components.script.scripts.' + script + '.attributes.' + name
+                    });
+                    panel.field.flexGrow = 1;
+                    panel.field.style.width = '32px';
+                    panel.slider.style.width = '32px';
+                    panel.slider.flexGrow = 4;
+
+                    panel.slider.update = function() {
+                        panel.slider.hidden = (typeof(panel.args.max) !== 'number' || typeof(panel.args.min) !== 'number');
+                        if (! panel.slider.hidden) {
+                            panel.slider.max = panel.args.max;
+                            panel.slider.min = panel.args.min;
+                        }
+                    };
+                    panel.slider.update();
+                }
             }
+
+            return panel;
         };
         var removeScriptAttribute = function(script, name) {
             var panelScripts = scriptPanelsIndex[script];
@@ -692,12 +984,136 @@ editor.once('load', function() {
             panelScripts.attributesIndex[name].destroy();
             delete panelScripts.attributesIndex[name];
         };
+        var updateScriptAttribute = function(script, name, value, old) {
+            var panelScripts = scriptPanelsIndex[script];
+            if (! panelScripts) return;
+
+            var panel = panelScripts.attributesIndex[name];
+            if (! panel) return;
+
+            var changed = false;
+            if (value.type !== old.type)
+                changed = true;
+
+            if (! changed && !! value.array !== !! old.array)
+                changed = true;
+
+            if (! changed && typeof(value.enum) !== typeof(old.enum))
+                changed = true;
+
+            if (! changed && typeof(value.enum) === 'object' && ! value.enum.order.equals(old.enum.order))
+                changed = true;
+
+            if (! changed && typeof(value.enum) === 'object') {
+                for(var i = 0; i < value.enum.order.length; i++) {
+                    if (value.enum.options[value.enum.order[i]] !== old.enum.options[value.enum.order[i]]) {
+                        changed = true;
+                        break;
+                    }
+                }
+            }
+
+            if (! changed && value.type === 'curve' && typeof(value.color) !== typeof(old.color))
+                changed = true;
+
+            if (! changed && value.type === 'curve' && typeof(value.color) !== 'string' && typeof(value.curves) !== typeof(old.curves))
+                changed = true;
+
+            if (! changed) {
+                var changeTooltip = false;
+
+                var label = null;
+                if (panel.field instanceof Array) {
+                    label = panel.field[0].parent._label;
+                } else {
+                    label = panel.field.parent._label;
+                }
+
+                if (value.title !== old.title) {
+                    changeTooltip = true;
+                    label.text = value.title || name;
+                }
+                if (value.description !== old.description) {
+                    changeTooltip = true;
+                }
+                if (value.placeholder !== old.placeholder) {
+                    if (panel.field instanceof Array) {
+                        if (value.placeholder instanceof Array && value.placeholder.length === panel.field.length) {
+                            for(var i = 0; i < panel.field.length; i++) {
+                                panel.field[i].placeholder = value.placeholder[i];
+                            }
+                        } else {
+                            for(var i = 0; i < panel.field.length; i++) {
+                                panel.field[i].placeholder = null;
+                            }
+                        }
+                    } else {
+                        panel.field.placeholder = value.placeholder;
+                    }
+                }
+                if (value.min !== old.min) {
+                    panel.args.min = value.min;
+                    if (value.type === 'number') {
+                        panel.field.min = value.min;
+                        panel.slider.update();
+                    }
+                }
+                if (value.max !== old.max) {
+                    panel.args.max = value.max;
+                    if (value.type === 'number') {
+                        panel.field.max = value.max;
+                        panel.slider.update();
+                    }
+                }
+                if (value.assetType !== old.assetType)
+                    panel.args.kind = value.assetType;
+
+                if (changeTooltip) {
+                    label._tooltip.html = editor.call('attributes:reference:template', {
+                        title: name,
+                        subTitle: editor.call('assets:scripts:typeToSubTitle', value),
+                        description: value.description
+                    });
+                }
+            }
+
+            if (changed) {
+                var next = panelScripts.element.nextSibling;
+                removeScriptAttribute(script, name);
+                var panel = addScriptAttribute(script, name, value);
+
+                // insert at same location
+                if (next) {
+                    var parent = panel.element.parentNode;
+                    parent.removeChild(panel.element);
+                    parent.insertBefore(panel.element, next);
+                }
+            }
+        };
+
+        var moveScriptAttribute = function(script, name, ind, indOld) {
+            var panelScripts = scriptPanelsIndex[script];
+            if (! panelScripts) return;
+
+            var panel = panelScripts.attributesIndex[name];
+            if (! panel) return;
+
+            var parent = panel.element.parentNode;
+            parent.removeChild(panel.element);
+
+            var next = parent.children[ind];
+            if (next) {
+                parent.insertBefore(panel.element, next);
+            } else {
+                parent.appendChild(panel.element);
+            }
+        };
 
         var scripts = { };
         for(var i = 0; i < entities.length; i++) {
             // on script add
-            events.push(entities[i].on('components.script.order:insert', function(value) {
-                addScript(value);
+            events.push(entities[i].on('components.script.order:insert', function(value, ind) {
+                addScript(value, ind);
                 calculateExcludeScripts();
             }));
 
@@ -707,8 +1123,45 @@ editor.once('load', function() {
                 calculateExcludeScripts();
             }));
 
-            // TODO scripts2
+            // on script component set
+            events.push(entities[i].on('components.script:set', function(value) {
+                if (! value || ! value.order || ! value.order.length)
+                    return;
+
+                for(var i = 0; i < value.order.length; i++) {
+                    addScript(value.order[i], i);
+                    calculateExcludeScripts();
+                }
+            }));
+
+            // on script component unset
+            events.push(entities[i].on('components.script:unset', function(value) {
+                if (! value || ! value.order || ! value.order.length)
+                    return;
+
+                for(var i = 0; i < value.order.length; i++) {
+                    removeScript(value.order[i]);
+                    calculateExcludeScripts();
+                }
+            }));
+
             // on script move
+            if (entities.length === 1) {
+                events.push(entities[i].on('components.script.order:move', function(value, ind, indOld) {
+                    var panel = scriptPanelsIndex[value];
+                    if (! panel) return;
+
+                    var parent = panel.element.parentNode;
+                    parent.removeChild(panel.element);
+
+                    var next = parent.children[ind];
+                    if (next) {
+                        parent.insertBefore(panel.element, next);
+                    } else {
+                        parent.appendChild(panel.element);
+                    }
+                }));
+            }
 
             var items = entities[i].get('components.script.order');
             if (! items || items.length === 0)
@@ -724,7 +1177,6 @@ editor.once('load', function() {
 
             addScript(key);
         }
-
 
         panel.once('destroy', function() {
             for(var i = 0; i < events.length; i++)

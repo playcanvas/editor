@@ -27,6 +27,10 @@ editor.once('load', function() {
 
                     asset.history.enabled = false;
 
+                    // loading screen?
+                    if (result.loading !== asset.get('data.loading'))
+                        asset.set('data.loading', result.loading);
+
                     // remove scripts
                     for(var key in scripts) {
                         if (! scripts.hasOwnProperty(key) || result.scripts.hasOwnProperty(key))
@@ -53,11 +57,12 @@ editor.once('load', function() {
                         }
 
                         var script = asset.get('data.scripts.' + key);
+                        var attributesOrder = result.scripts[key].attributesOrder;
 
                         if (! script) {
                             // new script
                             asset.set('data.scripts.' + key, {
-                                'attributesOrder': result.scripts[key].attributesOrder || [ ],
+                                'attributesOrder': attributesOrder || [ ],
                                 'attributes': attributes
                             });
                         } else {
@@ -66,7 +71,6 @@ editor.once('load', function() {
                                 if (! attributes.hasOwnProperty(attr) || ! script.attributes.hasOwnProperty(attr))
                                     continue;
 
-                                console.log(key, attr, attributes[attr])
                                 asset.set('data.scripts.' + key + '.attributes.' + attr, attributes[attr]);
                             }
 
@@ -84,8 +88,25 @@ editor.once('load', function() {
                                 if (! attributes.hasOwnProperty(attr) || script.attributes.hasOwnProperty(attr))
                                     continue;
 
+                                var ind = attributesOrder.indexOf(attr);
                                 asset.set('data.scripts.' + key + '.attributes.' + attr, attributes[attr]);
-                                asset.insert('data.scripts.' + key + '.attributesOrder', attr);
+                                asset.insert('data.scripts.' + key + '.attributesOrder', attr, ind);
+                            }
+
+                            // TODO scritps2
+                            // move attribute
+                            var attrIndex = { };
+                            for(var i = 0; i < attributesOrder.length; i++)
+                                attrIndex[attributesOrder[i]] = i;
+
+                            var scriptAttributeOrder = asset.get('data.scripts.' + key + '.attributesOrder');
+                            var i = scriptAttributeOrder.length;
+                            while(i--) {
+                                var attr = scriptAttributeOrder[i];
+                                var indOld = asset.get('data.scripts.' + key + '.attributesOrder').indexOf(attr);
+                                var indNew = attrIndex[attr];
+                                if (indOld !== indNew)
+                                    asset.move('data.scripts.' + key + '.attributesOrder', indOld, indNew);
                             }
                         }
                     }

@@ -66,12 +66,15 @@ editor.once('load', function() {
             if (key === 'upload') {
                 editor.call('assets:upload:picker', args);
             } else if (key === 'script') {
-                // TODO scripts2
                 if (editor.call('project:settings').get('use_legacy_scripts')) {
                     editor.call('sourcefiles:new');
                 } else {
-                    // create new script2
-                    console.log('create script2');
+                    editor.call('picker:script-create', function(filename) {
+                        editor.call('assets:create:script', {
+                            filename: filename,
+                            boilerplate: true
+                        });
+                    });
                 }
             } else {
                 editor.call('assets:create:' + key, args)

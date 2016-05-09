@@ -45,7 +45,7 @@ editor.once('load', function () {
         var type = light.type;
 
         // close point light, switch to triple circle
-        if (type === 'point' && vec.copy(this.entity.getPosition()).sub(app.activeCamera.getPosition()).length() < light.range)
+        if (type === 'point' && vec.copy(this.entity.getPosition()).sub(editor.call('camera:current').getPosition()).length() < light.range)
             type += '-close';
 
         if (this.type !== type) {
@@ -87,7 +87,7 @@ editor.once('load', function () {
                 break;
             case 'point':
                 this.entity.setLocalScale(light.range, light.range, light.range);
-                this.entity.lookAt(app.activeCamera.getPosition());
+                this.entity.lookAt(editor.call('camera:current').getPosition());
                 break;
             case 'point-close':
                 this.entity.setLocalScale(light.range, light.range, light.range);
@@ -126,6 +126,8 @@ editor.once('load', function () {
 
         this.entity = new pc.Entity();
         this.entity.addComponent('model', {
+            castShadows: false,
+            receiveShadows: false,
             castShadowsLightmap: false
         });
 

@@ -1011,6 +1011,9 @@ editor.once('load', function() {
         panel.once('destroy', function() {
             for(var i = 0; i < events.length; i++)
                 events[i].unbind();
+
+            events = null;
+            dropRef.unregister();
         });
     });
 });

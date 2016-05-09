@@ -18,21 +18,18 @@ editor.once('load', function() {
 
         // subscribe to changes
         obj.on('*:set', function(path, value) {
-            if (path.indexOf('components') !== 0) {
+            if (obj._silent || ! path.startsWith('components'))
                 return;
-            }
 
             var entity = obj.entity;
-            if (!entity) {
-                return;
-            }
+            if (! entity) return;
 
             var parts = path.split('.');
             var component = parts[1];
             var property = parts[2];
 
             // ignore script component
-            if (component === 'script' && property)
+            if (component === 'script')
                 return;
 
             if (!entity[component]) {
@@ -57,14 +54,11 @@ editor.once('load', function() {
         });
 
         var setComponentProperty = function (path, value) {
-            if (path.indexOf('components') !== 0) {
+            if (obj._silent || ! path.startsWith('components'))
                 return;
-            }
 
             var entity = obj.entity;
-            if (!entity) {
-                return;
-            }
+            if (! entity) return;
 
             var parts = path.split('.');
             var component = parts[1];
@@ -88,17 +82,18 @@ editor.once('load', function() {
         obj.on('*:remove', setComponentProperty);
 
         obj.on('*:unset', function (path) {
-            if (path.indexOf('components') !== 0) {
+            if (obj._silent || ! path.startsWith('components'))
                 return;
-            }
 
             var entity = obj.entity;
-            if (!entity)
-                return;
+            if (! entity) return;
 
             var parts = path.split('.');
             var component = parts[1];
             var property = parts[2];
+
+            if (component === 'script')
+                return;
 
             if (property) {
                 // edit component property

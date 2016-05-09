@@ -194,7 +194,7 @@ editor.once('load', function() {
 
             if (entity.has('components.script.scripts.' + script + '.attributes.' + name)) {
                 var value = entity.get('components.script.scripts.' + script + '.attributes.' + name);
-                setAttribute = attributeDefaultValue(value, old);
+                setAttribute = ! old || attributeDefaultValue(value, old);
 
                 // value type
                 if (! setAttribute && (typeof(value) !== typeof(valueDefault) || attribute.type !== old.type))

@@ -2,8 +2,9 @@ editor.once('load', function() {
     'use strict';
 
     var uploadJobs = 0;
+    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
 
-    var targetExtensions = [ 'jpg', 'jpeg', 'png', 'css', 'html', 'json', 'xml', 'txt', 'vert', 'frag', 'glsl', 'mp3', 'ogg', 'wav', 'mp4' ];
+    var targetExtensions = [ 'jpg', 'jpeg', 'png', 'js', 'css', 'html', 'json', 'xml', 'txt', 'vert', 'frag', 'glsl', 'mp3', 'ogg', 'wav', 'mp4' ];
     var tmp = { };
     for(var i = 0; i < targetExtensions.length; i++)
         tmp[targetExtensions[i]] = true;
@@ -18,7 +19,8 @@ editor.once('load', function() {
         'json': [ 'json' ],
         'texture': [ 'tif', 'tga', 'png', 'jpg', 'jpeg', 'gif', 'bmp', 'dds', 'hdr', 'exr' ],
         'audio': [ 'wav', 'mp3', 'mp4', 'ogg' ],
-        'shader': [ 'glsl', 'frag', 'vert' ]
+        'shader': [ 'glsl', 'frag', 'vert' ],
+        'script': [ 'js' ]
     };
     var extToType = { };
     for(var type in typeToExt) {
@@ -171,7 +173,7 @@ editor.once('load', function() {
 
             ext = ext[ext.length - 1].toLowerCase();
 
-            if (ext === 'js') {
+            if (legacyScripts && ext === 'js') {
                 editor.call('assets:upload:script', files[i]);
             } else {
                 var source = ! targetExtensions[ext];
@@ -198,12 +200,41 @@ editor.once('load', function() {
                     return item.get('source') === source && item.get('type') === type && item.get('name').toLowerCase() === files[i].name.toLowerCase();
                 });
 
+                var data = null;
+                if (ext === 'js') {
+                    data = {
+                        order: 100,
+                        scripts: { }
+                    };
+                }
+
                 editor.call('assets:uploadFile', {
                     asset: asset ? asset[1] : sourceAsset,
                     file: files[i],
                     name: files[i].name,
                     parent: editor.call('assets:panel:currentFolder'),
-                    pipeline: true
+                    pipeline: true,
+                    data: data
+                }, function(err, data) {
+                    if (err || ext !== 'js') return;
+
+                    var onceAssetLoad = function(asset) {
+                        var url = asset.get('file.url');
+                        if (url) {
+                            editor.call('scripts:parse', asset);
+                        } else {
+                            asset.once('file.url:set', function() {
+                                editor.call('scripts:parse', asset);
+                            });
+                        }
+                    };
+
+                    var asset = editor.call('assets:get', data.asset.id);
+                    if (asset) {
+                        onceAssetLoad(asset);
+                    } else {
+                        editor.once('assets:add[' + data.asset.id + ']', onceAssetLoad);
+                    }
                 });
             }
         }
