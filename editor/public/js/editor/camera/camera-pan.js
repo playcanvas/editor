@@ -6,7 +6,6 @@ editor.once('viewport:load', function(app) {
     var panning = false;
     var panSpeed = 0.01;
     var shiftKey = false;
-    var firstUpdate = false;
     var vecA = new pc.Vec2();
     var vecB = new pc.Vec3();
     var vecC = new pc.Vec3();
@@ -57,7 +56,6 @@ editor.once('viewport:load', function(app) {
 
         }
 
-        firstUpdate = false;
         editor.call('viewport:render');
     });
 
@@ -66,7 +64,6 @@ editor.once('viewport:load', function(app) {
 
         editor.call('camera:focus:stop');
         panning = true;
-        firstUpdate = true;
         firstPan = true;
 
         var camera = editor.call('camera:current');

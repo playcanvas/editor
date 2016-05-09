@@ -49,7 +49,7 @@ editor.once('viewport:load', function() {
 
             if (vecA.length()) {
                 camera.getRotation().transformVector(vecA, vecA);
-                flyVec.lerp(flyVec, vecA, flyEasing * ((firstUpdate ? 1 / 60 : dt) / (1 / 60)));
+                flyVec.lerp(flyVec, vecA, Math.min(1.0, flyEasing * ((firstUpdate ? 1 / 60 : dt) / (1 / 60))));
             } else {
                 speed = 0;
             }
@@ -59,7 +59,7 @@ editor.once('viewport:load', function() {
 
         if (flyVec.length() > 0.01) {
             if (speed === 0)
-                flyVec.lerp(flyVec, vecA.set(0, 0, 0), flyEasing * ((firstUpdate ? 1 / 60 : dt) / (1 / 60)));
+                flyVec.lerp(flyVec, vecA.set(0, 0, 0), Math.min(1.0, flyEasing * ((firstUpdate ? 1 / 60 : dt) / (1 / 60))));
 
             if (flyVec.length()) {
                 camera = camera || editor.call('camera:current');

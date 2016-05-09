@@ -28,7 +28,7 @@ editor.once('viewport:load', function() {
 
     editor.on('viewport:update', function(dt) {
         if (zoomTarget !== zoom) {
-            zoom += (zoomTarget - zoom) * (zoomEasing * ((firstUpdate ? 1 / 60 : dt) / (1 / 60)));
+            zoom += (zoomTarget - zoom) * Math.min(1.0, zoomEasing * ((firstUpdate ? 1 / 60 : dt) / (1 / 60)));
             var diff = zoomTarget - zoom;
 
             var orbiting = editor.call('camera:orbit:state');

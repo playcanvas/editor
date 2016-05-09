@@ -49,7 +49,7 @@ editor.once('viewport:load', function() {
             var pos = camera.getPosition();
             var dist = vecA.copy(pos).sub(focusPoint).length();
             if (dist > 0.01) {
-                var speed = Math.min(1.0, flySpeed * ((firstUpdate ? 1 / 60 : dt) / (1 / 60)));
+                var speed = Math.min(1.0, Math.min(1.0, flySpeed * ((firstUpdate ? 1 / 60 : dt) / (1 / 60))));
                 vecA.copy(pos).lerp(pos, focusPoint, speed);
                 camera.setPosition(vecA);
                 editor.call('viewport:render');
@@ -62,7 +62,7 @@ editor.once('viewport:load', function() {
 
             if (camera.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
                 var orthoHeight = camera.camera.orthoHeight;
-                orthoHeight += (focusOrthoHeight - orthoHeight) * (flySpeed * ((firstUpdate ? 1 / 60 : dt) / (1 / 60)));
+                orthoHeight += (focusOrthoHeight - orthoHeight) * Math.min(1.0, flySpeed * ((firstUpdate ? 1 / 60 : dt) / (1 / 60)));
                 camera.camera.orthoHeight = orthoHeight;
             }
 
