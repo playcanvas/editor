@@ -126,7 +126,8 @@ editor.once('load', function() {
         worker.postMessage({
             name: 'parse',
             asset: asset.get('id'),
-            url: asset.get('file.url')
+            url: asset.get('file.url'),
+            engine: config.url.engine
         });
     });
 });

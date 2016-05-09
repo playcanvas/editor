@@ -4,7 +4,7 @@ onmessage = function(evt) {
 
     switch(evt.data.name) {
         case 'parse':
-            parseScript(evt.data.asset, evt.data.url)
+            parseScript(evt.data.asset, evt.data.url, evt.data.engine)
             break;
     }
 };
@@ -17,9 +17,9 @@ var __results = {
 
 var window = self;
 
-var parseScript = function(id, url) {
+var parseScript = function(id, url, engine) {
     // import engine
-    importScripts('/local/engine/build/output/playcanvas-latest.js');
+    importScripts(engine);
 
     // loading screen override
     pc.script.createLoadingScreen = function() {
