@@ -49,6 +49,7 @@ editor.once('viewport:load', function() {
         var drawCallsCount = drawCalls.length;
 
         for (var i = 0; i < drawCallsCount; i++) {
+            var opChan = 'r';
             var meshInstance = drawCalls[i];
             if (! meshInstance.command && meshInstance.drawToDepth && meshInstance.material && meshInstance.material.blendType === pc.BLEND_NONE && meshInstance.layer === pc.LAYER_WORLD) {
                 var mesh = meshInstance.mesh;
