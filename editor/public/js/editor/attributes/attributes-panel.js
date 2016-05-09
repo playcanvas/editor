@@ -1,6 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
+    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
     var title = 'INSPECTOR';
     var root = editor.call('layout.right');
     root.header = title;
@@ -118,7 +119,6 @@ editor.once('load', function() {
                     args.field.class.remove('star');
                     if (/^\* /.test(args.field._title.text))
                         args.field._title.text = args.field._title.text.substring(2);
-
                 }
 
                 if (different) {
@@ -142,18 +142,31 @@ editor.once('load', function() {
                     args.field.class.remove('null');
                 }
             } else {
-                for(var i = 1; i < args.link.length; i++) {
-                    var v = args.link[i].get(args.path);
-                    if ((value || 0) !== (v || 0)) {
-                        value = args.enum ? '' : null;
-                        different = true;
-                        break;
+                var valueFound = false;
+                for(var i = 0; i < args.link.length; i++) {
+                    if (! args.link[i].has(args.path))
+                        continue;
+
+                    if (! valueFound) {
+                        valueFound = true;
+                        value = args.link[i].get(args.path);
+                    } else {
+                        var v = args.link[i].get(args.path);
+                        if ((value || 0) !== (v || 0)) {
+                            value = args.enum ? '' : null;
+                            different = true;
+                            break;
+                        }
                     }
                 }
             }
 
             args.field._changing = true;
             args.field.value = value;
+
+            if (args.type === 'checkbox')
+                args.field._onLinkChange(value);
+
             args.field._changing = false;
 
             if (args.enum) {
@@ -194,7 +207,7 @@ editor.once('load', function() {
                 args.field.value = value;
 
             for(var i = 0; i < args.link.length; i++) {
-                if (args.type === 'asset' && !args.link[i].has(args.path)) continue;
+                if (! args.link[i].has(args.path)) continue;
 
                 items.push({
                     get: args.link[i].history !== undefined ? args.link[i].history._getItemFn : null,
@@ -445,7 +458,7 @@ editor.once('load', function() {
             panel.append(label);
 
             if (args.reference) {
-                var tooltip = editor.call('attributes:reference', {
+                var tooltip = label._tooltip = editor.call('attributes:reference', {
                     element: label.element,
                     title: args.reference.title,
                     subTitle: args.reference.subTitle,
@@ -750,8 +763,8 @@ editor.once('load', function() {
                 for(var i = 0; i < link.length; i++) {
                     var tags = link[i].get(args.path);
 
-                    events.push(link[i].on('tags:insert', onInsert));
-                    events.push(link[i].on('tags:remove', onRemove));
+                    events.push(link[i].on(args.path + ':insert', onInsert));
+                    events.push(link[i].on(args.path + ':remove', onRemove));
 
                     if (! tags)
                         continue;
@@ -786,7 +799,7 @@ editor.once('load', function() {
                 if (args.enum) {
                     field = new ui.SelectField({
                         options: args.enum,
-                        number: true
+                        type: 'number'
                     });
                 } else if (args.slider) {
                     field = new ui.Slider();
@@ -817,7 +830,16 @@ editor.once('load', function() {
                 break;
 
             case 'checkbox':
-                field = new ui.Checkbox();
+                if (args.enum) {
+                    field = new ui.SelectField({
+                        options: args.enum,
+                        type: 'boolean'
+                    });
+                    field.flexGrow = 1;
+                } else {
+                    field = new ui.Checkbox();
+                }
+
                 field.value = args.value || 0;
                 field.class.add('tick');
 
@@ -977,7 +999,7 @@ editor.once('load', function() {
                     if (! asset) return;
                     editor.call('selector:set', 'asset', [ asset ]);
 
-                    if (asset.get('type') === 'script') {
+                    if (legacyScripts && asset.get('type') === 'script') {
                         editor.call('assets:panel:currentFolder', 'scripts');
                     } else {
                         var path = asset.get('path');
@@ -1569,7 +1591,7 @@ editor.once('load', function() {
 
         var fieldAssets = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Assets',
+            name: args.name || 'Assets',
             type: 'element',
             element: fieldAssetsList,
             reference: args.reference
@@ -1714,7 +1736,7 @@ editor.once('load', function() {
 
             // on pick
             var evtPick = editor.once('picker:asset', function(asset) {
-                if (asset.get('type') === 'script')
+                if (legacyScripts && asset.get('type') === 'script')
                     return;
 
                 var records = [ ];

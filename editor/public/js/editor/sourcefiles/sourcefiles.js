@@ -1,6 +1,9 @@
 editor.once('repositories:load', function (repositories) {
     'use strict';
 
+    if(! editor.call('project:settings').get('use_legacy_scripts'))
+        return;
+
     var sourcefiles = new ObserverList();
 
     var scriptNamePattern = new RegExp("^(?:[\\w\\d\\.-]+\\\/)*[\\w\\d\\.-]+(?:\\.js(?:on)?)?$", 'i');

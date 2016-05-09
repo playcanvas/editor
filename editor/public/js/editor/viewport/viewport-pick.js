@@ -7,8 +7,15 @@ editor.once('load', function() {
         node: null,
         picked: null
     };
-    var mouseTap = null;
+    var mouseCoords = new pc.Vec2();
+    var mouseTap = false;
     var inViewport = false;
+    var picking = true;
+
+
+    editor.method('viewport:pick:state', function(state) {
+        picking = state;
+    });
 
     editor.on('viewport:update', function() {
         if (! inViewport && pickedData.node) {
@@ -17,11 +24,11 @@ editor.once('load', function() {
             editor.emit('viewport:pick:hover', null, null);
         }
 
-        if (! inViewport || ! mouseTap || mouseTap.down)
+        if (! inViewport || ! picking)
             return;
 
         // pick
-        editor.call('viewport:pick', mouseTap.x, mouseTap.y, function(node, picked) {
+        editor.call('viewport:pick', mouseCoords.x, mouseCoords.y, function(node, picked) {
             if (pickedData.node !== node || pickedData.picked !== picked) {
                 pickedData.node = node;
                 pickedData.picked = picked;
@@ -41,7 +48,7 @@ editor.once('load', function() {
 
     editor.method('viewport:pick', function(x, y, fn) {
         // prepare picker
-        picker.prepare(app.activeCamera.camera.camera, app.scene);
+        picker.prepare(editor.call('camera:current').camera.camera, app.scene);
 
         // pick node
         var picked = picker.getSelection({
@@ -64,8 +71,9 @@ editor.once('load', function() {
         }
     });
 
-    editor.on('viewport:tap:move', function(tap) {
-        mouseTap = tap;
+    editor.on('viewport:mouse:move', function(tap) {
+        mouseCoords.x = tap.x;
+        mouseCoords.y = tap.y;
     });
 
     editor.on('viewport:tap:click', function(tap) {

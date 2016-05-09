@@ -27,7 +27,7 @@ editor.once('load', function() {
                 shadowDistance: 40,
                 shadowResolution: 1024,
                 shadowBias: 0.05,
-                normalOffsetBias: 0,
+                normalOffsetBias: 0.01,
                 range: 10,
                 falloffMode: 0,
                 innerConeAngle: 40,
@@ -133,7 +133,7 @@ editor.once('load', function() {
                 type: 'asset',
                 asset: null,
                 materialAsset: null,
-                castShadows: false,
+                castShadows: true,
                 castShadowsLightMap: false,
                 receiveShadows: true,
                 lightMapped: false,
@@ -267,10 +267,18 @@ editor.once('load', function() {
             title: 'Script',
             default: {
                 enabled: true,
-                scripts: [ ]
+                order: [ ],
+                scripts: null
             }
         }
     };
+
+    if (editor.call('project:settings').get('use_legacy_scripts')) {
+        schema.script.default.scripts = [ ];
+        delete schema.script.default.order;
+    } else {
+        schema.script.default.scripts = { };
+    }
 
     var list = Object.keys(schema).sort(function(a, b) {
         if (a > b) {
@@ -330,5 +338,3 @@ editor.once('load', function() {
     });
 
 });
-
-

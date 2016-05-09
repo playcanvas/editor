@@ -41,6 +41,8 @@ editor.once('load', function() {
         };
         this.entity.addComponent('model', {
             type: 'plane',
+            castShadows: false,
+            receiveShadows: false,
             castShadowsLightmap: false
         });
 
@@ -50,6 +52,8 @@ editor.once('load', function() {
         this.entity.addChild(this.behind);
         this.behind.addComponent('model', {
             type: 'plane',
+            castShadows: false,
+            receiveShadows: false,
             castShadowsLightmap: false
         });
         this.behind.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
@@ -263,7 +267,7 @@ editor.once('load', function() {
     });
 
     editor.on('viewport:postUpdate', function() {
-        if (app) cameraRotation.copy(app.activeCamera.getRotation());
+        if (app) cameraRotation.copy(editor.call('camera:current').getRotation());
 
         for(var i = 0; i < icons.length; i++)
             icons[i].update();

@@ -152,6 +152,8 @@ editor.once('load', function() {
         // add user camera
         var camera = cameras[userId] = new pc.Entity(app);
         camera.addComponent('model', {
+            castShadows: false,
+            receiveShadows: false,
             castShadowsLightmap: false
         });
         camera.model.model = cameraModel.clone();
@@ -159,6 +161,8 @@ editor.once('load', function() {
 
         var cameraInner = new pc.Entity(app);
         cameraInner.addComponent('model', {
+            castShadows: false,
+            receiveShadows: false,
             castShadowsLightmap: false
         });
         cameraInner.model.model = cameraModel.clone();
@@ -169,6 +173,8 @@ editor.once('load', function() {
         cameraQuad._userCamera = userId;
         cameraQuad.addComponent('model', {
             type: 'plane',
+            castShadows: false,
+            receiveShadows: false,
             castShadowsLightmap: false
         });
         cameraQuad.model.material = materialQuad;

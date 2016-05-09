@@ -149,7 +149,7 @@ editor.once('load', function() {
 
     var onRender = function() {
         if (gizmoMoving) {
-            var camera = app.activeCamera;
+            var camera = editor.call('camera:current');
 
             for(var i = 0; i < items.length; i++) {
                 if (items[i].child)

@@ -38,7 +38,7 @@ editor.once('load', function() {
         }
     };
 
-    var hasScript = function (entity, url) {
+    var hasLegacyScript = function (entity, url) {
         var scriptComponent = entity.get('components.script');
         if (scriptComponent) {
             for (var i = 0; i < scriptComponent.scripts.length; i++) {
@@ -93,7 +93,7 @@ editor.once('load', function() {
         });
     };
 
-    var addBultinScript = function (entity, url) {
+    var addBultinLegacyScript = function (entity, url) {
         var resourceId = entity.get('resource_id');
 
         var addedComponent = false;
@@ -186,28 +186,6 @@ editor.once('load', function() {
                         return editor.call('selector:type') === 'entity';
                     },
                     items: { }
-                },
-                'add-builtin-script': {
-                    title: 'Add Built-In Script',
-                    filter: function () {
-                        return editor.call('selector:type') === 'entity';
-                    },
-                    items: {
-                        'post-effects': {
-                            title: 'Post-Effects',
-                            filter: function () {
-                                return editor.call('selector:type') === 'entity';
-                            },
-                            items: {}
-                        },
-                        'camera-scripts': {
-                            title: 'Camera',
-                            filter: function () {
-                                return editor.call('selector:type') === 'entity';
-                            },
-                            items: {}
-                        }
-                    }
                 }
             }
         },
@@ -336,8 +314,7 @@ editor.once('load', function() {
                             return false;
 
                         var items = editor.call('selector:items');
-                        return items.length === 1 &&
-                               ['html', 'css', 'json', 'text', 'script', 'shader'].indexOf(items[0].get('type')) !== -1;
+                        return items.length === 1 && ['html', 'css', 'json', 'text', 'script', 'shader'].indexOf(items[0].get('type')) !== -1;
                     },
                     select: function() {
                         var type = editor.call('selector:type');
@@ -550,16 +527,7 @@ editor.once('load', function() {
                 editor.call('selector:set', 'designerSettings', [ editor.call('designerSettings') ]);
             }
         },
-        'priorityScripts': {
-            title: 'Script Priority',
-            icon: '&#57652;',
-            filter: function() {
-                return editor.call('permissions:write');
-            },
-            select: function() {
-                editor.call('sceneSettings:priorityScripts');
-            }
-        },
+        'priorityScripts': null,
         'feedback': {
             title: 'Feedback',
             icon: '&#57625;',
@@ -568,6 +536,59 @@ editor.once('load', function() {
             }
         }
     };
+
+    if (editor.call('project:settings').get('use_legacy_scripts')) {
+        menuData['entity']['items']['add-builtin-script'] = {
+            title: 'Add Built-In Script',
+            filter: function () {
+                return editor.call('selector:type') === 'entity';
+            },
+            items: {
+                'post-effects': {
+                    title: 'Post-Effects',
+                    filter: function () {
+                        return editor.call('selector:type') === 'entity';
+                    },
+                    items: {}
+                },
+                'camera-scripts': {
+                    title: 'Camera',
+                    filter: function () {
+                        return editor.call('selector:type') === 'entity';
+                    },
+                    items: {}
+                }
+            }
+        };
+
+        menuData['priorityScripts'] = {
+            title: 'Script Priority',
+            icon: '&#57652;',
+            filter: function() {
+                return editor.call('permissions:write');
+            },
+            select: function() {
+                editor.call('sceneSettings:priorityScripts');
+            }
+        };
+    } else {
+        // TODO scripts2
+        // add built-in-scripts for new system
+
+        menuData['priorityScripts'] = {
+            title: 'Scripts Loading Order',
+            icon: '&#57652;',
+            filter: function() {
+                return editor.call('permissions:write');
+            },
+            select: function() {
+                editor.call('selector:set', 'designerSettings', [ editor.call('designerSettings') ]);
+                setTimeout(function() {
+                    editor.call('designerSettings:panel:unfold', 'scripts-order');
+                }, 0);
+            }
+        };
+    }
 
     var makeMenuComponentItem = function(key) {
         var data = {
@@ -607,79 +628,81 @@ editor.once('load', function() {
         menuData['entity'].items['add-component'].items[key] = makeMenuComponentItem(key);
     }
 
-    var builtInScripts = [{
-        group: 'post-effects',
-        title: 'Bloom',
-        name: 'posteffect-bloom',
-        url: 'https://code.playcanvas.com/posteffects/posteffect_bloom.js',
-        requires: 'camera'
-    }, {
-        group: 'post-effects',
-        title: 'Bloom',
-        name: 'posteffect-bloom',
-        url: 'https://code.playcanvas.com/posteffects/posteffect_bloom.js',
-        requires: 'camera'
-    }, {
-        group: 'post-effects',
-        title: 'Bloom',
-        name: 'posteffect-bloom',
-        url: 'https://code.playcanvas.com/posteffects/posteffect_bloom.js',
-        requires: 'camera'
-    }, {
-        group: 'post-effects',
-        title: 'Brightness-Contrast',
-        name: 'posteffect-brightnesscontrast',
-        url: 'https://code.playcanvas.com/posteffects/posteffect_brightnesscontrast.js',
-        requires: 'camera'
-    }, {
-        group: 'post-effects',
-        title: 'Hue-Saturation',
-        name: 'posteffect-huesaturation',
-        url: 'https://code.playcanvas.com/posteffects/posteffect_huesaturation.js',
-        requires: 'camera'
-    }, {
-        group: 'post-effects',
-        title: 'FXAA',
-        name: 'posteffect-fxaa',
-        url: 'https://code.playcanvas.com/posteffects/posteffect_fxaa.js',
-        requires: 'camera'
-    }, {
-        group: 'post-effects',
-        title: 'Sepia',
-        name: 'posteffect-sepia',
-        url: 'https://code.playcanvas.com/posteffects/posteffect_sepia.js',
-        requires: 'camera'
-    }, {
-        group: 'post-effects',
-        title: 'Vignette',
-        name: 'posteffect-vignette',
-        url: 'https://code.playcanvas.com/posteffects/posteffect_vignette.js',
-        requires: 'camera'
-    }, {
-        group: 'camera-scripts',
-        title: 'Fly Camera',
-        name: 'camera-fly',
-        url: 'https://code.playcanvas.com/camera/camera_fly.js',
-        requires: 'camera'
-    }];
+    if (editor.call('project:settings').get('use_legacy_scripts')) {
+        var builtInScripts = [{
+            group: 'post-effects',
+            title: 'Bloom',
+            name: 'posteffect-bloom',
+            url: 'https://code.playcanvas.com/posteffects/posteffect_bloom.js',
+            requires: 'camera'
+        }, {
+            group: 'post-effects',
+            title: 'Bloom',
+            name: 'posteffect-bloom',
+            url: 'https://code.playcanvas.com/posteffects/posteffect_bloom.js',
+            requires: 'camera'
+        }, {
+            group: 'post-effects',
+            title: 'Bloom',
+            name: 'posteffect-bloom',
+            url: 'https://code.playcanvas.com/posteffects/posteffect_bloom.js',
+            requires: 'camera'
+        }, {
+            group: 'post-effects',
+            title: 'Brightness-Contrast',
+            name: 'posteffect-brightnesscontrast',
+            url: 'https://code.playcanvas.com/posteffects/posteffect_brightnesscontrast.js',
+            requires: 'camera'
+        }, {
+            group: 'post-effects',
+            title: 'Hue-Saturation',
+            name: 'posteffect-huesaturation',
+            url: 'https://code.playcanvas.com/posteffects/posteffect_huesaturation.js',
+            requires: 'camera'
+        }, {
+            group: 'post-effects',
+            title: 'FXAA',
+            name: 'posteffect-fxaa',
+            url: 'https://code.playcanvas.com/posteffects/posteffect_fxaa.js',
+            requires: 'camera'
+        }, {
+            group: 'post-effects',
+            title: 'Sepia',
+            name: 'posteffect-sepia',
+            url: 'https://code.playcanvas.com/posteffects/posteffect_sepia.js',
+            requires: 'camera'
+        }, {
+            group: 'post-effects',
+            title: 'Vignette',
+            name: 'posteffect-vignette',
+            url: 'https://code.playcanvas.com/posteffects/posteffect_vignette.js',
+            requires: 'camera'
+        }, {
+            group: 'camera-scripts',
+            title: 'Fly Camera',
+            name: 'camera-fly',
+            url: 'https://code.playcanvas.com/camera/camera_fly.js',
+            requires: 'camera'
+        }];
 
-    builtInScripts.forEach(function (data) {
-        menuData['entity'].items['add-builtin-script'].items[data.group].items[data.name] = {
-            title: data.title,
-            filter: function () {
-                var entity = editor.call('selector:items')[0];
+        builtInScripts.forEach(function (data) {
+            menuData['entity'].items['add-builtin-script'].items[data.group].items[data.name] = {
+                title: data.title,
+                filter: function () {
+                    var entity = editor.call('selector:items')[0];
 
-                return editor.call('selector:type') === 'entity' &&
-                       editor.call('permissions:write') &&
-                       !hasScript(entity, data.url) &&
-                       (!data.requires || entity.get('components.' + data.requires));
-            },
-            select: function () {
-                var entity = editor.call('selector:items')[0];
-                addBultinScript(entity, data.url);
-            }
-        };
-    });
+                    return editor.call('selector:type') === 'entity' &&
+                           editor.call('permissions:write') &&
+                           !hasLegacyScript(entity, data.url) &&
+                           (!data.requires || entity.get('components.' + data.requires));
+                },
+                select: function () {
+                    var entity = editor.call('selector:items')[0];
+                    addBultinLegacyScript(entity, data.url);
+                }
+            };
+        });
+    }
 
     var root = editor.call('layout.root');
 

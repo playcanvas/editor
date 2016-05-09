@@ -18,8 +18,6 @@ editor.once('load', function() {
     var vecE = new pc.Vec3();
     var quat = new pc.Quat();
     var evtTapStart;
-    var evtTapMove;
-    var evtTapEnd;
     var pickStart = new pc.Vec3();
 
     var snap = false;
@@ -164,7 +162,7 @@ editor.once('load', function() {
                     }
                 }
 
-                var camera = app.activeCamera;
+                var camera = editor.call('camera:current');
 
                 var posCamera = camera.getPosition();
                 var posGizmo = gizmo.root.getPosition();
@@ -228,7 +226,7 @@ editor.once('load', function() {
         });
 
         var pickPlane = function(x, y) {
-            var camera = app.activeCamera;
+            var camera = editor.call('camera:current');
             var scale = 1;
             var mouseWPos = camera.camera.screenToWorld(x, y, 1);
             var posGizmo = gizmo.root.getPosition();
@@ -295,6 +293,9 @@ editor.once('load', function() {
         };
 
         var onTapStart = function(tap) {
+            if (tap.button !== 0)
+                return;
+
             editor.emit('camera:toggle', false);
 
             moving = true;
@@ -309,6 +310,7 @@ editor.once('load', function() {
 
             editor.emit('gizmo:scale:start', hoverAxis, hoverMiddle);
             editor.call('gizmo:scale:visible', false);
+            editor.call('viewport:pick:state', false);
         };
 
         var onTapMove = function(tap) {
@@ -319,6 +321,9 @@ editor.once('load', function() {
         };
 
         var onTapEnd = function(tap) {
+            if (tap.button !== 0)
+                return;
+
             editor.emit('camera:toggle', true);
 
             if (! moving)
@@ -329,6 +334,7 @@ editor.once('load', function() {
 
             editor.emit('gizmo:scale:end');
             editor.call('gizmo:scale:visible', true);
+            editor.call('viewport:pick:state', true);
         };
 
         editor.on('viewport:hover', function(state) {
@@ -341,8 +347,8 @@ editor.once('load', function() {
             editor.call('gizmo:scale:visible', true);
         });
 
-        evtTapMove = editor.on('viewport:tap:move', onTapMove);
-        evtTapEnd = editor.on('viewport:tap:end', onTapEnd);
+        editor.on('viewport:mouse:move', onTapMove);
+        editor.on('viewport:tap:end', onTapEnd);
     });
 
     var createMaterial = function(color) {
@@ -396,6 +402,8 @@ editor.once('load', function() {
         middle.middle = true;
         middle.addComponent('model', {
             type: 'box',
+            castShadows: false,
+            receiveShadows: false,
             castShadowsLightmap: false
         });
         middle.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
@@ -411,6 +419,8 @@ editor.once('load', function() {
         lineX.axis = 'x';
         lineX.addComponent('model', {
             type: 'cylinder',
+            castShadows: false,
+            receiveShadows: false,
             castShadowsLightmap: false
         });
         lineX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
@@ -426,6 +436,8 @@ editor.once('load', function() {
         lineY.axis = 'y';
         lineY.addComponent('model', {
             type: 'cylinder',
+            castShadows: false,
+            receiveShadows: false,
             castShadowsLightmap: false
         });
         lineY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
@@ -441,6 +453,8 @@ editor.once('load', function() {
         lineZ.axis = 'z';
         lineZ.addComponent('model', {
             type: 'cylinder',
+            castShadows: false,
+            receiveShadows: false,
             castShadowsLightmap: false
         });
         lineZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
@@ -456,6 +470,8 @@ editor.once('load', function() {
         boxX.axis = 'x';
         boxX.addComponent('model', {
             type: 'box',
+            castShadows: false,
+            receiveShadows: false,
             castShadowsLightmap: false
         });
         boxX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
@@ -471,6 +487,8 @@ editor.once('load', function() {
         boxY.axis = 'y';
         boxY.addComponent('model', {
             type: 'box',
+            castShadows: false,
+            receiveShadows: false,
             castShadowsLightmap: false
         });
         boxY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
@@ -486,6 +504,8 @@ editor.once('load', function() {
         boxZ.axis = 'z';
         boxZ.addComponent('model', {
             type: 'box',
+            castShadows: false,
+            receiveShadows: false,
             castShadowsLightmap: false
         });
         boxZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
