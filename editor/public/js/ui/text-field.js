@@ -64,11 +64,13 @@ TextField.prototype._onKeyDown = function(evt) {
 
 TextField.prototype._onInputFocus = function() {
     this.class.add('focus');
+    this.emit('input:focus');
 };
 
 
 TextField.prototype._onInputBlur = function() {
     this.class.remove('focus');
+    this.emit('input:blur');
 };
 
 

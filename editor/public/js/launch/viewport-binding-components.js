@@ -18,19 +18,16 @@ app.once('load', function() {
     app.on('entities:add', function (obj) {
         // subscribe to changes
         obj.on('*:set', function(path, value) {
-            if (path.indexOf('components') !== 0) {
+            if (obj._silent || ! path.startsWith('components'))
                 return;
-            }
 
             var entity = framework.root.findByGuid(obj.get('resource_id'));
-            if (!entity) {
+            if (! entity)
                 return;
-            }
 
             var parts = path.split('.');
             var component = parts[1];
             var property = parts[2];
-
 
             if (!entity[component]) {
                 if (!property) {
@@ -43,64 +40,117 @@ app.once('load', function() {
                 }
             } else if (property) {
                 // edit component property
-                value = obj.get('components.' + component + '.' + property);
-                entity[component][property] = app.call('components:convertValue', component, property, value);
-            }
+                if (component === 'script' && property === 'scripts') {
+                    if (parts.length <= 3)
+                        return;
 
+                    var script = entity.script[parts[3]];
+
+                    if (parts.length === 4) {
+                        // new script
+                        var data = obj.get('components.script.scripts.' + parts[3]);
+                        entity.script.create(parts[3], data);
+                    } else if (script && parts.length === 5 && parts[4] === 'enabled') {
+                        // enabled
+                        script.enabled = value;
+                    } else if (script && parts.length === 6 && parts[4] === 'attributes' && ! pc.Script.reservedAttributes[parts[5]]) {
+                        // set attribute
+                        script[parts[5]] = value;
+                        // TODO scripts2
+                        // check if attribute is new
+                    } else if (script && parts.length > 6 && parts[4] === 'attributes' && ! pc.Script.reservedAttributes[parts[5]]) {
+                        // update attribute
+                        script[parts[5]] = obj.get('components.script.scripts.' + parts[3] + '.attributes.' + parts[5]);
+                    }
+                } else {
+                    value = obj.get('components.' + component + '.' + property);
+                    entity[component][property] = app.call('components:convertValue', component, property, value);
+                }
+            }
         });
 
 
         obj.on('*:unset', function (path) {
-            if (path.indexOf('components') !== 0) {
+            if (obj._silent || ! path.startsWith('components'))
                 return;
-            }
 
             var entity = framework.root.findByGuid(obj.get('resource_id'));
-            if (!entity)
-                return;
+            if (! entity) return;
 
             var parts = path.split('.');
             var component = parts[1];
             var property = parts[2];
 
             if (property) {
-                // edit component property
-                var value = obj.get('components.' + component + '.' + property);
-                entity[component][property] = editor.call('components:convertValue', component, property, value);
-            }
-            else if (entity[component]) {
+                if (component === 'script' && property === 'scripts') {
+                    if (! entity.script || parts.length <= 3)
+                        return;
+
+                    var script = entity.script[parts[3]];
+                    if (! script)
+                        return;
+
+                    if (parts.length === 4) {
+                        // remove script
+                        entity.script.destroy(parts[3]);
+                    } else if (parts.length === 6 && parts[4] === 'attributes' && ! pc.Script.reservedAttributes[parts[5]]) {
+                        // unset attribute
+                        delete script[parts[5]];
+                        delete script.__attributes[parts[5]];
+                    } else if (parts.length > 6 && parts[4] === 'attributes' && ! pc.Script.reservedAttributes[parts[5]]) {
+                        // update attribute
+                        script[parts[5]] = obj.get('components.script.scripts.' + parts[3] + '.attributes.' + parts[5]);
+                    }
+                } else {
+                    // edit component property
+                    var value = obj.get('components.' + component + '.' + property);
+                    entity[component][property] = editor.call('components:convertValue', component, property, value);
+                }
+            } else if (entity[component]) {
                 // remove component
                 framework.systems[component].removeComponent(entity);
             }
         });
 
-        var setComponentProperty = function (path, value) {
-            if (path.indexOf('components') !== 0) {
+        var setComponentProperty = function (path, value, ind) {
+            if (obj._silent || ! path.startsWith('components'))
                 return;
-            }
 
             var entity = framework.root.findByGuid(obj.get('resource_id'));
-            if (!entity) {
-                return;
-            }
+            if (! entity) return;
 
             var parts = path.split('.');
             var component = parts[1];
             var property = parts[2];
 
             if (property) {
-                // edit component property
-                value = obj.get('components.' + component + '.' + property);
-                entity[component][property] = app.call('components:convertValue', component, property, value);
+                if (component === 'script') {
+                    if (property === 'order') {
+                        // update script order
+                        entity.script.move(value, ind);
+                    } else if (property === 'scripts') {
+                        if (! entity.script || parts.length <= 3)
+                            return;
 
-                // render
-                app.call('viewport:render');
+                        var script = entity.script[parts[3]];
+                        if (! script)
+                            return;
+
+                        if (parts.length > 6 && parts[4] === 'attributes' && ! pc.Script.reservedAttributes[parts[5]]) {
+                            // update attribute
+                            script[parts[5]] = obj.get('components.script.scripts.' + parts[3] + '.attributes.' + parts[5]);
+                        }
+                    }
+                } else {
+                    // edit component property
+                    value = obj.get('components.' + component + '.' + property);
+                    entity[component][property] = app.call('components:convertValue', component, property, value);
+                }
             }
         };
 
         obj.on('*:insert', setComponentProperty);
         obj.on('*:remove', setComponentProperty);
-
+        obj.on('*:move', setComponentProperty);
     });
-
 });

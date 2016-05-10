@@ -230,7 +230,7 @@ editor.once('load', function() {
         }
 
         if (gizmoMoving && items.length) {
-            var camera = app.activeCamera;
+            var camera = editor.call('camera:current');
             var pos;
 
             var len = coordSystem === 'local' ? items.length : 1;

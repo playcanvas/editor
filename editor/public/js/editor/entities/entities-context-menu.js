@@ -5,6 +5,8 @@ editor.once('load', function() {
     var items = [ ];
     var root = editor.call('layout.root');
 
+    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
+
     // create data for entity menu
     var menu;
 
@@ -46,7 +48,7 @@ editor.once('load', function() {
         }
     };
 
-    var hasScript = function (entity, url) {
+    var hasLegacyScript = function (entity, url) {
         var scriptComponent = entity.get('components.script');
         if (scriptComponent) {
             for (var i = 0; i < scriptComponent.scripts.length; i++) {
@@ -60,6 +62,9 @@ editor.once('load', function() {
     };
 
     var addBultinScript = function (entity, url) {
+        if (! legacyScripts)
+            return;
+
         var resourceId = entity.get('resource_id');
 
         var addedComponent = false;
@@ -196,28 +201,33 @@ editor.once('load', function() {
             items: { }
         };
 
-        menuData['add-builtin-script'] = {
-            title: 'Add Built-In Script',
-            filter: function () {
-                return items.length === 1;
-            },
-            items: {
-                'post-effects': {
-                    title: 'Post-Effects',
-                    filter: function () {
-                        return items.length === 1;
-                    },
-                    items: { }
+        if (legacyScripts) {
+            menuData['add-builtin-script'] = {
+                title: 'Add Built-In Script',
+                filter: function () {
+                    return items.length === 1;
                 },
-                'camera-scripts': {
-                    title: 'Camera',
-                    filter: function () {
-                        return items.length === 1;
+                items: {
+                    'post-effects': {
+                        title: 'Post-Effects',
+                        filter: function () {
+                            return items.length === 1;
+                        },
+                        items: { }
                     },
-                    items: { }
+                    'camera-scripts': {
+                        title: 'Camera',
+                        filter: function () {
+                            return items.length === 1;
+                        },
+                        items: { }
+                    }
                 }
-            }
-        };
+            };
+        } else {
+            // TODO scripts2
+            // built-in scripts
+        }
 
         menuData['enable'] = {
             title: 'Enable',
@@ -351,76 +361,81 @@ editor.once('load', function() {
             menuData['add-component'].items[key] = makeMenuComponentItem(key);
         }
 
-        var builtInScripts = [{
-            group: 'post-effects',
-            title: 'Bloom',
-            name: 'posteffect-bloom',
-            url: 'https://code.playcanvas.com/posteffects/posteffect_bloom.js',
-            requires: 'camera'
-        }, {
-            group: 'post-effects',
-            title: 'Bloom',
-            name: 'posteffect-bloom',
-            url: 'https://code.playcanvas.com/posteffects/posteffect_bloom.js',
-            requires: 'camera'
-        }, {
-            group: 'post-effects',
-            title: 'Bloom',
-            name: 'posteffect-bloom',
-            url: 'https://code.playcanvas.com/posteffects/posteffect_bloom.js',
-            requires: 'camera'
-        }, {
-            group: 'post-effects',
-            title: 'Brightness-Contrast',
-            name: 'posteffect-brightnesscontrast',
-            url: 'https://code.playcanvas.com/posteffects/posteffect_brightnesscontrast.js',
-            requires: 'camera'
-        }, {
-            group: 'post-effects',
-            title: 'Hue-Saturation',
-            name: 'posteffect-huesaturation',
-            url: 'https://code.playcanvas.com/posteffects/posteffect_huesaturation.js',
-            requires: 'camera'
-        }, {
-            group: 'post-effects',
-            title: 'FXAA',
-            name: 'posteffect-fxaa',
-            url: 'https://code.playcanvas.com/posteffects/posteffect_fxaa.js',
-            requires: 'camera'
-        }, {
-            group: 'post-effects',
-            title: 'Sepia',
-            name: 'posteffect-sepia',
-            url: 'https://code.playcanvas.com/posteffects/posteffect_sepia.js',
-            requires: 'camera'
-        }, {
-            group: 'post-effects',
-            title: 'Vignette',
-            name: 'posteffect-vignette',
-            url: 'https://code.playcanvas.com/posteffects/posteffect_vignette.js',
-            requires: 'camera'
-        }, {
-            group: 'camera-scripts',
-            title: 'Fly Camera',
-            name: 'camera-fly',
-            url: 'https://code.playcanvas.com/camera/camera_fly.js',
-            requires: 'camera'
-        }];
+        if (legacyScripts) {
+            var builtInScripts = [{
+                group: 'post-effects',
+                title: 'Bloom',
+                name: 'posteffect-bloom',
+                url: 'https://code.playcanvas.com/posteffects/posteffect_bloom.js',
+                requires: 'camera'
+            }, {
+                group: 'post-effects',
+                title: 'Bloom',
+                name: 'posteffect-bloom',
+                url: 'https://code.playcanvas.com/posteffects/posteffect_bloom.js',
+                requires: 'camera'
+            }, {
+                group: 'post-effects',
+                title: 'Bloom',
+                name: 'posteffect-bloom',
+                url: 'https://code.playcanvas.com/posteffects/posteffect_bloom.js',
+                requires: 'camera'
+            }, {
+                group: 'post-effects',
+                title: 'Brightness-Contrast',
+                name: 'posteffect-brightnesscontrast',
+                url: 'https://code.playcanvas.com/posteffects/posteffect_brightnesscontrast.js',
+                requires: 'camera'
+            }, {
+                group: 'post-effects',
+                title: 'Hue-Saturation',
+                name: 'posteffect-huesaturation',
+                url: 'https://code.playcanvas.com/posteffects/posteffect_huesaturation.js',
+                requires: 'camera'
+            }, {
+                group: 'post-effects',
+                title: 'FXAA',
+                name: 'posteffect-fxaa',
+                url: 'https://code.playcanvas.com/posteffects/posteffect_fxaa.js',
+                requires: 'camera'
+            }, {
+                group: 'post-effects',
+                title: 'Sepia',
+                name: 'posteffect-sepia',
+                url: 'https://code.playcanvas.com/posteffects/posteffect_sepia.js',
+                requires: 'camera'
+            }, {
+                group: 'post-effects',
+                title: 'Vignette',
+                name: 'posteffect-vignette',
+                url: 'https://code.playcanvas.com/posteffects/posteffect_vignette.js',
+                requires: 'camera'
+            }, {
+                group: 'camera-scripts',
+                title: 'Fly Camera',
+                name: 'camera-fly',
+                url: 'https://code.playcanvas.com/camera/camera_fly.js',
+                requires: 'camera'
+            }];
 
-        builtInScripts.forEach(function (data) {
-            menuData['add-builtin-script'].items[data.group].items[data.name] = {
-                title: data.title,
-                filter: function () {
-                    return items.length === 1 &&
-                           editor.call('permissions:write') &&
-                           !hasScript(items[0], data.url) &&
-                           (!data.requires || items[0].get('components.' + data.requires));
-                },
-                select: function () {
-                    addBultinScript(items[0], data.url);
-                }
-            };
-        });
+            builtInScripts.forEach(function (data) {
+                menuData['add-builtin-script'].items[data.group].items[data.name] = {
+                    title: data.title,
+                    filter: function () {
+                        return items.length === 1 &&
+                               editor.call('permissions:write') &&
+                               !hasLegacyScript(items[0], data.url) &&
+                               (!data.requires || items[0].get('components.' + data.requires));
+                    },
+                    select: function () {
+                        addBultinScript(items[0], data.url);
+                    }
+                };
+            });
+        } else {
+            // TODO scripts2
+            // built-in scripts
+        }
 
         // menu
         menu = ui.Menu.fromData(menuData);

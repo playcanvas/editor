@@ -2,9 +2,9 @@ editor.once('load', function() {
     'use strict';
 
     var enabled = true;
+    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
     var selector = new ObserverList();
     selector.type = null;
-
 
 
     var index = { };
@@ -119,7 +119,7 @@ editor.once('load', function() {
         // make sure items still exist
         if (type === 'asset') {
             items = items.filter(function(item) {
-                return item.get('type') === 'script' || !! editor.call('assets:get', item.get('id'));
+                return (legacyScripts && item.get('type') === 'script') || !! editor.call('assets:get', item.get('id'));
             });
         } else if (type === 'entity') {
             items = items.filter(function(item) {

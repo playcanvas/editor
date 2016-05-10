@@ -87,42 +87,17 @@ editor.once('load', function() {
 
     editor.method('viewport:focus', function() {
         var selection = editor.call('selection:aabb');
+        if (! selection) return;
 
-        if (! selection)
-            return;
+        var camera = editor.call('camera:current');
 
-        // camera
-        var camera = app.activeCamera;
-        // get tranform
-        var camWtm = camera.getWorldTransform();
-        // looking vector
-        var camPos = camWtm.getZ();
-        // calculate offset distance
-        var averageExtent = (selection.halfExtents.x + selection.halfExtents.y + selection.halfExtents.z) / 3;
-        var offset = averageExtent / Math.tan(0.5 * camera.camera.fov * Math.PI / 180.0);
-        // get camera position
-        camPos.normalize().scale(offset * 1.5).add(selection.center);
+        // aabb
+        var distance = Math.max(aabb.halfExtents.x, Math.max(aabb.halfExtents.y, aabb.halfExtents.z));
+        // fov
+        distance = (distance / Math.tan(0.5 * camera.camera.fov * Math.PI / 180.0));
+        // extra space
+        distance = distance * 1.1 + 1;
 
-        var transition = camera.script.designer_camera.transition;
-        // set transition information
-        transition.eyeStart.copy(camera.getPosition());
-        transition.eyeEnd.copy(camPos);
-        transition.focusStart.copy(transition.focusEnd);
-        transition.focusEnd.copy(aabb.center);
-        transition.startTime = pc.time.now();
-
-        if (camera.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
-            transition.orthoHeightStart = camera.camera.orthoHeight;
-            transition.orthoHeightEnd = averageExtent * 1.1;
-
-            // move camera back 1000 meters so that the speed for moving around can remain constant
-            transition.eyeEnd.add2(transition.focusEnd, camWtm.getZ().scale(1000));
-        }
-
-
-        transition.active = true;
-
-        editor.call('viewport:frameSelectionStart');
-        editor.call('viewport:render');
+        editor.call('camera:focus', aabb.center, distance);
     });
 });

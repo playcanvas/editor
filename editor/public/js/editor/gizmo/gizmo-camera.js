@@ -22,14 +22,14 @@ editor.once('load', function () {
     }
     // update lines
     Gizmo.prototype.update = function() {
-        if (! this._link || app.activeCamera === this._link.entity) {
+        if (! this._link || editor.call('camera:current') === this._link.entity) {
             this.visible = false;
             return;
         }
 
         var camera = this._link.entity.camera;
 
-        this.visible = this._link.entity.enabled && camera && camera.enabled && app.activeCamera !== this._link.entity;
+        this.visible = this._link.entity.enabled && camera && camera.enabled && editor.call('camera:current') !== this._link.entity;
         if (! this.visible)
             return;
 

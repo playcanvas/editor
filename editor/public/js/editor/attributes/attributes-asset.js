@@ -1,4 +1,4 @@
-(function() {
+editor.once('load', function() {
     'use strict';
 
     var bytesToHuman = function(bytes) {
@@ -8,6 +8,7 @@
         var i = Math.floor(Math.log(bytes) / Math.log(k));
         return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
     };
+    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
 
     var sourceRuntimeOptions = {
         '-1': 'various',
@@ -55,10 +56,12 @@
             });
 
             var scriptSelected = false;
-            for(var i = 0; i < assets.length; i++) {
-                // scripts are not real assets, and have no preload option
-                if (! scriptSelected && assets[i].get('type') === 'script')
-                    scriptSelected = true;
+            if (legacyScripts) {
+                for(var i = 0; i < assets.length; i++) {
+                    // scripts are not real assets, and have no preload option
+                    if (! scriptSelected && assets[i].get('type') === 'script')
+                        scriptSelected = true;
+                }
             }
 
             var source = (assets[0].get('type') === 'folder') ? 1 : assets[0].get('source') + 0;
@@ -115,6 +118,7 @@
                     link: assets,
                     path: 'preload'
                 });
+                fieldPreload.parent.class.add('preload');
                 editor.call('attributes:reference:asset:preload:attach', fieldPreload.parent.innerElement.firstChild.ui);
             }
 
@@ -195,7 +199,7 @@
                 }
             }
         } else {
-            if (assets[0].get('type') === 'script') {
+            if (legacyScripts && assets[0].get('type') === 'script') {
                 // filename
                 var fieldFilename = editor.call('attributes:addField', {
                     parent: panel,
@@ -270,7 +274,7 @@
                 editor.call('attributes:reference:asset:' + assets[0].get('type') + ':asset:attach', fieldType);
 
 
-            if (assets[0].get('type') !== 'script' && assets[0].get('type') !== 'folder' && ! assets[0].get('source')) {
+            if (! (legacyScripts && assets[0].get('type') === 'script') && assets[0].get('type') !== 'folder' && ! assets[0].get('source')) {
                 // preload
                 var fieldPreload = editor.call('attributes:addField', {
                     parent: panel,
@@ -279,6 +283,7 @@
                     link: assets[0],
                     path: 'preload'
                 });
+                fieldPreload.parent.class.add('preload');
                 editor.call('attributes:reference:asset:preload:attach', fieldPreload.parent.innerElement.firstChild.ui);
             }
 
@@ -307,7 +312,7 @@
                 editor.call('attributes:reference:asset:size:attach', fieldSize.parent.innerElement.firstChild.ui);
             }
 
-            if (assets[0].get('type') !== 'script' && ! assets[0].get('source')) {
+            if (! (legacyScripts && assets[0].get('type') === 'script') && ! assets[0].get('source')) {
                 // source
                 var fieldSource = editor.call('attributes:addField', {
                     parent: panel,
@@ -343,11 +348,11 @@
             }
 
             // download
-            if (editor.call('permissions:read') && assets[0].get('type') !== 'folder' && assets[0].get('type') !== 'script') {
+            if (editor.call('permissions:read') && assets[0].get('type') !== 'folder' && ! (legacyScripts && assets[0].get('type') === 'script')) {
                 // download
                 var btnDownload = new ui.Button();
                 btnDownload.text = 'Download';
-                btnDownload.class.add('download-asset');
+                btnDownload.class.add('download-asset', 'large-with-icon');
                 btnDownload.element.addEventListener('click', function(evt) {
                     if (assets[0].get('source') || assets[0].get('type') === 'texture' || assets[0].get('type') === 'audio') {
                         window.open(assets[0].get('file.url'));
@@ -365,4 +370,8 @@
             assetsPanel.hidden = !enabled;
         }
     });
-})();
+
+    editor.method('attributes:assets:panel', function() {
+        return assetsPanel;
+    });
+});

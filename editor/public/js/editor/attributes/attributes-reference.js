@@ -5,6 +5,29 @@ editor.once('load', function() {
     var panel = editor.call('layout.right');
 
 
+    var sanitize = function(str) {
+        return str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    };
+
+
+    editor.method('attributes:reference:template', function(args) {
+        var html = '';
+
+        if (args.title)
+            html += '<h1>' + sanitize(args.title) + '</h1>';
+        if (args.subTitle)
+            html += '<h2>' + sanitize(args.subTitle) + '</h2>';
+        if (args.description)
+            html += '<p>' + sanitize(args.description) + '</p>';
+        if (args.code)
+            html += '<pre class="ui-code">' + sanitize(args.code) + '</pre>';
+        if (args.url)
+            html += '<a class="reference" href="' + sanitize(args.url) + '" target="_blank">API Reference</a>';
+
+        return html;
+    });
+
+
     editor.method('attributes:reference', function(args) {
         var tooltip = new ui.Tooltip({
             align: 'right'
@@ -12,16 +35,7 @@ editor.once('load', function() {
         tooltip.hoverable = true;
         tooltip.class.add('reference');
 
-        var html = '';
-        if (args.title)
-            html += '<h1>' + args.title + '</h1>';
-        if (args.subTitle)
-            html += '<h2>' + args.subTitle + '</h2>';
-        if (args.description)
-            html += '<p>' + args.description + '</p>';
-        if (args.url)
-            html += '<a class="reference" href="' + args.url + '" target="_blank">API Reference</a>';
-        tooltip.html = html;
+        tooltip.html = editor.call('attributes:reference:template', args);
 
         var links = { };
         var timerHover = null;

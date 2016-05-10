@@ -28,7 +28,7 @@ function SelectField(args) {
 
     this._oldValue = null;
     this._value = null;
-    this._number = !! args.number;
+    this._type = args.type || 'string';
 
     this.timerClickAway = null;
     this.evtMouseDist = [ 0, 0 ];
@@ -71,9 +71,7 @@ function SelectField(args) {
     this.optionElements = { };
 
     if (args.default !== undefined && this.options[args.default] !== undefined) {
-        this._value = args.default;
-        if (this._number)
-            this._value = parseInt(this._value, 10);
+        this._value = this.valueToType(args.default);
         this._oldValue = this._value;
     }
 
@@ -128,6 +126,21 @@ function SelectField(args) {
     }, false);
 }
 SelectField.prototype = Object.create(ui.Element.prototype);
+
+
+SelectField.prototype.valueToType = function(value) {
+    switch(this._type) {
+        case 'boolean':
+            return !! value;
+            break;
+        case 'number':
+            return parseInt(value, 10);
+            break;
+        case 'string':
+            return '' + value;
+            break;
+    }
+};
 
 
 SelectField.prototype.open = function() {
@@ -263,9 +276,7 @@ SelectField.prototype._onLinkChange = function(value) {
         this.optionElements[this._oldValue].classList.remove('selected');
     }
 
-    this._value = value;
-    if (this._number)
-        this._value = parseInt(this._value, 10);
+    this._value = this.valueToType(value);
     this.elementValue.textContent = this.options[value];
     this.optionElements[value].classList.add('selected');
     this.emit('change', value);
@@ -280,19 +291,18 @@ Object.defineProperty(SelectField.prototype, 'value', {
             return this._value;
         }
     },
-    set: function(value) {
-        if (this._number)
-            value = parseInt(value, 10);
+    set: function(raw) {
+        var value = this.valueToType(raw);
 
         if (this._link) {
             this._oldValue = this._value;
             this.emit('change:before', value);
             this._link.set(this.path, value);
         } else {
-            if (this._number && isNaN(value) && this.optionElements[''])
+            if ((value === null || value === undefined || raw === '') && this.optionElements[''])
                 value = '';
 
-            if (this._value === value) return;
+            if (this._oldValue === value) return;
             if (value !== null && this.options[value] === undefined) return;
 
             // deselect old one
@@ -300,8 +310,8 @@ Object.defineProperty(SelectField.prototype, 'value', {
                 this.optionElements[this._oldValue].classList.remove('selected');
 
             this._value = value;
-            if (this._number && value !== '')
-                this._value = parseInt(this._value, 10);
+            if (value !== '')
+                this._value = this.valueToType(this._value);
 
             this.emit('change:before', this._value);
             this._oldValue = this._value;

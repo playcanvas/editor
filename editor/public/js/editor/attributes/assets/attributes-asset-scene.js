@@ -8,10 +8,6 @@ editor.once('load', function() {
         var asset = assets[0];
         var events = [ ];
 
-        // panel
-        var panel = editor.call('attributes:addPanel');
-        panel.class.add('component');
-
         // contents
         var panelContents = editor.call('attributes:addPanel', {
             name: 'Contents'
@@ -157,7 +153,7 @@ editor.once('load', function() {
 
 
         // clear up events
-        panel.once('destroy', function() {
+        panelContents.once('destroy', function() {
             for(var i = 0; i < events.length; i++)
                 events[i].unbind();
         });

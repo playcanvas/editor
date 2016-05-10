@@ -8,13 +8,12 @@ editor.once('load', function() {
         var asset = assets[0];
 
         // panel
-        var panel = editor.call('attributes:addPanel');
-        panel.class.add('component');
+        var panel = editor.call('attributes:assets:panel');
 
         // edit
         var btnEdit = new ui.Button();
         btnEdit.text = editor.call('permissions:write') ? 'Edit' : 'View';
-        btnEdit.class.add('edit-script');
+        btnEdit.class.add('edit-script', 'large-with-icon');
         btnEdit.hidden = ! asset.has('file.url');
         btnEdit.element.addEventListener('click', function(evt) {
             window.open('/editor/asset/' + asset.get('id'));

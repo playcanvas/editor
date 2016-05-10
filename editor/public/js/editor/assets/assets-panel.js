@@ -3,6 +3,7 @@ editor.once('load', function() {
 
     var root = editor.call('layout.root');
     var assetsPanel = editor.call('layout.assets');
+    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
 
     var dragging = false;
     var draggingType = '';
@@ -89,7 +90,8 @@ editor.once('load', function() {
             editor.call('assets:filter:type', 'all');
         }
 
-        gridScripts.hidden = currentFolder !== null;
+        if (legacyScripts)
+            gridScripts.hidden = currentFolder !== null;
 
         editor.emit('assets:panel:currentFolder', currentFolder);
     });
@@ -374,13 +376,19 @@ editor.once('load', function() {
     editor.on('selector:change', function(type, items) {
         assetsChanged = true;
 
+        selector.prev.type = selector.type;
+        selector.prev.items = selector.items;
+
+        selector.type = editor.call('selector:type');
+        selector.items = editor.call('selector:items');
+
         if (type === 'asset') {
             tree.clear();
             items = items.slice(0);
             var assets = items.slice(0);
 
             for(var i = 0; i < items.length; i++) {
-                if (items[i].get('type') === 'script') {
+                if (legacyScripts && items[i].get('type') === 'script') {
                     assets[i] = scriptsIndex[items[i].get('filename')];
                 } else {
                     assets[i] = assetsIndex[items[i].get('id')];
@@ -401,17 +409,11 @@ editor.once('load', function() {
 
             grid.selected = assets;
         } else {
-            if (! (gridScripts.selected && grid.selected.length === 1) || ! selector.type)
+            if ((legacyScripts && ! (gridScripts.selected && grid.selected.length === 1)) || selector.type !== 'asset')
                 grid.selected = [ ];
 
             tree.clear();
         }
-
-        selector.prev.type = selector.type;
-        selector.prev.items = selector.items;
-
-        selector.type = editor.call('selector:type');
-        selector.items = editor.call('selector:items');
 
         assetsChanged = false;
     });
@@ -472,7 +474,8 @@ editor.once('load', function() {
         if (search)
             searching = true;
 
-        gridScripts.hidden = ! fn('scripts', 'scripts');
+        if (legacyScripts)
+            gridScripts.hidden = ! fn('scripts', 'scripts');
     });
 
 
@@ -554,7 +557,7 @@ editor.once('load', function() {
         return cur + 1;
     };
 
-    var createScriptFolder = function() {
+    var createLegacyScriptFolder = function() {
         gridScripts = new ui.GridItem();
         gridScripts.class.add('type-folder', 'scripts');
         grid.append(gridScripts);
@@ -635,7 +638,8 @@ editor.once('load', function() {
 
         resizeTree();
     };
-    createScriptFolder();
+    if (legacyScripts)
+        createLegacyScriptFolder();
 
     // select all hotkey
     // ctrl + a
@@ -674,6 +678,7 @@ editor.once('load', function() {
     editor.on('assets:add', function(asset, pos) {
         asset._type = 'asset';
 
+        var events = [ ];
         var item = new ui.GridItem();
         item.asset = asset;
         item.class.add('type-' + asset.get('type'));
@@ -837,6 +842,13 @@ editor.once('load', function() {
 
             item.element.addEventListener('mouseover', onMouseOver, false);
             item.tree.elementTitle.addEventListener('mouseover', onMouseOver, false);
+        } else if (asset.get('type') === 'script') {
+            events.push(editor.on('assets[' + asset.get('id') + ']:scripts:collide', function(script) {
+                item.class.add('scripts-collide');
+            }));
+            events.push(editor.on('assets[' + asset.get('id') + ']:scripts:resolve', function(script) {
+                item.class.remove('scripts-collide');
+            }));
         }
 
         var updateTask = function() {
@@ -916,7 +928,7 @@ editor.once('load', function() {
         item.element.appendChild(label);
 
         // update name/filename change
-        var evtNameSet = asset.on('name:set', function(name, nameOld) {
+        events.push(asset.on('name:set', function(name, nameOld) {
             // grid
             label.textContent = this.get('name');
             // tree
@@ -936,10 +948,10 @@ editor.once('load', function() {
                 resizeTree();
             }
 
-            keepScriptsAtTop();
-        });
+            keepLegacyScriptsAtTop();
+        }));
 
-        var evtPathSet = asset.on('path:set', function(path, pathOld) {
+        events.push(asset.on('path:set', function(path, pathOld) {
             // show or hide based on filters
             item.hidden = ! editor.call('assets:panel:filter:default')('asset', this);
 
@@ -966,8 +978,8 @@ editor.once('load', function() {
                     editor.emit('assets:panel:currentFolder', currentFolder);
             }
 
-            keepScriptsAtTop();
-        });
+            keepLegacyScriptsAtTop();
+        }));
 
         if (! asset.get('source')) {
             // used event
@@ -991,8 +1003,11 @@ editor.once('load', function() {
         // clean events
         item.once('destroy', function() {
             editor.call('selector:remove', asset);
-            evtNameSet.unbind();
-            evtPathSet.unbind();
+
+            for(var i = 0; i < events.length; i++)
+                events[i].unbind();
+            events = null;
+
             delete assetsIndex[asset.get('id')];
         });
 
@@ -1006,10 +1021,13 @@ editor.once('load', function() {
 
         resizeTree();
 
-        keepScriptsAtTop();
+        keepLegacyScriptsAtTop();
     });
 
-    var keepScriptsAtTop = function() {
+    var keepLegacyScriptsAtTop = function() {
+        if (! legacyScripts)
+            return;
+
         // resort scripts folder in grid
         gridScripts.element.parentNode.removeChild(gridScripts.element);
         var first = grid.element.firstChild;

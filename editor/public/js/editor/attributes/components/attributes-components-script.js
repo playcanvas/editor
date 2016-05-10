@@ -1,6 +1,9 @@
 editor.once('load', function() {
     'use strict';
 
+    if (! editor.call('project:settings').get('use_legacy_scripts'))
+        return;
+
     var scriptAttributeTypes = {
         'number': 'number',
         'string': 'string',
@@ -1008,6 +1011,9 @@ editor.once('load', function() {
         panel.once('destroy', function() {
             for(var i = 0; i < events.length; i++)
                 events[i].unbind();
+
+            events = null;
+            dropRef.unregister();
         });
     });
 });
