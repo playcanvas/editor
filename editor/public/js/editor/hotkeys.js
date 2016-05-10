@@ -126,9 +126,8 @@ editor.once('load', function() {
     window.addEventListener('keydown', function(evt) {
         if (evt.target) {
             var tag = evt.target.tagName;
-            if (/(input)|(textarea)/i.test(tag)) {
+            if (/(input)|(textarea)/i.test(tag))
                 return;
-            }
         }
 
         updateModifierKeys(evt);

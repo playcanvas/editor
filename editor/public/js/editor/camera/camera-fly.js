@@ -79,6 +79,9 @@ editor.once('viewport:load', function() {
         if (! keysMovement[evt.keyCode] || evt.ctrlKey || evt.metaKey || evt.altKey)
             return;
 
+        if (evt.target && /(input)|(textarea)/i.test(evt.target.tagName))
+            return;
+
         if (evt.keyCode === 87 || evt.keyCode === 38) {
             keys.forward = true;
         } else if (evt.keyCode === 65 || evt.keyCode === 37) {
@@ -103,6 +106,9 @@ editor.once('viewport:load', function() {
 
     window.addEventListener('keyup', function(evt) {
         if (! flying || ! keysMovement[evt.keyCode] || evt.ctrlKey || evt.metaKey || evt.altKey)
+            return;
+
+        if (evt.target && /(input)|(textarea)/i.test(evt.target.tagName))
             return;
 
         if (evt.keyCode === 87 || evt.keyCode === 38) {
