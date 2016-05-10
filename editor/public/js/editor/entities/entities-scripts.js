@@ -5,7 +5,6 @@ editor.once('load', function() {
     // when primary script set, update attributes on entities component
     // when script attributes change, update attributes on entities component
 
-
     var index = { };
     var defaults = {
         boolean: false,
@@ -153,7 +152,7 @@ editor.once('load', function() {
                 setAttribute = attributeDefaultValue(value, attr);
 
                 // value type
-                if (! setAttribute && (typeof(value) !== typeof(valueDefault) || attribute.type !== attr.type))
+                if (! setAttribute && ((typeof(value) !== typeof(valueDefault) && valueDefault !== null) || attribute.type !== attr.type))
                     setAttribute = true;
 
                 // curve types
