@@ -40,7 +40,7 @@ app.once('load', function() {
                 }
             } else if (property) {
                 // edit component property
-                if (component === 'script' && property === 'scripts') {
+                if (component === 'script' && property === 'scripts' && !editor.call('project:settings').get('use_legacy_scripts')) {
                     if (parts.length <= 3)
                         return;
 
@@ -82,7 +82,7 @@ app.once('load', function() {
             var property = parts[2];
 
             if (property) {
-                if (component === 'script' && property === 'scripts') {
+                if (component === 'script' && property === 'scripts' && ! editor.call('project:settings').get('use_legacy_scripts')) {
                     if (! entity.script || parts.length <= 3)
                         return;
 
