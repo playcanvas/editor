@@ -273,6 +273,61 @@ editor.once('load', function() {
             editor.call('viewport:render');
         });
 
+        // shadowType
+        var fieldShadowType = editor.call('attributes:addField', {
+            parent: panelShadows,
+            name: 'Shadow Type',
+            type: 'number',
+            enum: [
+                { v: '', t: '...' },
+                { v: 0, t: 'Shadow Map' },
+                { v: 1, t: 'Variance Shadow Map' }
+            ],
+            link: entities,
+            path: 'components.light.shadowType'
+        });
+        // reference
+        editor.call('attributes:reference:light:shadowType:attach', fieldShadowType.parent.innerElement.firstChild.ui);
+
+        // vsmBlurMode
+        var fieldShadowVsmBlurMode = editor.call('attributes:addField', {
+            parent: panelShadows,
+            name: 'VSM Blur Mode',
+            type: 'number',
+            enum: [
+                { v: '', t: '...' },
+                { v: 0, t: 'Box' },
+                { v: 1, t: 'Gaussian' }
+            ],
+            link: entities,
+            path: 'components.light.vsmBlurMode'
+        });
+        // reference
+        editor.call('attributes:reference:light:vsmBlurMode:attach', fieldShadowVsmBlurMode.parent.innerElement.firstChild.ui);
+        //
+        fieldShadowVsmBlurMode.parent.hidden = fieldShadowType.value === 0;
+        fieldShadowType.on('change', function() {
+            fieldShadowVsmBlurMode.parent.hidden = fieldShadowType.value === 0;
+        });
+
+        // vsmBlurSize
+        var fieldShadowVsmBlurSize = editor.call('attributes:addField', {
+            parent: panelShadows,
+            name: 'VSM Blur Size',
+            type: 'number',
+            min: 1,
+            max: 25,
+            link: entities,
+            path: 'components.light.vsmBlurSize'
+        });
+        // reference
+        editor.call('attributes:reference:light:vsmBlurSize:attach', fieldShadowVsmBlurSize.parent.innerElement.firstChild.ui);
+        //
+        fieldShadowVsmBlurSize.parent.hidden = fieldShadowType.value === 0;
+        fieldShadowType.on('change', function() {
+            fieldShadowVsmBlurSize.parent.hidden = fieldShadowType.value === 0;
+        });
+
 
         // shadowDistance
         var fieldShadowDistance = editor.call('attributes:addField', {
@@ -332,6 +387,11 @@ editor.once('load', function() {
         fieldShadowBias.style.width = '32px';
         // reference
         editor.call('attributes:reference:light:shadowBias:attach', fieldShadowBias.parent.innerElement.firstChild.ui);
+        //
+        fieldShadowBias.parent.hidden = fieldShadowType.value !== 0;
+        fieldShadowType.on('change', function() {
+            fieldShadowBias.parent.hidden = fieldShadowType.value !== 0;
+        });
 
 
         // normalOffsetBias
