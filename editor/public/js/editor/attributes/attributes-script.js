@@ -1,6 +1,9 @@
 editor.once('load', function() {
     'use strict';
 
+    if (! editor.call('project:settings').get('use_legacy_scripts'))
+        return;
+
     editor.on('attributes:inspect[script]', function(scripts) {
         if (scripts.length !== 1)
             return;
@@ -25,7 +28,7 @@ editor.once('load', function() {
         // edit
         var btnEdit = new ui.Button();
         btnEdit.text = 'Edit Script';
-        btnEdit.class.add('edit-script');
+        btnEdit.class.add('edit-script', 'large-with-icon');
         btnEdit.on('click', function(evt) {
             window.open('/editor/code/' + config.project.id + '/' + script.get('filename'));
         });

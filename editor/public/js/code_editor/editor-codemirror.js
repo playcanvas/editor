@@ -19,7 +19,9 @@ editor.once('load', function () {
     };
 
     if (config.asset) {
-        if (config.asset.type === 'html') {
+        if (config.asset.type === 'script') {
+            options.mode = 'javascript';
+        } else if (config.asset.type === 'html') {
             options.mode = 'htmlmixed';
         } else if (config.asset.type === 'css') {
             options.mode = 'css';
@@ -55,101 +57,135 @@ editor.once('load', function () {
     var loadedDefinitions = false;
 
     var init = function () {
-        if (config.asset) {
-            initAsset();
-        } else {
-            initScript();
-        }
-    };
-
-    var initScript = function () {
-        if (code === null || !loadedDefinitions)
+        if (code === null)
             return;
 
-        var patchScriptBeforeTern = function (code) {
-            // match last occurence of 'return Name' and replace it with
-            // new Name(new pc.Entity()); return Name'
-            // This is so that the type inference system can deduce that Name.entity
-            // is a pc.Entity
-            return code.replace(/return(\s+)?(\w+)?(?![\s\S]*return)/, 'new $2(new pc.Entity()); return $2');
+        var extraKeys;
+
+        if (! config.asset || config.asset.type === 'script') {
+            if (! loadedDefinitions)
+                return;
+
+            var patchScriptBeforeTern = function (code) {
+                // match last occurence of 'return Name' and replace it with
+                // new Name(new pc.Entity()); return Name'
+                // This is so that the type inference system can deduce that Name.entity
+                // is a pc.Entity
+                code = code.replace(/return(\s+)?(\w+)?(?![\s\S]*return)/, 'new $2(new pc.Entity()); return $2');
+
+                // turn this:
+                // var MyScript = new pc.Script('myScript');
+                // into this:
+                // var MyScript = pc.ScriptObject
+                // in order to make tern understand that MyScript is a pc.ScriptObject
+                code = code.replace(/var (\w+).*?=.*?pc.Script\(.*?\)/g, 'var $1 = pc.ScriptObject');
+
+                return code;
+
+            };
+
+            // set up tern
+            var server = new CodeMirror.TernServer({
+                // add definition JSON's
+                defs: [
+                    editor.call('tern-ecma5'),
+                    editor.call('tern-browser'),
+                    editor.call('tern-pc')
+                ],
+                fileFilter: patchScriptBeforeTern,
+
+                // called when we are about to show the docs for a method
+                completionTip: function (data) {
+                    if (data.doc) {
+                        var div = document.createElement('div');
+                        div.innerHTML = data.doc;
+                        return div;
+                    } else {
+                        return null;
+                    }
+                },
+
+                // called when we are about to show the definition of a type
+                typeTip: function (data) {
+                    var tip = document.createElement('span');
+                    var type = data.type;
+                    if (data.url) {
+                        var parts = data.url.split('/');
+                        type = parts[parts.length-1].replace('.html', '');
+                    }
+                    tip.innerHTML = '<span><strong>' + type + '</strong>&nbsp;';
+                    if (data.url) {
+                        tip.innerHTML += '<a class="link-docs" href="' + data.url + '" target="_blank">View docs</a>';
+                    }
+
+                    tip.innerHTML += '</span><br/><p>' + (data.doc || 'Empty description') + '</p>';
+                    return tip;
+                }
+            });
+
+
+            // update hints on cursor activity
+            codeMirror.on("cursorActivity", function(cm) {
+                server.updateArgHints(cm);
+            });
+
+            // autocomplete on dot
+            codeMirror.on("keyup", function (cm, e) {
+                if (e.keyCode === 190)
+                    server.complete(cm);
+            });
+
+            extraKeys = {
+                'Ctrl-Space': function (cm) {server.complete(cm);},
+                'Ctrl-I': function (cm) {server.showType(cm);},
+                'Cmd-I': function (cm) {server.showType(cm);},
+                'Ctrl-O': function (cm) {server.showDocs(cm);},
+                'Cmd-O': function (cm) {server.showDocs(cm);},
+                'Alt-.': function (cm) {server.jumpToDef(cm);},
+                'Alt-,': function (cm) {server.jumpBack(cm);},
+                'Ctrl-Q': function (cm) {server.rename(cm);},
+                'Ctrl-.': function (cm) {server.selectName(cm);}
+            };
+        }
+
+        extraKeys = extraKeys || {};
+
+        extraKeys['Ctrl-S'] = function (cm) {editor.call('editor:save');};
+        extraKeys['Cmd-S'] = function (cm) {editor.call('editor:save');};
+        extraKeys['Esc'] = 'clearSearch';
+        extraKeys['Tab'] = function(cm) {
+            if (cm.somethingSelected()) {
+                cm.indentSelection("add");
+            } else {
+                var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
+                cm.replaceSelection(spaces);
+            }
         };
 
-        // set up tern
-        var server = new CodeMirror.TernServer({
-            // add definition JSON's
-            defs: [
-                editor.call('tern-ecma5'),
-                editor.call('tern-browser'),
-                editor.call('tern-pc')
-            ],
-            fileFilter: patchScriptBeforeTern,
-
-            // called when we are about to show the docs for a method
-            completionTip: function (data) {
-                if (data.doc) {
-                    var div = document.createElement('div');
-                    div.innerHTML = data.doc;
-                    return div;
-                } else {
-                    return null;
-                }
-            },
-
-            // called when we are about to show the definition of a type
-            typeTip: function (data) {
-                var tip = document.createElement('span');
-                var type = data.type;
-                if (data.url) {
-                    var parts = data.url.split('/');
-                    type = parts[parts.length-1].replace('.html', '');
-                }
-                tip.innerHTML = '<span><strong>' + type + '</strong>&nbsp;';
-                if (data.url) {
-                    tip.innerHTML += '<a class="link-docs" href="' + data.url + '" target="_blank">View docs</a>';
-                }
-
-                tip.innerHTML += '</span><br/><p>' + (data.doc || 'Empty description') + '</p>';
-                return tip;
-            }
-        });
+        extraKeys["Shift-Tab"] = "indentLess";
+        extraKeys['Ctrl-/'] = 'toggleComment';
+        extraKeys['Cmd-/'] = 'toggleComment';
+        extraKeys['Ctrl-Z'] = function (cm) {
+            editor.call('editor:undo');
+        };
+        extraKeys['Cmd-Z'] = function (cm) {
+            editor.call('editor:undo');
+        };
+        extraKeys['Shift-Ctrl-Z'] = function (cm) {
+            editor.call('editor:redo');
+        };
+        extraKeys['Ctrl-Y'] = function (cm) {
+            editor.call('editor:redo');
+        };
+        extraKeys['Shift-Cmd-Z'] = function (cm) {
+            editor.call('editor:redo');
+        };
+        extraKeys['Cmd-Y'] = function (cm) {
+            editor.call('editor:redo');
+        };
 
         // create key bindings
-        codeMirror.setOption("extraKeys", {
-            'Ctrl-Space': function (cm) {server.complete(cm);},
-            'Ctrl-I': function (cm) {server.showType(cm);},
-            'Cmd-I': function (cm) {server.showType(cm);},
-            'Ctrl-O': function (cm) {server.showDocs(cm);},
-            'Cmd-O': function (cm) {server.showDocs(cm);},
-            'Alt-.': function (cm) {server.jumpToDef(cm);},
-            'Alt-,': function (cm) {server.jumpBack(cm);},
-            'Ctrl-Q': function (cm) {server.rename(cm);},
-            'Ctrl-.': function (cm) {server.selectName(cm);},
-            'Ctrl-S': function (cm) {editor.call('editor:save');},
-            'Cmd-S': function (cm) {editor.call('editor:save');},
-            'Esc': 'clearSearch',
-            'Tab': function(cm) {
-                if (cm.somethingSelected()) {
-                    cm.indentSelection("add");
-                } else {
-                    var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
-                    cm.replaceSelection(spaces);
-                }
-            },
-            "Shift-Tab": "indentLess",
-            'Ctrl-/': 'toggleComment',
-            'Cmd-/': 'toggleComment'
-        });
-
-        // update hints on cursor activity
-        codeMirror.on("cursorActivity", function(cm) {
-            server.updateArgHints(cm);
-        });
-
-        // autocomplete on dot
-        codeMirror.on("keyup", function (cm, e) {
-            if (e.keyCode === 190)
-                server.complete(cm);
-        });
+        codeMirror.setOption("extraKeys", extraKeys);
 
         isLoading = true;
         codeMirror.setValue(code);
@@ -168,58 +204,7 @@ editor.once('load', function () {
         codeMirror.focus();
 
         isLoading = false;
-    };
 
-    var initAsset = function () {
-        if (code === null)
-            return;
-
-        // create key bindings
-        codeMirror.setOption("extraKeys", {
-            'Ctrl-S': function (cm) {editor.call('editor:save');},
-            'Cmd-S': function (cm) {editor.call('editor:save');},
-            'Esc': 'clearSearch',
-            'Tab': function(cm) {
-                if (cm.somethingSelected()) {
-                    cm.indentSelection("add");
-                } else {
-                    var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
-                    cm.replaceSelection(spaces);
-                }
-            },
-            "Shift-Tab": "indentLess",
-            'Ctrl-/': 'toggleComment',
-            'Cmd-/': 'toggleComment',
-            'Ctrl-Z': function (cm) {
-                editor.call('editor:undo');
-            },
-            'Cmd-Z': function (cm) {
-                editor.call('editor:undo');
-            },
-            'Shift-Ctrl-Z': function (cm) {
-                editor.call('editor:redo');
-            },
-            'Ctrl-Y': function (cm) {
-                editor.call('editor:redo');
-            },
-            'Shift-Cmd-Z': function (cm) {
-                editor.call('editor:redo');
-            },
-            'Cmd-Y': function (cm) {
-                editor.call('editor:redo');
-            }
-        });
-
-        isLoading = true;
-        codeMirror.setValue(code);
-        code = null;
-
-        codeMirror.clearHistory();
-        codeMirror.markClean();
-
-        codeMirror.focus();
-
-        isLoading = false;
     };
 
     // wait for tern definitions to be loaded

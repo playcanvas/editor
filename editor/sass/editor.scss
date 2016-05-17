@@ -4,7 +4,6 @@
 
 html {
     height: 100%;
-
     overflow: hidden;
 }
 body {
@@ -664,6 +663,11 @@ strong {
                 &:first-child {
                     margin-top: 0;
                 }
+            }
+            > .ui-code {
+                line-height: normal;
+                margin: 16px -16px -16px;
+                min-width: 240px;
             }
             > .reference {
                 display: inline-block;
@@ -1358,6 +1362,8 @@ strong {
         }
     }
     .ui-panel.component {
+        outline: none;
+
         > header {
             text-transform: uppercase;
         }
@@ -1467,6 +1473,324 @@ strong {
                 content: '\E212';
             }
         }
+        &.light {
+            .ui-button.shadowUpdate {
+                @extend .font-icon;
+                font-weight: bold;
+                text-align: center;
+                line-height: 24px;
+                width: 22px;
+                height: 22px;
+                padding: 0;
+            }
+        }
+        &.script {
+            > .content {
+                padding-top: 6px;
+
+                > .ui-text-field.add-script {
+                    position: relative;
+                    display: block;
+                    width: calc(100% - 2px);
+                    margin: 0 0 6px 0;
+
+                    &:hover,
+                    &:focus,
+                    &.focus,
+                    &.not-empty {
+                        &:before,
+                        &:after {
+                            content: '';
+                        }
+                    }
+                    &:before {
+                        content: '\E120';
+                        position: absolute;
+                        top: 0;
+                        left: 8px;
+                        @extend .font-icon;
+                        font-weight: bold;
+                        line-height: 24px;
+                    }
+                    &:after {
+                        content: 'Add Script';
+                        position: absolute;
+                        right: auto;
+                        left: 30px;
+                        top: 0;
+                        padding: 0;
+                        line-height: 24px;
+                        color: $text-secondary;
+                        @extend .font-bold;
+                        font-weight: bold;
+                        font-size: 12px;
+                        text-transform: uppercase;
+                    }
+                }
+                > .ui-list.scripts-autocomplete {
+                    position: absolute;
+                    top: 30px;
+                    left: 6px;
+                    right: 6px;
+                    width: auto;
+                    margin: 0;
+                    border-top: none;
+                    z-index: 1;
+                    background-color: $bcg-darkest;
+
+                    > .ui-list-item {
+                        color: $text-primary;
+                        border-color: $bcg-darker;
+
+                        &:hover,
+                        &.active {
+                            color: $text-active;
+                        }
+                        &.selected {
+                            background-color: transparent;
+                        }
+                    }
+                }
+                > .scripts {
+                    border: 1px solid $bcg-darker;
+
+                    > .content {
+                        > .dragPlaceholder {
+                            margin-bottom: 1px;
+                            background-color: $bcg-dark;
+                            border: 4px solid $text-active;
+
+                            &:last-child {
+                                margin-bottom: 0;
+                            }
+                        }
+                        > .ui-panel {
+                            border-bottom: 1px solid $bcg-darker;
+
+                            &.dragged {
+                                opacity: 0.5;
+                            }
+                            &:last-child {
+                                border-bottom: none;
+                            }
+                            > .ui-header {
+                                background-color: $bcg-dark;
+                                padding-left: 0;
+
+                                > .handle {
+                                    float: left;
+                                    width: 12px;
+                                    height: 24px;
+                                    margin: 4px 2px;
+                                    cursor: move;
+                                    @extend .noSelect;
+                                    $color: mix($text-darkest, $bcg-primary, 50%);
+                                    $size: 6px;
+                                    $radiusI: 20%;
+                                    $radiusO: 55%;
+
+                                    background: -webkit-radial-gradient($color $radiusI, transparent $radiusO);
+                                    background: -moz-radial-gradient($color $radiusI, transparent $radiusO);
+                                    background: radial-gradient($color $radiusI, transparent $radiusO);
+                                    -webkit-background-size: $size ($size+1px);
+                                    -moz-background-size: $size $size;
+                                    background-size: $size $size;
+
+                                    &:hover {
+                                        $color: $text-primary;
+                                        background: -webkit-radial-gradient($color $radiusI, transparent $radiusO);
+                                        background: -moz-radial-gradient($color $radiusI, transparent $radiusO);
+                                        background: radial-gradient($color $radiusI, transparent $radiusO);
+                                        -webkit-background-size: $size ($size+1px);
+                                        -moz-background-size: $size $size;
+                                        background-size: $size $size;
+                                    }
+                                }
+                                > .title {
+                                    padding: 0 8px;
+                                    @extend .noSelect;
+
+                                    &.link {
+                                        color: $text-active;
+                                        cursor: pointer;
+
+                                        &:hover {
+                                            text-decoration: underline;
+                                        }
+                                    }
+                                }
+                                > .remove {
+                                    float: right;
+                                    width: 32px;
+                                    height: 32px;
+                                    line-height: 32px;
+                                    margin: 0;
+                                    padding: 0;
+                                    background-color: transparent;
+                                    border: none;
+                                    @extend .font-icon;
+                                    font-size: 14px;
+                                    text-align: center;
+
+                                    &:hover {
+                                        color: #d34141;
+                                        background-color: #20292b;
+                                    }
+                                    &:after {
+                                        content: '\E124';
+                                        font-weight: 200;
+                                    }
+                                }
+                                > .component-toggle-label {
+                                    float: right;
+                                    margin: 0 8px 0 0;
+                                    line-height: 32px;
+                                }
+                                > .ui-checkbox.component-toggle {
+                                    float: right;
+                                    margin: 7px 4px 0 0;
+                                    background-color: $bcg-primary;
+                                }
+                                > .invalid-script {
+                                    float: left;
+                                    width: 32px;
+                                    height: 32px;
+                                    line-height: 34px;
+                                    margin: 0 -8px 0 0;
+                                    text-align: center;
+                                    font-size: 22px;
+                                    font-weight: bold;
+                                    color: #f30;
+                                }
+                            }
+                            > .content {
+                                .label-field {
+                                    line-height: 24px;
+                                    margin-left: 6px;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        &.asset-script {
+            > .ui-header {
+                > .parse-script {
+                    background-color: transparent;
+                    border: none;
+                    line-height: 32px;
+                    float: right;
+                    margin: 0;
+
+                    &:before {
+                        float: left;
+                        content: '\E128';
+                        @extend .font-icon;
+                        font-size: 14px;
+                        padding-right: 8px;
+                        vertical-align: middle;
+                    }
+                    &:hover {
+                        color: $text-active;
+                        background-color: #20292b;
+                    }
+                    &.disabled:hover {
+                        color: $text-secondary;
+                        background-color: transparent;
+                    }
+                }
+            }
+            > .content {
+                .ui-panel.validation {
+                    overflow: hidden;
+                    background-color: $bcg-dark;
+
+                    > .content {
+                        padding: 8px 8px 4px;
+
+                        > .ui-label {
+                            display: block;
+                            color: #f30;
+                            font-size: 12px;
+                            margin: 0;
+                            line-height: normal;
+                        }
+                    }
+                }
+                > .ui-label.loading {
+                    display: block;
+                    line-height: 32px;
+                    margin: 0 0 3px 0;
+                    padding: 0 8px;
+                    font-size: 12px;
+                    @extend .font-bold;
+                    // font-weight: bold;
+                    color: $text-primary;
+                    background-color: $bcg-dark;
+                    border: 1px solid $bcg-darker;
+                    -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
+                    font-smoothing: antialiased;
+
+                    &.hidden {
+                        display: none;
+                    }
+                }
+                > .ui-panel.scripts {
+                    border: 1px solid $bcg-darker;
+                    background-color: transparent;
+
+                    &.empty {
+                        border: none;
+
+                        > .content {
+                            > .ui-label {
+                                display: block;
+                                margin-top: 0;
+                                line-height: normal;
+                                text-align: center;
+                            }
+                        }
+                    }
+                    > .content {
+                        > .ui-panel.script {
+                            background-color: transparent;
+                            border-bottom: 1px solid $bcg-darker;
+
+                            &:last-child {
+                                border-bottom: none;
+                            }
+                            > .ui-header {
+                                background-color: $bcg-dark;
+                            }
+                            > .content {
+                                > .validation {
+                                    > .content {
+                                        padding-top: 0;
+                                    }
+                                }
+                                > .attr {
+                                    display: block;
+                                    font-size: 12px;
+
+                                    &:hover {
+                                        background-color: mix($bcg-dark, $bcg-primary, 50%);
+                                    }
+                                    > .content {
+                                        padding: 0 5px;
+
+                                        > .type {
+                                            float: right;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         > .content {
             padding: 8px 6px;
 
@@ -1507,43 +1831,35 @@ strong {
                     text-align: center;
                 }
             }
-            > .ui-button.edit-script {
+            > .ui-button.large-with-icon {
                 display: block;
                 text-align: center;
 
                 &:before {
+                    content: '?';
+                    line-height: 23px;
+                    padding-right: 8px;
+                    @extend .font-icon;
+                    font-size: 16px;
+                    text-align: center;
+                    vertical-align: middle;
+                }
+                &.edit-script:before {
                     content: '\E130';
-                    padding-right: 8px;
-                    @extend .font-icon;
-                    font-size: 16px;
-                    text-align: center;
                 }
-            }
-            > .ui-button.download-asset {
-                display: block;
-                text-align: center;
-
-                &:before {
+                &.parse-script:before {
+                    content: '\E120';
+                }
+                &.download-asset:before {
                     content: '\E228';
-                    padding-right: 8px;
-                    @extend .font-icon;
-                    font-size: 16px;
-                    text-align: center;
                 }
-            }
-            > .ui-button.calculate-meta {
-                display: block;
-                text-align: center;
-
-                &.hidden {
-                    display: none;
-                }
-                &:before {
-                    content: '\E131';
-                    padding-right: 8px;
-                    @extend .font-icon;
-                    font-size: 16px;
-                    text-align: center;
+                &.calculate-meta {
+                    &.hidden {
+                        display: none;
+                    }
+                    &:before {
+                        content: '\E131';
+                    }
                 }
             }
             > .ui-button.override-material, .ui-button.loading-screen {
@@ -1636,6 +1952,84 @@ strong {
                 }
             }
 
+            > .ui-panel.scripts-order {
+                border: 1px solid $bcg-darker;
+
+                > .content {
+                    > .dragPlaceholder {
+                        margin-bottom: 1px;
+                        background-color: $bcg-dark;
+                        border: 4px solid $text-active;
+
+                        &:last-child {
+                            margin-bottom: 0;
+                        }
+                    }
+                    > .asset {
+                        border-bottom: 1px solid $bcg-darker;
+
+                        &:last-child {
+                            border-bottom: none;
+                        }
+                        > .ui-header {
+                            padding-left: 0;
+                            background-color: $bcg-dark;
+                            cursor: pointer;
+
+                            &:hover {
+                                background-color: $bcg-darkest;
+
+                                > .title {
+                                    text-decoration: underline;
+                                }
+                            }
+                            > .title {
+                                padding: 0 8px;
+                                color: $text-active;
+                            }
+                            > .number {
+                                float: right;
+                                margin-right: 8px;
+                                color: $text-dark;
+
+                                &:before {
+                                    content: '#';
+                                }
+                            }
+                            > .handle {
+                                float: left;
+                                width: 12px;
+                                height: 24px;
+                                margin: 4px 2px;
+                                cursor: move;
+                                @extend .noSelect;
+                                $color: mix($text-darkest, $bcg-primary, 50%);
+                                $size: 6px;
+                                $radiusI: 20%;
+                                $radiusO: 55%;
+
+                                background: -webkit-radial-gradient($color $radiusI, transparent $radiusO);
+                                background: -moz-radial-gradient($color $radiusI, transparent $radiusO);
+                                background: radial-gradient($color $radiusI, transparent $radiusO);
+                                -webkit-background-size: $size ($size+1px);
+                                -moz-background-size: $size $size;
+                                background-size: $size $size;
+
+                                &:hover {
+                                    $color: $text-primary;
+                                    background: -webkit-radial-gradient($color $radiusI, transparent $radiusO);
+                                    background: -moz-radial-gradient($color $radiusI, transparent $radiusO);
+                                    background: radial-gradient($color $radiusI, transparent $radiusO);
+                                    -webkit-background-size: $size ($size+1px);
+                                    -moz-background-size: $size $size;
+                                    background-size: $size $size;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             .ui-button.audio-play {
                 @extend .font-icon;
                 float: left;
@@ -1662,7 +2056,9 @@ strong {
                 margin: 11px 0 0 8px;
                 height: 4px;
             }
-
+            .ui-button.loading-order {
+                line-height: 20px;
+            }
             .ui-label.no-data {
                 line-height: 24px;
                 height: 24px;
@@ -2288,6 +2684,18 @@ strong {
             }
             > .icon {
                 display: none;
+            }
+            &.scripts-collide {
+                > .icon {
+                    display: block;
+                    &:after {
+                        content: '!';
+                        font-size: 24px;
+                        font-weight: bold;
+                        line-height: 26px;
+                        @extend .font-regular;
+                    }
+                }
             }
         }
         &.type-texture {
@@ -2980,7 +3388,6 @@ strong {
 }
 
 .ui-panel.picker-node {
-
     > .content {
         padding: 0 !important;
 
@@ -4137,6 +4544,34 @@ strong {
                     font-size: 18px;
                 }
             }
+        }
+    }
+}
+
+.picker-script-create.center {
+    > .content {
+        width: 288px;
+        height: auto;
+        left: calc(50% - 144px);
+        top: calc(50% - 32px);
+        padding: 16px;
+        transition: none;
+
+        > .text {
+            display: block;
+            margin-top: 0;
+        }
+        > .ui-text-field {
+            display: block;
+            width: calc(100% - 8px);
+        }
+        > .validate {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            margin: 0;
+            font-size: 12px;
+            color: #f30;
         }
     }
 }

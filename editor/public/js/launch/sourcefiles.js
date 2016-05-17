@@ -1,6 +1,9 @@
 app.once('load', function() {
     'use strict';
 
+    if (! app.call('project:settings').get('use_legacy_scripts'))
+        return;
+
     var framework = app.call('viewport');
 
 
@@ -17,11 +20,11 @@ app.once('load', function() {
 
     // load scripts
     Ajax.get("{{url.home}}{{project.repositoryUrl}}" + "?access_token={{accessToken}}")
-        .on('load', function(status, data) {
-            onLoad(data);
-        })
-        .on('error', function(status, evt) {
-            console.log(status, evt);
-            app.emit("sourcefiles:load", []);
-        });
+    .on('load', function(status, data) {
+        onLoad(data);
+    })
+    .on('error', function(status, evt) {
+        console.log(status, evt);
+        app.emit("sourcefiles:load", []);
+    });
 });

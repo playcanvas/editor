@@ -20,6 +20,23 @@ editor.once('load', function() {
                 // affectLightmapped
                 if (! entity.has('components.light.affectLightmapped'))
                     entity.set('components.light.affectLightmapped', false);
+
+                // shadowUpdateMode
+                var shadowUpdateMode = entity.get('components.light.shadowUpdateMode');
+                if (shadowUpdateMode === null || isNaN(shadowUpdateMode))
+                    entity.set('components.light.shadowUpdateMode', pc.SHADOWUPDATE_REALTIME);
+
+                // shadowType
+                if (! entity.has('components.light.shadowType'))
+                    entity.set('components.light.shadowType', 0);
+
+                // vsmBlurMode
+                if (! entity.has('components.light.vsmBlurMode'))
+                    entity.set('components.light.vsmBlurMode', 0);
+
+                // vsmBlurSize
+                if (! entity.has('components.light.vsmBlurSize'))
+                    entity.set('components.light.vsmBlurSize', 5);
             }
 
             // model

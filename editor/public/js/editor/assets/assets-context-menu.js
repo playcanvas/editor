@@ -2,6 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     var currentAsset = null;
+    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
     var root = editor.call('layout.root');
 
     // menu
@@ -16,7 +17,16 @@ editor.once('load', function() {
         value: 'script'
     });
     menuItemNewScript.on('select', function() {
-        editor.call('sourcefiles:new');
+        if (legacyScripts) {
+            editor.call('sourcefiles:new');
+        } else {
+            editor.call('picker:script-create', function(filename) {
+                editor.call('assets:create:script', {
+                    filename: filename,
+                    boilerplate: true
+                });
+            });
+        }
     });
     menu.append(menuItemNewScript);
 
@@ -90,7 +100,16 @@ editor.once('load', function() {
             if (key === 'upload') {
                 editor.call('assets:upload:picker', args);
             } else if (key === 'script') {
-                editor.call('sourcefiles:new');
+                if (legacyScripts) {
+                    editor.call('sourcefiles:new');
+                } else {
+                    editor.call('picker:script-create', function(filename) {
+                        editor.call('assets:create:script', {
+                            filename: filename,
+                            boilerplate: true
+                        });
+                    });
+                }
             } else {
                 editor.call('assets:create:' + key, args)
             }
@@ -323,7 +342,7 @@ editor.once('load', function() {
 
         if (currentAsset) {
             // download
-            menuItemDownload.hidden = ! ((! config.project.privateAssets || (config.project.privateAssets && editor.call('permissions:read'))) && currentAsset.get('type') !== 'folder' && (currentAsset.get('source') || downloadable[currentAsset.get('type')]) && currentAsset.get('file.url'));
+            menuItemDownload.hidden = ! ((! config.project.privateAssets || (config.project.privateAssets && editor.call('permissions:read'))) && currentAsset.get('type') !== 'folder' && (currentAsset.get('source') || downloadable[currentAsset.get('type')] || (! legacyScripts && currentAsset.get('type') === 'script')) && currentAsset.get('file.url'));
 
             // duplicate
             if (currentAsset.get('type') === 'material') {

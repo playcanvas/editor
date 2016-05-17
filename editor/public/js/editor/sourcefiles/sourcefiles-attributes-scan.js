@@ -1,4 +1,7 @@
 editor.once('load', function () {
+    if(! editor.call('project:settings').get('use_legacy_scripts'))
+        return;
+
     var VALID_TYPES = [
         'number',
         'string',

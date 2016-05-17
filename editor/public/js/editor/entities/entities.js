@@ -16,6 +16,7 @@ editor.once('load', function() {
     entities.on('remove', function(entity) {
         editor.emit('entities:remove', entity);
         entity.destroy();
+        entity.entity = null;
     });
 
 

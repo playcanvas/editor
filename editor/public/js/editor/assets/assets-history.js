@@ -13,8 +13,6 @@ editor.once('load', function() {
             getItemFn: function () {
                 return editor.call('assets:get', id);
             }
-            // TODO
-            // allowed paths
         });
 
         // record history

@@ -14,7 +14,6 @@ editor.once('load', function() {
     ];
 
 
-
     editor.on('entities:add', function(entity) {
         if (entity.sync)
             return;

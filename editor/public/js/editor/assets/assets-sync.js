@@ -1,6 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
+    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
     var syncPaths = [
         'name',
         'preload',
@@ -8,7 +9,6 @@ editor.once('load', function() {
         'data',
         'file'
     ];
-
     var docs = {};
 
     editor.method('loadAsset', function (id, callback) {
@@ -158,15 +158,14 @@ editor.once('load', function() {
                 // TODO
                 // disk allowance error
 
-                fn(err);
+                if (fn) fn(err);
 
                 return;
             }
 
             assetId = res.asset.id;
 
-            if (fn)
-                fn(err, assetId);
+            if (fn) fn(err, assetId);
         });
     });
 
@@ -178,7 +177,7 @@ editor.once('load', function() {
         var assets = [ ];
 
         for(var i = 0; i < list.length; i++) {
-            if (list[i].get('type') === 'script') {
+            if (legacyScripts && list[i].get('type') === 'script') {
                 editor.emit('sourcefiles:remove', list[i]);
                 Ajax.delete('{{url.api}}/projects/' + config.project.id + '/repositories/directory/sourcefiles/' + list[i].get('filename') + '?access_token={{accessToken}}');
             } else {
@@ -268,7 +267,7 @@ editor.once('load', function() {
 
         // console.trace();
         // console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
-        // console.log(op)
+        // console.log(op);
 
         docs[id].submitOp([ op ]);
     });

@@ -7,38 +7,32 @@ editor.once('load', function() {
         if (! editor.call('permissions:read'))
             return;
 
-        var cameras = framework ? framework.cameras : null;
-        // get framework cameras and restore transforms and camera data
-        // from userdata
-        if (! cameras || ! cameras.length)
-            return;
+        var cameras = userdata.get('cameras');
 
-        cameras.forEach(function (camera) {
-            var name = camera.getName().toLowerCase();
-            if (! userdata.get('cameras.' + name))
-                return;
+        if (cameras) {
+            for(var name in cameras) {
+                if (! cameras.hasOwnProperty(name))
+                    continue;
 
-            var pos = userdata.get('cameras.' + name + '.position');
-            if (pos)
-                camera.setPosition(pos[0], pos[1], pos[2]);
+                var camera = editor.call('camera:get', name);
+                if (! camera)
+                    continue;
 
-            var rot = userdata.get('cameras.' + name + '.rotation');
-            if (rot)
-                camera.setEulerAngles(rot[0], rot[1], rot[2]);
+                var data = cameras[name];
 
-            if (camera.camera.projection === 1)
-                camera.camera.orthoHeight = Number(userdata.get('cameras.' + name + '.orthoHeight'));
+                if (data.position)
+                    camera.setPosition(data.position[0], data.position[1], data.position[2]);
 
-            var focus = userdata.get('cameras.' + name + '.focus');
-            // store focus on entity where designer_camera script can pick it up
-            // when it initializes
-            if (focus)
-                camera.focus = new pc.Vec3(focus[0], focus[1], focus[2]);
+                if (data.rotation)
+                    camera.setEulerAngles(data.rotation[0], data.rotation[1], data.rotation[2]);
 
-            // if we already have a designer_camera script initialized then re-set the focus
-            if (camera.script && camera.script.designer_camera && camera.focus)
-                camera.script.designer_camera.focus.copy(camera.focus);
-        });
+                if (data.orthoHeight && camera.camera.projection === pc.PROJECTION_ORTHOGRAPHIC)
+                    camera.camera.orthoHeight = parseInt(data.orthoHeight, 10);
+
+                if (data.focus)
+                    camera.focus.set(data.focus[0], data.focus[1], data.focus[2]);
+            }
+        }
 
         editor.call('viewport:render');
     });

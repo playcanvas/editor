@@ -52,6 +52,9 @@ editor.once('load', function() {
         var components = obj.json().components;
         for(var key in components) {
             if (framework.context.systems[key]) {
+                if (key === 'script')
+                    continue;
+
                 framework.context.systems[key].addComponent(entity, components[key]);
             } else {
                 console.log('unknown component "' + key + '", in entity ' + obj.get('resource_id'));
@@ -84,6 +87,8 @@ editor.once('load', function() {
             awaitingResyncHierarchy = true;
             setTimeout(resyncHierarchy, 0);
         }
+
+        editor.emit('entities:add:entity', obj);
     };
 
     var createEntities = function() {

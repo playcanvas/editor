@@ -1,5 +1,5 @@
 editor.once('load', function () {
-    if (config.asset)
+    if (config.asset && config.asset.type !== 'script')
         return;
 
     var def = {};

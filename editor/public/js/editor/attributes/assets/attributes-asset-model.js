@@ -135,7 +135,7 @@ editor.once('load', function() {
         var btnGetMeta = new ui.Button({
             text: 'Calculate Meta'
         });
-        btnGetMeta.class.add('calculate-meta');
+        btnGetMeta.class.add('calculate-meta', 'large-with-icon');
         var btnGetMetaVisibility = function() {
             var visible = false;
             for(var i = 0; i < assets.length; i++) {

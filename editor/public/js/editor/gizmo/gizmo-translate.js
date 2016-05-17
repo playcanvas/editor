@@ -23,8 +23,6 @@ editor.once('load', function() {
     var matA = new pc.Mat4();
     var matB = new pc.Mat4();
     var evtTapStart;
-    var evtTapMove;
-    var evtTapEnd;
     var pickStart = new pc.Vec3();
 
     var snap = false;
@@ -149,7 +147,7 @@ editor.once('load', function() {
         // update gizmo
         editor.on('viewport:postUpdate', function(dt) {
             if (gizmo.root.enabled) {
-                var camera = app.activeCamera;
+                var camera = editor.call('camera:current');
                 var posCamera = camera.getPosition();
 
                 quat.copy(gizmo.root.getRotation()).invert();
@@ -286,12 +284,12 @@ editor.once('load', function() {
         });
 
         var pickPlane = function(x, y) {
-            var camera = app.activeCamera;
+            var camera = editor.call('camera:current');
 
             var mouseWPos = camera.camera.screenToWorld(x, y, 1);
             var posGizmo = gizmo.root.getPosition();
             var rayOrigin = vecA.copy(camera.getPosition());
-            var rayDirection = vecB;
+            var rayDirection = vecB.set(0, 0, 0);
             var planeNormal = vecC.set(0, 0, 0);
             planeNormal[hoverAxis] = 1;
 
@@ -336,10 +334,11 @@ editor.once('load', function() {
         };
 
         var onTapStart = function(tap) {
-            if (moving)
+            if (moving || tap.button !== 0)
                 return;
 
             editor.emit('camera:toggle', false);
+            editor.call('viewport:pick:state', false);
 
             moving = true;
             mouseTap = tap;
@@ -360,6 +359,9 @@ editor.once('load', function() {
         };
 
         var onTapEnd = function(tap) {
+            if (tap.button !== 0)
+                return;
+
             editor.emit('camera:toggle', true);
 
             if (! moving)
@@ -370,6 +372,7 @@ editor.once('load', function() {
 
             editor.emit('gizmo:translate:end');
             editor.call('gizmo:translate:visible', true);
+            editor.call('viewport:pick:state', true);
         };
 
         editor.on('viewport:hover', function(state) {
@@ -382,8 +385,8 @@ editor.once('load', function() {
             editor.call('gizmo:translate:visible', true);
         });
 
-        evtTapMove = editor.on('viewport:tap:move', onTapMove);
-        evtTapEnd = editor.on('viewport:tap:end', onTapEnd);
+        editor.on('viewport:tap:move', onTapMove);
+        editor.on('viewport:tap:end', onTapEnd);
     });
 
     var createMaterial = function(color) {
@@ -436,6 +439,8 @@ editor.once('load', function() {
         planeX.plane = true;
         planeX.addComponent('model', {
             type: 'plane',
+            castShadows: false,
+            receiveShadows: false,
             castShadowsLightmap: false
         });
         planeX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
@@ -453,6 +458,8 @@ editor.once('load', function() {
         planeY.plane = true;
         planeY.addComponent('model', {
             type: 'plane',
+            castShadows: false,
+            receiveShadows: false,
             castShadowsLightmap: false
         });
         planeY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
@@ -470,6 +477,8 @@ editor.once('load', function() {
         planeZ.plane = true;
         planeZ.addComponent('model', {
             type: 'plane',
+            castShadows: false,
+            receiveShadows: false,
             castShadowsLightmap: false
         });
         planeZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
@@ -486,6 +495,8 @@ editor.once('load', function() {
         lineX.axis = 'x';
         lineX.addComponent('model', {
             type: 'cylinder',
+            castShadows: false,
+            receiveShadows: false,
             castShadowsLightmap: false
         });
         lineX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
@@ -501,6 +512,8 @@ editor.once('load', function() {
         lineY.axis = 'y';
         lineY.addComponent('model', {
             type: 'cylinder',
+            castShadows: false,
+            receiveShadows: false,
             castShadowsLightmap: false
         });
         lineY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
@@ -516,6 +529,8 @@ editor.once('load', function() {
         lineZ.axis = 'z';
         lineZ.addComponent('model', {
             type: 'cylinder',
+            castShadows: false,
+            receiveShadows: false,
             castShadowsLightmap: false
         });
         lineZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
@@ -531,6 +546,8 @@ editor.once('load', function() {
         arrowX.axis = 'x';
         arrowX.addComponent('model', {
             type: 'cone',
+            castShadows: false,
+            receiveShadows: false,
             castShadowsLightmap: false
         });
         arrowX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
@@ -546,6 +563,8 @@ editor.once('load', function() {
         arrowY.axis = 'y';
         arrowY.addComponent('model', {
             type: 'cone',
+            castShadows: false,
+            receiveShadows: false,
             castShadowsLightmap: false
         });
         arrowY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
@@ -561,6 +580,8 @@ editor.once('load', function() {
         arrowZ.axis = 'z';
         arrowZ.addComponent('model', {
             type: 'cone',
+            castShadows: false,
+            receiveShadows: false,
             castShadowsLightmap: false
         });
         arrowZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
