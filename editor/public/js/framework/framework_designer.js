@@ -24,6 +24,9 @@ editor.once('load', function() {
 
         // Draw immediately
         this.redraw = true;
+
+        // define the tick method
+        this.tick = this._tick.bind(this);
     };
 
     editor.method('viewport:designer', function() {
@@ -90,7 +93,7 @@ editor.once('load', function() {
         return dt;
     };
 
-    Designer.prototype.tick = function () {
+    Designer.prototype._tick = function () {
         pc.app = this;
 
         if (this.redraw) {
@@ -110,7 +113,7 @@ editor.once('load', function() {
         }
 
         // Submit a request to queue up a new animation frame immediately
-        requestAnimationFrame(this.tick.bind(this), this.graphicsDevice.canvas);
+        requestAnimationFrame(this.tick, this.graphicsDevice.canvas);
     };
 
     Designer.prototype.resize = function (w, h) {
