@@ -62,6 +62,29 @@ editor.once('load', function () {
 
         var extraKeys;
 
+        if (config.asset) {
+            extraKeys = {
+                'Ctrl-Z': function (cm) {
+                    editor.call('editor:undo');
+                },
+                'Cmd-Z': function (cm) {
+                    editor.call('editor:undo');
+                },
+                'Shift-Ctrl-Z': function (cm) {
+                    editor.call('editor:redo');
+                },
+                'Ctrl-Y': function (cm) {
+                    editor.call('editor:redo');
+                },
+                'Shift-Cmd-Z': function (cm) {
+                    editor.call('editor:redo');
+                },
+                'Cmd-Y': function (cm) {
+                    editor.call('editor:redo');
+                }
+            };
+        }
+
         if (! config.asset || config.asset.type === 'script') {
             if (! loadedDefinitions)
                 return;
@@ -135,17 +158,17 @@ editor.once('load', function () {
                     server.complete(cm);
             });
 
-            extraKeys = {
-                'Ctrl-Space': function (cm) {server.complete(cm);},
-                'Ctrl-I': function (cm) {server.showType(cm);},
-                'Cmd-I': function (cm) {server.showType(cm);},
-                'Ctrl-O': function (cm) {server.showDocs(cm);},
-                'Cmd-O': function (cm) {server.showDocs(cm);},
-                'Alt-.': function (cm) {server.jumpToDef(cm);},
-                'Alt-,': function (cm) {server.jumpBack(cm);},
-                'Ctrl-Q': function (cm) {server.rename(cm);},
-                'Ctrl-.': function (cm) {server.selectName(cm);}
-            };
+            extraKeys = extraKeys || {};
+
+            extraKeys['Ctrl-Space'] = function (cm) {server.complete(cm);};
+            extraKeys['Ctrl-I'] = function (cm) {server.showType(cm);};
+            extraKeys['Cmd-I'] = function (cm) {server.showType(cm);};
+            extraKeys['Ctrl-O'] = function (cm) {server.showDocs(cm);};
+            extraKeys['Cmd-O'] = function (cm) {server.showDocs(cm);};
+            extraKeys['Alt-.'] = function (cm) {server.jumpToDef(cm);};
+            extraKeys['Alt-,'] = function (cm) {server.jumpBack(cm);};
+            extraKeys['Ctrl-Q'] = function (cm) {server.rename(cm);};
+            extraKeys['Ctrl-.'] = function (cm) {server.selectName(cm);};
         }
 
         extraKeys = extraKeys || {};
@@ -165,24 +188,6 @@ editor.once('load', function () {
         extraKeys["Shift-Tab"] = "indentLess";
         extraKeys['Ctrl-/'] = 'toggleComment';
         extraKeys['Cmd-/'] = 'toggleComment';
-        extraKeys['Ctrl-Z'] = function (cm) {
-            editor.call('editor:undo');
-        };
-        extraKeys['Cmd-Z'] = function (cm) {
-            editor.call('editor:undo');
-        };
-        extraKeys['Shift-Ctrl-Z'] = function (cm) {
-            editor.call('editor:redo');
-        };
-        extraKeys['Ctrl-Y'] = function (cm) {
-            editor.call('editor:redo');
-        };
-        extraKeys['Shift-Cmd-Z'] = function (cm) {
-            editor.call('editor:redo');
-        };
-        extraKeys['Cmd-Y'] = function (cm) {
-            editor.call('editor:redo');
-        };
 
         // create key bindings
         codeMirror.setOption("extraKeys", extraKeys);
