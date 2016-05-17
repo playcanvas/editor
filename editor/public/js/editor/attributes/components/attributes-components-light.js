@@ -387,6 +387,11 @@ editor.once('load', function() {
         fieldShadowBias.style.width = '32px';
         // reference
         editor.call('attributes:reference:light:shadowBias:attach', fieldShadowBias.parent.innerElement.firstChild.ui);
+        //
+        fieldShadowBias.parent.hidden = fieldShadowType.value !== 0;
+        fieldShadowType.on('change', function() {
+            fieldShadowBias.parent.hidden = fieldShadowType.value !== 0;
+        });
 
 
         // normalOffsetBias

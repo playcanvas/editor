@@ -383,6 +383,7 @@ editor.once('load', function() {
 
             editor.emit('gizmo:translate:end');
             editor.call('gizmo:translate:visible', true);
+            editor.call('viewport:pick:state', true);
         });
 
         editor.on('viewport:tap:move', onTapMove);
