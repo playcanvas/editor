@@ -1368,7 +1368,7 @@ a:visited {
         list-style: none;
         padding: 0;
         background-color: #000;
-
+        overflow-y: auto;
         box-shadow: 0 0 8px rgba(0, 0, 0, .5);
 
         > li {
