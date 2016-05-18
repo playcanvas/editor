@@ -168,12 +168,26 @@ SelectField.prototype.open = function() {
         top = 0;
     }
 
-    this.elementOptions.style.top = top + 'px';
+    // top
+    this.elementOptions.style.top = Math.max(0, top) + 'px';
     // left
     this.elementOptions.style.left = left + 'px';
     // right
     this.elementOptions.style.width = Math.round(this.element.clientWidth) + 'px';
+    // bottom
+    if (top <= 0 && this.elementOptions.offsetHeight >= window.innerHeight) {
+        this.elementOptions.style.bottom = '0';
+        this.elementOptions.style.height = 'auto';
 
+        // scroll to item
+        if (this.optionElements[this._value]) {
+            var off = this.optionElements[this._value].offsetTop - rect.top;
+            this.elementOptions.scrollTop = off;
+        }
+    } else {
+        this.elementOptions.style.bottom = '';
+        this.elementOptions.style.height = '';
+    }
 
     var self = this;
     this.timerClickAway = setTimeout(function() {
@@ -201,6 +215,13 @@ SelectField.prototype.close = function() {
     }
 
     this.element.classList.remove('active');
+
+    this.elementOptions.style.top = '';
+    this.elementOptions.style.right = '';
+    this.elementOptions.style.bottom = '';
+    this.elementOptions.style.left = '';
+    this.elementOptions.style.width = '';
+    this.elementOptions.style.height = '';
 
     this.emit('close');
 };

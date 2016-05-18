@@ -86,8 +86,11 @@ editor.once('load', function() {
 
             // parse once file is available
             asset.once('file.url:set', function() {
-                editor.call('scripts:parse', asset);
+                editor.call('scripts:parse', asset, function(err, result) {
+                    if (args.callback)
+                        args.callback(err, result);
+                });
             });
-        });
+        }, args.noSelect);
     });
 });

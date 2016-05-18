@@ -56,9 +56,8 @@ editor.once('load', function() {
     // add action
     editor.method('history:add', function(action) {
         // some history needs erasing
-        if (current !== actions.length - 1) {
+        if (current !== actions.length - 1)
             actions = actions.slice(0, current + 1);
-        }
 
         // add action
         actions.push(action);

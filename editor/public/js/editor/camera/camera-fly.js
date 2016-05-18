@@ -12,6 +12,7 @@ editor.once('viewport:load', function() {
     var flySpeedTarget = 0;
     var flyEasing = 0.5;
     var flyVec = new pc.Vec3();
+    var flyCamera = null;
     var firstUpdate = false;
     var shiftKey = false;
 
@@ -98,6 +99,11 @@ editor.once('viewport:load', function() {
 
         direction.set(keys.right - keys.left, keys.up - keys.down, keys.back - keys.forward).normalize();
 
+        if (! flying) {
+            flyCamera = editor.call('camera:current');
+            editor.call('camera:history:start', flyCamera);
+        }
+
         flying = true;
         firstUpdate = true;
         editor.call('camera:focus:stop');
@@ -129,6 +135,7 @@ editor.once('viewport:load', function() {
 
         if (! keys.forward && ! keys.left && ! keys.back && ! keys.right && ! keys.up && ! keys.down) {
             flying = false;
+            editor.call('camera:history:stop', flyCamera);
             editor.call('viewport:render');
         }
     }, false);

@@ -8,11 +8,12 @@ editor.once('viewport:load', function() {
     var zoomTarget = 0;
     var zoomSpeed = 0.1;
     var zoomSpeedFast = 0.5;
-    var zoomEasing = 0.5;
+    var zoomEasing = 0.3;
     var zoomMax = 60;
+    var zoomCamera;
     var shiftKey = false;
     var hovering = false;
-    var firstUpdate = false;
+    var firstUpdate = 3;
     var mouseCoords = new pc.Vec2();
     var vecA = new pc.Vec3();
     var vecB = new pc.Vec3();
@@ -28,10 +29,17 @@ editor.once('viewport:load', function() {
 
     editor.on('viewport:update', function(dt) {
         if (zoomTarget !== zoom) {
-            zoom += (zoomTarget - zoom) * Math.min(1.0, zoomEasing * ((firstUpdate ? 1 / 60 : dt) / (1 / 60)));
-            var diff = zoomTarget - zoom;
+            var diff = zoom;
+            zoom += (zoomTarget - zoom) * Math.min(1.0, zoomEasing * ((firstUpdate === 1 ? 1 / 60 : dt) / (1 / 60)));
+            diff = zoom - diff;
 
             var orbiting = editor.call('camera:orbit:state');
+            var camera = editor.call('camera:current');
+
+            if (firstUpdate === 1) {
+                zoomCamera = camera;
+                editor.call('camera:history:start', zoomCamera);
+            }
 
             if (diff !== 0) {
                 if (orbiting) {
@@ -39,8 +47,6 @@ editor.once('viewport:load', function() {
                     dist -= diff * Math.max(1, Math.min(zoomMax, dist));
                     editor.call('camera:orbit:distance', dist);
                 } else {
-                    var camera = editor.call('camera:current');
-
                     if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
 
                         var mouseWPos = camera.camera.screenToWorld(mouseCoords.x, mouseCoords.y, 1);
@@ -73,7 +79,14 @@ editor.once('viewport:load', function() {
             }
 
             editor.call('viewport:render');
-            firstUpdate = false;
+            firstUpdate = 2;
+        } else {
+            if (firstUpdate === 2) {
+                firstUpdate = 3;
+                editor.once('viewport:postUpdate', function() {
+                    editor.call('camera:history:stop', zoomCamera);
+                });
+            }
         }
     });
 
@@ -92,10 +105,11 @@ editor.once('viewport:load', function() {
         if (delta !== 0) {
             editor.call('camera:focus:stop');
 
-            var camera = editor.call('camera:current');
+            if (firstUpdate === 3)
+                firstUpdate = 1;
+
             var speed = delta * (shiftKey ? zoomSpeedFast : zoomSpeed);
             zoomTarget += speed;
-            firstUpdate = true;
 
             editor.call('viewport:render');
         }

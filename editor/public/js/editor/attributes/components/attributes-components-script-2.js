@@ -105,6 +105,32 @@ editor.once('load', function() {
         };
 
 
+        var createNewScript = function() {
+            var filename = editor.call('picker:script-create:validate', inputAddScript.value);
+
+            var onFilename = function(filename) {
+                editor.call('assets:create:script', {
+                    filename: filename,
+                    boilerplate: true,
+                    noSelect: true,
+                    callback: function(err, result) {
+                        if (result && result.scripts) {
+                            var keys = Object.keys(result.scripts);
+                            if (keys.length === 1)
+                                onScriptAdd(keys[0]);
+                        }
+                    }
+                });
+            };
+
+            if (filename) {
+                onFilename(filename);
+            } else {
+                editor.call('picker:script-create', onFilename, inputAddScript.value);
+            }
+        };
+
+
         var inputAddScript = new ui.TextField();
         inputAddScript.renderChanges = false;
         inputAddScript.keyChange = true;
@@ -131,6 +157,9 @@ editor.once('load', function() {
                 for(var i = 0; i < search.length; i++)
                     searchIndex[search[i]] = true;
 
+                itemAutoCompleteNew.hidden = !! excludeScripts[value] || !! searchIndex[value];
+                itemAutoCompleteNew.class.remove('active');
+
                 for(var key in autoComplete.index) {
                     if (! autoComplete.index.hasOwnProperty(key))
                         continue;
@@ -145,6 +174,8 @@ editor.once('load', function() {
                 }
             } else {
                 inputAddScript.class.remove('not-empty');
+                itemAutoCompleteNew.hidden = false;
+                itemAutoCompleteNew.class.remove('active');
 
                 for(var key in autoComplete.index) {
                     if (! autoComplete.index.hasOwnProperty(key))
@@ -176,6 +207,11 @@ editor.once('load', function() {
                         return 0;
                     }
                 });
+
+                itemAutoCompleteNew = new ui.ListItem({ text: 'New Script' });
+                itemAutoCompleteNew.class.add('new');
+                itemAutoCompleteNew.element.addEventListener('mousedown', createNewScript, false);
+                autoComplete.append(itemAutoCompleteNew);
 
                 for(var i = 0; i < scripts.length; i++) {
                     var item = addScriptAutocompleteItem(scripts[i]);
@@ -210,7 +246,7 @@ editor.once('load', function() {
                 onScriptAdd(this.script);
             }, false);
             autoComplete.index[script] = item;
-            autoComplete.append(item);
+            autoComplete.appendBefore(item, itemAutoCompleteNew);
             return item;
         };
 
@@ -309,7 +345,12 @@ editor.once('load', function() {
             } else if (evt.keyCode === 13) {
                 // enter
                 if (currentFocus) {
-                    onScriptAdd(currentFocus.element.script);
+                    if (currentFocus === itemAutoCompleteNew) {
+                        createNewScript();
+                    } else {
+                        onScriptAdd(currentFocus.element.script);
+                    }
+
                     inputAddScript.elementInput.blur();
                 } else {
                     findFirst = true;
@@ -335,8 +376,13 @@ editor.once('load', function() {
                 }
 
                 if (evt.keyCode === 13) {
-                    if (currentFocus)
-                        onScriptAdd(currentFocus.ui.element.script);
+                    if (currentFocus) {
+                        if (currentFocus === itemAutoCompleteNew) {
+                            createNewScript();
+                        } else {
+                            onScriptAdd(currentFocus.ui.element.script);
+                        }
+                    }
 
                     inputAddScript.elementInput.blur();
                 }
@@ -383,6 +429,8 @@ editor.once('load', function() {
         autoComplete.class.add('scripts-autocomplete');
         autoComplete.hidden = true;
         panel.append(autoComplete);
+
+        var itemAutoCompleteNew;
 
         // script added
         events.push(editor.on('assets:scripts:add', function(asset, script) {
@@ -654,6 +702,36 @@ editor.once('load', function() {
                 editor.call('selector:set', 'asset', [ scriptAsset ]);
             });
 
+            // edit
+            var btnEdit = new ui.Button({
+                text: '&#57648;'
+            });
+            btnEdit.class.add('edit');
+            panel.headerAppend(btnEdit);
+            btnEdit.on('click', function() {
+                window.open('/editor/asset/' + scriptAsset.get('id'));
+            });
+            btnEdit.hidden = editor.call('assets:scripts:collide', script);
+
+            // edit
+            var btnParse = new ui.Button({
+                text: '&#57640;'
+            });
+            btnParse.class.add('parse');
+            panel.headerAppend(btnParse);
+            btnParse.on('click', function() {
+                btnParse.disabled = true;
+                editor.call('scripts:parse', scriptAsset, function(err, result) {
+                    btnParse.disabled = false;
+                    if (err) {
+                        btnParse.class.add('error');
+                    } else {
+                        btnParse.class.remove('error');
+                    }
+                });
+            });
+            btnParse.hidden = editor.call('assets:scripts:collide', script);
+
             // remove
             var btnRemove = new ui.Button();
             btnRemove.class.add('remove');
@@ -779,11 +857,13 @@ editor.once('load', function() {
             events.push(editor.on('assets:scripts[' + script + ']:primary:set', function(asset) {
                 scriptAsset = asset;
                 labelInvalid.hidden = true;
+                btnEdit.hidden = btnParse.hidden = false;
                 panel.headerElementTitle.classList.add('link');
             }));
             events.push(editor.on('assets:scripts[' + script + ']:primary:unset', function(asset) {
                 scriptAsset = null;
                 labelInvalid.hidden = false;
+                btnEdit.hidden = btnParse.hidden = true;
                 panel.headerElementTitle.classList.remove('link');
                 updateInvalidTooltip();
             }));
