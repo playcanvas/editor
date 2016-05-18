@@ -5,6 +5,7 @@ editor.once('viewport:load', function(app) {
 
     var panning = false;
     var panSpeed = 0.01;
+    var panCamera;
     var shiftKey = false;
     var vecA = new pc.Vec2();
     var vecB = new pc.Vec3();
@@ -60,6 +61,9 @@ editor.once('viewport:load', function(app) {
     });
 
     var onPanStart = function(tap) {
+        if (panning)
+            return;
+
         panButton = tap.button;
 
         editor.call('camera:focus:stop');
@@ -68,6 +72,9 @@ editor.once('viewport:load', function(app) {
 
         var camera = editor.call('camera:current');
         var point = editor.call('camera:depth:pixelAt', camera.camera.camera, tap.x, tap.y);
+
+        panCamera = camera;
+        editor.call('camera:history:start', panCamera);
 
         if (point) {
             panPoint.copy(point);
@@ -99,6 +106,7 @@ editor.once('viewport:load', function(app) {
             return;
 
         panning = false;
+        editor.call('camera:history:stop', panCamera);
     });
 
     editor.on('viewport:tap:move', function(tap) {
@@ -112,7 +120,9 @@ editor.once('viewport:load', function(app) {
     });
 
     editor.on('camera:toggle', function(state) {
-        if (! state)
+        if (! state && panning) {
             panning = false;
+            editor.call('camera:history:stop', panCamera);
+        }
     });
 });

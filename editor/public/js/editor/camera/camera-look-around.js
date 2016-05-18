@@ -6,12 +6,13 @@ editor.once('viewport:load', function() {
     var looking = false;
     var sensivity = 0.2;
     var vecA = new pc.Vec2();
+    var lookCamera;
 
     var pitch = 0;
     var yaw = 0;
 
     editor.on('viewport:tap:start', function(tap) {
-        if (tap.button !== 2)
+        if (tap.button !== 2 || looking)
             return;
 
         editor.call('camera:focus:stop');
@@ -19,6 +20,8 @@ editor.once('viewport:load', function() {
 
         if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
             looking = true;
+            lookCamera = camera;
+            editor.call('camera:history:start', lookCamera);
 
             // pitch
             var x = Math.cos(Math.asin(camera.forward.y));
@@ -34,10 +37,11 @@ editor.once('viewport:load', function() {
     });
 
     editor.on('viewport:tap:end', function(tap) {
-        if (tap.button !== 2)
+        if (tap.button !== 2 || ! looking)
             return;
 
         looking = false;
+        editor.call('camera:history:stop', lookCamera);
     });
 
     editor.on('viewport:tap:move', function(tap) {

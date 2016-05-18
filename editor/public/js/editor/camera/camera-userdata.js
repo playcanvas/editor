@@ -37,10 +37,17 @@ editor.once('camera:load', function() {
             if (pos.x !== posOld[0] || pos.y !== posOld[1] || pos.z !== posOld[2])
                 obj.set('position', [ pos.x, pos.y, pos.z ]);
 
-            var rot = camera.getLocalEulerAngles();
+            var rotA = camera.getLocalRotation();
             var rotOld = obj.get('rotation');
-            if (rot.x !== rotOld[0] || rot.y !== rotOld[1] || rot.z !== rotOld[2])
-                obj.set('rotation', [ rot.x, rot.y, rot.z ]);
+            var rotB = new pc.Quat();
+            rotB.setFromEulerAngles(rotOld[0], rotOld[1], rotOld[2]);
+            var theta = rotA.w * rotB.w + rotA.x * rotB.x + rotA.y * rotB.y + rotA.z * rotB.z;
+
+            if (theta < 0.999) {
+                var rot = camera.getLocalEulerAngles();
+                if (rot.x !== rotOld[0] || rot.y !== rotOld[1] || rot.z !== rotOld[2])
+                    obj.set('rotation', [ rot.x, rot.y, rot.z ]);
+            }
 
             if (camera.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
                 var orthoHeight = camera.camera.orthoHeight;

@@ -6,6 +6,7 @@ editor.once('viewport:load', function() {
     var focusTarget = new pc.Vec3();
     var focusPoint = new pc.Vec3();
     var focusOrthoHeight = 0;
+    var focusCamera;
     var focusing = false;
     var firstUpdate = false;
     var flySpeed = 0.25;
@@ -15,6 +16,11 @@ editor.once('viewport:load', function() {
 
     editor.method('camera:focus', function(point, distance) {
         var camera = editor.call('camera:current');
+
+        if (! focusing) {
+            focusCamera = camera;
+            editor.call('camera:history:start', focusCamera);
+        }
 
         focusing = true;
         firstUpdate = true;
@@ -29,7 +35,6 @@ editor.once('viewport:load', function() {
         focusPoint.copy(point).add(vecA);
 
         editor.emit('camera:focus', point, distance);
-
         editor.call('viewport:render');
     });
 
@@ -40,6 +45,9 @@ editor.once('viewport:load', function() {
         focusing = false;
         var camera = editor.call('camera:current');
         editor.emit('camera:focus:end', focusTarget, vecA.copy(focusTarget).sub(camera.getPosition()).length());
+        editor.once('viewport:postUpdate', function() {
+            editor.call('camera:history:stop', focusCamera);
+        });
     });
 
     editor.on('viewport:update', function(dt) {
@@ -52,18 +60,25 @@ editor.once('viewport:load', function() {
                 var speed = Math.min(1.0, Math.min(1.0, flySpeed * ((firstUpdate ? 1 / 60 : dt) / (1 / 60))));
                 vecA.copy(pos).lerp(pos, focusPoint, speed);
                 camera.setPosition(vecA);
+
+                if (camera.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
+                    var orthoHeight = camera.camera.orthoHeight;
+                    orthoHeight += (focusOrthoHeight - orthoHeight) * Math.min(1.0, flySpeed * ((firstUpdate ? 1 / 60 : dt) / (1 / 60)));
+                    camera.camera.orthoHeight = orthoHeight;
+                }
+
                 editor.call('viewport:render');
             } else {
                 camera.setPosition(focusPoint);
+                if (camera.camera.projection === pc.PROJECTION_ORTHOGRAPHIC)
+                    camera.camera.orthoHeight = focusOrthoHeight;
+
                 focusing = false;
 
                 editor.emit('camera:focus:end', focusTarget, vecA.copy(focusTarget).sub(camera.getPosition()).length());
-            }
-
-            if (camera.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
-                var orthoHeight = camera.camera.orthoHeight;
-                orthoHeight += (focusOrthoHeight - orthoHeight) * Math.min(1.0, flySpeed * ((firstUpdate ? 1 / 60 : dt) / (1 / 60)));
-                camera.camera.orthoHeight = orthoHeight;
+                editor.once('viewport:postUpdate', function() {
+                    editor.call('camera:history:stop', focusCamera);
+                });
             }
 
             firstUpdate = false;
