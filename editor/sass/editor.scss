@@ -1550,6 +1550,14 @@ strong {
                         &.selected {
                             background-color: transparent;
                         }
+                        &.new {
+                            &:before {
+                                content: '\E120';
+                                @extend .font-icon;
+                                font-size: 14px;
+                                padding-right: 4px;
+                            }
+                        }
                     }
                 }
                 > .scripts {
@@ -1618,6 +1626,22 @@ strong {
                                         &:hover {
                                             text-decoration: underline;
                                         }
+                                    }
+                                }
+                                > .edit {
+                                    @extend .font-icon;
+                                    width: 32px;
+                                    height: 32px;
+                                    line-height: 32px;
+                                    margin: 0;
+                                    padding: 0;
+                                    background-color: transparent;
+                                    border: none;
+                                    font-size: 14px;
+                                    text-align: center;
+
+                                    &:hover {
+                                        background-color: #20292b;
                                     }
                                 }
                                 > .remove {

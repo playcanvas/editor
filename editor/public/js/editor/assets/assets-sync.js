@@ -124,14 +124,14 @@ editor.once('load', function() {
     editor.call('assets:progress', .1);
 
     // create asset
-    editor.method('assets:create', function (data, fn) {
+    editor.method('assets:create', function (data, fn, noSelect) {
         var assetId = null;
         var evtAssetAdd = editor.once('assets:add', function(asset) {
             if (! evtAssetAdd && assetId !== parseInt(asset.get('id'), 10))
                 return;
 
             evtAssetAdd = null;
-            editor.call('selector:set', 'asset', [ asset ]);
+            if (! noSelect) editor.call('selector:set', 'asset', [ asset ]);
             // navigate to folder too
             var path = asset.get('path');
             if (path.length) {
@@ -141,12 +141,14 @@ editor.once('load', function() {
             }
         });
 
-        editor.once('selector:change', function() {
-            if (evtAssetAdd) {
-                evtAssetAdd.unbind();
-                evtAssetAdd = null;
-            }
-        });
+        if (! noSelect) {
+            editor.once('selector:change', function() {
+                if (evtAssetAdd) {
+                    evtAssetAdd.unbind();
+                    evtAssetAdd = null;
+                }
+            });
+        }
 
         editor.call('assets:uploadFile', data, function(err, res) {
             if (evtAssetAdd)
