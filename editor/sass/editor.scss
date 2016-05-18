@@ -1628,7 +1628,8 @@ strong {
                                         }
                                     }
                                 }
-                                > .edit {
+                                > .edit,
+                                > .parse {
                                     @extend .font-icon;
                                     width: 32px;
                                     height: 32px;
@@ -1642,6 +1643,9 @@ strong {
 
                                     &:hover {
                                         background-color: #20292b;
+                                    }
+                                    &.error {
+                                        color: #d34141;
                                     }
                                 }
                                 > .remove {

@@ -704,14 +704,33 @@ editor.once('load', function() {
 
             // edit
             var btnEdit = new ui.Button({
-                text: '&#57648'
+                text: '&#57648;'
             });
             btnEdit.class.add('edit');
             panel.headerAppend(btnEdit);
             btnEdit.on('click', function() {
                 window.open('/editor/asset/' + scriptAsset.get('id'));
             });
-            btnEdit.hidden = editor.call('assets:scripts:collide', script)
+            btnEdit.hidden = editor.call('assets:scripts:collide', script);
+
+            // edit
+            var btnParse = new ui.Button({
+                text: '&#57640;'
+            });
+            btnParse.class.add('parse');
+            panel.headerAppend(btnParse);
+            btnParse.on('click', function() {
+                btnParse.disabled = true;
+                editor.call('scripts:parse', scriptAsset, function(err, result) {
+                    btnParse.disabled = false;
+                    if (err) {
+                        btnParse.class.add('error');
+                    } else {
+                        btnParse.class.remove('error');
+                    }
+                });
+            });
+            btnParse.hidden = editor.call('assets:scripts:collide', script);
 
             // remove
             var btnRemove = new ui.Button();
@@ -838,13 +857,13 @@ editor.once('load', function() {
             events.push(editor.on('assets:scripts[' + script + ']:primary:set', function(asset) {
                 scriptAsset = asset;
                 labelInvalid.hidden = true;
-                btnEdit.hidden = false;
+                btnEdit.hidden = btnParse.hidden = false;
                 panel.headerElementTitle.classList.add('link');
             }));
             events.push(editor.on('assets:scripts[' + script + ']:primary:unset', function(asset) {
                 scriptAsset = null;
                 labelInvalid.hidden = false;
-                btnEdit.hidden = true;
+                btnEdit.hidden = btnParse.hidden = true;
                 panel.headerElementTitle.classList.remove('link');
                 updateInvalidTooltip();
             }));
