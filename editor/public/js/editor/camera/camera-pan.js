@@ -76,19 +76,31 @@ editor.once('viewport:load', function(app) {
         panCamera = camera;
         editor.call('camera:history:start', panCamera);
 
+        vecA.x = tap.x;
+        vecA.y = tap.y;
+
         if (point) {
             panPoint.copy(point);
             grabbed = true;
-        } else if (camera.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
-            // TODO
-            // camera panning when nothing is grabbed
-            grabbed = false;
         } else {
-            grabbed = false;
+            // distance to selected entity
+            var aabb = editor.call('selection:aabb');
+            if (aabb) {
+                var dist = aabb.center.clone().sub(camera.getPosition()).length();
+                panPoint.copy(camera.camera.screenToWorld(vecA.x, vecA.y, dist));
+                grabbed = true;
+            } else {
+                // nothing selected, then size of aabb of scene or distance to center of aabb
+                aabb = editor.call('entities:aabb', editor.call('entities:root'));
+                if (aabb) {
+                    var dist = Math.max(aabb.halfExtents.length(), aabb.center.clone().sub(camera.getPosition()).length());
+                    panPoint.copy(camera.camera.screenToWorld(vecA.x, vecA.y, dist));
+                    grabbed = true;
+                } else {
+                    grabbed = false;
+                }
+            }
         }
-
-        vecA.x = tap.x;
-        vecA.y = tap.y;
 
         editor.call('viewport:render');
     };

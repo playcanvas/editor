@@ -9,7 +9,7 @@ editor.once('viewport:load', function() {
     var zoomSpeed = 0.1;
     var zoomSpeedFast = 0.5;
     var zoomEasing = 0.3;
-    var zoomMax = 60;
+    var zoomMax = 300;
     var zoomCamera;
     var shiftKey = false;
     var hovering = false;
@@ -56,6 +56,19 @@ editor.once('viewport:load', function() {
                         if (point) {
                             point.sub(camera.getPosition());
                             distance = Math.max(1, Math.min(zoomMax, point.length()));
+                        } else {
+                            // distance to selected entity
+                            var aabb = editor.call('selection:aabb');
+                            if (aabb) {
+                                distance = Math.max(1, Math.min(zoomMax, aabb.center.clone().sub(camera.getPosition()).length()));
+                            } else {
+                                // nothing selected, then size of aabb of scene or distance to center of aabb
+                                aabb = editor.call('entities:aabb', editor.call('entities:root'));
+                                if (aabb) {
+                                    distance = Math.max(aabb.halfExtents.length(), aabb.center.clone().sub(camera.getPosition()).length());
+                                    distance = Math.max(1, Math.min(zoomMax, distance));
+                                }
+                            }
                         }
 
                         diff *= distance;
