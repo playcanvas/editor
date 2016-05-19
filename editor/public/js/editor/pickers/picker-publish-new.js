@@ -178,6 +178,7 @@ editor.once('load', function () {
         refreshButtonsState();
     });
 
+
     // release notes
     var panelNotes = new ui.Panel();
     panelNotes.class.add('notes');
@@ -204,6 +205,27 @@ editor.once('load', function () {
         inputNotesError.hidden = inputNotes.value.length <= 10000;
         refreshButtonsState();
     });
+
+
+    // options
+    var panelOptions = new ui.Panel();
+    panelOptions.class.add('options');
+    panel.append(panelOptions);
+
+    label = new ui.Label({text: 'Options'});
+    label.class.add('field-label');
+    panelOptions.append(label);
+
+    // concatenate scripts
+    var panelOptionsConcat = new ui.Panel();
+    panelOptionsConcat.class.add('field');
+    panelOptions.append(panelOptionsConcat);
+    var fieldOptionsConcat = new ui.Checkbox();
+    fieldOptionsConcat.value = true;
+    fieldOptionsConcat.class.add('tick');
+    panelOptionsConcat.append(fieldOptionsConcat);
+    var label = new ui.Label({ text: 'Concatenate Scripts' });
+    panelOptionsConcat.append(label);
 
     // scenes
     var panelScenes = new ui.Panel();
@@ -293,6 +315,8 @@ editor.once('load', function () {
         if (imageS3Key)
             data.image_s3_key = imageS3Key;
 
+        data.scripts_concatenate = fieldOptionsConcat.value;
+
         editor.call('apps:new', data, function () {
             jobInProgress = false;
             editor.call('picker:publish');
@@ -323,7 +347,8 @@ editor.once('load', function () {
             name: inputName.value,
             project_id: config.project.id,
             source_pack_ids: selectedScenes.map(function (scene) { return scene.id; }),
-            target: target
+            target: target,
+            scripts_concatenate: fieldOptionsConcat.value
         };
 
         // ajax call
@@ -657,6 +682,9 @@ editor.once('load', function () {
         });
 
         inputName.elementInput.focus();
+
+        if (editor.call('viewport:inViewport'))
+            editor.emit('viewport:hover', false);
     });
 
     // on hide
@@ -669,6 +697,17 @@ editor.once('load', function () {
         jobInProgress = false;
         destroyTooltips();
         destroyEvents();
+
+        if (editor.call('viewport:inViewport'))
+            editor.emit('viewport:hover', true);
+    });
+
+    editor.on('viewport:hover', function(state) {
+        if (state && ! panel.hidden) {
+            setTimeout(function() {
+                editor.emit('viewport:hover', false);
+            }, 0);
+        }
     });
 
     // subscribe to messenger pack.delete
