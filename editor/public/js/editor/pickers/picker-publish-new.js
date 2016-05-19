@@ -1,6 +1,8 @@
 editor.once('load', function () {
     'use strict';
 
+    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
+
     // main panel
     var panel = new ui.Panel();
     panel.class.add('picker-publish-new');
@@ -207,25 +209,28 @@ editor.once('load', function () {
     });
 
 
-    // options
-    var panelOptions = new ui.Panel();
-    panelOptions.class.add('options');
-    panel.append(panelOptions);
+    if (! legacyScripts) {
+        // options
+        var panelOptions = new ui.Panel();
+        panelOptions.class.add('options');
+        panel.append(panelOptions);
 
-    label = new ui.Label({text: 'Options'});
-    label.class.add('field-label');
-    panelOptions.append(label);
+        label = new ui.Label({text: 'Options'});
+        label.class.add('field-label');
+        panelOptions.append(label);
 
-    // concatenate scripts
-    var panelOptionsConcat = new ui.Panel();
-    panelOptionsConcat.class.add('field');
-    panelOptions.append(panelOptionsConcat);
-    var fieldOptionsConcat = new ui.Checkbox();
-    fieldOptionsConcat.value = true;
-    fieldOptionsConcat.class.add('tick');
-    panelOptionsConcat.append(fieldOptionsConcat);
-    var label = new ui.Label({ text: 'Concatenate Scripts' });
-    panelOptionsConcat.append(label);
+        // concatenate scripts
+        var panelOptionsConcat = new ui.Panel();
+        panelOptionsConcat.class.add('field');
+        panelOptions.append(panelOptionsConcat);
+        var fieldOptionsConcat = new ui.Checkbox();
+        fieldOptionsConcat.value = true;
+        fieldOptionsConcat.class.add('tick');
+        panelOptionsConcat.append(fieldOptionsConcat);
+        var label = new ui.Label({ text: 'Concatenate Scripts' });
+        panelOptionsConcat.append(label);
+    }
+
 
     // scenes
     var panelScenes = new ui.Panel();
@@ -315,7 +320,8 @@ editor.once('load', function () {
         if (imageS3Key)
             data.image_s3_key = imageS3Key;
 
-        data.scripts_concatenate = fieldOptionsConcat.value;
+        if (fieldOptionsConcat)
+            data.scripts_concatenate = fieldOptionsConcat.value;
 
         editor.call('apps:new', data, function () {
             jobInProgress = false;
@@ -348,7 +354,7 @@ editor.once('load', function () {
             project_id: config.project.id,
             source_pack_ids: selectedScenes.map(function (scene) { return scene.id; }),
             target: target,
-            scripts_concatenate: fieldOptionsConcat.value
+            scripts_concatenate: fieldOptionsConcat ? fieldOptionsConcat.value : false
         };
 
         // ajax call
