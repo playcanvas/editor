@@ -5503,7 +5503,8 @@ strong {
     }
 
     > .content {
-        .ui-label {
+        > .ui-panel > .content > .ui-label,
+        > .info > .content > span > .ui-label {
             font-size: 12px;
             height: auto;
             line-height: initial;
@@ -5519,7 +5520,8 @@ strong {
             }
         }
 
-        .ui-text-field {
+        > .info > .content > span > .ui-text-field,
+        > .version > .content > .ui-text-field {
             margin: 0;
             height: 34px;
             line-height: 34px;
@@ -5539,7 +5541,8 @@ strong {
             }
         }
 
-        textarea {
+        > .description > .content > textarea,
+        > .notes > .content > textarea {
             display: block;
             border: 1px solid $bcg-darker;
             background-color: $bcg-dark;
@@ -5562,6 +5565,26 @@ strong {
                 outline: none;
                 border-color: transparent;
                 box-shadow: none;
+            }
+        }
+
+        > .options {
+            > .content {
+                > .ui-panel.field {
+                    > .content {
+                        line-height: 24px;
+
+                        > .ui-checkbox {
+                            margin: 4px 8px 0 0;
+                        }
+                        > .ui-label {
+                            margin: 0;
+                            font-size: 12px;
+                            line-height: 24px;
+                            vertical-align: top;
+                        }
+                    }
+                }
             }
         }
 

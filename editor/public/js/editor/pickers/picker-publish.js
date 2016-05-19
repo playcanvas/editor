@@ -508,6 +508,9 @@ editor.once('load', function () {
     panel.on('show', function () {
         loadApps();
         editor.emit('picker:publish:open');
+
+        if (editor.call('viewport:inViewport'))
+            editor.emit('viewport:hover', false);
     });
 
     // on hide
@@ -516,6 +519,16 @@ editor.once('load', function () {
         destroyTooltips();
         destroyEvents();
         editor.emit('picker:publish:close');
+
+        if (editor.call('viewport:inViewport'))
+            editor.emit('viewport:hover', true);
     });
 
+    editor.on('viewport:hover', function(state) {
+        if (state && ! panel.hidden) {
+            setTimeout(function() {
+                editor.emit('viewport:hover', false);
+            }, 0);
+        }
+    });
 });
