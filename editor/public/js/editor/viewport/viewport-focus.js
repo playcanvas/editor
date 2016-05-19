@@ -59,8 +59,16 @@ editor.once('load', function() {
         if (editor.call('selector:type') !== 'entity')
             return null;
 
-        var items = editor.call('selector:items');
+        return editor.call('entities:aabb', editor.call('selector:items'));
+    });
 
+    editor.method('entities:aabb', function(items) {
+        if (! items)
+            return null;
+
+        if (! (items instanceof Array))
+            items = [ items ];
+            
         aabb.center.set(0, 0, 0);
         aabb.halfExtents.copy(defaultSizeSmall);
 
