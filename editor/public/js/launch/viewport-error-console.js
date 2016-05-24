@@ -63,8 +63,7 @@ app.once('load', function() {
         return element;
     }
 
-    // catch errors and show them to the console
-    window.onerror = function (msg, url, line, col, e) {
+    var onError = function(msg, url, line, col, e) {
         if (url) {
             // check if this is a playcanvas script
             var codeEditorUrl = '';
@@ -74,7 +73,7 @@ app.once('load', function() {
             // if this is a playcanvas script
             // then create a URL that will open the code editor
             // at that line and column
-            if (url.indexOf("api/files/code") >= 0) {
+            if (url.indexOf('api/files/code') !== -1) {
                 var parts = url.split('//')[1].split('/');
 
                 target = '/editor/code/' + parts[4] + '/';
@@ -83,6 +82,12 @@ app.once('load', function() {
                 } else {
                     target += parts.slice(6).join('/');
                 }
+
+                codeEditorUrl = 'https://' + window.location.host + target;
+                query = '?line=' + line + '&col=' + col;
+            } else if (! editor.call('project:settings').get('use_legacy_scripts') && url.indexOf('/api/assets/') !== -1 && url.indexOf('.js') !== -1) {
+                var assetId = parseInt(url.match(/\/api\/assets\/([0-9]+)\/file\//)[1], 10);
+                target = '/editor/asset/' + assetId;
 
                 codeEditorUrl = 'https://' + window.location.host + target;
                 query = '?line=' + line + '&col=' + col;
@@ -96,10 +101,8 @@ app.once('load', function() {
             append(pc.string.format('<a href="{0}" query="{1}" target="{2}" class="code-link">[{3}:{4}]</a>: {5}', codeEditorUrl, query, target, relativeUrl, line, msg), 'error');
 
             // append stacktrace as well
-            if (e && e.stack) {
+            if (e && e.stack)
                 append(e.stack.replace(/ /g, '&nbsp;'), 'trace');
-            }
-
         } else {
             // Chrome only shows 'Script error.' if the error comes from
             // a different domain.
@@ -111,14 +114,46 @@ app.once('load', function() {
         }
     };
 
+    // catch errors and show them to the console
+    window.onerror = onError;
+
     // redirect console.error to the in-game console
     var consoleError = console.error;
-    console.error = function (msg) {
-        consoleError.call(this, msg);
-        if (typeof(msg) === 'string')
-            append(msg, 'error');
-        else
-            append(msg.message, 'error');
+    console.error = function(item) {
+        var errorPassed = false;
+
+        if (item instanceof Error) {
+            consoleError.call(this, item.stack);
+
+            var msg = item.message;
+            var lines = item.stack.split('\n');
+            if (lines.length >= 2) {
+                var line = lines[1];
+                var url = line.slice(line.indexOf('(') + 1);
+                var m = url.match(/:[0-9]+:[0-9]+\)/);
+                if (m) {
+                    url = url.slice(0, m.index);
+                    var parts = m[0].slice(1, -1).split(':');
+
+                    if (parts.length === 2) {
+                        var line = parseInt(parts[0], 10);
+                        var col = parseInt(parts[1], 10);
+
+                        onError(msg, url, line, col, item);
+                        errorPassed = true;
+                    }
+                }
+            }
+        } else {
+            consoleError.call(this, item);
+        }
+
+        if (item instanceof Error) {
+            if (! errorPassed)
+                append(item.message, 'error');
+        } else {
+            append(item.toString(), 'error');
+        }
     };
 
 });
