@@ -86,10 +86,14 @@ editor.once('load', function() {
 
             // parse once file is available
             asset.once('file.url:set', function() {
-                editor.call('scripts:parse', asset, function(err, result) {
-                    if (args.callback)
-                        args.callback(err, result);
-                });
+                // artificial delay to avoid racing condition
+                // of file not getting uploaded to s3 in time
+                setTimeout(function() {
+                    editor.call('scripts:parse', asset, function(err, result) {
+                        if (args.callback)
+                            args.callback(err, result);
+                    });
+                }, 500);
             });
         }, args.noSelect);
     });
