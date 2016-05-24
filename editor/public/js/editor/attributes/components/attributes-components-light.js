@@ -255,6 +255,13 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:light:shadowUpdateMode:attach', fieldShadowUpdateMode.parent.innerElement.firstChild.ui);
 
+        var updateFieldShadowUpdateMode = function() {
+            fieldShadowUpdateMode.parent.hidden = fieldLightMap.value && ! fieldAffectDynamic.value && ! fieldLightMap.class.contains('null') && ! fieldAffectDynamic.class.contains('null');
+        };
+        fieldLightMap.on('change', updateFieldShadowUpdateMode);
+        fieldAffectDynamic.on('change', updateFieldShadowUpdateMode);
+
+
         // updateShadow button
         var btnUpdateShadow = new ui.Button({
             text: '&#57640;'

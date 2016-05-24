@@ -1534,9 +1534,11 @@ strong {
                     left: 6px;
                     right: 6px;
                     width: auto;
+                    max-height: 220px;
                     margin: 0;
                     border-top: none;
                     z-index: 1;
+                    overflow-y: auto;
                     background-color: $bcg-darkest;
 
                     > .ui-list-item {
