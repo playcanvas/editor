@@ -173,6 +173,14 @@ editor.once('load', function() {
                     } else {
                         return;
                     }
+                } else if (parts.length === 4) {
+                    var primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
+                    if (primaryScript) {
+                        updateAsset(this.get('resource_id'), 'entity', null, primaryScript.get('id'));
+                        return;
+                    } else {
+                        return;
+                    }
                 } else {
                     return;
                 }
@@ -227,6 +235,8 @@ editor.once('load', function() {
                 } else if (parts.length === 4) {
                     var primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
                     if (primaryScript) {
+                        updateAsset(this.get('resource_id'), 'entity', primaryScript.get('id'), null);
+
                         for(var attrName in value.attributes) {
                             var type = primaryScript.get('data.scripts.' + parts[3] + '.attributes.' + attrName + '.type');
                             if (type === 'asset') {
@@ -320,9 +330,6 @@ editor.once('load', function() {
             return;
 
         var itemsOrder = asset.get('data.scripts.' + script + '.attributesOrder');
-        if (! itemsOrder || itemsOrder.length === 0)
-            return;
-
         var items = asset.get('data.scripts.' + script + '.attributes');
         var attributes = [ ];
         for(var i = 0; i < itemsOrder.length; i++) {
@@ -330,14 +337,13 @@ editor.once('load', function() {
                 attributes.push(itemsOrder[i]);
         }
 
-        if (attributes.length === 0)
-            return;
-
         for(var i in entities) {
             if (! entities.hasOwnProperty(i))
                 continue;
 
             var entity = entities[i].entity;
+
+            updateAsset(entity.get('resource_id'), 'entity', null, asset.get('id'));
 
             for(var a = 0; a < attributes.length; a++) {
                 var value = entity.get('components.script.scripts.' + script + '.attributes.' + attributes[a]);
@@ -363,8 +369,6 @@ editor.once('load', function() {
             return;
 
         var itemsOrder = asset.get('data.scripts.' + script + '.attributesOrder');
-        if (! itemsOrder || itemsOrder.length === 0) return;
-
         var items = asset.get('data.scripts.' + script + '.attributes');
         var attributes = [ ];
         for(var i = 0; i < itemsOrder.length; i++) {
@@ -372,14 +376,13 @@ editor.once('load', function() {
                 attributes.push(itemsOrder[i]);
         }
 
-        if (attributes.length === 0)
-            return;
-
         for(var i in entities) {
             if (! entities.hasOwnProperty(i))
                 continue;
 
             var entity = entities[i].entity;
+
+            updateAsset(entity.get('resource_id'), 'entity', asset.get('id'), null);
 
             for(var a = 0; a < attributes.length; a++) {
                 var value = entity.get('components.script.scripts.' + script + '.attributes.' + attributes[a]);
@@ -471,6 +474,7 @@ editor.once('load', function() {
         }
 
         var scripts = entity.get('components.script.scripts');
+
         if (scripts) {
             for(var script in scripts) {
                 if (! scripts.hasOwnProperty(script))
@@ -478,6 +482,8 @@ editor.once('load', function() {
 
                 var primaryScript = editor.call('assets:scripts:assetByScript', script);
                 if (primaryScript) {
+                    updateAsset(entity.get('resource_id'), 'entity', null, primaryScript.get('id'));
+
                     var attributes = scripts[script].attributes;
                     for(var attr in attributes) {
                         if (! attributes.hasOwnProperty(attr))
