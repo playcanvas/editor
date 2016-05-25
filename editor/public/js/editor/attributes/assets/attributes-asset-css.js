@@ -31,7 +31,7 @@ editor.once('load', function() {
         });
         panelRaw.class.add('component');
         // reference
-        editor.call('attributes:reference:asset:css:asset:attach', panelRaw, panelRaw.headerElement);
+        editor.call('attributes:reference:attach', 'asset:css:asset', panelRaw, panelRaw.headerElement);
 
         // loading
         var loading = editor.call('attributes:addField', {

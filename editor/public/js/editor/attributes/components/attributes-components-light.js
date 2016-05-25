@@ -35,7 +35,7 @@ editor.once('load', function() {
             path: 'components.light.type'
         });
         // reference
-        editor.call('attributes:reference:light:type:attach', fieldType.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'light:type', fieldType.parent.innerElement.firstChild.ui);
 
 
         // bake
@@ -52,7 +52,7 @@ editor.once('load', function() {
         label.style.paddingRight = '12px';
         fieldLightMap.parent.append(label);
         // reference
-        editor.call('attributes:reference:light:bake:attach', label);
+        editor.call('attributes:reference:attach', 'light:bake', label);
 
 
         // affectDynamic
@@ -69,7 +69,7 @@ editor.once('load', function() {
         label.style.paddingRight = '12px';
         fieldAffectDynamic.parent.append(label);
         // reference
-        editor.call('attributes:reference:light:affectDynamic:attach', label);
+        editor.call('attributes:reference:attach', 'light:affectDynamic', label);
 
 
         // affectLightmapped
@@ -84,7 +84,7 @@ editor.once('load', function() {
         labelBaked.class.add('label-infield');
         fieldAffectDynamic.parent.append(labelBaked);
         // reference
-        editor.call('attributes:reference:light:affectLightmapped:attach', labelBaked);
+        editor.call('attributes:reference:attach', 'light:affectLightmapped', labelBaked);
         // disable/enable affectLightmapped flag
         fieldAffectLightmapped.disabled = labelBaked.disabled = !! fieldLightMap.value;
         fieldLightMap.on('change', function() {
@@ -101,7 +101,7 @@ editor.once('load', function() {
             path: 'components.light.color'
         });
         // reference
-        editor.call('attributes:reference:light:color:attach', fieldColor.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'light:color', fieldColor.parent.innerElement.firstChild.ui);
 
 
         // intensity
@@ -118,7 +118,7 @@ editor.once('load', function() {
         });
         fieldIntensity.style.width = '32px';
         // reference
-        editor.call('attributes:reference:light:intensity:attach', fieldIntensity.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'light:intensity', fieldIntensity.parent.innerElement.firstChild.ui);
 
         // intensity slider
         var fieldIntensitySlider = editor.call('attributes:addField', {
@@ -151,7 +151,7 @@ editor.once('load', function() {
             fieldRange.parent.hidden = ! (value === '' || value !== 'directional');
         });
         // reference
-        editor.call('attributes:reference:light:range:attach', fieldRange.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'light:range', fieldRange.parent.innerElement.firstChild.ui);
 
 
         // falloffMode
@@ -171,7 +171,7 @@ editor.once('load', function() {
             fieldFalloffMode.parent.hidden = ! (value === '' || value !== 'directional');
         });
         // reference
-        editor.call('attributes:reference:light:falloffMode:attach', fieldFalloffMode.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'light:falloffMode', fieldFalloffMode.parent.innerElement.firstChild.ui);
 
 
         // innerConeAngle
@@ -193,7 +193,7 @@ editor.once('load', function() {
             fieldInnerConeAngle.parent.hidden = ! (value === '' || value === 'spot');
         });
         // reference
-        editor.call('attributes:reference:light:coneAngles:attach', fieldInnerConeAngle.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'light:coneAngles', fieldInnerConeAngle.parent.innerElement.firstChild.ui);
 
 
         // outerConeAngle
@@ -226,7 +226,7 @@ editor.once('load', function() {
             path: 'components.light.castShadows'
         });
         // reference
-        editor.call('attributes:reference:light:castShadows:attach', fieldCastShadows.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'light:castShadows', fieldCastShadows.parent.innerElement.firstChild.ui);
 
 
         // shadows panel
@@ -253,7 +253,7 @@ editor.once('load', function() {
             path: 'components.light.shadowUpdateMode'
         });
         // reference
-        editor.call('attributes:reference:light:shadowUpdateMode:attach', fieldShadowUpdateMode.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'light:shadowUpdateMode', fieldShadowUpdateMode.parent.innerElement.firstChild.ui);
 
         var updateFieldShadowUpdateMode = function() {
             fieldShadowUpdateMode.parent.hidden = fieldLightMap.value && ! fieldAffectDynamic.value && ! fieldLightMap.class.contains('null') && ! fieldAffectDynamic.class.contains('null');
@@ -294,7 +294,7 @@ editor.once('load', function() {
             path: 'components.light.shadowType'
         });
         // reference
-        editor.call('attributes:reference:light:shadowType:attach', fieldShadowType.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'light:shadowType', fieldShadowType.parent.innerElement.firstChild.ui);
 
         // vsmBlurMode
         var fieldShadowVsmBlurMode = editor.call('attributes:addField', {
@@ -310,7 +310,7 @@ editor.once('load', function() {
             path: 'components.light.vsmBlurMode'
         });
         // reference
-        editor.call('attributes:reference:light:vsmBlurMode:attach', fieldShadowVsmBlurMode.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'light:vsmBlurMode', fieldShadowVsmBlurMode.parent.innerElement.firstChild.ui);
         //
         fieldShadowVsmBlurMode.parent.hidden = fieldShadowType.value === 0;
         fieldShadowType.on('change', function() {
@@ -328,7 +328,7 @@ editor.once('load', function() {
             path: 'components.light.vsmBlurSize'
         });
         // reference
-        editor.call('attributes:reference:light:vsmBlurSize:attach', fieldShadowVsmBlurSize.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'light:vsmBlurSize', fieldShadowVsmBlurSize.parent.innerElement.firstChild.ui);
         //
         fieldShadowVsmBlurSize.parent.hidden = fieldShadowType.value === 0;
         fieldShadowType.on('change', function() {
@@ -352,7 +352,7 @@ editor.once('load', function() {
             fieldShadowDistance.parent.hidden = ! (value === '' || value === 'directional');
         });
         // reference
-        editor.call('attributes:reference:light:shadowDistance:attach', fieldShadowDistance.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'light:shadowDistance', fieldShadowDistance.parent.innerElement.firstChild.ui);
 
 
         // shadowResolution
@@ -376,7 +376,7 @@ editor.once('load', function() {
             path: 'components.light.shadowResolution'
         });
         // reference
-        editor.call('attributes:reference:light:shadowResolution:attach', fieldShadowResolution.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'light:shadowResolution', fieldShadowResolution.parent.innerElement.firstChild.ui);
 
 
         // shadowBias
@@ -393,7 +393,7 @@ editor.once('load', function() {
         });
         fieldShadowBias.style.width = '32px';
         // reference
-        editor.call('attributes:reference:light:shadowBias:attach', fieldShadowBias.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'light:shadowBias', fieldShadowBias.parent.innerElement.firstChild.ui);
         //
         fieldShadowBias.parent.hidden = fieldShadowType.value !== 0;
         fieldShadowType.on('change', function() {
@@ -415,5 +415,7 @@ editor.once('load', function() {
         });
         fieldShadowBiasNormalOffset.style.width = '32px';
         fieldShadowBiasNormalOffset.flexGrow = 2;
+        // reference
+        editor.call('attributes:reference:attach', 'light:normalOffsetBias', fieldShadowBiasNormalOffset);
     });
 });

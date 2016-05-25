@@ -21,7 +21,7 @@ editor.once('load', function() {
             path: 'components.sound.positional'
         });
         // reference
-        editor.call('attributes:reference:sound:positional:attach', fieldPositional.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'sound:positional', fieldPositional.parent.innerElement.firstChild.ui);
 
         fieldPositional.on('change', function (value) {
             panelDistance.hidden = fieldDistanceModel.parent.hidden = fieldRollOffFactor.parent.hidden = ! (fieldPositional.value || fieldPositional.class.contains('null'));
@@ -41,7 +41,7 @@ editor.once('load', function() {
         });
         fieldVolume.style.width = '32px';
         // reference
-        editor.call('attributes:reference:sound:volume:attach', fieldVolume.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'sound:volume', fieldVolume.parent.innerElement.firstChild.ui);
 
         // volume slider
         var fieldVolumeSlider = editor.call('attributes:addField', {
@@ -69,7 +69,7 @@ editor.once('load', function() {
             path: 'components.sound.pitch'
         });
         // reference
-        editor.call('attributes:reference:sound:pitch:attach', fieldPitch.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'sound:pitch', fieldPitch.parent.innerElement.firstChild.ui);
 
 
         // distance
@@ -83,7 +83,7 @@ editor.once('load', function() {
         panelDistance.hidden = ! (fieldPositional.value || fieldPositional.class.contains('null'));
 
         // reference
-        editor.call('attributes:reference:sound:distance:attach', panelDistance.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'sound:distance', panelDistance.innerElement.firstChild.ui);
 
         // refDistance
         var fieldRefDistance = editor.call('attributes:addField', {
@@ -130,7 +130,7 @@ editor.once('load', function() {
         fieldDistanceModel.parent.hidden = ! (fieldPositional.value || fieldPositional.class.contains('null'));
 
         // reference
-        editor.call('attributes:reference:sound:distanceModel:attach', fieldDistanceModel.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'sound:distanceModel', fieldDistanceModel.parent.innerElement.firstChild.ui);
 
         // rollOffFactor
         var fieldRollOffFactor = editor.call('attributes:addField', {
@@ -146,7 +146,7 @@ editor.once('load', function() {
         fieldRollOffFactor.parent.hidden = ! (fieldPositional.value || fieldPositional.class.contains('null'));
 
         // reference
-        editor.call('attributes:reference:sound:rollOffFactor:attach', fieldRollOffFactor.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'sound:rollOffFactor', fieldRollOffFactor.parent.innerElement.firstChild.ui);
 
         // show something when multiple entities are enabled for slots
         if (entities.length > 1) {
@@ -173,6 +173,9 @@ editor.once('load', function() {
             panelSlot.folded = false;
             panelSlots.append(panelSlot);
 
+            // reference
+            editor.call('attributes:reference:attach', 'sound:slot:slot', panelSlot, panelSlot.headerElementTitle);
+
             // button to remove slot
             var btnRemove = new ui.Button();
             btnRemove.class.add('remove');
@@ -189,7 +192,7 @@ editor.once('load', function() {
             });
 
             // reference
-            editor.call('attributes:reference:soundslot:name:attach', fieldSlotName.parent.innerElement.firstChild.ui);
+            editor.call('attributes:reference:attach', 'sound:slot:name', fieldSlotName.parent.innerElement.firstChild.ui);
 
             // set initial value
             fieldSlotName.value = slot.name;
@@ -282,7 +285,7 @@ editor.once('load', function() {
             });
 
             // reference
-            editor.call('attributes:reference:soundslot:asset:attach', fieldSlotAsset._label);
+            editor.call('attributes:reference:attach', 'sound:slot:asset', fieldSlotAsset._label);
 
             // range
             var panelRange = editor.call('attributes:addField', {
@@ -308,7 +311,7 @@ editor.once('load', function() {
             fieldSlotStartTime.flexGrow = 1;
 
             // reference
-            editor.call('attributes:reference:soundslot:startTime:attach', fieldSlotStartTime);
+            editor.call('attributes:reference:attach', 'sound:slot:startTime', fieldSlotStartTime);
 
             // duration
             var fieldSlotDuration = editor.call('attributes:addField', {
@@ -325,7 +328,7 @@ editor.once('load', function() {
             fieldSlotDuration.flexGrow = 1;
 
             // reference
-            editor.call('attributes:reference:soundslot:duration:attach', fieldSlotDuration);
+            editor.call('attributes:reference:attach', 'sound:slot:duration', fieldSlotDuration);
 
             // playback
             var panelPlayback = editor.call('attributes:addField', {
@@ -348,7 +351,7 @@ editor.once('load', function() {
             panelPlayback.append(label);
 
             // reference
-            editor.call('attributes:reference:soundslot:autoPlay:attach', label);
+            editor.call('attributes:reference:attach', 'sound:slot:autoPlay', label);
 
             var fieldSlotOverlap = editor.call('attributes:addField', {
                 panel: panelPlayback,
@@ -362,7 +365,7 @@ editor.once('load', function() {
             panelPlayback.append(label);
 
             // reference
-            editor.call('attributes:reference:soundslot:overlap:attach', label);
+            editor.call('attributes:reference:attach', 'sound:slot:overlap', label);
 
             var fieldSlotLoop = editor.call('attributes:addField', {
                 panel: panelPlayback,
@@ -376,7 +379,7 @@ editor.once('load', function() {
             panelPlayback.append(label);
 
             // reference
-            editor.call('attributes:reference:soundslot:loop:attach', label);
+            editor.call('attributes:reference:attach', 'sound:slot:loop', label);
 
             // slot volume
             var fieldSlotVolume = editor.call('attributes:addField', {
@@ -392,7 +395,7 @@ editor.once('load', function() {
             });
 
             // reference
-            editor.call('attributes:reference:soundslot:volume:attach', fieldSlotVolume.parent.innerElement.firstChild.ui);
+            editor.call('attributes:reference:attach', 'sound:slot:volume', fieldSlotVolume.parent.innerElement.firstChild.ui);
 
             // volume slider
             var fieldSlotVolumeSlider = editor.call('attributes:addField', {
@@ -422,7 +425,7 @@ editor.once('load', function() {
             });
 
             // reference
-            editor.call('attributes:reference:soundslot:pitch:attach', fieldSlotPitch.parent.innerElement.firstChild.ui);
+            editor.call('attributes:reference:attach', 'sound:slot:pitch', fieldSlotPitch.parent.innerElement.firstChild.ui);
 
             if (focus) {
                 fieldSlotName.elementInput.focus();
@@ -434,7 +437,6 @@ editor.once('load', function() {
         var btnCreateSlot = new ui.Button({
             text: 'Add Slot'
         });
-
         btnCreateSlot.class.add('add-sound-slot');
         btnCreateSlot.hidden = entities.length > 1;
         panel.append(btnCreateSlot);

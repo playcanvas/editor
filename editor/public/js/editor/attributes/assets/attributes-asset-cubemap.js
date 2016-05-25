@@ -17,7 +17,7 @@ editor.once('load', function() {
         });
         paramsPanel.class.add('component');
         // reference
-        editor.call('attributes:reference:asset:cubemap:asset:attach', paramsPanel, paramsPanel.headerElement);
+        editor.call('attributes:reference:attach', 'asset:cubemap:asset', paramsPanel, paramsPanel.headerElement);
 
 
 
@@ -33,7 +33,7 @@ editor.once('load', function() {
             }
         });
         // reference
-        editor.call('attributes:reference:asset:texture:filtering:attach', fieldFiltering.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:texture:filtering', fieldFiltering.parent.innerElement.firstChild.ui);
 
         var isPrefiltered = false;
         for(var i = 0; i < assets.length; i++) {
@@ -164,7 +164,7 @@ editor.once('load', function() {
             path: 'data.anisotropy'
         });
         // reference
-        editor.call('attributes:reference:asset:cubemap:anisotropy:attach', fieldAnisotropy.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:cubemap:anisotropy', fieldAnisotropy.parent.innerElement.firstChild.ui);
 
 
         if (assets.length === 1) {
@@ -174,7 +174,7 @@ editor.once('load', function() {
             });
             previewPanel.class.add('cubemap-viewport', 'component');
             // reference
-            editor.call('attributes:reference:asset:cubemap:slots:attach', previewPanel, previewPanel.headerElement);
+            editor.call('attributes:reference:attach', 'asset:cubemap:slots', previewPanel, previewPanel.headerElement);
 
 
             // error
@@ -535,7 +535,7 @@ editor.once('load', function() {
             });
             prefilterPanel.class.add('component');
             // reference
-            editor.call('attributes:reference:asset:cubemap:prefilter:attach', prefilterPanel, prefilterPanel.headerElement);
+            editor.call('attributes:reference:attach', 'asset:cubemap:prefilter', prefilterPanel, prefilterPanel.headerElement);
 
             // prefilter button
             var prefilterBtn = new ui.Button({

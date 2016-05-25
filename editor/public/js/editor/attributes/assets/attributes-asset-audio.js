@@ -12,7 +12,7 @@ editor.once('load', function() {
         });
         panel.class.add('component');
         // reference
-        editor.call('attributes:reference:asset:audio:asset:attach', panel, panel.headerElement);
+        editor.call('attributes:reference:attach', 'asset:audio:asset', panel, panel.headerElement);
 
 
         // duration

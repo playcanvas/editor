@@ -18,7 +18,7 @@ editor.once('load', function() {
         });
         paramsPanel.class.add('component');
         // reference
-        editor.call('attributes:reference:asset:texture:asset:attach', paramsPanel, paramsPanel.headerElement);
+        editor.call('attributes:reference:attach', 'asset:texture:asset', paramsPanel, paramsPanel.headerElement);
 
         // width
         var fieldWidth = editor.call('attributes:addField', {
@@ -29,7 +29,7 @@ editor.once('load', function() {
             placeholder: 'pixels'
         });
         // reference
-        editor.call('attributes:reference:asset:texture:width:attach', fieldWidth.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:texture:width', fieldWidth.parent.innerElement.firstChild.ui);
 
         // height
         var fieldHeight = editor.call('attributes:addField', {
@@ -40,7 +40,7 @@ editor.once('load', function() {
             placeholder: 'pixels'
         });
         // reference
-        editor.call('attributes:reference:asset:texture:height:attach', fieldHeight.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:texture:height', fieldHeight.parent.innerElement.firstChild.ui);
 
         // depth
         var fieldDepth = editor.call('attributes:addField', {
@@ -57,7 +57,7 @@ editor.once('load', function() {
         checkDepthField();
         fieldDepth.on('change', checkDepthField);
         // reference
-        editor.call('attributes:reference:asset:texture:depth:attach', fieldDepth.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:texture:depth', fieldDepth.parent.innerElement.firstChild.ui);
 
         // rgbm
         var fieldRgbm = editor.call('attributes:addField', {
@@ -68,7 +68,7 @@ editor.once('load', function() {
             type: 'checkbox'
         });
         // reference
-        editor.call('attributes:reference:asset:texture:rgbm:attach', fieldRgbm.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:texture:rgbm', fieldRgbm.parent.innerElement.firstChild.ui);
 
         // alpha
         var fieldAlpha = editor.call('attributes:addField', {
@@ -84,7 +84,7 @@ editor.once('load', function() {
         checkAlphaField();
         fieldAlpha.on('change', checkAlphaField);
         // reference
-        editor.call('attributes:reference:asset:texture:alpha:attach', fieldAlpha.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:texture:alpha', fieldAlpha.parent.innerElement.firstChild.ui);
 
         // interlaced
         var fieldInterlaced = editor.call('attributes:addField', {
@@ -100,7 +100,7 @@ editor.once('load', function() {
         checkInterlacedField();
         fieldInterlaced.on('change', checkInterlacedField);
         // reference
-        editor.call('attributes:reference:asset:texture:interlaced:attach', fieldInterlaced.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:texture:interlaced', fieldInterlaced.parent.innerElement.firstChild.ui);
 
 
         // filtering
@@ -115,7 +115,7 @@ editor.once('load', function() {
             }
         });
         // reference
-        editor.call('attributes:reference:asset:texture:filtering:attach', fieldFiltering.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:texture:filtering', fieldFiltering.parent.innerElement.firstChild.ui);
 
         var changingFiltering = false;
 
@@ -238,7 +238,7 @@ editor.once('load', function() {
             path: 'data.anisotropy'
         });
         // reference
-        editor.call('attributes:reference:asset:texture:anisotropy:attach', fieldAnisotropy.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:texture:anisotropy', fieldAnisotropy.parent.innerElement.firstChild.ui);
 
 
 
@@ -257,7 +257,7 @@ editor.once('load', function() {
             path: 'data.addressu'
         });
         // reference
-        editor.call('attributes:reference:asset:texture:addressU:attach', fieldAddressU.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:texture:addressU', fieldAddressU.parent.innerElement.firstChild.ui);
 
 
         // addressv
@@ -275,7 +275,7 @@ editor.once('load', function() {
             path: 'data.addressv'
         });
         // reference
-        editor.call('attributes:reference:asset:texture:addressV:attach', fieldAddressV.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:texture:addressV', fieldAddressV.parent.innerElement.firstChild.ui);
 
 
 

@@ -1599,7 +1599,7 @@ editor.once('load', function() {
         fieldAssets.class.add('assets');
 
         // reference assets
-        editor.call('attributes:reference:' + assetType + ':assets:attach', fieldAssets.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', assetType + ':assets', fieldAssets.parent.innerElement.firstChild.ui);
 
         // assets list
         var itemAdd = new ui.ListItem({

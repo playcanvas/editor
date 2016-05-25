@@ -22,6 +22,8 @@ editor.once('load', function() {
             link: entities,
             path: 'components.animation.assets'
         });
+        // reference
+        editor.call('attributes:reference:attach', 'animation:assets', fieldAssets.parent.innerElement.firstChild.ui);
 
         // animation.speed
         var fieldSpeed = editor.call('attributes:addField', {
@@ -33,8 +35,8 @@ editor.once('load', function() {
             link: entities,
             path: 'components.animation.speed'
         });
-        // reference speed
-        editor.call('attributes:reference:animation:speed:attach', fieldSpeed.parent.innerElement.firstChild.ui);
+        // reference
+        editor.call('attributes:reference:attach', 'animation:speed', fieldSpeed.parent.innerElement.firstChild.ui);
 
         // animation.playback
         var panelPlayback = new ui.Panel();
@@ -58,7 +60,7 @@ editor.once('load', function() {
         label.style.paddingRight = '12px';
         panelPlayback.append(label);
         // reference activate
-        editor.call('attributes:reference:animation:activate:attach', label);
+        editor.call('attributes:reference:attach', 'animation:activate', label);
 
         // animation.loop
         var fieldLoop = editor.call('attributes:addField', {
@@ -72,6 +74,6 @@ editor.once('load', function() {
         label.class.add('label-infield');
         panelPlayback.append(label);
         // reference loop
-        editor.call('attributes:reference:animation:loop:attach', label);
+        editor.call('attributes:reference:attach', 'animation:loop', label);
     });
 });

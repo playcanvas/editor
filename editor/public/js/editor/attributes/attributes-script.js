@@ -23,7 +23,7 @@ editor.once('load', function() {
             path: 'filename'
         });
         // reference
-        editor.call('attributes:reference:asset:script:filename:attach', fieldFilename.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:script:filename', fieldFilename.parent.innerElement.firstChild.ui);
 
         // edit
         var btnEdit = new ui.Button();

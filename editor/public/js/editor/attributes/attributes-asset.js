@@ -84,7 +84,7 @@ editor.once('load', function() {
                     path: 'tags'
                 });
                 // reference
-                editor.call('attributes:reference:asset:tags:attach', fieldTags.parent.innerElement.firstChild.ui);
+                editor.call('attributes:reference:attach', 'asset:tags', fieldTags.parent.parent.innerElement.firstChild.ui);
             }
 
             if (! scriptSelected) {
@@ -95,7 +95,7 @@ editor.once('load', function() {
                     value: sourceRuntimeOptions[source]
                 });
                 // reference
-                editor.call('attributes:reference:asset:runtime:attach', fieldRuntime.parent.innerElement.firstChild.ui);
+                editor.call('attributes:reference:attach', 'asset:runtime', fieldRuntime.parent.innerElement.firstChild.ui);
             }
 
             // type
@@ -105,7 +105,7 @@ editor.once('load', function() {
                 value: type ? type : 'various'
             });
             // reference
-            editor.call('attributes:reference:asset:type:attach', fieldType.parent.innerElement.firstChild.ui);
+            editor.call('attributes:reference:attach', 'asset:type', fieldType.parent.innerElement.firstChild.ui);
             if (type)
                 editor.call('attributes:reference:asset:' + type + ':asset:attach', fieldType);
 
@@ -119,7 +119,7 @@ editor.once('load', function() {
                     path: 'preload'
                 });
                 fieldPreload.parent.class.add('preload');
-                editor.call('attributes:reference:asset:preload:attach', fieldPreload.parent.innerElement.firstChild.ui);
+                editor.call('attributes:reference:attach', 'asset:preload', fieldPreload.parent.innerElement.firstChild.ui);
             }
 
             if (! scriptSelected) {
@@ -153,7 +153,7 @@ editor.once('load', function() {
                 });
 
                 // reference
-                editor.call('attributes:reference:asset:size:attach', fieldSize.parent.innerElement.firstChild.ui);
+                editor.call('attributes:reference:attach', 'asset:size', fieldSize.parent.innerElement.firstChild.ui);
             }
 
 
@@ -164,6 +164,9 @@ editor.once('load', function() {
                     name: 'Source',
                     value: 'none'
                 });
+                // reference
+                editor.call('attributes:reference:attach', 'asset:source', fieldSource.parent.innerElement.firstChild.ui);
+
                 var sourceId = assets[0].get('source_asset_id');
                 for(var i = 1; i < assets.length; i++) {
                     if (sourceId !== assets[i].get('source_asset_id')) {
@@ -209,7 +212,7 @@ editor.once('load', function() {
                     path: 'filename'
                 });
                 // reference
-                editor.call('attributes:reference:asset:script:filename:attach', fieldFilename.parent.innerElement.firstChild.ui);
+                editor.call('attributes:reference:attach', 'asset:script:filename', fieldFilename.parent.innerElement.firstChild.ui);
             } else {
                 // id
                 var fieldId = editor.call('attributes:addField', {
@@ -219,7 +222,7 @@ editor.once('load', function() {
                     path: 'id'
                 });
                 // reference
-                editor.call('attributes:reference:asset:id:attach', fieldId.parent.innerElement.firstChild.ui);
+                editor.call('attributes:reference:attach', 'asset:id', fieldId.parent.innerElement.firstChild.ui);
 
                 // name
                 var fieldName = editor.call('attributes:addField', {
@@ -230,7 +233,7 @@ editor.once('load', function() {
                     path: 'name'
                 });
                 // reference
-                editor.call('attributes:reference:asset:name:attach', fieldName.parent.innerElement.firstChild.ui);
+                editor.call('attributes:reference:attach', 'asset:name', fieldName.parent.innerElement.firstChild.ui);
 
                 if (! assets[0].get('source') && assets[0].get('type') !== 'folder') {
                     // tags
@@ -243,7 +246,7 @@ editor.once('load', function() {
                         path: 'tags'
                     });
                     // reference
-                    editor.call('attributes:reference:asset:tags:attach', fieldTags.parent.innerElement.firstChild.ui);
+                    editor.call('attributes:reference:attach', 'asset:tags', fieldTags.parent.parent.innerElement.firstChild.ui);
                 }
 
                 // runtime
@@ -257,7 +260,7 @@ editor.once('load', function() {
                     value: runtime
                 });
                 // reference
-                editor.call('attributes:reference:asset:runtime:attach', fieldRuntime.parent.innerElement.firstChild.ui);
+                editor.call('attributes:reference:attach', 'asset:runtime', fieldRuntime.parent.innerElement.firstChild.ui);
             }
 
 
@@ -268,7 +271,7 @@ editor.once('load', function() {
                 value: type
             });
             // reference
-            editor.call('attributes:reference:asset:type:attach', fieldType.parent.innerElement.firstChild.ui);
+            editor.call('attributes:reference:attach', 'asset:type', fieldType.parent.innerElement.firstChild.ui);
             // reference type
             if (! assets[0].get('source'))
                 editor.call('attributes:reference:asset:' + assets[0].get('type') + ':asset:attach', fieldType);
@@ -284,7 +287,7 @@ editor.once('load', function() {
                     path: 'preload'
                 });
                 fieldPreload.parent.class.add('preload');
-                editor.call('attributes:reference:asset:preload:attach', fieldPreload.parent.innerElement.firstChild.ui);
+                editor.call('attributes:reference:attach', 'asset:preload', fieldPreload.parent.innerElement.firstChild.ui);
             }
 
             // size
@@ -309,7 +312,7 @@ editor.once('load', function() {
                 });
 
                 // reference
-                editor.call('attributes:reference:asset:size:attach', fieldSize.parent.innerElement.firstChild.ui);
+                editor.call('attributes:reference:attach', 'asset:size', fieldSize.parent.innerElement.firstChild.ui);
             }
 
             if (! (legacyScripts && assets[0].get('type') === 'script') && ! assets[0].get('source')) {
@@ -319,6 +322,9 @@ editor.once('load', function() {
                     name: 'Source',
                     value: 'none'
                 });
+                // reference
+                editor.call('attributes:reference:attach', 'asset:source', fieldSource.parent.innerElement.firstChild.ui);
+
                 var sourceId = assets[0].get('source_asset_id');
                 fieldSource.on('click', function() {
                     if (! sourceId)

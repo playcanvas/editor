@@ -59,7 +59,7 @@ editor.once('load', function() {
             name: 'Enable',
             type: 'checkbox'
         });
-        editor.call('attributes:reference:settings:project:physics:attach', fieldPhysics.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:project:physics', fieldPhysics.parent.innerElement.firstChild.ui);
 
         var changing = false;
         fieldPhysics.value = projectSettings.get('libraries').indexOf('physics-engine-3d') !== -1;
@@ -100,7 +100,7 @@ editor.once('load', function() {
             path: 'physics.gravity'
         });
         // reference
-        editor.call('attributes:reference:settings:gravity:attach', fieldGravity[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:gravity', fieldGravity[0].parent.innerElement.firstChild.ui);
 
 
         // environment
@@ -123,7 +123,7 @@ editor.once('load', function() {
             path: 'render.global_ambient'
         });
         // reference
-        editor.call('attributes:reference:settings:ambientColor:attach', fieldGlobalAmbient.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:ambientColor', fieldGlobalAmbient.parent.innerElement.firstChild.ui);
 
 
         // skyboxHover
@@ -170,7 +170,7 @@ editor.once('load', function() {
             }
         });
         // reference
-        editor.call('attributes:reference:settings:skybox:attach', fieldSkybox._label);
+        editor.call('attributes:reference:attach', 'settings:skybox', fieldSkybox._label);
 
 
         // skyboxIntensity
@@ -187,7 +187,7 @@ editor.once('load', function() {
         });
         fieldSkyboxIntensity.style.width = '32px';
         // reference
-        editor.call('attributes:reference:settings:skyboxIntensity:attach', fieldSkyboxIntensity.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:skyboxIntensity', fieldSkyboxIntensity.parent.innerElement.firstChild.ui);
 
         // skyboxIntensity slider
         var fieldExposureSlider = new ui.Slider({
@@ -216,7 +216,7 @@ editor.once('load', function() {
             path: 'render.skyboxMip'
         });
         // reference
-        editor.call('attributes:reference:settings:skyboxMip:attach', fieldSkyboxMip.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:skyboxMip', fieldSkyboxMip.parent.innerElement.firstChild.ui);
 
 
         // divider
@@ -238,7 +238,7 @@ editor.once('load', function() {
             path: 'render.tonemapping'
         });
         // reference
-        editor.call('attributes:reference:settings:toneMapping:attach', fieldTonemapping.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:toneMapping', fieldTonemapping.parent.innerElement.firstChild.ui);
 
 
         // exposure
@@ -255,7 +255,7 @@ editor.once('load', function() {
         });
         fieldExposure.style.width = '32px';
         // reference
-        editor.call('attributes:reference:settings:exposure:attach', fieldExposure.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:exposure', fieldExposure.parent.innerElement.firstChild.ui);
 
 
         // exposure slider
@@ -283,7 +283,7 @@ editor.once('load', function() {
             path: 'render.gamma_correction'
         });
         // reference
-        editor.call('attributes:reference:settings:gammaCorrection:attach', fieldGammaCorrection.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:gammaCorrection', fieldGammaCorrection.parent.innerElement.firstChild.ui);
 
 
         // divider
@@ -307,7 +307,7 @@ editor.once('load', function() {
             path: 'render.fog'
         });
         // reference
-        editor.call('attributes:reference:settings:fog:attach', fieldFogType.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:fog', fieldFogType.parent.innerElement.firstChild.ui);
 
 
         // fog density
@@ -324,7 +324,7 @@ editor.once('load', function() {
             return /^exp/.test(sceneSettings.get('render.fog'));
         });
         // reference
-        editor.call('attributes:reference:settings:fogDensity:attach', fieldFogDensity.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:fogDensity', fieldFogDensity.parent.innerElement.firstChild.ui);
 
 
         // fog distance near
@@ -344,7 +344,7 @@ editor.once('load', function() {
             return sceneSettings.get('render.fog') === 'linear';
         });
         // reference
-        editor.call('attributes:reference:settings:fogDistance:attach', fieldFogDistance.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:fogDistance', fieldFogDistance.parent.innerElement.firstChild.ui);
 
 
         // fog dinstance far
@@ -370,7 +370,7 @@ editor.once('load', function() {
             return sceneSettings.get('render.fog') !== 'none';
         });
         // reference
-        editor.call('attributes:reference:settings:fogColor:attach', fieldFogColor.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:fogColor', fieldFogColor.parent.innerElement.firstChild.ui);
 
         // divider
         var divider = document.createElement('div');
@@ -389,7 +389,7 @@ editor.once('load', function() {
             min: 1
         });
 
-        editor.call('attributes:reference:settings:project:width:attach', fieldWidth);
+        editor.call('attributes:reference:attach', 'settings:project:width', fieldWidth);
 
         var fieldHeight = editor.call('attributes:addField', {
             panel: fieldWidth.parent,
@@ -400,7 +400,7 @@ editor.once('load', function() {
             precision: 0,
             min: 1
         });
-        editor.call('attributes:reference:settings:project:height:attach', fieldHeight);
+        editor.call('attributes:reference:attach', 'settings:project:height', fieldHeight);
 
         var fieldResolutionMode = editor.call('attributes:addField', {
             panel: fieldWidth.parent,
@@ -412,7 +412,7 @@ editor.once('load', function() {
             link: projectSettings,
             path: 'resolution_mode'
         });
-        editor.call('attributes:reference:settings:project:resolutionMode:attach', fieldResolutionMode);
+        editor.call('attributes:reference:attach', 'settings:project:resolutionMode', fieldResolutionMode);
 
         var fieldFillMode = editor.call('attributes:addField', {
             parent: panelRendering,
@@ -426,7 +426,7 @@ editor.once('load', function() {
             link: projectSettings,
             path: 'fill_mode'
         });
-        editor.call('attributes:reference:settings:project:fillMode:attach', fieldFillMode.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:project:fillMode', fieldFillMode.parent.innerElement.firstChild.ui);
 
         var fieldPixelRatio = editor.call('attributes:addField', {
             parent: panelRendering,
@@ -436,7 +436,7 @@ editor.once('load', function() {
             path: 'use_device_pixel_ratio'
         });
         fieldPixelRatio.parent.innerElement.firstChild.style.width = 'auto';
-        editor.call('attributes:reference:settings:project:pixelRatio:attach', fieldPixelRatio.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:project:pixelRatio', fieldPixelRatio.parent.innerElement.firstChild.ui);
 
 
         var fieldTransparentCanvas = editor.call('attributes:addField', {
@@ -447,7 +447,7 @@ editor.once('load', function() {
             path: 'transparent_canvas'
         });
         fieldTransparentCanvas.parent.innerElement.firstChild.style.width = 'auto';
-        editor.call('attributes:reference:settings:project:transparentCanvas:attach', fieldTransparentCanvas.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:project:transparentCanvas', fieldTransparentCanvas.parent.innerElement.firstChild.ui);
 
         // value not migrated so show it as 'true' by default
         if (! projectSettings.has('transparent_canvas')) {
@@ -466,7 +466,7 @@ editor.once('load', function() {
             path: 'preserve_drawing_buffer'
         });
         fieldPreserveDrawingBuffer.parent.innerElement.firstChild.style.width = 'auto';
-        editor.call('attributes:reference:settings:project:preserveDrawingBuffer:attach', fieldPreserveDrawingBuffer.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:project:preserveDrawingBuffer', fieldPreserveDrawingBuffer.parent.innerElement.firstChild.ui);
 
         filter();
 
@@ -497,7 +497,7 @@ editor.once('load', function() {
                 path: 'use_legacy_audio'
             });
             fieldLegacyAudio.parent.innerElement.firstChild.style.width = 'auto';
-            editor.call('attributes:reference:settings:project:useLegacyAudio:attach', fieldLegacyAudio.parent.innerElement.firstChild.ui);
+            editor.call('attributes:reference:attach', 'settings:project:useLegacyAudio', fieldLegacyAudio.parent.innerElement.firstChild.ui);
         }
 
 
@@ -522,7 +522,7 @@ editor.once('load', function() {
             path: 'render.lightmapSizeMultiplier'
         });
         // reference
-        editor.call('attributes:reference:settings:lightmapSizeMultiplier:attach', fieldLightmapSizeMultiplier.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:lightmapSizeMultiplier', fieldLightmapSizeMultiplier.parent.innerElement.firstChild.ui);
 
         // lightmapMaxResolution
         var fieldLightmapMaxResolution = editor.call('attributes:addField', {
@@ -534,7 +534,7 @@ editor.once('load', function() {
             path: 'render.lightmapMaxResolution'
         });
         // reference
-        editor.call('attributes:reference:settings:lightmapMaxResolution:attach', fieldLightmapMaxResolution.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:lightmapMaxResolution', fieldLightmapMaxResolution.parent.innerElement.firstChild.ui);
 
 
 
@@ -688,7 +688,7 @@ editor.once('load', function() {
                 });
 
                 // reference
-                editor.call('attributes:reference:settings:loadingScreenScript:attach', fieldScriptPicker.parent.innerElement.firstChild.ui);
+                editor.call('attributes:reference:attach', 'settings:loadingScreenScript', fieldScriptPicker.parent.innerElement.firstChild.ui);
 
                 // drag drop
                 var dropRef = editor.call('drop:target', {

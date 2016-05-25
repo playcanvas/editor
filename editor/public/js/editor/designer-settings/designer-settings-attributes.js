@@ -52,7 +52,7 @@ editor.once('load', function() {
             evtNameChange.unbind();
         });
         // reference
-        editor.call('attributes:reference:settings:name:attach', fieldName.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:name', fieldName.parent.innerElement.firstChild.ui);
 
 
         // editor
@@ -65,7 +65,7 @@ editor.once('load', function() {
         panel.on('unfold', function() { foldStates['editor'] = false; });
         panel.class.add('component');
         // reference
-        editor.call('attributes:reference:settings:designer:attach', panel, panel.headerElement);
+        editor.call('attributes:reference:attach', 'settings:designer', panel, panel.headerElement);
 
         // grid divisions
         var fieldGrid = editor.call('attributes:addField', {
@@ -81,7 +81,7 @@ editor.once('load', function() {
         });
         fieldGrid.style.width = '32px';
         // reference
-        editor.call('attributes:reference:settings:grid:attach', fieldGrid.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:grid', fieldGrid.parent.innerElement.firstChild.ui);
 
 
         // grid divisions size
@@ -110,7 +110,7 @@ editor.once('load', function() {
             path: 'snap_increment'
         });
         // reference
-        editor.call('attributes:reference:settings:snap:attach', fieldSnap.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:snap', fieldSnap.parent.innerElement.firstChild.ui);
 
 
         // camera near clip
@@ -127,7 +127,7 @@ editor.once('load', function() {
         });
         fieldClip.style.width = '32px';
         // reference
-        editor.call('attributes:reference:settings:cameraClip:attach', fieldClip.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:cameraClip', fieldClip.parent.innerElement.firstChild.ui);
 
 
         // camera far clip
@@ -152,7 +152,7 @@ editor.once('load', function() {
             path: 'camera_clear_color'
         });
         // reference
-        editor.call('attributes:reference:settings:clearColor:attach', fieldClearColor.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:clearColor', fieldClearColor.parent.innerElement.firstChild.ui);
 
 
         // icons size
@@ -167,7 +167,7 @@ editor.once('load', function() {
             path: 'icons_size'
         });
         // reference
-        editor.call('attributes:reference:settings:iconsSize:attach', fieldIconsSize.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:iconsSize', fieldIconsSize.parent.innerElement.firstChild.ui);
 
 
         // local server
@@ -195,7 +195,7 @@ editor.once('load', function() {
         });
 
         // reference
-        editor.call('attributes:reference:settings:localServer:attach', fieldLocalServer.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:localServer', fieldLocalServer.parent.innerElement.firstChild.ui);
 
     });
 });
