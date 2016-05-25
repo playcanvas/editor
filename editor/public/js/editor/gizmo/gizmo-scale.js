@@ -345,6 +345,7 @@ editor.once('load', function() {
 
             editor.emit('gizmo:scale:end');
             editor.call('gizmo:scale:visible', true);
+            editor.call('viewport:pick:state', true);
         });
 
         editor.on('viewport:mouse:move', onTapMove);

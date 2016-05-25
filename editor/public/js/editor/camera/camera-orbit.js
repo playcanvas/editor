@@ -5,6 +5,7 @@ editor.once('viewport:load', function() {
     // Zooming / Flying will not move virtual point forward/backwards
 
     var orbiting = false;
+    var orbitCamera;
     var pivot = new pc.Vec3();
     var distance = 1;
     var sensivity = 0.2;
@@ -66,7 +67,7 @@ editor.once('viewport:load', function() {
     });
 
     editor.on('viewport:tap:start', function(tap, evt) {
-        if (tap.button !== 0 || evt.shiftKey)
+        if (tap.button !== 0 || evt.shiftKey || orbiting)
             return;
 
         editor.call('camera:focus:stop');
@@ -75,6 +76,10 @@ editor.once('viewport:load', function() {
 
         if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
             orbiting = true;
+
+            // disable history
+            orbitCamera = camera;
+            editor.call('camera:history:start', orbitCamera);
 
             // pitch
             var x = Math.cos(Math.asin(camera.forward.y));
@@ -92,10 +97,11 @@ editor.once('viewport:load', function() {
     });
 
     editor.on('viewport:tap:end', function(tap) {
-        if (tap.button !== 0)
+        if (tap.button !== 0 || ! orbiting)
             return;
 
         orbiting = false;
+        editor.call('camera:history:stop', orbitCamera);
     });
 
     editor.on('viewport:tap:move', function(tap) {
@@ -109,7 +115,9 @@ editor.once('viewport:load', function() {
     });
 
     editor.on('camera:toggle', function(state) {
-        if (! state)
+        if (! state && orbiting) {
             orbiting = false;
+            editor.call('camera:history:stop', orbitCamera);
+        }
     });
 });

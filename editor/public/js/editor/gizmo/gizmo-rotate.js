@@ -343,6 +343,7 @@ editor.once('load', function() {
 
             editor.emit('gizmo:rotate:end');
             editor.call('gizmo:rotate:visible', true);
+            editor.call('viewport:pick:state', true);
         });
 
         editor.on('viewport:mouse:move', onTapMove);

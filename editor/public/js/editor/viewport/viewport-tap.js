@@ -39,6 +39,9 @@ editor.once('load', function() {
     // var tapMouse = new Tap({ clientX: 0, clientY: 0 }, { left: 0, top: 0 });
     var inViewport = false;
 
+    editor.method('viewport:inViewport', function() {
+        return inViewport;
+    });
 
     var evtMouseMove = function(evt) {
         var rect = canvas.element.getBoundingClientRect();

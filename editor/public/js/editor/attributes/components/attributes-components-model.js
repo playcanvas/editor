@@ -36,7 +36,7 @@ editor.once('load', function() {
         });
         fieldType.on('change', function(value) {
             fieldAsset.parent.hidden = value !== 'asset';
-            fieldMaterial.parent.hidden = value === 'asset' || value === '';
+            fieldMaterial.parent.hidden = value === 'asset';
             toggleMaterials();
         });
         // reference
@@ -153,7 +153,7 @@ editor.once('load', function() {
             path: 'components.model.materialAsset'
         });
         fieldMaterial.class.add('material-asset');
-        fieldMaterial.parent.hidden = fieldType.value === 'asset' || fieldType.value === '';
+        fieldMaterial.parent.hidden = fieldType.value === 'asset';
         // reference
         editor.call('attributes:reference:model:materialAsset:attach', fieldMaterial._label);
 

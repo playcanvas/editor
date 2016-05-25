@@ -1,6 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
+    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
     var index = { };
     var keys = {
         'cubemap': {
@@ -157,39 +158,164 @@ editor.once('load', function() {
                 var parts = path.split('.');
                 if (parts.length !== 4)
                     return;
+            } else if (path.startsWith('components.sound.slots')) {
+                var parts = path.split('.');
+                if (parts.length !== 5 || parts[4] !== 'asset')
+                    return;
+            } else if (! legacyScripts && path.startsWith('components.script.scripts')) {
+                var parts = path.split('.');
+                if (parts.length === 6 && parts[4] === 'attributes') {
+                    var primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
+                    if (primaryScript) {
+                        var type = primaryScript.get('data.scripts.' + parts[3] + '.attributes.' + parts[5] + '.type');
+                        if (type !== 'asset')
+                            return;
+                    } else {
+                        return;
+                    }
+                } else if (parts.length === 4) {
+                    var primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
+                    if (primaryScript) {
+                        updateAsset(this.get('resource_id'), 'entity', null, primaryScript.get('id'));
+                        return;
+                    } else {
+                        return;
+                    }
+                } else {
+                    return;
+                }
             } else if (! keys['entity'][path]) {
                 return;
             }
 
-            updateAsset(this.get('resource_id'), 'entity', valueOld, value);
+            if (value instanceof Array) {
+                for(var i = 0; i < value.length; i++) {
+                    updateAsset(this.get('resource_id'), 'entity', valueOld && valueOld[i] || null, value[i]);
+                }
+            } else {
+                updateAsset(this.get('resource_id'), 'entity', valueOld, value);
+            }
         },
         'entity-unset': function(path, value) {
             if (path.startsWith('components.model.mapping.')) {
                 var parts = path.split('.');
                 if (parts.length !== 4)
                     return;
+            } else if (path.startsWith('components.sound.slots')) {
+                var parts = path.split('.');
+                if (parts.length !== 5 || parts[4] !== 'asset')
+                    return;
+            } else if (! legacyScripts && path.startsWith('components.script.scripts')) {
+                var parts = path.split('.');
+                if (parts.length === 6 && parts[4] === 'attributes') {
+                    var primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
+                    if (primaryScript) {
+                        var type = primaryScript.get('data.scripts.' + parts[3] + '.attributes.' + parts[5] + '.type');
+                        if (type !== 'asset')
+                            return;
+                    } else {
+                        return;
+                    }
+                } else if (parts.length === 5) {
+                    var primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
+                    if (primaryScript) {
+                        var type = primaryScript.get('data.scripts.' + parts[3] + '.attributes.' + parts[5] + '.type');
+                        if (type === 'asset') {
+                            if (value.attributes[parts[5]] instanceof Array) {
+                                for(var i = 0; i < value.attributes[parts[5]].length; i++) {
+                                    updateAsset(this.get('resource_id'), 'entity', value.attributes[parts[5]][i], null);
+                                }
+                            } else {
+                                updateAsset(this.get('resource_id'), 'entity', value.attributes[parts[5]], null);
+                            }
+                        }
+                    } else {
+                        return;
+                    }
+                } else if (parts.length === 4) {
+                    var primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
+                    if (primaryScript) {
+                        updateAsset(this.get('resource_id'), 'entity', primaryScript.get('id'), null);
+
+                        for(var attrName in value.attributes) {
+                            var type = primaryScript.get('data.scripts.' + parts[3] + '.attributes.' + attrName + '.type');
+                            if (type === 'asset') {
+                                if (value.attributes[attrName] instanceof Array) {
+                                    for(var i = 0; i < value.attributes[attrName].length; i++) {
+                                        updateAsset(this.get('resource_id'), 'entity', value.attributes[attrName][i], null);
+                                    }
+                                } else {
+                                    updateAsset(this.get('resource_id'), 'entity', value.attributes[attrName], null);
+                                }
+                            }
+                        }
+                    }
+                    return;
+                } else {
+                    return;
+                }
             } else if (! keys['entity'][path]) {
                 return;
             }
 
-            updateAsset(this.get('resource_id'), 'entity', value, null);
+            if (value instanceof Array) {
+                for(var i = 0; i < value.length; i++) {
+                    updateAsset(this.get('resource_id'), 'entity', value[i], null);
+                }
+            } else {
+                updateAsset(this.get('resource_id'), 'entity', value, null);
+            }
         },
         'entity-insert': function(path, value) {
-            if (path.startsWith('components.script.scripts.')) {
+            if (legacyScripts && path.startsWith('components.script.scripts.')) {
                 var parts = path.split('.');
                 if (parts.length !== 7 || parts[4] !== 'attributes' || parts[6] !== 'value' || this.get(parts.slice(0, 6).join('.') + '.type') !== 'asset')
                     return;
+            } else if (! legacyScripts && path.startsWith('components.script.scripts')) {
+                var parts = path.split('.');
+                if (parts.length === 6 && parts[4] === 'attributes') {
+                    var primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
+                    if (primaryScript) {
+                        var type = primaryScript.get('data.scripts.' + parts[3] + '.attributes.' + parts[5] + '.type');
+                        if (type !== 'asset')
+                            return;
+                    } else {
+                        return;
+                    }
+                } else {
+                    return;
+                }
             } else if (! keys['entity-lists'][path]) {
                 return;
             }
 
-            updateAsset(this.get('resource_id'), 'entity', null, value);
+            if (value instanceof Array) {
+                for(var i = 0; i < value.length; i++) {
+                    updateAsset(this.get('resource_id'), 'entity', null, value[i]);
+                }
+            } else {
+                updateAsset(this.get('resource_id'), 'entity', null, value);
+            }
         },
         'entity-remove': function(path, value) {
-            if (path.startsWith('components.script.scripts.')) {
+            if (legacyScripts && path.startsWith('components.script.scripts.')) {
                 var parts = path.split('.');
                 if (parts.length !== 7 || parts[4] !== 'attributes' || parts[6] !== 'value' || this.get(parts.slice(0, 6).join('.') + '.type') !== 'asset')
                     return;
+            } else if (! legacyScripts && path.startsWith('components.script.scripts')) {
+                var parts = path.split('.');
+                if (parts.length === 6 && parts[4] === 'attributes') {
+                    var primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
+                    if (primaryScript) {
+                        var type = primaryScript.get('data.scripts.' + parts[3] + '.attributes.' + parts[5] + '.type');
+                        if (type !== 'asset')
+                            return;
+                    } else {
+                        return;
+                    }
+                } else {
+                    return;
+                }
             } else if (! keys['entity-lists'][path]) {
                 return;
             }
@@ -197,6 +323,84 @@ editor.once('load', function() {
             updateAsset(this.get('resource_id'), 'entity', value, null);
         }
     };
+
+    editor.on('assets:scripts:primary:set', function(asset, script) {
+        var entities = editor.call('entities:list:byScript', script);
+        if (! entities || Object.keys(entities).length === 0)
+            return;
+
+        var itemsOrder = asset.get('data.scripts.' + script + '.attributesOrder');
+        var items = asset.get('data.scripts.' + script + '.attributes');
+        var attributes = [ ];
+        for(var i = 0; i < itemsOrder.length; i++) {
+            if (items[itemsOrder[i]].type === 'asset')
+                attributes.push(itemsOrder[i]);
+        }
+
+        for(var i in entities) {
+            if (! entities.hasOwnProperty(i))
+                continue;
+
+            var entity = entities[i].entity;
+
+            updateAsset(entity.get('resource_id'), 'entity', null, asset.get('id'));
+
+            for(var a = 0; a < attributes.length; a++) {
+                var value = entity.get('components.script.scripts.' + script + '.attributes.' + attributes[a]);
+                if (! value)
+                    continue;
+
+                if (value instanceof Array) {
+                    for(var v = 0; v < value.length; v++) {
+                        if (typeof(value[v]) === 'number') {
+                            updateAsset(entity.get('resource_id'), 'entity', null, value[v]);
+                        }
+                    }
+                } else if (typeof(value) === 'number') {
+                    updateAsset(entity.get('resource_id'), 'entity', null, value);
+                }
+            }
+        }
+    });
+
+    editor.on('assets:scripts:primary:unset', function(asset, script) {
+        var entities = editor.call('entities:list:byScript', script);
+        if (! entities || Object.keys(entities).length === 0)
+            return;
+
+        var itemsOrder = asset.get('data.scripts.' + script + '.attributesOrder');
+        var items = asset.get('data.scripts.' + script + '.attributes');
+        var attributes = [ ];
+        for(var i = 0; i < itemsOrder.length; i++) {
+            if (items[itemsOrder[i]].type === 'asset')
+                attributes.push(itemsOrder[i]);
+        }
+
+        for(var i in entities) {
+            if (! entities.hasOwnProperty(i))
+                continue;
+
+            var entity = entities[i].entity;
+
+            updateAsset(entity.get('resource_id'), 'entity', asset.get('id'), null);
+
+            for(var a = 0; a < attributes.length; a++) {
+                var value = entity.get('components.script.scripts.' + script + '.attributes.' + attributes[a]);
+                if (! value)
+                    continue;
+
+                if (value instanceof Array) {
+                    for(var v = 0; v < value.length; v++) {
+                        if (typeof(value[v]) === 'number') {
+                            updateAsset(entity.get('resource_id'), 'entity', value[v], null);
+                        }
+                    }
+                } else if (typeof(value) === 'number') {
+                    updateAsset(entity.get('resource_id'), 'entity', value, null);
+                }
+            }
+        }
+    });
 
     // assets
     editor.on('assets:add', function(asset) {
@@ -257,6 +461,49 @@ editor.once('load', function() {
 
             for(var i = 0; i < items.length; i++)
                 updateAsset(entity.get('resource_id'), 'entity', null, items[i]);
+        }
+
+        var slots = entity.get('components.sound.slots');
+        if (slots) {
+            for(var i in slots) {
+                if (! slots.hasOwnProperty(i) || ! slots[i].asset)
+                    continue;
+
+                updateAsset(entity.get('resource_id'), 'entity', null, slots[i].asset);
+            }
+        }
+
+        var scripts = entity.get('components.script.scripts');
+
+        if (scripts) {
+            for(var script in scripts) {
+                if (! scripts.hasOwnProperty(script))
+                    continue;
+
+                var primaryScript = editor.call('assets:scripts:assetByScript', script);
+                if (primaryScript) {
+                    updateAsset(entity.get('resource_id'), 'entity', null, primaryScript.get('id'));
+
+                    var attributes = scripts[script].attributes;
+                    for(var attr in attributes) {
+                        if (! attributes.hasOwnProperty(attr))
+                            continue;
+
+                        var type = primaryScript.get('data.scripts.' + script + '.attributes.' + attr + '.type');
+                        if (type === 'asset') {
+                            var value = attributes[attr];
+
+                            if (value instanceof Array) {
+                                for(var v = 0; v < value.length; v++) {
+                                    updateAsset(entity.get('resource_id'), 'entity', null, value[v]);
+                                }
+                            } else if (value) {
+                                updateAsset(entity.get('resource_id'), 'entity', null, value);
+                            }
+                        }
+                    }
+                }
+            }
         }
     });
 

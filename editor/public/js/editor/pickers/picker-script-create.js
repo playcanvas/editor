@@ -58,14 +58,25 @@ editor.once('load', function() {
         editor.emit('picker:script-create:close');
     });
 
+    editor.method('picker:script-create:validate', function(filename) {
+        if (! filename || ! filenameValid.test(filename)) {
+            return false;
+        } else {
+            if (! filename.endsWith('.js'))
+                filename += '.js';
+
+            return filename;
+        }
+    });
+
     // call picker
-    editor.method('picker:script-create', function(fn) {
+    editor.method('picker:script-create', function(fn, string) {
         callback = fn || null;
 
         // show overlay
         overlay.hidden = false;
         validate.hidden = true;
-        input.value = '';
+        input.value = string || '';
 
         setTimeout(function() {
             input.elementInput.focus();

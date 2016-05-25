@@ -187,6 +187,9 @@ editor.once('load', function () {
             scenes = items;
             refreshScenes();
         });
+
+        if (editor.call('viewport:inViewport'))
+            editor.emit('viewport:hover', false);
     });
 
     // on hide
@@ -200,6 +203,17 @@ editor.once('load', function () {
         container.element.innerHTML = '';
 
         editor.emit('picker:scene:close');
+
+        if (editor.call('viewport:inViewport'))
+            editor.emit('viewport:hover', true);
+    });
+
+    editor.on('viewport:hover', function(state) {
+        if (state && ! panel.hidden) {
+            setTimeout(function() {
+                editor.emit('viewport:hover', false);
+            }, 0);
+        }
     });
 
     // create row for scene
