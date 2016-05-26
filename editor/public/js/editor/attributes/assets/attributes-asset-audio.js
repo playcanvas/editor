@@ -22,6 +22,8 @@ editor.once('load', function() {
             value: '...'
         });
         fieldDuration.renderChanges = false;
+        // reference
+        editor.call('attributes:reference:attach', 'asset:audio:duration', fieldDuration.parent.innerElement.firstChild.ui);
 
 
         var playing = null;

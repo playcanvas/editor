@@ -32,10 +32,25 @@ editor.once('load', function() {
         description: 'An ambient occlusion map color channel to extract color value from texture. Can be: r, g, b, a',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#aoMapChannel'
     }, {
-        title: 'aoMapUvSet',
+        title: 'aoMapUv',
         subTitle: '{Number}',
-        description: 'Defines UV set used for AO map.',
-        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#aoMapUvSet'
+        description: 'AO map UV channel',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#aoMapUv'
+    }, {
+        title: 'aoMapVertexColor',
+        subTitle: '{Boolean}',
+        description: 'Use vertex colors for AO instead of a map',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#aoMapVertexColor'
+    }, {
+        title: 'aoMapTiling',
+        subTitle: '{pc.Vec2}',
+        description: 'Controls the 2D tiling of the AO map.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#aoMapTiling'
+    }, {
+        title: 'aoMapOffset',
+        subTitle: '{pc.Vec2}',
+        description: 'Controls the 2D offset of the AO map. Each component is between 0 and 1.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#aoMapOffset'
     }, {
         title: 'blendType',
         subTitle: '{pc.BLEND_*}',
@@ -90,18 +105,28 @@ editor.once('load', function() {
     }, {
         title: 'diffuseMapOffset',
         subTitle: '{pc.Vec2}',
-        description: 'The offset in U and V to apply to the first UV channel referenced by maps in this material.',
+        description: 'Controls the 2D offset of the diffuseMap. Each component is between 0 and 1.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#diffuseMapOffset'
     }, {
         title: 'diffuseMapTiling',
         subTitle: '{pc.Vec2}',
-        description: 'The scale in U and V to apply to the first UV channel referenced by maps in this material.',
+        description: 'Controls the 2D tiling of the diffuseMap.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#diffuseMapTiling'
     }, {
         title: 'diffuseMapTint',
         subTitle: '{Boolean}',
         description: 'Check this to modulate the material\'s diffuse map with a material specific diffuse color.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#diffuseMapTint'
+    }, {
+        title: 'diffuseMapUv',
+        subTitle: '{Number}',
+        description: 'Diffuse map UV channel',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#diffuseMapUv'
+    }, {
+        title: 'diffuseMapVertexColor',
+        subTitle: '{Boolean}',
+        description: 'Use vertex colors for diffuse instead of a map',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#diffuseMapVertexColor'
     }, {
         name: 'emissiveOverview',
         description: 'Emissive properties control how the material emits light (as opposed to reflecting light).',
@@ -129,18 +154,28 @@ editor.once('load', function() {
     }, {
         title: 'emissiveMapOffset',
         subTitle: '{pc.Vec2}',
-        description: 'The offset in U and V to apply to the first UV channel referenced by maps in this material.',
+        description: 'Controls the 2D offset of the emissiveMap. Each component is between 0 and 1.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#emissiveMapOffset'
     }, {
         title: 'emissiveMapTiling',
         subTitle: '{pc.Vec2}',
-        description: 'The scale in U and V to apply to the first UV channel referenced by maps in this material.',
+        description: 'Controls the 2D tiling of the emissiveMap.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#emissiveMapTiling'
     }, {
         title: 'emissiveMapTint',
         subTitle: '{Boolean}',
         description: 'Check this to modulate the material\'s emissive map with a material specific emissive color.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#emissiveMapTint'
+    }, {
+        title: 'emissiveMapUv',
+        subTitle: '{Number}',
+        description: 'Emissive map UV channel',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#emissiveMapUv'
+    }, {
+        title: 'emissiveMapVertexColor',
+        subTitle: '{Boolean}',
+        description: 'Use vertex colors for emission instead of a map',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#emissiveMapVertexColor'
     }, {
         name: 'environmentOverview',
         description: 'Environment properties determine how a material reflects and refracts the environment.',
@@ -168,13 +203,23 @@ editor.once('load', function() {
     }, {
         title: 'glossMapOffset',
         subTitle: '{pc.Vec2}',
-        description: 'The offset in U and V to apply to the first UV channel referenced by maps in this material.',
+        description: 'Controls the 2D offset of the glossMap. Each component is between 0 and 1.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#glossMapOffset'
     }, {
         title: 'glossMapTiling',
         subTitle: '{pc.Vec2}',
-        description: 'The scale in U and V to apply to the first UV channel referenced by maps in this material.',
+        description: 'Controls the 2D tiling of the glossMap.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#glossMapTiling'
+    }, {
+        title: 'glossMapUv',
+        subTitle: '{Number}',
+        description: 'Gloss map UV channel',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#glossMapUv'
+    }, {
+        title: 'glossMapVertexColor',
+        subTitle: '{Boolean}',
+        description: 'Use vertex colors for glossiness instead of a map',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#glossMapVertexColor'
     }, {
         title: 'heightMap',
         subTitle: '{pc.Texture}',
@@ -193,13 +238,18 @@ editor.once('load', function() {
     }, {
         title: 'heightMapOffset',
         subTitle: '{pc.Vec2}',
-        description: 'The offset in U and V to apply to the first UV channel referenced by maps in this material.',
+        description: 'Controls the 2D offset of the heightMap. Each component is between 0 and 1.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#heightMapOffset'
     }, {
         title: 'heightMapTiling',
         subTitle: '{pc.Vec2}',
-        description: 'The scale in U and V to apply to the first UV channel referenced by maps in this material.',
+        description: 'Controls the 2D tiling of the heightMap.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#heightMapTiling'
+    }, {
+        title: 'heightMapUv',
+        subTitle: '{Number}',
+        description: 'Height map UV channel',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#heightMapUv'
     }, {
         name: 'lightMapOverview',
         description: 'Light maps contain pre-baked diffuse lighting. Using light maps is considered an optimization in that runtime dynamic lighting calculations can be pre-calculated.',
@@ -214,6 +264,26 @@ editor.once('load', function() {
         subTitle: '{String}',
         description: 'An light map color channel to extract color value from texture. Can be: r, g, b, a, rgb',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#lightMapChannel'
+    }, {
+        title: 'lightMapUv',
+        subTitle: '{Number}',
+        description: 'Lightmap UV channel',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#lightMapUv'
+    }, {
+        title: 'lightMapVertexColor',
+        subTitle: '{Boolean}',
+        description: 'Use vertex lightmap instead of a texture-based one',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#lightMapVertexColor'
+    }, {
+        title: 'lightMapTiling',
+        subTitle: '{pc.Vec2}',
+        description: 'Controls the 2D tiling of the lightmap.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#lightMapTiling'
+    }, {
+        title: 'lightMapOffset',
+        subTitle: '{pc.Vec2}',
+        description: 'Controls the 2D offset of the lightmap. Each component is between 0 and 1.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#lightMapOffset'
     }, {
         title: 'metalness',
         subTitle: '{Number}',
@@ -230,6 +300,26 @@ editor.once('load', function() {
         description: 'An metalness map color channel to extract color value from texture. Can be: r, g, b, a',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#metalnessMapChannel'
     }, {
+        title: 'metalnessMapUv',
+        subTitle: '{Number}',
+        description: 'Metnalness map UV channel',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#metalnessMapUv'
+    }, {
+        title: 'metalnessMapVertexColor',
+        subTitle: '{Boolean}',
+        description: 'Use vertex colors for metalness instead of a map',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#metalnessMapVertexColor'
+    }, {
+        title: 'metalnessMapTiling',
+        subTitle: '{pc.Vec2}',
+        description: 'Controls the 2D tiling of the metalness map.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#metalnessMapTiling'
+    }, {
+        title: 'metalnessMapOffset',
+        subTitle: '{String}',
+        description: 'Controls the 2D offset of the metalness map. Each component is between 0 and 1.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#metalnessMapChannel'
+    }, {
         name: 'normalOverview',
         description: 'Use this to specify normal maps in order to simulate \'Bumpiness\' effect.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html'
@@ -241,13 +331,18 @@ editor.once('load', function() {
     }, {
         title: 'normalMapOffset',
         subTitle: '{pc.Vec2}',
-        description: 'The offset in U and V to apply to the first UV channel referenced by maps in this material.',
+        description: 'Controls the 2D offset of the normalMap. Each component is between 0 and 1.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#normalMapOffset'
     }, {
         title: 'normalMapTiling',
         subTitle: '{pc.Vec2}',
-        description: 'The scale in U and V to apply to the first UV channel referenced by maps in this material.',
+        description: 'Controls the 2D tiling of the normalMap.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#normalMapTiling'
+    }, {
+        title: 'normalMapUv',
+        subTitle: '{Number}',
+        description: 'Normal map UV channel',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#normalMapUv'
     }, {
         title: 'occludeSpecular',
         subTitle: '{Boolean}',
@@ -287,13 +382,23 @@ editor.once('load', function() {
     }, {
         title: 'opacityMapOffset',
         subTitle: '{pc.Vec2}',
-        description: 'The offset in U and V to apply to the first UV channel referenced by maps in this material.',
+        description: 'Controls the 2D offset of the opacityMap. Each component is between 0 and 1.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#opacityMapOffset'
     }, {
         title: 'opacityMapTiling',
         subTitle: '{pc.Vec2}',
-        description: 'The scale in U and V to apply to the first UV channel referenced by maps in this material.',
+        description: 'Controls the 2D tiling of the opacityMap.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#opacityMapTiling'
+    }, {
+        title: 'opacityMapUv',
+        subTitle: '{Number}',
+        description: 'Opacity map UV channel',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#opacityMapUv'
+    }, {
+        title: 'opacityMapVertexColor',
+        subTitle: '{Boolean}',
+        description: 'Use vertex colors for opacity instead of a map',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#opacityMapVertexColor'
     }, {
         name: 'parallaxOverview',
         description: 'A height map gives further realism to a normal map by giving the illusion of depth to a surface. Note that parallax options are only enabled if you have set a normal map on the material.',
@@ -355,18 +460,28 @@ editor.once('load', function() {
     }, {
         title: 'specularMapOffset',
         subTitle: '{pc.Vec2}',
-        description: 'The offset in U and V to apply to the first UV channel referenced by maps in this material.',
+        description: 'Controls the 2D offset of the specularMap. Each component is between 0 and 1.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#specularMapOffset'
     }, {
         title: 'specularMapTiling',
         subTitle: '{pc.Vec2}',
-        description: 'The scale in U and V to apply to the first UV channel referenced by maps in this material.',
+        description: 'Controls the 2D tiling of the specularMap.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#specularMapTiling'
     }, {
         title: 'specularMapTint',
         subTitle: '{Boolean}',
         description: 'Check this to modulate the material\'s specular map with a material specific specular color.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#specularMapTint'
+    }, {
+        title: 'specularMapUv',
+        subTitle: '{Number}',
+        description: 'Specular map UV channel.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#specularMapUv'
+    }, {
+        title: 'specularMapVertexColor',
+        subTitle: '{Boolean}',
+        description: 'Use vertex colors for specular instead of a map.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#specularMapVertexColor'
     }, {
         title: 'sphereMap',
         subTitle: '{pc.Texture}',

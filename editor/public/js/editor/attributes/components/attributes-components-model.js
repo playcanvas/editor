@@ -216,7 +216,7 @@ editor.once('load', function() {
             path: 'components.model.lightmapped'
         });
         // reference
-        editor.call('attributes:reference:attach', 'model:lightmapped', label);
+        editor.call('attributes:reference:attach', 'model:lightmapped', fieldLightmapped.parent.innerElement.firstChild.ui);
         // uv1 is missing
         var label = new ui.Label({ text: 'UV1 is missing' });
         label.class.add('label-infield');
@@ -267,7 +267,7 @@ editor.once('load', function() {
             fieldResolution.parent.hidden = ! fieldLightmapped.value && ! fieldLightmapped.class.contains('null');
         });
         // reference
-        editor.call('attributes:reference:attach', 'model:resolution', label);
+        editor.call('attributes:reference:attach', 'model:resolution', fieldResolution.parent.innerElement.firstChild.ui);
 
         // calculate resolutions for lightmap
         var collectResolutions = function() {

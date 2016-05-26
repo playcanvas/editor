@@ -53,4 +53,12 @@ editor.once('load', function() {
         fields[i].name = 'audiosource:' + (fields[i].name || fields[i].title);
         editor.call('attributes:reference:add', fields[i]);
     }
+
+    editor.call('attributes:reference:add', {
+        name: 'audio:assets',
+        title: 'assets',
+        subTitle: '{Number[]}',
+        description: 'The audio assets that can be played from this audio source. Multiple audio assets can be specified by the picker control.',
+        url: 'http://developer.playcanvas.com/api/pc.AudioSourceComponent.html#assets'
+    });
 });

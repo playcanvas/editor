@@ -288,7 +288,9 @@ editor.once('load', function() {
             enum: [
                 { v: '', t: '...' },
                 { v: 0, t: 'Shadow Map' },
-                { v: 1, t: 'Variance Shadow Map' }
+                { v: 1, t: 'Variance Shadow Map (8bit)' },
+                { v: 2, t: 'Variance Shadow Map (16bit)' },
+                { v: 3, t: 'Variance Shadow Map (32bit)' }
             ],
             link: entities,
             path: 'components.light.shadowType'

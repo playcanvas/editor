@@ -32,6 +32,25 @@ editor.once('load', function() {
         subTitle: '{String}',
         description: 'The type of the model to be rendered. Can be: asset, box, capsule, cone, cylinder, sphere.',
         url: 'http://developer.playcanvas.com/api/pc.ModelComponent.html#type'
+    }, {
+        title: 'castShadowsLightmap',
+        subTitle: '{Boolean}',
+        description: 'If true, this model will cast shadows when rendering lightmaps',
+        url: 'http://developer.playcanvas.com/api/pc.ModelComponent.html#castShadowsLightmap'
+    }, {
+        title: 'lightmapped',
+        subTitle: '{Boolean}',
+        description: 'If true, this model will be lightmapped after using lightmapper.bake()',
+        url: 'http://developer.playcanvas.com/api/pc.ModelComponent.html#lightmapped'
+    }, {
+        title: 'lightmapSizeMultiplier',
+        subTitle: '{Number}',
+        description: 'Changing this value will affect resolution of lightmaps for this model',
+        url: 'http://developer.playcanvas.com/api/pc.ModelComponent.html#lightmapSizeMultiplier'
+    }, {
+        name: 'resolution',
+        description: 'Auto-generated lightmap textures resolution is calculated using area of geometry in world space and size multiplier of model and scene.',
+        url: 'http://developer.playcanvas.com/en/user-manual/graphics/lighting/lightmaps/#lightmap-size-multipliers'
     }];
 
     for(var i = 0; i < fields.length; i++) {
