@@ -26,8 +26,8 @@ var parseScript = function(id, url, engine) {
         __results.loading = true;
     };
 
-    // implement pc.Script
-    pc.Script = function(name) {
+    // implement pc.createScript
+    pc.createScript = function(name) {
         var valid = true;
 
         if (! name) {
