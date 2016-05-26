@@ -27,7 +27,7 @@ editor.once('load', function() {
         label.style.paddingRight = '12px';
         fieldClearColorBuffer.parent.append(label);
         // reference
-        editor.call('attributes:reference:camera:clearColorBuffer:attach', label);
+        editor.call('attributes:reference:attach', 'camera:clearColorBuffer', label);
 
 
         // clearDepthBuffer
@@ -42,7 +42,7 @@ editor.once('load', function() {
         label.class.add('label-infield');
         fieldClearColorBuffer.parent.append(label);
         // reference
-        editor.call('attributes:reference:camera:clearDepthBuffer:attach', label);
+        editor.call('attributes:reference:attach', 'camera:clearDepthBuffer', label);
 
 
         // camera.clearColor
@@ -58,7 +58,7 @@ editor.once('load', function() {
             fieldClearColor.parent.hidden = ! (value || this.class.contains('null'));
         });
         // reference
-        editor.call('attributes:reference:camera:clearColor:attach', fieldClearColor.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'camera:clearColor', fieldClearColor.parent.innerElement.firstChild.ui);
 
 
         // camera.projection
@@ -75,7 +75,7 @@ editor.once('load', function() {
             path: 'components.camera.projection'
         });
         // reference
-        editor.call('attributes:reference:camera:projection:attach', fieldProjection.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'camera:projection', fieldProjection.parent.innerElement.firstChild.ui);
 
         // frustumCulling
         var fieldFrustumCulling = editor.call('attributes:addField', {
@@ -86,7 +86,7 @@ editor.once('load', function() {
             path: 'components.camera.frustumCulling'
         });
         // reference
-        editor.call('attributes:reference:camera:frustumCulling:attach', fieldFrustumCulling.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'camera:frustumCulling', fieldFrustumCulling.parent.innerElement.firstChild.ui);
 
         // camera.fov
         var fieldFov = editor.call('attributes:addField', {
@@ -107,7 +107,7 @@ editor.once('load', function() {
             fieldFov.parent.hidden = value !== 0 && value !== '';
         });
         // reference
-        editor.call('attributes:reference:camera:fov:attach', fieldFov.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'camera:fov', fieldFov.parent.innerElement.firstChild.ui);
 
         // fov slider
         var fieldFovSlider = editor.call('attributes:addField', {
@@ -136,7 +136,7 @@ editor.once('load', function() {
             fieldOrthoHeight.parent.hidden = value !== 1 && value !== '';
         });
         // reference
-        editor.call('attributes:reference:camera:orthoHeight:attach', fieldOrthoHeight.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'camera:orthoHeight', fieldOrthoHeight.parent.innerElement.firstChild.ui);
 
 
         // nearClip
@@ -153,7 +153,7 @@ editor.once('load', function() {
         });
         fieldNearClip.style.width = '32px';
         // reference
-        editor.call('attributes:reference:camera:clip:attach', fieldNearClip.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'camera:clip', fieldNearClip.parent.innerElement.firstChild.ui);
 
 
         // farClip
@@ -182,7 +182,7 @@ editor.once('load', function() {
             path: 'components.camera.priority'
         });
         // reference
-        editor.call('attributes:reference:camera:priority:attach', fieldPriority.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'camera:priority', fieldPriority.parent.innerElement.firstChild.ui);
 
 
         // camera.rect
@@ -199,6 +199,6 @@ editor.once('load', function() {
             path: 'components.camera.rect'
         });
         // reference
-        editor.call('attributes:reference:camera:rect:attach', fieldRect[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'camera:rect', fieldRect[0].parent.innerElement.firstChild.ui);
     });
 });

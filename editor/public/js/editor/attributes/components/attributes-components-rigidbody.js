@@ -29,7 +29,7 @@ editor.once('load', function() {
             path: 'components.rigidbody.type'
         });
         // reference
-        editor.call('attributes:reference:rigidbody:type:attach', fieldType.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'rigidbody:type', fieldType.parent.innerElement.firstChild.ui);
 
 
         // dynamic/kinematic fields
@@ -54,7 +54,7 @@ editor.once('load', function() {
         });
         fieldMass.placeholder = 'Kg';
         // reference
-        editor.call('attributes:reference:rigidbody:mass:attach', fieldMass.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'rigidbody:mass', fieldMass.parent.innerElement.firstChild.ui);
 
 
         // linearDamping
@@ -72,7 +72,7 @@ editor.once('load', function() {
         });
         fieldLinearDamping.style.width = '32px';
         // reference
-        editor.call('attributes:reference:rigidbody:damping:attach', fieldLinearDamping.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'rigidbody:damping', fieldLinearDamping.parent.innerElement.firstChild.ui);
 
 
         // angularDamping
@@ -104,7 +104,7 @@ editor.once('load', function() {
             path: 'components.rigidbody.linearFactor'
         });
         // reference
-        editor.call('attributes:reference:rigidbody:linearFactor:attach', fieldLinearFactor[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'rigidbody:linearFactor', fieldLinearFactor[0].parent.innerElement.firstChild.ui);
 
 
         // angularFactor
@@ -121,7 +121,7 @@ editor.once('load', function() {
             path: 'components.rigidbody.angularFactor'
         });
         // reference
-        editor.call('attributes:reference:rigidbody:angularFactor:attach', fieldAngularFactor[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'rigidbody:angularFactor', fieldAngularFactor[0].parent.innerElement.firstChild.ui);
 
 
         // friction
@@ -138,7 +138,7 @@ editor.once('load', function() {
         });
         fieldFriction.style.width = '32px';
         // reference
-        editor.call('attributes:reference:rigidbody:friction:attach', fieldFriction.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'rigidbody:friction', fieldFriction.parent.innerElement.firstChild.ui);
 
 
         // friction slider
@@ -169,7 +169,7 @@ editor.once('load', function() {
         });
         fieldRestitution.style.width = '32px';
         // reference
-        editor.call('attributes:reference:rigidbody:restitution:attach', fieldRestitution.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'rigidbody:restitution', fieldRestitution.parent.innerElement.firstChild.ui);
 
 
         // restitution slider

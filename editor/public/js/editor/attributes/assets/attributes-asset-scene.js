@@ -14,7 +14,7 @@ editor.once('load', function() {
         });
         panelContents.class.add('component');
         // reference
-        editor.call('attributes:reference:asset:scene:contents:attach', panelContents, panelContents.headerElement);
+        editor.call('attributes:reference:attach', 'asset:scene:contents', panelContents, panelContents.headerElement);
 
 
         var labelEmptyMeta = new ui.Label({

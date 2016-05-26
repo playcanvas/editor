@@ -3,11 +3,32 @@ editor.once('load', function() {
 
     var root = editor.call('layout.root');
     var panel = editor.call('layout.right');
+    var index = { };
 
 
     var sanitize = function(str) {
         return str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
     };
+
+
+    editor.method('attributes:reference:add', function(args) {
+        index[args.name] = editor.call('attributes:reference', args);
+    });
+
+
+    editor.method('attributes:reference:attach', function(name, target, element) {
+        var tooltip = index[name];
+
+        if (! tooltip) {
+            console.log('reference', name, 'is not defined');
+            return;
+        }
+
+        tooltip.attach({
+            target: target,
+            element: element || target.element
+        });
+    });
 
 
     editor.method('attributes:reference:template', function(args) {

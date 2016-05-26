@@ -20,6 +20,8 @@ editor.once('load', function() {
             panel: panel,
             path: 'components.audiosource.assets'
         });
+        // reference
+        editor.call('attributes:reference:attach', 'audiosource:assets', fieldAssets.parent.innerElement.firstChild.ui);
 
         // audiosource.playback
         var panelPlayback = new ui.Panel();
@@ -42,7 +44,7 @@ editor.once('load', function() {
         label.class.add('label-infield');
         panelPlayback.append(label);
         // reference
-        editor.call('attributes:reference:audiosource:activate:attach', label);
+        editor.call('attributes:reference:attach', 'audiosource:activate', label);
 
         // audiosource.loop
         var fieldLoop = editor.call('attributes:addField', {
@@ -56,7 +58,7 @@ editor.once('load', function() {
         label.class.add('label-infield');
         panelPlayback.append(label);
         // reference
-        editor.call('attributes:reference:audiosource:loop:attach', label);
+        editor.call('attributes:reference:attach', 'audiosource:loop', label);
 
         // audiosource.3d
         var field3d = editor.call('attributes:addField', {
@@ -73,7 +75,7 @@ editor.once('load', function() {
         label.class.add('label-infield');
         panelPlayback.append(label);
         // reference
-        editor.call('attributes:reference:audiosource:3d:attach', label);
+        editor.call('attributes:reference:attach', 'audiosource:3d', label);
 
 
         // volume
@@ -90,7 +92,7 @@ editor.once('load', function() {
         });
         fieldVolume.style.width = '32px';
         // reference
-        editor.call('attributes:reference:audiosource:volume:attach', fieldVolume.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'audiosource:volume', fieldVolume.parent.innerElement.firstChild.ui);
 
         // volume slider
         var fieldVolumeSlider = editor.call('attributes:addField', {
@@ -118,7 +120,7 @@ editor.once('load', function() {
             path: 'components.audiosource.pitch'
         });
         // reference
-        editor.call('attributes:reference:audiosource:pitch:attach', fieldPitch.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'audiosource:pitch', fieldPitch.parent.innerElement.firstChild.ui);
 
 
         // distance
@@ -132,7 +134,7 @@ editor.once('load', function() {
         panelDistance.hidden = ! (field3d.value || field3d.class.contains('null'));
 
         // reference
-        editor.call('attributes:reference:audiosource:distance:attach', panelDistance.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'audiosource:distance', panelDistance.innerElement.firstChild.ui);
 
         // minDistance
         var fieldMinDistance = editor.call('attributes:addField', {
@@ -175,6 +177,6 @@ editor.once('load', function() {
         });
         fieldRollOffFactor.parent.hidden = ! (field3d.value || field3d.class.contains('null'));
         // reference
-        editor.call('attributes:reference:audiosource:rollOffFactor:attach', fieldRollOffFactor.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'audiosource:rollOffFactor', fieldRollOffFactor.parent.innerElement.firstChild.ui);
     });
 });

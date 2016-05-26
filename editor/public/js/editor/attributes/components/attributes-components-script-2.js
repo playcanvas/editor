@@ -683,8 +683,20 @@ editor.once('load', function() {
 
                     dragScript = script;
                     onScriptDragStart(evt);
+                    tooltipHandle.hidden = true;
                 }, false);
                 panel.headerAppend(panel.handle);
+
+                // tooltip
+                var tooltipHandle = Tooltip.attach({
+                    target: panel.handle,
+                    text: 'Drag',
+                    align: 'right',
+                    root: editor.call('layout.root')
+                });
+                panel.once('destroy', function() {
+                    tooltipHandle.destroy();
+                });
             }
 
             // check if script is present in all entities
@@ -711,7 +723,17 @@ editor.once('load', function() {
             btnEdit.on('click', function() {
                 window.open('/editor/asset/' + scriptAsset.get('id'));
             });
-            btnEdit.hidden = editor.call('assets:scripts:collide', script);
+            btnEdit.hidden = editor.call('assets:scripts:collide', script) || ! editor.call('assets:scripts:assetByScript', script);
+            // tooltip
+            var tooltipEdit = Tooltip.attach({
+                target: btnEdit.element,
+                text: 'Edit',
+                align: 'bottom',
+                root: editor.call('layout.root')
+            });
+            btnEdit.once('destroy', function() {
+                tooltipEdit.destroy();
+            });
 
             // edit
             var btnParse = new ui.Button({
@@ -730,7 +752,17 @@ editor.once('load', function() {
                     }
                 });
             });
-            btnParse.hidden = editor.call('assets:scripts:collide', script);
+            btnParse.hidden = editor.call('assets:scripts:collide', script) || ! editor.call('assets:scripts:assetByScript', script);
+            // tooltip
+            var tooltipParse = Tooltip.attach({
+                target: btnParse.element,
+                text: 'Parse',
+                align: 'bottom',
+                root: editor.call('layout.root')
+            });
+            btnParse.once('destroy', function() {
+                tooltipParse.destroy();
+            });
 
             // remove
             var btnRemove = new ui.Button();
@@ -785,6 +817,16 @@ editor.once('load', function() {
                 });
 
                 removeScript(script);
+            });
+            // tooltip
+            var tooltipRemove = Tooltip.attach({
+                target: btnRemove.element,
+                text: 'Remove',
+                align: 'bottom',
+                root: editor.call('layout.root')
+            });
+            btnRemove.once('destroy', function() {
+                tooltipRemove.destroy();
             });
 
             // enable/disable

@@ -465,7 +465,7 @@ editor.once('load', function() {
             });
 
             // reference
-            editor.call('attributes:reference:asset:model:meshInstances:attach', panelNodes, panelNodes.headerElement);
+            editor.call('attributes:reference:attach', 'asset:model:meshInstances', panelNodes, panelNodes.headerElement);
 
             var nodeItems = [ ];
 

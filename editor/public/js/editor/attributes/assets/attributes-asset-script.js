@@ -61,7 +61,7 @@ editor.once('load', function() {
                 panel.innerElement.insertBefore(fieldOrder.parent.element, preloadField.nextSibling);
             }
             // reference
-            editor.call('attributes:reference:asset:script:order:attach', fieldOrder.parent.innerElement.firstChild.ui);
+            editor.call('attributes:reference:attach', 'asset:script:order', fieldOrder.parent.innerElement.firstChild.ui);
 
 
             // parse
