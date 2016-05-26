@@ -329,6 +329,7 @@ editor.once('load', function() {
             link: entities,
             path: 'components.light.vsmBlurSize'
         });
+        fieldShadowVsmBlurSize.style.width = '32px';
         // reference
         editor.call('attributes:reference:attach', 'light:vsmBlurSize', fieldShadowVsmBlurSize.parent.innerElement.firstChild.ui);
         //
@@ -336,6 +337,19 @@ editor.once('load', function() {
         fieldShadowType.on('change', function() {
             fieldShadowVsmBlurSize.parent.hidden = fieldShadowType.value === 0;
         });
+        // intensity slider
+        var fieldShadowVsmBlurSizeSlider = editor.call('attributes:addField', {
+            panel: fieldShadowVsmBlurSize.parent,
+            precision: 0,
+            step: 1,
+            min: 1,
+            max: 25,
+            type: 'number',
+            slider: true,
+            link: entities,
+            path: 'components.light.vsmBlurSize'
+        });
+        fieldShadowVsmBlurSizeSlider.flexGrow = 4;
 
 
         // shadowDistance
