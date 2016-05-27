@@ -97,11 +97,10 @@ editor.once('load', function () {
                 code = code.replace(/return(\s+)?(\w+)?(?![\s\S]*return)/, 'new $2(new pc.Entity()); return $2');
 
                 // turn this:
-                // var MyScript = new pc.Script('myScript');
+                // var MyScript = pc.createScript('myScript');
                 // into this:
-                // var MyScript = pc.ScriptObject
-                // in order to make tern understand that MyScript is a pc.ScriptObject
-                code = code.replace(/var (\w+).*?=.*?pc.Script\(.*?\)/g, 'var $1 = pc.ScriptObject');
+                // var MyScript = ScriptType
+                code = code.replace(/var (\w+).*?=.*?pc.createScript\(.*?\)/g, 'var $1 = ScriptType');
 
                 return code;
 
