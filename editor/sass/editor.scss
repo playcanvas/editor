@@ -1862,6 +1862,24 @@ strong {
                     text-align: center;
                 }
             }
+            > .ui-panel.buttons {
+                > .content {
+                    display: flex;
+
+                    > .ui-button.large-with-icon {
+                        flex-grow: 1;
+                        width: 100%;
+
+                        &.download-asset:before {
+                            content: '\E228';
+                        }
+                        &.edit-script:before {
+                            content: '\E130';
+                        }
+                    }
+                }
+            }
+            > .ui-panel.buttons > .content > .ui-button.large-with-icon,
             > .ui-button.large-with-icon {
                 display: block;
                 text-align: center;
@@ -1875,14 +1893,8 @@ strong {
                     text-align: center;
                     vertical-align: middle;
                 }
-                &.edit-script:before {
-                    content: '\E130';
-                }
                 &.parse-script:before {
                     content: '\E120';
-                }
-                &.download-asset:before {
-                    content: '\E228';
                 }
                 &.calculate-meta {
                     &.hidden {

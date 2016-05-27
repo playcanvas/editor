@@ -10,22 +10,6 @@ editor.once('load', function() {
         // panel
         var panel = editor.call('attributes:assets:panel');
 
-        // edit
-        var btnEdit = new ui.Button();
-        btnEdit.text = editor.call('permissions:write') ? 'Edit' : 'View';
-        btnEdit.class.add('edit-script', 'large-with-icon');
-        btnEdit.hidden = ! asset.has('file.url');
-        btnEdit.element.addEventListener('click', function(evt) {
-            window.open('/editor/asset/' + asset.get('id'));
-        }, false);
-        panel.append(btnEdit);
-        var evtFileUrl = asset.on('file.url:set', function() {
-            btnEdit.hidden = false;
-        });
-        var evtFileUrlUnset = asset.on('file.url:unset', function() {
-            btnEdit.hidden = true;
-        });
-
         var panelRaw = editor.call('attributes:addPanel', {
             name: 'CSS'
         });
@@ -88,8 +72,6 @@ editor.once('load', function() {
         });
         panel.once('destroy', function() {
             evtReload.unbind();
-            evtFileUrl.unbind();
-            evtFileUrlUnset.unbind();
         });
     });
 });
