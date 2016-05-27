@@ -13,7 +13,7 @@ editor.once('load', function() {
         });
         panel.class.add('component');
         // reference
-        editor.call('attributes:reference:asset:animation:asset:attach', panel, panel.headerElement);
+        editor.call('attributes:reference:attach', 'asset:animation:asset', panel, panel.headerElement);
 
 
         // duration
@@ -25,7 +25,7 @@ editor.once('load', function() {
             path: 'meta.duration'
         });
         // reference
-        editor.call('attributes:reference:asset:animation:duration:attach', fieldDuration.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:animation:duration', fieldDuration.parent.innerElement.firstChild.ui);
 
 
         // name
@@ -36,6 +36,6 @@ editor.once('load', function() {
             path: 'meta.name'
         });
         // reference
-        editor.call('attributes:reference:asset:animation:name:attach', fieldName.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:animation:name', fieldName.parent.innerElement.firstChild.ui);
     });
 });

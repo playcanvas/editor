@@ -14,7 +14,7 @@ editor.once('load', function() {
         });
         panelRelated.class.add('component');
         // reference
-        editor.call('attributes:reference:asset:source:related:attach', panelRelated, panelRelated.headerElement);
+        editor.call('attributes:reference:attach', 'asset:source:related', panelRelated, panelRelated.headerElement);
 
         var list = new ui.List();
         list.class.add('related-assets');

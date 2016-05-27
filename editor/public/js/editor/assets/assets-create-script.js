@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var scriptBoilerplate = "var {className} = new pc.Script('{scriptName}');\n\n{className}.prototype.initialize = function() {\n    // initialize code called once per entity\n};\n\n{className}.prototype.update = function(dt) {\n    // update code called every frame\n};\n\n// to learn more about script anatomy, please read:\n// http://developer.playcanvas.com/en/";
+    var scriptBoilerplate = "var {className} = pc.createScript('{scriptName}');\n\n// initialize code called once per entity\n{className}.prototype.initialize = function() {\n    \n};\n\n// update code called every frame\n{className}.prototype.update = function(dt) {\n    \n};\n\n// swap method called for script hot-reloading\n// inherit your script state here\n{className}.prototype.swap = function(old) {\n    \n};\n\n// to learn more about script anatomy, please read:\n// http://developer.playcanvas.com/en/";
     var filenameValid = /^([^0-9.#<>$+%!`&='{}@\\/:*?"<>|\n])([^#<>$+%!`&='{}@\\/:*?"<>|\n])*$/i;
 
 
@@ -86,10 +86,14 @@ editor.once('load', function() {
 
             // parse once file is available
             asset.once('file.url:set', function() {
-                editor.call('scripts:parse', asset, function(err, result) {
-                    if (args.callback)
-                        args.callback(err, result);
-                });
+                // artificial delay to avoid racing condition
+                // of file not getting uploaded to s3 in time
+                setTimeout(function() {
+                    editor.call('scripts:parse', asset, function(err, result) {
+                        if (args.callback)
+                            args.callback(err, result);
+                    });
+                }, 500);
             });
         }, args.noSelect);
     });

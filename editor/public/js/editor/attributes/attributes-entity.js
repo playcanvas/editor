@@ -233,7 +233,7 @@ editor.once('load', function() {
             path: 'enabled'
         });
         // reference
-        editor.call('attributes:reference:entity:enabled:attach', fieldEnabled.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'entity:enabled', fieldEnabled.parent.innerElement.firstChild.ui);
 
 
         // name
@@ -246,7 +246,7 @@ editor.once('load', function() {
             trim: true
         });
         // reference
-        editor.call('attributes:reference:entity:name:attach', fieldName.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'entity:name', fieldName.parent.innerElement.firstChild.ui);
 
 
         // position
@@ -261,7 +261,7 @@ editor.once('load', function() {
             path: 'position'
         });
         // reference
-        editor.call('attributes:reference:entity:position:attach', fieldPosition[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'entity:position', fieldPosition[0].parent.innerElement.firstChild.ui);
 
 
         // rotation
@@ -276,7 +276,7 @@ editor.once('load', function() {
             path: 'rotation'
         });
         // reference
-        editor.call('attributes:reference:entity:rotation:attach', fieldRotation[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'entity:rotation', fieldRotation[0].parent.innerElement.firstChild.ui);
 
 
         // scale
@@ -291,7 +291,7 @@ editor.once('load', function() {
             path: 'scale'
         });
         // reference
-        editor.call('attributes:reference:entity:scale:attach', fieldScale[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'entity:scale', fieldScale[0].parent.innerElement.firstChild.ui);
 
 
         // components

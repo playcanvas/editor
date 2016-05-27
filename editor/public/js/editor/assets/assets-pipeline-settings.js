@@ -29,7 +29,7 @@ editor.once('load', function() {
         panel.on('unfold', function() { foldStates['pipeline'] = false; });
         panel.class.add('component', 'pipeline');
         // reference
-        editor.call('attributes:reference:settings:asset-tasks:attach', panel, panel.headerElement);
+        editor.call('attributes:reference:attach', 'settings:asset-tasks', panel, panel.headerElement);
 
         var fieldAuto = editor.call('attributes:addField', {
             parent: panel,
@@ -38,7 +38,7 @@ editor.once('load', function() {
             link: settings,
             path: 'auto'
         });
-        editor.call('attributes:reference:settings:asset-tasks:auto:attach', fieldAuto.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:asset-tasks:auto', fieldAuto.parent.innerElement.firstChild.ui);
 
         var fieldTexturePOT = editor.call('attributes:addField', {
             parent: panel,
@@ -47,7 +47,7 @@ editor.once('load', function() {
             link: settings,
             path: 'texturePot'
         });
-        editor.call('attributes:reference:settings:asset-tasks:texturePot:attach', fieldTexturePOT.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:asset-tasks:texturePot', fieldTexturePOT.parent.innerElement.firstChild.ui);
 
         var fieldSearchRelatedAssets = editor.call('attributes:addField', {
             parent: panel,
@@ -57,14 +57,13 @@ editor.once('load', function() {
             path: 'searchRelatedAssets'
         });
         fieldSearchRelatedAssets.parent.innerElement.firstChild.style.width = 'auto';
-        editor.call('attributes:reference:settings:asset-tasks:searchRelatedAssets:attach', fieldSearchRelatedAssets.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:asset-tasks:searchRelatedAssets', fieldSearchRelatedAssets.parent.innerElement.firstChild.ui);
 
         var fieldOverwrite = editor.call('attributes:addField', {
             parent: panel,
             name: 'Overwriting behaviour:'
         });
         fieldOverwrite.parent.innerElement.firstChild.style.width = 'auto';
-        editor.call('attributes:reference:settings:asset-tasks:overwrite:attach', fieldOverwrite.parent.innerElement.firstChild.ui);
         fieldOverwrite.destroy();
 
         var fieldOverwriteModel = editor.call('attributes:addField', {
@@ -74,7 +73,7 @@ editor.once('load', function() {
             link: settings,
             path: 'overwriteModel'
         });
-        editor.call('attributes:reference:settings:asset-tasks:overwrite:model:attach', fieldOverwriteModel.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:asset-tasks:overwrite:model', fieldOverwriteModel.parent.innerElement.firstChild.ui);
 
         var fieldOverwriteAnimation = editor.call('attributes:addField', {
             parent: panel,
@@ -83,7 +82,7 @@ editor.once('load', function() {
             link: settings,
             path: 'overwriteAnimation'
         });
-        editor.call('attributes:reference:settings:asset-tasks:overwrite:animation:attach', fieldOverwriteAnimation.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:asset-tasks:overwrite:animation', fieldOverwriteAnimation.parent.innerElement.firstChild.ui);
 
         var fieldOverwriteMaterial = editor.call('attributes:addField', {
             parent: panel,
@@ -92,7 +91,7 @@ editor.once('load', function() {
             link: settings,
             path: 'overwriteMaterial'
         });
-        editor.call('attributes:reference:settings:asset-tasks:overwrite:material:attach', fieldOverwriteMaterial.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:asset-tasks:overwrite:material', fieldOverwriteMaterial.parent.innerElement.firstChild.ui);
 
         var fieldOverwriteTexture = editor.call('attributes:addField', {
             parent: panel,
@@ -101,7 +100,7 @@ editor.once('load', function() {
             link: settings,
             path: 'overwriteTexture'
         });
-        editor.call('attributes:reference:settings:asset-tasks:overwrite:texture:attach', fieldOverwriteTexture.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:asset-tasks:overwrite:texture', fieldOverwriteTexture.parent.innerElement.firstChild.ui);
     });
 
     editor.method('assets:pipeline:settings', function(name, value) {

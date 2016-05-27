@@ -269,4 +269,8 @@ editor.once('load', function() {
             updateAttributes(index[script][key].entity, script);
         }
     });
+
+    editor.method('entities:list:byScript', function(script) {
+        return index[script];
+    });
 });

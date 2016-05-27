@@ -691,7 +691,7 @@ editor.once('load', function() {
         });
         panelParams.class.add('component');
         // reference
-        editor.call('attributes:reference:asset:material:asset:attach', panelParams, panelParams.headerElement);
+        editor.call('attributes:reference:attach', 'asset:material:asset', panelParams, panelParams.headerElement);
         // clean preview
         if (assets.length === 1) {
             panelParams.on('destroy', function() {
@@ -718,7 +718,7 @@ editor.once('load', function() {
             path: 'data.shader'
         });
         // reference
-        editor.call('attributes:reference:asset:material:shadingModel:attach', fieldShader.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:shadingModel', fieldShader.parent.innerElement.firstChild.ui);
         // fresnelMode
         var evtFresnelModel = [ ];
         for(var i = 0; i < assets.length; i++) {
@@ -775,7 +775,7 @@ editor.once('load', function() {
         panelTiling.on('fold', function() { panelState['offset'] = true; });
         panelTiling.on('unfold', function() { panelState['offset'] = false; });
         // reference
-        editor.call('attributes:reference:asset:material:offsetTiling:attach', panelTiling, panelTiling.headerElement);
+        editor.call('attributes:reference:attach', 'asset:material:offsetTiling', panelTiling, panelTiling.headerElement);
 
         var tilingOffsetFields = [ ];
 
@@ -857,7 +857,7 @@ editor.once('load', function() {
         });
         fieldOffset[0].parent.hidden = ! fieldTilingOffset.value;
         // reference
-        editor.call('attributes:reference:asset:material:offset:attach', fieldOffset[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:offset', fieldOffset[0].parent.innerElement.firstChild.ui);
 
         // tiling
         var fieldTiling = editor.call('attributes:addField', {
@@ -868,7 +868,7 @@ editor.once('load', function() {
         });
         fieldTiling[0].parent.hidden = ! fieldTilingOffset.value;
         // reference
-        editor.call('attributes:reference:asset:material:tiling:attach', fieldTiling[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:tiling', fieldTiling[0].parent.innerElement.firstChild.ui);
 
         if (different) {
             fieldTilingOffset.value = false;
@@ -964,7 +964,7 @@ editor.once('load', function() {
         panelAmbient.on('fold', function() { panelState['ao'] = true; });
         panelAmbient.on('unfold', function() { panelState['ao'] = false; });
         // reference
-        editor.call('attributes:reference:asset:material:ambientOverview:attach', panelAmbient, panelAmbient.headerElement);
+        editor.call('attributes:reference:attach', 'asset:material:ambientOverview', panelAmbient, panelAmbient.headerElement);
 
 
         // color
@@ -976,7 +976,7 @@ editor.once('load', function() {
             path: 'data.ambient'
         });
         // reference
-        editor.call('attributes:reference:asset:material:ambient:attach', fieldAmbientColor.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:ambient', fieldAmbientColor.parent.innerElement.firstChild.ui);
 
 
         // tint
@@ -994,7 +994,7 @@ editor.once('load', function() {
         labelAmbientTint.style.lineHeight = '24px';
         fieldAmbientColor.parent.append(labelAmbientTint);
         // reference
-        editor.call('attributes:reference:asset:material:ambientTint:attach', labelAmbientTint);
+        editor.call('attributes:reference:attach', 'asset:material:ambientTint', labelAmbientTint);
 
 
         // map
@@ -1016,7 +1016,7 @@ editor.once('load', function() {
             fieldOccludeSpecular.parent.hidden = ! fieldAmbientMap.value && ! fieldAmbientMap.class.contains('null');
         });
         // reference
-        editor.call('attributes:reference:asset:material:aoMap:attach', fieldAmbientMap._label);
+        editor.call('attributes:reference:attach', 'asset:material:aoMap', fieldAmbientMap._label);
 
         // map uv
         var fieldAmbientMapUV = editor.call('attributes:addField', {
@@ -1030,7 +1030,7 @@ editor.once('load', function() {
         fieldAmbientMapUV.element.parentNode.removeChild(fieldAmbientMapUV.element);
         fieldAmbientMap.parent.innerElement.querySelector('.top > .controls').appendChild(fieldAmbientMapUV.element);
         // reference
-        editor.call('attributes:reference:asset:material:aoMapUv:attach', fieldAmbientMapUV);
+        editor.call('attributes:reference:attach', 'asset:material:aoMapUv', fieldAmbientMapUV);
 
         // map channel
         var fieldAmbientMapChannel = editor.call('attributes:addField', {
@@ -1049,7 +1049,7 @@ editor.once('load', function() {
         fieldAmbientMapChannel.element.parentNode.removeChild(fieldAmbientMapChannel.element);
         fieldAmbientMap.parent.innerElement.querySelector('.top > .ui-label').parentNode.appendChild(fieldAmbientMapChannel.element);
         // reference
-        editor.call('attributes:reference:asset:material:aoMapChannel:attach', fieldAmbientMapChannel);
+        editor.call('attributes:reference:attach', 'asset:material:aoMapChannel', fieldAmbientMapChannel);
 
         // offset
         var fieldAmbientOffset = editor.call('attributes:addField', {
@@ -1071,7 +1071,7 @@ editor.once('load', function() {
         });
         fieldAmbientOffset[0].parent.hidden = filterAmbientOffset();
         // reference
-        editor.call('attributes:reference:asset:material:aoMapOffset:attach', fieldAmbientOffset[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:aoMapOffset', fieldAmbientOffset[0].parent.innerElement.firstChild.ui);
 
         // tiling
         var fieldAmbientTiling = editor.call('attributes:addField', {
@@ -1093,7 +1093,7 @@ editor.once('load', function() {
         });
         fieldAmbientTiling[0].parent.hidden = filterAmbientTiling();
         // reference
-        editor.call('attributes:reference:asset:material:aoMapTiling:attach', fieldAmbientTiling[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:aoMapTiling', fieldAmbientTiling[0].parent.innerElement.firstChild.ui);
 
         // vertex color
         var fieldAmbientVertexColor = editor.call('attributes:addField', {
@@ -1104,7 +1104,7 @@ editor.once('load', function() {
             path: 'data.aoMapVertexColor'
         });
         // reference
-        editor.call('attributes:reference:asset:material:aoMapVertexColor:attach', fieldAmbientVertexColor.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:aoMapVertexColor', fieldAmbientVertexColor.parent.innerElement.firstChild.ui);
 
         // occludeSpecular
         var fieldOccludeSpecular = editor.call('attributes:addField', {
@@ -1117,7 +1117,7 @@ editor.once('load', function() {
         });
         fieldOccludeSpecular.parent.hidden = ! fieldAmbientMap.value && ! fieldAmbientMap.class.contains('null');
         // reference
-        editor.call('attributes:reference:asset:material:occludeSpecular:attach', fieldOccludeSpecular.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:occludeSpecular', fieldOccludeSpecular.parent.innerElement.firstChild.ui);
 
 
         // diffuse
@@ -1130,7 +1130,7 @@ editor.once('load', function() {
         panelDiffuse.on('fold', function() { panelState['diffuse'] = true; });
         panelDiffuse.on('unfold', function() { panelState['diffuse'] = false; });
         // reference
-        editor.call('attributes:reference:asset:material:diffuseOverview:attach', panelDiffuse, panelDiffuse.headerElement);
+        editor.call('attributes:reference:attach', 'asset:material:diffuseOverview', panelDiffuse, panelDiffuse.headerElement);
 
         // diffuse map
         var fieldDiffuseMapHover = handleTextureHover('diffuseMap');
@@ -1150,7 +1150,7 @@ editor.once('load', function() {
             fieldDiffuseTiling[0].parent.hidden = filterDiffuseTiling();
         });
         // reference
-        editor.call('attributes:reference:asset:material:diffuseMap:attach', fieldDiffuseMap._label);
+        editor.call('attributes:reference:attach', 'asset:material:diffuseMap', fieldDiffuseMap._label);
 
         // map uv
         var fieldDiffuseMapUV = editor.call('attributes:addField', {
@@ -1164,7 +1164,7 @@ editor.once('load', function() {
         fieldDiffuseMapUV.element.parentNode.removeChild(fieldDiffuseMapUV.element);
         fieldDiffuseMap.parent.innerElement.querySelector('.top > .controls').appendChild(fieldDiffuseMapUV.element);
         // reference
-        editor.call('attributes:reference:asset:material:diffuseMapUv:attach', fieldDiffuseMapUV);
+        editor.call('attributes:reference:attach', 'asset:material:diffuseMapUv', fieldDiffuseMapUV);
 
         // map channel
         var fieldDiffuseMapChannel = editor.call('attributes:addField', {
@@ -1184,7 +1184,7 @@ editor.once('load', function() {
         fieldDiffuseMapChannel.element.parentNode.removeChild(fieldDiffuseMapChannel.element);
         fieldDiffuseMap.parent.innerElement.querySelector('.top > .ui-label').parentNode.appendChild(fieldDiffuseMapChannel.element);
         // reference
-        editor.call('attributes:reference:asset:material:diffuseMapChannel:attach', fieldDiffuseMapChannel);
+        editor.call('attributes:reference:attach', 'asset:material:diffuseMapChannel', fieldDiffuseMapChannel);
 
         // offset
         var fieldDiffuseOffset = editor.call('attributes:addField', {
@@ -1206,7 +1206,7 @@ editor.once('load', function() {
         });
         fieldDiffuseOffset[0].parent.hidden = filterDiffuseOffset();
         // reference
-        editor.call('attributes:reference:asset:material:diffuseMapOffset:attach', fieldDiffuseOffset[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:diffuseMapOffset', fieldDiffuseOffset[0].parent.innerElement.firstChild.ui);
 
         // tiling
         var fieldDiffuseTiling = editor.call('attributes:addField', {
@@ -1228,7 +1228,7 @@ editor.once('load', function() {
         });
         fieldDiffuseTiling[0].parent.hidden = filterDiffuseTiling();
         // reference
-        editor.call('attributes:reference:asset:material:diffuseMapTiling:attach', fieldDiffuseTiling[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:diffuseMapTiling', fieldDiffuseTiling[0].parent.innerElement.firstChild.ui);
 
         // vertex color
         var fieldDiffuseVertexColor = editor.call('attributes:addField', {
@@ -1239,7 +1239,7 @@ editor.once('load', function() {
             path: 'data.diffuseMapVertexColor'
         });
         // reference
-        editor.call('attributes:reference:asset:material:diffuseMapVertexColor:attach', fieldDiffuseVertexColor.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:diffuseMapVertexColor', fieldDiffuseVertexColor.parent.innerElement.firstChild.ui);
 
         // color
         var fieldDiffuseColor = editor.call('attributes:addField', {
@@ -1250,7 +1250,7 @@ editor.once('load', function() {
             path: 'data.diffuse'
         });
         // reference
-        editor.call('attributes:reference:asset:material:diffuse:attach', fieldDiffuseColor.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:diffuse', fieldDiffuseColor.parent.innerElement.firstChild.ui);
 
         // tint
         var fieldDiffuseTint = editor.call('attributes:addField', {
@@ -1267,7 +1267,7 @@ editor.once('load', function() {
         labelDiffuseTint.style.lineHeight = '24px';
         fieldDiffuseColor.parent.append(labelDiffuseTint);
         // reference
-        editor.call('attributes:reference:asset:material:diffuseMapTint:attach', labelDiffuseTint);
+        editor.call('attributes:reference:attach', 'asset:material:diffuseMapTint', labelDiffuseTint);
 
 
 
@@ -1281,7 +1281,7 @@ editor.once('load', function() {
         panelSpecular.on('fold', function() { panelState['specular'] = true; });
         panelSpecular.on('unfold', function() { panelState['specular'] = false; });
         // reference
-        editor.call('attributes:reference:asset:material:specularOverview:attach', panelSpecular, panelSpecular.headerElement);
+        editor.call('attributes:reference:attach', 'asset:material:specularOverview', panelSpecular, panelSpecular.headerElement);
 
         // use metalness
         var fieldUseMetalness = editor.call('attributes:addField', {
@@ -1296,7 +1296,7 @@ editor.once('load', function() {
             panelMetalness.hidden = ! value || fieldUseMetalness.class.contains('null');
         });
         // reference
-        editor.call('attributes:reference:asset:material:useMetalness:attach', fieldUseMetalness.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:useMetalness', fieldUseMetalness.parent.innerElement.firstChild.ui);
 
         var panelMetalness = editor.call('attributes:addPanel');
         panelMetalness.hidden = ! fieldUseMetalness.value || fieldUseMetalness.class.contains('null');
@@ -1320,7 +1320,7 @@ editor.once('load', function() {
             fieldMetalnessTiling[0].parent.hidden = filterMetalnessTiling();
         });
         // reference
-        editor.call('attributes:reference:asset:material:metalnessMap:attach', fieldMetalnessMap._label);
+        editor.call('attributes:reference:attach', 'asset:material:metalnessMap', fieldMetalnessMap._label);
 
         // map uv
         var fieldMetalnessMapUV = editor.call('attributes:addField', {
@@ -1334,7 +1334,7 @@ editor.once('load', function() {
         fieldMetalnessMapUV.element.parentNode.removeChild(fieldMetalnessMapUV.element);
         fieldMetalnessMap.parent.innerElement.querySelector('.top > .controls').appendChild(fieldMetalnessMapUV.element);
         // reference
-        editor.call('attributes:reference:asset:material:metalnessMapUv:attach', fieldMetalnessMapUV);
+        editor.call('attributes:reference:attach', 'asset:material:metalnessMapUv', fieldMetalnessMapUV);
 
         // map channel
         var fieldMetalnessMapChannel = editor.call('attributes:addField', {
@@ -1353,7 +1353,7 @@ editor.once('load', function() {
         fieldMetalnessMapChannel.element.parentNode.removeChild(fieldMetalnessMapChannel.element);
         fieldMetalnessMap.parent.innerElement.querySelector('.top > .ui-label').parentNode.appendChild(fieldMetalnessMapChannel.element);
         // reference
-        editor.call('attributes:reference:asset:material:metalnessMapChannel:attach', fieldMetalnessMapChannel);
+        editor.call('attributes:reference:attach', 'asset:material:metalnessMapChannel', fieldMetalnessMapChannel);
 
         // offset
         var fieldMetalnessOffset = editor.call('attributes:addField', {
@@ -1375,7 +1375,7 @@ editor.once('load', function() {
         });
         fieldMetalnessOffset[0].parent.hidden = filterMetalnessOffset();
         // reference
-        editor.call('attributes:reference:asset:material:metalnessMapOffset:attach', fieldMetalnessOffset[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:metalnessMapOffset', fieldMetalnessOffset[0].parent.innerElement.firstChild.ui);
 
         // tiling
         var fieldMetalnessTiling = editor.call('attributes:addField', {
@@ -1397,7 +1397,7 @@ editor.once('load', function() {
         });
         fieldMetalnessTiling[0].parent.hidden = filterMetalnessTiling();
         // reference
-        editor.call('attributes:reference:asset:material:metalnessMapTiling:attach', fieldMetalnessTiling[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:metalnessMapTiling', fieldMetalnessTiling[0].parent.innerElement.firstChild.ui);
 
         // vertex color
         var fieldMetalnessVertexColor = editor.call('attributes:addField', {
@@ -1408,7 +1408,7 @@ editor.once('load', function() {
             path: 'data.metalnessMapVertexColor'
         });
         // reference
-        editor.call('attributes:reference:asset:material:metalnessMapVertexColor:attach', fieldMetalnessVertexColor.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:metalnessMapVertexColor', fieldMetalnessVertexColor.parent.innerElement.firstChild.ui);
 
 
         // metalness
@@ -1425,7 +1425,7 @@ editor.once('load', function() {
         });
         fieldMetalness.style.width = '32px';
         // reference
-        editor.call('attributes:reference:asset:material:metalness:attach', fieldMetalness.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:metalness', fieldMetalness.parent.innerElement.firstChild.ui);
 
         // metalness slider
         var fieldMetalnessSlider = editor.call('attributes:addField', {
@@ -1465,7 +1465,7 @@ editor.once('load', function() {
             fieldSpecularTiling[0].parent.hidden = filterSpecularTiling();
         });
         // reference
-        editor.call('attributes:reference:asset:material:specularMap:attach', fieldSpecularMap._label);
+        editor.call('attributes:reference:attach', 'asset:material:specularMap', fieldSpecularMap._label);
 
         // map uv
         var fieldSpecularMapUV = editor.call('attributes:addField', {
@@ -1479,7 +1479,7 @@ editor.once('load', function() {
         fieldSpecularMapUV.element.parentNode.removeChild(fieldSpecularMapUV.element);
         fieldSpecularMap.parent.innerElement.querySelector('.top > .controls').appendChild(fieldSpecularMapUV.element);
         // reference
-        editor.call('attributes:reference:asset:material:specularMapUv:attach', fieldSpecularMapUV);
+        editor.call('attributes:reference:attach', 'asset:material:specularMapUv', fieldSpecularMapUV);
 
         // map channel
         var fieldSpecularMapChannel = editor.call('attributes:addField', {
@@ -1499,7 +1499,7 @@ editor.once('load', function() {
         fieldSpecularMapChannel.element.parentNode.removeChild(fieldSpecularMapChannel.element);
         fieldSpecularMap.parent.innerElement.querySelector('.top > .ui-label').parentNode.appendChild(fieldSpecularMapChannel.element);
         // reference
-        editor.call('attributes:reference:asset:material:specularMapChannel:attach', fieldSpecularMapChannel);
+        editor.call('attributes:reference:attach', 'asset:material:specularMapChannel', fieldSpecularMapChannel);
 
 
         // offset
@@ -1522,7 +1522,7 @@ editor.once('load', function() {
         });
         fieldSpecularOffset[0].parent.hidden = filterSpecularOffset();
         // reference
-        editor.call('attributes:reference:asset:material:specularMapOffset:attach', fieldSpecularOffset[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:specularMapOffset', fieldSpecularOffset[0].parent.innerElement.firstChild.ui);
 
         // tiling
         var fieldSpecularTiling = editor.call('attributes:addField', {
@@ -1544,7 +1544,7 @@ editor.once('load', function() {
         });
         fieldSpecularTiling[0].parent.hidden = filterSpecularTiling();
         // reference
-        editor.call('attributes:reference:asset:material:specularMapTiling:attach', fieldSpecularTiling[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:specularMapTiling', fieldSpecularTiling[0].parent.innerElement.firstChild.ui);
 
         // vertex color
         var fieldSpecularVertexColor = editor.call('attributes:addField', {
@@ -1555,7 +1555,7 @@ editor.once('load', function() {
             path: 'data.specularMapVertexColor'
         });
         // reference
-        editor.call('attributes:reference:asset:material:specularMapVertexColor:attach', fieldSpecularVertexColor.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:specularMapVertexColor', fieldSpecularVertexColor.parent.innerElement.firstChild.ui);
 
         // color
         var fieldSpecularColor = editor.call('attributes:addField', {
@@ -1566,7 +1566,7 @@ editor.once('load', function() {
             path: 'data.specular'
         });
         // reference
-        editor.call('attributes:reference:asset:material:specular:attach', fieldSpecularColor.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:specular', fieldSpecularColor.parent.innerElement.firstChild.ui);
 
         // tint
         var fieldSpecularTint = editor.call('attributes:addField', {
@@ -1583,7 +1583,7 @@ editor.once('load', function() {
         labelSpecularTint.style.lineHeight = '24px';
         fieldSpecularColor.parent.append(labelSpecularTint);
         // reference
-        editor.call('attributes:reference:asset:material:specularMapTint:attach', labelSpecularTint);
+        editor.call('attributes:reference:attach', 'asset:material:specularMapTint', labelSpecularTint);
 
 
         // divider
@@ -1610,7 +1610,7 @@ editor.once('load', function() {
             fieldGlossTiling[0].parent.hidden = filterGlossTiling();
         });
         // reference
-        editor.call('attributes:reference:asset:material:glossMap:attach', fieldGlossMap._label);
+        editor.call('attributes:reference:attach', 'asset:material:glossMap', fieldGlossMap._label);
 
         // map uv
         var fieldGlossMapUV = editor.call('attributes:addField', {
@@ -1624,7 +1624,7 @@ editor.once('load', function() {
         fieldGlossMapUV.element.parentNode.removeChild(fieldGlossMapUV.element);
         fieldGlossMap.parent.innerElement.querySelector('.top > .controls').appendChild(fieldGlossMapUV.element);
         // reference
-        editor.call('attributes:reference:asset:material:glossMapUv:attach', fieldGlossMapUV);
+        editor.call('attributes:reference:attach', 'asset:material:glossMapUv', fieldGlossMapUV);
 
         // map channel
         var fieldGlossMapChannel = editor.call('attributes:addField', {
@@ -1643,7 +1643,7 @@ editor.once('load', function() {
         fieldGlossMapChannel.element.parentNode.removeChild(fieldGlossMapChannel.element);
         fieldGlossMap.parent.innerElement.querySelector('.top > .ui-label').parentNode.appendChild(fieldGlossMapChannel.element);
         // reference
-        editor.call('attributes:reference:asset:material:glossMapChannel:attach', fieldGlossMapChannel);
+        editor.call('attributes:reference:attach', 'asset:material:glossMapChannel', fieldGlossMapChannel);
 
 
         // offset
@@ -1666,7 +1666,7 @@ editor.once('load', function() {
         });
         fieldGlossOffset[0].parent.hidden = filterGlossOffset();
         // reference
-        editor.call('attributes:reference:asset:material:glossMapOffset:attach', fieldGlossOffset[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:glossMapOffset', fieldGlossOffset[0].parent.innerElement.firstChild.ui);
 
         // tiling
         var fieldGlossTiling = editor.call('attributes:addField', {
@@ -1688,7 +1688,7 @@ editor.once('load', function() {
         });
         fieldGlossTiling[0].parent.hidden = filterGlossTiling();
         // reference
-        editor.call('attributes:reference:asset:material:glossMapTiling:attach', fieldGlossTiling[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:glossMapTiling', fieldGlossTiling[0].parent.innerElement.firstChild.ui);
 
         // vertex color
         var fieldGlossVertexColor = editor.call('attributes:addField', {
@@ -1699,7 +1699,7 @@ editor.once('load', function() {
             path: 'data.glossMapVertexColor'
         });
         // reference
-        editor.call('attributes:reference:asset:material:glossMapVertexColor:attach', fieldGlossVertexColor.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:glossMapVertexColor', fieldGlossVertexColor.parent.innerElement.firstChild.ui);
 
         // shininess
         var fieldShininess = editor.call('attributes:addField', {
@@ -1715,7 +1715,7 @@ editor.once('load', function() {
         });
         fieldShininess.style.width = '32px';
         // reference
-        editor.call('attributes:reference:asset:material:shininess:attach', fieldShininess.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:shininess', fieldShininess.parent.innerElement.firstChild.ui);
 
         // shininess slider
         var fieldShininessSlider = editor.call('attributes:addField', {
@@ -1742,7 +1742,7 @@ editor.once('load', function() {
         panelEmissive.on('fold', function() { panelState['emissive'] = true; });
         panelEmissive.on('unfold', function() { panelState['emissive'] = false; });
         // reference
-        editor.call('attributes:reference:asset:material:emissiveOverview:attach', panelEmissive, panelEmissive.headerElement);
+        editor.call('attributes:reference:attach', 'asset:material:emissiveOverview', panelEmissive, panelEmissive.headerElement);
 
         // map
         var fieldEmissiveMapHover = handleTextureHover('emissiveMap');
@@ -1762,7 +1762,7 @@ editor.once('load', function() {
             fieldEmissiveTiling[0].parent.hidden = filterEmissiveTiling();
         });
         // reference
-        editor.call('attributes:reference:asset:material:emissiveMap:attach', fieldEmissiveMap._label);
+        editor.call('attributes:reference:attach', 'asset:material:emissiveMap', fieldEmissiveMap._label);
 
         // map uv
         var fieldEmissiveMapUV = editor.call('attributes:addField', {
@@ -1776,7 +1776,7 @@ editor.once('load', function() {
         fieldEmissiveMapUV.element.parentNode.removeChild(fieldEmissiveMapUV.element);
         fieldEmissiveMap.parent.innerElement.querySelector('.top > .controls').appendChild(fieldEmissiveMapUV.element);
         // reference
-        editor.call('attributes:reference:asset:material:emissiveMapUv:attach', fieldEmissiveMapUV);
+        editor.call('attributes:reference:attach', 'asset:material:emissiveMapUv', fieldEmissiveMapUV);
 
         // map channel
         var fieldEmissiveMapChannel = editor.call('attributes:addField', {
@@ -1796,7 +1796,7 @@ editor.once('load', function() {
         fieldEmissiveMapChannel.element.parentNode.removeChild(fieldEmissiveMapChannel.element);
         fieldEmissiveMap.parent.innerElement.querySelector('.top > .ui-label').parentNode.appendChild(fieldEmissiveMapChannel.element);
         // reference
-        editor.call('attributes:reference:asset:material:emissiveMapChannel:attach', fieldEmissiveMapChannel);
+        editor.call('attributes:reference:attach', 'asset:material:emissiveMapChannel', fieldEmissiveMapChannel);
 
 
         // offset
@@ -1819,7 +1819,7 @@ editor.once('load', function() {
         });
         fieldEmissiveOffset[0].parent.hidden = filterEmissiveOffset();
         // reference
-        editor.call('attributes:reference:asset:material:emissiveMapOffset:attach', fieldEmissiveOffset[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:emissiveMapOffset', fieldEmissiveOffset[0].parent.innerElement.firstChild.ui);
 
         // tiling
         var fieldEmissiveTiling = editor.call('attributes:addField', {
@@ -1841,7 +1841,7 @@ editor.once('load', function() {
         });
         fieldEmissiveTiling[0].parent.hidden = filterEmissiveTiling();
         // reference
-        editor.call('attributes:reference:asset:material:emissiveMapTiling:attach', fieldEmissiveTiling[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:emissiveMapTiling', fieldEmissiveTiling[0].parent.innerElement.firstChild.ui);
 
         // vertex color
         var fieldEmissiveVertexColor = editor.call('attributes:addField', {
@@ -1852,7 +1852,7 @@ editor.once('load', function() {
             path: 'data.emissiveMapVertexColor'
         });
         // reference
-        editor.call('attributes:reference:asset:material:emissiveMapVertexColor:attach', fieldEmissiveVertexColor.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:emissiveMapVertexColor', fieldEmissiveVertexColor.parent.innerElement.firstChild.ui);
 
         // color
         var fieldEmissiveColor = editor.call('attributes:addField', {
@@ -1863,7 +1863,7 @@ editor.once('load', function() {
             path: 'data.emissive'
         });
         // reference
-        editor.call('attributes:reference:asset:material:emissive:attach', fieldEmissiveColor.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:emissive', fieldEmissiveColor.parent.innerElement.firstChild.ui);
 
         // tint
         var fieldEmissiveTint = editor.call('attributes:addField', {
@@ -1880,7 +1880,7 @@ editor.once('load', function() {
         labelEmissiveTint.style.lineHeight = '24px';
         fieldEmissiveColor.parent.append(labelEmissiveTint);
         // reference
-        editor.call('attributes:reference:asset:material:emissiveMapTint:attach', labelEmissiveTint);
+        editor.call('attributes:reference:attach', 'asset:material:emissiveMapTint', labelEmissiveTint);
 
 
 
@@ -1897,7 +1897,7 @@ editor.once('load', function() {
         });
         fieldEmissiveIntensity.style.width = '32px';
         // reference
-        editor.call('attributes:reference:asset:material:emissiveIntensity:attach', fieldEmissiveIntensity.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:emissiveIntensity', fieldEmissiveIntensity.parent.innerElement.firstChild.ui);
 
         // emissiveIntensity slider
         var fieldEmissiveIntensitySlider = editor.call('attributes:addField', {
@@ -1924,7 +1924,7 @@ editor.once('load', function() {
         panelOpacity.on('fold', function() { panelState['opacity'] = true; });
         panelOpacity.on('unfold', function() { panelState['opacity'] = false; });
         // reference
-        editor.call('attributes:reference:asset:material:opacityOverview:attach', panelOpacity, panelOpacity.headerElement);
+        editor.call('attributes:reference:attach', 'asset:material:opacityOverview', panelOpacity, panelOpacity.headerElement);
 
         var filterBlendFields = function (value) {
             fieldOpacityIntensity.parent.hidden = ! (fieldBlendType.value === '' || [ 2, 4, 6 ].indexOf(fieldBlendType.value) !== -1);
@@ -1944,7 +1944,7 @@ editor.once('load', function() {
         });
         fieldBlendType.on('change', filterBlendFields);
         // reference
-        editor.call('attributes:reference:asset:material:blendType:attach', fieldBlendType.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:blendType', fieldBlendType.parent.innerElement.firstChild.ui);
 
         // map
         var fieldOpacityMapHover = handleTextureHover('opacityMap');
@@ -1961,7 +1961,7 @@ editor.once('load', function() {
         fieldOpacityMap.parent.class.add('channel');
         fieldOpacityMap.on('change', filterBlendFields);
         // reference
-        editor.call('attributes:reference:asset:material:opacityMap:attach', fieldOpacityMap._label);
+        editor.call('attributes:reference:attach', 'asset:material:opacityMap', fieldOpacityMap._label);
 
         // map uv
         var fieldOpacityMapUV = editor.call('attributes:addField', {
@@ -1975,7 +1975,7 @@ editor.once('load', function() {
         fieldOpacityMapUV.element.parentNode.removeChild(fieldOpacityMapUV.element);
         fieldOpacityMap.parent.innerElement.querySelector('.top > .controls').appendChild(fieldOpacityMapUV.element);
         // reference
-        editor.call('attributes:reference:asset:material:opacityMapUv:attach', fieldOpacityMapUV);
+        editor.call('attributes:reference:attach', 'asset:material:opacityMapUv', fieldOpacityMapUV);
 
         // map channel
         var fieldOpacityMapChannel = editor.call('attributes:addField', {
@@ -1994,7 +1994,7 @@ editor.once('load', function() {
         fieldOpacityMapChannel.element.parentNode.removeChild(fieldOpacityMapChannel.element);
         fieldOpacityMap.parent.innerElement.querySelector('.top > .ui-label').parentNode.appendChild(fieldOpacityMapChannel.element);
         // reference
-        editor.call('attributes:reference:asset:material:opacityMapChannel:attach', fieldOpacityMapChannel);
+        editor.call('attributes:reference:attach', 'asset:material:opacityMapChannel', fieldOpacityMapChannel);
 
         // offset
         var fieldOpacityOffset = editor.call('attributes:addField', {
@@ -2016,7 +2016,7 @@ editor.once('load', function() {
         });
         fieldOpacityOffset[0].parent.hidden = filterOpacityOffset();
         // reference
-        editor.call('attributes:reference:asset:material:opacityMapOffset:attach', fieldOpacityOffset[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:opacityMapOffset', fieldOpacityOffset[0].parent.innerElement.firstChild.ui);
 
         // tiling
         var fieldOpacityTiling = editor.call('attributes:addField', {
@@ -2038,7 +2038,7 @@ editor.once('load', function() {
         });
         fieldOpacityTiling[0].parent.hidden = filterOpacityTiling();
         // reference
-        editor.call('attributes:reference:asset:material:opacityMapTiling:attach', fieldOpacityTiling[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:opacityMapTiling', fieldOpacityTiling[0].parent.innerElement.firstChild.ui);
 
         // vertex color
         var fieldOpacityVertexColor = editor.call('attributes:addField', {
@@ -2050,7 +2050,7 @@ editor.once('load', function() {
         });
         fieldOpacityVertexColor.on('change', filterBlendFields);
         // reference
-        editor.call('attributes:reference:asset:material:opacityMapVertexColor:attach', fieldOpacityVertexColor.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:opacityMapVertexColor', fieldOpacityVertexColor.parent.innerElement.firstChild.ui);
 
         // intensity
         var fieldOpacityIntensity = editor.call('attributes:addField', {
@@ -2067,7 +2067,7 @@ editor.once('load', function() {
         fieldOpacityIntensity.style.width = '32px';
         fieldOpacityIntensity.flexGrow = 1;
         // reference
-        editor.call('attributes:reference:asset:material:opacity:attach', fieldOpacityIntensity.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:opacity', fieldOpacityIntensity.parent.innerElement.firstChild.ui);
 
         // intensity slider
         var fieldOpacityIntensitySlider = editor.call('attributes:addField', {
@@ -2098,7 +2098,7 @@ editor.once('load', function() {
         fieldAlphaTest.style.width = '32px';
         fieldAlphaTest.flexGrow = 1;
         // reference
-        editor.call('attributes:reference:asset:material:alphaTest:attach', fieldAlphaTest.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:alphaTest', fieldAlphaTest.parent.innerElement.firstChild.ui);
 
         // alphaTest slider
         var fieldAlphaTestSlider = editor.call('attributes:addField', {
@@ -2127,7 +2127,7 @@ editor.once('load', function() {
         panelNormal.on('fold', function() { panelState['normals'] = true; });
         panelNormal.on('unfold', function() { panelState['normals'] = false; });
         // reference
-        editor.call('attributes:reference:asset:material:normalOverview:attach', panelNormal, panelNormal.headerElement);
+        editor.call('attributes:reference:attach', 'asset:material:normalOverview', panelNormal, panelNormal.headerElement);
 
         // map (normals)
         var fieldNormalMapHover = handleTextureHover('normalMap');
@@ -2147,7 +2147,7 @@ editor.once('load', function() {
             fieldBumpiness.parent.hidden = ! value && ! this.class.contains('null');
         });
         // reference
-        editor.call('attributes:reference:asset:material:normalMap:attach', fieldNormalMap._label);
+        editor.call('attributes:reference:attach', 'asset:material:normalMap', fieldNormalMap._label);
 
         // map uv
         var fieldNormalMapUV = editor.call('attributes:addField', {
@@ -2161,7 +2161,7 @@ editor.once('load', function() {
         fieldNormalMapUV.element.parentNode.removeChild(fieldNormalMapUV.element);
         fieldNormalMap.parent.innerElement.querySelector('.top > .controls').appendChild(fieldNormalMapUV.element);
         // reference
-        editor.call('attributes:reference:asset:material:normalMapUv:attach', fieldNormalMapUV);
+        editor.call('attributes:reference:attach', 'asset:material:normalMapUv', fieldNormalMapUV);
 
 
         // offset
@@ -2184,7 +2184,7 @@ editor.once('load', function() {
         });
         fieldNormalsOffset[0].parent.hidden = filterNormalOffset();
         // reference
-        editor.call('attributes:reference:asset:material:normalMapOffset:attach', fieldNormalsOffset[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:normalMapOffset', fieldNormalsOffset[0].parent.innerElement.firstChild.ui);
 
         // tiling
         var fieldNormalsTiling = editor.call('attributes:addField', {
@@ -2206,7 +2206,7 @@ editor.once('load', function() {
         });
         fieldNormalsTiling[0].parent.hidden = filterNormalTiling();
         // reference
-        editor.call('attributes:reference:asset:material:normalMapTiling:attach', fieldNormalsTiling[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:normalMapTiling', fieldNormalsTiling[0].parent.innerElement.firstChild.ui);
 
 
         // bumpiness
@@ -2225,7 +2225,7 @@ editor.once('load', function() {
         fieldBumpiness.style.width = '32px';
         fieldBumpiness.flexGrow = 1;
         // reference
-        editor.call('attributes:reference:asset:material:bumpiness:attach', fieldBumpiness.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:bumpiness', fieldBumpiness.parent.innerElement.firstChild.ui);
 
         // bumpiness slider
         var fieldBumpinessSlider = editor.call('attributes:addField', {
@@ -2252,7 +2252,7 @@ editor.once('load', function() {
         panelParallax.on('fold', function() { panelState['height'] = true; });
         panelParallax.on('unfold', function() { panelState['height'] = false; });
         // reference
-        editor.call('attributes:reference:asset:material:parallaxOverview:attach', panelParallax, panelParallax.headerElement);
+        editor.call('attributes:reference:attach', 'asset:material:parallaxOverview', panelParallax, panelParallax.headerElement);
 
         // height map
         var fieldHeightMapHover = handleTextureHover('heightMap');
@@ -2273,7 +2273,7 @@ editor.once('load', function() {
             fieldHeightMapFactor.parent.hidden = ! value;
         });
         // reference
-        editor.call('attributes:reference:asset:material:heightMap:attach', fieldHeightMap._label);
+        editor.call('attributes:reference:attach', 'asset:material:heightMap', fieldHeightMap._label);
 
         // map uv
         var fieldHeightMapUV = editor.call('attributes:addField', {
@@ -2287,7 +2287,7 @@ editor.once('load', function() {
         fieldHeightMapUV.element.parentNode.removeChild(fieldHeightMapUV.element);
         fieldHeightMap.parent.innerElement.querySelector('.top > .controls').appendChild(fieldHeightMapUV.element);
         // reference
-        editor.call('attributes:reference:asset:material:heightMapUv:attach', fieldHeightMapUV);
+        editor.call('attributes:reference:attach', 'asset:material:heightMapUv', fieldHeightMapUV);
 
         // map channel
         var fieldHeightMapChannel = editor.call('attributes:addField', {
@@ -2306,7 +2306,7 @@ editor.once('load', function() {
         fieldHeightMapChannel.element.parentNode.removeChild(fieldHeightMapChannel.element);
         fieldHeightMap.parent.innerElement.querySelector('.top > .ui-label').parentNode.appendChild(fieldHeightMapChannel.element);
         // reference
-        editor.call('attributes:reference:asset:material:heightMapChannel:attach', fieldHeightMapChannel);
+        editor.call('attributes:reference:attach', 'asset:material:heightMapChannel', fieldHeightMapChannel);
 
 
         // offset
@@ -2329,7 +2329,7 @@ editor.once('load', function() {
         });
         fieldHeightMapOffset[0].parent.hidden = filterHeightMapOffset();
         // reference
-        editor.call('attributes:reference:asset:material:heightMapOffset:attach', fieldHeightMapOffset[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:heightMapOffset', fieldHeightMapOffset[0].parent.innerElement.firstChild.ui);
 
         // tiling
         var fieldHeightMapTiling = editor.call('attributes:addField', {
@@ -2351,7 +2351,7 @@ editor.once('load', function() {
         });
         fieldHeightMapTiling[0].parent.hidden = filterHeightMapTiling();
         // reference
-        editor.call('attributes:reference:asset:material:heightMapTiling:attach', fieldHeightMapTiling[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:heightMapTiling', fieldHeightMapTiling[0].parent.innerElement.firstChild.ui);
 
 
         // heightMapFactor
@@ -2370,7 +2370,7 @@ editor.once('load', function() {
         fieldHeightMapFactor.style.width = '32px';
         fieldHeightMapFactor.flexGrow = 1;
         // reference
-        editor.call('attributes:reference:asset:material:bumpiness:attach', fieldHeightMapFactor.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:bumpiness', fieldHeightMapFactor.parent.innerElement.firstChild.ui);
 
         // heightMapFactor slider
         var fieldHeightMapFactorSlider = editor.call('attributes:addField', {
@@ -2397,7 +2397,7 @@ editor.once('load', function() {
         panelReflection.on('fold', function() { panelState['environment'] = true; });
         panelReflection.on('unfold', function() { panelState['environment'] = false; });
         // reference
-        editor.call('attributes:reference:asset:material:environmentOverview:attach', panelReflection, panelReflection.headerElement);
+        editor.call('attributes:reference:attach', 'asset:material:environmentOverview', panelReflection, panelReflection.headerElement);
         // filter
         var filterReflectionMaps = function() {
             fieldReflectionCubeMap.parent.hidden = ! fieldReflectionCubeMap.value && ! fieldReflectionCubeMap.class.contains('null') && (fieldReflectionSphere.value || fieldReflectionSphere.class.contains('null'));
@@ -2417,7 +2417,7 @@ editor.once('load', function() {
         });
         fieldReflectionSphere.on('change', filterReflectionMaps);
         // reference
-        editor.call('attributes:reference:asset:material:sphereMap:attach', fieldReflectionSphere._label);
+        editor.call('attributes:reference:attach', 'asset:material:sphereMap', fieldReflectionSphere._label);
 
         // cubemap
         var fieldReflectionCubeMap = editor.call('attributes:addField', {
@@ -2430,7 +2430,7 @@ editor.once('load', function() {
         });
         fieldReflectionCubeMap.on('change', filterReflectionMaps);
         // reference
-        editor.call('attributes:reference:asset:material:cubeMap:attach', fieldReflectionCubeMap._label);
+        editor.call('attributes:reference:attach', 'asset:material:cubeMap', fieldReflectionCubeMap._label);
 
         // reflectivity
         var fieldReflectionStrength = editor.call('attributes:addField', {
@@ -2446,7 +2446,7 @@ editor.once('load', function() {
         });
         fieldReflectionStrength.style.width = '32px';
         // reference
-        editor.call('attributes:reference:asset:material:reflectivity:attach', fieldReflectionStrength.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:reflectivity', fieldReflectionStrength.parent.innerElement.firstChild.ui);
 
         // reflectivity slider
         var fieldReflectionStrengthSlider = editor.call('attributes:addField', {
@@ -2477,7 +2477,7 @@ editor.once('load', function() {
         });
         fieldRefraction.style.width = '32px';
         // reference
-        editor.call('attributes:reference:asset:material:refraction:attach', fieldRefraction.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:refraction', fieldRefraction.parent.innerElement.firstChild.ui);
 
         // reflectivity slider
         var fieldRefractionSlider = editor.call('attributes:addField', {
@@ -2508,7 +2508,7 @@ editor.once('load', function() {
         });
         fieldRefractionIndex.style.width = '32px';
         // reference
-        editor.call('attributes:reference:asset:material:refractionIndex:attach', fieldRefractionIndex.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:refractionIndex', fieldRefractionIndex.parent.innerElement.firstChild.ui);
 
         // reflectivity slider
         var fieldRefractionIndexSlider = editor.call('attributes:addField', {
@@ -2537,7 +2537,7 @@ editor.once('load', function() {
         panelLightMap.on('fold', function() { panelState['light'] = true; });
         panelLightMap.on('unfold', function() { panelState['light'] = false; });
         // reference
-        editor.call('attributes:reference:asset:material:lightMapOverview:attach', panelLightMap, panelLightMap.headerElement);
+        editor.call('attributes:reference:attach', 'asset:material:lightMapOverview', panelLightMap, panelLightMap.headerElement);
 
         // map
         var fieldLightMapHover = handleTextureHover('lightMap');
@@ -2557,7 +2557,7 @@ editor.once('load', function() {
             fieldLightMapTiling[0].parent.hidden = filterLightMapTiling();
         });
         // reference
-        editor.call('attributes:reference:asset:material:lightMap:attach', fieldLightMap._label);
+        editor.call('attributes:reference:attach', 'asset:material:lightMap', fieldLightMap._label);
 
         // map uv
         var fieldLightMapUV = editor.call('attributes:addField', {
@@ -2571,7 +2571,7 @@ editor.once('load', function() {
         fieldLightMapUV.element.parentNode.removeChild(fieldLightMapUV.element);
         fieldLightMap.parent.innerElement.querySelector('.top > .controls').appendChild(fieldLightMapUV.element);
         // reference
-        editor.call('attributes:reference:asset:material:lightMapUv:attach', fieldLightMapUV);
+        editor.call('attributes:reference:attach', 'asset:material:lightMapUv', fieldLightMapUV);
 
         // map channel
         var fieldLightMapChannel = editor.call('attributes:addField', {
@@ -2591,7 +2591,7 @@ editor.once('load', function() {
         fieldLightMapChannel.element.parentNode.removeChild(fieldLightMapChannel.element);
         fieldLightMap.parent.innerElement.querySelector('.top > .ui-label').parentNode.appendChild(fieldLightMapChannel.element);
         // reference
-        editor.call('attributes:reference:asset:material:lightMapChannel:attach', fieldLightMapChannel);
+        editor.call('attributes:reference:attach', 'asset:material:lightMapChannel', fieldLightMapChannel);
 
 
         // offset
@@ -2614,7 +2614,7 @@ editor.once('load', function() {
         });
         fieldLightMapOffset[0].parent.hidden = filterLightMapOffset();
         // reference
-        editor.call('attributes:reference:asset:material:lightMapOffset:attach', fieldLightMapOffset[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:lightMapOffset', fieldLightMapOffset[0].parent.innerElement.firstChild.ui);
 
         // tiling
         var fieldLightMapTiling = editor.call('attributes:addField', {
@@ -2636,7 +2636,7 @@ editor.once('load', function() {
         });
         fieldLightMapTiling[0].parent.hidden = filterLightMapTiling();
         // reference
-        editor.call('attributes:reference:asset:material:lightMapTiling:attach', fieldLightMapTiling[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:lightMapTiling', fieldLightMapTiling[0].parent.innerElement.firstChild.ui);
 
         // vertex color
         var fieldLightVertexColor = editor.call('attributes:addField', {
@@ -2647,7 +2647,7 @@ editor.once('load', function() {
             path: 'data.lightMapVertexColor'
         });
         // reference
-        editor.call('attributes:reference:asset:material:lightMapVertexColor:attach', fieldLightVertexColor.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:lightMapVertexColor', fieldLightVertexColor.parent.innerElement.firstChild.ui);
 
         // render states
         var panelRenderStates = editor.call('attributes:addPanel', {
@@ -2659,7 +2659,7 @@ editor.once('load', function() {
         panelRenderStates.on('fold', function() { panelState['states'] = true; });
         panelRenderStates.on('unfold', function() { panelState['states'] = false; });
         // reference
-        editor.call('attributes:reference:asset:material:other:attach', panelRenderStates, panelRenderStates.headerElement);
+        editor.call('attributes:reference:attach', 'asset:material:other', panelRenderStates, panelRenderStates.headerElement);
 
 
         // depth
@@ -2678,7 +2678,7 @@ editor.once('load', function() {
         label.style.lineHeight = '24px';
         fieldDepthTest.parent.append(label);
         // reference
-        editor.call('attributes:reference:asset:material:depthTest:attach', label);
+        editor.call('attributes:reference:attach', 'asset:material:depthTest', label);
 
 
         // depthWrite
@@ -2695,7 +2695,7 @@ editor.once('load', function() {
         label.style.lineHeight = '24px';
         fieldDepthTest.parent.append(label);
         // reference
-        editor.call('attributes:reference:asset:material:depthWrite:attach', label);
+        editor.call('attributes:reference:attach', 'asset:material:depthWrite', label);
 
 
         // culling
@@ -2708,7 +2708,7 @@ editor.once('load', function() {
             path: 'data.cull'
         });
         // reference
-        editor.call('attributes:reference:asset:material:cull:attach', fieldCull.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:cull', fieldCull.parent.innerElement.firstChild.ui);
 
         // shadowSampleType
         var fieldShadowSampleType = editor.call('attributes:addField', {
@@ -2720,7 +2720,7 @@ editor.once('load', function() {
             path: 'data.shadowSampleType'
         });
         // reference
-        editor.call('attributes:reference:asset:material:shadowSampleType:attach', fieldShadowSampleType.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:shadowSampleType', fieldShadowSampleType.parent.innerElement.firstChild.ui);
 
         // attach change event on tiling / offset fields
         // to set initial value if it doesn't exist

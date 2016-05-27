@@ -32,7 +32,7 @@ editor.once('load', function() {
             path: 'components.collision.type'
         });
         // reference
-        editor.call('attributes:reference:collision:type:attach', fieldType.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'collision:type', fieldType.parent.innerElement.firstChild.ui);
 
 
         // halfExtents
@@ -52,7 +52,7 @@ editor.once('load', function() {
             fieldHalfExtents[0].parent.hidden = value !== 'box' && value !== '';
         });
         // reference
-        editor.call('attributes:reference:collision:halfExtents:attach', fieldHalfExtents[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'collision:halfExtents', fieldHalfExtents[0].parent.innerElement.firstChild.ui);
 
 
         // radius
@@ -71,7 +71,7 @@ editor.once('load', function() {
             fieldRadius.parent.hidden = value !== '' && [ 'sphere', 'capsule', 'cylinder' ].indexOf(value) === -1;
         });
         // reference
-        editor.call('attributes:reference:collision:radius:attach', fieldRadius.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'collision:radius', fieldRadius.parent.innerElement.firstChild.ui);
 
 
         // height
@@ -91,7 +91,7 @@ editor.once('load', function() {
             fieldHeight.parent.hidden = value !== '' && [ 'capsule', 'cylinder' ].indexOf(value) === -1;
         });
         // reference
-        editor.call('attributes:reference:collision:height:attach', fieldHeight.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'collision:height', fieldHeight.parent.innerElement.firstChild.ui);
 
 
         // axis
@@ -113,7 +113,7 @@ editor.once('load', function() {
             fieldAxis.parent.hidden = value !== '' && [ 'capsule', 'cylinder' ].indexOf(value) === -1;
         });
         // reference
-        editor.call('attributes:reference:collision:axis:attach', fieldAxis.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'collision:axis', fieldAxis.parent.innerElement.firstChild.ui);
 
 
         // asset
@@ -130,6 +130,6 @@ editor.once('load', function() {
             fieldAsset.parent.hidden = value !== '' && value !== 'mesh';
         });
         // reference
-        editor.call('attributes:reference:collision:asset:attach', fieldAsset.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'collision:asset', fieldAsset._label);
     });
 });

@@ -4921,14 +4921,15 @@ strong {
     .ui-panel.sound-slot {
         margin-bottom: 2px;
 
+        > .ui-header > .title {
+            width: calc(100% - 32px);
+        }
         > .content {
             padding: 8px 6px;
         }
-
         .ui-text-field.error {
             border-color: #fb222f;
         }
-
         .remove {
             @extend .font-icon;
 

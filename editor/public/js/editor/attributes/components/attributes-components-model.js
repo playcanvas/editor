@@ -40,7 +40,7 @@ editor.once('load', function() {
             toggleMaterials();
         });
         // reference
-        editor.call('attributes:reference:model:type:attach', fieldType.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'model:type', fieldType.parent.innerElement.firstChild.ui);
 
 
         // asset
@@ -54,7 +54,7 @@ editor.once('load', function() {
         });
         fieldAsset.parent.hidden = fieldType.value !== 'asset';
         // reference
-        editor.call('attributes:reference:model:asset:attach', fieldAsset._label);
+        editor.call('attributes:reference:attach', 'model:asset', fieldAsset._label);
 
         var changingAsset = false;
 
@@ -155,7 +155,7 @@ editor.once('load', function() {
         fieldMaterial.class.add('material-asset');
         fieldMaterial.parent.hidden = fieldType.value === 'asset';
         // reference
-        editor.call('attributes:reference:model:materialAsset:attach', fieldMaterial._label);
+        editor.call('attributes:reference:attach', 'model:materialAsset', fieldMaterial._label);
 
 
         // castShadows
@@ -172,7 +172,7 @@ editor.once('load', function() {
         label.style.paddingRight = '8px';
         fieldCastShadows.parent.append(label);
         // reference
-        editor.call('attributes:reference:model:castShadows:attach', label);
+        editor.call('attributes:reference:attach', 'model:castShadows', label);
 
 
         // castShadowsLightmap
@@ -189,7 +189,7 @@ editor.once('load', function() {
         labelCastShadowsLightmap.style.whiteSpace = 'nowrap';
         fieldCastShadows.parent.append(labelCastShadowsLightmap);
         // reference
-        editor.call('attributes:reference:model:castShadowsLightmap:attach', labelCastShadowsLightmap);
+        editor.call('attributes:reference:attach', 'model:castShadowsLightmap', labelCastShadowsLightmap);
 
 
         // receiveShadows
@@ -204,7 +204,7 @@ editor.once('load', function() {
         label.class.add('label-infield');
         fieldCastShadows.parent.append(label);
         // reference
-        editor.call('attributes:reference:model:receiveShadows:attach', label);
+        editor.call('attributes:reference:attach', 'model:receiveShadows', label);
 
 
         // lightmapped
@@ -216,7 +216,7 @@ editor.once('load', function() {
             path: 'components.model.lightmapped'
         });
         // reference
-        editor.call('attributes:reference:model:lightmapped:attach', label);
+        editor.call('attributes:reference:attach', 'model:lightmapped', fieldLightmapped.parent.innerElement.firstChild.ui);
         // uv1 is missing
         var label = new ui.Label({ text: 'UV1 is missing' });
         label.class.add('label-infield');
@@ -267,7 +267,7 @@ editor.once('load', function() {
             fieldResolution.parent.hidden = ! fieldLightmapped.value && ! fieldLightmapped.class.contains('null');
         });
         // reference
-        editor.call('attributes:reference:model:resolution:attach', label);
+        editor.call('attributes:reference:attach', 'model:resolution', fieldResolution.parent.innerElement.firstChild.ui);
 
         // calculate resolutions for lightmap
         var collectResolutions = function() {
@@ -310,7 +310,7 @@ editor.once('load', function() {
             collectResolutions();
         });
         // reference
-        editor.call('attributes:reference:model:lightmapSizeMultiplier:attach', fieldLightmapSizeMultiplier);
+        editor.call('attributes:reference:attach', 'model:lightmapSizeMultiplier', fieldLightmapSizeMultiplier);
 
 
         panel.on('destroy', function() {

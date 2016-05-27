@@ -24,7 +24,7 @@ editor.once('load', function() {
             path: 'components.particlesystem.autoPlay'
         });
         // reference
-        editor.call('attributes:reference:particlesystem:autoPlay:attach', fieldAutoPlay.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'particlesystem:autoPlay', fieldAutoPlay.parent.innerElement.firstChild.ui);
 
 
         // numParticles
@@ -36,7 +36,7 @@ editor.once('load', function() {
             path: 'components.particlesystem.numParticles'
         });
         // reference
-        editor.call('attributes:reference:particlesystem:numParticles:attach', fieldNumParticles.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'particlesystem:numParticles', fieldNumParticles.parent.innerElement.firstChild.ui);
 
 
         // lifetime
@@ -49,7 +49,7 @@ editor.once('load', function() {
             path: 'components.particlesystem.lifetime'
         });
         // reference
-        editor.call('attributes:reference:particlesystem:lifetime:attach', fieldLifetime.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'particlesystem:lifetime', fieldLifetime.parent.innerElement.firstChild.ui);
 
 
         // emission rate
@@ -61,7 +61,7 @@ editor.once('load', function() {
         panelEmissionRate = panelEmissionRate.parent;
         label.destroy();
         // reference
-        editor.call('attributes:reference:particlesystem:rate:attach', panelEmissionRate.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'particlesystem:rate', panelEmissionRate.innerElement.firstChild.ui);
 
         // emission rate from
         var fieldEmissionRateFrom = editor.call('attributes:addField', {
@@ -93,7 +93,7 @@ editor.once('load', function() {
         panelStartAngle = panelStartAngle.parent;
         label.destroy();
         // reference
-        editor.call('attributes:reference:particlesystem:startAngle:attach', panelStartAngle.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'particlesystem:startAngle', panelStartAngle.innerElement.firstChild.ui);
 
         // start angle from
         var fieldStartAngleFrom = editor.call('attributes:addField', {
@@ -138,7 +138,7 @@ editor.once('load', function() {
         label.style.paddingRight = '12px';
         panelPlayback.append(label);
         // reference
-        editor.call('attributes:reference:particlesystem:loop:attach', label);
+        editor.call('attributes:reference:attach', 'particlesystem:loop', label);
 
 
         // preWarm
@@ -159,7 +159,7 @@ editor.once('load', function() {
             fieldPreWarm.hidden = labelPreWarm.hidden = ! value && ! this.class.contains('null');
         });
         // reference
-        editor.call('attributes:reference:particlesystem:preWarm:attach', labelPreWarm);
+        editor.call('attributes:reference:attach', 'particlesystem:preWarm', labelPreWarm);
 
 
 
@@ -186,7 +186,7 @@ editor.once('load', function() {
         label.class.add('label-infield');
         panelLighting.append(label);
         // reference
-        editor.call('attributes:reference:particlesystem:lighting:attach', label);
+        editor.call('attributes:reference:attach', 'particlesystem:lighting', label);
 
 
         // halfLambert
@@ -207,7 +207,7 @@ editor.once('load', function() {
             fieldHalfLambert.hidden = labelHalfLambert.hidden = ! value && ! this.class.contains('null');
         });
         // reference
-        editor.call('attributes:reference:particlesystem:halfLambert:attach', labelHalfLambert);
+        editor.call('attributes:reference:attach', 'particlesystem:halfLambert', labelHalfLambert);
 
 
         // intensity
@@ -219,7 +219,7 @@ editor.once('load', function() {
             path: 'components.particlesystem.intensity'
         });
         // reference
-        editor.call('attributes:reference:particlesystem:intensity:attach', fieldIntensity.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'particlesystem:intensity', fieldIntensity.parent.innerElement.firstChild.ui);
 
 
         // depth
@@ -244,7 +244,7 @@ editor.once('load', function() {
         label.style.paddingRight = '12px';
         panelDepth.append(label);
         // reference
-        editor.call('attributes:reference:particlesystem:depthWrite:attach', label);
+        editor.call('attributes:reference:attach', 'particlesystem:depthWrite', label);
 
         // depthSoftening
         var fieldDepthSoftening = editor.call('attributes:addField', {
@@ -255,7 +255,7 @@ editor.once('load', function() {
             path: 'components.particlesystem.depthSoftening'
         });
         // reference
-        editor.call('attributes:reference:particlesystem:depthSoftening:attach', fieldDepthSoftening);
+        editor.call('attributes:reference:attach', 'particlesystem:depthSoftening', fieldDepthSoftening);
 
 
         // sort
@@ -274,7 +274,7 @@ editor.once('load', function() {
             path: 'components.particlesystem.sort'
         });
         // reference
-        editor.call('attributes:reference:particlesystem:sort:attach', fieldSort.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'particlesystem:sort', fieldSort.parent.innerElement.firstChild.ui);
 
 
         // blendType
@@ -292,7 +292,7 @@ editor.once('load', function() {
             path: 'components.particlesystem.blendType'
         });
         // reference
-        editor.call('attributes:reference:particlesystem:blend:attach', fieldBlendType.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'particlesystem:blend', fieldBlendType.parent.innerElement.firstChild.ui);
 
 
         // stretch
@@ -304,7 +304,7 @@ editor.once('load', function() {
             path: 'components.particlesystem.stretch'
         });
         // reference
-        editor.call('attributes:reference:particlesystem:stretch:attach', fieldStretch.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'particlesystem:stretch', fieldStretch.parent.innerElement.firstChild.ui);
 
 
         // alignToMotion
@@ -316,7 +316,7 @@ editor.once('load', function() {
             path: 'components.particlesystem.alignToMotion'
         });
         // reference
-        editor.call('attributes:reference:particlesystem:alignToMotion:attach', fieldAlignToMotion.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'particlesystem:alignToMotion', fieldAlignToMotion.parent.innerElement.firstChild.ui);
 
 
         // emitterShape
@@ -333,7 +333,7 @@ editor.once('load', function() {
             path: 'components.particlesystem.emitterShape'
         });
         // reference
-        editor.call('attributes:reference:particlesystem:emitterShape:attach', fieldEmitterShape.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'particlesystem:emitterShape', fieldEmitterShape.parent.innerElement.firstChild.ui);
 
 
         // emitterExtents
@@ -350,7 +350,7 @@ editor.once('load', function() {
             fieldSpawnBounds[0].parent.hidden = value !== 0 || this.class.contains('null');
         });
         // reference
-        editor.call('attributes:reference:particlesystem:emitterExtents:attach', fieldSpawnBounds[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'particlesystem:emitterExtents', fieldSpawnBounds[0].parent.innerElement.firstChild.ui);
 
 
         // emitterRadius
@@ -366,7 +366,7 @@ editor.once('load', function() {
             fieldSpawnRadius.parent.hidden = value !== 1 || this.class.contains('null');
         });
         // reference
-        editor.call('attributes:reference:particlesystem:emitterRadius:attach', fieldSpawnRadius.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'particlesystem:emitterRadius', fieldSpawnRadius.parent.innerElement.firstChild.ui);
 
 
         // wrap
@@ -378,7 +378,7 @@ editor.once('load', function() {
             path: 'components.particlesystem.wrap'
         });
         // reference
-        editor.call('attributes:reference:particlesystem:wrap:attach', fieldWrap.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'particlesystem:wrap', fieldWrap.parent.innerElement.firstChild.ui);
 
 
         // wrapBounds
@@ -395,7 +395,7 @@ editor.once('load', function() {
             fieldWrapBounds[0].parent.hidden = ! value && ! this.class.contains('null');
         });
         // reference
-        editor.call('attributes:reference:particlesystem:wrapBounds:attach', fieldWrapBounds[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'particlesystem:wrapBounds', fieldWrapBounds[0].parent.innerElement.firstChild.ui);
 
 
         // colorMapAsset
@@ -408,7 +408,7 @@ editor.once('load', function() {
             path: 'components.particlesystem.colorMapAsset'
         });
         // reference
-        editor.call('attributes:reference:particlesystem:colorMap:attach', fieldColorMap._label);
+        editor.call('attributes:reference:attach', 'particlesystem:colorMap', fieldColorMap._label);
 
         fieldColorMap.on('change', function (value) {
             panelFrames.hidden = !value && !fieldNormalMap.value;
@@ -426,7 +426,7 @@ editor.once('load', function() {
             path: 'components.particlesystem.normalMapAsset'
         });
         // reference
-        editor.call('attributes:reference:particlesystem:normalMap:attach', fieldNormalMap._label);
+        editor.call('attributes:reference:attach', 'particlesystem:normalMap', fieldNormalMap._label);
 
         fieldNormalMap.on('change', function (value) {
             panelFrames.hidden = !value && !fieldColorMap.value;
@@ -455,7 +455,7 @@ editor.once('load', function() {
         });
         fieldAnimatedTextureTilesX.style.width = '50%';
         // reference
-        editor.call('attributes:reference:particlesystem:animTilesX:attach', fieldAnimatedTextureTilesX.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'particlesystem:animTilesX', fieldAnimatedTextureTilesX.parent.innerElement.firstChild.ui);
 
         // number of y tiles
         var fieldAnimatedTextureTilesY = editor.call('attributes:addField', {
@@ -468,7 +468,7 @@ editor.once('load', function() {
         });
         fieldAnimatedTextureTilesY.style.width = '50%';
         // reference
-        editor.call('attributes:reference:particlesystem:animTilesY:attach', fieldAnimatedTextureTilesY.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'particlesystem:animTilesY', fieldAnimatedTextureTilesY.parent.innerElement.firstChild.ui);
 
         panelFrames.hidden = !fieldColorMap.value && !fieldNormalMap.value;
 
@@ -482,7 +482,7 @@ editor.once('load', function() {
             path: 'components.particlesystem.animNumFrames'
         });
         // reference
-        editor.call('attributes:reference:particlesystem:animNumFrames:attach', fieldAnimatedTextureNumFrames.parent.innerElement.firstChild.nextSibling.ui);
+        editor.call('attributes:reference:attach', 'particlesystem:animNumFrames', fieldAnimatedTextureNumFrames.parent.innerElement.firstChild.nextSibling.ui);
 
         fieldAnimatedTextureNumFrames.parent.hidden = !fieldColorMap.value && !fieldNormalMap.value;
 
@@ -505,7 +505,7 @@ editor.once('load', function() {
         });
         fieldAnimatedTextureSpeed.style.width = '50%';
         // reference
-        editor.call('attributes:reference:particlesystem:animSpeed:attach', fieldAnimatedTextureSpeed.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'particlesystem:animSpeed', fieldAnimatedTextureSpeed.parent.innerElement.firstChild.ui);
 
 
         // animation loop
@@ -523,7 +523,7 @@ editor.once('load', function() {
         panelAnimationPlayback.append(label);
 
         // reference
-        editor.call('attributes:reference:particlesystem:animLoop:attach', label);
+        editor.call('attributes:reference:attach', 'particlesystem:animLoop', label);
 
         panelAnimationPlayback.hidden = !fieldColorMap.value && !fieldNormalMap.value;
 
@@ -537,7 +537,7 @@ editor.once('load', function() {
             path: 'components.particlesystem.mesh'
         });
         // reference
-        editor.call('attributes:reference:particlesystem:mesh:attach', fieldMesh._label);
+        editor.call('attributes:reference:attach', 'particlesystem:mesh', fieldMesh._label);
 
 
         // localVelocityGraph
@@ -550,7 +550,7 @@ editor.once('load', function() {
             curves: [ 'X', 'Y', 'Z' ]
         });
         // reference
-        editor.call('attributes:reference:particlesystem:localVelocityGraph:attach', fieldLocalVelocity.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'particlesystem:localVelocityGraph', fieldLocalVelocity.parent.innerElement.firstChild.ui);
 
 
         // velocityGraph
@@ -563,7 +563,7 @@ editor.once('load', function() {
             curves: [ 'X', 'Y', 'Z' ]
         });
         // reference
-        editor.call('attributes:reference:particlesystem:velocityGraph:attach', fieldVelocity.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'particlesystem:velocityGraph', fieldVelocity.parent.innerElement.firstChild.ui);
 
 
         // rotationSpeedGraph
@@ -577,7 +577,7 @@ editor.once('load', function() {
             verticalValue: 180
         });
         // reference
-        editor.call('attributes:reference:particlesystem:rotationSpeedGraph:attach', fieldRotationSpeed.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'particlesystem:rotationSpeedGraph', fieldRotationSpeed.parent.innerElement.firstChild.ui);
 
 
         // scaleGraph
@@ -592,7 +592,7 @@ editor.once('load', function() {
             min: 0
         });
         // reference
-        editor.call('attributes:reference:particlesystem:scaleGraph:attach', fieldScale.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'particlesystem:scaleGraph', fieldScale.parent.innerElement.firstChild.ui);
 
 
         // colorGraph
@@ -608,7 +608,7 @@ editor.once('load', function() {
             min: 0
         });
         // reference
-        editor.call('attributes:reference:particlesystem:colorGraph:attach', fieldColor.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'particlesystem:colorGraph', fieldColor.parent.innerElement.firstChild.ui);
 
 
         // alphaGraph
@@ -623,7 +623,7 @@ editor.once('load', function() {
             max: 1
         });
         // reference
-        editor.call('attributes:reference:particlesystem:alphaGraph:attach', fieldAlpha.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'particlesystem:alphaGraph', fieldAlpha.parent.innerElement.firstChild.ui);
 
         if (entities.length > 1) {
             fieldLocalVelocity.disabled = true;
