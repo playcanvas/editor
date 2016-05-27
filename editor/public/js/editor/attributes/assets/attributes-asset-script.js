@@ -14,20 +14,6 @@ editor.once('load', function() {
         // panel
         var panel = editor.call('attributes:assets:panel');
 
-        // edit
-        var btnEdit = new ui.Button();
-        btnEdit.text = editor.call('permissions:write') ? 'Edit' : 'View';
-        btnEdit.class.add('edit-script', 'large-with-icon');
-        btnEdit.element.addEventListener('click', function(evt) {
-            if (legacyScripts) {
-                window.open('/editor/code/' + config.project.id + '/' + asset.get('filename'));
-            } else {
-                window.open('/editor/asset/' + asset.get('id'));
-            }
-        }, false);
-        panel.append(btnEdit);
-
-
         if (! legacyScripts) {
             // scripts
             var panelScripts = editor.call('attributes:addPanel', {
