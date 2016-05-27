@@ -2,8 +2,7 @@ app.once('load', function() {
     'use strict';
 
     var framework = app.call('viewport');
-
-    var docs = {};
+    var docs = { };
 
     app.method('loadAsset', function (id, callback) {
         var connection = app.call('realtime:connection');
@@ -37,9 +36,8 @@ app.once('load', function() {
             var assetData = doc.getSnapshot();
             assetData.id = id;
 
-            if (assetData.file) {
-                assetData.file.url = getFileUrl(assetData.id, assetData.revision, assetData.file.filename);
-            }
+            if (assetData.file)
+                assetData.file.url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.filename);
 
             var asset = editor.call('assets:get', id);
             // asset can exist if we are reconnecting to c3
@@ -64,7 +62,6 @@ app.once('load', function() {
 
             if (callback)
                 callback(asset);
-
         });
 
         // subscribe for realtime events
@@ -122,8 +119,17 @@ app.once('load', function() {
         }
     });
 
-    var getFileUrl = function (id, revision, filename) {
-        return '/api/assets/' + id + '/file/' + filename;
+    var getFileUrl = function (folders, id, revision, filename) {
+        var path = '';
+        for(var i = 0; i < folders.length; i++) {
+            var folder = app.call('assets:get', folders[i]);
+            if (folder) {
+                path += folder.get('name') + '/';
+            } else {
+                path += 'unknown/';
+            }
+        }
+        return '/api/assets/files/' + path + filename + '?id=' + id;
     };
 
     // hook sync to new assets
@@ -139,7 +145,7 @@ app.once('load', function() {
             if (! value) return;
             var state = asset.sync.enabled;
             asset.sync.enabled = false;
-            asset.set('file.url', getFileUrl(asset.get('id'), asset.get('revision'), asset.get('file.filename')));
+            asset.set('file.url', getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), asset.get('file.filename')));
             asset.sync.enabled = state;
         });
     });
