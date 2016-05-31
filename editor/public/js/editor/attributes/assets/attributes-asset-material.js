@@ -971,36 +971,6 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'asset:material:ambientOverview', panelAmbient, panelAmbient.headerElement);
 
 
-        // color
-        var fieldAmbientColor = editor.call('attributes:addField', {
-            parent: panelAmbient,
-            name: 'Color',
-            type: 'rgb',
-            link: assets,
-            path: 'data.ambient'
-        });
-        // reference
-        editor.call('attributes:reference:attach', 'asset:material:ambient', fieldAmbientColor.parent.innerElement.firstChild.ui);
-
-
-        // tint
-        var fieldAmbientTint = editor.call('attributes:addField', {
-            panel: fieldAmbientColor.parent,
-            type: 'checkbox',
-            link: assets,
-            path: 'data.ambientTint'
-        });
-        // label
-        var labelAmbientTint = new ui.Label({ text: 'Tint' });
-        labelAmbientTint.style.verticalAlign = 'top';
-        labelAmbientTint.style.paddingRight = '12px';
-        labelAmbientTint.style.fontSize = '12px';
-        labelAmbientTint.style.lineHeight = '24px';
-        fieldAmbientColor.parent.append(labelAmbientTint);
-        // reference
-        editor.call('attributes:reference:attach', 'asset:material:ambientTint', labelAmbientTint);
-
-
         // map
         var fieldAmbientMapHover = handleTextureHover('aoMap');
         var fieldAmbientMap = editor.call('attributes:addField', {
@@ -1122,6 +1092,35 @@ editor.once('load', function() {
         fieldOccludeSpecular.parent.hidden = ! fieldAmbientMap.value && ! fieldAmbientMap.class.contains('null');
         // reference
         editor.call('attributes:reference:attach', 'asset:material:occludeSpecular', fieldOccludeSpecular.parent.innerElement.firstChild.ui);
+
+        // color
+        var fieldAmbientColor = editor.call('attributes:addField', {
+            parent: panelAmbient,
+            name: 'Color',
+            type: 'rgb',
+            link: assets,
+            path: 'data.ambient'
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'asset:material:ambient', fieldAmbientColor.parent.innerElement.firstChild.ui);
+
+
+        // tint
+        var fieldAmbientTint = editor.call('attributes:addField', {
+            panel: fieldAmbientColor.parent,
+            type: 'checkbox',
+            link: assets,
+            path: 'data.ambientTint'
+        });
+        // label
+        var labelAmbientTint = new ui.Label({ text: 'Tint' });
+        labelAmbientTint.style.verticalAlign = 'top';
+        labelAmbientTint.style.paddingRight = '12px';
+        labelAmbientTint.style.fontSize = '12px';
+        labelAmbientTint.style.lineHeight = '24px';
+        fieldAmbientColor.parent.append(labelAmbientTint);
+        // reference
+        editor.call('attributes:reference:attach', 'asset:material:ambientTint', labelAmbientTint);
 
 
         // diffuse
