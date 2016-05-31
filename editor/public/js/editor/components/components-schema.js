@@ -102,8 +102,8 @@ editor.once('load', function() {
                 projection: 0,
                 fov: 45,
                 frustumCulling: true,
-                orthoHeight: 100,
-                nearClip: 0.3,
+                orthoHeight: 4,
+                nearClip: 0.1,
                 farClip: 1000,
                 priority: 0,
                 rect: [0, 0, 1, 1]
