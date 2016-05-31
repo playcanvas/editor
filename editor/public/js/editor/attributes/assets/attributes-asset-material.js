@@ -462,6 +462,10 @@ editor.once('load', function() {
                 { v: 1, t: 'PCF 3x3' }
             ],
             'type': 'int'
+        },
+        noFog: {
+            'default': false,
+            'type': 'boolean'
         }
     };
 
@@ -2662,6 +2666,18 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'asset:material:other', panelRenderStates, panelRenderStates.headerElement);
 
 
+        // noFog
+        var fieldNoFog = editor.call('attributes:addField', {
+            parent: panelRenderStates,
+            type: 'checkbox',
+            name: 'No Fog',
+            link: assets,
+            path: 'data.noFog'
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'asset:material:noFog', fieldNoFog.parent.innerElement.firstChild.ui);
+
+
         // depth
         var fieldDepthTest = editor.call('attributes:addField', {
             parent: panelRenderStates,
@@ -2710,6 +2726,7 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'asset:material:cull', fieldCull.parent.innerElement.firstChild.ui);
 
+
         // shadowSampleType
         var fieldShadowSampleType = editor.call('attributes:addField', {
             parent: panelRenderStates,
@@ -2721,6 +2738,7 @@ editor.once('load', function() {
         });
         // reference
         editor.call('attributes:reference:attach', 'asset:material:shadowSampleType', fieldShadowSampleType.parent.innerElement.firstChild.ui);
+
 
         // attach change event on tiling / offset fields
         // to set initial value if it doesn't exist
