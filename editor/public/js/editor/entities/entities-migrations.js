@@ -37,6 +37,10 @@ editor.once('load', function() {
                 // vsmBlurSize
                 if (! entity.has('components.light.vsmBlurSize'))
                     entity.set('components.light.vsmBlurSize', 5);
+
+                // vsmBias
+                if (! entity.has('components.light.vsmBias'))
+                    entity.set('components.light.vsmBias', 0.01 * 0.25);
             }
 
             // model

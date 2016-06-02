@@ -501,6 +501,11 @@ editor.once('load', function() {
         subTitle: '{Number}',
         description: 'The alpha test reference value to control which fragements are written to the currently active render target based on alpha value. All fragments with an alpha value of less than the alphaTest reference value will be discarded. alphaTest defaults to 0 (all fragments pass).',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#alphaTest'
+    }, {
+        title: 'noFog',
+        subTitle: '{Boolean}',
+        description: 'Ignore scene fog settings.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#noFog'
     }];
 
     for(var i = 0; i < fields.length; i++) {

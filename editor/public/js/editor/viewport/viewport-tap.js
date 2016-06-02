@@ -69,6 +69,7 @@ editor.once('load', function() {
         } else if (inViewport) {
             inViewport = false;
             editor.emit('viewport:hover', false);
+            editor.call('viewport:render');
         }
     };
 
@@ -123,6 +124,7 @@ editor.once('load', function() {
 
     canvas.element.addEventListener('mouseover', function() {
         editor.emit('viewport:hover', true);
+        editor.call('viewport:render');
     }, false);
 
     canvas.element.addEventListener('mouseleave', function(evt) {
@@ -132,6 +134,7 @@ editor.once('load', function() {
             return;
 
         editor.emit('viewport:hover', false);
+        editor.call('viewport:render');
     }, false);
 
     window.addEventListener('mousemove', evtMouseMove, false);

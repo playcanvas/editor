@@ -16,6 +16,15 @@ editor.once('load', function() {
         '1': 'no'
     };
 
+    var editableTypes = {
+        'script': 1,
+        'css': 1,
+        'html': 1,
+        'shader': 1,
+        'text': 1,
+        'json': 1
+    };
+
     var assetsPanel = null;
 
     editor.on('attributes:inspect[asset]', function(assets) {
@@ -353,6 +362,10 @@ editor.once('load', function() {
                 }
             }
 
+            var panelButtons = new ui.Panel();
+            panelButtons.class.add('buttons');
+            panel.append(panelButtons);
+
             // download
             if (editor.call('permissions:read') && assets[0].get('type') !== 'folder' && ! (legacyScripts && assets[0].get('type') === 'script')) {
                 // download
@@ -366,7 +379,35 @@ editor.once('load', function() {
                         window.open('/api/assets/' + assets[0].get('id') + '/download');
                     }
                 });
-                panel.append(btnDownload);
+                panelButtons.append(btnDownload);
+            }
+
+            if (editor.call('permissions:read') && editableTypes[assets[0].get('type')]) {
+                // edit
+                var btnEdit = new ui.Button();
+                btnEdit.text = editor.call('permissions:write') ? 'Edit' : 'View';
+                btnEdit.class.add('edit-script', 'large-with-icon');
+                btnEdit.hidden = ! assets[0].has('file.url');
+                btnEdit.element.addEventListener('click', function(evt) {
+                    if (legacyScripts) {
+                        window.open('/editor/code/' + config.project.id + '/' + assets[0].get('filename'));
+                    } else {
+                        window.open('/editor/asset/' + assets[0].get('id'));
+                    }
+                }, false);
+                panelButtons.append(btnEdit);
+
+                var evtFileUrl = assets[0].on('file.url:set', function() {
+                    btnEdit.hidden = false;
+                });
+                var evtFileUrlUnset = assets[0].on('file.url:unset', function() {
+                    btnEdit.hidden = true;
+                });
+
+                btnEdit.once('destroy', function() {
+                    evtFileUrl.unbind();
+                    evtFileUrlUnset.unbind();
+                });
             }
         }
     });

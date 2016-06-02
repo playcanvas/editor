@@ -30,6 +30,7 @@ strong {
     -khtml-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
+
     user-select: none;
 }
 
@@ -968,7 +969,7 @@ strong {
                 > .ui-image-field {
                     -webkit-flex-shrink: 0;
                     flex-shrink: 0;
-                    margin-right: 15px;
+                    margin-right: 3px;
                     background-color: $bcg-dark;
 
                     &:hover {
@@ -1013,17 +1014,17 @@ strong {
                     > .controls {
                         display: -webkit-flex;
                         display: flex;
-                        margin-top: 4px;
+                        margin-top: 10px;
                         height: 32px;
 
                         > .ui-label {
                             padding-right: 4px;
-                            line-height: 26px;
+                            line-height: 28px;
                         }
                         > .ui-button {
                             color: $text-dark;
                             height: 28px;
-                            line-height: 32px;
+                            line-height: 28px;
                             @extend .font-icon;
                             font-size: 16px;
                             text-align: center;
@@ -1861,6 +1862,24 @@ strong {
                     text-align: center;
                 }
             }
+            > .ui-panel.buttons {
+                > .content {
+                    display: flex;
+
+                    > .ui-button.large-with-icon {
+                        flex-grow: 1;
+                        width: 100%;
+
+                        &.download-asset:before {
+                            content: '\E228';
+                        }
+                        &.edit-script:before {
+                            content: '\E130';
+                        }
+                    }
+                }
+            }
+            > .ui-panel.buttons > .content > .ui-button.large-with-icon,
             > .ui-button.large-with-icon {
                 display: block;
                 text-align: center;
@@ -1874,14 +1893,8 @@ strong {
                     text-align: center;
                     vertical-align: middle;
                 }
-                &.edit-script:before {
-                    content: '\E130';
-                }
                 &.parse-script:before {
                     content: '\E120';
-                }
-                &.download-asset:before {
-                    content: '\E228';
                 }
                 &.calculate-meta {
                     &.hidden {

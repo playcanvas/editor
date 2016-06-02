@@ -5,13 +5,25 @@ editor.once('load', function() {
     if (! app) return;
 
     var canvas = editor.call('viewport:canvas');
-    var evtPickHover = null;
+    var active = false;
     var hoverMaterial = null;
     var hoverAsset = null;
     var hoverEntity = null;
+    var hoverNode = null;
+    var hoverPicked = null;
     var hoverMeshInstance = null;
 
-    var onPickHover = function(node, picked) {
+
+    editor.on('viewport:pick:hover', function(node, picked) {
+        hoverNode = node;
+        hoverPicked = picked;
+
+        if (active)
+            onPick(node, picked);
+    });
+
+
+    var onPick = function(node, picked) {
         var meshInstance = null;
 
         if (node && node._icon)
@@ -31,6 +43,7 @@ editor.once('load', function() {
             onHover(null);
         }
     };
+
 
     var onLeave = function() {
         if (! hoverEntity)
@@ -109,8 +122,7 @@ editor.once('load', function() {
             if (! config.scene.id)
                 return;
 
-            if (evtPickHover)
-                evtPickHover.unbind();
+            active = false;
 
             if (! hoverEntity || ! hoverEntity.model)
                 return;
@@ -211,16 +223,15 @@ editor.once('load', function() {
             hoverEntity = null;
             hoverMeshInstance = null;
 
-            evtPickHover = editor.on('viewport:pick:hover', onPickHover);
+            active = true;
+
+            onPick(hoverNode, hoverPicked);
         },
         leave: function() {
             if (!config.scene.id)
                 return;
 
-            if (evtPickHover) {
-                evtPickHover.unbind();
-                evtPickHover = null;
-            }
+            active = false;
 
             onLeave();
         }
