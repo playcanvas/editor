@@ -280,6 +280,50 @@ editor.once('load', function() {
             editor.call('viewport:render');
         });
 
+
+        // shadowResolution
+        var fieldShadowResolution = editor.call('attributes:addField', {
+            parent: panelShadows,
+            name: 'Resolution',
+            type: 'number',
+            enum: [
+                { v: '', t: '...' },
+                { v: 16, t: '16 x 16' },
+                { v: 32, t: '32 x 32' },
+                { v: 64, t: '64 x 64' },
+                { v: 128, t: '128 x 128' },
+                { v: 256, t: '256 x 256' },
+                { v: 512, t: '512 x 512' },
+                { v: 1024, t: '1024 x 1024' },
+                { v: 2048, t: '2048 x 2048' },
+                { v: 4096, t: '4096 x 4096' }
+            ],
+            link: entities,
+            path: 'components.light.shadowResolution'
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'light:shadowResolution', fieldShadowResolution.parent.innerElement.firstChild.ui);
+
+
+        // shadowDistance
+        var fieldShadowDistance = editor.call('attributes:addField', {
+            parent: panelShadows,
+            name: 'Distance',
+            type: 'number',
+            precision: 2,
+            step: 1,
+            min: 0,
+            link: entities,
+            path: 'components.light.shadowDistance'
+        });
+        fieldShadowDistance.parent.hidden = ! (fieldType.value === '' || fieldType.value === 'directional');
+        fieldType.on('change', function(value) {
+            fieldShadowDistance.parent.hidden = ! (value === '' || value === 'directional');
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'light:shadowDistance', fieldShadowDistance.parent.innerElement.firstChild.ui);
+
+
         // shadowType
         var fieldShadowType = editor.call('attributes:addField', {
             parent: panelShadows,
@@ -352,47 +396,25 @@ editor.once('load', function() {
         fieldShadowVsmBlurSizeSlider.flexGrow = 4;
 
 
-        // shadowDistance
-        var fieldShadowDistance = editor.call('attributes:addField', {
+        // vsmBias
+        var fieldVsmBias = editor.call('attributes:addField', {
             parent: panelShadows,
-            name: 'Distance',
+            name: 'VSM Bias',
             type: 'number',
-            precision: 2,
-            step: 1,
+            precision: 4,
+            step: .001,
             min: 0,
+            max: 1,
             link: entities,
-            path: 'components.light.shadowDistance'
-        });
-        fieldShadowDistance.parent.hidden = ! (fieldType.value === '' || fieldType.value === 'directional');
-        fieldType.on('change', function(value) {
-            fieldShadowDistance.parent.hidden = ! (value === '' || value === 'directional');
+            path: 'components.light.vsmBias'
         });
         // reference
-        editor.call('attributes:reference:attach', 'light:shadowDistance', fieldShadowDistance.parent.innerElement.firstChild.ui);
-
-
-        // shadowResolution
-        var fieldShadowResolution = editor.call('attributes:addField', {
-            parent: panelShadows,
-            name: 'Resolution',
-            type: 'number',
-            enum: [
-                { v: '', t: '...' },
-                { v: 16, t: '16 x 16' },
-                { v: 32, t: '32 x 32' },
-                { v: 64, t: '64 x 64' },
-                { v: 128, t: '128 x 128' },
-                { v: 256, t: '256 x 256' },
-                { v: 512, t: '512 x 512' },
-                { v: 1024, t: '1024 x 1024' },
-                { v: 2048, t: '2048 x 2048' },
-                { v: 4096, t: '4096 x 4096' }
-            ],
-            link: entities,
-            path: 'components.light.shadowResolution'
+        editor.call('attributes:reference:attach', 'light:vsmBias', fieldVsmBias.parent.innerElement.firstChild.ui);
+        //
+        fieldVsmBias.parent.hidden = fieldShadowType.value === 0;
+        fieldShadowType.on('change', function() {
+            fieldVsmBias.parent.hidden = fieldShadowType.value === 0;
         });
-        // reference
-        editor.call('attributes:reference:attach', 'light:shadowResolution', fieldShadowResolution.parent.innerElement.firstChild.ui);
 
 
         // shadowBias
@@ -400,7 +422,7 @@ editor.once('load', function() {
             parent: panelShadows,
             name: 'Bias',
             type: 'number',
-            precision: 3,
+            precision: 4,
             step: .001,
             min: 0,
             max: 1,
