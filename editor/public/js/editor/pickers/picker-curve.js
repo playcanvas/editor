@@ -101,7 +101,7 @@ editor.once('load', function() {
             1: 'Smooth Step',
             2: 'Spline'
         },
-        number: true
+        type: 'number'
     });
 
     fieldType.style['font-size'] = '11px';
