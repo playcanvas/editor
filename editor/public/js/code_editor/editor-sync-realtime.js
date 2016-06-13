@@ -43,8 +43,8 @@ editor.once('load', function() {
 
     editor.once('start', function() {
         var auth = false;
-        var socket = new SockJS(config.url.realtime.http);
-        var connection = new sharejs.Connection(socket);
+        var socket;
+        var connection;
         var textDocument = null;
         var assetDocument = null;
         var editingContext = null;
@@ -64,7 +64,7 @@ editor.once('load', function() {
             return textDocument;
         });
 
-        var connect = function () {
+        var reconnect = function () {
             if (reconnectAttempts > 8) {
                 editor.emit('realtime:cannotConnect');
                 return;
@@ -73,6 +73,37 @@ editor.once('load', function() {
             isLoading = true;
             reconnectAttempts++;
             editor.emit('realtime:connecting', reconnectAttempts);
+
+            // create new socket...
+            socket = new SockJS(config.url.realtime.http);
+
+            var lastHearbeat = Date.now();
+            var interval = 3000;
+            var heartbeatTimeoutRef;
+
+            var heartbeatTimeout = function () {
+                heartbeatTimeoutRef = null;
+
+                if (Date.now() - lastHearbeat > interval) {
+                    connection.disconnect();
+                } else {
+                    heartbeatTimeoutRef = setTimeout(heartbeatTimeout, interval);
+                }
+            };
+
+            socket.onheartbeat = function () {
+                console.log('heartbeat');
+
+                if (heartbeatTimeoutRef) {
+                    clearTimeout(heartbeatTimeoutRef);
+                }
+
+                lastHearbeat = Date.now();
+                heartbeatTimeoutRef = setTimeout(heartbeatTimeout, interval);
+            };
+
+            // ... and new sharejs connection
+            connection = new sharejs.Connection(socket);
 
             var sharejsMessage = connection.socket.onmessage;
 
@@ -141,6 +172,11 @@ editor.once('load', function() {
                     textDocument = null;
                 }
 
+                if (heartbeatTimeoutRef) {
+                    clearTimeout(heartbeatTimeoutRef);
+                    heartbeatTimeoutRef = null;
+                }
+
                 isLoading = false;
                 isConnected = false;
 
@@ -156,16 +192,7 @@ editor.once('load', function() {
             };
         };
 
-        var reconnect = function () {
-            // create new socket...
-            socket = new SockJS(config.url.realtime.http);
-            // ... and new sharejs connection
-            connection = new sharejs.Connection(socket);
-            // connect again
-            connect();
-        };
-
-        connect();
+        reconnect();
 
         var loadDocument = function() {
             textDocument = connection.get('documents', '' + config.asset.id);
