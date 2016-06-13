@@ -227,6 +227,7 @@ editor.once('load', function () {
         var isDirty = editor.call('editor:isDirty');
 
         isLoading = true;
+        code = data;
         codeMirror.setValue(code);
 
         if (!isDirty)
@@ -242,11 +243,19 @@ editor.once('load', function () {
         editor.emit('editor:change', cm, change);
     });
 
-    // permissions changed so set readonly
-    editor.on('permissions:set:' + config.self.id, function (level) {
-        var readOnly = editor.call('editor:isReadonly');
+    var toggleReadOnly = function (readOnly) {
         codeMirror.setOption('readOnly', readOnly ? true : false);
         codeMirror.setOption('cursorBlinkRate', readOnly ? -1 : 530);
+    };
+
+    // permissions changed so set readonly
+    editor.on('permissions:set:' + config.self.id, function (level) {
+        toggleReadOnly(editor.call('editor:isReadonly'));
+    });
+
+    // set readonly if writeState becomes false (like when we're disconnected from sharejs)
+    editor.on('permissions:writeState', function (state) {
+        toggleReadOnly(!state);
     });
 
     // return document content
