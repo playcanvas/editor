@@ -19,4 +19,11 @@ editor.once('load', function () {
         delete whoisonline[id];
         editor.emit('whoisonline:remove', id);
     });
+
+    // remove all users if we are disconnected
+    editor.on('realtime:disconnected', function () {
+        for (var key in whoisonline) {
+            editor.call('whoisonline:remove', key);
+        }
+    });
 });
