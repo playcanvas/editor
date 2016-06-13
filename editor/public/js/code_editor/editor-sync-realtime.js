@@ -92,8 +92,6 @@ editor.once('load', function() {
             };
 
             socket.onheartbeat = function () {
-                console.log('heartbeat');
-
                 if (heartbeatTimeoutRef) {
                     clearTimeout(heartbeatTimeoutRef);
                 }
