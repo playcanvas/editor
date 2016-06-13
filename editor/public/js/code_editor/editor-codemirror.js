@@ -232,6 +232,8 @@ editor.once('load', function () {
 
         if (!isDirty)
             codeMirror.markClean();
+
+        isLoading = false;
     });
 
     // emit change

@@ -165,6 +165,8 @@ editor.once('load', function() {
 
             var onConnectionClosed = connection.socket.onclose;
             connection.socket.onclose = function (reason) {
+                onConnectionClosed(reason);
+
                 auth = false;
 
                 if (textDocument) {
@@ -172,6 +174,10 @@ editor.once('load', function() {
                     textDocument = null;
                 }
 
+                if (assetDocument) {
+                    assetDocument.destroy();
+                    assetDocument = null;
+                }
                 if (heartbeatTimeoutRef) {
                     clearTimeout(heartbeatTimeoutRef);
                     heartbeatTimeoutRef = null;
@@ -181,7 +187,6 @@ editor.once('load', function() {
                 isConnected = false;
 
                 editor.emit('realtime:disconnected', reason);
-                onConnectionClosed(reason);
 
                 // try to reconnect after a while
                 editor.emit('realtime:nextAttempt', reconnectInterval);
