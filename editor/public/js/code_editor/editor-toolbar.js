@@ -132,7 +132,7 @@ editor.once('load', function () {
         reconnectTimeout = setTimeout(renderTime, 1000);
     });
 
-    editor.on('editor:change', refreshSaveButton);
+    editor.on('editor:afterChange', refreshSaveButton);
 
     editor.on('permissions:set:' + config.self.id, function (level) {
         refreshButtons();

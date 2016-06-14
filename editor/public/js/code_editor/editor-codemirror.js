@@ -245,6 +245,12 @@ editor.once('load', function () {
         editor.emit('editor:change', cm, change);
     });
 
+    // called after a change has been made
+    codeMirror.on('change', function (cm, change) {
+        if (isLoading) return;
+        editor.emit('editor:afterChange', cm, change);
+    });
+
     var toggleReadOnly = function (readOnly) {
         codeMirror.setOption('readOnly', readOnly ? true : false);
         codeMirror.setOption('cursorBlinkRate', readOnly ? -1 : 530);
