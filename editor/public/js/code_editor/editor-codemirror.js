@@ -277,7 +277,7 @@ editor.once('load', function () {
     });
 
     // mark document as clean
-    editor.on('editor:save:success', function () {
+    editor.on('editor:save:end', function () {
         codeMirror.markClean();
     });
 

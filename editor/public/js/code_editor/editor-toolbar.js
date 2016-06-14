@@ -43,7 +43,7 @@ editor.once('load', function () {
         refreshButtons();
     });
 
-    editor.on('editor:save:success', function () {
+    editor.on('editor:save:end', function () {
         refreshButtons();
     });
 

@@ -190,6 +190,11 @@ editor.once('load', function() {
                 isLoading = false;
                 isConnected = false;
 
+                // if we were in the middle of saving cancel that..
+                isSaving = false;
+                editor.emit('editor:save:end');
+
+                // disconnected event
                 editor.emit('realtime:disconnected', reason);
 
                 // try to reconnect after a while
@@ -240,7 +245,7 @@ editor.once('load', function() {
                     for (var i = 0; i < ops.length; i++) {
                         if (ops[i].p.length === 1 && ops[i].p[0] === 'file') {
                             isSaving = false;
-                            editor.emit('editor:save:success');
+                            editor.emit('editor:save:end');
                         }
                     }
                 });
