@@ -273,7 +273,7 @@ editor.once('load', function () {
 
     // returns true if document is dirty
     editor.method('editor:isDirty', function () {
-        return !codeMirror.isClean();
+        return !codeMirror.isClean() || editor.call('document:isDirty');
     });
 
     // mark document as clean

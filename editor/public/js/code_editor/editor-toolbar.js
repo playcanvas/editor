@@ -43,9 +43,9 @@ editor.once('load', function () {
         refreshButtons();
     });
 
-    editor.on('editor:save:end', function () {
-        refreshButtons();
-    });
+    editor.on('editor:save:end', refreshButtons);
+    editor.on('editor:save:cancel', refreshButtons);
+    editor.on('editor:dirty', refreshButtons);
 
     editor.on('editor:save:error', function (err) {
         errorMsg = err;

@@ -9,8 +9,13 @@ editor.once('load', function() {
 
     var isLoading = false;
     var isSaving;
+    var isDirty = false;
     var isConnected = false;
     var loadedScriptOnce = false;
+
+    editor.method('document:isDirty', function () {
+        return isDirty;
+    });
 
     editor.method('editor:canSave', function () {
         return editor.call('editor:isDirty') && ! editor.call('editor:isReadonly') && ! isSaving && isConnected;
@@ -189,10 +194,11 @@ editor.once('load', function() {
 
                 isLoading = false;
                 isConnected = false;
+                isDirty = false;
 
                 // if we were in the middle of saving cancel that..
                 isSaving = false;
-                editor.emit('editor:save:end');
+                editor.emit('editor:save:cancel');
 
                 // disconnected event
                 editor.emit('realtime:disconnected', reason);
@@ -208,6 +214,25 @@ editor.once('load', function() {
 
         reconnect();
 
+        var documentContent = null;
+        var assetContent = null;
+
+        var checkIfDirty = function () {
+            isDirty = false;
+            if (documentContent !== null && assetContent !== null) {
+
+                isDirty = documentContent !== assetContent;
+
+                // clean up
+                documentContent = null;
+                assetContent = null;
+            }
+
+            if (isDirty) {
+                editor.emit('editor:dirty');
+            }
+        };
+
         var loadDocument = function() {
             textDocument = connection.get('documents', '' + config.asset.id);
 
@@ -222,12 +247,16 @@ editor.once('load', function() {
                 isLoading = false;
                 editingContext = textDocument.createContext();
 
+                documentContent = textDocument.getSnapshot();
+
                 if (! loadedScriptOnce) {
-                    editor.emit('editor:loadScript', textDocument.getSnapshot());
+                    editor.emit('editor:loadScript', documentContent);
                     loadedScriptOnce = true;
                 } else {
-                    editor.emit('editor:reloadScript', textDocument.getSnapshot());
+                    editor.emit('editor:reloadScript', documentContent);
                 }
+
+                checkIfDirty();
             });
 
             // subscribe for realtime events
@@ -245,9 +274,24 @@ editor.once('load', function() {
                     for (var i = 0; i < ops.length; i++) {
                         if (ops[i].p.length === 1 && ops[i].p[0] === 'file') {
                             isSaving = false;
+                            isDirty = false;
                             editor.emit('editor:save:end');
                         }
                     }
+                });
+
+                // load asset file to check if it has different contents
+                // than the sharejs document, so that we can enable the
+                // SAVE button if that is the case.
+                var filename = assetDocument.getSnapshot().file.filename;
+
+                (new AjaxRequest({
+                    url: '{{url.api}}/assets/{{asset.id}}/file/' + filename + '?access_token={{accessToken}}',
+                    notJson: true
+                }))
+                .on('load', function(status, data) {
+                    assetContent = data;
+                    checkIfDirty();
                 });
             });
 
