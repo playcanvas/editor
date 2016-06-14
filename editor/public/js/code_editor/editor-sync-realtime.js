@@ -176,6 +176,12 @@ editor.once('load', function() {
                     assetDocument.destroy();
                     assetDocument = null;
                 }
+
+                if (editingContext) {
+                    editingContext.destroy();
+                    editingContext = null;
+                }
+
                 if (heartbeatTimeoutRef) {
                     clearTimeout(heartbeatTimeoutRef);
                     heartbeatTimeoutRef = null;
