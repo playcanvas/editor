@@ -9,8 +9,13 @@ editor.once('load', function() {
 
     var isLoading = false;
     var isSaving;
+    var isDirty = false;
     var isConnected = false;
     var loadedScriptOnce = false;
+
+    editor.method('document:isDirty', function () {
+        return isDirty;
+    });
 
     editor.method('editor:canSave', function () {
         return editor.call('editor:isDirty') && ! editor.call('editor:isReadonly') && ! isSaving && isConnected;
@@ -43,8 +48,8 @@ editor.once('load', function() {
 
     editor.once('start', function() {
         var auth = false;
-        var socket = new SockJS(config.url.realtime.http);
-        var connection = new sharejs.Connection(socket);
+        var socket;
+        var connection;
         var textDocument = null;
         var assetDocument = null;
         var editingContext = null;
@@ -64,7 +69,7 @@ editor.once('load', function() {
             return textDocument;
         });
 
-        var connect = function () {
+        var reconnect = function () {
             if (reconnectAttempts > 8) {
                 editor.emit('realtime:cannotConnect');
                 return;
@@ -73,6 +78,35 @@ editor.once('load', function() {
             isLoading = true;
             reconnectAttempts++;
             editor.emit('realtime:connecting', reconnectAttempts);
+
+            // create new socket...
+            socket = new SockJS(config.url.realtime.http);
+
+            var lastHearbeat = Date.now();
+            var interval = 3000;
+            var heartbeatTimeoutRef;
+
+            var heartbeatTimeout = function () {
+                heartbeatTimeoutRef = null;
+
+                if (Date.now() - lastHearbeat > interval) {
+                    connection.disconnect();
+                } else {
+                    heartbeatTimeoutRef = setTimeout(heartbeatTimeout, interval);
+                }
+            };
+
+            socket.onheartbeat = function () {
+                if (heartbeatTimeoutRef) {
+                    clearTimeout(heartbeatTimeoutRef);
+                }
+
+                lastHearbeat = Date.now();
+                heartbeatTimeoutRef = setTimeout(heartbeatTimeout, interval);
+            };
+
+            // ... and new sharejs connection
+            connection = new sharejs.Connection(socket);
 
             var sharejsMessage = connection.socket.onmessage;
 
@@ -134,6 +168,8 @@ editor.once('load', function() {
 
             var onConnectionClosed = connection.socket.onclose;
             connection.socket.onclose = function (reason) {
+                onConnectionClosed(reason);
+
                 auth = false;
 
                 if (textDocument) {
@@ -141,11 +177,31 @@ editor.once('load', function() {
                     textDocument = null;
                 }
 
+                if (assetDocument) {
+                    assetDocument.destroy();
+                    assetDocument = null;
+                }
+
+                if (editingContext) {
+                    editingContext.destroy();
+                    editingContext = null;
+                }
+
+                if (heartbeatTimeoutRef) {
+                    clearTimeout(heartbeatTimeoutRef);
+                    heartbeatTimeoutRef = null;
+                }
+
                 isLoading = false;
                 isConnected = false;
+                isDirty = false;
 
+                // if we were in the middle of saving cancel that..
+                isSaving = false;
+                editor.emit('editor:save:cancel');
+
+                // disconnected event
                 editor.emit('realtime:disconnected', reason);
-                onConnectionClosed(reason);
 
                 // try to reconnect after a while
                 editor.emit('realtime:nextAttempt', reconnectInterval);
@@ -156,16 +212,26 @@ editor.once('load', function() {
             };
         };
 
-        var reconnect = function () {
-            // create new socket...
-            socket = new SockJS(config.url.realtime.http);
-            // ... and new sharejs connection
-            connection = new sharejs.Connection(socket);
-            // connect again
-            connect();
-        };
+        reconnect();
 
-        connect();
+        var documentContent = null;
+        var assetContent = null;
+
+        var checkIfDirty = function () {
+            isDirty = false;
+            if (documentContent !== null && assetContent !== null) {
+
+                isDirty = documentContent !== assetContent;
+
+                // clean up
+                documentContent = null;
+                assetContent = null;
+            }
+
+            if (isDirty) {
+                editor.emit('editor:dirty');
+            }
+        };
 
         var loadDocument = function() {
             textDocument = connection.get('documents', '' + config.asset.id);
@@ -181,12 +247,16 @@ editor.once('load', function() {
                 isLoading = false;
                 editingContext = textDocument.createContext();
 
+                documentContent = textDocument.getSnapshot();
+
                 if (! loadedScriptOnce) {
-                    editor.emit('editor:loadScript', textDocument.getSnapshot());
+                    editor.emit('editor:loadScript', documentContent);
                     loadedScriptOnce = true;
                 } else {
-                    editor.emit('editor:reloadScript', textDocument.getSnapshot());
+                    editor.emit('editor:reloadScript', documentContent);
                 }
+
+                checkIfDirty();
             });
 
             // subscribe for realtime events
@@ -204,9 +274,24 @@ editor.once('load', function() {
                     for (var i = 0; i < ops.length; i++) {
                         if (ops[i].p.length === 1 && ops[i].p[0] === 'file') {
                             isSaving = false;
-                            editor.emit('editor:save:success');
+                            isDirty = false;
+                            editor.emit('editor:save:end');
                         }
                     }
+                });
+
+                // load asset file to check if it has different contents
+                // than the sharejs document, so that we can enable the
+                // SAVE button if that is the case.
+                var filename = assetDocument.getSnapshot().file.filename;
+
+                (new AjaxRequest({
+                    url: '{{url.api}}/assets/{{asset.id}}/file/' + filename + '?access_token={{accessToken}}',
+                    notJson: true
+                }))
+                .on('load', function(status, data) {
+                    assetContent = data;
+                    checkIfDirty();
                 });
             });
 

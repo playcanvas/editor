@@ -43,9 +43,9 @@ editor.once('load', function () {
         refreshButtons();
     });
 
-    editor.on('editor:save:success', function () {
-        refreshButtons();
-    });
+    editor.on('editor:save:end', refreshButtons);
+    editor.on('editor:save:cancel', refreshButtons);
+    editor.on('editor:dirty', refreshButtons);
 
     editor.on('editor:save:error', function (err) {
         errorMsg = err;
@@ -132,7 +132,7 @@ editor.once('load', function () {
         reconnectTimeout = setTimeout(renderTime, 1000);
     });
 
-    editor.on('editor:change', refreshSaveButton);
+    editor.on('editor:afterChange', refreshSaveButton);
 
     editor.on('permissions:set:' + config.self.id, function (level) {
         refreshButtons();

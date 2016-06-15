@@ -232,6 +232,8 @@ editor.once('load', function () {
 
         if (!isDirty)
             codeMirror.markClean();
+
+        isLoading = false;
     });
 
     // emit change
@@ -241,6 +243,12 @@ editor.once('load', function () {
     codeMirror.on('beforeChange', function (cm, change) {
         if (isLoading) return;
         editor.emit('editor:change', cm, change);
+    });
+
+    // called after a change has been made
+    codeMirror.on('change', function (cm, change) {
+        if (isLoading) return;
+        editor.emit('editor:afterChange', cm, change);
     });
 
     var toggleReadOnly = function (readOnly) {
@@ -265,11 +273,11 @@ editor.once('load', function () {
 
     // returns true if document is dirty
     editor.method('editor:isDirty', function () {
-        return !codeMirror.isClean();
+        return !codeMirror.isClean() || editor.call('document:isDirty');
     });
 
     // mark document as clean
-    editor.on('editor:save:success', function () {
+    editor.on('editor:save:end', function () {
         codeMirror.markClean();
     });
 
