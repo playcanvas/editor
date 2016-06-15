@@ -51,7 +51,7 @@ editor.once('load', function () {
         Ajax(data)
         .on('load', function(status, data) {
             isSaving = false;
-            editor.emit('editor:save:success');
+            editor.emit('editor:save:end');
         })
         .on('progress', function(progress) {
         })
