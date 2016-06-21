@@ -14,12 +14,8 @@ editor.once('load', function() {
             if (! asset.has('data.useSkybox'))
                 asset.set('data.useSkybox', true);
 
-            console.log('11 2');
-
-            if (! asset.has('data.useGammaTonemap')) {
-                console.log('11 1');
+            if (! asset.has('data.useGammaTonemap'))
                 asset.set('data.useGammaTonemap', true);
-            }
         }
 
         asset.history.enabled = true;
