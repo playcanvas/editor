@@ -502,10 +502,25 @@ editor.once('load', function() {
         description: 'The alpha test reference value to control which fragements are written to the currently active render target based on alpha value. All fragments with an alpha value of less than the alphaTest reference value will be discarded. alphaTest defaults to 0 (all fragments pass).',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#alphaTest'
     }, {
-        title: 'noFog',
+        title: 'useFog',
         subTitle: '{Boolean}',
-        description: 'Ignore scene fog settings.',
-        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#noFog'
+        description: 'Apply fogging (as configured in scene settings).',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#useFog'
+    }, {
+        title: 'useLighting',
+        subTitle: '{Boolean}',
+        description: 'Apply lighting.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#useLighting'
+    }, {
+        title: 'useSkybox',
+        subTitle: '{Boolean}',
+        description: 'Apply scene skybox as prefiltered environment map.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#useSkybox'
+    }, {
+        title: 'useGammaTonemap',
+        subTitle: '{Boolean}',
+        description: 'Apply gamma correction and tonemapping (as configured in scene settings).',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#useGammaTonemap'
     }];
 
     for(var i = 0; i < fields.length; i++) {
