@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    editor.on('assets:add', function(asset) {
+    var migrateAsset = function(asset) {
         asset.history.enabled = false;
 
         if (asset.get('type') === 'material') {
@@ -14,10 +14,17 @@ editor.once('load', function() {
             if (! asset.has('data.useSkybox'))
                 asset.set('data.useSkybox', true);
 
-            if (! asset.has('data.useGammaTonemap'))
+            console.log('11 2');
+
+            if (! asset.has('data.useGammaTonemap')) {
+                console.log('11 1');
                 asset.set('data.useGammaTonemap', true);
+            }
         }
 
         asset.history.enabled = true;
-    });
+    };
+
+    editor.on('assets:add', migrateAsset);
+    editor.call('assets:list').forEach(migrateAsset);
 });
