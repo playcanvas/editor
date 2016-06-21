@@ -389,7 +389,7 @@ editor.once('load', function() {
                 btnEdit.class.add('edit-script', 'large-with-icon');
                 btnEdit.hidden = ! assets[0].has('file.url');
                 btnEdit.element.addEventListener('click', function(evt) {
-                    if (legacyScripts) {
+                    if (legacyScripts && assets[0].get('type') === 'script') {
                         window.open('/editor/code/' + config.project.id + '/' + assets[0].get('filename'));
                     } else {
                         window.open('/editor/asset/' + assets[0].get('id'));
