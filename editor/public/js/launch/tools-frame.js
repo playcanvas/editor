@@ -93,6 +93,10 @@ app.once('load', function() {
     var panelDrawCalls = addPanel({
         title: 'Draw Calls'
     });
+    // particles
+    var panelParticles = addPanel({
+        title: 'Particles'
+    });
     // shaders
     var panelShaders = addPanel({
         title: 'Shaders'
@@ -132,6 +136,13 @@ app.once('load', function() {
     }, {
         key: [ 'frame', 'cullTime' ],
         title: 'Cull Time',
+        panel: panelFrame,
+        format: function(value) {
+            return value.toFixed(3);
+        }
+    }, {
+        key: [ 'frame', 'sortTime' ],
+        title: 'Sort Time',
         panel: panelFrame,
         format: function(value) {
             return value.toFixed(3);
@@ -183,6 +194,13 @@ app.once('load', function() {
     }, {
         key: [ 'frame', 'renderTime' ],
         title: 'Render Time',
+        panel: panelFrame,
+        format: function(value) {
+            return value.toFixed(2);
+        }
+    }, {
+        key: [ 'frame', 'forwardTime' ],
+        title: 'Forward Time',
         panel: panelFrame,
         format: function(value) {
             return value.toFixed(2);
@@ -263,6 +281,17 @@ app.once('load', function() {
         key: [ 'drawCalls', 'misc' ],
         title: 'Misc',
         panel: panelDrawCalls,
+        format: function(value) {
+            return value.toLocaleString();
+        }
+    }, {
+        key: [ 'particles', 'updatesPerFrame' ],
+        title: 'Updates',
+        panel: panelParticles
+    }, {
+        key: [ 'particles', 'frameTime' ],
+        title: 'Update Time',
+        panel: panelParticles,
         format: function(value) {
             return value.toLocaleString();
         }

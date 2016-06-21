@@ -1481,6 +1481,13 @@ editor.once('load', function() {
         var fieldAssetsList = new ui.List();
         fieldAssetsList.flexGrow = 1;
 
+        fieldAssetsList.on('select', function(item) {
+            if (item === itemAdd || ! item.asset)
+                return;
+
+            editor.call('selector:set', 'asset', [ item.asset ]);
+        });
+
         // drop
         var dropRef = editor.call('drop:target', {
             ref: fieldAssetsList.element,
@@ -1636,6 +1643,7 @@ editor.once('load', function() {
                 text: (link.length === 1) ? text : '* ' + text
             });
             item.count = 1;
+            item.asset = asset;
             item._assetText = text;
 
             if (after) {

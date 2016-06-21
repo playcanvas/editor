@@ -463,8 +463,20 @@ editor.once('load', function() {
             ],
             'type': 'int'
         },
-        noFog: {
-            'default': false,
+        useFog: {
+            'default': true,
+            'type': 'boolean'
+        },
+        useLighting: {
+            'default': true,
+            'type': 'boolean'
+        },
+        useSkybox: {
+            'default': true,
+            'type': 'boolean'
+        },
+        useGammaTonemap: {
+            'default': true,
             'type': 'boolean'
         }
     };
@@ -2665,18 +2677,6 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'asset:material:other', panelRenderStates, panelRenderStates.headerElement);
 
 
-        // noFog
-        var fieldNoFog = editor.call('attributes:addField', {
-            parent: panelRenderStates,
-            type: 'checkbox',
-            name: 'No Fog',
-            link: assets,
-            path: 'data.noFog'
-        });
-        // reference
-        editor.call('attributes:reference:attach', 'asset:material:noFog', fieldNoFog.parent.innerElement.firstChild.ui);
-
-
         // depth
         var fieldDepthTest = editor.call('attributes:addField', {
             parent: panelRenderStates,
@@ -2737,6 +2737,76 @@ editor.once('load', function() {
         });
         // reference
         editor.call('attributes:reference:attach', 'asset:material:shadowSampleType', fieldShadowSampleType.parent.innerElement.firstChild.ui);
+
+
+        // useFog
+        var fieldUseFog = editor.call('attributes:addField', {
+            parent: panelRenderStates,
+            type: 'checkbox',
+            name: 'Use',
+            link: assets,
+            path: 'data.useFog'
+        });
+        // label
+        var label = new ui.Label({ text: 'Fog' });
+        label.style.verticalAlign = 'top';
+        label.style.paddingRight = '12px';
+        label.style.fontSize = '12px';
+        label.style.lineHeight = '24px';
+        fieldUseFog.parent.append(label);
+        // reference
+        editor.call('attributes:reference:attach', 'asset:material:useFog', fieldUseFog.parent.innerElement.firstChild.ui);
+
+        // useLighting
+        var fieldUseLighting = editor.call('attributes:addField', {
+            panel: fieldUseFog.parent,
+            type: 'checkbox',
+            link: assets,
+            path: 'data.useLighting'
+        });
+        // label
+        var label = new ui.Label({ text: 'Lighting' });
+        label.style.verticalAlign = 'top';
+        label.style.fontSize = '12px';
+        label.style.lineHeight = '24px';
+        fieldUseLighting.parent.append(label);
+        // reference
+        editor.call('attributes:reference:attach', 'asset:material:useLighting', fieldUseLighting.parent.innerElement.firstChild.ui);
+
+
+        // useSkybox
+        var fieldUseLighting = editor.call('attributes:addField', {
+            parent: panelRenderStates,
+            type: 'checkbox',
+            name: ' ',
+            link: assets,
+            path: 'data.useSkybox'
+        });
+        // label
+        var label = new ui.Label({ text: 'Skybox' });
+        label.style.verticalAlign = 'top';
+        label.style.paddingRight = '12px';
+        label.style.fontSize = '12px';
+        label.style.lineHeight = '24px';
+        fieldUseLighting.parent.append(label);
+        // reference
+        editor.call('attributes:reference:attach', 'asset:material:useSkybox', fieldUseLighting.parent.innerElement.firstChild.ui);
+
+        // useGammaTonemap
+        var fieldUseGammaTonemap = editor.call('attributes:addField', {
+            panel: fieldUseLighting.parent,
+            type: 'checkbox',
+            link: assets,
+            path: 'data.useGammaTonemap'
+        });
+        // label
+        var label = new ui.Label({ text: 'Gamma & Tonemap' });
+        label.style.verticalAlign = 'top';
+        label.style.fontSize = '12px';
+        label.style.lineHeight = '24px';
+        fieldUseGammaTonemap.parent.append(label);
+        // reference
+        editor.call('attributes:reference:attach', 'asset:material:useGammaTonemap', fieldUseGammaTonemap.parent.innerElement.firstChild.ui);
 
 
         // attach change event on tiling / offset fields
