@@ -30,6 +30,7 @@ editor.once('load', function() {
 
         var data = {
             name: raw.name || 'New Entity',
+            tags: [ ],
             enabled: true,
             resource_id: pc.guid.create(),
             parent: parent.get('resource_id'),

@@ -4,6 +4,7 @@ editor.once('load', function() {
 
     var syncPaths = [
         'name',
+        'tags',
         'parent',
         'children',
         'position',

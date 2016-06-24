@@ -729,7 +729,7 @@ editor.once('load', function() {
                         if (tagItems[tagList[ind + 1]]) {
                             innerPanel.appendBefore(item, tagItems[tagList[ind + 1]]);
                         } else {
-                            innerPanel.appendBefore(item, field);
+                            innerPanel.append(item);
                         }
                     }
 
