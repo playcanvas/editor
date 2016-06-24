@@ -20,6 +20,9 @@ editor.once('load', function () {
     // amount of time to merge local edits into one
     var delay = cm.options.historyEventDelay;
 
+    // amount of time since last local edit
+    var lastEditTime = 0;
+
     // create local copy of insert operation
     var createInsertOp = function (pos, text) {
         return customOp(
@@ -45,29 +48,38 @@ editor.once('load', function () {
     };
 
     // returns true if the two operations can be concatenated
-    // into one. This means they are both insert operations or both delete operations.
-    // Also true if one of the ops is a noop
     var canConcatOps = function (prevOp, nextOp) {
         var prevLen = prevOp.length;
         var nextLen = nextOp.length;
-        if (prevLen === 0 || nextLen === 0)
-            return true;
 
-        var isDelete = false;
+        // true if both are noops
+        if (prevLen === 0 || nextLen === 0) {
+            return true;
+        }
+
+        var prevDelete = false;
         for (var i = 0; i < prevOp.length; i++) {
             if (typeof(prevOp[i]) === 'object') {
-                isDelete = true;
+                prevDelete = true;
                 break;
             }
         }
 
+        var nextDelete = false;
         for (var i = 0; i < nextOp.length; i++) {
             if (typeof(nextOp[i]) === 'object') {
-                return isDelete;
+                nextDelete = true;
+                break;
             }
         }
 
-        return !isDelete;
+
+        // if one of the ops is a delete op and the other an insert op return false
+        if (prevDelete !== nextDelete) {
+            return false;
+        }
+
+        return true;
     };
 
     // transform first operation against second operation
@@ -276,19 +288,25 @@ editor.once('load', function () {
     // add local op to undo history
     var addToHistory = function (localOp) {
         // try to concatenate new op with latest op in the undo stack
-        var top = undoStack[undoStack.length-1];
-        if (top && top.time && Math.abs(top.time - localOp.time) <= delay /*&& canConcatOps(top.op, localOp.op)*/) {
-            top.op = concat(localOp.op, top.op);
-            top.time = localOp.time;
-        } else {
-            // cannot concatenate so push new op
-            undoStack.push(localOp);
-
-            // make sure our undo stack doens't get too big
-            if (undoStack.length > MAX_UNDO_SIZE) {
-                undoStack.splice(0, 1);
+        var timeSinceLastEdit = localOp.time - lastEditTime;
+        if (timeSinceLastEdit <= delay) {
+            var top = undoStack[undoStack.length-1];
+            if (top && canConcatOps(top.op, localOp.op)) {
+                top.op = concat(localOp.op, top.op);
+                return;
             }
         }
+
+        // cannot concatenate so push new op
+        undoStack.push(localOp);
+
+        // make sure our undo stack doens't get too big
+        if (undoStack.length > MAX_UNDO_SIZE) {
+            undoStack.splice(0, 1);
+        }
+
+        // update lastEditTime
+        lastEditTime = Date.now();
     };
 
     // Flush changes to the server
