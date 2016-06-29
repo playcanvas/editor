@@ -23,6 +23,14 @@ editor.once('load', function () {
     // amount of time since last local edit
     var lastEditTime = 0;
 
+    // if true then the last two ops will be concatenated no matter what
+    var forceConcatenate = false;
+
+    editor.method('editor:realtime:mergeOps', function (force) {
+        forceConcatenate = force;
+    });
+
+
     // create local copy of insert operation
     var createInsertOp = function (pos, text) {
         return customOp(
@@ -49,6 +57,9 @@ editor.once('load', function () {
 
     // returns true if the two operations can be concatenated
     var canConcatOps = function (prevOp, nextOp) {
+        if (forceConcatenate)
+            return true;
+
         var prevLen = prevOp.length;
         var nextLen = nextOp.length;
 
@@ -258,8 +269,8 @@ editor.once('load', function () {
         });
 
         // instantly flush changes
-        share._doc.resume();
-        share._doc.pause();
+        // share._doc.resume();
+        // share._doc.pause();
     };
 
     var suppress = false;
@@ -275,15 +286,15 @@ editor.once('load', function () {
 
     });
 
-    // started saving so flush changes
-    editor.on('editor:save:start', function () {
-        flushInterval();
-    });
+    // // started saving so flush changes
+    // editor.on('editor:save:start', function () {
+    //     flushInterval();
+    // });
 
-    editor.on('editor:beforeQuit', function () {
-        // flush changes before leaving the window
-        flushInterval();
-    });
+    // editor.on('editor:beforeQuit', function () {
+    //     // flush changes before leaving the window
+    //     flushInterval();
+    // });
 
     // add local op to undo history
     var addToHistory = function (localOp) {
@@ -311,15 +322,15 @@ editor.once('load', function () {
 
     // Flush changes to the server
     // and pause until next flushInterval
-    var flushInterval = function () {
-        if (share && share._doc) {
-            share._doc.resume();
-            share._doc.pause();
-        }
-    };
+    // var flushInterval = function () {
+    //     if (share && share._doc) {
+    //         share._doc.resume();
+    //         share._doc.pause();
+    //     }
+    // };
 
     // flush changes to server every once in a while
-    setInterval(flushInterval, 500);
+    // setInterval(flushInterval, 500);
 
     // Convert a CodeMirror change into an op understood by share.js
     function applyToShareJS(cm, change) {
@@ -363,5 +374,4 @@ editor.once('load', function () {
             applyToShareJS(cm, change.next);
         }
     }
-
 });

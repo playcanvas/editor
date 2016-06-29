@@ -114,24 +114,30 @@ body {
             @extend .font-regular;
         }
 
-        .code-editor-save {
-            background-color: $muted-green;
-            color: $editor-gutter-bg;
+        .code-editor-save, .code-editor-revert {
             font-size: 16px;
+            color: #fff;
+            opacity: 0.75;
 
             @include block();
+
+            &:not([disabled]):hover {
+                opacity: 1;
+                cursor: pointer;
+            }
+
+            &[disabled] {
+                opacity: 0.2;
+                cursor: not-allowed;
+            }
         }
 
-        .code-editor-save:hover {
+        .code-editor-save {
             background-color: $bright-green;
-            color: white;
-            cursor: pointer;
         }
 
-        .code-editor-save.disabled, .code-editor-save[disabled], fieldset[disabled] .code-editor-save {
-            background-color: $save-btn-disabled-bg;
-            color: $save-btn-disabled-color;
-            cursor: not-allowed;
+        .code-editor-revert {
+            background-color: #5B7073;
         }
 
         .code-editor-readonly {

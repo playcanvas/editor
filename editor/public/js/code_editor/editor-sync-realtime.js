@@ -13,6 +13,10 @@ editor.once('load', function() {
     var isConnected = false;
     var loadedScriptOnce = false;
 
+    var textDocument = null;
+    var assetDocument = null;
+    var editingContext = null;
+
     editor.method('document:isDirty', function () {
         return isDirty;
     });
@@ -29,6 +33,24 @@ editor.once('load', function() {
         return isSaving;
     });
 
+    editor.method('editor:loadAssetFile', function (fn) {
+        if (! assetDocument)
+            return fn(new Error("Asset not loaded"));
+
+        var filename = assetDocument.getSnapshot().file.filename;
+
+        (new AjaxRequest({
+            url: '{{url.api}}/assets/{{asset.id}}/file/' + filename + '?access_token={{accessToken}}',
+            notJson: true
+        }))
+        .on('load', function(status, data) {
+            fn(null, data);
+        })
+        .on('error', function (err) {
+            fn(err);
+        });
+    });
+
     editor.method('editor:save', function () {
         if (! editor.call('editor:canSave'))
             return;
@@ -42,6 +64,29 @@ editor.once('load', function() {
         }, 200);
     });
 
+    // revert loads the asset file
+    // and sets the document content to be the same as the asset file
+    editor.method('editor:revert', function () {
+        editor.call('editor:loadAssetFile', function (err, data) {
+            if (err) {
+                editor.emit('realtime:error', 'Could not revert, try again later.');
+                return;
+            }
+
+            var cm = editor.call('editor:codemirror');
+
+            // force merge ops so that
+            // otherwise the user will have to undo 2 times to get to the previous result
+            editor.call('editor:realtime:mergeOps', true);
+            cm.setValue(data);
+            editor.call('editor:realtime:mergeOps', false);
+
+            cm.focus();
+
+            editor.call('editor:save');
+        });
+    });
+
     editor.method('editor:isReadonly', function () {
         return ! editor.call('permissions:write');
     });
@@ -50,9 +95,6 @@ editor.once('load', function() {
         var auth = false;
         var socket;
         var connection;
-        var textDocument = null;
-        var assetDocument = null;
-        var editingContext = null;
         var data;
         var reconnectAttempts = 0;
         var reconnectInterval = 1;
@@ -220,10 +262,8 @@ editor.once('load', function() {
         var checkIfDirty = function () {
             isDirty = false;
             if (documentContent !== null && assetContent !== null) {
-
                 isDirty = documentContent !== assetContent;
 
-                // clean up
                 documentContent = null;
                 assetContent = null;
             }
@@ -283,16 +323,16 @@ editor.once('load', function() {
                 // load asset file to check if it has different contents
                 // than the sharejs document, so that we can enable the
                 // SAVE button if that is the case.
-                var filename = assetDocument.getSnapshot().file.filename;
+                editor.call('editor:loadAssetFile', function (err, data) {
+                    if (err) {
+                        editor.emit('realtime:error', 'Could not load asset file. Try again later.');
+                        return;
+                    }
 
-                (new AjaxRequest({
-                    url: '{{url.api}}/assets/{{asset.id}}/file/' + filename + '?access_token={{accessToken}}',
-                    notJson: true
-                }))
-                .on('load', function(status, data) {
                     assetContent = data;
                     checkIfDirty();
                 });
+
             });
 
             assetDocument.subscribe();
