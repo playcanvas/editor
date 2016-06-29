@@ -70,6 +70,10 @@ editor.once('load', function() {
         if (args.asset)
             form.append('asset', args.asset.get('id'));
 
+        // tags
+        if (args.tags)
+            form.append('tags', args.tags.join('\n'));
+
         // parent folder
         if (args.parent) {
             if (args.parent instanceof Observer) {
@@ -94,7 +98,7 @@ editor.once('load', function() {
             form.append('data', JSON.stringify(args.data));
 
         // preload
-        form.append('preload', true);
+        form.append('preload', args.preload === undefined ? true : args.preload);
 
         // filename
         if (args.filename)

@@ -249,6 +249,19 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'entity:name', fieldName.parent.innerElement.firstChild.ui);
 
 
+        // tags
+        var fieldTags = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Tags',
+            placeholder: 'Add Tag',
+            type: 'strings',
+            link: entities,
+            path: 'tags'
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'entity:tags', fieldTags.parent.parent.innerElement.firstChild.ui);
+
+
         // position
         var fieldPosition = editor.call('attributes:addField', {
             parent: panel,

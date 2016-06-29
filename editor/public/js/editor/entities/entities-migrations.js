@@ -5,6 +5,10 @@ editor.once('load', function() {
         setTimeout(function() {
             entity.history.enabled = false;
 
+            // tags
+            if (! entity.has('tags'))
+                entity.set('tags', [ ]);
+
             // components
 
             // light

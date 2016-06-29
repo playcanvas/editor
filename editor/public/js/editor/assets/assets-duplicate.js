@@ -8,6 +8,7 @@ editor.once('load', function() {
         var raw = {
             type: 'material',
             name: asset.get('name') + ' Copy',
+            tags: asset.get('tags'),
             source: false,
             data: asset.get('data'),
             preload: asset.get('preload'),
