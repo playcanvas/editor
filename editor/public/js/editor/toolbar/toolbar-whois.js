@@ -64,4 +64,27 @@ editor.once('load', function() {
     editor.method('whoisonline:panel', function() {
         return panel;
     });
+
+    var chatWidget = editor.call('chat:panel');
+    if (chatWidget) {
+        panel.class.add('chat-minified');
+
+        chatWidget.on('fold', function() {
+            panel.class.add('chat-minified');
+        });
+        chatWidget.on('unfold', function() {
+            panel.class.remove('chat-minified');
+        });
+
+        if (! editor.call('permissions:read'))
+            panel.class.add('no-chat');
+    }
+
+    editor.on('permissions:set', function(level) {
+        if (level) {
+            panel.class.remove('no-chat');
+        } else {
+            panel.class.add('no-chat');
+        }
+    });
 });

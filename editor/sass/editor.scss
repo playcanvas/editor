@@ -3144,12 +3144,21 @@ strong {
 .ui-panel.whoisonline {
     position: absolute;
     bottom: 34px;
-    left: 2px;
+    left: 246px;
     background-color: transparent;
     padding: 2px;
+    transition: left 100ms;
 
+    &.chat-minified {
+        left: 106px;
+    }
+    &.no-chat {
+        left: 2px;
+    }
     &.expanded {
         bottom: 2px;
+        left: 2px;
+        transition: none;
     }
     > .content {
         > a {
@@ -3159,6 +3168,171 @@ strong {
 
             > img {
                 display: block;
+            }
+        }
+    }
+}
+
+.ui-panel.chat-widget {
+    position: absolute;
+    bottom: 36px;
+    left: 4px;
+    width: 240px;
+
+    &.folded {
+        width: 100px;
+
+        > .ui-header {
+            > .typers {
+                display: none;
+            }
+            > .number {
+                display: block;
+            }
+        }
+    }
+    &.expanded {
+        display: none;
+    }
+    > .ui-header {
+        padding-right: 4px;
+
+        &:after {
+            line-height: 34px;
+        }
+        > .title {
+            text-transform: uppercase;
+            line-height: 34px;
+        }
+        > .typers {
+            float: right;
+            padding-right: 4px;
+            color: $text-secondary;
+            max-width: 160px;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            @extend .font-regular;
+        }
+        > .number {
+            display: none;
+            float: right;
+            margin-top: 8px;
+            padding: 0 6px;
+            height: 18px;
+            line-height: 19px;
+            border-radius: 9px;
+            pointer-events: none;
+
+            &.notify {
+                color: $text-primary;
+                background-color: $text-active;
+            }
+            &.typing {
+                color: $text-primary;
+            }
+        }
+    }
+    > .content {
+        height: 160px;
+
+        > .messages {
+            height: 128px;
+
+            > .content {
+                width: 240px;
+                overflow-x: hidden;
+                padding-bottom: 4px;
+                word-break: break-word;
+
+                > .divider {
+                    background-color: $bcg-darker;
+                    margin: 4px 8px;
+                    height: 1px;
+                }
+                > .message + .message.multi {
+                    margin-top: -4px;
+                }
+                > .message.multi + .message.multi {
+                    margin-top: 0px;
+                }
+                > .message {
+                    margin: 4px;
+                    line-height: 14px;
+                    font-size: 12px;
+
+                    &.multi {
+                        margin: 0 4px 0 22px;
+                    }
+                    > img {
+                        vertical-align: text-bottom;
+                        margin-right: 4px;
+                    }
+                    > span {
+                        vertical-align: text-top;
+
+                        &.username {
+                            font-weight: bold;
+                            color: $text-primary;
+
+                            &:after {
+                                content: ': ';
+                            }
+                        }
+                    }
+                }
+                > .system {
+                    margin: 4px;
+                    line-height: 12px;
+                    font-size: 12px;
+                    font-weight: bold;
+                    color: $text-active;
+                }
+            }
+        }
+        > .ui-text-field {
+            margin: 0;
+            border: none;
+            width: 240px;
+            height: 32px;
+
+            &:after {
+                right: auto;
+                left: 0;
+                line-height: 32px;
+                width: 32px;
+                text-align: center;
+                padding: 0;
+            }
+            &.not-empty {
+                padding: 0;
+                content: '';
+                background-color: $bcg-darkest;
+
+                &:after {
+                    content: '';
+                }
+                > .clear {
+                    display: block;
+                }
+                > .field {
+                    color: $text-primary;
+                }
+            }
+            > .clear {
+                display: none;
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 32px;
+                height: 32px;
+                line-height: 32px;
+                text-align: center;
+                color: #d34141;
+                @extend .font-icon;
+                font-size: 18px;
+                font-weight: bold;
+                text-align: center;
+                cursor: pointer;
             }
         }
     }

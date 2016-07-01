@@ -52,6 +52,20 @@ editor.once('load', function() {
                         } else {
                             sharejsMessage(msg);
                         }
+                    } else if (msg.data.startsWith('chat:')) {
+                        data = msg.data.slice('chat:'.length);
+
+                        var ind = data.indexOf(':');
+                        if (ind !== -1) {
+                            var op = data.slice(0, ind);
+                            data = JSON.parse(data.slice(ind + 1));
+
+                            if (op === 'typing') {
+                                editor.call('chat:sync:typing', data);
+                            } else if (op === 'msg') {
+                                editor.call('chat:sync:msg', data);
+                            }
+                        }
                     } else if (msg.data.startsWith('fs:')) {
                         data = msg.data.slice('fs:'.length);
                         var ind = data.indexOf(':');

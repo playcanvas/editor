@@ -24,4 +24,8 @@ editor.once('load', function() {
             delete userRequests[id];
         });
     });
+
+    editor.method('users:get', function(id) {
+        return users[id] || null;
+    });
 });
