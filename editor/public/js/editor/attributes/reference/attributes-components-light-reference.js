@@ -97,6 +97,11 @@ editor.once('load', function() {
         subTitle: '{Number}',
         description: 'Number of samples used for blurring a variance shadow map. Only uneven numbers work, even are incremented. Minimum value is 1, maximum is 25',
         url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#vsmBlurSize'
+    }, {
+        title: 'vsmBias',
+        subTitle: '{Number}',
+        description: 'Constant depth offset applied to a shadow map that enables the tuning of shadows in order to eliminate rendering artifacts, namely \'shadow acne\' and \'peter-panning\'',
+        url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#vsmBias'
     }];
 
     for(var i = 0; i < fields.length; i++) {

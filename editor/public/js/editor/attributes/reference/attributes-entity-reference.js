@@ -10,7 +10,12 @@ editor.once('load', function() {
         title: 'name',
         subTitle: '{String}',
         description: 'Human-readable name for this graph node.',
-        url: 'http://developer.playcanvas.com/api/pc.Entity.html'
+        url: 'http://developer.playcanvas.com/api/pc.Entity.html#name'
+    }, {
+        title: 'tags',
+        subTitle: '{pc.Tags}',
+        description: '',
+        url: 'http://developer.playcanvas.com/api/pc.Entity.html#tags'
     }, {
         title: 'position',
         subTitle: '{pc.Vec3}',
