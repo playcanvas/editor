@@ -11,6 +11,13 @@ editor.once('load', function() {
 
             // components
 
+            // camera
+            if (entity.has('components.camera')) {
+                // frustumCulling
+                if (! entity.has('components.camera.frustumCulling'))
+                    entity.set('components.camera.frustumCulling', false);
+            }
+
             // light
             if (entity.has('components.light')) {
                 // bake
