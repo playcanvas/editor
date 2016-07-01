@@ -112,7 +112,7 @@ editor.once('load', function() {
     // input
     var typing = false;
     var typingTimeout = null;
-    var typingTimeoutDelay = 500;
+    var typingTimeoutDelay = 1000;
     var input = new ui.TextField();
     input.keyChange = true;
     input.renderChanges = false;
