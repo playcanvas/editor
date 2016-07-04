@@ -63,9 +63,9 @@ editor.once('load', function() {
     editor.on('whoisonline:add', function(id) {
         var hash = id % 14;
         if (Math.floor(hash / 2) !== hash / 2)
-            hash = (hash + 7) % 14;
+            hash = (hash + Math.floor(pallete.length / 2)) % 14;
 
-        var hsl = pallete[id % 14];
+        var hsl = pallete[hash];
         var rgb = hslToRgb(hsl[0] / 360, hsl[1], hsl[2]);
 
         users[id] = {
