@@ -3197,9 +3197,6 @@ strong {
             > .typers {
                 display: none;
             }
-            > .number {
-                display: block;
-            }
         }
     }
     &.expanded {
@@ -3235,10 +3232,12 @@ strong {
             pointer-events: none;
 
             &.notify {
+                display: block;
                 color: $text-primary;
                 background-color: $text-active;
             }
             &.typing {
+                display: block;
                 color: $text-primary;
             }
         }
@@ -3327,6 +3326,7 @@ strong {
                 }
                 > .field {
                     color: $text-primary;
+                    width: calc(100% - 40px);
                 }
             }
             > .clear {
