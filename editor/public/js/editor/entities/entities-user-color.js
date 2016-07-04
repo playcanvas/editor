@@ -25,7 +25,7 @@ editor.once('load', function() {
             }
 
             if (! colors[user])
-                colors[user] = editor.call('whoisonline:color', user, 'hex', 'light');
+                colors[user] = editor.call('whoisonline:color', user, 'hex');
 
             for(var i = 0; i < data.ids.length; i++) {
                 var element = editor.call('entities:panel:get', data.ids[i]);

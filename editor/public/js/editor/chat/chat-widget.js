@@ -88,7 +88,7 @@ editor.once('load', function() {
             typersSingle.classList.add('active');
             // user
             var user = editor.call('users:get', ids[0]);
-            var color = editor.call('whoisonline:color', user && user.id, 'hex', 'light');
+            var color = editor.call('whoisonline:color', user && user.id, 'hex');
             typersSingleUser.textContent = user && user.username || 'user';
             typersSingleUser.style.color = color;
         } else if (count === 2) {
@@ -97,12 +97,12 @@ editor.once('load', function() {
             typersDouble.classList.add('active');
             // userA
             var userA = editor.call('users:get', ids[0]);
-            var color = editor.call('whoisonline:color', userA && userA.id, 'hex', 'light');
+            var color = editor.call('whoisonline:color', userA && userA.id, 'hex');
             typersDoubleUserA.textContent = userA && userA.username || 'user';
             typersDoubleUserA.style.color = color;
             // userB
-            var userB = editor.call('users:get', ids[0]);
-            var color = editor.call('whoisonline:color', userB && userB.id, 'hex', 'light');
+            var userB = editor.call('users:get', ids[1]);
+            var color = editor.call('whoisonline:color', userB && userB.id, 'hex');
             typersDoubleUserB.textContent = userB && userB.username || 'userB';
             typersDoubleUserB.style.color = color;
         } else {
@@ -142,7 +142,7 @@ editor.once('load', function() {
             number.classList.add('typing');
 
             if (typing === 1) {
-                var color = editor.call('whoisonline:color', ids[0], 'hex', 'light');
+                var color = editor.call('whoisonline:color', ids[0], 'hex');
                 number.style.color = color;
             } else {
                 number.style.color = '';

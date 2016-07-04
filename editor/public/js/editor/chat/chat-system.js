@@ -56,7 +56,7 @@ editor.once('load', function () {
                 username.classList.add('username');
                 username.textContent = user ? user.username : '';
                 if (type !== config.self.id)
-                    username.style.color = editor.call('whoisonline:color', user.id, 'hex', 'light');
+                    username.style.color = editor.call('whoisonline:color', user.id, 'hex');
                 element.insertBefore(username, text);
             } else {
                 element.classList.add('multi');

@@ -2,17 +2,22 @@ editor.once('load', function() {
     'use strict';
 
     var users = { };
-    var awaitingLoad = { };
-
-    var stringToHash = function(string) {
-        var hash = 0;
-        for(var i = 0; i < string.length; i++) {
-            var char = string.charCodeAt(i);
-            hash = ((hash << 5) - hash) + char;
-            hash |= 0;
-        }
-        return Math.abs(hash);
-    };
+    var pallete = [
+        [ 5, 0.63, 0.46 ],
+        [ 6, 0.78, 0.57 ],
+        [ 24, 1.00, 0.41 ],
+        [ 28, 0.80, 0.52 ],
+        [ 37, 0.90, 0.51 ],
+        [ 48, 0.89, 0.50 ],
+        [ 145, 0.76, 0.49 ],
+        [ 146, 0.63, 0.42 ],
+        [ 168, 0.76, 0.42 ],
+        [ 169, 0.76, 0.36 ],
+        [ 204, 0.70, 0.53 ],
+        [ 205, 0.64, 0.44 ],
+        [ 282, 0.39, 0.53 ],
+        [ 283, 0.44, 0.47 ]
+    ];
 
     var hue2rgb = function hue2rgb(p, q, t){
         if(t < 0) t += 1;
@@ -44,85 +49,39 @@ editor.once('load', function() {
     };
 
 
-    var hue = 60;
-    var rgbDark = hslToRgb(hue / 360, 0.5, 0.4);
-    var rgbNormal = hslToRgb(hue / 360, 0.75, 0.5);
-    var rgbLight = hslToRgb(hue / 360, 1, 0.65);
+    var hsl = pallete[0];
+    var rgb = hslToRgb(hsl[0] / 360, hsl[1], hsl[2]);
 
-    var colorsDefault = {
-        dark: {
-            data: rgbDark.slice(0),
-            rgb: 'rgb(' + Math.round(rgbDark[0] * 255) + ', ' + Math.round(rgbDark[1] * 255) + ', ' + Math.round(rgbDark[2] * 255) + ')',
-            hsl: 'hsl(' + hue + ', 50%, 40%)',
-            hex: rgbToHex(Math.round(rgbDark[0] * 255), Math.round(rgbDark[1] * 255), Math.round(rgbDark[2] * 255))
-        },
-        normal: {
-            data: rgbNormal.slice(0),
-            rgb: 'rgb(' + Math.round(rgbNormal[0] * 255) + ', ' + Math.round(rgbNormal[1] * 255) + ', ' + Math.round(rgbNormal[2] * 255) + ')',
-            hsl: 'hsl(' + hue + ', 75%, 50%)',
-            hex: rgbToHex(Math.round(rgbNormal[0] * 255), Math.round(rgbNormal[1] * 255), Math.round(rgbNormal[2] * 255))
-        },
-        light: {
-            data: rgbLight.slice(0),
-            rgb: 'rgb(' + Math.round(rgbLight[0] * 255) + ', ' + Math.round(rgbLight[1] * 255) + ', ' + Math.round(rgbLight[2] * 255) + ')',
-            hsl: 'hsl(' + hue + ', 100%, 65%)',
-            hex: rgbToHex(Math.round(rgbLight[0] * 255), Math.round(rgbLight[1] * 255), Math.round(rgbLight[2] * 255))
-        }
+    var colorDefault = {
+        data: rgb.slice(0),
+        rgb: 'rgb(' + Math.round(rgb[0] * 255) + ', ' + Math.round(rgb[1] * 255) + ', ' + Math.round(rgb[2] * 255) + ')',
+        hsl: 'hsl(' + hsl[0] + ', ' + Math.round(hsl[1] * 100) + '%, ' + Math.round(hsl[2] * 100) + '%)',
+        hex: rgbToHex(Math.round(rgb[0] * 255), Math.round(rgb[1] * 255), Math.round(rgb[2] * 255))
     };
 
 
     editor.on('whoisonline:add', function(id) {
-        if (awaitingLoad[id])
-            return;
+        var hsl = pallete[id % 14];
+        var rgb = hslToRgb(hsl[0] / 360, hsl[1], hsl[2]);
 
-        awaitingLoad[id] = true;
-
-        editor.call('users:loadOne', id, function(data) {
-            if (! awaitingLoad[id]) return;
-            delete awaitingLoad[id];
-
-            var hash = stringToHash(data.username);
-            var hue = (Math.floor(hash / 15) * 15) % 360;
-            var rgbDark = hslToRgb(hue / 360, 0.5, 0.4);
-            var rgbNormal = hslToRgb(hue / 360, 0.75, 0.5);
-            var rgbLight = hslToRgb(hue / 360, 1, 0.65);
-
-            users[id] = {
-                id: id,
-                username: data.username,
-                colors: {
-                    dark: {
-                        data: rgbDark.slice(0),
-                        rgb: 'rgb(' + Math.round(rgbDark[0] * 255) + ', ' + Math.round(rgbDark[1] * 255) + ', ' + Math.round(rgbDark[2] * 255) + ')',
-                        hsl: 'hsl(' + hue + ', 50%, 40%)',
-                        hex: rgbToHex(Math.round(rgbDark[0] * 255), Math.round(rgbDark[1] * 255), Math.round(rgbDark[2] * 255))
-                    },
-                    normal: {
-                        data: rgbNormal.slice(0),
-                        rgb: 'rgb(' + Math.round(rgbNormal[0] * 255) + ', ' + Math.round(rgbNormal[1] * 255) + ', ' + Math.round(rgbNormal[2] * 255) + ')',
-                        hsl: 'hsl(' + hue + ', 75%, 50%)',
-                        hex: rgbToHex(Math.round(rgbNormal[0] * 255), Math.round(rgbNormal[1] * 255), Math.round(rgbNormal[2] * 255))
-                    },
-                    light: {
-                        data: rgbLight.slice(0),
-                        rgb: 'rgb(' + Math.round(rgbLight[0] * 255) + ', ' + Math.round(rgbLight[1] * 255) + ', ' + Math.round(rgbLight[2] * 255) + ')',
-                        hsl: 'hsl(' + hue + ', 100%, 65%)',
-                        hex: rgbToHex(Math.round(rgbLight[0] * 255), Math.round(rgbLight[1] * 255), Math.round(rgbLight[2] * 255))
-                    }
-                }
-            };
-        });
+        users[id] = {
+            id: id,
+            color: {
+                data: rgb.slice(0),
+                rgb: 'rgb(' + Math.round(rgb[0] * 255) + ', ' + Math.round(rgb[1] * 255) + ', ' + Math.round(rgb[2] * 255) + ')',
+                hsl: 'hsl(' + hsl[0] + ', ' + Math.round(hsl[1] * 100) + '%, ' + Math.round(hsl[2] * 100) + '%)',
+                hex: rgbToHex(Math.round(rgb[0] * 255), Math.round(rgb[1] * 255), Math.round(rgb[2] * 255))
+            }
+        };
     });
 
     editor.on('whoisonline:remove', function(id) {
-        delete awaitingLoad[id];
         delete users[id];
     });
 
-    editor.method('whoisonline:color', function(id, type, tone) {
+    editor.method('whoisonline:color', function(id, type) {
         type = type || 'data';
-        tone = tone || 'normal';
-        var colors = users[id] && users[id].colors || colorsDefault;
-        return colors[tone][type];
+        var color = users[id] && users[id].color || colorDefault;
+        return color[type];
     });
 });
