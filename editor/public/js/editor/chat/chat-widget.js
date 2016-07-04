@@ -225,6 +225,11 @@ editor.once('load', function() {
     input.on('change', function(value) {
         value = value.trim();
 
+        if (value.length > 1024) {
+            input.value = value.slice(0, 1024);
+            return;
+        }
+
         if (typingTimeout)
             clearTimeout(typingTimeout);
 
