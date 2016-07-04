@@ -23,6 +23,10 @@ editor.once('load', function() {
     var assetsGrid = editor.call('assets:grid');
     var assetsPanel = editor.call('layout.assets');
 
+    var pluralize = function (word) {
+        return word + ' assets';
+    };
+
     // empty filter messages
     var getNoResultsMessage = function (type, filter) {
         var result;
@@ -30,9 +34,9 @@ editor.once('load', function() {
         if (legacyScripts && type === 'script') {
             result = 'There are no scripts. Click on the <span class="font-icon" style="font-size: 18px">&#57632;</span> button to add one';
         } else if (type === 'material' || type === 'cubemap' || type === 'text' || type === 'json' || type === 'html' || type === 'shader' || type === 'css' || (! legacyScripts && type === 'script')) {
-            result = 'There are no ' + type + 's in this folder. Click on the <span class="font-icon" style="font-size: 18px">&#57632;</span> button to add one';
+            result = 'There are no ' + pluralize(type) + ' in this folder. Click on the <span class="font-icon" style="font-size: 18px">&#57632;</span> button to add one';
         } else {
-            result = 'There are no ' + type + 's in this folder. Add one by uploading a ' + type + ' file';
+            result = 'There are no ' + pluralize(type) + ' in this folder. Add one by uploading a ' + type + ' file';
         }
 
         if (filter) {

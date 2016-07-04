@@ -1281,6 +1281,9 @@ strong {
                 &.type-shader:before {
                     content: '\E353';
                 }
+                &.type-binary:before {
+                    content: '\E299';
+                }
             }
         }
     }
@@ -2776,6 +2779,14 @@ strong {
         &.type-shader {
             > .thumbnail.placeholder:after {
                 content: '\E219';
+            }
+            > .icon {
+                display: none;
+            }
+        }
+        &.type-binary {
+            > .thumbnail.placeholder:after {
+                content: '\E299';
             }
             > .icon {
                 display: none;
