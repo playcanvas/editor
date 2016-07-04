@@ -31,7 +31,7 @@ editor.once('load', function() {
         panel.append(link);
 
         var img = document.createElement('img');
-        img.src = '/api/' + id + '/thumbnail?size=32';
+        img.src = '/api/' + id + '/thumbnail?size=28';
         link.appendChild(img);
 
         link.tooltip = Tooltip.attach({
@@ -44,6 +44,7 @@ editor.once('load', function() {
         editor.call('users:loadOne', id, function (user) {
             link.href = '/' + user.username;
             link.tooltip.text = user.username;
+            link.style.backgroundColor = editor.call('whoisonline:color', user.id, 'hex');
         });
     });
 

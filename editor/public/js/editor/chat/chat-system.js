@@ -55,6 +55,8 @@ editor.once('load', function () {
                 var username = document.createElement('span');
                 username.classList.add('username');
                 username.textContent = user ? user.username : '';
+                if (type !== config.self.id)
+                    username.style.color = editor.call('whoisonline:color', user.id, 'hex', 'light');
                 element.insertBefore(username, text);
             } else {
                 element.classList.add('multi');

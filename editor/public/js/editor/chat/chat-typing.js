@@ -44,21 +44,6 @@ editor.once('load', function() {
             typers.push(id);
         }
 
-        var msg = '';
-
-        if (typing) {
-            if (typing === 1) {
-                var user = editor.call('users:get', typers[0]);
-                msg = (user ? user.username : 'user') + ' is typing...';
-            } else if (typing === 2) {
-                var userA = editor.call('users:get', typers[0]);
-                var userB = editor.call('users:get', typers[1]);
-                msg = (userA ? userA.username : 'user') + ' and ' + (userB ? userB.username : 'user') + ' are typing...';
-            } else {
-                msg = typing + ' users are typing...';
-            }
-        }
-
         editor.emit('chat:typing', typing, typers, msg);
     };
 
