@@ -33,12 +33,84 @@ editor.once('load', function() {
     }, false);
 
     // typers
+    var typersLast = null;
     var typers = document.createElement('span');
     typers.classList.add('typers');
     panel.headerAppend(typers);
 
-    editor.on('chat:typing', function(count, ids, msg) {
-        typers.textContent = msg;
+    // typers single
+    var typersSingle = document.createElement('span');
+    typersSingle.classList.add('single');
+    typers.appendChild(typersSingle);
+
+    var typersSingleUser = document.createElement('span');
+    typersSingleUser.classList.add('user');
+    typersSingle.appendChild(typersSingleUser);
+
+    typersSingle.appendChild(document.createTextNode(' is typing...'));
+
+    // typers double
+    var typersDouble = document.createElement('span');
+    typersDouble.classList.add('double');
+    typers.appendChild(typersDouble);
+
+    var typersDoubleUserA = document.createElement('span');
+    typersDoubleUserA.classList.add('user');
+    typersDouble.appendChild(typersDoubleUserA);
+
+    typersDouble.appendChild(document.createTextNode(' and '));
+
+    var typersDoubleUserB = document.createElement('span');
+    typersDoubleUserB.classList.add('user');
+    typersDouble.appendChild(typersDoubleUserB);
+
+    typersDouble.appendChild(document.createTextNode(' are typing...'));
+
+    // typers multiple
+    var typersMultiple = document.createElement('span');
+    typersMultiple.classList.add('double');
+    typers.appendChild(typersMultiple);
+
+    var typersMultipleUsers = document.createElement('span');
+    typersMultipleUsers.classList.add('user');
+    typersMultiple.appendChild(typersMultipleUsers);
+
+    typersMultiple.appendChild(document.createTextNode(' users are typing...'));
+
+
+    editor.on('chat:typing', function(count, ids) {
+        if (count === 0) {
+            if (typersLast) typersLast.classList.remove('active');
+            typersLast = null;
+        } else if (count === 1) {
+            if (typersLast) typersLast.classList.remove('active');
+            typersLast = typersSingle;
+            typersSingle.classList.add('active');
+            // user
+            var user = editor.call('users:get', ids[0]);
+            var color = editor.call('whoisonline:color', user && user.id, 'hex');
+            typersSingleUser.textContent = user && user.username || 'user';
+            typersSingleUser.style.color = color;
+        } else if (count === 2) {
+            if (typersLast) typersLast.classList.remove('active');
+            typersLast = typersDouble;
+            typersDouble.classList.add('active');
+            // userA
+            var userA = editor.call('users:get', ids[0]);
+            var color = editor.call('whoisonline:color', userA && userA.id, 'hex');
+            typersDoubleUserA.textContent = userA && userA.username || 'user';
+            typersDoubleUserA.style.color = color;
+            // userB
+            var userB = editor.call('users:get', ids[1]);
+            var color = editor.call('whoisonline:color', userB && userB.id, 'hex');
+            typersDoubleUserB.textContent = userB && userB.username || 'userB';
+            typersDoubleUserB.style.color = color;
+        } else {
+            if (typersLast) typersLast.classList.remove('active');
+            typersLast = typersMultiple;
+            typersMultiple.classList.add('active');
+            typersMultipleUsers.textContent = count;
+        }
     });
 
     // number
@@ -61,16 +133,24 @@ editor.once('load', function() {
         if (! number.classList.contains('typing'))
             number.textContent = messagesNumber;
     });
-    editor.on('chat:typing', function(typing) {
+    editor.on('chat:typing', function(typing, ids) {
         if (! panel.folded)
             return;
 
         if (typing) {
             number.textContent = '...';
             number.classList.add('typing');
+
+            if (typing === 1) {
+                var color = editor.call('whoisonline:color', ids[0], 'hex');
+                number.style.color = color;
+            } else {
+                number.style.color = '';
+            }
         } else {
             number.textContent = messagesNumber;
             number.classList.remove('typing');
+            number.style.color = '';
         }
     });
     panel.on('unfold', function() {

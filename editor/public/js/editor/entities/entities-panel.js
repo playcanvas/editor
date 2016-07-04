@@ -400,6 +400,11 @@ editor.once('load', function() {
             }
         });
 
+        // collaborators
+        var users = element.users = document.createElement('span');
+        users.classList.add('users');
+        element.elementTitle.appendChild(users);
+
         resizeTree();
     });
 

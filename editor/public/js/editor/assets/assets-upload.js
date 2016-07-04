@@ -4,7 +4,7 @@ editor.once('load', function() {
     var uploadJobs = 0;
     var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
 
-    var targetExtensions = [ 'jpg', 'jpeg', 'png', 'js', 'css', 'html', 'json', 'xml', 'txt', 'vert', 'frag', 'glsl', 'mp3', 'ogg', 'wav', 'mp4' ];
+    var targetExtensions = [ 'jpg', 'jpeg', 'png', 'js', 'css', 'html', 'json', 'xml', 'txt', 'vert', 'frag', 'glsl', 'mp3', 'ogg', 'wav', 'mp4', 'atlas' ];
     var tmp = { };
     for(var i = 0; i < targetExtensions.length; i++)
         tmp[targetExtensions[i]] = true;
@@ -180,8 +180,8 @@ editor.once('load', function() {
             if (legacyScripts && ext === 'js') {
                 editor.call('assets:upload:script', files[i]);
             } else {
-                var source = ! targetExtensions[ext];
-                var type = extToType[ext];
+                var type = extToType[ext] || 'binary';
+                var source = type !== 'binary' && ! targetExtensions[ext];
 
                 // can we override another asset?
                 var sourceAsset = null;

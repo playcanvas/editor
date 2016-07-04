@@ -1281,6 +1281,9 @@ strong {
                 &.type-shader:before {
                     content: '\E353';
                 }
+                &.type-binary:before {
+                    content: '\E299';
+                }
             }
         }
     }
@@ -2484,6 +2487,7 @@ strong {
 .ui-tree.hierarchy {
     .ui-tree-item {
         > .title {
+            position: relative;
             @extend .font-regular;
 
             &:hover > .icon:after {
@@ -2497,6 +2501,18 @@ strong {
                 text-align: center;
                 background-color: transparent;
                 color: $text-darkest;
+            }
+            > .users {
+                position: absolute;
+                top: 0;
+                right: 2px;
+
+                > span {
+                    display: inline-block;
+                    margin-right: 4px;
+                    width: 8px;
+                    height: 8px;
+                }
             }
         }
         &.container {
@@ -2781,6 +2797,14 @@ strong {
                 display: none;
             }
         }
+        &.type-binary {
+            > .thumbnail.placeholder:after {
+                content: '\E299';
+            }
+            > .icon {
+                display: none;
+            }
+        }
         &.scripts {
             > .thumbnail.placeholder:before {
                 content: 's';
@@ -2965,6 +2989,18 @@ strong {
             overflow: hidden;
             color: $text-primary;
             background-color: rgba($bcg-darker, 0.8);
+        }
+        > .users {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+
+            > span {
+                float: right;
+                margin-left: 4px;
+                width: 8px;
+                height: 8px;
+            }
         }
     }
 }
@@ -3162,12 +3198,26 @@ strong {
     }
     > .content {
         > a {
+            position: relative;
             display: block;
             margin-right: 4px;
             float: left;
+            background-color: $bcg-darkest;
 
             > img {
                 display: block;
+                width: 28px;
+                height: 28px;
+                margin: 2px;
+            }
+            &:after {
+                content: '\00a0';
+                position: absolute;
+                right: 2px;
+                bottom: 2px;
+                width: 6px;
+                height: 6px;
+                background: inherit;
             }
         }
     }
@@ -3185,9 +3235,6 @@ strong {
         > .ui-header {
             > .typers {
                 display: none;
-            }
-            > .number {
-                display: block;
             }
         }
     }
@@ -3212,6 +3259,19 @@ strong {
             text-overflow: ellipsis;
             overflow: hidden;
             @extend .font-regular;
+
+            > .single,
+            > .double,
+            > .multiple {
+                display: none;
+
+                &.active {
+                    display: block;
+                }
+                > .user {
+                    font-weight: bold;
+                }
+            }
         }
         > .number {
             display: none;
@@ -3224,10 +3284,12 @@ strong {
             pointer-events: none;
 
             &.notify {
+                display: block;
                 color: $text-primary;
                 background-color: $text-active;
             }
             &.typing {
+                display: block;
                 color: $text-primary;
             }
         }
@@ -3316,6 +3378,7 @@ strong {
                 }
                 > .field {
                     color: $text-primary;
+                    width: calc(100% - 40px);
                 }
             }
             > .clear {
