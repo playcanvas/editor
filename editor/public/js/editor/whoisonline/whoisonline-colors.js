@@ -61,6 +61,10 @@ editor.once('load', function() {
 
 
     editor.on('whoisonline:add', function(id) {
+        var hash = id % 14;
+        if (Math.floor(hash / 5) !== hash / 5)
+            hash = (hash % 7) % 14;
+
         var hsl = pallete[id % 14];
         var rgb = hslToRgb(hsl[0] / 360, hsl[1], hsl[2]);
 
