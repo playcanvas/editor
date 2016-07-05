@@ -52,6 +52,22 @@ editor.once('load', function() {
                 // vsmBias
                 if (! entity.has('components.light.vsmBias'))
                     entity.set('components.light.vsmBias', 0.01 * 0.25);
+
+                // cookie
+                if (! entity.has('components.light.cookie'))
+                    entity.set('components.light.cookie', null);
+
+                // cookieIntensity
+                if (! entity.has('components.light.cookieIntensity'))
+                    entity.set('components.light.cookieIntensity', 1.0);
+
+                // cookieFalloff
+                if (! entity.has('components.light.cookieFalloff'))
+                    entity.set('components.light.cookieFalloff', true);
+
+                // cookieChannel
+                if (! entity.has('components.light.cookieChannel'))
+                    entity.set('components.light.cookieChannel', 'rgb');
             }
 
             // model
