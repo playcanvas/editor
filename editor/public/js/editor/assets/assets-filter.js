@@ -74,6 +74,7 @@ editor.once('load', function() {
             binary: 'Binary',
             cubemap: 'Cubemap',
             css: 'Css',
+            font: 'Font',
             json: 'Json',
             html: 'Html',
             material: 'Material',
