@@ -46,13 +46,13 @@ editor.once('load', function () {
                     points[ind * 4].add(aabb.center);
 
                     points[ind * 4 + 1].copy(points[ind * 4]);
-                    points[ind * 4 + 1].x -= aabb.halfExtents.x * .5 * x;
+                    points[ind * 4 + 1].x -= aabb.halfExtents.x * .3 * x;
 
                     points[ind * 4 + 2].copy(points[ind * 4]);
-                    points[ind * 4 + 2].y -= aabb.halfExtents.y * .5 * y;
+                    points[ind * 4 + 2].y -= aabb.halfExtents.y * .3 * y;
 
                     points[ind * 4 + 3].copy(points[ind * 4]);
-                    points[ind * 4 + 3].z -= aabb.halfExtents.z * .5 * z;
+                    points[ind * 4 + 3].z -= aabb.halfExtents.z * .3 * z;
 
                     app.renderLine(points[ind * 4], points[ind * 4 + 1], colorBehind, pc.LINEBATCH_OVERLAY);
                     app.renderLine(points[ind * 4], points[ind * 4 + 2], colorBehind, pc.LINEBATCH_OVERLAY);

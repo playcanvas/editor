@@ -46,4 +46,16 @@ editor.once('load', function() {
             }
         }
     });
+
+    editor.on('whoisonline:remove', function(id) {
+        if (! items[id])
+            return;
+
+        for(var i = 0; i < items[id].length; i++)
+            items[id][i].parentNode.removeChild(items[id][i]);
+
+        delete items[id];
+        delete pool[id];
+        delete colors[id];
+    });
 });
