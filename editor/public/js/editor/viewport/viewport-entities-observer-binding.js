@@ -14,13 +14,13 @@ editor.once('load', function() {
                 entity.setName(obj.get('name'));
 
             } else if (path.startsWith('position')) {
-                entity.setLocalPosition(new pc.Vec3(obj.get('position.0'), obj.get('position.1'), obj.get('position.2')));
+                entity.setLocalPosition(obj.get('position.0'), obj.get('position.1'), obj.get('position.2'));
 
             } else if (path.startsWith('rotation')) {
-                entity.setLocalEulerAngles(new pc.Vec3(obj.get('rotation.0'), obj.get('rotation.1'), obj.get('rotation.2')));
+                entity.setLocalEulerAngles(obj.get('rotation.0'), obj.get('rotation.1'), obj.get('rotation.2'));
 
             } else if (path.startsWith('scale')) {
-                entity.setLocalScale(new pc.Vec3(obj.get('scale.0'), obj.get('scale.1'), obj.get('scale.2')));
+                entity.setLocalScale(obj.get('scale.0'), obj.get('scale.1'), obj.get('scale.2'));
 
             } else if (path.startsWith('enabled')) {
                 entity.enabled = obj.get('enabled');

@@ -3233,7 +3233,13 @@ strong {
         width: 100px;
 
         > .ui-header {
+            &:after {
+                content: '\E233';
+            }
             > .typers {
+                display: none;
+            }
+            > .notifyToggle {
                 display: none;
             }
         }
@@ -3241,10 +3247,20 @@ strong {
     &.expanded {
         display: none;
     }
+    &.notify {
+        > .ui-header {
+            &:after {
+                color: $text-active;
+            }
+            > .title {
+                color: $text-primary;
+            }
+        }
+    }
     > .ui-header {
-        padding-right: 4px;
-
         &:after {
+            content: '\E233';
+            color: $text-secondary;
             line-height: 34px;
         }
         > .title {
@@ -3253,12 +3269,14 @@ strong {
         }
         > .typers {
             float: right;
+            max-width: 132px;
             padding-right: 4px;
-            color: $text-secondary;
-            max-width: 160px;
+            @extend .font-regular;
+            font-size: 10px;
             text-overflow: ellipsis;
             overflow: hidden;
-            @extend .font-regular;
+            color: $text-secondary;
+            pointer-events: none;
 
             > .single,
             > .double,
@@ -3273,10 +3291,35 @@ strong {
                 }
             }
         }
+        > .notifyToggle {
+            float: right;
+            border: none;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            margin: 0;
+            padding: 0;
+            @extend .font-icon;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            color: $text-darkest;
+            background-color: transparent;
+
+            &.active {
+                color: $text-secondary;
+            }
+            &:hover {
+                color: $text-primary;
+                background-color: $bcg-darkest;
+            }
+        }
         > .number {
             display: none;
             float: right;
             margin-top: 8px;
+            margin-right: 4px;
             padding: 0 6px;
             height: 18px;
             line-height: 19px;
