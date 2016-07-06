@@ -443,6 +443,9 @@ editor.once('load', function() {
                 }
 
                 for(var i = 0; i < selection[id].length; i++) {
+                    if (! selection[id][i])
+                        continue;
+
                     var model = selection[id][i].model;
                     if (! model || ! model.model)
                         continue;
