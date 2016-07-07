@@ -237,6 +237,13 @@ editor.once('load', function() {
     messages.scroll = true;
     panel.append(messages);
 
+    messages.innerElement.addEventListener('contextmenu', function(evt) {
+        if (evt.target.tagName !== 'A')
+            return;
+
+        evt.stopPropagation();
+    });
+
     editor.method('chat:messagesPanel', function() {
         return messages;
     });
