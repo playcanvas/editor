@@ -1284,6 +1284,9 @@ strong {
                 &.type-binary:before {
                     content: '\E299';
                 }
+                &.type-font:before {
+                    content: '\E299';
+                }
             }
         }
     }
@@ -2785,6 +2788,14 @@ strong {
             }
         }
         &.type-binary {
+            > .thumbnail.placeholder:after {
+                content: '\E299';
+            }
+            > .icon {
+                display: none;
+            }
+        }
+        &.type-font {
             > .thumbnail.placeholder:after {
                 content: '\E299';
             }

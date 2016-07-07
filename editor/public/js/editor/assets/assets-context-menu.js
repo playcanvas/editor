@@ -270,7 +270,8 @@ editor.once('load', function() {
                     filename: target.get('file.filename'),
                     scope: target.get('scope'),
                     user_id: target.get('user_id'),
-                    region: target.get('region')
+                    region: target.get('region'),
+                    meta: target.get('meta')
                 }
             };
 

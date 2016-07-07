@@ -469,7 +469,10 @@ editor.once('load', function() {
                             filename: filename,
                             scope: target.get('scope'),
                             user_id: target.get('user_id'),
-                            region: target.get('region')
+                            region: target.get('region'),
+                            meta: {
+                                chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 !@£$%^&*()_+-=[];\'\\:",./<>?#€'
+                            }
                         }
                     };
 
