@@ -22,5 +22,4 @@ editor.once('load', function () {
     editor.method('localStorage:has', function (key) {
         return !!localStorage.getItem(key);
     });
-
 });

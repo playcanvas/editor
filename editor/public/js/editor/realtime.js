@@ -66,6 +66,9 @@ editor.once('load', function() {
                                 editor.call('chat:sync:msg', data);
                             }
                         }
+                    } else if (msg.data.startsWith('selection')) {
+                        var data = msg.data.slice('selection:'.length);
+                        editor.emit('selector:sync:raw', data);
                     } else if (msg.data.startsWith('fs:')) {
                         data = msg.data.slice('fs:'.length);
                         var ind = data.indexOf(':');

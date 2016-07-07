@@ -926,6 +926,10 @@ editor.once('load', function() {
         label.textContent = asset.get('name');
         item.element.appendChild(label);
 
+        var users = item.users = document.createElement('div');
+        users.classList.add('users');
+        item.element.appendChild(users);
+
         // update name/filename change
         events.push(asset.on('name:set', function(name, nameOld) {
             // grid
@@ -1122,6 +1126,10 @@ editor.once('load', function() {
         label.classList.add('label');
         label.textContent = file.get('filename');
         item.element.appendChild(label);
+
+        var users = item.users = document.createElement('div');
+        users.classList.add('users');
+        item.element.appendChild(users);
 
         // update name/filename change
         var evtNameSet = file.on('filename:set', function(value, valueOld) {

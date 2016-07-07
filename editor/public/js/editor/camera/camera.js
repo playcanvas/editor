@@ -131,7 +131,8 @@ editor.once('load', function() {
                 farClip: 10000,
                 priority: 0,
                 clearColorBuffer: true,
-                clearDepthBuffer: true
+                clearDepthBuffer: true,
+                frustumCulling: true
             };
 
             if (args.ortho) {

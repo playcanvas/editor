@@ -2490,6 +2490,7 @@ strong {
 .ui-tree.hierarchy {
     .ui-tree-item {
         > .title {
+            position: relative;
             @extend .font-regular;
 
             &:hover > .icon:after {
@@ -2503,6 +2504,18 @@ strong {
                 text-align: center;
                 background-color: transparent;
                 color: $text-darkest;
+            }
+            > .users {
+                position: absolute;
+                top: 0;
+                right: 2px;
+
+                > span {
+                    display: inline-block;
+                    margin-right: 4px;
+                    width: 8px;
+                    height: 8px;
+                }
             }
         }
         &.container {
@@ -2803,6 +2816,7 @@ strong {
                 display: none;
             }
         }
+
         &.scripts {
             > .thumbnail.placeholder:before {
                 content: 's';
@@ -2987,6 +3001,18 @@ strong {
             overflow: hidden;
             color: $text-primary;
             background-color: rgba($bcg-darker, 0.8);
+        }
+        > .users {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+
+            > span {
+                float: right;
+                margin-left: 4px;
+                width: 8px;
+                height: 8px;
+            }
         }
     }
 }
@@ -3184,12 +3210,26 @@ strong {
     }
     > .content {
         > a {
+            position: relative;
             display: block;
             margin-right: 4px;
             float: left;
+            background-color: $bcg-darkest;
 
             > img {
                 display: block;
+                width: 28px;
+                height: 28px;
+                margin: 2px;
+            }
+            &:after {
+                content: '\00a0';
+                position: absolute;
+                right: 2px;
+                bottom: 2px;
+                width: 6px;
+                height: 6px;
+                background: inherit;
             }
         }
     }
@@ -3205,7 +3245,13 @@ strong {
         width: 100px;
 
         > .ui-header {
+            &:after {
+                content: '\E233';
+            }
             > .typers {
+                display: none;
+            }
+            > .notifyToggle {
                 display: none;
             }
         }
@@ -3213,10 +3259,20 @@ strong {
     &.expanded {
         display: none;
     }
+    &.notify {
+        > .ui-header {
+            &:after {
+                color: $text-active;
+            }
+            > .title {
+                color: $text-primary;
+            }
+        }
+    }
     > .ui-header {
-        padding-right: 4px;
-
         &:after {
+            content: '\E233';
+            color: $text-secondary;
             line-height: 34px;
         }
         > .title {
@@ -3225,17 +3281,57 @@ strong {
         }
         > .typers {
             float: right;
+            max-width: 132px;
             padding-right: 4px;
-            color: $text-secondary;
-            max-width: 160px;
+            @extend .font-regular;
+            font-size: 10px;
             text-overflow: ellipsis;
             overflow: hidden;
-            @extend .font-regular;
+            color: $text-secondary;
+            pointer-events: none;
+
+            > .single,
+            > .double,
+            > .multiple {
+                display: none;
+
+                &.active {
+                    display: block;
+                }
+                > .user {
+                    font-weight: bold;
+                }
+            }
+        }
+        > .notifyToggle {
+            float: right;
+            border: none;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            margin: 0;
+            padding: 0;
+            @extend .font-icon;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            color: $text-darkest;
+            background-color: transparent;
+
+            &.active {
+                color: $text-secondary;
+            }
+            &:hover {
+                color: $text-primary;
+                background-color: $bcg-darkest;
+            }
         }
         > .number {
             display: none;
             float: right;
             margin-top: 8px;
+            margin-right: 4px;
             padding: 0 6px;
             height: 18px;
             line-height: 19px;
@@ -3278,15 +3374,17 @@ strong {
                 }
                 > .message {
                     margin: 4px;
+                    padding-left: 18px;
                     line-height: 14px;
                     font-size: 12px;
 
                     &.multi {
-                        margin: 0 4px 0 22px;
+                        margin: 0 4px 0 4px;
                     }
                     > img {
                         vertical-align: text-bottom;
                         margin-right: 4px;
+                        margin-left: -18px;
                     }
                     > span {
                         vertical-align: text-top;

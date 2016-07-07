@@ -45,6 +45,7 @@ editor.once('load', function() {
         context.root.syncHierarchy();
 
         this.fire('prerender', null);
+        editor.emit('viewport:preRender');
 
         var device = this.graphicsDevice;
         var dw = device.width;

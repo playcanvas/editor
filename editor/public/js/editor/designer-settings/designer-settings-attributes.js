@@ -197,5 +197,48 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'settings:localServer', fieldLocalServer.parent.innerElement.firstChild.ui);
 
+
+        // chat notification
+        var fieldChatNotification = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Chat Notification',
+            type: 'checkbox'
+        });
+        var checkChatNotificationState = function() {
+            var permission = editor.call('notify:state');
+
+            fieldChatNotification.disabled = permission === 'denied';
+
+            if (permission !== 'granted' && permission !== 'denied')
+                fieldChatNotification.value = null;
+
+            if (permission === 'granted') {
+                // restore localstorage state
+                var granted = editor.call('localStorage:get', 'editor:notifications:chat');
+                if (granted === null) {
+                    fieldChatNotification.value = true;
+                } else {
+                    fieldChatNotification.value = granted;
+                }
+            }
+        };
+        var evtPermission = editor.on('notify:permission', checkChatNotificationState);
+        var evtChatNofityState = editor.on('chat:notify', checkChatNotificationState);
+        checkChatNotificationState();
+        fieldChatNotification.on('change', function(value) {
+            if (editor.call('notify:state') !== 'granted') {
+                editor.call('notify:permission');
+            } else {
+                editor.call('localStorage:set', 'editor:notifications:chat', value);
+                editor.emit('chat:notify', value);
+                checkChatNotificationState();
+            }
+        });
+        fieldChatNotification.once('destroy', function() {
+            evtPermission.unbind();
+            evtChatNofityState.unbind();
+            evtPermission = null;
+            evtChatNofityState = null;
+        });
     });
 });
