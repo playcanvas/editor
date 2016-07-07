@@ -470,7 +470,7 @@ editor.once('load', function() {
             type: 'asset',
             kind: fieldType.value === 'point' ? 'cubemap' : 'texture',
             link: entities,
-            path: 'components.light.cookie'
+            path: 'components.light.cookieAsset'
         };
         var fieldCookie = editor.call('attributes:addField', argsCookie);
         fieldCookie.parent.hidden = fieldType.value === 'directional';
@@ -480,7 +480,7 @@ editor.once('load', function() {
             argsCookie.kind = fieldType.value === 'point' ? 'cubemap' : 'texture';
         });
         // reference
-        editor.call('attributes:reference:attach', 'light:cookie', fieldCookie.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'light:cookieAsset', fieldCookie.parent.innerElement.firstChild.ui);
 
 
         // cookies panel

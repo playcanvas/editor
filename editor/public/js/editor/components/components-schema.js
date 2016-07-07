@@ -36,7 +36,7 @@ editor.once('load', function() {
                 falloffMode: 0,
                 innerConeAngle: 40,
                 outerConeAngle: 45,
-                cookie: null,
+                cookieAsset: null,
                 cookieIntensity: 1.0,
                 cookieFalloff: true,
                 cookieChannel: 'rgb'

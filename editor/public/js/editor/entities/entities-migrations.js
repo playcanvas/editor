@@ -53,9 +53,9 @@ editor.once('load', function() {
                 if (! entity.has('components.light.vsmBias'))
                     entity.set('components.light.vsmBias', 0.01 * 0.25);
 
-                // cookie
-                if (! entity.has('components.light.cookie'))
-                    entity.set('components.light.cookie', null);
+                // cookieAsset
+                if (! entity.has('components.light.cookieAsset'))
+                    entity.set('components.light.cookieAsset', null);
 
                 // cookieIntensity
                 if (! entity.has('components.light.cookieIntensity'))
