@@ -32,6 +32,57 @@ editor.once('load', function() {
         editor.emit('viewport:hover', false);
     }, false);
 
+    // notification icon
+    var notify = new ui.Button({
+        text: '&#57751;'
+    });
+    notify.class.add('notifyToggle');
+    panel.headerAppend(notify);
+
+    var tooltipNotify = Tooltip.attach({
+        target: notify.element,
+        text: 'Notifications (enabled)',
+        align: 'bottom',
+        root: root
+    });
+
+    notify.on('click', function() {
+        var permission = editor.call('notify:state');
+
+        if (permission === 'denied') {
+            return;
+        } else if (permission === 'granted') {
+            var granted = editor.call('localStorage:get', 'editor:notifications:chat');
+            editor.call('localStorage:set', 'editor:notifications:chat', ! granted);
+            editor.emit('chat:notify', ! granted);
+        } else {
+            editor.call('notify:permission');
+        }
+    });
+    var checkNotificationsState = function() {
+        var permission = editor.call('notify:state');
+
+        if (permission === 'denied') {
+            tooltipNotify.text = 'Notifications Denied in Browser Settings';
+            notify.class.remove('active');
+        } else if (permission === 'granted') {
+            var granted = editor.call('localStorage:get', 'editor:notifications:chat');
+            if (granted === false) {
+                tooltipNotify.text = 'Notifications Disabled';
+                notify.class.remove('active');
+            } else {
+                tooltipNotify.text = 'Notifications Enabled';
+                notify.class.add('active');
+            }
+        } else {
+            tooltipNotify.text = 'Enable Notifications';
+            notify.class.remove('active');
+        }
+    };
+    editor.on('notify:permission', checkNotificationsState);
+    editor.on('chat:notify', checkNotificationsState);
+    checkNotificationsState();
+
     // typers
     var typersLast = null;
     var typers = document.createElement('span');
@@ -68,7 +119,7 @@ editor.once('load', function() {
 
     // typers multiple
     var typersMultiple = document.createElement('span');
-    typersMultiple.classList.add('double');
+    typersMultiple.classList.add('multiple');
     typers.appendChild(typersMultiple);
 
     var typersMultipleUsers = document.createElement('span');
@@ -120,6 +171,10 @@ editor.once('load', function() {
     number.textContent = '0';
     panel.headerAppend(number);
 
+    editor.method('chat:unreadCount', function() {
+        return messagesNumber;
+    });
+
     editor.on('chat:post', function(type, msg, element) {
         if (! panel.folded)
             lastMessage = element;
@@ -128,6 +183,7 @@ editor.once('load', function() {
             return;
 
         messagesNumber++;
+        panel.class.add('notify');
         number.classList.add('notify');
 
         if (! number.classList.contains('typing'))
@@ -157,6 +213,7 @@ editor.once('load', function() {
         messagesNumber = 0;
         number.textContent = '0';
         number.classList.remove('typing', 'notify');
+        panel.class.remove('notify');
 
         if (messageDivider.parentNode)
             messageDivider.parentNode.removeChild(messageDivider);
@@ -168,12 +225,10 @@ editor.once('load', function() {
             lastMessage = messages.innerElement.lastChild;
         }
 
-        requestAnimationFrame(function() {
-            requestAnimationFrame(function() {
-                input.elementInput.select();
-                input.elementInput.focus();
-            });
-        });
+        setTimeout(function() {
+            input.elementInput.select();
+            input.elementInput.focus();
+        }, 200);
     });
 
     // messages
@@ -181,6 +236,13 @@ editor.once('load', function() {
     messages.class.add('messages');
     messages.scroll = true;
     panel.append(messages);
+
+    messages.innerElement.addEventListener('contextmenu', function(evt) {
+        if (evt.target.tagName !== 'A')
+            return;
+
+        evt.stopPropagation();
+    });
 
     editor.method('chat:messagesPanel', function() {
         return messages;
@@ -198,6 +260,10 @@ editor.once('load', function() {
     input.renderChanges = false;
     input.placeholder = '>';
     panel.append(input);
+
+    editor.method('chat:inputField', function() {
+        return input;
+    });
 
     var clear = document.createElement('div');
     clear.innerHTML = '&#57650;';

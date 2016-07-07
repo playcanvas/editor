@@ -381,7 +381,7 @@ editor.once('load', function() {
         fieldShadowType.on('change', function() {
             fieldShadowVsmBlurSize.parent.hidden = fieldShadowType.value === 0;
         });
-        // intensity slider
+        // vsmBlurSize slider
         var fieldShadowVsmBlurSizeSlider = editor.call('attributes:addField', {
             panel: fieldShadowVsmBlurSize.parent,
             precision: 0,
@@ -455,5 +455,107 @@ editor.once('load', function() {
         fieldShadowBiasNormalOffset.flexGrow = 2;
         // reference
         editor.call('attributes:reference:attach', 'light:normalOffsetBias', fieldShadowBiasNormalOffset);
+
+
+        // divider
+        var divider = document.createElement('div');
+        divider.classList.add('fields-divider');
+        panel.append(divider);
+
+
+        // asset
+        var argsCookie = {
+            parent: panel,
+            name: 'Cookie',
+            type: 'asset',
+            kind: fieldType.value === 'point' ? 'cubemap' : 'texture',
+            link: entities,
+            path: 'components.light.cookieAsset'
+        };
+        var fieldCookie = editor.call('attributes:addField', argsCookie);
+        fieldCookie.parent.hidden = fieldType.value === 'directional';
+        fieldCookie.parent.class.add('channel');
+        fieldType.on('change', function(value) {
+            fieldCookie.parent.hidden = fieldType.value === 'directional';
+            argsCookie.kind = fieldType.value === 'point' ? 'cubemap' : 'texture';
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'light:cookieAsset', fieldCookie.parent.innerElement.firstChild.ui);
+
+
+        // cookies panel
+        var panelCookie = editor.call('attributes:addPanel', {
+            parent: panel
+        });
+        panelCookie.hidden = ! fieldCookie.value && ! fieldCookie.class.contains('null') && fieldType.value !== 'directional';
+        fieldCookie.on('change', function(value) {
+            panelCookie.hidden = ! value && ! this.class.contains('null') && fieldType.value !== 'directional';
+        });
+
+
+        // cookieIntensity
+        var fieldCookieIntensity = editor.call('attributes:addField', {
+            parent: panelCookie,
+            name: 'Intensity',
+            type: 'number',
+            min: 0,
+            max: 1,
+            link: entities,
+            path: 'components.light.cookieIntensity'
+        });
+        fieldCookieIntensity.style.width = '32px';
+        // reference
+        editor.call('attributes:reference:attach', 'light:cookieIntensity', fieldCookieIntensity.parent.innerElement.firstChild.ui);
+
+        // cookieIntensity slider
+        var fieldCookieIntensitySlider = editor.call('attributes:addField', {
+            panel: fieldCookieIntensity.parent,
+            precision: 3,
+            min: 0,
+            max: 1,
+            type: 'number',
+            slider: true,
+            link: entities,
+            path: 'components.light.cookieIntensity'
+        });
+        fieldCookieIntensitySlider.flexGrow = 4;
+
+
+        // cookieFalloff
+        var fieldCookieFalloff = editor.call('attributes:addField', {
+            parent: panelCookie,
+            name: 'Falloff',
+            type: 'checkbox',
+            link: entities,
+            path: 'components.light.cookieFalloff'
+        });
+        fieldCookieFalloff.parent.hidden = fieldType.value !== 'spot';
+        fieldType.on('change', function() {
+            fieldCookieFalloff.parent.hidden = fieldType.value !== 'spot';
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'light:cookieFalloff', fieldCookieFalloff.parent.innerElement.firstChild.ui);
+
+
+        // map channel
+        var fieldCookieChannel = editor.call('attributes:addField', {
+            panel: fieldCookie.parent,
+            type: 'string',
+            enum: {
+                '': '...',
+                'r': 'R',
+                'g': 'G',
+                'b': 'B',
+                'a': 'A',
+                'rgb': 'RGB'
+            },
+            link: entities,
+            path: 'components.light.cookieChannel'
+        });
+        fieldCookieChannel.element.parentNode.removeChild(fieldCookieChannel.element);
+        fieldCookie.parent.innerElement.querySelector('.top > .ui-label').parentNode.appendChild(fieldCookieChannel.element);
+        // reference
+        editor.call('attributes:reference:attach', 'light:cookieChannel', fieldCookieChannel);
+
     });
 });

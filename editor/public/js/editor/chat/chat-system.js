@@ -8,6 +8,79 @@ editor.once('load', function () {
     var lastMessage = 0;
     var lastMessageDelay = 60 * 1000;
 
+    var regexUrl = /[a-z]+:\/\/[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b[-a-zA-Z0-9@:%_\+.~#?&\/=]*/g;
+    var regexEmail = /[-a-zA-Z0-9:%._\+~]{1,256}@[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-z]{2,16}/g;
+
+    var stringToElements = function(args) {
+        var items = [ ];
+
+        var bits = args.string.match(args.regex);
+        if (! bits) return [ args.string ];
+
+        var parts = args.string.split(args.regex);
+
+        for(var i = 0; i < parts.length; i++) {
+            items.push(parts[i]);
+
+            if (bits.length > i)
+                items.push(args.filter(bits[i]));
+        }
+
+        return items;
+    };
+
+    var parseMessageFilterLink = function(string) {
+        var link = document.createElement('a');
+        link.target = '_blank';
+        link.href = string;
+        link.textContent = string;
+        return link;
+    };
+
+    var parseMessageFilterEmail = function(string) {
+        var link = document.createElement('a');
+        link.href = 'mailto:' + string;
+        link.textContent = string;
+        return link;
+    };
+
+    var parseMessage = function(message) {
+        var items = stringToElements({
+            string: message,
+            regex: regexUrl,
+            filter: parseMessageFilterLink
+        });
+
+        for(var i = 0; i < items.length; i++) {
+            if (typeof(items[i]) !== 'string')
+                continue;
+
+            var emails = stringToElements({
+                string: items[i],
+                regex: regexEmail,
+                filter: parseMessageFilterEmail
+            });
+
+            for(var e = 0; e < emails.length; e++) {
+                var item;
+
+                if (typeof(emails[e]) === 'string') {
+                    item = document.createTextNode(emails[e]);
+                } else {
+                    item = emails[e];
+                }
+
+                if (e === 0) {
+                    items[i] = item;
+                } else {
+                    items.splice(i + 1, 0, item);
+                    i++;
+                }
+            }
+        }
+
+        return items;
+    };
 
     editor.on('whoisonline:remove', function(id) {
         if (lastUser === id) {
@@ -16,21 +89,26 @@ editor.once('load', function () {
         }
     });
 
-    editor.method('chat:post', function(type, message) {
+    editor.method('chat:post', function(type, string) {
+        if (type !== 'system' && typeof(type) !== 'number')
+            return;
+
         var element = document.createElement('div');
 
         var text = element.text = document.createElement('span');
         element.appendChild(text);
 
+        var message;
+
         if (type === 'system') {
             lastUser = null;
             lastMessage = 0;
             var date = new Date();
-            text.textContent = ('00' + date.getHours()).slice(-2) + ':' + ('00' + date.getMinutes()).slice(-2) + ' - ' + message;
+            message = ('00' + date.getHours()).slice(-2) + ':' + ('00' + date.getMinutes()).slice(-2) + ' - ' + string;
             element.classList.add('system');
         } else if (typeof(type) === 'number') {
-            text.textContent = message;
             element.classList.add('message');
+            message = string;
 
             // if same user posts within 60 seconds,
             // don't add image and username
@@ -64,11 +142,13 @@ editor.once('load', function () {
 
             lastUser = type;
             lastMessage = Date.now();
-        } else {
-            lastUser = null;
-            lastMessage = 0;
-            return;
         }
+
+        var elements = parseMessage(message);
+        var fragment = document.createDocumentFragment();
+        for(var i = 0; i < elements.length; i++)
+            fragment.appendChild(elements[i]);
+        text.appendChild(fragment);
 
         var scrollDown = ! widget.folded && Math.abs((messages.innerElement.scrollHeight - messages.innerElement.clientHeight) - messages.innerElement.scrollTop) < 4;
 

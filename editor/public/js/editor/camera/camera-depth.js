@@ -85,9 +85,8 @@ editor.once('viewport:load', function() {
                 device.draw(mesh.primitive[style]);
                 renderer._depthDrawCalls++;
             }
-
-            camera.setRenderTarget(oldTarget);
         }
+        camera.setRenderTarget(oldTarget);
         device.setBlending(oldBlending);
 
         rendered = true;
