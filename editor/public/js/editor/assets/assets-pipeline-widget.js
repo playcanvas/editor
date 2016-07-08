@@ -462,6 +462,16 @@ editor.once('load', function() {
                     target = target[1];
 
                 var onTargetAvailable = function(target) {
+                    var meta = target.get('meta');
+                    if (! meta) {
+                        var chars = [];
+                        for (var i = 0x20; i <= 0x7e; i++) {
+                            chars.push(String.fromCharCode(i));
+                        }
+                        meta = {
+                            chars: chars.join('')
+                        };
+                    }
                     task.target = {
                         asset: {
                             id: target.get('id'),
@@ -470,7 +480,7 @@ editor.once('load', function() {
                             scope: target.get('scope'),
                             user_id: target.get('user_id'),
                             region: target.get('region'),
-                            meta: target.get('meta') || {chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 !@£$%^&*()_+-=[];\'\\:",./<>?#€'}
+                            meta: meta
                         }
                     };
 

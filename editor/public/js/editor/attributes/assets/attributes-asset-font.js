@@ -12,7 +12,7 @@ editor.once('load', function() {
     };
 
     // character presets
-    var LATIN = characterRange(0x20, 0x7e, true);
+    var LATIN = characterRange(0x20, 0x7e);
     var LATIN_SUPPLEMENT = characterRange(0xA0, 0xFF);
     var CYRILLIC = characterRange(0x400, 0x4ff);
     var GREEK = characterRange(0x370, 0x3FF);
