@@ -853,10 +853,9 @@ editor.once('load', function() {
 
         var updateTask = function() {
             var status = asset.get('task');
+            item.class.remove('task', 'failed', 'running');
             if (status && typeof(status) === 'string' && status[0] !== '{') {
                 item.class.add('task', status);
-            } else {
-                item.class.remove('task', 'failed', 'running');
             }
         };
 

@@ -262,6 +262,23 @@ editor.once('load', function() {
                 name: 'convert',
                 data: task
             });
+        } else if (source.get('type') === 'font') {
+            task.target = {
+                asset: {
+                    id: target.get('id'),
+                    type: target.get('type'),
+                    filename: target.get('file.filename'),
+                    scope: target.get('scope'),
+                    user_id: target.get('user_id'),
+                    region: target.get('region'),
+                    meta: target.get('meta')
+                }
+            };
+
+            editor.call('realtime:send', 'pipeline', {
+                name: 'convert',
+                data: task
+            });
         }
     });
     menu.append(menuItemReImport);
