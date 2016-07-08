@@ -81,9 +81,8 @@ editor.once('load', function () {
         var width = 2;
         var height = 2;
         var maxWidth = 0;
+        var maxYOffset = 0;
 
-        // find max character scale
-        // so that we scale all smaller characters based on that value
         for (var i = 0; i < length; i++) {
             var char = text.charCodeAt(i);
 
@@ -91,7 +90,12 @@ editor.once('load', function () {
             if (! charData)
                 return false;
 
+            // find max character scale
+            // so that we scale all smaller characters based on that value
             maxScale = Math.max(maxScale, 1 / (charData.scale || 1));
+
+            // find max yoffset so that we line up characters a bit better in the preview
+            maxYOffset = Math.max(maxYOffset, charData.yoffset / charData.height || 0);
         }
 
         positions.length = 0;
@@ -104,14 +108,18 @@ editor.once('load', function () {
             if (! charData)
                 return false;
 
+            // scale of character relative to max scale
             var scale = 1 / (charData.scale || 1);
             scale = scale / maxScale;
 
+            // yoffset of character relative to maxYOffset
+            var yoffset = maxYOffset - (charData.yoffset / charData.height || 0) - 1;
+
             // calculate position for character
-            positions.push(maxWidth, -1, 0);
-            positions.push(maxWidth + scale*width, -1, 0);
-            positions.push(maxWidth + scale*width, -1 + height*scale, 0);
-            positions.push(maxWidth, -1 + height*scale, 0);
+            positions.push(maxWidth, yoffset, 0);
+            positions.push(maxWidth + scale*width, yoffset, 0);
+            positions.push(maxWidth + scale*width, yoffset + height*scale, 0);
+            positions.push(maxWidth, yoffset + height*scale, 0);
 
             // remember maxWidth
             maxWidth += scale*width;
@@ -168,9 +176,12 @@ editor.once('load', function () {
     cameraNode.setPosition(0, 0, 6);
     camera._node = cameraNode;
 
-    var hasChar = function (char, font) {
-        var code = char.charCodeAt(0);
-        return !!font.data.chars[code];
+    var hasChars = function (chars, font) {
+        for (var i = 0; i < chars.length; i++)
+            if (! font.data.chars[chars.charCodeAt(i)])
+                return false;
+
+        return true;
     };
 
     // Instantly renders a preview for the specified material and passes
@@ -183,13 +194,34 @@ editor.once('load', function () {
         camera.setAspectRatio(1);
 
         var font = assets.get(asset.get('id'));
+        if (! font || ! font.resource || ! font.resource.texture || ! font.data || ! font.data.chars)
+            return;
 
         meshInstance.setParameter("texture_atlas", font.resource.texture);
 
-        if (false && hasChar('A', font.resource) && hasChar('a', font.resource)) {
+        // try to use Aa as the text in different languages
+        // and if that is not found try the first two characters of the font
+
+        // latin
+        if (hasChars('Aa', font.resource)) {
             var text = 'Aa';
-        } else {
-            var text = asset.get('meta.chars').slice(0, 2);
+        }
+        // greek
+        else if (hasChars('Αα', font.resource)) {
+            var text = 'Αα';
+        }
+        // cyrillic
+        else if (hasChars('Аа', font.resource)) {
+            var text = 'Аа';
+        }
+        // rest
+        else {
+            var text = '';
+            var chars = asset.get('meta.chars');
+            for (var i = 0, len = chars.length; i < len && text.length < 2; i++) {
+                if (/\s/.test(chars[i])) continue;
+                text += chars[i];
+            }
         }
 
         updateMesh(text, font.resource);
@@ -249,8 +281,10 @@ editor.once('load', function () {
             runtimeAsset.off('change', onChange);
             runtimeAsset.on('change', onChange);
 
-            if (runtimeAsset.resource && runtimeAsset.resource.texture && runtimeAsset.resource.data && runtimeAsset.resource.data.chars)
+            if (runtimeAsset.resource && runtimeAsset.resource.texture && runtimeAsset.resource.data && runtimeAsset.resource.data.chars) {
                 editor.call('preview:render', asset);
+                editor.emit('preview:font:changed', asset.get('id'));
+            }
         };
 
 

@@ -470,13 +470,9 @@ editor.once('load', function() {
                             scope: target.get('scope'),
                             user_id: target.get('user_id'),
                             region: target.get('region'),
-                            meta: {
-                                chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 !@£$%^&*()_+-=[];\'\\:",./<>?#€'
-                            }
+                            meta: target.get('meta') || {chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 !@£$%^&*()_+-=[];\'\\:",./<>?#€'}
                         }
                     };
-
-                    console.log(task);
 
                     editor.call('realtime:send', 'pipeline', {
                         name: 'convert',
@@ -485,13 +481,6 @@ editor.once('load', function() {
 
                     events.push(target.once('file:set', function() {
                         editor.call('assets:jobs:remove', asset.get('id'));
-                        // setTimeout(function() {
-                        //     if (target.get('data.rgbm')) {
-                        //         editor.call('assets:jobs:thumbnails', asset, target);
-                        //     } else {
-                        //         editor.call('assets:jobs:thumbnails', null, target);
-                        //     }
-                        // }, 0);
                     }));
                 };
 
