@@ -66,26 +66,49 @@ editor.once('load', function() {
 
 
     // options
-    var filterField = new ui.SelectField({
-        options: {
-            all: 'All',
-            animation: 'Animation',
-            audio: 'Audio',
-            binary: 'Binary',
-            cubemap: 'Cubemap',
-            css: 'Css',
-            font: 'Font',
-            json: 'Json',
-            html: 'Html',
-            material: 'Material',
-            model: 'Model',
-            scene: 'Model (source)',
-            script: 'Script',
-            shader: 'Shader',
-            text: 'Text',
-            texture: 'Texture'
-        }
-    });
+    if (! config.self.superUser) {
+        var filterField = new ui.SelectField({
+            options: {
+                all: 'All',
+                animation: 'Animation',
+                audio: 'Audio',
+                binary: 'Binary',
+                cubemap: 'Cubemap',
+                css: 'Css',
+                json: 'Json',
+                html: 'Html',
+                material: 'Material',
+                model: 'Model',
+                scene: 'Model (source)',
+                script: 'Script',
+                shader: 'Shader',
+                text: 'Text',
+                texture: 'Texture'
+            }
+        });
+    } else {
+        // show fonts for super users
+        var filterField = new ui.SelectField({
+            options: {
+                all: 'All',
+                animation: 'Animation',
+                audio: 'Audio',
+                binary: 'Binary',
+                cubemap: 'Cubemap',
+                css: 'Css',
+                font: 'Font',
+                json: 'Json',
+                html: 'Html',
+                material: 'Material',
+                model: 'Model',
+                scene: 'Model (source)',
+                script: 'Script',
+                shader: 'Shader',
+                text: 'Text',
+                texture: 'Texture'
+            }
+        });
+    }
     filterField.class.add('options');
     filterField.value = 'all';
     filterField.renderChanges = false;
