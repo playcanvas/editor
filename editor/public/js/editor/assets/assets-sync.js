@@ -200,7 +200,7 @@ editor.once('load', function() {
     });
 
     var getFileUrl = function (id, revision, filename) {
-        return '/api/assets/' + id + '/file/' + filename;
+        return '/api/assets/' + id + '/file/' + encodeURIComponent(filename);
     };
 
     var assetSetThumbnailPaths = function(asset) {
