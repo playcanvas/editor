@@ -124,7 +124,7 @@ app.once('load', function() {
         for(var i = 0; i < folders.length; i++) {
             var folder = app.call('assets:get', folders[i]);
             if (folder) {
-                path += folder.get('name') + '/';
+                path += encodeURIComponent(folder.get('name')) + '/';
             } else {
                 path += 'unknown/';
             }
