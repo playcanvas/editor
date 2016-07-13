@@ -128,7 +128,11 @@ app.once('load', function() {
         // download it and execute it
         if (config.project.settings.loading_screen_script) {
             var loadingScript = document.createElement('script');
-            loadingScript.src = scriptPrefix + '/' + config.project.settings.loading_screen_script;
+            if (config.project.settings.use_legacy_scripts) {
+                loadingScript.src = scriptPrefix + '/' + config.project.settings.loading_screen_script;
+            } else {
+                loadingScript.src = '/api/assets/' + config.project.settings.loading_screen_script + '/download';
+            }
 
             loadingScript.onload = function() {
                 loadingScreen = true;
