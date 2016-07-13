@@ -262,6 +262,33 @@ editor.once('load', function() {
                 name: 'convert',
                 data: task
             });
+        } else if (source.get('type') === 'font') {
+            var meta = target.get('meta');
+            if (! meta) {
+                var chars = [];
+                for (var i = 0x20; i <= 0x7e; i++) {
+                    chars.push(String.fromCharCode(i));
+                }
+                meta = {
+                    chars: chars.join('')
+                };
+            }
+            task.target = {
+                asset: {
+                    id: target.get('id'),
+                    type: target.get('type'),
+                    filename: target.get('file.filename'),
+                    scope: target.get('scope'),
+                    user_id: target.get('user_id'),
+                    region: target.get('region'),
+                    meta: meta
+                }
+            };
+
+            editor.call('realtime:send', 'pipeline', {
+                name: 'convert',
+                data: task
+            });
         }
     });
     menu.append(menuItemReImport);

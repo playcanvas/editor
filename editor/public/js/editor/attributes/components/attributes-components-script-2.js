@@ -113,7 +113,7 @@ editor.once('load', function() {
                     filename: filename,
                     boilerplate: true,
                     noSelect: true,
-                    callback: function(err, result) {
+                    callback: function(err, asset, result) {
                         if (result && result.scripts) {
                             var keys = Object.keys(result.scripts);
                             if (keys.length === 1)
