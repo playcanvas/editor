@@ -14,9 +14,10 @@ editor.once('load', function () {
     loader.addHandler("material", new pc.MaterialHandler(assets));
     loader.addHandler("texture", new pc.TextureHandler(device, assets, loader));
     loader.addHandler("cubemap", new pc.CubemapHandler(device, assets, loader));
+    loader.addHandler("font", new pc.FontHandler(loader));
 
     // bind asset registry to editor
-    editor.call('assets:registry:bind', assets, ['texture', 'cubemap', 'material', 'model']);
+    editor.call('assets:registry:bind', assets, ['texture', 'cubemap', 'material', 'model', 'font']);
 
     var renderTimeouts = {};
 

@@ -20,7 +20,8 @@ editor.once('load', function() {
         'texture': [ 'tif', 'tga', 'png', 'jpg', 'jpeg', 'gif', 'bmp', 'dds', 'hdr', 'exr' ],
         'audio': [ 'wav', 'mp3', 'mp4', 'ogg' ],
         'shader': [ 'glsl', 'frag', 'vert' ],
-        'script': [ 'js' ]
+        'script': [ 'js' ],
+        'font': [ 'ttf', 'otf' ]
     };
     var extToType = { };
     for(var type in typeToExt) {

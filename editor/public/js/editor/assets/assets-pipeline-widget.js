@@ -436,6 +436,91 @@ editor.once('load', function() {
                 });
 
                 editor.call('assets:jobs:remove', asset.get('id'));
+            } else if (asset.get('type') === 'font') {
+                var task = {
+                    source: {
+                        asset: {
+                            id: asset.get('id'),
+                            type: asset.get('type'),
+                            filename: asset.get('file.filename'),
+                            scope: asset.get('scope'),
+                            user_id: asset.get('user_id'),
+                            region: asset.get('region')
+                        },
+                    },
+                    target: { }
+                };
+
+                var filename = asset.get('file.filename');
+                var path = asset.get('path');
+
+                var target = editor.call('assets:findOne', function(a) {
+                    return a.get('name') === filename && a.get('source_asset_id') === asset.get('id');
+                });
+
+                if (target)
+                    target = target[1];
+
+                var onTargetAvailable = function(target) {
+                    var meta = target.get('meta');
+                    if (! meta) {
+                        var chars = [];
+                        for (var i = 0x20; i <= 0x7e; i++) {
+                            chars.push(String.fromCharCode(i));
+                        }
+                        meta = {
+                            chars: chars.join('')
+                        };
+                    }
+                    task.target = {
+                        asset: {
+                            id: target.get('id'),
+                            type: target.get('type'),
+                            filename: filename,
+                            scope: target.get('scope'),
+                            user_id: target.get('user_id'),
+                            region: target.get('region'),
+                            meta: meta
+                        }
+                    };
+
+                    editor.call('realtime:send', 'pipeline', {
+                        name: 'convert',
+                        data: task
+                    });
+
+                    events.push(target.once('file:set', function() {
+                        editor.call('assets:jobs:remove', asset.get('id'));
+                    }));
+                };
+
+                if (target) {
+                    onTargetAvailable(target);
+                } else {
+                    var data = null;
+
+                    var assetNew = {
+                        name: filename,
+                        type: 'font',
+                        source: false,
+                        source_asset_id: asset.get('id'),
+                        preload: true,
+                        data: data,
+                        region: asset.get('region'),
+                        parent: path.length ? path[path.length - 1] : null,
+                        scope: asset.get('scope')
+                    };
+
+                    editor.call('assets:create', assetNew, function(err, id) {
+                        var target = editor.call('assets:get', id);
+
+                        if (target) {
+                            onTargetAvailable(target);
+                        } else {
+                            events.push(editor.once('assets:add[' + id + ']', onTargetAvailable));
+                        }
+                    });
+                }
             }
         }
     });
@@ -445,7 +530,8 @@ editor.once('load', function() {
         if (jobs[asset.get('id')])
             return;
 
-        if ([ 'texture', 'scene' ].indexOf(asset.get('type')) === -1)
+        var type = asset.get('type');
+        if ([ 'texture', 'scene', 'font' ].indexOf(type) === -1)
             return;
 
         var events = [ ];
@@ -496,18 +582,36 @@ editor.once('load', function() {
         auto.on('click', convertAuto);
 
         if (editor.call('assets:pipeline:settings', 'auto')) {
-            var meta = asset.get('meta');
-
-            if (meta) {
-                convertAuto();
-            } else {
-                events.push(asset.once('meta:set', function(value) {
-                    if (! editor.call('assets:pipeline:settings', 'auto'))
-                        return;
-
+            if (type === 'font') {
+                // convert fonts once the source file has been set
+                var filename = asset.get('file.filename');
+                if (filename) {
                     convertAuto();
-                }));
+                } else {
+                    events.push(asset.once('file.filename:set', function (value) {
+                        if (! editor.call('assets:pipeline:settings', 'auto'))
+                            return;
+
+                        convertAuto();
+                    }));
+                }
+
+            } else {
+                // convert asset once it has meta set
+                var meta = asset.get('meta');
+
+                if (meta) {
+                    convertAuto();
+                } else {
+                    events.push(asset.once('meta:set', function(value) {
+                        if (! editor.call('assets:pipeline:settings', 'auto'))
+                            return;
+
+                        convertAuto();
+                    }));
+                }
             }
+
         } else {
             if (asset.get('type') === 'texture' && ! asset.get('source')) {
                 var filename = asset.get('file.filename');
