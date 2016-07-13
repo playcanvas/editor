@@ -14,7 +14,8 @@ editor.once('load', function() {
         'model': '&#57736;',
         'particlesystem': '&#57753;',
         'rigidbody': '&#57737;',
-        'script': '&#57910;'
+        'script': '&#57910;',
+        'zone': '&#57910;',
     };
 
     editor.method('menu:entities:new', function (getParentFn) {
@@ -254,6 +255,19 @@ editor.once('load', function() {
                         parent: getParentFn(),
                         components: {
                             particlesystem: editor.call('components:getDefault', 'particlesystem')
+                        }
+                    });
+                }
+            },
+            'add-new-zone': {
+                title: 'Zone',
+                icon: componentsLogos.zone,
+                select: function() {
+                    editor.call('entities:new', {
+                        name: 'Zone',
+                        parent: getParentFn(),
+                        components: {
+                            zone: editor.call('components:getDefault', 'zone')
                         }
                     });
                 }

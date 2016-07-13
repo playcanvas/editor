@@ -73,7 +73,7 @@ editor.once('load', function() {
                 var clearColor = this.designerSettings.camera_clear_color;
                 cameraEntity.camera.clearColor = new pc.Color(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
                 if (cameraEntity.camera.projection === pc.PROJECTION_PERSPECTIVE) {
-                    cameraEntity.camera.nearClip = this.designerSettings.camera_near_clip;
+                    cameraEntity.camera.nearClip = this.designerSettings.camera_near_clip || 0.0001;
                     cameraEntity.camera.farClip = this.designerSettings.camera_far_clip;
                 }
             }

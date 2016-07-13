@@ -142,7 +142,7 @@ editor.once('load', function() {
                 asset: null,
                 materialAsset: null,
                 castShadows: true,
-                castShadowsLightMap: false,
+                castShadowsLightmap: true,
                 receiveShadows: true,
                 lightMapped: false,
                 lightMapSizeMultiplier: 1.0
@@ -277,6 +277,14 @@ editor.once('load', function() {
                 enabled: true,
                 order: [ ],
                 scripts: null
+            }
+        },
+
+        zone: {
+            title: 'Zone',
+            default: {
+                enabled: true,
+                size: [ 1, 1, 1 ]
             }
         }
     };

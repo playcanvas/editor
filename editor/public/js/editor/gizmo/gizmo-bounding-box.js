@@ -1,4 +1,5 @@
 editor.once('load', function () {
+    'use strict';
     var app = null;
     var entities = [ ];
 
@@ -79,8 +80,12 @@ editor.once('load', function () {
         }
 
         var children = entity.getChildren();
-        for(var i = 0; i < children.length; i++)
+        for(var i = 0; i < children.length; i++) {
+            if (children[i].__editor)
+                continue;
+
             editor.call('entities:boundingbox', children[i]);
+        }
     });
 
     editor.method('entities:boundingbox:entity', function(entity) {
@@ -128,6 +133,13 @@ editor.once('load', function () {
                     bbC.copy(bbE);
                     break;
             }
+        }
+
+        if (first && entity.zone) {
+            first = false;
+            bbD.halfExtents.set(0.5, 0.5, 0.5);
+            bbE.setFromTransformedAabb(bbD, entity.getWorldTransform());
+            bbC.copy(bbE);
         }
 
         if (first) {

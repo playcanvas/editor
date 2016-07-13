@@ -40,6 +40,10 @@ editor.once('load', function() {
                     aabbA.add(aabbB);
                     break;
             }
+        } else if (entity.zone) {
+            aabbC.halfExtents.set(0.5, 0.5, 0.5);
+            aabbB.setFromTransformedAabb(aabbC, entity.getWorldTransform());
+            aabbA.copy(aabbB);
         } else {
             aabbB.center.copy(entity.getPosition());
             aabbB.halfExtents.copy(defaultSize);
@@ -48,7 +52,7 @@ editor.once('load', function() {
 
         var children = entity.getChildren();
         for(var i = 0; i < children.length; i++) {
-            if (! (children[i] instanceof pc.Entity))
+            if (! (children[i] instanceof pc.Entity) || children[i].__editor)
                 continue;
 
             calculateChildAABB(children[i]);
@@ -68,7 +72,7 @@ editor.once('load', function() {
 
         if (! (items instanceof Array))
             items = [ items ];
-            
+
         aabb.center.set(0, 0, 0);
         aabb.halfExtents.copy(defaultSizeSmall);
 
