@@ -76,6 +76,8 @@ app.once('load', function() {
         var count = 0;
         var scripts = { };
 
+        var legacyScripts = settings.get('use_legacy_scripts');
+
         var loadScripts = function() {
             var order = settings.get('scripts');
 
@@ -92,11 +94,13 @@ app.once('load', function() {
                 count++;
                 app.call('assets:progress', (count / data.length) * .5 + .5);
 
-                if (asset.get('type') === 'script')
+                if (! legacyScripts && asset.get('type') === 'script')
                     scripts[asset.get('id')] = asset;
 
                 if (count >= data.length) {
-                    loadScripts();
+                    if (! legacyScripts)
+                        loadScripts();
+
                     app.call('assets:progress', 1);
                     app.emit('assets:load');
                 }
