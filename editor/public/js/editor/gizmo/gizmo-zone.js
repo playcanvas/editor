@@ -38,6 +38,19 @@ editor.once('viewport:load', function () {
     var quatB = new pc.Quat();
     var quatC = new pc.Quat();
 
+    var visible = false;
+    editor.method('gizmo:zone:visible', function(state) {
+        if (state === undefined)
+            return visible;
+
+        if (visible === !! state)
+            return;
+
+        visible = state;
+        editor.emit('gizmo:zone:visible', visible);
+        editor.call('viewport:render');
+    });
+
     var axesInd = { 'x': 0, 'y': 1, 'z': 2 };
     var axes = [ 'z', 'x', 'z', 'x', 'y', 'y' ];
     var direction = [ -1, 1, 1, -1, 1, -1 ];
@@ -133,7 +146,7 @@ editor.once('viewport:load', function () {
         var zone = this._link.entity.zone;
         var select = selected[this._link.get('resource_id')] === this._link;
 
-        this.entity.enabled = this._link.entity.enabled && zone && zone.enabled && select;
+        this.entity.enabled = this._link.entity.enabled && zone && zone.enabled && (select || visible);
         if (! this.entity.enabled)
             return;
 
