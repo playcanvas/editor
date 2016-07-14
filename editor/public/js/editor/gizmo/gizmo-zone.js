@@ -133,7 +133,7 @@ editor.once('viewport:load', function () {
         var zone = this._link.entity.zone;
         var select = selected[this._link.get('resource_id')] === this._link;
 
-        this.entity.enabled = this._link.entity.enabled && zone && zone.enabled && (select || (! select && this._link.get('components.zone.visible')));
+        this.entity.enabled = this._link.entity.enabled && zone && zone.enabled && select;
         if (! this.entity.enabled)
             return;
 
