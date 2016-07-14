@@ -284,7 +284,8 @@ editor.once('load', function() {
             title: 'Zone',
             default: {
                 enabled: true,
-                size: [ 1, 1, 1 ]
+                size: [ 1, 1, 1 ],
+                visible: true
             }
         }
     };

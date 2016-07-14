@@ -30,10 +30,11 @@ editor.once('viewport:load', function() {
     material.cull = pc.CULLFACE_NONE;
     material.update();
 
-    function Gizmo(axis) {
+    function Gizmo(axis, dir) {
         Events.call(this);
         this.entity = null;
         this.axis = axis || 'y';
+        this.dir = dir === undefined ? 1 : dir;
         this.rotation = new pc.Quat();
         this.position = new pc.Vec3();
     }
@@ -87,12 +88,13 @@ editor.once('viewport:load', function() {
         }
     });
 
-    editor.method('gizmo:point:create', function(axis, position) {
+    editor.method('gizmo:point:create', function(axis, position, dir) {
         var item = pool.shift();
         if (! item)
             item = new Gizmo();
 
         item.axis = axis || 'y';
+        item.dir = dir === undefined ? 1 : dir;
         if (position) axis.position.copy(position);
         item.enabled = true;
         points.push(item.entity);
@@ -247,31 +249,15 @@ editor.once('viewport:load', function() {
         if (! dragPoint)
             return;
 
-        var camera = editor.call('camera:current');
-
-        vecA.set(0, 0, 0);
-        vecA[dragPoint.axis] = 1;
-        vecA.scale(camera.camera.farClip);
-
-        vecB.copy(vecA).scale(-1);
-
-        dragPoint.rotation.transformVector(vecA, vecA);
-        dragPoint.rotation.transformVector(vecB, vecB);
-
-        vecA.add(dragPoint.entity.getLocalPosition());
-        vecB.add(dragPoint.entity.getLocalPosition());
-
-        app.renderLine(vecA, vecB, color, pc.LINEBATCH_WORLD);
-        app.renderLine(vecA, vecB, colorBehind, pc.LINEBATCH_GIZMO);
-
         var point = pickPlane(mouseTap.x, mouseTap.y);
         if (point) {
-            var length = vecA.copy(point).sub(pickStart).length();
-            dragPoint.emit('dragMove', length);
+            vecA.copy(point).sub(pickStart);
 
-            app.renderLine(pickStart.clone(), point.clone(), new pc.Color(1, 1, 0), pc.LINEBATCH_GIZMO);
-            app.renderLine(pickStart.clone().add(new pc.Vec3(0, 1, 0)), pickStart.clone(), new pc.Color(1, 1, 0), pc.LINEBATCH_GIZMO);
-            app.renderLine(point.clone().add(new pc.Vec3(0, 1, 0)), point.clone(), new pc.Color(1, 1, 0), pc.LINEBATCH_GIZMO);
+            var length = vecA.length();
+            if ((vecA[dragPoint.axis] < 0 && dragPoint.dir === 1) || (vecA[dragPoint.axis] > 0 && dragPoint.dir === -1))
+                length *= -1;
+
+            dragPoint.emit('dragMove', length);
         }
     });
 });

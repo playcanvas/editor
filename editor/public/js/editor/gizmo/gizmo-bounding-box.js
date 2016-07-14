@@ -11,6 +11,8 @@ editor.once('load', function () {
     var bbE = new pc.BoundingBox();
     var bbF = new pc.BoundingBox();
 
+    var matA = new pc.Mat4();
+    var matB = new pc.Mat4();
     var vecA = new pc.Vec3();
     var vecB = new pc.Vec3();
     var minExtends = new pc.Vec3(0.01, 0.01, 0.01);
@@ -137,8 +139,11 @@ editor.once('load', function () {
 
         if (first && entity.zone) {
             first = false;
-            bbD.halfExtents.set(0.5, 0.5, 0.5);
-            bbE.setFromTransformedAabb(bbD, entity.getWorldTransform());
+            bbD.halfExtents.copy(entity.zone.size).scale(0.5);
+            var position = entity.getPosition();
+            var rotation = entity.getRotation();
+            matA.setTRS(position, rotation, pc.Vec3.ONE);
+            bbE.setFromTransformedAabb(bbD, matA);
             bbC.copy(bbE);
         }
 

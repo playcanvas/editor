@@ -3,8 +3,14 @@ editor.once('viewport:load', function () {
 
     var app = editor.call('viewport:framework');
 
-    // selected entity gizmos
+    var container = new pc.Entity();
+    container.name = 'zones';
+    container.__editor = true;
+    app.root.addChild(container);
+
+    // entity gizmos
     var entities = { };
+    var selected = { };
 
     // pool of gizmos
     var pool = [ ];
@@ -14,20 +20,27 @@ editor.once('viewport:load', function () {
     };
     var zones = 0;
     var lastZone = null;
+    var historyPositon = new pc.Vec3();
+    var historySize = new pc.Vec3();
     var points = [ ];
     var hoverPoint = null;
     var dragPoint = null;
+    var dragLength = 0;
+    var dragPos = new pc.Vec3();
     var dragGizmoType = '';
     var events = [ ];
 
     var vecA = new pc.Vec3();
     var vecB = new pc.Vec3();
     var vecC = new pc.Vec3();
+    var vecD = new pc.Vec3();
     var quatA = new pc.Quat();
     var quatB = new pc.Quat();
     var quatC = new pc.Quat();
 
+    var axesInd = { 'x': 0, 'y': 1, 'z': 2 };
     var axes = [ 'z', 'x', 'z', 'x', 'y', 'y' ];
+    var direction = [ -1, 1, 1, -1, 1, -1 ];
     var eulers = [
         [ -90, 0, 0 ], // front
         [ 90, 90, 0 ], // right
@@ -114,11 +127,13 @@ editor.once('viewport:load', function () {
 
     // update lines
     Gizmo.prototype.update = function() {
-        if (! this._link)
+        if (! this._link || ! this._link.entity)
             return;
 
         var zone = this._link.entity.zone;
-        this.entity.enabled = this._link.entity.enabled && zone && zone.enabled;
+        var select = selected[this._link.get('resource_id')] === this._link;
+
+        this.entity.enabled = this._link.entity.enabled && zone && zone.enabled && (select || (! select && this._link.get('components.zone.visible')));
         if (! this.entity.enabled)
             return;
 
@@ -147,8 +162,16 @@ editor.once('viewport:load', function () {
             }
         }
 
-        zones++;
-        lastZone = this;
+        if (this.entity && this.entity.enabled) {
+            this.entity.setLocalPosition(this._link.entity.getPosition());
+            this.entity.setLocalRotation(this._link.entity.getRotation());
+            this.entity.setLocalScale(this._link.entity.zone.size);
+        }
+
+        if (select) {
+            zones++;
+            lastZone = this;
+        }
     };
 
     // link to entity
@@ -168,10 +191,10 @@ editor.once('viewport:load', function () {
             receiveShadows: false,
             castShadowsLightmap: false
         });
-        this.entity.setLocalScale(0.5, 0.5, 0.5);
+        this.entity.setLocalScale(1, 1, 1);
         this.entity.__editor = true;
 
-        this._link.entity.addChild(this.entity);
+        container.addChild(this.entity);
     };
 
     // unlink
@@ -194,7 +217,7 @@ editor.once('viewport:load', function () {
             poolModels[model._type].push(model);
         }
 
-        this.entity.parent.removeChild(this.entity);
+        container.removeChild(this.entity);
         this.entity = null;
         this.type = '';
     };
@@ -218,6 +241,8 @@ editor.once('viewport:load', function () {
 
     var onPointDragStart = function() {
         dragPoint = hoverPoint;
+        dragLength = lastZone._link.entity.zone.size[dragPoint.axis];
+        dragPos.copy(lastZone._link.entity.getLocalPosition());
         dragGizmoType = editor.call('gizmo:type');
         editor.call('gizmo:' + dragGizmoType + ':toggle', false);
 
@@ -225,6 +250,14 @@ editor.once('viewport:load', function () {
             points[i].entity.enabled = false;
 
         lastZone.entity.model.meshInstances[1].visible = false;
+        editor.call('viewport:render');
+
+        lastZone._link.history.enabled = false;
+
+        var position = lastZone._link.get('position');
+        var size = lastZone._link.get('components.zone.size');
+        historyPositon.set(position[0], position[1], position[2]);
+        historySize.set(size[0], size[1], size[2]);
     };
 
     var onPointDragEnd = function() {
@@ -235,26 +268,72 @@ editor.once('viewport:load', function () {
             points[i].entity.enabled = true;
 
         lastZone.entity.model.meshInstances[1].visible = true;
+        editor.call('viewport:render');
+
+        lastZone._link.history.enabled = true;
+
+        var getItem = lastZone._link.history._getItemFn;
+
+        var newPosition = lastZone._link.get('position');
+        var newSize = lastZone._link.get('components.zone.size');
+
+        var prevPosition = [ historyPositon.x, historyPositon.y, historyPositon.z ];
+        var prevSize = [ historySize.x, historySize.y, historySize.z ];
+
+        editor.call('history:add', {
+            name: 'entity.zone',
+            undo: function() {
+                var item = getItem();
+                if (! item) return;
+
+                item.history.enabled = false;
+                item.set('position', prevPosition);
+                item.set('components.zone.size', prevSize);
+                item.history.enabled = true;
+            },
+            redo: function() {
+                var item = getItem();
+                if (! item) return;
+
+                item.history.enabled = false;
+                item.set('position', newPosition);
+                item.set('components.zone.size', newSize);
+                item.history.enabled = true;
+            }
+        });
     };
 
-    var onPointDrag = function(length) {
+    var onPointDragMove = function(length) {
+        var size = Math.max(0.000000001, dragLength + length);
+        lastZone._link.set('components.zone.size.' + axesInd[dragPoint.axis], size);
 
+        quatA.copy(lastZone._link.entity.getRotation());
+        vecA.set(0, 0, 0);
+        vecA[dragPoint.axis] = (Math.max(0.000000001, dragLength + length * 0.5) - dragLength) * dragPoint.dir;
+        quatA.transformVector(vecA, vecA);
+        vecB.copy(dragPos).add(vecA);
+
+        lastZone._link.set('position', [ vecB.x, vecB.y, vecB.z ]);
+
+        pointsUpdate();
+        editor.call('viewport:render');
     };
 
     var pointsCreate = function() {
         for(var i = 0; i < 6; i++) {
-            var point = editor.call('gizmo:point:create', axes[i]);
+            var point = editor.call('gizmo:point:create', axes[i], null, direction[i]);
             point.ind = i;
             point.entity.model.meshInstances[0].material = materials[i];
             events.push(point.on('focus', onPointFocus));
             events.push(point.on('blur', onPointBlur));
             events.push(point.on('dragStart', onPointDragStart));
             events.push(point.on('dragEnd', onPointDragEnd));
-            events.push(point.on('drag', onPointDrag));
+            events.push(point.on('dragMove', onPointDragMove));
             points.push(point);
         }
 
-        app.root.addChild(plane);
+        container.addChild(plane);
+        editor.call('viewport:render');
     };
 
     var pointsDestroy = function() {
@@ -266,7 +345,7 @@ editor.once('viewport:load', function () {
 
         events = [ ];
         points = [ ];
-        app.root.removeChild(plane);
+        container.removeChild(plane);
     };
 
     var pointsUpdate = function() {
@@ -276,42 +355,42 @@ editor.once('viewport:load', function () {
         var scale = vecB.copy(lastZone._link.entity.zone.size.clone());
 
         // front
-        vecA.set(0, 0, -1);
+        vecA.set(0, 0, -0.5);
         transform.transformPoint(vecA, vecA);
         points[0].entity.setLocalPosition(vecA);
         points[0].entity.setLocalRotation(rotation);
         points[0].update();
 
         // right
-        vecA.set(1, 0, 0);
+        vecA.set(0.5, 0, 0);
         transform.transformPoint(vecA, vecA);
         points[1].entity.setLocalPosition(vecA);
         points[1].entity.setLocalRotation(rotation);
         points[1].update();
 
         // back
-        vecA.set(0, 0, 1);
+        vecA.set(0, 0, 0.5);
         transform.transformPoint(vecA, vecA);
         points[2].entity.setLocalPosition(vecA);
         points[2].entity.setLocalRotation(rotation);
         points[2].update();
 
         // left
-        vecA.set(-1, 0, 0);
+        vecA.set(-0.5, 0, 0);
         transform.transformPoint(vecA, vecA);
         points[3].entity.setLocalPosition(vecA);
         points[3].entity.setLocalRotation(rotation);
         points[3].update();
 
         // top
-        vecA.set(0, 1, 0);
+        vecA.set(0, 0.5, 0);
         transform.transformPoint(vecA, vecA);
         points[4].entity.setLocalPosition(vecA);
         points[4].entity.setLocalRotation(rotation);
         points[4].update();
 
         // bottom
-        vecA.set(0, -1, 0);
+        vecA.set(0, -0.5, 0);
         transform.transformPoint(vecA, vecA);
         points[5].entity.setLocalPosition(vecA);
         points[5].entity.setLocalRotation(rotation);
@@ -329,56 +408,57 @@ editor.once('viewport:load', function () {
             plane.setLocalRotation(quatC);
 
             var axes = scales[hoverPoint.ind];
-            plane.setLocalScale(scale[axes[0]] * 2, 1, scale[axes[1]] * 2);
+            plane.setLocalScale(scale[axes[0]], 1, scale[axes[1]]);
         }
     };
 
-    editor.on('selector:change', function(type, items) {
-        // clear gizmos
-        if (type !== 'entity') {
-            for(var key in entities) {
-                entities[key].unlink();
-                pool.push(entities[key]);
-            }
-            entities = { };
-            return;
-        }
+    editor.on('entities:add', function(entity) {
+        var key = entity.get('resource_id');
 
-        // index selection
-        var ids = { };
-        for(var i = 0; i < items.length; i++)
-            ids[items[i].get('resource_id')] = items[i];
-
-        var render = false;
-
-        // remove
-        for(var key in entities) {
-            if (ids[key])
-                continue;
-
-            pool.push(entities[key]);
-            entities[key].unlink();
-            delete entities[key];
-            render = true;
-        }
-
-        // add
-        for(var key in ids) {
+        var addGizmo = function() {
             if (entities[key])
-                continue;
+                return;
 
             var gizmo = pool.shift();
             if (! gizmo)
                 gizmo = new Gizmo();
 
-            gizmo.link(ids[key]);
+            gizmo.link(entity);
             entities[key] = gizmo;
 
-            render = true;
+            editor.call('viewport:render');
+        };
+
+        var removeGizmo = function() {
+            if (! entities[key])
+                return;
+
+            pool.push(entities[key]);
+            entities[key].unlink();
+            delete entities[key];
+
+            editor.call('viewport:render');
+        };
+
+        if (entity.has('components.zone'))
+            addGizmo();
+
+        entity.on('components.zone:set', addGizmo);
+        entity.on('components.zone:unset', removeGizmo);
+
+        entity.once('destroy', function() {
+            removeGizmo();
+        });
+    });
+
+    editor.on('selector:change', function(type, items) {
+        selected = { };
+        if (items) {
+            for(var i = 0; i < items.length; i++)
+                selected[items[i].get('resource_id')] = items[i];
         }
 
-        if (render)
-            editor.call('viewport:render');
+        editor.call('viewport:render');
     });
 
     editor.on('viewport:gizmoUpdate', function(dt) {
@@ -395,39 +475,36 @@ editor.once('viewport:load', function () {
         } else if (points.length) {
             pointsDestroy();
         }
-    });
 
-    editor.on('viewport:postUpdate', function(dt) {
-        if (! dragPoint)
-            return;
+        if (dragPoint) {
+            var camera = editor.call('camera:current');
+            var transform = lastZone._link.entity.getWorldTransform();
+            var rotation = lastZone.entity.getRotation();
+            var position = dragPoint.entity.getLocalPosition();
+            var scale = lastZone._link.entity.zone.size;
 
-        var camera = editor.call('camera:current');
-        var transform = lastZone.entity.getWorldTransform();
-        var rotation = lastZone.entity.getRotation();
-        var position = dragPoint.entity.getLocalPosition();
-        var scale = vecB.copy(lastZone._link.entity.zone.size.clone());
+            var a = scales[dragPoint.ind];
 
-        var axes = scales[dragPoint.ind];
-        for(var i = 0; i < axes.length; i++) {
-            for(var l = 0; l <= 2; l++) {
-                vecA.set(0, 0, 0);
-                vecA[axes[i]] = scale[axes[i]];
-                vecB.copy(vecA).scale(-1);
-                vecC.set(0, 0, 0);
-                vecC[axes[i ? 0 : 1]] = (l - 1) * scale[axes[i ? 0 : 1]];
+            for(var i = 0; i < a.length; i++) {
+                for(var l = 0; l <= 2; l++) {
+                    vecA.set(0, 0, 0);
+                    vecA[a[i]] = scale[a[i]] * 0.5;
+                    rotation.transformVector(vecA, vecA);
 
-                rotation.transformVector(vecA, vecA);
-                rotation.transformVector(vecB, vecB);
-                rotation.transformVector(vecC, vecC);
+                    vecD.set(0, 0, 0);
+                    vecD[a[i ? 0 : 1]] = scale[a[i ? 0 : 1]] * (l - 1) * 0.5;
+                    rotation.transformVector(vecD, vecD);
 
-                vecA.add(position).add(vecC);
-                vecB.add(position).add(vecC);
+                    vecB.copy(position).add(vecD).add(vecA);
+                    vecC.copy(position).add(vecD).sub(vecA);
 
-                app.renderLine(vecA, vecB, colorPrimary, pc.LINEBATCH_WORLD);
-                app.renderLine(vecA, vecB, colorBehind, pc.LINEBATCH_GIZMO);
+                    app.renderLine(vecB, vecC, colorBehind, pc.LINEBATCH_GIZMO);
+                    app.renderLine(vecB, vecC, colorPrimary, pc.LINEBATCH_WORLD);
+                }
             }
         }
     });
+
 
     var createModels = function() {
         var vertexFormat = new pc.gfx.VertexFormat(app.graphicsDevice, [
@@ -437,55 +514,55 @@ editor.once('viewport:load', function () {
         var iterator = new pc.gfx.VertexIterator(buffer);
 
         // top
-        iterator.element[pc.SEMANTIC_POSITION].set(1, 1, 1);
+        iterator.element[pc.SEMANTIC_POSITION].set(0.5, 0.5, 0.5);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, 1, -1);
+        iterator.element[pc.SEMANTIC_POSITION].set(0.5, 0.5, -0.5);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, 1, -1);
+        iterator.element[pc.SEMANTIC_POSITION].set(0.5, 0.5, -0.5);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, 1, -1);
+        iterator.element[pc.SEMANTIC_POSITION].set(-0.5, 0.5, -0.5);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, 1, -1);
+        iterator.element[pc.SEMANTIC_POSITION].set(-0.5, 0.5, -0.5);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, 1, 1);
+        iterator.element[pc.SEMANTIC_POSITION].set(-0.5, 0.5, 0.5);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, 1, 1);
+        iterator.element[pc.SEMANTIC_POSITION].set(-0.5, 0.5, 0.5);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, 1, 1);
+        iterator.element[pc.SEMANTIC_POSITION].set(0.5, 0.5, 0.5);
         iterator.next();
         // bottom
-        iterator.element[pc.SEMANTIC_POSITION].set(1, -1, 1);
+        iterator.element[pc.SEMANTIC_POSITION].set(0.5, -0.5, 0.5);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, -1, -1);
+        iterator.element[pc.SEMANTIC_POSITION].set(0.5, -0.5, -0.5);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, -1, -1);
+        iterator.element[pc.SEMANTIC_POSITION].set(0.5, -0.5, -0.5);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, -1, -1);
+        iterator.element[pc.SEMANTIC_POSITION].set(-0.5, -0.5, -0.5);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, -1, -1);
+        iterator.element[pc.SEMANTIC_POSITION].set(-0.5, -0.5, -0.5);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, -1, 1);
+        iterator.element[pc.SEMANTIC_POSITION].set(-0.5, -0.5, 0.5);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, -1, 1);
+        iterator.element[pc.SEMANTIC_POSITION].set(-0.5, -0.5, 0.5);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, -1, 1);
+        iterator.element[pc.SEMANTIC_POSITION].set(0.5, -0.5, 0.5);
         iterator.next();
         // sides
-        iterator.element[pc.SEMANTIC_POSITION].set(1, -1, 1);
+        iterator.element[pc.SEMANTIC_POSITION].set(0.5, -0.5, 0.5);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, 1, 1);
+        iterator.element[pc.SEMANTIC_POSITION].set(0.5, 0.5, 0.5);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, -1, -1);
+        iterator.element[pc.SEMANTIC_POSITION].set(0.5, -0.5, -0.5);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, 1, -1);
+        iterator.element[pc.SEMANTIC_POSITION].set(0.5, 0.5, -0.5);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, -1, -1);
+        iterator.element[pc.SEMANTIC_POSITION].set(-0.5, -0.5, -0.5);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, 1, -1);
+        iterator.element[pc.SEMANTIC_POSITION].set(-0.5, 0.5, -0.5);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, -1, 1);
+        iterator.element[pc.SEMANTIC_POSITION].set(-0.5, -0.5, 0.5);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, 1, 1);
+        iterator.element[pc.SEMANTIC_POSITION].set(-0.5, 0.5, 0.5);
         iterator.next();
         iterator.end();
 

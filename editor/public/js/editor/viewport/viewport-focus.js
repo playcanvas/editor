@@ -8,6 +8,7 @@ editor.once('load', function() {
     var aabbA = new pc.BoundingBox();
     var aabbB = new pc.BoundingBox();
     var aabbC = new pc.BoundingBox();
+    var matA = new pc.Mat4();
 
     var calculateChildAABB = function(entity) {
         aabbB.center.copy(entity.getPosition());
@@ -41,8 +42,11 @@ editor.once('load', function() {
                     break;
             }
         } else if (entity.zone) {
-            aabbC.halfExtents.set(0.5, 0.5, 0.5);
-            aabbB.setFromTransformedAabb(aabbC, entity.getWorldTransform());
+            aabbC.halfExtents.copy(entity.zone.size).scale(0.5);
+            var position = entity.getPosition();
+            var rotation = entity.getRotation();
+            matA.setTRS(position, rotation, pc.Vec3.ONE);
+            aabbB.setFromTransformedAabb(aabbC, matA);
             aabbA.copy(aabbB);
         } else {
             aabbB.center.copy(entity.getPosition());
