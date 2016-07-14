@@ -1,9 +1,6 @@
 editor.once('load', function () {
     'use strict';
 
-    if(! editor.call('project:settings').get('use_legacy_scripts'))
-        return;
-
     // returns skeleton script for a script with the specified url
     editor.method('sourcefiles:skeleton', function (url) {
         var parts = url.split('/');

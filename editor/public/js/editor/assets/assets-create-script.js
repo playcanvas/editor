@@ -95,7 +95,7 @@ editor.once('load', function() {
             var onParse = function(asset) {
                 editor.call('scripts:parse', asset, function(err, result) {
                     if (args.callback)
-                        args.callback(err, result);
+                        args.callback(err, asset, result);
                 });
             };
 
