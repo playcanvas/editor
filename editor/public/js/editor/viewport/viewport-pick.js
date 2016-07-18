@@ -11,7 +11,14 @@ editor.once('load', function() {
     var mouseTap = false;
     var inViewport = false;
     var picking = true;
+    var filter = null;
 
+    editor.method('viewport:pick:filter', function(fn) {
+        if (filter === fn)
+            return;
+
+        filter = fn;
+    });
 
     editor.method('viewport:pick:state', function(state) {
         picking = state;
@@ -47,8 +54,16 @@ editor.once('load', function() {
     });
 
     editor.method('viewport:pick', function(x, y, fn) {
+        var scene = app.scene;
+
+        if (filter) {
+            scene = {
+                drawCalls: app.scene.drawCalls.filter(filter)
+            };
+        }
+
         // prepare picker
-        picker.prepare(editor.call('camera:current').camera.camera, app.scene);
+        picker.prepare(editor.call('camera:current').camera.camera, scene);
 
         // pick node
         var picked = picker.getSelection({
@@ -77,7 +92,7 @@ editor.once('load', function() {
     });
 
     editor.on('viewport:tap:click', function(tap) {
-        if (! inViewport)
+        if (! inViewport || (tap.mouse && tap.button !== 0))
             return;
 
         if (pickedData.node) {

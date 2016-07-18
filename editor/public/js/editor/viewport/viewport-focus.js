@@ -35,7 +35,7 @@ editor.once('load', function() {
                 case 'capsule':
                 case 'cylinder':
                     aabbC.halfExtents.set(entity.collision.radius, entity.collision.radius, entity.collision.radius);
-                    aabbC.halfExtents.data[entity.collision.axis] = entity.collision.height;
+                    aabbC.halfExtents.data[entity.collision.axis] = entity.collision.height * 0.5;
                     aabbB.setFromTransformedAabb(aabbC, entity.getWorldTransform());
                     aabbA.add(aabbB);
                     break;
@@ -68,7 +68,7 @@ editor.once('load', function() {
 
         if (! (items instanceof Array))
             items = [ items ];
-            
+
         aabb.center.set(0, 0, 0);
         aabb.halfExtents.copy(defaultSizeSmall);
 

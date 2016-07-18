@@ -6,6 +6,7 @@ editor.once('load', function() {
     // entities indexes for parenting
     var childIndex = { };
     var entitiesIndex = { };
+    var unknowns = { };
 
     // queue for hierarchy resync
     var awaitingResyncHierarchy = false;
@@ -56,7 +57,8 @@ editor.once('load', function() {
                     continue;
 
                 framework.context.systems[key].addComponent(entity, components[key]);
-            } else {
+            } else if (! unknowns[key]) {
+                unknowns[key] = true;
                 console.log('unknown component "' + key + '", in entity ' + obj.get('resource_id'));
             }
         }

@@ -123,7 +123,7 @@ editor.once('load', function () {
                 case 'cylinder':
                     first = false;
                     bbD.halfExtents.set(entity.collision.radius, entity.collision.radius, entity.collision.radius);
-                    bbD.halfExtents.data[entity.collision.axis] = entity.collision.height;
+                    bbD.halfExtents.data[entity.collision.axis] = entity.collision.height * 0.5;
                     bbE.setFromTransformedAabb(bbD, entity.getWorldTransform());
                     bbC.copy(bbE);
                     break;

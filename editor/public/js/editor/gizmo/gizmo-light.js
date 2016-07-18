@@ -215,40 +215,45 @@ editor.once('load', function () {
         material.color = colorPrimary;
         material.update();
 
+        var shaderSpot;
+
         materialSpot = new pc.BasicMaterial();
         materialSpot.updateShader = function(device) {
-            this.shader = new pc.Shader(device, {
-                attributes: {
-                    vertex_position: 'POSITION',
-                    outer: 'ATTR0'
-                },
-                vshader: ' \
-                    attribute vec3 vertex_position;\n \
-                    attribute float outer;\n \
-                    uniform mat4 matrix_model;\n \
-                    uniform mat4 matrix_viewProjection;\n \
-                    uniform float range;\n \
-                    uniform float innerAngle;\n \
-                    uniform float outerAngle;\n \
-                    void main(void)\n \
-                    {\n \
-                        mat4 modelMatrix = matrix_model;\n \
-                        vec4 positionW = vec4(vertex_position, 1.0);\n \
-                        float radius = (outer * (sin(radians(outerAngle)) * range)) + ((1.0 - outer) * (sin(radians(innerAngle)) * range));\n \
-                        positionW.xz *= radius;\n \
-                        positionW.y *= range * ((outer * cos(radians(outerAngle))) + ((1.0 - outer) * cos(radians(innerAngle))));\n \
-                        positionW = modelMatrix * positionW;\n \
-                        gl_Position = matrix_viewProjection * positionW;\n \
-                    }\n',
-                fshader: ' \
-                    precision highp float;\n \
-                    uniform vec4 uColor;\n \
-                    void main(void)\n \
-                    {\n \
-                        gl_FragColor = uColor;\n \
-                        gl_FragColor = clamp(gl_FragColor, 0.0, 1.0);\n \
-                    }\n',
-            });
+            if (! shaderSpot) {
+                shaderSpot = new pc.Shader(device, {
+                    attributes: {
+                        vertex_position: 'POSITION',
+                        outer: 'ATTR0'
+                    },
+                    vshader: ' \
+                        attribute vec3 vertex_position;\n \
+                        attribute float outer;\n \
+                        uniform mat4 matrix_model;\n \
+                        uniform mat4 matrix_viewProjection;\n \
+                        uniform float range;\n \
+                        uniform float innerAngle;\n \
+                        uniform float outerAngle;\n \
+                        void main(void)\n \
+                        {\n \
+                            mat4 modelMatrix = matrix_model;\n \
+                            vec4 positionW = vec4(vertex_position, 1.0);\n \
+                            float radius = (outer * (sin(radians(outerAngle)) * range)) + ((1.0 - outer) * (sin(radians(innerAngle)) * range));\n \
+                            positionW.xz *= radius;\n \
+                            positionW.y *= range * ((outer * cos(radians(outerAngle))) + ((1.0 - outer) * cos(radians(innerAngle))));\n \
+                            positionW = modelMatrix * positionW;\n \
+                            gl_Position = matrix_viewProjection * positionW;\n \
+                        }\n',
+                    fshader: ' \
+                        precision ' + device.precision + ' float;\n \
+                        uniform vec4 uColor;\n \
+                        void main(void)\n \
+                        {\n \
+                            gl_FragColor = uColor;\n \
+                            gl_FragColor = clamp(gl_FragColor, 0.0, 1.0);\n \
+                        }\n',
+                });
+            }
+            this.shader = shaderSpot;
         };
         materialSpot.color = colorPrimary;
         materialSpot.update();
