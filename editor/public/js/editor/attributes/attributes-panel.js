@@ -1370,7 +1370,7 @@ editor.once('load', function() {
 
                                 args.keepZoom = true;
 
-                                history = false;
+                                var history = false;
                                 if (field._link.history) {
                                     history = field._link.history.enabled;
                                     field._link.history.enabled = false;
