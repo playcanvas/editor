@@ -14,12 +14,26 @@ editor.once('load', function () {
     editor.method('picker:publish:new', function () {
         editor.call('picker:project', 'publish-new');
         panel.class.remove('download-mode');
+        panel.class.remove('upgrade');
     });
 
     editor.method('picker:publish:download', function () {
         editor.call('picker:project', 'publish-download');
         panel.class.add('download-mode');
+
+        if (config.owner.plan.type === 'free') {
+            panel.class.add('upgrade');
+        } else {
+            panel.class.remove('upgrade');
+        }
     });
+
+    // upgrade notice
+    var labelUpgrade = new ui.Label({
+        text: 'This is a premium feature. <a href="/upgrade?account=' + config.owner.username + '" target="_blank">UPGRADE</a> to be able to download your project.'
+    });
+    labelUpgrade.class.add('upgrade');
+    panel.append(labelUpgrade);
 
     // info panel
     var panelInfo = new ui.Panel();
