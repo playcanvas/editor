@@ -105,6 +105,8 @@ editor.once('load', function() {
     hierarchy.on('reparent', function(items) {
         var records = [ ];
 
+        var preserveTransform = Tree._ctrl && Tree._ctrl();
+
         // make records and collect relevant data
         for(var i = 0; i < items.length; i++) {
             if (items[i].item.entity.reparenting)
@@ -119,6 +121,11 @@ editor.once('load', function() {
                 parentId: items[i].item.parent.entity.get('resource_id'),
                 parentIdOld: items[i].old.entity.get('resource_id')
             };
+
+            if (preserveTransform && record.entity) {
+                record.position = record.entity.entity.getPosition().clone();
+                record.rotation = record.entity.entity.getRotation().clone();
+            }
 
             // relative entity
             record.indOld = record.parentOld.get('children').indexOf(record.resourceId);
@@ -157,6 +164,16 @@ editor.once('load', function() {
 
                 // set parent
                 record.entity.set('parent', record.parentId);
+            }
+
+            if (preserveTransform && record.position) {
+                record.entity.entity.setPosition(record.position);
+                record.entity.entity.setRotation(record.rotation);
+
+                var localPosition = record.entity.entity.getLocalPosition();
+                var localRotation = record.entity.entity.getLocalEulerAngles();
+                record.entity.set('position', [ localPosition.x, localPosition.y, localPosition.z ]);
+                record.entity.set('rotation', [ localRotation.x, localRotation.y, localRotation.z ]);
             }
 
             record.parent.history.enabled = true;
@@ -205,6 +222,17 @@ editor.once('load', function() {
 
                     entity.history.enabled = false;
                     entity.set('parent', records[i].parentIdOld);
+
+                    if (preserveTransform && records[i].position && entity.entity) {
+                        entity.entity.setPosition(records[i].position);
+                        entity.entity.setRotation(records[i].rotation);
+
+                        var localPosition = entity.entity.getLocalPosition();
+                        var localRotation = entity.entity.getLocalEulerAngles();
+                        entity.set('position', [ localPosition.x, localPosition.y, localPosition.z ]);
+                        entity.set('rotation', [ localRotation.x, localRotation.y, localRotation.z ]);
+                    }
+
                     entity.history.enabled = true;
                 }
             },
@@ -246,6 +274,17 @@ editor.once('load', function() {
 
                     entity.history.enabled = false;
                     entity.set('parent', records[i].parentId);
+
+                    if (preserveTransform && records[i].position && entity.entity) {
+                        entity.entity.setPosition(records[i].position);
+                        entity.entity.setRotation(records[i].rotation);
+
+                        var localPosition = entity.entity.getLocalPosition();
+                        var localRotation = entity.entity.getLocalEulerAngles();
+                        entity.set('position', [ localPosition.x, localPosition.y, localPosition.z ]);
+                        entity.set('rotation', [ localRotation.x, localRotation.y, localRotation.z ]);
+                    }
+
                     entity.history.enabled = true;
                 }
             }
@@ -399,6 +438,11 @@ editor.once('load', function() {
                 element.append(item);
             }
         });
+
+        // collaborators
+        var users = element.users = document.createElement('span');
+        users.classList.add('users');
+        element.elementTitle.appendChild(users);
 
         resizeTree();
     });

@@ -1280,6 +1280,12 @@ strong {
                 &.type-shader:before {
                     content: '\E353';
                 }
+                &.type-binary:before {
+                    content: '\E299';
+                }
+                &.type-font:before {
+                    content: '\E299';
+                }
             }
         }
     }
@@ -2483,6 +2489,7 @@ strong {
 .ui-tree.hierarchy {
     .ui-tree-item {
         > .title {
+            position: relative;
             @extend .font-regular;
 
             &:hover > .icon:after {
@@ -2496,6 +2503,18 @@ strong {
                 text-align: center;
                 background-color: transparent;
                 color: $text-darkest;
+            }
+            > .users {
+                position: absolute;
+                top: 0;
+                right: 2px;
+
+                > span {
+                    display: inline-block;
+                    margin-right: 4px;
+                    width: 8px;
+                    height: 8px;
+                }
             }
         }
         &.container {
@@ -2780,6 +2799,23 @@ strong {
                 display: none;
             }
         }
+        &.type-binary {
+            > .thumbnail.placeholder:after {
+                content: '\E299';
+            }
+            > .icon {
+                display: none;
+            }
+        }
+        &.type-font {
+            > .thumbnail.placeholder:after {
+                content: '\E299';
+            }
+            > .icon {
+                display: none;
+            }
+        }
+
         &.scripts {
             > .thumbnail.placeholder:before {
                 content: 's';
@@ -2965,6 +3001,18 @@ strong {
             color: $text-primary;
             background-color: rgba($bcg-darker, 0.8);
         }
+        > .users {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+
+            > span {
+                float: right;
+                margin-left: 4px;
+                width: 8px;
+                height: 8px;
+            }
+        }
     }
 }
 
@@ -3143,21 +3191,267 @@ strong {
 .ui-panel.whoisonline {
     position: absolute;
     bottom: 34px;
-    left: 2px;
+    left: 246px;
     background-color: transparent;
     padding: 2px;
+    transition: left 100ms;
 
+    &.chat-minified {
+        left: 106px;
+    }
+    &.no-chat {
+        left: 2px;
+    }
     &.expanded {
         bottom: 2px;
+        left: 2px;
+        transition: none;
     }
     > .content {
         > a {
+            position: relative;
             display: block;
             margin-right: 4px;
             float: left;
+            background-color: $bcg-darkest;
 
             > img {
                 display: block;
+                width: 28px;
+                height: 28px;
+                margin: 2px;
+            }
+            &:after {
+                content: '\00a0';
+                position: absolute;
+                right: 2px;
+                bottom: 2px;
+                width: 6px;
+                height: 6px;
+                background: inherit;
+            }
+        }
+    }
+}
+
+.ui-panel.chat-widget {
+    position: absolute;
+    bottom: 36px;
+    left: 4px;
+    width: 240px;
+
+    &.folded {
+        width: 100px;
+
+        > .ui-header {
+            &:after {
+                content: '\E233';
+            }
+            > .typers {
+                display: none;
+            }
+            > .notifyToggle {
+                display: none;
+            }
+        }
+    }
+    &.expanded {
+        display: none;
+    }
+    &.notify {
+        > .ui-header {
+            &:after {
+                color: $text-active;
+            }
+            > .title {
+                color: $text-primary;
+            }
+        }
+    }
+    > .ui-header {
+        &:after {
+            content: '\E233';
+            color: $text-secondary;
+            line-height: 34px;
+        }
+        > .title {
+            text-transform: uppercase;
+            line-height: 34px;
+        }
+        > .typers {
+            float: right;
+            max-width: 132px;
+            padding-right: 4px;
+            @extend .font-regular;
+            font-size: 10px;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            color: $text-secondary;
+            pointer-events: none;
+
+            > .single,
+            > .double,
+            > .multiple {
+                display: none;
+
+                &.active {
+                    display: block;
+                }
+                > .user {
+                    font-weight: bold;
+                }
+            }
+        }
+        > .notifyToggle {
+            float: right;
+            border: none;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            margin: 0;
+            padding: 0;
+            @extend .font-icon;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            color: $text-darkest;
+            background-color: transparent;
+
+            &.active {
+                color: $text-secondary;
+            }
+            &:hover {
+                color: $text-primary;
+                background-color: $bcg-darkest;
+            }
+        }
+        > .number {
+            display: none;
+            float: right;
+            margin-top: 8px;
+            margin-right: 4px;
+            padding: 0 6px;
+            height: 18px;
+            line-height: 19px;
+            border-radius: 9px;
+            pointer-events: none;
+
+            &.notify {
+                display: block;
+                color: $text-primary;
+                background-color: $text-active;
+            }
+            &.typing {
+                display: block;
+                color: $text-primary;
+            }
+        }
+    }
+    > .content {
+        height: 160px;
+
+        > .messages {
+            height: 128px;
+
+            > .content {
+                width: 240px;
+                overflow-x: hidden;
+                padding-bottom: 4px;
+                word-break: break-word;
+
+                > .divider {
+                    background-color: $bcg-darker;
+                    margin: 4px 8px;
+                    height: 1px;
+                }
+                > .message + .message.multi {
+                    margin-top: -4px;
+                }
+                > .message.multi + .message.multi {
+                    margin-top: 0px;
+                }
+                > .message {
+                    margin: 4px;
+                    padding-left: 18px;
+                    line-height: 14px;
+                    font-size: 12px;
+
+                    &.multi {
+                        margin: 0 4px 0 4px;
+                    }
+                    > img {
+                        vertical-align: text-bottom;
+                        margin-right: 4px;
+                        margin-left: -18px;
+                    }
+                    > span {
+                        vertical-align: text-top;
+
+                        &.username {
+                            font-weight: bold;
+                            color: $text-primary;
+
+                            &:after {
+                                content: ': ';
+                            }
+                        }
+                    }
+                }
+                > .system {
+                    margin: 4px;
+                    line-height: 12px;
+                    font-size: 12px;
+                    font-weight: bold;
+                    color: $text-active;
+                }
+            }
+        }
+        > .ui-text-field {
+            margin: 0;
+            border: none;
+            width: 240px;
+            height: 32px;
+
+            &:after {
+                right: auto;
+                left: 0;
+                line-height: 32px;
+                width: 32px;
+                text-align: center;
+                padding: 0;
+            }
+            &.not-empty {
+                padding: 0;
+                content: '';
+                background-color: $bcg-darkest;
+
+                &:after {
+                    content: '';
+                }
+                > .clear {
+                    display: block;
+                }
+                > .field {
+                    color: $text-primary;
+                    width: calc(100% - 40px);
+                }
+            }
+            > .clear {
+                display: none;
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 32px;
+                height: 32px;
+                line-height: 32px;
+                text-align: center;
+                color: #d34141;
+                @extend .font-icon;
+                font-size: 18px;
+                font-weight: bold;
+                text-align: center;
+                cursor: pointer;
             }
         }
     }

@@ -81,20 +81,30 @@ editor.once('load', function() {
         editor.call('assets:create', asset, function(err, assetId) {
             if (err) return;
 
-            var asset = editor.call('assets:get', assetId);
-            if (! asset) return;
-
-            // parse once file is available
-            asset.once('file.url:set', function() {
-                // artificial delay to avoid racing condition
-                // of file not getting uploaded to s3 in time
-                setTimeout(function() {
-                    editor.call('scripts:parse', asset, function(err, result) {
-                        if (args.callback)
-                            args.callback(err, result);
+            var onceAssetLoad = function(asset) {
+                var url = asset.get('file.url');
+                if (url) {
+                    onParse(asset);
+                } else {
+                    asset.once('file.url:set', function() {
+                        onParse(asset)
                     });
-                }, 500);
-            });
+                }
+            };
+
+            var onParse = function(asset) {
+                editor.call('scripts:parse', asset, function(err, result) {
+                    if (args.callback)
+                        args.callback(err, asset, result);
+                });
+            };
+
+            var asset = editor.call('assets:get', assetId);
+            if (asset) {
+                onceAssetLoad(asset);
+            } else {
+                editor.once('assets:add[' + assetId + ']', onceAssetLoad);
+            }
         }, args.noSelect);
     });
 });

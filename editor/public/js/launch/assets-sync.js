@@ -2,6 +2,7 @@ app.once('load', function() {
     'use strict';
 
     var framework = app.call('viewport');
+    var settings = app.call('project:settings');
     var docs = { };
 
     app.method('loadAsset', function (id, callback) {
@@ -47,14 +48,15 @@ app.once('load', function() {
                 asset = new Observer(assetData);
                 app.call('assets:add', asset);
 
-                var _asset = new pc.Asset(assetData.name, assetData.type, assetData.file, assetData.data);
+                var _asset = asset.asset = new pc.Asset(assetData.name, assetData.type, assetData.file, assetData.data);
                 _asset.id = parseInt(assetData.id);
                 _asset.preload = assetData.preload ? assetData.preload : false;
 
                 // tags
                 _asset.tags.add(assetData['tags']);
 
-                framework.assets.add(_asset);
+                if (asset.get('type') !== 'script')
+                    framework.assets.add(_asset);
             } else {
                 for (var key in assetData)
                     asset.set(key, assetData[key]);
@@ -72,12 +74,33 @@ app.once('load', function() {
         app.call('assets:progress', .5);
 
         var count = 0;
+        var scripts = { };
+
+        var legacyScripts = settings.get('use_legacy_scripts');
+
+        var loadScripts = function() {
+            var order = settings.get('scripts');
+
+            for(var i = 0; i < order.length; i++) {
+                if (! scripts[order[i]])
+                    continue;
+
+                framework.assets.add(scripts[order[i]].asset);
+            }
+        };
 
         var load = function (id) {
             app.call('loadAsset', id, function (asset) {
                 count++;
                 app.call('assets:progress', (count / data.length) * .5 + .5);
+
+                if (! legacyScripts && asset.get('type') === 'script')
+                    scripts[asset.get('id')] = asset;
+
                 if (count >= data.length) {
+                    if (! legacyScripts)
+                        loadScripts();
+
                     app.call('assets:progress', 1);
                     app.emit('assets:load');
                 }
@@ -124,12 +147,12 @@ app.once('load', function() {
         for(var i = 0; i < folders.length; i++) {
             var folder = app.call('assets:get', folders[i]);
             if (folder) {
-                path += folder.get('name') + '/';
+                path += encodeURIComponent(folder.get('name')) + '/';
             } else {
                 path += 'unknown/';
             }
         }
-        return '/api/assets/files/' + path + filename + '?id=' + id;
+        return '/api/assets/files/' + path + encodeURIComponent(filename) + '?id=' + id;
     };
 
     // hook sync to new assets

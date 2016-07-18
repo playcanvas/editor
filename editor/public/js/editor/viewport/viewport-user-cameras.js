@@ -219,6 +219,18 @@ editor.once('load', function() {
         editor.once('scene:unload', unload);
         editor.once('realtime:disconnected', unload);
 
+        editor.call('users:loadOne', userId, function(user) {
+            var dataNormal = editor.call('whoisonline:color', user.id, 'data');
+            var colorNormal = new pc.Color(dataNormal[0], dataNormal[1], dataNormal[2], 1.0);
+            camera.model.meshInstances[0].setParameter('uColor', colorNormal.data);
+
+            var colorBehind = new pc.Color(dataNormal[0], dataNormal[1], dataNormal[2], 0.15);
+            cameraInner.model.meshInstances[0].setParameter('uColor', colorBehind.data);
+
+            var dataLight = editor.call('whoisonline:color', user.id, 'data');
+            var colorLight = new pc.Color(dataLight[0], dataLight[1], dataLight[2], 0.25);
+            cameraQuad.model.meshInstances[0].setParameter('uColor', colorLight.data);
+        });
     };
 
     // Add user who comes online

@@ -97,6 +97,31 @@ editor.once('load', function() {
         subTitle: '{Number}',
         description: 'Number of samples used for blurring a variance shadow map. Only uneven numbers work, even are incremented. Minimum value is 1, maximum is 25',
         url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#vsmBlurSize'
+    }, {
+        title: 'vsmBias',
+        subTitle: '{Number}',
+        description: 'Constant depth offset applied to a shadow map that enables the tuning of shadows in order to eliminate rendering artifacts, namely \'shadow acne\' and \'peter-panning\'',
+        url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#vsmBias'
+    }, {
+        title: 'cookie',
+        subTitle: '{pc.Texture}',
+        description: 'Projection texture. Must be 2D for spot and cubemap for point (ignored if incorrect type is used)',
+        url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#cookie'
+    }, {
+        title: 'cookieIntensity',
+        subTitle: '{Number}',
+        description: 'Projection texture intensity',
+        url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#cookieIntensity'
+    }, {
+        title: 'cookieFalloff',
+        subTitle: '{Boolean}',
+        description: 'Toggle normal spotlight falloff when projection texture is used. When set to false, spotlight will work like a pure texture projector (only fading with distance)',
+        url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#cookieFalloff'
+    }, {
+        title: 'cookieChannel',
+        subTitle: '{String}',
+        description: 'Color channels of the projection texture to use. Can be "r", "g", "b", "a", "rgb" or any swizzled combination',
+        url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#cookieChannel'
     }];
 
     for(var i = 0; i < fields.length; i++) {

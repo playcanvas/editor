@@ -5,7 +5,18 @@ editor.once('load', function() {
         setTimeout(function() {
             entity.history.enabled = false;
 
+            // tags
+            if (! entity.has('tags'))
+                entity.set('tags', [ ]);
+
             // components
+
+            // camera
+            if (entity.has('components.camera')) {
+                // frustumCulling
+                if (! entity.has('components.camera.frustumCulling'))
+                    entity.set('components.camera.frustumCulling', false);
+            }
 
             // light
             if (entity.has('components.light')) {
@@ -41,6 +52,22 @@ editor.once('load', function() {
                 // vsmBias
                 if (! entity.has('components.light.vsmBias'))
                     entity.set('components.light.vsmBias', 0.01 * 0.25);
+
+                // cookieAsset
+                if (! entity.has('components.light.cookieAsset'))
+                    entity.set('components.light.cookieAsset', null);
+
+                // cookieIntensity
+                if (! entity.has('components.light.cookieIntensity'))
+                    entity.set('components.light.cookieIntensity', 1.0);
+
+                // cookieFalloff
+                if (! entity.has('components.light.cookieFalloff'))
+                    entity.set('components.light.cookieFalloff', true);
+
+                // cookieChannel
+                if (! entity.has('components.light.cookieChannel'))
+                    entity.set('components.light.cookieChannel', 'rgb');
             }
 
             // model

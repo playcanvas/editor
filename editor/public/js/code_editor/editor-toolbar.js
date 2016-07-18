@@ -8,6 +8,11 @@ editor.once('load', function () {
         editor.call('editor:save');
     });
 
+    var revertBtn = document.getElementById('btn-revert');
+    revertBtn.addEventListener('click', function () {
+        editor.call('editor:revert');
+    });
+
     var progress = document.getElementById('progress');
     var readonly = document.getElementById('readonly');
     var error = document.getElementById('error');
@@ -16,8 +21,10 @@ editor.once('load', function () {
     var refreshSaveButton = function () {
         if (! editor.call('editor:canSave')) {
             saveBtn.setAttribute('disabled', '');
+            revertBtn.setAttribute('disabled', '');
         } else {
             saveBtn.removeAttribute('disabled');
+            revertBtn.removeAttribute('disabled');
         }
     };
 
@@ -26,10 +33,18 @@ editor.once('load', function () {
     };
 
     var refreshButtons = function () {
+        var isReadonly = editor.call('editor:isReadonly');
+
+        var hide = 'none';
+        var show = 'inline-block';
+
+        progress.style.display = shouldShowProgress() ? show : hide;
+        readonly.style.display = isReadonly ? show : hide;
+        saveBtn.style.display = isReadonly ? hide : show;
+        revertBtn.style.display = isReadonly || !config.asset ? hide : show;
+        error.style.display = errorMsg ? show : hide;
+
         refreshSaveButton();
-        progress.style.display = shouldShowProgress() ? 'block' : 'none';
-        readonly.style.display = editor.call('editor:isReadonly') ? 'inline-block' : 'none';
-        error.style.display = errorMsg ? 'inline-block' : 'none';
     };
 
     refreshButtons();
@@ -77,7 +92,7 @@ editor.once('load', function () {
 
     editor.on('realtime:error', function (err) {
         errorMsg = err;
-        error.innerHTML = 'Error: "' + err + '"';
+        error.innerHTML = 'Error: ' + err;
         refreshButtons();
     });
 

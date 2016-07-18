@@ -53,12 +53,12 @@ app.once('load', function() {
                     } else if (script && parts.length === 5 && parts[4] === 'enabled') {
                         // enabled
                         script.enabled = value;
-                    } else if (script && parts.length === 6 && parts[4] === 'attributes' && ! pc.Script.reservedAttributes[parts[5]]) {
+                    } else if (script && parts.length === 6 && parts[4] === 'attributes' && ! pc.createScript.reservedAttributes[parts[5]]) {
                         // set attribute
                         script[parts[5]] = value;
                         // TODO scripts2
                         // check if attribute is new
-                    } else if (script && parts.length > 6 && parts[4] === 'attributes' && ! pc.Script.reservedAttributes[parts[5]]) {
+                    } else if (script && parts.length > 6 && parts[4] === 'attributes' && ! pc.createScript.reservedAttributes[parts[5]]) {
                         // update attribute
                         script[parts[5]] = obj.get('components.script.scripts.' + parts[3] + '.attributes.' + parts[5]);
                     }
@@ -93,11 +93,11 @@ app.once('load', function() {
                     if (parts.length === 4) {
                         // remove script
                         entity.script.destroy(parts[3]);
-                    } else if (parts.length === 6 && parts[4] === 'attributes' && ! pc.Script.reservedAttributes[parts[5]]) {
+                    } else if (parts.length === 6 && parts[4] === 'attributes' && ! pc.createScript.reservedAttributes[parts[5]]) {
                         // unset attribute
                         delete script[parts[5]];
                         delete script.__attributes[parts[5]];
-                    } else if (parts.length > 6 && parts[4] === 'attributes' && ! pc.Script.reservedAttributes[parts[5]]) {
+                    } else if (parts.length > 6 && parts[4] === 'attributes' && ! pc.createScript.reservedAttributes[parts[5]]) {
                         // update attribute
                         script[parts[5]] = obj.get('components.script.scripts.' + parts[3] + '.attributes.' + parts[5]);
                     }
@@ -136,7 +136,7 @@ app.once('load', function() {
                         if (! script)
                             return;
 
-                        if (parts.length > 6 && parts[4] === 'attributes' && ! pc.Script.reservedAttributes[parts[5]]) {
+                        if (parts.length > 6 && parts[4] === 'attributes' && ! pc.createScript.reservedAttributes[parts[5]]) {
                             // update attribute
                             script[parts[5]] = obj.get('components.script.scripts.' + parts[3] + '.attributes.' + parts[5]);
                         }

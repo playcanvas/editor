@@ -4,7 +4,7 @@ editor.once('load', function() {
     var uploadJobs = 0;
     var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
 
-    var targetExtensions = [ 'jpg', 'jpeg', 'png', 'js', 'css', 'html', 'json', 'xml', 'txt', 'vert', 'frag', 'glsl', 'mp3', 'ogg', 'wav', 'mp4' ];
+    var targetExtensions = [ 'jpg', 'jpeg', 'png', 'js', 'css', 'html', 'json', 'xml', 'txt', 'vert', 'frag', 'glsl', 'mp3', 'ogg', 'wav', 'mp4', 'atlas' ];
     var tmp = { };
     for(var i = 0; i < targetExtensions.length; i++)
         tmp[targetExtensions[i]] = true;
@@ -20,7 +20,8 @@ editor.once('load', function() {
         'texture': [ 'tif', 'tga', 'png', 'jpg', 'jpeg', 'gif', 'bmp', 'dds', 'hdr', 'exr' ],
         'audio': [ 'wav', 'mp3', 'mp4', 'ogg' ],
         'shader': [ 'glsl', 'frag', 'vert' ],
-        'script': [ 'js' ]
+        'script': [ 'js' ],
+        'font': [ 'ttf', 'otf' ]
     };
     var extToType = { };
     for(var type in typeToExt) {
@@ -70,6 +71,10 @@ editor.once('load', function() {
         if (args.asset)
             form.append('asset', args.asset.get('id'));
 
+        // tags
+        if (args.tags)
+            form.append('tags', args.tags.join('\n'));
+
         // parent folder
         if (args.parent) {
             if (args.parent instanceof Observer) {
@@ -94,7 +99,7 @@ editor.once('load', function() {
             form.append('data', JSON.stringify(args.data));
 
         // preload
-        form.append('preload', true);
+        form.append('preload', args.preload === undefined ? true : args.preload);
 
         // filename
         if (args.filename)
@@ -176,8 +181,8 @@ editor.once('load', function() {
             if (legacyScripts && ext === 'js') {
                 editor.call('assets:upload:script', files[i]);
             } else {
-                var source = ! targetExtensions[ext];
-                var type = extToType[ext];
+                var type = extToType[ext] || 'binary';
+                var source = type !== 'binary' && ! targetExtensions[ext];
 
                 // can we override another asset?
                 var sourceAsset = null;

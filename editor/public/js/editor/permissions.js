@@ -16,8 +16,7 @@ editor.once('load', function() {
 
     editor.method('permissions:read', function (userId) {
         if (! userId) userId = config.self.id;
-
-        return userId in permissions;
+        return permissions.hasOwnProperty(userId);
     });
 
     editor.method('permissions:write', function (userId) {
@@ -68,6 +67,8 @@ editor.once('load', function() {
         }
 
         editor.emit('permissions:set:' + userId, accessLevel);
+        if (userId === config.self.id)
+            editor.emit('permissions:set', accessLevel);
     });
 
     // subscribe to project private changes
@@ -78,7 +79,7 @@ editor.once('load', function() {
 
         config.project.private = msg.project.private;
 
-        if (msg.project.private && !editor.call('permissions:read', config.self.id)) {
+        if (msg.project.private && ! editor.call('permissions:read', config.self.id)) {
             // refresh page so that user gets locked out
             window.location.reload();
         }

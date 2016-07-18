@@ -110,10 +110,11 @@ editor.once('viewport:load', function() {
         shiftKey = evt.shiftKey;
 
         var delta = 0;
-        if (evt.detail)
-            delta = -1 * evt.detail * 0.05;
-        else if (evt.wheelDelta)
+        if (evt.detail) {
+            delta = -1 * evt.detail / 3;
+        } else if (evt.wheelDelta) {
             delta = evt.wheelDelta / 120;
+        }
 
         if (delta !== 0) {
             editor.call('camera:focus:stop');

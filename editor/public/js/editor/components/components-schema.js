@@ -35,7 +35,11 @@ editor.once('load', function() {
                 range: 8,
                 falloffMode: 0,
                 innerConeAngle: 40,
-                outerConeAngle: 45
+                outerConeAngle: 45,
+                cookieAsset: null,
+                cookieIntensity: 1.0,
+                cookieFalloff: true,
+                cookieChannel: 'rgb'
             },
             types: {
                 color: 'rgb'

@@ -282,16 +282,19 @@ editor.once('load', function () {
     });
 
     // fired when the user tries to leave the current page
-    window.onbeforeunload = function (event) {
-        var message;
+    if (! config.asset) {
+        window.onbeforeunload = function (event) {
+            var message;
 
-        editor.emit('editor:beforeQuit');
+            editor.emit('editor:beforeQuit');
 
-        if (editor.call('editor:canSave')) {
-            message = 'You have unsaved changes. Are you sure you want to leave?';
-            event.returnValue = message;
-        }
+            if (editor.call('editor:canSave')) {
+                message = 'You have unsaved changes. Are you sure you want to leave?';
+                event.returnValue = message;
+            }
 
-        return message;
-    };
+            return message;
+        };
+    }
+
 });

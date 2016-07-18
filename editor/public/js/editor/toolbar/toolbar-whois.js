@@ -31,7 +31,7 @@ editor.once('load', function() {
         panel.append(link);
 
         var img = document.createElement('img');
-        img.src = '/api/' + id + '/thumbnail?size=32';
+        img.src = '/api/' + id + '/thumbnail?size=28';
         link.appendChild(img);
 
         link.tooltip = Tooltip.attach({
@@ -44,6 +44,7 @@ editor.once('load', function() {
         editor.call('users:loadOne', id, function (user) {
             link.href = '/' + user.username;
             link.tooltip.text = user.username;
+            link.style.backgroundColor = editor.call('whoisonline:color', user.id, 'hex');
         });
     });
 
@@ -63,5 +64,28 @@ editor.once('load', function() {
 
     editor.method('whoisonline:panel', function() {
         return panel;
+    });
+
+    var chatWidget = editor.call('chat:panel');
+    if (chatWidget) {
+        panel.class.add('chat-minified');
+
+        chatWidget.on('fold', function() {
+            panel.class.add('chat-minified');
+        });
+        chatWidget.on('unfold', function() {
+            panel.class.remove('chat-minified');
+        });
+
+        if (! editor.call('permissions:read'))
+            panel.class.add('no-chat');
+    }
+
+    editor.on('permissions:set', function(level) {
+        if (level) {
+            panel.class.remove('no-chat');
+        } else {
+            panel.class.add('no-chat');
+        }
     });
 });
