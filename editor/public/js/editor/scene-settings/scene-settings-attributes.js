@@ -549,7 +549,7 @@ editor.once('load', function() {
         panelLoadingScreen.class.add('component', 'loading-screen');
 
         // custom loading screen script
-        if (editor.call("users:isSuperUser") || config.owner.plan.type === 'org') {
+        if (editor.call("users:isSuperUser") || config.owner.plan.type === 'org' || config.owner.plan.type === 'organization') {
             var panelButtons = new ui.Panel();
             panelButtons.class.add('flex', 'component');
             panelLoadingScreen.append(panelButtons);
@@ -772,10 +772,9 @@ editor.once('load', function() {
                     }
                 }
             });
-
         } else {
             var labelUpgrade = new ui.Label({
-                text: 'This is an ORG account feature. <a href="/upgrade" target="_blank">UPGRADE</a> to create custom loading screens.'
+                text: 'This is an ORGANIZATION account feature. <a href="/upgrade?plan=organization&account=' + config.owner.username + '" target="_blank">UPGRADE</a> to create custom loading screens.'
             });
             labelUpgrade.style.fontSize = '12px';
             labelUpgrade.style.color = '#fff';

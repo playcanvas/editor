@@ -1463,8 +1463,6 @@ editor.once('load', function() {
 
     // Handles mouse move
     var onMouseMove = function (e) {
-        e.preventDefault();
-
         var coords = getTargetCoords(e);
 
         // if we are dragging the selected anchor
