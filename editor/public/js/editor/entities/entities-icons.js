@@ -4,7 +4,7 @@ editor.once('load', function() {
     var app;
     var iconsEntity;
     var textureNames = [ 'animation', 'audiolistener', 'audiosource', 'sound', 'camera', 'collision', 'light-point', 'light-directional', 'light-spot', 'particlesystem', 'rigidbody', 'script', 'unknown' ];
-    var components = [ 'camera', 'light', 'audiolistener', 'audiosource', 'sound', 'particlesystem', 'script', 'animation', 'collision', 'rigidbody', 'model' ];
+    var components = [ 'camera', 'light', 'audiolistener', 'audiosource', 'sound', 'particlesystem', 'script', 'animation', 'model' ];
     var icons = [ ];
     var pool = [ ];
     var dirtifyKeys = [

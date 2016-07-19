@@ -44,7 +44,6 @@ editor.once('load', function () {
     materialOccluder.depthTest = true;
     materialOccluder.update();
 
-    var materialDefault, materialSpot, materialSpotBehind;
     var models = { };
     var materials = { };
     var poolModels = { 'box': [ ], 'sphere': [ ], 'capsule-x': [ ], 'capsule-y': [ ], 'capsule-z': [ ], 'cylinder-x': [ ], 'cylinder-y': [ ], 'cylinder-z': [ ] };
@@ -85,7 +84,7 @@ editor.once('load', function () {
         this.type = '';
         this.asset = 0;
         this.entity = null;
-        this.color = editor.call('color:hsl2rgb', Math.random(), 0.5, 0.5);
+        this.color;
     }
     // update lines
     Gizmo.prototype.update = function() {
@@ -112,6 +111,17 @@ editor.once('load', function () {
         if (this.type !== type) {
             this.type = type;
 
+            if (! this.color) {
+                var hash = 0;
+                var string = this._link.entity._guid;
+                for(var i = 0; i < string.length; i++)
+                    hash += string.charCodeAt(i);
+
+                this.color = editor.call('color:hsl2rgb', (hash % 128) / 128, 0.5, 0.5);
+            }
+
+            this.wireframeMesh = null;
+
             // set new model based on type
             if (models[this.type]) {
                 // get current model
@@ -135,6 +145,8 @@ editor.once('load', function () {
 
                     var old = model.meshInstances[0].material;
                     model.meshInstances[0].setParameter('offset', 0);
+                    model.meshInstances[0].layer = 12;
+                    model.meshInstances[0].updateKey();
                     model.meshInstances[0].__editor = true;
                     model.meshInstances[0].__collision = true;
                     model.meshInstances[0].material = old.clone();
@@ -142,26 +154,28 @@ editor.once('load', function () {
                     model.meshInstances[0].material.color.set(this.color[0], this.color[1], this.color[2], alphaFront);
                     model.meshInstances[0].material.update();
 
-                    if (model.meshInstances[1]) {
-                        var old = model.meshInstances[1].material;
-                        model.meshInstances[1].setParameter('offset', 0.001);
-                        model.meshInstances[1].layer = 2;
-                        model.meshInstances[1].updateKey();
-                        model.meshInstances[1].__editor = true;
-                        model.meshInstances[1].material = old.clone();
-                        model.meshInstances[1].material.updateShader = old.updateShader;
-                        model.meshInstances[1].material.color.set(this.color[0], this.color[1], this.color[2], alphaBehind);
-                        model.meshInstances[1].material.update();
+                    var old = model.meshInstances[1].material;
+                    model.meshInstances[1].setParameter('offset', 0.001);
+                    model.meshInstances[1].layer = 2;
+                    model.meshInstances[1].pick = false;
+                    model.meshInstances[1].updateKey();
+                    model.meshInstances[1].__editor = true;
+                    model.meshInstances[1].material = old.clone();
+                    model.meshInstances[1].material.updateShader = old.updateShader;
+                    model.meshInstances[1].material.color.set(this.color[0], this.color[1], this.color[2], alphaBehind);
+                    model.meshInstances[1].material.update();
 
-                        model.meshInstances[2].setParameter('offset', 0);
-                        model.meshInstances[2].layer = 9;
-                        model.meshInstances[2].updateKey();
-                        model.meshInstances[2].__editor = true;
-                    }
+                    model.meshInstances[2].setParameter('offset', 0);
+                    model.meshInstances[2].layer = 9;
+                    model.meshInstances[2].pick = false;
+                    model.meshInstances[2].updateKey();
+                    model.meshInstances[2].__editor = true;
 
                     switch(this.type) {
+                        case 'capsule-x':
                         case 'capsule-y':
-                            for(var i = 0; i < 3; i++) {
+                        case 'capsule-y':
+                            for(var i = 0; i < model.meshInstances.length; i++) {
                                 model.meshInstances[i].setParameter('radius', collision.radius || 0.5);
                                 model.meshInstances[i].setParameter('height', collision.height || 2);
                             }
@@ -174,7 +188,7 @@ editor.once('load', function () {
             } else if (this.type === 'mesh') {
                 this.asset = collision.asset;
                 this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
-                this.createWireframe(collision.asset)
+                this.createWireframe(collision.asset);
                 if (! this.asset) {
                     this.entity.enabled = false;
                     this.entity.model.model = null;
@@ -191,7 +205,7 @@ editor.once('load', function () {
         var radius = collision.radius || .00001;
         var height = collision.height || .00001;
 
-        if (this.entity.model.meshInstances[1])
+        if (this.entity.model.model && this.entity.model.meshInstances[1])
             mat = null;
 
         switch(this.type) {
@@ -213,7 +227,7 @@ editor.once('load', function () {
             case 'capsule-x':
             case 'capsule-y':
             case 'capsule-z':
-                for(var i = 0; i < 3; i++) {
+                for(var i = 0; i < this.entity.model.meshInstances.length; i++) {
                     this.entity.model.meshInstances[i].setParameter('radius', collision.radius || 0.5);
                     this.entity.model.meshInstances[i].setParameter('height', collision.height || 2);
                 }
@@ -232,12 +246,6 @@ editor.once('load', function () {
                 }
                 break;
         }
-
-        // render behind model
-        if (this.entity.enabled && this.entity.model.model && mat) {
-            var instance = new pc.MeshInstance(this.entity.model.model.meshInstances[0].node, this.entity.model.model.meshInstances[0].mesh, mat);
-            app.scene.immediateDrawCalls.push(instance);
-        }
     };
     // link to entity
     Gizmo.prototype.link = function(obj) {
@@ -249,6 +257,8 @@ editor.once('load', function () {
         this.events.push(this._link.once('destroy', function() {
             self.unlink();
         }));
+
+        this.color = null;
 
         this.entity = new pc.Entity();
         this.entity.__editor = true;
@@ -275,6 +285,7 @@ editor.once('load', function () {
 
         this.events = [ ];
         this._link = null;
+        this.color = null;
         this.type = '';
         this.asset = 0;
 
@@ -296,7 +307,7 @@ editor.once('load', function () {
             return null;
 
         if (asset.resource) {
-            this.entity.model.model = createModelWireframe(asset.resource);
+            this.entity.model.model = createModelCopy(asset.resource, this.color);
         } else {
             var self = this;
 
@@ -304,7 +315,7 @@ editor.once('load', function () {
                 if (self.asset !== asset.id)
                     return;
 
-                self.entity.model.model = createModelWireframe(asset.resource);
+                self.entity.model.model = createModelCopy(asset.resource, this.color);
             }));
         }
     };
@@ -357,13 +368,23 @@ editor.once('load', function () {
     editor.once('viewport:load', function() {
         app = editor.call('viewport:framework');
 
-        var clearCommand = new pc.Command(10, pc.BLEND_NONE, function() {
+        app.scene.drawCalls.push(new pc.Command(10, pc.BLEND_NONE, function() {
             app.graphicsDevice.clear({
                 depth: 1.0,
                 flags: pc.CLEARFLAG_DEPTH
             });
-        });
-        app.scene.drawCalls.push(clearCommand);
+        }));
+
+        app.scene.drawCalls.push(new pc.Command(13, pc.BLEND_NONE, function() {
+            var gl = app.graphicsDevice.gl;
+            gl.enable(gl.POLYGON_OFFSET_FILL);
+            gl.polygonOffset(0, -8);
+        }));
+
+        app.scene.drawCalls.push(new pc.Command(11, pc.BLEND_NONE, function() {
+            var gl = app.graphicsDevice.gl;
+            gl.disable(gl.POLYGON_OFFSET_FILL);
+        }));
 
         container = new pc.Entity(app);
         app.root.addChild(container);
@@ -377,6 +398,7 @@ editor.once('load', function () {
             uniform float offset;\n \
             uniform mat4 matrix_model;\n \
             uniform mat3 matrix_normal;\n \
+            uniform mat4 matrix_view;\n \
             uniform mat4 matrix_viewProjection;\n \
             void main(void)\n \
             {\n \
@@ -419,6 +441,7 @@ editor.once('load', function () {
         materialDefault.update();
 
         materialBehind.updateShader = materialDefault.updateShader;
+        materialOccluder.updateShader = materialDefault.updateShader;
 
         var capsuleVShader = ' \
             attribute vec3 aPosition;\n \
@@ -456,7 +479,7 @@ editor.once('load', function () {
             }\n';
 
         var makeMaterial = function(a) {
-            var matDefault = materials['capsule-' + a] = new pc.BasicMaterial();
+            var matDefault = materials['capsule-' + a] = materialDefault.clone();
             matDefault.updateShader = function(device) {
                 if (! shaderCapsule[a]) {
                     shaderCapsule[a] = new pc.Shader(device, {
@@ -471,27 +494,14 @@ editor.once('load', function () {
                 }
                 this.shader = shaderCapsule[a];
             };
-            matDefault.color = colorPrimary;
             matDefault.update();
 
-            var matBehind = materials['capsuleBehind-' + a] = new pc.BasicMaterial();
+            var matBehind = materials['capsuleBehind-' + a] = materialBehind.clone();
             matBehind.updateShader = matDefault.updateShader;
-            matBehind.color = colorBehind;
-            matBehind.blend = true;
-            matBehind.blendSrc = pc.BLENDMODE_SRC_ALPHA;
-            matBehind.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
-            matBehind.depthTest = false;
             matBehind.update();
 
-            var matOccluder = materials['capsuleOcclude-' + a] = new pc.BasicMaterial();
+            var matOccluder = materials['capsuleOcclude-' + a] = materialOccluder.clone();
             matOccluder.updateShader = matDefault.updateShader;
-            matOccluder.color = colorOccluder;
-            matOccluder.redWrite = false;
-            matOccluder.greenWrite = false;
-            matOccluder.blueWrite = false;
-            matOccluder.alphaWrite = false;
-            matOccluder.depthWrite = true;
-            matOccluder.depthTest = true;
             matOccluder.update();
         }
 
@@ -534,18 +544,29 @@ editor.once('load', function () {
             var meshInstance = new pc.MeshInstance(node, mesh, args.matDefault);
             meshInstance.__editor = true;
             meshInstance.__collision = true;
+            meshInstance.layer = 12;
+            meshInstance.castShadow = false;
+            meshInstance.castLightmapShadow = false;
+            meshInstance.receiveShadow = false;
             meshInstance.updateKey();
             // meshInstanceBehind
             var meshInstanceBehind = new pc.MeshInstance(node, mesh, args.matBehind);
             meshInstanceBehind.__editor = true;
             meshInstanceBehind.pick = false;
-            meshInstanceBehind.layer = 9;
+            meshInstanceBehind.layer = 2;
+            meshInstanceBehind.drawToDepth = false;
+            meshInstanceBehind.castShadow = false;
+            meshInstanceBehind.castLightmapShadow = false;
+            meshInstanceBehind.receiveShadow = false;
             meshInstanceBehind.updateKey();
             // meshInstanceOccluder
             var meshInstanceOccluder = new pc.MeshInstance(node, mesh, args.matOccluder);
             meshInstanceOccluder.__editor = true;
             meshInstanceOccluder.pick = false;
-            meshInstanceOccluder.layer = 8;
+            meshInstanceOccluder.layer = 9;
+            meshInstanceBehind.castShadow = false;
+            meshInstanceBehind.castLightmapShadow = false;
+            meshInstanceBehind.receiveShadow = false;
             meshInstanceOccluder.updateKey();
             // model
             var model = new pc.Model();
@@ -603,16 +624,16 @@ editor.once('load', function () {
             for(var i = 0; i < segments; i++) {
                 var l = Math.sin((y * (180 / (segments / 2)) + 90) * rad);
                 var c = Math.cos((y * (180 / (segments / 2)) + 90) * rad);
-                vecA.set(Math.sin(360 / segments * i * rad) * 0.5 * Math.abs(c), l * 0.5, Math.cos(360 / segments * i * rad) * 0.5 * Math.abs(c));
+                vecA.set(Math.sin(360 / segments * i * rad) * Math.abs(c), l, Math.cos(360 / segments * i * rad) * Math.abs(c));
                 positions.push(vecA.x, vecA.y, vecA.z);
                 vecA.normalize();
                 normals.push(vecA.x, vecA.y, vecA.z);
             }
         }
 
-        positions.push(0, 0.5, 0);
+        positions.push(0, 1, 0);
         normals.push(0, 1, 0);
-        positions.push(0, -0.5, 0);
+        positions.push(0, -1, 0);
         normals.push(0, -1, 0);
 
         for(var y = 0; y < segments / 2 - 2; y++) {
@@ -775,107 +796,59 @@ editor.once('load', function () {
         }
     });
 
-    var createModelWireframe = function(model) {
-        var vertexFormat = new pc.gfx.VertexFormat(app.graphicsDevice, [
-            { semantic: pc.gfx.SEMANTIC_POSITION, components: 3, type: pc.gfx.ELEMENTTYPE_FLOAT32 }
-        ]);
+    var createModelCopy = function(resource, color) {
+        var model = resource.clone();
 
-        // model
-        var modelLines = new pc.Model();
-        modelLines.graph = new pc.GraphNode();
-        modelLines.meshInstances = [ ];
+        var meshesExtra = [ ];
 
-        var wtm = model.graph.getWorldTransform();
-        modelLines.graph.setPosition(wtm.getTranslation());
-        modelLines.graph.setEulerAngles(wtm.getEulerAngles());
-        modelLines.graph.setLocalScale(wtm.getScale());
+        for(var i = 0; i < model.meshInstances.length; i++) {
+            model.meshInstances[i].material = materialDefault.clone();
+            model.meshInstances[i].material.updateShader = materialDefault.updateShader;
+            model.meshInstances[i].material.color.set(color[0], color[1], color[2], alphaFront);
+            model.meshInstances[i].material.update();
+            model.meshInstances[i].layer = 12;
+            model.meshInstances[i].__editor = true;
+            model.meshInstances[i].__collision = true;
+            model.meshInstances[i].castShadow = false;
+            model.meshInstances[i].castLightmapShadow = false;
+            model.meshInstances[i].receiveShadow = false;
+            model.meshInstances[i].setParameter('offset', 0);
+            model.meshInstances[i].updateKey();
 
-        for(var m = 0; m < model.meshInstances.length; m++) {
-            var mesh = model.meshInstances[m].mesh;
+            var node = model.meshInstances[i].node;
+            var mesh = model.meshInstances[i].mesh;
 
-            var vertices = mesh.vertexBuffer;
-            var format = vertices.getFormat();
-            var indices = mesh.indexBuffer[pc.RENDERSTYLE_SOLID];
+            var meshInstanceBehind = new pc.MeshInstance(node, mesh, materialBehind.clone());
+            meshInstanceBehind.material.updateShader = materialBehind.updateShader;
+            meshInstanceBehind.material.color.set(color[0], color[1], color[2], alphaBehind);
+            meshInstanceBehind.material.update();
+            meshInstanceBehind.setParameter('offset', 0);
+            meshInstanceBehind.__editor = true;
+            meshInstanceBehind.pick = false;
+            meshInstanceBehind.layer = 2;
+            meshInstanceBehind.drawToDepth = false;
+            meshInstanceBehind.castShadow = false;
+            meshInstanceBehind.castLightmapShadow = false;
+            meshInstanceBehind.receiveShadow = false;
+            meshInstanceBehind.updateKey();
 
-            var stride = format.size / 4;
-            var offset = 0;
-            var indicesView = new Uint16Array(indices.lock());
+            // meshInstanceOccluder
+            var meshInstanceOccluder = new pc.MeshInstance(node, mesh, materialOccluder);
+            meshInstanceOccluder.setParameter('offset', 0);
+            meshInstanceOccluder.__editor = true;
+            meshInstanceOccluder.pick = false;
+            meshInstanceOccluder.layer = 9;
+            meshInstanceOccluder.castShadow = false;
+            meshInstanceOccluder.castLightmapShadow = false;
+            meshInstanceOccluder.receiveShadow = false;
+            meshInstanceOccluder.updateKey();
 
-            for(var i = 0; i < format.elements.length; i++) {
-                if (format.elements[i].name !== 'POSITION')
-                    continue;
-
-                offset = format.elements[i].offset;
-                break;
-            }
-
-            var verticesView = new Float32Array(vertices.lock(), offset);
-
-            var numTriangles = mesh.primitive[0].count / 3;
-            var base = mesh.primitive[0].base;
-
-            var buffer = new pc.gfx.VertexBuffer(app.graphicsDevice, vertexFormat, numTriangles * 3 * 2);
-            var iterator = new pc.gfx.VertexIterator(buffer);
-
-            var i1, i2, i3;
-            var pairs = { };
-            for (var j = 0; j < numTriangles; j++) {
-                i1 = indicesView[ base + j * 3 ] * stride;
-                i2 = indicesView[ base + j * 3 + 1 ] * stride;
-                i3 = indicesView[ base + j * 3 + 2 ] * stride;
-
-                if (! pairs[i1 + '-' + i2] && ! pairs[i2 + '-' + i1]) {
-                    pairs[i1 + '-' + i2] = true;
-                    iterator.element[pc.SEMANTIC_POSITION].set(verticesView[i1], verticesView[i1 + 1], verticesView[i1 + 2]);
-                    iterator.next();
-                    iterator.element[pc.SEMANTIC_POSITION].set(verticesView[i2], verticesView[i2 + 1], verticesView[i2 + 2]);
-                    iterator.next();
-                }
-
-                if (! pairs[i2 + '-' + i3] && ! pairs[i3 + '-' + i2]) {
-                    pairs[i2 + '-' + i3] = true;
-                    iterator.element[pc.SEMANTIC_POSITION].set(verticesView[i2], verticesView[i2 + 1], verticesView[i2 + 2]);
-                    iterator.next();
-                    iterator.element[pc.SEMANTIC_POSITION].set(verticesView[i3], verticesView[i3 + 1], verticesView[i3 + 2]);
-                    iterator.next();
-                }
-
-                if (! pairs[i3 + '-' + i1] && ! pairs[i1 + '-' + i3]) {
-                    pairs[i3 + '-' + i1] = true;
-                    iterator.element[pc.SEMANTIC_POSITION].set(verticesView[i3], verticesView[i3 + 1], verticesView[i3 + 2]);
-                    iterator.next();
-                    iterator.element[pc.SEMANTIC_POSITION].set(verticesView[i1], verticesView[i1 + 1], verticesView[i1 + 2]);
-                    iterator.next();
-                }
-            }
-
-            vertices.unlock();
-            indices.unlock();
-
-            iterator.end();
-
-            // mesh
-            var meshLines = new pc.Mesh();
-            meshLines.vertexBuffer = buffer;
-            meshLines.indexBuffer[0] = null;
-            meshLines.primitive[0].type = pc.PRIMITIVE_LINES;
-            meshLines.primitive[0].base = 0;
-            meshLines.primitive[0].count = buffer.getNumVertices();
-            meshLines.primitive[0].indexed = false;
-            // meshInstance
-            var wtm = model.meshInstances[m].node.getWorldTransform();
-            var node = new pc.GraphNode();
-            var meshInstance = new pc.MeshInstance(node, meshLines, materialDefault);
-            meshInstance.aabb.copy(model.meshInstances[m].aabb);
-            node.setPosition(wtm.getTranslation());
-            node.setEulerAngles(wtm.getEulerAngles());
-            node.setLocalScale(wtm.getScale());
-            meshInstance.updateKey();
-            modelLines.meshInstances.push(meshInstance);
-            modelLines.graph.addChild(node);
+            meshesExtra.push(meshInstanceBehind, meshInstanceOccluder);
         }
 
-        return modelLines;
+        model.meshInstances = model.meshInstances.concat(meshesExtra);
+
+        return model;
     };
 
     editor.on('viewport:gizmoUpdate', function(dt) {

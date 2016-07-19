@@ -10,6 +10,7 @@ editor.once('load', function () {
     var bbE = new pc.BoundingBox();
     var bbF = new pc.BoundingBox();
 
+    var matA = new pc.Mat4();
     var vecA = new pc.Vec3();
     var vecB = new pc.Vec3();
     var minExtends = new pc.Vec3(0.01, 0.01, 0.01);
@@ -109,8 +110,12 @@ editor.once('load', function () {
             switch(entity.collision.type) {
                 case 'box':
                     first = false;
+                    bbD.center.set(0, 0, 0);
                     bbD.halfExtents.copy(entity.collision.halfExtents);
-                    bbE.setFromTransformedAabb(bbD, entity.getWorldTransform());
+                    var position = entity.getPosition();
+                    var rotation = entity.getRotation();
+                    matA.setTRS(position, rotation, pc.Vec3.ONE);
+                    bbE.setFromTransformedAabb(bbD, matA);
                     bbC.copy(bbE);
                     break;
                 case 'sphere':
@@ -122,9 +127,13 @@ editor.once('load', function () {
                 case 'capsule':
                 case 'cylinder':
                     first = false;
+                    bbD.center.set(0, 0, 0);
                     bbD.halfExtents.set(entity.collision.radius, entity.collision.radius, entity.collision.radius);
                     bbD.halfExtents.data[entity.collision.axis] = entity.collision.height * 0.5;
-                    bbE.setFromTransformedAabb(bbD, entity.getWorldTransform());
+                    var position = entity.getPosition();
+                    var rotation = entity.getRotation();
+                    matA.setTRS(position, rotation, pc.Vec3.ONE);
+                    bbE.setFromTransformedAabb(bbD, matA);
                     bbC.copy(bbE);
                     break;
             }
