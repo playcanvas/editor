@@ -48,6 +48,7 @@ editor.once('load', function () {
     var materials = { };
     var poolModels = { 'box': [ ], 'sphere': [ ], 'capsule-x': [ ], 'capsule-y': [ ], 'capsule-z': [ ], 'cylinder-x': [ ], 'cylinder-y': [ ], 'cylinder-z': [ ] };
     var axesNames = { 0: 'x', 1: 'y', 2: 'z' };
+    var shaderCapsule = { };
 
     var filterPicker = function(drawCall) {
         if (drawCall.command)
@@ -175,6 +176,8 @@ editor.once('load', function () {
                         case 'capsule-x':
                         case 'capsule-y':
                         case 'capsule-y':
+                            model.meshInstances[0]._shader[pc.SHADER_PICK] = shaderCapsule['pick-' + axesNames[collision.axis]];
+
                             for(var i = 0; i < model.meshInstances.length; i++) {
                                 model.meshInstances[i].setParameter('radius', collision.radius || 0.5);
                                 model.meshInstances[i].setParameter('height', collision.height || 2);
@@ -242,6 +245,21 @@ editor.once('load', function () {
                         this.entity.enabled = false;
                         this.entity.model.model = null;
                         return;
+                    }
+                }
+
+                if (this.entity.model.model) {
+                    var picking = ! visible && this._link.entity.model && this._link.entity.model.enabled && this._link.entity.model.type === 'asset' && this._link.entity.model.asset === collision.asset;
+                    if (picking !== this.entity.model.model.__picking) {
+                        this.entity.model.model.__picking = picking;
+
+                        var meshes = this.entity.model.meshInstances;
+                        for(var i = 0; i < meshes.length; i++) {
+                            if (! meshes[i].__collision)
+                                continue;
+
+                            meshes[i].pick = ! picking;
+                        }
                     }
                 }
                 break;
@@ -422,7 +440,6 @@ editor.once('load', function () {
             }\n';
 
         var shaderDefault;
-        var shaderCapsule = { };
 
         materialDefault.updateShader = function(device) {
             if (! shaderDefault) {
@@ -455,8 +472,7 @@ editor.once('load', function () {
             uniform mat4 matrix_viewProjection;\n \
             uniform float radius;\n \
             uniform float height;\n \
-            void main(void)\n \
-            {\n \
+            void main(void) {\n \
                 vec3 pos = aPosition * radius;\n \
                 pos.{axis} += aSide * max(height / 2.0 - radius, 0.0);\n \
                 vec4 posW = matrix_model * vec4(pos, 1.0);\n \
@@ -471,12 +487,34 @@ editor.once('load', function () {
             varying vec3 vPosition;\n \
             uniform vec4 uColor;\n \
             uniform vec3 view_position;\n \
-            void main(void)\n \
-            {\n \
+            void main(void) {\n \
                 vec3 viewNormal = normalize(view_position - vPosition);\n \
                 float light = dot(vNormal, viewNormal);\n \
                 gl_FragColor = vec4(uColor.rgb * light * 2.0, uColor.a);\n \
             }\n';
+
+        var capsuleVShaderPick = ' \
+            attribute vec3 aPosition;\n \
+            attribute vec3 aNormal;\n \
+            attribute float aSide;\n \
+            uniform mat4 matrix_model;\n \
+            uniform mat4 matrix_viewProjection;\n \
+            uniform float radius;\n \
+            uniform float height;\n \
+            void main(void) {\n \
+                vec3 pos = aPosition * radius;\n \
+                pos.{axis} += aSide * max(height / 2.0 - radius, 0.0);\n \
+                vec4 posW = matrix_model * vec4(pos, 1.0);\n \
+                gl_Position = matrix_viewProjection * posW;\n \
+            }\n';
+
+        var capsuleFShaderPick = ' \
+            precision ' + app.graphicsDevice.precision + ' float;\n \
+            uniform vec4 uColor;\n \
+            void main(void) {\n \
+                gl_FragColor = uColor;\n \
+            }\n';
+
 
         var makeMaterial = function(a) {
             var matDefault = materials['capsule-' + a] = materialDefault.clone();
@@ -503,6 +541,18 @@ editor.once('load', function () {
             var matOccluder = materials['capsuleOcclude-' + a] = materialOccluder.clone();
             matOccluder.updateShader = matDefault.updateShader;
             matOccluder.update();
+
+            if (! shaderCapsule['pick-' + a]) {
+                shaderCapsule['pick-' + a] = new pc.Shader(app.graphicsDevice, {
+                    attributes: {
+                        aPosition: pc.SEMANTIC_POSITION,
+                        aNormal: pc.SEMANTIC_NORMAL,
+                        aSide: pc.SEMANTIC_ATTR0
+                    },
+                    vshader: capsuleVShaderPick.replace('{axis}', a),
+                    fshader: capsuleFShaderPick
+                });
+            }
         }
 
         for(var key in axesNames)
@@ -793,6 +843,9 @@ editor.once('load', function () {
                 matBehind: materials['capsuleBehind-' + a],
                 matOccluder: materials['capsuleOcclude-' + a]
             });
+
+            var meshInstance = models['capsule-' + a].meshInstances[0];
+            // TODO
         }
     });
 
