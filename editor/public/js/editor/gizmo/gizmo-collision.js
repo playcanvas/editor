@@ -175,7 +175,7 @@ editor.once('load', function () {
                     switch(this.type) {
                         case 'capsule-x':
                         case 'capsule-y':
-                        case 'capsule-y':
+                        case 'capsule-z':
                             model.meshInstances[0]._shader[pc.SHADER_PICK] = shaderCapsule['pick-' + axesNames[collision.axis]];
 
                             for(var i = 0; i < model.meshInstances.length; i++) {
