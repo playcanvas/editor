@@ -33,7 +33,7 @@ editor.once('load', function () {
         if (! this.visible)
             return;
 
-        var nearClip = camera.nearClip;
+        var nearClip = camera.nearClip || 0.0001;
         var farClip = camera.farClip;
         var fov = camera.fov * Math.PI / 180.0;
         var projection = camera.projection;

@@ -390,7 +390,16 @@ editor.once('load', function() {
         },
         cubeMapProjection: {
             'default': 0,
-            'type': 'boolean'
+            'type': 'number',
+            'enum': [
+                { v: '', t: '...' },
+                { v: 0, t: 'Normal' },
+                { v: 1, t: 'Box' }
+            ]
+        },
+        cubeMapProjectionBox: {
+            'default': null,
+            'type': 'object'
         },
         lightMap: {
             'default': 0,
@@ -585,6 +594,7 @@ editor.once('load', function() {
                                 }
                             }
                             break;
+                        case 'cubemap':
                         case 'texture':
                             for(var i = 0; i < assets.length; i++) {
                                 if (assets[i].get('data.' + fields[n])) {
@@ -2538,6 +2548,58 @@ editor.once('load', function() {
             path: 'data.refractionIndex'
         });
         fieldRefractionIndexSlider.flexGrow = 4;
+
+
+        // divider
+        var divider = document.createElement('div');
+        divider.classList.add('fields-divider');
+        panelReflection.append(divider);
+
+
+        // cubemap projection
+        var fieldReflectionCubeMapProjection = editor.call('attributes:addField', {
+            parent: panelReflection,
+            name: 'Projection',
+            type: 'number',
+            enum: mapping.cubeMapProjection.enum,
+            link: assets,
+            path: 'data.cubeMapProjection'
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'asset:material:cubeMapProjection', fieldReflectionCubeMapProjection.parent.innerElement.firstChild.ui);
+
+        // cubemap projection center
+        var fieldReflectionCubeMapProjectionBoxCenter = editor.call('attributes:addField', {
+            parent: panelReflection,
+            placeholder: [ 'x', 'y', 'z' ],
+            name: 'Center',
+            type: 'vec3',
+            link: assets,
+            path: 'data.cubeMapProjectionBox.center'
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'asset:material:cubeMapProjectionBoxCenter', fieldReflectionCubeMapProjectionBoxCenter[0].parent.innerElement.firstChild.ui);
+
+        // cubemap projection halfExtents
+        var fieldReflectionCubeMapProjectionBoxHalfExtents = editor.call('attributes:addField', {
+            parent: panelReflection,
+            placeholder: [ 'w', 'h', 'd' ],
+            name: 'Half Extents',
+            type: 'vec3',
+            link: assets,
+            path: 'data.cubeMapProjectionBox.halfExtents'
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'asset:material:cubeMapProjectionBoxHalfExtents', fieldReflectionCubeMapProjectionBoxHalfExtents[0].parent.innerElement.firstChild.ui);
+
+        var onCubemapProjectionCheck = function() {
+            fieldReflectionCubeMapProjection.parent.hidden = ! fieldReflectionCubeMap.value;
+            fieldReflectionCubeMapProjectionBoxCenter[0].parent.hidden = fieldReflectionCubeMapProjection.parent.hidden || fieldReflectionCubeMapProjection.value === 0 || fieldReflectionCubeMapProjection.class.contains('null');
+            fieldReflectionCubeMapProjectionBoxHalfExtents[0].parent.hidden = fieldReflectionCubeMapProjectionBoxCenter[0].parent.hidden;
+        };
+        onCubemapProjectionCheck();
+        fieldReflectionCubeMapProjection.on('change', onCubemapProjectionCheck);
+        fieldReflectionCubeMap.on('change', onCubemapProjectionCheck);
 
         filterReflectionMaps();
 

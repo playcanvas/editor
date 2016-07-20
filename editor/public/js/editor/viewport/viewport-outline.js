@@ -378,8 +378,6 @@ editor.once('load', function() {
     editor.on('viewport:preRender', function() {
         if (! render && cleared) return;
 
-        var start = pc.time.now();
-
         if (targets[0] && (targets[0].width !== device.width || targets[1].height !== device.height)) {
             for(var i = 0; i < 2; i++) {
                 targets[i].destroy();
@@ -536,7 +534,5 @@ editor.once('load', function() {
         }
 
         camera.setRenderTarget(oldTarget);
-
-        window.outlineTime = pc.time.now() - start;
     });
 });

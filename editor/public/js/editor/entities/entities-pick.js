@@ -57,7 +57,7 @@ editor.once('load', function() {
                             field.focus();
                             field.blur();
                         }
-                    }, 0);
+                    }, 200);
 
                     break;
                 }

@@ -36,6 +36,31 @@ editor.once('load', function() {
     panelCollision.append(label);
 
 
+    // show zones
+    var panelZones = new ui.Panel();
+    panelZones.class.add('field');
+    panel.append(panelZones);
+    // field
+    var fieldZonesVisible = new ui.Checkbox();
+    fieldZonesVisible.class.add('tick');
+    panelZones.append(fieldZonesVisible);
+    fieldZonesVisible.value = editor.call('gizmo:zone:visible');
+    fieldZonesVisible.on('change', function(value) {
+        editor.call('gizmo:zone:visible', value);
+    });
+    editor.on('gizmo:zone:visible', function(visible) {
+        fieldZonesVisible.value = visible;
+    });
+    // label
+    var label = new ui.Label({
+        text: 'Show Zones'
+    });
+    label.on('click', function() {
+        fieldZonesVisible.element.click();
+    });
+    panelZones.append(label);
+
+
 
     // fullscreen
     var buttonOptions = new ui.Button({

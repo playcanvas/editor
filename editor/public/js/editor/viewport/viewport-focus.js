@@ -48,6 +48,13 @@ editor.once('load', function() {
                     aabbA.add(aabbB);
                     break;
             }
+        } else if (entity.zone) {
+            aabbC.halfExtents.copy(entity.zone.size).scale(0.5);
+            var position = entity.getPosition();
+            var rotation = entity.getRotation();
+            matA.setTRS(position, rotation, pc.Vec3.ONE);
+            aabbB.setFromTransformedAabb(aabbC, matA);
+            aabbA.copy(aabbB);
         } else {
             aabbB.center.copy(entity.getPosition());
             aabbB.halfExtents.copy(defaultSize);
@@ -56,7 +63,7 @@ editor.once('load', function() {
 
         var children = entity.getChildren();
         for(var i = 0; i < children.length; i++) {
-            if (! (children[i] instanceof pc.Entity))
+            if (! (children[i] instanceof pc.Entity) || children[i].__editor)
                 continue;
 
             calculateChildAABB(children[i]);

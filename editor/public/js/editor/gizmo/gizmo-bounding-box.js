@@ -1,4 +1,5 @@
 editor.once('load', function () {
+    'use strict';
     var app = null;
     var entities = [ ];
 
@@ -11,6 +12,7 @@ editor.once('load', function () {
     var bbF = new pc.BoundingBox();
 
     var matA = new pc.Mat4();
+    var matB = new pc.Mat4();
     var vecA = new pc.Vec3();
     var vecB = new pc.Vec3();
     var minExtends = new pc.Vec3(0.01, 0.01, 0.01);
@@ -80,8 +82,12 @@ editor.once('load', function () {
         }
 
         var children = entity.getChildren();
-        for(var i = 0; i < children.length; i++)
+        for(var i = 0; i < children.length; i++) {
+            if (children[i].__editor)
+                continue;
+
             editor.call('entities:boundingbox', children[i]);
+        }
     });
 
     editor.method('entities:boundingbox:entity', function(entity) {
@@ -110,12 +116,8 @@ editor.once('load', function () {
             switch(entity.collision.type) {
                 case 'box':
                     first = false;
-                    bbD.center.set(0, 0, 0);
                     bbD.halfExtents.copy(entity.collision.halfExtents);
-                    var position = entity.getPosition();
-                    var rotation = entity.getRotation();
-                    matA.setTRS(position, rotation, pc.Vec3.ONE);
-                    bbE.setFromTransformedAabb(bbD, matA);
+                    bbE.setFromTransformedAabb(bbD, entity.getWorldTransform());
                     bbC.copy(bbE);
                     break;
                 case 'sphere':
@@ -127,16 +129,22 @@ editor.once('load', function () {
                 case 'capsule':
                 case 'cylinder':
                     first = false;
-                    bbD.center.set(0, 0, 0);
                     bbD.halfExtents.set(entity.collision.radius, entity.collision.radius, entity.collision.radius);
-                    bbD.halfExtents.data[entity.collision.axis] = entity.collision.height * 0.5;
-                    var position = entity.getPosition();
-                    var rotation = entity.getRotation();
-                    matA.setTRS(position, rotation, pc.Vec3.ONE);
-                    bbE.setFromTransformedAabb(bbD, matA);
+                    bbD.halfExtents.data[entity.collision.axis] = entity.collision.height;
+                    bbE.setFromTransformedAabb(bbD, entity.getWorldTransform());
                     bbC.copy(bbE);
                     break;
             }
+        }
+
+        if (first && entity.zone) {
+            first = false;
+            bbD.halfExtents.copy(entity.zone.size).scale(0.5);
+            var position = entity.getPosition();
+            var rotation = entity.getRotation();
+            matA.setTRS(position, rotation, pc.Vec3.ONE);
+            bbE.setFromTransformedAabb(bbD, matA);
+            bbC.copy(bbE);
         }
 
         if (first) {

@@ -21,7 +21,8 @@ editor.once('load', function() {
         'model': '&#57736;',
         'particlesystem': '&#57753;',
         'rigidbody': '&#57737;',
-        'script': '&#57910;'
+        'script': '&#57910;',
+        'zone': '&#57910;'
     };
 
 
