@@ -37,6 +37,7 @@ editor.once('viewport:load', function() {
         this.dir = dir === undefined ? 1 : dir;
         this.rotation = new pc.Quat();
         this.position = new pc.Vec3();
+        this.scale = new pc.Vec3(1, 1, 1);
     }
     Gizmo.prototype = Object.create(Events.prototype);
 
@@ -57,7 +58,8 @@ editor.once('viewport:load', function() {
         } else {
             scale = camera.camera.orthoHeight / 3 * gizmoSize;
         }
-        this.entity.setLocalScale(scale, scale, scale);
+        vecA.copy(this.scale).scale(scale);
+        this.entity.setLocalScale(vecA);
     };
 
     Object.defineProperty(Gizmo.prototype, 'enabled', {
@@ -103,6 +105,7 @@ editor.once('viewport:load', function() {
     });
 
     editor.method('gizmo:point:recycle', function(point) {
+        point.scale.set(1, 1, 1);
         point.enabled = false;
         pool.push(point);
 

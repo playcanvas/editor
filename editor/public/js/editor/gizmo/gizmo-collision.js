@@ -114,7 +114,7 @@ editor.once('load', function () {
         if (this.type !== type) {
             this.type = type;
 
-            if (! this.color && this._link.entity) {
+            if (! this.color) {
                 var hash = 0;
                 var string = this._link.entity._guid;
                 for(var i = 0; i < string.length; i++)

@@ -473,6 +473,8 @@ editor.once('load', function() {
                 var point = editor.call('gizmo:point:create', axes[i], null, direction[i]);
                 point.ind = i;
                 point.entity.model.meshInstances[0].material = materials[i];
+                point.scale[scales[i][0]] = 2;
+                point.scale[scales[i][1]] = 2;
                 events.push(point.on('focus', onPointFocus));
                 events.push(point.on('blur', onPointBlur));
                 events.push(point.on('dragStart', onPointDragStart));
