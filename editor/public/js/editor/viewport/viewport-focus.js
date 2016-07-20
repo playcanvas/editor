@@ -11,7 +11,8 @@ editor.once('load', function() {
     var matA = new pc.Mat4();
 
     var calculateChildAABB = function(entity) {
-        aabbB.center.copy(entity.getPosition());
+        var pos = entity.getPosition();
+        aabbB.center.copy(pos);
         aabbB.halfExtents.copy(defaultSizeSmall);
         aabbA.add(aabbB);
 
@@ -24,8 +25,11 @@ editor.once('load', function() {
         } else if (entity.collision) {
             switch(entity.collision.type) {
                 case 'box':
+                    aabbC.center.set(0, 0, 0);
                     aabbC.halfExtents.copy(entity.collision.halfExtents);
-                    aabbB.setFromTransformedAabb(aabbC, entity.getWorldTransform());
+                    var rotation = entity.getRotation();
+                    matA.setTRS(pos, rotation, pc.Vec3.ONE);
+                    aabbB.setFromTransformedAabb(aabbC, matA);
                     aabbA.add(aabbB);
                     break;
                 case 'sphere':
@@ -35,9 +39,12 @@ editor.once('load', function() {
                     break;
                 case 'capsule':
                 case 'cylinder':
+                    aabbC.center.set(0, 0, 0);
                     aabbC.halfExtents.set(entity.collision.radius, entity.collision.radius, entity.collision.radius);
-                    aabbC.halfExtents.data[entity.collision.axis] = entity.collision.height;
-                    aabbB.setFromTransformedAabb(aabbC, entity.getWorldTransform());
+                    aabbC.halfExtents.data[entity.collision.axis] = entity.collision.height * 0.5;
+                    var rotation = entity.getRotation();
+                    matA.setTRS(pos, rotation, pc.Vec3.ONE);
+                    aabbB.setFromTransformedAabb(aabbC, matA);
                     aabbA.add(aabbB);
                     break;
             }

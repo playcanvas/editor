@@ -80,30 +80,34 @@ editor.once('load', function() {
 
     // material final
     var materialFinal = new pc.BasicMaterial();
+    var shaderFinal;
     materialFinal.updateShader = function(device) {
-        this.shader = new pc.Shader(device, {
-            attributes: {
-                aPosition: pc.SEMANTIC_POSITION
-            },
+        if (! shaderFinal) {
+            shaderFinal = new pc.Shader(device, {
+                attributes: {
+                    aPosition: pc.SEMANTIC_POSITION
+                },
 
-            vshader: ' \
-                attribute vec2 aPosition;\n \
-                varying vec2 vUv0;\n \
-                void main(void)\n \
-                {\n \
-                    gl_Position = vec4(aPosition, 0.0, 1.0);\n \
-                    vUv0 = (aPosition.xy + 1.0) * 0.5;\n \
-                }\n',
+                vshader: ' \
+                    attribute vec2 aPosition;\n \
+                    varying vec2 vUv0;\n \
+                    void main(void)\n \
+                    {\n \
+                        gl_Position = vec4(aPosition, 0.0, 1.0);\n \
+                        vUv0 = (aPosition.xy + 1.0) * 0.5;\n \
+                    }\n',
 
-            fshader: ' \
-                precision ' + device.precision + ' float;\n \
-                varying vec2 vUv0;\n \
-                uniform sampler2D uColorBuffer;\n \
-                void main(void)\n \
-                {\n \
-                    gl_FragColor = texture2D(uColorBuffer, vUv0);\n \
-                }\n'
-        });
+                fshader: ' \
+                    precision ' + device.precision + ' float;\n \
+                    varying vec2 vUv0;\n \
+                    uniform sampler2D uColorBuffer;\n \
+                    void main(void)\n \
+                    {\n \
+                        gl_FragColor = texture2D(uColorBuffer, vUv0);\n \
+                    }\n'
+            });
+        }
+        this.shader = shaderFinal;
     };
     materialFinal.blend = true;
     materialFinal.blendDst = 8;

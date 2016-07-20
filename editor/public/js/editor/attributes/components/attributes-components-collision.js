@@ -40,7 +40,7 @@ editor.once('load', function() {
             parent: panel,
             name: 'Half Extents',
             placeholder: [ 'X', 'Y', 'Z' ],
-            precision: 2,
+            precision: 3,
             step: 0.1,
             min: 0,
             type: 'vec3',

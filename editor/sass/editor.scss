@@ -4,7 +4,6 @@
 
 html {
     height: 100%;
-
     overflow: hidden;
 }
 body {
@@ -1630,6 +1629,9 @@ strong {
                                     &.link {
                                         color: $text-active;
                                         cursor: pointer;
+                                        overflow: hidden;
+                                        text-overflow: ellipsis;
+                                        max-width: calc(100% - 192px);
 
                                         &:hover {
                                             text-decoration: underline;
@@ -3045,7 +3047,7 @@ strong {
 .ui-select-field.viewport-camera {
     position: absolute;
     top: 2px;
-    right: 74px;
+    right: 109px;
     margin: 2px 0;
 
     height: 31px;
@@ -3103,7 +3105,8 @@ strong {
     background-color: transparent;
 
     > .content {
-        > .ui-button.expand {
+        > .ui-button.expand,
+        > .ui-button.options {
             float: right;
             width: 33px;
             height: 33px;
@@ -3124,6 +3127,39 @@ strong {
             &.icon.active {
                 color: $text-primary;
                 background-color: $text-active;
+            }
+        }
+
+        > .ui-panel.modes {
+            position: absolute;
+            top: 33px;
+            right: 69px;
+            width: 240px;
+            padding: 4px;
+            background-color: rgba($bcg-darker, .75);
+
+            > .content {
+                > .ui-panel.field {
+                    background-color: transparent;
+
+                    > .content {
+                        > .ui-checkbox {
+                            margin-top: 5px;
+                            background-color: $bcg-darkest;
+
+                            &.checked {
+                                background-color: $text-dark;
+                            }
+                        }
+                        > .ui-label {
+                            margin: 0 4px;
+                            line-height: 24px;
+                            font-size: 12px;
+                            @extend .noSelect;
+                            cursor: pointer;
+                        }
+                    }
+                }
             }
         }
 
@@ -5850,6 +5886,14 @@ strong {
             }
         }
 
+        .upgrade {
+            color: #fff;
+            padding: 15px;
+            margin: 0;
+            border-bottom: 1px solid $bcg-darker;
+            display: none;
+        }
+
         > .description > .content > textarea,
         > .notes > .content > textarea {
             display: block;
@@ -6056,6 +6100,24 @@ strong {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    &.upgrade {
+        > .content {
+            .upgrade {
+                display: block;
+            }
+
+            .ui-panel {
+                &.info, &.scenes {
+                    display: none;
+                }
+            }
+
+            .ui-button {
+                display: none !important;
             }
         }
     }
