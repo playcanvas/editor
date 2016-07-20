@@ -14,6 +14,7 @@ editor.once('load', function () {
     var colorBehind = new pc.Color(1, 1, 1, .05);
     var colorPrimary = new pc.Color(1, 1, 1);
     var colorOccluder = new pc.Color(1, 1, 1, 1);
+    var colorDefault = [ 1, 1, 1 ];
     var container;
     var vecA = new pc.Vec3();
     var vecB = new pc.Vec3();
@@ -113,7 +114,7 @@ editor.once('load', function () {
         if (this.type !== type) {
             this.type = type;
 
-            if (! this.color) {
+            if (! this.color && this._link.entity) {
                 var hash = 0;
                 var string = this._link.entity._guid;
                 for(var i = 0; i < string.length; i++)
@@ -145,6 +146,8 @@ editor.once('load', function () {
                     model = models[this.type].clone();
                     model._type = this.type;
 
+                    var color = this.color || colorDefault;
+
                     var old = model.meshInstances[0].material;
                     model.meshInstances[0].setParameter('offset', 0);
                     model.meshInstances[0].layer = 12;
@@ -153,7 +156,7 @@ editor.once('load', function () {
                     model.meshInstances[0].__collision = true;
                     model.meshInstances[0].material = old.clone();
                     model.meshInstances[0].material.updateShader = old.updateShader;
-                    model.meshInstances[0].material.color.set(this.color[0], this.color[1], this.color[2], alphaFront);
+                    model.meshInstances[0].material.color.set(color[0], color[1], color[2], alphaFront);
                     model.meshInstances[0].material.update();
 
                     var old = model.meshInstances[1].material;
@@ -164,7 +167,7 @@ editor.once('load', function () {
                     model.meshInstances[1].__editor = true;
                     model.meshInstances[1].material = old.clone();
                     model.meshInstances[1].material.updateShader = old.updateShader;
-                    model.meshInstances[1].material.color.set(this.color[0], this.color[1], this.color[2], alphaBehind);
+                    model.meshInstances[1].material.color.set(color[0], color[1], color[2], alphaBehind);
                     model.meshInstances[1].material.update();
 
                     model.meshInstances[2].setParameter('offset', 0);
