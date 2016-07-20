@@ -614,9 +614,9 @@ editor.once('load', function () {
             meshInstanceOccluder.__editor = true;
             meshInstanceOccluder.pick = false;
             meshInstanceOccluder.layer = 9;
-            meshInstanceBehind.castShadow = false;
-            meshInstanceBehind.castLightmapShadow = false;
-            meshInstanceBehind.receiveShadow = false;
+            meshInstanceOccluder.castShadow = false;
+            meshInstanceOccluder.castLightmapShadow = false;
+            meshInstanceOccluder.receiveShadow = false;
             meshInstanceOccluder.updateKey();
             // model
             var model = new pc.Model();

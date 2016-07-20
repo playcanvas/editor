@@ -88,20 +88,94 @@ editor.once('load', function() {
             materials[i].update();
         }
 
-        var colorPrimary = new pc.Color(1, 1, 1);
-        var colorBehind = new pc.Color(1, 1, 1, 0.15);
+        var alphaFront = 0.6;
+        var alphaBehind = 0.1;
+        var colorPrimary = new pc.Color(1, 1, 1, alphaFront);
+        var colorBehind = new pc.Color(1, 1, 1, alphaBehind);
+        var colorOccluder = new pc.Color(1, 1, 1, 1);
 
+        // material
+        var defaultVShader = ' \
+            attribute vec3 aPosition;\n \
+            attribute vec3 aNormal;\n \
+            varying vec3 vNormal;\n \
+            varying vec3 vPosition;\n \
+            uniform float offset;\n \
+            uniform mat4 matrix_model;\n \
+            uniform mat3 matrix_normal;\n \
+            uniform mat4 matrix_view;\n \
+            uniform mat4 matrix_viewProjection;\n \
+            void main(void)\n \
+            {\n \
+                vec4 posW = matrix_model * vec4(aPosition, 1.0);\n \
+                vNormal = normalize(matrix_normal * aNormal);\n \
+                posW += vec4(vNormal * offset, 0.0);\n \
+                gl_Position = matrix_viewProjection * posW;\n \
+                vPosition = posW.xyz;\n \
+            }\n';
+        var defaultFShader = ' \
+            precision ' + app.graphicsDevice.precision + ' float;\n \
+            varying vec3 vNormal;\n \
+            varying vec3 vPosition;\n \
+            uniform vec4 uColor;\n \
+            uniform vec3 view_position;\n \
+            void main(void)\n \
+            {\n \
+                vec3 viewNormal = normalize(view_position - vPosition);\n \
+                float light = abs(dot(vNormal, viewNormal));\n \
+                gl_FragColor = vec4(uColor.rgb * light * 2.0, uColor.a);\n \
+            }\n';
+
+        var shaderDefault;
         var materialDefault = new pc.BasicMaterial();
+        materialDefault.updateShader = function(device) {
+            if (! shaderDefault) {
+                shaderDefault = new pc.Shader(device, {
+                    attributes: {
+                        aPosition: pc.SEMANTIC_POSITION,
+                        aNormal: pc.SEMANTIC_NORMAL
+                    },
+                    vshader: defaultVShader,
+                    fshader: defaultFShader
+                });
+            }
+
+            this.shader = shaderDefault;
+        };
+        materialDefault.cull = pc.CULLFACE_NONE;
         materialDefault.color = colorPrimary;
+        materialDefault.blend = true;
+        materialDefault.blendSrc = pc.BLENDMODE_SRC_ALPHA;
+        materialDefault.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
         materialDefault.update();
 
         var materialBehind = new pc.BasicMaterial();
+        materialBehind.updateShader = materialDefault.updateShader;
         materialBehind.color = colorBehind;
         materialBehind.blend = true;
         materialBehind.blendSrc = pc.BLENDMODE_SRC_ALPHA;
         materialBehind.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
-        materialBehind.depthTest = false;
+        materialBehind.depthWrite = false;
+        materialBehind.depthTest = true;
+        materialBehind.cull = pc.CULLFACE_NONE;
         materialBehind.update();
+
+        var materialOccluder = new pc.BasicMaterial();
+        materialOccluder.color = colorOccluder;
+        materialOccluder.redWrite = false;
+        materialOccluder.greenWrite = false;
+        materialOccluder.blueWrite = false;
+        materialOccluder.alphaWrite = false;
+        materialOccluder.depthWrite = true;
+        materialOccluder.depthTest = true;
+        materialOccluder.cull = pc.CULLFACE_NONE;
+        materialOccluder.update();
+
+        var materialWireframe = new pc.BasicMaterial();
+        materialWireframe.color = new pc.Color(1, 1, 1, 0.4);
+        materialWireframe.depthWrite = false;
+        materialWireframe.depthTest = false;
+        materialWireframe.update();
 
         var materialPlaneBehind = new pc.BasicMaterial();
         materialPlaneBehind.color = new pc.Color(1, 1, 1, 0.4);
@@ -139,6 +213,7 @@ editor.once('load', function() {
             this.events = [ ];
             this.entity = null;
             this.type = '';
+            this.color;
         }
 
         // update lines
@@ -156,6 +231,15 @@ editor.once('load', function() {
             if (this.type !== 'box') {
                 this.type = 'box';
 
+                if (! this.color) {
+                    var hash = 0;
+                    var string = this._link.entity._guid;
+                    for(var i = 0; i < string.length; i++)
+                        hash += string.charCodeAt(i);
+
+                    this.color = editor.call('color:hsl2rgb', (hash % 128) / 128, 0.5, 0.5);
+                }
+
                 if (models[this.type]) {
                     var model = this.entity.model.model;
                     if (model) {
@@ -168,6 +252,33 @@ editor.once('load', function() {
                     if (! model) {
                         model = models[this.type].clone();
                         model._type = this.type;
+
+                        var old = model.meshInstances[0].material;
+                        model.meshInstances[0].setParameter('offset', 0);
+                        model.meshInstances[0].layer = 12;
+                        model.meshInstances[0].updateKey();
+                        model.meshInstances[0].__editor = true;
+                        model.meshInstances[0].material = old.clone();
+                        model.meshInstances[0].material.updateShader = old.updateShader;
+                        model.meshInstances[0].material.color.set(this.color[0], this.color[1], this.color[2], alphaFront);
+                        model.meshInstances[0].material.update();
+
+                        var old = model.meshInstances[1].material;
+                        model.meshInstances[1].setParameter('offset', 0.001);
+                        model.meshInstances[1].layer = 2;
+                        model.meshInstances[1].pick = false;
+                        model.meshInstances[1].updateKey();
+                        model.meshInstances[1].__editor = true;
+                        model.meshInstances[1].material = old.clone();
+                        model.meshInstances[1].material.updateShader = old.updateShader;
+                        model.meshInstances[1].material.color.set(this.color[0], this.color[1], this.color[2], alphaBehind);
+                        model.meshInstances[1].material.update();
+
+                        model.meshInstances[2].setParameter('offset', 0);
+                        model.meshInstances[2].layer = 9;
+                        model.meshInstances[2].pick = false;
+                        model.meshInstances[2].updateKey();
+                        model.meshInstances[2].__editor = true;
                     }
 
                     this.entity.model.model = model;
@@ -207,6 +318,9 @@ editor.once('load', function() {
                 receiveShadows: false,
                 castShadowsLightmap: false
             });
+            this.entity._getEntity = function() {
+                return self._link.entity;
+            };
             this.entity.setLocalScale(1, 1, 1);
             this.entity.__editor = true;
 
@@ -523,84 +637,90 @@ editor.once('load', function() {
 
 
         var createModels = function() {
-            var vertexFormat = new pc.gfx.VertexFormat(app.graphicsDevice, [
-                { semantic: pc.gfx.SEMANTIC_POSITION, components: 3, type: pc.gfx.ELEMENTTYPE_FLOAT32 }
-            ]);
-            var buffer = buffer = new pc.gfx.VertexBuffer(app.graphicsDevice, vertexFormat, 12 * 2);
-            var iterator = new pc.gfx.VertexIterator(buffer);
+            // ================
+            // box
+            var positions = [
+                0.5, 0.5, 0.5,   0.5, 0.5, -0.5,   -0.5, 0.5, -0.5,   -0.5, 0.5, 0.5, // top
+                0.5, 0.5, 0.5,   -0.5, 0.5, 0.5,   -0.5, -0.5, 0.5,   0.5, -0.5, 0.5, // front
+                0.5, 0.5, 0.5,   0.5, -0.5, 0.5,   0.5, -0.5, -0.5,   0.5, 0.5, -0.5, // right
+                0.5, 0.5, -0.5,   0.5, -0.5, -0.5,   -0.5, -0.5, -0.5,   -0.5, 0.5, -0.5, // back
+                -0.5, 0.5, 0.5,   -0.5, 0.5, -0.5,   -0.5, -0.5, -0.5,   -0.5, -0.5, 0.5, // left
+                0.5, -0.5, 0.5,   -0.5, -0.5, 0.5,   -0.5, -0.5, -0.5,   0.5, -0.5, -0.5 // bottom
+            ];
+            var normals = [
+                0, 1, 0,   0, 1, 0,   0, 1, 0,   0, 1, 0,
+                0, 0, 1,   0, 0, 1,   0, 0, 1,   0, 0, 1,
+                1, 0, 0,   1, 0, 0,   1, 0, 0,   1, 0, 0,
+                0, 0, -1,   0, 0, -1,   0, 0, -1,   0, 0, -1,
+                -1, 0, 0,   -1, 0, 0,   -1, 0, 0,   -1, 0, 0,
+                0, -1, 0,   0, -1, 0,   0, -1, 0,   0, -1, 0
+            ];
+            var indices = [
+                0, 1, 2, 2, 3, 0,
+                4, 5, 6, 6, 7, 4,
+                8, 9, 10, 10, 11, 8,
+                12, 13, 14, 14, 15, 12,
+                16, 17, 18, 18, 19, 16,
+                20, 21, 22, 22, 23, 20
+            ];
 
-            // top
-            iterator.element[pc.SEMANTIC_POSITION].set(0.5, 0.5, 0.5);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(0.5, 0.5, -0.5);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(0.5, 0.5, -0.5);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(-0.5, 0.5, -0.5);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(-0.5, 0.5, -0.5);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(-0.5, 0.5, 0.5);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(-0.5, 0.5, 0.5);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(0.5, 0.5, 0.5);
-            iterator.next();
-            // bottom
-            iterator.element[pc.SEMANTIC_POSITION].set(0.5, -0.5, 0.5);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(0.5, -0.5, -0.5);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(0.5, -0.5, -0.5);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(-0.5, -0.5, -0.5);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(-0.5, -0.5, -0.5);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(-0.5, -0.5, 0.5);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(-0.5, -0.5, 0.5);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(0.5, -0.5, 0.5);
-            iterator.next();
-            // sides
-            iterator.element[pc.SEMANTIC_POSITION].set(0.5, -0.5, 0.5);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(0.5, 0.5, 0.5);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(0.5, -0.5, -0.5);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(0.5, 0.5, -0.5);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(-0.5, -0.5, -0.5);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(-0.5, 0.5, -0.5);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(-0.5, -0.5, 0.5);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(-0.5, 0.5, 0.5);
-            iterator.next();
-            iterator.end();
+            var mesh = pc.createMesh(app.graphicsDevice, positions, {
+                normals: normals,
+                indices: indices
+            });
+
+            var wireframePositions = [
+                 0.5, 0.5, 0.5,    0.5, 0.5, -0.5,   -0.5, 0.5, -0.5,   -0.5, 0.5, 0.5, // top
+                 0.5, 0.5, 0.5,   -0.5, 0.5, 0.5,    -0.5, -0.5, 0.5,    0.5, -0.5, 0.5, // front
+                 0.5, 0.5, 0.5,    0.5, -0.5, 0.5,    0.5, -0.5, -0.5,   0.5, 0.5, -0.5, // right
+                 0.5, 0.5, -0.5,  -0.5, 0.5, -0.5,   -0.5, -0.5, -0.5,   0.5, -0.5, -0.5, // back
+                -0.5, 0.5, 0.5,   -0.5, -0.5, 0.5,   -0.5, -0.5, -0.5,  -0.5, 0.5, -0.5, // right
+                 0.5, -0.5, 0.5,   0.5, -0.5, -0.5,  -0.5, -0.5, -0.5,  -0.5, -0.5, 0.5 // bottom
+            ];
+            var meshWireframe = pc.createMesh(app.graphicsDevice, wireframePositions);
+            meshWireframe.primitive[0].type = pc.PRIMITIVE_LINES;
 
             // node
             var node = new pc.GraphNode();
-            // mesh
-            var mesh = new pc.Mesh();
-            mesh.vertexBuffer = buffer;
-            mesh.indexBuffer[0] = null;
-            mesh.primitive[0].type = pc.PRIMITIVE_LINES;
-            mesh.primitive[0].base = 0;
-            mesh.primitive[0].count = buffer.getNumVertices();
-            mesh.primitive[0].indexed = false;
             // meshInstance
             var meshInstance = new pc.MeshInstance(node, mesh, materialDefault);
-            var meshInstanceBehind = new pc.MeshInstance(node, mesh, materialBehind);
+            meshInstance.layer = 12;
+            meshInstance.__editor = true;
+            meshInstance.castShadow = false;
+            meshInstance.castLightmapShadow = false;
+            meshInstance.receiveShadow = false;
+            meshInstance.setParameter('offset', 0);
             meshInstance.updateKey();
+
+            var meshInstanceBehind = new pc.MeshInstance(node, mesh, materialBehind);
+            meshInstanceBehind.layer = 2;
+            meshInstanceBehind.__editor = true;
+            meshInstanceBehind.pick = false;
+            meshInstanceBehind.drawToDepth = false;
+            meshInstanceBehind.castShadow = false;
+            meshInstanceBehind.castLightmapShadow = false;
+            meshInstanceBehind.receiveShadow = false;
+            meshInstanceBehind.setParameter('offset', 0);
             meshInstanceBehind.updateKey();
+
+            var meshInstanceOccluder = new pc.MeshInstance(node, mesh, materialOccluder);
+            meshInstanceOccluder.layer = 9;
+            meshInstanceOccluder.__editor = true;
+            meshInstanceOccluder.pick = false;
+            meshInstanceOccluder.castShadow = false;
+            meshInstanceOccluder.castLightmapShadow = false;
+            meshInstanceOccluder.receiveShadow = false;
+            meshInstanceOccluder.setParameter('offset', 0);
+            meshInstanceOccluder.updateKey();
+
+            var meshInstanceWireframe = new pc.MeshInstance(node, meshWireframe, materialWireframe);
+            meshInstanceWireframe.layer = pc.LAYER_GIZMO;
+            meshInstanceWireframe.__editor = true;
+            meshInstanceWireframe.updateKey();
             // model
             var model = new pc.Model();
             model.graph = node;
-            model.meshInstances = [ meshInstanceBehind, meshInstance ];
+            model.meshInstances = [ meshInstance, meshInstanceBehind, meshInstanceOccluder, meshInstanceWireframe ];
 
             models['box'] = model;
         };
