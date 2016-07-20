@@ -4,6 +4,13 @@ editor.once('load', function() {
     var app;
     var visible = false;
 
+    var filterPicker = function(drawCall) {
+        if (drawCall.command)
+            return true;
+
+        return (drawCall.__editor && drawCall.__zone) || drawCall.layer === pc.LAYER_GIZMO;
+    };
+
     editor.method('gizmo:zone:visible', function(state) {
         if (state === undefined)
             return visible;
@@ -12,6 +19,14 @@ editor.once('load', function() {
             return;
 
         visible = state;
+
+        if (visible) {
+            editor.call('gizmo:collision:visible', false);
+            editor.call('viewport:pick:filter', filterPicker);
+        } else {
+            editor.call('viewport:pick:filter', null);
+        }
+
         editor.emit('gizmo:zone:visible', visible);
         editor.call('viewport:render');
     });
@@ -258,6 +273,7 @@ editor.once('load', function() {
                         model.meshInstances[0].layer = 12;
                         model.meshInstances[0].updateKey();
                         model.meshInstances[0].__editor = true;
+                        model.meshInstances[0].__zone = true;
                         model.meshInstances[0].material = old.clone();
                         model.meshInstances[0].material.updateShader = old.updateShader;
                         model.meshInstances[0].material.color.set(this.color[0], this.color[1], this.color[2], alphaFront);

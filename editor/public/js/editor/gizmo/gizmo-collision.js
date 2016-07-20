@@ -68,6 +68,7 @@ editor.once('load', function () {
         visible = !! state;
 
         if (visible) {
+            editor.call('gizmo:zone:visible', false);
             editor.call('viewport:pick:filter', filterPicker);
         } else {
             editor.call('viewport:pick:filter', null);

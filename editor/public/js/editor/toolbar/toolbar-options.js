@@ -53,7 +53,7 @@ editor.once('load', function() {
     });
     // label
     var label = new ui.Label({
-        text: 'Show Zones'
+        text: 'Zones Edit Mode'
     });
     label.on('click', function() {
         fieldZonesVisible.element.click();
