@@ -27,7 +27,7 @@ editor.once('viewport:load', function() {
 
         if (camera.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
             focusOrthoHeight = distance / 2;
-            distance = (camera.camera.farClip - camera.camera.nearClip) / 2 + camera.camera.nearClip;
+            distance = (camera.camera.farClip - (camera.camera.nearClip || 0.0001)) / 2 + (camera.camera.nearClip || 0.0001);
         }
 
         focusTarget.copy(point);

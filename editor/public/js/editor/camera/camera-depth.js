@@ -118,7 +118,7 @@ editor.once('viewport:load', function() {
         if (colorDistance >= 255)
             return null;
 
-        var distance = camera._nearClip + (camera._farClip * (colorDistance / 255.0));
+        var distance = (camera._nearClip || 0.0001) + (camera._farClip * (colorDistance / 255.0));
         var point = new pc.Vec3();
 
         camera.screenToWorld(x, y, distance, depthTarget.width, depthTarget.height, point);

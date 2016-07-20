@@ -4,7 +4,7 @@ editor.once('load', function() {
     var app;
     var iconsEntity;
     var textureNames = [ 'animation', 'audiolistener', 'audiosource', 'sound', 'camera', 'collision', 'light-point', 'light-directional', 'light-spot', 'particlesystem', 'rigidbody', 'script', 'unknown' ];
-    var components = [ 'camera', 'light', 'audiolistener', 'audiosource', 'sound', 'particlesystem', 'script', 'animation', 'collision', 'rigidbody', 'model' ];
+    var components = [ 'camera', 'light', 'audiolistener', 'audiosource', 'sound', 'particlesystem', 'script', 'animation', 'model' ];
     var icons = [ ];
     var pool = [ ];
     var dirtifyKeys = [
@@ -45,6 +45,7 @@ editor.once('load', function() {
             receiveShadows: false,
             castShadowsLightmap: false
         });
+        this.entity.model.meshInstances[0].__editor = true;
 
         this.behind = new pc.Entity(app);
         this.behind._icon = true;
@@ -75,7 +76,7 @@ editor.once('load', function() {
             return;
 
         // don't render if selected or disabled
-        if (selectedIds[this._link.get('resource_id')] || ! this._link.entity.enabled || scale === 0) {
+        if (selectedIds[this._link.get('resource_id')] || ! this._link.entity.enabled || this._link.entity.__noIcon || scale === 0) {
             this.entity.enabled = false;
             this.dirty = true;
             return;
@@ -186,37 +187,43 @@ editor.once('load', function() {
     editor.once('viewport:load', function() {
         app = editor.call('viewport:framework');
 
+        var shader;
+
         material = new pc.BasicMaterial();
         material.updateShader = function(device) {
-            this.shader = new pc.Shader(device, {
-                attributes: {
-                    vertex_position: 'POSITION'
-                },
-                vshader: ' \
-                    attribute vec3 vertex_position;\n \
-                    uniform mat4 matrix_model;\n \
-                    uniform mat4 matrix_viewProjection;\n \
-                    varying vec2 vUv0;\n \
-                    void main(void)\n \
-                    {\n \
-                        mat4 modelMatrix = matrix_model;\n \
-                        vec4 positionW = modelMatrix * vec4(vertex_position, 1.0);\n \
-                        gl_Position = matrix_viewProjection * positionW;\n \
-                        vUv0 = vertex_position.xz + vec2(0.5);\n \
-                        vUv0.y = 1.0 - vUv0.y;\n \
-                    }\n',
-                fshader: ' \
-                    precision highp float;\n \
-                    uniform vec4 uColor;\n \
-                    varying vec2 vUv0;\n \
-                    uniform sampler2D texture_diffuseMap;\n \
-                    void main(void)\n \
-                    {\n \
-                        float alpha = texture2D(texture_diffuseMap, vUv0).b;\n \
-                        if (alpha < 0.5) discard;\n \
-                        gl_FragColor = vec4(uColor.rgb, uColor.a * alpha);\n \
-                    }\n',
-            });
+            if (! shader) {
+                shader = new pc.Shader(device, {
+                    attributes: {
+                        vertex_position: 'POSITION'
+                    },
+                    vshader: ' \
+                        attribute vec3 vertex_position;\n \
+                        uniform mat4 matrix_model;\n \
+                        uniform mat4 matrix_viewProjection;\n \
+                        varying vec2 vUv0;\n \
+                        void main(void)\n \
+                        {\n \
+                            mat4 modelMatrix = matrix_model;\n \
+                            vec4 positionW = modelMatrix * vec4(vertex_position, 1.0);\n \
+                            gl_Position = matrix_viewProjection * positionW;\n \
+                            vUv0 = vertex_position.xz + vec2(0.5);\n \
+                            vUv0.y = 1.0 - vUv0.y;\n \
+                        }\n',
+                    fshader: ' \
+                        precision ' + device.precision + ' float;\n \
+                        uniform vec4 uColor;\n \
+                        varying vec2 vUv0;\n \
+                        uniform sampler2D texture_diffuseMap;\n \
+                        void main(void)\n \
+                        {\n \
+                            float alpha = texture2D(texture_diffuseMap, vUv0).b;\n \
+                            if (alpha < 0.5) discard;\n \
+                            gl_FragColor = vec4(uColor.rgb, uColor.a * alpha);\n \
+                        }\n'
+                });
+            }
+
+            this.shader = shader;
         };
         material.update();
 

@@ -4,26 +4,80 @@ editor.once('load', function () {
     var app;
     // selected entity gizmos
     var entities = { };
+    var selected = { };
     // pool of gizmos
     var pool = [ ];
     var poolVec3 = [ ];
     // colors
-    var colorBehind = new pc.Color(1, 1, 1, .15);
+    var alphaFront = 0.6;
+    var alphaBehind = 0.2;
+    var colorBehind = new pc.Color(1, 1, 1, .05);
     var colorPrimary = new pc.Color(1, 1, 1);
+    var colorOccluder = new pc.Color(1, 1, 1, 1);
+    var colorDefault = [ 1, 1, 1 ];
     var container;
-    var vec = new pc.Vec3();
+    var vecA = new pc.Vec3();
+    var vecB = new pc.Vec3();
+
+    var materialDefault = new pc.BasicMaterial();
+    materialDefault.color = colorPrimary;
+    materialDefault.blend = true;
+    materialDefault.blendSrc = pc.BLENDMODE_SRC_ALPHA;
+    materialDefault.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
+    materialDefault.update();
+
     var materialBehind = new pc.BasicMaterial();
     materialBehind.color = colorBehind;
     materialBehind.blend = true;
     materialBehind.blendSrc = pc.BLENDMODE_SRC_ALPHA;
     materialBehind.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
-    materialBehind.depthTest = false;
+    materialBehind.depthWrite = false;
+    materialBehind.depthTest = true;
     materialBehind.update();
-    var materialDefault, materialSpot, materialSpotBehind;
+
+    var materialOccluder = new pc.BasicMaterial();
+    materialOccluder.color = colorOccluder;
+    materialOccluder.redWrite = false;
+    materialOccluder.greenWrite = false;
+    materialOccluder.blueWrite = false;
+    materialOccluder.alphaWrite = false;
+    materialOccluder.depthWrite = true;
+    materialOccluder.depthTest = true;
+    materialOccluder.update();
+
     var models = { };
     var materials = { };
     var poolModels = { 'box': [ ], 'sphere': [ ], 'capsule-x': [ ], 'capsule-y': [ ], 'capsule-z': [ ], 'cylinder-x': [ ], 'cylinder-y': [ ], 'cylinder-z': [ ] };
     var axesNames = { 0: 'x', 1: 'y', 2: 'z' };
+    var shaderCapsule = { };
+
+    var filterPicker = function(drawCall) {
+        if (drawCall.command)
+            return true;
+
+        return (drawCall.__editor && drawCall.__collision) || drawCall.layer === pc.LAYER_GIZMO;
+    };
+
+    var visible = false;
+    editor.method('gizmo:collision:visible', function(state) {
+        if (state === undefined)
+            return visible;
+
+        if (visible === !! state)
+            return;
+
+        visible = !! state;
+
+        if (visible) {
+            editor.call('gizmo:zone:visible', false);
+            editor.call('viewport:pick:filter', filterPicker);
+        } else {
+            editor.call('viewport:pick:filter', null);
+        }
+
+        editor.emit('gizmo:collision:visible', visible);
+        editor.call('viewport:render');
+    });
 
     // gizmo class
     function Gizmo() {
@@ -33,17 +87,22 @@ editor.once('load', function () {
         this.type = '';
         this.asset = 0;
         this.entity = null;
+        this.color;
     }
     // update lines
     Gizmo.prototype.update = function() {
-        if (! this._link)
+        if (! this._link || ! this._link.entity)
             return;
 
+        var select = selected[this._link.get('resource_id')];
         var collision = this._link.entity.collision;
-        this.entity.enabled = this._link.entity.enabled && collision && collision.enabled;
-        if (! this.entity.enabled)
+        this.entity.enabled = this._link.entity.enabled && collision && collision.enabled && (select || visible);
+        if (! this.entity.enabled) {
+            this._link.entity.__noIcon = false;
             return;
+        }
 
+        this._link.entity.__noIcon = true;
         this.entity.setPosition(this._link.entity.getPosition());
         this.entity.setRotation(this._link.entity.getRotation());
 
@@ -54,6 +113,17 @@ editor.once('load', function () {
 
         if (this.type !== type) {
             this.type = type;
+
+            if (! this.color) {
+                var hash = 0;
+                var string = this._link.entity._guid;
+                for(var i = 0; i < string.length; i++)
+                    hash += string.charCodeAt(i);
+
+                this.color = editor.call('color:hsl2rgb', (hash % 128) / 128, 0.5, 0.5);
+            }
+
+            this.wireframeMesh = null;
 
             // set new model based on type
             if (models[this.type]) {
@@ -75,6 +145,49 @@ editor.once('load', function () {
                     // no in pool
                     model = models[this.type].clone();
                     model._type = this.type;
+
+                    var color = this.color || colorDefault;
+
+                    var old = model.meshInstances[0].material;
+                    model.meshInstances[0].setParameter('offset', 0);
+                    model.meshInstances[0].layer = 12;
+                    model.meshInstances[0].updateKey();
+                    model.meshInstances[0].__editor = true;
+                    model.meshInstances[0].__collision = true;
+                    model.meshInstances[0].material = old.clone();
+                    model.meshInstances[0].material.updateShader = old.updateShader;
+                    model.meshInstances[0].material.color.set(color[0], color[1], color[2], alphaFront);
+                    model.meshInstances[0].material.update();
+
+                    var old = model.meshInstances[1].material;
+                    model.meshInstances[1].setParameter('offset', 0.001);
+                    model.meshInstances[1].layer = 2;
+                    model.meshInstances[1].pick = false;
+                    model.meshInstances[1].updateKey();
+                    model.meshInstances[1].__editor = true;
+                    model.meshInstances[1].material = old.clone();
+                    model.meshInstances[1].material.updateShader = old.updateShader;
+                    model.meshInstances[1].material.color.set(color[0], color[1], color[2], alphaBehind);
+                    model.meshInstances[1].material.update();
+
+                    model.meshInstances[2].setParameter('offset', 0);
+                    model.meshInstances[2].layer = 9;
+                    model.meshInstances[2].pick = false;
+                    model.meshInstances[2].updateKey();
+                    model.meshInstances[2].__editor = true;
+
+                    switch(this.type) {
+                        case 'capsule-x':
+                        case 'capsule-y':
+                        case 'capsule-z':
+                            model.meshInstances[0]._shader[pc.SHADER_PICK] = shaderCapsule['pick-' + axesNames[collision.axis]];
+
+                            for(var i = 0; i < model.meshInstances.length; i++) {
+                                model.meshInstances[i].setParameter('radius', collision.radius || 0.5);
+                                model.meshInstances[i].setParameter('height', collision.height || 2);
+                            }
+                            break;
+                    }
                 }
                 // set to model
                 this.entity.model.model = model;
@@ -82,7 +195,7 @@ editor.once('load', function () {
             } else if (this.type === 'mesh') {
                 this.asset = collision.asset;
                 this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
-                this.createWireframe(collision.asset)
+                this.createWireframe(collision.asset);
                 if (! this.asset) {
                     this.entity.enabled = false;
                     this.entity.model.model = null;
@@ -98,6 +211,9 @@ editor.once('load', function () {
         var mat = materialBehind;
         var radius = collision.radius || .00001;
         var height = collision.height || .00001;
+
+        if (this.entity.model.model && this.entity.model.meshInstances[1])
+            mat = null;
 
         switch(this.type) {
             case 'sphere':
@@ -118,11 +234,10 @@ editor.once('load', function () {
             case 'capsule-x':
             case 'capsule-y':
             case 'capsule-z':
-                if (this.entity.model.model) {
-                    this.entity.model.model.meshInstances[0].setParameter('radius', collision.radius || .5);
-                    this.entity.model.model.meshInstances[0].setParameter('height', collision.height || 2);
+                for(var i = 0; i < this.entity.model.meshInstances.length; i++) {
+                    this.entity.model.meshInstances[i].setParameter('radius', collision.radius || 0.5);
+                    this.entity.model.meshInstances[i].setParameter('height', collision.height || 2);
                 }
-                mat = materials['capsuleBehind-' + axesNames[collision.axis]];
                 break;
             case 'mesh':
                 this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
@@ -136,23 +251,22 @@ editor.once('load', function () {
                         return;
                     }
                 }
+
+                if (this.entity.model.model) {
+                    var picking = ! visible && this._link.entity.model && this._link.entity.model.enabled && this._link.entity.model.type === 'asset' && this._link.entity.model.asset === collision.asset;
+                    if (picking !== this.entity.model.model.__picking) {
+                        this.entity.model.model.__picking = picking;
+
+                        var meshes = this.entity.model.meshInstances;
+                        for(var i = 0; i < meshes.length; i++) {
+                            if (! meshes[i].__collision)
+                                continue;
+
+                            meshes[i].pick = ! picking;
+                        }
+                    }
+                }
                 break;
-        }
-
-        // render behind model
-        if (this.entity.enabled && this.entity.model.model) {
-            var instance = new pc.MeshInstance(this.entity.model.model.meshInstances[0].node, this.entity.model.model.meshInstances[0].mesh, mat);
-
-            switch(this.type) {
-                case 'capsule-x':
-                case 'capsule-y':
-                case 'capsule-z':
-                    instance.setParameter('radius', collision.radius || .5);
-                    instance.setParameter('height', collision.height || 2);
-                    break;
-            }
-
-            app.scene.immediateDrawCalls.push(instance);
         }
     };
     // link to entity
@@ -166,12 +280,18 @@ editor.once('load', function () {
             self.unlink();
         }));
 
+        this.color = null;
+
         this.entity = new pc.Entity();
+        this.entity.__editor = true;
         this.entity.addComponent('model', {
             castShadows: false,
             receiveShadows: false,
             castShadowsLightmap: false
         });
+        this.entity._getEntity = function() {
+            return self._link.entity;
+        };
 
         container.addChild(this.entity);
     };
@@ -187,6 +307,7 @@ editor.once('load', function () {
 
         this.events = [ ];
         this._link = null;
+        this.color = null;
         this.type = '';
         this.asset = 0;
 
@@ -208,7 +329,7 @@ editor.once('load', function () {
             return null;
 
         if (asset.resource) {
-            this.entity.model.model = createModelWireframe(asset.resource);
+            this.entity.model.model = createModelCopy(asset.resource, this.color);
         } else {
             var self = this;
 
@@ -216,653 +337,575 @@ editor.once('load', function () {
                 if (self.asset !== asset.id)
                     return;
 
-                self.entity.model.model = createModelWireframe(asset.resource);
+                self.entity.model.model = createModelCopy(asset.resource, this.color);
             }));
         }
     };
 
-    editor.on('selector:change', function(type, items) {
-        // clear gizmos
-        if (type !== 'entity') {
-            for(var key in entities) {
-                entities[key].unlink();
-                pool.push(entities[key]);
-            }
-            entities = { };
-            return;
-        }
+    editor.on('entities:add', function(entity) {
+        var key = entity.get('resource_id');
 
-        // index selection
-        var ids = { };
-        for(var i = 0; i < items.length; i++)
-            ids[items[i].get('resource_id')] = items[i];
-
-        var render = false;
-
-        // remove
-        for(var key in entities) {
-            if (ids[key])
-                continue;
-
-            pool.push(entities[key]);
-            entities[key].unlink();
-            delete entities[key];
-            render = true;
-        }
-
-        // add
-        for(var key in ids) {
+        var addGizmo = function() {
             if (entities[key])
-                continue;
+                return;
 
             var gizmo = pool.shift();
             if (! gizmo)
                 gizmo = new Gizmo();
 
-            gizmo.link(ids[key]);
+            gizmo.link(entity);
             entities[key] = gizmo;
-            render = true;
-        }
 
-        if (render)
             editor.call('viewport:render');
+        };
+
+        var removeGizmo = function() {
+            if (! entities[key])
+                return;
+
+            pool.push(entities[key]);
+            entities[key].unlink();
+            delete entities[key];
+
+            editor.call('viewport:render');
+        };
+
+        if (entity.has('components.collision'))
+            addGizmo();
+
+        entity.on('components.collision:set', addGizmo);
+        entity.on('components.collision:unset', removeGizmo);
+        entity.on('destroy', removeGizmo);
+    });
+
+    editor.on('selector:change', function(type, items) {
+        selected = { };
+
+        if (type === 'entity' && items && items.length) {
+            for(var i = 0; i < items.length; i++)
+                selected[items[i].get('resource_id')] = true;
+        }
     });
 
     editor.once('viewport:load', function() {
         app = editor.call('viewport:framework');
 
+        app.scene.drawCalls.push(new pc.Command(10, pc.BLEND_NONE, function() {
+            app.graphicsDevice.clear({
+                depth: 1.0,
+                flags: pc.CLEARFLAG_DEPTH
+            });
+        }));
+
+        app.scene.drawCalls.push(new pc.Command(13, pc.BLEND_NONE, function() {
+            var gl = app.graphicsDevice.gl;
+            gl.enable(gl.POLYGON_OFFSET_FILL);
+            gl.polygonOffset(0, -8);
+        }));
+
+        app.scene.drawCalls.push(new pc.Command(11, pc.BLEND_NONE, function() {
+            var gl = app.graphicsDevice.gl;
+            gl.disable(gl.POLYGON_OFFSET_FILL);
+        }));
+
         container = new pc.Entity(app);
         app.root.addChild(container);
 
         // material
-        materialDefault = new pc.BasicMaterial();
-        materialDefault.color = colorPrimary;
+        var defaultVShader = ' \
+            attribute vec3 aPosition;\n \
+            attribute vec3 aNormal;\n \
+            varying vec3 vNormal;\n \
+            varying vec3 vPosition;\n \
+            uniform float offset;\n \
+            uniform mat4 matrix_model;\n \
+            uniform mat3 matrix_normal;\n \
+            uniform mat4 matrix_view;\n \
+            uniform mat4 matrix_viewProjection;\n \
+            void main(void)\n \
+            {\n \
+                vec4 posW = matrix_model * vec4(aPosition, 1.0);\n \
+                vNormal = normalize(matrix_normal * aNormal);\n \
+                posW += vec4(vNormal * offset, 0.0);\n \
+                gl_Position = matrix_viewProjection * posW;\n \
+                vPosition = posW.xyz;\n \
+            }\n';
+        var defaultFShader = ' \
+            precision ' + app.graphicsDevice.precision + ' float;\n \
+            varying vec3 vNormal;\n \
+            varying vec3 vPosition;\n \
+            uniform vec4 uColor;\n \
+            uniform vec3 view_position;\n \
+            void main(void)\n \
+            {\n \
+                vec3 viewNormal = normalize(view_position - vPosition);\n \
+                float light = dot(vNormal, viewNormal);\n \
+                gl_FragColor = vec4(uColor.rgb * light * 2.0, uColor.a);\n \
+            }\n';
+
+        var shaderDefault;
+
+        materialDefault.updateShader = function(device) {
+            if (! shaderDefault) {
+                shaderDefault = new pc.Shader(device, {
+                    attributes: {
+                        aPosition: pc.SEMANTIC_POSITION,
+                        aNormal: pc.SEMANTIC_NORMAL
+                    },
+                    vshader: defaultVShader,
+                    fshader: defaultFShader,
+                });
+            }
+
+            this.shader = shaderDefault;
+        };
         materialDefault.update();
 
+        materialBehind.updateShader = materialDefault.updateShader;
+        materialOccluder.updateShader = materialDefault.updateShader;
+
         var capsuleVShader = ' \
-            attribute vec3 vertex_position;\n \
-            attribute float side;\n \
+            attribute vec3 aPosition;\n \
+            attribute vec3 aNormal;\n \
+            attribute float aSide;\n \
+            varying vec3 vNormal;\n \
+            varying vec3 vPosition;\n \
+            uniform float offset;\n \
+            uniform mat4 matrix_model;\n \
+            uniform mat3 matrix_normal;\n \
+            uniform mat4 matrix_viewProjection;\n \
+            uniform float radius;\n \
+            uniform float height;\n \
+            void main(void) {\n \
+                vec3 pos = aPosition * radius;\n \
+                pos.{axis} += aSide * max(height / 2.0 - radius, 0.0);\n \
+                vec4 posW = matrix_model * vec4(pos, 1.0);\n \
+                vNormal = normalize(matrix_normal * aNormal);\n \
+                posW += vec4(vNormal * offset, 0.0);\n \
+                gl_Position = matrix_viewProjection * posW;\n \
+                vPosition = posW.xyz;\n \
+            }\n';
+        var capsuleFShader = ' \
+            precision ' + app.graphicsDevice.precision + ' float;\n \
+            varying vec3 vNormal;\n \
+            varying vec3 vPosition;\n \
+            uniform vec4 uColor;\n \
+            uniform vec3 view_position;\n \
+            void main(void) {\n \
+                vec3 viewNormal = normalize(view_position - vPosition);\n \
+                float light = dot(vNormal, viewNormal);\n \
+                gl_FragColor = vec4(uColor.rgb * light * 2.0, uColor.a);\n \
+            }\n';
+
+        var capsuleVShaderPick = ' \
+            attribute vec3 aPosition;\n \
+            attribute vec3 aNormal;\n \
+            attribute float aSide;\n \
             uniform mat4 matrix_model;\n \
             uniform mat4 matrix_viewProjection;\n \
             uniform float radius;\n \
             uniform float height;\n \
-            void main(void)\n \
-            {\n \
-                vec3 pos = vertex_position * radius;\n \
-                pos.{axis} += side * max(height / 2.0 - radius, 0.0);\n \
-                gl_Position = matrix_viewProjection * matrix_model * vec4(pos, 1.0);\n \
+            void main(void) {\n \
+                vec3 pos = aPosition * radius;\n \
+                pos.{axis} += aSide * max(height / 2.0 - radius, 0.0);\n \
+                vec4 posW = matrix_model * vec4(pos, 1.0);\n \
+                gl_Position = matrix_viewProjection * posW;\n \
             }\n';
-        var capsuleFShader = ' \
-            precision highp float;\n \
+
+        var capsuleFShaderPick = ' \
+            precision ' + app.graphicsDevice.precision + ' float;\n \
             uniform vec4 uColor;\n \
-            void main(void)\n \
-            {\n \
+            void main(void) {\n \
                 gl_FragColor = uColor;\n \
-                gl_FragColor = clamp(gl_FragColor, 0.0, 1.0);\n \
             }\n';
+
 
         var makeMaterial = function(a) {
-            materials['capsule-' + a] = new pc.BasicMaterial();
-            materials['capsule-' + a].updateShader = function(device) {
-                this.shader = new pc.Shader(device, {
-                    attributes: {
-                        vertex_position: 'POSITION',
-                        side: 'ATTR0'
-                    },
-                    vshader: capsuleVShader.replace('{axis}', a),
-                    fshader: capsuleFShader,
-                });
+            var matDefault = materials['capsule-' + a] = materialDefault.clone();
+            matDefault.updateShader = function(device) {
+                if (! shaderCapsule[a]) {
+                    shaderCapsule[a] = new pc.Shader(device, {
+                        attributes: {
+                            aPosition: pc.SEMANTIC_POSITION,
+                            aNormal: pc.SEMANTIC_NORMAL,
+                            aSide: pc.SEMANTIC_ATTR0
+                        },
+                        vshader: capsuleVShader.replace('{axis}', a),
+                        fshader: capsuleFShader,
+                    });
+                }
+                this.shader = shaderCapsule[a];
             };
-            materials['capsule-' + a].color = colorPrimary;
-            materials['capsule-' + a].update();
+            matDefault.update();
 
-            materials['capsuleBehind-' + a] = new pc.BasicMaterial();
-            materials['capsuleBehind-' + a].updateShader = materials['capsule-' + a].updateShader;
-            materials['capsuleBehind-' + a].color = colorBehind;
-            materials['capsuleBehind-' + a].blend = true;
-            materials['capsuleBehind-' + a].blendSrc = pc.BLENDMODE_SRC_ALPHA;
-            materials['capsuleBehind-' + a].blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
-            materials['capsuleBehind-' + a].depthTest = false;
-            materials['capsuleBehind-' + a].update();
+            var matBehind = materials['capsuleBehind-' + a] = materialBehind.clone();
+            matBehind.updateShader = matDefault.updateShader;
+            matBehind.update();
+
+            var matOccluder = materials['capsuleOcclude-' + a] = materialOccluder.clone();
+            matOccluder.updateShader = matDefault.updateShader;
+            matOccluder.update();
+
+            if (! shaderCapsule['pick-' + a]) {
+                shaderCapsule['pick-' + a] = new pc.Shader(app.graphicsDevice, {
+                    attributes: {
+                        aPosition: pc.SEMANTIC_POSITION,
+                        aNormal: pc.SEMANTIC_NORMAL,
+                        aSide: pc.SEMANTIC_ATTR0
+                    },
+                    vshader: capsuleVShaderPick.replace('{axis}', a),
+                    fshader: capsuleFShaderPick
+                });
+            }
         }
 
         for(var key in axesNames)
             makeMaterial(axesNames[key]);
 
-        var buffer, iterator, size, length, node, mesh, meshInstance, model;
-        var vertexFormat = new pc.gfx.VertexFormat(app.graphicsDevice, [
-            { semantic: pc.gfx.SEMANTIC_POSITION, components: 3, type: pc.gfx.ELEMENTTYPE_FLOAT32 }
+        var buffer, iterator, size, length, node, mesh, meshInstance, model, indexBuffer, indices;
+        var vertexFormat = new pc.VertexFormat(app.graphicsDevice, [
+            { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.ELEMENTTYPE_FLOAT32 }
         ]);
-        var vertexFormatAttr0 = new pc.gfx.VertexFormat(app.graphicsDevice, [
-            { semantic: pc.gfx.SEMANTIC_POSITION, components: 3, type: pc.gfx.ELEMENTTYPE_FLOAT32 },
-            { semantic: pc.gfx.SEMANTIC_ATTR0, components: 1, type: pc.gfx.ELEMENTTYPE_FLOAT32 }
+        var vertexFormatAttr0 = new pc.VertexFormat(app.graphicsDevice, [
+            { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.ELEMENTTYPE_FLOAT32 },
+            { semantic: pc.SEMANTIC_NORMAL, components: 3, type: pc.ELEMENTTYPE_FLOAT32 },
+            { semantic: pc.SEMANTIC_ATTR0, components: 1, type: pc.ELEMENTTYPE_FLOAT32 }
         ]);
         var rad = Math.PI / 180;
+
+        var createModel = function(args) {
+            var mesh;
+
+            if (args.vertices) {
+                // mesh
+                mesh = new pc.Mesh();
+                mesh.vertexBuffer = args.vertices;
+                mesh.indexBuffer[0] = args.indices;
+                mesh.primitive[0].type = pc.PRIMITIVE_TRIANGLES;
+                mesh.primitive[0].base = 0;
+                mesh.primitive[0].count = args.count;
+                mesh.primitive[0].indexed = true;
+            } else {
+                mesh = pc.createMesh(app.graphicsDevice, args.positions, {
+                    normals: args.normals,
+                    indices: args.indices
+                });
+            }
+
+            // node
+            var node = new pc.GraphNode();
+            // meshInstance
+            var meshInstance = new pc.MeshInstance(node, mesh, args.matDefault);
+            meshInstance.__editor = true;
+            meshInstance.__collision = true;
+            meshInstance.layer = 12;
+            meshInstance.castShadow = false;
+            meshInstance.castLightmapShadow = false;
+            meshInstance.receiveShadow = false;
+            meshInstance.updateKey();
+            // meshInstanceBehind
+            var meshInstanceBehind = new pc.MeshInstance(node, mesh, args.matBehind);
+            meshInstanceBehind.__editor = true;
+            meshInstanceBehind.pick = false;
+            meshInstanceBehind.layer = 2;
+            meshInstanceBehind.drawToDepth = false;
+            meshInstanceBehind.castShadow = false;
+            meshInstanceBehind.castLightmapShadow = false;
+            meshInstanceBehind.receiveShadow = false;
+            meshInstanceBehind.updateKey();
+            // meshInstanceOccluder
+            var meshInstanceOccluder = new pc.MeshInstance(node, mesh, args.matOccluder);
+            meshInstanceOccluder.__editor = true;
+            meshInstanceOccluder.pick = false;
+            meshInstanceOccluder.layer = 9;
+            meshInstanceOccluder.castShadow = false;
+            meshInstanceOccluder.castLightmapShadow = false;
+            meshInstanceOccluder.receiveShadow = false;
+            meshInstanceOccluder.updateKey();
+            // model
+            var model = new pc.Model();
+            model.graph = node;
+            model.meshInstances = [ meshInstance, meshInstanceBehind, meshInstanceOccluder ];
+
+            return model;
+        };
 
 
         // ================
         // box
-        buffer = new pc.gfx.VertexBuffer(app.graphicsDevice, vertexFormat, 12 * 2);
-        iterator = new pc.gfx.VertexIterator(buffer);
-        // top
-        iterator.element[pc.SEMANTIC_POSITION].set(1, 1, 1);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, 1, -1);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, 1, -1);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, 1, -1);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, 1, -1);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, 1, 1);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, 1, 1);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, 1, 1);
-        iterator.next();
-        // bottom
-        iterator.element[pc.SEMANTIC_POSITION].set(1, -1, 1);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, -1, -1);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, -1, -1);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, -1, -1);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, -1, -1);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, -1, 1);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, -1, 1);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, -1, 1);
-        iterator.next();
-        // sides
-        iterator.element[pc.SEMANTIC_POSITION].set(1, -1, 1);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, 1, 1);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, -1, -1);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, 1, -1);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, -1, -1);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, 1, -1);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, -1, 1);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, 1, 1);
-        iterator.next();
-        iterator.end();
-        // node
-        node = new pc.GraphNode();
-        // mesh
-        mesh = new pc.Mesh();
-        mesh.vertexBuffer = buffer;
-        mesh.indexBuffer[0] = null;
-        mesh.primitive[0].type = pc.PRIMITIVE_LINES;
-        mesh.primitive[0].base = 0;
-        mesh.primitive[0].count = buffer.getNumVertices();
-        mesh.primitive[0].indexed = false;
-        // meshInstance
-        meshInstance = new pc.MeshInstance(node, mesh, materialDefault);
-        meshInstance.updateKey();
-        // model
-        model = new pc.Model();
-        model.graph = node;
-        model.meshInstances = [ meshInstance ];
-        models['box'] = model;
+        var positions = [
+            1, 1, 1,   1, 1, -1,   -1, 1, -1,   -1, 1, 1, // top
+            1, 1, 1,   -1, 1, 1,   -1, -1, 1,   1, -1, 1, // front
+            1, 1, 1,   1, -1, 1,   1, -1, -1,   1, 1, -1, // right
+            1, 1, -1,   1, -1, -1,   -1, -1, -1,   -1, 1, -1, // back
+            -1, 1, 1,   -1, 1, -1,   -1, -1, -1,   -1, -1, 1, // left
+            1, -1, 1,   -1, -1, 1,   -1, -1, -1,   1, -1, -1 // bottom
+        ];
+        var normals = [
+            0, 1, 0,   0, 1, 0,   0, 1, 0,   0, 1, 0,
+            0, 0, 1,   0, 0, 1,   0, 0, 1,   0, 0, 1,
+            1, 0, 0,   1, 0, 0,   1, 0, 0,   1, 0, 0,
+            0, 0, -1,   0, 0, -1,   0, 0, -1,   0, 0, -1,
+            -1, 0, 0,   -1, 0, 0,   -1, 0, 0,   -1, 0, 0,
+            0, -1, 0,   0, -1, 0,   0, -1, 0,   0, -1, 0
+        ];
+        var indices = [
+            0, 1, 2, 2, 3, 0,
+            4, 5, 6, 6, 7, 4,
+            8, 9, 10, 10, 11, 8,
+            12, 13, 14, 14, 15, 12,
+            16, 17, 18, 18, 19, 16,
+            20, 21, 22, 22, 23, 20
+        ];
+        models['box'] = createModel({
+            positions: positions,
+            normals: normals,
+            indices: indices,
+            matDefault: materialDefault,
+            matBehind: materialBehind,
+            matOccluder: materialOccluder
+        });
 
 
         // ================
         // sphere
-        var segments = 72;
-        buffer = new pc.gfx.VertexBuffer(app.graphicsDevice, vertexFormat, segments * 2 * 3);
-        iterator = new pc.gfx.VertexIterator(buffer);
-        // circles
-        for(var i = 0; i < segments; i++) {
-            iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * i * rad), 0, Math.cos(360 / segments * i * rad));
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * (i + 1) * rad), 0, Math.cos(360 / segments * (i + 1) * rad));
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * i * rad), Math.cos(360 / segments * i * rad), 0);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * (i + 1) * rad), Math.cos(360 / segments * (i + 1) * rad), 0);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(0, Math.cos(360 / segments * i * rad), Math.sin(360 / segments * i * rad));
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(0, Math.cos(360 / segments * (i + 1) * rad), Math.sin(360 / segments * (i + 1) * rad));
-            iterator.next();
+        var segments = 64;
+        positions = [ ];
+        normals = [ ];
+        indices = [ ];
+
+        for(var y = 1; y < segments / 2; y++) {
+            for(var i = 0; i < segments; i++) {
+                var l = Math.sin((y * (180 / (segments / 2)) + 90) * rad);
+                var c = Math.cos((y * (180 / (segments / 2)) + 90) * rad);
+                vecA.set(Math.sin(360 / segments * i * rad) * Math.abs(c), l, Math.cos(360 / segments * i * rad) * Math.abs(c));
+                positions.push(vecA.x, vecA.y, vecA.z);
+                vecA.normalize();
+                normals.push(vecA.x, vecA.y, vecA.z);
+            }
         }
-        iterator.end();
-        // node
-        node = new pc.GraphNode();
-        // mesh
-        mesh = new pc.Mesh();
-        mesh.vertexBuffer = buffer;
-        mesh.indexBuffer[0] = null;
-        mesh.primitive[0].type = pc.PRIMITIVE_LINES;
-        mesh.primitive[0].base = 0;
-        mesh.primitive[0].count = buffer.getNumVertices();
-        mesh.primitive[0].indexed = false;
-        // meshInstance
-        meshInstance = new pc.MeshInstance(node, mesh, materialDefault);
-        meshInstance.updateKey();
-        // model
-        model = new pc.Model();
-        model.graph = node;
-        model.meshInstances = [ meshInstance ];
-        models['sphere'] = model;
+
+        positions.push(0, 1, 0);
+        normals.push(0, 1, 0);
+        positions.push(0, -1, 0);
+        normals.push(0, -1, 0);
+
+        for(var y = 0; y < segments / 2 - 2; y++) {
+            for(var i = 0; i < segments; i++) {
+                indices.push(y * segments + i, (y + 1) * segments + i, y * segments + (i + 1) % segments);
+                indices.push((y + 1) * segments + i, (y + 1) * segments + (i + 1) % segments, y * segments + (i + 1) % segments);
+            }
+        }
+
+        for(var i = 0; i < segments; i++) {
+            indices.push(i, (i + 1) % segments, (segments / 2 - 1) * segments);
+            indices.push((segments / 2 - 2) * segments + i, (segments / 2 - 1) * segments + 1, (segments / 2 - 2) * segments + (i + 1) % segments);
+        }
+
+        models['sphere'] = createModel({
+            positions: positions,
+            normals: normals,
+            indices: indices,
+            matDefault: materialDefault,
+            matBehind: materialBehind,
+            matOccluder: materialOccluder
+        });
 
 
         // ================
-        // cylinder-x
-        var segments = 72;
-        buffer = new pc.gfx.VertexBuffer(app.graphicsDevice, vertexFormat, segments * 2 * 2 + 4 * 2);
-        iterator = new pc.gfx.VertexIterator(buffer);
-        // circles
-        for(var i = 0; i < segments; i++) {
-            iterator.element[pc.SEMANTIC_POSITION].set(.5, Math.sin(360 / segments * i * rad), Math.cos(360 / segments * i * rad));
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(.5, Math.sin(360 / segments * (i + 1) * rad), Math.cos(360 / segments * (i + 1) * rad));
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(-.5, Math.sin(360 / segments * i * rad), Math.cos(360 / segments * i * rad));
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(-.5, Math.sin(360 / segments * (i + 1) * rad), Math.cos(360 / segments * (i + 1) * rad));
-            iterator.next();
-        }
-        for(var i = 0; i < 4; i++) {
-            iterator.element[pc.SEMANTIC_POSITION].set(.5, Math.sin(90 * i * rad), Math.cos(90 * i * rad));
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(-.5, Math.sin(90 * i * rad), Math.cos(90 * i * rad));
-            iterator.next();
-        }
-        iterator.end();
-        // node
-        node = new pc.GraphNode();
-        // mesh
-        mesh = new pc.Mesh();
-        mesh.vertexBuffer = buffer;
-        mesh.indexBuffer[0] = null;
-        mesh.primitive[0].type = pc.PRIMITIVE_LINES;
-        mesh.primitive[0].base = 0;
-        mesh.primitive[0].count = buffer.getNumVertices();
-        mesh.primitive[0].indexed = false;
-        // meshInstance
-        meshInstance = new pc.MeshInstance(node, mesh, materialDefault);
-        meshInstance.updateKey();
-        // model
-        model = new pc.Model();
-        model.graph = node;
-        model.meshInstances = [ meshInstance ];
-        models['cylinder-x'] = model;
+        // cylinders
+        var axes = {
+            'x': [ 'z', 'y', 'x' ],
+            'y': [ 'x', 'z', 'y' ],
+            'z': [ 'y', 'x', 'z' ]
+        };
+        for(var a in axes) {
+            positions = [ ];
+            indices = [ ];
+            normals = [ ];
+            var segments = 72;
 
-        // ================
-        // cylinder-y
-        var segments = 72;
-        buffer = new pc.gfx.VertexBuffer(app.graphicsDevice, vertexFormat, segments * 2 * 2 + 4 * 2);
-        iterator = new pc.gfx.VertexIterator(buffer);
-        // circles
-        for(var i = 0; i < segments; i++) {
-            iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * i * rad), .5, Math.cos(360 / segments * i * rad));
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * (i + 1) * rad), .5, Math.cos(360 / segments * (i + 1) * rad));
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * i * rad), -.5, Math.cos(360 / segments * i * rad));
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * (i + 1) * rad), -.5, Math.cos(360 / segments * (i + 1) * rad));
-            iterator.next();
-        }
-        for(var i = 0; i < 4; i++) {
-            iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(90 * i * rad), .5, Math.cos(90 * i * rad));
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(90 * i * rad), -.5, Math.cos(90 * i * rad));
-            iterator.next();
-        }
-        iterator.end();
-        // node
-        node = new pc.GraphNode();
-        // mesh
-        mesh = new pc.Mesh();
-        mesh.vertexBuffer = buffer;
-        mesh.indexBuffer[0] = null;
-        mesh.primitive[0].type = pc.PRIMITIVE_LINES;
-        mesh.primitive[0].base = 0;
-        mesh.primitive[0].count = buffer.getNumVertices();
-        mesh.primitive[0].indexed = false;
-        // meshInstance
-        meshInstance = new pc.MeshInstance(node, mesh, materialDefault);
-        meshInstance.updateKey();
-        // model
-        model = new pc.Model();
-        model.graph = node;
-        model.meshInstances = [ meshInstance ];
-        models['cylinder-y'] = model;
+            // side
+            for(var v = 1; v >= -1; v -= 2) {
+                for(var i = 0; i < segments; i++) {
+                    vecA[axes[a][0]] = Math.sin(360 / segments * i * rad);
+                    vecA[axes[a][1]] = Math.cos(360 / segments * i * rad);
+                    vecA[axes[a][2]] = v * 0.5;
 
-        // ================
-        // cylinder-z
-        var segments = 72;
-        buffer = new pc.gfx.VertexBuffer(app.graphicsDevice, vertexFormat, segments * 2 * 2 + 4 * 2);
-        iterator = new pc.gfx.VertexIterator(buffer);
-        // circles
-        for(var i = 0; i < segments; i++) {
-            iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * i * rad), Math.cos(360 / segments * i * rad), .5);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * (i + 1) * rad), Math.cos(360 / segments * (i + 1) * rad), .5);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * i * rad), Math.cos(360 / segments * i * rad), -.5);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * (i + 1) * rad), Math.cos(360 / segments * (i + 1) * rad), -.5);
-            iterator.next();
-        }
-        for(var i = 0; i < 4; i++) {
-            iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(90 * i * rad), Math.cos(90 * i * rad), .5);
-            iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(90 * i * rad), Math.cos(90 * i * rad), -.5);
-            iterator.next();
-        }
-        iterator.end();
-        // node
-        node = new pc.GraphNode();
-        // mesh
-        mesh = new pc.Mesh();
-        mesh.vertexBuffer = buffer;
-        mesh.indexBuffer[0] = null;
-        mesh.primitive[0].type = pc.PRIMITIVE_LINES;
-        mesh.primitive[0].base = 0;
-        mesh.primitive[0].count = buffer.getNumVertices();
-        mesh.primitive[0].indexed = false;
-        // meshInstance
-        meshInstance = new pc.MeshInstance(node, mesh, materialDefault);
-        meshInstance.updateKey();
-        // model
-        model = new pc.Model();
-        model.graph = node;
-        model.meshInstances = [ meshInstance ];
-        models['cylinder-z'] = model;
-
-
-        // ================
-        // capsule y
-        var segments = 72;
-        buffer = new pc.gfx.VertexBuffer(app.graphicsDevice, vertexFormatAttr0, segments * 2 * 2 + segments / 2 * 2 * 4 + 4 + 2 * 4);
-        iterator = new pc.gfx.VertexIterator(buffer);
-
-        for(var i = 0; i <= segments; i++) {
-            // circles
-            if (i < segments) {
-                for(var n = 0; n <= 1; n++) {
-                    for(var k = i; k <= i + 1; k++) {
-                        iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * k * rad), 0, Math.cos(360 / segments * k * rad));
-                        iterator.element[pc.SEMANTIC_ATTR0].set(n ? -1 : 1);
-                        iterator.next();
-                    }
+                    vecB.copy(vecA);
+                    vecB[axes[a][2]] = 0;
+                    positions.push(vecA.x, vecA.y, vecA.z);
+                    normals.push(vecB.x, vecB.y, vecB.z);
                 }
             }
-            // domes
-            var n = i % (segments / 2);
-            var side = i > segments / 2;
-            for(var k = n; k <= n + 1; k++) {
-                iterator.element[pc.SEMANTIC_POSITION].set(Math.sin((360 / segments * k + (side ? -90 : 90)) * rad), Math.cos((360 / segments * k + (side ? -90 : 90)) * rad), 0);
-                iterator.element[pc.SEMANTIC_ATTR0].set(side ? 1 : -1);
-                iterator.next();
-            }
-            for(var k = n; k <= n + 1; k++) {
-                iterator.element[pc.SEMANTIC_POSITION].set(0, Math.cos((360 / segments * k + (side ? -90 : 90)) * rad), Math.sin((360 / segments * k + (side ? -90 : 90)) * rad));
-                iterator.element[pc.SEMANTIC_ATTR0].set(side ? 1 : -1);
-                iterator.next();
-            }
-        }
-        // lines
-        for(var i = 0; i < 4; i++) {
-            for(var n = 0; n <= 1; n++) {
-                iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(90 * i * rad), 0, Math.cos(90 * i * rad));
-                iterator.element[pc.SEMANTIC_ATTR0].set(n ? -1 : 1);
-                iterator.next();
-            }
-        }
-        iterator.end();
-        // node
-        node = new pc.GraphNode();
-        // mesh
-        mesh = new pc.Mesh();
-        mesh.vertexBuffer = buffer;
-        mesh.indexBuffer[0] = null;
-        mesh.primitive[0].type = pc.PRIMITIVE_LINES;
-        mesh.primitive[0].base = 0;
-        mesh.primitive[0].count = buffer.getNumVertices();
-        mesh.primitive[0].indexed = false;
-        // meshInstance
-        meshInstance = new pc.MeshInstance(node, mesh, materials['capsule-y']);
-        meshInstance.updateKey();
-        // model
-        model = new pc.Model();
-        model.graph = node;
-        model.meshInstances = [ meshInstance ];
-        models['capsule-y'] = model;
 
-        // ================
-        // capsule x
-        var segments = 72;
-        buffer = new pc.gfx.VertexBuffer(app.graphicsDevice, vertexFormatAttr0, segments * 2 * 2 + segments / 2 * 2 * 4 + 4 + 2 * 4);
-        iterator = new pc.gfx.VertexIterator(buffer);
+            // top/bottom
+            for(var v = 1; v >= -1; v -= 2) {
+                vecA.set(0, 0, 0);
+                vecA[axes[a][2]] = v;
+                positions.push(vecA.x * 0.5, vecA.y * 0.5, vecA.z * 0.5);
+                normals.push(vecA.x, vecA.y, vecA.z);
 
-        for(var i = 0; i <= segments; i++) {
-            // circles
-            if (i < segments) {
-                for(var n = 0; n <= 1; n++) {
-                    for(var k = i; k <= i + 1; k++) {
-                        iterator.element[pc.SEMANTIC_POSITION].set(0, Math.sin(360 / segments * k * rad), Math.cos(360 / segments * k * rad));
-                        iterator.element[pc.SEMANTIC_ATTR0].set(n ? -1 : 1);
-                        iterator.next();
-                    }
+                for(var i = 0; i < segments; i++) {
+                    vecA[axes[a][0]] = Math.sin(360 / segments * i * rad);
+                    vecA[axes[a][1]] = Math.cos(360 / segments * i * rad);
+                    vecA[axes[a][2]] = v * 0.5;
+
+                    vecB.set(0, 0, 0);
+                    vecB[axes[a][2]] = v;
+
+                    positions.push(vecA.x, vecA.y, vecA.z);
+                    normals.push(vecB.x, vecB.y, vecB.z);
                 }
             }
-            // domes
-            var n = i % (segments / 2);
-            var side = i > segments / 2;
-            for(var k = n; k <= n + 1; k++) {
-                iterator.element[pc.SEMANTIC_POSITION].set(Math.sin((360 / segments * k + (side ? 0 : 180)) * rad), Math.cos((360 / segments * k + (side ? 0 : 180)) * rad), 0);
-                iterator.element[pc.SEMANTIC_ATTR0].set(side ? 1 : -1);
-                iterator.next();
+
+            for(var i = 0; i < segments; i++) {
+                // sides
+                indices.push(i, i + segments, (i + 1) % segments);
+                indices.push(i + segments, (i + 1) % segments + segments, (i + 1) % segments);
+
+                // lids
+                indices.push(segments * 2, segments * 2 + i + 1, segments * 2 + (i + 1) % segments + 1);
+                indices.push(segments * 3 + 1, segments * 3 + (i + 1) % segments + 2, segments * 3 + i + 2);
             }
-            for(var k = n; k <= n + 1; k++) {
-                iterator.element[pc.SEMANTIC_POSITION].set(Math.cos((360 / segments * k + (side ? -90 : 90)) * rad), 0, Math.sin((360 / segments * k + (side ? -90 : 90)) * rad));
-                iterator.element[pc.SEMANTIC_ATTR0].set(side ? 1 : -1);
-                iterator.next();
-            }
+            models['cylinder-' + a] = createModel({
+                positions: positions,
+                normals: normals,
+                indices: indices,
+                matDefault: materialDefault,
+                matBehind: materialBehind,
+                matOccluder: materialOccluder
+            });
         }
-        // lines
-        for(var i = 0; i < 4; i++) {
-            for(var n = 0; n <= 1; n++) {
-                iterator.element[pc.SEMANTIC_POSITION].set(0, Math.sin(90 * i * rad), Math.cos(90 * i * rad));
-                iterator.element[pc.SEMANTIC_ATTR0].set(n ? -1 : 1);
-                iterator.next();
-            }
-        }
-        iterator.end();
-        // node
-        node = new pc.GraphNode();
-        // mesh
-        mesh = new pc.Mesh();
-        mesh.vertexBuffer = buffer;
-        mesh.indexBuffer[0] = null;
-        mesh.primitive[0].type = pc.PRIMITIVE_LINES;
-        mesh.primitive[0].base = 0;
-        mesh.primitive[0].count = buffer.getNumVertices();
-        mesh.primitive[0].indexed = false;
-        // meshInstance
-        meshInstance = new pc.MeshInstance(node, mesh, materials['capsule-x']);
-        meshInstance.updateKey();
-        // model
-        model = new pc.Model();
-        model.graph = node;
-        model.meshInstances = [ meshInstance ];
-        models['capsule-x'] = model;
+
 
         // ================
-        // capsule z
-        var segments = 72;
-        buffer = new pc.gfx.VertexBuffer(app.graphicsDevice, vertexFormatAttr0, segments * 2 * 2 + segments / 2 * 2 * 4 + 4 + 2 * 4);
-        iterator = new pc.gfx.VertexIterator(buffer);
+        // capsules
+        for(var a in axes) {
+            positions = [ ];
+            indices = [ ];
+            var segments = 32;
 
-        for(var i = 0; i <= segments; i++) {
-            // circles
-            if (i < segments) {
-                for(var n = 0; n <= 1; n++) {
-                    for(var k = i; k <= i + 1; k++) {
-                        iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * k * rad), Math.cos(360 / segments * k * rad), 0);
-                        iterator.element[pc.SEMANTIC_ATTR0].set(n ? -1 : 1);
-                        iterator.next();
-                    }
+            for(var y = 1; y < segments / 2 + 1; y++) {
+                for(var i = 0; i < segments; i++) {
+                    var k = y;
+                    if (y === Math.floor(segments / 4) || y === Math.floor(segments / 4) + 1)
+                        k = Math.floor(segments / 4);
+                    var l = Math.sin((k * (180 / (segments / 2)) + 90) * rad);
+                    var c = Math.cos((k * (180 / (segments / 2)) + 90) * rad);
+                    vecA[axes[a][0]] = Math.sin(360 / segments * i * rad) * Math.abs(c);
+                    vecA[axes[a][1]] = Math.cos(360 / segments * i * rad) * Math.abs(c);
+                    vecA[axes[a][2]] = l;
+                    positions.push(vecA.x, vecA.y, vecA.z);
+                    vecA.normalize();
+                    positions.push(vecA.x, vecA.y, vecA.z);
+                    positions.push(y < segments / 4 ? 1 : -1);
                 }
             }
-            // domes
-            var n = i % (segments / 2);
-            var side = i > segments / 2;
-            for(var k = n; k <= n + 1; k++) {
-                iterator.element[pc.SEMANTIC_POSITION].set(0, Math.cos((360 / segments * k + (side ? 0 : 180)) * rad), Math.sin((360 / segments * k + (side ? 0 : 180)) * rad));
-                iterator.element[pc.SEMANTIC_ATTR0].set(side ? 1 : -1);
-                iterator.next();
+
+            vecA.set(0, 0, 0);
+            vecA[axes[a][2]] = 1;
+            // top
+            positions.push(vecA.x, vecA.y, vecA.z);
+            positions.push(vecA.x, vecA.y, vecA.z);
+            positions.push(1);
+            // bottom
+            vecA.scale(-1);
+            positions.push(vecA.x, vecA.y, vecA.z);
+            positions.push(vecA.x, vecA.y, vecA.z);
+            positions.push(-1);
+
+            // sides
+            for(var y = 0; y < segments / 2 - 1; y++) {
+                for(var i = 0; i < segments; i++) {
+                    indices.push(y * segments + i, (y + 1) * segments + i, y * segments + (i + 1) % segments);
+                    indices.push((y + 1) * segments + i, (y + 1) * segments + (i + 1) % segments, y * segments + (i + 1) % segments);
+                }
             }
-            for(var k = n; k <= n + 1; k++) {
-                iterator.element[pc.SEMANTIC_POSITION].set(Math.cos((360 / segments * k + (side ? 0 : 180)) * rad), 0, Math.sin((360 / segments * k + (side ? 0 : 180)) * rad));
-                iterator.element[pc.SEMANTIC_ATTR0].set(side ? 1 : -1);
-                iterator.next();
+
+            // lids
+            for(var i = 0; i < segments; i++) {
+                indices.push(i, (i + 1) % segments, (segments / 2) * segments);
+                indices.push((segments / 2 - 1) * segments + i, (segments / 2) * segments + 1, (segments / 2 - 1) * segments + (i + 1) % segments);
             }
+
+            var bufferVertex = new pc.VertexBuffer(app.graphicsDevice, vertexFormatAttr0, positions.length / 7);
+            var dst = new Float32Array(bufferVertex.lock());
+            dst.set(positions);
+            bufferVertex.unlock();
+
+            var bufferIndex = new pc.IndexBuffer(app.graphicsDevice, pc.INDEXFORMAT_UINT16, indices.length);
+            var dst = new Uint16Array(bufferIndex.lock());
+            dst.set(indices);
+            bufferIndex.unlock();
+
+            models['capsule-' + a] = createModel({
+                vertices: bufferVertex,
+                indices: bufferIndex,
+                count: indices.length,
+                matDefault: materials['capsule-' + a],
+                matBehind: materials['capsuleBehind-' + a],
+                matOccluder: materials['capsuleOcclude-' + a]
+            });
+
+            var meshInstance = models['capsule-' + a].meshInstances[0];
+            // TODO
         }
-        // lines
-        for(var i = 0; i < 4; i++) {
-            for(var n = 0; n <= 1; n++) {
-                iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(90 * i * rad), Math.cos(90 * i * rad), 0);
-                iterator.element[pc.SEMANTIC_ATTR0].set(n ? -1 : 1);
-                iterator.next();
-            }
-        }
-        iterator.end();
-        // node
-        node = new pc.GraphNode();
-        // mesh
-        mesh = new pc.Mesh();
-        mesh.vertexBuffer = buffer;
-        mesh.indexBuffer[0] = null;
-        mesh.primitive[0].type = pc.PRIMITIVE_LINES;
-        mesh.primitive[0].base = 0;
-        mesh.primitive[0].count = buffer.getNumVertices();
-        mesh.primitive[0].indexed = false;
-        // meshInstance
-        meshInstance = new pc.MeshInstance(node, mesh, materials['capsule-z']);
-        meshInstance.updateKey();
-        // model
-        model = new pc.Model();
-        model.graph = node;
-        model.meshInstances = [ meshInstance ];
-        models['capsule-z'] = model;
     });
 
-    var createModelWireframe = function(model) {
-        var vertexFormat = new pc.gfx.VertexFormat(app.graphicsDevice, [
-            { semantic: pc.gfx.SEMANTIC_POSITION, components: 3, type: pc.gfx.ELEMENTTYPE_FLOAT32 }
-        ]);
+    var createModelCopy = function(resource, color) {
+        var model = resource.clone();
 
-        // model
-        var modelLines = new pc.Model();
-        modelLines.graph = new pc.GraphNode();
-        modelLines.meshInstances = [ ];
+        var meshesExtra = [ ];
 
-        var wtm = model.graph.getWorldTransform();
-        modelLines.graph.setPosition(wtm.getTranslation());
-        modelLines.graph.setEulerAngles(wtm.getEulerAngles());
-        modelLines.graph.setLocalScale(wtm.getScale());
+        for(var i = 0; i < model.meshInstances.length; i++) {
+            model.meshInstances[i].material = materialDefault.clone();
+            model.meshInstances[i].material.updateShader = materialDefault.updateShader;
+            model.meshInstances[i].material.color.set(color[0], color[1], color[2], alphaFront);
+            model.meshInstances[i].material.update();
+            model.meshInstances[i].layer = 12;
+            model.meshInstances[i].__editor = true;
+            model.meshInstances[i].__collision = true;
+            model.meshInstances[i].castShadow = false;
+            model.meshInstances[i].castLightmapShadow = false;
+            model.meshInstances[i].receiveShadow = false;
+            model.meshInstances[i].setParameter('offset', 0);
+            model.meshInstances[i].updateKey();
 
-        for(var m = 0; m < model.meshInstances.length; m++) {
-            var mesh = model.meshInstances[m].mesh;
+            var node = model.meshInstances[i].node;
+            var mesh = model.meshInstances[i].mesh;
 
+            var meshInstanceBehind = new pc.MeshInstance(node, mesh, materialBehind.clone());
+            meshInstanceBehind.material.updateShader = materialBehind.updateShader;
+            meshInstanceBehind.material.color.set(color[0], color[1], color[2], alphaBehind);
+            meshInstanceBehind.material.update();
+            meshInstanceBehind.setParameter('offset', 0);
+            meshInstanceBehind.__editor = true;
+            meshInstanceBehind.pick = false;
+            meshInstanceBehind.layer = 2;
+            meshInstanceBehind.drawToDepth = false;
+            meshInstanceBehind.castShadow = false;
+            meshInstanceBehind.castLightmapShadow = false;
+            meshInstanceBehind.receiveShadow = false;
+            meshInstanceBehind.updateKey();
 
-            var vertices = mesh.vertexBuffer;
-            var format = vertices.getFormat();
-            var indices = mesh.indexBuffer[pc.RENDERSTYLE_SOLID];
+            // meshInstanceOccluder
+            var meshInstanceOccluder = new pc.MeshInstance(node, mesh, materialOccluder);
+            meshInstanceOccluder.setParameter('offset', 0);
+            meshInstanceOccluder.__editor = true;
+            meshInstanceOccluder.pick = false;
+            meshInstanceOccluder.layer = 9;
+            meshInstanceOccluder.castShadow = false;
+            meshInstanceOccluder.castLightmapShadow = false;
+            meshInstanceOccluder.receiveShadow = false;
+            meshInstanceOccluder.updateKey();
 
-            var stride = format.size / 4;
-            var offset = 0;
-            var indicesView = new Uint16Array(indices.lock());
-
-            for(var i = 0; i < format.elements.length; i++) {
-                if (format.elements[i].name !== 'POSITION')
-                    continue;
-
-                offset = format.elements[i].offset;
-                break;
-            }
-
-            var verticesView = new Float32Array(vertices.lock(), offset);
-
-            var numTriangles = mesh.primitive[0].count / 3;
-            var base = mesh.primitive[0].base;
-
-            var buffer = new pc.gfx.VertexBuffer(app.graphicsDevice, vertexFormat, numTriangles * 3 * 2);
-            var iterator = new pc.gfx.VertexIterator(buffer);
-
-            var i1, i2, i3;
-            var pairs = { };
-            for (var j = 0; j < numTriangles; j++) {
-                i1 = indicesView[ base + j * 3 ] * stride;
-                i2 = indicesView[ base + j * 3 + 1 ] * stride;
-                i3 = indicesView[ base + j * 3 + 2 ] * stride;
-
-                if (! pairs[i1 + '-' + i2] && ! pairs[i2 + '-' + i1]) {
-                    pairs[i1 + '-' + i2] = true;
-                    iterator.element[pc.SEMANTIC_POSITION].set(verticesView[i1], verticesView[i1 + 1], verticesView[i1 + 2]);
-                    iterator.next();
-                    iterator.element[pc.SEMANTIC_POSITION].set(verticesView[i2], verticesView[i2 + 1], verticesView[i2 + 2]);
-                    iterator.next();
-                }
-
-                if (! pairs[i2 + '-' + i3] && ! pairs[i3 + '-' + i2]) {
-                    pairs[i2 + '-' + i3] = true;
-                    iterator.element[pc.SEMANTIC_POSITION].set(verticesView[i2], verticesView[i2 + 1], verticesView[i2 + 2]);
-                    iterator.next();
-                    iterator.element[pc.SEMANTIC_POSITION].set(verticesView[i3], verticesView[i3 + 1], verticesView[i3 + 2]);
-                    iterator.next();
-                }
-
-                if (! pairs[i3 + '-' + i1] && ! pairs[i1 + '-' + i3]) {
-                    pairs[i3 + '-' + i1] = true;
-                    iterator.element[pc.SEMANTIC_POSITION].set(verticesView[i3], verticesView[i3 + 1], verticesView[i3 + 2]);
-                    iterator.next();
-                    iterator.element[pc.SEMANTIC_POSITION].set(verticesView[i1], verticesView[i1 + 1], verticesView[i1 + 2]);
-                    iterator.next();
-                }
-            }
-
-            vertices.unlock();
-            indices.unlock();
-
-            iterator.end();
-
-            // mesh
-            var meshLines = new pc.Mesh();
-            meshLines.vertexBuffer = buffer;
-            meshLines.indexBuffer[0] = null;
-            meshLines.primitive[0].type = pc.PRIMITIVE_LINES;
-            meshLines.primitive[0].base = 0;
-            meshLines.primitive[0].count = buffer.getNumVertices();
-            meshLines.primitive[0].indexed = false;
-            // meshInstance
-            var wtm = model.meshInstances[m].node.getWorldTransform();
-            var node = new pc.GraphNode();
-            var meshInstance = new pc.MeshInstance(node, meshLines, materialDefault);
-            node.setPosition(wtm.getTranslation());
-            node.setEulerAngles(wtm.getEulerAngles());
-            node.setLocalScale(wtm.getScale());
-            meshInstance.updateKey();
-            modelLines.meshInstances.push(meshInstance);
-            modelLines.graph.addChild(node);
+            meshesExtra.push(meshInstanceBehind, meshInstanceOccluder);
         }
 
-        return modelLines;
+        model.meshInstances = model.meshInstances.concat(meshesExtra);
+
+        return model;
     };
 
     editor.on('viewport:gizmoUpdate', function(dt) {
