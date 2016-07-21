@@ -17,8 +17,8 @@ editor.once('load', function() {
             if (! asset.has('data.useGammaTonemap'))
                 asset.set('data.useGammaTonemap', true);
 
-            if (! asset.get('data.cubeMapProjectionBox'))
-                asset.set('data.cubeMapProjectionBox', { center: [ 0, 0, 0 ], halfExtents: [ 0.5, 0.5, 0.5 ] });
+            // if (! asset.get('data.cubeMapProjectionBox'))
+            //     asset.set('data.cubeMapProjectionBox', { center: [ 0, 0, 0 ], halfExtents: [ 0.5, 0.5, 0.5 ] });
         }
 
         asset.history.enabled = true;
