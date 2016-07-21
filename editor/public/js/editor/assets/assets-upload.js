@@ -63,6 +63,9 @@ editor.once('load', function() {
 
         var form = new FormData();
 
+        // scope
+        form.append('project', config.project.id);
+
         // name
         if (args.name)
             form.append('name', args.name);
@@ -113,7 +116,7 @@ editor.once('load', function() {
         editor.call('status:job', 'asset-upload:' + job, 0);
 
         var data = {
-            url: '/editor/project/{{project.id}}/upload/asset',
+            url: '/api/assets',
             method: 'POST',
             query: {
                 'access_token': '{{accessToken}}'

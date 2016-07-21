@@ -4,7 +4,7 @@ editor.once('load', function() {
     var migrateAsset = function(asset) {
         asset.history.enabled = false;
 
-        if (asset.get('type') === 'material') {
+        if (asset.get('type') === 'material' && asset.get('data')) {
             if (! asset.has('data.useFog'))
                 asset.set('data.useFog', true);
 
@@ -17,7 +17,7 @@ editor.once('load', function() {
             if (! asset.has('data.useGammaTonemap'))
                 asset.set('data.useGammaTonemap', true);
 
-            if (! asset.get('data.cubeMapProjectionBox'))
+            if (! asset.has('data.cubeMapProjectionBox'))
                 asset.set('data.cubeMapProjectionBox', { center: [ 0, 0, 0 ], halfExtents: [ 0.5, 0.5, 0.5 ] });
         }
 
