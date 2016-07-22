@@ -61,7 +61,7 @@ editor.once('load', function() {
             loading.hidden = false;
 
             Ajax
-            .get('{{url.home}}/' + assets[0].get('file.url'))
+            .get('{{url.home}}' + assets[0].get('file.url'))
             .on('load', function(status, data) {
                 assets[0]._loading = 2;
 
