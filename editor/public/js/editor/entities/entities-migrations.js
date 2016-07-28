@@ -68,6 +68,18 @@ editor.once('load', function() {
                 // cookieChannel
                 if (! entity.has('components.light.cookieChannel'))
                     entity.set('components.light.cookieChannel', 'rgb');
+
+                // cookieAngle
+                if (! entity.has('components.light.cookieAngle'))
+                    entity.set('components.light.cookieAngle', 0);
+
+                // cookieScale
+                if (! entity.has('components.light.cookieScale'))
+                    entity.set('components.light.cookieScale', [ 1.0, 1.0 ]);
+
+                // cookieOffset
+                if (! entity.has('components.light.cookieOffset'))
+                    entity.set('components.light.cookieOffset', [ 0.0, 0.0 ]);
             }
 
             // model

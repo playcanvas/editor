@@ -21,6 +21,7 @@ function TextField(args) {
     this.elementInput.addEventListener('change', this._onChange.bind(this), false);
     this.elementInput.addEventListener('keydown', this._onKeyDown.bind(this), false);
     this.evtKeyChange = false;
+    this.ignoreChange = false;
 
     this.on('disable', function() {
         this.elementInput.disabled = true;
@@ -49,6 +50,8 @@ TextField.prototype._onLinkChange = function(value) {
 
 
 TextField.prototype._onChange = function() {
+    if (this.ignoreChange) return;
+        
     this.value = this.elementInput.value || '';
 
     if (! this._link)

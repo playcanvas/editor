@@ -171,7 +171,7 @@ editor.once('load', function() {
                 // scale to screen space
                 if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
                     var dot = vecA.copy(posGizmo).sub(posCamera).dot(camera.forward);
-                    var denom = 1280 * Math.tan(camera.camera.fov * pc.math.DEG_TO_RAD);
+                    var denom = 1280 / (2 * Math.tan(camera.camera.fov * pc.math.DEG_TO_RAD / 2));
                     scale = Math.max(0.0001, (dot / denom) * 150) * gizmoSize;
                 } else {
                     scale = camera.camera.orthoHeight / 3 * gizmoSize;
@@ -222,6 +222,8 @@ editor.once('load', function() {
                     quat.transformVector(vecC, vecC).add(posGizmo);
                     app.renderLine(vecB, vecC, gizmo.box.z.model.material === gizmo.matActive ? gizmo.matActive.color : gizmo.box.z.color, pc.LINEBATCH_GIZMO);
                 }
+
+                editor.call('viewport:render');
             }
         });
 
@@ -336,17 +338,6 @@ editor.once('load', function() {
             editor.call('gizmo:scale:visible', true);
             editor.call('viewport:pick:state', true);
         };
-
-        editor.on('viewport:hover', function(state) {
-            if (state || ! moving)
-                return;
-
-            moving = false;
-
-            editor.emit('gizmo:scale:end');
-            editor.call('gizmo:scale:visible', true);
-            editor.call('viewport:pick:state', true);
-        });
 
         editor.on('viewport:mouse:move', onTapMove);
         editor.on('viewport:tap:end', onTapEnd);

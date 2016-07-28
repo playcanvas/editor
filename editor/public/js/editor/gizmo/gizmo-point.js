@@ -53,7 +53,7 @@ editor.once('viewport:load', function() {
         // scale to screen space
         if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
             var dot = vecA.copy(pos).sub(posCamera).dot(camera.forward);
-            var denom = 1280 * Math.tan(camera.camera.fov * pc.math.DEG_TO_RAD);
+            var denom = 1280 / (2 * Math.tan(camera.camera.fov * pc.math.DEG_TO_RAD / 2));
             scale = Math.max(0.0001, (dot / denom) * 150) * gizmoSize;
         } else {
             scale = camera.camera.orthoHeight / 3 * gizmoSize;
@@ -233,18 +233,6 @@ editor.once('viewport:load', function() {
         editor.call('viewport:pick:state', true);
     };
 
-    editor.on('viewport:hover', function(state) {
-        if (state || ! dragPoint)
-            return;
-
-        dragPoint.entity.enabled = true;
-        editor.emit('gizmo:point:end', dragPoint);
-        dragPoint.emit('dragEnd');
-        dragPoint = null;
-
-        editor.call('viewport:pick:state', true);
-    });
-
     editor.on('viewport:mouse:move', onTapMove);
     editor.on('viewport:tap:end', onTapEnd);
 
@@ -262,5 +250,7 @@ editor.once('viewport:load', function() {
 
             dragPoint.emit('dragMove', length);
         }
+
+        editor.call('viewport:render');
     });
 });

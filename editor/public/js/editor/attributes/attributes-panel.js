@@ -1212,7 +1212,7 @@ editor.once('load', function() {
 
                     var initialValue = getCurrentEntity();
 
-                    editor.call('picker:entity', initialValue);
+                    editor.call('picker:entity', initialValue, args.filter || null);
 
                     editor.once('picker:entity:close', function () {
                         if (evtEntityPick) {

@@ -518,6 +518,8 @@ editor.once('load', function() {
         'states': [ ]
     };
 
+    var vecA = new pc.Vec3();
+
 
     editor.method('material:default', function (existingData) {
         existingData = existingData || {};
@@ -2591,6 +2593,7 @@ editor.once('load', function() {
         });
         // reference
         editor.call('attributes:reference:attach', 'asset:material:cubeMapProjectionBoxHalfExtents', fieldReflectionCubeMapProjectionBoxHalfExtents[0].parent.innerElement.firstChild.ui);
+
 
         var onCubemapProjectionCheck = function() {
             fieldReflectionCubeMapProjection.parent.hidden = ! fieldReflectionCubeMap.value;

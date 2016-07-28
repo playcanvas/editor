@@ -458,9 +458,11 @@ editor.once('load', function() {
 
 
         // divider
-        var divider = document.createElement('div');
-        divider.classList.add('fields-divider');
-        panel.append(divider);
+        var dividerCookie = document.createElement('div');
+        dividerCookie.classList.add('fields-divider');
+        panel.append(dividerCookie);
+        if (fieldType.value === 'directional')
+            dividerCookie.classList.add('hidden');
 
 
         // asset
@@ -478,6 +480,11 @@ editor.once('load', function() {
         fieldType.on('change', function(value) {
             fieldCookie.parent.hidden = fieldType.value === 'directional';
             argsCookie.kind = fieldType.value === 'point' ? 'cubemap' : 'texture';
+            if (fieldCookie.parent.hidden) {
+                dividerCookie.classList.add('hidden');
+            } else {
+                dividerCookie.classList.remove('hidden');
+            }
         });
         // reference
         editor.call('attributes:reference:attach', 'light:cookieAsset', fieldCookie.parent.innerElement.firstChild.ui);
@@ -487,10 +494,12 @@ editor.once('load', function() {
         var panelCookie = editor.call('attributes:addPanel', {
             parent: panel
         });
-        panelCookie.hidden = ! fieldCookie.value && ! fieldCookie.class.contains('null') && fieldType.value !== 'directional';
-        fieldCookie.on('change', function(value) {
-            panelCookie.hidden = ! value && ! this.class.contains('null') && fieldType.value !== 'directional';
-        });
+        var updatePanelCookie = function() {
+            panelCookie.hidden = (! fieldCookie.value && ! fieldCookie.class.contains('null')) || fieldType.value === 'directional';
+        };
+        updatePanelCookie();
+        fieldCookie.on('change', updatePanelCookie);
+        fieldType.on('change', updatePanelCookie);
 
 
         // cookieIntensity
@@ -519,6 +528,73 @@ editor.once('load', function() {
             path: 'components.light.cookieIntensity'
         });
         fieldCookieIntensitySlider.flexGrow = 4;
+
+
+        // cookieAngle
+        var fieldCookieAngle = editor.call('attributes:addField', {
+            parent: panelCookie,
+            name: 'Angle',
+            type: 'number',
+            placeholder: '°',
+            min: 0,
+            max: 360.0,
+            link: entities,
+            path: 'components.light.cookieAngle'
+        });
+        fieldCookieAngle.style.width = '32px';
+        // reference
+        editor.call('attributes:reference:attach', 'light:cookieAngle', fieldCookieAngle.parent.innerElement.firstChild.ui);
+
+        // cookieAngle slider
+        var fieldCookieAngleSlider = editor.call('attributes:addField', {
+            panel: fieldCookieAngle.parent,
+            precision: 1,
+            min: 0,
+            max: 360.0,
+            type: 'number',
+            slider: true,
+            link: entities,
+            path: 'components.light.cookieAngle'
+        });
+        fieldCookieAngleSlider.flexGrow = 4;
+
+        // cookieOffset
+        var fieldCookieOffset = editor.call('attributes:addField', {
+            parent: panelCookie,
+            name: 'Offset',
+            type: 'vec2',
+            step: 0.01,
+            precision: 3,
+            placeholder: [ 'U', 'V' ],
+            link: entities,
+            path: 'components.light.cookieOffset'
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'light:cookieOffset', fieldCookieOffset[0].parent.innerElement.firstChild.ui);
+
+
+        // cookieScale
+        var fieldCookieScale = editor.call('attributes:addField', {
+            parent: panelCookie,
+            name: 'Scale',
+            type: 'vec2',
+            step: 0.01,
+            precision: 3,
+            placeholder: [ 'U', 'V' ],
+            link: entities,
+            path: 'components.light.cookieScale'
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'light:cookieScale', fieldCookieScale[0].parent.innerElement.firstChild.ui);
+
+        var updateCookieParams = function() {
+            var hidden = panelCookie.hidden || fieldType.value === 'point';
+            fieldCookieAngle.parent.hidden = hidden;
+            fieldCookieOffset[0].parent.hidden = hidden;
+            fieldCookieScale[0].parent.hidden = hidden;
+        };
+        updateCookieParams();
+        fieldType.on('change', updateCookieParams);
 
 
         // cookieFalloff
