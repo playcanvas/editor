@@ -270,7 +270,7 @@ editor.once('load', function () {
         // if we are enabling write then restore
         // previous state
         if (! readOnly && stateBeforeReadOnly) {
-            var cursorCoords = cm.cursorCoords(stateBeforeReadOnly.cursor);
+            var cursorCoords = cm.cursorCoords(stateBeforeReadOnly.cursor, 'local');
             cm.setCursor(stateBeforeReadOnly.cursor);
 
             // scroll back to where we were if needed

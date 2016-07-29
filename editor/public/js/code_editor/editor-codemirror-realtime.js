@@ -282,7 +282,8 @@ editor.once('load', function () {
         }
 
         var cursorPos = cm.posFromIndex(cursor);
-        var cursorCoords = cm.cursorCoords(cursorPos);
+        var cursorCoords = cm.cursorCoords(cursorPos, 'local');
+
         cm.setCursor(cursorPos);
 
         // scroll back to where we were if needed
