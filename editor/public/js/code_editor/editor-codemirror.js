@@ -278,7 +278,7 @@ editor.once('load', function () {
 
             // scroll back to where we were if needed
             var scrollInfo = stateBeforeReadOnly.scrollInfo;
-            if (cursorCoords.top >= scrollInfo.top && cursorCoords.top <= scrollInfo.height) {
+            if (cursorCoords.top >= scrollInfo.top && cursorCoords.top <= scrollInfo.top + scrollInfo.clientHeight) {
                 cm.scrollTo(scrollInfo.left, scrollInfo.top);
             }
         }

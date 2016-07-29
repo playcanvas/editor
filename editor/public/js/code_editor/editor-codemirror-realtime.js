@@ -28,6 +28,9 @@ editor.once('load', function () {
 
     var isConnected = false;
 
+    var lastChangedLine = null;
+    var changedLine = null;
+
     editor.method('editor:realtime:mergeOps', function (force) {
         forceConcatenate = force;
     });
@@ -48,8 +51,13 @@ editor.once('load', function () {
 
         // if text exists remember if it's whitespace
         // so that we concatenate multiple whitespaces together
-        if (text && /^([ ]+)|\n$/.test(text)) {
-            result.isWhiteSpace = true;
+        if (text) {
+            if (/^[ ]+$/.test(text)) {
+                result.isWhiteSpace = true;
+            } else if (/^\n+$/.test(text)) {
+                result.isWhiteSpace = true;
+                result.isNewLine = true;
+            }
         }
 
         return result;
@@ -100,8 +108,22 @@ editor.once('load', function () {
             return false;
         }
 
+        // if we added a whitespace after a non-whitespace return false
         if (next.isWhiteSpace && !prev.isWhiteSpace)
             return false;
+
+        // check if the two ops are on different lines
+        if (changedLine !== lastChangedLine) {
+            // allow multiple whitespaces to be concatenated
+            // on different lines unless the previous op is a new line
+            if (prev.isWhiteSpace && !prev.isNewLine) {
+                return false;
+            }
+
+            // don't allow concatenating multiple inserts in different lines
+            if (!next.isWhiteSpace && !prev.isWhiteSpace)
+                return false;
+        }
 
         return true;
     };
@@ -114,8 +136,13 @@ editor.once('load', function () {
 
     // concatenate two ops
     var concat = function (prev, next) {
-        if (! next.isWhiteSpace)
+        if (! next.isWhiteSpace) {
             prev.isWhiteSpace = false;
+            prev.isNewLine = false;
+        } else {
+            if (next.isNewLine)
+                prev.isNewLine = true;
+        }
 
         prev.op = share._doc.type.compose(next.op, prev.op);
     };
@@ -287,7 +314,7 @@ editor.once('load', function () {
         cm.setCursor(cursorPos);
 
         // scroll back to where we were if needed
-        if (cursorCoords.top >= scrollInfo.top && cursorCoords.top <= scrollInfo.height) {
+        if (cursorCoords.top >= scrollInfo.top && cursorCoords.top <= scrollInfo.top + scrollInfo.clientHeight) {
             cm.scrollTo(scrollInfo.left, scrollInfo.top);
         }
 
@@ -362,15 +389,15 @@ editor.once('load', function () {
         var text;
         var op;
 
+        lastChangedLine = changedLine || change.from.line;
+        changedLine = change.from.line;
+
         while (i < change.from.line) {
             startPos += cm.lineInfo(i).text.length + 1;   // Add 1 for '\n'
             i++;
         }
 
         startPos += change.from.ch;
-
-        // remember current value of forceConcatenate
-        var forceConcat = forceConcatenate;
 
         // handle delete
         if (change.to.line != change.from.line || change.to.ch != change.from.ch) {
@@ -382,8 +409,7 @@ editor.once('load', function () {
 
                 share.remove(startPos, text.length);
 
-                // force concatenation of the next insert op
-                // so that combined delete + insert text is treated as one
+                // force concatenation of subsequent ops for this frame
                 forceConcatenate = true;
             }
         }
@@ -397,6 +423,9 @@ editor.once('load', function () {
                 addToHistory(op);
 
                 share.insert(startPos, text);
+
+                // force concatenation of subsequent ops for this frame
+                forceConcatenate = true;
             }
         }
 
@@ -404,8 +433,12 @@ editor.once('load', function () {
             applyToShareJS(cm, change.next);
         }
 
-        // restore forceConcatenate
-        forceConcatenate = forceConcat;
+        // restore forceConcatenate after 1 frame
+        // do it in a timeout so that operations done
+        // by multiple cursors for example are treated as one
+        setTimeout(function () {
+            forceConcatenate = false;
+        });
     }
 
     // function print (text) {
