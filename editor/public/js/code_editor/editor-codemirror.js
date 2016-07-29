@@ -188,6 +188,9 @@ editor.once('load', function () {
         extraKeys['Ctrl-/'] = 'toggleComment';
         extraKeys['Cmd-/'] = 'toggleComment';
 
+        extraKeys['Alt-Up'] = function (cm) {cm.execCommand('goLineUp'); cm.execCommand('goLineEnd');};
+        extraKeys['Alt-Down'] = function (cm) {cm.execCommand('goLineDown'); cm.execCommand('goLineEnd');};
+
         // create key bindings
         codeMirror.setOption("extraKeys", extraKeys);
 
