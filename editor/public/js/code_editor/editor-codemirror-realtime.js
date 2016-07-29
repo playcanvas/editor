@@ -26,6 +26,8 @@ editor.once('load', function () {
     // if true then the last two ops will be concatenated no matter what
     var forceConcatenate = false;
 
+    var isConnected = false;
+
     editor.method('editor:realtime:mergeOps', function (force) {
         forceConcatenate = force;
     });
@@ -192,10 +194,16 @@ editor.once('load', function () {
 
             suppress = false;
         };
+
+        isConnected = true;
     };
 
     editor.on('editor:loadScript', onLoaded);
     editor.on('editor:reloadScript', onLoaded);
+
+    editor.on('realtime:disconnected', function () {
+        isConnected = false;
+    });
 
     // debug function
     var printStacks = function () {
@@ -213,7 +221,7 @@ editor.once('load', function () {
 
     // Called when the user presses keys to Undo
     editor.method('editor:undo', function () {
-        if (! undoStack.length) return;
+        if (!isConnected || ! undoStack.length) return;
 
         var snapshot = share.get() || '';
         var curr = undoStack.pop();
@@ -228,7 +236,7 @@ editor.once('load', function () {
 
     // Called when the user presses keys to Redo
     editor.method('editor:redo', function () {
-        if (!redoStack.length) return;
+        if (! isConnected || !redoStack.length) return;
 
         var snapshot = share.get() || '';
         var curr = redoStack.pop();
