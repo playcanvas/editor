@@ -250,37 +250,37 @@ editor.once('load', function () {
                 editor.emit('realtime:error', err);
                 return;
             }
-
-            var scrollInfo = cm.getScrollInfo();
-
-            suppress = true;
-            cm.setValue(share.get() || '');
-            suppress = false;
-
-            // set cursor
-            // put it after the text if text was inserted
-            // or keep at the the delete position if text was deleted
-            var cursor = 0;
-            if (op.length === 1) {
-                if (typeof op[0] === 'string') {
-                    cursor += op[0].length;
-                }
-            } else if (op.length > 1) {
-                cursor = op[0];
-                if (typeof op[1] === 'string') {
-                    cursor += op[1].length;
-                }
-            }
-
-            var cursorPos = cm.posFromIndex(cursor);
-            var cursorCoords = cm.cursorCoords(cursorPos);
-            cm.setCursor(cursorPos);
-
-            // scroll back to where we were if needed
-            if (cursorCoords.top >= scrollInfo.top && cursorCoords.top <= scrollInfo.height) {
-                cm.scrollTo(scrollInfo.left, scrollInfo.top);
-            }
         });
+
+        var scrollInfo = cm.getScrollInfo();
+
+        suppress = true;
+        cm.setValue(share.get() || '');
+        suppress = false;
+
+        // set cursor
+        // put it after the text if text was inserted
+        // or keep at the the delete position if text was deleted
+        var cursor = 0;
+        if (op.length === 1) {
+            if (typeof op[0] === 'string') {
+                cursor += op[0].length;
+            }
+        } else if (op.length > 1) {
+            cursor = op[0];
+            if (typeof op[1] === 'string') {
+                cursor += op[1].length;
+            }
+        }
+
+        var cursorPos = cm.posFromIndex(cursor);
+        var cursorCoords = cm.cursorCoords(cursorPos);
+        cm.setCursor(cursorPos);
+
+        // scroll back to where we were if needed
+        if (cursorCoords.top >= scrollInfo.top && cursorCoords.top <= scrollInfo.height) {
+            cm.scrollTo(scrollInfo.left, scrollInfo.top);
+        }
 
         // instantly flush changes
         // share._doc.resume();
