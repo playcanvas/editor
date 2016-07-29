@@ -251,9 +251,34 @@ editor.once('load', function () {
         editor.emit('editor:afterChange', cm, change);
     });
 
+    var stateBeforeReadOnly = null;
+
     var toggleReadOnly = function (readOnly) {
+        var cm = codeMirror;
+
+        // remember state before we make this read only
+        if (readOnly) {
+            stateBeforeReadOnly = {
+                scrollInfo: cm.getScrollInfo(),
+                cursor: cm.getCursor()
+            };
+        }
+
         codeMirror.setOption('readOnly', readOnly ? true : false);
         codeMirror.setOption('cursorBlinkRate', readOnly ? -1 : 530);
+
+        // if we are enabling write then restore
+        // previous state
+        if (! readOnly && stateBeforeReadOnly) {
+            var cursorCoords = cm.cursorCoords(stateBeforeReadOnly.cursor);
+            cm.setCursor(stateBeforeReadOnly.cursor);
+
+            // scroll back to where we were if needed
+            var scrollInfo = stateBeforeReadOnly.scrollInfo;
+            if (cursorCoords.top >= scrollInfo.top && cursorCoords.top <= scrollInfo.height) {
+                cm.scrollTo(scrollInfo.left, scrollInfo.top);
+            }
+        }
     };
 
     // permissions changed so set readonly

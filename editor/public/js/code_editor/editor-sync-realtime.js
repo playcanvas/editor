@@ -346,8 +346,11 @@ editor.once('load', function() {
             editor.emit('permissions:writeState', false);
         });
 
-        editor.on('realtime:connected', function () {
+        var onLoadScript = function () {
             editor.emit('permissions:writeState', editor.call('permissions:write'));
-        });
+        };
+
+        editor.on('editor:loadScript', onLoadScript);
+        editor.on('editor:reloadScript', onLoadScript);
     });
 });
