@@ -63,7 +63,8 @@ editor.once('load', function() {
                             if (op === 'typing') {
                                 editor.call('chat:sync:typing', data);
                             } else if (op === 'msg') {
-                                editor.call('chat:sync:msg', data);
+                                if (editor.call('permissions:read'))
+                                    editor.call('chat:sync:msg', data);
                             }
                         }
                     } else if (msg.data.startsWith('selection')) {
