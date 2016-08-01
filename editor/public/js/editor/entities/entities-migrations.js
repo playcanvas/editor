@@ -20,9 +20,17 @@ editor.once('load', function() {
 
             // light
             if (entity.has('components.light')) {
+                // isStatic
+                if (! entity.has('components.light.isStatic'))
+                    entity.set('components.light.isStatic', false);
+
                 // bake
                 if (! entity.has('components.light.bake'))
                     entity.set('components.light.bake', false);
+
+                // bakeDir
+                if (! entity.has('components.light.bakeDir'))
+                    entity.set('components.light.bakeDir', true);
 
                 // affectDynamic
                 if (! entity.has('components.light.affectDynamic'))
@@ -84,6 +92,10 @@ editor.once('load', function() {
 
             // model
             if(entity.has('components.model')) {
+                // isStatic
+                if (! entity.has('components.model.isStatic'))
+                    entity.set('components.model.isStatic', false);
+
                 // lightmapped
                 if (! entity.has('components.model.lightmapped'))
                     entity.set('components.model.lightmapped', false);

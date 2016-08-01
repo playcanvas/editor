@@ -18,6 +18,7 @@ editor.once('load', function() {
             default: {
                 enabled: true,
                 type: 'directional',
+                isStatic: false,
                 bake: false,
                 affectDynamic: true,
                 affectLightMapped: false,
@@ -143,6 +144,7 @@ editor.once('load', function() {
             title: 'Model',
             default: {
                 enabled: true,
+                isStatic: false,
                 type: 'asset',
                 asset: null,
                 materialAsset: null,
