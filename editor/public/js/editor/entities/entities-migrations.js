@@ -20,9 +20,17 @@ editor.once('load', function() {
 
             // light
             if (entity.has('components.light')) {
+                // isStatic
+                if (! entity.has('components.light.isStatic'))
+                    entity.set('components.light.isStatic', false);
+
                 // bake
                 if (! entity.has('components.light.bake'))
                     entity.set('components.light.bake', false);
+
+                // bakeDir
+                if (! entity.has('components.light.bakeDir'))
+                    entity.set('components.light.bakeDir', true);
 
                 // affectDynamic
                 if (! entity.has('components.light.affectDynamic'))
@@ -68,10 +76,26 @@ editor.once('load', function() {
                 // cookieChannel
                 if (! entity.has('components.light.cookieChannel'))
                     entity.set('components.light.cookieChannel', 'rgb');
+
+                // cookieAngle
+                if (! entity.has('components.light.cookieAngle'))
+                    entity.set('components.light.cookieAngle', 0);
+
+                // cookieScale
+                if (! entity.has('components.light.cookieScale'))
+                    entity.set('components.light.cookieScale', [ 1.0, 1.0 ]);
+
+                // cookieOffset
+                if (! entity.has('components.light.cookieOffset'))
+                    entity.set('components.light.cookieOffset', [ 0.0, 0.0 ]);
             }
 
             // model
             if(entity.has('components.model')) {
+                // isStatic
+                if (! entity.has('components.model.isStatic'))
+                    entity.set('components.model.isStatic', false);
+
                 // lightmapped
                 if (! entity.has('components.model.lightmapped'))
                     entity.set('components.model.lightmapped', false);

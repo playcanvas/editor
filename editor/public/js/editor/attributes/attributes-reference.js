@@ -4,6 +4,7 @@ editor.once('load', function() {
     var root = editor.call('layout.root');
     var panel = editor.call('layout.right');
     var index = { };
+    var missing = { };
 
 
     var sanitize = function(str) {
@@ -20,7 +21,10 @@ editor.once('load', function() {
         var tooltip = index[name];
 
         if (! tooltip) {
-            console.log('reference', name, 'is not defined');
+            if (! missing[name]) {
+                missing[name] = true;
+                console.log('reference', name, 'is not defined');
+            }
             return;
         }
 

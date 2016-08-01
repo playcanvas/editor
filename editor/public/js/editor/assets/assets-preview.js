@@ -8,7 +8,7 @@ editor.once('load', function () {
 
     // create resource loader and asset registry
     var loader = new pc.ResourceLoader();
-    var assets = new pc.AssetRegistry(loader, '/api');
+    var assets = new pc.AssetRegistry(loader);
 
     loader.addHandler("model", new pc.ModelHandler(device));
     loader.addHandler("material", new pc.MaterialHandler(assets));

@@ -6,7 +6,7 @@ editor.once('load', function() {
             title: 'Animation',
             default: {
                 enabled: true,
-                assets: [],
+                assets: [ ],
                 speed: 1,
                 loop: true,
                 activate: true
@@ -18,10 +18,11 @@ editor.once('load', function() {
             default: {
                 enabled: true,
                 type: 'directional',
+                isStatic: false,
                 bake: false,
                 affectDynamic: true,
                 affectLightMapped: false,
-                color: [1, 1, 1],
+                color: [ 1, 1, 1 ],
                 intensity: 1,
                 castShadows: false,
                 shadowType: 0,
@@ -39,10 +40,15 @@ editor.once('load', function() {
                 cookieAsset: null,
                 cookieIntensity: 1.0,
                 cookieFalloff: true,
-                cookieChannel: 'rgb'
+                cookieChannel: 'rgb',
+                cookieAngle: 0.0,
+                cookieOffset: [ 0.0, 0.0 ],
+                cookieScale: [ 1.0, 1.0 ]
             },
             types: {
-                color: 'rgb'
+                color: 'rgb',
+                cookieOffset: 'vec2',
+                cookieScale: 'vec2'
             }
         },
 
@@ -138,6 +144,7 @@ editor.once('load', function() {
             title: 'Model',
             default: {
                 enabled: true,
+                isStatic: false,
                 type: 'asset',
                 asset: null,
                 materialAsset: null,
@@ -319,6 +326,9 @@ editor.once('load', function() {
                         break;
                     case 'rgba':
                         result = new pc.Color(value[0], value[1], value[2], value[3]);
+                        break;
+                    case 'vec2':
+                        result = new pc.Vec2(value[0], value[1]);
                         break;
                     case 'vec3':
                         result = new pc.Vec3(value[0], value[1], value[2]);

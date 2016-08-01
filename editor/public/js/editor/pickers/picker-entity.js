@@ -17,6 +17,7 @@ editor.once('load', function() {
     var hierarchy = editor.call('entities:hierarchy');
     var hierarchyPanel = hierarchy.parent;
     var hierarchyFolded = false;
+    var filter = null;
 
     // esc to close
     editor.call('hotkey:register', 'picker:entity:close', {
@@ -36,14 +37,12 @@ editor.once('load', function() {
 
     // picked entity
     hierarchy.on('select', function (item) {
-        if (overlay.hidden || item.entity === currentEntity) {
+        if (overlay.hidden || item.entity === currentEntity || (filter && ! filter(item.entity)))
             return;
-        }
 
         // emit event
-        if (item.entity) {
+        if (item.entity)
             editor.emit('picker:entity', item.entity);
-        }
 
         // hide picker
         overlay.hidden = true;
@@ -57,20 +56,26 @@ editor.once('load', function() {
             hierarchyPanel.folded = true;
 
         // disable new selections
-        for (var i = 0, len = hierarchy.selected.length; i < len; i++) {
+        for (var i = 0, len = hierarchy.selected.length; i < len; i++)
             hierarchy.selected[i].selected = false;
-        }
 
         // select what was selected
         hierarchy.selected = initialSelection;
-        for (var i = 0, len = initialSelection.length; i < len; i++) {
+        for (var i = 0, len = initialSelection.length; i < len; i++)
             initialSelection[i].selected = true;
-        }
 
         if (initialSelection.length)
             initialSelection[initialSelection.length - 1].elementTitle.focus();
 
         currentEntity = null;
+
+        var entities = editor.call('entities:list');
+        for(var i = 0; i < entities.length; i++) {
+            var id = entities[i].get('resource_id');
+            var item = editor.call('entities:panel:get', id);
+            if (! item) continue;
+            item.elementTitle.classList.remove('disabled');
+        }
 
         // enable selector
         editor.call('selector:enabled', true);
@@ -84,7 +89,7 @@ editor.once('load', function() {
 
 
     // open entity picker
-    editor.method('picker:entity', function (resourceId) {
+    editor.method('picker:entity', function(resourceId, fn) {
         // disable selector
         editor.call('selector:enabled', false);
 
@@ -94,14 +99,11 @@ editor.once('load', function() {
             for (var i = 0, len = initialSelection.length; i < len; i++) {
                 initialSelection[i].selected = false;
             }
-
         }
-
 
         // find current entity
-        if (resourceId) {
+        if (resourceId)
             currentEntity = editor.call('entities:get', resourceId);
-        }
 
         if (currentEntity) {
             var item = editor.call('entities:panel:get', resourceId);
@@ -111,7 +113,20 @@ editor.once('load', function() {
                 item.selected = true;
             }
         } else {
-            hierarchy.selected = [];
+            hierarchy.selected = [ ];
+        }
+
+        filter = fn || null;
+        var entities = editor.call('entities:list');
+        for(var i = 0; i < entities.length; i++) {
+            var id = entities[i].get('resource_id');
+            var item = editor.call('entities:panel:get', id);
+            if (! item) continue;
+
+            if (filter) {
+                if (! filter(entities[i]))
+                    item.elementTitle.classList.add('disabled');
+            }
         }
 
         // show hierarchy panel in front

@@ -12,6 +12,7 @@ editor.once('load', function() {
     var inViewport = false;
     var picking = true;
     var filter = null;
+    var mouseDown = false;
 
     editor.method('viewport:pick:filter', function(fn) {
         if (filter === fn)
@@ -25,7 +26,7 @@ editor.once('load', function() {
     });
 
     editor.on('viewport:update', function() {
-        if (! inViewport && pickedData.node) {
+        if (! mouseDown && ! inViewport && pickedData.node) {
             pickedData.node = null;
             pickedData.picked = null;
             editor.emit('viewport:pick:hover', null, null);
@@ -83,6 +84,24 @@ editor.once('load', function() {
             if (! node) return;
 
             fn(node, picked[0]);
+        }
+    });
+
+    editor.on('viewport:tap:start', function(tap) {
+        if (! tap.mouse) return;
+
+        mouseDown = true;
+    });
+
+    editor.on('viewport:tap:end', function(tap) {
+        if (! tap.mouse) return;
+
+        mouseDown = false;
+
+        if (! inViewport && pickedData.node) {
+            pickedData.node = null;
+            pickedData.picked = null;
+            editor.emit('viewport:pick:hover', null, null);
         }
     });
 

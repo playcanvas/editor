@@ -2519,6 +2519,11 @@ strong {
                     height: 8px;
                 }
             }
+            &.disabled {
+                > .text {
+                    opacity: 0.4;
+                }
+            }
         }
         &.container {
             > .title > .icon:after {

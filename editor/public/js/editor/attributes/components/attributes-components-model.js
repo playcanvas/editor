@@ -208,20 +208,40 @@ editor.once('load', function() {
 
 
         // lightmapped
-        var fieldLightmapped = editor.call('attributes:addField', {
+        var fieldIsStatic = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Lightmapped',
+            name: 'States',
+            type: 'checkbox',
+            link: entities,
+            path: 'components.model.isStatic'
+        });
+        // label
+        var label = new ui.Label({ text: 'Static' });
+        label.class.add('label-infield');
+        fieldIsStatic.parent.append(label);
+        label.style.paddingRight = '12px';
+        // reference
+        editor.call('attributes:reference:attach', 'model:isStatic', label);
+
+
+        // lightmapped
+        var fieldLightmapped = editor.call('attributes:addField', {
+            parent: fieldIsStatic.parent,
             type: 'checkbox',
             link: entities,
             path: 'components.model.lightmapped'
         });
+        // label
+        var label = new ui.Label({ text: 'Lightmapped' });
+        label.class.add('label-infield');
+        fieldIsStatic.parent.append(label);
         // reference
-        editor.call('attributes:reference:attach', 'model:lightmapped', fieldLightmapped.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'model:lightmapped', label);
         // uv1 is missing
         var label = new ui.Label({ text: 'UV1 is missing' });
         label.class.add('label-infield');
         label.style.color = '#f66';
-        fieldLightmapped.parent.append(label);
+        fieldIsStatic.parent.append(label);
 
         var checkUV1Missing = function() {
             var missing = false;

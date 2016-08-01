@@ -368,12 +368,17 @@ editor.once('load', function() {
         if (! entities || Object.keys(entities).length === 0)
             return;
 
-        var itemsOrder = asset.get('data.scripts.' + script + '.attributesOrder');
-        var items = asset.get('data.scripts.' + script + '.attributes');
+        var data = asset.get('data.scripts.' + script);
         var attributes = [ ];
-        for(var i = 0; i < itemsOrder.length; i++) {
-            if (items[itemsOrder[i]].type === 'asset')
-                attributes.push(itemsOrder[i]);
+
+        if (data) {
+            var itemsOrder = data.attributesOrder;
+            var items = data.attributes;
+
+            for(var i = 0; i < itemsOrder.length; i++) {
+                if (items[itemsOrder[i]].type === 'asset')
+                    attributes.push(itemsOrder[i]);
+            }
         }
 
         for(var i in entities) {

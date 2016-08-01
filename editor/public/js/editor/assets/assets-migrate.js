@@ -17,7 +17,7 @@ editor.once('load', function() {
             if (! asset.has('data.useGammaTonemap'))
                 asset.set('data.useGammaTonemap', true);
 
-            if (! asset.has('data.cubeMapProjectionBox'))
+            if (! asset.get('data.cubeMapProjectionBox'))
                 asset.set('data.cubeMapProjectionBox', { center: [ 0, 0, 0 ], halfExtents: [ 0.5, 0.5, 0.5 ] });
         }
 
