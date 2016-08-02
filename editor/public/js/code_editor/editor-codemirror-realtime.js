@@ -18,13 +18,18 @@ editor.once('load', function () {
     var MAX_UNDO_SIZE = 200;
 
     // amount of time to merge local edits into one
-    var delay = cm.options.historyEventDelay;
+    var delay = 2000;
 
     // amount of time since last local edit
     var lastEditTime = 0;
 
     // if true then the last two ops will be concatenated no matter what
     var forceConcatenate = false;
+
+    var isConnected = false;
+
+    var lastChangedLine = null;
+    var changedLine = null;
 
     editor.method('editor:realtime:mergeOps', function (force) {
         forceConcatenate = force;
@@ -39,10 +44,23 @@ editor.once('load', function () {
     };
 
     // create local copy of remove operation
-    var createRemoveOp = function (pos, length) {
-        return customOp(
+    var createRemoveOp = function (pos, length, text) {
+        var result = customOp(
             pos ? [pos, {d: length}] : [{d: length}]
         );
+
+        // if text exists remember if it's whitespace
+        // so that we concatenate multiple whitespaces together
+        if (text) {
+            if (/^[ ]+$/.test(text)) {
+                result.isWhiteSpace = true;
+            } else if (/^\n+$/.test(text)) {
+                result.isWhiteSpace = true;
+                result.isNewLine = true;
+            }
+        }
+
+        return result;
     };
 
     // Returns an object that represents an operation
@@ -56,12 +74,12 @@ editor.once('load', function () {
     };
 
     // returns true if the two operations can be concatenated
-    var canConcatOps = function (prevOp, nextOp) {
+    var canConcatOps = function (prev, next) {
         if (forceConcatenate)
             return true;
 
-        var prevLen = prevOp.length;
-        var nextLen = nextOp.length;
+        var prevLen = prev.op.length;
+        var nextLen = next.op.length;
 
         // true if both are noops
         if (prevLen === 0 || nextLen === 0) {
@@ -69,16 +87,16 @@ editor.once('load', function () {
         }
 
         var prevDelete = false;
-        for (var i = 0; i < prevOp.length; i++) {
-            if (typeof(prevOp[i]) === 'object') {
+        for (var i = 0; i < prevLen; i++) {
+            if (typeof(prev.op[i]) === 'object') {
                 prevDelete = true;
                 break;
             }
         }
 
         var nextDelete = false;
-        for (var i = 0; i < nextOp.length; i++) {
-            if (typeof(nextOp[i]) === 'object') {
+        for (var i = 0; i < nextLen; i++) {
+            if (typeof(next.op[i]) === 'object') {
                 nextDelete = true;
                 break;
             }
@@ -90,6 +108,23 @@ editor.once('load', function () {
             return false;
         }
 
+        // if we added a whitespace after a non-whitespace return false
+        if (next.isWhiteSpace && !prev.isWhiteSpace)
+            return false;
+
+        // check if the two ops are on different lines
+        if (changedLine !== lastChangedLine) {
+            // allow multiple whitespaces to be concatenated
+            // on different lines unless the previous op is a new line
+            if (prev.isWhiteSpace && !prev.isNewLine) {
+                return false;
+            }
+
+            // don't allow concatenating multiple inserts in different lines
+            if (!next.isWhiteSpace && !prev.isWhiteSpace)
+                return false;
+        }
+
         return true;
     };
 
@@ -99,9 +134,17 @@ editor.once('load', function () {
         return share._doc.type.transform(op1, op2, priority);
     };
 
-    // concatenate two ops and return the result
-    var concat = function (op1, op2) {
-        return share._doc.type.compose(op1, op2);
+    // concatenate two ops
+    var concat = function (prev, next) {
+        if (! next.isWhiteSpace) {
+            prev.isWhiteSpace = false;
+            prev.isNewLine = false;
+        } else {
+            if (next.isNewLine)
+                prev.isNewLine = true;
+        }
+
+        prev.op = share._doc.type.compose(next.op, prev.op);
     };
 
     // invert an op an return the result
@@ -178,10 +221,16 @@ editor.once('load', function () {
 
             suppress = false;
         };
+
+        isConnected = true;
     };
 
     editor.on('editor:loadScript', onLoaded);
     editor.on('editor:reloadScript', onLoaded);
+
+    editor.on('realtime:disconnected', function () {
+        isConnected = false;
+    });
 
     // debug function
     var printStacks = function () {
@@ -199,7 +248,7 @@ editor.once('load', function () {
 
     // Called when the user presses keys to Undo
     editor.method('editor:undo', function () {
-        if (! undoStack.length) return;
+        if (!isConnected || ! undoStack.length) return;
 
         var snapshot = share.get() || '';
         var curr = undoStack.pop();
@@ -214,7 +263,7 @@ editor.once('load', function () {
 
     // Called when the user presses keys to Redo
     editor.method('editor:redo', function () {
-        if (!redoStack.length) return;
+        if (! isConnected || !redoStack.length) return;
 
         var snapshot = share.get() || '';
         var curr = redoStack.pop();
@@ -236,37 +285,38 @@ editor.once('load', function () {
                 editor.emit('realtime:error', err);
                 return;
             }
-
-            var scrollInfo = cm.getScrollInfo();
-
-            suppress = true;
-            cm.setValue(share.get() || '');
-            suppress = false;
-
-            // set cursor
-            // put it after the text if text was inserted
-            // or keep at the the delete position if text was deleted
-            var cursor = 0;
-            if (op.length === 1) {
-                if (typeof op[0] === 'string') {
-                    cursor += op[0].length;
-                }
-            } else if (op.length > 1) {
-                cursor = op[0];
-                if (typeof op[1] === 'string') {
-                    cursor += op[1].length;
-                }
-            }
-
-            var cursorPos = cm.posFromIndex(cursor);
-            var cursorCoords = cm.cursorCoords(cursorPos);
-            cm.setCursor(cursorPos);
-
-            // scroll back to where we were if needed
-            if (cursorCoords.top >= scrollInfo.top && cursorCoords.top <= scrollInfo.height) {
-                cm.scrollTo(scrollInfo.left, scrollInfo.top);
-            }
         });
+
+        var scrollInfo = cm.getScrollInfo();
+
+        suppress = true;
+        cm.setValue(share.get() || '');
+        suppress = false;
+
+        // set cursor
+        // put it after the text if text was inserted
+        // or keep at the the delete position if text was deleted
+        var cursor = 0;
+        if (op.length === 1) {
+            if (typeof op[0] === 'string') {
+                cursor += op[0].length;
+            }
+        } else if (op.length > 1) {
+            cursor = op[0];
+            if (typeof op[1] === 'string') {
+                cursor += op[1].length;
+            }
+        }
+
+        var cursorPos = cm.posFromIndex(cursor);
+        var cursorCoords = cm.cursorCoords(cursorPos, 'local');
+
+        cm.setCursor(cursorPos);
+
+        // scroll back to where we were if needed
+        if (cursorCoords.top >= scrollInfo.top && cursorCoords.top <= scrollInfo.top + scrollInfo.clientHeight) {
+            cm.scrollTo(scrollInfo.left, scrollInfo.top);
+        }
 
         // instantly flush changes
         // share._doc.resume();
@@ -300,10 +350,10 @@ editor.once('load', function () {
     var addToHistory = function (localOp) {
         // try to concatenate new op with latest op in the undo stack
         var timeSinceLastEdit = localOp.time - lastEditTime;
-        if (timeSinceLastEdit <= delay) {
-            var top = undoStack[undoStack.length-1];
-            if (top && canConcatOps(top.op, localOp.op)) {
-                top.op = concat(localOp.op, top.op);
+        if (timeSinceLastEdit <= delay || forceConcatenate) {
+            var prev = undoStack[undoStack.length-1];
+            if (prev && canConcatOps(prev, localOp)) {
+                concat(prev, localOp);
                 return;
             }
         }
@@ -339,6 +389,9 @@ editor.once('load', function () {
         var text;
         var op;
 
+        lastChangedLine = changedLine || change.from.line;
+        changedLine = change.from.line;
+
         while (i < change.from.line) {
             startPos += cm.lineInfo(i).text.length + 1;   // Add 1 for '\n'
             i++;
@@ -355,6 +408,9 @@ editor.once('load', function () {
                 addToHistory(op);
 
                 share.remove(startPos, text.length);
+
+                // force concatenation of subsequent ops for this frame
+                forceConcatenate = true;
             }
         }
 
@@ -363,15 +419,35 @@ editor.once('load', function () {
             text = change.text.join('\n');
 
             if (text) {
-                op = createRemoveOp(startPos, text.length);
+                op = createRemoveOp(startPos, text.length, text);
                 addToHistory(op);
-            }
 
-            share.insert(startPos, text);
+                share.insert(startPos, text);
+
+                // force concatenation of subsequent ops for this frame
+                forceConcatenate = true;
+            }
         }
 
         if (change.next) {
             applyToShareJS(cm, change.next);
         }
+
+        // restore forceConcatenate after 1 frame
+        // do it in a timeout so that operations done
+        // by multiple cursors for example are treated as one
+        setTimeout(function () {
+            forceConcatenate = false;
+        });
     }
+
+    // function print (text) {
+    //     var chars = [];
+    //     if (! text) return chars;
+
+    //     for (var i = 0; i < text.length; i++)
+    //         chars.push(text.charCodeAt(i));
+
+    //     return chars;
+    // }
 });
