@@ -317,7 +317,7 @@ editor.once('load', function() {
         btnUpdateShadow.on('click', function() {
             for(var i = 0; i < entities.length; i++) {
                 if (entities[i].entity && entities[i].entity.light && entities[i].entity.light.shadowUpdateMode === pc.SHADOWUPDATE_THISFRAME)
-                    entities[i].entity.light.shadowUpdateMode = pc.SHADOWUPDATE_THISFRAME;
+                    entities[i].entity.light.light.shadowUpdateMode = pc.SHADOWUPDATE_THISFRAME;
             }
             editor.call('viewport:render');
         });

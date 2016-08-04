@@ -69,7 +69,8 @@ editor.on('load', function() {
     editor.on('permissions:writeState', function(state) {
         hierarchyPanel.enabled = state;
     });
-
+    if (window.innerWidth <= 480)
+        hierarchyPanel.folded = true;
 
 
     // center
@@ -101,7 +102,8 @@ editor.on('load', function() {
     center.append(assetsPanel);
     // expose
     editor.method('layout.assets', function() { return assetsPanel; });
-
+    if (window.innerHeight <= 480)
+        assetsPanel.folded = true;
 
 
     // attributes
@@ -123,4 +125,6 @@ editor.on('load', function() {
     editor.on('permissions:writeState', function(state) {
         attributesPanel.enabled = state;
     });
+    if (window.innerWidth <= 720)
+        attributesPanel.folded = true;
 });

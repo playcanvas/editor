@@ -280,6 +280,8 @@ editor.once('load', function() {
 
 
         var assetAdd = function(asset, ind) {
+            if (! asset) return;
+
             var events = [ ];
             var assetId = parseInt(asset.get('id'), 10);
 
@@ -367,8 +369,17 @@ editor.once('load', function() {
             assetUpdateNumbers();
         };
 
-        // add assets
+        // get assets
         var assets = projectSettings.get('scripts') || [ ];
+
+        // remove null assets
+        var i = assets.length;
+        while(i--) {
+            if (assets[i] === null)
+                projectSettings.remove('scripts', i);
+        }
+
+        // add assets
         for(var i = 0; i < assets.length; i++)
             assetAdd(editor.call('assets:get', assets[i]));
 
