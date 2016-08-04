@@ -148,8 +148,9 @@
       Down: function() {handle.moveFocus(1);},
       PageUp: function() {handle.moveFocus(-handle.menuSize() + 1, true);},
       PageDown: function() {handle.moveFocus(handle.menuSize() - 1, true);},
-      Home: function() {handle.setFocus(0);},
-      End: function() {handle.setFocus(handle.length - 1);},
+      // playcanvas edit: Do not override home and end keys
+      // Home: function() {handle.setFocus(0);},
+      // End: function() {handle.setFocus(handle.length - 1);},
       Enter: handle.pick,
       Tab: handle.pick,
       Esc: handle.close

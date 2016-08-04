@@ -6,8 +6,6 @@ editor.once('load', function() {
         this._inTools = true;
         pc.app = this;
 
-        this.assets._prefix = '../../api/';
-
         if (! this.scene)
             this.scene = new pc.Scene();
 
