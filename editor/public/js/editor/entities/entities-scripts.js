@@ -159,8 +159,11 @@ editor.once('load', function() {
                 if (! setAttribute && attribute.type === 'curve') {
                     if (attribute.color || attribute.curves) {
                         var len = attribute.color ? attribute.color.length : attribute.curves.length;
-                        if (! (value.keys[0] instanceof Array) || value.keys.length !== len)
+                        if (len !== 1 && (! (value.keys[0] instanceof Array) || value.keys.length !== len)) {
                             setAttribute = true;
+                        } else if (len === 1 && (value.keys[0] instanceof Array)) {
+                            setAttribute = true;
+                        }
                     } else if (value.keys[0] instanceof Array) {
                         setAttribute = true;
                     }
