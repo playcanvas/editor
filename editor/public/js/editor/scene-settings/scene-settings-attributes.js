@@ -537,6 +537,22 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'settings:lightmapMaxResolution', fieldLightmapMaxResolution.parent.innerElement.firstChild.ui);
 
 
+        // lightmapMode
+        var fieldLightmapMode = editor.call('attributes:addField', {
+            parent: panelLightmapping,
+            name: 'Mode',
+            type: 'number',
+            enum: {
+                0: "Color Only",
+                1: "Color and Direction"
+            },
+            link: sceneSettings,
+            path: 'render.lightmapMode'
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'settings:lightmapMode', fieldLightmapMode.parent.innerElement.firstChild.ui);
+
+
 
         // loading screen
         var panelLoadingScreen = editor.call('attributes:addPanel', {

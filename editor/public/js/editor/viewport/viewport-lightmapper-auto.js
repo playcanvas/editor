@@ -147,6 +147,11 @@ editor.once('load', function() {
         });
     });
 
+    // re-bake on scene settigns loaded
+    editor.on('sceneSettings:load', function() {
+        rebakeScene(true);
+    });
+
 
     var evtRebakeEntity = function() {
         rebakeEntity(this);

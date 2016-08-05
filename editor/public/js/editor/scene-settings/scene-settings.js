@@ -41,6 +41,9 @@ editor.once('load', function() {
         if (! sceneSettings.has('render.lightmapMaxResolution'))
             sceneSettings.set('render.lightmapMaxResolution', 2048);
 
+        // lightmapMode
+        if (! sceneSettings.has('render.lightmapMode'))
+            sceneSettings.set('render.lightmapMode', 0);
 
         editor.emit('sceneSettings:load', sceneSettings);
     });
