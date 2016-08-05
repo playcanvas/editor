@@ -24,15 +24,17 @@ editor.once('load', function() {
         if (data.settings.priority_scripts === undefined && sceneSettings.has('priority_scripts'))
             sceneSettings.unset('priority_scripts');
 
-        if (history)
-            sceneSettings.history.enabled = true;
-
         if (sync)
             sceneSettings.sync.enabled = sync;
 
+        if (history)
+            sceneSettings.history.enabled = true;
 
-        // migrations
+        editor.emit('sceneSettings:load', sceneSettings);
+    });
 
+    // migrations
+    editor.on('sceneSettings:ready', function() {
         // lightmapSizeMultiplier
         if (! sceneSettings.has('render.lightmapSizeMultiplier'))
             sceneSettings.set('render.lightmapSizeMultiplier', 16);
@@ -44,8 +46,6 @@ editor.once('load', function() {
         // lightmapMode
         if (! sceneSettings.has('render.lightmapMode'))
             sceneSettings.set('render.lightmapMode', 0);
-
-        editor.emit('sceneSettings:load', sceneSettings);
     });
 
     editor.on('scene:unload', function () {
