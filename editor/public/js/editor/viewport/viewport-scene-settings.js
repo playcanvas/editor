@@ -9,12 +9,13 @@ editor.once('load', function() {
 
     // queue settings apply
     var queueApplySettings = function() {
-        if (!sceneSettingsLoaded || updating || !assetsLoaded)
+        if (! sceneSettingsLoaded || updating || ! assetsLoaded)
             return;
 
         updating = true;
 
-        setTimeout(applySettings, 1000 / 30);
+        editor.call('viewport:render');
+        editor.once('viewport:update', applySettings);
     };
 
     // apply settings

@@ -1592,6 +1592,7 @@ strong {
                             > .ui-header {
                                 background-color: $bcg-dark;
                                 padding-left: 0;
+                                white-space: normal;
 
                                 > .handle {
                                     float: left;
@@ -1625,6 +1626,7 @@ strong {
                                 > .title {
                                     padding: 0 8px;
                                     @extend .noSelect;
+                                    white-space: nowrap;
 
                                     &.link {
                                         color: $text-active;

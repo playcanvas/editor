@@ -7,7 +7,7 @@ editor.once('load', function() {
             prefix: [ 'settings' ]
         });
 
-        var events = [];
+        var events = [ ];
 
         // client > server
         events.push(settings.sync.on('op', function(op) {
@@ -23,5 +23,7 @@ editor.once('load', function() {
             for (var i = 0; i < events.length; i++)
                 events[i].unbind();
         });
+
+        editor.emit('sceneSettings:ready');
     });
 });

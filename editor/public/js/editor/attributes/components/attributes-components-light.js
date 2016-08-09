@@ -225,7 +225,7 @@ editor.once('load', function() {
             path: 'components.light.affectDynamic'
         });
         // label
-        var label = new ui.Label({ text: 'Dynamic' });
+        var label = new ui.Label({ text: 'Non-Baked' });
         label.class.add('label-infield');
         label.style.paddingRight = '12px';
         fieldAffectDynamic.parent.append(label);
@@ -241,7 +241,7 @@ editor.once('load', function() {
             path: 'components.light.affectLightmapped'
         });
         // label
-        var labelBaked = new ui.Label({ text: 'Lightmapped' });
+        var labelBaked = new ui.Label({ text: 'Baked' });
         labelBaked.class.add('label-infield');
         fieldAffectDynamic.parent.append(labelBaked);
         // reference

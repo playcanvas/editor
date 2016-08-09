@@ -18,7 +18,7 @@ editor.once('load', function() {
         var jobs = 0;
 
         var readyForBake = function() {
-            app.lightmapper.bake();
+            app.lightmapper.bake(null, app.scene.lightmapMode);
             app.renderer.prepareStaticMeshes(app.graphicsDevice, app.scene);
             editor.call('viewport:render');
             editor.emit('lightmapper:baked');
