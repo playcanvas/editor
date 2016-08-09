@@ -3,6 +3,7 @@ editor.once('load', function() {
 
     var root = editor.call('layout.root');
     var viewport = editor.call('layout.viewport');
+    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
 
 
     // panel
@@ -53,15 +54,17 @@ editor.once('load', function() {
     launchButtons['profile']._launch = 'profile';
     dropdownMenu.appendChild(launchButtons['profile']);
 
-    launchButtons['local'] = document.createElement('li');
-    launchButtons['local'].innerHTML = 'Launch (Local)';
-    launchButtons['local']._launch = 'local';
-    dropdownMenu.appendChild(launchButtons['local']);
+    if (legacyScripts) {
+        launchButtons['local'] = document.createElement('li');
+        launchButtons['local'].innerHTML = 'Launch (Local)';
+        launchButtons['local']._launch = 'local';
+        dropdownMenu.appendChild(launchButtons['local']);
 
-    launchButtons['local,profile'] = document.createElement('li');
-    launchButtons['local,profile'].innerHTML = 'Launch (Local, Profiler)'
-    launchButtons['local,profile']._launch = 'local,profile';
-    dropdownMenu.appendChild(launchButtons['local,profile']);
+        launchButtons['local,profile'] = document.createElement('li');
+        launchButtons['local,profile'].innerHTML = 'Launch (Local, Profiler)'
+        launchButtons['local,profile']._launch = 'local,profile';
+        dropdownMenu.appendChild(launchButtons['local,profile']);
+    }
 
     var switchDefaultLaunch = function(type) {
         launchButtons[launchButton].classList.remove('ticked');
