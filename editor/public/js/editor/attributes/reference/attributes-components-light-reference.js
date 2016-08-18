@@ -8,6 +8,11 @@ editor.once('load', function() {
         description: 'The Light Component enables the Entity to light the scene.',
         url: 'http://developer.playcanvas.com/api/pc.LightComponent.html'
     }, {
+        title: 'isStatic',
+        subTitle: '{Boolean}',
+        description: 'Mark light as non-movable (optimization).',
+        url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#isStatic'
+    }, {
         title: 'castShadows',
         subTitle: '{Boolean}',
         description: 'If checked, the light will cause shadow casting models to cast shadows.',
@@ -65,18 +70,23 @@ editor.once('load', function() {
     }, {
         title: 'affectDynamic',
         subTitle: '{Boolean}',
-        description: 'If enabled the light will affect non-lightmapped objects',
+        description: 'If enabled the light will affect non-lightmapped objects.',
         url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#affectDynamic'
     }, {
         title: 'affectLightmapped',
         subTitle: '{Boolean}',
-        description: 'If enabled the light will affect lightmapped objects',
+        description: 'If enabled the light will affect lightmapped objects.',
         url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#affectLightmapped'
     }, {
         title: 'bake',
         subTitle: '{Boolean}',
-        description: 'If enabled the light will be rendered into lightmaps',
+        description: 'If enabled the light will be rendered into lightmaps.',
         url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#bake'
+    }, {
+        title: 'bakeDir',
+        subTitle: '{Boolean}',
+        description: 'If enabled and bake=true, the light\'s direction will contribute to directional lightmaps.',
+        url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#bakeDir'
     }, {
         title: 'shadowUpdateMode',
         subTitle: '{pc.SHADOWUPDATE_*}',
@@ -105,12 +115,17 @@ editor.once('load', function() {
     }, {
         title: 'cookie',
         subTitle: '{pc.Texture}',
-        description: 'Projection texture. Must be 2D for spot and cubemap for point (ignored if incorrect type is used)',
+        description: 'Projection texture. Must be 2D for spot and cubemap for point (ignored if incorrect type is used).',
         url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#cookie'
+    }, {
+        title: 'cookieAsset',
+        subTitle: '{pc.Asset}',
+        description: 'Asset that has texture that will be assigned to cookie internally once asset resource is available.',
+        url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#cookieAsset'
     }, {
         title: 'cookieIntensity',
         subTitle: '{Number}',
-        description: 'Projection texture intensity',
+        description: 'Projection texture intensity.',
         url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#cookieIntensity'
     }, {
         title: 'cookieFalloff',
@@ -120,8 +135,23 @@ editor.once('load', function() {
     }, {
         title: 'cookieChannel',
         subTitle: '{String}',
-        description: 'Color channels of the projection texture to use. Can be "r", "g", "b", "a", "rgb" or any swizzled combination',
+        description: 'Color channels of the projection texture to use. Can be "r", "g", "b", "a", "rgb" or any swizzled combination.',
         url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#cookieChannel'
+    }, {
+        title: 'cookieAngle',
+        subTitle: '{Number}',
+        description: 'Angle for spotlight cookie rotation.',
+        url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#cookieAngle'
+    }, {
+        title: 'cookieOffset',
+        subTitle: '{pc.Vec2}',
+        description: 'Spotlight cookie position offset.',
+        url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#cookieOffset'
+    }, {
+        title: 'cookieScale',
+        subTitle: '{pc.Vec2}',
+        description: 'Spotlight cookie scale.',
+        url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#cookieScale'
     }];
 
     for(var i = 0; i < fields.length; i++) {

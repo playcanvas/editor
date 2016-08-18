@@ -37,8 +37,15 @@ app.once('load', function() {
             var assetData = doc.getSnapshot();
             assetData.id = id;
 
-            if (assetData.file)
+            if (assetData.file) {
                 assetData.file.url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.filename);
+
+                if (assetData.file.variants) {
+                    for(var key in assetData.file.variants) {
+                        assetData.file.variants[key].url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.variants[key].filename);
+                    }
+                }
+            }
 
             var asset = editor.call('assets:get', id);
             // asset can exist if we are reconnecting to c3
@@ -164,12 +171,24 @@ app.once('load', function() {
             item: asset
         });
 
-        asset.on('file:set', function(value) {
-            if (! value) return;
-            var state = asset.sync.enabled;
-            asset.sync.enabled = false;
-            asset.set('file.url', getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), asset.get('file.filename')));
-            asset.sync.enabled = state;
+        var setting = false;
+
+        asset.on('*:set', function(path, value) {
+            if (setting || ! path.startsWith('file') || path.endsWith('.url') || ! asset.get('file'))
+                return;
+
+            setting = true;
+
+            var parts = path.split('.');
+
+            if ((parts.length === 1 || parts.length === 2) && parts[1] !== 'variants') {
+                asset.set('file.url', getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), asset.get('file.filename')));
+            } else if (parts.length >= 3 && parts[1] === 'variants') {
+                var format = parts[2];
+                asset.set('file.variants.' + format + '.url', getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), asset.get('file.variants.' + format + '.filename')));
+            }
+
+            setting = false;
         });
     });
 

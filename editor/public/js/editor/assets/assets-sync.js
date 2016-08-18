@@ -7,6 +7,7 @@ editor.once('load', function() {
         'preload',
         'scope',
         'data',
+        'meta',
         'file'
     ];
     var docs = {};
@@ -43,8 +44,15 @@ editor.once('load', function() {
             var assetData = doc.getSnapshot();
             assetData.id = id;
 
-            if (assetData.file)
+            if (assetData.file) {
                 assetData.file.url = getFileUrl(assetData.id, assetData.revision, assetData.file.filename);
+
+                if (assetData.file.variants) {
+                    for(var key in assetData.file.variants) {
+                        assetData.file.variants[key].url = getFileUrl(assetData.id, assetData.revision, assetData.file.variants[key].filename);
+                    }
+                }
+            }
 
             var asset = new Observer(assetData);
             editor.call('assets:add', asset);
@@ -229,7 +237,9 @@ editor.once('load', function() {
             // store missing tilings / offset before we set default values
             editor.call('material:rememberMissingFields', asset);
 
-            asset.set('data', editor.call('material:default', asset.get('data')));
+            var assetData = asset.get('data');
+            if (assetData)
+                asset.set('data', editor.call('material:default', assetData));
         }
 
         asset.sync = new ObserverSync({
@@ -248,15 +258,22 @@ editor.once('load', function() {
         var setting = false;
 
         asset.on('*:set', function (path, value) {
-            if (setting || (! (path.startsWith('file') && value) && ! (path === 'has_thumbnail' && value && asset.get('file.url'))))
+            if (setting || ! path.startsWith('file') || path.endsWith('.url') || ! asset.get('file'))
                 return;
 
             setting = true;
 
-            // reset file url
-            asset.set('file.url', getFileUrl(asset.get('id'), asset.get('revision'), asset.get('file.filename')));
-            // set thumbnails
-            assetSetThumbnailPaths(asset);
+            var parts = path.split('.');
+
+            if ((parts.length === 1 || parts.length === 2) && parts[1] !== 'variants') {
+                // reset file url
+                asset.set('file.url', getFileUrl(asset.get('id'), asset.get('revision'), asset.get('file.filename')));
+                // set thumbnails
+                assetSetThumbnailPaths(asset);
+            } else if (parts.length >= 3 && parts[1] === 'variants') {
+                var format = parts[2];
+                asset.set('file.variants.' + format + '.url', getFileUrl(asset.get('id'), asset.get('revision'), asset.get('file.variants.' + format + '.filename')));
+            }
 
             setting = false;
         });

@@ -184,7 +184,8 @@ editor.once('load', function() {
                     filename: source.get('file.filename'),
                     scope: source.get('scope'),
                     user_id: source.get('user_id'),
-                    region: source.get('region')
+                    region: source.get('region'),
+                    meta: source.get('meta')
                 }
             }
         };
@@ -197,7 +198,8 @@ editor.once('load', function() {
                     filename: target.get('file.filename'),
                     scope: target.get('scope'),
                     user_id: target.get('user_id'),
-                    region: target.get('region')
+                    region: target.get('region'),
+                    meta: target.get('meta')
                 }
             };
 

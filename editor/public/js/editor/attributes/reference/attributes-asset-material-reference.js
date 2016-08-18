@@ -72,6 +72,23 @@ editor.once('load', function() {
         description: 'A cube map texture asset that approximates environment reflection (with greater accuracy than is possible with a sphere map). If scene has SkyBox set, then it will be used as default cubeMap',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#cubeMap'
     }, {
+        title: 'cubeMapProjection',
+        subTitle: '{pc.CUBEPROJ_*}',
+        description: 'The type of projection applied to the cubeMap property, with available options: pc.CUBEPROJ_NONE and pc.CUBEPROJ_BOX. Set to Box to enable world-space axis-aligned projection of cubemap based on bounding box.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#cubeMapProjection'
+    }, {
+        name: 'cubeMapProjectionBoxCenter',
+        title: 'cubeMapProjectionBox',
+        subTitle: '{pc.BoundingBox}',
+        description: 'The world space axis-aligned bounding box defining the box-projection used for the cubeMap property. Only used when cubeMapProjection is set to pc.CUBEPROJ_BOX.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#cubeMapProjectionBox'
+    }, {
+        name: 'cubeMapProjectionBoxHalfExtents',
+        title: 'cubeMapProjectionBox',
+        subTitle: '{pc.BoundingBox}',
+        description: 'The world space axis-aligned bounding box defining the box-projection used for the cubeMap property. Only used when cubeMapProjection is set to pc.CUBEPROJ_BOX.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#cubeMapProjectionBox'
+    }, {
         title: 'cull',
         subTitle: '{pc.CULLFACE_*}',
         description: 'Options are:<br />None {pc.CULLFACE_NONE}: Both front faces and back faces are rendered.<br />Front Faces {pc.CULLFACE_FRONT}: front faces are rendered and back faces are not.<br />Back Faces {pc.CULLFACE_BACK}: back faces are rendered and front faces are not. This is the default.<br />PlayCanvas dictates that a counter-clockwise vertex winding specifies a front face triangle. Note that backface culling is often good for performance because backface pixels are often overwritten (for convex meshes) which can result in redundant filling of pixels.'

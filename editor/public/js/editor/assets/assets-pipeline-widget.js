@@ -6,7 +6,7 @@ editor.once('load', function() {
     var viewport = editor.call('layout.viewport');
 
     // panel
-    var panel = new ui.Panel('ASSET TASKS (beta)');
+    var panel = new ui.Panel('ASSET TASKS');
     panel.class.add('pipeline-widget');
     panel.flexShrink = false;
     panel.foldable = true;
@@ -213,8 +213,9 @@ editor.once('load', function() {
                             filename: asset.get('file.filename'),
                             scope: asset.get('scope'),
                             user_id: asset.get('user_id'),
-                            region: asset.get('region')
-                        },
+                            region: asset.get('region'),
+                            meta: asset.get('meta')
+                        }
                     },
                     target: { }
                 };
@@ -268,7 +269,8 @@ editor.once('load', function() {
                                 filename: filename,
                                 scope: target.get('scope'),
                                 user_id: target.get('user_id'),
-                                region: target.get('region')
+                                region: target.get('region'),
+                                meta: target.get('meta')
                             }
                         };
 
@@ -308,7 +310,8 @@ editor.once('load', function() {
                             data: data,
                             region: asset.get('region'),
                             parent: path.length ? path[path.length - 1] : null,
-                            scope: asset.get('scope')
+                            scope: asset.get('scope'),
+                            meta: asset.get('meta')
                         };
 
                         editor.call('assets:create', assetNew, function(err, id) {
@@ -584,11 +587,11 @@ editor.once('load', function() {
         if (editor.call('assets:pipeline:settings', 'auto')) {
             if (type === 'font') {
                 // convert fonts once the source file has been set
-                var filename = asset.get('file.filename');
-                if (filename) {
+                var file = asset.get('file');
+                if (file) {
                     convertAuto();
                 } else {
-                    events.push(asset.once('file.filename:set', function (value) {
+                    events.push(asset.once('file:set', function (value) {
                         if (! editor.call('assets:pipeline:settings', 'auto'))
                             return;
 
@@ -598,20 +601,28 @@ editor.once('load', function() {
 
             } else {
                 // convert asset once it has meta set
+                var file = asset.get('file');
                 var meta = asset.get('meta');
 
-                if (meta) {
+                if (file && meta) {
                     convertAuto();
                 } else {
-                    events.push(asset.once('meta:set', function(value) {
+                    var onDataAvailable = function() {
                         if (! editor.call('assets:pipeline:settings', 'auto'))
                             return;
 
-                        convertAuto();
-                    }));
+                        if (! asset.get('file.filename') || ! asset.get('meta.format'))
+                            return;
+
+                        evtWaitForData.unbind();
+                        setTimeout(convertAuto, 0);
+                    };
+
+                    var evtWaitForData = asset.on('*:set', onDataAvailable);
+
+                    events.push(evtWaitForData);
                 }
             }
-
         } else {
             if (asset.get('type') === 'texture' && ! asset.get('source')) {
                 var filename = asset.get('file.filename');
