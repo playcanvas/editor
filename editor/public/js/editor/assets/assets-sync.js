@@ -229,7 +229,9 @@ editor.once('load', function() {
             // store missing tilings / offset before we set default values
             editor.call('material:rememberMissingFields', asset);
 
-            asset.set('data', editor.call('material:default', asset.get('data')));
+            var assetData = asset.get('data');
+            if (assetData)
+                asset.set('data', editor.call('material:default', assetData));
         }
 
         asset.sync = new ObserverSync({
