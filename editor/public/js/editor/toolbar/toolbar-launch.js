@@ -106,7 +106,9 @@ editor.once('load', function() {
         if (query.length)
             url += '?' + query.join('&');
 
-        window.open(url, 'pc.launch.' + config.scene.id);
+        var launcher = window.open();
+        launcher.opener = null;
+        launcher.location = url;
     };
 
     editor.method('launch', function(type) {

@@ -607,11 +607,17 @@ editor.once('load', function() {
                 if (file && meta) {
                     convertAuto();
                 } else {
-                    var onDataAvailable = function() {
+                    var onDataAvailable = function(path, value) {
                         if (! editor.call('assets:pipeline:settings', 'auto'))
                             return;
 
-                        if (! asset.get('file.filename') || ! asset.get('meta.format'))
+                        if (! asset.get('file.filename'))
+                            return;
+
+                        if (asset.get('type') === 'texture' && ! asset.get('meta.format'))
+                            return;
+
+                        if (! asset.get('meta'))
                             return;
 
                         evtWaitForData.unbind();
