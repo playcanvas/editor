@@ -152,7 +152,7 @@ app.once('load', function() {
                 path += 'unknown/';
             }
         }
-        return '/api/assets/files/' + path + encodeURIComponent(filename) + '?id=' + id;
+        return '/assets/files/' + path + encodeURIComponent(filename) + '?id=' + id;
     };
 
     // hook sync to new assets
