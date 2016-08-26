@@ -522,15 +522,7 @@ editor.once('load', function() {
 
                     if (checkCompressRequired(assets[i], key)) {
                         var task = {
-                            asset: {
-                                id: parseInt(assets[i].get('id'), 10),
-                                type: assets[i].get('type'),
-                                filename: assets[i].get('file.filename'),
-                                scope: assets[i].get('scope'),
-                                user_id: assets[i].get('user_id'),
-                                region: assets[i].get('region'),
-                                meta: assets[i].get('meta')
-                            },
+                            asset: parseInt(assets[i].get('id'), 10),
                             options: {
                                 format: key
                             }
@@ -543,15 +535,7 @@ editor.once('load', function() {
                             if (sourceId) {
                                 var sourceAsset = editor.call('assets:get', sourceId);
 
-                                task.source = {
-                                    id: parseInt(sourceAsset.get('id'), 10),
-                                    type: sourceAsset.get('type'),
-                                    filename: sourceAsset.get('file.filename'),
-                                    scope: sourceAsset.get('scope'),
-                                    user_id: sourceAsset.get('user_id'),
-                                    region: sourceAsset.get('region'),
-                                    meta: sourceAsset.get('meta')
-                                }
+                                task.source = parseInt(sourceAsset.get('id'), 10)
                             }
 
                             editor.call('realtime:send', 'pipeline', {

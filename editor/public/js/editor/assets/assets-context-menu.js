@@ -176,33 +176,11 @@ editor.once('load', function() {
             return;
 
         var task = {
-            source: {
-                asset: {
-                    id: source.get('id'),
-                    source: true,
-                    type: source.get('type'),
-                    filename: source.get('file.filename'),
-                    scope: source.get('scope'),
-                    user_id: source.get('user_id'),
-                    region: source.get('region'),
-                    meta: source.get('meta')
-                }
-            }
+            source: parseInt(source.get('id'), 10)
         };
 
         if (source.get('type') === 'texture') {
-            task.target = {
-                asset: {
-                    id: target.get('id'),
-                    type: target.get('type'),
-                    filename: target.get('file.filename'),
-                    scope: target.get('scope'),
-                    user_id: target.get('user_id'),
-                    region: target.get('region'),
-                    meta: target.get('meta')
-                }
-            };
-
+            task.target = parseInt(target.get('id'), 10);
             task.options = editor.call('assets:jobs:texture-convert-options', source.get('meta'));
 
             editor.call('realtime:send', 'pipeline', {
@@ -235,27 +213,9 @@ editor.once('load', function() {
                 if (! source.get('meta.animation.available'))
                     return;
 
-                task.target = {
-                    asset: {
-                        id: parseInt(target.get('id'), 10),
-                        type: target.get('type'),
-                        filename: target.get('file.filename'),
-                        scope: target.get('scope'),
-                        user_id: target.get('user_id'),
-                        region: target.get('region')
-                    }
-                };
+                task.target = parseInt(target.get('id'), 10);
             } else if (type === 'model') {
-                task.target = {
-                    asset: {
-                        id: parseInt(target.get('id'), 10),
-                        type: target.get('type'),
-                        filename: target.get('file.filename'),
-                        scope: target.get('scope'),
-                        user_id: target.get('user_id'),
-                        region: target.get('region')
-                    }
-                };
+                task.target = parseInt(target.get('id'), 10);
             } else {
                 return;
             }
@@ -265,27 +225,15 @@ editor.once('load', function() {
                 data: task
             });
         } else if (source.get('type') === 'font') {
-            var meta = target.get('meta');
-            if (! meta) {
-                var chars = [];
-                for (var i = 0x20; i <= 0x7e; i++) {
+            var chars = null;
+            if (! target.get('meta')) {
+                chars = [ ];
+                for (var i = 0x20; i <= 0x7e; i++)
                     chars.push(String.fromCharCode(i));
-                }
-                meta = {
-                    chars: chars.join('')
-                };
+                chars = chars.join('');
             }
-            task.target = {
-                asset: {
-                    id: target.get('id'),
-                    type: target.get('type'),
-                    filename: target.get('file.filename'),
-                    scope: target.get('scope'),
-                    user_id: target.get('user_id'),
-                    region: target.get('region'),
-                    meta: meta
-                }
-            };
+            task.target = parseInt(target.get('id'), 10);
+            task.chars = chars;
 
             editor.call('realtime:send', 'pipeline', {
                 name: 'convert',
