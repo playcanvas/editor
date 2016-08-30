@@ -190,6 +190,7 @@ app.once('load', function() {
         gamepads: new pc.input.GamePads(),
         scriptPrefix: scriptPrefix,
         scriptsOrder: projectSettings.get('scripts') || [ ],
+        assetPrefix: '/api',
         graphicsDeviceOptions: {
             alpha: config.project.settings.transparent_canvas === false ? false : true,
             preserveDrawingBuffer: !!config.project.settings.preserve_drawing_buffer
