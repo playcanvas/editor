@@ -451,8 +451,8 @@ editor.once('load', function () {
         if (jobInProgress)
             return;
 
-        if (config.self.plan.type === 'free') {
-            editor.call('picker:confirm', 'You need a PRO account to be able to download for iOS. Would you like to upgrade?', function () {
+        if (config.owner.plan.type !== 'org' && config.owner.plan.type !== 'organization') {
+            editor.call('picker:confirm', 'You need an Organization account to be able to download for iOS. Would you like to upgrade?', function () {
                 window.open('/upgrade');
             });
 
