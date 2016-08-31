@@ -22,7 +22,8 @@ editor.once('load', function() {
                     filename: assetJson.file.filename,
                     url: assetJson.file.url,
                     hash: assetJson.file.hash,
-                    size: assetJson.file.size
+                    size: assetJson.file.size,
+                    variants: assetJson.file.variants || null
                 } : null,
                 data: assetJson.data,
                 type: assetJson.type
@@ -36,9 +37,9 @@ editor.once('load', function() {
             assetRegistry.add(newAsset);
 
             var timeout;
-            var updatedFields = {};
+            var updatedFields = { };
 
-            asset.on('*:set', function (path, value) {
+            var onUpdate = function(path, value) {
                 var parts = path.split('.');
 
                 if (parts[0] !== 'data' && parts[0] !== 'file')
@@ -66,15 +67,17 @@ editor.once('load', function() {
 
                     timeout = null;
                 });
-            });
+            };
+
+            asset.on('*:set', onUpdate);
+            asset.on('*:unset', onUpdate);
         });
 
         // remove assets from asset registry
         editor.on('assets:remove', function (asset) {
             var realtimeAsset = assetRegistry.get(asset.get('id'));
-            if (realtimeAsset) {
+            if (realtimeAsset)
                 assetRegistry.remove(realtimeAsset);
-            }
         });
     });
 });

@@ -372,30 +372,9 @@ editor.once('load', function() {
                 if (! source) return;
 
                 var task = {
-                    source: {
-                        asset: {
-                            id: source.get('id'),
-                            source: true,
-                            type: 'font',
-                            filename: source.get('file.filename'),
-                            scope: source.get('scope'),
-                            user_id: source.get('user_id'),
-                            region: source.get('region')
-                        }
-                    },
-                    target: {
-                        asset: {
-                            id: asset.get('id'),
-                            type: asset.get('type'),
-                            filename: asset.get('file.filename'),
-                            scope: asset.get('scope'),
-                            user_id: asset.get('user_id'),
-                            region: asset.get('region'),
-                            meta: {
-                                chars: value
-                            }
-                        }
-                    }
+                    source: parseInt(source.get('id'), 10),
+                    target: parseInt(asset.get('id'), 10),
+                    chars: value
                 };
 
                 editor.call('realtime:send', 'pipeline', {

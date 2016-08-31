@@ -8,6 +8,11 @@ editor.once('load', function() {
         description: 'Enables an Entity to render a model or a primitive shape. This Component attaches additional model geometry in to the scene graph below the Entity.',
         url: 'http://developer.playcanvas.com/api/pc.ModelComponent.html'
     }, {
+        title: 'isStatic',
+        subTitle: '{Boolean}',
+        description: 'Mark model as non-movable (optimization).',
+        url: 'http://developer.playcanvas.com/api/pc.ModelComponent.html#isStatic'
+    }, {
         title: 'asset',
         subTitle: '{Number}',
         description: 'The model asset rendered by this model component. Only a single model can be rendered per model component.',

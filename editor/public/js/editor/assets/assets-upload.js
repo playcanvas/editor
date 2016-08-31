@@ -101,6 +101,10 @@ editor.once('load', function() {
         if (args.data)
             form.append('data', JSON.stringify(args.data));
 
+        // meta
+        if (args.meta)
+            form.append('meta', JSON.stringify(args.meta));
+
         // preload
         form.append('preload', args.preload === undefined ? true : args.preload);
 
@@ -222,7 +226,8 @@ editor.once('load', function() {
                     name: files[i].name,
                     parent: editor.call('assets:panel:currentFolder'),
                     pipeline: true,
-                    data: data
+                    data: data,
+                    meta: asset ? asset[1].get('meta') : null
                 }, function(err, data) {
                     if (err || ext !== 'js') return;
 

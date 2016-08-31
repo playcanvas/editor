@@ -398,7 +398,10 @@ editor.once('load', function() {
             ]
         },
         cubeMapProjectionBox: {
-            'default': null,
+            'default': {
+                'center': [ 0, 0, 0 ],
+                'halfExtents': [ 0.5, 0.5, 0.5 ]
+            },
             'type': 'object'
         },
         lightMap: {
@@ -574,7 +577,7 @@ editor.once('load', function() {
             return a - b;
         }).join(',');
 
-        var panelState = panelsStates[ids] = panelsStates[ids];
+        var panelState = panelsStates[ids];
         var panelStateNew = false;
 
         if (! panelState) {
