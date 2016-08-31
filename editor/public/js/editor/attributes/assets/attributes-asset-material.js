@@ -980,10 +980,169 @@ editor.once('load', function() {
             updateAllTilingOffsetFields(fieldTiling, 'Tiling', 1, value);
         });
 
+        var rgxExtension = /\.[a-z]+$/;
+        var textureFields = { };
+        var texturePanels = { };
+        var bulkSlots = {
+            'ao': [ 'a', 'ao', 'ambient', 'ambientocclusion', 'gma', 'gmat', 'gmao', 'gmaa' ],
+            'diffuse': [ 'd', 'diff', 'diffuse', 'albedo', 'color', 'rgb', 'rgba' ],
+            'specular': [ 's', 'spec', 'specular' ],
+            'metalness': [ 'm', 'met', 'metal', 'metalness', 'gma', 'gmat', 'gmao', 'gmaa' ],
+            'gloss': [ 'g', 'gloss', 'glossiness', 'gma', 'gmat', 'gmao', 'gmaa' ],
+            'emissive': [ 'e', 'emissive' ],
+            'opacity': [ 'o', 't', 'opacity', 'alpha', 'transparency', 'gmat', 'gmao', 'gmaa', 'rgba' ],
+            'normal': [ 'n', 'norm', 'normal', 'normals' ],
+            'parallax': [ 'p', 'parallax', 'bump' ],
+            'light': [ 'l', 'lm', 'light', 'lightmap' ]
+        };
+
+        var postfixToSlot = { };
+        for(var key in bulkSlots) {
+            for(var i = 0; i < bulkSlots[key].length; i++)
+                postfixToSlot[bulkSlots[key][i]] = key;
+        }
+
+        var tokenizeFilename = function(filename) {
+            filename = filename.trim().toLowerCase();
+
+            if (! filename)
+                return;
+
+            // drop extension
+            var ext = filename.match(rgxExtension);
+            if (ext) filename = filename.slice(0, -ext[0].length);
+
+            if (! filename)
+                return;
+
+            var parts = filename.split(/(\-|_|\.)/g);
+            var tokens = [ ];
+
+            for(var i = 0; i < parts.length; i++) {
+                if (parts[i] === '-' || parts[i] === '_' || parts[i] === '.')
+                    continue;
+
+                tokens.push(parts[i]);
+            }
+
+            if (! tokens.length)
+                return;
+
+            if (tokens.length === 1)
+                return [ '', tokens[0] ];
+
+            var left = tokens.slice(0, -1).join('');
+            var right = tokens[tokens.length - 1];
+
+            return [ left, right ];
+        };
+
+        var getFilenameLeftPart = function(name) {
+            var parts = asset.get('name').trim().replace(/\.[a-z]+$/i, '').split(/(\-|_|\.)/g);
+            if (parts.length < 3)
+                return '';
+
+            var first = parts.slice(0, -1).join('').toLowerCase();
+        };
+
+        var onTextureBulkSet = function(asset, slot) {
+            var tokens = tokenizeFilename(asset.get('name'));
+            if (! tokens)
+                return;
+
+            if (bulkSlots[slot].indexOf(tokens[1]) == -1)
+                return;
+
+            var path = asset.get('path');
+            var textures = editor.call('assets:find', function(texture) {
+                return texture !== asset && texture.get('type') === 'texture' && ! texture.get('source') && texture.get('path').equals(path);
+            });
+
+            if (! textures.length)
+                return;
+
+            var candidates = [ ];
+            for(var i = 0; i < textures.length; i++) {
+                var t = tokenizeFilename(textures[i][1].get('name'));
+                if (! t || t[0] !== tokens[0] || ! postfixToSlot[t[1]] || postfixToSlot[t[1]] === slot)
+                    continue;
+
+                candidates.push([ postfixToSlot[t[1]], textures[i][1] ]);
+            }
+
+            if (! candidates.length)
+                return;
+
+            var records = [ ];
+
+            // TODO
+            // history
+
+            for(var a = 0; a < assets.length; a++) {
+                if (assets[a].get('data.' + slot + 'Map'))
+                    continue;
+
+                var history = assets[a].history.enabled;
+                assets[a].history.enabled = false;
+
+                for(var i = 0; i < candidates.length; i++) {
+                    var key = 'data.' + candidates[i][0] + 'Map';
+
+                    if (assets[a].get(key))
+                        continue;
+
+                    var panel = texturePanels[candidates[i][0]];
+                    if (panel) panel.folded = false;
+
+
+                    var id = parseInt(candidates[i][1].get('id'), 10);
+                    assets[a].set(key, id);
+
+                    records.push({
+                        id: assets[a].get('id'),
+                        key: key,
+                        value: id
+                    });
+                }
+
+                assets[a].history.enabled = history;
+            }
+
+            if (records.length) {
+                editor.call('history:add', {
+                    name: 'material textures auto-bind',
+                    undo: function() {
+                        for(var i = 0; i < records.length; i++) {
+                            var asset = editor.call('assets:get', records[i].id);
+                            if (! asset)
+                                continue;
+
+                            var history = asset.history.enabled;
+                            asset.history.enabled = false;
+                            asset.set(records[i].key, null);
+                            asset.history.enabled = history;
+                        }
+                    },
+                    redo: function() {
+                        for(var i = 0; i < records.length; i++) {
+                            var asset = editor.call('assets:get', records[i].id);
+                            if (! asset)
+                                continue;
+
+                            var history = asset.history.enabled;
+                            asset.history.enabled = false;
+                            asset.set(records[i].key, records[i].value);
+                            asset.history.enabled = history;
+                        }
+                    }
+                });
+            }
+        };
+
 
 
         // ambient
-        var panelAmbient = editor.call('attributes:addPanel', {
+        var panelAmbient = texturePanels.ao = editor.call('attributes:addPanel', {
             foldable: true,
             folded: panelState['ao'],
             name: 'Ambient'
@@ -997,7 +1156,7 @@ editor.once('load', function() {
 
         // map
         var fieldAmbientMapHover = handleTextureHover('aoMap');
-        var fieldAmbientMap = editor.call('attributes:addField', {
+        var fieldAmbientMap = textureFields.ao = editor.call('attributes:addField', {
             parent: panelAmbient,
             type: 'asset',
             kind: 'texture',
@@ -1005,7 +1164,10 @@ editor.once('load', function() {
             link: assets,
             path: 'data.aoMap',
             over: fieldAmbientMapHover.over,
-            leave: fieldAmbientMapHover.leave
+            leave: fieldAmbientMapHover.leave,
+            onSet: function(asset) {
+                onTextureBulkSet(asset, 'ao');
+            }
         });
         fieldAmbientMap.parent.class.add('channel');
         fieldAmbientMap.on('change', function(value) {
@@ -1148,7 +1310,7 @@ editor.once('load', function() {
 
 
         // diffuse
-        var panelDiffuse = editor.call('attributes:addPanel', {
+        var panelDiffuse = texturePanels.diffuse = editor.call('attributes:addPanel', {
             foldable: true,
             folded: panelState['diffuse'],
             name: 'Diffuse'
@@ -1161,7 +1323,7 @@ editor.once('load', function() {
 
         // diffuse map
         var fieldDiffuseMapHover = handleTextureHover('diffuseMap');
-        var fieldDiffuseMap = editor.call('attributes:addField', {
+        var fieldDiffuseMap = textureFields.diffuse = editor.call('attributes:addField', {
             parent: panelDiffuse,
             type: 'asset',
             kind: 'texture',
@@ -1169,7 +1331,10 @@ editor.once('load', function() {
             link: assets,
             path: 'data.diffuseMap',
             over: fieldDiffuseMapHover.over,
-            leave: fieldDiffuseMapHover.leave
+            leave: fieldDiffuseMapHover.leave,
+            onSet: function(asset) {
+                onTextureBulkSet(asset, 'diffuse');
+            }
         });
         fieldDiffuseMap.parent.class.add('channel');
         fieldDiffuseMap.on('change', function(value) {
@@ -1299,7 +1464,7 @@ editor.once('load', function() {
 
 
         // specular
-        var panelSpecular = editor.call('attributes:addPanel', {
+        var panelSpecular = texturePanels.specular = texturePanels.metalness = texturePanels.gloss = editor.call('attributes:addPanel', {
             foldable: true,
             folded: panelState['specular'],
             name: 'Specular'
@@ -1331,7 +1496,7 @@ editor.once('load', function() {
 
         // metalness map
         var fieldMetalnessMapHover = handleTextureHover('metalnessMap');
-        var fieldMetalnessMap = editor.call('attributes:addField', {
+        var fieldMetalnessMap = textureFields.metalness = editor.call('attributes:addField', {
             parent: panelMetalness,
             type: 'asset',
             kind: 'texture',
@@ -1339,7 +1504,10 @@ editor.once('load', function() {
             link: assets,
             path: 'data.metalnessMap',
             over: fieldMetalnessMapHover.over,
-            leave: fieldMetalnessMapHover.leave
+            leave: fieldMetalnessMapHover.leave,
+            onSet: function(asset) {
+                onTextureBulkSet(asset, 'metalness');
+            }
         });
         fieldMetalnessMap.parent.class.add('channel');
         fieldMetalnessMap.on('change', function(value) {
@@ -1476,7 +1644,7 @@ editor.once('load', function() {
 
         // specular map
         var fieldSpecularMapHover = handleTextureHover('specularMap');
-        var fieldSpecularMap = editor.call('attributes:addField', {
+        var fieldSpecularMap = textureFields.specular = editor.call('attributes:addField', {
             parent: panelSpecularWorkflow,
             type: 'asset',
             kind: 'texture',
@@ -1484,7 +1652,10 @@ editor.once('load', function() {
             link: assets,
             path: 'data.specularMap',
             over: fieldSpecularMapHover.over,
-            leave: fieldSpecularMapHover.leave
+            leave: fieldSpecularMapHover.leave,
+            onSet: function(asset) {
+                onTextureBulkSet(asset, 'specular');
+            }
         });
         fieldSpecularMap.parent.class.add('channel');
         fieldSpecularMap.on('change', function(value) {
@@ -1621,7 +1792,7 @@ editor.once('load', function() {
 
         // map (gloss)
         var fieldGlossMapHover = handleTextureHover('glossMap');
-        var fieldGlossMap = editor.call('attributes:addField', {
+        var fieldGlossMap = textureFields.gloss = editor.call('attributes:addField', {
             parent: panelSpecular,
             type: 'asset',
             kind: 'texture',
@@ -1629,7 +1800,10 @@ editor.once('load', function() {
             link: assets,
             path: 'data.glossMap',
             over: fieldGlossMapHover.over,
-            leave: fieldGlossMapHover.leave
+            leave: fieldGlossMapHover.leave,
+            onSet: function(asset) {
+                onTextureBulkSet(asset, 'gloss');
+            }
         });
         fieldGlossMap.parent.class.add('channel');
         fieldGlossMap.on('change', function(value) {
@@ -1760,7 +1934,7 @@ editor.once('load', function() {
 
 
         // emissive
-        var panelEmissive = editor.call('attributes:addPanel', {
+        var panelEmissive = texturePanels.emissive = editor.call('attributes:addPanel', {
             foldable: true,
             folded: panelState['emissive'],
             name: 'Emissive'
@@ -1773,7 +1947,7 @@ editor.once('load', function() {
 
         // map
         var fieldEmissiveMapHover = handleTextureHover('emissiveMap');
-        var fieldEmissiveMap = editor.call('attributes:addField', {
+        var fieldEmissiveMap = textureFields.emissive = editor.call('attributes:addField', {
             parent: panelEmissive,
             type: 'asset',
             kind: 'texture',
@@ -1781,7 +1955,10 @@ editor.once('load', function() {
             link: assets,
             path: 'data.emissiveMap',
             over: fieldEmissiveMapHover.over,
-            leave: fieldEmissiveMapHover.leave
+            leave: fieldEmissiveMapHover.leave,
+            onSet: function(asset) {
+                onTextureBulkSet(asset, 'emissive');
+            }
         });
         fieldEmissiveMap.parent.class.add('channel');
         fieldEmissiveMap.on('change', function(value) {
@@ -1942,7 +2119,7 @@ editor.once('load', function() {
 
 
         // opacity
-        var panelOpacity = editor.call('attributes:addPanel', {
+        var panelOpacity = texturePanels.opacity = editor.call('attributes:addPanel', {
             foldable: true,
             folded: panelState['opacity'],
             name: 'Opacity'
@@ -1975,7 +2152,7 @@ editor.once('load', function() {
 
         // map
         var fieldOpacityMapHover = handleTextureHover('opacityMap');
-        var fieldOpacityMap = editor.call('attributes:addField', {
+        var fieldOpacityMap = textureFields.opacity = editor.call('attributes:addField', {
             parent: panelOpacity,
             type: 'asset',
             kind: 'texture',
@@ -1983,7 +2160,10 @@ editor.once('load', function() {
             link: assets,
             path: 'data.opacityMap',
             over: fieldOpacityMapHover.over,
-            leave: fieldOpacityMapHover.leave
+            leave: fieldOpacityMapHover.leave,
+            onSet: function(asset) {
+                onTextureBulkSet(asset, 'opacity');
+            }
         });
         fieldOpacityMap.parent.class.add('channel');
         fieldOpacityMap.on('change', filterBlendFields);
@@ -2145,7 +2325,7 @@ editor.once('load', function() {
 
 
         // normals
-        var panelNormal = editor.call('attributes:addPanel', {
+        var panelNormal = texturePanels.normal = editor.call('attributes:addPanel', {
             foldable: true,
             folded: panelState['normals'],
             name: 'Normals'
@@ -2158,7 +2338,7 @@ editor.once('load', function() {
 
         // map (normals)
         var fieldNormalMapHover = handleTextureHover('normalMap');
-        var fieldNormalMap = editor.call('attributes:addField', {
+        var fieldNormalMap = textureFields.normal = editor.call('attributes:addField', {
             parent: panelNormal,
             type: 'asset',
             kind: 'texture',
@@ -2166,7 +2346,10 @@ editor.once('load', function() {
             link: assets,
             path: 'data.normalMap',
             over: fieldNormalMapHover.over,
-            leave: fieldNormalMapHover.leave
+            leave: fieldNormalMapHover.leave,
+            onSet: function(asset) {
+                onTextureBulkSet(asset, 'normal');
+            }
         });
         fieldNormalMap.on('change', function(value) {
             fieldNormalsOffset[0].parent.hidden = filterNormalOffset();
@@ -2270,7 +2453,7 @@ editor.once('load', function() {
 
 
         // parallax
-        var panelParallax = editor.call('attributes:addPanel', {
+        var panelParallax = texturePanels.height = editor.call('attributes:addPanel', {
             foldable: true,
             folded: panelState['height'],
             name: 'Parallax'
@@ -2283,7 +2466,7 @@ editor.once('load', function() {
 
         // height map
         var fieldHeightMapHover = handleTextureHover('heightMap');
-        var fieldHeightMap = editor.call('attributes:addField', {
+        var fieldHeightMap = textureFields.height = editor.call('attributes:addField', {
             parent: panelParallax,
             type: 'asset',
             kind: 'texture',
@@ -2291,7 +2474,10 @@ editor.once('load', function() {
             link: assets,
             path: 'data.heightMap',
             over: fieldHeightMapHover.over,
-            leave: fieldHeightMapHover.leave
+            leave: fieldHeightMapHover.leave,
+            onSet: function(asset) {
+                onTextureBulkSet(asset, 'height');
+            }
         });
         fieldHeightMap.parent.class.add('channel');
         fieldHeightMap.on('change', function(value) {
@@ -2415,7 +2601,7 @@ editor.once('load', function() {
 
 
         // reflection
-        var panelReflection = editor.call('attributes:addPanel', {
+        var panelReflection = texturePanels.reflection = texturePanels.refraction = texturePanels.sphere = editor.call('attributes:addPanel', {
             foldable: true,
             folded: panelState['environment'],
             name: 'Environment'
@@ -2432,7 +2618,7 @@ editor.once('load', function() {
         };
         // spheremap
         var fieldReflectionSphereHover = handleTextureHover('sphereMap');
-        var fieldReflectionSphere = editor.call('attributes:addField', {
+        var fieldReflectionSphere = textureFields.sphere = editor.call('attributes:addField', {
             parent: panelReflection,
             type: 'asset',
             kind: 'texture',
@@ -2608,7 +2794,7 @@ editor.once('load', function() {
 
 
         // lightmap
-        var panelLightMap = editor.call('attributes:addPanel', {
+        var panelLightMap = texturePanels.light = editor.call('attributes:addPanel', {
             foldable: true,
             folded: panelState['light'],
             name: 'LightMap'
@@ -2621,7 +2807,7 @@ editor.once('load', function() {
 
         // map
         var fieldLightMapHover = handleTextureHover('lightMap');
-        var fieldLightMap = editor.call('attributes:addField', {
+        var fieldLightMap = textureFields.light = editor.call('attributes:addField', {
             parent: panelLightMap,
             type: 'asset',
             kind: 'texture',
@@ -2629,7 +2815,10 @@ editor.once('load', function() {
             link: assets,
             path: 'data.lightMap',
             over: fieldLightMapHover.over,
-            leave: fieldLightMapHover.leave
+            leave: fieldLightMapHover.leave,
+            onSet: function(asset) {
+                onTextureBulkSet(asset, 'light');
+            }
         });
         fieldLightMap.parent.class.add('channel');
         fieldLightMap.on('change', function (value) {
@@ -2730,7 +2919,7 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'asset:material:lightMapVertexColor', fieldLightVertexColor.parent.innerElement.firstChild.ui);
 
         // render states
-        var panelRenderStates = editor.call('attributes:addPanel', {
+        var panelRenderStates = texturePanels.states = editor.call('attributes:addPanel', {
             foldable: true,
             folded: panelState['states'],
             name: 'Other'

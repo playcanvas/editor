@@ -140,5 +140,4 @@ editor.once('load', function() {
             editor.call('help:controls');
         }
     });
-
 });

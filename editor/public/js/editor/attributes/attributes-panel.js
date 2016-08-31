@@ -977,6 +977,7 @@ editor.once('load', function() {
                     editor.call('picker:asset', args.kind, asset);
 
                     evtPick = editor.once('picker:asset', function(asset) {
+                        if (args.onSet) args.onSet(asset);
                         field.emit('beforechange', asset.get('id'));
                         field.value = asset.get('id');
                         evtPick = null;
@@ -1009,7 +1010,6 @@ editor.once('load', function() {
                             editor.call('assets:panel:currentFolder', null);
                         }
                     }
-
                 });
                 btnEdit.on('click', function() {
                     field.emit('click');
@@ -1094,6 +1094,11 @@ editor.once('load', function() {
                     drop: function(type, data) {
                         if ((args.kind !== '*' && type !== 'asset.' + args.kind) || editor.call('assets:get', parseInt(data.id, 10)).get('source'))
                             return;
+
+                        if (args.onSet) {
+                            var asset = editor.call('assets:get', parseInt(data.id, 10));
+                            if (asset) args.onSet(asset);
+                        }
 
                         field.emit('beforechange', parseInt(data.id, 10));
                         field.value = parseInt(data.id, 10);
