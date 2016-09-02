@@ -35,7 +35,10 @@ editor.once('load', function () {
         }
 
         options.gutters = ["CodeMirror-pc-gutter"];
-    } else {
+    }
+
+    // lint
+    if (!config.asset || config.asset.type === 'script') {
         options.lint = true;
         options.gutters = ["CodeMirror-lint-markers"];
     }
