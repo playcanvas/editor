@@ -3,7 +3,7 @@ editor.once('load', function() {
 
     // new
     editor.call('hotkey:register', 'entity:new', {
-        key: 'n',
+        key: 'e',
         ctrl: true,
         callback: function() {
             if (! editor.call('permissions:write'))

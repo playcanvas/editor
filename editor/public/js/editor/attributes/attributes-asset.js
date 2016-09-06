@@ -1,13 +1,6 @@
 editor.once('load', function() {
     'use strict';
 
-    var bytesToHuman = function(bytes) {
-        if (isNaN(bytes) || bytes === 0) return '0 B';
-        var k = 1000;
-        var sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-        var i = Math.floor(Math.log(bytes) / Math.log(k));
-        return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
-    };
     var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
 
     var sourceRuntimeOptions = {
