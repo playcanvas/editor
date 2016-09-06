@@ -1001,8 +1001,10 @@ editor.once('load', function() {
 
         var postfixToSlot = { };
         for(var key in bulkSlots) {
-            for(var i = 0; i < bulkSlots[key].length; i++)
-                postfixToSlot[bulkSlots[key][i]] = key;
+            for(var i = 0; i < bulkSlots[key].length; i++) {
+                postfixToSlot[bulkSlots[key][i]] = postfixToSlot[bulkSlots[key][i]] || [ ];
+                postfixToSlot[bulkSlots[key][i]].push(key);
+            }
         }
 
         var tokenizeFilename = function(filename) {
@@ -1048,7 +1050,7 @@ editor.once('load', function() {
             var first = parts.slice(0, -1).join('').toLowerCase();
         };
 
-        var onTextureBulkSet = function(asset, slot) {
+        var onTextureBulkSet = function(asset, oldValues, slot) {
             var tokens = tokenizeFilename(asset.get('name'));
             if (! tokens)
                 return;
@@ -1064,48 +1066,148 @@ editor.once('load', function() {
             if (! textures.length)
                 return;
 
-            var candidates = [ ];
+            var candidates = { };
             for(var i = 0; i < textures.length; i++) {
                 var t = tokenizeFilename(textures[i][1].get('name'));
-                if (! t || t[0] !== tokens[0] || ! postfixToSlot[t[1]] || postfixToSlot[t[1]] === slot)
+                if (! t || t[0] !== tokens[0] || ! postfixToSlot[t[1]] || postfixToSlot[t[1]].indexOf(slot) !== -1)
                     continue;
 
-                candidates.push([ postfixToSlot[t[1]], textures[i][1] ]);
+                for(var s = 0; s < postfixToSlot[t[1]].length; s++) {
+                    candidates[postfixToSlot[t[1]][s]] = {
+                        texture: textures[i][1],
+                        postfix: t[1]
+                    };
+                }
             }
 
-            if (! candidates.length)
+            if (! Object.keys(candidates).length)
                 return;
 
             var records = [ ];
 
-            // TODO
-            // history
-
             for(var a = 0; a < assets.length; a++) {
-                if (assets[a].get('data.' + slot + 'Map'))
+                if (oldValues[assets[a].get('id')])
                     continue;
 
                 var history = assets[a].history.enabled;
                 assets[a].history.enabled = false;
 
-                for(var i = 0; i < candidates.length; i++) {
-                    var key = 'data.' + candidates[i][0] + 'Map';
+                for(var s in candidates) {
+                    var key = 'data.' + s + 'Map';
 
                     if (assets[a].get(key))
                         continue;
 
-                    var panel = texturePanels[candidates[i][0]];
+                    var panel = texturePanels[s];
                     if (panel) panel.folded = false;
 
-
-                    var id = parseInt(candidates[i][1].get('id'), 10);
+                    var id = parseInt(candidates[s].texture.get('id'), 10);
                     assets[a].set(key, id);
 
                     records.push({
                         id: assets[a].get('id'),
                         key: key,
-                        value: id
+                        value: id,
+                        old: null
                     });
+
+                    if (s === 'ao') {
+                        // ao can be in third color channel
+                        if (/^(g|r)ma/.test(candidates[s].postfix)) {
+                            var channel = assets[a].get('data.aoMapChannel');
+                            if (channel !== 'b') {
+                                assets[a].set('data.aoMapChannel', 'b');
+
+                                records.push({
+                                    id: assets[a].get('id'),
+                                    key: 'data.aoMapChannel',
+                                    value: 'b',
+                                    old: channel
+                                });
+                            }
+                        }
+                    } else if (s === 'metalness') {
+                        // use metalness
+                        if (! assets[a].get('data.useMetalness')) {
+                            assets[a].set('data.useMetalness', true);
+
+                            records.push({
+                                id: assets[a].get('id'),
+                                key: 'data.useMetalness',
+                                value: true,
+                                old: false
+                            });
+                        }
+
+                        // metalness to maximum
+                        var metalness = assets[a].get('data.metalness');
+                        if (metalness !== 1) {
+                            assets[a].set('data.metalness', 1.0);
+
+                            records.push({
+                                id: assets[a].get('id'),
+                                key: 'data.metalness',
+                                value: 1.0,
+                                old: metalness
+                            });
+                        }
+
+                        // metalness can be in second color channel
+                        if (/^(g|r)ma/.test(candidates[s].postfix)) {
+                            var channel = assets[a].get('data.metalnessMapChannel');
+                            if (channel !== 'g') {
+                                assets[a].set('data.metalnessMapChannel', 'g');
+
+                                records.push({
+                                    id: assets[a].get('id'),
+                                    key: 'data.metalnessMapChannel',
+                                    value: 'g',
+                                    old: channel
+                                });
+                            }
+                        }
+                    } else if (s === 'gloss') {
+                        // gloss to maximum
+                        var shininess = assets[a].get('data.shininess');
+                        if (shininess !== 100) {
+                            assets[a].set('data.shininess', 100.0);
+
+                            records.push({
+                                id: assets[a].get('id'),
+                                key: 'data.shininess',
+                                value: 100.0,
+                                old: shininess
+                            });
+                        }
+
+                        // gloss shall be in first color channel
+                        var channel = assets[a].get('data.glossMapChannel');
+                        if (channel !== 'r') {
+                            assets[a].set('data.glossMapChannel', 'r');
+
+                            records.push({
+                                id: assets[a].get('id'),
+                                key: 'data.glossMapChannel',
+                                value: 'r',
+                                old: channel
+                            });
+                        }
+                    } else if (s === 'opacity') {
+                        // opacity can be in fourth color channel
+                        if (/^(gma|rma|rgb)(t|o|a)$/.test(candidates[s].postfix)) {
+                            var channel = assets[a].get('data.opacityMapChannel');
+                            if (channel !== 'a') {
+                                assets[a].set('data.opacityMapChannel', 'a');
+
+                                records.push({
+                                    id: assets[a].get('id'),
+                                    key: 'data.opacityMapChannel',
+                                    value: 'a',
+                                    old: channel
+                                });
+                            }
+                        }
+                    }
                 }
 
                 assets[a].history.enabled = history;
@@ -1122,7 +1224,7 @@ editor.once('load', function() {
 
                             var history = asset.history.enabled;
                             asset.history.enabled = false;
-                            asset.set(records[i].key, null);
+                            asset.set(records[i].key, records[i].old);
                             asset.history.enabled = history;
                         }
                     },
@@ -1168,8 +1270,8 @@ editor.once('load', function() {
             path: 'data.aoMap',
             over: fieldAmbientMapHover.over,
             leave: fieldAmbientMapHover.leave,
-            onSet: function(asset) {
-                onTextureBulkSet(asset, 'ao');
+            onSet: function(asset, oldValues) {
+                onTextureBulkSet(asset, oldValues, 'ao');
             }
         });
         fieldAmbientMap.parent.class.add('channel');
@@ -1335,8 +1437,8 @@ editor.once('load', function() {
             path: 'data.diffuseMap',
             over: fieldDiffuseMapHover.over,
             leave: fieldDiffuseMapHover.leave,
-            onSet: function(asset) {
-                onTextureBulkSet(asset, 'diffuse');
+            onSet: function(asset, oldValues) {
+                onTextureBulkSet(asset, oldValues, 'diffuse');
             }
         });
         fieldDiffuseMap.parent.class.add('channel');
@@ -1508,8 +1610,8 @@ editor.once('load', function() {
             path: 'data.metalnessMap',
             over: fieldMetalnessMapHover.over,
             leave: fieldMetalnessMapHover.leave,
-            onSet: function(asset) {
-                onTextureBulkSet(asset, 'metalness');
+            onSet: function(asset, oldValues) {
+                onTextureBulkSet(asset, oldValues, 'metalness');
             }
         });
         fieldMetalnessMap.parent.class.add('channel');
@@ -1656,8 +1758,8 @@ editor.once('load', function() {
             path: 'data.specularMap',
             over: fieldSpecularMapHover.over,
             leave: fieldSpecularMapHover.leave,
-            onSet: function(asset) {
-                onTextureBulkSet(asset, 'specular');
+            onSet: function(asset, oldValues) {
+                onTextureBulkSet(asset, oldValues, 'specular');
             }
         });
         fieldSpecularMap.parent.class.add('channel');
@@ -1804,8 +1906,8 @@ editor.once('load', function() {
             path: 'data.glossMap',
             over: fieldGlossMapHover.over,
             leave: fieldGlossMapHover.leave,
-            onSet: function(asset) {
-                onTextureBulkSet(asset, 'gloss');
+            onSet: function(asset, oldValues) {
+                onTextureBulkSet(asset, oldValues, 'gloss');
             }
         });
         fieldGlossMap.parent.class.add('channel');
@@ -1959,8 +2061,8 @@ editor.once('load', function() {
             path: 'data.emissiveMap',
             over: fieldEmissiveMapHover.over,
             leave: fieldEmissiveMapHover.leave,
-            onSet: function(asset) {
-                onTextureBulkSet(asset, 'emissive');
+            onSet: function(asset, oldValues) {
+                onTextureBulkSet(asset, oldValues, 'emissive');
             }
         });
         fieldEmissiveMap.parent.class.add('channel');
@@ -2164,8 +2266,8 @@ editor.once('load', function() {
             path: 'data.opacityMap',
             over: fieldOpacityMapHover.over,
             leave: fieldOpacityMapHover.leave,
-            onSet: function(asset) {
-                onTextureBulkSet(asset, 'opacity');
+            onSet: function(asset, oldValues) {
+                onTextureBulkSet(asset, oldValues, 'opacity');
             }
         });
         fieldOpacityMap.parent.class.add('channel');
@@ -2350,8 +2452,8 @@ editor.once('load', function() {
             path: 'data.normalMap',
             over: fieldNormalMapHover.over,
             leave: fieldNormalMapHover.leave,
-            onSet: function(asset) {
-                onTextureBulkSet(asset, 'normal');
+            onSet: function(asset, oldValues) {
+                onTextureBulkSet(asset, oldValues, 'normal');
             }
         });
         fieldNormalMap.on('change', function(value) {
@@ -2478,8 +2580,8 @@ editor.once('load', function() {
             path: 'data.heightMap',
             over: fieldHeightMapHover.over,
             leave: fieldHeightMapHover.leave,
-            onSet: function(asset) {
-                onTextureBulkSet(asset, 'height');
+            onSet: function(asset, oldValues) {
+                onTextureBulkSet(asset, oldValues, 'height');
             }
         });
         fieldHeightMap.parent.class.add('channel');
@@ -2819,8 +2921,8 @@ editor.once('load', function() {
             path: 'data.lightMap',
             over: fieldLightMapHover.over,
             leave: fieldLightMapHover.leave,
-            onSet: function(asset) {
-                onTextureBulkSet(asset, 'light');
+            onSet: function(asset, oldValues) {
+                onTextureBulkSet(asset, oldValues, 'light');
             }
         });
         fieldLightMap.parent.class.add('channel');
