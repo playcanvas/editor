@@ -318,6 +318,8 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'asset:texture:compression', panelCompression, panelCompression.headerElement);
 
+        if (! config.self.superUser)
+            panelCompression.hidden = true;
 
         // compress alpha
         var fieldCompressAlpha = editor.call('attributes:addField', {
