@@ -987,13 +987,13 @@ editor.once('load', function() {
         var textureFields = { };
         var texturePanels = { };
         var bulkSlots = {
-            'ao': [ 'a', 'ao', 'ambient', 'ambientocclusion', 'gma', 'gmat', 'gmao', 'gmaa' ],
+            'ao': [ 'a', 'ao', 'ambient', 'ambientocclusion', 'gma', 'gmat', 'gmao', 'gmaa', 'rma', 'rmat', 'rmao', 'rmaa' ],
             'diffuse': [ 'd', 'diff', 'diffuse', 'albedo', 'color', 'rgb', 'rgba' ],
             'specular': [ 's', 'spec', 'specular' ],
-            'metalness': [ 'm', 'met', 'metal', 'metalness', 'gma', 'gmat', 'gmao', 'gmaa' ],
-            'gloss': [ 'g', 'gloss', 'glossiness', 'gma', 'gmat', 'gmao', 'gmaa' ],
+            'metalness': [ 'm', 'met', 'metal', 'metalness', 'gma', 'gmat', 'gmao', 'gmaa', 'rma', 'rmat', 'rmao', 'rmaa' ],
+            'gloss': [ 'g', 'gloss', 'glossiness', 'gma', 'gmat', 'gmao', 'gmaa', 'rma', 'rmat', 'rmao', 'rmaa' ],
             'emissive': [ 'e', 'emissive' ],
-            'opacity': [ 'o', 't', 'opacity', 'alpha', 'transparency', 'gmat', 'gmao', 'gmaa', 'rgba' ],
+            'opacity': [ 'o', 't', 'opacity', 'alpha', 'transparency', 'gmat', 'gmao', 'gmaa', 'rgba', 'rmat', 'rmao', 'rmaa' ],
             'normal': [ 'n', 'norm', 'normal', 'normals' ],
             'parallax': [ 'p', 'parallax', 'bump' ],
             'light': [ 'l', 'lm', 'light', 'lightmap' ]

@@ -425,19 +425,53 @@ editor.once('load', function() {
             }, 0);
         };
 
-        for(var i = 0; i < assets.length; i++) {
-            if (! assets[i].get('file'))
-                continue;
+        var checkFormats = function() {
+            var width = -1;
+            var height = -1;
 
-            var ext = assets[i].get('file.url');
-            ext = ext.slice(ext.lastIndexOf('.') + 1).toUpperCase();
+            for(var i = 0; i < assets.length; i++) {
+                if (assets[i].has('meta.width')) {
+                    if (width === -1) {
+                        width = assets[i].get('meta.width');
+                        height = assets[i].get('meta.height');
+                    } else if (width !== assets[i].get('meta.width') || height !== assets[i].get('meta.height')) {
+                        width = -2;
+                        height = -2;
+                    }
+                }
 
-            if (originalExt !== 'various' && originalExt && originalExt !== ext) {
-                originalExt = 'various';
-            } else {
-                originalExt = ext;
+                if (! assets[i].get('file'))
+                    continue;
+
+                var ext = assets[i].get('file.url');
+                ext = ext.slice(ext.lastIndexOf('.') + 1).toUpperCase();
+
+                if (originalExt !== 'various' && originalExt && originalExt !== ext) {
+                    originalExt = 'various';
+                } else {
+                    originalExt = ext;
+                }
             }
-        }
+
+            fieldOriginal.value = originalExt;
+
+            if (width > 0 && height > 0) {
+                // size available
+                if ((width & (width - 1)) === 0 && (height & (height - 1)) === 0) {
+                    // pot
+                    fieldDxt.disabled = false;
+                } else {
+                    // non pot
+                    fieldDxt.disabled = true;
+                }
+            } else if (width === -1) {
+                // no size available
+                fieldDxt.disabled = true;
+            } else if (width === -2) {
+                // various sizes
+                fieldDxt.disabled = false;
+            }
+        };
 
         calculateOriginalSize();
         for(var key in formats) {
@@ -482,13 +516,7 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'asset:texture:compress:dxt', fieldDxt.parent.innerElement.firstChild.ui);
 
-
-        // disable dxt for non pot textures
-        if (fieldWidth.value && fieldHeight.value && (fieldWidth.value & (fieldWidth.value - 1)) === 0 && (fieldHeight.value & (fieldHeight.value - 1)) === 0) {
-            fieldDxt.disabled = false;
-        } else {
-            fieldDxt.disabled = true;
-        }
+        checkFormats();
 
         var bindSizeCalculate = function(format) {
             for(var i = 0; i < assets.length; i++) {
@@ -521,6 +549,17 @@ editor.once('load', function() {
                         continue;
 
                     if (checkCompressRequired(assets[i], key)) {
+                        var width = assets[i].get('meta.width');
+                        var height = assets[i].get('meta.height');
+
+                        // no width/height
+                        if (! width || ! height)
+                            continue;
+
+                        // non pot
+                        if ((width & (width - 1)) !== 0 || (height & (height - 1)) !== 0)
+                            continue;
+
                         var task = {
                             asset: parseInt(assets[i].get('id'), 10),
                             options: {
@@ -596,12 +635,18 @@ editor.once('load', function() {
 
             btnCompress.disabled = ! different;
         };
+        var queueCheck = false;
         var onAssetChaneCompression = function(path) {
-            if (path !== 'task' && ! path.startsWith('meta.compress') && ! path.startsWith('file'))
+            if (queueCheck || (path !== 'task' && ! path.startsWith('meta') && ! path.startsWith('file')))
                 return;
 
-            checkCompression();
-            checkCompressAlpha();
+            queueCheck = true;
+            setTimeout(function() {
+                queueCheck = false;
+                checkFormats();
+                checkCompression();
+                checkCompressAlpha();
+            }, 0);
         };
         for(var i = 0; i < assets.length; i++) {
             events.push(assets[i].on('*:set', onAssetChaneCompression));

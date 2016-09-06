@@ -277,6 +277,10 @@ editor.once('load', function() {
 
             setting = false;
         });
+
+        asset.on('has_thumbnail:set', function(value) {
+            assetSetThumbnailPaths(asset);
+        });
     });
 
     // write asset operations
