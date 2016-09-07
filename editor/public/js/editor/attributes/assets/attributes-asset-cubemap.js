@@ -177,6 +177,10 @@ editor.once('load', function() {
             editor.call('attributes:reference:attach', 'asset:cubemap:slots', previewPanel, previewPanel.headerElement);
 
 
+            var downloadButton = previewPanel.parent.element.querySelector('.ui-panel.buttons > .content > .ui-button.download-asset');
+            if (downloadButton)
+                downloadButton = downloadButton.ui;
+
             // error
             var labelError = new ui.Label({
                 text: 'error'
@@ -201,11 +205,14 @@ editor.once('load', function() {
             var checkValid = function() {
                 var invalid = invalidFaces();
 
-                if (invalid) {
+                if (invalid)
                     labelError.text = invalid;
-                    labelError.hidden = false;
-                } else {
-                    labelError.hidden = true;
+
+                labelError.hidden = ! invalid;
+
+                if (downloadButton) {
+                    downloadButton.disabled = !! invalid;
+                    downloadButton.prevent = !! invalid;
                 }
             };
 

@@ -366,6 +366,9 @@ editor.once('load', function() {
                 btnDownload.text = 'Download';
                 btnDownload.class.add('download-asset', 'large-with-icon');
                 btnDownload.element.addEventListener('click', function(evt) {
+                    if (btnDownload.prevent)
+                        return;
+
                     if (assets[0].get('source') || assets[0].get('type') === 'texture' || assets[0].get('type') === 'audio') {
                         window.open(assets[0].get('file.url'));
                     } else {

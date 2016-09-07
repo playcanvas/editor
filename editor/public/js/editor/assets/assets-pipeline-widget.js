@@ -541,7 +541,6 @@ editor.once('load', function() {
                         convertAuto();
                     }));
                 }
-
             } else {
                 // convert asset once it has meta set
                 var file = asset.get('file');
@@ -550,7 +549,12 @@ editor.once('load', function() {
                 if (file && meta) {
                     convertAuto();
                 } else {
+                    var converted = false;
+
                     var onDataAvailable = function(path, value) {
+                        if (converted)
+                            return;
+
                         if (! editor.call('assets:pipeline:settings', 'auto'))
                             return;
 
@@ -564,6 +568,7 @@ editor.once('load', function() {
                             return;
 
                         evtWaitForData.unbind();
+                        converted = true;
                         setTimeout(convertAuto, 0);
                     };
 
