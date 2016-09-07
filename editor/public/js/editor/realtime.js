@@ -197,6 +197,7 @@ editor.once('load', function() {
         });
 
         editor.method('realtime:send', function(name, data) {
+            // console.log(name, data);
             socket.send(name + JSON.stringify(data));
         });
 
