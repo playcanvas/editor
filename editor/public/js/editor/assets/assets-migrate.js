@@ -21,14 +21,22 @@ editor.once('load', function() {
                 asset.set('data.cubeMapProjectionBox', { center: [ 0, 0, 0 ], halfExtents: [ 0.5, 0.5, 0.5 ] });
         }
 
-        if (asset.get('type') === 'texture' && asset.get('meta')) {
-            if (! asset.has('meta.compress') && ! asset.get('source')) {
+        if (asset.get('type') === 'texture' && asset.get('meta') && ! asset.get('source')) {
+            if (! asset.has('meta.compress')) {
                 var alpha = asset.get('meta.alpha') || (asset.get('meta.type').toLowerCase() || '') === 'truecoloralpha' || false;
 
                 asset.set('meta.compress', {
                     alpha: alpha,
-                    dxt: false
+                    dxt: false,
+                    pvr: false,
+                    pvrBpp: 4
                 });
+            } else {
+                if (! asset.has('meta.compress.pvr'))
+                    asset.set('meta.compress.pvr', false);
+
+                if (! asset.has('meta.compress.pvrBpp'))
+                    asset.set('meta.compress.pvrBpp', 4);
             }
         }
 

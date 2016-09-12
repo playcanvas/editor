@@ -302,7 +302,8 @@ editor.once('load', function() {
 
         var formats = {
             original: { size: 0, vram: 0 },
-            dxt: { size: 0, vram: 0, timeout: false }
+            dxt: { size: 0, vram: 0, timeout: false },
+            pvr: { size: 0, vram: 0, timeout: false }
         };
 
 
@@ -500,6 +501,7 @@ editor.once('load', function() {
         labelOriginalSize.class.add('size');
         fieldOriginal.parent.append(labelOriginalSize);
 
+
         // dxt
         var fieldDxt = editor.call('attributes:addField', {
             parent: panelCompression,
@@ -517,6 +519,44 @@ editor.once('load', function() {
         fieldDxt.parent.append(labelDxtSize);
         // reference
         editor.call('attributes:reference:attach', 'asset:texture:compress:dxt', fieldDxt.parent.innerElement.firstChild.ui);
+
+
+        // pvr
+        var fieldPvr = editor.call('attributes:addField', {
+            parent: panelCompression,
+            type: 'checkbox',
+            name: 'PVR',
+            link: assets,
+            path: 'meta.compress.pvr'
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'asset:texture:compress:pvr', fieldPvr.parent.innerElement.firstChild.ui);
+
+        // pvrBpp
+        var fieldPvrBpp = editor.call('attributes:addField', {
+            panel: fieldPvr.parent,
+            type: 'number',
+            enum: [
+                { v: '', t: '...' },
+                { v: 2, t: '2 BPP' },
+                { v: 4, t: '4 BPP' }
+            ],
+            link: assets,
+            path: 'meta.compress.pvrBpp'
+        });
+        fieldPvrBpp.flexGrow = 0;
+        fieldPvrBpp.style.width = '42px';
+        // reference
+        editor.call('attributes:reference:attach', 'asset:texture:compress:pvrBpp', fieldPvrBpp);
+
+        // label
+        var labelDxtSize = labelSize['pvr'] = new ui.Label({
+            text: bytesToHuman(formats.pvr.size) + ' [VRAM ' + bytesToHuman(formats.pvr.vram) + ']'
+        });
+        labelDxtSize.class.add('size');
+        if (! formats.pvr.size && ! formats.pvr.vram) labelDxtSize.text = '-';
+        fieldPvr.parent.append(labelDxtSize);
+
 
         checkFormats();
 
@@ -569,6 +609,9 @@ editor.once('load', function() {
                             }
                         };
 
+                        if (key === 'pvr')
+                            task.options.pvrBpp = assets[i].get('meta.compress.pvrBpp');
+
                         if (assets[i].get('meta.compress.' + key)) {
                             task.options.alpha = assets[i].get('meta.compress.alpha') && (assets[i].get('meta.alpha') || assets[i].get('meta.type').toLowerCase() === 'truecoloralpha');
 
@@ -609,6 +652,12 @@ editor.once('load', function() {
                 return true;
             } else if (data && ((((data.opt & 1) != 0) != alpha))) {
                 return true;
+            }
+
+            if (data && format === 'pvr') {
+                var bpp = asset.get('meta.compress.pvrBpp');
+                if (data && ((data.opt & 128) !== 0 ? 4 : 2) !== bpp)
+                    return true;
             }
 
             return false;
