@@ -9,32 +9,20 @@ editor.once('load', function () {
     var renderer = data.renderer;
     var device = data.device;
 
-    // shader definition for the font rendering
-    var precision = "precision " + device.precision + " float;";
+    var defaultScreenSpaceTextMaterial = new pc.StandardMaterial();
 
-    var shaderDefinition = {
-        attributes: {
-            aPosition: pc.gfx.SEMANTIC_POSITION,
-            aUv0: pc.gfx.SEMANTIC_TEXCOORD0
-        },
-        vshader: pc.shaderChunks.msdfVS,
-        fshader: pc.shaderChunks.msdfPS.replace("[PRECISION]", precision)
-    };
-
-    // Create the shader from the definition
-    var shader = new pc.gfx.Shader(device, shaderDefinition);
-
-    // the material to render fonts
-    var material = new pc.Material();
-    material.setShader(shader);
-
-    // material.setParameter("texture_atlas", texture.resource);
-    material.setParameter("material_background", [0,0,0,0]);
-    material.setParameter("material_foreground", [1,1,1,1]);
-    material.blendType = pc.BLEND_PREMULTIPLIED;
-    material.cull = pc.CULLFACE_NONE;
-    material.depthWrite = false;
-    material.depthTest = false;
+    defaultScreenSpaceTextMaterial.screenSpace = true;
+    defaultScreenSpaceTextMaterial.useLighting = false;
+    defaultScreenSpaceTextMaterial.useGammaTonemap = false;
+    defaultScreenSpaceTextMaterial.useFog = false;
+    defaultScreenSpaceTextMaterial.useSkybox = false;
+    defaultScreenSpaceTextMaterial.emissive = new pc.Color(1,1,1,1);
+    defaultScreenSpaceTextMaterial.opacity = 1;
+    defaultScreenSpaceTextMaterial.blendType = pc.BLEND_PREMULTIPLIED;
+    defaultScreenSpaceTextMaterial.depthWrite = false;
+    defaultScreenSpaceTextMaterial.depthTest = false;
+    defaultScreenSpaceTextMaterial.cull = pc.CULLFACE_NONE;
+    defaultScreenSpaceTextMaterial.update();
 
     var positions = [];
     var normals = [];
@@ -78,8 +66,8 @@ editor.once('load', function () {
 
         var length = text.length;
         var maxScale = -1;
-        var width = 2;
-        var height = 2;
+        var width = 1;
+        var height = 1;
         var maxWidth = 0;
         var maxYOffset = 0;
 
@@ -160,7 +148,7 @@ editor.once('load', function () {
     var mesh = createMesh(2);
     var node = new pc.GraphNode();
     var model = new pc.Model();
-    var meshInstance = new pc.MeshInstance(node, mesh, material);
+    var meshInstance = new pc.MeshInstance(node, mesh, defaultScreenSpaceTextMaterial);
     model.meshInstances.push(meshInstance);
     scene.addModel(model);
 
@@ -197,7 +185,9 @@ editor.once('load', function () {
         if (! font || ! font.resource || ! font.resource.texture || ! font.data || ! font.data.chars)
             return;
 
-        meshInstance.setParameter("texture_atlas", font.resource.texture);
+        // set the font texture
+        defaultScreenSpaceTextMaterial.msdfMap = font.resource.texture;
+        defaultScreenSpaceTextMaterial.update();
 
         // try to use Aa as the text in different languages
         // and if that is not found try the first two characters of the font
