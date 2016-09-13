@@ -10,10 +10,9 @@ app.once('load', function() {
             return;
 
         var timeout;
-        var updatedFields = {};
+        var updatedFields = { };
 
-        // attach update handler
-        asset.on('*:set', function (path, value) {
+        var onChange = function(path, value) {
             var realtimeAsset = assetRegistry.get(asset.get('id'));
             var parts = path.split('.');
 
@@ -34,7 +33,11 @@ app.once('load', function() {
 
                 timeout = null;
             });
-        });
+        };
+
+        // attach update handler
+        asset.on('*:set', onChange);
+        asset.on('*:unset', onChange);
 
         // tags add
         asset.on('tags:insert', function(tag) {
@@ -48,7 +51,6 @@ app.once('load', function() {
 
     // after all initial assets are loaded...
     app.on('assets:load', function () {
-
         var assets = editor.call('assets:list');
         assets.forEach(attachSetHandler);
 
@@ -70,7 +72,8 @@ app.once('load', function() {
                     filename: assetJson.file.filename,
                     url: assetJson.file.url,
                     hash: assetJson.file.hash,
-                    size: assetJson.file.size
+                    size: assetJson.file.size,
+                    variants: assetJson.file.variants || null
                 } : null,
                 data: assetJson.data,
                 type: assetJson.type

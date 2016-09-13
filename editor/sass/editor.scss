@@ -1490,6 +1490,23 @@ strong {
                 padding: 0;
             }
         }
+        &.variants {
+            > .content {
+                > .ui-panel {
+                    > .content {
+                        > .ui-label.size {
+                            vertical-align: top;
+                            font-size: 10px;
+                            line-height: 24px;
+                            text-align: right;
+                            flex-grow: 1;
+                            -webkit-flex-grow: 1;
+                            color: $text-dark;
+                        }
+                    }
+                }
+            }
+        }
         &.script {
             > .content {
                 padding-top: 6px;
@@ -1878,6 +1895,7 @@ strong {
 
                     > .ui-button.large-with-icon {
                         flex-grow: 1;
+                        -webkit-flex-grow: 1;
                         width: 100%;
 
                         &.download-asset:before {
@@ -1914,9 +1932,23 @@ strong {
                         content: '\E131';
                     }
                 }
+                &.compress-asset {
+                    color: $text-active;
+
+                    &.disabled {
+                        color: $text-primary;
+                    }
+                    &:hover {
+                        color: $text-primary;
+                    }
+                    &:before {
+                        content: '\E278';
+                    }
+                }
             }
             > .ui-button.override-material, .ui-button.loading-screen {
                 flex-grow: 1;
+                -webkit-flex-grow: 1;
                 background-color: $bcg-dark;
 
                 &:hover {
@@ -2656,6 +2688,8 @@ strong {
     display: block;
     flex-shrink: 0;
     flex-grow: 0;
+    -webkit-flex-grow: 0;
+    -webkit-flex-shrink: 0;
     height: calc(100% - 4px);
 
     .ui-tree-item {
@@ -2677,6 +2711,8 @@ strong {
     align-content: flex-start;
     flex-grow: 1;
     flex-shrink: 1;
+    -webkit-flex-grow: 1;
+    -webkit-flex-shrink: 1;
 
     > .ui-grid-item {
         width: 104px;

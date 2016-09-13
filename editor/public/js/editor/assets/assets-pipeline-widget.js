@@ -6,7 +6,7 @@ editor.once('load', function() {
     var viewport = editor.call('layout.viewport');
 
     // panel
-    var panel = new ui.Panel('ASSET TASKS (beta)');
+    var panel = new ui.Panel('ASSET TASKS');
     panel.class.add('pipeline-widget');
     panel.flexShrink = false;
     panel.foldable = true;
@@ -150,28 +150,16 @@ editor.once('load', function() {
         source = source || target;
 
         var task = {
-            source: {
-                asset: {
-                    id: source.get('id'),
-                    filename: source.get('file.filename'),
-                    region: source.get('region')
-                }
-            }
+            source: parseInt(source.get('id'), 10)
         };
 
-        if (target) {
-            task.target = {
-                asset: {
-                    id: target.get('id'),
-                    filename: target.get('file.filename'),
-                    region: target.get('region')
-                }
-            };
+        if (target && target !== source) {
+            task.target = parseInt(target.get('id'), 10);
         } else {
             task.target = task.source;
         }
 
-        if (! task.source.asset.filename || ! task.target.asset.filename)
+        if (! source.get('file.filename') || ! target.get('file.filename'))
             return;
 
         editor.call('realtime:send', 'pipeline', {
@@ -206,17 +194,7 @@ editor.once('load', function() {
 
             if (asset.get('type') === 'texture') {
                 var task = {
-                    source: {
-                        asset: {
-                            id: asset.get('id'),
-                            type: asset.get('type'),
-                            filename: asset.get('file.filename'),
-                            scope: asset.get('scope'),
-                            user_id: asset.get('user_id'),
-                            region: asset.get('region')
-                        },
-                    },
-                    target: { }
+                    source: parseInt(asset.get('id'), 10)
                 };
 
                 task.options = editor.call('assets:jobs:texture-convert-options', meta);
@@ -261,16 +239,8 @@ editor.once('load', function() {
                         target = target[1];
 
                     var onTargetAvailable = function(target) {
-                        task.target = {
-                            asset: {
-                                id: target.get('id'),
-                                type: target.get('type'),
-                                filename: filename,
-                                scope: target.get('scope'),
-                                user_id: target.get('user_id'),
-                                region: target.get('region')
-                            }
-                        };
+                        task.target = parseInt(target.get('id'), 10);
+                        task.filename = filename;
 
                         editor.call('realtime:send', 'pipeline', {
                             name: 'convert',
@@ -308,7 +278,8 @@ editor.once('load', function() {
                             data: data,
                             region: asset.get('region'),
                             parent: path.length ? path[path.length - 1] : null,
-                            scope: asset.get('scope')
+                            scope: asset.get('scope'),
+                            meta: asset.get('meta')
                         };
 
                         editor.call('assets:create', assetNew, function(err, id) {
@@ -410,17 +381,7 @@ editor.once('load', function() {
                 }
 
                 var task = {
-                    source: {
-                        asset: {
-                            id: asset.get('id'),
-                            source: true,
-                            type: 'scene',
-                            filename: asset.get('file.filename'),
-                            scope: asset.get('scope'),
-                            user_id: asset.get('user_id'),
-                            region: asset.get('region')
-                        }
-                    },
+                    source: parseInt(asset.get('id'), 10),
                     options: {
                         textures: textures,
                         materials: materials,
@@ -438,17 +399,7 @@ editor.once('load', function() {
                 editor.call('assets:jobs:remove', asset.get('id'));
             } else if (asset.get('type') === 'font') {
                 var task = {
-                    source: {
-                        asset: {
-                            id: asset.get('id'),
-                            type: asset.get('type'),
-                            filename: asset.get('file.filename'),
-                            scope: asset.get('scope'),
-                            user_id: asset.get('user_id'),
-                            region: asset.get('region')
-                        },
-                    },
-                    target: { }
+                    source: parseInt(asset.get('id'), 10)
                 };
 
                 var filename = asset.get('file.filename');
@@ -462,27 +413,16 @@ editor.once('load', function() {
                     target = target[1];
 
                 var onTargetAvailable = function(target) {
-                    var meta = target.get('meta');
-                    if (! meta) {
-                        var chars = [];
-                        for (var i = 0x20; i <= 0x7e; i++) {
+                    var chars = null;
+                    if (! target.get('meta')) {
+                        chars = [ ];
+                        for (var i = 0x20; i <= 0x7e; i++)
                             chars.push(String.fromCharCode(i));
-                        }
-                        meta = {
-                            chars: chars.join('')
-                        };
+                        chars = chars.join('');
                     }
-                    task.target = {
-                        asset: {
-                            id: target.get('id'),
-                            type: target.get('type'),
-                            filename: filename,
-                            scope: target.get('scope'),
-                            user_id: target.get('user_id'),
-                            region: target.get('region'),
-                            meta: meta
-                        }
-                    };
+                    task.target = parseInt(target.get('id'), 10);
+                    task.filename = filename;
+                    task.chars = chars;
 
                     editor.call('realtime:send', 'pipeline', {
                         name: 'convert',
@@ -499,6 +439,11 @@ editor.once('load', function() {
                 } else {
                     var data = null;
 
+                    var chars = [ ];
+                    for (var i = 0x20; i <= 0x7e; i++)
+                        chars.push(String.fromCharCode(i));
+                    chars = chars.join('');
+
                     var assetNew = {
                         name: filename,
                         type: 'font',
@@ -506,6 +451,7 @@ editor.once('load', function() {
                         source_asset_id: asset.get('id'),
                         preload: true,
                         data: data,
+                        meta: { chars: chars },
                         region: asset.get('region'),
                         parent: path.length ? path[path.length - 1] : null,
                         scope: asset.get('scope')
@@ -584,34 +530,53 @@ editor.once('load', function() {
         if (editor.call('assets:pipeline:settings', 'auto')) {
             if (type === 'font') {
                 // convert fonts once the source file has been set
-                var filename = asset.get('file.filename');
-                if (filename) {
+                var file = asset.get('file');
+                if (file) {
                     convertAuto();
                 } else {
-                    events.push(asset.once('file.filename:set', function (value) {
+                    events.push(asset.once('file:set', function (value) {
                         if (! editor.call('assets:pipeline:settings', 'auto'))
                             return;
 
                         convertAuto();
                     }));
                 }
-
             } else {
                 // convert asset once it has meta set
+                var file = asset.get('file');
                 var meta = asset.get('meta');
 
-                if (meta) {
+                if (file && meta) {
                     convertAuto();
                 } else {
-                    events.push(asset.once('meta:set', function(value) {
+                    var converted = false;
+
+                    var onDataAvailable = function(path, value) {
+                        if (converted)
+                            return;
+
                         if (! editor.call('assets:pipeline:settings', 'auto'))
                             return;
 
-                        convertAuto();
-                    }));
+                        if (! asset.get('file.filename'))
+                            return;
+
+                        if (asset.get('type') === 'texture' && ! asset.get('meta.format'))
+                            return;
+
+                        if (! asset.get('meta'))
+                            return;
+
+                        evtWaitForData.unbind();
+                        converted = true;
+                        setTimeout(convertAuto, 0);
+                    };
+
+                    var evtWaitForData = asset.on('*:set', onDataAvailable);
+
+                    events.push(evtWaitForData);
                 }
             }
-
         } else {
             if (asset.get('type') === 'texture' && ! asset.get('source')) {
                 var filename = asset.get('file.filename');

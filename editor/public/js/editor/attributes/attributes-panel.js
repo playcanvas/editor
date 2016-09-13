@@ -977,9 +977,26 @@ editor.once('load', function() {
                     editor.call('picker:asset', args.kind, asset);
 
                     evtPick = editor.once('picker:asset', function(asset) {
+                        var oldValues = { };
+                        if (args.onSet && args.link && args.link instanceof Array) {
+                            for(var i = 0; i < args.link.length; i++) {
+                                var id = 0;
+                                if (args.link[i]._type === 'asset') {
+                                    id = args.link[i].get('id');
+                                } else if (args.link[i]._type === 'entity') {
+                                    id = args.link[i].get('resource_id');
+                                } else {
+                                    continue;
+                                }
+
+                                oldValues[id] = args.link[i].get(args.path);
+                            }
+                        }
+
                         field.emit('beforechange', asset.get('id'));
                         field.value = asset.get('id');
                         evtPick = null;
+                        if (args.onSet) args.onSet(asset, oldValues);
                     });
 
                     editor.once('picker:asset:close', function() {
@@ -1009,7 +1026,6 @@ editor.once('load', function() {
                             editor.call('assets:panel:currentFolder', null);
                         }
                     }
-
                 });
                 btnEdit.on('click', function() {
                     field.emit('click');
@@ -1095,8 +1111,29 @@ editor.once('load', function() {
                         if ((args.kind !== '*' && type !== 'asset.' + args.kind) || editor.call('assets:get', parseInt(data.id, 10)).get('source'))
                             return;
 
+                        var oldValues = { };
+                        if (args.onSet && args.link && args.link instanceof Array) {
+                            for(var i = 0; i < args.link.length; i++) {
+                                var id = 0;
+                                if (args.link[i]._type === 'asset') {
+                                    id = args.link[i].get('id');
+                                } else if (args.link[i]._type === 'entity') {
+                                    id = args.link[i].get('resource_id');
+                                } else {
+                                    continue;
+                                }
+
+                                oldValues[id] = args.link[i].get(args.path);
+                            }
+                        }
+
                         field.emit('beforechange', parseInt(data.id, 10));
                         field.value = parseInt(data.id, 10);
+
+                        if (args.onSet) {
+                            var asset = editor.call('assets:get', parseInt(data.id, 10));
+                            if (asset) args.onSet(asset, oldValues);
+                        }
                     },
                     over: function(type, data) {
                         if (args.over)

@@ -21,6 +21,10 @@ editor.once('load', function() {
         });
     });
 
+    editor.method('entities:childToParent', function(child, parent) {
+        childToParent[child.get('resource_id')] = parent.get('resource_id');
+    });
+
 
     // new entity
     editor.method('entities:new', function (raw) {
@@ -41,58 +45,64 @@ editor.once('load', function() {
             components: raw.components || { }
         };
 
-        var selectorType = editor.call('selector:type');
-        var selectorItems = editor.call('selector:items');
-        if (selectorType === 'entity') {
-            for(var i = 0; i < selectorItems.length; i++)
-                selectorItems[i] = selectorItems[i].get('resource_id');
+        var selectorType, selectorItems;
+
+        if (! raw.noHistory) {
+            var selectorType = editor.call('selector:type');
+            var selectorItems = editor.call('selector:items');
+            if (selectorType === 'entity') {
+                for(var i = 0; i < selectorItems.length; i++)
+                    selectorItems[i] = selectorItems[i].get('resource_id');
+            }
         }
 
         // create new Entity data
         var entity = new Observer(data);
         childToParent[entity.get('resource_id')] = parent.get('resource_id');
-        addEntity(entity, parent, true);
+        addEntity(entity, parent, ! raw.noSelect);
 
         // history
-        var resourceId = entity.get('resource_id');
-        var parentId = parent.get('resource_id');
+        if (! raw.noHistory) {
+            var resourceId = entity.get('resource_id');
+            var parentId = parent.get('resource_id');
 
-        editor.call('history:add', {
-            name: 'new entity ' + resourceId,
-            undo: function() {
-                var entity = editor.call('entities:get', resourceId);
-                if (! entity)
-                    return;
+            editor.call('history:add', {
+                name: 'new entity ' + resourceId,
+                undo: function() {
+                    var entity = editor.call('entities:get', resourceId);
+                    if (! entity)
+                        return;
 
-                removeEntity(entity);
+                    removeEntity(entity);
 
-                if (selectorType === 'entity' && selectorItems.length) {
-                    var items = [ ];
-                    for(var i = 0; i < selectorItems.length; i++) {
-                        var item = editor.call('entities:get', selectorItems[i]);
-                        if (item)
-                            items.push(item);
+                    if (selectorType === 'entity' && selectorItems.length) {
+                        var items = [ ];
+                        for(var i = 0; i < selectorItems.length; i++) {
+                            var item = editor.call('entities:get', selectorItems[i]);
+                            if (item)
+                                items.push(item);
+                        }
+
+                        if (items.length) {
+                            editor.call('selector:history', false);
+                            editor.call('selector:set', selectorType, items);
+                            editor.once('selector:change', function() {
+                                editor.call('selector:history', true);
+                            });
+                        }
                     }
+                },
+                redo: function() {
+                    var parent = editor.call('entities:get', parentId);
+                    if (! parent)
+                        return;
 
-                    if (items.length) {
-                        editor.call('selector:history', false);
-                        editor.call('selector:set', selectorType, items);
-                        editor.once('selector:change', function() {
-                            editor.call('selector:history', true);
-                        });
-                    }
+                    var entity = new Observer(data);
+                    childToParent[entity.get('resource_id')] = parent.get('resource_id');
+                    addEntity(entity, parent, true);
                 }
-            },
-            redo: function() {
-                var parent = editor.call('entities:get', parentId);
-                if (! parent)
-                    return;
-
-                var entity = new Observer(data);
-                childToParent[entity.get('resource_id')] = parent.get('resource_id');
-                addEntity(entity, parent, true);
-            }
-        });
+            });
+        }
 
         return entity;
     });
@@ -178,6 +188,9 @@ editor.once('load', function() {
             od: { }
         });
     };
+
+    editor.method('entities:addEntity', addEntity);
+    editor.method('entities:removeEntity', removeEntity);
 
     var duplicateEntity = function(entity, parent, ind) {
         var resourceId = entity.get('resource_id');
