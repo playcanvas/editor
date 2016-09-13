@@ -662,10 +662,8 @@ editor.once('load', function() {
                             var sourceId = assets[i].get('source_asset_id');
                             if (sourceId) {
                                 var sourceAsset = editor.call('assets:get', sourceId);
-
-                                task.source = parseInt(sourceAsset.get('id'), 10)
-                            } else {
-                                task.source = task.asset;
+                                if (sourceAsset)
+                                    task.source = parseInt(sourceAsset.get('id'), 10);
                             }
 
                             editor.call('realtime:send', 'pipeline', {
