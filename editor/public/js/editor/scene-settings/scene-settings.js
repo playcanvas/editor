@@ -46,6 +46,14 @@ editor.once('load', function() {
         // lightmapMode
         if (! sceneSettings.has('render.lightmapMode'))
             sceneSettings.set('render.lightmapMode', 0);
+
+        // skyboxIntensity
+        if (! sceneSettings.has('render.skyboxIntensity'))
+            sceneSettings.set('render.skyboxIntensity', 1);
+
+        // skyboxMip
+        if (! sceneSettings.has('render.skyboxMip'))
+            sceneSettings.set('render.skyboxMip', 0);
     });
 
     editor.on('scene:unload', function () {

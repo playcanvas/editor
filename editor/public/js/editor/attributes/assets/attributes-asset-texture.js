@@ -42,6 +42,50 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'asset:texture:asset', panel, panel.headerElement);
 
+
+        var btnGetMeta = new ui.Button({
+            text: 'Calculate Meta'
+        });
+        btnGetMeta.class.add('calculate-meta', 'large-with-icon');
+        var btnGetMetaVisibility = function() {
+            var visible = false;
+            for(var i = 0; i < assets.length; i++) {
+                if (! visible && ! assets[i].get('meta'))
+                    visible = true;
+            }
+            btnGetMeta.hidden = ! visible;
+        };
+        btnGetMeta.on('click', function() {
+            if (! editor.call('permissions:write'))
+                return;
+
+            for(var i = 0; i < assets.length; i++) {
+                if (assets[i].get('meta'))
+                    continue;
+
+                editor.call('realtime:send', 'pipeline', {
+                    name: 'meta',
+                    id: assets[i].get('id')
+                });
+            }
+            this.enabled = false;
+        });
+        panel.append(btnGetMeta);
+
+        btnGetMetaVisibility();
+        for(var i = 0; i < assets.length; i++) {
+            if (btnGetMeta.hidden && ! assets[i].get('meta'))
+                btnGetMeta.hidden = false;
+
+            events.push(assets[i].on('meta:set', function() {
+                btnGetMetaVisibility();
+            }));
+            events.push(assets[i].on('meta:unset', function() {
+                btnGetMeta.hidden = false;
+            }));
+        }
+
+
         // width
         var fieldWidth = editor.call('attributes:addField', {
             parent: panel,
@@ -302,7 +346,8 @@ editor.once('load', function() {
 
         var formats = {
             original: { size: 0, vram: 0 },
-            dxt: { size: 0, vram: 0, timeout: false }
+            dxt: { size: 0, vram: 0, timeout: false },
+            pvr: { size: 0, vram: 0, timeout: false }
         };
 
 
@@ -343,6 +388,7 @@ editor.once('load', function() {
             for(var i = 0; i < assets.length; i++) {
                 var alpha = assets[i].get('meta.alpha') || false;
                 var trueColorAlpha = (assets[i].get('meta.type') || '').toLowerCase() === 'truecoloralpha';
+                var rgbm = assets[i].get('data.rgbm');
                 var formatAvailable = false;
 
                 for(key in formats) {
@@ -356,8 +402,8 @@ editor.once('load', function() {
                 }
 
                 if (i === 0) {
-                    state = (alpha || trueColorAlpha) && formatAvailable;
-                } else if (state !== ((alpha || trueColorAlpha) && formatAvailable)) {
+                    state = (alpha || trueColorAlpha) && formatAvailable && ! rgbm;
+                } else if (state !== ((alpha || trueColorAlpha) && formatAvailable && ! rgbm)) {
                     different = true;
                     break;
                 }
@@ -430,6 +476,7 @@ editor.once('load', function() {
         var checkFormats = function() {
             var width = -1;
             var height = -1;
+            var rgbm = -1;
 
             for(var i = 0; i < assets.length; i++) {
                 if (assets[i].has('meta.width')) {
@@ -444,6 +491,13 @@ editor.once('load', function() {
 
                 if (! assets[i].get('file'))
                     continue;
+
+                if (rgbm === -1) {
+                    rgbm = assets[i].get('data.rgbm') ? 1 : 0;
+                } else {
+                    if (rgbm !== (assets[i].get('data.rgbm') ? 1 : 0))
+                        rgbm = -2;
+                }
 
                 var ext = assets[i].get('file.url');
                 ext = ext.slice(ext.lastIndexOf('.') + 1).toUpperCase();
@@ -473,6 +527,8 @@ editor.once('load', function() {
                 // various sizes
                 fieldDxt.disabled = false;
             }
+
+            fieldPvr.disabled = fieldPvrBpp.disabled = rgbm !== -2 && (fieldDxt.disabled || rgbm === 1);
         };
 
         calculateOriginalSize();
@@ -500,6 +556,7 @@ editor.once('load', function() {
         labelOriginalSize.class.add('size');
         fieldOriginal.parent.append(labelOriginalSize);
 
+
         // dxt
         var fieldDxt = editor.call('attributes:addField', {
             parent: panelCompression,
@@ -517,6 +574,44 @@ editor.once('load', function() {
         fieldDxt.parent.append(labelDxtSize);
         // reference
         editor.call('attributes:reference:attach', 'asset:texture:compress:dxt', fieldDxt.parent.innerElement.firstChild.ui);
+
+
+        // pvr
+        var fieldPvr = editor.call('attributes:addField', {
+            parent: panelCompression,
+            type: 'checkbox',
+            name: 'PVR',
+            link: assets,
+            path: 'meta.compress.pvr'
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'asset:texture:compress:pvr', fieldPvr.parent.innerElement.firstChild.ui);
+
+        // pvrBpp
+        var fieldPvrBpp = editor.call('attributes:addField', {
+            panel: fieldPvr.parent,
+            type: 'number',
+            enum: [
+                { v: '', t: '...' },
+                { v: 2, t: '2 BPP' },
+                { v: 4, t: '4 BPP' }
+            ],
+            link: assets,
+            path: 'meta.compress.pvrBpp'
+        });
+        fieldPvrBpp.flexGrow = 0;
+        fieldPvrBpp.style.width = '42px';
+        // reference
+        editor.call('attributes:reference:attach', 'asset:texture:compress:pvrBpp', fieldPvrBpp);
+
+        // label
+        var labelDxtSize = labelSize['pvr'] = new ui.Label({
+            text: bytesToHuman(formats.pvr.size) + ' [VRAM ' + bytesToHuman(formats.pvr.vram) + ']'
+        });
+        labelDxtSize.class.add('size');
+        if (! formats.pvr.size && ! formats.pvr.vram) labelDxtSize.text = '-';
+        fieldPvr.parent.append(labelDxtSize);
+
 
         checkFormats();
 
@@ -569,14 +664,21 @@ editor.once('load', function() {
                             }
                         };
 
+                        if (key === 'pvr') {
+                            if (assets[i].get('data.rgbm'))
+                                continue;
+
+                            task.options.pvrBpp = assets[i].get('meta.compress.pvrBpp');
+                        }
+
                         if (assets[i].get('meta.compress.' + key)) {
                             task.options.alpha = assets[i].get('meta.compress.alpha') && (assets[i].get('meta.alpha') || assets[i].get('meta.type').toLowerCase() === 'truecoloralpha');
 
                             var sourceId = assets[i].get('source_asset_id');
                             if (sourceId) {
                                 var sourceAsset = editor.call('assets:get', sourceId);
-
-                                task.source = parseInt(sourceAsset.get('id'), 10)
+                                if (sourceAsset)
+                                    task.source = parseInt(sourceAsset.get('id'), 10);
                             }
 
                             editor.call('realtime:send', 'pipeline', {
@@ -602,13 +704,19 @@ editor.once('load', function() {
                 return false;
 
             var data = asset.get('file.variants.' + format);
-            var alpha = asset.get('meta.compress.alpha') && (asset.get('meta.alpha') || ((asset.get('meta.type') || '').toLowerCase() === 'truecoloralpha'));
+            var alpha = asset.get('meta.compress.alpha') && (asset.get('meta.alpha') || ((asset.get('meta.type') || '').toLowerCase() === 'truecoloralpha')) || asset.get('data.rgbm');
             var compress = asset.get('meta.compress.' + format);
 
             if (!! data !== compress) {
                 return true;
             } else if (data && ((((data.opt & 1) != 0) != alpha))) {
                 return true;
+            }
+
+            if (data && format === 'pvr') {
+                var bpp = asset.get('meta.compress.pvrBpp');
+                if (data && ((data.opt & 128) !== 0 ? 4 : 2) !== bpp)
+                    return true;
             }
 
             return false;
@@ -639,7 +747,7 @@ editor.once('load', function() {
         };
         var queueCheck = false;
         var onAssetChaneCompression = function(path) {
-            if (queueCheck || (path !== 'task' && ! path.startsWith('meta') && ! path.startsWith('file')))
+            if (queueCheck || (path !== 'task' && ! path.startsWith('meta') && ! path.startsWith('file') && ! path.startsWith('data.rgbm')))
                 return;
 
             queueCheck = true;
