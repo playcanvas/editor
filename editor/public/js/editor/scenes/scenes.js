@@ -7,7 +7,7 @@ editor.once('load', function () {
         Ajax.get('{{url.api}}/projects/{{project.id}}/scenes?access_token={{accessToken}}')
         .on('load', function (status, data) {
             if (callback)
-                callback(data.response);
+                callback(data.result);
         });
     });
 
@@ -16,7 +16,7 @@ editor.once('load', function () {
         Ajax.get('{{url.api}}/scenes/' + sceneId + '?access_token={{accessToken}}')
         .on('load', function (status, data) {
             if (callback)
-                callback(data.response[0]);
+                callback(data);
         });
     });
 
@@ -31,7 +31,7 @@ editor.once('load', function () {
         Ajax.post('{{url.api}}/scenes?access_token={{accessToken}}', data)
         .on('load', function (status, data) {
             if (callback)
-                callback(data.response[0]);
+                callback(data);
         });
     });
 
@@ -44,7 +44,7 @@ editor.once('load', function () {
         })
         .on('load', function (status, data) {
             if (callback)
-                callback(data.response[0]);
+                callback(data);
         });
     });
 

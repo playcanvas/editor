@@ -391,7 +391,7 @@ editor.once('load', function () {
                     // get job
                     Ajax.get('{{url.api}}/jobs/' + job.id + '?access_token={{accessToken}}')
                     .on('load', function (status, data) {
-                        var job = data.response[0];
+                        var job = data;
                         // success ?
                         if (job.status === 'complete') {
                             downloadProgressIconWrapper.classList.add('success');

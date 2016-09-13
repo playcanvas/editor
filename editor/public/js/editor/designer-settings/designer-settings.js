@@ -56,7 +56,7 @@ editor.once('load', function() {
 
             for(var i = 0; i < designerSettings._keys.length; i++) {
                 var key = designerSettings._keys[i];
-                var value = data.response[0][key];
+                var value = data[key];
 
                 if (value !== undefined)
                     designerSettings.set(key, value);

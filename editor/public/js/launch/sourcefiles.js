@@ -9,9 +9,9 @@ app.once('load', function() {
 
     var onLoad = function (data) {
         var i = 0;
-        var l = data['response'].length;
+        var l = data.result.length;
 
-        var filenames = data['response'].map(function (item) {
+        var filenames = data.result.map(function (item) {
             return item.filename;
         });
 

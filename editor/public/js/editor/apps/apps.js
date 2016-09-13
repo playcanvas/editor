@@ -4,10 +4,10 @@ editor.once('load', function () {
     // Fetch list of apps from the server and
     // pass them to the callback
     editor.method('apps:list', function (callback) {
-        Ajax.get('{{url.api}}/projects/{{project.id}}/apps?access_token={{accessToken}}')
+        Ajax.get('{{url.api}}/projects/{{project.id}}/apps?access_token={{accessToken}}&limit=0')
         .on('load', function (status, data) {
             if (callback)
-                callback(data.response);
+                callback(data.result);
         });
     });
 
@@ -16,7 +16,7 @@ editor.once('load', function () {
         Ajax.get('{{url.api}}/apps/' + appId + '?access_token={{accessToken}}')
         .on('load', function (status, data) {
             if (callback)
-                callback(data.response[0]);
+                callback(data);
         });
     });
 
@@ -25,7 +25,7 @@ editor.once('load', function () {
         Ajax.post('{{url.api}}/apps?access_token={{accessToken}}', data)
         .on('load', function (status, result) {
             if (callback)
-                callback(result.response[0]);
+                callback(result);
         })
         .on('error', function () {
             if (error)
@@ -38,7 +38,7 @@ editor.once('load', function () {
         Ajax.post('{{url.api}}/apps/download?access_token={{accessToken}}', data)
         .on('load', function (status, result) {
             if (callback)
-                callback(result.response[0]);
+                callback(result);
         })
         .on('error', function () {
             if (error)

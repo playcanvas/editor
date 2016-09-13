@@ -12,8 +12,8 @@ editor.once('repositories:load', function (repositories) {
     Ajax
     .get('{{url.api}}/projects/{{project.id}}/repositories/' + repositories.get('current') + '/sourcefiles?access_token=' + config.accessToken)
     .on('load', function (status, data) {
-        if (data.response && data.response.length) {
-            data.response.forEach(function (sourcefile) {
+        if (data.result && data.result.length) {
+            data.result.forEach(function (sourcefile) {
                 var observer = new Observer(sourcefile);
                 sourcefiles.add(observer);
                 editor.emit('sourcefiles:add', observer);
