@@ -42,6 +42,50 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'asset:texture:asset', panel, panel.headerElement);
 
+
+        var btnGetMeta = new ui.Button({
+            text: 'Calculate Meta'
+        });
+        btnGetMeta.class.add('calculate-meta', 'large-with-icon');
+        var btnGetMetaVisibility = function() {
+            var visible = false;
+            for(var i = 0; i < assets.length; i++) {
+                if (! visible && ! assets[i].get('meta'))
+                    visible = true;
+            }
+            btnGetMeta.hidden = ! visible;
+        };
+        btnGetMeta.on('click', function() {
+            if (! editor.call('permissions:write'))
+                return;
+
+            for(var i = 0; i < assets.length; i++) {
+                if (assets[i].get('meta'))
+                    continue;
+
+                editor.call('realtime:send', 'pipeline', {
+                    name: 'meta',
+                    id: assets[i].get('id')
+                });
+            }
+            this.enabled = false;
+        });
+        panel.append(btnGetMeta);
+
+        btnGetMetaVisibility();
+        for(var i = 0; i < assets.length; i++) {
+            if (btnGetMeta.hidden && ! assets[i].get('meta'))
+                btnGetMeta.hidden = false;
+
+            events.push(assets[i].on('meta:set', function() {
+                btnGetMetaVisibility();
+            }));
+            events.push(assets[i].on('meta:unset', function() {
+                btnGetMeta.hidden = false;
+            }));
+        }
+
+
         // width
         var fieldWidth = editor.call('attributes:addField', {
             parent: panel,
