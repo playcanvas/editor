@@ -664,6 +664,8 @@ editor.once('load', function() {
                                 var sourceAsset = editor.call('assets:get', sourceId);
 
                                 task.source = parseInt(sourceAsset.get('id'), 10)
+                            } else {
+                                task.source = task.asset;
                             }
 
                             editor.call('realtime:send', 'pipeline', {
