@@ -75,7 +75,7 @@ editor.once('load', function() {
     }, {
         name: 'compression',
         title: 'Compression',
-        description: 'Compressed textures load faster and consume much less VRAM on GPU allowing texture intense applications to scale bigger.'
+        description: 'Compressed textures load faster and consume much less VRAM on GPU allowing texture intense applications to have bigger scale.'
     }, {
         name: 'compress:alpha',
         title: 'Compress Alpha',
@@ -83,15 +83,15 @@ editor.once('load', function() {
     }, {
         name: 'compress:original',
         title: 'Original Format',
-        description: 'Original compression format.'
+        description: 'Original file format.'
     }, {
         name: 'compress:dxt',
         title: 'DXT (S3 Texture Compression)',
-        description: 'Widely available on Desktop machines. It is very GZIP friendly, download sizes shown are not gzip\'ed. It offers two formats available to WebGL: DXT1 and DXT5. Second has extra alpha available and is twice bigger than DXT1. Texture must be power of two resolution. Compression is Lossy and does leak RGB channel values.'
+        description: 'S3TC is widely available on Desktop machines. It is very GZIP friendly, download sizes shown are gzip\'ed. It offers two formats available to WebGL: DXT1 and DXT5. Second has extra alpha available and is twice bigger than DXT1. Texture must be power of two resolution. Compression is Lossy and does leak RGB channel values.'
     }, {
         name: 'compress:pvr',
         title: 'PVTC (PowerVR Texture Compression)',
-        descriptions: 'Widely available on iOS devices. It is very GZIP friendly, download sizes shown are not gzip\'ed. Version 1 of compresison offers four formats to WebGL, differs in BPP and extra Alpha channel. Texture must be square and power of two resolution. This format allows to store alpha. Compression is Lossy and does leak RGB channel values, as well as Alpha channel but much less than RGB.'
+        description: 'Widely available on iOS devices. It is very GZIP friendly, download sizes shown are gzip\'ed. Version 1 of compresison offers four formats to WebGL, differs in BPP and extra Alpha channel. Texture resolution must be square and power of two otherwise will be upscaled to nearest pot square. This format allows to store alpha. Compression is Lossy and does leak RGB channel values, as well as Alpha channel but much less than RGB.'
     }, {
         name: 'compress:pvrBpp',
         title: 'PVR Bits Per Pixel',
@@ -99,7 +99,7 @@ editor.once('load', function() {
     }, {
         name: 'compress:etc',
         title: 'ETC (Ericsson Texture Compression)',
-        description: 'This format covers well some Android devices as well as Destop. It is very GZIP friendly, download sizes shown are not gzip\'ed. WebGL exposes support for ETC1 only whcih only stores RGB so this format is not available for storing Alpha channel. It is Lossy and suffers from RGB channel leaking.'
+        description: 'This format covers well some Android devices as well as Destop. It is very GZIP friendly, download sizes shown are gzip\'ed. WebGL exposes support for ETC1 only whcih only stores RGB so this format is not available for storing Alpha channel. It is Lossy and suffers from RGB channel leaking.'
     }];
 
     for(var i = 0; i < fields.length; i++) {

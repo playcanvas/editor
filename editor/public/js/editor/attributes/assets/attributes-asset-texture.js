@@ -388,6 +388,7 @@ editor.once('load', function() {
             for(var i = 0; i < assets.length; i++) {
                 var alpha = assets[i].get('meta.alpha') || false;
                 var trueColorAlpha = (assets[i].get('meta.type') || '').toLowerCase() === 'truecoloralpha';
+                var rgbm = assets[i].get('data.rgbm');
                 var formatAvailable = false;
 
                 for(key in formats) {
@@ -401,8 +402,8 @@ editor.once('load', function() {
                 }
 
                 if (i === 0) {
-                    state = (alpha || trueColorAlpha) && formatAvailable;
-                } else if (state !== ((alpha || trueColorAlpha) && formatAvailable)) {
+                    state = (alpha || trueColorAlpha) && formatAvailable && ! rgbm;
+                } else if (state !== ((alpha || trueColorAlpha) && formatAvailable && ! rgbm)) {
                     different = true;
                     break;
                 }
@@ -475,6 +476,7 @@ editor.once('load', function() {
         var checkFormats = function() {
             var width = -1;
             var height = -1;
+            var rgbm = -1;
 
             for(var i = 0; i < assets.length; i++) {
                 if (assets[i].has('meta.width')) {
@@ -489,6 +491,13 @@ editor.once('load', function() {
 
                 if (! assets[i].get('file'))
                     continue;
+
+                if (rgbm === -1) {
+                    rgbm = assets[i].get('data.rgbm') ? 1 : 0;
+                } else {
+                    if (rgbm !== (assets[i].get('data.rgbm') ? 1 : 0))
+                        rgbm = -2;
+                }
 
                 var ext = assets[i].get('file.url');
                 ext = ext.slice(ext.lastIndexOf('.') + 1).toUpperCase();
@@ -518,6 +527,8 @@ editor.once('load', function() {
                 // various sizes
                 fieldDxt.disabled = false;
             }
+
+            fieldPvr.disabled = fieldPvrBpp.disabled = rgbm !== -2 && (fieldDxt.disabled || rgbm === 1);
         };
 
         calculateOriginalSize();
@@ -653,8 +664,12 @@ editor.once('load', function() {
                             }
                         };
 
-                        if (key === 'pvr')
+                        if (key === 'pvr') {
+                            if (assets[i].get('data.rgbm'))
+                                continue;
+
                             task.options.pvrBpp = assets[i].get('meta.compress.pvrBpp');
+                        }
 
                         if (assets[i].get('meta.compress.' + key)) {
                             task.options.alpha = assets[i].get('meta.compress.alpha') && (assets[i].get('meta.alpha') || assets[i].get('meta.type').toLowerCase() === 'truecoloralpha');
@@ -689,7 +704,7 @@ editor.once('load', function() {
                 return false;
 
             var data = asset.get('file.variants.' + format);
-            var alpha = asset.get('meta.compress.alpha') && (asset.get('meta.alpha') || ((asset.get('meta.type') || '').toLowerCase() === 'truecoloralpha'));
+            var alpha = asset.get('meta.compress.alpha') && (asset.get('meta.alpha') || ((asset.get('meta.type') || '').toLowerCase() === 'truecoloralpha')) || asset.get('data.rgbm');
             var compress = asset.get('meta.compress.' + format);
 
             if (!! data !== compress) {
@@ -732,7 +747,7 @@ editor.once('load', function() {
         };
         var queueCheck = false;
         var onAssetChaneCompression = function(path) {
-            if (queueCheck || (path !== 'task' && ! path.startsWith('meta') && ! path.startsWith('file')))
+            if (queueCheck || (path !== 'task' && ! path.startsWith('meta') && ! path.startsWith('file') && ! path.startsWith('data.rgbm')))
                 return;
 
             queueCheck = true;
