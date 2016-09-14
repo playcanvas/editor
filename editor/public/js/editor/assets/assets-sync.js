@@ -116,8 +116,10 @@ editor.once('load', function() {
     editor.on('realtime:authenticated', function() {
         editor.call('assets:clear');
 
-        Ajax
-        .get('{{url.api}}/projects/{{project.id}}/assets?view=designer&access_token={{accessToken}}')
+        Ajax({
+            url: '{{url.api}}/projects/{{project.id}}/assets?view=designer',
+            auth: true
+        })
         .on('load', function(status, data) {
             onLoad(data);
         })
@@ -189,7 +191,11 @@ editor.once('load', function() {
         for(var i = 0; i < list.length; i++) {
             if (legacyScripts && list[i].get('type') === 'script') {
                 editor.emit('sourcefiles:remove', list[i]);
-                Ajax.delete('{{url.api}}/projects/' + config.project.id + '/repositories/directory/sourcefiles/' + list[i].get('filename') + '?access_token={{accessToken}}');
+                Ajax({
+                    url: '{{url.api}}/projects/' + config.project.id + '/repositories/directory/sourcefiles/' + list[i].get('filename'),
+                    auth: true,
+                    method: 'DELETE'
+                })
             } else {
                 assets.push(list[i]);
             }

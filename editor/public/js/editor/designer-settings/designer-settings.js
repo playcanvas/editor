@@ -38,9 +38,7 @@ editor.once('load', function() {
             Ajax({
                 url: '{{url.api}}/scenes/{{scene.id}}/designer_settings/{{self.id}}',
                 method: 'PUT',
-                query: {
-                    access_token: '{{accessToken}}'
-                },
+                auth: true,
                 data: this.json()
             });
             syncTimeout = null;
@@ -49,8 +47,10 @@ editor.once('load', function() {
 
     // load designer settings
     var loadSettings = function () {
-        Ajax
-        .get('{{url.api}}/scenes/{{scene.id}}/designer_settings/{{self.id}}?access_token={{accessToken}}')
+        Ajax({
+            url: '{{url.api}}/scenes/{{scene.id}}/designer_settings/{{self.id}}',
+            auth: true
+        })
         .on('load', function(status, data) {
             designerSettings.history = false;
 

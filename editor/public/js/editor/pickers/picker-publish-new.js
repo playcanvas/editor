@@ -389,7 +389,10 @@ editor.once('load', function () {
                     evt.unbind();
 
                     // get job
-                    Ajax.get('{{url.api}}/jobs/' + job.id + '?access_token={{accessToken}}')
+                    Ajax({
+                        url: '{{url.api}}/jobs/' + job.id,
+                        auth: true
+                    })
                     .on('load', function (status, data) {
                         var job = data;
                         // success ?

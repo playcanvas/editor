@@ -105,6 +105,10 @@ function AjaxRequest(args) {
     if (! args.ignoreContentType && (args.method === 'PUT' || args.method === 'POST' || args.method === 'DELETE'))
         this._xhr.setRequestHeader('Content-Type', 'application/json');
 
+    if (args.auth && config.accessToken) {
+        this._xhr.setRequestHeader('Authorization', 'Bearer ' + config.accessToken);
+    }
+
     if (args.headers) {
         for (var key in args.headers)
             this._xhr.setRequestHeader(key, args.headers[key]);

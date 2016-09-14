@@ -9,8 +9,10 @@ editor.once('repositories:load', function (repositories) {
     var scriptNamePattern = new RegExp("^(?:[\\w\\d\\.-]+\\\/)*[\\w\\d\\.-]+(?:\\.js(?:on)?)?$", 'i');
 
     // get listing of sourcefiles
-    Ajax
-    .get('{{url.api}}/projects/{{project.id}}/repositories/' + repositories.get('current') + '/sourcefiles?access_token=' + config.accessToken)
+    Ajax({
+        url: '{{url.api}}/projects/{{project.id}}/repositories/' + repositories.get('current') + '/sourcefiles',
+        auth: true
+    })
     .on('load', function (status, data) {
         if (data.result && data.result.length) {
             data.result.forEach(function (sourcefile) {
@@ -51,7 +53,7 @@ editor.once('repositories:load', function (repositories) {
             repositories.get('current'),
             'sourcefiles',
             relativeUrl
-        ].join('/') + '?access_token=' + config.accessToken;
+        ].join('/');
 
         return fullUrl;
     });
@@ -60,8 +62,9 @@ editor.once('repositories:load', function (repositories) {
     editor.method('sourcefiles:content', function (relativeUrl, callback) {
         var fullUrl = editor.call('sourcefiles:url', relativeUrl);
 
-        new AjaxRequest({
+        Ajax({
             url: fullUrl,
+            auth: true,
             notJson: true
         })
         .on('load', function(status, data) {
@@ -83,10 +86,13 @@ editor.once('repositories:load', function (repositories) {
         };
 
         var createUrl = [config.url.api, 'projects', config.project.id, 'repositories', repositories.get('current'), 'sourcefiles', url].join('/');
-        createUrl += '?access_token=' + config.accessToken;
 
-        Ajax
-        .put(createUrl, data)
+        Ajax({
+            url: createUrl,
+            auth: true,
+            method: "PUT",
+            data: data
+        })
         .on('load', function (status, data) {
 
             var file = sourcefiles.findOne(function(f) {
@@ -128,9 +134,13 @@ editor.once('repositories:load', function (repositories) {
             'rename',
             oldFilename
         ].join('/');
-        renameUrl += '?access_token=' + config.accessToken;
 
-        Ajax.put(renameUrl, data)
+        Ajax({
+            url: renameUrl,
+            auth: true,
+            method: 'PUT',
+            data: data
+        })
         .on('load', function (status, data) {
             if (callback)
                 callback();
@@ -156,9 +166,7 @@ editor.once('repositories:load', function (repositories) {
         var data = {
             url: saveUrl,
             method: 'PUT',
-            query: {
-                'access_token': '{{accessToken}}'
-            },
+            auth: true,
             data: {
                 filename: relativeUrl,
                 content: content

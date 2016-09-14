@@ -4,7 +4,10 @@ editor.once('load', function () {
     // Fetch list of apps from the server and
     // pass them to the callback
     editor.method('apps:list', function (callback) {
-        Ajax.get('{{url.api}}/projects/{{project.id}}/apps?access_token={{accessToken}}&limit=0')
+        Ajax({
+            url: '{{url.api}}/projects/{{project.id}}/apps?limit=0',
+            auth: true
+        })
         .on('load', function (status, data) {
             if (callback)
                 callback(data.result);
@@ -13,7 +16,10 @@ editor.once('load', function () {
 
     // Get a specific app from the server and pass result to callback
     editor.method('apps:get', function (appId, callback) {
-        Ajax.get('{{url.api}}/apps/' + appId + '?access_token={{accessToken}}')
+        Ajax({
+            url: '{{url.api}}/apps/' + appId,
+            auth: true
+        })
         .on('load', function (status, data) {
             if (callback)
                 callback(data);
@@ -22,7 +28,12 @@ editor.once('load', function () {
 
     // Create app and pass result to callback
     editor.method('apps:new', function (data, callback, error) {
-        Ajax.post('{{url.api}}/apps?access_token={{accessToken}}', data)
+        Ajax({
+            url: '{{url.api}}/apps',
+            auth: true,
+            method: 'POST',
+            data: data
+        })
         .on('load', function (status, result) {
             if (callback)
                 callback(result);
@@ -35,7 +46,12 @@ editor.once('load', function () {
 
     // Download app
     editor.method('apps:download', function (data, callback, error) {
-        Ajax.post('{{url.api}}/apps/download?access_token={{accessToken}}', data)
+        Ajax({
+            url: '{{url.api}}/apps/download',
+            auth: true,
+            method: 'POST',
+            data: data
+        })
         .on('load', function (status, result) {
             if (callback)
                 callback(result);
@@ -48,7 +64,11 @@ editor.once('load', function () {
 
     // Delete a app
     editor.method('apps:delete', function (appId, callback) {
-        Ajax.delete('{{url.api}}/apps/' + appId + '?access_token={{accessToken}}')
+        Ajax({
+            url: '{{url.api}}/apps/' + appId,
+            auth: true,
+            method: 'DELETE'
+        })
         .on('load', function (status, data) {
             if (callback)
                 callback();

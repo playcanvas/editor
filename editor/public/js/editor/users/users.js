@@ -14,7 +14,10 @@ editor.once('load', function() {
 
         userRequests[id] = [ callback ];
 
-        Ajax.get('{{url.api}}/users/' + id + '?access_token={{accessToken}}')
+        Ajax({
+            url: '{{url.api}}/users/' + id,
+            auth: true
+        })
         .on('load', function (status, data) {
             users[id] = data;
 

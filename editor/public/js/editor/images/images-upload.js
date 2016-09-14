@@ -9,9 +9,7 @@ editor.once('load', function () {
         var data = {
             url: '/editor/project/{{project.id}}/upload/image',
             method: 'POST',
-            query: {
-                'access_token': '{{accessToken}}'
-            },
+            auth: true,
             data: form,
             ignoreContentType: true,
             headers: {

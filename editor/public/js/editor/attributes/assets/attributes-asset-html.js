@@ -47,7 +47,7 @@ editor.once('load', function() {
                 loading.hidden = false;
             }
             // load data
-            new AjaxRequest({
+            Ajax({
                 url: '{{url.home}}' + asset.get('file.url') + '?t=' + asset.get('file.hash'),
                 notJson: true
             })

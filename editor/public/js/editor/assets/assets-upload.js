@@ -122,9 +122,7 @@ editor.once('load', function() {
         var data = {
             url: '/api/assets',
             method: 'POST',
-            query: {
-                'access_token': '{{accessToken}}'
-            },
+            auth: true,
             data: form,
             ignoreContentType: true,
             headers: {
