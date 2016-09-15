@@ -110,6 +110,11 @@ editor.once('load', function() {
         var documentContent = null;
         var assetContent = null;
 
+        // holds messages arriving from C3 before we receive
+        // the 'auth' message
+        var beforeAuthMessages = [];
+
+
         editor.method('realtime:connection', function () {
             return connection;
         });
@@ -132,10 +137,6 @@ editor.once('load', function() {
             var lastHearbeat = Date.now();
             var interval = 3000;
             var heartbeatTimeoutRef;
-
-            // holds messages arriving from C3 before we receive
-            // the 'auth' message
-            var beforeAuthMessages = [];
 
             reconnectAttempts++;
             editor.emit('realtime:connecting', reconnectAttempts);
@@ -196,6 +197,8 @@ editor.once('load', function() {
                     clearTimeout(heartbeatTimeoutRef);
                     heartbeatTimeoutRef = null;
                 }
+
+                beforeAuthMessages.length = 0;
 
                 isLoading = false;
                 isConnected = false;
