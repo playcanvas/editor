@@ -232,7 +232,9 @@ editor.once('load', function() {
             type: 'number',
             enum: {
                 0: 'Linear',
-                1: 'Filmic'
+                1: 'Filmic',
+                2: 'Hejl',
+                3: 'ACES'
             },
             link: sceneSettings,
             path: 'render.tonemapping'
