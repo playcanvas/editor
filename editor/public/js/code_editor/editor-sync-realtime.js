@@ -298,6 +298,11 @@ editor.once('load', function() {
             // and when ready check if the document content is different
             // than the asset content in order to activate the REVERT button
             textDocument.on('subscribe', function () {
+                // if we have a permanent error we need to reload the page
+                // so don't continue
+                if (hasError)
+                    return;
+
                 // ready to sync
                 textDocument.whenReady(function () {
                     // notify of scene load
@@ -347,6 +352,9 @@ editor.once('load', function() {
             // reload the asset content and check if it's different than the document content in
             // order to activate the REVERT button
             assetDocument.on('subscribe', function () {
+                if (hasError)
+                    return;
+
                 assetDocument.whenReady(function() {
                     // load asset file to check if it has different contents
                     // than the sharejs document, so that we can enable the
