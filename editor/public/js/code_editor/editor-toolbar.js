@@ -114,8 +114,6 @@ editor.once('load', function () {
         if (reconnectTimeout) {
             clearTimeout(reconnectTimeout);
             reconnectTimeout = null;
-            errorMsg = null;
-            refreshButtons();
         }
     });
 
