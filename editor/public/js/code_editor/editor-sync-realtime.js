@@ -31,7 +31,7 @@ editor.once('load', function() {
     });
 
     editor.method('editor:canSave', function () {
-        return !hasError && editor.call('editor:isDirty') && ! editor.call('editor:isReadonly') && ! isSaving && isConnected;
+        return !hasError && editor.call('editor:isDirty') && ! editor.call('editor:isReadonly') && ! isSaving && isConnected && !isLoading;
     });
 
     editor.method('editor:isLoading', function () {
