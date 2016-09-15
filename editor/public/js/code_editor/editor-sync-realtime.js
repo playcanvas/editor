@@ -129,16 +129,163 @@ editor.once('load', function() {
             }
 
             isLoading = true;
+            var lastHearbeat = Date.now();
+            var interval = 3000;
+            var heartbeatTimeoutRef;
+
+            // holds messages arriving from C3 before we receive
+            // the 'auth' message
+            var beforeAuthMessages = [];
+
             reconnectAttempts++;
             editor.emit('realtime:connecting', reconnectAttempts);
 
             // create new socket...
             socket = new SockJS(config.url.realtime.http);
 
-            var lastHearbeat = Date.now();
-            var interval = 3000;
-            var heartbeatTimeoutRef;
+            // This handler first handles the authentication message
+            // After we receive the message we then create a proper sharejs connection.
+            // We wait for authentication first because on re-connections sharejs sends ops
+            // to the server before the server has finished authenticating the client
+            socket.onmessage = function (msg) {
+                try {
+                    if (msg.data.startsWith('auth')) {
+                        auth = true;
+                        editor.emit('realtime:authenticated');
 
+                        // now erase onmessage and create a sharejs connection
+                        socket.onmessage = null;
+                        createConnection();
+                    } else {
+                        // the 'init' message from sharejs might come before the 'auth'
+                        // message so remember any sharejs messages for when we have a
+                        // real sharejs connection
+                        beforeAuthMessages.push(msg);
+                    }
+                } catch (e) {
+                    onError(e);
+                }
+            };
+
+            // handler for errors that happen before we have a real sharejs connection
+            socket.onerror = function (e) {
+                onError(e);
+            };
+
+            // when the socket is opened send 'auth' message
+            socket.onopen = function () {
+                socket.send('auth' + JSON.stringify({
+                    accessToken: config.accessToken
+                }));
+            };
+
+
+            var createConnection = function () {
+                // if the connection does not exist
+                // then create a new sharejs connection
+                if (! connection) {
+                    connection = new sharejs.Connection(socket);
+
+                    connection.on('connected', function() {
+                        reconnectAttempts = 0;
+                        reconnectInterval = RECONNECT_INTERVAL;
+
+                        isConnected = true;
+
+                        editor.emit('realtime:connected');
+
+                        // load document
+                        if (! textDocument) {
+                            loadDocument();
+                        } else {
+                            // send doc:reconnect in order for C3 to
+                            // fetch the document and its asset again
+                            socket.send('doc:reconnect:' + config.asset.id);
+                            textDocument.resume();
+                        }
+
+                        if (! assetDocument)
+                            loadAsset();
+                    });
+
+                    connection.on('error', onError);
+                } else {
+                    // we are reconnecting so use existing connection
+                    // but bind it to new socket
+                    connection.bindToSocket(socket);
+                }
+
+                // handle any messages that have arrived before
+                var sharejsMessage = connection.socket.onmessage;
+                beforeAuthMessages.forEach(sharejsMessage);
+
+                connection.socket.onmessage = function(msg) {
+                    try {
+                        if (msg.data.startsWith('whoisonline:')) {
+                            data = msg.data.slice('whoisonline:'.length);
+                            var ind = data.indexOf(':');
+                            if (ind !== -1) {
+                                var op = data.slice(0, ind);
+                                if (op === 'set') {
+                                    data = JSON.parse(data.slice(ind + 1));
+                                } else if (op === 'add' || op === 'remove') {
+                                    data = parseInt(data.slice(ind + 1), 10);
+                                }
+                                editor.call('whoisonline:' + op, data);
+                            } else {
+                                sharejsMessage(msg);
+                            }
+                        } else {
+                            sharejsMessage(msg);
+                        }
+                    } catch (e) {
+                        onError(e);
+                    }
+
+                };
+
+
+                var onConnectionClosed = connection.socket.onclose;
+                connection.socket.onclose = function (reason) {
+                    onConnectionClosed(reason);
+
+                    auth = false;
+
+                    if (textDocument) {
+                        // pause document and resume it
+                        // after we have reconnected and re-authenticated
+                        // otherwise the document will attempt to sync to the server
+                        // as soon as we reconnect (before authentication) causing
+                        // forbidden errors
+                        textDocument.pause();
+                    }
+
+                    if (heartbeatTimeoutRef) {
+                        clearTimeout(heartbeatTimeoutRef);
+                        heartbeatTimeoutRef = null;
+                    }
+
+                    isLoading = false;
+                    isConnected = false;
+                    isDirty = false;
+
+                    // if we were in the middle of saving cancel that..
+                    isSaving = false;
+                    editor.emit('editor:save:cancel');
+
+                    // disconnected event
+                    editor.emit('realtime:disconnected', reason);
+
+                    // try to reconnect after a while
+                    editor.emit('realtime:nextAttempt', reconnectInterval);
+
+                    setTimeout(reconnect, reconnectInterval * 1000);
+
+                    reconnectInterval++;
+                };
+            };
+
+            // set up heartbeat handlers to know when the connection no longer exists
             var heartbeatTimeout = function () {
                 heartbeatTimeoutRef = null;
 
@@ -156,118 +303,6 @@ editor.once('load', function() {
 
                 lastHearbeat = Date.now();
                 heartbeatTimeoutRef = setTimeout(heartbeatTimeout, interval);
-            };
-
-            // if the connection does not exist
-            // then create a new sharejs connection
-            if (! connection) {
-                connection = new sharejs.Connection(socket);
-
-                connection.on('connected', function() {
-                    reconnectAttempts = 0;
-                    reconnectInterval = RECONNECT_INTERVAL;
-
-                    this.socket.send('auth' + JSON.stringify({
-                        accessToken: config.accessToken
-                    }));
-
-                    isConnected = true;
-
-                    editor.emit('realtime:connected');
-                });
-
-                connection.on('error', onError);
-            } else {
-                // we are reconnecting so use existing connection
-                // but bind it to new socket
-                connection.bindToSocket(socket);
-            }
-
-            var sharejsMessage = connection.socket.onmessage;
-
-            connection.socket.onmessage = function(msg) {
-                try {
-                    if (msg.data.startsWith('auth')) {
-                        if (!auth) {
-                            auth = true;
-                            data = JSON.parse(msg.data.slice(4));
-
-                            editor.emit('realtime:authenticated');
-
-                            // load document
-                            if (! textDocument) {
-                                loadDocument();
-                            } else {
-                                // send doc:reconnect in order for C3 to
-                                // fetch the document and its asset again
-                                socket.send('doc:reconnect:' + config.asset.id);
-                                textDocument.resume();
-                            }
-
-                            if (! assetDocument)
-                                loadAsset();
-                        }
-                    } else if (msg.data.startsWith('whoisonline:')) {
-                        data = msg.data.slice('whoisonline:'.length);
-                        var ind = data.indexOf(':');
-                        if (ind !== -1) {
-                            var op = data.slice(0, ind);
-                            if (op === 'set') {
-                                data = JSON.parse(data.slice(ind + 1));
-                            } else if (op === 'add' || op === 'remove') {
-                                data = parseInt(data.slice(ind + 1), 10);
-                            }
-                            editor.call('whoisonline:' + op, data);
-                        } else {
-                            sharejsMessage(msg);
-                        }
-                    } else {
-                        sharejsMessage(msg);
-                    }
-                } catch (e) {
-                    onError(e);
-                }
-
-            };
-
-
-            var onConnectionClosed = connection.socket.onclose;
-            connection.socket.onclose = function (reason) {
-                onConnectionClosed(reason);
-
-                auth = false;
-
-                if (textDocument) {
-                    // pause document and resume it
-                    // after we have reconnected and re-authenticated
-                    // otherwise the document will attempt to sync to the server
-                    // as soon as we reconnect (before authentication) causing
-                    // forbidden errors
-                    textDocument.pause();
-                }
-
-                if (heartbeatTimeoutRef) {
-                    clearTimeout(heartbeatTimeoutRef);
-                    heartbeatTimeoutRef = null;
-                }
-
-                isLoading = false;
-                isConnected = false;
-                isDirty = false;
-
-                // if we were in the middle of saving cancel that..
-                isSaving = false;
-                editor.emit('editor:save:cancel');
-
-                // disconnected event
-                editor.emit('realtime:disconnected', reason);
-
-                // try to reconnect after a while
-                editor.emit('realtime:nextAttempt', reconnectInterval);
-
-                setTimeout(reconnect, reconnectInterval * 1000);
-
-                reconnectInterval++;
             };
         };
 
