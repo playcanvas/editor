@@ -31,7 +31,7 @@ editor.once('load', function() {
     });
 
     editor.method('editor:canSave', function () {
-        return !hasError && editor.call('editor:isDirty') && ! editor.call('editor:isReadonly') && ! isSaving && isConnected && !isLoading;
+        return !hasError && editor.call('editor:isDirty') && ! editor.call('editor:isReadonly') && ! isSaving && isConnected;
     });
 
     editor.method('editor:isLoading', function () {
@@ -110,11 +110,6 @@ editor.once('load', function() {
         var documentContent = null;
         var assetContent = null;
 
-        // holds messages arriving from C3 before we receive
-        // the 'auth' message
-        var beforeAuthMessages = [];
-
-
         editor.method('realtime:connection', function () {
             return connection;
         });
@@ -134,54 +129,112 @@ editor.once('load', function() {
             }
 
             isLoading = true;
-            var lastHearbeat = Date.now();
-            var interval = 3000;
-            var heartbeatTimeoutRef;
-
             reconnectAttempts++;
             editor.emit('realtime:connecting', reconnectAttempts);
 
             // create new socket...
             socket = new SockJS(config.url.realtime.http);
 
-            // This handler first handles the authentication message
-            // After we receive the message we then create a proper sharejs connection.
-            // We wait for authentication first because on re-connections sharejs sends ops
-            // to the server before the server has finished authenticating the client
-            socket.onmessage = function (msg) {
+            var lastHearbeat = Date.now();
+            var interval = 3000;
+            var heartbeatTimeoutRef;
+
+            var heartbeatTimeout = function () {
+                heartbeatTimeoutRef = null;
+
+                if (Date.now() - lastHearbeat > interval) {
+                    connection.socket.close();
+                } else {
+                    heartbeatTimeoutRef = setTimeout(heartbeatTimeout, interval);
+                }
+            };
+
+            socket.onheartbeat = function () {
+                if (heartbeatTimeoutRef) {
+                    clearTimeout(heartbeatTimeoutRef);
+                }
+
+                lastHearbeat = Date.now();
+                heartbeatTimeoutRef = setTimeout(heartbeatTimeout, interval);
+            };
+
+            // if the connection does not exist
+            // then create a new sharejs connection
+            if (! connection) {
+                connection = new sharejs.Connection(socket);
+
+                connection.on('connected', function() {
+                    reconnectAttempts = 0;
+                    reconnectInterval = RECONNECT_INTERVAL;
+
+                    this.socket.send('auth' + JSON.stringify({
+                        accessToken: config.accessToken
+                    }));
+
+                    isConnected = true;
+
+                    editor.emit('realtime:connected');
+                });
+
+                connection.on('error', onError);
+            } else {
+                // we are reconnecting so use existing connection
+                // but bind it to new socket
+                connection.bindToSocket(socket);
+            }
+
+            var sharejsMessage = connection.socket.onmessage;
+
+            connection.socket.onmessage = function(msg) {
                 try {
                     if (msg.data.startsWith('auth')) {
-                        auth = true;
-                        editor.emit('realtime:authenticated');
+                        if (!auth) {
+                            auth = true;
+                            data = JSON.parse(msg.data.slice(4));
 
-                        // now erase onmessage and create a sharejs connection
-                        socket.onmessage = null;
-                        createConnection();
+                            editor.emit('realtime:authenticated');
+
+                            // load document
+                            if (! textDocument) {
+                                loadDocument();
+                            } else {
+                                // send doc:reconnect in order for C3 to
+                                // fetch the document and its asset again
+                                socket.send('doc:reconnect:' + config.asset.id);
+                                textDocument.resume();
+                            }
+
+                            if (! assetDocument)
+                                loadAsset();
+                        }
+                    } else if (msg.data.startsWith('whoisonline:')) {
+                        data = msg.data.slice('whoisonline:'.length);
+                        var ind = data.indexOf(':');
+                        if (ind !== -1) {
+                            var op = data.slice(0, ind);
+                            if (op === 'set') {
+                                data = JSON.parse(data.slice(ind + 1));
+                            } else if (op === 'add' || op === 'remove') {
+                                data = parseInt(data.slice(ind + 1), 10);
+                            }
+                            editor.call('whoisonline:' + op, data);
+                        } else {
+                            sharejsMessage(msg);
+                        }
                     } else {
-                        // the 'init' message from sharejs might come before the 'auth'
-                        // message so remember any sharejs messages for when we have a
-                        // real sharejs connection
-                        beforeAuthMessages.push(msg);
+                        sharejsMessage(msg);
                     }
                 } catch (e) {
                     onError(e);
                 }
+
             };
 
 
-            // when the socket is opened send 'auth' message
-            socket.onopen = function () {
-                socket.send('auth' + JSON.stringify({
-                    accessToken: config.accessToken
-                }));
-            };
+            var onConnectionClosed = connection.socket.onclose;
+            connection.socket.onclose = function (reason) {
+                onConnectionClosed(reason);
 
-            // handler for errors that happen before we have a real sharejs connection
-            socket.onerror = function (e) {
-                onError(e);
-            };
-
-            var onClose = function (reason) {
                 auth = false;
 
                 if (textDocument) {
@@ -197,8 +250,6 @@ editor.once('load', function() {
                     clearTimeout(heartbeatTimeoutRef);
                     heartbeatTimeoutRef = null;
                 }
-
-                beforeAuthMessages.length = 0;
 
                 isLoading = false;
                 isConnected = false;
@@ -217,104 +268,6 @@ editor.once('load', function() {
                 setTimeout(reconnect, reconnectInterval * 1000);
 
                 reconnectInterval++;
-            };
-
-            socket.onclose = onClose;
-
-            var createConnection = function () {
-                // if the connection does not exist
-                // then create a new sharejs connection
-                if (! connection) {
-                    connection = new sharejs.Connection(socket);
-
-                    connection.on('connected', function() {
-                        reconnectAttempts = 0;
-                        reconnectInterval = RECONNECT_INTERVAL;
-
-                        isConnected = true;
-
-                        editor.emit('realtime:connected');
-
-                        // load document
-                        if (! textDocument) {
-                            loadDocument();
-                        } else {
-                            // send doc:reconnect in order for C3 to
-                            // fetch the document and its asset again
-                            socket.send('doc:reconnect:' + config.asset.id);
-                            textDocument.resume();
-                        }
-
-                        if (! assetDocument)
-                            loadAsset();
-                    });
-
-                    connection.on('error', onError);
-                } else {
-                    // we are reconnecting so use existing connection
-                    // but bind it to new socket
-                    connection.bindToSocket(socket);
-                }
-
-                // handle any messages that have arrived before
-                var sharejsMessage = connection.socket.onmessage;
-                beforeAuthMessages.forEach(sharejsMessage);
-
-                // set onmessage again because it will have been overwritten
-                // by sharejs
-                connection.socket.onmessage = function(msg) {
-                    try {
-                        if (msg.data.startsWith('whoisonline:')) {
-                            data = msg.data.slice('whoisonline:'.length);
-                            var ind = data.indexOf(':');
-                            if (ind !== -1) {
-                                var op = data.slice(0, ind);
-                                if (op === 'set') {
-                                    data = JSON.parse(data.slice(ind + 1));
-                                } else if (op === 'add' || op === 'remove') {
-                                    data = parseInt(data.slice(ind + 1), 10);
-                                }
-                                editor.call('whoisonline:' + op, data);
-                            } else {
-                                sharejsMessage(msg);
-                            }
-                        } else {
-                            sharejsMessage(msg);
-                        }
-                    } catch (e) {
-                        onError(e);
-                    }
-
-                };
-
-
-                // set onclose again because it will have been overwritten
-                // by sharejs
-                var onConnectionClosed = connection.socket.onclose;
-                connection.socket.onclose = function (reason) {
-                    onConnectionClosed(reason);
-                    onClose(reason);
-                };
-            };
-
-            // set up heartbeat handlers to know when the connection no longer exists
-            var heartbeatTimeout = function () {
-                heartbeatTimeoutRef = null;
-
-                if (Date.now() - lastHearbeat > interval) {
-                    connection.socket.close();
-                } else {
-                    heartbeatTimeoutRef = setTimeout(heartbeatTimeout, interval);
-                }
-            };
-
-            socket.onheartbeat = function () {
-                if (heartbeatTimeoutRef) {
-                    clearTimeout(heartbeatTimeoutRef);
-                }
-
-                lastHearbeat = Date.now();
-                heartbeatTimeoutRef = setTimeout(heartbeatTimeout, interval);
             };
         };
 
