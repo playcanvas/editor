@@ -226,11 +226,10 @@ editor.once('load', function () {
     };
 
     editor.on('editor:loadScript', onLoaded);
-    editor.on('editor:reloadScript', onLoaded);
 
-    editor.on('realtime:disconnected', function () {
-        isConnected = false;
-    });
+    // editor.on('realtime:disconnected', function () {
+    //     isConnected = false;
+    // });
 
     // debug function
     var printStacks = function () {
