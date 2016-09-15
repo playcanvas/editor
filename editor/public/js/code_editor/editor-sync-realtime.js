@@ -167,10 +167,6 @@ editor.once('load', function() {
                 }
             };
 
-            // handler for errors that happen before we have a real sharejs connection
-            socket.onerror = function (e) {
-                onError(e);
-            };
 
             // when the socket is opened send 'auth' message
             socket.onopen = function () {
@@ -179,6 +175,48 @@ editor.once('load', function() {
                 }));
             };
 
+            // handler for errors that happen before we have a real sharejs connection
+            socket.onerror = function (e) {
+                onError(e);
+            };
+
+            var onClose = function (reason) {
+                auth = false;
+
+                if (textDocument) {
+                    // pause document and resume it
+                    // after we have reconnected and re-authenticated
+                    // otherwise the document will attempt to sync to the server
+                    // as soon as we reconnect (before authentication) causing
+                    // forbidden errors
+                    textDocument.pause();
+                }
+
+                if (heartbeatTimeoutRef) {
+                    clearTimeout(heartbeatTimeoutRef);
+                    heartbeatTimeoutRef = null;
+                }
+
+                isLoading = false;
+                isConnected = false;
+                isDirty = false;
+
+                // if we were in the middle of saving cancel that..
+                isSaving = false;
+                editor.emit('editor:save:cancel');
+
+                // disconnected event
+                editor.emit('realtime:disconnected', reason);
+
+                // try to reconnect after a while
+                editor.emit('realtime:nextAttempt', reconnectInterval);
+
+                setTimeout(reconnect, reconnectInterval * 1000);
+
+                reconnectInterval++;
+            };
+
+            socket.onclose = onClose;
 
             var createConnection = function () {
                 // if the connection does not exist
@@ -219,6 +257,8 @@ editor.once('load', function() {
                 var sharejsMessage = connection.socket.onmessage;
                 beforeAuthMessages.forEach(sharejsMessage);
 
+                // set onmessage again because it will have been overwritten
+                // by sharejs
                 connection.socket.onmessage = function(msg) {
                     try {
                         if (msg.data.startsWith('whoisonline:')) {
@@ -245,43 +285,12 @@ editor.once('load', function() {
                 };
 
 
+                // set onclose again because it will have been overwritten
+                // by sharejs
                 var onConnectionClosed = connection.socket.onclose;
                 connection.socket.onclose = function (reason) {
                     onConnectionClosed(reason);
-
-                    auth = false;
-
-                    if (textDocument) {
-                        // pause document and resume it
-                        // after we have reconnected and re-authenticated
-                        // otherwise the document will attempt to sync to the server
-                        // as soon as we reconnect (before authentication) causing
-                        // forbidden errors
-                        textDocument.pause();
-                    }
-
-                    if (heartbeatTimeoutRef) {
-                        clearTimeout(heartbeatTimeoutRef);
-                        heartbeatTimeoutRef = null;
-                    }
-
-                    isLoading = false;
-                    isConnected = false;
-                    isDirty = false;
-
-                    // if we were in the middle of saving cancel that..
-                    isSaving = false;
-                    editor.emit('editor:save:cancel');
-
-                    // disconnected event
-                    editor.emit('realtime:disconnected', reason);
-
-                    // try to reconnect after a while
-                    editor.emit('realtime:nextAttempt', reconnectInterval);
-
-                    setTimeout(reconnect, reconnectInterval * 1000);
-
-                    reconnectInterval++;
+                    onClose(reason);
                 };
             };
 
