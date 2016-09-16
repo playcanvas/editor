@@ -397,13 +397,30 @@ app.once('load', function() {
         panel: panelVram,
         format: bytesToHuman
     }, {
-        key: [ 'vram', 'tex' ],
-        title: 'Textures',
+        key: [ 'vram', 'texShadow' ],
+        title: 'Shadowmaps',
         panel: panelVram,
         format: bytesToHuman
     }, {
-        key: [ 'lightmapper', 'lightmapMem' ],
+        key: [ 'vram', 'texLightmap' ],
         title: 'Lightmaps',
+        panel: panelVram,
+        format: bytesToHuman
+    }, {
+        key: [ 'vram', 'texAsset' ],
+        title: 'Texture Assets',
+        panel: panelVram,
+        format: bytesToHuman
+    }, {
+        key: [ 'vram', 'tex' ],
+        title: 'Textures Other',
+        panel: panelVram,
+        format: function(bytes) {
+            return bytesToHuman(bytes - (viewport.stats.vram.texLightmap + viewport.stats.vram.texShadow + viewport.stats.vram.texAsset));
+        }
+    }, {
+        key: [ 'vram', 'tex' ],
+        title: 'Textures Total',
         panel: panelVram,
         format: bytesToHuman
     }, {
