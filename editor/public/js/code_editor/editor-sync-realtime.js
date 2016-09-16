@@ -7,7 +7,7 @@ editor.once('load', function() {
     if (! config.asset)
         return;
 
-    var RECONNECT_INTERVAL = 5;
+    var RECONNECT_INTERVAL = 1;
 
     var isLoading = false;
     var isSaving;
