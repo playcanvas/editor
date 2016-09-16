@@ -90,9 +90,17 @@ editor.once('load', function () {
         refreshButtons();
     });
 
+    var knownErrors = [
+        /Invalid version from server/,
+        /Op apply failed/,
+        /opAcknowledged called from a null state/
+    ];
+
     editor.on('realtime:error', function (err) {
-        if (/Op apply failed/.test(err) || /opAcknowledged called from a null state/.test(err)) {
-            err = 'Oops could not save last operation - please reload the page.';
+        for (var i = 0; i < knownErrors.length; i++) {
+            if (knownErrors[i].test(err)) {
+                err = 'Could not reconnect successfully, please refresh the page.'
+            }
         }
 
         errorMsg = err;
