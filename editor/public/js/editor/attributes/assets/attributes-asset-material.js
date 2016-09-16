@@ -1060,19 +1060,20 @@ editor.once('load', function() {
 
             var path = asset.get('path');
             var textures = editor.call('assets:find', function(texture) {
-                return texture !== asset && texture.get('type') === 'texture' && ! texture.get('source') && texture.get('path').equals(path);
+                return texture.get('type') === 'texture' && ! texture.get('source') && texture.get('path').equals(path);
             });
-
-            if (! textures.length)
-                return;
 
             var candidates = { };
             for(var i = 0; i < textures.length; i++) {
                 var t = tokenizeFilename(textures[i][1].get('name'));
-                if (! t || t[0] !== tokens[0] || ! postfixToSlot[t[1]] || postfixToSlot[t[1]].indexOf(slot) !== -1)
+
+                if (! t || t[0] !== tokens[0] || ! postfixToSlot[t[1]])
                     continue;
 
                 for(var s = 0; s < postfixToSlot[t[1]].length; s++) {
+                    if (postfixToSlot[t[1]][s] === slot)
+                        continue;
+
                     candidates[postfixToSlot[t[1]][s]] = {
                         texture: textures[i][1],
                         postfix: t[1]

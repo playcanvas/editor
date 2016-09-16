@@ -199,15 +199,13 @@ editor.once('load', function() {
                         return;
 
                     // try locate source when dropping on its targets
-                    /*
-                    if (searchRelatedAssets && source && ! item.get('source') && item.get('source_asset_id')) {
+                    if (source && ! item.get('source') && item.get('source_asset_id')) {
                         var itemSource = editor.call('assets:get', item.get('source_asset_id'));
                         if (itemSource && itemSource.get('type') === type && itemSource.get('name').toLowerCase() === files[i].name.toLowerCase()) {
                             sourceAsset = itemSource;
                             return;
                         }
                     }
-                    */
 
                     return item.get('source') === source && item.get('type') === type && item.get('name').toLowerCase() === files[i].name.toLowerCase();
                 });
