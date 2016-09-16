@@ -357,10 +357,6 @@ Connection.prototype.send = function(msg) {
     msg = JSON.stringify(msg);
   }
   this.socket.send(msg);
-  if (window.doit) {
-    window.doit = false;
-    this.socket.close();
-  }
 };
 
 
