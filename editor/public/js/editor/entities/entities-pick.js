@@ -30,7 +30,8 @@ editor.once('load', function() {
 
                 for(var i = 0; i < meshInstances.length; i++) {
                     var instance = meshInstances[i];
-                    if (instance !== picked)
+
+                    if (instance !== picked && instance !== picked._staticSource)
                         continue;
 
                     var index = i;
