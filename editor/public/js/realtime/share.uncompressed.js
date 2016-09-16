@@ -1472,7 +1472,17 @@ Doc.prototype._opAcknowledged = function(msg) {
 
     // This should never happen - something is out of order.
     if (msg.v !== this.version) {
-      throw new Error('Invalid version from server. This can happen when you submit ops in a submitOp callback. Expected: ' + this.version + ' Message version: ' + msg.v + ' ' + this.collection + ' ' + this.name);
+        // by vaios
+        // instead of throwing exception here just get the latest ops
+        // from the server, which should allow us to continue as normal
+        // This error can happen when multiple clients edit the document
+        // and when they re-connect they expect their last inflight op to have
+        // a specific version but this might have a different client id (src field)
+        // in the server depending on the order that inflight ops arrived there before disconnection.
+        // The server will try to transform those ops and in doing so it will change the op version
+        // thus causing this error... This seems to be handled the same way in the latest sharedb
+      console.warn('Invalid version from server. This can happen when you submit ops in a submitOp callback. Expected: ' + this.version + ' Message version: ' + msg.v + ' ' + this.collection + ' ' + this.name);
+      return this._getLatestOps();
     }
   }
 
