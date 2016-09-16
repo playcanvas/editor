@@ -35,7 +35,9 @@ editor.once('load', function () {
         }
 
         options.gutters = ["CodeMirror-pc-gutter"];
-    } else {
+    }
+
+    if (!config.asset || config.asset.type === 'script') {
         options.lint = true;
         options.gutters = ["CodeMirror-lint-markers"];
     }
@@ -227,8 +229,14 @@ editor.once('load', function () {
     });
 
     editor.on('editor:reloadScript', function (data) {
-        var isDirty = editor.call('editor:isDirty');
+        // if the reloaded data are different
+        // than the current editor value then reset the contents
+        // of the editor - that can happen if a change has been rolled back
+        // by sharejs for example
+        if (codeMirror.getValue() === data)
+            return;
 
+        var isDirty = editor.call('editor:isDirty');
         isLoading = true;
         code = data;
         codeMirror.setValue(code);
@@ -237,6 +245,7 @@ editor.once('load', function () {
             codeMirror.markClean();
 
         isLoading = false;
+
     });
 
     // emit change

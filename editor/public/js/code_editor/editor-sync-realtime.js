@@ -7,22 +7,31 @@ editor.once('load', function() {
     if (! config.asset)
         return;
 
+    var RECONNECT_INTERVAL = 5;
+
     var isLoading = false;
     var isSaving;
     var isDirty = false;
     var isConnected = false;
     var loadedScriptOnce = false;
+    var hasError = false;
 
     var textDocument = null;
     var assetDocument = null;
     var editingContext = null;
+
+    var onError = function (err) {
+        hasError = true;
+        editor.emit('permissions:writeState', false);
+        editor.emit('realtime:error', err);
+    };
 
     editor.method('document:isDirty', function () {
         return isDirty;
     });
 
     editor.method('editor:canSave', function () {
-        return editor.call('editor:isDirty') && ! editor.call('editor:isReadonly') && ! isSaving && isConnected;
+        return !hasError && editor.call('editor:isDirty') && ! editor.call('editor:isReadonly') && ! isSaving && isConnected;
     });
 
     editor.method('editor:isLoading', function () {
@@ -69,7 +78,7 @@ editor.once('load', function() {
     editor.method('editor:revert', function () {
         editor.call('editor:loadAssetFile', function (err, data) {
             if (err) {
-                editor.emit('realtime:error', 'Could not revert, try again later.');
+                onError('Could not revert, try again later.');
                 return;
             }
 
@@ -97,7 +106,9 @@ editor.once('load', function() {
         var connection;
         var data;
         var reconnectAttempts = 0;
-        var reconnectInterval = 1;
+        var reconnectInterval = RECONNECT_INTERVAL;
+        var documentContent = null;
+        var assetContent = null;
 
         editor.method('realtime:connection', function () {
             return connection;
@@ -132,7 +143,7 @@ editor.once('load', function() {
                 heartbeatTimeoutRef = null;
 
                 if (Date.now() - lastHearbeat > interval) {
-                    connection.disconnect();
+                    connection.socket.close();
                 } else {
                     heartbeatTimeoutRef = setTimeout(heartbeatTimeout, interval);
                 }
@@ -147,8 +158,30 @@ editor.once('load', function() {
                 heartbeatTimeoutRef = setTimeout(heartbeatTimeout, interval);
             };
 
-            // ... and new sharejs connection
-            connection = new sharejs.Connection(socket);
+            // if the connection does not exist
+            // then create a new sharejs connection
+            if (! connection) {
+                connection = new sharejs.Connection(socket);
+
+                connection.on('connected', function() {
+                    reconnectAttempts = 0;
+                    reconnectInterval = RECONNECT_INTERVAL;
+
+                    this.socket.send('auth' + JSON.stringify({
+                        accessToken: config.accessToken
+                    }));
+
+                    isConnected = true;
+
+                    editor.emit('realtime:connected');
+                });
+
+                connection.on('error', onError);
+            } else {
+                // we are reconnecting so use existing connection
+                // but bind it to new socket
+                connection.bindToSocket(socket);
+            }
 
             var sharejsMessage = connection.socket.onmessage;
 
@@ -162,8 +195,14 @@ editor.once('load', function() {
                             editor.emit('realtime:authenticated');
 
                             // load document
-                            if (! textDocument)
+                            if (! textDocument) {
                                 loadDocument();
+                            } else {
+                                // send doc:reconnect in order for C3 to
+                                // fetch the document and its asset again
+                                socket.send('doc:reconnect:' + config.asset.id);
+                                textDocument.resume();
+                            }
 
                             if (! assetDocument)
                                 loadAsset();
@@ -186,27 +225,11 @@ editor.once('load', function() {
                         sharejsMessage(msg);
                     }
                 } catch (e) {
-                    console.error(e);
+                    onError(e);
                 }
 
             };
 
-            connection.on('connected', function() {
-                reconnectAttempts = 0;
-                reconnectInterval = 1;
-
-                this.socket.send('auth' + JSON.stringify({
-                    accessToken: config.accessToken
-                }));
-
-                isConnected = true;
-
-                editor.emit('realtime:connected');
-            });
-
-            connection.on('error', function(msg) {
-                editor.emit('realtime:error', msg);
-            });
 
             var onConnectionClosed = connection.socket.onclose;
             connection.socket.onclose = function (reason) {
@@ -215,18 +238,12 @@ editor.once('load', function() {
                 auth = false;
 
                 if (textDocument) {
-                    textDocument.destroy();
-                    textDocument = null;
-                }
-
-                if (assetDocument) {
-                    assetDocument.destroy();
-                    assetDocument = null;
-                }
-
-                if (editingContext) {
-                    editingContext.destroy();
-                    editingContext = null;
+                    // pause document and resume it
+                    // after we have reconnected and re-authenticated
+                    // otherwise the document will attempt to sync to the server
+                    // as soon as we reconnect (before authentication) causing
+                    // forbidden errors
+                    textDocument.pause();
                 }
 
                 if (heartbeatTimeoutRef) {
@@ -256,9 +273,6 @@ editor.once('load', function() {
 
         reconnect();
 
-        var documentContent = null;
-        var assetContent = null;
-
         var checkIfDirty = function () {
             isDirty = false;
             if (documentContent !== null && assetContent !== null) {
@@ -277,26 +291,38 @@ editor.once('load', function() {
             textDocument = connection.get('documents', '' + config.asset.id);
 
             // error
-            textDocument.on('error', function(err) {
-                editor.emit('realtime:error', err);
-            });
+            textDocument.on('error', onError);
 
-            // ready to sync
-            textDocument.on('ready', function() {
-                // notify of scene load
-                isLoading = false;
-                editingContext = textDocument.createContext();
+            // every time we subscribe to the document
+            // (so on reconnects too) listen for the 'ready' event
+            // and when ready check if the document content is different
+            // than the asset content in order to activate the REVERT button
+            textDocument.on('subscribe', function () {
+                // if we have a permanent error we need to reload the page
+                // so don't continue
+                if (hasError)
+                    return;
 
-                documentContent = textDocument.getSnapshot();
+                // ready to sync
+                textDocument.whenReady(function () {
+                    // notify of scene load
+                    isLoading = false;
 
-                if (! loadedScriptOnce) {
-                    editor.emit('editor:loadScript', documentContent);
-                    loadedScriptOnce = true;
-                } else {
-                    editor.emit('editor:reloadScript', documentContent);
-                }
+                    if (! editingContext) {
+                        editingContext = textDocument.createContext();
+                    }
 
-                checkIfDirty();
+                    documentContent = textDocument.getSnapshot();
+
+                    if (! loadedScriptOnce) {
+                        editor.emit('editor:loadScript', documentContent);
+                        loadedScriptOnce = true;
+                    } else {
+                        editor.emit('editor:reloadScript', documentContent);
+                    }
+
+                    checkIfDirty();
+                });
             });
 
             // subscribe for realtime events
@@ -307,32 +333,42 @@ editor.once('load', function() {
             // load asset document too
             assetDocument = connection.get('assets', '' + config.asset.id);
 
-            assetDocument.on('ready', function() {
-                assetDocument.on('after op', function(ops, local) {
-                    if (local) return;
+            // listen to "after op" in order to check if the asset
+            // file has been saved. When the file changes this means that the
+            // save operation has finished
+            assetDocument.on('after op', function(ops, local) {
+                if (local) return;
 
-                    for (var i = 0; i < ops.length; i++) {
-                        if (ops[i].p.length === 1 && ops[i].p[0] === 'file') {
-                            isSaving = false;
-                            isDirty = false;
-                            editor.emit('editor:save:end');
+                for (var i = 0; i < ops.length; i++) {
+                    if (ops[i].p.length === 1 && ops[i].p[0] === 'file') {
+                        isSaving = false;
+                        isDirty = false;
+                        editor.emit('editor:save:end');
+                    }
+                }
+            });
+
+            // Every time the 'subscribe' event is fired on the asset document
+            // reload the asset content and check if it's different than the document content in
+            // order to activate the REVERT button
+            assetDocument.on('subscribe', function () {
+                if (hasError)
+                    return;
+
+                assetDocument.whenReady(function() {
+                    // load asset file to check if it has different contents
+                    // than the sharejs document, so that we can enable the
+                    // SAVE button if that is the case.
+                    editor.call('editor:loadAssetFile', function (err, data) {
+                        if (err) {
+                            onError('Could not load asset file - please try again later.');
+                            return;
                         }
-                    }
+
+                        assetContent = data;
+                        checkIfDirty();
+                    });
                 });
-
-                // load asset file to check if it has different contents
-                // than the sharejs document, so that we can enable the
-                // SAVE button if that is the case.
-                editor.call('editor:loadAssetFile', function (err, data) {
-                    if (err) {
-                        editor.emit('realtime:error', 'Could not load asset file. Try again later.');
-                        return;
-                    }
-
-                    assetContent = data;
-                    checkIfDirty();
-                });
-
             });
 
             assetDocument.subscribe();
@@ -342,9 +378,10 @@ editor.once('load', function() {
             socket.send(name + JSON.stringify(data));
         });
 
-        editor.on('realtime:disconnected', function () {
-            editor.emit('permissions:writeState', false);
-        });
+
+        // editor.on('realtime:disconnected', function () {
+        //     editor.emit('permissions:writeState', false);
+        // });
 
         var onLoadScript = function () {
             editor.emit('permissions:writeState', editor.call('permissions:write'));

@@ -91,6 +91,10 @@ editor.once('load', function () {
     });
 
     editor.on('realtime:error', function (err) {
+        if (/Op apply failed/.test(err)) {
+            err = 'Oops could not save last operation - please reload the page.';
+        }
+
         errorMsg = err;
         error.innerHTML = 'Error: ' + err;
         refreshButtons();
