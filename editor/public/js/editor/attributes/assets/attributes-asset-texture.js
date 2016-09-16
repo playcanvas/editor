@@ -347,7 +347,8 @@ editor.once('load', function() {
         var formats = {
             original: { size: 0, vram: 0 },
             dxt: { size: 0, vram: 0, timeout: false },
-            pvr: { size: 0, vram: 0, timeout: false }
+            pvr: { size: 0, vram: 0, timeout: false },
+            etc1: { size: 0, vram: 0, timeout: false }
         };
 
 
@@ -363,7 +364,7 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'asset:texture:compression', panelCompression, panelCompression.headerElement);
 
-        if (! config.self.superUser)
+        if (! config.self.superUser && ! config.self.betaTester)
             panelCompression.hidden = true;
 
         // compress alpha
@@ -477,6 +478,7 @@ editor.once('load', function() {
             var width = -1;
             var height = -1;
             var rgbm = -1;
+            var alpha = -1;
 
             for(var i = 0; i < assets.length; i++) {
                 if (assets[i].has('meta.width')) {
@@ -497,6 +499,13 @@ editor.once('load', function() {
                 } else {
                     if (rgbm !== (assets[i].get('data.rgbm') ? 1 : 0))
                         rgbm = -2;
+                }
+
+                if (alpha === -1) {
+                    alpha = assets[i].get('meta.compress.alpha') ? 1 : 0;
+                } else {
+                    if (alpha !== (assets[i].get('meta.compress.alpha') ? 1 : 0))
+                        alpha = -2;
                 }
 
                 var ext = assets[i].get('file.url');
@@ -529,6 +538,7 @@ editor.once('load', function() {
             }
 
             fieldPvr.disabled = fieldPvrBpp.disabled = rgbm !== -2 && (fieldDxt.disabled || rgbm === 1);
+            fieldEtc1.disabled = fieldPvr.disabled || alpha === 1;
         };
 
         calculateOriginalSize();
@@ -605,12 +615,32 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'asset:texture:compress:pvrBpp', fieldPvrBpp);
 
         // label
-        var labelDxtSize = labelSize['pvr'] = new ui.Label({
+        var labelPvrSize = labelSize['pvr'] = new ui.Label({
             text: bytesToHuman(formats.pvr.size) + ' [VRAM ' + bytesToHuman(formats.pvr.vram) + ']'
         });
-        labelDxtSize.class.add('size');
-        if (! formats.pvr.size && ! formats.pvr.vram) labelDxtSize.text = '-';
-        fieldPvr.parent.append(labelDxtSize);
+        labelPvrSize.class.add('size');
+        if (! formats.pvr.size && ! formats.pvr.vram) labelPvrSize.text = '-';
+        fieldPvr.parent.append(labelPvrSize);
+
+
+        // etc1
+        var fieldEtc1 = editor.call('attributes:addField', {
+            parent: panelCompression,
+            type: 'checkbox',
+            name: 'ETC1',
+            link: assets,
+            path: 'meta.compress.etc1'
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'asset:texture:compress:etc1', fieldEtc1.parent.innerElement.firstChild.ui);
+
+        // label
+        var labelEtc1Size = labelSize['etc1'] = new ui.Label({
+            text: bytesToHuman(formats.etc1.size) + ' [VRAM ' + bytesToHuman(formats.etc1.vram) + ']'
+        });
+        labelEtc1Size.class.add('size');
+        if (! formats.etc1.size && ! formats.etc1.vram) labelEtc1Size.text = '-';
+        fieldEtc1.parent.append(labelEtc1Size);
 
 
         checkFormats();
@@ -641,6 +671,9 @@ editor.once('load', function() {
                 if (! assets[i].get('file'))
                     continue;
 
+                var variants = [ ];
+                var toDelete = [ ];
+
                 for(var key in formats) {
                     if (key === 'original')
                         continue;
@@ -657,41 +690,59 @@ editor.once('load', function() {
                         if ((width & (width - 1)) !== 0 || (height & (height - 1)) !== 0)
                             continue;
 
-                        var task = {
-                            asset: parseInt(assets[i].get('id'), 10),
-                            options: {
-                                format: key
-                            }
-                        };
+                        var compress = assets[i].get('meta.compress.' + key);
 
                         if (key === 'pvr') {
                             if (assets[i].get('data.rgbm'))
-                                continue;
-
-                            task.options.pvrBpp = assets[i].get('meta.compress.pvrBpp');
+                                compress = false;
+                        } else if (key === 'etc1') {
+                            if (assets[i].get('data.rgbm') || assets[i].get('meta.compress.alpha'))
+                                compress = false;
                         }
 
-                        if (assets[i].get('meta.compress.' + key)) {
-                            task.options.alpha = assets[i].get('meta.compress.alpha') && (assets[i].get('meta.alpha') || assets[i].get('meta.type').toLowerCase() === 'truecoloralpha');
-
-                            var sourceId = assets[i].get('source_asset_id');
-                            if (sourceId) {
-                                var sourceAsset = editor.call('assets:get', sourceId);
-                                if (sourceAsset)
-                                    task.source = parseInt(sourceAsset.get('id'), 10);
-                            }
-
-                            editor.call('realtime:send', 'pipeline', {
-                                name: 'compress',
-                                data: task
-                            });
+                        if (compress) {
+                            variants.push(key);
                         } else {
-                            editor.call('realtime:send', 'pipeline', {
-                                name: 'delete-variant',
-                                data: task
-                            });
+                            toDelete.push(key);
                         }
                     }
+                }
+
+                if (toDelete.length) {
+                    editor.call('realtime:send', 'pipeline', {
+                        name: 'delete-variant',
+                        data: {
+                            asset: parseInt(assets[i].get('id'), 10),
+                            options: {
+                                formats: toDelete
+                            }
+                        }
+                    });
+                }
+
+                if (variants.length) {
+                    var task = {
+                        asset: parseInt(assets[i].get('id'), 10),
+                        options: {
+                            formats: variants,
+                            alpha: assets[i].get('meta.compress.alpha') && (assets[i].get('meta.alpha') || assets[i].get('meta.type').toLowerCase() === 'truecoloralpha')
+                        }
+                    };
+
+                    if (variants.indexOf('pvr') !== -1)
+                        task.options.pvrBpp = assets[i].get('meta.compress.pvrBpp');
+
+                    var sourceId = assets[i].get('source_asset_id');
+                    if (sourceId) {
+                        var sourceAsset = editor.call('assets:get', sourceId);
+                        if (sourceAsset)
+                            task.source = parseInt(sourceAsset.get('id'), 10);
+                    }
+
+                    editor.call('realtime:send', 'pipeline', {
+                        name: 'compress',
+                        data: task
+                    });
                 }
             }
 
@@ -708,6 +759,9 @@ editor.once('load', function() {
             var compress = asset.get('meta.compress.' + format);
 
             if (!! data !== compress) {
+                if (format === 'etc1' && alpha)
+                    return false;
+
                 return true;
             } else if (data && ((((data.opt & 1) != 0) != alpha))) {
                 return true;
@@ -717,6 +771,12 @@ editor.once('load', function() {
                 var bpp = asset.get('meta.compress.pvrBpp');
                 if (data && ((data.opt & 128) !== 0 ? 4 : 2) !== bpp)
                     return true;
+            } else if (format === 'etc1') {
+                if (data && alpha)
+                    return true;
+
+                if (! data && alpha)
+                    return false;
             }
 
             return false;

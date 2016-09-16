@@ -29,7 +29,8 @@ editor.once('load', function() {
                     alpha: alpha,
                     dxt: false,
                     pvr: false,
-                    pvrBpp: 4
+                    pvrBpp: 4,
+                    etc1: false
                 });
             } else {
                 if (! asset.has('meta.compress.pvr'))
@@ -37,6 +38,9 @@ editor.once('load', function() {
 
                 if (! asset.has('meta.compress.pvrBpp'))
                     asset.set('meta.compress.pvrBpp', 4);
+
+                if (! asset.has('meta.compress.etc1'))
+                    asset.set('meta.compress.etc1', false);
             }
         }
 

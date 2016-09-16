@@ -109,7 +109,6 @@ editor.once('load', function() {
         var launcher = window.open();
         launcher.opener = null;
         launcher.location = url;
-        launcher.focus();
     };
 
     editor.method('launch', function(type) {
