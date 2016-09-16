@@ -21,6 +21,7 @@ editor.once('load', function() {
     var editingContext = null;
 
     var onError = function (err) {
+        console.error(err);
         hasError = true;
         editor.emit('permissions:writeState', false);
         editor.emit('realtime:error', err);

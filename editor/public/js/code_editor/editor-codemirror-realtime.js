@@ -202,7 +202,10 @@ editor.once('load', function () {
             // apply the operation locally
             suppress = true;
             var from = cm.posFromIndex(pos);
+            var cursor = cm.getCursor();
             cm.replaceRange(text, from);
+            // do not affect our cursor from remote changes
+            cm.setCursor(cursor);
             var to = cm.posFromIndex(pos + text.length);
             suppress = false;
         };
@@ -217,7 +220,10 @@ editor.once('load', function () {
             transformStacks(remoteOp);
 
             // apply operation locally
+            var cursor = cm.getCursor();
             cm.replaceRange('', from, to);
+            // do not affect our cursor from remote changes
+            cm.setCursor(cursor);
 
             suppress = false;
         };
