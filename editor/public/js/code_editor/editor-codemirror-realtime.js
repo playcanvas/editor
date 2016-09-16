@@ -202,7 +202,21 @@ editor.once('load', function () {
             // apply the operation locally
             suppress = true;
             var from = cm.posFromIndex(pos);
+
+            // remember current selection if any...
+            var selStart = cm.getCursor(true);
+            var selEnd = cm.getCursor(false);
+
             cm.replaceRange(text, from);
+
+            // set selection as it was
+            if (selStart !== selEnd) {
+                cm.setSelection(selStart, selEnd);
+            } else {
+                // do not affect our cursor from remote changes
+                cm.setCursor(selEnd);
+            }
+
             var to = cm.posFromIndex(pos + text.length);
             suppress = false;
         };
@@ -216,8 +230,22 @@ editor.once('load', function () {
             var remoteOp = createRemoveOp(pos, length);
             transformStacks(remoteOp);
 
+            // remember current selection if any...
+            var selStart = cm.getCursor(true);
+            var selEnd = cm.getCursor(false);
+
             // apply operation locally
+            var cursor = cm.getCursor();
             cm.replaceRange('', from, to);
+
+            // set selection as it was
+            if (selStart !== selEnd) {
+                cm.setSelection(selStart, selEnd);
+            } else {
+                // do not affect our cursor from remote changes
+                cm.setCursor(selEnd);
+            }
+
 
             suppress = false;
         };

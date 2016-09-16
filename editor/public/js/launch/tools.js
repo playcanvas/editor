@@ -253,8 +253,9 @@ app.once('load', function() {
         }
     }, false);
 
+    // alt + t
     window.addEventListener('keydown', function(evt) {
-        if (evt.keyCode === 84 && (evt.ctrlKey || evt.metaKey) && evt.altKey) {
+        if (evt.keyCode === 84 && evt.altKey) {
             if (enabled) {
                 app.call('tools:disable');
             } else {
