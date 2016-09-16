@@ -91,7 +91,7 @@ editor.once('load', function () {
     });
 
     editor.on('realtime:error', function (err) {
-        if (/Op apply failed/.test(err)) {
+        if (/Op apply failed/.test(err) || /opAcknowledged called from a null state/.test(err)) {
             err = 'Oops could not save last operation - please reload the page.';
         }
 
