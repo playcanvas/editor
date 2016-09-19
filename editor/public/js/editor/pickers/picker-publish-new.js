@@ -90,7 +90,7 @@ editor.once('load', function () {
 
         imageField.classList.remove('blank');
         imageField.classList.add('progress');
-        imageField.style.backgroundImage = 'url("/images/common/ajax-loader.gif")';
+        imageField.style.backgroundImage = 'url("' + config.url.static + '/platform/images/common/ajax-loader.gif")';
 
         var file = fileInput.files[0];
         fileInput.value = null;
@@ -476,7 +476,7 @@ editor.once('load', function () {
 
     var downloadProgressImg = new Image();
     downloadProgressIconWrapper.appendChild(downloadProgressImg);
-    downloadProgressImg.src = "/images/common/ajax-loader.gif";
+    downloadProgressImg.src = config.url.static + "/platform/images/common/ajax-loader.gif";
 
     // progress info
     var downloadProgressInfo = document.createElement('span');

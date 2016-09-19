@@ -35,7 +35,7 @@ editor.once('load', function () {
         if (uploadingImage)
             return;
 
-        projectImg.style.backgroundImage = 'url("/images/common/ajax-loader.gif")';
+        projectImg.style.backgroundImage = 'url("' + config.url.static + '/platform/images/common/ajax-loader.gif")';
         projectImg.classList.add('progress');
 
         uploadingImage = true;

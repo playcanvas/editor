@@ -239,7 +239,7 @@ editor.once('load', function () {
             status.appendChild(img);
         } else if (app.task.status === 'running') {
             img = new Image();
-            img.src = "/images/common/ajax-loader.gif";
+            img.src = config.url.static + "/platform/images/common/ajax-loader.gif";
             status.appendChild(img);
         }
 
