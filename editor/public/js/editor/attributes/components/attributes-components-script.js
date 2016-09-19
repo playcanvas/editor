@@ -245,7 +245,7 @@ editor.once('load', function() {
             if (! editor.call('permissions:write'))
                 return;
 
-            var fullUrl = urlRegex.test(url) ? url : editor.call('sourcefiles:url', url);
+            var fullUrl = urlRegex.test(url) ? url : editor.call('sourcefiles:url', url) + '?access_token=' + config.accessToken;
 
             editor.call('sourcefiles:scan', fullUrl, function (data) {
                 data.url = url;

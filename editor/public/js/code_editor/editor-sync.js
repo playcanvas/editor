@@ -34,9 +34,7 @@ editor.once('load', function () {
         var data = {
             url: '/api/projects/{{project.id}}/repositories/directory/sourcefiles/{{file.name}}',
             method: 'PUT',
-            query: {
-                'access_token': '{{accessToken}}'
-            },
+            auth: true,
             data: {
                 filename: config.file.name,
                 content: content
@@ -65,9 +63,7 @@ editor.once('load', function () {
         var data = {
             url: '/api/projects/{{project.id}}/repositories/directory/sourcefiles/{{file.name}}',
             method: 'GET',
-            query: {
-                'access_token': '{{accessToken}}'
-            },
+            auth: true,
             notJson: true
         };
 
