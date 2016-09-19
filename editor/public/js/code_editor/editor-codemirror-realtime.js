@@ -193,6 +193,50 @@ editor.once('load', function () {
     var onLoaded = function () {
         share = editor.call('realtime:context');
 
+        // creates dummy operation in order to move the cursor
+        // correctly when remote ops are happening
+        var createCursorOp = function (pos) {
+            return createInsertOp(cm.indexFromPos(pos), ' ');
+        };
+
+        // create 2 ops if anchor and head are different or 1 if they are the same (which is just a cursor..)
+        var createCursorOpsFromSelection = function (selection) {
+            return selection.anchor === selection.head ?
+                   createCursorOp(selection.anchor) :
+                   [createCursorOp(selection.anchor), createCursorOp(selection.head)];
+        };
+
+        // transform dummy ops with remote op
+        var transformCursorOps = function (ops, remoteOp) {
+            for (var i = 0, len = ops.length; i < len; i++) {
+                var data = ops[i];
+                if (data.length) {
+                    data[0].op = transform(data[0].op, remoteOp.op, 'right')
+                    data[1].op = transform(data[1].op, remoteOp.op, 'right')
+                } else {
+                    data.op = transform(data.op, remoteOp.op, 'right');
+                }
+            }
+        };
+
+        // restore selections after remote ops
+        var restoreSelections = function (cursorOps) {
+            for (var i = 0, len = cursorOps.length; i < len; i++) {
+                var data = cursorOps[i];
+                var start,end;
+
+                if (data.length) {
+                    start = cm.posFromIndex(data[0].op.length > 1 ? data[0].op[0] : 0);
+                    end = cm.posFromIndex(data[1].op.length > 1 ? data[1].op[0] : 0);
+                } else {
+                    start = cm.posFromIndex(data.op.length > 1 ? data.op[0] : 0);
+                    end = start;
+                }
+
+                cm.addSelection(start, end);
+            }
+        };
+
         // server -> local
         share.onInsert = function (pos, text) {
             // transform undos / redos with new remote op
@@ -203,21 +247,16 @@ editor.once('load', function () {
             suppress = true;
             var from = cm.posFromIndex(pos);
 
-            // remember current selection if any...
-            var selStart = cm.getCursor(true);
-            var selEnd = cm.getCursor(false);
+            // get selections before we change the contents
+            var selections = cm.listSelections();
+            var cursorOps = selections.map(createCursorOpsFromSelection);
+            transformCursorOps(cursorOps, remoteOp);
 
             cm.replaceRange(text, from);
 
-            // set selection as it was
-            if (selStart !== selEnd) {
-                cm.setSelection(selStart, selEnd);
-            } else {
-                // do not affect our cursor from remote changes
-                cm.setCursor(selEnd);
-            }
+            // restore selections after we set the content
+            restoreSelections(cursorOps);
 
-            var to = cm.posFromIndex(pos + text.length);
             suppress = false;
         };
 
@@ -230,22 +269,16 @@ editor.once('load', function () {
             var remoteOp = createRemoveOp(pos, length);
             transformStacks(remoteOp);
 
-            // remember current selection if any...
-            var selStart = cm.getCursor(true);
-            var selEnd = cm.getCursor(false);
+            // get selections before we change the contents
+            var selections = cm.listSelections();
+            var cursorOps = selections.map(createCursorOpsFromSelection);
+            transformCursorOps(cursorOps, remoteOp);
 
             // apply operation locally
-            var cursor = cm.getCursor();
             cm.replaceRange('', from, to);
 
-            // set selection as it was
-            if (selStart !== selEnd) {
-                cm.setSelection(selStart, selEnd);
-            } else {
-                // do not affect our cursor from remote changes
-                cm.setCursor(selEnd);
-            }
-
+            // restore selections after we set the content
+            restoreSelections(cursorOps);
 
             suppress = false;
         };
@@ -254,11 +287,10 @@ editor.once('load', function () {
     };
 
     editor.on('editor:loadScript', onLoaded);
-    editor.on('editor:reloadScript', onLoaded);
 
-    editor.on('realtime:disconnected', function () {
-        isConnected = false;
-    });
+    // editor.on('realtime:disconnected', function () {
+    //     isConnected = false;
+    // });
 
     // debug function
     var printStacks = function () {

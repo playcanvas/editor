@@ -123,11 +123,10 @@ Connection.prototype.bindToSocket = function(socket) {
 
     try {
       connection.handleMessage(data);
-    } catch (e) {
-      connection.emit('error', e);
+    } catch (err) {
+      connection.emit('error', err, data);
       // We could also restart the connection here, although that might result
       // in infinite reconnection bugs.
-      throw e;
     }
   }
 
@@ -144,6 +143,11 @@ Connection.prototype.bindToSocket = function(socket) {
   };
 
   socket.onclose = function(reason) {
+    // reason values:
+    //   'Closed' - The socket was manually closed by calling socket.close()
+    //   'Stopped by server' - The server sent the stop message to tell the client not to try connecting
+    //   'Request failed' - Server didn't respond to request (temporary, usually offline)
+    //   'Unknown session ID' - Server session for client is missing (temporary, will immediately reestablish)
     connection._setState('disconnected', reason);
     if (reason === 'Closed' || reason === 'Stopped by server') {
       connection._setState('stopped', reason);
@@ -186,7 +190,7 @@ Connection.prototype.handleMessage = function(msg) {
         for (var docName in result[cName]) {
           var doc = this.get(cName, docName);
           if (!doc) {
-            if (console) console.error('Message for unknown doc. Ignoring.', msg);
+            console.warn('Message for unknown doc. Ignoring.', msg);
             break;
           }
 
@@ -204,26 +208,14 @@ Connection.prototype.handleMessage = function(msg) {
     default:
       // Document message. Pull out the referenced document and forward the
       // message.
-      var collection, docName, doc;
-      if (msg.d) {
-        collection = this._lastReceivedCollection = msg.c;
-        docName = this._lastReceivedDoc = msg.d;
-      } else {
-        collection = msg.c = this._lastReceivedCollection;
-        docName = msg.d = this._lastReceivedDoc;
-      }
-
-      var doc = this.getExisting(collection, docName);
+      var doc = this.getExisting(msg.c, msg.d);
       if (doc) doc._onMessage(msg);
   }
 };
 
 
 Connection.prototype.reset = function() {
-  this.id = this.lastError =
-    this._lastReceivedCollection = this._lastReceivedDoc =
-    this._lastSentCollection = this._lastSentDoc = null;
-
+  this.id = null;
   this.seq = 1;
 };
 
@@ -255,77 +247,42 @@ Connection.prototype._setState = function(newState, data) {
   // I made a state diagram. The only invalid transitions are getting to
   // 'connecting' from anywhere other than 'disconnected' and getting to
   // 'connected' from anywhere other than 'connecting'.
-  if ((newState === 'connecting' && (this.state !== 'disconnected' && this.state !== 'stopped'))
-      || (newState === 'connected' && this.state !== 'connecting')) {
+  if (
+    (newState === 'connecting' && this.state !== 'disconnected' && this.state !== 'stopped') ||
+    (newState === 'connected' && this.state !== 'connecting')
+  ) {
     throw new Error("Cannot transition directly from " + this.state + " to " + newState);
   }
 
   this.state = newState;
-  this.canSend = (newState === 'connecting' && this.socket.canSendWhileConnecting) || newState === 'connected';
+  this.canSend =
+    (newState === 'connecting' && this.socket.canSendWhileConnecting) ||
+    (newState === 'connected');
   this._setupRetry();
 
   if (newState === 'disconnected') this.reset();
 
   this.emit(newState, data);
 
-  var ignoreSubs = {};
-  // No bulk subscribe for queries yet.
+  // Group all subscribes together to help server make more efficient calls
+  this.bsStart();
+  // Emit the event to all queries
   for (var id in this.queries) {
     var query = this.queries[id];
     query._onConnectionStateChanged(newState, data);
-    if (
-      query.docMode === 'sub' &&
-      (newState === 'connecting' || newState === 'connected')
-    ) {
-      var ignoreSubsCollection = ignoreSubs[query.collection] ||
-        (ignoreSubs[query.collection] = {});
-      for (var i = 0; i < query.results.length; i++) {
-        ignoreSubsCollection[query.results[i].name] = true;
-      }
-    }
   }
-
-  // & Emit the event to all documents & queries. It might make sense for
-  // documents to just register for this stuff using events, but that couples
-  // connections and documents a bit much. Its not a big deal either way.
-  this.opQueue = [];
-  this.bsStart();
+  // Emit the event to all documents
   for (var c in this.collections) {
     var collection = this.collections[c];
     for (var docName in collection) {
-      if (ignoreSubs[c] && ignoreSubs[c][docName]) continue;
       collection[docName]._onConnectionStateChanged(newState, data);
     }
   }
-
-  // Its important that operations are resent in the same order that they were
-  // originally sent. If we don't sort, an op with a high sequence number will
-  // convince the server not to accept any ops with earlier sequence numbers.
-  this.opQueue.sort(function(a, b) { return a.seq - b.seq; });
-  for (var i = 0; i < this.opQueue.length; i++) {
-    this.send(this.opQueue[i]);
-  }
-
-  this.opQueue = null;
   this.bsEnd();
 };
 
-// So, there's an awful error case where the client sends two requests (which
-// fail), then reconnects. The documents could have _onConnectionStateChanged
-// called in the wrong order and the operations then get sent with reversed
-// sequence numbers. This causes the server to incorrectly reject the second
-// sent op. So we need to queue the operations while we're reconnecting and
-// resend them in the correct order.
-Connection.prototype.sendOp = function(data) {
-  if (this.opQueue) {
-    this.opQueue.push(data);
-  } else {
-    this.send(data);
-  }
-};
-
 Connection.prototype.bsStart = function() {
-  this.subscribeData = {};
+  this.subscribeData = this.subscribeData || {};
 };
 
 Connection.prototype.bsEnd = function() {
@@ -336,21 +293,52 @@ Connection.prototype.bsEnd = function() {
   this.subscribeData = null;
 };
 
-// This is called by the document class when the document wants to subscribe.
-// We could just send a subscribe message, but during reconnect that causes a
-// bajillion messages over browserchannel. During reconnect we'll aggregate,
-// similar to sendOp.
-Connection.prototype.sendSubscribe = function(collection, name, v) {
+Connection.prototype.sendSubscribe = function(doc, version) {
+  // Ensure the doc is registered so that it receives the reply message
+  this._addDoc(doc);
   if (this.subscribeData) {
+    // Bulk subscribe
     var data = this.subscribeData;
-    if (!data[collection]) data[collection] = {};
-
-    data[collection][name] = v || null;
+    if (!data[doc.collection]) data[doc.collection] = {};
+    data[doc.collection][doc.name] = version || null;
   } else {
-    var msg = {a:'sub', c:collection, d:name};
-    if (v != null) msg.v = v;
+    // Send single subscribe message
+    var msg = {a: 'sub', c: doc.collection, d: doc.name};
+    if (version != null) msg.v = version;
     this.send(msg);
   }
+};
+
+Connection.prototype.sendFetch = function(doc, version) {
+  // Ensure the doc is registered so that it receives the reply message
+  this._addDoc(doc);
+  var msg = {a: 'fetch', c: doc.collection, d: doc.name};
+  if (version != null) msg.v = version;
+  this.send(msg);
+};
+
+Connection.prototype.sendUnsubscribe = function(doc) {
+  // Ensure the doc is registered so that it receives the reply message
+  this._addDoc(doc);
+  var msg = {a: 'unsub', c: doc.collection, d: doc.name};
+  this.send(msg);
+};
+
+Connection.prototype.sendOp = function(doc, data) {
+  // Ensure the doc is registered so that it receives the reply message
+  this._addDoc(doc);
+  var msg = {
+    a: 'op',
+    c: doc.collection,
+    d: doc.name,
+    v: doc.version,
+    src: data.src,
+    seq: data.seq
+  };
+  if (data.op) msg.op = data.op;
+  if (data.create) msg.create = data.create;
+  if (data.del) msg.del = data.del;
+  this.send(msg);
 };
 
 
@@ -359,26 +347,15 @@ Connection.prototype.sendSubscribe = function(collection, name, v) {
  */
 Connection.prototype.send = function(msg) {
   if (this.debug) console.log("SEND", JSON.stringify(msg));
+
   this.messageBuffer.push({t:Date.now(), send:JSON.stringify(msg)});
   while (this.messageBuffer.length > 100) {
     this.messageBuffer.shift();
   }
 
-  if (msg.d) { // The document the message refers to. Not set for queries.
-    var collection = msg.c;
-    var docName = msg.d;
-    if (collection === this._lastSentCollection && docName === this._lastSentDoc) {
-      delete msg.c;
-      delete msg.d;
-    } else {
-      this._lastSentCollection = collection;
-      this._lastSentDoc = docName;
-    }
-  }
-
-  if (!this.socket.canSendJSON)
+  if (!this.socket.canSendJSON) {
     msg = JSON.stringify(msg);
-
+  }
   this.socket.send(msg);
 };
 
@@ -418,16 +395,19 @@ Connection.prototype.get = function(collection, name, data) {
     collectionObject = this.collections[collection] = {};
 
   var doc = collectionObject[name];
-  if (!doc)
+  if (!doc) {
     doc = collectionObject[name] = new Doc(this, collection, name);
+    this.emit('doc', doc);
+  }
 
   // Even if the document isn't new, its possible the document was created
   // manually and then tried to be re-created with data (suppose a query
   // returns with data for the document). We should hydrate the document
   // immediately if we can because the query callback will expect the document
   // to have data.
-  if (data && data.data !== undefined && !doc.state)
+  if (data && data.data !== undefined && !doc.state) {
     doc.ingestData(data);
+  }
 
   return doc;
 };
@@ -449,6 +429,16 @@ Connection.prototype._destroyDoc = function(doc) {
   // won't do anyway, but whatever.
   if (!hasKeys(collectionObject))
     delete this.collections[doc.collection];
+};
+
+Connection.prototype._addDoc = function(doc) {
+  var collectionObject = this.collections[doc.collection];
+  if (!collectionObject) {
+    collectionObject = this.collections[doc.collection] = {};
+  }
+  if (collectionObject[doc.name] !== doc) {
+    collectionObject[doc.name] = doc;
+  }
 };
 
 
@@ -635,7 +625,7 @@ var Doc = exports.Doc = function(connection, collection, name) {
   // Our subscription status. Either we're subscribed on the server, or we aren't.
   this.subscribed = false;
   // Either we want to be subscribed (true), we want a new snapshot from the
-  // server ('fetch'), or we don't care (false).  This is also used when we
+  // server ('fetch'), or we don't care (false). This is also used when we
   // disconnect & reconnect to decide what to do.
   this.wantSubscribe = false;
   // This list is used for subscribe and unsubscribe, since we'll only want to
@@ -660,9 +650,9 @@ var Doc = exports.Doc = function(connection, collection, name) {
   // {[create:{...}], [del:true], [op:...], callbacks:[...], src:, seq:}
   this.inflightData = null;
 
-  // All ops that are waiting for the server to acknowledge @inflightData
-  // This used to just be a single operation, but creates & deletes can't be composed with
-  // regular operations.
+  // All ops that are waiting for the server to acknowledge this.inflightData
+  // This used to just be a single operation, but creates & deletes can't be
+  // composed with regular operations.
   //
   // This is a list of {[create:{...}], [del:true], [op:...], callbacks:[...]}
   this.pendingData = [];
@@ -670,7 +660,10 @@ var Doc = exports.Doc = function(connection, collection, name) {
   // The OT type of this document.
   //
   // The document also responds to the api provided by the type
-  this.type = null
+  this.type = null;
+
+  // For debouncing getLatestOps calls
+  this._getLatestTimeout = null;
 };
 emitter.mixin(Doc);
 
@@ -769,28 +762,17 @@ Doc.prototype.whenReady = function(fn) {
   }
 };
 
-Doc.prototype.retry = function() {
-  if (!this.inflightData) return;
-  var threshold = 5000 * Math.pow(2, this.inflightData.retries);
-  if (this.inflightData.sentAt < Date.now() - threshold) {
-    this.connection.emit('retry', this);
-    this._clearAction();
-  }
-};
-
 Doc.prototype.hasPending = function() {
   return this.action != null || this.inflightData != null || !!this.pendingData.length;
 };
 
+Doc.prototype._emitNothingPending = function() {
+  if (this.hasPending()) return;
+  this.emit('nothing pending');
+};
+
 
 // **** Helpers for network messages
-
-// Send a message to the connection from this document.
-Doc.prototype._send = function(message) {
-  message.c = this.collection;
-  message.d = this.name;
-  this.connection.send(message);
-};
 
 // This function exists so connection can call it directly for bulk subscribes.
 // It could just make a temporary object literal, thats pretty slow.
@@ -809,23 +791,13 @@ Doc.prototype._handleSubscribe = function(err, data) {
   this._finishSub();
 };
 
-Doc.prototype._finishQuerySubscribe = function(version) {
-  // This generally shouldn't happen, but in a race condition where we
-  // missed a an op, just subscribe to the specific doc again
-  if (version > this.version) return this.subscribe();
-
-  // Fake out a doc subscription, since we are already up to date
-  this.subscribed = true;
-  this.wantSubscribe = true;
-  this.emit('subscribe');
-  this._finishSub();
-};
-
 // This is called by the connection when it receives a message for the document.
 Doc.prototype._onMessage = function(msg) {
   if (!(msg.c === this.collection && msg.d === this.name)) {
     // This should never happen - its a sanity check for bugs in the connection code.
-    throw new Error('Got message for wrong document. ' + this.collection + ' ' + this.name);
+    var err = 'Got message for wrong document.';
+    console.error(err, this.collection, this.name, msg);
+    throw new Error(err);
   }
 
   // msg.a = the action.
@@ -882,6 +854,17 @@ Doc.prototype._onMessage = function(msg) {
         break;
       }
 
+      if (this.version == null || msg.v > this.version) {
+        // This will happen in normal operation if we become subscribed to a
+        // new document via a query. It can also happen if we get an op for
+        // a future version beyond the version we are expecting next. This
+        // could happen if the server doesn't publish an op for whatever reason
+        // or because of a race condition. In any case, we can send a fetch
+        // command to catch back up.
+        this._getLatestOps();
+        break;
+      }
+
       if (msg.v < this.version) {
         // This will happen naturally in the following (or similar) cases:
         //
@@ -897,22 +880,6 @@ Doc.prototype._onMessage = function(msg) {
         //    v=10 operation.
         //
         // In this case, we can safely ignore the old (duplicate) operation.
-        break;
-      }
-
-      if (msg.v > this.version) {
-        // If we get in here, it means we missed an operation from the server,
-        // or operations are being sent to the client out of order. This
-        // *should* never happen, but it currently does because of a bug in the
-        // way the query code & doc class interact. If you have a document at
-        // an old version (and not subscribed), when the document matches a
-        // query the query will send the client a snapshot of the document
-        // instead of the operations in between.
-        console.warn("Client got future operation from the server",
-            this.collection, this.name, msg);
-
-        // Get the operations we missed and catch up
-        this._getLatestOps();
         break;
       }
 
@@ -937,30 +904,44 @@ Doc.prototype._onMessage = function(msg) {
 };
 
 Doc.prototype._getLatestOps = function() {
-  this._send({a: 'fetch', v: this.version});
+  var doc = this;
+  var debounced = false;
+  if (doc._getLatestTimeout) {
+    debounced = true;
+  } else {
+    // Send a fetch command, which will get us the missing ops to catch back up
+    // or the full doc if our version is currently null
+    doc.connection.sendFetch(doc, doc.version);
+  }
+  // Debounce calls, since we are likely to get multiple future operations
+  // in a rapid sequence
+  clearTimeout(doc._getLatestTimeout);
+  doc._getLatestTimeout = setTimeout(function() {
+    doc._getLatestTimeout = null;
+    // Send another fetch at the end of the final timeout interval if we were
+    // debounced to make sure we didn't miss anything
+    if (debounced) {
+      doc.connection.sendFetch(doc, doc.version);
+    }
+  }, 5000);
+  return;
 };
 
 // Called whenever (you guessed it!) the connection state changes. This will
 // happen when we get disconnected & reconnect.
-Doc.prototype._onConnectionStateChanged = function(state, reason) {
-  if (state === 'connecting' || state === 'connected') {
-    // We go into the connected state once we have a sessionID. We can't send
-    // new ops until then, so we need to flush again on connected
+Doc.prototype._onConnectionStateChanged = function() {
+  if (this.connection.canSend) {
     this.flush();
-  } else if (state === 'disconnected') {
-    this._clearAction();
+  } else {
     this.subscribed = false;
+    this._clearAction();
   }
 };
-
 
 Doc.prototype._clearAction = function() {
   this.action = null;
   this.flush();
-
-  if (!this.hasPending()) {
-    this.emit('nothing pending');
-  }
+  this._emitNothingPending();
 };
 
 // Send the next pending op to the server, if we can.
@@ -968,15 +949,11 @@ Doc.prototype._clearAction = function() {
 // Only one operation can be in-flight at a time. If an operation is already on
 // its way, or we're not currently connected, this method does nothing.
 Doc.prototype.flush = function() {
-  if (!this.connection.canSend || this.action) return;
+  // Ignore if we can't send or we are already sending an op
+  if (!this.connection.canSend || this.inflightData) return;
 
-  if (this.inflightData) {
-    this._sendOpData();
-    return;
-  }
-
-  var opData;
   // Pump and dump any no-ops from the front of the pending op list.
+  var opData;
   while (this.pendingData.length && isNoOp(opData = this.pendingData[0])) {
     var callbacks = opData.callbacks;
     for (var i = 0; i < callbacks.length; i++) {
@@ -985,32 +962,33 @@ Doc.prototype.flush = function() {
     this.pendingData.shift();
   }
 
-  // We consider sending operations before considering subscribing because its
-  // convenient in access control code to not need to worry about subscribing
-  // to documents that don't exist.
-  if (!this.paused && this.pendingData.length && this.connection.state === 'connected') {
-    // Try and send any pending ops. We can't send ops while in
-    this.inflightData = this.pendingData.shift();
-    // This also sets action to 'submit'.
+  // Send first pending op unless paused
+  if (!this.paused && this.pendingData.length) {
     this._sendOpData();
-  } else if (this.subscribed && !this.wantSubscribe) {
+    return;
+  }
+
+  // Ignore if an action is already in process
+  if (this.action) return;
+  // Once all ops are sent, perform subscriptions and fetches
+  var version = (this.state === 'ready') ? this.version : null;
+
+  if (this.subscribed && !this.wantSubscribe) {
     this.action = 'unsubscribe';
-    this._send({a:'unsub'});
+    this.connection.sendUnsubscribe(this);
+
   } else if (!this.subscribed && this.wantSubscribe === 'fetch') {
     this.action = 'fetch';
-    this._send(this.state === 'ready' ? {a:'fetch', v:this.version} : {a:'fetch'});
+    this.connection.sendFetch(this, version);
+
   } else if (!this.subscribed && this.wantSubscribe) {
     this.action = 'subscribe';
-    // Special send method needed for bulk subscribes on reconnect.
-    this.connection.sendSubscribe(this.collection, this.name, this.state === 'ready' ? this.version : null);
+    this.connection.sendSubscribe(this, version);
   }
 };
 
 
 // ****** Subscribing, unsubscribing and fetching
-
-// These functions iare copied into the query class as well, so be careful making
-// changes here.
 
 // Value is true, false or 'fetch'.
 Doc.prototype._setWantSubscribe = function(value, callback, err) {
@@ -1021,8 +999,9 @@ Doc.prototype._setWantSubscribe = function(value, callback, err) {
   }
 
   // If we want to subscribe, don't weaken it to a fetch.
-  if (value !== 'fetch' || this.wantSubscribe !== true)
+  if (value !== 'fetch' || this.wantSubscribe !== true) {
     this.wantSubscribe = value;
+  }
 
   if (callback) this._subscribeCallbacks.push(callback);
   this.flush();
@@ -1228,36 +1207,51 @@ Doc.prototype._otApply = function(opData, context) {
 
 // ***** Sending operations
 
+Doc.prototype.retry = function() {
+  if (!this.inflightData) return;
+  var threshold = 5000 * Math.pow(2, this.inflightData.retries);
+  if (this.inflightData.sentAt < Date.now() - threshold) {
+    this.connection.emit('retry', this);
+    this._sendOpData();
+  }
+};
 
 // Actually send op data to the server.
 Doc.prototype._sendOpData = function() {
-  var d = this.inflightData;
+  // Wait until we have a src id from the server
+  var src = this.connection.id;
+  if (!src) return;
 
-  if (this.action) throw new Error('Invalid state ' + this.action + ' for sendOpData. ' + this.collection + ' ' + this.name);
-  this.action = 'submit';
-  d.sentAt = Date.now();
-  d.retries = (d.retries == null) ? 0 : d.retries + 1;
-
-  var msg = {a:'op', v:this.version};
-  if (d.src) {
-    msg.src = d.src;
-    msg.seq = d.seq;
+  // When there is no inflightData, send the first item in pendingData. If
+  // there is inflightData, try sending it again
+  if (!this.inflightData) {
+    // Send first pending op
+    this.inflightData = this.pendingData.shift();
+  }
+  var data = this.inflightData;
+  if (!data) {
+    throw new Error('no data to send on call to _sendOpData');
   }
 
-  if (d.op) msg.op = d.op;
-  if (d.create) msg.create = d.create;
-  if (d.del) msg.del = d.del;
+  // Track data for retrying ops
+  data.sentAt = Date.now();
+  data.retries = (data.retries == null) ? 0 : data.retries + 1;
 
-  msg.c = this.collection;
-  msg.d = this.name;
+  // The src + seq number is a unique ID representing this operation. This tuple
+  // is used on the server to detect when ops have been sent multiple times and
+  // on the client to match acknowledgement of an op back to the inflightData.
+  // Note that the src could be different from this.connection.id after a
+  // reconnect, since an op may still be pending after the reconnection and
+  // this.connection.id will change. In case an op is sent multiple times, we
+  // also need to be careful not to override the original seq value.
+  if (data.seq == null) data.seq = this.connection.seq++;
 
-  this.connection.sendOp(msg);
+  this.connection.sendOp(this, data);
 
-  // The first time we send an op, its id and sequence number is implicit.
-  if (!d.src) {
-    d.src = this.connection.id;
-    d.seq = this.connection.seq++;
-  }
+  // src isn't needed on the first try, since the server session will have the
+  // same id, but it must be set on the inflightData in case it is sent again
+  // after a reconnect and the connection's id has changed by then
+  if (data.src == null) data.src = src;
 };
 
 
@@ -1279,18 +1273,19 @@ Doc.prototype._submitOpData = function(opData, context, callback) {
   }
   if (context == null) context = true;
 
-  var error = function(err) {
-    if (callback) return callback(err);
-    console.warn('Failed attempt to submitOp:', err);
-  };
-
   if (this.locked) {
-    return error("Cannot call submitOp from inside an 'op' event handler. " + this.collection + ' ' + this.name);
+    var err = "Cannot call submitOp from inside an 'op' event handler. " + this.collection + ' ' + this.name;
+    if (callback) return callback(err);
+    throw new Error(err);
   }
 
   // The opData contains either op, create, delete, or none of the above (a no-op).
   if (opData.op) {
-    if (!this.type) return error('Document has not been created');
+    if (!this.type) {
+      var err = 'Document has not been created';
+      if (callback) return callback(err);
+      throw new Error(err);
+    }
     // Try to normalize the op. This removes trailing skip:0's and things like that.
     if (this.type.normalize) opData.op = this.type.normalize(opData.op);
   }
@@ -1355,12 +1350,13 @@ Doc.prototype.create = function(type, data, context, callback) {
     data = undefined;
   }
 
-  var op = {create: {type:type, data:data}};
   if (this.type) {
-    if (callback) callback('Document already exists', this._opErrorContext(op));
-    return
+    var err = 'Document already exists';
+    if (callback) return callback(err);
+    throw new Error(err);
   }
 
+  var op = {create: {type:type, data:data}};
   this._submitOpData(op, context, callback);
 };
 
@@ -1373,8 +1369,9 @@ Doc.prototype.create = function(type, data, context, callback) {
 // @param callback  called when operation submitted
 Doc.prototype.del = function(context, callback) {
   if (!this.type) {
-    if (callback) callback('Document does not exist');
-    return;
+    var err = 'Document does not exist';
+    if (callback) return callback(err);
+    throw new Error(err);
   }
 
   this._submitOpData({del: true}, context, callback);
@@ -1443,26 +1440,15 @@ Doc.prototype._tryRollback = function(opData) {
   }
 };
 
-Doc.prototype._opErrorContext = function(op) {
-  return {
-    collection: this.collection,
-    name: this.name,
-    opData: op || this.inflightData
-  };
-};
-
 Doc.prototype._clearInflightOp = function(error) {
   var callbacks = this.inflightData.callbacks;
-  var context = this._opErrorContext();
-  // There's no nice way to pass this context back to the caller - I settled on
-  // using simple strings for error messages, and now this is hurting me. I'll
-  // fix this API in sharejs 0.8.
   for (var i = 0; i < callbacks.length; i++) {
-    callbacks[i](error || this.inflightData.error, context);
+    callbacks[i](error || this.inflightData.error);
   }
 
   this.inflightData = null;
-  this._clearAction();
+  this.flush();
+  this._emitNothingPending();
 };
 
 // This is called when the server acknowledges an operation from the client.
@@ -1486,7 +1472,17 @@ Doc.prototype._opAcknowledged = function(msg) {
 
     // This should never happen - something is out of order.
     if (msg.v !== this.version) {
-      throw new Error('Invalid version from server. This can happen when you submit ops in a submitOp callback. Expected: ' + this.version + ' Message version: ' + msg.v + ' ' + this.collection + ' ' + this.name);
+        // by vaios
+        // instead of throwing exception here just get the latest ops
+        // from the server, which should allow us to continue as normal
+        // This error can happen when multiple clients edit the document
+        // and when they re-connect they expect their last inflight op to have
+        // a specific version but this might have a different client id (src field)
+        // in the server depending on the order that inflight ops arrived there before disconnection.
+        // The server will try to transform those ops and in doing so it will change the op version
+        // thus causing this error... This seems to be handled the same way in the latest sharedb
+      console.warn('Invalid version from server. This can happen when you submit ops in a submitOp callback. Expected: ' + this.version + ' Message version: ' + msg.v + ' ' + this.collection + ' ' + this.name);
+      return this._getLatestOps();
     }
   }
 
@@ -1536,7 +1532,7 @@ Doc.prototype.createContext = function() {
 
     // This is dangerous, but really really useful for debugging. I hope people
     // don't depend on it.
-    _doc: this
+    _doc: this,
   };
 
   if (type.api) {
@@ -1658,6 +1654,7 @@ Query.prototype._execute = function() {
     // don't need to be sent their snapshots again.
     for (var i = 0; i < this.knownDocs.length; i++) {
       var doc = this.knownDocs[i];
+      if (doc.version == null) continue;
       var c = collectionVersions[doc.collection] =
         (collectionVersions[doc.collection] || {});
       c[doc.name] = doc.version;
@@ -1669,7 +1666,7 @@ Query.prototype._execute = function() {
     id: this.id,
     c: this.collection,
     o: {},
-    q: this.query
+    q: this.query,
   };
 
   if (this.docMode) {
@@ -1697,10 +1694,9 @@ Query.prototype._dataToDocs = function(data) {
       docData.type = lastType;
     }
 
+    // This will ultimately call doc.ingestData(), which is what populates
+    // the doc snapshot and version with the data returned by the query
     var doc = this.connection.get(docData.c || this.collection, docData.d, docData);
-    if (this.docMode === 'sub') {
-      doc._finishQuerySubscribe(docData.v);
-    }
     results.push(doc);
   }
   return results;
@@ -1726,7 +1722,7 @@ Query.prototype._onConnectionStateChanged = function(state, reason) {
 // Internal method called from connection to pass server messages to the query.
 Query.prototype._onMessage = function(msg) {
   if ((msg.a === 'qfetch') !== (this.type === 'fetch')) {
-    if (console) console.warn('Invalid message sent to query', msg, this);
+    console.warn('Invalid message sent to query', msg, this);
     return;
   }
 
@@ -4449,7 +4445,6 @@ exports.semanticInvert = function (str, op) {
 
 
 
-
 var transformPosition = function(cursor, op) {
   var pos = 0;
   for (var i = 0; i < op.length; i++) {
@@ -4508,6 +4503,7 @@ exports.selectionEq = function(c1, c2) {
   if (c2[0] != null && c2[0] === c2[1]) c2 = c2[0];
   return c1 === c2 || (c1[0] != null && c2[0] != null && c1[0] === c2[0] && c1[1] == c2[1]);
 };
+
 
 
 },{}]},{},[4])(4)
