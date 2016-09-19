@@ -207,17 +207,30 @@ editor.once('load', function () {
             var selStart = cm.getCursor(true);
             var selEnd = cm.getCursor(false);
 
-            cm.replaceRange(text, from);
+            // create dummy insert operations for selStart and selEnd
+            // so that we transform them by the remote op.
+            var opEnd = createInsertOp(cm.indexFromPos(selEnd), ' ');
+            opEnd.op = transform(opEnd.op, remoteOp.op, 'right');
 
-            // set selection as it was
+            var opStart;
+
             if (selStart !== selEnd) {
-                cm.setSelection(selStart, selEnd);
-            } else {
-                // do not affect our cursor from remote changes
-                cm.setCursor(selEnd);
+                opStart = createInsertOp(cm.indexFromPos(selStart), ' ');
+                opStart.op = transform(opStart.op, remoteOp.op, 'right');
             }
 
-            var to = cm.posFromIndex(pos + text.length);
+            cm.replaceRange(text, from);
+
+            var cursorEnd = cm.posFromIndex(opEnd.op.length > 1 ? opEnd.op[0] : 0);
+
+            // restore the cursor at the transformed position
+            if (selStart === selEnd) {
+                cm.setCursor(cursorEnd);
+            } else {
+                var cursorStart = cm.posFromIndex(opStart.op.length > 1 ? opStart.op[0] : 0);
+                cm.setSelection(cursorStart, cursorEnd);
+            }
+
             suppress = false;
         };
 
@@ -234,18 +247,29 @@ editor.once('load', function () {
             var selStart = cm.getCursor(true);
             var selEnd = cm.getCursor(false);
 
-            // apply operation locally
-            var cursor = cm.getCursor();
-            cm.replaceRange('', from, to);
+            // see onInsert for more about this...
+            var opEnd = createInsertOp(cm.indexFromPos(selEnd), ' ');
+            opEnd.op = transform(opEnd.op, remoteOp.op, 'right');
 
-            // set selection as it was
+            var opStart;
+
             if (selStart !== selEnd) {
-                cm.setSelection(selStart, selEnd);
-            } else {
-                // do not affect our cursor from remote changes
-                cm.setCursor(selEnd);
+                opStart = createInsertOp(cm.indexFromPos(selStart), ' ');
+                opStart.op = transform(opStart.op, remoteOp.op, 'right');
             }
 
+
+            // apply operation locally
+            cm.replaceRange('', from, to);
+
+            var cursorEnd = cm.posFromIndex(opEnd.op.length > 1 ? opEnd.op[0] : 0);
+
+            if (selStart === selEnd) {
+                cm.setCursor(cursorEnd);
+            } else {
+                var cursorStart = cm.posFromIndex(opStart.op.length > 1 ? opStart.op[0] : 0);
+                cm.setSelection(cursorStart, cursorEnd);
+            }
 
             suppress = false;
         };
