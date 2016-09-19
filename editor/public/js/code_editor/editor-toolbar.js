@@ -90,7 +90,19 @@ editor.once('load', function () {
         refreshButtons();
     });
 
+    var knownErrors = [
+        /Invalid version from server/,
+        /Op apply failed/,
+        /opAcknowledged called from a null state/
+    ];
+
     editor.on('realtime:error', function (err) {
+        for (var i = 0; i < knownErrors.length; i++) {
+            if (knownErrors[i].test(err)) {
+                err = 'Could not reconnect successfully, please refresh the page.'
+            }
+        }
+
         errorMsg = err;
         error.innerHTML = 'Error: ' + err;
         refreshButtons();
