@@ -319,7 +319,7 @@ editor.once('load', function () {
         var data = {
             name: inputName.value,
             project_id: config.project.id,
-            source_pack_ids: selectedScenes.map(function (scene) { return scene.id; })
+            scenes: selectedScenes.map(function (scene) { return scene.id; })
         };
 
         if (inputDescription.value)
@@ -366,7 +366,7 @@ editor.once('load', function () {
         var data = {
             name: inputName.value,
             project_id: config.project.id,
-            source_pack_ids: selectedScenes.map(function (scene) { return scene.id; }),
+            scenes: selectedScenes.map(function (scene) { return scene.id; }),
             target: target,
             scripts_concatenate: fieldOptionsConcat ? fieldOptionsConcat.value : false
         };
