@@ -14,12 +14,15 @@ editor.once('load', function() {
 
         userRequests[id] = [ callback ];
 
-        Ajax.get('{{url.api}}/users/' + id + '?access_token={{accessToken}}')
+        Ajax({
+            url: '{{url.api}}/users/' + id,
+            auth: true
+        })
         .on('load', function (status, data) {
-            users[id] = data.response[0];
+            users[id] = data;
 
             for(var i = 0; i < userRequests[id].length; i++)
-                userRequests[id][i](data.response[0]);
+                userRequests[id][i](data);
 
             delete userRequests[id];
         });

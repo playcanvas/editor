@@ -90,7 +90,7 @@ editor.once('load', function () {
 
         imageField.classList.remove('blank');
         imageField.classList.add('progress');
-        imageField.style.backgroundImage = 'url("/images/common/ajax-loader.gif")';
+        imageField.style.backgroundImage = 'url("' + config.url.static + '/platform/images/common/ajax-loader.gif")';
 
         var file = fileInput.files[0];
         fileInput.value = null;
@@ -319,7 +319,7 @@ editor.once('load', function () {
         var data = {
             name: inputName.value,
             project_id: config.project.id,
-            source_pack_ids: selectedScenes.map(function (scene) { return scene.id; })
+            scenes: selectedScenes.map(function (scene) { return scene.id; })
         };
 
         if (inputDescription.value)
@@ -366,7 +366,7 @@ editor.once('load', function () {
         var data = {
             name: inputName.value,
             project_id: config.project.id,
-            source_pack_ids: selectedScenes.map(function (scene) { return scene.id; }),
+            scenes: selectedScenes.map(function (scene) { return scene.id; }),
             target: target,
             scripts_concatenate: fieldOptionsConcat ? fieldOptionsConcat.value : false
         };
@@ -389,9 +389,12 @@ editor.once('load', function () {
                     evt.unbind();
 
                     // get job
-                    Ajax.get('{{url.api}}/jobs/' + job.id + '?access_token={{accessToken}}')
+                    Ajax({
+                        url: '{{url.api}}/jobs/' + job.id,
+                        auth: true
+                    })
                     .on('load', function (status, data) {
-                        var job = data.response[0];
+                        var job = data;
                         // success ?
                         if (job.status === 'complete') {
                             downloadProgressIconWrapper.classList.add('success');
@@ -473,7 +476,7 @@ editor.once('load', function () {
 
     var downloadProgressImg = new Image();
     downloadProgressIconWrapper.appendChild(downloadProgressImg);
-    downloadProgressImg.src = "/images/common/ajax-loader.gif";
+    downloadProgressImg.src = config.url.static + "/platform/images/common/ajax-loader.gif";
 
     // progress info
     var downloadProgressInfo = document.createElement('span');

@@ -3,7 +3,12 @@ editor.once('load', function() {
 
     // Saves specified data to server
     editor.method('project:save', function (data, success, error) {
-        Ajax.put('{{url.api}}/projects/{{project.id}}?access_token={{accessToken}}', data)
+        Ajax({
+            url: '{{url.api}}/projects/{{project.id}}',
+            auth: true,
+            method: 'PUT',
+            data: data
+        })
         .on('load', function () {
             if (success)
                 success();

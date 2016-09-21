@@ -49,10 +49,11 @@ editor.once('load', function() {
 
         var filename = assetDocument.getSnapshot().file.filename;
 
-        (new AjaxRequest({
-            url: '{{url.api}}/assets/{{asset.id}}/file/' + filename + '?access_token={{accessToken}}',
+        Ajax({
+            url: '{{url.api}}/assets/{{asset.id}}/file/' + filename,
+            auth: true,
             notJson: true
-        }))
+        })
         .on('load', function(status, data) {
             fn(null, data);
         })

@@ -4,19 +4,25 @@ editor.once('load', function () {
     // Fetch list of scenes from the server and
     // pass them to the callback
     editor.method('scenes:list', function (callback) {
-        Ajax.get('{{url.api}}/projects/{{project.id}}/scenes?access_token={{accessToken}}')
+        Ajax({
+            url: '{{url.api}}/projects/{{project.id}}/scenes',
+            auth: true
+        })
         .on('load', function (status, data) {
             if (callback)
-                callback(data.response);
+                callback(data.result);
         });
     });
 
     // Get a specific scene from the server and pass result to callback
     editor.method('scenes:get', function (sceneId, callback) {
-        Ajax.get('{{url.api}}/scenes/' + sceneId + '?access_token={{accessToken}}')
+        Ajax({
+            url: '{{url.api}}/scenes/' + sceneId,
+            auth: true
+        })
         .on('load', function (status, data) {
             if (callback)
-                callback(data.response[0]);
+                callback(data);
         });
     });
 
@@ -28,30 +34,44 @@ editor.once('load', function () {
 
         if (name) data.name = name;
 
-        Ajax.post('{{url.api}}/scenes?access_token={{accessToken}}', data)
+        Ajax({
+            url: '{{url.api}}/scenes',
+            auth: true,
+            method: 'POST',
+            data: data
+        })
         .on('load', function (status, data) {
             if (callback)
-                callback(data.response[0]);
+                callback(data);
         });
     });
 
     // Duplicate scene and pass result to callback
     editor.method('scenes:duplicate', function (sceneId, newName, callback) {
-        Ajax.post('{{url.api}}/scenes?access_token={{accessToken}}', {
-            project_id: config.project.id,
-            duplicate_from: sceneId,
-            name: newName
+        Ajax({
+            url: '{{url.api}}/scenes',
+            auth: true,
+            method: 'POST',
+            data: {
+                project_id: config.project.id,
+                duplicate_from: sceneId,
+                name: newName
+            }
         })
         .on('load', function (status, data) {
             if (callback)
-                callback(data.response[0]);
+                callback(data);
         });
     });
 
 
     // Delete a scene
     editor.method('scenes:delete', function (sceneId, callback) {
-        Ajax.delete('{{url.api}}/scenes/' + sceneId + '?access_token={{accessToken}}')
+        Ajax({
+            url: '{{url.api}}/scenes/' + sceneId,
+            auth: true,
+            method: 'DELETE'
+        })
         .on('load', function (status, data) {
             if (callback)
                 callback();

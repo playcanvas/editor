@@ -105,6 +105,10 @@ function AjaxRequest(args) {
     if (! args.ignoreContentType && (args.method === 'PUT' || args.method === 'POST' || args.method === 'DELETE'))
         this._xhr.setRequestHeader('Content-Type', 'application/json');
 
+    if (args.auth && config.accessToken) {
+        this._xhr.setRequestHeader('Authorization', 'Bearer ' + config.accessToken);
+    }
+
     if (args.headers) {
         for (var key in args.headers)
             this._xhr.setRequestHeader(key, args.headers[key]);
@@ -142,8 +146,8 @@ AjaxRequest.prototype._onLoad = function() {
             var json = JSON.parse(this._xhr.responseText);
             var msg = json.message;
             if (! msg) {
-                if (json.response && json.response.error && json.response.error.length)
-                    msg = json.response.error[0];
+                if (json.response && json.response.error)
+                    msg = json.response.error;
             }
 
             if (! msg) {
