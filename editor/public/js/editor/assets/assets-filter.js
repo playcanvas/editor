@@ -66,7 +66,7 @@ editor.once('load', function() {
 
 
     // options
-    if (! config.self.superUser) {
+    if (! config.self.superUser && !config.self.betaTester) {
         var filterField = new ui.SelectField({
             options: {
                 all: 'All',
@@ -87,7 +87,7 @@ editor.once('load', function() {
             }
         });
     } else {
-        // show fonts for super users
+        // show fonts for beta / super users
         var filterField = new ui.SelectField({
             options: {
                 all: 'All',
