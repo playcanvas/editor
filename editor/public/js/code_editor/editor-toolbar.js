@@ -19,6 +19,16 @@ editor.once('load', function () {
     var errorMsg = null;
 
     var refreshSaveButton = function () {
+        if (editor.call('editor:isDirty')) {
+            if (! /^\* /.test(document.title)) {
+                document.title = '* ' + document.title;
+            }
+        } else {
+            if (/^\* /.test(document.title)) {
+                document.title = document.title.substring(2);
+            }
+        }
+
         if (! editor.call('editor:canSave')) {
             saveBtn.setAttribute('disabled', '');
             revertBtn.setAttribute('disabled', '');
