@@ -32,7 +32,11 @@ editor.once('load', function() {
     });
 
     editor.method('editor:canSave', function () {
-        return !hasError && editor.call('editor:isDirty') && ! editor.call('editor:isReadonly') && ! isSaving && isConnected;
+        return !hasError &&
+                editor.call('editor:isDirty') &&
+                !editor.call('editor:isReadonly') &&
+                !isSaving &&
+                isConnected;
     });
 
     editor.method('editor:isLoading', function () {
@@ -69,10 +73,15 @@ editor.once('load', function() {
         isSaving = true;
         editor.emit('editor:save:start');
 
-        // wait a bit so that the sharejs document is flushed
-        setTimeout(function () {
+        if (textDocument.hasPending()) {
+            // wait for pending data to be sent and
+            // acknowledged by the server before saving
+            textDocument.once('nothing pending', function () {
+                editor.call('realtime:send', 'doc:save:', parseInt(config.asset.id, 10));
+            });
+        } else {
             editor.call('realtime:send', 'doc:save:', parseInt(config.asset.id, 10));
-        }, 200);
+        }
     });
 
     // revert loads the asset file
