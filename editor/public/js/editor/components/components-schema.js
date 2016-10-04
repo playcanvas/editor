@@ -385,7 +385,12 @@ editor.once('load', function() {
     });
 
     editor.method('components:list', function () {
-        return list.slice(0);
+        var result = list.slice(0);
+        if (! config.self.superUser) {
+            result.splice(result.indexOf('screen'), 1);
+            result.splice(result.indexOf('element'), 1);
+        }
+        return result;
     });
 
     editor.method('components:schema', function () {

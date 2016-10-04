@@ -277,6 +277,9 @@ editor.once('load', function() {
             'add-new-screen': {
                 title: 'Screen',
                 icon: componentsLogos.screen,
+                hide: function () {
+                    return !config.self.superUser;
+                },
                 select: function() {
                     editor.call('entities:new', {
                         name: 'Screen',
@@ -290,6 +293,9 @@ editor.once('load', function() {
             'add-new-element': {
                 title: 'Element',
                 icon: componentsLogos.element,
+                hide: function () {
+                    return !config.self.superUser;
+                },
                 select: function() {
                     editor.call('entities:new', {
                         name: 'Element',
