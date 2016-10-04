@@ -293,6 +293,18 @@ editor.once('load', function() {
                 enabled: true,
                 size: [ 1, 1, 1 ]
             }
+        },
+
+        screen: {
+            title: 'Screen',
+            default: {
+                enabled: true,
+                resolution: [640, 320],
+                referenceResolution: [640, 320],
+                screenSpace: true,
+                scaleMode: 'blend',
+                scaleBlend: 0.5
+            }
         }
     };
 

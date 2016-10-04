@@ -1478,6 +1478,9 @@ strong {
             &.camera > header > .title:before {
                 content: '\E212';
             }
+            &.screen > header > .title:before {
+                content: '\E141';
+            }
         }
         &.light {
             .ui-button.shadowUpdate {
@@ -2512,6 +2515,9 @@ strong {
                 &.c-camera:before {
                     content: '\E212';
                 }
+                &.c-screen:before {
+                    content: '\E141';
+                }
                 &:hover > .icon:after {
                     color: $text-primary;
                 }
@@ -2607,6 +2613,9 @@ strong {
         }
         &.c-camera > .title > .icon:after {
             content: '\E212';
+        }
+        &.c-screen > .title > .icon:after {
+            content: '\E141';
         }
         &.rename {
             > .title {

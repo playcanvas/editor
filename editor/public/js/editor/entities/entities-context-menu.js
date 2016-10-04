@@ -22,7 +22,8 @@ editor.once('load', function() {
         'particlesystem': '&#57753;',
         'rigidbody': '&#57737;',
         'script': '&#57910;',
-        'zone': '&#57910;'
+        'zone': '&#57910;',
+        'screen': '&#57665;'
     };
 
 
