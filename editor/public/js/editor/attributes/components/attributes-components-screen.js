@@ -38,9 +38,9 @@ editor.once('load', function() {
         });
 
         fieldResolution[0].parent.hidden = !!fieldScreenspace.value;
-        fieldScreenspace.on('change', function (value) {
+        events.push(fieldScreenspace.on('change', function (value) {
             fieldResolution[0].parent.hidden = !!value;
-        });
+        }));
 
         // reference
         editor.call('attributes:reference:attach', 'screen:resolution', fieldResolution[0].parent.innerElement.firstChild.ui);
