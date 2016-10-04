@@ -6,7 +6,6 @@ editor.once('load', function() {
         if (! panelComponents)
             return;
 
-        var framework = editor.call('viewport:framework');
         var events = [ ];
 
         var panel = editor.call('attributes:entity:addComponentPanel', {
