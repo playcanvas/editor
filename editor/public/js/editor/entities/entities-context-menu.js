@@ -23,7 +23,8 @@ editor.once('load', function() {
         'rigidbody': '&#57737;',
         'script': '&#57910;',
         'zone': '&#57910;',
-        'screen': '&#57665;'
+        'screen': '&#57665;',
+        'element': '&#58232;'
     };
 
 

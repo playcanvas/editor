@@ -16,6 +16,8 @@ editor.once('load', function() {
         'rigidbody': '&#57737;',
         'script': '&#57910;',
         'zone': '&#57910;',
+        'screen': '&#57665;',
+        'element': '&#58232;'
     };
 
     editor.method('menu:entities:new', function (getParentFn) {
@@ -268,6 +270,32 @@ editor.once('load', function() {
                         parent: getParentFn(),
                         components: {
                             zone: editor.call('components:getDefault', 'zone')
+                        }
+                    });
+                }
+            },
+            'add-new-screen': {
+                title: 'Screen',
+                icon: componentsLogos.screen,
+                select: function() {
+                    editor.call('entities:new', {
+                        name: 'Screen',
+                        parent: getParentFn(),
+                        components: {
+                            screen: editor.call('components:getDefault', 'screen')
+                        }
+                    });
+                }
+            },
+            'add-new-element': {
+                title: 'Element',
+                icon: componentsLogos.element,
+                select: function() {
+                    editor.call('entities:new', {
+                        name: 'Element',
+                        parent: getParentFn(),
+                        components: {
+                            element: editor.call('components:getDefault', 'element')
                         }
                     });
                 }

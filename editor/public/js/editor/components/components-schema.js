@@ -305,6 +305,27 @@ editor.once('load', function() {
                 scaleMode: 'blend',
                 scaleBlend: 0.5
             }
+        },
+
+        element: {
+            title: 'Element',
+            default: {
+                enabled: true,
+                type: 'text',
+                anchor: [0, 0, 0, 0],
+                pivot: [0, 0],
+                text: '',
+                fontAsset: null,
+                fontSize: 32,
+                lineHeight: 1,
+                spacing: 1,
+                color: [0, 0, 0, 1],
+                textureAsset: null,
+                width: 32,
+                height: 32,
+                rect: [0, 0, 0, 0],
+                materialAsset: null
+            }
         }
     };
 
