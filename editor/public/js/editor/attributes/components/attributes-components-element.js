@@ -31,10 +31,41 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'element:type', fieldType.parent.innerElement.firstChild.ui);
 
+        var presets = {
+            '0,1,0,1/0,1': 'Top Left',
+            '0.5,1,0.5,1/0.5,1': 'Top',
+            '1,1,1,1/1,1': 'Top Right',
+            '0,0.5,0,0.5/0,0.5': 'Left',
+            '0.5,0.5,0.5,0.5/0.5,0.5': 'Center',
+            '1,0.5,1,0.5/1,0.5': 'Right',
+            '0,0,0,0/0,0': 'Bottom Left',
+            '0.5,0,0.5,0/0.5,0': 'Bottom',
+            '1,0,1,0/1,0': 'Bottom Right',
+        };
+
+        var presetsEnum = [];
+        for (var key in presets) {
+            presetsEnum.push({v: key, t: presets[key]});
+        }
+
+        presetsEnum.push({v: 'custom', t: 'Custom'});
+
+        var fieldPreset = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Preset',
+            type: 'string',
+            enum: presetsEnum
+        });
+
         var fieldAnchor = editor.call('attributes:addField', {
             parent: panel,
+            placeholder: ['←', '↓', '→', '↑'],
             name: 'Anchor',
             type: 'vec4',
+            precision: 2,
+            step: 0.1,
+            min: 0,
+            max: 1,
             link: entities,
             path: 'components.element.anchor'
         });
@@ -44,14 +75,98 @@ editor.once('load', function() {
 
         var fieldPivot = editor.call('attributes:addField', {
             parent: panel,
+            placeholder: ['↔', '↕'],
             name: 'Pivot',
             type: 'vec2',
+            precision: 2,
+            step: 0.1,
+            min: 0,
+            max: 1,
             link: entities,
             path: 'components.element.pivot'
         });
 
         // reference
         editor.call('attributes:reference:attach', 'element:pivot', fieldPivot[0].parent.innerElement.firstChild.ui);
+
+        var setPresetValue = function () {
+            var val = fieldAnchor.map(function (f) {return f.value}).join(',') + '/' + fieldPivot.map(function (f) {return f.value}).join(',');
+            if (! presets[val])
+                val = 'custom';
+
+            fieldPreset.value = val;
+        };
+
+        setPresetValue();
+
+        var changingPreset = false;
+
+        for (var i = 0; i < 4; i++) {
+            events.push(fieldAnchor[i].on('change', function (value) {
+                if (changingPreset) return;
+                changingPreset = true;
+                setPresetValue();
+                changingPreset = false;
+            }));
+        }
+
+        for (var i = 0; i < 2; i++) {
+            events.push(fieldPivot[i].on('change', function (value) {
+                if (changingPreset) return;
+                changingPreset = true;
+                setPresetValue();
+                changingPreset = false;
+            }));
+        }
+
+        events.push(fieldPreset.on('change', function (value) {
+            if (! value || value === 'custom' || changingPreset) return;
+
+            changingPreset = true;
+            var fields = value.split('/');
+            var anchor = fields[0].split(',').map(function (v){ return parseFloat(v);} );
+            var pivot = fields[1].split(',').map(function (v){ return parseFloat(v);} );
+
+            var prevAnchors = [];
+            var prevPivots = [];
+
+            for (var i = 0; i < entities.length; i++) {
+                var history = entities[i].history.enabled;
+                entities[i].history.enabled = false;
+                prevAnchors.push(entities[i].get('components.element.anchor'));
+                prevPivots.push(entities[i].get('components.element.pivot'));
+                entities[i].set('components.element.anchor', anchor);
+                entities[i].set('components.element.pivot', pivot);
+                entities[i].history.enabled = history;
+            }
+
+            editor.call('history:add', {
+                name: 'entities.components.element.preset',
+                undo: function() {
+                    for(var i = 0; i < entities.length; i++) {
+                        var entity = entities[i];
+                        var history = entity.history.enabled;
+                        entity.history.enabled = false;
+                        entity.set('components.element.anchor', prevAnchors[i]);
+                        entity.set('components.element.pivot', prevPivots[i]);
+                        entity.history.enabled = history;
+                    }
+                },
+                redo: function() {
+                    for(var i = 0; i < entities.length; i++) {
+                        var entity = entities[i];
+                        var history = entity.history.enabled;
+                        entity.history.enabled = false;
+                        entity.set('components.element.anchor', anchor);
+                        entity.set('components.element.pivot', pivot);
+                        entity.history.enabled = history;
+                    }
+                }
+            });
+
+
+            changingPreset = false;
+        }));
 
         var fieldText = editor.call('attributes:addField', {
             parent: panel,
