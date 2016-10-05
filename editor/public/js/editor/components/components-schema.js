@@ -304,6 +304,10 @@ editor.once('load', function() {
                 screenSpace: true,
                 scaleMode: 'blend',
                 scaleBlend: 0.5
+            },
+            types: {
+                resolution: 'vec2',
+                referenceResolution: 'vec2'
             }
         },
 
