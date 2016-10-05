@@ -290,18 +290,56 @@ editor.once('load', function() {
                     });
                 }
             },
-            'add-new-element': {
-                title: 'Element',
+            'add-new-text': {
+                title: 'Text',
                 icon: componentsLogos.element,
                 hide: function () {
                     return !config.self.superUser;
                 },
                 select: function() {
+                    var data = editor.call('components:getDefault', 'element');
+                    data.type = 'text';
                     editor.call('entities:new', {
-                        name: 'Element',
+                        name: 'Text',
                         parent: getParentFn(),
                         components: {
-                            element: editor.call('components:getDefault', 'element')
+                            element: data
+                        }
+                    });
+                }
+            },
+            'add-new-image': {
+                title: 'Image Element',
+                icon: componentsLogos.element,
+                hide: function () {
+                    return !config.self.superUser;
+                },
+                select: function() {
+                    var data = editor.call('components:getDefault', 'element');
+                    data.type = 'image';
+                    editor.call('entities:new', {
+                        name: 'Image',
+                        parent: getParentFn(),
+                        components: {
+                            element: data
+                        }
+                    });
+                }
+            },
+            'add-new-group': {
+                title: 'Element Group',
+                icon: componentsLogos.element,
+                hide: function () {
+                    return !config.self.superUser;
+                },
+                select: function() {
+                    var data = editor.call('components:getDefault', 'element');
+                    data.type = 'group';
+                    editor.call('entities:new', {
+                        name: 'Group',
+                        parent: getParentFn(),
+                        components: {
+                            element: data
                         }
                     });
                 }
