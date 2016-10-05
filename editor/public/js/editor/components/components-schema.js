@@ -325,6 +325,12 @@ editor.once('load', function() {
                 height: 32,
                 rect: [0, 0, 0, 0],
                 materialAsset: null
+            },
+            types: {
+                anchor: 'vec4',
+                pivot: 'vec2',
+                color: 'rgba',
+                rect: 'vec4'
             }
         }
     };
