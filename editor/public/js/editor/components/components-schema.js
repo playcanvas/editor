@@ -317,7 +317,7 @@ editor.once('load', function() {
                 text: '',
                 fontAsset: null,
                 fontSize: 32,
-                lineHeight: 1,
+                lineHeight: 32,
                 spacing: 1,
                 color: [0, 0, 0, 1],
                 textureAsset: null,
