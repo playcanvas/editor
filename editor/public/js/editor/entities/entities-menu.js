@@ -291,7 +291,7 @@ editor.once('load', function() {
                 }
             },
             'add-new-text': {
-                title: 'Text',
+                title: 'Text Element',
                 icon: componentsLogos.element,
                 hide: function () {
                     return !config.self.superUser;
