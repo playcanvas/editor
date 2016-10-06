@@ -274,18 +274,41 @@ editor.once('load', function() {
                     });
                 }
             },
-            'add-new-screen': {
-                title: 'Screen',
+            'add-new-2d-screen': {
+                title: '2D Screen',
                 icon: componentsLogos.screen,
                 hide: function () {
                     return !config.self.superUser;
                 },
                 select: function() {
+                    var data = editor.call('components:getDefault', 'screen');
+                    data.screenSpace = true;
+
                     editor.call('entities:new', {
-                        name: 'Screen',
+                        name: '2D Screen',
                         parent: getParentFn(),
                         components: {
-                            screen: editor.call('components:getDefault', 'screen')
+                            screen: data
+                        }
+                    });
+                }
+            },
+            'add-new-3d-screen': {
+                title: '3D Screen',
+                icon: componentsLogos.screen,
+                hide: function () {
+                    return !config.self.superUser;
+                },
+                select: function() {
+                    var data = editor.call('components:getDefault', 'screen');
+                    data.screenSpace = false;
+
+                    editor.call('entities:new', {
+                        name: '3D Screen',
+                        parent: getParentFn(),
+                        scale: [0.01, 0.01, 0.01],
+                        components: {
+                            screen: data
                         }
                     });
                 }
@@ -299,6 +322,7 @@ editor.once('load', function() {
                 select: function() {
                     var data = editor.call('components:getDefault', 'element');
                     data.type = 'text';
+                    data.text = 'Text';
                     editor.call('entities:new', {
                         name: 'Text',
                         parent: getParentFn(),

@@ -39,9 +39,9 @@ editor.once('load', function() {
             resource_id: pc.guid.create(),
             parent: parent.get('resource_id'),
             children: [ ],
-            position: [ 0, 0, 0 ],
-            rotation: [ 0, 0, 0 ],
-            scale: [ 1, 1, 1 ],
+            position: raw.position || [ 0, 0, 0 ],
+            rotation: raw.rotation || [ 0, 0, 0 ],
+            scale: raw.scale || [ 1, 1, 1 ],
             components: raw.components || { }
         };
 

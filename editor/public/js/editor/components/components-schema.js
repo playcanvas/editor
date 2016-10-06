@@ -316,8 +316,8 @@ editor.once('load', function() {
             default: {
                 enabled: true,
                 type: 'text',
-                anchor: [0, 0, 0, 0],
-                pivot: [0, 0],
+                anchor: [0.5, 0.5, 0.5, 0.5],
+                pivot: [0.5, 0.5],
                 text: '',
                 fontAsset: null,
                 fontSize: 32,
@@ -327,7 +327,7 @@ editor.once('load', function() {
                 textureAsset: null,
                 width: 32,
                 height: 32,
-                rect: [0, 0, 0, 0],
+                rect: [0, 0, 1, 1],
                 materialAsset: null
             },
             types: {
