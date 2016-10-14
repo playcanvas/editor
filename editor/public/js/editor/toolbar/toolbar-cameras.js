@@ -4,7 +4,8 @@ editor.once('viewport:load', function() {
     var viewport = editor.call('layout.viewport');
     var app = editor.call('viewport:framework');
 
-    var options = { };
+    var options = {};
+    var events = {};
 
     var combo = new ui.SelectField({
         options: options
@@ -43,12 +44,32 @@ editor.once('viewport:load', function() {
 
     editor.on('camera:add', function(entity) {
         options[entity.getGuid()] = entity.name;
-        combo._updateOptions(options);
+        refreshOptions();
+
+        if (events[entity.getGuid()])
+            events[entity.getGuid()].unbind();
+
+        var e = editor.call('entities:get', entity.getGuid());
+        if (e) {
+            events[entity.getGuid()] = e.on('name:set', function (value) {
+                options[entity.getGuid()] = value;
+                refreshOptions();
+
+                if (combo.value === entity.getGuid())
+                    combo.elementValue.textContent = value;
+            });
+        }
     });
 
     editor.on('camera:remove', function(entity) {
         delete options[entity.getGuid()];
-        combo._updateOptions(options);
+        refreshOptions();
+
+        if (events[entity.getGuid()]) {
+            events[entity.getGuid()].unbind();
+            delete events[entity.getGuid()];
+        }
+
     });
 
     editor.on('camera:change', function(entity) {

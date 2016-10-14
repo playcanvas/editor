@@ -16,6 +16,8 @@ editor.once('load', function() {
         'rigidbody': '&#57737;',
         'script': '&#57910;',
         'zone': '&#57910;',
+        'screen': '&#57665;',
+        'element': '&#58232;'
     };
 
     editor.method('menu:entities:new', function (getParentFn) {
@@ -268,6 +270,100 @@ editor.once('load', function() {
                         parent: getParentFn(),
                         components: {
                             zone: editor.call('components:getDefault', 'zone')
+                        }
+                    });
+                }
+            },
+            'add-new-2d-screen': {
+                title: '2D Screen',
+                icon: componentsLogos.screen,
+                hide: function () {
+                    return !config.self.superUser;
+                },
+                select: function() {
+                    var data = editor.call('components:getDefault', 'screen');
+                    data.screenSpace = true;
+
+                    editor.call('entities:new', {
+                        name: '2D Screen',
+                        parent: getParentFn(),
+                        components: {
+                            screen: data
+                        }
+                    });
+                }
+            },
+            'add-new-3d-screen': {
+                title: '3D Screen',
+                icon: componentsLogos.screen,
+                hide: function () {
+                    return !config.self.superUser;
+                },
+                select: function() {
+                    var data = editor.call('components:getDefault', 'screen');
+                    data.screenSpace = false;
+
+                    editor.call('entities:new', {
+                        name: '3D Screen',
+                        parent: getParentFn(),
+                        scale: [0.01, 0.01, 0.01],
+                        components: {
+                            screen: data
+                        }
+                    });
+                }
+            },
+            'add-new-text': {
+                title: 'Text Element',
+                icon: componentsLogos.element,
+                hide: function () {
+                    return !config.self.superUser;
+                },
+                select: function() {
+                    var data = editor.call('components:getDefault', 'element');
+                    data.type = 'text';
+                    data.text = 'Text';
+                    editor.call('entities:new', {
+                        name: 'Text',
+                        parent: getParentFn(),
+                        components: {
+                            element: data
+                        }
+                    });
+                }
+            },
+            'add-new-image': {
+                title: 'Image Element',
+                icon: componentsLogos.element,
+                hide: function () {
+                    return !config.self.superUser;
+                },
+                select: function() {
+                    var data = editor.call('components:getDefault', 'element');
+                    data.type = 'image';
+                    editor.call('entities:new', {
+                        name: 'Image',
+                        parent: getParentFn(),
+                        components: {
+                            element: data
+                        }
+                    });
+                }
+            },
+            'add-new-group': {
+                title: 'Element Group',
+                icon: componentsLogos.element,
+                hide: function () {
+                    return !config.self.superUser;
+                },
+                select: function() {
+                    var data = editor.call('components:getDefault', 'element');
+                    data.type = 'group';
+                    editor.call('entities:new', {
+                        name: 'Group',
+                        parent: getParentFn(),
+                        components: {
+                            element: data
                         }
                     });
                 }

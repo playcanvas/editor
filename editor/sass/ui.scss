@@ -989,6 +989,15 @@ a:visited {
     }
 }
 
+// smaller padding for placeholders in vec4 fields
+// because they are too small
+.ui-panel.field-vec4 {
+    .ui-number-field[placeholder]:after {
+        padding-left: 2px;
+        padding-right: 2px;
+    }
+}
+
 // proxy
 .ui-number-field[proxy] {
     position: relative;

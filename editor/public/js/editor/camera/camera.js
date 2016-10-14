@@ -29,10 +29,11 @@ editor.once('load', function() {
                 return;
 
             var old = currentCamera;
-            if (old) old.enabled = false;
+            if (old && old.__editorCamera) old.enabled = false;
 
             currentCamera = entity;
-            currentCamera.enabled = true;
+            if (currentCamera.__editorCamera)
+                currentCamera.enabled = true;
 
             editor.emit('camera:change', currentCamera, old);
             editor.call('viewport:render');

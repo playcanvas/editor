@@ -1478,6 +1478,12 @@ strong {
             &.camera > header > .title:before {
                 content: '\E212';
             }
+            &.screen > header > .title:before {
+                content: '\E141';
+            }
+            &.element > header > .title:before {
+                content: '\E378';
+            }
         }
         &.light {
             .ui-button.shadowUpdate {
@@ -2512,6 +2518,12 @@ strong {
                 &.c-camera:before {
                     content: '\E212';
                 }
+                &.c-screen:before {
+                    content: '\E141';
+                }
+                &.c-screen:before {
+                    content: '\E378';
+                }
                 &:hover > .icon:after {
                     color: $text-primary;
                 }
@@ -2607,6 +2619,12 @@ strong {
         }
         &.c-camera > .title > .icon:after {
             content: '\E212';
+        }
+        &.c-screen > .title > .icon:after {
+            content: '\E141';
+        }
+        &.c-element > .title > .icon:after {
+            content: '\E378';
         }
         &.rename {
             > .title {

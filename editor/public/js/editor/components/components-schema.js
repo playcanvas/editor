@@ -293,6 +293,49 @@ editor.once('load', function() {
                 enabled: true,
                 size: [ 1, 1, 1 ]
             }
+        },
+
+        screen: {
+            title: 'Screen',
+            default: {
+                enabled: true,
+                resolution: [640, 320],
+                referenceResolution: [640, 320],
+                screenSpace: true,
+                scaleMode: 'blend',
+                scaleBlend: 0.5
+            },
+            types: {
+                resolution: 'vec2',
+                referenceResolution: 'vec2'
+            }
+        },
+
+        element: {
+            title: 'Element',
+            default: {
+                enabled: true,
+                type: 'text',
+                anchor: [0.5, 0.5, 0.5, 0.5],
+                pivot: [0.5, 0.5],
+                text: '',
+                fontAsset: null,
+                fontSize: 32,
+                lineHeight: 32,
+                spacing: 1,
+                color: [0, 0, 0, 1],
+                textureAsset: null,
+                width: 32,
+                height: 32,
+                rect: [0, 0, 1, 1],
+                materialAsset: null
+            },
+            types: {
+                anchor: 'vec4',
+                pivot: 'vec2',
+                color: 'rgba',
+                rect: 'vec4'
+            }
         }
     };
 
@@ -352,7 +395,12 @@ editor.once('load', function() {
     });
 
     editor.method('components:list', function () {
-        return list.slice(0);
+        var result = list.slice(0);
+        if (! config.self.superUser) {
+            result.splice(result.indexOf('screen'), 1);
+            result.splice(result.indexOf('element'), 1);
+        }
+        return result;
     });
 
     editor.method('components:schema', function () {
