@@ -8,10 +8,10 @@ editor.once('load', function() {
     editor.on('visible', function(state) {
         if (state) {
             number = 0;
-            editor.call('notify:title', 'Editor');
+            editor.call('notify:title', config.project.name + ' | Editor');
         } else {
             number = editor.call('chat:unreadCount');
-            if (number) editor.call('notify:title', '(' + number + ') Editor');
+            if (number) editor.call('notify:title', '(' + number + ') ' + config.project.name + ' | Editor');
         }
     });
 
@@ -23,7 +23,7 @@ editor.once('load', function() {
 
         if (! visible) {
             number++;
-            editor.call('notify:title', '(' + number + ') Editor');
+            editor.call('notify:title', '(' + number + ') ' + config.project.name + ' | Editor');
         }
 
         if (visible || granted === false)
