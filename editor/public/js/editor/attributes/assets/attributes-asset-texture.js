@@ -520,21 +520,25 @@ editor.once('load', function() {
 
             fieldOriginal.value = originalExt;
 
-            if (width > 0 && height > 0) {
-                // size available
-                if ((width & (width - 1)) === 0 && (height & (height - 1)) === 0) {
-                    // pot
-                    fieldDxt.disabled = false;
-                } else {
-                    // non pot
+            if (rgbm !== 1) {
+                if (width > 0 && height > 0) {
+                    // size available
+                    if ((width & (width - 1)) === 0 && (height & (height - 1)) === 0) {
+                        // pot
+                        fieldDxt.disabled = false;
+                    } else {
+                        // non pot
+                        fieldDxt.disabled = true;
+                    }
+                } else if (width === -1) {
+                    // no size available
                     fieldDxt.disabled = true;
+                } else if (width === -2) {
+                    // various sizes
+                    fieldDxt.disabled = false;
                 }
-            } else if (width === -1) {
-                // no size available
+            } else {
                 fieldDxt.disabled = true;
-            } else if (width === -2) {
-                // various sizes
-                fieldDxt.disabled = false;
             }
 
             fieldPvr.disabled = fieldPvrBpp.disabled = rgbm !== -2 && (fieldDxt.disabled || rgbm === 1);
@@ -692,11 +696,11 @@ editor.once('load', function() {
 
                         var compress = assets[i].get('meta.compress.' + key);
 
-                        if (key === 'pvr') {
-                            if (assets[i].get('data.rgbm'))
-                                compress = false;
-                        } else if (key === 'etc1') {
-                            if (assets[i].get('data.rgbm') || assets[i].get('meta.compress.alpha'))
+                        if (assets[i].get('data.rgbm'))
+                            compress = false;
+
+                        if (compress && key === 'etc1') {
+                            if (assets[i].get('meta.compress.alpha'))
                                 compress = false;
                         }
 
@@ -755,11 +759,15 @@ editor.once('load', function() {
                 return false;
 
             var data = asset.get('file.variants.' + format);
-            var alpha = asset.get('meta.compress.alpha') && (asset.get('meta.alpha') || ((asset.get('meta.type') || '').toLowerCase() === 'truecoloralpha')) || asset.get('data.rgbm');
+            var rgbm = asset.get('data.rgbm');
+            var alpha = asset.get('meta.compress.alpha') && (asset.get('meta.alpha') || ((asset.get('meta.type') || '').toLowerCase() === 'truecoloralpha')) || rgbm;
             var compress = asset.get('meta.compress.' + format);
 
             if (!! data !== compress) {
                 if (format === 'etc1' && alpha)
+                    return false;
+
+                if (rgbm && ! data)
                     return false;
 
                 return true;
