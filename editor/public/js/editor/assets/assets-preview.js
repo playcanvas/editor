@@ -1,4 +1,7 @@
 editor.once('load', function () {
+    // no thumbnails rendering if query provided
+    if (/thumbs=(false|0)/.test(window.location.search))
+        return;
 
     // canvas user to render the preview
     var canvas = document.createElement('canvas');

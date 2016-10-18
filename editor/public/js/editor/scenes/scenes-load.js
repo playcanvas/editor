@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     var pushState = true;
-
+    var sceneSelected = false;
     var deletedScenes = {};
 
     var realtimeAuthenticated = false;
@@ -57,7 +57,11 @@ editor.once('load', function () {
 
         // add history state
         if (pushState) {
-            history.pushState(null, 'Editor', '/editor/scene/' + id);
+            if (history.length === 1 && window.location.pathname.startsWith('/editor/scene/')) {
+                history.replaceState(null, 'Editor', '/editor/scene/' + id + window.location.search);
+            } else {
+                history.pushState(null, 'Editor', '/editor/scene/' + id + window.location.search);
+            }
         }
 
         pushState = true;
@@ -94,7 +98,7 @@ editor.once('load', function () {
                 // if the current scene has been deleted then don't load it
                 // but rather make the current URL a project URL so that the scene picker opens
                 if (deletedScenes[sceneId]) {
-                    history.replaceState(null, 'Editor', '/editor/project/' + config.project.id);
+                    history.replaceState(null, 'Editor', '/editor/project/' + config.project.id + window.location.search);
                     // unload current scene
                     editor.call('scene:unload');
                     // open scene picker
@@ -113,7 +117,7 @@ editor.once('load', function () {
         }
     });
 
-     // subscribe to messenger pack.delete
+    // subscribe to messenger pack.delete
     editor.on('messenger:pack.delete', function (data) {
         // add scene to deleted so that we don't try to reopen it
         // on the 'popstate' event
@@ -121,7 +125,7 @@ editor.once('load', function () {
 
         // if the current scene has been deleted then change URL to project URL
         if (parseInt(config.scene.id, 10) === parseInt(data.pack.id, 10)) {
-            history.replaceState(null, 'Editor', '/editor/project/' + config.project.id);
+            history.replaceState(null, 'Editor', '/editor/project/' + config.project.id + window.location.search);
             editor.call('scene:unload');
             editor.call('picker:scene');
         }
