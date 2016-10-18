@@ -390,21 +390,10 @@ editor.once('load', function() {
                 var alpha = assets[i].get('meta.alpha') || false;
                 var trueColorAlpha = (assets[i].get('meta.type') || '').toLowerCase() === 'truecoloralpha';
                 var rgbm = assets[i].get('data.rgbm');
-                var formatAvailable = false;
-
-                for(key in formats) {
-                    if (key === 'original')
-                        continue;
-
-                    if (assets[i].get('meta.compress.' + key)) {
-                        formatAvailable = true;
-                        break;
-                    }
-                }
 
                 if (i === 0) {
-                    state = (alpha || trueColorAlpha) && formatAvailable && ! rgbm;
-                } else if (state !== ((alpha || trueColorAlpha) && formatAvailable && ! rgbm)) {
+                    state = (alpha || trueColorAlpha) && ! rgbm;
+                } else if (state !== ((alpha || trueColorAlpha) && ! rgbm)) {
                     different = true;
                     break;
                 }
@@ -479,6 +468,7 @@ editor.once('load', function() {
             var height = -1;
             var rgbm = -1;
             var alpha = -1;
+            var alphaValid = -1;
 
             for(var i = 0; i < assets.length; i++) {
                 if (assets[i].has('meta.width')) {
@@ -496,16 +486,24 @@ editor.once('load', function() {
 
                 if (rgbm === -1) {
                     rgbm = assets[i].get('data.rgbm') ? 1 : 0;
-                } else {
+                } else if (rgbm !== -2) {
                     if (rgbm !== (assets[i].get('data.rgbm') ? 1 : 0))
                         rgbm = -2;
                 }
 
                 if (alpha === -1) {
                     alpha = assets[i].get('meta.compress.alpha') ? 1 : 0;
-                } else {
+                } else if (alpha !== -2) {
                     if (alpha !== (assets[i].get('meta.compress.alpha') ? 1 : 0))
                         alpha = -2;
+                }
+
+                var alphaValidTmp = (assets[i].get('meta.alpha') && (assets[i].get('meta.type') || '').toLowerCase() === 'truecoloralpha') ? 1 : 0;
+                if (alphaValid === -1) {
+                    alphaValid = alphaValidTmp;
+                } else if (alphaValid !== -2) {
+                    if (alphaValid !== alphaValidTmp)
+                        alphaValid = -2;
                 }
 
                 var ext = assets[i].get('file.url');
@@ -542,7 +540,7 @@ editor.once('load', function() {
             }
 
             fieldPvr.disabled = fieldPvrBpp.disabled = rgbm !== -2 && (fieldDxt.disabled || rgbm === 1);
-            fieldEtc1.disabled = fieldPvr.disabled || alpha === 1;
+            fieldEtc1.disabled = fieldPvr.disabled || (alpha === 1 && alphaValid !== 0);
         };
 
         calculateOriginalSize();
@@ -700,7 +698,7 @@ editor.once('load', function() {
                             compress = false;
 
                         if (compress && key === 'etc1') {
-                            if (assets[i].get('meta.compress.alpha'))
+                            if (assets[i].get('meta.compress.alpha') && (assets[i].get('meta.alpha') || (assets[i].get('meta.type') || '').toLowerCase() === 'truecoloralpha'))
                                 compress = false;
                         }
 
