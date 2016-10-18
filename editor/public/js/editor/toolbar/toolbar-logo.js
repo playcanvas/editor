@@ -402,7 +402,7 @@ editor.once('load', function() {
         'launch': {
             title: 'Launch',
             select: function() {
-                var url = window.location.href.replace(/^https/, 'http') + '/launch';
+                var url = (window.location.origin + window.location.pathname).replace(/^https/, 'http') + '/launch';
                 window.open(url, 'pc.launch.' + config.scene.id);
             },
             items: {
