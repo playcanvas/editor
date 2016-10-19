@@ -38,6 +38,8 @@ $editor-invalid-text: white;
 $editor-invalid-bg: #ff3295;
 $editor-invalid-deprecated-bg: #e3a9ff;
 
+$editor-font-family: Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
+
 $save-btn-disabled-bg: #35454a;
 $save-btn-disabled-color: #29363b;
 
@@ -194,7 +196,7 @@ body {
         background-color: $editor-bg;
         color: $editor-text-color;
         font-size: 12px;
-        font-family: Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
+        font-family: $editor-font-family;
         font-style: normal;
         font-variant: normal;
         font-weight: normal;
@@ -304,6 +306,12 @@ body {
     .CodeMirror-nonmatchingbracket {
         color: $editor-text-color !important;
     }
+}
+
+.cm-matchhighlight {
+    border: 1px solid $editor-text-color;
+    border-radius: 2px;
+    margin: -1px;
 }
 
 .CodeMirror-Tern-tooltip {
@@ -428,6 +436,20 @@ li.CodeMirror-hint-active {
     font-family: monospace;
 }
 
+.CodeMirror-foldmarker {
+    display: inline-block;
+    vertical-align: middle;
+    height: 7px;
+    font-size: 15px;
+    padding: 0 1px;
+    line-height: 0;
+    color: $editor-bg;
+    background-color: $editor-yellow;
+    text-shadow: none;
+    font-family: $editor-font-family;
+    cursor: pointer;
+}
+
 @media (max-width: 480px) {
     .hidden-xs {
         display: none;
@@ -451,6 +473,3 @@ a.link-docs {
 ::-webkit-scrollbar-corner {
     background: $editor-tooltip-bg;
 }
-
-
-
