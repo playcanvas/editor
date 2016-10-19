@@ -12,7 +12,6 @@ editor.once('load', function () {
         lineComment: true,
         blockComment: true,
         indentUnit: 4,
-        indentWithTabs: true,
         unComment: true,
         continueComments: true,
         styleActiveLine: true,
@@ -217,6 +216,15 @@ editor.once('load', function () {
 
         extraKeys['Ctrl-S'] = function (cm) {editor.call('editor:save');};
         extraKeys['Cmd-S'] = function (cm) {editor.call('editor:save');};
+        extraKeys['Tab'] = function(cm) {
+            if (cm.somethingSelected()) {
+                cm.indentSelection("add");
+            } else {
+                var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
+                cm.replaceSelection(spaces);
+            }
+        };
+
         extraKeys['Esc'] = function (cm) {cm.execCommand('clearSearch'); cm.setSelection(cm.getCursor("anchor"), cm.getCursor("anchor"));};
         extraKeys["Shift-Tab"] = "indentLess";
         extraKeys['Ctrl-/'] = 'toggleComment';
