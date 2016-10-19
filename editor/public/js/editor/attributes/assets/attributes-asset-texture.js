@@ -390,21 +390,10 @@ editor.once('load', function() {
                 var alpha = assets[i].get('meta.alpha') || false;
                 var trueColorAlpha = (assets[i].get('meta.type') || '').toLowerCase() === 'truecoloralpha';
                 var rgbm = assets[i].get('data.rgbm');
-                var formatAvailable = false;
-
-                for(key in formats) {
-                    if (key === 'original')
-                        continue;
-
-                    if (assets[i].get('meta.compress.' + key)) {
-                        formatAvailable = true;
-                        break;
-                    }
-                }
 
                 if (i === 0) {
-                    state = (alpha || trueColorAlpha) && formatAvailable && ! rgbm;
-                } else if (state !== ((alpha || trueColorAlpha) && formatAvailable && ! rgbm)) {
+                    state = (alpha || trueColorAlpha) && ! rgbm;
+                } else if (state !== ((alpha || trueColorAlpha) && ! rgbm)) {
                     different = true;
                     break;
                 }
@@ -479,6 +468,7 @@ editor.once('load', function() {
             var height = -1;
             var rgbm = -1;
             var alpha = -1;
+            var alphaValid = -1;
 
             for(var i = 0; i < assets.length; i++) {
                 if (assets[i].has('meta.width')) {
@@ -496,16 +486,24 @@ editor.once('load', function() {
 
                 if (rgbm === -1) {
                     rgbm = assets[i].get('data.rgbm') ? 1 : 0;
-                } else {
+                } else if (rgbm !== -2) {
                     if (rgbm !== (assets[i].get('data.rgbm') ? 1 : 0))
                         rgbm = -2;
                 }
 
                 if (alpha === -1) {
                     alpha = assets[i].get('meta.compress.alpha') ? 1 : 0;
-                } else {
+                } else if (alpha !== -2) {
                     if (alpha !== (assets[i].get('meta.compress.alpha') ? 1 : 0))
                         alpha = -2;
+                }
+
+                var alphaValidTmp = (assets[i].get('meta.alpha') && (assets[i].get('meta.type') || '').toLowerCase() === 'truecoloralpha') ? 1 : 0;
+                if (alphaValid === -1) {
+                    alphaValid = alphaValidTmp;
+                } else if (alphaValid !== -2) {
+                    if (alphaValid !== alphaValidTmp)
+                        alphaValid = -2;
                 }
 
                 var ext = assets[i].get('file.url');
@@ -513,32 +511,36 @@ editor.once('load', function() {
 
                 if (originalExt !== 'various' && originalExt && originalExt !== ext) {
                     originalExt = 'various';
-                } else {
+                } else if (originalExt !== 'various') {
                     originalExt = ext;
                 }
             }
 
             fieldOriginal.value = originalExt;
 
-            if (width > 0 && height > 0) {
-                // size available
-                if ((width & (width - 1)) === 0 && (height & (height - 1)) === 0) {
-                    // pot
-                    fieldDxt.disabled = false;
-                } else {
-                    // non pot
+            if (rgbm !== 1) {
+                if (width > 0 && height > 0) {
+                    // size available
+                    if ((width & (width - 1)) === 0 && (height & (height - 1)) === 0) {
+                        // pot
+                        fieldDxt.disabled = false;
+                    } else {
+                        // non pot
+                        fieldDxt.disabled = true;
+                    }
+                } else if (width === -1) {
+                    // no size available
                     fieldDxt.disabled = true;
+                } else if (width === -2) {
+                    // various sizes
+                    fieldDxt.disabled = false;
                 }
-            } else if (width === -1) {
-                // no size available
+            } else {
                 fieldDxt.disabled = true;
-            } else if (width === -2) {
-                // various sizes
-                fieldDxt.disabled = false;
             }
 
             fieldPvr.disabled = fieldPvrBpp.disabled = rgbm !== -2 && (fieldDxt.disabled || rgbm === 1);
-            fieldEtc1.disabled = fieldPvr.disabled || alpha === 1;
+            fieldEtc1.disabled = fieldPvr.disabled || (alpha === 1 && alphaValid !== 0);
         };
 
         calculateOriginalSize();
@@ -692,11 +694,11 @@ editor.once('load', function() {
 
                         var compress = assets[i].get('meta.compress.' + key);
 
-                        if (key === 'pvr') {
-                            if (assets[i].get('data.rgbm'))
-                                compress = false;
-                        } else if (key === 'etc1') {
-                            if (assets[i].get('data.rgbm') || assets[i].get('meta.compress.alpha'))
+                        if (assets[i].get('data.rgbm'))
+                            compress = false;
+
+                        if (compress && key === 'etc1') {
+                            if (assets[i].get('meta.compress.alpha') && (assets[i].get('meta.alpha') || (assets[i].get('meta.type') || '').toLowerCase() === 'truecoloralpha'))
                                 compress = false;
                         }
 
@@ -755,11 +757,15 @@ editor.once('load', function() {
                 return false;
 
             var data = asset.get('file.variants.' + format);
-            var alpha = asset.get('meta.compress.alpha') && (asset.get('meta.alpha') || ((asset.get('meta.type') || '').toLowerCase() === 'truecoloralpha')) || asset.get('data.rgbm');
+            var rgbm = asset.get('data.rgbm');
+            var alpha = asset.get('meta.compress.alpha') && (asset.get('meta.alpha') || ((asset.get('meta.type') || '').toLowerCase() === 'truecoloralpha')) || rgbm;
             var compress = asset.get('meta.compress.' + format);
 
             if (!! data !== compress) {
                 if (format === 'etc1' && alpha)
+                    return false;
+
+                if (rgbm && ! data)
                     return false;
 
                 return true;

@@ -392,6 +392,7 @@ strong {
                     font-size: 12px;
                     vertical-align: top;
                     background-color: transparent;
+                    z-index: 2;
 
                     > .value {
                         @extend .font-bold;
