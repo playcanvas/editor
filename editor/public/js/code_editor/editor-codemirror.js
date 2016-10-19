@@ -181,7 +181,7 @@ editor.once('load', function () {
             var wordChar = /\w/;
             var shouldComplete = function (e) {
                 // auto complete on '.' or word chars
-                return (e.keyCode === 190 || (e.key.length === 1 && wordChar.test(e.key)));
+                return !e.ctrlKey && !e.altKey && !e.metaKey && (e.keyCode === 190 || (e.key.length === 1 && wordChar.test(e.key)));
             }
 
             // auto complete on keydown after a bit
@@ -225,7 +225,7 @@ editor.once('load', function () {
         extraKeys['Alt-Down'] = function (cm) {cm.execCommand('goLineDown'); cm.execCommand('goLineEnd');};
 
         // create key bindings
-        codeMirror.setOption("extraKeys", extraKeys);
+        codeMirror.setOption("extraKeys", CodeMirror.normalizeKeyMap(extraKeys));
 
         isLoading = true;
         codeMirror.setValue(code);
