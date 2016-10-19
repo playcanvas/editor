@@ -440,8 +440,9 @@ li.CodeMirror-hint-active {
     display: inline-block;
     vertical-align: middle;
     height: 7px;
+    width: 12px;
+    text-align: center;
     font-size: 15px;
-    padding: 0 1px;
     line-height: 0;
     color: $editor-bg;
     background-color: $editor-yellow;
