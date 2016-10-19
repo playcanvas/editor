@@ -12,6 +12,7 @@ editor.once('load', function () {
         lineComment: true,
         blockComment: true,
         indentUnit: 4,
+        indentWithTabs: true,
         unComment: true,
         continueComments: true,
         styleActiveLine: true,
