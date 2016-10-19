@@ -100,8 +100,7 @@
     if (gutter != opts.gutter) return;
     var folded = isFolded(cm, line);
     if (folded) folded.clear();
-    // vaios fix
-    else cm.foldCode(Pos(line, 0), opts);
+    else cm.foldCode(Pos(line, 0), opts.rangeFinder);
   }
 
   function onChange(cm) {

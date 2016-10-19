@@ -189,53 +189,58 @@ editor.once('load', function () {
         //printStacks();
     };
 
+    // creates dummy operation in order to move the cursor
+    // correctly when remote ops are happening
+    var createCursorOp = function (pos) {
+        return createInsertOp(cm.indexFromPos(pos), ' ');
+    };
+
+    // create 2 ops if anchor and head are different or 1 if they are the same (which is just a cursor..)
+    var createCursorOpsFromSelection = function (selection) {
+        return selection.anchor === selection.head ?
+               createCursorOp(selection.anchor) :
+               [createCursorOp(selection.anchor), createCursorOp(selection.head)];
+    };
+
+    // transform dummy ops with remote op
+    var transformCursorOps = function (ops, remoteOp) {
+        for (var i = 0, len = ops.length; i < len; i++) {
+            var data = ops[i];
+            if (data.length) {
+                for (var j = 0; j < data.length; j++) {
+                    data[j].op = transform(data[j].op, remoteOp, 'right')
+                }
+            } else {
+                data.op = transform(data.op, remoteOp, 'right');
+            }
+        }
+    };
+
+    var posFromCursorOp = function (cursorOp) {
+        return cm.posFromIndex(cursorOp.op.length > 1 ? cursorOp.op[0] : 0);
+    };
+
+    // restore selections after remote ops
+    var restoreSelections = function (cursorOps) {
+        for (var i = 0, len = cursorOps.length; i < len; i++) {
+            var data = cursorOps[i];
+            var start,end;
+
+            if (data.length) {
+                start = posFromCursorOp(data[0]);
+                end = posFromCursorOp(data[1]);
+            } else {
+                start = posFromCursorOp(data);
+                end = start;
+            }
+
+            cm.addSelection(start, end);
+        }
+    };
+
     // Called when the script / asset is loaded
     var onLoaded = function () {
         share = editor.call('realtime:context');
-
-        // creates dummy operation in order to move the cursor
-        // correctly when remote ops are happening
-        var createCursorOp = function (pos) {
-            return createInsertOp(cm.indexFromPos(pos), ' ');
-        };
-
-        // create 2 ops if anchor and head are different or 1 if they are the same (which is just a cursor..)
-        var createCursorOpsFromSelection = function (selection) {
-            return selection.anchor === selection.head ?
-                   createCursorOp(selection.anchor) :
-                   [createCursorOp(selection.anchor), createCursorOp(selection.head)];
-        };
-
-        // transform dummy ops with remote op
-        var transformCursorOps = function (ops, remoteOp) {
-            for (var i = 0, len = ops.length; i < len; i++) {
-                var data = ops[i];
-                if (data.length) {
-                    data[0].op = transform(data[0].op, remoteOp.op, 'right')
-                    data[1].op = transform(data[1].op, remoteOp.op, 'right')
-                } else {
-                    data.op = transform(data.op, remoteOp.op, 'right');
-                }
-            }
-        };
-
-        // restore selections after remote ops
-        var restoreSelections = function (cursorOps) {
-            for (var i = 0, len = cursorOps.length; i < len; i++) {
-                var data = cursorOps[i];
-                var start,end;
-
-                if (data.length) {
-                    start = cm.posFromIndex(data[0].op.length > 1 ? data[0].op[0] : 0);
-                    end = cm.posFromIndex(data[1].op.length > 1 ? data[1].op[0] : 0);
-                } else {
-                    start = cm.posFromIndex(data.op.length > 1 ? data.op[0] : 0);
-                    end = start;
-                }
-
-                cm.addSelection(start, end);
-            }
-        };
 
         // server -> local
         share.onInsert = function (pos, text) {
@@ -250,7 +255,7 @@ editor.once('load', function () {
             // get selections before we change the contents
             var selections = cm.listSelections();
             var cursorOps = selections.map(createCursorOpsFromSelection);
-            transformCursorOps(cursorOps, remoteOp);
+            transformCursorOps(cursorOps, remoteOp.op);
 
             cm.replaceRange(text, from);
 
@@ -272,7 +277,7 @@ editor.once('load', function () {
             // get selections before we change the contents
             var selections = cm.listSelections();
             var cursorOps = selections.map(createCursorOpsFromSelection);
-            transformCursorOps(cursorOps, remoteOp);
+            transformCursorOps(cursorOps, remoteOp.op);
 
             // apply operation locally
             cm.replaceRange('', from, to);
@@ -349,9 +354,37 @@ editor.once('load', function () {
 
         var scrollInfo = cm.getScrollInfo();
 
+        // remember folded positions
+        var folds = cm.findMarks(
+            CodeMirror.Pos(cm.firstLine(), 0),
+            CodeMirror.Pos(cm.lastLine(), 0)
+        ).filter(function (mark) {
+            return mark.__isFold
+        });
+
+        // transform folded positions with op
+        var foldOps;
+        if (folds.length) {
+            foldOps = [];
+            for (var i = 0; i < folds.length; i++) {
+                var pos = CodeMirror.Pos(folds[i].lines[0].lineNo(), 0);
+                foldOps.push(createCursorOp(pos));
+            }
+
+            transformCursorOps(foldOps, op);
+        }
+
         suppress = true;
         cm.setValue(share.get() || '');
         suppress = false;
+
+        // restore folds because after cm.setValue they will all be lost
+        if (foldOps) {
+            for (var i = 0; i < foldOps.length; i++) {
+                var pos = posFromCursorOp(foldOps[i]);
+                cm.foldCode(pos);
+            }
+        }
 
         // set cursor
         // put it after the text if text was inserted

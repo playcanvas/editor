@@ -56,9 +56,10 @@ editor.once('load', function () {
         options.gutters = ["CodeMirror-lint-markers", "CodeMirror-foldgutter"];
 
         // folding
-        options.foldGutter = {
+        options.foldOptions = {
             widget: '\u2026'
-        };
+        }
+        options.foldGutter = true;
     }
 
     options.lineNumbers = true;
