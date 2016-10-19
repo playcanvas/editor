@@ -220,8 +220,7 @@ editor.once('load', function () {
             if (cm.somethingSelected()) {
                 cm.indentSelection("add");
             } else {
-                var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
-                cm.replaceSelection(spaces);
+                cm.execCommand('insertSoftTab');
             }
         };
 
