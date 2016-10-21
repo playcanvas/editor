@@ -5,6 +5,8 @@ editor.once('load', function() {
     var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
     var root = editor.call('layout.root');
 
+    var customMenuItems = [ ];
+
     // menu
     var menu = new ui.Menu();
     root.append(menu);
@@ -182,6 +184,13 @@ editor.once('load', function() {
         if (source.get('type') === 'texture') {
             task.target = parseInt(target.get('id'), 10);
             task.options = editor.call('assets:jobs:texture-convert-options', source.get('meta'));
+
+            if (target.get('meta.width') && target.get('meta.height')) {
+                task.options.size = {
+                    width: target.get('meta.width'),
+                    height: target.get('meta.height')
+                };
+            }
 
             editor.call('realtime:send', 'pipeline', {
                 name: 'convert',
@@ -413,6 +422,13 @@ editor.once('load', function() {
                         menuItem.on('select', function() {
                             editor.call('selector:set', type, [ item ]);
 
+                            var folder = null;
+                            var path = item.get('path');
+                            if (path.length)
+                                folder = editor.call('assets:get', path[path.length - 1]);
+
+                            editor.call('assets:panel:currentFolder', folder);
+
                             // unfold rendering tab
                             if (type === 'designerSettings') {
                                 setTimeout(function() {
@@ -464,6 +480,13 @@ editor.once('load', function() {
             menuItemEdit.hidden = true;
             menuItemDelete.hidden = true;
             menuItemReferences.hidden = true;
+        }
+
+        for(var i = 0; i < customMenuItems.length; i++) {
+            if (! customMenuItems[i].filter)
+                continue;
+
+            customMenuItems[i].hidden = ! customMenuItems[i].filter(currentAsset);
         }
     });
 
@@ -539,4 +562,26 @@ editor.once('load', function() {
         menu.open = true;
         menu.position(evt.clientX + 1, evt.clientY);
     }, false);
+
+    editor.method('assets:contextmenu:add', function(data) {
+        var item = new ui.MenuItem({
+            text: data.text,
+            icon: data.icon,
+            value: data.value
+        });
+
+        item.on('select', function() {
+            data.select.call(item, currentAsset);
+        });
+
+        var parent = data.parent || menu;
+        parent.append(item);
+
+        if (data.filter)
+            item.filter = data.filter;
+
+        customMenuItems.push(item);
+
+        return item;
+    });
 });
