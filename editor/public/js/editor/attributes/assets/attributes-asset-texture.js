@@ -498,7 +498,7 @@ editor.once('load', function() {
                         alpha = -2;
                 }
 
-                var alphaValidTmp = (assets[i].get('meta.alpha') && (assets[i].get('meta.type') || '').toLowerCase() === 'truecoloralpha') ? 1 : 0;
+                var alphaValidTmp = (assets[i].get('meta.alpha') || (assets[i].get('meta.type') || '').toLowerCase() === 'truecoloralpha') ? 1 : 0;
                 if (alphaValid === -1) {
                     alphaValid = alphaValidTmp;
                 } else if (alphaValid !== -2) {

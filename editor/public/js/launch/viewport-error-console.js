@@ -9,7 +9,7 @@ app.once('load', function() {
 
     // close button img
     var closeBtn = document.createElement('img');
-    closeBtn.src = 'http://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/icons/fa/16x16/remove.png';
+    closeBtn.src = 'https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/icons/fa/16x16/remove.png';
     panel.appendChild(closeBtn);
 
     closeBtn.addEventListener('click', function () {

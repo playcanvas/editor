@@ -136,22 +136,25 @@ editor.once('load', function() {
     // create asset
     editor.method('assets:create', function (data, fn, noSelect) {
         var assetId = null;
-        var evtAssetAdd = editor.once('assets:add', function(asset) {
-            if (! evtAssetAdd && assetId !== parseInt(asset.get('id'), 10))
-                return;
-
-            evtAssetAdd = null;
-            if (! noSelect) editor.call('selector:set', 'asset', [ asset ]);
-            // navigate to folder too
-            var path = asset.get('path');
-            if (path.length) {
-                editor.call('assets:panel:currentFolder', editor.call('assets:get', path[path.length - 1]));
-            } else {
-                editor.call('assets:panel:currentFolder', null);
-            }
-        });
+        var evtAssetAdd;
 
         if (! noSelect) {
+            evtAssetAdd = editor.once('assets:add', function(asset) {
+                if (! evtAssetAdd && assetId !== parseInt(asset.get('id'), 10))
+                    return;
+
+                evtAssetAdd = null;
+                editor.call('selector:set', 'asset', [ asset ]);
+
+                // navigate to folder too
+                var path = asset.get('path');
+                if (path.length) {
+                    editor.call('assets:panel:currentFolder', editor.call('assets:get', path[path.length - 1]));
+                } else {
+                    editor.call('assets:panel:currentFolder', null);
+                }
+            });
+
             editor.once('selector:change', function() {
                 if (evtAssetAdd) {
                     evtAssetAdd.unbind();
