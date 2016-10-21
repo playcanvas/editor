@@ -511,7 +511,7 @@ editor.once('load', function() {
 
                 if (originalExt !== 'various' && originalExt && originalExt !== ext) {
                     originalExt = 'various';
-                } else {
+                } else if (originalExt !== 'various') {
                     originalExt = ext;
                 }
             }

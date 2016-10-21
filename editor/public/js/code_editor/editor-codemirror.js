@@ -15,7 +15,20 @@ editor.once('load', function () {
         unComment: true,
         continueComments: true,
         styleActiveLine: true,
-        readOnly: editor.call('editor:isReadonly') ? true : false
+
+        readOnly: editor.call('editor:isReadonly') ? true : false,
+
+        /* match - highlighter */
+        highlightSelectionMatches: {
+            delay: 0,
+            wordsOnly: true
+        },
+
+        // auto complete
+        hintOptions: {
+            completeSingle: false,
+            completeOnSingleClick: false
+        }
     };
 
     if (config.asset) {
@@ -39,7 +52,13 @@ editor.once('load', function () {
 
     if (!config.asset || config.asset.type === 'script') {
         options.lint = true;
-        options.gutters = ["CodeMirror-lint-markers"];
+        options.gutters = ["CodeMirror-lint-markers", "CodeMirror-foldgutter"];
+
+        // folding
+        options.foldOptions = {
+            widget: '\u2026'
+        }
+        options.foldGutter = true;
     }
 
     options.lineNumbers = true;
@@ -153,10 +172,31 @@ editor.once('load', function () {
                 server.updateArgHints(cm);
             });
 
-            // autocomplete on dot
-            codeMirror.on("keyup", function (cm, e) {
-                if (e.keyCode === 190)
-                    server.complete(cm);
+            // autocomplete
+            var completeTimeout = null;
+            var doComplete = function () {
+                server.complete(codeMirror);
+            };
+
+            var wordChar = /\w/;
+            var shouldComplete = function (e) {
+                // auto complete on '.' or word chars
+                return !e.ctrlKey && !e.altKey && !e.metaKey && (e.keyCode === 190 || (e.key.length === 1 && wordChar.test(e.key)));
+            }
+
+            // auto complete on keydown after a bit
+            // so that we have the chance to cancel autocompletion
+            // if a non-word character was inserted (e.g. a semicolon).
+            // Otherwise we might quickly type semicolon and get completions
+            // afterwards (because it's async) and that's not what we want.
+            codeMirror.on("keydown", function (cm, e) {
+                var complete = shouldComplete(e);
+                if (! complete && completeTimeout) {
+                    clearTimeout(completeTimeout);
+                    completeTimeout = null;
+                } else if (complete) {
+                    completeTimeout = setTimeout(doComplete, 150);
+                }
             });
 
             extraKeys = extraKeys || {};
@@ -176,16 +216,15 @@ editor.once('load', function () {
 
         extraKeys['Ctrl-S'] = function (cm) {editor.call('editor:save');};
         extraKeys['Cmd-S'] = function (cm) {editor.call('editor:save');};
-        extraKeys['Esc'] = 'clearSearch';
         extraKeys['Tab'] = function(cm) {
             if (cm.somethingSelected()) {
                 cm.indentSelection("add");
             } else {
-                var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
-                cm.replaceSelection(spaces);
+                cm.execCommand('insertSoftTab');
             }
         };
 
+        extraKeys['Esc'] = function (cm) {cm.execCommand('clearSearch'); cm.setSelection(cm.getCursor("anchor"), cm.getCursor("anchor"));};
         extraKeys["Shift-Tab"] = "indentLess";
         extraKeys['Ctrl-/'] = 'toggleComment';
         extraKeys['Cmd-/'] = 'toggleComment';
@@ -194,7 +233,7 @@ editor.once('load', function () {
         extraKeys['Alt-Down'] = function (cm) {cm.execCommand('goLineDown'); cm.execCommand('goLineEnd');};
 
         // create key bindings
-        codeMirror.setOption("extraKeys", extraKeys);
+        codeMirror.setOption("extraKeys", CodeMirror.normalizeKeyMap(extraKeys));
 
         isLoading = true;
         codeMirror.setValue(code);
