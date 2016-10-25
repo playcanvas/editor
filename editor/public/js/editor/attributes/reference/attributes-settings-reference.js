@@ -128,6 +128,10 @@ editor.once('load', function() {
         title: 'Preserve drawing buffer',
         description: 'When enabled the drawing buffer will be preserved until its explicitely cleared. Useful if you want to take screenshots.'
     }, {
+        name: 'project:vr',
+        title: 'Enable VR',
+        description: 'Initialize WebVR specific code in the engine. If device doesn’t support WebVR then load additional library to enable support.'
+    }, {
         name: 'project:useLegacyAudio',
         title: 'Use Legacy Audio',
         description: 'If checked the old AudioSource component will be available in the Editor otherwise you will only see the new Sound component.'
