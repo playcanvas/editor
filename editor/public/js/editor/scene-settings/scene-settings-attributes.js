@@ -470,6 +470,17 @@ editor.once('load', function() {
         fieldPreserveDrawingBuffer.parent.innerElement.firstChild.style.width = 'auto';
         editor.call('attributes:reference:attach', 'settings:project:preserveDrawingBuffer', fieldPreserveDrawingBuffer.parent.innerElement.firstChild.ui);
 
+        var fieldVr = editor.call('attributes:addField', {
+            parent: panelRendering,
+            name: 'Enable VR',
+            type: 'checkbox',
+            link: projectSettings,
+            path: 'vr'
+        });
+        fieldVr.parent.innerElement.firstChild.style.width = 'auto';
+        editor.call('attributes:reference:attach', 'settings:project:vr', fieldVr.parent.innerElement.firstChild.ui);
+        fieldVr.parent.hidden = !config.self.betaTester && !config.self.superUser;
+
         filter();
 
         // filter fields when scene settings change
