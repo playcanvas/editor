@@ -479,6 +479,7 @@ editor.once('load', function() {
         });
         fieldVr.parent.innerElement.firstChild.style.width = 'auto';
         editor.call('attributes:reference:attach', 'settings:project:vr', fieldVr.parent.innerElement.firstChild.ui);
+        fieldVr.parent.hidden = !config.self.betaTester && !config.self.superUser;
 
         filter();
 
