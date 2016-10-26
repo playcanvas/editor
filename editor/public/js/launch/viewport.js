@@ -167,6 +167,10 @@ app.once('load', function() {
         }
     }
 
+    if (config.project.settings.vr && !pc.VrManager.hasWebVr()) {
+        libraryUrls.push(config.url.webvr);
+    }
+
     var queryParams = (new pc.URI(window.location.href)).getQuery();
 
     var scriptPrefix = config.project.scriptPrefix;
@@ -209,6 +213,7 @@ app.once('load', function() {
     application.setCanvasFillMode(config.project.settings.fill_mode, config.project.settings.width, config.project.settings.height);
 
     application._loadLibraries(libraryUrls, function (err) {
+        application._onVrChange(config.project.settings.vr);
         libraries = true;
         if (err) {
             console.error(err);
