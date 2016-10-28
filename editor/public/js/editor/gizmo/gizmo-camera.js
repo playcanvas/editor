@@ -170,7 +170,7 @@ editor.once('load', function () {
     });
 
     editor.once('viewport:load', function() {
-        app = editor.call('viewport:framework');
+        app = editor.call('viewport:app');
     });
 
     editor.on('viewport:gizmoUpdate', function(dt) {

@@ -563,7 +563,7 @@ editor.once('load', function() {
                 return;
         }
 
-        var app = editor.call('viewport:framework');
+        var app = editor.call('viewport:app');
 
         if (assets.length > 1)
             editor.call('attributes:header', assets.length + ' Materials');

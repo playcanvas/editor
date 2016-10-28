@@ -319,7 +319,7 @@ editor.once('load', function() {
 
     // handle disconnection
     editor.on('realtime:disconnected', function () {
-        var viewport = editor.call('viewport:framework');
+        var viewport = editor.call('viewport:app');
         if (!viewport) return;
 
         // clear ALL asset registry events

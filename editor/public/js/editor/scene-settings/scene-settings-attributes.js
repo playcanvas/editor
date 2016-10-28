@@ -4,7 +4,7 @@ editor.once('load', function() {
     var sceneSettings = editor.call('sceneSettings');
     var projectSettings = editor.call('project:settings');
 
-    editor.method('designerSettings:panel:unfold', function(panel) {
+    editor.method('editorSettings:panel:unfold', function(panel) {
         var element = editor.call('layout.right').innerElement.querySelector('.ui-panel.component.foldable.' + panel);
         if (element && element.ui)
             element.ui.folded = false;
@@ -18,10 +18,10 @@ editor.once('load', function() {
         'audio': true
     };
 
-    editor.on('attributes:inspect[designerSettings]', function() {
+    editor.on('attributes:inspect[editorSettings]', function() {
         editor.call('attributes:header', 'Settings');
 
-        var app = editor.call('viewport:framework');
+        var app = editor.call('viewport:app');
         var root = editor.call('layout.root');
 
         var filteredFields = [ ];

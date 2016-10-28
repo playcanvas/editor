@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     var viewport = editor.call('layout.viewport');
-    var designerSettings = editor.call('designerSettings');
+    var editorSettings = editor.call('editorSettings');
     var focusedMenuItem = null;
 
     // create main panel
@@ -21,12 +21,12 @@ editor.once('load', function () {
 
     var checkShow = function () {
         if (tipsLoaded && settingsLoaded) {
-            panel.hidden = !designerSettings.get('help');
+            panel.hidden = !editorSettings.get('help');
         }
     };
 
-    // hide / show panel based on designer settings
-    editor.once('designerSettings:load', function () {
+    // hide / show panel based on editor settings
+    editor.once('editorSettings:load', function () {
         settingsLoaded = true;
         checkShow();
     });
@@ -35,10 +35,10 @@ editor.once('load', function () {
     panel.on('show', function () {
         editor.emit('help:howdoi:open');
 
-        var history = designerSettings.history;
-        designerSettings.history = false;
-        designerSettings.set('help', true);
-        designerSettings.history = history;
+        var history = editorSettings.history;
+        editorSettings.history = false;
+        editorSettings.set('help', true);
+        editorSettings.history = history;
 
         editor.on('scene:name', positionWidget);
         editor.on('viewport:resize', positionWidget);
@@ -49,10 +49,10 @@ editor.once('load', function () {
     panel.on('hide', function () {
         editor.emit('help:howdoi:close');
 
-        var history = designerSettings.history;
-        designerSettings.history = false;
-        designerSettings.set('help', false);
-        designerSettings.history = history;
+        var history = editorSettings.history;
+        editorSettings.history = false;
+        editorSettings.set('help', false);
+        editorSettings.history = history;
 
         editor.unbind('scene:name', positionWidget);
         editor.unbind('viewport:resize', positionWidget);
@@ -78,8 +78,8 @@ editor.once('load', function () {
         return bubble;
     };
 
-    // open / close panel depending on designer settings
-    designerSettings.on('help:set', function (value) {
+    // open / close panel depending on editor settings
+    editorSettings.on('help:set', function (value) {
         panel.hidden = !value;
     });
 

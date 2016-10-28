@@ -515,7 +515,7 @@ editor.once('load', function() {
     // scene settings
     var sceneSettings = editor.call('sceneSettings');
     sceneSettings.on('render.skybox:set', function(value, valueOld) {
-        updateAsset('sceneSettings', 'designerSettings', valueOld, value);
+        updateAsset('sceneSettings', 'editorSettings', valueOld, value);
     });
 
     editor.method('assets:used:index', function() {

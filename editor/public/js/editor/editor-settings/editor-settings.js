@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var designerSettings = new Observer({
+    var editorSettings = new Observer({
         'camera_near_clip': 0.1,
         'camera_far_clip': 1000,
         'camera_clear_color': [
@@ -17,17 +17,17 @@ editor.once('load', function() {
         'local_server': 'http://localhost:51000',
         'help': true
     });
-    designerSettings.sync = false;
+    editorSettings.sync = false;
 
-    // get designer settings
-    editor.method('designerSettings', function() {
-        return designerSettings;
+    // get editor settings
+    editor.method('editorSettings', function() {
+        return editorSettings;
     });
 
     var syncTimeout;
 
     // sync
-    designerSettings.on('*:set', function(field, value) {
+    editorSettings.on('*:set', function(field, value) {
         if (! this.sync)
             return;
 
@@ -45,27 +45,27 @@ editor.once('load', function() {
         }.bind(this), 100);
     });
 
-    // load designer settings
+    // load editor settings
     var loadSettings = function () {
         Ajax({
             url: '{{url.api}}/scenes/{{scene.id}}/designer_settings/{{self.id}}',
             auth: true
         })
         .on('load', function(status, data) {
-            designerSettings.history = false;
+            editorSettings.history = false;
 
-            for(var i = 0; i < designerSettings._keys.length; i++) {
-                var key = designerSettings._keys[i];
+            for(var i = 0; i < editorSettings._keys.length; i++) {
+                var key = editorSettings._keys[i];
                 var value = data[key];
 
                 if (value !== undefined)
-                    designerSettings.set(key, value);
+                    editorSettings.set(key, value);
             }
 
-            designerSettings.history = true;
-            designerSettings.sync = true;
+            editorSettings.history = true;
+            editorSettings.sync = true;
 
-            editor.emit('designerSettings:load');
+            editor.emit('editorSettings:load');
         });
     };
 

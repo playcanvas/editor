@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var framework = editor.call('viewport:framework');
+    var app = editor.call('viewport:app');
 
     // entities indexes for parenting
     var childIndex = { };
@@ -15,7 +15,7 @@ editor.once('load', function() {
         awaitingResyncHierarchy = false;
 
         // sync hierarchy
-        framework.context.root.syncHierarchy();
+        app.context.root.syncHierarchy();
 
         // render
         editor.call('viewport:render');
@@ -52,11 +52,11 @@ editor.once('load', function() {
         // add components
         var components = obj.json().components;
         for(var key in components) {
-            if (framework.context.systems[key]) {
+            if (app.context.systems[key]) {
                 if (key === 'script')
                     continue;
 
-                framework.context.systems[key].addComponent(entity, components[key]);
+                app.context.systems[key].addComponent(entity, components[key]);
             } else if (! unknowns[key]) {
                 unknowns[key] = true;
                 console.log('unknown component "' + key + '", in entity ' + obj.get('resource_id'));
@@ -74,7 +74,7 @@ editor.once('load', function() {
         // parenting
         if (! obj.get('parent')) {
             // root
-            framework.context.root.addChild(entity);
+            app.context.root.addChild(entity);
         } else {
             // child
             var parent = childIndex[obj.get('resource_id')];

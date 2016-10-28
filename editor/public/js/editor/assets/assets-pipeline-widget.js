@@ -41,9 +41,9 @@ editor.once('load', function() {
     });
     btnSettings.class.add('settings');
     btnSettings.on('click', function () {
-        editor.call('selector:set', 'designerSettings', [ editor.call('designerSettings') ]);
+        editor.call('selector:set', 'editorSettings', [ editor.call('editorSettings') ]);
         setTimeout(function() {
-            editor.call('designerSettings:panel:unfold', 'pipeline');
+            editor.call('editorSettings:panel:unfold', 'pipeline');
         }, 0);
     });
     panel.append(btnSettings);

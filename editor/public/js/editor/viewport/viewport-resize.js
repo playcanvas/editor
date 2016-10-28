@@ -3,16 +3,16 @@ editor.once('load', function() {
 
     var container = editor.call('layout.viewport');
     var canvas = editor.call('viewport:canvas');
-    var framework = editor.call('viewport:framework');
+    var app = editor.call('viewport:app');
 
     if (! canvas)
         return;
 
 
     // once canvas resized
-    // notify framework
+    // notify app
     canvas.on('resize', function(width, height) {
-        framework.resize(width, height);
+        app.resize(width, height);
         editor.call('viewport:render');
         editor.emit('viewport:resize', width, height);
     });

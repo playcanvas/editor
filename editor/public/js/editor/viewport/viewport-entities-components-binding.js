@@ -14,7 +14,7 @@ editor.once('load', function() {
     };
 
     editor.on('entities:add', function (obj) {
-        var framework;
+        var app;
 
         // subscribe to changes
         obj.on('*:set', function(path, value) {
@@ -36,8 +36,8 @@ editor.once('load', function() {
                 if (!property) {
                     // add component
                     var data = runtimeComponentData(component, value);
-                    framework = editor.call('viewport:framework');
-                    framework.context.systems[component].addComponent(entity, data);
+                    app = editor.call('viewport:app');
+                    app.context.systems[component].addComponent(entity, data);
 
                     // render
                     editor.call('viewport:render');
@@ -101,8 +101,8 @@ editor.once('load', function() {
                 entity[component][property] = editor.call('components:convertValue', component, property, value);
             } else if (entity[component]) {
                 // remove component
-                var framework = editor.call('viewport:framework');
-                framework.context.systems[component].removeComponent(entity);
+                var app = editor.call('viewport:app');
+                app.context.systems[component].removeComponent(entity);
             }
 
             // render

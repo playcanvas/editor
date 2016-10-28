@@ -2,7 +2,7 @@ editor.once('viewport:load', function() {
     'use strict';
 
     var depthTarget;
-    var app = editor.call('viewport:framework');
+    var app = editor.call('viewport:app');
     var scene = app.scene;
     var renderer = app.renderer;
     var device = renderer.device;

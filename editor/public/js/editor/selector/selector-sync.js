@@ -21,8 +21,8 @@ editor.once('load', function() {
                     ids.push(id);
                 }
             }
-        } else if (type === 'designerSettings') {
-            // designer settings always single
+        } else if (type === 'editorSettings') {
+            // editor settings always single
         } else {
             selectionType = null;
         }

@@ -11,7 +11,7 @@ editor.once('load', function() {
     var cacheShaderCompileEvents = [ ];
     var cacheLightmapper = null;
     var cacheLightmapperEvent = null;
-    var viewport = editor.call('viewport');
+    var app = editor.call('viewport:app');
 
     // canvas
     var canvas = document.createElement('canvas');
@@ -76,7 +76,7 @@ editor.once('load', function() {
     editor.method('tools:timeline:add', addEvent);
 
     // subscribe to app reload start
-    viewport.once('preload:start', function() {
+    app.once('preload:start', function() {
         if (! enabled) return;
 
         addEvent({
@@ -86,7 +86,7 @@ editor.once('load', function() {
     });
 
     // subscribe to app start
-    viewport.once('start', function() {
+    app.once('start', function() {
         if (! enabled) return;
 
         addEvent({
@@ -98,13 +98,13 @@ editor.once('load', function() {
 
 
     // render frames
-    // viewport.on('frameEnd', function() {
-    //     var e = addEvent(viewport.stats.frame.renderStart - editor.call('tools:time:beginning'), null, 'render');
-    //     e.t2 = (viewport.stats.frame.renderStart - editor.call('tools:time:beginning')) + viewport.stats.frame.renderTime;
+    // app.on('frameEnd', function() {
+    //     var e = addEvent(app.stats.frame.renderStart - editor.call('tools:time:beginning'), null, 'render');
+    //     e.t2 = (app.stats.frame.renderStart - editor.call('tools:time:beginning')) + app.stats.frame.renderTime;
     // });
 
     // subscribe to asset loading start
-    viewport.assets.on('load:start', function(asset) {
+    app.assets.on('load:start', function(asset) {
         if (! enabled) return;
 
         cacheAssetLoading[asset.id] = addEvent({
@@ -115,7 +115,7 @@ editor.once('load', function() {
     });
 
     // subscribe to asset loading end
-    viewport.assets.on('load', function(asset) {
+    app.assets.on('load', function(asset) {
         if (! enabled || ! cacheAssetLoading[asset.id])
             return;
 
@@ -192,14 +192,14 @@ editor.once('load', function() {
     };
 
     // subscribe to shader compile and linking
-    viewport.graphicsDevice.on('shader:compile:start', onShaderStart);
-    viewport.graphicsDevice.on('shader:link:start', onShaderStart);
-    viewport.graphicsDevice.on('shader:compile:end', onShaderEnd);
-    viewport.graphicsDevice.on('shader:link:end', onShaderEnd);
+    app.graphicsDevice.on('shader:compile:start', onShaderStart);
+    app.graphicsDevice.on('shader:link:start', onShaderStart);
+    app.graphicsDevice.on('shader:compile:end', onShaderEnd);
+    app.graphicsDevice.on('shader:link:end', onShaderEnd);
 
     // subscribe to lightmapper baking
-    viewport.graphicsDevice.on('lightmapper:start', onLightmapperStart);
-    viewport.graphicsDevice.on('lightmapper:end', onLightmapperEnd);
+    app.graphicsDevice.on('lightmapper:start', onLightmapperStart);
+    app.graphicsDevice.on('lightmapper:end', onLightmapperEnd);
 
     // add performance.timing events if available
     if (performance.timing) {

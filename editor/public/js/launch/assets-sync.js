@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var framework = editor.call('viewport');
+    var app = editor.call('viewport:app');
     var settings = editor.call('project:settings');
     var docs = { };
 
@@ -63,7 +63,7 @@ editor.once('load', function() {
                 _asset.tags.add(assetData['tags']);
 
                 if (asset.get('type') !== 'script')
-                    framework.assets.add(_asset);
+                    app.assets.add(_asset);
             } else {
                 for (var key in assetData)
                     asset.set(key, assetData[key]);
@@ -92,7 +92,7 @@ editor.once('load', function() {
                 if (! scripts[order[i]])
                     continue;
 
-                framework.assets.add(scripts[order[i]].asset);
+                app.assets.add(scripts[order[i]].asset);
             }
         };
 

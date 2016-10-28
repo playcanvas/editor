@@ -93,7 +93,7 @@ editor.once('load', function() {
 
     var launchApp = function () {
         var url = (window.location.origin + window.location.pathname).replace(/^https/, 'http') + '/launch';
-        var settings = editor.call('designerSettings');
+        var settings = editor.call('editorSettings');
 
         var query = [ ];
 

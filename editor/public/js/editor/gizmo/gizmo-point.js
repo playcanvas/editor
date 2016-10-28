@@ -1,7 +1,7 @@
 editor.once('viewport:load', function() {
     'use strict';
 
-    var app = editor.call('viewport:framework');
+    var app = editor.call('viewport:app');
     var pool = [ ];
     var points = [ ];
     var gizmoSize = 0.1;

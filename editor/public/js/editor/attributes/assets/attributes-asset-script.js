@@ -35,9 +35,9 @@ editor.once('load', function() {
             panelOrder.innerElement.removeChild(fieldOrder.element);
             panelOrder.append(btnOrder);
             btnOrder.on('click', function() {
-                editor.call('selector:set', 'designerSettings', [ editor.call('designerSettings') ]);
+                editor.call('selector:set', 'editorSettings', [ editor.call('editorSettings') ]);
                 setTimeout(function() {
-                    editor.call('designerSettings:panel:unfold', 'scripts-order');
+                    editor.call('editorSettings:panel:unfold', 'scripts-order');
                 }, 0);
             });
             // reparent

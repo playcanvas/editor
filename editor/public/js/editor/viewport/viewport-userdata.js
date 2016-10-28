@@ -1,8 +1,6 @@
 editor.once('load', function() {
     'use strict';
 
-    var framework = editor.call('viewport:framework');
-
     editor.on('userdata:load', function (userdata) {
         if (! editor.call('permissions:read'))
             return;

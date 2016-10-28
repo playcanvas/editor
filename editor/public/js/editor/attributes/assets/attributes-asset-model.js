@@ -470,7 +470,7 @@ editor.once('load', function() {
             var nodeItems = [ ];
 
             var addField = function(ind) {
-                var engineAsset = editor.call('viewport:framework').assets.get(assets[0].get('id'));
+                var engineAsset = editor.call('viewport:app').assets.get(assets[0].get('id'));
                 var valueBefore = null;
 
                 nodeItems[ind] = editor.call('attributes:addField', {

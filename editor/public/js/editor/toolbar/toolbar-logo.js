@@ -521,10 +521,10 @@ editor.once('load', function() {
             title: 'Settings',
             icon: '&#57652;',
             filter: function() {
-                return editor.call('permissions:write') && editor.call('selector:type') !== 'designerSettings' && ! editor.call('viewport:expand:state');
+                return editor.call('permissions:write') && editor.call('selector:type') !== 'editorSettings' && ! editor.call('viewport:expand:state');
             },
             select: function() {
-                editor.call('selector:set', 'designerSettings', [ editor.call('designerSettings') ]);
+                editor.call('selector:set', 'editorSettings', [ editor.call('editorSettings') ]);
             }
         },
         'priorityScripts': null,
@@ -582,9 +582,9 @@ editor.once('load', function() {
                 return editor.call('permissions:write');
             },
             select: function() {
-                editor.call('selector:set', 'designerSettings', [ editor.call('designerSettings') ]);
+                editor.call('selector:set', 'editorSettings', [ editor.call('editorSettings') ]);
                 setTimeout(function() {
-                    editor.call('designerSettings:panel:unfold', 'scripts-order');
+                    editor.call('editorSettings:panel:unfold', 'scripts-order');
                 }, 0);
             }
         };

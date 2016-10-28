@@ -19,7 +19,7 @@ editor.once('load', function() {
         'pipeline': true
     };
 
-    editor.on('attributes:inspect[designerSettings]', function() {
+    editor.on('attributes:inspect[editorSettings]', function() {
         var panel = editor.call('attributes:addPanel', {
             name: 'Asset Tasks'
         });
