@@ -1,4 +1,4 @@
-app.on('load', function() {
+editor.on('load', function() {
     'use strict';
 
     if (typeof(Messenger) === 'undefined')

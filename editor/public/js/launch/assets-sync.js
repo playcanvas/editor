@@ -1,12 +1,12 @@
-app.once('load', function() {
+editor.once('load', function() {
     'use strict';
 
-    var framework = app.call('viewport');
-    var settings = app.call('project:settings');
+    var framework = editor.call('viewport');
+    var settings = editor.call('project:settings');
     var docs = { };
 
-    app.method('loadAsset', function (id, callback) {
-        var connection = app.call('realtime:connection');
+    editor.method('loadAsset', function (id, callback) {
+        var connection = editor.call('realtime:connection');
 
         var doc = connection.get('assets', '' + id);
 
@@ -19,7 +19,7 @@ app.once('load', function() {
                 return;
             }
 
-            app.emit('realtime:assets:error', err);
+            editor.emit('realtime:assets:error', err);
         });
 
         // ready to sync
@@ -29,7 +29,7 @@ app.once('load', function() {
                 if (local) return;
 
                 for (var i = 0; i < ops.length; i++) {
-                    app.emit('realtime:op:assets', ops[i], id);
+                    editor.emit('realtime:op:assets', ops[i], id);
                 }
             });
 
@@ -53,7 +53,7 @@ app.once('load', function() {
 
             if (!assetExists) {
                 asset = new Observer(assetData);
-                app.call('assets:add', asset);
+                editor.call('assets:add', asset);
 
                 var _asset = asset.asset = new pc.Asset(assetData.name, assetData.type, assetData.file, assetData.data);
                 _asset.id = parseInt(assetData.id);
@@ -78,7 +78,7 @@ app.once('load', function() {
     });
 
     var onLoad = function(data) {
-        app.call('assets:progress', .5);
+        editor.call('assets:progress', .5);
 
         var count = 0;
         var scripts = { };
@@ -97,9 +97,9 @@ app.once('load', function() {
         };
 
         var load = function (id) {
-            app.call('loadAsset', id, function (asset) {
+            editor.call('loadAsset', id, function (asset) {
                 count++;
-                app.call('assets:progress', (count / data.length) * .5 + .5);
+                editor.call('assets:progress', (count / data.length) * .5 + .5);
 
                 if (! legacyScripts && asset.get('type') === 'script')
                     scripts[asset.get('id')] = asset;
@@ -108,8 +108,8 @@ app.once('load', function() {
                     if (! legacyScripts)
                         loadScripts();
 
-                    app.call('assets:progress', 1);
-                    app.emit('assets:load');
+                    editor.call('assets:progress', 1);
+                    editor.emit('assets:load');
                 }
             });
         };
@@ -119,13 +119,13 @@ app.once('load', function() {
                 load(data[i].id);
             }
         } else {
-            app.call('assets:progress', 1);
-            app.emit('assets:load');
+            editor.call('assets:progress', 1);
+            editor.emit('assets:load');
         }
     };
 
     // load all assets
-    app.on('realtime:authenticated', function() {
+    editor.on('realtime:authenticated', function() {
         Ajax({
             url: '{{url.api}}/projects/{{project.id}}/assets?view=launcher',
             auth: true
@@ -134,16 +134,16 @@ app.once('load', function() {
             onLoad(data);
         })
         .on('progress', function(progress) {
-            app.call('assets:progress', .1 + progress * .4);
+            editor.call('assets:progress', .1 + progress * .4);
         })
         .on('error', function(status, evt) {
             console.log(status, evt);
         });
     });
 
-    app.call('assets:progress', .1);
+    editor.call('assets:progress', .1);
 
-    app.on('assets:remove', function (asset) {
+    editor.on('assets:remove', function (asset) {
         var id = asset.get('id');
         if (docs[id]) {
             docs[id].destroy();
@@ -154,7 +154,7 @@ app.once('load', function() {
     var getFileUrl = function (folders, id, revision, filename) {
         var path = '';
         for(var i = 0; i < folders.length; i++) {
-            var folder = app.call('assets:get', folders[i]);
+            var folder = editor.call('assets:get', folders[i]);
             if (folder) {
                 path += encodeURIComponent(folder.get('name')) + '/';
             } else {
@@ -165,7 +165,7 @@ app.once('load', function() {
     };
 
     // hook sync to new assets
-    app.on('assets:add', function(asset) {
+    editor.on('assets:add', function(asset) {
         if (asset.sync)
             return;
 
@@ -195,8 +195,8 @@ app.once('load', function() {
     });
 
     // server > client
-    app.on('realtime:op:assets', function(op, id) {
-        var asset = app.call('assets:get', id);
+    editor.on('realtime:op:assets', function(op, id) {
+        var asset = editor.call('assets:get', id);
         if (asset) {
             asset.sync.write(op);
         } else {

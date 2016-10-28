@@ -1,15 +1,15 @@
-app.once('load', function() {
+editor.once('load', function() {
     'use strict';
 
     var sceneSettings = new Observer();
 
-    app.once('scene:raw', function(data) {
+    editor.once('scene:raw', function(data) {
         sceneSettings.patch(data.settings);
 
-        app.emit("sceneSettings:load", sceneSettings);
+        editor.emit("sceneSettings:load", sceneSettings);
     });
 
-    app.method('sceneSettings', function () {
+    editor.method('sceneSettings', function () {
         return sceneSettings;
     });
 });

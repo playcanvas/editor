@@ -1,16 +1,16 @@
-app.once('load', function() {
+editor.once('load', function() {
     'use strict';
 
-    var enabled = app.call('tools:enabled');
+    var enabled = editor.call('tools:enabled');
     var viewport = editor.call('viewport');
 
-    app.on('tools:state', function(state) {
+    editor.on('tools:state', function(state) {
         enabled = state;
     });
 
     var panel = document.createElement('div');
     panel.classList.add('frame');
-    app.call('tools:root').appendChild(panel);
+    editor.call('tools:root').appendChild(panel);
 
     var addPanel = function(args) {
         var element = document.createElement('div');
@@ -55,7 +55,7 @@ app.once('load', function() {
 
         return row;
     };
-    app.method('tools:frame:field:add', function(name, title, value) {
+    editor.method('tools:frame:field:add', function(name, title, value) {
         var field = addField({
             title: title,
             value: value
@@ -63,7 +63,7 @@ app.once('load', function() {
         fieldsCustom[name] = field;
         panelGame.appendChild(field);
     });
-    app.method('tools:frame:field:value', function(name, value) {
+    editor.method('tools:frame:field:value', function(name, value) {
         if (! fieldsCustom[name])
             return;
 

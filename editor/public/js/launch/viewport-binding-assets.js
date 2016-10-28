@@ -1,7 +1,7 @@
-app.once('load', function() {
+editor.once('load', function() {
     'use strict';
 
-    var framework = app.call('viewport');
+    var framework = editor.call('viewport');
     var assetRegistry = framework.context.assets;
 
     var attachSetHandler = function (asset) {
@@ -50,12 +50,12 @@ app.once('load', function() {
     };
 
     // after all initial assets are loaded...
-    app.on('assets:load', function () {
+    editor.on('assets:load', function () {
         var assets = editor.call('assets:list');
         assets.forEach(attachSetHandler);
 
         // add assets to asset registry
-        app.on('assets:add', function (asset) {
+        editor.on('assets:add', function (asset) {
             // do only for target assets
             if (asset.get('source'))
                 return;
@@ -90,7 +90,7 @@ app.once('load', function() {
         });
 
         // remove assets from asset registry
-        app.on('assets:remove', function (asset) {
+        editor.on('assets:remove', function (asset) {
             var realtimeAsset = assetRegistry.get(asset.get('id'));
             if (realtimeAsset)
                 assetRegistry.remove(realtimeAsset);

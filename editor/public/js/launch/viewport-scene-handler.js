@@ -1,7 +1,7 @@
-app.once('load', function() {
+editor.once('load', function() {
     'use strict';
 
-    var framework = app.call('viewport');
+    var framework = editor.call('viewport');
     framework.loader.removeHandler("scene");
     framework.loader.removeHandler("hierarchy");
     framework.loader.removeHandler("scenesettings");
@@ -16,7 +16,7 @@ app.once('load', function() {
             var id = parseInt(url.replace(".json", ""));
 
             if (typeof(id) === "number") {
-                app.call('loadScene', id, function (err, scene) {
+                editor.call('loadScene', id, function (err, scene) {
                     callback(err, scene);
                 }, settingsOnly);
             } else {
@@ -44,7 +44,7 @@ app.once('load', function() {
         load: function (url, callback, settingsOnly) {
             var id = parseInt(url.replace("/api/", "").replace(".json", ""));
             if (typeof(id) === "number") {
-                app.call('loadScene', id, function (err, scene) {
+                editor.call('loadScene', id, function (err, scene) {
                     callback(err, scene);
                 }, settingsOnly);
             } else {
@@ -72,7 +72,7 @@ app.once('load', function() {
         load: function (url, callback) {
             var id = parseInt(url.replace(".json", ""));
             if (typeof(id) === "number") {
-                app.call('loadScene', id, function (err, scene) {
+                editor.call('loadScene', id, function (err, scene) {
                     callback(err, scene);
                 }, true);
             } else {

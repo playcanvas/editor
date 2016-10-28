@@ -1,4 +1,4 @@
-app.once('load', function() {
+editor.once('load', function() {
     'use strict';
 
     var auth = false;
@@ -8,7 +8,7 @@ app.once('load', function() {
     var reconnectAttempts = 0;
     var reconnectInterval = 1;
 
-    app.method('realtime:connection', function () {
+    editor.method('realtime:connection', function () {
         return connection;
     });
 

@@ -1,7 +1,7 @@
-app.once('load', function() {
+editor.once('load', function() {
     'use strict';
 
-    var framework = app.call('viewport');
+    var framework = editor.call('viewport');
 
     var initialEntitiesLoaded = false;
 
@@ -56,7 +56,7 @@ app.once('load', function() {
 
         } else {
             // get parent
-            var parent = app.call('entities:get', obj.get('parent'));
+            var parent = editor.call('entities:get', obj.get('parent'));
             if (parent) {
                 parent = framework.root.findByGuid(parent.get('resource_id'));
             }
@@ -97,8 +97,8 @@ app.once('load', function() {
         return entity;
     };
 
-    app.on('entities:add', function (obj) {
-        var sceneLoading = app.call("isLoadingScene");
+    editor.on('entities:add', function (obj) {
+        var sceneLoading = editor.call("isLoadingScene");
         if (! framework.root.findByGuid(obj.get('resource_id')) && !sceneLoading) {
             // create entity if it does not exist and all initial entities have loaded
             processEntity(obj);
@@ -126,7 +126,7 @@ app.once('load', function() {
                 entity.enabled = obj.get('enabled');
 
             } else if (path.startsWith('parent')) {
-                var parent = app.call('entities:get', obj.get('parent'));
+                var parent = editor.call('entities:get', obj.get('parent'));
                 if (parent && parent.entity)
                     entity.reparent(parent.entity);
             } else if (path === 'components.model.type' && value === 'asset') {
@@ -162,7 +162,7 @@ app.once('load', function() {
         };
 
         var reparent = function (child, index) {
-            var childEntity = app.call('entities:get', child);
+            var childEntity = editor.call('entities:get', child);
             if (!childEntity)
                 return;
 
@@ -178,7 +178,7 @@ app.once('load', function() {
         obj.on('children:move', reparent);
     });
 
-    app.on('entities:remove', function (obj) {
+    editor.on('entities:remove', function (obj) {
         var entity = framework.root.findByGuid(obj.get('resource_id'));
         if (entity) {
             entity.destroy();
@@ -186,7 +186,7 @@ app.once('load', function() {
         }
     });
 
-    app.on('entities:load', function () {
+    editor.on('entities:load', function () {
         initialEntitiesLoaded = true;
     });
 });

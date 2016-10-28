@@ -1,7 +1,7 @@
-app.once('load', function() {
+editor.once('load', function() {
     'use strict';
 
-    app.on('sceneSettings:load', function(settings) {
+    editor.on('sceneSettings:load', function(settings) {
         settings.sync = new ObserverSync({
             item: settings,
             prefix: [ 'settings' ]
@@ -9,11 +9,11 @@ app.once('load', function() {
 
         // client > server
         settings.sync.on('op', function(op) {
-            app.call('realtime:op', op);
+            editor.call('realtime:op', op);
         });
 
         // server > client
-        app.on('realtime:op:settings', function(op) {
+        editor.on('realtime:op:settings', function(op) {
             settings.sync.write(op);
         });
     });
