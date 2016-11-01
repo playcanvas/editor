@@ -50,15 +50,15 @@ editor.once('load', function() {
         var dh = device.height;
 
         // Give viewport(s) a grey border
-        device.setRenderTarget(null);
-        device.updateBegin();
-        device.setViewport(0, 0, dw, dh);
-        device.setScissor(0, 0, dw, dh);
-        device.clear({
-            color: [ 0.5, 0.5, 0.5, 1 ],
-            flags: pc.gfx.CLEARFLAG_COLOR
-        });
-        device.updateEnd();
+        // device.setRenderTarget(null);
+        // device.updateBegin();
+        // device.setViewport(0, 0, dw, dh);
+        // device.setScissor(0, 0, dw, dh);
+        // device.clear({
+        //     color: [ 0.5, 0.5, 0.5, 1 ],
+        //     flags: pc.gfx.CLEARFLAG_COLOR
+        // });
+        // device.updateEnd();
 
         // render current camera
         var cameraEntity = editor.call('camera:current');

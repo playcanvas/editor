@@ -11,7 +11,7 @@ editor.once('load', function () {
 
     // set up light
     var light = new pc.Light();
-    light.setEnabled(true);
+    light.enabled = true;
     light.setColor(1, 1, 1);
     var lightNode = new pc.GraphNode();
     lightNode.setPosition(5, 5, 5);

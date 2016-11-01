@@ -616,11 +616,14 @@ editor.once('load', function() {
 
         // preview
         if (assets.length === 1) {
-            var canvas = document.createElement('canvas');
-            var ctx = canvas.getContext('2d');
-            canvas.classList.add('asset-preview');
+            var preview = new Image();
+            preview.classList.add('asset-preview');
 
-            canvas.addEventListener('click', function() {
+            // var canvas = document.createElement('canvas');
+            // var ctx = canvas.getContext('2d');
+            // canvas.classList.add('asset-preview');
+
+            preview.addEventListener('click', function() {
                 if (root.element.classList.contains('large')) {
                     root.element.classList.remove('large');
                 } else {
@@ -629,29 +632,47 @@ editor.once('load', function() {
             }, false);
 
             root.class.add('asset-preview');
-            root.element.insertBefore(canvas, root.innerElement);
+            root.element.insertBefore(preview, root.innerElement);
+
+            var renderLast;
+            var renderTimeout;
 
             var renderPreview = function () {
+                if (renderTimeout) {
+                    renderTimeout = null;
+                    clearTimeout(renderTimeout);
+                }
+
                 // resize canvas
-                canvas.width = root.element.clientWidth;
-                canvas.height = canvas.width;
-                editor.call('preview:render:material', assets[0], canvas.width, function (sourceCanvas) {
-                    ctx.drawImage(sourceCanvas, 0, 0);
-                });
+                preview.width = root.element.clientWidth;
+                // render
+                preview.src = editor.call('preview:render', assets[0], preview.width);
+                // remember last render time
+                renderLast = Date.now();
             };
             renderPreview();
 
-            var renderTimeout;
-
-            var evtPanelResize = root.on('resize', function () {
+            // queue up the rendering to prevent too oftern renders
+            var queueRender = function() {
                 if (renderTimeout)
-                    clearTimeout(renderTimeout);
+                    return;
 
-                renderTimeout = setTimeout(renderPreview, 100);
-            });
-            var evtMaterialChanged = editor.on('preview:material:changed', function (id) {
-                if (id === assets[0].get('id'))
+                if ((Date.now() - renderLast) < (1000 / 60)) {
+                    renderTimeout = setTimeout(renderPreview, 1000 / 60);
+                } else {
                     renderPreview();
+                }
+            };
+
+            // render on resize
+            var evtPanelResize = root.on('resize', queueRender);
+
+            // render on material data change
+            var evtMaterialChanged = assets[0].on('*:set', function(path) {
+                if (! path.startsWith('data'))
+                    return;
+
+                queueRender();
             });
         }
 
@@ -728,7 +749,7 @@ editor.once('load', function() {
             panelParams.on('destroy', function() {
                 evtPanelResize.unbind();
                 evtMaterialChanged.unbind();
-                canvas.parentNode.removeChild(canvas);
+                preview.parentNode.removeChild(preview);
                 root.class.remove('asset-preview', 'animate');
             });
             root.class.add('animate');
