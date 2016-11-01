@@ -2,19 +2,6 @@ editor.once('load', function() {
     'use strict';
 
     var panelsStates = { };
-    var paidPlans = {
-        2: true,
-        3: true,
-        4: true,
-        5: true,
-        6: true,
-        7: true,
-        8: true,
-        9: true,
-        10: true,
-        11: true,
-        12: true
-    };
 
     editor.on('attributes:inspect[asset]', function(assets) {
         for(var i = 0; i < assets.length; i++) {
@@ -377,7 +364,7 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'asset:texture:compression', panelCompression, panelCompression.headerElement);
 
-        if (! config.self.superUser && ! config.self.betaTester && ! paidPlans[config.self.plan.id])
+        if (! config.self.superUser && ! config.self.betaTester && config.owner.plan.type === 'free')
             panelCompression.hidden = true;
 
         // compress alpha

@@ -1,8 +1,8 @@
-app.once('load', function() {
+editor.once('load', function() {
     'use strict';
 
-    app.on('sceneSettings:load', function (sceneSettings) {
-        var framework = app.call('viewport');
+    editor.on('sceneSettings:load', function (sceneSettings) {
+        var framework = editor.call('viewport');
         var updating;
 
         // queue settings apply

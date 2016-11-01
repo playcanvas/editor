@@ -1,21 +1,21 @@
-app.once('load', function() {
+editor.once('load', function() {
     'use strict';
 
-    var framework = app.call('viewport');
+    var framework = editor.call('viewport');
 
     // converts the data to runtime types
     var runtimeComponentData = function (component, data) {
         var result = {};
         for (var key in data) {
             if (data.hasOwnProperty(key)) {
-                result[key] = app.call('components:convertValue', component, key, data[key]);
+                result[key] = editor.call('components:convertValue', component, key, data[key]);
             }
         }
 
         return result;
     };
 
-    app.on('entities:add', function (obj) {
+    editor.on('entities:add', function (obj) {
         // subscribe to changes
         obj.on('*:set', function(path, value) {
             if (obj._silent || ! path.startsWith('components'))
@@ -36,7 +36,7 @@ app.once('load', function() {
                     framework.systems[component].addComponent(entity, data);
 
                     // render
-                    app.call('viewport:render');
+                    editor.call('viewport:render');
                 }
             } else if (property) {
                 // edit component property
@@ -64,7 +64,7 @@ app.once('load', function() {
                     }
                 } else {
                     value = obj.get('components.' + component + '.' + property);
-                    entity[component][property] = app.call('components:convertValue', component, property, value);
+                    entity[component][property] = editor.call('components:convertValue', component, property, value);
                 }
             }
         });
@@ -144,7 +144,7 @@ app.once('load', function() {
                 } else {
                     // edit component property
                     value = obj.get('components.' + component + '.' + property);
-                    entity[component][property] = app.call('components:convertValue', component, property, value);
+                    entity[component][property] = editor.call('components:convertValue', component, property, value);
                 }
             }
         };

@@ -1,8 +1,8 @@
-app.once('load', function() {
+editor.once('load', function() {
     'use strict';
 
     // variables
-    var enabled = app.call('tools:enabled');
+    var enabled = editor.call('tools:enabled');
     var counter = 0;
     var scale = .2;
     var events = [ ];
@@ -16,31 +16,31 @@ app.once('load', function() {
     // canvas
     var canvas = document.createElement('canvas');
     canvas.classList.add('timeline');
-    app.call('tools:root').appendChild(canvas);
+    editor.call('tools:root').appendChild(canvas);
 
     // context
     var ctx = canvas.getContext('2d');
 
     // resize
-    app.on('tools:resize', function(width, height) {
+    editor.on('tools:resize', function(width, height) {
         canvas.width = width - 300;
         canvas.height = 275;
-        scale = canvas.width / app.call('tools:time:capacity');
+        scale = canvas.width / editor.call('tools:time:capacity');
         ctx.font = '12px monospace';
         render();
     });
-    canvas.width = app.call('tools:size:width') - 300;
+    canvas.width = editor.call('tools:size:width') - 300;
     canvas.height = 275;
-    scale = canvas.width / app.call('tools:time:capacity');
+    scale = canvas.width / editor.call('tools:time:capacity');
 
-    app.on('tools:clear', function() {
+    editor.on('tools:clear', function() {
         events = [ ];
         cacheAssetLoading = { };
         cacheShaderCompile = [ ];
         cacheShaderCompileEvents = [ ];
     });
 
-    app.on('tools:state', function(state) {
+    editor.on('tools:state', function(state) {
         enabled = state;
     });
 
@@ -54,7 +54,7 @@ app.once('load', function() {
         'physics': '#0ff',
         'lightmap': '#f6f'
     };
-    app.method('tools:timeline:color', function(kind) {
+    editor.method('tools:timeline:color', function(kind) {
         return kindColors[kind] || '#fff';
     });
 
@@ -70,17 +70,17 @@ app.once('load', function() {
             k: args.kind || ''
         };
         events.push(e);
-        app.emit('tools:timeline:add', e);
+        editor.emit('tools:timeline:add', e);
         return e;
     };
-    app.method('tools:timeline:add', addEvent);
+    editor.method('tools:timeline:add', addEvent);
 
     // subscribe to app reload start
     viewport.once('preload:start', function() {
         if (! enabled) return;
 
         addEvent({
-            time: app.call('tools:time:now'),
+            time: editor.call('tools:time:now'),
             name: 'preload'
         });
     });
@@ -90,7 +90,7 @@ app.once('load', function() {
         if (! enabled) return;
 
         addEvent({
-            time: app.call('tools:time:now'),
+            time: editor.call('tools:time:now'),
             name: 'start'
         });
     });
@@ -99,8 +99,8 @@ app.once('load', function() {
 
     // render frames
     // viewport.on('frameEnd', function() {
-    //     var e = addEvent(viewport.stats.frame.renderStart - app.call('tools:time:beginning'), null, 'render');
-    //     e.t2 = (viewport.stats.frame.renderStart - app.call('tools:time:beginning')) + viewport.stats.frame.renderTime;
+    //     var e = addEvent(viewport.stats.frame.renderStart - editor.call('tools:time:beginning'), null, 'render');
+    //     e.t2 = (viewport.stats.frame.renderStart - editor.call('tools:time:beginning')) + viewport.stats.frame.renderTime;
     // });
 
     // subscribe to asset loading start
@@ -108,7 +108,7 @@ app.once('load', function() {
         if (! enabled) return;
 
         cacheAssetLoading[asset.id] = addEvent({
-            time: app.call('tools:time:now'),
+            time: editor.call('tools:time:now'),
             time2: -1,
             kind: 'asset'
         });
@@ -119,8 +119,8 @@ app.once('load', function() {
         if (! enabled || ! cacheAssetLoading[asset.id])
             return;
 
-        cacheAssetLoading[asset.id].t2 = app.call('tools:time:now');
-        app.emit('tools:timeline:update', cacheAssetLoading[asset.id]);
+        cacheAssetLoading[asset.id].t2 = editor.call('tools:time:now');
+        editor.emit('tools:timeline:update', cacheAssetLoading[asset.id]);
         delete cacheAssetLoading[asset.id];
     });
 
@@ -130,7 +130,7 @@ app.once('load', function() {
 
         var time = evt.timestamp;
         if (editor.call('tools:epoc'))
-            time -= app.call('tools:time:beginning');
+            time -= editor.call('tools:time:beginning');
 
         var item = addEvent({
             time: time,
@@ -151,10 +151,10 @@ app.once('load', function() {
 
         var time = evt.timestamp;
         if (editor.call('tools:epoc'))
-            time -= app.call('tools:time:beginning');
+            time -= editor.call('tools:time:beginning');
 
         cacheShaderCompileEvents[ind].t2 = time;
-        app.emit('tools:timeline:update', cacheShaderCompileEvents[ind]);
+        editor.emit('tools:timeline:update', cacheShaderCompileEvents[ind]);
         cacheShaderCompile.splice(ind, 1);
         cacheShaderCompileEvents.splice(ind, 1);
     };
@@ -164,7 +164,7 @@ app.once('load', function() {
 
         var time = evt.timestamp;
         if (editor.call('tools:epoc'))
-            time -= app.call('tools:time:beginning');
+            time -= editor.call('tools:time:beginning');
 
         var item = addEvent({
             time: time,
@@ -184,10 +184,10 @@ app.once('load', function() {
 
         var time = evt.timestamp;
         if (editor.call('tools:epoc'))
-            time -= app.call('tools:time:beginning');
+            time -= editor.call('tools:time:beginning');
 
         cacheLightmapperEvent.t2 = time;
-        app.emit('tools:timeline:update', cacheLightmapperEvent);
+        editor.emit('tools:timeline:update', cacheLightmapperEvent);
         cacheLightmapper = null;
     };
 
@@ -205,12 +205,12 @@ app.once('load', function() {
     if (performance.timing) {
         // dom interactive
         addEvent({
-            time: performance.timing.domInteractive - app.call('tools:time:beginning'),
+            time: performance.timing.domInteractive - editor.call('tools:time:beginning'),
             name: 'dom'
         });
         // document load
         addEvent({
-            time: performance.timing.loadEventEnd - app.call('tools:time:beginning'),
+            time: performance.timing.loadEventEnd - editor.call('tools:time:beginning'),
             name: 'load'
         });
     }
@@ -222,9 +222,9 @@ app.once('load', function() {
         var barHeight = 8;
         var stack = [ ];
         var scaleMs = 1000 * scale;
-        var now = app.call('tools:time:now');
-        var scrollTime = app.call('tools:scroll:time');
-        var timeHover = app.call('tools:time:hover');
+        var now = editor.call('tools:time:now');
+        var scrollTime = editor.call('tools:scroll:time');
+        var timeHover = editor.call('tools:time:hover');
         ctx.textBaseline = 'alphabetic';
 
         // grid
@@ -354,5 +354,5 @@ app.once('load', function() {
         }
     };
 
-    app.on('tools:render', render);
+    editor.on('tools:render', render);
 });

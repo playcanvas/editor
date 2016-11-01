@@ -1,4 +1,4 @@
-app.once('load', function() {
+editor.once('load', function() {
     'use strict';
 
     var syncPaths = [
@@ -13,7 +13,7 @@ app.once('load', function() {
     ];
 
 
-    app.on('entities:add', function(entity) {
+    editor.on('entities:add', function(entity) {
         if (entity.sync)
             return;
 
@@ -26,22 +26,22 @@ app.once('load', function() {
 
 
     // server > client
-    app.on('realtime:op:entities', function(op) {
+    editor.on('realtime:op:entities', function(op) {
         var entity = null;
         if (op.p[1])
-            entity = app.call('entities:get', op.p[1]);
+            entity = editor.call('entities:get', op.p[1]);
 
         if (op.p.length === 2) {
             if (op.hasOwnProperty('od')) {
                 // delete entity
                 if (entity) {
-                    app.call('entities:remove', entity);
+                    editor.call('entities:remove', entity);
                 } else {
                     console.log('delete operation entity not found', op);
                 }
             } else if (op.hasOwnProperty('oi')) {
                 // new entity
-                app.call('entities:add', new Observer(op.oi));
+                editor.call('entities:add', new Observer(op.oi));
             } else {
                 console.log('unknown operation', op);
             }

@@ -1,4 +1,4 @@
-app.once('load', function() {
+editor.once('load', function() {
     'use strict';
 
     // console

@@ -7,7 +7,7 @@ if (! performance || ! performance.now || ! performance.timing)
 
 var start = now();
 
-app.once('load', function() {
+editor.once('load', function() {
     'use strict';
 
     // times
@@ -20,11 +20,11 @@ app.once('load', function() {
         return epoc;
     });
 
-    app.method('tools:time:now', function() { return now() - timeBeginning; });
-    app.method('tools:time:beginning', function() { return timeBeginning; });
-    app.method('tools:time:hover', function() { return timeHover; });
+    editor.method('tools:time:now', function() { return now() - timeBeginning; });
+    editor.method('tools:time:beginning', function() { return timeBeginning; });
+    editor.method('tools:time:hover', function() { return timeHover; });
 
-    app.method('tools:time:toHuman', function(ms, precision) {
+    editor.method('tools:time:toHuman', function(ms, precision) {
         var s = ms / 1000;
         var m = ('00' + Math.floor(s / 60)).slice(-2);
         if (precision) {
@@ -40,7 +40,7 @@ app.once('load', function() {
     root.id = 'dev-tools';
     root.style.display = 'none';
     document.body.appendChild(root);
-    app.method('tools:root', function() {
+    editor.method('tools:root', function() {
         return root;
     });
 
@@ -69,32 +69,32 @@ app.once('load', function() {
         }
     };
 
-    app.method('tools:enabled', function() { return enabled; });
+    editor.method('tools:enabled', function() { return enabled; });
 
-    app.method('tools:enable', function() {
+    editor.method('tools:enable', function() {
         if (enabled)
             return;
 
         enabled = true;
         root.style.display = 'block';
         resize();
-        app.emit('tools:clear');
-        app.emit('tools:state', true);
+        editor.emit('tools:clear');
+        editor.emit('tools:state', true);
 
         updateInterval = setInterval(function() {
             update();
-            app.emit('tools:render');
+            editor.emit('tools:render');
         }, 1000 / 60);
     });
 
-    app.method('tools:disable', function() {
+    editor.method('tools:disable', function() {
         if (! enabled)
             return;
 
         enabled = false;
         root.style.display = 'none';
-        app.emit('tools:clear');
-        app.emit('tools:state', false);
+        editor.emit('tools:clear');
+        editor.emit('tools:state', false);
         clearInterval(updateInterval);
     });
 
@@ -119,16 +119,16 @@ app.once('load', function() {
         capacity = Math.floor((width - left - right) / scale);
         scroll.time = Math.max(0, Math.min(timeNow - capacity, Math.floor(scroll.time)));
 
-        app.emit('tools:resize', width, height);
+        editor.emit('tools:resize', width, height);
     };
     window.addEventListener('resize', resize, false);
     window.addEventListener('orientationchange', resize, false);
     setInterval(resize, 500);
     resize();
-    app.method('tools:size:width', function() { return width; });
-    app.method('tools:size:height', function() { return height; });
+    editor.method('tools:size:width', function() { return width; });
+    editor.method('tools:size:height', function() { return height; });
 
-    app.on('tools:clear', function() {
+    editor.on('tools:clear', function() {
         timeBeginning = now();
         timeNow = 0;
         timeHover = 0;
@@ -161,7 +161,7 @@ app.once('load', function() {
             }
             scroll.auto = false;
             root.classList.add('dragging');
-            app.emit('tools:scroll:start');
+            editor.emit('tools:scroll:start');
         } else if (mouse.down) {
             if (scroll.drag.bar) {
                 if (scroll.drag.barMove) {
@@ -178,7 +178,7 @@ app.once('load', function() {
                 scroll.auto = true;
 
             root.classList.remove('dragging');
-            app.emit('tools:scroll:end');
+            editor.emit('tools:scroll:end');
         }
 
         if (mouse.hover && ! mouse.down) {
@@ -257,9 +257,9 @@ app.once('load', function() {
     window.addEventListener('keydown', function(evt) {
         if (evt.keyCode === 84 && evt.altKey) {
             if (enabled) {
-                app.call('tools:disable');
+                editor.call('tools:disable');
             } else {
-                app.call('tools:enable');
+                editor.call('tools:enable');
             }
         }
     }, false);
@@ -277,7 +277,7 @@ app.once('load', function() {
     if (enabled) {
         updateInterval = setInterval(function() {
             update();
-            app.emit('tools:render');
+            editor.emit('tools:render');
         }, 1000 / 60);
     }
 });

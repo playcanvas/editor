@@ -1,4 +1,4 @@
-app.once('load', function() {
+editor.once('load', function() {
     'use strict';
 
     var validRuntimeAssets = {
@@ -19,15 +19,15 @@ app.once('load', function() {
     };
 
     // create or update
-    app.on('messenger:asset.new', create);
+    editor.on('messenger:asset.new', create);
 
     // remove
-    app.on('messenger:asset.delete', function(data) {
-        var asset = app.call('assets:get', data.asset.id);
+    editor.on('messenger:asset.delete', function(data) {
+        var asset = editor.call('assets:get', data.asset.id);
 
         if (! asset)
             return;
 
-        app.call('assets:remove', asset);
+        editor.call('assets:remove', asset);
     });
 });
