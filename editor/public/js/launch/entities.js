@@ -1,7 +1,7 @@
-app.once('load', function() {
+editor.once('load', function() {
     'use strict';
 
-    var framework = app.call('viewport');
+    var framework = editor.call('viewport');
 
     var entities = new ObserverList({
         index: 'resource_id'
@@ -9,37 +9,37 @@ app.once('load', function() {
 
     // on adding
     entities.on('add', function(obj) {
-        app.emit('entities:add', obj);
+        editor.emit('entities:add', obj);
     });
 
-    app.method('entities:add', function (obj) {
+    editor.method('entities:add', function (obj) {
         entities.add(obj);
     });
 
     // on removing
     entities.on('remove', function(obj) {
-        app.emit('entities:remove', obj);
+        editor.emit('entities:remove', obj);
     });
 
-    app.method('entities:remove', function (obj) {
+    editor.method('entities:remove', function (obj) {
         entities.remove(obj);
     });
 
     // remove all entities
-    app.method('entities:clear', function () {
+    editor.method('entities:clear', function () {
         entities.clear();
     });
 
     // Get entity by resource id
-    app.method('entities:get', function (resourceId) {
+    editor.method('entities:get', function (resourceId) {
         return entities.get(resourceId);
     });
 
-    app.once('scene:raw', function(data) {
+    editor.once('scene:raw', function(data) {
         for(var key in data.entities) {
             entities.add(new Observer(data.entities[key]));
         }
 
-        app.emit('entities:load', data);
+        editor.emit('entities:load', data);
     });
 });

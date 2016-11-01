@@ -1,4 +1,4 @@
-app.once('load', function() {
+editor.once('load', function() {
     'use strict';
 
     // Wait for assets, hierarchy and settings to load before initializing application and starting.
@@ -12,7 +12,7 @@ app.once('load', function() {
     var sceneSettings = null;
     var loadingScreen = false;
     var scriptList = [];
-    var legacyScripts = app.call('project:settings').get('use_legacy_scripts');
+    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
 
     // update progress bar
     var setProgress = function (value) {
@@ -65,7 +65,7 @@ app.once('load', function() {
                     sceneSettings = null;
                     scriptList = null;
 
-                    app.call('entities:')
+                    editor.call('entities:')
                     if (err) {
                         console.error(err);
                     }
@@ -181,7 +181,7 @@ app.once('load', function() {
     }
 
     // listen for project setting changes
-    var projectSettings = app.call('project:settings');
+    var projectSettings = editor.call('project:settings');
 
     // legacy scripts
     pc.script.legacy = projectSettings.get('use_legacy_scripts');
@@ -290,29 +290,29 @@ app.once('load', function() {
     reflow();
 
     // get application
-    app.method('viewport', function() {
+    editor.method('viewport', function() {
         return application;
     });
 
-    app.on('entities:load', function (data) {
+    editor.on('entities:load', function (data) {
         hierarchy = true;
         sceneData = data;
         init();
     });
 
-    app.on('assets:load', function () {
+    editor.on('assets:load', function () {
         assets = true;
         init();
     });
 
-    app.on('sceneSettings:load', function (data) {
+    editor.on('sceneSettings:load', function (data) {
         settings = true;
         sceneSettings = data.json();
         init();
     });
 
     if (legacyScripts) {
-        app.on('sourcefiles:load', function (scripts) {
+        editor.on('sourcefiles:load', function (scripts) {
             scriptList = scripts;
             sourcefiles = true;
             init();

@@ -1,4 +1,4 @@
-app.once('load', function() {
+editor.once('load', function() {
     'use strict';
 
     // cache
@@ -38,7 +38,7 @@ app.once('load', function() {
                     // console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
 
                     if (op.p[0]) {
-                        app.emit('realtime:op:' + op.p[0], op);
+                        editor.emit('realtime:op:' + op.p[0], op);
                     }
                 }
             });
@@ -46,7 +46,7 @@ app.once('load', function() {
             // notify of scene load
             var snapshot = scene.getSnapshot();
             if (settingsOnly !== true) {
-                app.emit('scene:raw', snapshot);
+                editor.emit('scene:raw', snapshot);
             }
             if (callback) {
                 callback(null, snapshot);
@@ -59,12 +59,12 @@ app.once('load', function() {
         scene.subscribe();
     };
 
-    app.method('loadScene', loadScene);
-    app.method('isLoadingScene', function () {
+    editor.method('loadScene', loadScene);
+    editor.method('isLoadingScene', function () {
         return isLoading;
     });
 
-    app.on('realtime:authenticated', function () {
+    editor.on('realtime:authenticated', function () {
         var startedLoading = false;
 
         // if we are reconnecting try to reload
@@ -74,14 +74,14 @@ app.once('load', function() {
             loaded[id].destroy();
             delete loaded[id];
 
-            app.call('loadScene', id);
+            editor.call('loadScene', id);
         }
 
         // if no scenes have been loaded at
         // all then we are initializing
         // for the first time so load the main scene
         if (! startedLoading) {
-            app.call('loadScene', config.scene.id);
+            editor.call('loadScene', config.scene.id);
         }
     });
 });

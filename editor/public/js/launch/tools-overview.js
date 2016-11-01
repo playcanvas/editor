@@ -1,8 +1,8 @@
-app.once('load', function() {
+editor.once('load', function() {
     'use strict';
 
     // variables
-    var enabled = app.call('tools:enabled');
+    var enabled = editor.call('tools:enabled');
     var scale = .2;
     var events = [ ];
     var eventsIndex = { };
@@ -10,29 +10,29 @@ app.once('load', function() {
     // canvas
     var canvas = document.createElement('canvas');
     canvas.classList.add('overview');
-    app.call('tools:root').appendChild(canvas);
+    editor.call('tools:root').appendChild(canvas);
 
     // context
     var ctx = canvas.getContext('2d');
 
     // resize
-    app.on('tools:resize', function(width, height) {
+    editor.on('tools:resize', function(width, height) {
         canvas.width = width - 300;
         canvas.height = 24;
-        scale = canvas.width / app.call('tools:capacity');
+        scale = canvas.width / editor.call('tools:capacity');
         ctx.font = '12px monospace';
         render();
     });
-    canvas.width = app.call('tools:size:width') - 300;
+    canvas.width = editor.call('tools:size:width') - 300;
     canvas.height = 24;
-    scale = canvas.width / app.call('tools:capacity');
+    scale = canvas.width / editor.call('tools:capacity');
 
-    app.on('tools:clear', function() {
+    editor.on('tools:clear', function() {
         events = [ ];
         eventsIndex = { };
     });
 
-    app.on('tools:timeline:add', function(item) {
+    editor.on('tools:timeline:add', function(item) {
         var found = false;
 
         // check if can extend existing event
@@ -57,7 +57,7 @@ app.once('load', function() {
         }
     });
 
-    app.on('tools:timeline:update', function(item) {
+    editor.on('tools:timeline:update', function(item) {
         if (! enabled || ! eventsIndex[item.i])
             return;
 
@@ -68,10 +68,10 @@ app.once('load', function() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         var scaleMs = 1000 * scale;
-        var now = app.call('tools:time:now');
-        var scrollTime = app.call('tools:scroll:time');
-        var capacity = app.call('tools:time:capacity');
-        var timeHover = app.call('tools:time:hover');
+        var now = editor.call('tools:time:now');
+        var scrollTime = editor.call('tools:scroll:time');
+        var capacity = editor.call('tools:time:capacity');
+        var timeHover = editor.call('tools:time:hover');
         ctx.textBaseline = 'alphabetic';
 
         var startX = scrollTime / now * canvas.width;
@@ -104,13 +104,13 @@ app.once('load', function() {
 
                 ctx.beginPath();
                 ctx.rect(x, Math.floor((canvas.height - 8) / 2), x2 - x, 8);
-                ctx.fillStyle = app.call('tools:timeline:color', e.k);
+                ctx.fillStyle = editor.call('tools:timeline:color', e.k);
                 ctx.fill();
             } else {
                 ctx.beginPath();
                 ctx.moveTo(x, 1);
                 ctx.lineTo(x, canvas.height - 1);
-                ctx.strokeStyle = app.call('tools:timeline:color', e.k);
+                ctx.strokeStyle = editor.call('tools:timeline:color', e.k);
                 ctx.stroke();
             }
         }
@@ -126,15 +126,15 @@ app.once('load', function() {
         ctx.fillText('00:00.0', 2.5, canvas.height - 2.5);
         // now time
         ctx.textAlign = 'right';
-        ctx.strokeText(app.call('tools:time:toHuman', now, 1), canvas.width - 2.5, canvas.height - 2.5);
-        ctx.fillText(app.call('tools:time:toHuman', now, 1), canvas.width - 2.5, canvas.height - 2.5);
+        ctx.strokeText(editor.call('tools:time:toHuman', now, 1), canvas.width - 2.5, canvas.height - 2.5);
+        ctx.fillText(editor.call('tools:time:toHuman', now, 1), canvas.width - 2.5, canvas.height - 2.5);
 
         var startTextWidth = 0;
         ctx.textBaseline = 'top';
 
         // view start
         if (scrollTime > 0) {
-            var text = app.call('tools:time:toHuman', scrollTime, 1);
+            var text = editor.call('tools:time:toHuman', scrollTime, 1);
             var measures = ctx.measureText(text);
             var offset = 2.5;
             if (startX + 2.5 + measures.width < endX - 2.5) {
@@ -150,7 +150,7 @@ app.once('load', function() {
 
         // view end
         if ((scrollTime + capacity) < now - 100) {
-            var text = app.call('tools:time:toHuman', Math.min(now, scrollTime + capacity), 1);
+            var text = editor.call('tools:time:toHuman', Math.min(now, scrollTime + capacity), 1);
             var measures = ctx.measureText(text);
             var offset = 2.5;
             if (endX - 2.5 - measures.width - startTextWidth > startX + 2.5) {
@@ -166,5 +166,5 @@ app.once('load', function() {
         ctx.lineWidth = 1;
     };
 
-    app.on('tools:render', render);
+    editor.on('tools:render', render);
 });

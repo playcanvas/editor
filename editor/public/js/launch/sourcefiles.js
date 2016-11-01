@@ -1,10 +1,10 @@
-app.once('load', function() {
+editor.once('load', function() {
     'use strict';
 
-    if (! app.call('project:settings').get('use_legacy_scripts'))
+    if (! editor.call('project:settings').get('use_legacy_scripts'))
         return;
 
-    var framework = app.call('viewport');
+    var framework = editor.call('viewport');
 
 
     var onLoad = function (data) {
@@ -15,7 +15,7 @@ app.once('load', function() {
             return item.filename;
         });
 
-        app.emit("sourcefiles:load", filenames);
+        editor.emit("sourcefiles:load", filenames);
     };
 
     // load scripts
@@ -28,6 +28,6 @@ app.once('load', function() {
     })
     .on('error', function(status, evt) {
         console.log(status, evt);
-        app.emit("sourcefiles:load", []);
+        editor.emit("sourcefiles:load", []);
     });
 });
