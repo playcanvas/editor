@@ -9,6 +9,10 @@ editor.once('load', function() {
     overlay.center = true;
     overlay.hidden = true;
 
+    overlay.element.addEventListener('mousewheel', function(evt) {
+        evt.stopPropagation();
+    });
+
     // header
     var header = new ui.Label();
     header.text = '<span class="icon">&#57654;</span>Controls';
@@ -31,9 +35,17 @@ editor.once('load', function() {
     imgTop.draggable = false;
     overlay.append(imgTop);
 
+    var container = new ui.Panel();
+    container.class.add('container');
+    overlay.append(container);
+
     var items = [
         {
-            buttons: [ 'Ctrl', '$+', 'N' ],
+            buttons: [ 'Ctrl', '$+', 'Enter' ],
+            title: 'Launch',
+            icons: [ '&#57649;' ]
+        }, {
+            buttons: [ 'Ctrl', '$+', 'E' ],
             title: 'New Entity',
             icons: [ '&#57632;' ]
         }, {
@@ -45,29 +57,45 @@ editor.once('load', function() {
             title: 'Paste Entity',
             icons: [ '&#58184;' ]
         }, {
+            buttons: [ 'Delete', '$/', 'Ctrl', '$+', 'Backspace' ],
+            title: 'Delete Selected',
+            icons: [ '&#57636;' ]
+        }, {
             buttons: [ 'Ctrl', '$+', 'D' ],
             title: 'Duplicate Entity',
             icons: [ '&#57638;' ]
+        }, {
+            buttons: [ 'N', '$/', 'F2' ],
+            title: 'Rename Entity / Asset',
+            icons: [ '&#57895;' ],
+        }, {
+            buttons: [ 'F' ],
+            title: 'Focus on Entity',
+            icons: [ '&#58120;' ],
         }, {
             buttons: [ 'Ctrl', '$+', 'Z' ],
             title: 'Undo',
             icons: [ '&#57620;' ]
         }, {
-            buttons: [ 'Ctrl', '$+', 'Y' ],
+            buttons: [ 'Ctrl', '$+', 'Y', '$/', 'Ctrl', '$+', 'Shift', '$+', 'Z' ],
             title: 'Redo',
             icons: [ '&#57621;' ]
         }, {
-            buttons: [ 'Ctrl', '$+', 'Enter' ],
-            title: 'Launch Game',
-            icons: [ '&#57649;' ]
+            buttons: [ 'Ctrl', '$+', 'B' ],
+            title: 'Beke / Recalculate Lights',
+            icons: [ '&#57745;' ]
         }, {
             buttons: [ 'Space' ],
-            title: 'Hide Panels',
+            title: 'Toggle All Panels',
             icons: [ '&#57639;' ]
         }, {
             buttons: [ '1', '2', '3' ],
             title: 'Translate / Rotate / Scale Gizmo',
             icons: [ '&#57618;', '&#57619;', '&#57617;' ]
+        }, {
+            buttons: [ 'L' ],
+            title: 'Toggle space: World / Local ',
+            icons: [ '&#57879;' ]
         }, {
             buttons: ['Shift', '$+', '?'],
             title: 'Controls',
@@ -89,8 +117,15 @@ editor.once('load', function() {
 
         for(var n = 0; n < items[i].buttons.length; n++) {
             var button = document.createElement('div');
-            button.classList.add(items[i].buttons[n] === '$+' ? 'divider': 'button');
-            button.textContent = items[i].buttons[n] === '$+' ? '+': items[i].buttons[n];
+            var divider = items[i].buttons[n].startsWith('$');
+            var sign = '';
+            if (divider) sign = items[i].buttons[n].slice(1);
+
+            button.classList.add(divider ? 'divider': 'button');
+            if (sign === '+') button.classList.add('plus');
+            if (sign === '/') button.classList.add('or');
+
+            button.textContent = divider ? sign : items[i].buttons[n];
             buttons.appendChild(button);
         }
 
@@ -106,7 +141,7 @@ editor.once('load', function() {
             title.appendChild(icon);
         }
 
-        overlay.append(row);
+        container.append(row);
     }
 
     root.append(overlay);

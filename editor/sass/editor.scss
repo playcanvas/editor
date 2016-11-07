@@ -4303,9 +4303,9 @@ strong {
 
     > .content {
         width: 512px;
-        height: auto;
+        height: 640px;
         left: calc(50% - 256px);
-        top: calc(50% - 335px);
+        top: calc(50% - 320px);
 
         > .header {
             display: block;
@@ -4349,46 +4349,61 @@ strong {
             padding: 0 16px;
             background-color: $bcg-darker;
         }
-        > .row {
-            height: 38px;
-            padding-right: 4px;
-            border-bottom: 1px solid $bcg-darker;
-            overflow: hidden;
+        > .container {
+            > .content {
+                height: 400px;
+                overflow-x: hidden;
+                overflow-y: auto;
 
-            &:last-child {
-                border-bottom: none;
-            }
-            > .buttons {
-                float: left;
-                width: 125px;
-                margin: 5px;
-                white-space: nowrap;
+                > .row {
+                    height: 38px;
+                    padding-right: 4px;
+                    border-bottom: 1px solid $bcg-darker;
+                    overflow: hidden;
 
-                > .button {
-                    float: left;
-                    margin: 2px;
-                    padding: 0 12px;
-                    line-height: 24px;
-                    font-size: 12px;
-                    border-radius: 2px;
-                    color: $text-primary;
-                    background-color: $bcg-darker;
-                }
-                > .divider {
-                    float: left;
-                    line-height: 28px;
-                    font-size: 12px;
-                    margin: 0 2px;
-                }
-            }
-            > .title {
-                line-height: 38px;
+                    &:last-child {
+                        border-bottom: none;
+                    }
+                    > .buttons {
+                        float: left;
+                        min-width: 128px;
+                        margin: 5px 16px 5px 5px;
+                        white-space: nowrap;
 
-                > .icon {
-                    @extend .font-icon;
-                    float: right;
-                    margin: 0 8px;
-                    font-size: 18px;
+                        > .button {
+                            float: left;
+                            margin: 2px;
+                            padding: 0 12px;
+                            line-height: 24px;
+                            font-size: 12px;
+                            border-radius: 2px;
+                            color: $text-primary;
+                            background-color: $bcg-darker;
+                        }
+                        > .divider {
+                            float: left;
+                            line-height: 28px;
+                            font-size: 12px;
+                            margin: 0 2px;
+
+                            &.plus {
+                                margin: 0 -1px;
+                            }
+                            &.or {
+                                margin: 0 4px;
+                            }
+                        }
+                    }
+                    > .title {
+                        line-height: 38px;
+
+                        > .icon {
+                            @extend .font-icon;
+                            float: right;
+                            margin: 0 8px;
+                            font-size: 18px;
+                        }
+                    }
                 }
             }
         }
