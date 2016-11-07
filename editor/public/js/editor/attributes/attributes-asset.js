@@ -234,6 +234,7 @@ editor.once('load', function() {
                     link: assets[0],
                     path: 'name'
                 });
+                fieldName.class.add('asset-name');
                 // reference
                 editor.call('attributes:reference:attach', 'asset:name', fieldName.parent.innerElement.firstChild.ui);
 

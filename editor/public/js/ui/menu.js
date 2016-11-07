@@ -7,6 +7,7 @@ function Menu(args) {
     ui.ContainerElement.call(this);
 
     this.element = document.createElement('div');
+    this.element.ui = this;
     this.element.tabIndex = 1;
     this.element.classList.add('ui-menu');
 

@@ -14,16 +14,6 @@ editor.once('load', function() {
     // clearing
     editor.method('attributes:clear', clearPanel);
 
-    // get current inspected items
-    editor.method('attributes:items', function() {
-        var type = editor.call('selector:type');
-        var items = editor.call('selector:items');
-        return {
-            type: type,
-            items: items
-        };
-    });
-
     // set header
     editor.method('attributes:header', function(text) {
         root.header = text;
@@ -526,6 +516,7 @@ editor.once('load', function() {
                 var events = [ ];
 
                 field = new ui.TextField();
+                field.blurOnEnter = false;
                 field.renderChanges = false;
                 innerPanel.append(field);
 

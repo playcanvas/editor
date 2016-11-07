@@ -16,6 +16,7 @@ editor.once('load', function() {
     overlay.append(label);
 
     var input = new ui.TextField();
+    input.blurOnEnter = false;
     input.renderChanges = false;
     overlay.append(input);
 

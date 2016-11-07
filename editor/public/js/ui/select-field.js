@@ -19,6 +19,7 @@ function SelectField(args) {
     }
 
     this.element = document.createElement('div');
+    this.element.ui = this;
     this.element.tabIndex = 0;
     this.element.classList.add('ui-select-field', 'noSelect');
 

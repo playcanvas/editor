@@ -8,6 +8,7 @@ function TextField(args) {
     this.element.classList.add('ui-text-field');
 
     this.elementInput = document.createElement('input');
+    this.elementInput.ui = this;
     this.elementInput.classList.add('field');
     this.elementInput.type = 'text';
     this.elementInput.tabIndex = 0;
@@ -22,6 +23,9 @@ function TextField(args) {
     this.elementInput.addEventListener('keydown', this._onKeyDown.bind(this), false);
     this.evtKeyChange = false;
     this.ignoreChange = false;
+
+    this.blurOnEnter = true;
+    this.refocusable = true;
 
     this.on('disable', function() {
         this.elementInput.disabled = true;
@@ -51,7 +55,7 @@ TextField.prototype._onLinkChange = function(value) {
 
 TextField.prototype._onChange = function() {
     if (this.ignoreChange) return;
-        
+
     this.value = this.elementInput.value || '';
 
     if (! this._link)
@@ -60,8 +64,31 @@ TextField.prototype._onChange = function() {
 
 
 TextField.prototype._onKeyDown = function(evt) {
-    if (evt.keyCode === 27)
+    if (evt.keyCode === 27) {
         this.elementInput.blur();
+    } else if (this.blurOnEnter && evt.keyCode === 13) {
+        var focused = false;
+
+        var parent = this.parent;
+        while(parent) {
+            if (parent.focus) {
+                parent.focus();
+                focused = true;
+                break;
+            }
+
+            parent = parent.parent;
+        }
+
+        if (! focused)
+            this.elementInput.blur();
+    }
+};
+
+
+TextField.prototype.focus = function(select) {
+    this.elementInput.focus();
+    if (select) this.elementInput.select();
 };
 
 

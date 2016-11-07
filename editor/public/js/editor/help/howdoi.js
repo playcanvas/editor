@@ -85,6 +85,7 @@ editor.once('load', function () {
 
     // input field
     var input = new ui.TextField();
+    input.blurOnEnter = false;
     input.renderChanges = false;
     input.keyChange = true;
     input.elementInput.placeholder = 'How do I...?';

@@ -11,6 +11,7 @@ function GridItem(args) {
     this._clicked = false;
 
     this.element = document.createElement('li');
+    this.element.ui = this;
     this.element.tabIndex = 0;
     this.element.classList.add('ui-grid-item');
     this.element.innerHTML = this._text;

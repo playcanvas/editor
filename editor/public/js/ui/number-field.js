@@ -14,6 +14,7 @@ function NumberField(args) {
     this.element.classList.add('ui-number-field');
 
     this.elementInput = document.createElement('input');
+    this.elementInput.ui = this;
     this.elementInput.tabIndex = 0;
     this.elementInput.classList.add('field');
     this.elementInput.type = 'text';
@@ -28,6 +29,9 @@ function NumberField(args) {
     this.elementInput.addEventListener('change', this._onChange.bind(this), false);
     // this.element.addEventListener('mousedown', this._onMouseDown.bind(this), false);
     // this.element.addEventListener('mousewheel', this._onMouseDown.bind(this), false);
+
+    this.blurOnEnter = true;
+    this.refocusable = true;
 
     this._lastValue = this.value;
     this._mouseMove = null;
@@ -66,6 +70,11 @@ NumberField.prototype._onChange = function() {
     this.value = value;
 };
 
+NumberField.prototype.focus = function(select) {
+    this.elementInput.focus();
+    if (select) this.elementInput.select();
+};
+
 NumberField.prototype._onInputFocus = function() {
     this.class.add('focus');
 };
@@ -77,6 +86,26 @@ NumberField.prototype._onInputBlur = function() {
 NumberField.prototype._onKeyDown = function(evt) {
     if (evt.keyCode === 27)
         return this.elementInput.blur();
+
+    if (this.blurOnEnter && evt.keyCode === 13) {
+        var focused = false;
+
+        var parent = this.parent;
+        while(parent) {
+            if (parent.focus) {
+                parent.focus();
+                focused = true;
+                break;
+            }
+
+            parent = parent.parent;
+        }
+
+        if (! focused)
+            this.elementInput.blur();
+
+        return;
+    }
 
     if (this.disabled || [ 38, 40 ].indexOf(evt.keyCode) === -1)
         return;

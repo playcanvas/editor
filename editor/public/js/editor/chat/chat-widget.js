@@ -256,6 +256,7 @@ editor.once('load', function() {
     var typingTimeout = null;
     var typingTimeoutDelay = 1000;
     var input = new ui.TextField();
+    input.blurOnEnter = false;
     input.keyChange = true;
     input.renderChanges = false;
     input.placeholder = '>';

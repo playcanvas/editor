@@ -9,6 +9,7 @@ function Checkbox(args) {
     this.element = document.createElement('div');
     this.element.classList.add('ui-checkbox', 'noSelect');
     this.element.tabIndex = 0;
+    this.element.ui = this;
 
     var self = this;
     this.element.addEventListener('keydown', function(evt) {

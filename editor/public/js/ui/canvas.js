@@ -7,6 +7,8 @@ function Canvas(args) {
     this.element = document.createElement('canvas');
     this.class.add('ui-canvas');
 
+    this.element.ui = this;
+
     if (args.id !== undefined)
         this.element.id = args.id;
 

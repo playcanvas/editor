@@ -20,6 +20,7 @@ function Slider(args) {
     this.element.appendChild(this.elementBar);
 
     this.elementHandle = document.createElement('div');
+    this.elementHandle.ui = this;
     this.elementHandle.tabIndex = 0;
     this.elementHandle.classList.add('handle');
     this.elementBar.appendChild(this.elementHandle);
