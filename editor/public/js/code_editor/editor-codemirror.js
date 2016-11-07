@@ -127,89 +127,95 @@ editor.once('load', function () {
 
             };
 
+            var server;
+
             // set up tern
-            var server = new CodeMirror.TernServer({
-                // add definition JSON's
-                defs: [
-                    editor.call('tern-ecma5'),
-                    editor.call('tern-browser'),
-                    editor.call('tern-pc')
-                ],
-                fileFilter: patchScriptBeforeTern,
+            try {
+                var server = new CodeMirror.TernServer({
+                    // add definition JSON's
+                    defs: [
+                        editor.call('tern-ecma5'),
+                        editor.call('tern-browser'),
+                        editor.call('tern-pc')
+                    ],
+                    fileFilter: patchScriptBeforeTern,
 
-                // called when we are about to show the docs for a method
-                completionTip: function (data) {
-                    if (data.doc) {
-                        var div = document.createElement('div');
-                        div.innerHTML = data.doc;
-                        return div;
-                    } else {
-                        return null;
-                    }
-                },
+                    // called when we are about to show the docs for a method
+                    completionTip: function (data) {
+                        if (data.doc) {
+                            var div = document.createElement('div');
+                            div.innerHTML = data.doc;
+                            return div;
+                        } else {
+                            return null;
+                        }
+                    },
 
-                // called when we are about to show the definition of a type
-                typeTip: function (data) {
-                    var tip = document.createElement('span');
-                    var type = data.type;
-                    if (data.url) {
-                        var parts = data.url.split('/');
-                        type = parts[parts.length-1].replace('.html', '');
-                    }
-                    tip.innerHTML = '<span><strong>' + type + '</strong>&nbsp;';
-                    if (data.url) {
-                        tip.innerHTML += '<a class="link-docs" href="' + data.url + '" target="_blank">View docs</a>';
-                    }
+                    // called when we are about to show the definition of a type
+                    typeTip: function (data) {
+                        var tip = document.createElement('span');
+                        var type = data.type;
+                        if (data.url) {
+                            var parts = data.url.split('/');
+                            type = parts[parts.length-1].replace('.html', '');
+                        }
+                        tip.innerHTML = '<span><strong>' + type + '</strong>&nbsp;';
+                        if (data.url) {
+                            tip.innerHTML += '<a class="link-docs" href="' + data.url + '" target="_blank">View docs</a>';
+                        }
 
-                    tip.innerHTML += '</span><br/><p>' + (data.doc || 'Empty description') + '</p>';
-                    return tip;
+                        tip.innerHTML += '</span><br/><p>' + (data.doc || 'Empty description') + '</p>';
+                        return tip;
+                    }
+                });
+
+                // update hints on cursor activity
+                codeMirror.on("cursorActivity", function(cm) {
+                    server.updateArgHints(cm);
+                });
+
+                // autocomplete
+                var completeTimeout = null;
+                var doComplete = function () {
+                    server.complete(codeMirror);
+                };
+
+                var wordChar = /\w/;
+                var shouldComplete = function (e) {
+                    // auto complete on '.' or word chars
+                    return !e.ctrlKey && !e.altKey && !e.metaKey && (e.keyCode === 190 || (e.key.length === 1 && wordChar.test(e.key)));
                 }
-            });
 
+                // auto complete on keydown after a bit
+                // so that we have the chance to cancel autocompletion
+                // if a non-word character was inserted (e.g. a semicolon).
+                // Otherwise we might quickly type semicolon and get completions
+                // afterwards (because it's async) and that's not what we want.
+                codeMirror.on("keydown", function (cm, e) {
+                    var complete = shouldComplete(e);
+                    if (! complete && completeTimeout) {
+                        clearTimeout(completeTimeout);
+                        completeTimeout = null;
+                    } else if (complete) {
+                        completeTimeout = setTimeout(doComplete, 150);
+                    }
+                });
 
-            // update hints on cursor activity
-            codeMirror.on("cursorActivity", function(cm) {
-                server.updateArgHints(cm);
-            });
+                extraKeys = extraKeys || {};
 
-            // autocomplete
-            var completeTimeout = null;
-            var doComplete = function () {
-                server.complete(codeMirror);
-            };
-
-            var wordChar = /\w/;
-            var shouldComplete = function (e) {
-                // auto complete on '.' or word chars
-                return !e.ctrlKey && !e.altKey && !e.metaKey && (e.keyCode === 190 || (e.key.length === 1 && wordChar.test(e.key)));
+                extraKeys['Ctrl-Space'] = function (cm) {server.complete(cm);};
+                extraKeys['Ctrl-I'] = function (cm) {server.showType(cm);};
+                extraKeys['Cmd-I'] = function (cm) {server.showType(cm);};
+                extraKeys['Ctrl-O'] = function (cm) {server.showDocs(cm);};
+                extraKeys['Cmd-O'] = function (cm) {server.showDocs(cm);};
+                extraKeys['Alt-.'] = function (cm) {server.jumpToDef(cm);};
+                extraKeys['Alt-,'] = function (cm) {server.jumpBack(cm);};
+                extraKeys['Ctrl-Q'] = function (cm) {server.rename(cm);};
+                extraKeys['Ctrl-.'] = function (cm) {server.selectName(cm);};
+            } catch (ex) {
+                console.error('Could not initialize auto complete');
+                console.error(ex);
             }
-
-            // auto complete on keydown after a bit
-            // so that we have the chance to cancel autocompletion
-            // if a non-word character was inserted (e.g. a semicolon).
-            // Otherwise we might quickly type semicolon and get completions
-            // afterwards (because it's async) and that's not what we want.
-            codeMirror.on("keydown", function (cm, e) {
-                var complete = shouldComplete(e);
-                if (! complete && completeTimeout) {
-                    clearTimeout(completeTimeout);
-                    completeTimeout = null;
-                } else if (complete) {
-                    completeTimeout = setTimeout(doComplete, 150);
-                }
-            });
-
-            extraKeys = extraKeys || {};
-
-            extraKeys['Ctrl-Space'] = function (cm) {server.complete(cm);};
-            extraKeys['Ctrl-I'] = function (cm) {server.showType(cm);};
-            extraKeys['Cmd-I'] = function (cm) {server.showType(cm);};
-            extraKeys['Ctrl-O'] = function (cm) {server.showDocs(cm);};
-            extraKeys['Cmd-O'] = function (cm) {server.showDocs(cm);};
-            extraKeys['Alt-.'] = function (cm) {server.jumpToDef(cm);};
-            extraKeys['Alt-,'] = function (cm) {server.jumpBack(cm);};
-            extraKeys['Ctrl-Q'] = function (cm) {server.rename(cm);};
-            extraKeys['Ctrl-.'] = function (cm) {server.selectName(cm);};
         }
 
         extraKeys = extraKeys || {};
