@@ -6,10 +6,15 @@ editor.once('load', function() {
 
     // controls
     var controls = new ui.Panel();
+
+    controls.hidden = ! editor.call('permissions:write');
+    editor.on('permissions:writeState', function(state) {
+        controls.hidden = ! state;
+    });
+
     controls.class.add('hierarchy-controls');
     controls.parent = panel;
     panel.headerAppend(controls);
-    // panel.element.appendChild(controls.element);
 
 
     // controls delete
@@ -106,3 +111,6 @@ editor.once('load', function() {
         }
     });
 });
+
+
+

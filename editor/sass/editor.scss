@@ -68,6 +68,9 @@ strong {
             border: none;
             overflow: hidden;
 
+            &.hidden {
+                display: none;
+            }
             &.logo {
                 background-image: url("https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/editor_logo.png");
                 background-size: 92px 46px;
