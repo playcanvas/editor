@@ -5984,6 +5984,10 @@ strong {
             display: none;
         }
 
+        .ui-panel.facebook {
+            display: none;
+        }
+
         > .description > .content > textarea,
         > .notes > .content > textarea {
             display: block;
@@ -6389,6 +6393,10 @@ strong {
         .ui-panel {
             &.info, &.options {
                 display: none;
+            }
+
+            &.facebook:not(.hidden) {
+                display: block;
             }
         }
         .ui-button.web-download, .ui-button.ios-download {
