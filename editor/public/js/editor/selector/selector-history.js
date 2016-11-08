@@ -21,6 +21,7 @@ editor.once('load', function() {
 
         editor.call('history:add', {
             name: (items.length === 0) ? 'deselect' : ('select ' + type),
+            select: true,
             undo: function() {
                 var prev = selectorHistory;
                 selectorHistory = false;
@@ -60,5 +61,4 @@ editor.once('load', function() {
 
         selectorHistory = toggle;
     });
-
 });

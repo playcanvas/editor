@@ -705,6 +705,17 @@ strong {
             }
         }
     }
+    &.previous-selection {
+        > .inner {
+            line-height: 18px;
+            padding: 8px 16px;
+            text-align: right;
+
+            > span {
+                font-weight: bold;
+            }
+        }
+    }
     &.light-mapper {
         > .inner {
             > .header {
@@ -749,10 +760,16 @@ strong {
 
 .ui-panel.attributes {
     &.foldable.horizontal {
-        &.folded > .ui-header {
-            overflow: visible;
-            text-overflow: normal;
-            max-width: auto;
+        &.folded {
+            > .ui-header {
+                overflow: visible;
+                text-overflow: normal;
+                max-width: auto;
+
+                > .inspector-controls {
+                    display: none;
+                }
+            }
         }
     }
     > .ui-header {
@@ -2698,6 +2715,57 @@ strong {
             &:focus {
                 color: #fff;
                 background-color: $bcg-darkest;
+            }
+        }
+    }
+}
+
+.ui-panel.inspector-controls {
+    float: right;
+    background-color: transparent;
+
+    > .content {
+        background-color: transparent;
+        min-width: 96px;
+        height: 32px;
+        overflow: hidden;
+
+        > .ui-button {
+            float: right;
+            margin: 0;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            border: none;
+            padding: 0;
+            color: #9ba1a3;
+            @extend .font-icon;
+            font-size: 14px;
+            text-align: center;
+            background-color: transparent;
+
+            &.active {
+                color: $text-active;
+                background-color: $bcg-darkest;
+            }
+            &.disabled {
+                opacity: 1;
+                color: mix(#9ba1a3, #364346, 30%);
+
+                &:hover,
+                &:focus {
+                    color: mix(#9ba1a3, #364346, 30%);
+                    background-color: transparent;
+                }
+            }
+            &:hover,
+            &:focus {
+                color: #fff;
+                background-color: $bcg-darkest;
+            }
+
+            &.back {
+                transform: rotate(180deg);
             }
         }
     }

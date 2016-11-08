@@ -73,6 +73,10 @@ editor.once('load', function() {
             title: 'Focus on Entity',
             icons: [ '&#58120;' ],
         }, {
+            buttons: [ 'Shift', '$+', 'Z' ],
+            title: 'Previous Selection',
+            icons: [ '&#57671;' ],
+        }, {
             buttons: [ 'Ctrl', '$+', 'Z' ],
             title: 'Undo',
             icons: [ '&#57620;' ]
