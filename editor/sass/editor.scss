@@ -283,6 +283,11 @@ strong {
             }
         }
     }
+    &.disabled {
+        > .ui-header {
+            background-color: $bcg-darker;
+        }
+    }
     > .content {
         display: flex;
         -webkit-flex: flex;
@@ -2735,7 +2740,7 @@ strong {
 
     > .content {
         background-color: transparent;
-        min-width: 96px;
+        min-width: 32px;
         height: 32px;
         overflow: hidden;
 

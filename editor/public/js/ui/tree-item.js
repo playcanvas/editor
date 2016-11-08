@@ -353,7 +353,7 @@ TreeItem.prototype._onRename = function() {
 };
 
 TreeItem.prototype._onDblClick = function(evt) {
-    if (! this.tree.allowRenaming || evt.button !== 0)
+    if (! this.tree.allowRenaming || evt.button !== 0 || this.disabled)
         return;
 
     evt.stopPropagation();
@@ -487,3 +487,6 @@ TreeItem.prototype.child = function(ind) {
 
 
 window.ui.TreeItem = TreeItem;
+
+
+
