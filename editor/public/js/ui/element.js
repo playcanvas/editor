@@ -23,6 +23,7 @@ function Element() {
             this.renderChanges = true;
     }.bind(this), 0);
 
+    this.disabledClick = false;
     this._disabled = false;
     this._disabledParent = false;
 
@@ -125,7 +126,7 @@ Object.defineProperty(Element.prototype, 'element', {
 
         var self = this;
         this._evtClick = function(evt) {
-            if (self.disabled) return;
+            if (self.disabled && ! self.disabledClick) return;
             self.emit('click', evt);
         };
         this._element.addEventListener('click', this._evtClick, false);
@@ -293,3 +294,6 @@ Element.prototype._onFlashDelay = function() {
 
 
 window.ui.Element = Element;
+
+
+

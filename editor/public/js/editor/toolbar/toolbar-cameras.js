@@ -10,6 +10,7 @@ editor.once('viewport:load', function() {
     var combo = new ui.SelectField({
         options: options
     });
+    combo.disabledClick = true;
     combo.enabled = false;
     combo.class.add('viewport-camera');
 
@@ -76,3 +77,6 @@ editor.once('viewport:load', function() {
         combo.value = entity.getGuid();
     });
 });
+
+
+

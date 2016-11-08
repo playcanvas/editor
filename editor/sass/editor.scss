@@ -1906,7 +1906,11 @@ strong {
                 padding-left: 30px;
                 height: 26px;
                 line-height: 28px;
+                @extend .font-bold;
 
+                &.hidden {
+                    display: none;
+                }
                 &:hover {
                     background-color: $bcg-darkest;
 
@@ -1914,9 +1918,6 @@ strong {
                         color: $text-active;
                     }
                 }
-
-                @extend .font-bold;
-
                 &:before {
                     position: absolute;
                     top: 0px;
@@ -2078,6 +2079,9 @@ strong {
             > .ui-panel.scripts-order {
                 border: 1px solid $bcg-darker;
 
+                &.disabled {
+                    opacity: 0.5;
+                }
                 > .content {
                     > .dragPlaceholder {
                         margin-bottom: 1px;
@@ -2093,6 +2097,20 @@ strong {
 
                         &:last-child {
                             border-bottom: none;
+                        }
+                        &.disabled {
+                            > .ui-header {
+                                &:hover {
+                                    background-color: $bcg-dark;
+
+                                    > .title {
+                                        text-decoration: none;
+                                    }
+                                }
+                                > .handle {
+                                    display: none;
+                                }
+                            }
                         }
                         > .ui-header {
                             padding-left: 0;
