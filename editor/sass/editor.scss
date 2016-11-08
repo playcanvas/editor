@@ -745,6 +745,16 @@ strong {
             }
         }
     }
+
+    &.publish-facebook {
+        > .inner {
+            max-width: 300px;
+            line-height: 1.8;
+            white-space: normal;
+            padding: 5px 15px;
+            font-size: 12px;
+        }
+    }
 }
 
 .ui-panel.attributes {
@@ -5680,6 +5690,10 @@ strong {
                                 &.publish:before {
                                     content: '\E226';
                                 }
+
+                                &.builds:before {
+                                    content: '\E160';
+                                }
                             }
                         }
                     }
@@ -5942,8 +5956,7 @@ strong {
             }
         }
 
-        > .info > .content > span > .ui-text-field,
-        > .version > .content > .ui-text-field {
+        .ui-text-field.input-field {
             margin: 0;
             height: 34px;
             line-height: 34px;
@@ -6042,13 +6055,17 @@ strong {
                 color: $text-active;
             }
 
-            &.publish {
+            &.publish, &.publish-fb {
                 padding-left: 130px;
                 width: calc(100% - 160px);
 
                 &:before {
-                    content: '\E226';
+                    content: '\E225';
                 }
+            }
+
+            &.publish-fb {
+                display: none;
             }
 
             &.web-download, &.ios-download {
@@ -6060,6 +6077,15 @@ strong {
                     content: '\E245'
                 }
             }
+        }
+
+        .ui-button.help {
+            @extend .font-icon;
+            background: transparent;
+            vertical-align: top;
+            line-height: 1;
+            display: inline;
+            border: none;
         }
 
         > .ui-panel {
@@ -6199,23 +6225,10 @@ strong {
         }
     }
 
-    &.download-mode {
-        .ui-panel.description, .ui-panel.notes, .ui-panel.version {
-            display: none;
-        }
-
-        .ui-panel.info {
-            > .content {
-                > .image {
-                    display: none;
-                }
-                > span {
-                    width: 100%;
-
-                    > .image-click {
-                        display: none;
-                    }
-                }
+    &.download-mode, &.facebook-mode {
+        .ui-panel {
+            &.description, &.version {
+                display: none;
             }
         }
 
@@ -6223,8 +6236,8 @@ strong {
             display: none;
         }
 
-        .ui-button.web-download, .ui-button.ios-download {
-            display: inline-block;
+        .ui-button.publish-fb {
+            display: block;
         }
 
         .progress {
@@ -6257,7 +6270,6 @@ strong {
                         display: block;
                         margin-top: 15px;
                         color: $text-secondary;
-                        content: '\E245';
                     }
                 }
 
@@ -6281,22 +6293,24 @@ strong {
                 vertical-align: top;
                 margin-left: 2px;
                 background-color: $bcg-darkest;
-                height: 54px;
-                padding: 10px;
-                width: calc(100% - 96px);
+                height: 64px;
+                line-height: 64px;
+                padding: 5px;
+                width: calc(100% - 86px);
+                overflow: auto;
 
                 > .progress-title {
                     color: $text-primary;
                     font-size: 14px;
-                    position: absolute;
-                    top: 25px;
+                    vertical-align: middle;
 
                     &.error {
-                        color: #fb222f;
+                        position: static;
+                        padding: 0;
                     }
                 }
 
-                > .download-ready {
+                > .ready {
                     position: absolute;
                     top: 15px;
                     right: 15px;
@@ -6313,7 +6327,6 @@ strong {
                     &:before {
                         @extend .font-icon;
                         font-size: 16px;
-                        content: '\E245';
                         vertical-align: top;
                         padding-right: 10px;
                         padding-left: 10px;
@@ -6326,9 +6339,80 @@ strong {
             }
         }
     }
+
+    &.download-mode {
+        .ui-panel.info {
+            > .content {
+                > .image {
+                    display: none;
+                }
+                > span {
+                    width: 100%;
+
+                    > .image-click {
+                        display: none;
+                    }
+                }
+            }
+        }
+
+        .ui-panel.notes {
+            display: none;
+        }
+
+        .ui-button.publish-fb {
+            display: none;
+        }
+
+        .ui-button.web-download, .ui-button.ios-download {
+            display: inline-block;
+        }
+
+        .progress.facebook {
+            display: none;
+        }
+
+        .progress {
+            > .icon.success:after {
+                content: '\E245';
+            }
+
+            > .progress-info {
+                > .ready:before {
+                    content: '\E245';
+                }
+            }
+        }
+    }
+
+    &.facebook-mode {
+        .ui-panel {
+            &.info, &.options {
+                display: none;
+            }
+        }
+        .ui-button.web-download, .ui-button.ios-download {
+            display: none;
+        }
+
+        .progress.download {
+            display: none;
+        }
+        .progress {
+            > .icon.success:after {
+                content: '\E133';
+            }
+
+            > .progress-info {
+                > .ready:before {
+                    content: '\E166';
+                }
+            }
+        }
+    }
 }
 
-.ui-panel.picker-publish {
+.ui-panel.picker-publish, .ui-panel.picker-builds {
     > .content {
         > span {
             padding-left: 10px;
@@ -6351,10 +6435,17 @@ strong {
             border-bottom: 1px solid $border-primary;
 
             > .content {
-                > .ui-button.download, .ui-button.publish {
-                    margin: 15px 0 15px 9px;
+
+                .ui-label {
+                    vertical-align: middle;
+                    padding: 15px;
+                    width: 40%;
+                }
+
+                .ui-button {
+                    margin: 15px 0 15px 15px;
                     padding: 0;
-                    width: 216px;
+                    width: 190px;
                     height: 34px;
                     line-height: 34px;
                     font-size: 12px;
@@ -6368,7 +6459,7 @@ strong {
                         color: $text-secondary;
                         vertical-align: top;
                         padding-right: 10px;
-                        padding-left: 60px;
+                        padding-left: 50px;
                     }
 
                     &:not(.disabled):hover:before {
@@ -6376,7 +6467,7 @@ strong {
                     }
                 }
 
-                > .ui-button.download {
+                .ui-button.download {
                     &:before {
                         content: '\E245';
                     }
@@ -6385,7 +6476,12 @@ strong {
                 .ui-button.publish {
                     &:before {
                         content: '\E226';
-                        padding-left: 70px;
+                    }
+                }
+
+                .ui-button.upload {
+                    &:before {
+                        content: '\E225';
                     }
                 }
             }
