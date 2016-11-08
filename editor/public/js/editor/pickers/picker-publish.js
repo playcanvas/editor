@@ -23,9 +23,11 @@ editor.once('load', function () {
         });
     };
 
-    // var panelButtons = new ui.Panel();
-    // panelButtons.class.add('buttons');
-    // panel.append(panelButtons);
+    // open publishing popup
+    editor.method('picker:publish', function () {
+        editor.call('picker:project', 'publish');
+    });
+
 
     // playcanv.as
     var panelPlaycanvas = new ui.Panel();
