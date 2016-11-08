@@ -11,6 +11,7 @@ function Button(args) {
     this.element.classList.add('ui-button');
     this.element.innerHTML = this._text;
 
+    this.element.ui = this;
     this.element.tabIndex = 0;
 
     // space > click

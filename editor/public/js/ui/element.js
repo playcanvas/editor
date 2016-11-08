@@ -150,9 +150,6 @@ Object.defineProperty(Element.prototype, 'parent', {
         return this._parent;
     },
     set: function(value) {
-        // if (! value)
-            // return;
-
         if (this._parent) {
             this._parent = null;
             this._evtParentDestroy.unbind();

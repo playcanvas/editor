@@ -210,6 +210,10 @@ editor.once('load', function() {
         title: 'Mesh Instances',
         panel: panelScene
     }, {
+        key: [ 'scene', 'drawCalls' ],
+        title: 'Draw Calls (potential)',
+        panel: panelScene
+    }, {
         key: [ 'scene', 'lights' ],
         title: 'Lights',
         panel: panelScene

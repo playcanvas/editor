@@ -64,7 +64,7 @@ editor.once('load', function() {
         } else {
             if (currentFolder === null) {
                 treeRoot.class.remove('current');
-            } else if (currentFolder === 'scripts') {
+            } else if (treeScripts && currentFolder === 'scripts') {
                 treeScripts.class.remove('current');
             }
         }
@@ -85,7 +85,7 @@ editor.once('load', function() {
             }
         } else if (currentFolder === null) {
             treeRoot.class.add('current');
-        } else if (currentFolder === 'scripts') {
+        } else if (treeScripts && currentFolder === 'scripts') {
             treeScripts.class.add('current');
             editor.call('assets:filter:type', 'all');
         }

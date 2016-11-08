@@ -24,7 +24,7 @@ editor.once('viewport:load', function() {
         up: false,
         down: false
     };
-    var keysMovement = { 87: 1, 38: 1, 65: 1, 37: 1, 83: 1, 40: 1, 68: 1, 39: 1, 81: 1, 69: 1 };
+    var keysMovement = { 87: 1, 38: 1, 65: 1, 37: 1, 83: 1, 40: 1, 68: 1, 39: 1, 81: 1, 69: 1, 34: 1, 33: 1 };
 
 
     editor.method('camera:fly:state', function() {
@@ -91,9 +91,9 @@ editor.once('viewport:load', function() {
             keys.back = true;
         } else if (evt.keyCode === 68 || evt.keyCode === 39) {
             keys.right = true;
-        } else if (evt.keyCode === 69) {
+        } else if (evt.keyCode === 69 || evt.keyCode === 33) {
             keys.up = true;
-        } else if (evt.keyCode === 81) {
+        } else if (evt.keyCode === 81 || evt.keyCode === 34) {
             keys.down = true;
         }
 
@@ -125,9 +125,9 @@ editor.once('viewport:load', function() {
             keys.back = false;
         } else if (evt.keyCode === 68 || evt.keyCode === 39) {
             keys.right = false;
-        } else if (evt.keyCode === 69) {
+        } else if (evt.keyCode === 69 || evt.keyCode === 33) {
             keys.up = false;
-        } else if (evt.keyCode === 81) {
+        } else if (evt.keyCode === 81 || evt.keyCode === 34) {
             keys.down = false;
         }
 

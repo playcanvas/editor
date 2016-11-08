@@ -62,6 +62,24 @@ editor.once('load', function () {
         });
     });
 
+    // Publish on facebook
+    editor.method('apps:publishFb', function (data, callback, error) {
+        Ajax({
+            url: '{{url.api}}/apps/facebook',
+            auth: true,
+            method: 'POST',
+            data: data
+        })
+        .on('load', function (status, result) {
+            if (callback)
+                callback(result);
+        })
+        .on('error', function () {
+            if (error)
+                error.apply(this, arguments);
+        });
+    });
+
     // Delete a app
     editor.method('apps:delete', function (appId, callback) {
         Ajax({

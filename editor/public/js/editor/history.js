@@ -34,11 +34,11 @@ editor.once('load', function() {
 
 
     // current
-    editor.method('history:current', function(action) {
+    editor.method('history:current', function() {
         if (current === -1)
             return null;
 
-        return actions[current];
+        return current;
     });
 
 
@@ -116,8 +116,8 @@ editor.once('load', function() {
     });
 
     // list history
-    editor.method('history:list', function () {
-        return actions.slice();
+    editor.method('history:list', function() {
+        return actions;
     });
 
     // hotkey undo

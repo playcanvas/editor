@@ -132,6 +132,7 @@ editor.once('load', function() {
 
 
         var inputAddScript = new ui.TextField();
+        inputAddScript.blurOnEnter = false;
         inputAddScript.renderChanges = false;
         inputAddScript.keyChange = true;
         inputAddScript.class.add('add-script');

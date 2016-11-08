@@ -8,6 +8,7 @@ function CurveField(args) {
 
     this.element = document.createElement('div');
     this.element.classList.add('ui-curve-field');
+    this.element.ui = this;
     this.element.tabIndex = 0;
     this.element.addEventListener('keydown', this._onKeyDown.bind(this), false);
 

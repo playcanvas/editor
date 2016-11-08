@@ -245,6 +245,7 @@ editor.once('load', function() {
             path: 'name',
             trim: true
         });
+        fieldName.class.add('entity-name');
         // reference
         editor.call('attributes:reference:attach', 'entity:name', fieldName.parent.innerElement.firstChild.ui);
 
