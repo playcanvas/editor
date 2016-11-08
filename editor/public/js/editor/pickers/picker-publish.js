@@ -8,9 +8,6 @@ editor.once('load', function () {
     // register panel with project popup
     editor.call('picker:project:registerMenu', 'publish', 'Publish', panel);
 
-    // holds events that need to be destroyed
-    var events = [];
-
     // disables / enables field depending on permissions
     var handlePermissions = function (field) {
         field.disabled = ! editor.call('permissions:write');
@@ -48,6 +45,26 @@ editor.once('load', function () {
         editor.call('picker:publish:new');
     });
 
+    // facebook instant
+    var panelFbInstant = new ui.Panel();
+    panelFbInstant.class.add('buttons');
+    panel.append(panelFbInstant);
+    panelFbInstant.hidden = !config.self.superUser && !config.self.publishFacebook
+
+    panelFbInstant.append(new ui.Label({
+        text: 'Publish build to Facebook Instant Games.'
+    }));
+
+    var btnPublishFb = new ui.Button({text: 'Publish'});
+    btnPublishFb.class.add('upload');
+    handlePermissions(btnPublishFb);
+    panelFbInstant.append(btnPublishFb);
+
+    btnPublishFb.on('click', function () {
+        editor.call('picker:publish:facebook');
+    });
+
+
     // self host
     var panelSelfHost = new ui.Panel();
     panelSelfHost.class.add('buttons');
@@ -67,23 +84,27 @@ editor.once('load', function () {
         editor.call('picker:publish:download');
     });
 
-    // facebook instant
-    var panelFbInstant = new ui.Panel();
-    panelFbInstant.class.add('buttons');
-    panel.append(panelFbInstant);
-    panelFbInstant.hidden = !config.self.superUser && !config.self.publishFacebook
+    // on show
+    panel.on('show', function () {
+        editor.emit('picker:publish:open');
 
-    panelFbInstant.append(new ui.Label({
-        text: 'Upload build on a Facebook Instant Game.'
-    }));
-
-    var btnPublishFb = new ui.Button({text: 'Upload'});
-    btnPublishFb.class.add('upload');
-    handlePermissions(btnPublishFb);
-    panelFbInstant.append(btnPublishFb);
-
-    btnPublishFb.on('click', function () {
-        editor.call('picker:publish:facebook');
+        if (editor.call('viewport:inViewport'))
+            editor.emit('viewport:hover', false);
     });
 
+    // on hide
+    panel.on('hide', function () {
+        editor.emit('picker:publish:close');
+
+        if (editor.call('viewport:inViewport'))
+            editor.emit('viewport:hover', true);
+    });
+
+    editor.on('viewport:hover', function(state) {
+        if (state && ! panel.hidden) {
+            setTimeout(function() {
+                editor.emit('viewport:hover', false);
+            }, 0);
+        }
+    });
 });

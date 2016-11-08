@@ -187,7 +187,7 @@ editor.once('load', function() {
         description: 'This is the Facebook App ID which you can find at the dashboard of your Facebook application.'
     }, {
         name: 'facebook:upload-token',
-        title: 'Asset Upload Access Token',
+        title: 'Upload Access Token',
         description: 'An Access Token for uploading a build to Facebook.'
     }];
 

@@ -18,7 +18,7 @@ editor.once('load', function () {
     // register panel with project popup
     editor.call('picker:project:registerPanel', 'publish-download', 'Download New Build', panel);
     editor.call('picker:project:registerPanel', 'publish-new', 'Publish New Build', panel);
-    editor.call('picker:project:registerPanel', 'publish-facebook', 'Upload Facebook Instant Game', panel);
+    editor.call('picker:project:registerPanel', 'publish-facebook', 'Publish to Facebook Instant Games', panel);
 
     editor.method('picker:publish:new', function () {
         editor.call('picker:project', 'publish-new');
@@ -259,6 +259,7 @@ editor.once('load', function () {
     inputFbAppId.on('change', function (value) {
         editor.call('project:privateSettings').set('facebook.app_id', value);
         tooltipToken.html = getTooltipTokenHtml();
+        refreshButtonsState();
     });
 
     // upload token
@@ -266,7 +267,7 @@ editor.once('load', function () {
     panelFbToken.class.add('facebook');
     panel.append(panelFbToken);
 
-    label = new ui.Label({text: 'Asset Upload Access Token'});
+    label = new ui.Label({text: 'Upload Access Token'});
     label.class.add('field-label');
     panelFbToken.append(label);
 
@@ -303,6 +304,7 @@ editor.once('load', function () {
 
     inputFbUploadToken.on('change', function (value) {
         editor.call('project:privateSettings').set('facebook.upload_token', value);
+        refreshButtonsState();
     });
 
     // release notes
@@ -453,7 +455,7 @@ editor.once('load', function () {
 
     // publish on facebook button
     var btnPublishFb = new ui.Button({
-        text: 'Upload Build'
+        text: 'Publish Now'
     });
     btnPublishFb.class.add('publish-fb');
     panel.append(btnPublishFb);
@@ -501,7 +503,7 @@ editor.once('load', function () {
                         // success ?
                         if (job.status === 'complete') {
                             facebookProgressIconWrapper.classList.add('success');
-                            facebookProgressTitle.text = 'Build uploaded';
+                            facebookProgressTitle.text = 'Build published';
                             btnFacebookLink.hidden = false;
                             jobInProgress = false;
                             refreshButtonsState();
@@ -734,7 +736,11 @@ editor.once('load', function () {
         btnPublish.disabled = disabled;
         btnWebDownload.disabled = disabled;
         btnIosDownload.disabled = disabled;
-        btnPublishFb.disabled = jobInProgress;
+
+        btnPublishFb.disabled = jobInProgress ||
+                                !privateSettings.get('facebook.app_id') ||
+                                !privateSettings.get('facebook.upload_token') ||
+                                !selectedScenes.length;
     };
 
     var createSceneItem = function (scene) {

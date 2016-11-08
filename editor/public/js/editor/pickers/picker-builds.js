@@ -490,7 +490,6 @@ editor.once('load', function () {
     // on show
     panel.on('show', function () {
         loadApps();
-        editor.emit('picker:publish:open');
 
         if (editor.call('viewport:inViewport'))
             editor.emit('viewport:hover', false);
@@ -501,7 +500,6 @@ editor.once('load', function () {
         apps = [];
         destroyTooltips();
         destroyEvents();
-        editor.emit('picker:publish:close');
 
         if (editor.call('viewport:inViewport'))
             editor.emit('viewport:hover', true);
