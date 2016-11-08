@@ -54,6 +54,10 @@ editor.once('load', function() {
             var btnParse = new ui.Button({
                 text: 'Parse'
             });
+            btnParse.hidden = ! editor.call('permissions:write');
+            events.push(editor.on('permissions:writeState', function(state) {
+                btnParse.hidden = ! state;
+            }));
             btnParse.class.add('parse-script');
             btnParse.on('click', function() {
                 btnParse.disabled = true;
@@ -438,3 +442,6 @@ editor.once('load', function() {
         });
     });
 });
+
+
+
