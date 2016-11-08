@@ -32,7 +32,7 @@ editor.once('load', function () {
 
     // no builds message
     var noBuilds = new ui.Label({
-        text: 'You have not published any builds. Click on PUBLISH to create a new build.'
+        text: 'You have not published any builds. Click PUBLISH to create a new build.'
     });
     noBuilds.hidden = true;
     noBuilds.style.padding = '15px';
