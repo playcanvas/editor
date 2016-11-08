@@ -2758,7 +2758,6 @@ editor.once('load', function() {
             precision: 3,
             step: 0.01,
             min: 0,
-            max: 1,
             name: 'Reflectivity',
             link: assets,
             path: 'data.reflectivity'
@@ -2773,7 +2772,7 @@ editor.once('load', function() {
             precision: 3,
             step: .01,
             min: 0,
-            max: 1,
+            max: 8,
             type: 'number',
             slider: true,
             link: assets,
@@ -3191,3 +3190,6 @@ editor.once('load', function() {
         });
     });
 });
+
+
+
