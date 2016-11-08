@@ -198,7 +198,8 @@ Tooltip.prototype.position = function(x, y) {
 
 Tooltip.attach = function(args) {
     var data = {
-        align: args.align
+        align: args.align,
+        hoverable: args.hoverable
     };
 
     if (args.html)
