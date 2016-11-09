@@ -4,18 +4,16 @@ editor.once('viewport:load', function() {
     var viewport = editor.call('layout.viewport');
     var app = editor.call('viewport:framework');
 
-    var options = {};
-    var events = {};
+    var options = { };
+    var index = { };
+    var events = { };
 
     var combo = new ui.SelectField({
         options: options
     });
-    combo.enabled = false;
+    combo.disabledClick = true;
     combo.class.add('viewport-camera');
 
-    editor.on('permissions:writeState', function(state) {
-        combo.enabled = state;
-    });
     combo.on('open', function() {
         tooltip.disabled = true;
     });
@@ -38,20 +36,35 @@ editor.once('viewport:load', function() {
         root: editor.call('layout.root')
     });
 
-    function refreshOptions () {
+    var refreshOptions = function() {
         combo._updateOptions(options);
-    }
+
+        var writePermission = editor.call('permissions:write');
+        for(var key in combo.optionElements) {
+            if (index[key].__editorCamera)
+                continue;
+
+            if (writePermission) {
+                combo.optionElements[key].classList.remove('hidden');
+            } else {
+                combo.optionElements[key].classList.add('hidden');
+            }
+        }
+    };
+
+    editor.on('permissions:writeState', refreshOptions);
 
     editor.on('camera:add', function(entity) {
         options[entity.getGuid()] = entity.name;
+        index[entity.getGuid()] = entity;
         refreshOptions();
 
         if (events[entity.getGuid()])
             events[entity.getGuid()].unbind();
 
-        var e = editor.call('entities:get', entity.getGuid());
-        if (e) {
-            events[entity.getGuid()] = e.on('name:set', function (value) {
+        var obj = editor.call('entities:get', entity.getGuid());
+        if (obj) {
+            events[entity.getGuid()] = obj.on('name:set', function (value) {
                 options[entity.getGuid()] = value;
                 refreshOptions();
 
@@ -69,10 +82,12 @@ editor.once('viewport:load', function() {
             events[entity.getGuid()].unbind();
             delete events[entity.getGuid()];
         }
-
     });
 
     editor.on('camera:change', function(entity) {
         combo.value = entity.getGuid();
     });
 });
+
+
+

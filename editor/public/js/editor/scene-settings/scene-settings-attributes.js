@@ -181,7 +181,6 @@ editor.once('load', function() {
             precision: 3,
             step: .05,
             min: 0,
-            max: 32,
             link: sceneSettings,
             path: 'render.skyboxIntensity'
         });
@@ -192,7 +191,7 @@ editor.once('load', function() {
         // skyboxIntensity slider
         var fieldExposureSlider = new ui.Slider({
             min: 0,
-            max: 32,
+            max: 8,
             precision: 3
         });
         fieldExposureSlider.flexGrow = 4;
@@ -251,7 +250,6 @@ editor.once('load', function() {
             precision: 2,
             step: .1,
             min: 0,
-            max: 32,
             link: sceneSettings,
             path: 'render.exposure'
         });
@@ -263,7 +261,7 @@ editor.once('load', function() {
         // exposure slider
         var fieldExposureSlider = new ui.Slider({
             min: 0,
-            max: 32,
+            max: 8,
             precision: 2
         });
         fieldExposureSlider.flexGrow = 4;
@@ -811,3 +809,6 @@ editor.once('load', function() {
         }
     });
 });
+
+
+

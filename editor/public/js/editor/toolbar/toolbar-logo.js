@@ -3,6 +3,7 @@ editor.once('load', function() {
 
     var root = editor.call('layout.root');
     var toolbar = editor.call('layout.toolbar');
+    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
 
 
     var logo = new ui.Button();
@@ -191,6 +192,9 @@ editor.once('load', function() {
         },
         'edit': {
             title: 'Edit',
+            filter: function() {
+                return editor.call('permissions:write');
+            },
             items: {
                 'undo': {
                     title: 'Undo',
@@ -419,27 +423,7 @@ editor.once('load', function() {
                     select: function() {
                         editor.call('launch', 'profile');
                     }
-                },
-                'launch-local': {
-                    title: 'Launch (Local)',
-                    icon: '&#57649;',
-                    filter: function() {
-                        return editor.call('permissions:write');
-                    },
-                    select: function() {
-                        editor.call('launch', 'local');
-                    }
-                },
-                'launch-local-profile': {
-                    title: 'Launch (Local, Profiler)',
-                    icon: '&#57649;',
-                    filter: function() {
-                        return editor.call('permissions:write');
-                    },
-                    select: function() {
-                        editor.call('launch', 'local,profile');
-                    }
-                },
+                }
             }
         },
         'help': {
@@ -521,7 +505,7 @@ editor.once('load', function() {
             title: 'Settings',
             icon: '&#57652;',
             filter: function() {
-                return editor.call('permissions:write') && editor.call('selector:type') !== 'designerSettings' && ! editor.call('viewport:expand:state');
+                return editor.call('selector:type') !== 'designerSettings' && ! editor.call('viewport:expand:state');
             },
             select: function() {
                 editor.call('selector:set', 'designerSettings', [ editor.call('designerSettings') ]);
@@ -537,7 +521,29 @@ editor.once('load', function() {
         }
     };
 
-    if (editor.call('project:settings').get('use_legacy_scripts')) {
+    if (legacyScripts) {
+        menuData['launch']['items']['launch-local'] = {
+            title: 'Launch (Local)',
+            icon: '&#57649;',
+            filter: function() {
+                return editor.call('permissions:write');
+            },
+            select: function() {
+                editor.call('launch', 'local');
+            }
+        };
+
+        menuData['launch']['items']['launch-local-profile'] = {
+            title: 'Launch (Local, Profiler)',
+            icon: '&#57649;',
+            filter: function() {
+                return editor.call('permissions:write');
+            },
+            select: function() {
+                editor.call('launch', 'local,profile');
+            }
+        };
+
         menuData['entity']['items']['add-builtin-script'] = {
             title: 'Add Built-In Script',
             filter: function () {
@@ -628,7 +634,7 @@ editor.once('load', function() {
         menuData['entity'].items['add-component'].items[key] = makeMenuComponentItem(key);
     }
 
-    if (editor.call('project:settings').get('use_legacy_scripts')) {
+    if (legacyScripts) {
         var builtInScripts = [{
             group: 'post-effects',
             title: 'Bloom',
@@ -725,3 +731,6 @@ editor.once('load', function() {
         return menuData[name];
     });
 });
+
+
+

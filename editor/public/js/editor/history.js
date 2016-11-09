@@ -125,6 +125,9 @@ editor.once('load', function() {
         key: 'z',
         ctrl: true,
         callback: function() {
+            if (! editor.call('permissions:write'))
+                return;
+
             editor.call('history:undo');
         }
     });
@@ -135,6 +138,9 @@ editor.once('load', function() {
         ctrl: true,
         shift: true,
         callback: function() {
+            if (! editor.call('permissions:write'))
+                return;
+
             editor.call('history:redo');
         }
     });
@@ -144,7 +150,13 @@ editor.once('load', function() {
         key: 'y',
         ctrl: true,
         callback: function() {
+            if (! editor.call('permissions:write'))
+                return;
+
             editor.call('history:redo');
         }
     });
 });
+
+
+

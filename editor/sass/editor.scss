@@ -68,6 +68,9 @@ strong {
             border: none;
             overflow: hidden;
 
+            &.hidden {
+                display: none;
+            }
             &.logo {
                 background-image: url("https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/editor_logo.png");
                 background-size: 92px 46px;
@@ -281,6 +284,11 @@ strong {
                     display: none;
                 }
             }
+        }
+    }
+    &.disabled {
+        > .ui-header {
+            background-color: $bcg-darker;
         }
     }
     > .content {
@@ -1901,7 +1909,11 @@ strong {
                 padding-left: 30px;
                 height: 26px;
                 line-height: 28px;
+                @extend .font-bold;
 
+                &.hidden {
+                    display: none;
+                }
                 &:hover {
                     background-color: $bcg-darkest;
 
@@ -1909,9 +1921,6 @@ strong {
                         color: $text-active;
                     }
                 }
-
-                @extend .font-bold;
-
                 &:before {
                     position: absolute;
                     top: 0px;
@@ -2073,6 +2082,9 @@ strong {
             > .ui-panel.scripts-order {
                 border: 1px solid $bcg-darker;
 
+                &.disabled {
+                    opacity: 0.5;
+                }
                 > .content {
                     > .dragPlaceholder {
                         margin-bottom: 1px;
@@ -2088,6 +2100,20 @@ strong {
 
                         &:last-child {
                             border-bottom: none;
+                        }
+                        &.disabled {
+                            > .ui-header {
+                                &:hover {
+                                    background-color: $bcg-dark;
+
+                                    > .title {
+                                        text-decoration: none;
+                                    }
+                                }
+                                > .handle {
+                                    display: none;
+                                }
+                            }
                         }
                         > .ui-header {
                             padding-left: 0;
@@ -2735,7 +2761,7 @@ strong {
 
     > .content {
         background-color: transparent;
-        min-width: 96px;
+        min-width: 32px;
         height: 32px;
         overflow: hidden;
 

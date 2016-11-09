@@ -8,6 +8,7 @@ editor.once('load', function() {
     var mouseTapMoved = false;
     var posCameraLast = new pc.Vec3();
     var visible = true;
+    var enabled = false;
     var hover = false;
     var hoverAxis = '';
     var hoverEntity = null;
@@ -34,13 +35,19 @@ editor.once('load', function() {
         if (! gizmo)
             return;
 
-        if (! editor.call('permissions:write'))
-            return;
-
-        gizmo.root.enabled = state;
+        gizmo.root.enabled = state && editor.call('permissions:write');
+        enabled = state;
 
         visible = true;
 
+        editor.call('viewport:render');
+    });
+
+    editor.on('permissions:writeState', function(state) {
+        if (! gizmo)
+            return;
+
+        gizmo.root.enabled = enabled && state;
         editor.call('viewport:render');
     });
 
@@ -546,3 +553,6 @@ editor.once('load', function() {
         return meshInstances;
     };
 });
+
+
+

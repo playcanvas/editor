@@ -111,6 +111,7 @@ editor.once('load', function() {
 
     // add
     var btnNew = new ui.Button();
+    btnNew.hidden = ! editor.call('permissions:write');
     btnNew.class.add('create-asset');
     btnNew.text = '&#57632;';
     btnNew.on('click', function(evt) {
@@ -134,6 +135,7 @@ editor.once('load', function() {
     var btnDelete = new ui.Button({
         text: '&#57636;'
     });
+    btnDelete.hidden = ! editor.call('permissions:write');
     btnDelete.style.fontWeight = 200;
     btnDelete.disabled = true;
     btnDelete.class.add('delete');
@@ -158,6 +160,12 @@ editor.once('load', function() {
     tooltipDelete.class.add('innactive');
 
 
+    editor.on('permissions:writeState', function(state) {
+        btnNew.hidden = ! state;
+        btnDelete.hidden = ! state;
+    });
+
+
     editor.on('attributes:clear', function() {
         // btnDuplicate.disabled = true;
         btnDelete.disabled = true;
@@ -175,3 +183,6 @@ editor.once('load', function() {
         // btnDuplicate.enabled = type === 'asset.material';
     });
 });
+
+
+

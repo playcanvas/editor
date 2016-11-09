@@ -37,6 +37,7 @@ editor.once('load', function() {
     var btnBack = new ui.Button({
         text: '&#57649;'
     });
+    btnBack.disabledClick = true;
     btnBack.hidden = true;
     btnBack.class.add('back');
     btnBack.on('click', selectorReturn);
@@ -132,3 +133,6 @@ editor.once('load', function() {
         callback: selectorReturn
     });
 });
+
+
+

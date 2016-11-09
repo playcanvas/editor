@@ -9,6 +9,7 @@ editor.once('load', function() {
     var buttonUndo = new ui.Button({
         text: '&#57620;'
     });
+    buttonUndo.hidden = ! editor.call('permissions:write');
     buttonUndo.class.add('pc-icon');
     buttonUndo.enabled = editor.call('history:canUndo');
     toolbar.append(buttonUndo);
@@ -39,6 +40,7 @@ editor.once('load', function() {
     var buttonRedo = new ui.Button({
         text: '&#57621;'
     });
+    buttonRedo.hidden = ! editor.call('permissions:write');
     buttonRedo.class.add('pc-icon');
     buttonRedo.enabled = editor.call('history:canRedo');
     toolbar.append(buttonRedo);
@@ -63,4 +65,11 @@ editor.once('load', function() {
     });
     if (! editor.call('history:canUndo'))
         tooltipRedo.class.add('innactive');
+
+    editor.on('permissions:writeState', function(state) {
+        buttonUndo.hidden = buttonRedo.hidden = ! state;
+    });
 });
+
+
+
