@@ -447,7 +447,7 @@ editor.once('load', function() {
             searching = false;
 
             if (selector.type === 'asset') {
-                var script = selector.items[0].get('type') === 'script';
+                var script = legacyScripts && selector.items[0].get('type') === 'script';
                 var path = script ? [ ] : selector.items[0].get('path');
                 var multiPath = false;
                 for(var i = 1; i < selector.items.length; i++) {
