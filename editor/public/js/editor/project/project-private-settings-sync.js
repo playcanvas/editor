@@ -3,12 +3,14 @@ editor.once('load', function() {
 
     // initial data
     var initializePrivateSettings = function () {
-        if (! config.project.privateSettings.facebook) {
-            config.project.privateSettings.facebook = {
-                app_id: '',
-                upload_token: ''
-            }
-        }
+        if (! config.project.privateSettings.facebook)
+            config.project.privateSettings.facebook = {};
+
+        if (! config.project.privateSettings.facebook.app_id)
+            config.project.privateSettings.facebook.app_id = '';
+
+        if (! config.project.privateSettings.facebook.upload_token)
+            config.project.privateSettings.facebook.upload_token = '';
     };
 
     initializePrivateSettings();
@@ -49,9 +51,10 @@ editor.once('load', function() {
     editor.on('messenger:project.update', function (data) {
         changing = true;
         for (var path in data) {
-            var p = path;
-            if (path.startsWith('private_settings.'))
-                p = path.substring(17);
+            if (!path.startsWith('private_settings.'))
+                continue;
+
+            var p = path.substring(17);
 
             var history = settings.history;
             settings.history = false;

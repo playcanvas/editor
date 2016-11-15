@@ -81,12 +81,13 @@ body {
     position: fixed;
     bottom: 0;
     right: 0;
+    padding: 5px;
     z-index: 1;
     height: $top-bar-height;
     line-height: $top-bar-line-height;
 
     a {
-        margin-right: 5px;
+        margin-left: 5px;
     }
 
     img {
