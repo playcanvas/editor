@@ -1544,6 +1544,15 @@ strong {
                             -webkit-flex-grow: 1;
                             color: $text-dark;
                         }
+                        > .ui-checkbox {
+                            &.disabled {
+                                background-color: $bcg-dark;
+
+                                &:after {
+                                    content: none;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -3899,10 +3908,6 @@ strong {
         &.not-visible {
             visibility: hidden;
         }
-    }
-
-    .ui-button.script-picker.error {
-        color: #fb222f;
     }
 
     > .content {
@@ -6813,6 +6818,3 @@ strong {
     }
 
 }
-
-
-
