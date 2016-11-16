@@ -362,6 +362,7 @@ editor.once('plugins:load:asset-texture-lod', function() {
                     if (target) {
                         // update compression
                         target.set('meta.compress', source.get('meta.compress'));
+                        target.set('data', source.get('data'));
 
                         // available target
                         setTimeout(function() {
@@ -375,7 +376,7 @@ editor.once('plugins:load:asset-texture-lod', function() {
                             source: false,
                             source_asset_id: parseInt(source.get('id'), 10),
                             preload: false,
-                            data: null,
+                            data: source.get('data'),
                             tags: [ 'source-' + source.get('id').toString(), 'lod-' + options.name ],
                             region: source.get('region'),
                             parent: folderId,
