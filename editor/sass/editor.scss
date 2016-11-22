@@ -3393,13 +3393,14 @@ strong {
                     .ui-label {
                         vertical-align: top;
                         font-size: 12px;
-                        cursor: pointer;
                     }
 
                     .ui-panel {
                         @extend .noSelect;
                         background: transparent;
                         width: 160px;
+                        cursor: pointer;
+                        margin: 2px 0;
                     }
                 }
             }

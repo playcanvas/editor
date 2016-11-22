@@ -63,9 +63,14 @@ editor.once('load', function() {
         option.class.add('tick');
         panel.append(option);
 
+        option.on('click', function (e) {
+            e.stopPropagation();
+        });
+
         var label = new ui.Label({text: title});
         panel.append(label);
-        label.on('click', function () {
+
+        panel.on('click', function () {
             option.value = !option.value;
         });
 
@@ -175,7 +180,7 @@ editor.once('load', function() {
 
     // show dropdown menu
     launch.element.addEventListener('mouseenter', function () {
-        if (! editor.call('permissions:write') || launch.disabled)
+        if (! editor.call('permissions:read') || launch.disabled)
             return;
 
         panelOptions.hidden = false;
