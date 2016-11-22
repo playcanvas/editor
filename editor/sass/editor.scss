@@ -773,6 +773,20 @@ strong {
             font-size: 12px;
         }
     }
+
+    &.launch-facebook {
+        > .inner {
+            max-width: 300px;
+            line-height: 1.8;
+            white-space: normal;
+            padding: 5px 15px;
+            font-size: 12px;
+        }
+
+        &.invisible {
+            display: none;
+        }
+    }
 }
 
 .ui-panel.attributes {
@@ -3363,35 +3377,29 @@ strong {
                     background-color: rgba($bcg-darker, .5);
                 }
 
-                > ul.dropdown-menu {
+                .ui-panel.options {
                     position: absolute;
                     top: 33px;
                     right: 0;
-                    padding: 0;
                     margin: 0;
+                    padding: 5px;
                     list-style: none;
                     background-color: rgba($bcg-darker, .75);
 
-                    > li {
-                        @extend .noSelect;
-                        padding: 9px 10px;
-                        width: 160px;
-                        color: white;
-                        font-size: 13px;
-                        color: $text-primary;
+                    .ui-checkbox:not(.checked) {
+                        background-color: #20292b;
+                    }
 
-                        &:hover {
-                            cursor: pointer;
-                            background-color: $bcg-darker;
-                        }
-                        &.ticked:after {
-                            @extend .font-icon;
-                            font-size: 14px;
-                            line-height: 14px;
-                            font-weight: 100;
-                            float: right;
-                            content: '\E133';
-                        }
+                    .ui-label {
+                        vertical-align: top;
+                        font-size: 12px;
+                        cursor: pointer;
+                    }
+
+                    .ui-panel {
+                        @extend .noSelect;
+                        background: transparent;
+                        width: 160px;
                     }
                 }
             }

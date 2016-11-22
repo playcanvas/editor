@@ -5,6 +5,7 @@ editor.once('load', function() {
     var viewport = editor.call('layout.viewport');
     var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
 
+    var privateSettings = editor.call('project:privateSettings');
 
     // panel
     var panel = new ui.Panel();
@@ -35,73 +36,121 @@ editor.once('load', function() {
     buttonLaunch.class.add('icon');
     launch.append(buttonLaunch);
 
-    var dropdownMenu = document.createElement('ul');
-    dropdownMenu.classList.add('dropdown-menu')
-    dropdownMenu.style.visibility = 'hidden';
-    launch.append(dropdownMenu);
-
-    var launchButton = 'default';
-    var launchButtons = { };
-
-    launchButtons['default'] = document.createElement('li');
-    launchButtons['default'].classList.add('ticked');
-    launchButtons['default'].innerHTML = 'Launch';
-    launchButtons['default']._launch = 'default';
-    dropdownMenu.appendChild(launchButtons['default']);
-
-    launchButtons['profile'] = document.createElement('li');
-    launchButtons['profile'].innerHTML = 'Launch (Profiler)'
-    launchButtons['profile']._launch = 'profile';
-    dropdownMenu.appendChild(launchButtons['profile']);
-
-    if (legacyScripts) {
-        launchButtons['local'] = document.createElement('li');
-        launchButtons['local'].innerHTML = 'Launch (Local)';
-        launchButtons['local']._launch = 'local';
-        dropdownMenu.appendChild(launchButtons['local']);
-
-        launchButtons['local,profile'] = document.createElement('li');
-        launchButtons['local,profile'].innerHTML = 'Launch (Local, Profiler)'
-        launchButtons['local,profile']._launch = 'local,profile';
-        dropdownMenu.appendChild(launchButtons['local,profile']);
-    }
-
-    var switchDefaultLaunch = function(type) {
-        launchButtons[launchButton].classList.remove('ticked');
-        launchButton = type;
-        launchButtons[launchButton].classList.add('ticked');
-    };
-
-    var onLaunchClick = function() {
-        if (launchButton !== this._launch)
-            switchDefaultLaunch(this._launch);
-
-        dropdownMenu.style.visibility = 'hidden';
-        launchApp();
-    };
-
-    for(var key in launchButtons) {
-        if (! launchButtons.hasOwnProperty(key))
-            continue;
-
-        launchButtons[key].addEventListener('click', onLaunchClick, false);
-    }
-
     buttonLaunch.on('click', function () {
         launchApp();
     });
 
+    var tooltip = Tooltip.attach({
+        target: launch.element,
+        text: 'Launch',
+        align: 'left',
+        root: root
+    });
+
+    var launchOptions = { };
+
+    var panelOptions = new ui.Panel();
+    panelOptions.class.add('options');
+    launch.append(panelOptions);
+    panelOptions.hidden = true;
+
+    var createOption = function (name, title) {
+        var panel = new ui.Panel();
+        panelOptions.append(panel);
+
+        var option = new ui.Checkbox();
+        option.value = false;
+        option.class.add('tick');
+        panel.append(option);
+
+        var label = new ui.Label({text: title});
+        panel.append(label);
+        label.on('click', function () {
+            option.value = !option.value;
+        });
+
+        launchOptions[name] = false;
+        option.on('change', function (value) {
+            launchOptions[name] = value;
+        });
+
+        return option;
+    }
+
+    createOption('profiler', 'Profiler');
+
+    if (legacyScripts) {
+        var local = createOption('local', 'Use Local Server');
+        local.on('change', function (value) {
+            fb.parent.disabled = value;
+        });
+    }
+
+    var fb = createOption('facebook', 'Launch on Facebook');
+
+    if (!config.self.superUser && !config.self.publishFacebook)
+        fb.parent.hidden = true;
+
+    var tooltipFb = Tooltip.attach({
+        target: fb.parent.element,
+        text: 'In order to launch on Facebook you have to set your Facebook App ID in the settings.',
+        align: 'right',
+        root: root
+    });
+    tooltipFb.class.add('launch-facebook');
+
+    if (privateSettings.get('facebook.app_id')) {
+        tooltipFb.class.add('invisible');
+    }
+
+    privateSettings.on('facebook.app_id:set', function (value) {
+        if (value)
+            tooltipFb.class.add('invisible');
+        else
+            tooltipFb.class.remove('invisible');
+    });
+
+    fb.on('change', function (value) {
+        if (! value) return;
+
+        if (! privateSettings.get('facebook.app_id')) {
+            // open facebook settings
+            editor.call('selector:set', 'designerSettings', [ editor.call('designerSettings') ]);
+            setTimeout(function() {
+                editor.call('designerSettings:panel:unfold', 'facebook');
+            }, 0);
+        }
+    });
+
+
+    var onLaunchClick = function() {
+        panelOptions.hidden = true;
+        launchApp();
+    };
+
     var launchApp = function () {
-        var url = (window.location.origin + window.location.pathname).replace(/^https/, 'http') + '/launch';
+        var url = (window.location.origin + window.location.pathname) + '/launch';
+
         var settings = editor.call('designerSettings');
 
         var query = [ ];
 
-        if (launchButton.indexOf('local') !== -1)
+        if (launchOptions.local) {
+            url = url.replace(/^https/, 'http');
             query.push('local=' + settings.get('local_server'));
+        }
 
-        if (launchButton.indexOf('profile') !== -1)
+        if (launchOptions.profiler)
             query.push('profile=true');
+
+        if (!launchOptions.local && launchOptions.facebook && privateSettings.get('facebook.app_id')) {
+            url = 'https://www.facebook.com/embed/instantgames/' +
+                  privateSettings.get('facebook.app_id') +
+                  '/player?game_url=' +
+                  url;
+
+            query.push('facebook=true');
+        }
 
         if (query.length)
             url += '?' + query.join('&');
@@ -111,10 +160,7 @@ editor.once('load', function() {
         launcher.location = url;
     };
 
-    editor.method('launch', function(type) {
-        if (type && launchButtons.hasOwnProperty(type))
-            switchDefaultLaunch(type);
-
+    editor.method('launch', function() {
         launchApp();
     });
 
@@ -132,7 +178,7 @@ editor.once('load', function() {
         if (! editor.call('permissions:write') || launch.disabled)
             return;
 
-        dropdownMenu.style.visibility = 'visible';
+        panelOptions.hidden = false;
         if (timeout)
             clearTimeout(timeout);
     });
@@ -144,22 +190,23 @@ editor.once('load', function() {
 
         if (timeout) clearTimeout(timeout);
         timeout = setTimeout(function () {
-            dropdownMenu.style.visibility = 'hidden';
+            panelOptions.hidden = true;
             timeout = null;
         }, 50);
     });
 
     // cancel hide
-    dropdownMenu.addEventListener('mouseenter', function () {
-        if (dropdownMenu.style.visibility === 'visible' && timeout)
+    panel.element.addEventListener('mouseenter', function () {
+        if (!panelOptions.hidden && timeout)
             clearTimeout(timeout);
+
     });
 
-    // hide dropdown menu after a delay
-    dropdownMenu.addEventListener('mouseleave', function () {
+    // hide options after a while
+    panel.element.addEventListener('mouseleave', function () {
         if (timeout) clearTimeout(timeout);
         timeout = setTimeout(function () {
-            dropdownMenu.style.visibility = 'hidden';
+            panelOptions.hidden = true;
             timeout = null;
         }, 50);
     });

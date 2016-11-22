@@ -23,7 +23,7 @@ editor.once('load', function() {
         panel.on('fold', function() { foldStates['facebook'] = true; });
         panel.on('unfold', function() { foldStates['facebook'] = false; });
         panel.hidden = !editor.call('permissions:write');
-        panel.class.add('component');
+        panel.class.add('component', 'facebook');
 
         // reference
         editor.call('attributes:reference:attach', 'settings:facebook', panel, panel.headerElement);

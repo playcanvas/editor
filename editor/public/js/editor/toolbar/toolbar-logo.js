@@ -416,13 +416,6 @@ editor.once('load', function() {
                     select: function() {
                         editor.call('launch', 'default');
                     }
-                },
-                'launch-profile': {
-                    title: 'Launch (Profiler)',
-                    icon: '&#57649;',
-                    select: function() {
-                        editor.call('launch', 'profile');
-                    }
                 }
             }
         },
@@ -522,28 +515,6 @@ editor.once('load', function() {
     };
 
     if (legacyScripts) {
-        menuData['launch']['items']['launch-local'] = {
-            title: 'Launch (Local)',
-            icon: '&#57649;',
-            filter: function() {
-                return editor.call('permissions:write');
-            },
-            select: function() {
-                editor.call('launch', 'local');
-            }
-        };
-
-        menuData['launch']['items']['launch-local-profile'] = {
-            title: 'Launch (Local, Profiler)',
-            icon: '&#57649;',
-            filter: function() {
-                return editor.call('permissions:write');
-            },
-            select: function() {
-                editor.call('launch', 'local,profile');
-            }
-        };
-
         menuData['entity']['items']['add-builtin-script'] = {
             title: 'Add Built-In Script',
             filter: function () {
