@@ -198,9 +198,9 @@ editor.once('load', function() {
                 .transformVector(vecA, vecA);
 
                 // hide plane if viewed from very angle
-                gizmo.plane.x.model.enabled = Math.abs(vecA.x) > 0.15 && visible;
-                gizmo.plane.y.model.enabled = Math.abs(vecA.y) > 0.15 && visible;
-                gizmo.plane.z.model.enabled = Math.abs(vecA.z) > 0.15 && visible;
+                gizmo.plane.x.model.enabled = Math.abs(vecA.x) > 0.1 && visible;
+                gizmo.plane.y.model.enabled = Math.abs(vecA.y) > 0.1 && visible;
+                gizmo.plane.z.model.enabled = Math.abs(vecA.z) > 0.1 && visible;
 
                 var worldTransform = gizmo.root.getWorldTransform();
 
@@ -553,6 +553,3 @@ editor.once('load', function() {
         return meshInstances;
     };
 });
-
-
-
