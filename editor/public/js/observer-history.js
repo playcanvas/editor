@@ -59,7 +59,7 @@ ObserverHistory.prototype._initialize = function() {
             }
         };
 
-        if (data.combine && editor.call('history:canUndo') && editor.call('history:current').name === data.name) {
+        if (data.combine && editor.call('history:canUndo') && editor.call('history:list')[editor.call('history:current')].name === data.name) {
             // update
             self.emit('record', 'update', data);
         } else {

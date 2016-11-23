@@ -16,7 +16,6 @@ editor.once('load', function() {
         index[args.name] = editor.call('attributes:reference', args);
     });
 
-
     editor.method('attributes:reference:attach', function(name, target, element) {
         var tooltip = index[name];
 
@@ -32,6 +31,8 @@ editor.once('load', function() {
             target: target,
             element: element || target.element
         });
+
+        return tooltip;
     });
 
 

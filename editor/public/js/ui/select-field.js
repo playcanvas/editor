@@ -19,6 +19,7 @@ function SelectField(args) {
     }
 
     this.element = document.createElement('div');
+    this.element.ui = this;
     this.element.tabIndex = 0;
     this.element.classList.add('ui-select-field', 'noSelect');
 
@@ -49,7 +50,7 @@ function SelectField(args) {
     };
 
     this.elementValue.addEventListener('mousedown', function(evt) {
-        if (self.disabled)
+        if (self.disabled && ! self.disabledClick)
             return;
 
         if (self.element.classList.contains('active')) {
@@ -102,7 +103,7 @@ function SelectField(args) {
             return;
         }
 
-        if (self.disabled || [ 38, 40 ].indexOf(evt.keyCode) === -1)
+        if ((self.disabled && ! self.disabledClick) || [ 38, 40 ].indexOf(evt.keyCode) === -1)
             return;
 
         evt.stopPropagation();
@@ -144,7 +145,7 @@ SelectField.prototype.valueToType = function(value) {
 
 
 SelectField.prototype.open = function() {
-    if (this.disabled || this.element.classList.contains('active'))
+    if ((this.disabled && ! this.disabledClick) || this.element.classList.contains('active'))
         return;
 
     this.element.classList.add('active');
@@ -205,7 +206,7 @@ SelectField.prototype.open = function() {
 
 
 SelectField.prototype.close = function() {
-    if (this.disabled || ! this.element.classList.contains('active'))
+    if ((this.disabled && ! this.disabledClick) || ! this.element.classList.contains('active'))
         return;
 
     window.removeEventListener('mouseup', this.evtMouseUp);
@@ -349,3 +350,6 @@ Object.defineProperty(SelectField.prototype, 'value', {
 
 
 window.ui.SelectField = SelectField;
+
+
+

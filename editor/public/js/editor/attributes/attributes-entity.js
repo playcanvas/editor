@@ -143,6 +143,12 @@ editor.once('load', function() {
 
         // remove
         var fieldRemove = new ui.Button();
+
+        fieldRemove.hidden = ! editor.call('permissions:write');
+        events.push(editor.on('permissions:writeState', function(state) {
+            fieldRemove.hidden = ! state;
+        }));
+
         fieldRemove.class.add('component-remove');
         fieldRemove.on('click', function() {
             var records = [ ];
@@ -245,6 +251,7 @@ editor.once('load', function() {
             path: 'name',
             trim: true
         });
+        fieldName.class.add('entity-name');
         // reference
         editor.call('attributes:reference:attach', 'entity:name', fieldName.parent.innerElement.firstChild.ui);
 
@@ -312,6 +319,12 @@ editor.once('load', function() {
 
         // add component
         var btnAddComponent = new ui.Button();
+
+        btnAddComponent.hidden = ! editor.call('permissions:write');
+        var evtBtnAddComponentPermissions = editor.on('permissions:writeState', function(state) {
+            btnAddComponent.hidden = ! state;
+        });
+
         btnAddComponent.text = 'Add Component';
         btnAddComponent.class.add('add-component');
         btnAddComponent.on('click', function(evt) {
@@ -319,50 +332,11 @@ editor.once('load', function() {
             menuAddComponent.open = true;
         });
         panel.append(btnAddComponent);
-
-        // if (entities.length === 1) {
-        //     // json panel
-        //     var panelJson = editor.call('attributes:addPanel', {
-        //         name: 'JSON'
-        //     });
-
-        //     // code
-        //     var fieldJson = editor.call('attributes:addField', {
-        //         parent: panelJson,
-        //         type: 'code'
-        //     });
-
-        //     fieldJson.text = JSON.stringify(entities[0].json(), null, 4);
-
-        //     // changes
-        //     var evtSet = entities[0].on('*:set', function() {
-        //         // console.log('set', arguments)
-        //         fieldJson.text = JSON.stringify(entities[0].json(), null, 4);
-        //     });
-        //     var evtUnset = entities[0].on('*:unset', function() {
-        //         // console.log('unset', arguments)
-        //         fieldJson.text = JSON.stringify(entities[0].json(), null, 4);
-        //     });
-        //     var evtInsert = entities[0].on('*:insert', function() {
-        //         // console.log('insert', arguments)
-        //         fieldJson.text = JSON.stringify(entities[0].json(), null, 4);
-        //     });
-        //     var evtRemove = entities[0].on('*:remove', function() {
-        //         // console.log('remove', arguments)
-        //         fieldJson.text = JSON.stringify(entities[0].json(), null, 4);
-        //     });
-        //     var evtMove = entities[0].on('*:move', function() {
-        //         // console.log('move', arguments)
-        //         fieldJson.text = JSON.stringify(entities[0].json(), null, 4);
-        //     });
-
-        //     fieldJson.on('destroy', function() {
-        //         evtSet.unbind();
-        //         evtUnset.unbind();
-        //         evtInsert.unbind();
-        //         evtRemove.unbind();
-        //         evtMove.unbind();
-        //     });
-        // }
+        btnAddComponent.once('destroy', function() {
+            evtBtnAddComponentPermissions.unbind();
+        });
     });
 });
+
+
+

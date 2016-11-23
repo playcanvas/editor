@@ -21,6 +21,7 @@ editor.once('load', function() {
     var search = new ui.TextField({
         placeholder: 'Search'
     });
+    search.blurOnEnter = false;
     search.keyChange = true;
     search.class.add('search');
     search.renderChanges = false;

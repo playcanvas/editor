@@ -234,6 +234,7 @@ editor.once('load', function() {
                     link: assets[0],
                     path: 'name'
                 });
+                fieldName.class.add('asset-name');
                 // reference
                 editor.call('attributes:reference:attach', 'asset:name', fieldName.parent.innerElement.firstChild.ui);
 
@@ -360,9 +361,15 @@ editor.once('load', function() {
             panel.append(panelButtons);
 
             // download
-            if (editor.call('permissions:read') && assets[0].get('type') !== 'folder' && ! (legacyScripts && assets[0].get('type') === 'script')) {
+            if (assets[0].get('type') !== 'folder' && ! (legacyScripts && assets[0].get('type') === 'script')) {
                 // download
                 var btnDownload = new ui.Button();
+
+                btnDownload.hidden = ! editor.call('permissions:read');
+                var evtBtnDownloadPermissions = editor.on('permissions:set:' + config.self.id, function() {
+                    btnDownload.hidden = ! editor.call('permissions:read');
+                });
+
                 btnDownload.text = 'Download';
                 btnDownload.class.add('download-asset', 'large-with-icon');
                 btnDownload.element.addEventListener('click', function(evt) {
@@ -376,12 +383,21 @@ editor.once('load', function() {
                     }
                 });
                 panelButtons.append(btnDownload);
+
+                btnDownload.once('destroy', function() {
+                    evtBtnDownloadPermissions.unbind();
+                });
             }
 
-            if (editor.call('permissions:read') && editableTypes[assets[0].get('type')]) {
+            if (editableTypes[assets[0].get('type')]) {
                 // edit
                 var btnEdit = new ui.Button();
+
                 btnEdit.text = editor.call('permissions:write') ? 'Edit' : 'View';
+                var evtPermissions = editor.on('permissions:writeState', function(state) {
+                    btnEdit.text = state ? 'Edit' : 'View';
+                });
+
                 btnEdit.class.add('edit-script', 'large-with-icon');
                 btnEdit.hidden = ! assets[0].has('file.url');
                 btnEdit.element.addEventListener('click', function(evt) {
@@ -401,6 +417,7 @@ editor.once('load', function() {
                 });
 
                 btnEdit.once('destroy', function() {
+                    evtPermissions.unbind();
                     evtFileUrl.unbind();
                     evtFileUrlUnset.unbind();
                 });
@@ -418,3 +435,6 @@ editor.once('load', function() {
         return assetsPanel;
     });
 });
+
+
+

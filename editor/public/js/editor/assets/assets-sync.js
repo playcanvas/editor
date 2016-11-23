@@ -131,30 +131,25 @@ editor.once('load', function() {
         });
     });
 
-    editor.call('assets:progress', .1);
+    editor.call('assets:progress', 0.1);
+
+    var onAssetSelect = function(asset) {
+        editor.call('selector:set', 'asset', [ asset ]);
+
+        // navigate to folder too
+        var path = asset.get('path');
+        if (path.length) {
+            editor.call('assets:panel:currentFolder', editor.call('assets:get', path[path.length - 1]));
+        } else {
+            editor.call('assets:panel:currentFolder', null);
+        }
+    };
 
     // create asset
     editor.method('assets:create', function (data, fn, noSelect) {
-        var assetId = null;
         var evtAssetAdd;
 
         if (! noSelect) {
-            evtAssetAdd = editor.once('assets:add', function(asset) {
-                if (! evtAssetAdd && assetId !== parseInt(asset.get('id'), 10))
-                    return;
-
-                evtAssetAdd = null;
-                editor.call('selector:set', 'asset', [ asset ]);
-
-                // navigate to folder too
-                var path = asset.get('path');
-                if (path.length) {
-                    editor.call('assets:panel:currentFolder', editor.call('assets:get', path[path.length - 1]));
-                } else {
-                    editor.call('assets:panel:currentFolder', null);
-                }
-            });
-
             editor.once('selector:change', function() {
                 if (evtAssetAdd) {
                     evtAssetAdd.unbind();
@@ -164,9 +159,6 @@ editor.once('load', function() {
         }
 
         editor.call('assets:uploadFile', data, function(err, res) {
-            if (evtAssetAdd)
-                evtAssetAdd = null;
-
             if (err) {
                 editor.call('status:error', err);
 
@@ -178,9 +170,16 @@ editor.once('load', function() {
                 return;
             }
 
-            assetId = res.asset.id;
+            if (! noSelect) {
+                var asset = editor.call('assets:get', res.asset.id);
+                if (asset) {
+                    onAssetSelect(asset);
+                } else {
+                    evtAssetAdd = editor.once('assets:add[' + res.asset.id + ']', onAssetSelect);
+                }
+            }
 
-            if (fn) fn(err, assetId);
+            if (fn) fn(err, res.asset.id);
         });
     });
 

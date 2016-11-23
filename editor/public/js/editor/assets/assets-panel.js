@@ -64,7 +64,7 @@ editor.once('load', function() {
         } else {
             if (currentFolder === null) {
                 treeRoot.class.remove('current');
-            } else if (currentFolder === 'scripts') {
+            } else if (treeScripts && currentFolder === 'scripts') {
                 treeScripts.class.remove('current');
             }
         }
@@ -85,7 +85,7 @@ editor.once('load', function() {
             }
         } else if (currentFolder === null) {
             treeRoot.class.add('current');
-        } else if (currentFolder === 'scripts') {
+        } else if (treeScripts && currentFolder === 'scripts') {
             treeScripts.class.add('current');
             editor.call('assets:filter:type', 'all');
         }
@@ -447,7 +447,7 @@ editor.once('load', function() {
             searching = false;
 
             if (selector.type === 'asset') {
-                var script = selector.items[0].get('type') === 'script';
+                var script = legacyScripts && selector.items[0].get('type') === 'script';
                 var path = script ? [ ] : selector.items[0].get('path');
                 var multiPath = false;
                 for(var i = 1; i < selector.items.length; i++) {
@@ -649,25 +649,17 @@ editor.once('load', function() {
         callback: function() {
             var assets = [ ];
 
-            if (currentFolder === 'scripts') {
-                // scripts
-                assets = editor.call('sourcefiles:list');
-
-            } else if (currentFolder) {
-                // in folder
-                var path = currentFolder.get('path').concat([ parseInt(currentFolder.get('id'), 10) ]);
-                assets = editor.call('assets:find', function(asset) {
-                    return asset.get('path').equals(path);
-                }).map(function(i) { return i[1]; });
-
-            } else {
-                // in root
-                assets = editor.call('assets:find', function(asset) {
-                    return ! asset.get('path').length;
-                }).map(function(i) { return i[1]; });
+            for(var key in assetsIndex) {
+                if (! assetsIndex[key].hidden)
+                    assets.push(assetsIndex[key].asset);
             }
 
-            if (assets && assets.length) {
+            for(var key in scriptsIndex) {
+                if (! scriptsIndex[key].hidden)
+                    assets.push(scriptsIndex[key].script);
+            }
+
+            if (assets.length) {
                 editor.call('selector:set', 'asset', assets);
             } else {
                 editor.call('selector:clear');
@@ -1161,3 +1153,6 @@ editor.once('load', function() {
     editor.on('sourcefiles:add', addSourceFile);
     editor.on('sourcefiles:remove', removeSourceFile);
 });
+
+
+

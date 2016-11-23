@@ -6,131 +6,105 @@ editor.once('load', function() {
     var renderer = app.renderer;
     var scene = editor.call('preview:scene');
 
-    var sphere = new pc.Entity();
-    sphere.name = 'sphere';
-    sphere.setPosition(0, 0, -2);
-    sphere.addComponent('model', {
-        type: 'sphere'
+    var pitch = 0;
+    var yaw = 0;
+
+    var slots = { 'aoMap': 1, 'diffuseMap': 1, 'specularMap': 1, 'metalnessMap': 1, 'glossMap': 1, 'emissiveMap': 1, 'opacityMap': 1, 'normalMap': 1, 'heightMap': 1, 'sphereMap': 1, 'cubeMap': 1, 'lightMap': 1 };
+
+
+    // material
+    var material = new pc.StandardMaterial();
+    material._scene = scene;
+
+
+    // sphere
+    var sphereNode = new pc.GraphNode();
+
+    var currentModel = 'sphere';
+
+    var meshBox = pc.createBox(device, {
+        halfExtents: new pc.Vec3(0.3, 0.3, 0.3)
     });
-    scene.root.addChild(sphere);
-
-    var cameraEntity = new pc.Entity();
-    cameraEntity.name = 'camera';
-    cameraEntity.addComponent('camera', {
-        nearClip: 0.1,
-        farClip: 128,
-        clearColor: new pc.Color(0.0, 0.5, 1.0, 1.0),
-        frustumCulling: false
+    var meshSphere = pc.createSphere(device, {
+        radius: 0.5,
+        latitudeBands: 64,
+        longitudeBands: 64
     });
-    scene.root.addChild(cameraEntity);
 
-    var cameraComponent = cameraEntity.camera;
-    var camera = cameraComponent.camera;
+    var model = new pc.Model();
+    model.node = sphereNode;
+    model.meshInstances = [ new pc.MeshInstance(sphereNode, meshSphere, material ) ];
+
+    scene.addModel(model);
 
 
+    // light
+    var lightNode = new pc.GraphNode();
+    lightNode.setLocalEulerAngles(45, 45, 0);
 
-    editor.method('preview:render:material', function(asset, target) {
-        // console.log('rendering material', asset.get('name'));
+    var light = new pc.Light();
+    light.enabled = true;
+    light.type = pc.LIGHTTYPE_DIRECTIONAL;
+    light._node = lightNode;
 
-        scene.root.syncHierarchy();
+    model.lights = [ light ];
+    scene.addLight(light);
 
+
+    // camera
+    var cameraNode = new pc.GraphNode();
+    cameraNode.setLocalPosition(0, 0, 1.5);
+
+    var camera = new pc.Camera();
+    camera._node = cameraNode;
+    camera._nearClip = 0.1;
+    camera._farClip = 32;
+    camera._clearOptions.color = [ 41 / 255, 53 / 255, 56 / 255, 1.0 ];
+    camera.frustumCulling = false;
+
+
+    editor.method('preview:material:render', function(asset, target) {
         camera.setAspectRatio(target.height / target.width);
         camera.setRenderTarget(target);
 
-        cameraComponent.frameBegin();
+        var id = asset.get('id');
+        var sourceMaterial = app.assets.get(id);
+        if (! sourceMaterial) return;
+
+        sphereNode.setLocalEulerAngles(pitch, yaw, 0);
+        sphereNode.syncHierarchy();
+
+        if (! sourceMaterial.resource)
+            app.assets.load(sourceMaterial);
+
+        sourceMaterial.resource.update();
+        material.copyParameters(sourceMaterial.resource);
+        material.update();
+
         renderer.render(scene, camera);
-        cameraComponent.frameEnd();
+    });
 
-        console.log(scene)
+    editor.method('preview:material:rotation', function(p, y) {
+        if (p === undefined)
+            return [ pitch, yaw ];
 
-        // renderer.render(scene, camera);
+        pitch = p;
+        yaw = y;
+    });
 
-        // var material = app.assets.get(asset.get('id'));
-        //
-        // if (! material.resource)
-        //     return;
-        //
-        // console.log(material.resource.diffuseMap);
-        //
-        // sphere.material = material.resource;
-        //
-        // scene._activeCamera = camera;
-        //
-        // camera.setAspectRatio(target.height / target.width);
-        // camera.setRenderTarget(target);
-        // camera.getProjectionMatrix();
-        // renderer.updateCameraFrustum(camera);
-        // renderer.setCamera(camera);
-        // renderer.dispatchGlobalLights(scene);
-        //
-        // console.log(camera, sphere)
-        //
-        // var oldBlending = device.getBlending();
-        // device.setBlending(false);
-        //
-        // var drawCalls = [ sphere.model.meshInstances[0] ];
-        //
-        // for(var i = 0; i < drawCalls.length; i++) {
-        //     var opChan = 'r';
-        //     var meshInstance = drawCalls[i];
-        //     if (! meshInstance.command && meshInstance.material) {
-        //         var mesh = meshInstance.mesh;
-        //         var material = meshInstance.material;
-        //
-        //         renderer.modelMatrixId.setValue(meshInstance.node.worldTransform.data);
-        //
-        //         if (! meshInstance._shader[pc.SHADER_FORWARD]) {
-        //             meshInstance._shader[pc.SHADER_FORWARD] = material.variants[meshInstance._shaderDefs];
-        //             if (! meshInstance._shader[pc.SHADER_FORWARD]) {
-        //                 material.updateShader(device, scene, meshInstance._shaderDefs);
-        //                 meshInstance._shader[pc.SHADER_FORWARD] = material.variants[meshInstance._shaderDefs] = material.shader;
-        //             }
-        //         }
-        //
-        //         device.setShader(meshInstance._shader[pc.SHADER_FORWARD]);
-        //
-        //         // Uniforms I: material
-        //         var parameters = material.parameters;
-        //         for (var paramName in parameters) {
-        //             var parameter = parameters[paramName];
-        //             if (! parameter.scopeId)
-        //                 parameter.scopeId = device.scope.resolve(paramName);
-        //
-        //             parameter.scopeId.setValue(parameter.data);
-        //         }
-        //
-        //         renderer.alphaTestId.setValue(material.alphaTest);
-        //
-        //         device.setBlending(material.blend);
-        //         device.setBlendFunction(material.blendSrc, material.blendDst);
-        //         device.setBlendEquation(material.blendEquation);
-        //         device.setColorWrite(material.redWrite, material.greenWrite, material.blueWrite, material.alphaWrite);
-        //         device.setCullMode(material.cull);
-        //         device.setDepthWrite(material.depthWrite);
-        //         device.setDepthTest(material.depthTest);
-        //         device.setStencilTest(false);
-        //
-        //         // Uniforms II: meshInstance overrides
-        //         var parameters = meshInstance.parameters;
-        //         for (var paramName in parameters) {
-        //             var parameter = parameters[paramName];
-        //             if (! parameter.scopeId)
-        //                 parameter.scopeId = device.scope.resolve(paramName);
-        //
-        //             parameter.scopeId.setValue(parameter.data);
-        //         }
-        //
-        //         var style = meshInstance.renderStyle;
-        //
-        //         device.setVertexBuffer(mesh.vertexBuffer, 0);
-        //         device.setIndexBuffer(mesh.indexBuffer[style]);
-        //         device.draw(mesh.primitive[style]);
-        //
-        //         console.log(material);
-        //     }
-        // }
-        //
-        // camera.setRenderTarget(null);
-        // device.setBlending(oldBlending);
+    editor.method('preview:material:model', function(value) {
+        if (value === undefined)
+            return currentModel;
+
+        if (currentModel === value)
+            return;
+
+        if (value === 'box') {
+            currentModel = 'box';
+            model.meshInstances[0].mesh = meshBox;
+        } else {
+            currentModel = 'sphere';
+            model.meshInstances[0].mesh = meshSphere;
+        }
     });
 });

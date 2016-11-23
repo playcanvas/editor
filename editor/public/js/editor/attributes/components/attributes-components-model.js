@@ -77,7 +77,7 @@ editor.once('load', function() {
 
                 // modify last history action to include changing
                 // the mapping
-                var lastHistoryAction = editor.call('history:current');
+                var lastHistoryAction = editor.call('history:list')[editor.call('history:current')];
                 var lastUndo = lastHistoryAction.undo;
                 var lastRedo = lastHistoryAction.redo;
 
@@ -110,9 +110,7 @@ editor.once('load', function() {
                         });
 
                         changingAsset = false;
-
                     });
-
                 };
 
                 lastHistoryAction.redo = function () {
@@ -136,7 +134,6 @@ editor.once('load', function() {
 
                         changingAsset = false;
                     });
-
                 };
 
                 changingAsset = false;

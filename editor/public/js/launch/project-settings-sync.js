@@ -10,9 +10,10 @@ editor.once('load', function() {
     // handle changes by others
     editor.on('messenger:project.update', function (data) {
         for (var path in data) {
-            var p = path;
-            if (path.startsWith('settings.'))
-                p = path.substring(9);
+            if (! path.startsWith('settings.'))
+                continue;
+
+            var p = path.substring(9);
 
             var history = settings.history;
             settings.history = false;

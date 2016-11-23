@@ -43,6 +43,18 @@ editor.once('load', function() {
 
     // auto toggle
     var elAuto = document.createElement('div');
+
+    if (! editor.call('permissions:write'))
+        elAuto.style.display = 'none';
+
+    editor.on('permissions:writeState', function(state) {
+        if (state) {
+            elAuto.style.display = '';
+        } else {
+            elAuto.style.display = 'none';
+        }
+    });
+
     elAuto.classList.add('auto-toggle');
     tooltipBake.innerElement.appendChild(elAuto);
 
@@ -134,3 +146,6 @@ editor.once('load', function() {
         }
     });
 });
+
+
+

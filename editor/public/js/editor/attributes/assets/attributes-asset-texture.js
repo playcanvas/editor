@@ -2,19 +2,6 @@ editor.once('load', function() {
     'use strict';
 
     var panelsStates = { };
-    var paidPlans = {
-        2: true,
-        3: true,
-        4: true,
-        5: true,
-        6: true,
-        7: true,
-        8: true,
-        9: true,
-        10: true,
-        11: true,
-        12: true
-    };
 
     editor.on('attributes:inspect[asset]', function(assets) {
         for(var i = 0; i < assets.length; i++) {
@@ -27,9 +14,11 @@ editor.once('load', function() {
         var ids = [ ];
         for(var i = 0; i < assets.length; i++)
             ids.push(assets[i].get('id'));
+
         ids = ids.sort(function(a, b) {
             return a - b;
         }).join(',');
+
         var panelState = panelsStates[ids];
         var panelStateNew = false;
         if (! panelState) {
@@ -138,16 +127,6 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'asset:texture:depth', fieldDepth.parent.innerElement.firstChild.ui);
 
-        // rgbm
-        var fieldRgbm = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Rgbm',
-            link: assets,
-            path: 'data.rgbm',
-            type: 'checkbox'
-        });
-        // reference
-        editor.call('attributes:reference:attach', 'asset:texture:rgbm', fieldRgbm.parent.innerElement.firstChild.ui);
 
         // alpha
         var fieldAlpha = editor.call('attributes:addField', {
@@ -165,6 +144,7 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'asset:texture:alpha', fieldAlpha.parent.innerElement.firstChild.ui);
 
+
         // interlaced
         var fieldInterlaced = editor.call('attributes:addField', {
             parent: panel,
@@ -180,6 +160,30 @@ editor.once('load', function() {
         fieldInterlaced.on('change', checkInterlacedField);
         // reference
         editor.call('attributes:reference:attach', 'asset:texture:interlaced', fieldInterlaced.parent.innerElement.firstChild.ui);
+
+
+        // rgbm
+        var fieldRgbm = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Rgbm',
+            link: assets,
+            path: 'data.rgbm',
+            type: 'checkbox'
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'asset:texture:rgbm', fieldRgbm.parent.innerElement.firstChild.ui);
+
+
+        // mipmaps
+        var fieldMips = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Mipmaps',
+            link: assets,
+            path: 'data.mipmaps',
+            type: 'checkbox'
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'asset:texture:mipmaps', fieldMips.parent.innerElement.firstChild.ui);
 
 
         // filtering
@@ -377,7 +381,7 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'asset:texture:compression', panelCompression, panelCompression.headerElement);
 
-        if (! config.self.superUser && ! config.self.betaTester && ! paidPlans[config.self.plan.id])
+        if (! config.self.superUser && ! config.self.betaTester && config.owner.plan.type === 'free')
             panelCompression.hidden = true;
 
         // compress alpha
@@ -740,7 +744,8 @@ editor.once('load', function() {
                         asset: parseInt(assets[i].get('id'), 10),
                         options: {
                             formats: variants,
-                            alpha: assets[i].get('meta.compress.alpha') && (assets[i].get('meta.alpha') || assets[i].get('meta.type').toLowerCase() === 'truecoloralpha')
+                            alpha: assets[i].get('meta.compress.alpha') && (assets[i].get('meta.alpha') || assets[i].get('meta.type').toLowerCase() === 'truecoloralpha'),
+                            mipmaps: assets[i].get('data.mipmaps')
                         }
                     };
 
@@ -773,6 +778,7 @@ editor.once('load', function() {
             var rgbm = asset.get('data.rgbm');
             var alpha = asset.get('meta.compress.alpha') && (asset.get('meta.alpha') || ((asset.get('meta.type') || '').toLowerCase() === 'truecoloralpha')) || rgbm;
             var compress = asset.get('meta.compress.' + format);
+            var mipmaps = asset.get('data.mipmaps');
 
             if (!! data !== compress) {
                 if (format === 'etc1' && alpha)
@@ -782,7 +788,7 @@ editor.once('load', function() {
                     return false;
 
                 return true;
-            } else if (data && ((((data.opt & 1) != 0) != alpha))) {
+            } else if (data && ((((data.opt & 1) !== 0) != alpha))) {
                 return true;
             }
 
@@ -797,6 +803,9 @@ editor.once('load', function() {
                 if (! data && alpha)
                     return false;
             }
+
+            if (data && ((data.opt & 4) !== 0) !== ! mipmaps)
+                return true;
 
             return false;
         };
@@ -825,8 +834,8 @@ editor.once('load', function() {
             btnCompress.disabled = ! different;
         };
         var queueCheck = false;
-        var onAssetChaneCompression = function(path) {
-            if (queueCheck || (path !== 'task' && ! path.startsWith('meta') && ! path.startsWith('file') && ! path.startsWith('data.rgbm')))
+        var onAssetChangeCompression = function(path) {
+            if (queueCheck || (path !== 'task' && ! path.startsWith('meta') && ! path.startsWith('file') && ! path.startsWith('data.rgbm') && ! path.startsWith('data.mipmaps')))
                 return;
 
             queueCheck = true;
@@ -838,8 +847,8 @@ editor.once('load', function() {
             }, 0);
         };
         for(var i = 0; i < assets.length; i++) {
-            events.push(assets[i].on('*:set', onAssetChaneCompression));
-            events.push(assets[i].on('*:unset', onAssetChaneCompression));
+            events.push(assets[i].on('*:set', onAssetChangeCompression));
+            events.push(assets[i].on('*:unset', onAssetChangeCompression));
         }
         checkCompression();
 

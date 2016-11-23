@@ -177,6 +177,18 @@ editor.once('load', function() {
         subTitle: '{Number}',
         description: 'Maximum resolution for auto-generated lightmap textures.',
         url: 'http://developer.playcanvas.com/api/pc.Scene.html#lightmapMaxResolution'
+    }, {
+        name: 'facebook',
+        title: 'Facebook Settings',
+        description: 'Settings for publishing on Facebook Instant Games'
+    }, {
+        name: 'facebook:app-id',
+        title: 'App ID',
+        description: 'This is the Facebook App ID which you can find at the dashboard of your Facebook application.'
+    }, {
+        name: 'facebook:upload-token',
+        title: 'Upload Access Token',
+        description: 'An Access Token for uploading a build to Facebook.'
     }];
 
     for(var i = 0; i < fields.length; i++) {

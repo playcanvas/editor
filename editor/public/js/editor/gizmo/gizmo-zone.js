@@ -389,6 +389,9 @@ editor.once('load', function() {
         };
 
         var onPointDragStart = function() {
+            if (! editor.call('permissions:write'))
+                return;
+
             dragPoint = hoverPoint;
             dragLength = lastZone._link.entity.zone.size[dragPoint.axis];
             dragPos.copy(lastZone._link.entity.getLocalPosition());
@@ -475,6 +478,9 @@ editor.once('load', function() {
                 point.entity.model.meshInstances[0].material = materials[i];
                 point.scale[scales[i][0]] = 2;
                 point.scale[scales[i][1]] = 2;
+
+                point.entity.enabled = editor.call('permissions:write');
+
                 events.push(point.on('focus', onPointFocus));
                 events.push(point.on('blur', onPointBlur));
                 events.push(point.on('dragStart', onPointDragStart));
@@ -486,6 +492,14 @@ editor.once('load', function() {
             container.addChild(plane);
             editor.call('viewport:render');
         };
+
+        editor.on('permissions:writeState', function(state) {
+            if (! points || ! points.length)
+                return;
+
+            for(var i = 0; i < points.length; i++)
+                points[i].entity.enabled = state;
+        });
 
         var pointsDestroy = function() {
             for(var i = 0; i < points.length; i++)
@@ -748,3 +762,6 @@ editor.once('load', function() {
         createModels();
     });
 });
+
+
+

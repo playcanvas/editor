@@ -9,9 +9,13 @@ editor.once('load', function() {
 
     // list
     var hierarchy = new ui.Tree();
-    hierarchy.allowRenaming = true;
+    hierarchy.allowRenaming = editor.call('permissions:write');
     hierarchy.class.add('hierarchy');
     panel.append(hierarchy);
+
+    editor.on('permissions:writeState', function(state) {
+        hierarchy.allowRenaming = state;
+    });
 
     var resizeTree = function() {
         hierarchy.element.style.width = '';
@@ -495,3 +499,6 @@ editor.once('load', function() {
     });
 
 });
+
+
+

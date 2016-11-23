@@ -3,6 +3,7 @@ editor.once('load', function() {
 
     var root = editor.call('layout.root');
     var assetsPanel = editor.call('layout.assets');
+    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
     var currentFolder = null;
     var currentPath = [ ];
 
@@ -38,8 +39,15 @@ editor.once('load', function() {
                 } catch(ex) { }
             }
 
-            if (normalSearch)
+            if (normalSearch) {
                 visible = name.toLowerCase().indexOf(search.value.toLowerCase()) !== -1;
+
+                if (! visible && type === 'asset') {
+                    var id = parseInt(search.value, 10);
+                    if (id && id.toString() === search.value)
+                        visible = parseInt(item.get('id'), 10) === id;
+                }
+            }
         }
 
         // folder
@@ -157,7 +165,11 @@ editor.once('load', function() {
     editor.on('assets:panel:currentFolder', function(asset) {
         if (asset) {
             if (typeof(asset) === 'string') {
-                currentFolder = 'scripts';
+                if (legacyScripts) {
+                    currentFolder = 'scripts';
+                } else {
+                    currentFolder = null;
+                }
                 currentPath = null;
             } else {
                 currentFolder = parseInt(asset.get('id'));
@@ -195,6 +207,7 @@ editor.once('load', function() {
     var search = new ui.TextField({
         placeholder: 'Search'
     });
+    search.blurOnEnter = false;
     search.keyChange = true;
     search.class.add('search');
     search.renderChanges = false;
@@ -233,3 +246,6 @@ editor.once('load', function() {
         root: root
     });
 });
+
+
+

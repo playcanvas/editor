@@ -34,11 +34,11 @@ editor.once('load', function() {
 
 
     // current
-    editor.method('history:current', function(action) {
+    editor.method('history:current', function() {
         if (current === -1)
             return null;
 
-        return actions[current];
+        return current;
     });
 
 
@@ -116,8 +116,8 @@ editor.once('load', function() {
     });
 
     // list history
-    editor.method('history:list', function () {
-        return actions.slice();
+    editor.method('history:list', function() {
+        return actions;
     });
 
     // hotkey undo
@@ -125,6 +125,9 @@ editor.once('load', function() {
         key: 'z',
         ctrl: true,
         callback: function() {
+            if (! editor.call('permissions:write'))
+                return;
+
             editor.call('history:undo');
         }
     });
@@ -135,6 +138,9 @@ editor.once('load', function() {
         ctrl: true,
         shift: true,
         callback: function() {
+            if (! editor.call('permissions:write'))
+                return;
+
             editor.call('history:redo');
         }
     });
@@ -144,7 +150,13 @@ editor.once('load', function() {
         key: 'y',
         ctrl: true,
         callback: function() {
+            if (! editor.call('permissions:write'))
+                return;
+
             editor.call('history:redo');
         }
     });
 });
+
+
+

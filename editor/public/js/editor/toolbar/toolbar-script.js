@@ -21,6 +21,7 @@ editor.once('load', function () {
     panel.append(label);
 
     var fieldName = new ui.TextField();
+    fieldName.blurOnEnter = false;
     fieldName.renderChanges = false;
     panel.append(fieldName);
 

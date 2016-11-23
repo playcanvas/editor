@@ -153,6 +153,8 @@ editor.once('load', function () {
             placeholder: 'Enter Scene name and press Enter'
         });
 
+        input.blurOnEnter = false;
+
         listItem.element.appendChild(input.element);
 
         input.elementInput.focus();

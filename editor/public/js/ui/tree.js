@@ -67,7 +67,9 @@ Tree.prototype._onItemClick = function(item) {
                 item = item.ui;
 
             if (item) {
-                if (item.open && item._children) {
+                if (refItem.parent && refItem.parent === item && refItem.parent instanceof TreeItem) {
+                    result = refItem.parent;
+                } else if (item.open && item._children) {
                     // element above is open, find last available element
                     var last = item.element.lastChild;
                     if (last.ui)
@@ -99,8 +101,6 @@ Tree.prototype._onItemClick = function(item) {
                 } else {
                     result = item;
                 }
-            } else if (refItem.parent && refItem.parent instanceof TreeItem) {
-                result = refItem.parent;
             }
 
             return result;

@@ -181,7 +181,6 @@ editor.once('load', function() {
             precision: 3,
             step: .05,
             min: 0,
-            max: 32,
             link: sceneSettings,
             path: 'render.skyboxIntensity'
         });
@@ -192,7 +191,7 @@ editor.once('load', function() {
         // skyboxIntensity slider
         var fieldExposureSlider = new ui.Slider({
             min: 0,
-            max: 32,
+            max: 8,
             precision: 3
         });
         fieldExposureSlider.flexGrow = 4;
@@ -251,7 +250,6 @@ editor.once('load', function() {
             precision: 2,
             step: .1,
             min: 0,
-            max: 32,
             link: sceneSettings,
             path: 'render.exposure'
         });
@@ -263,7 +261,7 @@ editor.once('load', function() {
         // exposure slider
         var fieldExposureSlider = new ui.Slider({
             min: 0,
-            max: 32,
+            max: 8,
             precision: 2
         });
         fieldExposureSlider.flexGrow = 4;
@@ -479,7 +477,6 @@ editor.once('load', function() {
         });
         fieldVr.parent.innerElement.firstChild.style.width = 'auto';
         editor.call('attributes:reference:attach', 'settings:project:vr', fieldVr.parent.innerElement.firstChild.ui);
-        fieldVr.parent.hidden = !config.self.betaTester && !config.self.superUser;
 
         filter();
 
@@ -710,6 +707,7 @@ editor.once('load', function() {
                 name: 'Script',
                 type: 'button'
             });
+            fieldScriptPicker.class.add('script-picker');
 
             fieldScriptPicker.style['font-size'] = '11px';
             fieldScriptPicker.parent.hidden = true;
@@ -724,12 +722,17 @@ editor.once('load', function() {
 
             var onLoadingScreen = function (loadingScreen) {
                 var text;
+                var missing = false;
                 if (projectSettings.get('use_legacy_scripts')) {
                     text = loadingScreen;
-                } else {
+                } else if (loadingScreen) {
                     var asset = editor.call('assets:get', loadingScreen);
-                    if (asset)
+                    if (asset) {
                         text = asset.get('name');
+                    } else {
+                        missing = true;
+                        text = 'Missing';
+                    }
                 }
 
                 if (text) {
@@ -739,6 +742,12 @@ editor.once('load', function() {
                 } else {
                     fieldScriptPicker.parent.hidden = true;
                     panelButtons.hidden = false;
+                }
+
+                if (missing) {
+                    fieldScriptPicker.class.add('error');
+                } else {
+                    fieldScriptPicker.class.remove('error');
                 }
             };
 
@@ -811,3 +820,6 @@ editor.once('load', function() {
         }
     });
 });
+
+
+

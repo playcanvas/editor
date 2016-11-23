@@ -167,7 +167,7 @@ editor.once('load', function() {
         }
     }
 
-    if (config.project.settings.vr && !pc.VrManager.hasWebVr()) {
+    if (config.project.settings.vr && !pc.VrManager.isSupported) {
         libraryUrls.push(config.url.webvr);
     }
 
