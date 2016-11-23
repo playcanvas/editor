@@ -5,6 +5,7 @@ editor.once('load', function() {
     var viewport = editor.call('layout.viewport');
     var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
 
+    var settings = editor.call('designerSettings');
     var privateSettings = editor.call('project:privateSettings');
 
     // panel
@@ -89,6 +90,30 @@ editor.once('load', function() {
         local.on('change', function (value) {
             fb.parent.disabled = value;
         });
+
+        var getTooltipText = function () {
+            var tooltipText = 'Enable this if you want to load scripts from your local server.';
+            if (settings.get('local_server')) {
+                tooltipText +=  ' If enabled scripts will be loaded from <a href="' +
+                       settings.get('local_server') + '" target="_blank">' + settings.get('local_server') + '</a>.';
+            }
+
+            tooltipText += ' You can change your Local Server URL from the Editor settings.';
+            return tooltipText;
+        };
+
+        settings.on('local_server:set', function () {
+            tooltipLocal.html = getTooltipText();
+        });
+
+        var tooltipLocal = Tooltip.attach({
+            target: local.parent.element,
+            html: getTooltipText(),
+            align: 'right',
+            root: root
+        });
+
+        tooltipLocal.class.add('launch-tooltip');
     }
 
     var fb = createOption('facebook', 'Launch on Facebook');
@@ -102,7 +127,7 @@ editor.once('load', function() {
         align: 'right',
         root: root
     });
-    tooltipFb.class.add('launch-facebook');
+    tooltipFb.class.add('launch-tooltip');
 
     if (privateSettings.get('facebook.app_id')) {
         tooltipFb.class.add('invisible');
@@ -135,8 +160,6 @@ editor.once('load', function() {
 
     var launchApp = function () {
         var url = (window.location.origin + window.location.pathname) + '/launch';
-
-        var settings = editor.call('designerSettings');
 
         var query = [ ];
 
