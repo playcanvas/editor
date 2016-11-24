@@ -985,6 +985,8 @@ editor.once('load', function() {
             thumbnail.width = 64;
             thumbnail.height = 64;
 
+            var watching = null;
+
             var positions = [ [ 32, 24 ], [ 0, 24 ], [ 16, 8 ], [ 16, 40 ], [ 16, 24 ], [ 48, 24 ] ];
             var images = [ null, null, null, null, null, null ];
 
@@ -1009,7 +1011,8 @@ editor.once('load', function() {
                     if (id) {
                         var texture = editor.call('assets:get', id);
                         if (texture) {
-                            if (images[i] && images[i].hash === texture.get('file.hash')) {
+                            var hash = texture.get('file.hash');
+                            if (images[i] && images[i].hash === hash) {
                                 image = images[i];
                             } else {
                                 var url = texture.get('thumbnails.s');
@@ -1021,9 +1024,9 @@ editor.once('load', function() {
 
                                 if (url) {
                                     image = images[i] = new Image();
-                                    image.hash = texture.get('file.hash');
+                                    image.hash = hash;
                                     image.onload = queueRender;
-                                    image.src = url;
+                                    image.src = url + '?t=' + hash;
                                 }
                             }
                         } else if (images[i]) {
@@ -1059,17 +1062,37 @@ editor.once('load', function() {
                 requestAnimationFrame(onRender);
             };
 
-            if (! item.hidden)
-                queueRender();
-
             item.on('show', function() {
                 if (thumbnail.changed)
                     queueRender();
+
+                if (! watching) {
+                    watching = editor.call('assets:cubemap:watch', {
+                        asset: asset,
+                        autoLoad: true,
+                        callback: queueRender
+                    });
+                }
             });
             item.on('hide', function() {
                 if (! watching)
                     return;
+
+                editor.call('assets:cubemap:unwatch', asset, watching);
+                watching = null;
             });
+
+            if (! item.hidden) {
+                queueRender();
+
+                if (! watching) {
+                    watching = editor.call('assets:cubemap:watch', {
+                        asset: asset,
+                        autoLoad: true,
+                        callback: queueRender
+                    });
+                }
+            }
 
             evtAssetChanged = asset.on('*:set', function(path) {
                 if (queuedRender || ! path.startsWith('data.textures'))

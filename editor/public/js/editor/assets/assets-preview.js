@@ -22,6 +22,12 @@ editor.once('load', function () {
     };
     var skyboxAsset;
 
+    app._onSkyboxChangeOld = app._onSkyboxChange;
+    app._onSkyboxChange = function(asset) {
+        skyboxOnLoad(asset);
+        app._onSkyboxChangeOld(asset);
+    };
+
     app._skyboxLoadOld = app._skyboxLoad;
     app._skyboxLoad = function(asset) {
         app._skyboxLoadOld.call(this, asset);
