@@ -3169,6 +3169,12 @@ strong {
                 font-size: 48px;
                 font-weight: 100;
             }
+            &.flipY {
+                transform: scale(1, -1);
+                -ms-transform: scale(1, -1);
+                -moz-transform: scale(1, -1);
+                -webkit-transform: scale(1, -1);
+            }
         }
         &.source {
             > .thumbnail {

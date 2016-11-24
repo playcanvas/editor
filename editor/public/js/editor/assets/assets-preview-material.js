@@ -9,13 +9,16 @@ editor.once('load', function() {
     var pitch = 0;
     var yaw = 0;
 
-    var slots = { 'aoMap': 1, 'diffuseMap': 1, 'specularMap': 1, 'metalnessMap': 1, 'glossMap': 1, 'emissiveMap': 1, 'opacityMap': 1, 'normalMap': 1, 'heightMap': 1, 'sphereMap': 1, 'cubeMap': 1, 'lightMap': 1 };
-
 
     // material
     var material = new pc.StandardMaterial();
     material._scene = scene;
 
+    var mapping = editor.call('assets:material:mapping');
+    var mappingShading = {
+        'phong': 0,
+        'blinn': 1
+    };
 
     // sphere
     var sphereNode = new pc.GraphNode();
@@ -53,49 +56,79 @@ editor.once('load', function() {
 
     // camera
     var cameraNode = new pc.GraphNode();
-    cameraNode.setLocalPosition(0, 0, 1.5);
+    cameraNode.setLocalPosition(0, 0, 1.35);
 
     var camera = new pc.Camera();
     camera._node = cameraNode;
     camera._nearClip = 0.1;
     camera._farClip = 32;
-    camera._clearOptions.color = [ 41 / 255, 53 / 255, 56 / 255, 1.0 ];
+    camera._clearOptions.color = [ 41 / 255, 53 / 255, 56 / 255, 0.0 ];
     camera.frustumCulling = false;
 
 
-    editor.method('preview:material:render', function(asset, target) {
+    editor.method('preview:material:render', function(asset, target, args) {
+        args = args || { };
+
         camera.setAspectRatio(target.height / target.width);
         camera.setRenderTarget(target);
 
-        var id = asset.get('id');
-        var sourceMaterial = app.assets.get(id);
-        if (! sourceMaterial) return;
+        var data = asset.get('data');
+        if (! data) return;
+
+        setModel(args.model || 'sphere');
+        pitch = args.rotation && args.rotation[0] || 0;
+        yaw = args.rotation && args.rotation[1] || 0;
 
         sphereNode.setLocalEulerAngles(pitch, yaw, 0);
         sphereNode.syncHierarchy();
 
-        if (! sourceMaterial.resource)
-            app.assets.load(sourceMaterial);
+        // update material
+        for(var key in mapping) {
+            var value = data.hasOwnProperty(key) ? data[key] : mapping[key].default;
 
-        sourceMaterial.resource.update();
-        material.copyParameters(sourceMaterial.resource);
+            switch(mapping[key].type) {
+                case 'boolean':
+                case 'string':
+                case 'int':
+                case 'float':
+                    material[key] = value;
+                    break;
+                case 'vec2':
+                    material[key].set(value[0], value[1]);
+                    break;
+                case 'rgb':
+                case 'vec3':
+                    material[key].set(value[0], value[1], value[2]);
+                    break;
+                case 'texture':
+                    if (value) {
+                        // TODO
+                        // handle async
+                        var textureAsset = app.assets.get(value);
+                        if (textureAsset) {
+                            if (textureAsset.resource) {
+                                material[key] = textureAsset.resource;
+                            } else {
+                                material[key] = null;
+                            }
+                        } else {
+                            material[key] = null;
+                        }
+                    } else {
+                        material[key] = null;
+                    }
+                    break;
+            }
+        }
+
+        material.shadingModel = mappingShading[data.shader];
+
         material.update();
 
         renderer.render(scene, camera);
     });
 
-    editor.method('preview:material:rotation', function(p, y) {
-        if (p === undefined)
-            return [ pitch, yaw ];
-
-        pitch = p;
-        yaw = y;
-    });
-
-    editor.method('preview:material:model', function(value) {
-        if (value === undefined)
-            return currentModel;
-
+    var setModel = function(value) {
         if (currentModel === value)
             return;
 
@@ -106,5 +139,5 @@ editor.once('load', function() {
             currentModel = 'sphere';
             model.meshInstances[0].mesh = meshSphere;
         }
-    });
+    };
 });

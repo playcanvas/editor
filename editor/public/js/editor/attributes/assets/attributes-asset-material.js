@@ -493,6 +493,10 @@ editor.once('load', function() {
         }
     };
 
+    editor.method('assets:material:mapping', function() {
+        return mapping;
+    });
+
     var mappingMaps = [
         'diffuse',
         'specular',
@@ -520,6 +524,8 @@ editor.once('load', function() {
         'light': [ 'lightMap' ],
         'states': [ ]
     };
+
+    var currentPreviewModel = 'sphere';
 
     var vecA = new pc.Vec3();
 
@@ -613,7 +619,6 @@ editor.once('load', function() {
             }
         }
 
-
         // preview
         if (assets.length === 1) {
             var previewContainer = document.createElement('div');
@@ -630,36 +635,40 @@ editor.once('load', function() {
                 text: '&#58121;'
             });
             modelSphere.class.add('sphere');
+            if (currentPreviewModel === 'sphere')
+                modelSphere.class.add('active');
             previewContainer.appendChild(modelSphere.element);
             modelSphere.parent = panelParams;
 
             modelSphere.on('click', function() {
-                editor.call('preview:material:model', 'sphere');
+                if (currentPreviewModel === 'sphere')
+                    return;
+
+                currentPreviewModel = 'sphere';
                 modelBox.class.remove('active');
                 modelSphere.class.add('active');
 
-                if (! awaitingRender) {
-                    awaitingRender = true;
-                    requestAnimationFrame(renderPreview);
-                }
+                queueRender();
             });
 
             var modelBox = new ui.Button({
                 text: '&#57735;'
             });
             modelBox.class.add('box');
+            if (currentPreviewModel === 'box')
+                modelBox.class.add('active');
             previewContainer.appendChild(modelBox.element);
             modelBox.parent = panelParams;
 
             modelBox.on('click', function() {
-                editor.call('preview:material:model', 'box');
+                if (currentPreviewModel === 'box')
+                    return;
+
+                currentPreviewModel = 'box';
                 modelSphere.class.remove('active');
                 modelBox.class.add('active');
 
-                if (! awaitingRender) {
-                    awaitingRender = true;
-                    requestAnimationFrame(renderPreview);
-                }
+                queueRender();
             });
 
             var sx = 0;
@@ -669,27 +678,10 @@ editor.once('load', function() {
             var nx = 0;
             var ny = 0;
             var dragging = false;
-            var clicking = true;
-            var clickStart = 0;
             var materialRotation = [ 0, 0 ];
             var awaitingRender = false;
 
             preview.addEventListener('mousedown', function(evt) {
-                if (evt.button === 2) {
-                    var model = editor.call('preview:material:model');
-                    if (model === 'box') {
-                        editor.call('preview:material:model', 'sphere');
-                        modelBox.class.remove('active');
-                        modelSphere.class.add('active');
-                    } else {
-                        editor.call('preview:material:model', 'box');
-                        modelSphere.class.remove('active');
-                        modelBox.class.add('active');
-                    }
-                    queueRender();
-                    return;
-                }
-
                 if (evt.button !== 0)
                     return;
 
@@ -699,9 +691,6 @@ editor.once('load', function() {
                 sx = x = evt.clientX;
                 sy = y = evt.clientY;
 
-                materialRotation = editor.call('preview:material:rotation');
-
-                clickStart = Date.now();
                 dragging = true;
             }, false);
 
@@ -714,35 +703,28 @@ editor.once('load', function() {
                 x = evt.clientX;
                 y = evt.clientY;
 
-                editor.call('preview:material:rotation', materialRotation[0] + (sy - y) * 0.3, materialRotation[1] - (sx - x) * 0.3);
-                if (! awaitingRender) {
-                    awaitingRender = true;
-                    requestAnimationFrame(renderPreview);
-                }
-
-                if ((Math.abs(sx - x) + Math.abs(sy - y)) > 8)
-                    clicking = false;
+                queueRender();
             };
 
             var onMouseUp = function(evt) {
                 if (! dragging)
                     return;
 
-                dragging = false;
-
-                if (clicking && (Date.now() - clickStart) < 500) {
+                if ((Math.abs(sx - x) + Math.abs(sy - y)) < 8) {
                     if (root.element.classList.contains('large')) {
                         root.element.classList.remove('large');
                     } else {
                         root.element.classList.add('large');
                     }
-                    if (! awaitingRender) {
-                        awaitingRender = true;
-                        requestAnimationFrame(renderPreview);
-                    }
-                } else {
-                    clicking = true;
                 }
+
+                materialRotation[0] += (sy - y) * 0.3;
+                materialRotation[1] -= (sx - x) * 0.3;
+                sx = sy = x = y = 0;
+
+                dragging = false;
+
+                queueRender();
             };
 
             window.addEventListener('mousemove', onMouseMove, false);
@@ -762,34 +744,19 @@ editor.once('load', function() {
                 awaitingRender = false;
 
                 // render
-                var imageData = editor.call('preview:render', assets[0], root.element.clientWidth);
+                var imageData = editor.call('preview:render', assets[0], root.element.clientWidth, root.element.clientWidth, {
+                    rotation: [ materialRotation[0] + (sy - y) * 0.3, materialRotation[1] - (sx - x) * 0.3 ],
+                    model: currentPreviewModel
+                });
+
                 preview.width = imageData.width;
                 preview.height = imageData.height;
+
                 ctx.putImageData(imageData, 0, 0);
                 // remember last render time
                 renderLast = Date.now();
             };
-            editor.call('preview:material:rotation', 0, 0);
             renderPreview();
-
-            var model = editor.call('preview:material:model');
-            if (model === 'box') {
-                modelSphere.class.remove('active');
-                modelBox.class.add('active');
-            } else {
-                modelBox.class.remove('active');
-                modelSphere.class.add('active');
-            }
-
-            var queueRender2 = function() {
-                editor.once('viewport:update', queueRender3);
-                editor.call('viewport:render');
-            };
-
-            var queueRender3 = function() {
-                editor.once('viewport:update', renderPreview);
-                editor.call('viewport:render');
-            };
 
             // queue up the rendering to prevent too oftern renders
             var queueRender = function() {
@@ -798,8 +765,7 @@ editor.once('load', function() {
 
                 renderQueued = true;
 
-                editor.once('viewport:update', queueRender2);
-                editor.call('viewport:render');
+                requestAnimationFrame(renderPreview);
             };
 
             // render on resize
@@ -812,6 +778,13 @@ editor.once('load', function() {
                     return;
 
                 queueRender();
+            });
+
+            // material textures loaded
+            var materialWatch = editor.call('assets:material:watch', {
+                asset: assets[0],
+                autoLoad: true,
+                callback: queueRender
             });
         }
 
@@ -888,10 +861,12 @@ editor.once('load', function() {
             panelParams.on('destroy', function() {
                 root.class.remove('asset-preview');
 
+                editor.call('assets:material:unwatch', assets[0], materialWatch);
+
                 evtSceneSettings.unbind();
                 evtPanelResize.unbind();
                 evtMaterialChanged.unbind();
-                preview.parentNode.removeChild(preview);
+                previewContainer.parentNode.removeChild(previewContainer);
 
                 window.removeEventListener('mousemove', onMouseMove);
                 window.removeEventListener('mouseup', onMouseUp);

@@ -411,13 +411,18 @@ editor.once('load', function() {
         if (assets.length === 1 && assets[0].has('data.mapping') && assets[0].get('data.mapping').length) {
             var root = editor.call('attributes.rootPanel');
 
+            var previewContainer = document.createElement('div');
+            previewContainer.classList.add('asset-preview-container');
+
             // preview
             var canvas = document.createElement('canvas');
             var ctx = canvas.getContext('2d');
             canvas.classList.add('asset-preview');
 
-            root.element.insertBefore(canvas, root.innerElement);
+            previewContainer.appendChild(canvas);
+
             root.class.add('asset-preview');
+            root.element.insertBefore(previewContainer, root.innerElement);
 
             requestAnimationFrame(function() {
                 root.class.add('animate');
@@ -511,8 +516,8 @@ editor.once('load', function() {
 
             panelNodes.on('destroy', function () {
                 root.class.remove('asset-preview', 'animate');
-                if (canvas.parentNode)
-                    canvas.parentNode.removeChild(canvas);
+                if (previewContainer.parentNode)
+                    previewContainer.parentNode.removeChild(previewContainer);
                 panelNodes = null;
             });
 
@@ -522,8 +527,8 @@ editor.once('load', function() {
                 panelPipeline.hidden = true;
 
                 root.class.remove('asset-preview', 'animate');
-                if (canvas.parentNode)
-                    canvas.parentNode.removeChild(canvas);
+                if (previewContainer.parentNode)
+                    previewContainer.parentNode.removeChild(previewContainer);
             }));
 
             // template nodes

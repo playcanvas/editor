@@ -899,7 +899,189 @@ editor.once('load', function() {
             }, false);
         }
 
-        var thumbnail = item.thumbnail = document.createElement('div');
+        var thumbnail;
+        var evtSceneSettings, evtAssetChanged;
+
+        if (asset.get('type') === 'material') {
+            var queuedRender = false;
+
+            thumbnail = document.createElement('canvas');
+            thumbnail.classList.add('flipY');
+            thumbnail.changed = true;
+            thumbnail.width = 128;
+            thumbnail.height = 128;
+
+            var watching = null;
+
+            var onRender = function() {
+                queuedRender = false;
+
+                if (item.hidden)
+                    return;
+
+                thumbnail.changed = false;
+
+                var ctx = thumbnail.ctx;
+                if (! ctx) ctx = thumbnail.ctx = thumbnail.getContext('2d');
+
+                var imageData = editor.call('preview:render', asset, 128);
+
+                ctx.putImageData(imageData, 0, 0);
+            };
+            var queueRender = function() {
+                if (queuedRender)
+                    return;
+
+                if (item.hidden) {
+                    thumbnail.changed = true;
+                    return;
+                }
+
+                queuedRender = true;
+
+                requestAnimationFrame(onRender);
+            };
+            item.on('show', function() {
+                if (thumbnail.changed)
+                    queueRender();
+
+                if (! watching) {
+                    watching = editor.call('assets:material:watch', {
+                        asset: asset,
+                        autoLoad: true,
+                        callback: queueRender
+                    });
+                }
+            });
+            item.on('hide', function() {
+                if (! watching)
+                    return;
+
+                editor.call('assets:material:unwatch', asset, watching);
+                watching = null;
+            });
+            if (! item.hidden) {
+                queueRender();
+
+                if (! watching) {
+                    watching = editor.call('assets:material:watch', {
+                        asset: asset,
+                        autoLoad: true,
+                        callback: queueRender
+                    });
+                }
+            }
+
+            evtSceneSettings = editor.on('preview:scene:changed', queueRender);
+            evtAssetChanged = asset.on('*:set', function(path) {
+                if (queuedRender || ! path.startsWith('data'))
+                    return;
+
+                queueRender();
+            });
+        } else if (asset.get('type') === 'cubemap') {
+            thumbnail = document.createElement('canvas');
+            thumbnail.changed = true;
+            thumbnail.width = 64;
+            thumbnail.height = 64;
+
+            var positions = [ [ 32, 24 ], [ 0, 24 ], [ 16, 8 ], [ 16, 40 ], [ 16, 24 ], [ 48, 24 ] ];
+            var images = [ null, null, null, null, null, null ];
+
+            var onRender = function() {
+                queuedRender = false;
+
+                if (item.hidden)
+                    return;
+
+                thumbnail.changed = false;
+
+                var ctx = thumbnail.ctx;
+                if (! ctx) ctx = thumbnail.ctx = thumbnail.getContext('2d');
+
+                ctx.clearRect(0, 0, 64, 64);
+
+                // left
+                for(var i = 0; i < 6; i++) {
+                    var id = asset.get('data.textures.' + i);
+                    var image = null;
+
+                    if (id) {
+                        var texture = editor.call('assets:get', id);
+                        if (texture) {
+                            if (images[i] && images[i].hash === texture.get('file.hash')) {
+                                image = images[i];
+                            } else {
+                                var url = texture.get('thumbnails.s');
+
+                                if (images[i])
+                                    images[i].onload = null;
+
+                                images[i] = null;
+
+                                if (url) {
+                                    image = images[i] = new Image();
+                                    image.hash = texture.get('file.hash');
+                                    image.onload = queueRender;
+                                    image.src = url;
+                                }
+                            }
+                        } else if (images[i]) {
+                            images[i].onload = null;
+                            images[i] = null;
+                        }
+                    } else if (images[i]) {
+                        images[i].onload = null;
+                        images[i] = null;
+                    }
+
+                    if (image) {
+                        ctx.drawImage(image, positions[i][0], positions[i][1], 16, 16);
+                    } else {
+                        ctx.beginPath();
+                        ctx.rect(positions[i][0], positions[i][1], 16, 16);
+                        ctx.fillStyle = '#000';
+                        ctx.fill();
+                    }
+                }
+            };
+            var queueRender = function() {
+                if (queuedRender)
+                    return;
+
+                if (item.hidden) {
+                    thumbnail.changed = true;
+                    return;
+                }
+
+                queuedRender = true;
+
+                requestAnimationFrame(onRender);
+            };
+
+            if (! item.hidden)
+                queueRender();
+
+            item.on('show', function() {
+                if (thumbnail.changed)
+                    queueRender();
+            });
+            item.on('hide', function() {
+                if (! watching)
+                    return;
+            });
+
+            evtAssetChanged = asset.on('*:set', function(path) {
+                if (queuedRender || ! path.startsWith('data.textures'))
+                    return;
+
+                queueRender();
+            });
+        } else {
+            thumbnail = document.createElement('div');
+        }
+
+        item.thumbnail = thumbnail;
         thumbnail.classList.add('thumbnail');
         item.element.appendChild(thumbnail);
 
@@ -1004,6 +1186,12 @@ editor.once('load', function() {
             events = null;
 
             delete assetsIndex[asset.get('id')];
+
+            if (evtSceneSettings)
+                evtSceneSettings.unbind();
+
+            if (evtAssetChanged)
+                evtAssetChanged.unbind();
         });
 
         // append to grid
@@ -1153,6 +1341,3 @@ editor.once('load', function() {
     editor.on('sourcefiles:add', addSourceFile);
     editor.on('sourcefiles:remove', removeSourceFile);
 });
-
-
-

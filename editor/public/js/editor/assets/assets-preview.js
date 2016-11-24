@@ -64,7 +64,7 @@ editor.once('load', function () {
             return;
 
         queueSettings = true;
-        setTimeout(applySettings, 10);
+        requestAnimationFrame(applySettings);
     };
 
     editor.on('sceneSettings:load', function(settings) {
@@ -95,18 +95,14 @@ editor.once('load', function () {
         target = new pc.RenderTarget(app.graphicsDevice, texture);
         renderTargets[width + '-' + height] = target;
 
-        // console.log(texture, target);
-
         target.buffer = new ArrayBuffer(width * height * 4);
         target.pixels = new Uint8Array(target.buffer);
         target.pixelsClamped = new Uint8ClampedArray(target.buffer);
 
-        console.log('created render target', width, height);
-
         return target;
     });
 
-    editor.method('preview:render', function(asset, width, height, blob) {
+    editor.method('preview:render', function(asset, width, height, args, blob) {
         var gl = app.graphicsDevice.gl;
 
         // choose closest POT resolution
@@ -117,7 +113,7 @@ editor.once('load', function () {
         var target = editor.call('preview:getTexture', width, height);
 
         // render
-        editor.call('preview:' + asset.get('type') + ':render', asset, target);
+        editor.call('preview:' + asset.get('type') + ':render', asset, target, args);
 
         canvas.width = width;
         canvas.height = height;
