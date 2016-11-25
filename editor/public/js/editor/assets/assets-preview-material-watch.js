@@ -3,7 +3,7 @@ editor.once('load', function() {
 
     var app = editor.call('viewport:app');
     var watching = { };
-    var slots = [ 'aoMap', 'diffuseMap', 'emissiveMap', 'glossMap', 'lightMap', 'metalnessMap', 'opacityMap', 'specularMap', 'normalMap' ];
+    var slots = [ 'aoMap', 'diffuseMap', 'emissiveMap', 'glossMap', 'lightMap', 'metalnessMap', 'opacityMap', 'specularMap', 'normalMap', 'cubeMap', 'sphereMap' ];
 
     var addTextureWatch = function(watch, slot, id) {
         watch.textures[slot] = {

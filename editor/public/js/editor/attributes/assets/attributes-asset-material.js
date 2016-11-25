@@ -619,8 +619,12 @@ editor.once('load', function() {
             }
         }
 
+        var previewTexturesHover = null;
+
         // preview
         if (assets.length === 1) {
+            previewTexturesHover = { };
+
             var previewContainer = document.createElement('div');
             previewContainer.classList.add('asset-preview-container');
 
@@ -718,8 +722,8 @@ editor.once('load', function() {
                     }
                 }
 
-                materialRotation[0] += (sy - y) * 0.3;
-                materialRotation[1] -= (sx - x) * 0.3;
+                materialRotation[0] = Math.max(-90, Math.min(90, materialRotation[0] + ((sy - y) * 0.3)));
+                materialRotation[1] += (sx - x) * 0.3;
                 sx = sy = x = y = 0;
 
                 dragging = false;
@@ -745,8 +749,9 @@ editor.once('load', function() {
 
                 // render
                 var imageData = editor.call('preview:render', assets[0], root.element.clientWidth, root.element.clientWidth, {
-                    rotation: [ materialRotation[0] + (sy - y) * 0.3, materialRotation[1] - (sx - x) * 0.3 ],
-                    model: currentPreviewModel
+                    rotation: [ Math.max(-90, Math.min(90, materialRotation[0] + (sy - y) * 0.3)), materialRotation[1] + (sx - x) * 0.3 ],
+                    model: currentPreviewModel,
+                    params: previewTexturesHover
                 });
 
                 preview.width = imageData.width;
@@ -786,6 +791,8 @@ editor.once('load', function() {
                 autoLoad: true,
                 callback: queueRender
             });
+
+            var evtMaterialTextureLoad = editor.on('assets:preview:material:texture', queueRender);
         }
 
         var handleTextureHover = function(path) {
@@ -794,6 +801,9 @@ editor.once('load', function() {
 
             return {
                 over: function(type, data) {
+                    if (previewTexturesHover !== null)
+                        previewTexturesHover[path] = parseInt(data.id, 10);
+
                     var texture = app.assets.get(parseInt(data.id, 10));
                     app.assets.load(texture);
 
@@ -824,9 +834,19 @@ editor.once('load', function() {
                     valueOld = [ ];
                     for(var i = 0; i < assets.length; i++)
                         attachTexture(i);
+
                     editor.call('viewport:render');
+
+                    if (queueRender)
+                        queueRender();
                 },
                 leave: function() {
+                    if (previewTexturesHover !== null)
+                        previewTexturesHover = { };
+
+                    if (queueRender)
+                        queueRender();
+
                     if (valueOld === null) return;
 
                     for(var i = 0; i < events.length; i++)
@@ -866,6 +886,7 @@ editor.once('load', function() {
                 evtSceneSettings.unbind();
                 evtPanelResize.unbind();
                 evtMaterialChanged.unbind();
+                evtMaterialTextureLoad.unbind();
                 previewContainer.parentNode.removeChild(previewContainer);
 
                 window.removeEventListener('mousemove', onMouseMove);

@@ -667,6 +667,53 @@ editor.once('load', function() {
         }
     });
 
+    var renderQueue = [ ];
+    var renderQueueIndex = { };
+
+    var renderQueueUpdate = function() {
+        requestAnimationFrame(renderQueueUpdate);
+
+        if (! renderQueue.length)
+            return;
+
+        var items = 0;
+        while(items < 4 && renderQueue.length) {
+            items++;
+            var id = renderQueue.shift();
+            delete renderQueueIndex[id];
+
+            if (! assetsIndex[id] || ! assetsIndex[id].thumbnail || ! assetsIndex[id].thumbnail.render)
+                continue;
+
+            assetsIndex[id].thumbnail.render();
+        }
+    };
+    requestAnimationFrame(renderQueueUpdate);
+
+    var renderQueueAdd = function(asset) {
+        var id = asset.get('id');
+        if (renderQueueIndex[id])
+            return;
+
+        if (! assetsIndex[id].thumbnail || ! assetsIndex[id].thumbnail.render)
+            return;
+
+        renderQueueIndex[id] = true;
+        renderQueue.push(id);
+    };
+
+    var renderQueueRemove = function(asset) {
+        var id = parseInt(asset.get('id'), 10);
+        if (! renderQueueIndex[id])
+            return;
+
+        var ind = renderQueue.indexOf(id);
+        if (ind !== -1)
+            renderQueue.splice(ind, 1);
+
+        delete renderQueueIndex[id];
+    };
+
     editor.on('assets:add', function(asset, pos) {
         asset._type = 'asset';
 
@@ -913,7 +960,7 @@ editor.once('load', function() {
 
             var watching = null;
 
-            var onRender = function() {
+            var onRender = thumbnail.render = function() {
                 queuedRender = false;
 
                 if (item.hidden)
@@ -929,17 +976,12 @@ editor.once('load', function() {
                 ctx.putImageData(imageData, 0, 0);
             };
             var queueRender = function() {
-                if (queuedRender)
-                    return;
-
                 if (item.hidden) {
                     thumbnail.changed = true;
-                    return;
+                    renderQueueRemove(asset);
+                } else {
+                    renderQueueAdd(asset);
                 }
-
-                queuedRender = true;
-
-                requestAnimationFrame(onRender);
             };
             item.on('show', function() {
                 if (thumbnail.changed)
@@ -972,7 +1014,9 @@ editor.once('load', function() {
                 }
             }
 
-            evtSceneSettings = editor.on('preview:scene:changed', queueRender);
+            evtSceneSettings = editor.on('preview:scene:changed', function() {
+                queueRender();
+            });
             evtAssetChanged = asset.on('*:set', function(path) {
                 if (queuedRender || ! path.startsWith('data'))
                     return;
@@ -990,7 +1034,7 @@ editor.once('load', function() {
             var positions = [ [ 32, 24 ], [ 0, 24 ], [ 16, 8 ], [ 16, 40 ], [ 16, 24 ], [ 48, 24 ] ];
             var images = [ null, null, null, null, null, null ];
 
-            var onRender = function() {
+            var onRender = thumbnail.render = function() {
                 queuedRender = false;
 
                 if (item.hidden)

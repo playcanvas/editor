@@ -19,6 +19,14 @@ editor.once('load', function() {
         'phong': 0,
         'blinn': 1
     };
+    var cubemapPrefiltered = [
+        'prefilteredCubeMap128',
+        'prefilteredCubeMap64',
+        'prefilteredCubeMap32',
+        'prefilteredCubeMap16',
+        'prefilteredCubeMap8',
+        'prefilteredCubeMap4'
+    ];
 
     // sphere
     var sphereNode = new pc.GraphNode();
@@ -55,8 +63,11 @@ editor.once('load', function() {
 
 
     // camera
+    var cameraOrigin = new pc.GraphNode();
+
     var cameraNode = new pc.GraphNode();
     cameraNode.setLocalPosition(0, 0, 1.35);
+    cameraOrigin.addChild(cameraNode);
 
     var camera = new pc.Camera();
     camera._node = cameraNode;
@@ -79,18 +90,24 @@ editor.once('load', function() {
         pitch = args.rotation && args.rotation[0] || 0;
         yaw = args.rotation && args.rotation[1] || 0;
 
-        sphereNode.setLocalEulerAngles(pitch, yaw, 0);
-        sphereNode.syncHierarchy();
+        cameraOrigin.setLocalEulerAngles(pitch, yaw, 0);
+        cameraOrigin.syncHierarchy();
+
+        light.intensity = 1.0 / (Math.min(1.0, scene.exposure) || 0.01);
 
         // update material
         for(var key in mapping) {
             var value = data.hasOwnProperty(key) ? data[key] : mapping[key].default;
+
+            if (args.params && args.params.hasOwnProperty(key))
+                value = args.params[key];
 
             switch(mapping[key].type) {
                 case 'boolean':
                 case 'string':
                 case 'int':
                 case 'float':
+                case 'number':
                     material[key] = value;
                     break;
                 case 'vec2':
@@ -100,7 +117,7 @@ editor.once('load', function() {
                 case 'vec3':
                     material[key].set(value[0], value[1], value[2]);
                     break;
-                case 'texture':
+                case 'cubemap':
                     if (value) {
                         // TODO
                         // handle async
@@ -111,11 +128,61 @@ editor.once('load', function() {
                             } else {
                                 material[key] = null;
                             }
+
+                            if (textureAsset.file && textureAsset.resources && textureAsset.resources.length === 7) {
+                                for(var i = 0; i < 6; i++)
+                                    material[cubemapPrefiltered[i]] = textureAsset.resources[i + 1];
+                            } else {
+                                for(var i = 0; i < 6; i++)
+                                    material[cubemapPrefiltered[i]] = null;
+                            }
+
+                            textureAsset.loadFaces = true;
+                            app.assets.load(textureAsset);
+                        } else {
+                            material[key] = null;
+                            for(var i = 0; i < 6; i++)
+                                material[cubemapPrefiltered[i]] = null;
+                        }
+                    } else {
+                        material[key] = null;
+                        for(var i = 0; i < 6; i++)
+                            material[cubemapPrefiltered[i]] = null;
+                    }
+                    break;
+                case 'texture':
+                    if (value) {
+                        // TODO
+                        // handle async
+                        var textureAsset = app.assets.get(value);
+                        if (textureAsset) {
+                            if (textureAsset.resource) {
+                                material[key] = textureAsset.resource;
+                            } else {
+                                app.assets.load(textureAsset);
+                                material[key] = null;
+                            }
                         } else {
                             material[key] = null;
                         }
                     } else {
                         material[key] = null;
+                    }
+                    break;
+                case 'object':
+                    switch(key) {
+                        case 'cubeMapProjectionBox':
+                            if (value) {
+                                if (material.cubeMapProjectionBox) {
+                                    material.cubeMapProjectionBox.center.set(0, 0, 0);
+                                    material.cubeMapProjectionBox.halfExtents.set(value.halfExtents[0], value.halfExtents[1], value.halfExtents[2]);
+                                } else {
+                                    material.cubeMapProjectionBox = new pc.BoundingBox(new pc.Vec3(0, 0, 0), new pc.Vec3(value.halfExtents[0], value.halfExtents[1], value.halfExtents[2]));
+                                }
+                            } else {
+                                material.cubeMapProjectionBox = null;
+                            }
+                            break;
                     }
                     break;
             }

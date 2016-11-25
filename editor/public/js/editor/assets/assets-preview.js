@@ -18,6 +18,7 @@ editor.once('load', function () {
         if (asset.resources) {
             scene.setSkybox(asset.resources);
             scene.skybox = null;
+            editor.emit('preview:scene:changed');
         }
     };
     var skyboxAsset;
