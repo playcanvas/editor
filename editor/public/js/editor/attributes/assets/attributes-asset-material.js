@@ -683,7 +683,6 @@ editor.once('load', function() {
             var ny = 0;
             var dragging = false;
             var materialRotation = [ 0, 0 ];
-            var awaitingRender = false;
 
             preview.addEventListener('mousedown', function(evt) {
                 if (evt.button !== 0)
@@ -738,14 +737,12 @@ editor.once('load', function() {
             root.class.add('asset-preview');
             root.element.insertBefore(previewContainer, root.innerElement);
 
-            var renderLast;
+            // rendering preview
             var renderQueued;
 
             var renderPreview = function () {
                 if (renderQueued)
                     renderQueued = false;
-
-                awaitingRender = false;
 
                 // render
                 var imageData = editor.call('preview:render', assets[0], root.element.clientWidth, root.element.clientWidth, {
@@ -758,18 +755,13 @@ editor.once('load', function() {
                 preview.height = imageData.height;
 
                 ctx.putImageData(imageData, 0, 0);
-                // remember last render time
-                renderLast = Date.now();
             };
             renderPreview();
 
             // queue up the rendering to prevent too oftern renders
             var queueRender = function() {
-                if (renderQueued)
-                    return;
-
+                if (renderQueued) return;
                 renderQueued = true;
-
                 requestAnimationFrame(renderPreview);
             };
 
@@ -777,22 +769,12 @@ editor.once('load', function() {
             var evtPanelResize = root.on('resize', queueRender);
             var evtSceneSettings = editor.on('preview:scene:changed', queueRender);
 
-            // render on material data change
-            var evtMaterialChanged = assets[0].on('*:set', function(path) {
-                if (! path.startsWith('data'))
-                    return;
-
-                queueRender();
-            });
-
             // material textures loaded
             var materialWatch = editor.call('assets:material:watch', {
                 asset: assets[0],
                 autoLoad: true,
                 callback: queueRender
             });
-
-            var evtMaterialTextureLoad = editor.on('assets:preview:material:texture', queueRender);
         }
 
         var handleTextureHover = function(path) {
@@ -885,8 +867,6 @@ editor.once('load', function() {
 
                 evtSceneSettings.unbind();
                 evtPanelResize.unbind();
-                evtMaterialChanged.unbind();
-                evtMaterialTextureLoad.unbind();
                 previewContainer.parentNode.removeChild(previewContainer);
 
                 window.removeEventListener('mousemove', onMouseMove);

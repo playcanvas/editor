@@ -1001,9 +1001,11 @@ editor.once('load', function() {
 
                 editor.call('assets:material:unwatch', asset, watching);
                 watching = null;
+
+                renderQueueRemove(asset);
             });
             if (! item.hidden) {
-                queueRender();
+                requestAnimationFrame(queueRender);
 
                 if (! watching) {
                     watching = editor.call('assets:material:watch', {
@@ -1014,15 +1016,7 @@ editor.once('load', function() {
                 }
             }
 
-            evtSceneSettings = editor.on('preview:scene:changed', function() {
-                queueRender();
-            });
-            evtAssetChanged = asset.on('*:set', function(path) {
-                if (queuedRender || ! path.startsWith('data'))
-                    return;
-
-                queueRender();
-            });
+            evtSceneSettings = editor.on('preview:scene:changed', queueRender);
         } else if (asset.get('type') === 'cubemap') {
             thumbnail = document.createElement('canvas');
             thumbnail.changed = true;
@@ -1093,17 +1087,12 @@ editor.once('load', function() {
                 }
             };
             var queueRender = function() {
-                if (queuedRender)
-                    return;
-
                 if (item.hidden) {
                     thumbnail.changed = true;
-                    return;
+                    renderQueueRemove(asset);
+                } else {
+                    renderQueueAdd(asset);
                 }
-
-                queuedRender = true;
-
-                requestAnimationFrame(onRender);
             };
 
             item.on('show', function() {
@@ -1124,10 +1113,12 @@ editor.once('load', function() {
 
                 editor.call('assets:cubemap:unwatch', asset, watching);
                 watching = null;
+
+                renderQueueRemove(asset);
             });
 
             if (! item.hidden) {
-                queueRender();
+                requestAnimationFrame(queueRender);
 
                 if (! watching) {
                     watching = editor.call('assets:cubemap:watch', {

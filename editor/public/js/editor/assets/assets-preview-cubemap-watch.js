@@ -4,6 +4,7 @@ editor.once('load', function() {
     var app = editor.call('viewport:app');
     var watching = { };
 
+
     var addTextureWatch = function(watch, slot, id) {
         watch.textures[slot] = {
             id: id,

@@ -56,6 +56,13 @@ editor.once('load', function() {
                 addTextureWatch(watch, slots[i], textureId);
         }
 
+        watch.watching.data = watch.asset.on('*:set', function(path) {
+            if (! path.startsWith('data.'))
+                return;
+
+            trigger(watch, null);
+        });
+
         watch.watching.all = watch.asset.on('data:set', function(value) {
             if (value) {
                 for(var i = 0; i < slots.length; i++) {

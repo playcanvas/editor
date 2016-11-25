@@ -928,7 +928,9 @@ editor.once('load', function() {
                 break;
 
             case 'asset':
-                field = new ui.ImageField();
+                field = new ui.ImageField({
+                    canvas: args.kind === 'material' || args.kind === 'cubemap'
+                });
                 var evtPick;
 
                 label.renderChanges = false;
@@ -1027,12 +1029,24 @@ editor.once('load', function() {
                     field.value = null;
                 });
 
+                var watch = null;
+                var watchAsset = null;
+                var renderQueued;
+                var queueRender;
+
                 var evtThumbnailChange;
-                var updateThumbnail = function() {
+                var updateThumbnail = function(empty) {
                     var asset = editor.call('assets:get', field.value);
 
-                    if (! asset) {
-                        return field.image = config.url.home + '/editor/scene/img/asset-placeholder-texture.png';
+                    if (watch) {
+                        editor.call('assets:material:unwatch', watchAsset, watch);
+                        watchAsset = watch = null;
+                    }
+
+                    if (empty) {
+                        field.image = '';
+                    } else if (! asset) {
+                        field.image = config.url.home + '/editor/scene/img/asset-placeholder-texture.png';
                     } else {
                         if (asset.has('thumbnails.m')) {
                             var src = asset.get('thumbnails.m');
@@ -1044,8 +1058,141 @@ editor.once('load', function() {
                         } else {
                             field.image = '/editor/scene/img/asset-placeholder-' + asset.get('type') + '.png';
                         }
+
+                        if (args.kind === 'material' || args.kind === 'cubemap') {
+                            watchAsset = asset;
+                            watch = editor.call('assets:' + args.kind + ':watch', {
+                                asset: watchAsset,
+                                autoLoad: true,
+                                callback: queueRender
+                            });
+                        }
                     }
+
+                    if (queueRender)
+                        queueRender();
                 };
+
+                if (args.kind === 'material') {
+                    field.elementImage.classList.add('flipY');
+
+                    var renderPreview = function() {
+                        renderQueued = false;
+
+                        var ctx = field.elementImage.ctx;
+                        if (! ctx)
+                            ctx = field.elementImage.ctx = field.elementImage.getContext('2d');
+
+                        if (watchAsset) {
+                            // render
+                            var imageData = editor.call('preview:render', watchAsset, 128, 128);
+
+                            field.elementImage.width = imageData.width;
+                            field.elementImage.height = imageData.height;
+
+                            ctx.putImageData(imageData, 0, 0);
+                        } else {
+                            ctx.clearRect(0, 0, field.elementImage.width, field.elementImage.height);
+                        }
+                    };
+
+                    renderPreview();
+
+                    queueRender = function() {
+                        if (renderQueued) return;
+                        renderQueued = true;
+                        requestAnimationFrame(renderPreview);
+                    };
+
+                    var evtSceneSettings = editor.on('preview:scene:changed', queueRender);
+
+                    field.once('destroy', function() {
+                        evtSceneSettings.unbind();
+                        evtSceneSettings = null;
+
+                        if (watch) {
+                            editor.call('assets:material:unwatch', watchAsset, watch);
+                            watchAsset = watch = null;
+                        }
+                    });
+                } else if (args.kind === 'cubemap') {
+                    field.elementImage.width = 60;
+                    field.elementImage.height = 60;
+
+                    var positions = [ [ 30, 22 ], [ 0, 22 ], [ 15, 7 ], [ 15, 37 ], [ 15, 22 ], [ 45, 22 ] ];
+                    var images = [ null, null, null, null, null, null ];
+
+                    var renderPreview = function() {
+                        renderQueued = false;
+
+                        var ctx = field.elementImage.ctx;
+                        if (! ctx)
+                            ctx = field.elementImage.ctx = field.elementImage.getContext('2d');
+
+                        ctx.clearRect(0, 0, field.elementImage.width, field.elementImage.height);
+
+                        if (watchAsset) {
+                            for(var i = 0; i < 6; i++) {
+                                var id = watchAsset.get('data.textures.' + i);
+                                var image = null;
+
+                                if (id) {
+                                    var texture = editor.call('assets:get', id);
+                                    if (texture) {
+                                        var hash = texture.get('file.hash');
+                                        if (images[i] && images[i].hash === hash) {
+                                            image = images[i];
+                                        } else {
+                                            var url = texture.get('thumbnails.s');
+
+                                            if (images[i])
+                                                images[i].onload = null;
+
+                                            images[i] = null;
+
+                                            if (url) {
+                                                image = images[i] = new Image();
+                                                image.hash = hash;
+                                                image.onload = queueRender;
+                                                image.src = url + '?t=' + hash;
+                                            }
+                                        }
+                                    } else if (images[i]) {
+                                        images[i].onload = null;
+                                        images[i] = null;
+                                    }
+                                } else if (images[i]) {
+                                    images[i].onload = null;
+                                    images[i] = null;
+                                }
+
+                                if (image) {
+                                    ctx.drawImage(image, positions[i][0], positions[i][1], 15, 15);
+                                } else {
+                                    ctx.beginPath();
+                                    ctx.rect(positions[i][0], positions[i][1], 15, 15);
+                                    ctx.fillStyle = '#000';
+                                    ctx.fill();
+                                }
+                            }
+                        }
+                    };
+
+                    renderPreview();
+
+                    queueRender = function() {
+                        if (renderQueued) return;
+                        renderQueued = true;
+                        requestAnimationFrame(renderPreview);
+                    };
+
+                    field.once('destroy', function() {
+                        if (watch) {
+                            editor.call('assets:cubemap:unwatch', watchAsset, watch);
+                            watchAsset = watch = null;
+                        }
+                    });
+                }
 
                 linkField();
 
@@ -1066,7 +1213,10 @@ editor.once('load', function() {
                         if (field.class.contains('star'))
                             fieldTitle.text = '* ' + fieldTitle.text;
 
-                        return field.empty = true;
+                        field.empty = true;
+                        updateThumbnail(true);
+
+                        return;
                     }
 
                     field.empty = false;
@@ -1074,7 +1224,7 @@ editor.once('load', function() {
                     var asset = editor.call('assets:get', value);
 
                     if (! asset)
-                        return field.image = config.url.home + '/editor/scene/img/asset-placeholder-texture.png';
+                        return updateThumbnail();
 
                     evtThumbnailChange = asset.on('file.hash.m:set', updateThumbnail);
                     updateThumbnail();

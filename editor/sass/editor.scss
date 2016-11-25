@@ -1087,6 +1087,9 @@ strong {
                         border-bottom: 24px solid $bcg-dark;
                         border-left: 24px solid transparent;
                     }
+                    > canvas.preview {
+                        background-color: $bcg-dark;
+                    }
                 }
                 > .top {
                     width: 100%;
@@ -4007,6 +4010,9 @@ strong {
 
                     &:after {
                         display: none;
+                    }
+                    > canvas.preview {
+                        background-color: transparent;
                     }
                 }
 
