@@ -146,8 +146,7 @@ AjaxRequest.prototype._onLoad = function() {
             var json = JSON.parse(this._xhr.responseText);
             var msg = json.message;
             if (! msg) {
-                if (json.response && json.response.error)
-                    msg = json.response.error;
+                msg = json.error || (json.response && json.response.error);
             }
 
             if (! msg) {
