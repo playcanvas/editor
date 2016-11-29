@@ -17,14 +17,21 @@ editor.once('load', function() {
         hierarchy.allowRenaming = state;
     });
 
+    var resizeQueued = false;
     var resizeTree = function() {
+        resizeQueued = false;
         hierarchy.element.style.width = '';
         hierarchy.element.style.width = (panel.innerElement.scrollWidth - 5) + 'px';
     };
-    panel.on('resize', resizeTree);
-    hierarchy.on('open', resizeTree);
-    hierarchy.on('close', resizeTree);
-    setInterval(resizeTree, 500);
+    var resizeQueue = function() {
+        if (resizeQueued) return;
+        resizeQueued = true;
+        requestAnimationFrame(resizeTree);
+    };
+    panel.on('resize', resizeQueue);
+    hierarchy.on('open', resizeQueue);
+    hierarchy.on('close', resizeQueue);
+    setInterval(resizeQueue, 1000);
 
 
     // return hirarchy
@@ -294,7 +301,7 @@ editor.once('load', function() {
             }
         });
 
-        resizeTree();
+        resizeQueue();
     });
 
 
@@ -337,7 +344,7 @@ editor.once('load', function() {
     // entity removed
     editor.on('entities:remove', function(entity) {
         uiItemIndex[entity.get('resource_id')].destroy();
-        resizeTree();
+        resizeQueue();
     });
 
 
@@ -381,7 +388,7 @@ editor.once('load', function() {
         // name change
         entity.on('name:set', function(value) {
             element.text = value;
-            resizeTree();
+            resizeQueue();
         });
 
         entity.on('enabled:set', function(value) {
@@ -448,7 +455,7 @@ editor.once('load', function() {
         users.classList.add('users');
         element.elementTitle.appendChild(users);
 
-        resizeTree();
+        resizeQueue();
     });
 
 
@@ -499,6 +506,3 @@ editor.once('load', function() {
     });
 
 });
-
-
-

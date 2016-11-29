@@ -217,14 +217,21 @@ editor.once('load', function() {
     }, false);
 
     // tree width resizing
+    var resizeQueued = false;
     var resizeTree = function() {
+        resizeQueued = false;
         tree.element.style.width = '';
         tree.element.style.width = (folders.innerElement.scrollWidth - 5) + 'px';
     };
-    folders.on('resize', resizeTree);
-    tree.on('open', resizeTree);
-    tree.on('close', resizeTree);
-    setInterval(resizeTree, 500);
+    var resizeQueue = function() {
+        if (resizeQueued) return;
+        resizeQueued = true;
+        requestAnimationFrame(resizeTree);
+    };
+    folders.on('resize', resizeQueue);
+    tree.on('open', resizeQueue);
+    tree.on('close', resizeQueue);
+    setInterval(resizeQueue, 1000);
 
     var files = new ui.Panel();
     files.class.add('files');
@@ -636,7 +643,7 @@ editor.once('load', function() {
         gridScripts.element.addEventListener('contextmenu', onContextMenu, false);
         treeScripts.elementTitle.addEventListener('contextmenu', onContextMenu, false);
 
-        resizeTree();
+        resizeQueue();
     };
     if (legacyScripts)
         createLegacyScriptFolder();
@@ -1180,7 +1187,7 @@ editor.once('load', function() {
                     parent.element.insertBefore(item.tree.element, parent.child(closest));
                 }
 
-                resizeTree();
+                resizeQueue();
             }
 
             keepLegacyScriptsAtTop();
@@ -1260,7 +1267,7 @@ editor.once('load', function() {
             grid.appendBefore(item, assetsIndex[assets.data[pos + 1].get('id')]);
         }
 
-        resizeTree();
+        resizeQueue();
 
         keepLegacyScriptsAtTop();
     });
@@ -1312,7 +1319,7 @@ editor.once('load', function() {
 
         assetsIndex[asset.get('id')].destroy();
 
-        resizeTree();
+        resizeQueue();
 
         // reselect current directory, if selected was removed
         if (currentFolder && typeof(currentFolder) !== 'string') {
