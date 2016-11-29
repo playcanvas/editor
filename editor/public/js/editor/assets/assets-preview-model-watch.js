@@ -18,12 +18,13 @@ editor.once('load', function() {
             watch.onAdd = null;
 
             watch.onLoad = function() {
+                asset._editorPreviewModel = asset.resource;
                 trigger(watch);
             };
             asset.on('load', watch.onLoad);
 
             if (watch.autoLoad && ! asset.resource)
-                app.assets.load(asset);
+                loadModel(watch, asset);
         };
 
         var asset = app.assets.get(watch.asset.get('id'));
@@ -43,6 +44,15 @@ editor.once('load', function() {
 
         for(var key in watch.watching)
             watch.watching[key].unbind();
+    };
+
+    var loadModel = function(watch, asset) {
+        var url = asset.getFileUrl();
+
+        app.assets._loader.load(url, asset.type, function(err, resource, extra) {
+            asset._editorPreviewModel = resource;
+            trigger(watch);
+        });
     };
 
     var trigger = function(watch) {
@@ -78,7 +88,7 @@ editor.once('load', function() {
         if (watch.autoLoad === 1) {
             var asset = app.assets.get(watch.asset.get('id'));
             if (asset && ! asset.resource)
-                app.assets.load(asset);
+                loadModel(watch, asset);
         }
 
         return watch.ind;
