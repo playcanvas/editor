@@ -107,6 +107,9 @@ editor.once('load', function() {
         cameraOrigin.setLocalEulerAngles(pitch, yaw, 0);
         cameraOrigin.syncHierarchy();
 
+        lightNode.setLocalRotation(cameraOrigin.getLocalRotation());
+        lightNode.rotateLocal(90, 0, 0);
+
         camera._farClip = max * 5.0;
 
         light.intensity = 1.0 / (Math.min(1.0, scene.exposure) || 0.01);
