@@ -74,7 +74,7 @@ editor.once('load', function() {
 
 
     // options
-    if (! config.self.superUser && !config.self.betaTester) {
+    if (! config.self.superUser && !config.self.betaTester && !config.self.uiTester) {
         var filterField = new ui.SelectField({
             options: {
                 all: 'All',
