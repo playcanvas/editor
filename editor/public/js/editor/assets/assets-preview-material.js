@@ -46,8 +46,6 @@ editor.once('load', function() {
     model.node = sphereNode;
     model.meshInstances = [ new pc.MeshInstance(sphereNode, meshSphere, material ) ];
 
-    scene.addModel(model);
-
 
     // light
     var lightNode = new pc.GraphNode();
@@ -57,9 +55,6 @@ editor.once('load', function() {
     light.enabled = true;
     light.type = pc.LIGHTTYPE_DIRECTIONAL;
     light._node = lightNode;
-
-    model.lights = [ light ];
-    scene.addLight(light);
 
 
     // camera
@@ -85,6 +80,9 @@ editor.once('load', function() {
 
         var data = asset.get('data');
         if (! data) return;
+
+        scene.addModel(model);
+        scene.addLight(light);
 
         setModel(args.model || 'sphere');
         pitch = args.rotation && args.rotation[0] || 0;
@@ -193,6 +191,9 @@ editor.once('load', function() {
         material.update();
 
         renderer.render(scene, camera);
+
+        scene.removeModel(model);
+        scene.removeLight(light);
     });
 
     var setModel = function(value) {

@@ -1,0 +1,121 @@
+editor.once('load', function() {
+    'use strict';
+
+    var app = editor.call('viewport:app');
+    var device = app.graphicsDevice;
+    var renderer = app.renderer;
+    var scene = editor.call('preview:scene');
+
+    var pitch = 0;
+    var yaw = 0;
+
+
+    // material
+    var material = new pc.StandardMaterial();
+    material._scene = scene;
+
+    var aabb = new pc.BoundingBox();
+
+    // model
+    var modelNode = new pc.GraphNode();
+
+    var meshSphere = pc.createSphere(device, {
+        radius: 0.5,
+        latitudeBands: 4,
+        longitudeBands: 4
+    });
+
+    var modelPlaceholder = new pc.Model();
+    modelPlaceholder.node = modelNode;
+    modelPlaceholder.meshInstances = [ new pc.MeshInstance(modelNode, meshSphere, material) ];
+
+
+    // light
+    var lightNode = new pc.GraphNode();
+    lightNode.setLocalEulerAngles(45, 45, 0);
+
+    var light = new pc.Light();
+    light.enabled = true;
+    light.type = pc.LIGHTTYPE_DIRECTIONAL;
+    light._node = lightNode;
+
+
+    // camera
+    var cameraOrigin = new pc.GraphNode();
+
+    var cameraNode = new pc.GraphNode();
+    cameraNode.setLocalPosition(0, 0, 1.35);
+    cameraOrigin.addChild(cameraNode);
+
+    var camera = new pc.Camera();
+    camera._node = cameraNode;
+    camera._nearClip = 0.01;
+    camera._farClip = 32;
+    camera._clearOptions.color = [ 41 / 255, 53 / 255, 56 / 255, 0.0 ];
+    camera.frustumCulling = false;
+
+
+    editor.method('preview:model:render', function(asset, target, args) {
+        args = args || { };
+
+        camera.setAspectRatio(target.height / target.width);
+        camera.setRenderTarget(target);
+
+        var data = asset.get('data');
+        if (! data) return;
+
+        var modelAsset = app.assets.get(asset.get('id'));
+        if (! modelAsset) return;
+
+        var model = modelPlaceholder;
+
+        if (modelAsset.resource)
+            model = modelAsset.resource.clone();
+
+        model.lights = [ light ];
+
+        var first = true;
+
+        for(var i = 0; i < model.meshInstances.length; i++) {
+            model.meshInstances[i].material = material;
+
+            if (first) {
+                first = false;
+                aabb.copy(model.meshInstances[i].aabb);
+            } else {
+                aabb.add(model.meshInstances[i].aabb);
+            }
+        }
+
+        if (first) {
+            aabb.center.set(0, 0, 0);
+            aabb.halfExtents.set(0.1, 0.1, 0.1);
+        }
+
+        material.update();
+
+        scene.addModel(model);
+
+        pitch = args.rotation && args.rotation[0] || 0;
+        yaw = args.rotation && args.rotation[1] || 0;
+
+        var max = aabb.halfExtents.length();
+        // TODO
+        cameraNode.setLocalPosition(0, 0, max * 2.5);
+
+        cameraOrigin.setLocalPosition(aabb.center);
+        cameraOrigin.setLocalEulerAngles(pitch, yaw, 0);
+        cameraOrigin.syncHierarchy();
+
+        camera._farClip = max * 5.0;
+
+        light.intensity = 1.0 / (Math.min(1.0, scene.exposure) || 0.01);
+
+        renderer.render(scene, camera);
+
+        scene.removeModel(model);
+
+        if (model !== modelPlaceholder)
+            model.destroy();
+    });
+});

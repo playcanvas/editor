@@ -125,6 +125,14 @@ editor.once('load', function() {
         if (args.autoLoad)
             watch.autoLoad++;
 
+        if (watch.autoLoad === 1) {
+            for(var key in watch.textures) {
+                var asset = app.assets.get(watch.textures[key].id);
+                if (asset && ! asset.resource)
+                    app.assets.load(asset);
+            }
+        }
+
         return watch.ind;
     });
 

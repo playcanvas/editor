@@ -949,7 +949,7 @@ editor.once('load', function() {
         var thumbnail;
         var evtSceneSettings, evtAssetChanged;
 
-        if (asset.get('type') === 'material') {
+        if (asset.get('type') === 'material' || asset.get('type') === 'model') {
             var queuedRender = false;
 
             thumbnail = document.createElement('canvas');
@@ -988,7 +988,7 @@ editor.once('load', function() {
                     queueRender();
 
                 if (! watching) {
-                    watching = editor.call('assets:material:watch', {
+                    watching = editor.call('assets:' + asset.get('type') + ':watch', {
                         asset: asset,
                         autoLoad: true,
                         callback: queueRender
@@ -999,7 +999,7 @@ editor.once('load', function() {
                 if (! watching)
                     return;
 
-                editor.call('assets:material:unwatch', asset, watching);
+                editor.call('assets:' + asset.get('type') + ':unwatch', asset, watching);
                 watching = null;
 
                 renderQueueRemove(asset);
@@ -1008,7 +1008,7 @@ editor.once('load', function() {
                 requestAnimationFrame(queueRender);
 
                 if (! watching) {
-                    watching = editor.call('assets:material:watch', {
+                    watching = editor.call('assets:' + asset.get('type') + ':watch', {
                         asset: asset,
                         autoLoad: true,
                         callback: queueRender

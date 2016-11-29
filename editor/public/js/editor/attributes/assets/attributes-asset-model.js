@@ -415,45 +415,105 @@ editor.once('load', function() {
             previewContainer.classList.add('asset-preview-container');
 
             // preview
-            var canvas = document.createElement('canvas');
-            var ctx = canvas.getContext('2d');
-            canvas.classList.add('asset-preview');
+            var preview = document.createElement('canvas');
+            var ctx = preview.getContext('2d');
+            preview.width = 256;
+            preview.height = 256;
+            preview.classList.add('asset-preview', 'flipY');
+            previewContainer.appendChild(preview);
 
-            previewContainer.appendChild(canvas);
+            var sx, sy, x, y, nx, ny;
+            var dragging = false;
+            var previewRotation = [ 0, 0 ];
+
+            preview.addEventListener('mousedown', function(evt) {
+                if (evt.button !== 0)
+                    return;
+
+                evt.preventDefault();
+                evt.stopPropagation();
+
+                sx = x = evt.clientX;
+                sy = y = evt.clientY;
+
+                dragging = true;
+            }, false);
+
+            var onMouseMove = function(evt) {
+                if (! dragging)
+                    return;
+
+                nx = x - evt.clientX;
+                ny = y - evt.clientY;
+                x = evt.clientX;
+                y = evt.clientY;
+
+                queueRender();
+            };
+
+            var onMouseUp = function(evt) {
+                if (! dragging)
+                    return;
+
+                if ((Math.abs(sx - x) + Math.abs(sy - y)) < 8) {
+                    if (root.element.classList.contains('large')) {
+                        root.element.classList.remove('large');
+                    } else {
+                        root.element.classList.add('large');
+                    }
+                }
+
+                previewRotation[0] = Math.max(-90, Math.min(90, previewRotation[0] + ((sy - y) * 0.3)));
+                previewRotation[1] += (sx - x) * 0.3;
+                sx = sy = x = y = 0;
+
+                dragging = false;
+
+                queueRender();
+            };
+
+            window.addEventListener('mousemove', onMouseMove, false);
+            window.addEventListener('mouseup', onMouseUp, false);
 
             root.class.add('asset-preview');
             root.element.insertBefore(previewContainer, root.innerElement);
 
-            requestAnimationFrame(function() {
-                root.class.add('animate');
-            });
-
-            canvas.addEventListener('click', function() {
-                if (root.element.classList.contains('large')) {
-                    root.element.classList.remove('large');
-                } else {
-                    root.element.classList.add('large');
-                }
-            }, false);
+            // rendering preview
+            var renderQueued;
 
             var renderPreview = function () {
-                // resize canvas
-                canvas.width = root.element.clientWidth;
-                canvas.height = canvas.width;
-                editor.call('preview:render:model', assets[0], canvas.width, function (sourceCanvas) {
-                    ctx.drawImage(sourceCanvas, 0, 0);
+                if (renderQueued)
+                    renderQueued = false;
+
+                // render
+                var imageData = editor.call('preview:render', assets[0], root.element.clientWidth, root.element.clientWidth, {
+                    rotation: [ Math.max(-90, Math.min(90, previewRotation[0] + (sy - y) * 0.3)), previewRotation[1] + (sx - x) * 0.3 ]
                 });
+
+                preview.width = imageData.width;
+                preview.height = imageData.height;
+
+                ctx.putImageData(imageData, 0, 0);
             };
             renderPreview();
 
-            var renderTimeout;
+            // queue up the rendering to prevent too oftern renders
+            var queueRender = function() {
+                if (renderQueued) return;
+                renderQueued = true;
+                requestAnimationFrame(renderPreview);
+            };
 
-            events.push(root.on('resize', function () {
-                if (renderTimeout)
-                    clearTimeout(renderTimeout);
+            // render on resize
+            var evtPanelResize = root.on('resize', queueRender);
+            var evtSceneSettings = editor.on('preview:scene:changed', queueRender);
 
-                renderTimeout = setTimeout(renderPreview, 100);
-            }));
+            // model resource loaded
+            var watcher = editor.call('assets:model:watch', {
+                asset: assets[0],
+                autoLoad: true,
+                callback: queueRender
+            });
 
             // nodes panel
             panelNodes = editor.call('attributes:addPanel', {
@@ -516,8 +576,18 @@ editor.once('load', function() {
 
             panelNodes.on('destroy', function () {
                 root.class.remove('asset-preview', 'animate');
+
+                editor.call('assets:model:unwatch', assets[0], watcher);
+
+                evtSceneSettings.unbind();
+                evtPanelResize.unbind();
+
                 if (previewContainer.parentNode)
                     previewContainer.parentNode.removeChild(previewContainer);
+
+                window.removeEventListener('mousemove', onMouseMove);
+                window.removeEventListener('mouseup', onMouseUp);
+
                 panelNodes = null;
             });
 

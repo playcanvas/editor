@@ -630,8 +630,8 @@ editor.once('load', function() {
 
             var preview = document.createElement('canvas');
             var ctx = preview.getContext('2d');
-            preview.width = 320;
-            preview.height = 320;
+            preview.width = 256;
+            preview.height = 256;
             preview.classList.add('asset-preview', 'flipY');
             previewContainer.appendChild(preview);
 
@@ -675,14 +675,9 @@ editor.once('load', function() {
                 queueRender();
             });
 
-            var sx = 0;
-            var sy = 0;
-            var x = 0;
-            var y = 0;
-            var nx = 0;
-            var ny = 0;
+            var sx, sy, x, y, nx, ny;
             var dragging = false;
-            var materialRotation = [ 0, 0 ];
+            var previewRotation = [ 0, 0 ];
 
             preview.addEventListener('mousedown', function(evt) {
                 if (evt.button !== 0)
@@ -721,8 +716,8 @@ editor.once('load', function() {
                     }
                 }
 
-                materialRotation[0] = Math.max(-90, Math.min(90, materialRotation[0] + ((sy - y) * 0.3)));
-                materialRotation[1] += (sx - x) * 0.3;
+                previewRotation[0] = Math.max(-90, Math.min(90, previewRotation[0] + ((sy - y) * 0.3)));
+                previewRotation[1] += (sx - x) * 0.3;
                 sx = sy = x = y = 0;
 
                 dragging = false;
@@ -746,7 +741,7 @@ editor.once('load', function() {
 
                 // render
                 var imageData = editor.call('preview:render', assets[0], root.element.clientWidth, root.element.clientWidth, {
-                    rotation: [ Math.max(-90, Math.min(90, materialRotation[0] + (sy - y) * 0.3)), materialRotation[1] + (sx - x) * 0.3 ],
+                    rotation: [ Math.max(-90, Math.min(90, previewRotation[0] + (sy - y) * 0.3)), previewRotation[1] + (sx - x) * 0.3 ],
                     model: currentPreviewModel,
                     params: previewTexturesHover
                 });
