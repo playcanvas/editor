@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     editor.on('sceneSettings:load', function (sceneSettings) {
-        var framework = editor.call('viewport');
+        var app = editor.call('viewport:app');
         var updating;
 
         // queue settings apply
@@ -19,7 +19,7 @@ editor.once('load', function() {
         var applySettings = function() {
             updating = false;
 
-            framework.applySceneSettings(sceneSettings.json());
+            app.applySceneSettings(sceneSettings.json());
         };
 
         // on settings change

@@ -1,96 +1,143 @@
 editor.once('load', function () {
-    // no thumbnails rendering if query provided
-    if (/thumbs=(false|0)/.test(window.location.search))
-        return;
+    'use strict';
 
-    // canvas user to render the preview
+    var app = editor.call('viewport:app');
+    var renderTargets = { };
     var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
 
-    // set up graphics
-    var device = new pc.GraphicsDevice(canvas, {premultipliedAlpha: false});
+    var scene = new pc.Scene();
+    scene.root = new pc.Entity();
+    scene.root.name = 'root';
+    scene.root._enabledInHierarchy = true;
 
-    // create resource loader and asset registry
-    var loader = new pc.ResourceLoader();
-    var assets = new pc.AssetRegistry(loader);
+    var queueSettings = false;
+    var sceneSettings;
 
-    loader.addHandler("model", new pc.ModelHandler(device));
-    loader.addHandler("material", new pc.MaterialHandler({assets: assets, graphicsDevice: device}));
-    loader.addHandler("texture", new pc.TextureHandler(device, assets, loader));
-    loader.addHandler("cubemap", new pc.CubemapHandler(device, assets, loader));
-    loader.addHandler("font", new pc.FontHandler(loader));
-
-    // bind asset registry to editor
-    editor.call('assets:registry:bind', assets, ['texture', 'cubemap', 'material', 'model', 'font']);
-
-    var renderTimeouts = {};
-
-    editor.method('preview:render', function (asset) {
-        editor.call('preview:render:' + asset.get('type'), asset, 128, function (canvas) {
-            var url = canvas.toDataURL('image/png');
-            editor.call('preview:setThumbnail', asset, url);
-        });
-    });
-
-
-    // renders preview for specified asset after a delay
-    editor.method('preview:delayedRender', function (asset, delay) {
-        var id = asset.get('id');
-        if (renderTimeouts[id])
-            clearTimeout(renderTimeouts[id]);
-
-        renderTimeouts[id] = setTimeout(function () {
-            editor.call('preview:render', asset);
-            delete renderTimeouts[id];
-        }, delay || 100);
-    });
-
-    // sets thumbnail to specified asset without syncing or recording history
-    editor.method('preview:setThumbnail', function (asset, value) {
-        var sync = asset.sync.enabled;
-        asset.sync.enabled = false;
-
-        var history = asset.history.enabled;
-        asset.history.enabled = false;
-
-        if (value) {
-            asset.set('has_thumbnail', true);
-            asset.set('thumbnails', {
-                's': value,
-                'm': value,
-                'l': value,
-                'xl': value
-            });
-        } else {
-            asset.set('has_thumbnail', false);
-            asset.unset('thumbnails');
+    var skyboxOnLoad = function(asset) {
+        if (asset.resources) {
+            scene.setSkybox(asset.resources);
+            scene.skybox = null;
+            editor.emit('preview:scene:changed');
         }
+    };
+    var skyboxAsset;
 
-        asset.history.enabled = history;
-        asset.sync.enabled = sync;
+    app._onSkyboxChangeOld = app._onSkyboxChange;
+    app._onSkyboxChange = function(asset) {
+        skyboxOnLoad(asset);
+        app._onSkyboxChangeOld(asset);
+    };
+
+    app._skyboxLoadOld = app._skyboxLoad;
+    app._skyboxLoad = function(asset) {
+        app._skyboxLoadOld.call(this, asset);
+
+        if (skyboxAsset)
+            app.off('load:' + skyboxAsset.id, skyboxOnLoad);
+
+        skyboxAsset = asset;
+        app.on('load:' + skyboxAsset.id, skyboxOnLoad);
+
+        skyboxOnLoad(asset);
+    };
+
+    app._skyboxRemoveOld = app._skyboxRemove;
+    app._skyboxRemove = function(asset) {
+        app._skyboxRemoveOld.call(this, asset);
+
+        if (skyboxAsset && skyboxAsset.id === asset.id) {
+            app.off('load:' + skyboxAsset.id, skyboxOnLoad);
+            skyboxAsset = null;
+            scene.setSkybox(null);
+        }
+    };
+
+    var applySettings = function() {
+        queueSettings = false;
+        var settings = sceneSettings.json();
+
+        scene.ambientLight.set(settings.render.global_ambient[0], settings.render.global_ambient[1], settings.render.global_ambient[2]);
+        scene.gammaCorrection = settings.render.gamma_correction;
+        scene.toneMapping = settings.render.tonemapping;
+        scene.exposure = settings.render.exposure;
+        scene.skyboxIntensity = settings.render.skyboxIntensity === undefined ? 1 : settings.render.skyboxIntensity;
+
+        editor.emit('preview:scene:changed');
+    };
+
+    var queueApplySettings = function() {
+        if (queueSettings)
+            return;
+
+        queueSettings = true;
+        requestAnimationFrame(applySettings);
+    };
+
+    editor.on('sceneSettings:load', function(settings) {
+        sceneSettings = settings;
+        sceneSettings.on('*:set', applySettings);
+        queueApplySettings();
     });
 
-    // Gets asset registry
-    editor.method('preview:assetRegistry', function () {
-        return assets;
+
+    var nextPow2 = function(size) {
+        return Math.pow(2, Math.ceil(Math.log(size) / Math.log(2)));
+    };
+
+    editor.method('preview:scene', function() {
+        return scene;
     });
 
-    editor.method('preview:loader', function () {
-        return loader;
+    editor.method('preview:getTexture', function(width, height) {
+        var target = renderTargets[width + '-' + height];
+        if (target) return target;
+
+        var texture = new pc.Texture(app.graphicsDevice, {
+            width: width,
+            height: height,
+            format: pc.PIXELFORMAT_R8_G8_B8_A8
+        });
+
+        target = new pc.RenderTarget(app.graphicsDevice, texture);
+        renderTargets[width + '-' + height] = target;
+
+        target.buffer = new ArrayBuffer(width * height * 4);
+        target.pixels = new Uint8Array(target.buffer);
+        target.pixelsClamped = new Uint8ClampedArray(target.buffer);
+
+        return target;
     });
 
-    editor.method('preview:device', function () {
-        return device;
-    });
+    editor.method('preview:render', function(asset, width, height, args, blob) {
+        var gl = app.graphicsDevice.gl;
 
-    // Get necessary objects for a new preview scene
-    editor.method('preview:prepare', function () {
-        return {
-            canvas: canvas,
-            assets: assets,
-            scene: new pc.Scene(),
-            renderer: new pc.ForwardRenderer(device),
-            device: device
-        };
-    });
+        // choose closest POT resolution
+        width = nextPow2(width || 128);
+        height = nextPow2(height || width);
 
+        // get render target
+        var target = editor.call('preview:getTexture', width, height);
+
+        // render
+        editor.call('preview:' + asset.get('type') + ':render', asset, target, args);
+
+        canvas.width = width;
+        canvas.height = height;
+
+        // read pixels from texture
+        gl.bindFramebuffer(gl.FRAMEBUFFER, target._glFrameBuffer);
+        gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, target.pixels);
+
+        // mage image data
+        var imageData = new ImageData(target.pixelsClamped, width, height);
+
+        if (blob) {
+            // upload to canvas
+            ctx.putImageData(imageData, 0, 0);
+            return canvas.toDataURL();
+        } else {
+            return imageData;
+        }
+    });
 });

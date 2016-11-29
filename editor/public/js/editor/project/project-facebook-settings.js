@@ -13,7 +13,7 @@ editor.once('load', function() {
     var originalTokenHelp;
     var originalAppIdHelp;
 
-    editor.on('attributes:inspect[designerSettings]', function() {
+    editor.on('attributes:inspect[editorSettings]', function() {
 
         var panel = editor.call('attributes:addPanel', {
             name: 'Facebook'

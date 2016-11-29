@@ -49,15 +49,15 @@ editor.once('load', function() {
         checkSnap();
     });
 
-    var designerSettings = editor.call('designerSettings');
-    designerSettings.on('snap_increment:set', function(value) {
+    var editorSettings = editor.call('editorSettings');
+    editorSettings.on('snap_increment:set', function(value) {
         if (snapIncrement === (value || 1))
             return;
 
         snapIncrement = value || 1;
         editor.emit('gizmo:snap', snap, snapIncrement);
     });
-    snapIncrement = designerSettings.get('snap_increment') || 1;
+    snapIncrement = editorSettings.get('snap_increment') || 1;
 
     editor.on('hotkey:shift', function(state) {
         if (snapShift === state)
@@ -68,7 +68,7 @@ editor.once('load', function() {
     });
 
     editor.once('viewport:load', function() {
-        var app = editor.call('viewport:framework');
+        var app = editor.call('viewport:app');
 
         // clear depth buffer before gizmo layer
         app.scene.drawCalls.push(new pc.scene.Command(pc.LAYER_GIZMO, pc.BLEND_NONE, function() {

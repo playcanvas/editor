@@ -10,7 +10,14 @@ function ImageField(args) {
     this.element.tabIndex = 0;
     this.element.classList.add('ui-image-field', 'empty');
 
-    this.elementImage = new Image();
+    if (args.canvas) {
+        this.elementImage = document.createElement('canvas');
+        this.elementImage.width = 64;
+        this.elementImage.height = 64;
+    } else {
+        this.elementImage = new Image();
+    }
+
     this.elementImage.classList.add('preview');
     this.element.appendChild(this.elementImage);
 

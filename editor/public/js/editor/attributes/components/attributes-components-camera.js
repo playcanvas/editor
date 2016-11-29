@@ -97,7 +97,6 @@ editor.once('load', function() {
             precision: 2,
             step: 1,
             min: 0,
-            max: 90,
             link: entities,
             path: 'components.camera.fov'
         });

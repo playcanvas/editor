@@ -493,6 +493,10 @@ editor.once('load', function() {
         }
     };
 
+    editor.method('assets:material:mapping', function() {
+        return mapping;
+    });
+
     var mappingMaps = [
         'diffuse',
         'specular',
@@ -520,6 +524,8 @@ editor.once('load', function() {
         'light': [ 'lightMap' ],
         'states': [ ]
     };
+
+    var currentPreviewModel = 'sphere';
 
     var vecA = new pc.Vec3();
 
@@ -563,7 +569,7 @@ editor.once('load', function() {
                 return;
         }
 
-        var app = editor.call('viewport:framework');
+        var app = editor.call('viewport:app');
 
         if (assets.length > 1)
             editor.call('attributes:header', assets.length + ' Materials');
@@ -613,45 +619,156 @@ editor.once('load', function() {
             }
         }
 
+        var previewTexturesHover = null;
 
         // preview
         if (assets.length === 1) {
-            var canvas = document.createElement('canvas');
-            var ctx = canvas.getContext('2d');
-            canvas.classList.add('asset-preview');
+            previewTexturesHover = { };
 
-            canvas.addEventListener('click', function() {
-                if (root.element.classList.contains('large')) {
-                    root.element.classList.remove('large');
-                } else {
-                    root.element.classList.add('large');
-                }
+            var previewContainer = document.createElement('div');
+            previewContainer.classList.add('asset-preview-container');
+
+            var preview = document.createElement('canvas');
+            var ctx = preview.getContext('2d');
+            preview.width = 256;
+            preview.height = 256;
+            preview.classList.add('asset-preview', 'flipY');
+            previewContainer.appendChild(preview);
+
+            var modelSphere = new ui.Button({
+                text: '&#58121;'
+            });
+            modelSphere.class.add('sphere');
+            if (currentPreviewModel === 'sphere')
+                modelSphere.class.add('active');
+            previewContainer.appendChild(modelSphere.element);
+            modelSphere.parent = panelParams;
+
+            modelSphere.on('click', function() {
+                if (currentPreviewModel === 'sphere')
+                    return;
+
+                currentPreviewModel = 'sphere';
+                modelBox.class.remove('active');
+                modelSphere.class.add('active');
+
+                queueRender();
+            });
+
+            var modelBox = new ui.Button({
+                text: '&#57735;'
+            });
+            modelBox.class.add('box');
+            if (currentPreviewModel === 'box')
+                modelBox.class.add('active');
+            previewContainer.appendChild(modelBox.element);
+            modelBox.parent = panelParams;
+
+            modelBox.on('click', function() {
+                if (currentPreviewModel === 'box')
+                    return;
+
+                currentPreviewModel = 'box';
+                modelSphere.class.remove('active');
+                modelBox.class.add('active');
+
+                queueRender();
+            });
+
+            var sx = 0, sy = 0, x = 0, y = 0, nx = 0, ny = 0;
+            var dragging = false;
+            var previewRotation = [ 0, 0 ];
+
+            preview.addEventListener('mousedown', function(evt) {
+                if (evt.button !== 0)
+                    return;
+
+                evt.preventDefault();
+                evt.stopPropagation();
+
+                sx = x = evt.clientX;
+                sy = y = evt.clientY;
+
+                dragging = true;
             }, false);
 
+            var onMouseMove = function(evt) {
+                if (! dragging)
+                    return;
+
+                nx = x - evt.clientX;
+                ny = y - evt.clientY;
+                x = evt.clientX;
+                y = evt.clientY;
+
+                queueRender();
+            };
+
+            var onMouseUp = function(evt) {
+                if (! dragging)
+                    return;
+
+                if ((Math.abs(sx - x) + Math.abs(sy - y)) < 8) {
+                    if (root.element.classList.contains('large')) {
+                        root.element.classList.remove('large');
+                    } else {
+                        root.element.classList.add('large');
+                    }
+                }
+
+                previewRotation[0] = Math.max(-90, Math.min(90, previewRotation[0] + ((sy - y) * 0.3)));
+                previewRotation[1] += (sx - x) * 0.3;
+                sx = sy = x = y = 0;
+
+                dragging = false;
+
+                queueRender();
+            };
+
+            window.addEventListener('mousemove', onMouseMove, false);
+            window.addEventListener('mouseup', onMouseUp, false);
+
+
             root.class.add('asset-preview');
-            root.element.insertBefore(canvas, root.innerElement);
+            root.element.insertBefore(previewContainer, root.innerElement);
+
+            // rendering preview
+            var renderQueued;
 
             var renderPreview = function () {
-                // resize canvas
-                canvas.width = root.element.clientWidth;
-                canvas.height = canvas.width;
-                editor.call('preview:render:material', assets[0], canvas.width, function (sourceCanvas) {
-                    ctx.drawImage(sourceCanvas, 0, 0);
+                if (renderQueued)
+                    renderQueued = false;
+
+                // render
+                var imageData = editor.call('preview:render', assets[0], root.element.clientWidth, root.element.clientWidth, {
+                    rotation: [ Math.max(-90, Math.min(90, previewRotation[0] + (sy - y) * 0.3)), previewRotation[1] + (sx - x) * 0.3 ],
+                    model: currentPreviewModel,
+                    params: previewTexturesHover
                 });
+
+                preview.width = imageData.width;
+                preview.height = imageData.height;
+
+                ctx.putImageData(imageData, 0, 0);
             };
             renderPreview();
 
-            var renderTimeout;
+            // queue up the rendering to prevent too oftern renders
+            var queueRender = function() {
+                if (renderQueued) return;
+                renderQueued = true;
+                requestAnimationFrame(renderPreview);
+            };
 
-            var evtPanelResize = root.on('resize', function () {
-                if (renderTimeout)
-                    clearTimeout(renderTimeout);
+            // render on resize
+            var evtPanelResize = root.on('resize', queueRender);
+            var evtSceneSettings = editor.on('preview:scene:changed', queueRender);
 
-                renderTimeout = setTimeout(renderPreview, 100);
-            });
-            var evtMaterialChanged = editor.on('preview:material:changed', function (id) {
-                if (id === assets[0].get('id'))
-                    renderPreview();
+            // material textures loaded
+            var materialWatch = editor.call('assets:material:watch', {
+                asset: assets[0],
+                autoLoad: true,
+                callback: queueRender
             });
         }
 
@@ -661,6 +778,9 @@ editor.once('load', function() {
 
             return {
                 over: function(type, data) {
+                    if (previewTexturesHover !== null)
+                        previewTexturesHover[path] = parseInt(data.id, 10);
+
                     var texture = app.assets.get(parseInt(data.id, 10));
                     app.assets.load(texture);
 
@@ -691,9 +811,19 @@ editor.once('load', function() {
                     valueOld = [ ];
                     for(var i = 0; i < assets.length; i++)
                         attachTexture(i);
+
                     editor.call('viewport:render');
+
+                    if (queueRender)
+                        queueRender();
                 },
                 leave: function() {
+                    if (previewTexturesHover !== null)
+                        previewTexturesHover = { };
+
+                    if (queueRender)
+                        queueRender();
+
                     if (valueOld === null) return;
 
                     for(var i = 0; i < events.length; i++)
@@ -726,12 +856,17 @@ editor.once('load', function() {
         // clean preview
         if (assets.length === 1) {
             panelParams.on('destroy', function() {
+                root.class.remove('asset-preview');
+
+                editor.call('assets:material:unwatch', assets[0], materialWatch);
+
+                evtSceneSettings.unbind();
                 evtPanelResize.unbind();
-                evtMaterialChanged.unbind();
-                canvas.parentNode.removeChild(canvas);
-                root.class.remove('asset-preview', 'animate');
+                previewContainer.parentNode.removeChild(previewContainer);
+
+                window.removeEventListener('mousemove', onMouseMove);
+                window.removeEventListener('mouseup', onMouseUp);
             });
-            root.class.add('animate');
         }
 
 
@@ -3190,6 +3325,3 @@ editor.once('load', function() {
         });
     });
 });
-
-
-

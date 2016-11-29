@@ -102,7 +102,7 @@ editor.once('load', function() {
                 } else {
                     setTooltipText('[' + item.items.length + ' assets]');
                 }
-            } else if (item.type === 'designerSettings') {
+            } else if (item.type === 'editorSettings') {
                 setTooltipText('Settings');
             }
         }
@@ -133,6 +133,3 @@ editor.once('load', function() {
         callback: selectorReturn
     });
 });
-
-
-

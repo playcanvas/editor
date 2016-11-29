@@ -861,17 +861,21 @@ editor.once('load', function() {
                 if (assets[0].get('has_thumbnail') && assets[0].get('thumbnails.xl') && assets[0].get('file.hash')) {
                     // image.src = config.url.home + assets[0].get('file.url') + '?t=' + assets[0].get('file.hash');
                     image.src = config.url.home + assets[0].get('thumbnails.xl') + '?t=' + assets[0].get('file.hash');
-                    image.style.display = '';
+                    previewContainer.style.display = '';
                 } else {
-                    image.style.display = 'none';
+                    previewContainer.style.display = 'none';
                 }
             };
+
+            var previewContainer = document.createElement('div');
+            previewContainer.classList.add('asset-preview-container');
 
             var image = new Image();
             image.onload = function() {
                 root.class.add('animate');
             };
             reloadImage();
+            previewContainer.appendChild(image);
 
             image.addEventListener('click', function() {
                 if (root.element.classList.contains('large')) {
@@ -883,7 +887,7 @@ editor.once('load', function() {
 
             image.classList.add('asset-preview');
             root.class.add('asset-preview');
-            root.element.insertBefore(image, root.innerElement);
+            root.element.insertBefore(previewContainer, root.innerElement);
 
             var events = [ ];
             events.push(assets[0].on('file.hash:set', reloadImage));
@@ -893,7 +897,7 @@ editor.once('load', function() {
             panel.on('destroy', function() {
                 for(var i = 0; i < events.length; i++)
                     events[i].unbind();
-                image.parentNode.removeChild(image);
+                previewContainer.parentNode.removeChild(previewContainer);
                 root.class.remove('asset-preview', 'animate');
             });
         }

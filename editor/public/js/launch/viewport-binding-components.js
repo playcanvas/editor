@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var framework = editor.call('viewport');
+    var app = editor.call('viewport:app');
 
     // converts the data to runtime types
     var runtimeComponentData = function (component, data) {
@@ -21,7 +21,7 @@ editor.once('load', function() {
             if (obj._silent || ! path.startsWith('components'))
                 return;
 
-            var entity = framework.root.findByGuid(obj.get('resource_id'));
+            var entity = app.root.findByGuid(obj.get('resource_id'));
             if (! entity)
                 return;
 
@@ -33,7 +33,7 @@ editor.once('load', function() {
                 if (!property) {
                     // add component
                     var data = runtimeComponentData(component, value);
-                    framework.systems[component].addComponent(entity, data);
+                    app.systems[component].addComponent(entity, data);
 
                     // render
                     editor.call('viewport:render');
@@ -74,7 +74,7 @@ editor.once('load', function() {
             if (obj._silent || ! path.startsWith('components'))
                 return;
 
-            var entity = framework.root.findByGuid(obj.get('resource_id'));
+            var entity = app.root.findByGuid(obj.get('resource_id'));
             if (! entity) return;
 
             var parts = path.split('.');
@@ -108,7 +108,7 @@ editor.once('load', function() {
                 }
             } else if (entity[component]) {
                 // remove component
-                framework.systems[component].removeComponent(entity);
+                app.systems[component].removeComponent(entity);
             }
         });
 
@@ -116,7 +116,7 @@ editor.once('load', function() {
             if (obj._silent || ! path.startsWith('components'))
                 return;
 
-            var entity = framework.root.findByGuid(obj.get('resource_id'));
+            var entity = app.root.findByGuid(obj.get('resource_id'));
             if (! entity) return;
 
             var parts = path.split('.');

@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var app = editor.call('viewport:framework');
+    var app = editor.call('viewport:app');
     var renderer = app.renderer;
     var device = renderer.device;
     var scene = app.scene;

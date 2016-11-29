@@ -20,6 +20,20 @@ editor.once('load', function() {
         vec4: [ 0, 0, 0, 0 ],
         curve: { keys: [ 0, 0 ], type: 2 }
     };
+    var types = {
+        boolean: 'boolean',
+        number: 'number',
+        string: 'string',
+        json: 'string',
+        asset: 'number',
+        entity: 'string',
+        rgb: 'object',
+        rgba: 'object',
+        vec2: 'object',
+        vec3: 'object',
+        vec4: 'object',
+        curve: 'object'
+    };
 
 
     var indexAdd = function(entity, script) {
@@ -53,7 +67,7 @@ editor.once('load', function() {
     };
     var attributeValue = function(attribute) {
         var value = null;
-        if (attribute.default === undefined) {
+        if (attribute.default === undefined || (attribute.default !== null && typeof(attribute.default) !== types[attribute.type])) {
             if (attribute.array) {
                 value = [ ];
             } else {

@@ -3,7 +3,7 @@ editor.once('load', function () {
     var app = null;
 
     editor.once('viewport:load', function() {
-        app = editor.call('viewport:framework');
+        app = editor.call('viewport:app');
     });
 
     // var device = editor.call('preview:device');

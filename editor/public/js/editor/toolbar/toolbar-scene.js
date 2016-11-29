@@ -46,14 +46,14 @@ editor.once('load', function() {
     });
 
     sceneName.on('click', function() {
-        editor.call('selector:set', 'designerSettings', [ editor.call('designerSettings') ]);
+        editor.call('selector:set', 'editorSettings', [ editor.call('editorSettings') ]);
     });
 
     editor.on('attributes:clear', function() {
         sceneName.class.remove('active');
     });
 
-    editor.on('attributes:inspect[designerSettings]', function() {
+    editor.on('attributes:inspect[editorSettings]', function() {
         sceneName.class.add('active');
     });
 

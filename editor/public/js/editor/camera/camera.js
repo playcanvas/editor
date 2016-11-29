@@ -7,7 +7,7 @@ editor.once('load', function() {
         var editorCameras = { };
         var currentCamera = null;
         var defaultCamera = null;
-        var app = editor.call('viewport:framework');
+        var app = editor.call('viewport:app');
 
 
         editor.method('camera:get', function(name) {

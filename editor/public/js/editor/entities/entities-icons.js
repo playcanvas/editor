@@ -187,7 +187,7 @@ editor.once('load', function() {
     };
 
     editor.once('viewport:load', function() {
-        app = editor.call('viewport:framework');
+        app = editor.call('viewport:app');
 
         var shader;
 
@@ -290,9 +290,9 @@ editor.once('load', function() {
         editor.call('viewport:render');
     });
 
-    var designerSettings = editor.call('designerSettings');
-    editor.call('viewport:icons:size', designerSettings.get('icons_size'));
-    designerSettings.on('icons_size:set', function(size) {
+    var editorSettings = editor.call('editorSettings');
+    editor.call('viewport:icons:size', editorSettings.get('icons_size'));
+    editorSettings.on('icons_size:set', function(size) {
         editor.call('viewport:icons:size', size);
     });
 });

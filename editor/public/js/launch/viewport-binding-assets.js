@@ -1,8 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var framework = editor.call('viewport');
-    var assetRegistry = framework.context.assets;
+    var app = editor.call('viewport:app');
 
     var attachSetHandler = function (asset) {
         // do only for target assets
@@ -13,7 +12,7 @@ editor.once('load', function() {
         var updatedFields = { };
 
         var onChange = function(path, value) {
-            var realtimeAsset = assetRegistry.get(asset.get('id'));
+            var realtimeAsset = app.assets.get(asset.get('id'));
             var parts = path.split('.');
 
             updatedFields[parts[0]] = true;
@@ -41,11 +40,11 @@ editor.once('load', function() {
 
         // tags add
         asset.on('tags:insert', function(tag) {
-            assetRegistry.get(asset.get('id')).tags.add(tag);
+            app.assets.get(asset.get('id')).tags.add(tag);
         });
         // tags remove
         asset.on('tags:remove', function(tag) {
-            assetRegistry.get(asset.get('id')).tags.remove(tag);
+            app.assets.get(asset.get('id')).tags.remove(tag);
         });
     };
 
@@ -82,7 +81,7 @@ editor.once('load', function() {
             // create and add to registry
             var newAsset = new pc.Asset(data.name, data.type, data.file, data.data);
             newAsset.id = parseInt(assetJson.id, 10);
-            assetRegistry.add(newAsset);
+            app.assets.add(newAsset);
             // tags
             newAsset.tags.add(data.tags);
 
@@ -91,9 +90,9 @@ editor.once('load', function() {
 
         // remove assets from asset registry
         editor.on('assets:remove', function (asset) {
-            var realtimeAsset = assetRegistry.get(asset.get('id'));
+            var realtimeAsset = app.assets.get(asset.get('id'));
             if (realtimeAsset)
-                assetRegistry.remove(realtimeAsset);
+                app.assets.remove(realtimeAsset);
         });
     });
 });

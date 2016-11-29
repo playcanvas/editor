@@ -667,6 +667,53 @@ editor.once('load', function() {
         }
     });
 
+    var renderQueue = [ ];
+    var renderQueueIndex = { };
+
+    var renderQueueUpdate = function() {
+        requestAnimationFrame(renderQueueUpdate);
+
+        if (! renderQueue.length)
+            return;
+
+        var items = 0;
+        while(items < 4 && renderQueue.length) {
+            items++;
+            var id = renderQueue.shift();
+            delete renderQueueIndex[id];
+
+            if (! assetsIndex[id] || ! assetsIndex[id].thumbnail || ! assetsIndex[id].thumbnail.render)
+                continue;
+
+            assetsIndex[id].thumbnail.render();
+        }
+    };
+    requestAnimationFrame(renderQueueUpdate);
+
+    var renderQueueAdd = function(asset) {
+        var id = asset.get('id');
+        if (renderQueueIndex[id])
+            return;
+
+        if (! assetsIndex[id].thumbnail || ! assetsIndex[id].thumbnail.render)
+            return;
+
+        renderQueueIndex[id] = true;
+        renderQueue.push(id);
+    };
+
+    var renderQueueRemove = function(asset) {
+        var id = parseInt(asset.get('id'), 10);
+        if (! renderQueueIndex[id])
+            return;
+
+        var ind = renderQueue.indexOf(id);
+        if (ind !== -1)
+            renderQueue.splice(ind, 1);
+
+        delete renderQueueIndex[id];
+    };
+
     editor.on('assets:add', function(asset, pos) {
         asset._type = 'asset';
 
@@ -899,7 +946,200 @@ editor.once('load', function() {
             }, false);
         }
 
-        var thumbnail = item.thumbnail = document.createElement('div');
+        var thumbnail;
+        var evtSceneSettings, evtAssetChanged;
+
+        if (asset.get('type') === 'material' || asset.get('type') === 'model') {
+            var queuedRender = false;
+
+            thumbnail = document.createElement('canvas');
+            thumbnail.classList.add('flipY');
+            thumbnail.changed = true;
+            thumbnail.width = 128;
+            thumbnail.height = 128;
+
+            var watching = null;
+
+            var onRender = thumbnail.render = function() {
+                queuedRender = false;
+
+                if (item.hidden)
+                    return;
+
+                thumbnail.changed = false;
+
+                var ctx = thumbnail.ctx;
+                if (! ctx) ctx = thumbnail.ctx = thumbnail.getContext('2d');
+
+                var imageData = editor.call('preview:render', asset, 128);
+
+                ctx.putImageData(imageData, 0, 0);
+            };
+            var queueRender = function() {
+                if (item.hidden) {
+                    thumbnail.changed = true;
+                    renderQueueRemove(asset);
+                } else {
+                    renderQueueAdd(asset);
+                }
+            };
+            item.on('show', function() {
+                if (thumbnail.changed)
+                    queueRender();
+
+                if (! watching) {
+                    watching = editor.call('assets:' + asset.get('type') + ':watch', {
+                        asset: asset,
+                        autoLoad: true,
+                        callback: queueRender
+                    });
+                }
+            });
+            item.on('hide', function() {
+                if (! watching)
+                    return;
+
+                editor.call('assets:' + asset.get('type') + ':unwatch', asset, watching);
+                watching = null;
+
+                renderQueueRemove(asset);
+            });
+            if (! item.hidden) {
+                requestAnimationFrame(queueRender);
+
+                if (! watching) {
+                    watching = editor.call('assets:' + asset.get('type') + ':watch', {
+                        asset: asset,
+                        autoLoad: true,
+                        callback: queueRender
+                    });
+                }
+            }
+
+            evtSceneSettings = editor.on('preview:scene:changed', queueRender);
+        } else if (asset.get('type') === 'cubemap') {
+            thumbnail = document.createElement('canvas');
+            thumbnail.changed = true;
+            thumbnail.width = 64;
+            thumbnail.height = 64;
+
+            var watching = null;
+
+            var positions = [ [ 32, 24 ], [ 0, 24 ], [ 16, 8 ], [ 16, 40 ], [ 16, 24 ], [ 48, 24 ] ];
+            var images = [ null, null, null, null, null, null ];
+
+            var onRender = thumbnail.render = function() {
+                queuedRender = false;
+
+                if (item.hidden)
+                    return;
+
+                thumbnail.changed = false;
+
+                var ctx = thumbnail.ctx;
+                if (! ctx) ctx = thumbnail.ctx = thumbnail.getContext('2d');
+
+                ctx.clearRect(0, 0, 64, 64);
+
+                // left
+                for(var i = 0; i < 6; i++) {
+                    var id = asset.get('data.textures.' + i);
+                    var image = null;
+
+                    if (id) {
+                        var texture = editor.call('assets:get', id);
+                        if (texture) {
+                            var hash = texture.get('file.hash');
+                            if (images[i] && images[i].hash === hash) {
+                                image = images[i];
+                            } else {
+                                var url = texture.get('thumbnails.s');
+
+                                if (images[i])
+                                    images[i].onload = null;
+
+                                images[i] = null;
+
+                                if (url) {
+                                    image = images[i] = new Image();
+                                    image.hash = hash;
+                                    image.onload = queueRender;
+                                    image.src = url + '?t=' + hash;
+                                }
+                            }
+                        } else if (images[i]) {
+                            images[i].onload = null;
+                            images[i] = null;
+                        }
+                    } else if (images[i]) {
+                        images[i].onload = null;
+                        images[i] = null;
+                    }
+
+                    if (image) {
+                        ctx.drawImage(image, positions[i][0], positions[i][1], 16, 16);
+                    } else {
+                        ctx.beginPath();
+                        ctx.rect(positions[i][0], positions[i][1], 16, 16);
+                        ctx.fillStyle = '#000';
+                        ctx.fill();
+                    }
+                }
+            };
+            var queueRender = function() {
+                if (item.hidden) {
+                    thumbnail.changed = true;
+                    renderQueueRemove(asset);
+                } else {
+                    renderQueueAdd(asset);
+                }
+            };
+
+            item.on('show', function() {
+                if (thumbnail.changed)
+                    queueRender();
+
+                if (! watching) {
+                    watching = editor.call('assets:cubemap:watch', {
+                        asset: asset,
+                        autoLoad: true,
+                        callback: queueRender
+                    });
+                }
+            });
+            item.on('hide', function() {
+                if (! watching)
+                    return;
+
+                editor.call('assets:cubemap:unwatch', asset, watching);
+                watching = null;
+
+                renderQueueRemove(asset);
+            });
+
+            if (! item.hidden) {
+                requestAnimationFrame(queueRender);
+
+                if (! watching) {
+                    watching = editor.call('assets:cubemap:watch', {
+                        asset: asset,
+                        autoLoad: true,
+                        callback: queueRender
+                    });
+                }
+            }
+
+            evtAssetChanged = asset.on('*:set', function(path) {
+                if (queuedRender || ! path.startsWith('data.textures'))
+                    return;
+
+                queueRender();
+            });
+        } else {
+            thumbnail = document.createElement('div');
+        }
+
+        item.thumbnail = thumbnail;
         thumbnail.classList.add('thumbnail');
         item.element.appendChild(thumbnail);
 
@@ -1004,6 +1244,12 @@ editor.once('load', function() {
             events = null;
 
             delete assetsIndex[asset.get('id')];
+
+            if (evtSceneSettings)
+                evtSceneSettings.unbind();
+
+            if (evtAssetChanged)
+                evtAssetChanged.unbind();
         });
 
         // append to grid
@@ -1153,6 +1399,3 @@ editor.once('load', function() {
     editor.on('sourcefiles:add', addSourceFile);
     editor.on('sourcefiles:remove', removeSourceFile);
 });
-
-
-

@@ -6,7 +6,7 @@ editor.once('load', function() {
         if (! panelComponents)
             return;
 
-        var framework = editor.call('viewport:framework');
+        var app = editor.call('viewport:app');
         var events = [ ];
 
         var panel = editor.call('attributes:entity:addComponentPanel', {
@@ -288,12 +288,12 @@ editor.once('load', function() {
 
         // calculate resolutions for lightmap
         var collectResolutions = function() {
-            var lightmapper = framework.lightmapper;
+            var lightmapper = app.lightmapper;
             var min = Infinity;
             var max = -Infinity;
 
             for(var i = 0; i < entities.length; i++) {
-                if (! entities[i].get('components.model.lightmapped') || ! entities[i].entity.model || (! entities[i].entity.model.asset && entities[i].entity.type === 'asset') || (entities[i].entity.model.asset && ! framework.assets.get(entities[i].entity.model.asset)))
+                if (! entities[i].get('components.model.lightmapped') || ! entities[i].entity.model || (! entities[i].entity.model.asset && entities[i].entity.type === 'asset') || (entities[i].entity.model.asset && ! app.assets.get(entities[i].entity.model.asset)))
                     continue;
 
                 var size = lightmapper.calculateLightmapSize(entities[i].entity);
@@ -407,7 +407,7 @@ editor.once('load', function() {
         });
 
         // get one of the Entities to use for finding the mesh instances names
-        var engineEntity = framework.root.findByGuid(entities[0].get('resource_id'));
+        var engineEntity = app.root.findByGuid(entities[0].get('resource_id'));
 
         var removeOverride = function (index) {
             var resourceIds = [];
@@ -477,7 +477,7 @@ editor.once('load', function() {
                     });
 
                     entities.forEach(function (entity) {
-                        var engineEntity = framework.root.findByGuid(entity.get('resource_id'));
+                        var engineEntity = app.root.findByGuid(entity.get('resource_id'));
                         if (engineEntity) {
                             var mapping = engineEntity.model.mapping;
                             if (engineEntity.model.mapping && engineEntity.model.mapping[index] !== undefined) {
@@ -493,7 +493,7 @@ editor.once('load', function() {
                     if (!valuesBefore) return;
 
                     entities.forEach(function (entity, i) {
-                        var engineEntity = framework.root.findByGuid(entity.get('resource_id'));
+                        var engineEntity = app.root.findByGuid(entity.get('resource_id'));
                         if (engineEntity) {
                             var mapping = engineEntity.model.mapping;
                             if (! mapping) return;

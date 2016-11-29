@@ -1,10 +1,10 @@
 editor.once('load', function() {
     'use strict';
 
-    var framework = editor.call('viewport');
-    framework.loader.removeHandler("scene");
-    framework.loader.removeHandler("hierarchy");
-    framework.loader.removeHandler("scenesettings");
+    var app = editor.call('viewport:app');
+    app.loader.removeHandler("scene");
+    app.loader.removeHandler("hierarchy");
+    app.loader.removeHandler("scenesettings");
 
     var SharedSceneHandler = function (app, handler) {
         this._app = app;
@@ -32,7 +32,7 @@ editor.once('load', function() {
             return this._handler.patch(asset, assets);
         }
     };
-    framework.loader.addHandler("scene", new SharedSceneHandler(framework, new pc.SceneHandler(framework)));
+    app.loader.addHandler("scene", new SharedSceneHandler(app, new pc.SceneHandler(app)));
 
 
     var SharedHierarchyHandler = function (app, handler) {
@@ -61,7 +61,7 @@ editor.once('load', function() {
             return this._handler.patch(asset, assets);
         }
     };
-    framework.loader.addHandler("hierarchy", new SharedHierarchyHandler(framework, new pc.HierarchyHandler(framework)));
+    app.loader.addHandler("hierarchy", new SharedHierarchyHandler(app, new pc.HierarchyHandler(app)));
 
     var SharedSceneSettingsHandler = function (app, handler) {
         this._app = app;
@@ -89,6 +89,5 @@ editor.once('load', function() {
             return this._handler.patch(asset, assets);
         }
     };
-    framework.loader.addHandler("scenesettings", new SharedSceneSettingsHandler(framework, new pc.SceneSettingsHandler(framework)));
-
+    app.loader.addHandler("scenesettings", new SharedSceneSettingsHandler(app, new pc.SceneSettingsHandler(app)));
 });

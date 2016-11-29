@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     var enabled = editor.call('tools:enabled');
-    var viewport = editor.call('viewport');
+    var app = editor.call('viewport:app');
 
     editor.on('tools:state', function(state) {
         enabled = state;
@@ -420,7 +420,7 @@ editor.once('load', function() {
         title: 'Textures Other',
         panel: panelVram,
         format: function(bytes) {
-            return bytesToHuman(bytes - (viewport.stats.vram.texLightmap + viewport.stats.vram.texShadow + viewport.stats.vram.texAsset));
+            return bytesToHuman(bytes - (app.stats.vram.texLightmap + app.stats.vram.texShadow + app.stats.vram.texAsset));
         }
     }, {
         key: [ 'vram', 'tex' ],
@@ -446,7 +446,7 @@ editor.once('load', function() {
     }
 
     // update frame fields
-    viewport.on('frameEnd', function() {
+    app.on('frameEnd', function() {
         if (! enabled)
             return;
 
@@ -454,10 +454,10 @@ editor.once('load', function() {
             if (fields[i].ignore)
                 continue;
 
-            if (! viewport.stats.hasOwnProperty(fields[i].key[0]) || ! viewport.stats[fields[i].key[0]].hasOwnProperty(fields[i].key[1]))
+            if (! app.stats.hasOwnProperty(fields[i].key[0]) || ! app.stats[fields[i].key[0]].hasOwnProperty(fields[i].key[1]))
                 continue;
 
-            var value = viewport.stats[fields[i].key[0]][fields[i].key[1]];
+            var value = app.stats[fields[i].key[0]][fields[i].key[1]];
 
             if (fields[i].format)
                 value = fields[i].format(value);

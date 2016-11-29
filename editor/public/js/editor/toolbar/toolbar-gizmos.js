@@ -41,9 +41,6 @@ editor.once('load', function() {
             activeGizmo.tooltip.class.remove('innactive');
 
             editor.call('gizmo:type', this.op);
-            // var framework = editor.call('viewport:framework');
-            // if (framework)
-            //     framework.setActiveGizmoType(this.op);
         });
 
         toolbar.append(button);
@@ -80,9 +77,6 @@ editor.once('load', function() {
             tooltipWorld.html = '<span style="color:#fff">World</span> / Local';
         }
         editor.call('gizmo:coordSystem', this.class.contains('active') ? 'world' : 'local');
-        // var framework = editor.call('viewport:framework');
-        // if (framework)
-        //     framework.setGizmoCoordinateSystem(this.class.contains('active') ? 'world' : 'local');
     });
 
     var tooltipWorld = Tooltip.attach({
@@ -109,9 +103,6 @@ editor.once('load', function() {
             tooltipSnap.class.remove('innactive');
         }
         editor.call('gizmo:snap', this.class.contains('active'));
-        // var framework = editor.call('viewport:framework');
-        // if (framework)
-        //     framework.setSnapToClosestIncrement(this.class.contains('active'));
     });
     toolbar.append(buttonSnap);
 

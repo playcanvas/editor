@@ -22,7 +22,7 @@ editor.once('load', function () {
     }
     // update lines
     Gizmo.prototype.update = function() {
-        if (! this._link || editor.call('camera:current') === this._link.entity) {
+        if (! this._link || ! this._link.entity || editor.call('camera:current') === this._link.entity) {
             this.visible = false;
             return;
         }
@@ -170,7 +170,7 @@ editor.once('load', function () {
     });
 
     editor.once('viewport:load', function() {
-        app = editor.call('viewport:framework');
+        app = editor.call('viewport:app');
     });
 
     editor.on('viewport:gizmoUpdate', function(dt) {

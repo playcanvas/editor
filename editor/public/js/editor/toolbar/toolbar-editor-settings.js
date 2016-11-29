@@ -7,18 +7,18 @@ editor.once('load', function() {
     var button = new ui.Button({
         text: '&#57652;'
     });
-    button.class.add('pc-icon', 'designer-settings');
+    button.class.add('pc-icon', 'editor-settings');
     toolbar.append(button);
 
     button.on('click', function() {
-        editor.call('selector:set', 'designerSettings', [ editor.call('designerSettings') ]);
+        editor.call('selector:set', 'editorSettings', [ editor.call('editorSettings') ]);
     });
 
     editor.on('attributes:clear', function() {
         button.class.remove('active');
     });
 
-    editor.on('attributes:inspect[designerSettings]', function() {
+    editor.on('attributes:inspect[editorSettings]', function() {
         editor.call('attributes.rootPanel').folded = false;
 
         button.class.add('active');

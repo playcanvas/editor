@@ -6,21 +6,21 @@ editor.once('load', function() {
     });
 
     var keepRendering = false;
-    var settings = editor.call('designerSettings');
-    var Designer = editor.call('viewport:designer');
+    var editorSettings = editor.call('editorSettings');
+    var Application = editor.call('viewport:application');
 
-    // create designer famework
-    var framework = new Designer(canvas.element, {
+    // create playcanvas application
+    var app = new Application(canvas.element, {
         mouse: new pc.input.Mouse(canvas.element),
         touch: !!('ontouchstart' in window) ? new pc.input.TouchDevice(canvas.element) : null,
-        designerSettings: settings.json(),
+        editorSettings: editorSettings.json(),
         graphicsDeviceOptions: {
             alpha: false
         }
     });
 
-    settings.on('*:set', function() {
-        framework.setDesignerSettings(settings.json());
+    editorSettings.on('*:set', function() {
+        app.setEditorSettings(editorSettings.json());
     });
 
 
@@ -32,14 +32,14 @@ editor.once('load', function() {
         return canvas;
     });
 
-    // get framework
-    editor.method('viewport:framework', function() {
-        return framework;
+    // get app
+    editor.method('viewport:app', function() {
+        return app;
     });
 
     // re-render viewport
     editor.method('viewport:render', function () {
-        framework.redraw = true;
+        app.redraw = true;
     });
 
     // returns true if the viewport should continuously render
@@ -54,6 +54,6 @@ editor.once('load', function() {
         return flyMode;
     });
 
-    framework.start();
-    editor.emit('viewport:load', framework);
+    app.start();
+    editor.emit('viewport:load', app);
 });

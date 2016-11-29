@@ -44,7 +44,7 @@ editor.once('load', function () {
 
         if (isNew) {
             editor.once('entities:load', function () {
-                editor.call('selector:set', 'designerSettings', [ editor.call('designerSettings') ]);
+                editor.call('selector:set', 'editorSettings', [ editor.call('editorSettings') ]);
             });
         }
     });
