@@ -5,7 +5,7 @@ editor.once('load', function() {
     var viewport = editor.call('layout.viewport');
     var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
 
-    var settings = editor.call('designerSettings');
+    var settings = editor.call('editorSettings');
     var privateSettings = editor.call('project:privateSettings');
 
     // panel
@@ -37,9 +37,37 @@ editor.once('load', function() {
     buttonLaunch.class.add('icon');
     launch.append(buttonLaunch);
 
-    buttonLaunch.on('click', function () {
-        launchApp();
-    });
+    var launchApp = function () {
+        var url = (window.location.origin + window.location.pathname) + '/launch';
+
+        var query = [ ];
+
+        if (launchOptions.local) {
+            url = url.replace(/^https/, 'http');
+            query.push('local=' + settings.get('local_server'));
+        }
+
+        if (launchOptions.profiler)
+            query.push('profile=true');
+
+        if (!launchOptions.local && launchOptions.facebook && privateSettings.get('facebook.app_id')) {
+            url = 'https://www.facebook.com/embed/instantgames/' +
+                  privateSettings.get('facebook.app_id') +
+                  '/player?game_url=' +
+                  url;
+
+            query.push('facebook=true');
+        }
+
+        if (query.length)
+            url += '?' + query.join('&');
+
+        var launcher = window.open();
+        launcher.opener = null;
+        launcher.location = url;
+    };
+
+    buttonLaunch.on('click', launchApp);
 
     var tooltip = Tooltip.attach({
         target: launch.element,
@@ -145,9 +173,9 @@ editor.once('load', function() {
 
         if (! privateSettings.get('facebook.app_id')) {
             // open facebook settings
-            editor.call('selector:set', 'designerSettings', [ editor.call('designerSettings') ]);
+            editor.call('selector:set', 'editorSettings', [ editor.call('editorSettings') ]);
             setTimeout(function() {
-                editor.call('designerSettings:panel:unfold', 'facebook');
+                editor.call('editorSettings:panel:unfold', 'facebook');
             }, 0);
         }
     });
@@ -158,39 +186,7 @@ editor.once('load', function() {
         launchApp();
     };
 
-    var launchApp = function () {
-        var url = (window.location.origin + window.location.pathname) + '/launch';
-
-        var query = [ ];
-
-        if (launchOptions.local) {
-            url = url.replace(/^https/, 'http');
-            query.push('local=' + settings.get('local_server'));
-        }
-
-        if (launchOptions.profiler)
-            query.push('profile=true');
-
-        if (!launchOptions.local && launchOptions.facebook && privateSettings.get('facebook.app_id')) {
-            url = 'https://www.facebook.com/embed/instantgames/' +
-                  privateSettings.get('facebook.app_id') +
-                  '/player?game_url=' +
-                  url;
-
-            query.push('facebook=true');
-        }
-
-        if (query.length)
-            url += '?' + query.join('&');
-
-        var launcher = window.open();
-        launcher.opener = null;
-        launcher.location = url;
-    };
-
-    editor.method('launch', function() {
-        launchApp();
-    });
+    editor.method('launch', launchApp);
 
     editor.call('hotkey:register', 'launch', {
         key: 'enter',

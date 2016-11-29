@@ -25,6 +25,15 @@ editor.once('load', function() {
     });
 
     var syncTimeout;
+    var onSettingsSet = function() {
+        Ajax({
+            url: '{{url.api}}/scenes/{{scene.id}}/designer_settings/{{self.id}}',
+            method: 'PUT',
+            auth: true,
+            data: editorSettings.json()
+        });
+        syncTimeout = null;
+    };
 
     // sync
     editorSettings.on('*:set', function(field, value) {
@@ -34,15 +43,7 @@ editor.once('load', function() {
         if (syncTimeout)
             clearTimeout(syncTimeout);
 
-        syncTimeout = setTimeout(function () {
-            Ajax({
-                url: '{{url.api}}/scenes/{{scene.id}}/designer_settings/{{self.id}}',
-                method: 'PUT',
-                auth: true,
-                data: this.json()
-            });
-            syncTimeout = null;
-        }.bind(this), 100);
+        syncTimeout = setTimeout(onSettingsSet, 100);
     });
 
     // load editor settings

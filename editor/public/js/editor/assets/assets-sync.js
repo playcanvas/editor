@@ -59,7 +59,6 @@ editor.once('load', function() {
 
             if (callback)
                 callback(asset);
-
         });
 
         // subscribe for realtime events
