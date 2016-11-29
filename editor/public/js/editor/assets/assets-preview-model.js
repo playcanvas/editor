@@ -12,6 +12,7 @@ editor.once('load', function() {
 
     // material
     var material = new pc.StandardMaterial();
+    material.useSkybox = false;
     material._scene = scene;
 
     var aabb = new pc.BoundingBox();
