@@ -6,8 +6,8 @@ editor.once('load', function() {
     var renderer = app.renderer;
     var scene = editor.call('preview:scene');
 
-    var pitch = 0;
-    var yaw = 0;
+    var pitch = -15;
+    var yaw = 45;
 
 
     // material
@@ -32,7 +32,7 @@ editor.once('load', function() {
 
     // light
     var lightNode = new pc.GraphNode();
-    lightNode.setLocalEulerAngles(45, 45, 0);
+    lightNode.setLocalEulerAngles(45, 135, 0);
 
     var light = new pc.Light();
     light.enabled = true;
@@ -96,11 +96,10 @@ editor.once('load', function() {
 
         scene.addModel(model);
 
-        pitch = args.rotation && args.rotation[0] || 0;
-        yaw = args.rotation && args.rotation[1] || 0;
+        pitch = args.hasOwnProperty('rotation') ? args.rotation[0] : -15;
+        yaw = args.hasOwnProperty('rotation') ? args.rotation[1] : 45;
 
         var max = aabb.halfExtents.length();
-        // TODO
         cameraNode.setLocalPosition(0, 0, max * 2.5);
 
         cameraOrigin.setLocalPosition(aabb.center);

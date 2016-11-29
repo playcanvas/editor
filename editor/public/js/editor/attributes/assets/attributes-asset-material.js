@@ -675,7 +675,7 @@ editor.once('load', function() {
                 queueRender();
             });
 
-            var sx, sy, x, y, nx, ny;
+            var sx = 0, sy = 0, x = 0, y = 0, nx = 0, ny = 0;
             var dragging = false;
             var previewRotation = [ 0, 0 ];
 

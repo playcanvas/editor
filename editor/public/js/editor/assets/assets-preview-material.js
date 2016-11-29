@@ -85,8 +85,8 @@ editor.once('load', function() {
         scene.addLight(light);
 
         setModel(args.model || 'sphere');
-        pitch = args.rotation && args.rotation[0] || 0;
-        yaw = args.rotation && args.rotation[1] || 0;
+        pitch = args.hasOwnProperty('rotation') ? args.rotation[0] : 0;
+        yaw = args.hasOwnProperty('rotation') ? args.rotation[1] : 0;
 
         cameraOrigin.setLocalEulerAngles(pitch, yaw, 0);
         cameraOrigin.syncHierarchy();

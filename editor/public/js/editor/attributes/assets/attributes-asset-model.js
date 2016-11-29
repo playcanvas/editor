@@ -422,9 +422,9 @@ editor.once('load', function() {
             preview.classList.add('asset-preview', 'flipY');
             previewContainer.appendChild(preview);
 
-            var sx, sy, x, y, nx, ny;
+            var sx = 0, sy = 0, x = 0, y = 0, nx = 0, ny = 0;
             var dragging = false;
-            var previewRotation = [ 0, 0 ];
+            var previewRotation = [ -15, 45 ];
 
             preview.addEventListener('mousedown', function(evt) {
                 if (evt.button !== 0)

@@ -929,7 +929,7 @@ editor.once('load', function() {
 
             case 'asset':
                 field = new ui.ImageField({
-                    canvas: args.kind === 'material' || args.kind === 'cubemap'
+                    canvas: args.kind === 'material' || args.kind === 'model' || args.kind === 'cubemap'
                 });
                 var evtPick;
 
@@ -1039,7 +1039,7 @@ editor.once('load', function() {
                     var asset = editor.call('assets:get', field.value);
 
                     if (watch) {
-                        editor.call('assets:material:unwatch', watchAsset, watch);
+                        editor.call('assets:' + watchAsset.get('type') + ':unwatch', watchAsset, watch);
                         watchAsset = watch = null;
                     }
 
@@ -1059,7 +1059,7 @@ editor.once('load', function() {
                             field.image = '/editor/scene/img/asset-placeholder-' + asset.get('type') + '.png';
                         }
 
-                        if (args.kind === 'material' || args.kind === 'cubemap') {
+                        if (args.kind === 'material' || args.kind === 'model' || args.kind === 'cubemap') {
                             watchAsset = asset;
                             watch = editor.call('assets:' + args.kind + ':watch', {
                                 asset: watchAsset,
@@ -1073,7 +1073,7 @@ editor.once('load', function() {
                         queueRender();
                 };
 
-                if (args.kind === 'material') {
+                if (args.kind === 'material' || args.kind === 'model') {
                     field.elementImage.classList.add('flipY');
 
                     var renderPreview = function() {
@@ -1111,7 +1111,7 @@ editor.once('load', function() {
                         evtSceneSettings = null;
 
                         if (watch) {
-                            editor.call('assets:material:unwatch', watchAsset, watch);
+                            editor.call('assets:' + watchAsset.get('type') + ':unwatch', watchAsset, watch);
                             watchAsset = watch = null;
                         }
                     });
