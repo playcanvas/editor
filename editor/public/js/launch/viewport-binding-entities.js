@@ -27,7 +27,6 @@ editor.once('load', function() {
         entity.setLocalEulerAngles(obj.get('rotation.0'), obj.get('rotation.1'), obj.get('rotation.2'));
         entity.setLocalScale(obj.get('scale.0'), obj.get('scale.1'), obj.get('scale.2'));
         entity._enabled = obj.has('enabled') ? obj.get('enabled') : true;
-        entity._enabledInHierarchy = entity._enabled;
 
         if (obj.has('labels')) {
             obj.get('labels').forEach(function (label) {
