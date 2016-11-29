@@ -76,8 +76,10 @@ editor.once('load', function() {
             return;
 
         // don't render if selected or disabled
-        if (! this._link.entity.enabled || this._link.entity.__noIcon || scale === 0 || selectedIds[this._link.get('resource_id')]) {
-            this.entity.enabled = false;
+        if (! this._link.entity._enabled || ! this._link.entity._enabledInHierarchy || this._link.entity.__noIcon || scale === 0 || selectedIds[this._link.entity._guid]) {
+            if (this.entity._enabled)
+                this.entity.enabled = false;
+
             this.dirty = true;
             return;
         }
