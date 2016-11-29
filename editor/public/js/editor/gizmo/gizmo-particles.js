@@ -31,7 +31,7 @@ editor.once('load', function () {
     }
     // update lines
     Gizmo.prototype.update = function() {
-        if (! this._link)
+        if (! this._link || ! this._link.entity)
             return;
 
         var particles = this._link.entity.particlesystem;

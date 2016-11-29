@@ -762,6 +762,3 @@ editor.once('load', function() {
         createModels();
     });
 });
-
-
-
