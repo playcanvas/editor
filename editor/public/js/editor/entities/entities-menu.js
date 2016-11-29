@@ -278,7 +278,7 @@ editor.once('load', function() {
                 title: '2D Screen',
                 icon: componentsLogos.screen,
                 hide: function () {
-                    return !config.self.superUser;
+                    return !config.self.superUser && !config.self.uiTester;
                 },
                 select: function() {
                     var data = editor.call('components:getDefault', 'screen');
@@ -297,7 +297,7 @@ editor.once('load', function() {
                 title: '3D Screen',
                 icon: componentsLogos.screen,
                 hide: function () {
-                    return !config.self.superUser;
+                    return !config.self.superUser && !config.self.uiTester;
                 },
                 select: function() {
                     var data = editor.call('components:getDefault', 'screen');
@@ -317,7 +317,7 @@ editor.once('load', function() {
                 title: 'Text Element',
                 icon: componentsLogos.element,
                 hide: function () {
-                    return !config.self.superUser;
+                    return !config.self.superUser && !config.self.uiTester;
                 },
                 select: function() {
                     var data = editor.call('components:getDefault', 'element');
@@ -336,7 +336,7 @@ editor.once('load', function() {
                 title: 'Image Element',
                 icon: componentsLogos.element,
                 hide: function () {
-                    return !config.self.superUser;
+                    return !config.self.superUser && !config.self.uiTester;
                 },
                 select: function() {
                     var data = editor.call('components:getDefault', 'element');
@@ -354,7 +354,7 @@ editor.once('load', function() {
                 title: 'Element Group',
                 icon: componentsLogos.element,
                 hide: function () {
-                    return !config.self.superUser;
+                    return !config.self.superUser && !config.self.uiTester;
                 },
                 select: function() {
                     var data = editor.call('components:getDefault', 'element');
