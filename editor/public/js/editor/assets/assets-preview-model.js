@@ -70,8 +70,8 @@ editor.once('load', function() {
 
         var model = modelPlaceholder;
 
-        if (modelAsset.resource)
-            model = modelAsset.resource.clone();
+        if (modelAsset._editorPreviewModel)
+            model = modelAsset._editorPreviewModel.clone();
 
         model.lights = [ light ];
 
