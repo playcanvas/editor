@@ -90,7 +90,7 @@ editor.once('load', function() {
 
     // initialize gizmo
     editor.once('viewport:load', function() {
-        var app = editor.call('viewport:framework');
+        var app = editor.call('viewport:app');
 
         gizmo = createEntity();
         gizmo.root.enabled = false;

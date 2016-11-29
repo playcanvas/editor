@@ -294,6 +294,3 @@ Element.prototype._onFlashDelay = function() {
 
 
 window.ui.Element = Element;
-
-
-

@@ -31,7 +31,7 @@ editor.once('load', function () {
     }
     // update lines
     Gizmo.prototype.update = function() {
-        if (! this._link)
+        if (! this._link || ! this._link.entity)
             return;
 
         var particles = this._link.entity.particlesystem;
@@ -189,7 +189,7 @@ editor.once('load', function () {
     });
 
     editor.once('viewport:load', function() {
-        app = editor.call('viewport:framework');
+        app = editor.call('viewport:app');
 
         container = new pc.Entity(app);
         app.root.addChild(container);

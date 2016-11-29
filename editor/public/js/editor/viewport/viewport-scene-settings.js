@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     var sceneSettings = editor.call('sceneSettings');
-    var app = editor.call('viewport:framework');
+    var app = editor.call('viewport:app');
     var assetsLoaded = false;
     var sceneSettingsLoaded = false;
     var updating;

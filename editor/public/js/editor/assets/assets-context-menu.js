@@ -396,10 +396,10 @@ editor.once('load', function() {
                         var menuItem = new ui.MenuItem();
                         var item = null;
 
-                        if (type === 'designerSettings') {
+                        if (type === 'editorSettings') {
                             menuItem.text = 'Scene Settings';
                             menuItem.icon = '&#57652;';
-                            item = editor.call('designerSettings');
+                            item = editor.call('editorSettings');
                             if (! item) return;
                         } else {
                             if (type === 'entity') {
@@ -430,9 +430,9 @@ editor.once('load', function() {
                             editor.call('assets:panel:currentFolder', folder);
 
                             // unfold rendering tab
-                            if (type === 'designerSettings') {
+                            if (type === 'editorSettings') {
                                 setTimeout(function() {
-                                    editor.call('designerSettings:panel:unfold', 'rendering');
+                                    editor.call('editorSettings:panel:unfold', 'rendering');
                                 }, 0);
                             }
                         });
@@ -442,7 +442,7 @@ editor.once('load', function() {
                         addReferenceItem(ref.ref[key].type, key);
 
                     var typeSort = {
-                        'designerSettings': 1,
+                        'editorSettings': 1,
                         'asset': 2,
                         'entity': 3
                     };

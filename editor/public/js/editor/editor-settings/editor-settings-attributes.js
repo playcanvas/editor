@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var designerSettings = editor.call('designerSettings');
+    var editorSettings = editor.call('editorSettings');
 
     var sceneName = 'Untitled';
     editor.on('scene:raw', function(data) {
@@ -19,7 +19,7 @@ editor.once('load', function() {
     };
 
     // inspecting
-    editor.on('attributes:inspect[designerSettings]', function() {
+    editor.on('attributes:inspect[editorSettings]', function() {
 
         var panelScene = editor.call('attributes:addPanel');
         panelScene.class.add('component');
@@ -65,7 +65,7 @@ editor.once('load', function() {
         panel.on('unfold', function() { foldStates['editor'] = false; });
         panel.class.add('component');
         // reference
-        editor.call('attributes:reference:attach', 'settings:designer', panel, panel.headerElement);
+        editor.call('attributes:reference:attach', 'settings:editor', panel, panel.headerElement);
 
         // grid divisions
         var fieldGrid = editor.call('attributes:addField', {
@@ -76,7 +76,7 @@ editor.once('load', function() {
             precision: 1,
             step: 1,
             min: 0,
-            link: designerSettings,
+            link: editorSettings,
             path: 'grid_divisions'
         });
         fieldGrid.style.width = '32px';
@@ -93,7 +93,7 @@ editor.once('load', function() {
         fieldFarClip.placeholder = 'Size';
         fieldFarClip.style.width = '32px';
         fieldFarClip.flexGrow = 1;
-        fieldFarClip.link(designerSettings, 'grid_division_size');
+        fieldFarClip.link(editorSettings, 'grid_division_size');
         fieldGrid.parent.append(fieldFarClip);
 
 
@@ -106,7 +106,7 @@ editor.once('load', function() {
             step: 1,
             min: 0,
             placeholder: 'Increment',
-            link: designerSettings,
+            link: editorSettings,
             path: 'snap_increment'
         });
         // reference
@@ -122,7 +122,7 @@ editor.once('load', function() {
             precision: 2,
             step: .1,
             min: 0,
-            link: designerSettings,
+            link: editorSettings,
             path: 'camera_near_clip'
         });
         fieldClip.style.width = '32px';
@@ -139,7 +139,7 @@ editor.once('load', function() {
         fieldFarClip.placeholder = 'Far';
         fieldFarClip.style.width = '32px';
         fieldFarClip.flexGrow = 1;
-        fieldFarClip.link(designerSettings, 'camera_far_clip');
+        fieldFarClip.link(editorSettings, 'camera_far_clip');
         fieldClip.parent.append(fieldFarClip);
 
 
@@ -148,7 +148,7 @@ editor.once('load', function() {
             parent: panel,
             name: 'Clear Color',
             type: 'rgb',
-            link: designerSettings,
+            link: editorSettings,
             path: 'camera_clear_color'
         });
         // reference
@@ -163,7 +163,7 @@ editor.once('load', function() {
             precision: 2,
             step: .1,
             min: 0,
-            link: designerSettings,
+            link: editorSettings,
             path: 'icons_size'
         });
         // reference
@@ -175,7 +175,7 @@ editor.once('load', function() {
             parent: panel,
             name: 'Local Server',
             type: 'string',
-            link: designerSettings,
+            link: editorSettings,
             path: 'local_server'
         });
 

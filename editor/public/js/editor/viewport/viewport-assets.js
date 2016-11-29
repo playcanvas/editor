@@ -1,10 +1,10 @@
 editor.once('load', function() {
     'use strict';
 
-    var framework = editor.call('viewport:framework');
-    if (! framework) return;
+    var app = editor.call('viewport:app');
+    if (! app) return;
 
-    var assets = framework.assets;
+    var assets = app.assets;
 
     editor.call('assets:registry:bind', assets);
 

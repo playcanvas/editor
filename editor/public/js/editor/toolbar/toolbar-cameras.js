@@ -2,7 +2,7 @@ editor.once('viewport:load', function() {
     'use strict';
 
     var viewport = editor.call('layout.viewport');
-    var app = editor.call('viewport:framework');
+    var app = editor.call('viewport:app');
 
     var options = { };
     var index = { };

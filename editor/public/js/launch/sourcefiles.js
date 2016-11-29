@@ -4,8 +4,6 @@ editor.once('load', function() {
     if (! editor.call('project:settings').get('use_legacy_scripts'))
         return;
 
-    var framework = editor.call('viewport');
-
 
     var onLoad = function (data) {
         var i = 0;

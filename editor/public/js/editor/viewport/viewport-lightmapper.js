@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var app = editor.call('viewport:framework');
+    var app = editor.call('viewport:app');
     var uv1MissingAssets = { };
 
 

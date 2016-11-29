@@ -23,11 +23,11 @@ editor.once('load', function() {
 
     // respond to resize window
     var reflow = function () {
-        var size = application.resizeCanvas(canvas.width, canvas.height);
+        var size = app.resizeCanvas(canvas.width, canvas.height);
         canvas.style.width = '';
         canvas.style.height = '';
 
-        var fillMode = application._fillMode;
+        var fillMode = app._fillMode;
 
         if (fillMode == pc.fw.FillMode.NONE || fillMode == pc.fw.FillMode.KEEP_ASPECT) {
             if ((fillMode == pc.fw.FillMode.NONE && canvas.clientHeight < window.innerHeight) || (canvas.clientWidth / canvas.clientHeight >= window.innerWidth / window.innerHeight)) {
@@ -46,19 +46,19 @@ editor.once('load', function() {
             done = true;
 
             // load assets that are in the preload set
-            application.preload(function (err) {
+            app.preload(function (err) {
                 // load scripts that are in the scene data
-                application._preloadScripts(sceneData, function (err) {
+                app._preloadScripts(sceneData, function (err) {
                     if (err) {
                         console.error(err);
                     }
 
                     // create scene
-                    application.scene = application.loader.open("scene", sceneData);
-                    application.root.addChild(application.scene.root);
+                    app.scene = app.loader.open("scene", sceneData);
+                    app.root.addChild(app.scene.root);
 
                     // update scene settings now that scene is loaded
-                    application.applySceneSettings(sceneSettings);
+                    app.applySceneSettings(sceneSettings);
 
                     // clear stored loading data
                     sceneData = null;
@@ -70,7 +70,7 @@ editor.once('load', function() {
                         console.error(err);
                     }
 
-                    application.start();
+                    app.start();
                 });
             });
         }
@@ -186,8 +186,8 @@ editor.once('load', function() {
     // legacy scripts
     pc.script.legacy = projectSettings.get('use_legacy_scripts');
 
-    // playcanvas application
-    var application = new pc.Application(canvas, {
+    // playcanvas app
+    var app = new pc.Application(canvas, {
         mouse: new pc.input.Mouse(canvas),
         touch: !!('ontouchstart' in window) ? new pc.input.TouchDevice(canvas) : null,
         keyboard: new pc.input.Keyboard(window),
@@ -206,14 +206,14 @@ editor.once('load', function() {
     }
 
     if (config.project.settings.use_device_pixel_ratio) {
-        application.graphicsDevice.maxPixelRatio = window.devicePixelRatio;
+        app.graphicsDevice.maxPixelRatio = window.devicePixelRatio;
     }
 
-    application.setCanvasResolution(config.project.settings.resolution_mode, config.project.settings.width, config.project.settings.height);
-    application.setCanvasFillMode(config.project.settings.fill_mode, config.project.settings.width, config.project.settings.height);
+    app.setCanvasResolution(config.project.settings.resolution_mode, config.project.settings.width, config.project.settings.height);
+    app.setCanvasFillMode(config.project.settings.fill_mode, config.project.settings.width, config.project.settings.height);
 
-    application._loadLibraries(libraryUrls, function (err) {
-        application._onVrChange(config.project.settings.vr);
+    app._loadLibraries(libraryUrls, function (err) {
+        app._onVrChange(config.project.settings.vr);
         libraries = true;
         if (err) {
             console.error(err);
@@ -246,8 +246,8 @@ editor.once('load', function() {
     createCss();
 
     var refreshResolutionProperties = function () {
-        application.setCanvasResolution(config.project.settings.resolution_mode, config.project.settings.width, config.project.settings.height);
-        application.setCanvasFillMode(config.project.settings.fill_mode, config.project.settings.width, config.project.settings.height);
+        app.setCanvasResolution(config.project.settings.resolution_mode, config.project.settings.width, config.project.settings.height);
+        app.setCanvasFillMode(config.project.settings.fill_mode, config.project.settings.width, config.project.settings.height);
         reflow();
     };
 
@@ -281,7 +281,7 @@ editor.once('load', function() {
 
     projectSettings.on('use_device_pixel_ratio:set', function (value) {
         config.project.settings.use_device_pixel_ratio = value;
-        application.graphicsDevice.maxPixelRatio = value ? window.devicePixelRatio : 1;
+        app.graphicsDevice.maxPixelRatio = value ? window.devicePixelRatio : 1;
     });
 
     window.addEventListener('resize', reflow, false);
@@ -290,8 +290,8 @@ editor.once('load', function() {
     reflow();
 
     // get application
-    editor.method('viewport', function() {
-        return application;
+    editor.method('viewport:app', function() {
+        return app;
     });
 
     editor.on('entities:load', function (data) {

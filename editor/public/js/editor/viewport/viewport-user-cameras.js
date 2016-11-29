@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var app = editor.call('viewport:framework');
+    var app = editor.call('viewport:app');
     var container = new pc.Entity(app);
     app.root.addChild(container);
 

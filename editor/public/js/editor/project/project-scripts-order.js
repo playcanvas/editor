@@ -38,7 +38,7 @@ editor.once('load', function() {
     });
 
 
-    editor.on('attributes:inspect[designerSettings]', function() {
+    editor.on('attributes:inspect[editorSettings]', function() {
         var events = [ ];
 
         // scripts order

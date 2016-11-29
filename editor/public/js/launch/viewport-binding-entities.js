@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var framework = editor.call('viewport');
+    var app = editor.call('viewport:app');
 
     var initialEntitiesLoaded = false;
 
@@ -15,7 +15,7 @@ editor.once('load', function() {
         awaitingResyncHierarchy = false;
 
         // sync hierarchy
-        framework.root.syncHierarchy();
+        app.root.syncHierarchy();
     };
 
     var createEntity = function (obj) {
@@ -46,18 +46,18 @@ editor.once('load', function() {
         // add components
         var components = obj.json().components;
         for(var key in components)
-            framework.systems[key].addComponent(entity, components[key]);
+            app.systems[key].addComponent(entity, components[key]);
 
         // parenting
         if (! obj.get('parent')) {
             // root
-            framework.root.addChild(entity);
+            app.root.addChild(entity);
 
         } else {
             // get parent
             var parent = editor.call('entities:get', obj.get('parent'));
             if (parent) {
-                parent = framework.root.findByGuid(parent.get('resource_id'));
+                parent = app.root.findByGuid(parent.get('resource_id'));
             }
 
             if (! parent) {
@@ -78,7 +78,7 @@ editor.once('load', function() {
             // add all awaiting children
             for(var i = 0; i < awaitingParent[obj.get('resource_id')].length; i++) {
                 var awaiting = awaitingParent[obj.get('resource_id')][i];
-                entity.addChild(framework.root.getByGuid(awaiting.get('resource_id')));
+                entity.addChild(app.root.getByGuid(awaiting.get('resource_id')));
             }
 
             // delete awaiting queue
@@ -98,14 +98,14 @@ editor.once('load', function() {
 
     editor.on('entities:add', function (obj) {
         var sceneLoading = editor.call("isLoadingScene");
-        if (! framework.root.findByGuid(obj.get('resource_id')) && !sceneLoading) {
+        if (! app.root.findByGuid(obj.get('resource_id')) && !sceneLoading) {
             // create entity if it does not exist and all initial entities have loaded
             processEntity(obj);
         }
 
         // subscribe to changes
         obj.on('*:set', function(path, value) {
-            var entity = framework.root.findByGuid(obj.get('resource_id'));
+            var entity = app.root.findByGuid(obj.get('resource_id'));
             if (! entity)
                 return;
 
@@ -165,8 +165,8 @@ editor.once('load', function() {
             if (!childEntity)
                 return;
 
-            childEntity = framework.root.findByGuid(childEntity.get('resource_id'));
-            var parentEntity = framework.root.findByGuid(obj.get('resource_id'));
+            childEntity = app.root.findByGuid(childEntity.get('resource_id'));
+            var parentEntity = app.root.findByGuid(obj.get('resource_id'));
 
             if (childEntity && parentEntity) {
                 childEntity.reparent(parentEntity, index);
@@ -178,7 +178,7 @@ editor.once('load', function() {
     });
 
     editor.on('entities:remove', function (obj) {
-        var entity = framework.root.findByGuid(obj.get('resource_id'));
+        var entity = app.root.findByGuid(obj.get('resource_id'));
         if (entity) {
             entity.destroy();
             editor.call('viewport:render');

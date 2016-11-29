@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var app = editor.call('viewport:framework');
+    var app = editor.call('viewport:app');
 
     editor.on('entities:add', function (obj) {
         // subscribe to changes
