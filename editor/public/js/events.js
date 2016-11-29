@@ -18,9 +18,8 @@ Events.prototype.on = function(name, fn) {
     if (events === undefined) {
         this._events[name] = [ fn ];
     } else {
-        if (events.indexOf(fn) == -1) {
+        if (events.indexOf(fn) == -1)
             events.push(fn);
-        }
     }
     return new EventHandle(this, name, fn);
 };
@@ -40,9 +39,6 @@ Events.prototype.emit = function(name) {
         return this;
 
     events = events.slice(0);
-
-    // var args = Array.prototype.slice.call(arguments, 1);
-    var removed = 0;
 
     for(var i = 0; i < events.length; i++) {
         if (! events[i])
