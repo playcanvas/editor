@@ -28,7 +28,7 @@ Events.prototype.on = function(name, fn) {
 Events.prototype.once = function(name, fn) {
     var self = this;
     var evt = this.on(name, function() {
-        fn.apply(self, arguments);
+        fn.call(self, arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7]);
         evt.unbind();
     });
     return evt;
@@ -41,7 +41,7 @@ Events.prototype.emit = function(name) {
 
     events = events.slice(0);
 
-    var args = Array.prototype.slice.call(arguments, 1);
+    // var args = Array.prototype.slice.call(arguments, 1);
     var removed = 0;
 
     for(var i = 0; i < events.length; i++) {
@@ -49,7 +49,7 @@ Events.prototype.emit = function(name) {
             continue;
 
         try {
-            events[i].apply(this, args);
+            events[i].call(this, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8]);
         } catch(ex) {
             console.info('%c%s %c(event error)', 'color: #06f', name, 'color: #f00');
             console.log(ex.stack);
@@ -106,7 +106,7 @@ EventHandle.prototype.call = function() {
     if (! this.fn)
         return;
 
-    this.fn.apply(this.owner, arguments);
+    this.fn.call(this.owner, arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7]);
 };
 
 EventHandle.prototype.on = function(name, fn) {
