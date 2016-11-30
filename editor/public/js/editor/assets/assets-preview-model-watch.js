@@ -6,25 +6,26 @@ editor.once('load', function() {
 
     var subscribe = function(watch) {
         watch.watching.file = watch.asset.on('file.hash:set', function() {
-            trigger(watch);
+            loadModel(watch, watch.engineAsset, true);
         });
 
         watch.watching.fileUnset = watch.asset.on('file.hash:unset', function() {
-            trigger(watch);
+            loadModel(watch, watch.engineAsset);
         });
 
         watch.onAdd = function(asset) {
             app.assets.off('add:' + watch.asset.get('id'), watch.onAdd);
+            watch.engineAsset = asset;
             watch.onAdd = null;
 
-            watch.onLoad = function() {
-                asset._editorPreviewModel = asset.resource;
-                trigger(watch);
-            };
-            asset.on('load', watch.onLoad);
+            // watch.onLoad = function() {
+            //     // loadModel(watch, asset, true);
+            //     // asset._editorPreviewModel = asset.resource;
+            //     // trigger(watch);
+            // };
+            // asset.on('load', watch.onLoad);
 
-            if (watch.autoLoad && ! asset.resource)
-                loadModel(watch, asset);
+            if (watch.autoLoad) loadModel(watch, asset);
         };
 
         var asset = app.assets.get(watch.asset.get('id'));
@@ -36,8 +37,8 @@ editor.once('load', function() {
     };
 
     var unsubscribe = function(watch) {
-        if (watch.onLoad)
-            watch.asset.off('load', watch.onLoad);
+        if (watch.engineAsset)
+            watch.engineAsset.off('load', watch.onLoad);
 
         if (watch.onAdd)
             app.assets.off('add:' + watch.asset.get('id'), watch.onAdd);
@@ -46,13 +47,17 @@ editor.once('load', function() {
             watch.watching[key].unbind();
     };
 
-    var loadModel = function(watch, asset) {
+    var loadModel = function(watch, asset, reload) {
         var url = asset.getFileUrl();
-
-        app.assets._loader.load(url, asset.type, function(err, resource, extra) {
-            asset._editorPreviewModel = resource;
+        if (url && (reload || ! asset._editorPreviewModel)) {
+            app.assets._loader.load(url, asset.type, function(err, resource, extra) {
+                asset._editorPreviewModel = resource;
+                trigger(watch);
+            });
+        } else if (! url && asset._editorPreviewModel) {
+            asset._editorPreviewModel = null;
             trigger(watch);
-        });
+        }
     };
 
     var trigger = function(watch) {
@@ -67,6 +72,7 @@ editor.once('load', function() {
         if (! watch) {
             watch = watching[args.asset.get('id')] = {
                 asset: args.asset,
+                engineAsset: null,
                 autoLoad: 0,
                 onLoad: null,
                 onAdd: null,
@@ -87,8 +93,10 @@ editor.once('load', function() {
 
         if (watch.autoLoad === 1) {
             var asset = app.assets.get(watch.asset.get('id'));
-            if (asset && ! asset.resource)
+            if (asset) {
+                watch.engineAsset = asset;
                 loadModel(watch, asset);
+            }
         }
 
         return watch.ind;
@@ -99,7 +107,7 @@ editor.once('load', function() {
         var watch = watching[asset.get('id')];
         if (! watch) return;
 
-        if (! watch.hasOwnProperty(handle))
+        if (! watch.callbacks.hasOwnProperty(handle))
             return;
 
         if (watch.callbacks[handle].autoLoad)
