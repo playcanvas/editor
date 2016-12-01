@@ -16,8 +16,15 @@ function GridItem(args) {
     this.element.classList.add('ui-grid-item');
     this.element.innerHTML = this._text;
 
+    this._onClick = function() {
+        self.emit('click');
+        self._clicked = true;
+        self.selected = ! self.selected;
+        self._clicked = false;
+    };
+
     this.element.removeEventListener('click', this._evtClick);
-    this.element.addEventListener('click', this._onClick.bind(this), false);
+    this.element.addEventListener('click', this._onClick, false);
 
     // space > click
     this.element.addEventListener('keydown', function(evt) {
@@ -38,14 +45,6 @@ function GridItem(args) {
     });
 }
 GridItem.prototype = Object.create(ui.Element.prototype);
-
-
-GridItem.prototype._onClick = function() {
-    this.emit('click');
-    this._clicked = true;
-    this.selected = ! this.selected;
-    this._clicked = false;
-};
 
 
 Object.defineProperty(GridItem.prototype, 'text', {

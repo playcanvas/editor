@@ -108,7 +108,5 @@ editor.once('load', function() {
             // render
             editor.call('viewport:render');
         });
-
     });
-
 });

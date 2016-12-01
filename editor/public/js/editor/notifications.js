@@ -46,14 +46,14 @@ editor.once('load', function() {
         args = args || { };
 
         var timeout;
+        var queueClose = function(item) {
+            setTimeout(function() {
+                item.close();
+            }, TIMEOUT_OVERLAP);
+        };
         var notify = function() {
             if (last) {
-                setTimeout(function() {
-                    this.item.close();
-                }.bind({
-                    item: last
-                }), TIMEOUT_OVERLAP)
-
+                queueClose(last);
                 last = null;
             }
 
