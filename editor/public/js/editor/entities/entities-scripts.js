@@ -258,7 +258,6 @@ editor.once('load', function() {
         }));
     };
 
-
     editor.on('entities:add', function(entity) {
         var scripts = entity.get('components.script.order');
         if (scripts) {

@@ -34,6 +34,27 @@ editor.once('load', function() {
     // icon class
     function Icon() {
         var self = this;
+
+        this.entity = null;
+        this.behind = null;
+        this.color = new pc.Color();
+
+        this._link = null;
+        this.events = [ ];
+        this.eventsLocal = [ ];
+        this.local = '';
+        this.dirty = true;
+        this.dirtify = function() {
+            self.dirty = true;
+        };
+    }
+
+    Icon.prototype.entityCreate = function() {
+        if (this.entity)
+            return;
+
+        var self = this;
+
         this.entity = new pc.Entity(app);
         this.entity._icon = true;
         this.entity._getEntity = function() {
@@ -46,6 +67,13 @@ editor.once('load', function() {
             castShadowsLightmap: false
         });
         this.entity.model.meshInstances[0].__editor = true;
+
+        if (this._link && this._link.entity)
+            this.entity.setPosition(this._link.entity.getPosition());
+
+        this.entity.setLocalScale(scale, scale, scale);
+        this.entity.setRotation(cameraRotation);
+        this.entity.rotateLocal(90, 0, 0);
 
         this.behind = new pc.Entity(app);
         this.behind._icon = true;
@@ -60,43 +88,47 @@ editor.once('load', function() {
         this.behind.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         this.behind.model.model.meshInstances[0].pick = false;
 
-        this.color = new pc.Color();
+        iconsEntity.addChild(this.entity);
+    };
 
-        this._link = null;
-        this.events = [ ];
-        this.eventsLocal = [ ];
-        this.local = '';
-        this.dirty = true;
-        this.dirtify = function() {
-            self.dirty = true;
-        };
-    }
+    Icon.prototype.entityDelete = function() {
+        if (! this.entity)
+            return;
+
+        this.entity.destroy();
+
+        this.entity = null;
+        this.behind = null;
+    };
+
     Icon.prototype.update = function() {
         if (! this._link || ! this._link.entity)
             return;
 
         // don't render if selected or disabled
         if (! this._link.entity._enabled || ! this._link.entity._enabledInHierarchy || this._link.entity.__noIcon || scale === 0 || selectedIds[this._link.entity._guid]) {
-            if (this.entity._enabled)
-                this.entity.enabled = false;
+            if (this.entity)
+                this.entityDelete();
 
             this.dirty = true;
             return;
         }
 
-        // position
-        this.entity.setPosition(this._link.entity.getPosition());
-        this.entity.setLocalScale(scale, scale, scale);
-        this.entity.setRotation(cameraRotation);
-        this.entity.rotateLocal(90, 0, 0);
-
+        if (this.entity) {
+            // position
+            this.entity.setPosition(this._link.entity.getPosition());
+            this.entity.setLocalScale(scale, scale, scale);
+            this.entity.setRotation(cameraRotation);
+            this.entity.rotateLocal(90, 0, 0);
+        }
 
         if (! this.dirty) return;
         this.dirty = false;
 
         // hide icon if model is set
         if (this._link.has('components.model') && this._link.get('components.model.enabled') && (this._link.get('components.model.type') !== 'asset' || this._link.get('components.model.asset'))) {
-            this.entity.enabled = false;
+            if (this.entity)
+                this.entityDelete();
             return;
         }
 
@@ -110,6 +142,9 @@ editor.once('load', function() {
         }
 
         if (component) {
+            if (! this.entity)
+                this.entityCreate();
+
             this.entity.enabled = true;
             this.entity.model.material = material;
             this.behind.model.material = materialBehind;
@@ -143,8 +178,8 @@ editor.once('load', function() {
                         this.eventsLocal.push(this._link.on(dirtifyLocalKeys[components[i]][n], this.dirtify));
                 }
             }
-        } else {
-            this.entity.enabled = false;
+        } else if (this.entity) {
+            this.entityDelete();
         }
     };
     Icon.prototype.link = function(obj) {
@@ -165,7 +200,7 @@ editor.once('load', function() {
         }));
 
         icons.push(this);
-        iconsEntity.addChild(this.entity);
+
         this.dirty = true;
     };
     Icon.prototype.unlink = function() {
@@ -175,15 +210,15 @@ editor.once('load', function() {
         for(var i = 0; i < this.events.length; i++)
             this.events[i].unbind();
 
-        this.entity.enabled = false;
+        if (this.entity)
+            this.entityDelete();
+
         this.events = [ ];
         this._link = null;
 
         var ind = icons.indexOf(this);
         icons.splice(ind, 1);
         pool.push(this);
-
-        iconsEntity.removeChild(this.entity);
     };
 
     editor.once('viewport:load', function() {

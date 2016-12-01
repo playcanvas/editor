@@ -19,9 +19,9 @@ function Element() {
     this.renderChanges = null;
     // render changes only from next ticks
     setTimeout(function() {
-        if (this.renderChanges === null)
-            this.renderChanges = true;
-    }.bind(this), 0);
+        if (self.renderChanges === null)
+            self.renderChanges = true;
+    }, 0);
 
     this.disabledClick = false;
     this._disabled = false;
@@ -51,10 +51,16 @@ function Element() {
             self.class.remove('disabled');
         }
     };
+
+    this._onFlashDelay = function() {
+        self.class.remove('flash');
+    };
 }
 Element.prototype = Object.create(Events.prototype);
 
 Element.prototype.link = function(link, path) {
+    var self = this;
+
     if (this._link) this.unlink();
     this._link = link;
     this.path = path;
@@ -65,8 +71,12 @@ Element.prototype.link = function(link, path) {
     if (this._onLinkChange) {
         var renderChanges = this.renderChanges;
         this.renderChanges = false;
-        this._linkOnSet = this._link.on(this.path + ':set', this._onLinkChange.bind(this));
-        this._linkOnUnset = this._link.on(this.path + ':unset', this._onLinkChange.bind(this));
+        this._linkOnSet = this._link.on(this.path + ':set', function(value) {
+            self._onLinkChange(value);
+        });
+        this._linkOnUnset = this._link.on(this.path + ':unset', function(value) {
+            self._onLinkChange(value);
+        });
         this._onLinkChange(this._link.get(this.path));
         this.renderChanges = renderChanges;
     }
@@ -284,12 +294,7 @@ Object.defineProperty(Element.prototype, 'flexShrink', {
 
 Element.prototype.flash = function() {
     this.class.add('flash');
-    setTimeout(this._onFlashDelay.bind(this), 200);
-};
-
-
-Element.prototype._onFlashDelay = function() {
-    this.class.remove('flash');
+    setTimeout(this._onFlashDelay, 200);
 };
 
 

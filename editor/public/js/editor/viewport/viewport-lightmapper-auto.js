@@ -169,31 +169,31 @@ editor.once('load', function() {
 
     // subscribe to model, light and scene changes
     // to do rebaking
-    editor.on('entities:add', function(entity) {
-        var fieldsLocal = [
-            'components.model.lightmapped',
-            'components.model.lightmapSizeMultiplier',
-            'components.model.receiveShadows'
-        ];
-        var fieldsLight = [
-            'components.light.color',
-            'components.light.intensity',
-            'components.light.range',
-            'components.light.falloffMode',
-            'components.light.castShadows',
-            'components.light.shadowResolution',
-            'components.light.shadowBias',
-            'components.light.normalOffsetBias'
-        ];
-        var fieldsGlobal = [
-            'enabled',
-            'components.model.enabled',
-            'components.model.type',
-            'components.model.asset',
-            'components.model.castShadowsLightmap',
-            'components.light.bake'
-        ];
+    var fieldsLocal = [
+        'components.model.lightmapped',
+        'components.model.lightmapSizeMultiplier',
+        'components.model.receiveShadows'
+    ];
+    var fieldsLight = [
+        'components.light.color',
+        'components.light.intensity',
+        'components.light.range',
+        'components.light.falloffMode',
+        'components.light.castShadows',
+        'components.light.shadowResolution',
+        'components.light.shadowBias',
+        'components.light.normalOffsetBias'
+    ];
+    var fieldsGlobal = [
+        'enabled',
+        'components.model.enabled',
+        'components.model.type',
+        'components.model.asset',
+        'components.model.castShadowsLightmap',
+        'components.light.bake'
+    ];
 
+    editor.on('entities:add', function(entity) {
         // model
         for(var i = 0; i < fieldsLocal.length; i++)
             entity.on(fieldsLocal[i] + ':set', evtRebakeEntity);

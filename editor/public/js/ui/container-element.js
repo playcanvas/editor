@@ -1,11 +1,26 @@
 "use strict";
 
 function ContainerElement() {
+    var self = this;
+
     ui.Element.call(this);
     this._innerElement = null;
 
     this._observerChanged = false;
-    this._observer = new MutationObserver(this._onMutations.bind(this));
+
+    var observerTimeout = function() {
+        self._observerChanged = false;
+        self.emit('nodesChanged');
+    };
+
+    this._observer = new MutationObserver(function() {
+        if (self._observerChanged)
+            return;
+
+        self._observerChanged = true;
+
+        setTimeout(observerTimeout, 0);
+    });
 }
 ContainerElement.prototype = Object.create(ui.Element.prototype);
 
@@ -220,19 +235,6 @@ Object.defineProperty(ContainerElement.prototype, 'scroll', {
         this.class.add('scrollable');
     }
 });
-
-
-ContainerElement.prototype._onMutations = function(mutations) {
-    if (this._observerChanged)
-        return;
-
-    this._observerChanged = true;
-
-    setTimeout(function() {
-        this._observerChanged = false;
-        this.emit('nodesChanged');
-    }.bind(this), 0);
-};
 
 
 window.ui.ContainerElement = ContainerElement;
