@@ -24,6 +24,13 @@ editor.once('load', function() {
 
         // ready to sync
         doc.on('ready', function () {
+            var assetData = doc.getSnapshot();
+            if (! assetData) {
+                console.error('Could not load asset: ' + id);
+                doc.destroy();
+                return callback && callback();
+            }
+
             // notify of operations
             doc.on('after op', function (ops, local) {
                 if (local) return;
@@ -34,7 +41,6 @@ editor.once('load', function() {
             });
 
             // notify of asset load
-            var assetData = doc.getSnapshot();
             assetData.id = id;
 
             if (assetData.file) {
@@ -101,7 +107,7 @@ editor.once('load', function() {
                 count++;
                 editor.call('assets:progress', (count / data.length) * .5 + .5);
 
-                if (! legacyScripts && asset.get('type') === 'script')
+                if (! legacyScripts && asset && asset.get('type') === 'script')
                     scripts[asset.get('id')] = asset;
 
                 if (count >= data.length) {
@@ -115,8 +121,24 @@ editor.once('load', function() {
         };
 
         if (data.length) {
-            for(var i = 0; i < data.length; i++) {
-                load(data[i].id);
+
+            var connection = editor.call('realtime:connection');
+
+            // do bulk subsribe in batches of 'batchSize' assets
+            var batchSize = 256;
+            var startBatch = 0;
+            var total = data.length;
+
+            while (startBatch < total) {
+                // start bulk subscribe
+                connection.bsStart();
+                for(var i = startBatch; i < startBatch + batchSize && i < total; i++) {
+                    load(data[i].id);
+                }
+                // end bulk subscribe and send message to server
+                connection.bsEnd();
+
+                startBatch += batchSize;
             }
         } else {
             editor.call('assets:progress', 1);

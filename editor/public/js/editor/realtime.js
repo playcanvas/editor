@@ -112,6 +112,10 @@ editor.once('load', function() {
                 editor.emit('realtime:error', msg);
             });
 
+            connection.on('bs error', function (msg) {
+                editor.call('status:error', msg);
+            });
+
             var onConnectionClosed = connection.socket.onclose;
             connection.socket.onclose = function (reason) {
                 auth = false;

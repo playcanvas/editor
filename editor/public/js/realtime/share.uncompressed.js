@@ -156,6 +156,7 @@ Connection.prototype.bindToSocket = function(socket) {
 };
 
 
+
 /**
  * @param {object} msg
  * @param {String} msg.a action
@@ -186,23 +187,34 @@ Connection.prototype.handleMessage = function(msg) {
     case 'bs':
       // Bulk subscribe response. The responses for each document are contained within.
       var result = msg.s;
-      for (var cName in result) {
-        for (var docName in result[cName]) {
-          var doc = this.get(cName, docName);
-          if (!doc) {
-            console.warn('Message for unknown doc. Ignoring.', msg);
-            break;
-          }
+      // vaios: check if there is a global msg error
+      var error = msg.error;
+      if (error) {
+        this.emit('bs error', error);
+      }
 
-          var msg = result[cName][docName];
-          if (typeof msg === 'object') {
-            doc._handleSubscribe(msg.error, msg);
-          } else {
-            // The msg will be true if we simply resubscribed.
-            doc._handleSubscribe(null, null);
-          }
+      if (result) {
+        for (var cName in result) {
+            for (var docName in result[cName]) {
+              var doc = this.get(cName, docName);
+              if (!doc) {
+                console.warn('Message for unknown doc. Ignoring.', msg);
+                break;
+              }
+
+              var msg = result[cName][docName];
+              if (typeof msg === 'object') {
+                // vaios: change this to handle global error too
+                doc._handleSubscribe(msg ? msg.error : error, msg);
+              } else {
+                // The msg will be true if we simply resubscribed.
+                doc._handleSubscribe(null, null);
+              }
+            }
         }
       }
+
+
       break;
 
     default:
