@@ -26,14 +26,14 @@ Events.prototype.on = function(name, fn) {
 
 Events.prototype.once = function(name, fn) {
     var self = this;
-    var evt = this.on(name, function() {
-        fn.call(self, arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7]);
+    var evt = this.on(name, function(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7) {
+        fn.call(self, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
         evt.unbind();
     });
     return evt;
 };
 
-Events.prototype.emit = function(name) {
+Events.prototype.emit = function(name, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7) {
     var events = this._events[name];
     if (! events)
         return this;
@@ -45,7 +45,7 @@ Events.prototype.emit = function(name) {
             continue;
 
         try {
-            events[i].call(this, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8]);
+            events[i].call(this, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
         } catch(ex) {
             console.info('%c%s %c(event error)', 'color: #06f', name, 'color: #f00');
             console.log(ex.stack);
