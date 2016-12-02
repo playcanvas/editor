@@ -56,7 +56,7 @@ editor.once('load', function () {
     }));
 
     var btnPublishFb = new ui.Button({text: 'Publish'});
-    btnPublishFb.class.add('upload');
+    btnPublishFb.class.add('publish-fb');
     handlePermissions(btnPublishFb);
     panelFbInstant.append(btnPublishFb);
 

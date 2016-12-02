@@ -6652,13 +6652,13 @@ strong {
 
                 .ui-button.publish {
                     &:before {
-                        content: '\E226';
+                        content: '\E268';
                     }
                 }
 
-                .ui-button.upload {
+                .ui-button.publish-fb {
                     &:before {
-                        content: '\E226';
+                        content: '\E255';
                     }
                 }
             }
