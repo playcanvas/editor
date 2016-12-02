@@ -14,20 +14,18 @@ editor.on('load', function() {
 
     editor.on('scene:raw', function(data) {
         // check if we're reloading the scene
+
         if (loadedEntities) {
             editor.call('selector:clear');
             editor.call('entities:clear');
         }
-
-        var start = Date.now();
 
         var total = Object.keys(data.entities).length;
         var i = 0;
 
         // list
         for(var key in data.entities) {
-            editor.call('entities:add', new Observer(data.entities[key]));
-
+            editor.call('entities:add',  new Observer(data.entities[key]));
             p.progress = (++i / total) * .8 + .1;
         }
 
@@ -50,5 +48,4 @@ editor.on('load', function() {
         p.hidden = false;
         p.progress = .1;
     });
-
 });

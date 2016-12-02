@@ -30,15 +30,78 @@ function TreeItem(args) {
     this._children = 0;
     this.selectable = true;
 
-    this._onClickEvt = this._onClick.bind(this);
-    this._onDblClickEvt = this._onDblClick.bind(this);
-    this.elementTitle.addEventListener('click', this._onClickEvt, false);
-    this.elementTitle.addEventListener('dblclick', this._onDblClickEvt, false);
+    this._onClick = function(evt) {
+        if (evt.button !== 0 || ! self.selectable)
+            return;
+
+        var rect = self.elementTitle.getBoundingClientRect();
+
+        if (self._children && (evt.clientX - rect.left) < 0) {
+            self.open = ! self.open;
+        } else {
+            self.tree._onItemClick(self);
+            evt.stopPropagation();
+        }
+    };
+
+    this._onDblClick = function(evt) {
+        if (! self.tree.allowRenaming || evt.button !== 0 || self.disabled)
+            return;
+
+        evt.stopPropagation();
+        var rect = self.elementTitle.getBoundingClientRect();
+
+        if (self._children && (evt.clientX - rect.left) < 0) {
+            return;
+        } else {
+            self._onRename();
+        }
+    };
+
+    this._onDragStart = function(evt) {
+        if (self.tree.disabled || ! self.tree.draggable) {
+            evt.stopPropagation();
+            evt.preventDefault();
+            return;
+        }
+
+        self._dragging = true;
+
+        if (self._dragRelease)
+            window.removeEventListener('mouseup', self._dragRelease);
+
+        self._dragRelease = self._onMouseUp;
+        window.addEventListener('mouseup', self._dragRelease, false);
+
+        evt.stopPropagation();
+        evt.preventDefault();
+
+        self.emit('dragstart');
+    };
+
+    this._onMouseOver = function(evt) {
+        evt.stopPropagation();
+        self.emit('mouseover', evt);
+    };
+
+    this._onMouseUp = function(evt) {
+        window.removeEventListener('mouseup', self._dragRelease);
+        self._dragRelease = null;
+
+        evt.preventDefault();
+        evt.stopPropagation();
+
+        self._dragging = false;
+        self.emit('dragend');
+    };
+
+    this.elementTitle.addEventListener('click', this._onClick, false);
+    this.elementTitle.addEventListener('dblclick', this._onDblClick, false);
 
     this._dragRelease = null;
     this._dragging = false;
-    this.elementTitle.addEventListener('dragstart', this._onDragStart.bind(this), false);
-    this.elementTitle.addEventListener('mouseover', this._onMouseOver.bind(this), false);
+    this.elementTitle.addEventListener('dragstart', this._onDragStart, false);
+    this.elementTitle.addEventListener('mouseover', this._onMouseOver, false);
 
     this.on('destroy', this._onDestroy);
     this.on('append', this._onAppend);
@@ -283,7 +346,7 @@ TreeItem.prototype.remove = function(item) {
 
 
 TreeItem.prototype._onDestroy = function() {
-    this.elementTitle.removeEventListener('click', this._onClickEvt);
+    this.elementTitle.removeEventListener('click', this._onClick);
 };
 
 
@@ -298,20 +361,6 @@ TreeItem.prototype._onRemove = function(item) {
         this.parent.emit('remove', item);
 };
 
-
-TreeItem.prototype._onClick = function(evt) {
-    if (evt.button !== 0 || ! this.selectable)
-        return;
-
-    var rect = this.elementTitle.getBoundingClientRect();
-
-    if (this._children && (evt.clientX - rect.left) < 0) {
-        this.open = ! this.open;
-    } else {
-        this.tree._onItemClick(this);
-        evt.stopPropagation();
-    }
-};
 
 TreeItem.prototype.focus = function() {
     this.elementTitle.focus();
@@ -350,59 +399,6 @@ TreeItem.prototype._onRename = function() {
     this.elementTitle.appendChild(field.element);
     field.elementInput.focus();
     field.elementInput.select();
-};
-
-TreeItem.prototype._onDblClick = function(evt) {
-    if (! this.tree.allowRenaming || evt.button !== 0 || this.disabled)
-        return;
-
-    evt.stopPropagation();
-    var rect = this.elementTitle.getBoundingClientRect();
-
-    if (this._children && (evt.clientX - rect.left) < 0) {
-        return;
-    } else {
-        this._onRename();
-    }
-};
-
-TreeItem.prototype._onDragStart = function(evt) {
-    if (this.tree.disabled || ! this.tree.draggable) {
-        evt.stopPropagation();
-        evt.preventDefault();
-        return;
-    }
-
-    this._dragging = true;
-
-    if (this._dragRelease)
-        window.removeEventListener('mouseup', this._dragRelease);
-
-    this._dragRelease = this._onMouseUp.bind(this);
-    window.addEventListener('mouseup', this._dragRelease, false);
-
-    evt.stopPropagation();
-    evt.preventDefault();
-
-    this.emit('dragstart');
-};
-
-
-TreeItem.prototype._onMouseOver = function(evt) {
-    evt.stopPropagation();
-
-    this.emit('mouseover', evt);
-};
-
-TreeItem.prototype._onMouseUp = function(evt) {
-    window.removeEventListener('mouseup', this._dragRelease);
-    this._dragRelease = null;
-
-    evt.preventDefault();
-    evt.stopPropagation();
-
-    this._dragging = false;
-    this.emit('dragend');
 };
 
 
@@ -487,6 +483,3 @@ TreeItem.prototype.child = function(ind) {
 
 
 window.ui.TreeItem = TreeItem;
-
-
-

@@ -24,7 +24,12 @@ function Checkbox(args) {
         self.value = ! self.value;
     }, false);
 
-    this.on('click', this._onClick.bind(this));
+    this._onClick = function() {
+        self.value = ! self.value;
+        self.element.blur();
+    };
+
+    this.on('click', this._onClick);
 
     this.on('change', function() {
         if (! this.renderChanges)
@@ -47,12 +52,6 @@ Checkbox.prototype._onLinkChange = function(value) {
         this.element.classList.remove('checked', 'null');
     }
     this.emit('change', value);
-};
-
-
-Checkbox.prototype._onClick = function(evt) {
-    this.value = ! this.value;
-    this.element.blur();
 };
 
 

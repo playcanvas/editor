@@ -24,7 +24,7 @@ editor.once('load', function() {
         this.redraw = true;
 
         // define the tick method
-        this.tick = this._tick.bind(this);
+        this.tick = this.makeTick();;
     };
 
     editor.method('viewport:application', function() {
@@ -92,27 +92,29 @@ editor.once('load', function() {
         return dt;
     };
 
-    Application.prototype._tick = function () {
-        pc.app = this;
+    Application.prototype.makeTick = function() {
+        var app = this;
+        return function() {
+            requestAnimationFrame(app.tick);
 
-        if (this.redraw) {
-            var dt = this.getDt();
-            this.redraw = editor.call('viewport:keepRendering');
+            pc.app = app;
 
-            this.graphicsDevice.updateClientRect();
+            if (app.redraw) {
+                var dt = app.getDt();
+                app.redraw = editor.call('viewport:keepRendering');
 
-            // Perform ComponentSystem update
-            editor.emit('viewport:preUpdate', dt);
-            editor.emit('viewport:update', dt);
-            pc.ComponentSystem.fire('toolsUpdate', dt);
-            editor.emit('viewport:postUpdate', dt);
-            editor.emit('viewport:gizmoUpdate', dt);
+                app.graphicsDevice.updateClientRect();
 
-            this.render();
-        }
+                // Perform ComponentSystem update
+                editor.emit('viewport:preUpdate', dt);
+                editor.emit('viewport:update', dt);
+                pc.ComponentSystem.fire('toolsUpdate', dt);
+                editor.emit('viewport:postUpdate', dt);
+                editor.emit('viewport:gizmoUpdate', dt);
 
-        // Submit a request to queue up a new animation frame immediately
-        requestAnimationFrame(this.tick, this.graphicsDevice.canvas);
+                app.render();
+            }
+        };
     };
 
     Application.prototype.resize = function (w, h) {
