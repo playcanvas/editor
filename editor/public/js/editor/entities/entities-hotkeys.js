@@ -56,6 +56,11 @@ editor.once('load', function() {
 
     // delete
     var deleteCallback = function() {
+        // if curve editor is open then return
+        // because in that case we want to delete a curve key
+        if (editor.call('picker:curve:isOpen'))
+            return;
+
         if (! editor.call('permissions:write'))
             return;
 

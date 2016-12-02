@@ -1583,6 +1583,10 @@ editor.once('load', function() {
         toggleTextSelection(true);
     });
 
+    editor.method('picker:curve:isOpen', function () {
+        return !overlay.hidden;
+    });
+
     editor.method('picker:curve:rect', function () {
         return overlay.rect;
     });
@@ -1602,5 +1606,25 @@ editor.once('load', function() {
         if (!changing) {
             setValue(value, args || {});
         }
+    });
+
+    var onDeleteKey = function () {
+        if (hoveredCurve && hoveredAnchor) {
+            deleteAnchor(hoveredCurve, hoveredAnchor);
+        } else if (selectedCurve && selectedAnchor) {
+            deleteAnchor(selectedCurve, selectedAnchor);
+        }
+    };
+
+    // delete key
+    editor.call('hotkey:register', 'curve-anchor:delete', {
+        key: 'delete',
+        callback: onDeleteKey
+    });
+    // ctrl + backspace
+    editor.call('hotkey:register', 'curve-anchor:delete', {
+        ctrl: true,
+        key: 'backspace',
+        callback: onDeleteKey
     });
 });
