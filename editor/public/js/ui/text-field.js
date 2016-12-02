@@ -12,15 +12,17 @@ function TextField(args) {
     this.elementInput.classList.add('field');
     this.elementInput.type = 'text';
     this.elementInput.tabIndex = 0;
-    this.elementInput.addEventListener('focus', this._onInputFocus.bind(this), false);
-    this.elementInput.addEventListener('blur', this._onInputBlur.bind(this), false);
+    this.elementInput.addEventListener('focus', this._onInputFocus, false);
+    this.elementInput.addEventListener('blur', this._onInputBlur, false);
     this.element.appendChild(this.elementInput);
 
     if (args.default !== undefined)
         this.value = args.default;
 
-    this.elementInput.addEventListener('change', this._onChange.bind(this), false);
-    this.elementInput.addEventListener('keydown', this._onKeyDown.bind(this), false);
+    this.elementInput.addEventListener('change', this._onChange, false);
+    this.elementInput.addEventListener('keydown', this._onKeyDown, false);
+    this.elementInput.addEventListener('dblclick', this._onFullSelect, false);
+    this.elementInput.addEventListener('contextmenu', this._onFullSelect, false);
     this.evtKeyChange = false;
     this.ignoreChange = false;
 
@@ -54,22 +56,22 @@ TextField.prototype._onLinkChange = function(value) {
 
 
 TextField.prototype._onChange = function() {
-    if (this.ignoreChange) return;
+    if (this.ui.ignoreChange) return;
 
-    this.value = this.elementInput.value || '';
+    this.ui.value = this.value || '';
 
-    if (! this._link)
-        this.emit('change', this.value);
+    if (! this.ui._link)
+        this.ui.emit('change', this.ui.value);
 };
 
 
 TextField.prototype._onKeyDown = function(evt) {
     if (evt.keyCode === 27) {
-        this.elementInput.blur();
-    } else if (this.blurOnEnter && evt.keyCode === 13) {
+        this.blur();
+    } else if (this.ui.blurOnEnter && evt.keyCode === 13) {
         var focused = false;
 
-        var parent = this.parent;
+        var parent = this.ui.parent;
         while(parent) {
             if (parent.focus) {
                 parent.focus();
@@ -81,8 +83,13 @@ TextField.prototype._onKeyDown = function(evt) {
         }
 
         if (! focused)
-            this.elementInput.blur();
+            this.blur();
     }
+};
+
+
+TextField.prototype._onFullSelect = function() {
+    this.select();
 };
 
 
@@ -93,14 +100,14 @@ TextField.prototype.focus = function(select) {
 
 
 TextField.prototype._onInputFocus = function() {
-    this.class.add('focus');
-    this.emit('input:focus');
+    this.ui.class.add('focus');
+    this.ui.emit('input:focus');
 };
 
 
 TextField.prototype._onInputBlur = function() {
-    this.class.remove('focus');
-    this.emit('input:blur');
+    this.ui.class.remove('focus');
+    this.ui.emit('input:blur');
 };
 
 
