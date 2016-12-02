@@ -458,10 +458,10 @@ editor.once('load', function() {
         var addOverride = function (index) {
             var valuesBefore;
 
-            if (! engineEntity.model || ! engineEntity.model.model)
+            if (! engineEntity.model)
                 return;
 
-            var meshInstances = engineEntity.model.model.meshInstances;
+            var meshInstances = engineEntity.model.meshInstances || [ ];
 
             var field = editor.call('attributes:addField', {
                 parent: panelMaterials,
@@ -498,10 +498,11 @@ editor.once('load', function() {
                             var mapping = engineEntity.model.mapping;
                             if (! mapping) return;
 
-                            if (valuesBefore[i] === undefined)
+                            if (valuesBefore[i] === undefined) {
                                 delete mapping[index];
-                            else
+                            } else {
                                 mapping[index] = valuesBefore[i] === null ? null : parseInt(valuesBefore[i], 10);
+                            }
 
                             engineEntity.model.mapping = mapping;
                         }
