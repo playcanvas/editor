@@ -920,6 +920,8 @@ editor.once('load', function () {
 
         clearAppImage();
 
+        selectAll.value = false;
+
         editor.call('scenes:list', function (items) {
             scenes = items;
             // select primary scene
