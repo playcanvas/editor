@@ -14,6 +14,7 @@ editor.once('load', function () {
     });
 
     var progress = document.getElementById('progress');
+    var connecting = document.getElementById('connection-progress');
     var readonly = document.getElementById('readonly');
     var error = document.getElementById('error');
     var errorMsg = null;
@@ -39,7 +40,12 @@ editor.once('load', function () {
     };
 
     var shouldShowProgress = function () {
-        return editor.call('editor:isSaving') || editor.call('editor:isLoading');
+        return editor.call('editor:isConnected') &&
+                (editor.call('editor:isSaving') ||  editor.call('editor:isLoading'));
+    };
+
+    var shouldShowConnectionProgress = function () {
+        return !editor.call('editor:isConnected');
     };
 
     var refreshButtons = function () {
@@ -49,6 +55,7 @@ editor.once('load', function () {
         var show = 'inline-block';
 
         progress.style.display = shouldShowProgress() ? show : hide;
+        connecting.style.display = shouldShowConnectionProgress() ? show : hide;
         readonly.style.display = isReadonly ? show : hide;
         saveBtn.style.display = isReadonly ? hide : show;
         revertBtn.style.display = isReadonly || !config.asset ? hide : show;
@@ -120,12 +127,6 @@ editor.once('load', function () {
 
     editor.on('realtime:connecting', refreshButtons);
 
-    editor.on('realtime:disconnected', function () {
-        errorMsg = 'Disconnected from server';
-        error.innerHTML = errorMsg;
-        refreshButtons();
-    });
-
     var reconnectTimeout;
 
     editor.on('realtime:connected', function () {
@@ -133,18 +134,39 @@ editor.once('load', function () {
             clearTimeout(reconnectTimeout);
             reconnectTimeout = null;
         }
+
+        if (disconnectedTimeout) {
+            showDisconnectionErrors = false;
+            clearTimeout(disconnectedTimeout);
+            disconnectedTimeout = null;
+        }
     });
+
+    var disconnectedTimeout;
+    var showDisconnectionErrors = false;
+
+    var disconnectedDelay = 5; // seconds before we show disconnected messages
+
+    var deferDisconnected = function () {
+        refreshButtons();
+
+        if (disconnectedTimeout)
+            return;
+
+        disconnectedTimeout = setTimeout(function () {
+            showDisconnectionErrors = true;
+        }, disconnectedDelay * 1000);
+    }
 
     editor.on('realtime:nextAttempt', function (time) {
         var before = new Date();
 
-        editor.on('realtime:disconnected', function () {
-            errorMsg = 'Disconnected from server';
-            error.innerHTML = errorMsg;
-            refreshButtons();
-        });
+        deferDisconnected();
 
         function setText (remaining) {
+            if (! showDisconnectionErrors)
+                return;
+
             errorMsg = 'Disconnected. Reconnecting in ' + time + ' seconds...';
             error.innerHTML = errorMsg;
             refreshButtons();

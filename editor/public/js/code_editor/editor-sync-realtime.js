@@ -47,6 +47,10 @@ editor.once('load', function() {
         return isSaving;
     });
 
+    editor.method('editor:isConnected', function () {
+        return isConnected;
+    });
+
     editor.method('editor:loadAssetFile', function (fn) {
         if (! assetDocument)
             return fn(new Error("Asset not loaded"));
@@ -116,7 +120,6 @@ editor.once('load', function() {
         var socket;
         var connection;
         var data;
-        var reconnectAttempts = 0;
         var reconnectInterval = RECONNECT_INTERVAL;
         var documentContent = null;
         var assetContent = null;
@@ -134,14 +137,8 @@ editor.once('load', function() {
         });
 
         var reconnect = function () {
-            if (reconnectAttempts > 8) {
-                editor.emit('realtime:cannotConnect');
-                return;
-            }
-
             isLoading = true;
-            reconnectAttempts++;
-            editor.emit('realtime:connecting', reconnectAttempts);
+            editor.emit('realtime:connecting');
 
             // create new socket...
             socket = new SockJS(config.url.realtime.http);
@@ -175,7 +172,6 @@ editor.once('load', function() {
                 connection = new sharejs.Connection(socket);
 
                 connection.on('connected', function() {
-                    reconnectAttempts = 0;
                     reconnectInterval = RECONNECT_INTERVAL;
 
                     this.socket.send('auth' + JSON.stringify({
@@ -278,7 +274,9 @@ editor.once('load', function() {
 
                 setTimeout(reconnect, reconnectInterval * 1000);
 
-                reconnectInterval++;
+                if (reconnectInterval < 5) {
+                    reconnectInterval++;
+                }
             };
         };
 

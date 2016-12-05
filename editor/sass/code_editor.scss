@@ -152,14 +152,21 @@ body {
         }
 
         .code-editor-error {
-            background-color: $bright-red;
-            color: $editor-bg;
-            font-size: 14px;
+            color: $bright-red;
+            font-size: 12px;
             @include block();
         }
 
         .code-editor-progress {
             background-color: $muted-green;
+            @include block();
+
+            img {
+                vertical-align: middle;
+            }
+        }
+
+        #connection-progress {
             @include block();
 
             img {
