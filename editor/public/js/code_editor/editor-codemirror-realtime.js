@@ -220,6 +220,10 @@ editor.once('load', function () {
         return cm.posFromIndex(cursorOp.op.length > 1 ? cursorOp.op[0] : 0);
     };
 
+    var restoreSelectionsOptions = {
+        scroll: false
+    };
+
     // restore selections after remote ops
     var restoreSelections = function (cursorOps) {
         for (var i = 0, len = cursorOps.length; i < len; i++) {
@@ -234,7 +238,7 @@ editor.once('load', function () {
                 end = start;
             }
 
-            cm.addSelection(start, end);
+            cm.addSelection(start, end, restoreSelectionsOptions);
         }
     };
 
@@ -242,7 +246,7 @@ editor.once('load', function () {
     var onLoaded = function () {
         share = editor.call('realtime:context');
 
-        // server -> local
+        // insert server -> local
         share.onInsert = function (pos, text) {
             // transform undos / redos with new remote op
             var remoteOp = createInsertOp(pos, text);
@@ -265,6 +269,7 @@ editor.once('load', function () {
             suppress = false;
         };
 
+        // remove server -> local
         share.onRemove = function (pos, length) {
             suppress = true;
             var from = cm.posFromIndex(pos);
