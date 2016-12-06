@@ -204,8 +204,6 @@ editor.once('load', function () {
                 extraKeys = extraKeys || {};
 
                 extraKeys['Ctrl-Space'] = function (cm) {server.complete(cm);};
-                extraKeys['Ctrl-I'] = function (cm) {server.showType(cm);};
-                extraKeys['Cmd-I'] = function (cm) {server.showType(cm);};
                 extraKeys['Ctrl-O'] = function (cm) {server.showDocs(cm);};
                 extraKeys['Cmd-O'] = function (cm) {server.showDocs(cm);};
                 extraKeys['Alt-.'] = function (cm) {server.jumpToDef(cm);};
@@ -234,6 +232,9 @@ editor.once('load', function () {
         extraKeys["Shift-Tab"] = "indentLess";
         extraKeys['Ctrl-/'] = 'toggleComment';
         extraKeys['Cmd-/'] = 'toggleComment';
+
+        extraKeys['Ctrl-I'] = 'indentAuto';
+        extraKeys['Cmd-I'] = 'indentAuto';
 
         extraKeys['Alt-Up'] = function (cm) {cm.execCommand('goLineUp'); cm.execCommand('goLineEnd');};
         extraKeys['Alt-Down'] = function (cm) {cm.execCommand('goLineDown'); cm.execCommand('goLineEnd');};
