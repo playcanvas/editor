@@ -436,6 +436,11 @@ li.CodeMirror-hint-active {
     opacity: 0.3;
 }
 
+.error .CodeMirror-activeline-background {
+    background-color: red;
+    opacity: 0.5;
+}
+
 .CodeMirror-activeline-gutter {
     background-color: $editor-activeline-linenumber-bg;
     .CodeMirror-linenumber {
