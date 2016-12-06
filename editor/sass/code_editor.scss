@@ -244,6 +244,7 @@ body {
     .CodeMirror-cursor {
        border-left: 1px solid $editor-text-color !important;
        border-right: 1px solid $editor-text-color !important;
+       margin-left: -1px;
     }
 
     span.cm-comment {
