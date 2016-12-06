@@ -45,7 +45,7 @@ editor.once('load', function () {
     };
 
     var shouldShowConnectionProgress = function () {
-        return !editor.call('editor:isConnected');
+        return config.asset && !editor.call('editor:isConnected');
     };
 
     var refreshButtons = function () {
