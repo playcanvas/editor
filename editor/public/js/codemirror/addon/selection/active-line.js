@@ -52,7 +52,8 @@
     var active = [];
     for (var i = 0; i < ranges.length; i++) {
       var range = ranges[i];
-      if (!range.empty()) continue;
+      // vaios - allow highlight even if we have selections
+      // if (!range.empty()) continue;
       var line = cm.getLineHandleVisualStart(range.head.line);
       if (active[active.length - 1] != line) active.push(line);
     }

@@ -7,7 +7,7 @@ $editor-text-color: #f8f4f0;
 $editor-gutter-fg: #5b7073;
 $editor-line-highlight: #324447;//#163a43;
 $editor-selection: #677173; //#324447;//#275C69;
-$editor-activeline-bg: transparent;
+$editor-activeline-bg: lighten($editor-bg, 10);
 $editor-activeline-linenumber-bg: lighten($editor-bg, 10);
 $editor-activeline-linenumber: #B1B8BA;
 $editor-tooltip-bg: #324447;
@@ -152,14 +152,21 @@ body {
         }
 
         .code-editor-error {
-            background-color: $bright-red;
-            color: $editor-bg;
-            font-size: 14px;
+            color: $bright-red;
+            font-size: 12px;
             @include block();
         }
 
         .code-editor-progress {
             background-color: $muted-green;
+            @include block();
+
+            img {
+                vertical-align: middle;
+            }
+        }
+
+        #connection-progress {
             @include block();
 
             img {
@@ -236,6 +243,8 @@ body {
 
     .CodeMirror-cursor {
        border-left: 1px solid $editor-text-color !important;
+       border-right: 1px solid $editor-text-color !important;
+       margin-left: -1px;
     }
 
     span.cm-comment {
@@ -424,6 +433,12 @@ li.CodeMirror-hint-active {
 
 .CodeMirror-activeline-background {
     background-color: $editor-activeline-bg;
+    opacity: 0.3;
+}
+
+.error .CodeMirror-activeline-background {
+    background-color: red;
+    opacity: 0.5;
 }
 
 .CodeMirror-activeline-gutter {

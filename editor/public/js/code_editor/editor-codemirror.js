@@ -204,8 +204,6 @@ editor.once('load', function () {
                 extraKeys = extraKeys || {};
 
                 extraKeys['Ctrl-Space'] = function (cm) {server.complete(cm);};
-                extraKeys['Ctrl-I'] = function (cm) {server.showType(cm);};
-                extraKeys['Cmd-I'] = function (cm) {server.showType(cm);};
                 extraKeys['Ctrl-O'] = function (cm) {server.showDocs(cm);};
                 extraKeys['Cmd-O'] = function (cm) {server.showDocs(cm);};
                 extraKeys['Alt-.'] = function (cm) {server.jumpToDef(cm);};
@@ -235,6 +233,9 @@ editor.once('load', function () {
         extraKeys['Ctrl-/'] = 'toggleComment';
         extraKeys['Cmd-/'] = 'toggleComment';
 
+        extraKeys['Ctrl-I'] = 'indentAuto';
+        extraKeys['Cmd-I'] = 'indentAuto';
+
         extraKeys['Alt-Up'] = function (cm) {cm.execCommand('goLineUp'); cm.execCommand('goLineEnd');};
         extraKeys['Alt-Down'] = function (cm) {cm.execCommand('goLineDown'); cm.execCommand('goLineEnd');};
 
@@ -250,6 +251,19 @@ editor.once('load', function () {
         var col = config.file.col;
         if (line) {
             codeMirror.setCursor(line - 1, col - 1);
+
+            // add error class to the container if there is an error
+            if (config.file.error) {
+                element.classList.add('error');
+
+                // clear error class when we interact with the editor
+                var clearError = function () {
+                    element.classList.remove('error');
+                    codeMirror.off('beforeSelectionChange', clearError);
+                };
+
+                codeMirror.on('beforeSelectionChange', clearError);
+            }
         }
 
         codeMirror.clearHistory();
