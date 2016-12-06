@@ -242,7 +242,8 @@ body {
     }
 
     .CodeMirror-cursor {
-       border-left: 2px solid $editor-text-color !important;
+       border-left: 1px solid $editor-text-color !important;
+       border-right: 1px solid $editor-text-color !important;
     }
 
     span.cm-comment {
