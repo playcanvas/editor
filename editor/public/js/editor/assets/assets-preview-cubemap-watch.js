@@ -24,6 +24,12 @@ editor.once('load', function() {
             var asset = app.assets.get(id);
             if (asset && ! asset.resource)
                 app.assets.load(asset);
+
+            var asset = app.assets.get(watch.asset.get('id'));
+            if (asset && (! asset.resource || ! asset.loadFaces)) {
+                asset.loadFaces = true;
+                app.assets.load(asset);
+            }
         }
     };
 
@@ -87,6 +93,21 @@ editor.once('load', function() {
 
         for(var i = 0; i < 6; i++)
             addSlotWatch(watch, i);
+
+        watch.onAdd = function(asset) {
+            if (! watch.autoLoad)
+                return;
+
+            asset.loadFaces = true;
+            app.assets.load(asset);
+        };
+
+        watch.onLoad = function(asset) {
+            trigger(watch);
+        };
+
+        app.assets.on('add:' + watch.asset.get('id'), watch.onAdd);
+        app.assets.on('load:' + watch.asset.get('id'), watch.onLoad);
     };
 
     var unsubscribe = function(watch) {
@@ -95,6 +116,9 @@ editor.once('load', function() {
 
         for(var key in watch.watching)
             watch.watching[key].unbind();
+
+        app.assets.off('add:' + watch.asset.get('id'), watch.onAdd);
+        app.assets.off('load:' + watch.asset.get('id'), watch.onLoad);
     };
 
     var trigger = function(watch, slot) {
@@ -113,7 +137,9 @@ editor.once('load', function() {
                 textures: { },
                 watching: { },
                 ind: 0,
-                callbacks: { }
+                callbacks: { },
+                onLoad: null,
+                onAdd: null
             };
             subscribe(watch);
         }
@@ -125,6 +151,14 @@ editor.once('load', function() {
 
         if (args.autoLoad)
             watch.autoLoad++;
+
+        if (watch.autoLoad === 1) {
+            var asset = app.assets.get(watch.asset.get('id'));
+            if (asset && (! asset.loadFaces || ! asset.resource)) {
+                asset.loadFaces = true;
+                app.assets.load(asset);
+            }
+        }
 
         return watch.ind;
     });

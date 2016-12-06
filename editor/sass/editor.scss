@@ -838,8 +838,13 @@ strong {
             position: relative;
 
             &:hover {
-                > .ui-button {
+                > .ui-button,
+                > .cubeMapMipLevel {
                     display: block;
+
+                    &.hidden {
+                        display: none;
+                    }
                 }
             }
             > .asset-preview {
@@ -889,6 +894,14 @@ strong {
                 &.box {
                     bottom: 32px;
                 }
+            }
+            > .cubeMapMipLevel {
+                position: absolute;
+                display: none;
+                bottom: 8px;
+                right: 8px;
+                margin: 0;
+                width: 20px;
             }
         }
         > .content {

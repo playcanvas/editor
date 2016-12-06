@@ -546,7 +546,7 @@ editor.once('load', function() {
                 var file = asset.get('file');
                 var meta = asset.get('meta');
 
-                if (file && meta) {
+                if (file && meta && ! (asset.get('type') === 'texture' && ! meta.format)) {
                     convertAuto();
                 } else {
                     var converted = false;

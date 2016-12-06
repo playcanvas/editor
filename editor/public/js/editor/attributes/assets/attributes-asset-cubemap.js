@@ -11,19 +11,166 @@ editor.once('load', function() {
         if (assets.length > 1)
             editor.call('attributes:header', assets.length + ' CubeMaps');
 
+        var root = editor.call('attributes.rootPanel');
+
+        if (assets.length === 1) {
+            var previewContainer = document.createElement('div');
+            previewContainer.classList.add('asset-preview-container');
+
+            var preview = document.createElement('canvas');
+            var ctx = preview.getContext('2d');
+            preview.width = 256;
+            preview.height = 256;
+            preview.classList.add('asset-preview', 'flipY');
+            previewContainer.appendChild(preview);
+
+            var mipLevel = 0;
+
+            var mipSelector = new ui.SelectField({
+                type: 'number',
+                options: [
+                    { v: 0, t: '1' },
+                    { v: 1, t: '2' },
+                    { v: 2, t: '3' },
+                    { v: 3, t: '4' },
+                    { v: 4, t: '5' }
+                ]
+            });
+            mipSelector.value = 0;
+            mipSelector.class.add('cubeMapMipLevel');
+            previewContainer.appendChild(mipSelector.element);
+            mipSelector.parent = panelParams;
+            mipSelector.hidden = ! assets[0].get('file');
+
+            mipSelector.on('change', function(value) {
+                mipLevel = value;
+                queueRender();
+            });
+
+            var sx = 0, sy = 0, x = 0, y = 0, nx = 0, ny = 0;
+            var dragging = false;
+            var previewRotation = [ 0, 0 ];
+
+            preview.addEventListener('mousedown', function(evt) {
+                if (evt.button !== 0)
+                    return;
+
+                evt.preventDefault();
+                evt.stopPropagation();
+
+                sx = x = evt.clientX;
+                sy = y = evt.clientY;
+
+                dragging = true;
+            }, false);
+
+            var onMouseMove = function(evt) {
+                if (! dragging)
+                    return;
+
+                nx = x - evt.clientX;
+                ny = y - evt.clientY;
+                x = evt.clientX;
+                y = evt.clientY;
+
+                queueRender();
+            };
+
+            var onMouseUp = function(evt) {
+                if (! dragging)
+                    return;
+
+                if ((Math.abs(sx - x) + Math.abs(sy - y)) < 8) {
+                    if (root.element.classList.contains('large')) {
+                        root.element.classList.remove('large');
+                    } else {
+                        root.element.classList.add('large');
+                    }
+                }
+
+                previewRotation[0] = Math.max(-90, Math.min(90, previewRotation[0] + ((sy - y) * 0.3)));
+                previewRotation[1] += (sx - x) * 0.3;
+                sx = sy = x = y = 0;
+
+                dragging = false;
+
+                queueRender();
+            };
+
+            window.addEventListener('mousemove', onMouseMove, false);
+            window.addEventListener('mouseup', onMouseUp, false);
+
+
+            root.class.add('asset-preview');
+            root.element.insertBefore(previewContainer, root.innerElement);
+
+            // rendering preview
+            var renderQueued;
+
+            var renderPreview = function () {
+                if (renderQueued)
+                    renderQueued = false;
+
+                // render
+                var imageData = editor.call('preview:render', assets[0], root.element.clientWidth, root.element.clientWidth, {
+                    rotation: [ Math.max(-90, Math.min(90, previewRotation[0] + (sy - y) * 0.3)), previewRotation[1] + (sx - x) * 0.3 ],
+                    mipLevel: mipLevel
+                });
+
+                preview.width = imageData.width;
+                preview.height = imageData.height;
+
+                ctx.putImageData(imageData, 0, 0);
+            };
+            renderPreview();
+
+            // queue up the rendering to prevent too oftern renders
+            var queueRender = function() {
+                if (renderQueued) return;
+                renderQueued = true;
+                requestAnimationFrame(renderPreview);
+            };
+
+            // render on resize
+            var evtPanelResize = root.on('resize', queueRender);
+            var evtSceneSettings = editor.on('preview:scene:changed', queueRender);
+
+            // cubemap textures loaded
+            var cubemapWatch = editor.call('assets:cubemap:watch', {
+                asset: assets[0],
+                autoLoad: true,
+                callback: queueRender
+            });
+        }
+
+
         // properties panel
-        var paramsPanel = editor.call('attributes:addPanel', {
+        var panelParams = editor.call('attributes:addPanel', {
             name: 'CubeMap'
         });
-        paramsPanel.class.add('component');
+        panelParams.class.add('component');
         // reference
-        editor.call('attributes:reference:attach', 'asset:cubemap:asset', paramsPanel, paramsPanel.headerElement);
+        editor.call('attributes:reference:attach', 'asset:cubemap:asset', panelParams, panelParams.headerElement);
 
+        if (assets.length === 1) {
+            panelParams.on('destroy', function() {
+                root.class.remove('asset-preview');
+
+                editor.call('assets:cubemap:unwatch', assets[0], cubemapWatch);
+
+                evtSceneSettings.unbind();
+                evtPanelResize.unbind();
+                previewContainer.parentNode.removeChild(previewContainer);
+
+                window.removeEventListener('mousemove', onMouseMove);
+                window.removeEventListener('mouseup', onMouseUp);
+            });
+        }
 
 
         // filtering
         var fieldFiltering = editor.call('attributes:addField', {
-            parent: paramsPanel,
+            parent: panelParams,
             name: 'Filtering',
             type: 'string',
             enum: {
@@ -157,7 +304,7 @@ editor.once('load', function() {
 
         // anisotropy
         var fieldAnisotropy = editor.call('attributes:addField', {
-            parent: paramsPanel,
+            parent: panelParams,
             name: 'Anisotropy',
             type: 'number',
             link: assets,
@@ -170,7 +317,7 @@ editor.once('load', function() {
         if (assets.length === 1) {
             // preview
             var previewPanel = editor.call('attributes:addPanel', {
-                name: 'Preview'
+                name: 'Faces'
             });
             previewPanel.class.add('cubemap-viewport', 'component');
             // reference
@@ -578,6 +725,13 @@ editor.once('load', function() {
 
             var evtFileChange = assets[0].on('file:set', function (value) {
                 prefilterBtn.disabled = false;
+
+                if (mipSelector)
+                    mipSelector.hidden = ! value;
+
+                if (queueRender)
+                    queueRender();
+
                 togglePrefilterFields(!! value);
             });
 

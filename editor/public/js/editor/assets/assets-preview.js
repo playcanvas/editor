@@ -23,6 +23,10 @@ editor.once('load', function () {
     };
     var skyboxAsset;
 
+    editor.method('preview:skybox', function() {
+        return skyboxAsset;
+    });
+
     app._onSkyboxChangeOld = app._onSkyboxChange;
     app._onSkyboxChange = function(asset) {
         skyboxOnLoad(asset);
@@ -50,6 +54,7 @@ editor.once('load', function () {
             app.off('load:' + skyboxAsset.id, skyboxOnLoad);
             skyboxAsset = null;
             scene.setSkybox(null);
+            editor.emit('preview:scene:changed');
         }
     };
 
