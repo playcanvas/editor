@@ -408,11 +408,11 @@ editor.once('load', function() {
 
         var camera = editor.call('camera:current').camera.camera;
 
-        var oldTarget = camera.getRenderTarget();
+        var oldTarget = camera.renderTarget;
 
         if (render) {
             meshInstance.visible = true;
-            camera.setRenderTarget(targets[0]);
+            camera.renderTarget = targets[0];
             renderer.setCamera(camera);
 
             device.clear({
@@ -499,7 +499,7 @@ editor.once('load', function() {
             }
 
             // blur pass X
-            camera.setRenderTarget(targets[1]);
+            camera.renderTarget = targets[1];
             renderer.setCamera(camera);
             var mesh = meshInstance.mesh;
             var uOffset = device.scope.resolve('uOffset');
@@ -513,7 +513,7 @@ editor.once('load', function() {
             renderer._depthDrawCalls++;
 
             // blur pass Y
-            camera.setRenderTarget(targets[0]);
+            camera.renderTarget = targets[0];
             renderer.setCamera(camera);
             var mesh = meshInstance.mesh;
             var uOffset = device.scope.resolve('uOffset');
@@ -533,6 +533,6 @@ editor.once('load', function() {
             cleared = true;
         }
 
-        camera.setRenderTarget(oldTarget);
+        camera.renderTarget = oldTarget;
     });
 });

@@ -75,8 +75,8 @@ editor.once('load', function() {
     editor.method('preview:material:render', function(asset, target, args) {
         args = args || { };
 
-        camera.setAspectRatio(target.height / target.width);
-        camera.setRenderTarget(target);
+        camera.aspectRatio = target.height / target.width;
+        camera.renderTarget = target;
 
         var data = asset.get('data');
         if (! data) return;

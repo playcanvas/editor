@@ -65,7 +65,7 @@ editor.once('load', function() {
         if (cameraEntity && cameraEntity.camera) {
             var cameraNode = cameraEntity.camera.camera;
 
-            cameraNode.setRenderTarget(null);
+            cameraNode.renderTarget = null;
 
             if (cameraEntity.__editorCamera) {
                 var clearColor = this.editorSettings.camera_clear_color;

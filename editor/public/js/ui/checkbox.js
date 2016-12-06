@@ -11,35 +11,37 @@ function Checkbox(args) {
     this.element.tabIndex = 0;
     this.element.ui = this;
 
-    var self = this;
-    this.element.addEventListener('keydown', function(evt) {
-        if (evt.keyCode === 27)
-            return self.element.blur();
-
-        if (evt.keyCode !== 32 || self.disabled)
-            return;
-
-        evt.stopPropagation();
-        evt.preventDefault();
-        self.value = ! self.value;
-    }, false);
-
-    this._onClick = function() {
-        self.value = ! self.value;
-        self.element.blur();
-    };
+    this.element.addEventListener('keydown', this._onKeyDown, false);
 
     this.on('click', this._onClick);
-
-    this.on('change', function() {
-        if (! this.renderChanges)
-            return;
-
-        this.flash();
-    });
+    this.on('change', this._onChange);
 }
 Checkbox.prototype = Object.create(ui.Element.prototype);
 
+
+Checkbox.prototype._onClick = function() {
+    this.value = ! this.value;
+    this.element.blur();
+};
+
+Checkbox.prototype._onChange = function() {
+    if (! this.renderChanges)
+        return;
+
+    this.flash();
+};
+
+Checkbox.prototype._onKeyDown = function(evt) {
+    if (evt.keyCode === 27)
+        return this.blur();
+
+    if (evt.keyCode !== 32 || this.ui.disabled)
+        return;
+
+    evt.stopPropagation();
+    evt.preventDefault();
+    this.ui.value = ! this.ui.value;
+};
 
 Checkbox.prototype._onLinkChange = function(value) {
     if (value === null) {

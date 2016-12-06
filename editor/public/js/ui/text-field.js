@@ -58,7 +58,7 @@ TextField.prototype._onLinkChange = function(value) {
 TextField.prototype._onChange = function() {
     if (this.ui.ignoreChange) return;
 
-    this.ui.value = this.value || '';
+    this.ui.value = this.ui.value || '';
 
     if (! this.ui._link)
         this.ui.emit('change', this.ui.value);
@@ -172,14 +172,9 @@ Object.defineProperty(TextField.prototype, 'keyChange', {
             return;
 
         if (value) {
-            var self = this;
-            this.evtKeyChange = function() {
-                self._onChange();
-            };
-            this.elementInput.addEventListener('keyup', this.evtKeyChange, false);
+            this.elementInput.addEventListener('keyup', this._onChange, false);
         } else {
-            this.elementInput.removeEventListener('keyup', this.evtKeyChange);
-            this.evtKeyChange = null;
+            this.elementInput.removeEventListener('keyup', this._onChange);
         }
     }
 });

@@ -154,11 +154,10 @@ editor.once('load', function () {
 
     // set up camera
     var camera = new pc.Camera();
-    var clearOptions = camera.getClearOptions();
-    clearOptions.color[0] = 0;
-    clearOptions.color[1] = 0;
-    clearOptions.color[2] = 0;
-    clearOptions.color[3] = 0;
+    camera.clearColor[0] = 0;
+    camera.clearColor[1] = 0;
+    camera.clearColor[2] = 0;
+    camera.clearColor[3] = 0;
 
     var cameraNode = new pc.GraphNode();
     cameraNode.setPosition(0, 0, 6);
@@ -179,7 +178,7 @@ editor.once('load', function () {
         if (canvas.width !== size)
             device.resizeCanvas(size, size);
 
-        camera.setAspectRatio(1);
+        camera.aspectRatio = 1;
 
         var font = assets.get(asset.get('id'));
         if (! font || ! font.resource || ! font.resource.texture || ! font.data || ! font.data.chars)

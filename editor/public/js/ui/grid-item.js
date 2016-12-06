@@ -16,35 +16,29 @@ function GridItem(args) {
     this.element.classList.add('ui-grid-item');
     this.element.innerHTML = this._text;
 
-    this._onClick = function() {
-        self.emit('click');
-        self._clicked = true;
-        self.selected = ! self.selected;
-        self._clicked = false;
-    };
-
     this.element.removeEventListener('click', this._evtClick);
     this.element.addEventListener('click', this._onClick, false);
 
-    // space > click
-    this.element.addEventListener('keydown', function(evt) {
-        if (evt.keyCode !== 32 || self.disabled)
-            return;
-
-        evt.stopPropagation();
-        evt.preventDefault();
-        self._onClick();
-    }, false);
-
-    this.on('select', function() {
-        this.element.focus();
-    });
-
-    this.on('deselect', function() {
-        this.element.blur();
-    });
+    this.on('select', this._onSelect);
+    this.on('deselect', this._onDeselect);
 }
 GridItem.prototype = Object.create(ui.Element.prototype);
+
+
+GridItem.prototype._onClick = function() {
+    this.ui.emit('click');
+    this.ui._clicked = true;
+    this.ui.selected = ! this.ui.selected;
+    this.ui._clicked = false;
+};
+
+GridItem.prototype._onSelect = function() {
+    this.element.focus();
+};
+
+GridItem.prototype._onDeselect = function() {
+    this.element.blur();
+};
 
 
 Object.defineProperty(GridItem.prototype, 'text', {

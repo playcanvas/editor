@@ -30,15 +30,15 @@ editor.once('load', function() {
     camera._nearClip = 1;
     camera._farClip = 32;
     camera._clearOptions.color = [ 0, 0, 0, 1 ];
-    camera.setFov(75);
+    camera.fov = 75;
     camera.frustumCulling = false;
 
 
     editor.method('preview:cubemap:render', function(asset, target, args) {
         args = args || { };
 
-        camera.setAspectRatio(target.height / target.width);
-        camera.setRenderTarget(target);
+        camera.aspectRatio = target.height / target.width;
+        camera.renderTarget = target;
 
         pitch = args.hasOwnProperty('rotation') ? args.rotation[0] : 0;
         yaw = args.hasOwnProperty('rotation') ? args.rotation[1] : 0;
