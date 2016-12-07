@@ -84,13 +84,13 @@ editor.once('load', function() {
                 }
 
                 codeEditorUrl = 'https://' + window.location.host + target;
-                query = '?line=' + line + '&col=' + col;
+                query = '?line=' + line + '&col=' + col + '&error=true';
             } else if (! editor.call('project:settings').get('use_legacy_scripts') && url.indexOf('/api/assets/') !== -1 && url.indexOf('.js') !== -1) {
                 var assetId = parseInt(url.match(/\/api\/assets\/files\/.+?id=([0-9]+)/)[1], 10);
                 target = '/editor/asset/' + assetId;
 
                 codeEditorUrl = 'https://' + window.location.host + target;
-                query = '?line=' + line + '&col=' + col;
+                query = '?line=' + line + '&col=' + col + '&error=true';
             } else {
                 codeEditorUrl = url;
             }

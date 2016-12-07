@@ -22,7 +22,7 @@ function ColorField(args) {
         if (evt.keyCode === 27)
             return self.element.blur();
 
-        if (evt.keyCode !== 32 || self.disabled)
+        if (evt.keyCode !== 13 || self.disabled)
             return;
 
         evt.stopPropagation();

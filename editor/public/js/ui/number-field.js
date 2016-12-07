@@ -18,15 +18,17 @@ function NumberField(args) {
     this.elementInput.tabIndex = 0;
     this.elementInput.classList.add('field');
     this.elementInput.type = 'text';
-    this.elementInput.addEventListener('focus', this._onInputFocus.bind(this), false);
-    this.elementInput.addEventListener('blur', this._onInputBlur.bind(this), false);
-    this.elementInput.addEventListener('keydown', this._onKeyDown.bind(this), false);
+    this.elementInput.addEventListener('focus', this._onInputFocus, false);
+    this.elementInput.addEventListener('blur', this._onInputBlur, false);
+    this.elementInput.addEventListener('keydown', this._onKeyDown, false);
+    this.elementInput.addEventListener('dblclick', this._onFullSelect, false);
+    this.elementInput.addEventListener('contextmenu', this._onFullSelect, false);
     this.element.appendChild(this.elementInput);
 
     if (args.default !== undefined)
         this.value = args.default;
 
-    this.elementInput.addEventListener('change', this._onChange.bind(this), false);
+    this.elementInput.addEventListener('change', this._onChange, false);
     // this.element.addEventListener('mousedown', this._onMouseDown.bind(this), false);
     // this.element.addEventListener('mousewheel', this._onMouseDown.bind(this), false);
 
@@ -65,9 +67,9 @@ NumberField.prototype._onLinkChange = function(value) {
 };
 
 NumberField.prototype._onChange = function() {
-    var value = parseFloat(this.elementInput.value, 10) || 0;
-    this.elementInput.value = value;
-    this.value = value;
+    var value = parseFloat(this.ui.elementInput.value, 10) || 0;
+    this.ui.elementInput.value = value;
+    this.ui.value = value;
 };
 
 NumberField.prototype.focus = function(select) {
@@ -76,21 +78,21 @@ NumberField.prototype.focus = function(select) {
 };
 
 NumberField.prototype._onInputFocus = function() {
-    this.class.add('focus');
+    this.ui.class.add('focus');
 };
 
 NumberField.prototype._onInputBlur = function() {
-    this.class.remove('focus');
+    this.ui.class.remove('focus');
 };
 
 NumberField.prototype._onKeyDown = function(evt) {
     if (evt.keyCode === 27)
-        return this.elementInput.blur();
+        return this.blur();
 
-    if (this.blurOnEnter && evt.keyCode === 13) {
+    if (this.ui.blurOnEnter && evt.keyCode === 13) {
         var focused = false;
 
-        var parent = this.parent;
+        var parent = this.ui.parent;
         while(parent) {
             if (parent.focus) {
                 parent.focus();
@@ -102,12 +104,12 @@ NumberField.prototype._onKeyDown = function(evt) {
         }
 
         if (! focused)
-            this.elementInput.blur();
+            this.blur();
 
         return;
     }
 
-    if (this.disabled || [ 38, 40 ].indexOf(evt.keyCode) === -1)
+    if (this.ui.disabled || [ 38, 40 ].indexOf(evt.keyCode) === -1)
         return;
 
     var inc = evt.keyCode === 40 ? -1 : 1;
@@ -115,19 +117,23 @@ NumberField.prototype._onKeyDown = function(evt) {
     if (evt.shiftKey)
         inc *= 10;
 
-    var value = this.value + (this.step || 1) * inc;
+    var value = this.ui.value + (this.ui.step || 1) * inc;
 
-    if (this.max != null)
-        value = Math.min(this.max, value);
+    if (this.ui.max != null)
+        value = Math.min(this.ui.max, value);
 
-    if (this.min != null)
-        value = Math.max(this.min, value);
+    if (this.ui.min != null)
+        value = Math.max(this.ui.min, value);
 
-    if (this.precision != null)
-        value = parseFloat(value.toFixed(this.precision), 10);
+    if (this.ui.precision != null)
+        value = parseFloat(value.toFixed(this.ui.precision), 10);
 
-    this.elementInput.value = value;
     this.value = value;
+    this.ui.value = value;
+};
+
+NumberField.prototype._onFullSelect = function() {
+    this.select();
 };
 
 // NumberField.prototype._onMouseDown = function(evt) {
@@ -261,6 +267,3 @@ Object.defineProperty(NumberField.prototype, 'proxy', {
 
 
 window.ui.NumberField = NumberField;
-
-
-

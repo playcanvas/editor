@@ -38,8 +38,8 @@ editor.once('viewport:load', function() {
             });
         }
 
-        var oldTarget = camera.getRenderTarget();
-        camera.setRenderTarget(depthTarget);
+        var oldTarget = camera.renderTarget;
+        camera.renderTarget = depthTarget;
         renderer.setCamera(camera);
 
         var oldBlending = device.getBlending();
@@ -86,7 +86,7 @@ editor.once('viewport:load', function() {
                 renderer._depthDrawCalls++;
             }
         }
-        camera.setRenderTarget(oldTarget);
+        camera.renderTarget = oldTarget;
         device.setBlending(oldBlending);
 
         rendered = true;
@@ -99,7 +99,7 @@ editor.once('viewport:load', function() {
         if (! depthTarget || ! rendered)
             editor.call('camera:depth:render', camera);
 
-        var prevRenderTarget = device.getRenderTarget();
+        var prevRenderTarget = device.renderTarget;
 
         device.setRenderTarget(depthTarget);
         device.updateBegin();

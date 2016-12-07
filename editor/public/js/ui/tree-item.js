@@ -30,60 +30,6 @@ function TreeItem(args) {
     this._children = 0;
     this.selectable = true;
 
-    this._onClick = function(evt) {
-        if (evt.button !== 0 || ! self.selectable)
-            return;
-
-        var rect = self.elementTitle.getBoundingClientRect();
-
-        if (self._children && (evt.clientX - rect.left) < 0) {
-            self.open = ! self.open;
-        } else {
-            self.tree._onItemClick(self);
-            evt.stopPropagation();
-        }
-    };
-
-    this._onDblClick = function(evt) {
-        if (! self.tree.allowRenaming || evt.button !== 0 || self.disabled)
-            return;
-
-        evt.stopPropagation();
-        var rect = self.elementTitle.getBoundingClientRect();
-
-        if (self._children && (evt.clientX - rect.left) < 0) {
-            return;
-        } else {
-            self._onRename();
-        }
-    };
-
-    this._onDragStart = function(evt) {
-        if (self.tree.disabled || ! self.tree.draggable) {
-            evt.stopPropagation();
-            evt.preventDefault();
-            return;
-        }
-
-        self._dragging = true;
-
-        if (self._dragRelease)
-            window.removeEventListener('mouseup', self._dragRelease);
-
-        self._dragRelease = self._onMouseUp;
-        window.addEventListener('mouseup', self._dragRelease, false);
-
-        evt.stopPropagation();
-        evt.preventDefault();
-
-        self.emit('dragstart');
-    };
-
-    this._onMouseOver = function(evt) {
-        evt.stopPropagation();
-        self.emit('mouseover', evt);
-    };
-
     this._onMouseUp = function(evt) {
         window.removeEventListener('mouseup', self._dragRelease);
         self._dragRelease = null;
@@ -106,126 +52,10 @@ function TreeItem(args) {
     this.on('destroy', this._onDestroy);
     this.on('append', this._onAppend);
     this.on('remove', this._onRemove);
+    this.on('select', this._onSelect);
+    this.on('deselect', this._onDeselect);
 
-    this.on('select', function() {
-        this.elementTitle.focus();
-    });
-
-    this.on('deselect', function() {
-        this.elementTitle.blur();
-    });
-
-    this.elementTitle.addEventListener('keydown', function(evt) {
-        if ((evt.target && evt.target.tagName.toLowerCase() === 'input'))
-            return;
-
-        if ([ 9, 38, 40, 37, 39 ].indexOf(evt.keyCode) === -1)
-            return;
-
-        evt.preventDefault();
-        evt.stopPropagation();
-
-        var selectedItem = null;
-
-        switch(evt.keyCode) {
-            case 9: // tab
-                break;
-            case 40: // down
-                var item = self.element.nextSibling;
-                if (item)
-                    item = item.ui;
-
-                if (self._children && self.open) {
-                    var first = self.element.firstChild.nextSibling;
-                    if (first && first.ui) {
-                        selectedItem = first.ui;
-                        // first.ui.selected = true;
-                    } else if (item) {
-                        selectedItem = item;
-                        // item.selected = true;
-                    }
-                } else if (item) {
-                    selectedItem = item;
-                    // item.selected = true;
-                } else if (self.parent && self.parent instanceof TreeItem) {
-                    var parent = self.parent;
-
-                    var findNext = function(from) {
-                        var next = from.next;
-                        if (next) {
-                            selectedItem = next;
-                            // next.selected = true;
-                        } else if (from.parent instanceof TreeItem) {
-                            return from.parent;
-                        }
-                        return false;
-                    };
-
-                    while(parent = findNext(parent)) { }
-                }
-                break;
-            case 38: // up
-                var item = self.element.previousSibling;
-                if (item)
-                    item = item.ui;
-
-                if (item) {
-                    if (item._children && item.open) {
-                        var last = item.element.lastChild;
-                        if (last.ui)
-                            last = last.ui;
-
-                        if (last) {
-                            var findLast = function(inside) {
-                                if (inside._children && inside.open) {
-                                    return inside.element.lastChild.ui || null;
-                                } else {
-                                    return null;
-                                }
-                            }
-
-                            var found = false;
-                            while(! found) {
-                                var deeper = findLast(last);
-                                if (deeper) {
-                                    last = deeper
-                                } else {
-                                    found = true;
-                                }
-                            }
-
-                            selectedItem = last;
-                            // last.selected = true;
-                        } else {
-                            selectedItem = item;
-                            // item.selected = true;
-                        }
-                    } else {
-                        selectedItem = item;
-                        // item.selected = true;
-                    }
-                } else if (self.parent && self.parent instanceof TreeItem) {
-                    selectedItem = self.parent;
-                    // self.parent.selected = true;
-                }
-
-                break;
-            case 37: // left (close)
-                if (self.parent !== self.tree && self.open)
-                    self.open = false;
-                break;
-            case 39: // right (open)
-                if (self._children && ! self.open)
-                    self.open = true;
-                break;
-        }
-
-        if (selectedItem) {
-            if (! (Tree._ctrl && Tree._ctrl()) && ! (Tree._shift && Tree._shift()))
-                self.tree.clear();
-            selectedItem.selected = true;
-        }
-    }, false);
+    this.elementTitle.addEventListener('keydown', this._onKeyDown, false);
 }
 TreeItem.prototype = Object.create(ui.Element.prototype);
 
@@ -347,6 +177,10 @@ TreeItem.prototype.remove = function(item) {
 
 TreeItem.prototype._onDestroy = function() {
     this.elementTitle.removeEventListener('click', this._onClick);
+    this.elementTitle.removeEventListener('dblclick', this._onDblClick);
+    this.elementTitle.removeEventListener('dragstart', this._onDragStart);
+    this.elementTitle.removeEventListener('mouseover', this._onMouseOver);
+    this.elementTitle.removeEventListener('keydown', this._onKeyDown);
 };
 
 
@@ -399,6 +233,181 @@ TreeItem.prototype._onRename = function() {
     this.elementTitle.appendChild(field.element);
     field.elementInput.focus();
     field.elementInput.select();
+};
+
+
+TreeItem.prototype._onClick = function(evt) {
+    if (evt.button !== 0 || ! this.ui.selectable)
+        return;
+
+    var rect = this.getBoundingClientRect();
+
+    if (this.ui._children && (evt.clientX - rect.left) < 0) {
+        this.ui.open = ! this.ui.open;
+    } else {
+        this.ui.tree._onItemClick(this.ui);
+        evt.stopPropagation();
+    }
+};
+
+TreeItem.prototype._onDblClick = function(evt) {
+    if (! this.ui.tree.allowRenaming || evt.button !== 0 || this.ui.disabled)
+        return;
+
+    evt.stopPropagation();
+    var rect = this.getBoundingClientRect();
+
+    if (this.ui._children && (evt.clientX - rect.left) < 0) {
+        return;
+    } else {
+        this.ui._onRename();
+    }
+};
+
+TreeItem.prototype._onDragStart = function(evt) {
+    if (this.ui.tree.disabled || ! this.ui.tree.draggable) {
+        evt.stopPropagation();
+        evt.preventDefault();
+        return;
+    }
+
+    this.ui._dragging = true;
+
+    if (this.ui._dragRelease)
+        window.removeEventListener('mouseup', this.ui._dragRelease);
+
+    this.ui._dragRelease = this.ui._onMouseUp;
+    window.addEventListener('mouseup', this.ui._dragRelease, false);
+
+    evt.stopPropagation();
+    evt.preventDefault();
+
+    this.ui.emit('dragstart');
+};
+
+TreeItem.prototype._onMouseOver = function(evt) {
+    evt.stopPropagation();
+    this.ui.emit('mouseover', evt);
+};
+
+TreeItem.prototype._onKeyDown = function(evt) {
+    if ((evt.target && evt.target.tagName.toLowerCase() === 'input'))
+        return;
+
+    if ([ 9, 38, 40, 37, 39 ].indexOf(evt.keyCode) === -1)
+        return;
+
+    evt.preventDefault();
+    evt.stopPropagation();
+
+    var selectedItem = null;
+
+    switch(evt.keyCode) {
+        case 9: // tab
+            break;
+        case 40: // down
+            var item = this.ui.element.nextSibling;
+            if (item)
+                item = item.ui;
+
+            if (this.ui._children && this.ui.open) {
+                var first = this.ui.element.firstChild.nextSibling;
+                if (first && first.ui) {
+                    selectedItem = first.ui;
+                    // first.ui.selected = true;
+                } else if (item) {
+                    selectedItem = item;
+                    // item.selected = true;
+                }
+            } else if (item) {
+                selectedItem = item;
+                // item.selected = true;
+            } else if (this.ui.parent && this.ui.parent instanceof TreeItem) {
+                var parent = this.ui.parent;
+
+                var findNext = function(from) {
+                    var next = from.next;
+                    if (next) {
+                        selectedItem = next;
+                        // next.selected = true;
+                    } else if (from.parent instanceof TreeItem) {
+                        return from.parent;
+                    }
+                    return false;
+                };
+
+                while(parent = findNext(parent)) { }
+            }
+            break;
+        case 38: // up
+            var item = this.ui.element.previousSibling;
+            if (item)
+                item = item.ui;
+
+            if (item) {
+                if (item._children && item.open) {
+                    var last = item.element.lastChild;
+                    if (last.ui)
+                        last = last.ui;
+
+                    if (last) {
+                        var findLast = function(inside) {
+                            if (inside._children && inside.open) {
+                                return inside.element.lastChild.ui || null;
+                            } else {
+                                return null;
+                            }
+                        }
+
+                        var found = false;
+                        while(! found) {
+                            var deeper = findLast(last);
+                            if (deeper) {
+                                last = deeper
+                            } else {
+                                found = true;
+                            }
+                        }
+
+                        selectedItem = last;
+                        // last.selected = true;
+                    } else {
+                        selectedItem = item;
+                        // item.selected = true;
+                    }
+                } else {
+                    selectedItem = item;
+                    // item.selected = true;
+                }
+            } else if (this.ui.parent && this.ui.parent instanceof TreeItem) {
+                selectedItem = this.ui.parent;
+                // this.ui.parent.selected = true;
+            }
+
+            break;
+        case 37: // left (close)
+            if (this.ui.parent !== this.ui.tree && this.ui.open)
+                this.ui.open = false;
+            break;
+        case 39: // right (open)
+            if (this.ui._children && ! this.ui.open)
+                this.ui.open = true;
+            break;
+    }
+
+    if (selectedItem) {
+        if (! (Tree._ctrl && Tree._ctrl()) && ! (Tree._shift && Tree._shift()))
+            this.ui.tree.clear();
+        selectedItem.selected = true;
+    }
+};
+
+TreeItem.prototype._onSelect = function() {
+    this.elementTitle.focus();
+};
+
+TreeItem.prototype._onDeselect = function() {
+    this.elementTitle.blur();
 };
 
 

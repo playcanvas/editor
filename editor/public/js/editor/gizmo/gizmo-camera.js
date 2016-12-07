@@ -49,7 +49,7 @@ editor.once('load', function () {
             nx = ny * aspectRatio;
             fx = fy * aspectRatio;
         } else {
-            ny = camera.camera.getOrthoHeight();
+            ny = camera.camera._orthoHeight;
             fy = ny;
             nx = ny * aspectRatio;
             fx = nx;
