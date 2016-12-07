@@ -19,7 +19,8 @@ editor.once('load', function() {
 
         // error
         scene.on('error', function(err) {
-            console.error('error', err);
+            if (callback)
+                callback(new Error(err));
         });
 
         // ready to sync
