@@ -43,7 +43,7 @@ function NumberField(args) {
 
     this.on('disable', this._onDisable);
     this.on('enable', this._onEnable);
-    this.on('change', this._onChange);
+    this.on('change', this._onChangeField);
 
     if (args.placeholder)
         this.placeholder = args.placeholder;
@@ -134,7 +134,7 @@ NumberField.prototype._onEnable = function() {
     this.elementInput.readOnly = false;
 };
 
-NumberField.prototype._onChange = function() {
+NumberField.prototype._onChangeField = function() {
     if (! this.renderChanges)
         return;
 

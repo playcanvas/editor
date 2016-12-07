@@ -31,7 +31,7 @@ function TextField(args) {
 
     this.on('disable', this._onDisable);
     this.on('enable', this._onEnable);
-    this.on('change', this._onChange);
+    this.on('change', this._onChangeField);
 
     if (args.placeholder)
         this.placeholder = args.placeholder;
@@ -108,7 +108,7 @@ TextField.prototype._onEnable = function() {
     this.elementInput.readOnly = false;
 };
 
-TextField.prototype._onChange = function() {
+TextField.prototype._onChangeField = function() {
     if (! this.renderChanges)
         return;
 
