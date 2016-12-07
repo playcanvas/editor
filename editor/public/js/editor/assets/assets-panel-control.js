@@ -166,6 +166,54 @@ editor.once('load', function() {
     });
 
 
+    // fodler up
+    var btnUp = new ui.Button({
+        text: '&#58117;'
+    });
+    btnUp.style.fontWeight = 200;
+    btnUp.disabled = true;
+    btnUp.class.add('up');
+    btnUp.on('click', function() {
+        var folder = editor.call('assets:panel:currentFolder');
+        if (! folder) return;
+
+        if (folder === 'scripts') {
+            editor.call('assets:panel:currentFolder', null);
+        } else {
+            var path = folder.get('path');
+            if (path.length) {
+                var parent = editor.call('assets:get', path[path.length - 1]);
+                if (parent) {
+                    editor.call('assets:panel:currentFolder', parent);
+                } else {
+                    editor.call('assets:panel:currentFolder', null);
+                }
+            } else {
+                editor.call('assets:panel:currentFolder', null);
+            }
+        }
+    });
+    controls.append(btnUp);
+
+    editor.on('assets:panel:currentFolder', function(folder) {
+        if (folder) {
+            btnUp.disabled = false;
+            tooltipUp.class.remove('innactive');
+        } else {
+            btnUp.disabled = true;
+            tooltipUp.class.add('innactive');
+        }
+    });
+
+    var tooltipUp = Tooltip.attach({
+        target: btnUp.element,
+        text: 'Folder Up',
+        align: 'bottom',
+        root: root
+    });
+    tooltipUp.class.add('innactive');
+
+
     editor.on('attributes:clear', function() {
         // btnDuplicate.disabled = true;
         btnDelete.disabled = true;
@@ -183,6 +231,3 @@ editor.once('load', function() {
         // btnDuplicate.enabled = type === 'asset.material';
     });
 });
-
-
-
