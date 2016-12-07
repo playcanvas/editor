@@ -144,6 +144,45 @@ editor.once('load', function() {
     menu.append(menuItemReferences);
 
 
+    // replace
+    var replaceAvailable = {
+        'material': true,
+        'texture': true,
+        'model': true,
+        'animation': true,
+        'audio': true,
+        'cubemap': true,
+        'css': true,
+        'html': true,
+        'shader': true,
+        'json': true,
+        'text': true
+    };
+    var menuItemReplace = new ui.MenuItem({
+        text: 'Replace',
+        icon: '&#57640;',
+        value: 'replace'
+    });
+    menuItemReplace.on('select', function() {
+        var id = parseInt(currentAsset.get('id'), 10);
+
+        editor.call('picker:asset', currentAsset.get('type'), currentAsset);
+
+        var evtPick = editor.once('picker:asset', function(asset) {
+            editor.call('assets:replace', currentAsset, asset);
+            evtPick = null;
+        });
+
+        editor.once('picker:asset:close', function() {
+            if (evtPick) {
+                evtPick.unbind();
+                evtPick = null;
+            }
+        });
+    });
+    menu.append(menuItemReplace);
+
+
     // extract
     var menuItemExtract = new ui.MenuItem({
         text: 'Re-Import',
@@ -386,6 +425,7 @@ editor.once('load', function() {
                 var ref = editor.call('assets:used:index')[currentAsset.get('id')];
                 if (ref && ref.count && ref.ref) {
                     menuItemReferences.hidden = false;
+                    menuItemReplace.hidden = replaceAvailable[currentAsset.get('type')] ? false : true;
 
                     while(menuItemReferences.innerElement.firstChild)
                         menuItemReferences.innerElement.firstChild.ui.destroy();
@@ -423,7 +463,7 @@ editor.once('load', function() {
                             editor.call('selector:set', type, [ item ]);
 
                             var folder = null;
-                            var path = item.get('path');
+                            var path = item.get('path') || [ ];
                             if (path.length)
                                 folder = editor.call('assets:get', path[path.length - 1]);
 
@@ -465,9 +505,11 @@ editor.once('load', function() {
                         menuItemReferences.append(menuItems[i].element);
                 } else {
                     menuItemReferences.hidden = true;
+                    menuItemReplace.hidden = true;
                 }
             } else {
                 menuItemReferences.hidden = true;
+                menuItemReplace.hidden = true;
                 menuItemReImport.hidden = true;
                 menuItemExtract.hidden = [ 'scene', 'texture' ].indexOf(currentAsset.get('type')) === -1 || ! currentAsset.get('meta');
             }
@@ -480,6 +522,7 @@ editor.once('load', function() {
             menuItemEdit.hidden = true;
             menuItemDelete.hidden = true;
             menuItemReferences.hidden = true;
+            menuItemReplace.hidden = true;
         }
 
         for(var i = 0; i < customMenuItems.length; i++) {
