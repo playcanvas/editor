@@ -71,8 +71,6 @@ editor.once('load', function() {
                     proxy.set('chars', val);
                 });
 
-                setCharsValue();
-
                 fieldFrom.value = '0x' + set.charCodeAt(0).toString(16);
                 fieldTo.value = '0x' + set.charCodeAt(set.length-1).toString(16);
             });
@@ -143,8 +141,6 @@ editor.once('load', function() {
                 val += range;
                 proxy.set('chars', val);
             });
-
-            setCharsValue();
         });
 
 
@@ -202,114 +198,59 @@ editor.once('load', function() {
             });
         }
 
-        // characters
-        var fieldChars = editor.call('attributes:addField', {
-            parent: paramsPanel,
-            type: 'string',
-            name: 'Characters'
-        });
-
-        // reference
-        editor.call('attributes:reference:attach', 'asset:font:characters', fieldChars.parent.innerElement.firstChild.ui);
-
-        // Gets the characters of each asset and if the value
-        // is the same returns it otherwise returns '...'
-        var getCharsValue = function () {
-            var value = null;
-            for (var i = 0; i < proxyObservers.length; i++) {
-                if (value === null) {
-                    value = proxyObservers[i].get('chars');
-                }
-                else if (value !== proxyObservers[i].get('chars')) {
-                    value = '...';
-                    break;
-                }
-            }
-
-            return value;
-        };
-
-        // Gets the characters of each asset
-        // and sets it to the character input field
-        var setCharsValue = function () {
-            changingChars = true;
-
-            var value = getCharsValue();
-            if (value !== null)
-                fieldChars.value = value;
-
-            toggleSaveButton();
-
-            changingChars = false;
-        };
-
         // set up proxy observer list which is used
-        // to allow the user to edit the characters of each font
-        // without changing the meta.chars field which is changed
-        // by the pipeline job. This also allows validation of the user
-        // input.
-        var changingChars = false;
+        // to allow the user to edit meta data of each font only locally
+        // Then when process font is clicked the pipeline takes care of
+        // saving those meta fields in the db
         var proxyObservers = [];
 
         var createProxy = function (asset) {
             var proxy = new Observer({
                 'id': asset.get('id'),
-                'chars': asset.get('meta.chars')
+                'chars': asset.get('meta.chars'),
+                'invert': !!asset.get('meta.invert')
             });
 
             proxyObservers.push(proxy);
 
             events.push(asset.on('meta.chars:set', function (value) {
-                setCharsValue();
+                proxy.set('chars', value);
+            }));
+
+            events.push(asset.on('meta.invert:set', function (value) {
+                proxy.set('invert', value);
             }));
         };
 
-        // Subscribe to meta.chars:set to update the character field
-        assets.forEach(function (asset) {
-            if (!asset.get('meta.chars')) {
-                events.push(asset.once('meta.chars:set', function () {
-                    createProxy(asset);
-                    setCharsValue();
-                }));
+        // create proxy observer for each asset
+        assets.forEach(createProxy);
 
-                return;
-            }
-
-            createProxy(asset);
+        // characters
+        var fieldChars = editor.call('attributes:addField', {
+            parent: paramsPanel,
+            type: 'string',
+            name: 'Characters',
+            link: proxyObservers,
+            path: 'chars'
         });
 
         // Change handler
-        fieldChars.on('change', function (value) {
-            // set the value to all proxies
-            if (value !== '...') {
-                proxyObservers.forEach(function (proxy) {
-                    proxy.set('chars', value);
-                });
-            }
+        fieldChars.on('change', toggleSaveButton);
 
-            if (changingChars || !value)
-                return;
+        // reference
+        editor.call('attributes:reference:attach', 'asset:font:characters', fieldChars.parent.innerElement.firstChild.ui);
 
-            // remove duplicate chars but keep same order
-            var unique = '';
-            var chars = {};
-
-            for (var i = 0, len = value.length; i < len; i++) {
-                if (chars[value[i]]) continue;
-                chars[value[i]] = true;
-                unique += value[i];
-            }
-
-            if (value !== unique) {
-                value = unique;
-                var prev = changingChars;
-                changingChars = true;
-                fieldChars.value = unique;
-                changingChars = prev;
-            }
-
-            toggleSaveButton();
+        // invert
+        var fieldInvert = editor.call('attributes:addField', {
+            parent: paramsPanel,
+            type: 'checkbox',
+            name: 'Invert',
+            link: proxyObservers,
+            path: 'invert'
         });
+
+        // reference
+        editor.call('attributes:reference:attach', 'asset:font:invert', fieldInvert.parent.innerElement.firstChild.ui);
 
         var panelSave = editor.call('attributes:addPanel', {
             parent: paramsPanel
@@ -328,8 +269,16 @@ editor.once('load', function() {
 
         // Enables or disabled the SAVE button
         var toggleSaveButton = function () {
-            var value = getCharsValue();
-            if (value === '...') {
+            var sameChars = true;
+            var lastChars = proxyObservers[0].get('chars');
+            for (var i = 1; i < proxyObservers.length; i++) {
+                if (proxyObservers[i].get('chars') !== lastChars) {
+                    sameChars = false;
+                    break;
+                }
+            }
+
+            if (! sameChars) {
                 btnSave.disabled = true;
                 return;
             }
@@ -337,6 +286,11 @@ editor.once('load', function() {
             var tasksInProgress = false;
 
             for (var i = 0; i < assets.length; i++) {
+                if (!editor.call('assets:get', assets[i].get('source_asset_id'))) {
+                    btnSave.disabled = true;
+                    return;
+                }
+
                 if (assets[i].get('task') === 'running') {
                     tasksInProgress = true;
                     break;
@@ -371,10 +325,22 @@ editor.once('load', function() {
                 var source = editor.call('assets:get', sourceId);
                 if (! source) return;
 
+                // remove duplicate chars
+                // remove duplicate chars but keep same order
+                var unique = '';
+                var chars = {};
+
+                for (var i = 0, len = value.length; i < len; i++) {
+                    if (chars[value[i]]) continue;
+                    chars[value[i]] = true;
+                    unique += value[i];
+                }
+
                 var task = {
                     source: parseInt(source.get('id'), 10),
                     target: parseInt(asset.get('id'), 10),
-                    chars: value
+                    chars: unique,
+                    invert: fieldInvert.value
                 };
 
                 editor.call('realtime:send', 'pipeline', {
@@ -383,12 +349,6 @@ editor.once('load', function() {
                 });
             });
         });
-
-        // set initial value of character field
-        changingChars = true;
-        setCharsValue();
-        changingChars = false;
-
 
         paramsPanel.once('destroy', function() {
             for(var i = 0; i < events.length; i++)
