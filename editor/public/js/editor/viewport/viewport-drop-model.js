@@ -4,11 +4,23 @@ editor.once('load', function() {
     var canvas = editor.call('viewport:canvas');
     if (! canvas) return;
 
+    var app = editor.call('viewport:app');
+
+    var aabb = new pc.BoundingBox();
+    var vecA = new pc.Vec3();
+    var vecB = new pc.Vec3();
+    var vecC = new pc.Vec3();
+
+
     var dropRef = editor.call('drop:target', {
         ref: canvas.element,
         filter: function(type, data) {
-            if (type === 'asset.model')
+            if (type === 'asset.model') {
+                var asset = app.assets.get(data.id);
+                if (asset) app.assets.load(asset);
+
                 return true;
+            }
 
             if (type === 'assets') {
                 for(var i = 0; i < data.ids.length; i++) {
@@ -20,11 +32,16 @@ editor.once('load', function() {
                         return false;
                 }
 
+                for(var i = 0; i < data.ids.length; i++) {
+                    var asset = app.assets.get(data.ids[i]);
+                    if (asset) app.assets.load(asset);
+                }
+
                 return true;
             }
         },
         drop: function(type, data) {
-            if (!config.scene.id)
+            if (! config.scene.id)
                 return;
 
             var assets = [ ];
@@ -54,6 +71,53 @@ editor.once('load', function() {
             var entities = [ ];
             var data = [ ];
 
+            // calculate aabb
+            var first = true;
+            for(var i = 0; i < assets.length; i++) {
+                var assetEngine = app.assets.get(assets[i].get('id'));
+                if (! assetEngine) continue;
+
+                if (assetEngine.resource) {
+                    var meshes = assetEngine.resource.meshInstances;
+                    for(var m = 0; m < meshes.length; m++) {
+                        if (first) {
+                            first = false;
+                            aabb.copy(meshes[i].aabb);
+                        } else {
+                            aabb.add(meshes[i].aabb);
+                        }
+                    }
+                }
+            }
+
+            if (first) {
+                aabb.center.set(0, 0, 0);
+                aabb.halfExtents.set(1, 1, 1);
+            }
+
+            // calculate point
+            var camera = editor.call('camera:current');
+            var distance = 0;
+
+            if (ui.Tree._ctrl && ui.Tree._ctrl()) {
+                vecA.copy(camera.forward).scale(aabb.halfExtents.length() * 2.2);
+                vecB.copy(camera.getPosition()).add(vecA);
+                vecC.copy(vecB).sub(aabb.center);
+
+                var tmp = new pc.Entity();
+                parent.entity.addChild(tmp);
+                tmp.setPosition(vecC);
+                vecC.copy(tmp.getLocalPosition());
+                tmp.destroy();
+
+                // focus distance
+                distance = vecA.copy(camera.getPosition()).sub(vecB).length();
+            } else {
+                vecC.set(0, 0, 0);
+                vecB.copy(parent.entity.getPosition()).add(aabb.center);
+                distance = aabb.halfExtents.length() * 2.2;
+            }
+
             for(var i = 0; i < assets.length; i++) {
                 var component = editor.call('components:getDefault', 'model');
                 component.type = 'asset';
@@ -67,6 +131,7 @@ editor.once('load', function() {
                 var entity = editor.call('entities:new', {
                     parent: parent,
                     name: name,
+                    position: [ vecC.x, vecC.y, vecC.z ],
                     components: {
                         model: component
                     },
@@ -145,18 +210,12 @@ editor.once('load', function() {
                     });
 
                     editor.call('viewport:render');
-                    editor.once('viewport:update', function() {
-                        editor.call('viewport:focus');
-                    });
+                    editor.call('camera:focus', vecB, distance);
                 }
             });
 
             editor.call('viewport:render');
-            editor.once('viewport:update', function() {
-                editor.once('viewport:update', function() {
-                    editor.call('viewport:focus');
-                });
-            });
+            editor.call('camera:focus', vecB, distance);
         }
     });
 });
