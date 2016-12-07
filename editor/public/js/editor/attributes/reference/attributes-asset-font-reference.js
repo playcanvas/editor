@@ -18,6 +18,10 @@ editor.once('load', function() {
         name: 'characters',
         title: 'CHARACTERS',
         description: 'All the characters that should be included in the runtime font asset. Note that in order for a character to be included in the runtime font, it must be supported by the source font. Click Process Font after you make changes to the characters.'
+    }, {
+        name: 'invert',
+        title: 'INVERT',
+        description: 'Enable this to invert the generated font texture.'
     }];
 
     for(var i = 0; i < fields.length; i++) {
