@@ -323,7 +323,7 @@ editor.once('load', function() {
                 fontSize: 32,
                 lineHeight: 32,
                 spacing: 1,
-                color: [0, 0, 0, 1],
+                color: [1, 1, 1, 1],
                 textureAsset: null,
                 width: 32,
                 height: 32,
