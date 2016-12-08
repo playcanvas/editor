@@ -324,15 +324,20 @@ editor.once('load', function() {
     });
     root.append(tooltipAsset);
 
-    var onAssetItemHover = function(evt) {
-        var target = evt.target;
-        while(target && target.nodeName !== 'LI' && ! target.classList.contains('ui-grid-item'))
-            target = target.parentNode;
+    var tooltipTarget = null;
+    var tooltipTimeout = null;
 
-        if (! target || ! target.ui)
+    var tooltipShow = function() {
+        if (! tooltipTarget)
             return;
 
-        var rect = target.getBoundingClientRect();
+        while(tooltipTarget && tooltipTarget.nodeName !== 'LI' && ! tooltipTarget.classList.contains('ui-grid-item'))
+            tooltipTarget = tooltipTarget.parentNode;
+
+        if (! tooltipTarget || ! tooltipTarget.ui)
+            return;
+
+        var rect = tooltipTarget.getBoundingClientRect();
         var off = 16;
 
         if (rect.width < 64) off = rect.width / 2;
@@ -343,15 +348,35 @@ editor.once('load', function() {
             tooltipAsset.position(rect.left + off, rect.bottom);
         }
 
-        tooltipAsset.text = target.ui.asset.get('name');
+        tooltipAsset.text = tooltipTarget.ui.asset.get('name');
         tooltipAsset.hidden = false;
+    };
+
+    var onAssetItemHover = function(evt) {
+        if (tooltipTimeout) {
+            clearTimeout(tooltipTimeout);
+            tooltipTimeout = null;
+        }
+
+        tooltipTarget = evt.target;
+        tooltipTimeout = setTimeout(tooltipShow, 300);
     };
     var onAssetItemBlur = function() {
         tooltipAsset.hidden = true;
+
+        if (tooltipTimeout) {
+            clearTimeout(tooltipTimeout);
+            tooltipTimeout = null;
+        }
     };
 
     grid.innerElement.addEventListener('mousewheel', function() {
         tooltipAsset.hidden = true;
+
+        if (tooltipTimeout) {
+            clearTimeout(tooltipTimeout);
+            tooltipTimeout = null;
+        }
     }, false);
 
     tree.on('select', function(item) {
