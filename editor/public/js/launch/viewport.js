@@ -196,6 +196,7 @@ editor.once('load', function() {
         scriptsOrder: projectSettings.get('scripts') || [ ],
         assetPrefix: '/api',
         graphicsDeviceOptions: {
+            antialias: config.project.settings.antiAlias === false ? false : true,
             alpha: config.project.settings.transparent_canvas === false ? false : true,
             preserveDrawingBuffer: !!config.project.settings.preserve_drawing_buffer
         }

@@ -415,6 +415,7 @@ editor.once('load', function() {
         });
         editor.call('attributes:reference:attach', 'settings:project:resolutionMode', fieldResolutionMode);
 
+
         var fieldFillMode = editor.call('attributes:addField', {
             parent: panelRendering,
             name: 'Fill mode',
@@ -428,6 +429,27 @@ editor.once('load', function() {
             path: 'fill_mode'
         });
         editor.call('attributes:reference:attach', 'settings:project:fillMode', fieldFillMode.parent.innerElement.firstChild.ui);
+
+
+        var fieldAntiAlias = editor.call('attributes:addField', {
+            parent: panelRendering,
+            name: 'Anti-Alias',
+            type: 'checkbox',
+            link: projectSettings,
+            path: 'antiAlias'
+        });
+        fieldAntiAlias.parent.innerElement.firstChild.style.width = 'auto';
+        editor.call('attributes:reference:attach', 'settings:project:antiAlias', fieldAntiAlias.parent.innerElement.firstChild.ui);
+
+        // value not migrated so show it as 'true' by default
+        if (! projectSettings.has('antiAlias')) {
+            projectSettings.sync = false;
+            projectSettings.history = false;
+            projectSettings.set('antiAlias', true);
+            projectSettings.sync = true;
+            projectSettings.history = true;
+        }
+
 
         var fieldPixelRatio = editor.call('attributes:addField', {
             parent: panelRendering,
@@ -821,6 +843,3 @@ editor.once('load', function() {
         }
     });
 });
-
-
-
