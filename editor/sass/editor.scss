@@ -2677,6 +2677,28 @@ strong {
     }
 }
 
+.ui-panel.viewport {
+    > .content {
+        > .camera-preview {
+            display: none;
+            position: absolute;
+            top: 41px;
+            left: 4px;
+            width: 256px;
+            height: 196px;
+            border: 2px solid $text-primary;
+            cursor: pointer;
+
+            &:hover {
+                border-color: $text-active;
+            }
+            &.active {
+                display: block;
+            }
+        }
+    }
+}
+
 .ui-tree.hierarchy {
     .ui-tree-item {
         > .title {

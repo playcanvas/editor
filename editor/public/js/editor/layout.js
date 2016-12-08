@@ -84,6 +84,7 @@ editor.on('load', function() {
     var viewport = new ui.Panel();
     viewport.flexible = true;
     viewport.flexGrow = true;
+    viewport.class.add('viewport');
     center.append(viewport);
     // expose
     editor.method('layout.viewport', function() { return viewport; });
