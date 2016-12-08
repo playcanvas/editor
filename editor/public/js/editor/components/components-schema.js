@@ -1,6 +1,8 @@
 editor.once('load', function() {
     'use strict';
 
+    var projectSettings = editor.call('project:settings');
+
     var schema = {
         animation: {
             title: 'Animation',
@@ -323,7 +325,8 @@ editor.once('load', function() {
                 fontSize: 32,
                 lineHeight: 32,
                 spacing: 1,
-                color: [1, 1, 1, 1],
+                color: [1, 1, 1],
+                opacity: 1,
                 textureAsset: null,
                 width: 32,
                 height: 32,
@@ -333,7 +336,7 @@ editor.once('load', function() {
             types: {
                 anchor: 'vec4',
                 pivot: 'vec2',
-                color: 'rgba',
+                color: 'rgb',
                 rect: 'vec4'
             }
         }
@@ -408,7 +411,18 @@ editor.once('load', function() {
     });
 
     editor.method('components:getDefault', function (component) {
-        return utils.deepCopy(schema[component].default);
+        var result = utils.deepCopy(schema[component].default);
+
+        // default resolution to project resolution for screen components
+        if (component === 'screen') {
+            result.resolution[0] = projectSettings.get('width');
+            result.resolution[1] = projectSettings.get('height');
+
+            result.referenceResolution[0] = result.resolution[0];
+            result.referenceResolution[1] = result.resolution[1];
+        }
+
+        return result;
     });
 
 });

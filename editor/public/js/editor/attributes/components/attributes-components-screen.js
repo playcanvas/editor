@@ -71,6 +71,8 @@ editor.once('load', function() {
             path: 'components.screen.scaleMode'
         });
 
+        // hide ref resolution if necessary
+        fieldRefResolution[0].parent.hidden = fieldScaleMode.value === 'none';
 
         // reference
         editor.call('attributes:reference:attach', 'screen:scaleMode', fieldScaleMode.parent.innerElement.firstChild.ui);
@@ -92,6 +94,7 @@ editor.once('load', function() {
         fieldScaleBlend.parent.hidden = fieldScaleMode.value !== 'blend';
         events.push(fieldScaleMode.on('change', function (value) {
             fieldScaleBlend.parent.hidden = value !== 'blend';
+            fieldRefResolution[0].parent.hidden = value === 'none';
         }));
 
         var fieldScaleBlendSlider = editor.call('attributes:addField', {

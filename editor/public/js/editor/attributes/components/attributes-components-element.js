@@ -234,6 +234,49 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'element:spacing', fieldSpacing.parent.innerElement.firstChild.ui);
 
+        var fieldColor = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Color',
+            type: 'rgb',
+            channels: 4,
+            link: entities,
+            path: 'components.element.color'
+        });
+
+        fieldColor.parent.hidden = fieldType.value !== 'text' && fieldType.value !== 'image';
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:color', fieldColor.parent.innerElement.firstChild.ui);
+
+        var fieldOpacity = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Opacity',
+            type: 'number',
+            min: 0,
+            max: 1,
+            link: entities,
+            path: 'components.element.opacity'
+        });
+
+        fieldOpacity.style.width = '32px';
+        fieldOpacity.parent.hidden = fieldType.value !== 'text' && fieldType.value !== 'image';
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:opacity', fieldOpacity.parent.innerElement.firstChild.ui);
+
+        var fieldOpacitySlider = editor.call('attributes:addField', {
+            panel: fieldOpacity.parent,
+            precision: 3,
+            step: 1,
+            min: 0,
+            max: 1,
+            type: 'number',
+            slider: true,
+            link: entities,
+            path: 'components.element.opacity'
+        });
+        fieldOpacitySlider.flexGrow = 4;
+
         var fieldTextureAsset = editor.call('attributes:addField', {
             parent: panel,
             name: 'Texture',
@@ -287,20 +330,6 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'element:rect', fieldRect[0].parent.innerElement.firstChild.ui);
 
-        var fieldColor = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Color',
-            type: 'rgb',
-            channels: 4,
-            link: entities,
-            path: 'components.element.color'
-        });
-
-        fieldColor.parent.hidden = fieldType.value !== 'text';
-
-        // reference
-        editor.call('attributes:reference:attach', 'element:color', fieldColor.parent.innerElement.firstChild.ui);
-
         var fieldMaterialAsset = editor.call('attributes:addField', {
             parent: panel,
             name: 'Material',
@@ -326,7 +355,8 @@ editor.once('load', function() {
             fieldMaterialAsset.parent.hidden = value !== 'image' || fieldTextureAsset.value;
             fieldRect[0].parent.hidden = value !== 'image' || !fieldTextureAsset.value;
             fieldWidth.parent.hidden = value !== 'image' || !fieldTextureAsset.value;
-            fieldColor.parent.hidden = value !== 'text';
+            fieldColor.parent.hidden = value !== 'text' && value !== 'image';
+            fieldOpacity.parent.hidden = value !== 'text' && value !== 'image';
         }));
 
 
@@ -334,6 +364,76 @@ editor.once('load', function() {
             fieldRect[0].parent.hidden = fieldType.value !== 'image' || !value;
             fieldWidth.parent.hidden = fieldType.value !== 'image' || !value;
             fieldMaterialAsset.parent.hidden = fieldType.value !== 'image' || value;
+        }));
+
+        // handle local changes to texture field to
+        // auto set width and height and combine all of them in the same
+        // history action
+        events.push(fieldTextureAsset.on('beforechange', function (value) {
+            if (! value) return;
+            var asset = editor.call('assets:get', value);
+            if (! asset) return;
+
+            if (! asset.has('meta.width') || ! asset.has('meta.height')) return;
+
+            var width = asset.get('meta.width');
+            var height = asset.get('meta.height');
+            if (width === fieldWidth.value && height === fieldHeight.value)
+                return;
+
+            fieldTextureAsset.once('change', function (value) {
+                var lastHistoryAction = editor.call('history:list')[editor.call('history:current')];
+                var lastUndo = lastHistoryAction.undo;
+                var lastRedo = lastHistoryAction.redo;
+
+                var previous = {};
+                for (var i = 0, len = entities.length; i < len; i++) {
+                    previous[entities[i].get('resource_id')] = {
+                        width: entities[i].get('components.element.width'),
+                        height: entities[i].get('components.element.height')
+                    };
+                }
+
+                lastHistoryAction.undo = function () {
+                    lastUndo();
+
+                    for (var i = 0, len = entities.length; i < len; i++) {
+                        var entity = editor.call('entities:get', entities[i].get('resource_id'));
+                        if (! entity) continue;
+
+                        var history = entity.history.enabled;
+                        entity.history.enabled = false;
+                        if (entity.has('components.element')) {
+                            entity.set('components.element.width', previous[entity.get('resource_id')].width);
+                            entity.set('components.element.height', previous[entity.get('resource_id')].height);
+                        }
+                        entity.history.enabled = history;
+                    }
+                };
+
+                var redo = function () {
+                    for (var i = 0, len = entities.length; i < len; i++) {
+                        var entity = editor.call('entities:get', entities[i].get('resource_id'));
+                        if (! entity) continue;
+
+                        var history = entity.history.enabled;
+                        entity.history.enabled = false;
+                        if (entity.has('components.element')) {
+                            entity.set('components.element.width', width);
+                            entity.set('components.element.height', height);
+                        }
+                        entity.history.enabled = history;
+                    }
+                };
+
+                lastHistoryAction.redo = function () {
+                    lastRedo();
+                    redo();
+                };
+
+                redo();
+            });
+
         }));
 
         events.push(fieldMaterialAsset.on('change', function (value) {
