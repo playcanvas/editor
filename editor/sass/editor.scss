@@ -300,7 +300,7 @@ strong {
         position: absolute;
         top: -32px;
         left: 4px;
-        width: 594px;
+        width: 626px;
 
         &:after {
             content: '\E183';
@@ -3275,6 +3275,76 @@ strong {
                 margin-left: 4px;
                 width: 8px;
                 height: 8px;
+            }
+        }
+    }
+
+    &.small {
+        > .ui-grid-item {
+            width: 64px;
+            height: 64px;
+
+            &.type-folder {
+                > .thumbnail.placeholder:after {
+                    font-size: 38px;
+                }
+            }
+            &.type-script {
+                &.scripts-collide {
+                    > .icon {
+                        &:after {
+                            font-size: 16px;
+                            line-height: 20px;
+                        }
+                    }
+                }
+            }
+            &.unused {
+                > .label {
+                    &:before {
+                        width: 10px;
+                        line-height: 10px;
+                        vertical-align: text-top;
+                        font-size: 6px;
+                    }
+                }
+            }
+            &.source {
+                &.type-folder {
+                    > .thumbnail {
+                        width: 40px;
+                        height: 40px;
+                    }
+                }
+                > .thumbnail {
+                    width: 38px;
+                    height: 38px;
+                }
+            }
+            > .thumbnail {
+                width: 40px;
+                height: 40px;
+                line-height: 40px;
+                margin: 4px 12px;
+                background-size: 40px 40px;
+
+                &.placeholder {
+                    &:after {
+                        font-size: 32px;
+                    }
+                }
+            }
+            > .icon {
+                width: 16px;
+                height: 16px;
+                line-height: 18px;
+                font-size: 12px;
+            }
+            > .label {
+                bottom: 2px;
+                max-height: 22px;
+                line-height: 12px;
+                padding: 2px 1px;
             }
         }
     }

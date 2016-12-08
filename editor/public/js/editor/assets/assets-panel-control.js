@@ -166,7 +166,7 @@ editor.once('load', function() {
     });
 
 
-    // fodler up
+    // folder up
     var btnUp = new ui.Button({
         text: '&#58117;'
     });
@@ -212,6 +212,45 @@ editor.once('load', function() {
         root: root
     });
     tooltipUp.class.add('innactive');
+
+
+    var assetsGrid = assetsPanel.element.querySelector('.ui-panel > .content > ul.ui-grid.assets').ui;
+
+    // thumbnails size
+    var btnThumbSize = new ui.Button({
+        text: '&#57669;'
+    });
+    btnThumbSize.style.fontWeight = 200;
+    btnThumbSize.class.add('size');
+    btnThumbSize.on('click', function() {
+        if (assetsGrid.class.contains('small')) {
+            assetsGrid.class.remove('small');
+            tooltipThumbSize.html = '<span style="color:#fff">Large</span> / Small';
+            editor.call('localStorage:set', 'editor:assets:thumbnail:size', 'large');
+        } else {
+            assetsGrid.class.add('small');
+            tooltipThumbSize.html = 'Large / <span style="color:#fff">Small</span>';
+            editor.call('localStorage:set', 'editor:assets:thumbnail:size', 'small');
+        }
+    });
+    controls.append(btnThumbSize);
+
+    var tooltipThumbSize = Tooltip.attach({
+        target: btnThumbSize.element,
+        align: 'bottom',
+        root: root
+    });
+
+    var size = editor.call('localStorage:get', 'editor:assets:thumbnail:size');
+
+    if (size === 'small') {
+        assetsGrid.class.add('small');
+        tooltipThumbSize.html = 'Large / <span style="color:#fff">Small</span>';
+    } else {
+        assetsGrid.class.remove('small');
+        tooltipThumbSize.html = '<span style="color:#fff">Large</span> / Small';
+    }
+    tooltipThumbSize.class.add('innactive');
 
 
     editor.on('attributes:clear', function() {
