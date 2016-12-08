@@ -202,10 +202,11 @@ Tooltip.attach = function(args) {
         hoverable: args.hoverable
     };
 
-    if (args.html)
+    if (args.html) {
         data.html = args.html;
-    else
+    } else {
         data.text = args.text || '';
+    }
 
     var item = new ui.Tooltip(data);
 

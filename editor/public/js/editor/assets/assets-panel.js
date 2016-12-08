@@ -317,6 +317,43 @@ editor.once('load', function() {
     treeDropBorder.classList.add('assets-drop-border');
     root.append(treeDropBorder);
 
+    var tooltipAsset = new ui.Tooltip({
+        text: 'Asset',
+        align: 'top',
+        hoverable: false
+    });
+    root.append(tooltipAsset);
+
+    var onAssetItemHover = function(evt) {
+        var target = evt.target;
+        while(target && target.nodeName !== 'LI' && ! target.classList.contains('ui-grid-item'))
+            target = target.parentNode;
+
+        if (! target || ! target.ui)
+            return;
+
+        var rect = target.getBoundingClientRect();
+        var off = 16;
+
+        if (rect.width < 64) off = rect.width / 2;
+        tooltipAsset.flip = rect.left + off > window.innerWidth / 2;
+        if (tooltipAsset.flip) {
+            tooltipAsset.position(rect.right - off, rect.bottom);
+        } else {
+            tooltipAsset.position(rect.left + off, rect.bottom);
+        }
+
+        tooltipAsset.text = target.ui.asset.get('name');
+        tooltipAsset.hidden = false;
+    };
+    var onAssetItemBlur = function() {
+        tooltipAsset.hidden = true;
+    };
+
+    grid.innerElement.addEventListener('mousewheel', function() {
+        tooltipAsset.hidden = true;
+    }, false);
+
     tree.on('select', function(item) {
         if (assetsChanged)
             return;
@@ -728,6 +765,9 @@ editor.once('load', function() {
         var item = new ui.GridItem();
         item.asset = asset;
         item.class.add('type-' + asset.get('type'));
+
+        item.element.addEventListener('mouseover', onAssetItemHover, false);
+        item.element.addEventListener('mouseout', onAssetItemBlur, false);
 
         var onDragStart = function(evt) {
             evt.preventDefault();

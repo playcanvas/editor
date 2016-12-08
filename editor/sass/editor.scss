@@ -3251,17 +3251,18 @@ strong {
             position: absolute;
             right: 0;
             left: 0;
-            bottom: 4px;
+            bottom: 6px;
             width: auto;
             max-width: 100px;
             max-height: 40px;
-            word-break: break-all;
             line-height: 14px;
             margin: 0px;
-            padding: 2px;
+            padding: 0 2px;
             font-size: 12px;
             text-align: center;
+            white-space: nowrap;
             overflow: hidden;
+            text-overflow: ellipsis;
             color: $text-primary;
             background-color: rgba($bcg-darker, 0.8);
         }
@@ -4010,7 +4011,6 @@ strong {
                 float: left;
                 line-height: 34px;
             }
-
         }
 
         > .project-name:before {
