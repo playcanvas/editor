@@ -109,6 +109,13 @@ editor.once('load', function() {
                     entity.set('components.model.lightmapSizeMultiplier', 1.0);
             }
 
+            // element
+            if (entity.has('components.element')) {
+                if (! entity.has('components.element.opacity')) {
+                    entity.set('components.element.opacity', 1.0);
+                }
+            }
+
             entity.history.enabled = true;
         }, 0);
     });
