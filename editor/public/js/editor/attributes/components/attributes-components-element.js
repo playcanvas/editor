@@ -336,6 +336,76 @@ editor.once('load', function() {
             fieldMaterialAsset.parent.hidden = fieldType.value !== 'image' || value;
         }));
 
+        // handle local changes to texture field to
+        // auto set width and height and combine all of them in the same
+        // history action
+        events.push(fieldTextureAsset.on('beforechange', function (value) {
+            if (! value) return;
+            var asset = editor.call('assets:get', value);
+            if (! asset) return;
+
+            if (! asset.has('meta.width') || ! asset.has('meta.height')) return;
+
+            var width = asset.get('meta.width');
+            var height = asset.get('meta.height');
+            if (width === fieldWidth.value && height === fieldHeight.value)
+                return;
+
+            fieldTextureAsset.once('change', function (value) {
+                var lastHistoryAction = editor.call('history:list')[editor.call('history:current')];
+                var lastUndo = lastHistoryAction.undo;
+                var lastRedo = lastHistoryAction.redo;
+
+                var previous = {};
+                for (var i = 0, len = entities.length; i < len; i++) {
+                    previous[entities[i].get('resource_id')] = {
+                        width: entities[i].get('components.element.width'),
+                        height: entities[i].get('components.element.height')
+                    };
+                }
+
+                lastHistoryAction.undo = function () {
+                    lastUndo();
+
+                    for (var i = 0, len = entities.length; i < len; i++) {
+                        var entity = editor.call('entities:get', entities[i].get('resource_id'));
+                        if (! entity) continue;
+
+                        var history = entity.history.enabled;
+                        entity.history.enabled = false;
+                        if (entity.has('components.element')) {
+                            entity.set('components.element.width', previous[entity.get('resource_id')].width);
+                            entity.set('components.element.height', previous[entity.get('resource_id')].height);
+                        }
+                        entity.history.enabled = history;
+                    }
+                };
+
+                var redo = function () {
+                    for (var i = 0, len = entities.length; i < len; i++) {
+                        var entity = editor.call('entities:get', entities[i].get('resource_id'));
+                        if (! entity) continue;
+
+                        var history = entity.history.enabled;
+                        entity.history.enabled = false;
+                        if (entity.has('components.element')) {
+                            entity.set('components.element.width', width);
+                            entity.set('components.element.height', height);
+                        }
+                        entity.history.enabled = history;
+                    }
+                };
+
+                lastHistoryAction.redo = function () {
+                    lastRedo();
+                    redo();
+                };
+
+                redo();
+            });
+
+        }));
+
         events.push(fieldMaterialAsset.on('change', function (value) {
             fieldTextureAsset.parent.hidden = fieldType.value !== 'image' || value;
         }));
