@@ -325,7 +325,8 @@ editor.once('load', function() {
                 fontSize: 32,
                 lineHeight: 32,
                 spacing: 1,
-                color: [1, 1, 1, 1],
+                color: [1, 1, 1],
+                opacity: 1,
                 textureAsset: null,
                 width: 32,
                 height: 32,
@@ -335,7 +336,7 @@ editor.once('load', function() {
             types: {
                 anchor: 'vec4',
                 pivot: 'vec2',
-                color: 'rgba',
+                color: 'rgb',
                 rect: 'vec4'
             }
         }

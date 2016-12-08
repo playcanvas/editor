@@ -234,6 +234,49 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'element:spacing', fieldSpacing.parent.innerElement.firstChild.ui);
 
+        var fieldColor = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Color',
+            type: 'rgb',
+            channels: 4,
+            link: entities,
+            path: 'components.element.color'
+        });
+
+        fieldColor.parent.hidden = fieldType.value !== 'text' && fieldType.value !== 'image';
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:color', fieldColor.parent.innerElement.firstChild.ui);
+
+        var fieldOpacity = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Opacity',
+            type: 'number',
+            min: 0,
+            max: 1,
+            link: entities,
+            path: 'components.element.opacity'
+        });
+
+        fieldOpacity.style.width = '32px';
+        fieldOpacity.parent.hidden = fieldType.value !== 'text' && fieldType.value !== 'image';
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:opacity', fieldOpacity.parent.innerElement.firstChild.ui);
+
+        var fieldOpacitySlider = editor.call('attributes:addField', {
+            panel: fieldOpacity.parent,
+            precision: 3,
+            step: 1,
+            min: 0,
+            max: 1,
+            type: 'number',
+            slider: true,
+            link: entities,
+            path: 'components.element.opacity'
+        });
+        fieldOpacitySlider.flexGrow = 4;
+
         var fieldTextureAsset = editor.call('attributes:addField', {
             parent: panel,
             name: 'Texture',
@@ -287,20 +330,6 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'element:rect', fieldRect[0].parent.innerElement.firstChild.ui);
 
-        var fieldColor = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Color',
-            type: 'rgb',
-            channels: 4,
-            link: entities,
-            path: 'components.element.color'
-        });
-
-        fieldColor.parent.hidden = fieldType.value !== 'text';
-
-        // reference
-        editor.call('attributes:reference:attach', 'element:color', fieldColor.parent.innerElement.firstChild.ui);
-
         var fieldMaterialAsset = editor.call('attributes:addField', {
             parent: panel,
             name: 'Material',
@@ -326,7 +355,8 @@ editor.once('load', function() {
             fieldMaterialAsset.parent.hidden = value !== 'image' || fieldTextureAsset.value;
             fieldRect[0].parent.hidden = value !== 'image' || !fieldTextureAsset.value;
             fieldWidth.parent.hidden = value !== 'image' || !fieldTextureAsset.value;
-            fieldColor.parent.hidden = value !== 'text';
+            fieldColor.parent.hidden = value !== 'text' && value !== 'image';
+            fieldOpacity.parent.hidden = value !== 'text' && value !== 'image';
         }));
 
 
