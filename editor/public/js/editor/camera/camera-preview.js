@@ -12,10 +12,13 @@ editor.once('load', function() {
 
     var cameraPreviewBorder = document.createElement('div');
     cameraPreviewBorder.classList.add('camera-preview');
+    if (editor.call('permissions:write'))
+        cameraPreviewBorder.classList.add('clickable');
+
     viewport.append(cameraPreviewBorder);
 
     cameraPreviewBorder.addEventListener('click', function() {
-        if (! selectedEntity || ! selectedEntity.entity)
+        if (! selectedEntity || ! selectedEntity.entity || ! editor.call('permissions:write'))
             return;
 
         editor.call('camera:set', selectedEntity.entity);
@@ -24,6 +27,14 @@ editor.once('load', function() {
 
     editor.once('viewport:load', function(application) {
         app = application;
+    });
+
+    editor.on('permissions:writeState', function(state) {
+        if (state) {
+            cameraPreviewBorder.classList.add('clickable');
+        } else {
+            cameraPreviewBorder.classList.remove('clickable');
+        }
     });
 
     editor.on('viewport:resize', function(width, height) {
@@ -50,7 +61,7 @@ editor.once('load', function() {
     };
 
     var updateCameraState = function() {
-        if (selectedEntity && selectedEntity.entity && ! (currentCamera && selectedEntity.entity === currentCamera) && selectedEntity.entity.camera && editor.call('permissions:write')) {
+        if (selectedEntity && selectedEntity.entity && ! (currentCamera && selectedEntity.entity === currentCamera) && selectedEntity.entity.camera) {
             renderCamera = true;
 
             cameraPreviewBorder.classList.add('active');
@@ -69,8 +80,6 @@ editor.once('load', function() {
             }
         }
     };
-
-    editor.on('permissions:writeState', updateCameraState);
 
     editor.on('camera:change', function(camera) {
         if (camera && ! camera.__editorCamera) {

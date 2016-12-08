@@ -2687,13 +2687,16 @@ strong {
             width: 256px;
             height: 196px;
             border: 2px solid $text-primary;
-            cursor: pointer;
 
-            &:hover {
-                border-color: $text-active;
-            }
             &.active {
                 display: block;
+            }
+            &.clickable {
+                cursor: pointer;
+
+                &:hover {
+                    border-color: $text-active;
+                }
             }
         }
     }
