@@ -74,12 +74,15 @@ editor.once('load', function () {
     editor.method('entities:boundingbox', function(entity) {
         var bb = editor.call('entities:boundingbox:entity', entity);
 
-        if (firstBB) {
-            firstBB = false;
-            bbA.copy(bb);
-        } else {
-            bbA.add(bb);
+        if (bb) {
+            if (firstBB) {
+                firstBB = false;
+                bbA.copy(bb);
+            } else {
+                bbA.add(bb);
+            }
         }
+
 
         var children = entity.getChildren();
         for(var i = 0; i < children.length; i++) {
@@ -139,11 +142,14 @@ editor.once('load', function () {
 
         if (first && entity.element) {
             if (entity.element.type === 'image') {
-                bbC.copy(entity.element._image._meshInstance.aabb);
+                if (entity.element._image._meshInstance) {
+                    bbC.copy(entity.element._image._meshInstance.aabb);
+                }
             }
-
-            if (entity.element.type === 'text') {
-                bbC.copy(entity.element._text._meshInstance.aabb);
+            else if (entity.element.type === 'text') {
+                if (entity.element._text._meshInstance) {
+                    bbC.copy(entity.element._text._meshInstance.aabb);
+                }
             }
 
             first = false;
