@@ -187,7 +187,16 @@ editor.once('load', function() {
 
             if (coordSystem === 'local') {
                 vecA.set(x, y, z);
+                vecB.set(1,1,1);
+                if (entity.element && entity.element.screen) {
+                    // scale offset by screen scale to ensure correct movement
+                    vecB.copy(entity.element.screen.getLocalScale())
+                    vecB.x = 1/vecB.x;
+                    vecB.y = 1/vecB.y;
+                    vecB.z = 1/vecB.z;
+                }
                 quat.copy(entity.getLocalRotation()).transformVector(vecA, vecA);
+                vecA.mul(vecB);
                 entity.setLocalPosition(items[i].startLocal[0] + vecA.x, items[i].startLocal[1] + vecA.y, items[i].startLocal[2] + vecA.z);
             } else {
                 entity.setPosition(items[i].start[0] + x, items[i].start[1] + y, items[i].start[2] + z);

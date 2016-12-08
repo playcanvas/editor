@@ -406,16 +406,38 @@ editor.once('load', function() {
                 return false;
             };
 
+            var watchingAssets = [ null, null, null, null, null, null ];
+
+            var makeThumbnailUrl = function(asset) {
+                var url = config.url.home + '/' + (asset.get('thumbnails.l') || asset.get('file.url'));
+                var separator = url.indexOf('?') !== -1 ? '&' : '?';
+                url += separator + 't=' + asset.get('file.hash');
+                return url;
+            };
+
             // set face texture
             var setTexture = function(face, assetId) {
+                if (watchingAssets[face.ind]) {
+                    watchingAssets[face.ind].unbind();
+                    watchingAssets[face.ind] = null;
+                }
+
                 if (! assetId) {
                     face.style.backgroundImage = '';
                     face.classList.add('empty');
                 } else {
                     var texture = editor.call('assets:get', assetId);
+
+                    if (texture && texture.get('type') === 'texture' && ! texture.get('source')) {
+                        watchingAssets[face.ind] = texture.on('thumbnails:set', function() {
+                            face.classList.remove('empty');
+                            face.style.backgroundImage = 'url("' + makeThumbnailUrl(texture) + '")';
+                        });
+                    }
+
                     if (texture && texture.get('type') === 'texture' && (texture.get('thumbnails.l') || texture.get('file.url'))) {
                         face.classList.remove('empty');
-                        face.style.backgroundImage = 'url("' + config.url.home + '/' + (texture.get('thumbnails.l') || texture.get('file.url')) + '")';
+                        face.style.backgroundImage = 'url("' + makeThumbnailUrl(texture) + '")';
                     } else {
                         face.classList.add('empty');
                         face.style.backgroundImage = '';
@@ -484,6 +506,7 @@ editor.once('load', function() {
             var createFace = function(ind) {
                 // create face element
                 var face = faces[ind] = document.createElement('div');
+                face.ind = ind;
                 face.classList.add('face', 'face-' + sides[ind]);
                 previewPanel.append(face);
 
@@ -641,6 +664,13 @@ editor.once('load', function() {
                     }
                 });
                 previewPanel.on('destroy', function() {
+                    for(var i = 0; i < watchingAssets.length; i++) {
+                        if (! watchingAssets[i])
+                            continue;
+
+                        watchingAssets[i].unbind();
+                        watchingAssets[i] = null;
+                    }
                     dropRef.unregister();
                 });
 

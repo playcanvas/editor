@@ -5,7 +5,6 @@ editor.once('load', function() {
     var watching = { };
 
     var subscribe = function(watch) {
-        console.log(watch.asset.get('name'))
         var onChange = function() {
             loadModel(watch, watch.engineAsset, true);
         };
@@ -71,7 +70,6 @@ editor.once('load', function() {
     };
 
     var trigger = function(watch) {
-        console.log('trigger', watch.asset.get('name'));
         for(var key in watch.callbacks)
             watch.callbacks[key].callback();
     };

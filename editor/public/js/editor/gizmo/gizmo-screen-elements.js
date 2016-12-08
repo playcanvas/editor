@@ -9,6 +9,8 @@ editor.once('load', function() {
     var corners = [];
     var cornerColors = [];
 
+    var tempVec2 = new pc.Vec2();
+
     for (var i = 0; i < 8; i++) {
         corners.push(new pc.Vec3());
         cornerColors.push(new pc.Color(217/255, 42/255, 1));
@@ -120,17 +122,29 @@ editor.once('load', function() {
 
                 // always render screens as 3d screens in the viewport
                 if (isScreenSpace) {
-                    if (entity.screen.screenSpace) {
+                    var res = entity.screen.resolution;
+                    var refRes = entities[key].entity.get('components.screen.referenceResolution');
+
+                    entity.setLocalScale(0.01, 0.01, 0.01);
+
+                    if (entity.screen.screenSpace)
                         entity.screen.screenSpace = false;
-                        entity.setLocalScale(0.01, 0.01, 0.01);
-                        var res = entities[key].entity.get('components.screen.resolution');
-                        entity.screen.resolution = new pc.Vec2(res[0], res[1]);
+
+                    if (res.x !== refRes.x || res.y !== refRes.y) {
+                        tempVec2.set(refRes[0], refRes[1]);
+                        entity.screen.resolution = tempVec2;
                     }
+
                 } else {
                     // reset scale that might have been
                     // changed if the screen used to be screen space
                     var scale = entities[key].entity.get('scale');
                     entity.setLocalScale(scale[0], scale[1], scale[2]);
+
+                    // reset resolution
+                    var res = entities[key].entity.get('components.screen.resolution');
+                    tempVec2.set(res[0], res[1]);
+                    entity.screen.resolution = tempVec2;
                 }
 
                 // calculate corners

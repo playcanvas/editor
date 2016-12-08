@@ -524,7 +524,7 @@ editor.once('load', function() {
 
     var treeFindClosest = function(item, b, nameOld) {
         var l = Array.prototype.slice.call(item.element.childNodes, 1);
-        if (item === treeRoot)
+        if (item === treeRoot && legacyScripts)
             l = l.slice(1);
 
         var min = 0;
@@ -962,8 +962,8 @@ editor.once('load', function() {
             thumbnail = document.createElement('canvas');
             thumbnail.classList.add('flipY');
             thumbnail.changed = true;
-            thumbnail.width = 128;
-            thumbnail.height = 128;
+            thumbnail.width = 64;
+            thumbnail.height = 64;
 
             var watching = null;
 
@@ -978,7 +978,7 @@ editor.once('load', function() {
                 var ctx = thumbnail.ctx;
                 if (! ctx) ctx = thumbnail.ctx = thumbnail.getContext('2d');
 
-                var imageData = editor.call('preview:render', asset, 128);
+                var imageData = editor.call('preview:render', asset, 64);
 
                 ctx.putImageData(imageData, 0, 0);
             };
