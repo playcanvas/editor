@@ -69,6 +69,13 @@ editor.once('load', function() {
             return cameras.slice(0);
         });
 
+        editor.on('permissions:writeState', function(state) {
+            if (state || currentCamera.__editorCamera)
+                return;
+
+            editor.call('camera:set', editorCameras['perspective']);
+        });
+
 
         var list = [{
             name: 'perspective',

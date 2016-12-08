@@ -50,7 +50,7 @@ editor.once('load', function() {
     };
 
     var updateCameraState = function() {
-        if (selectedEntity && selectedEntity.entity && ! (currentCamera && selectedEntity.entity === currentCamera) && selectedEntity.entity.camera) {
+        if (selectedEntity && selectedEntity.entity && ! (currentCamera && selectedEntity.entity === currentCamera) && selectedEntity.entity.camera && editor.call('permissions:write')) {
             renderCamera = true;
 
             cameraPreviewBorder.classList.add('active');
@@ -69,6 +69,8 @@ editor.once('load', function() {
             }
         }
     };
+
+    editor.on('permissions:writeState', updateCameraState);
 
     editor.on('camera:change', function(camera) {
         if (camera && ! camera.__editorCamera) {
