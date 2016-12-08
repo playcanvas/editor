@@ -222,6 +222,18 @@ editor.once('load', function() {
                 break;
 
             case 'cubemap':
+                // entity
+                for(var i = 0; i < entities.length; i++) {
+                    var obj = entities[i];
+
+                    // light
+                    var light = obj.get('components.light');
+                    if (light && light.cookieAsset === id) {
+                        // components.light.cookieAsset
+                        set(obj, 'components.light.cookieAsset');
+                    }
+                }
+
                 // asset
                 for(var i = 0; i < assets.length; i++) {
                     var obj = assets[i];
