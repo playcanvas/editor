@@ -524,7 +524,7 @@ editor.once('load', function() {
 
     var treeFindClosest = function(item, b, nameOld) {
         var l = Array.prototype.slice.call(item.element.childNodes, 1);
-        if (item === treeRoot)
+        if (item === treeRoot && legacyScripts)
             l = l.slice(1);
 
         var min = 0;
