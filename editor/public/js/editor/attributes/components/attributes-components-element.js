@@ -168,6 +168,33 @@ editor.once('load', function() {
             changingPreset = false;
         }));
 
+        var fieldWidth = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Size',
+            type: 'number',
+            placeholder: 'Width',
+            min: 0,
+            link: entities,
+            path: 'components.element.width'
+        });
+
+        fieldWidth.style.width = '32px';
+        fieldWidth.parent.hidden = fieldType.value !== 'image';
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:size', fieldWidth.parent.innerElement.firstChild.ui);
+
+        var fieldHeight = editor.call('attributes:addField', {
+            panel: fieldWidth.parent,
+            type: 'number',
+            placeholder: 'Height',
+            min: 0,
+            link: entities,
+            path: 'components.element.height'
+        });
+
+        fieldHeight.style.width = '32px';
+
         var fieldText = editor.call('attributes:addField', {
             parent: panel,
             name: 'Text',
@@ -180,20 +207,6 @@ editor.once('load', function() {
 
         // reference
         editor.call('attributes:reference:attach', 'element:text', fieldText.parent.innerElement.firstChild.ui);
-
-        var fieldFontAsset = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Font',
-            type: 'asset',
-            kind: 'font',
-            link: entities,
-            path: 'components.element.fontAsset'
-        });
-
-        fieldFontAsset.parent.hidden = fieldType.value !== 'text';
-
-        // reference
-        editor.call('attributes:reference:attach', 'element:fontAsset', fieldFontAsset.parent.innerElement.firstChild.ui);
 
         var fieldFontSize = editor.call('attributes:addField', {
             parent: panel,
@@ -233,6 +246,62 @@ editor.once('load', function() {
 
         // reference
         editor.call('attributes:reference:attach', 'element:spacing', fieldSpacing.parent.innerElement.firstChild.ui);
+
+
+        var fieldRect = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Rect',
+            type: 'vec4',
+            placeholder: ['u', 'v', 'w', 'h'],
+            link: entities,
+            path: 'components.element.rect'
+        });
+
+        fieldRect[0].parent.hidden = fieldType.value !== 'image';
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:rect', fieldRect[0].parent.innerElement.firstChild.ui);
+
+        var fieldTextureAsset = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Texture',
+            type: 'asset',
+            kind: 'texture',
+            link: entities,
+            path: 'components.element.textureAsset'
+        });
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:textureAsset', fieldTextureAsset.parent.innerElement.firstChild.ui);
+
+        var fieldMaterialAsset = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Material',
+            type: 'asset',
+            kind: 'material',
+            link: entities,
+            path: 'components.element.materialAsset'
+        });
+
+        fieldMaterialAsset.parent.hidden = fieldType.value !== 'image';
+        fieldTextureAsset.parent.hidden = fieldType.value !== 'image';
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:materialAsset', fieldMaterialAsset.parent.innerElement.firstChild.ui);
+
+        var fieldFontAsset = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Font',
+            type: 'asset',
+            kind: 'font',
+            link: entities,
+            path: 'components.element.fontAsset'
+        });
+
+        fieldFontAsset.parent.hidden = fieldType.value !== 'text';
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:fontAsset', fieldFontAsset.parent.innerElement.firstChild.ui);
 
         var fieldColor = editor.call('attributes:addField', {
             parent: panel,
@@ -277,93 +346,25 @@ editor.once('load', function() {
         });
         fieldOpacitySlider.flexGrow = 4;
 
-        var fieldTextureAsset = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Texture',
-            type: 'asset',
-            kind: 'texture',
-            link: entities,
-            path: 'components.element.textureAsset'
-        });
-
-        // reference
-        editor.call('attributes:reference:attach', 'element:textureAsset', fieldTextureAsset.parent.innerElement.firstChild.ui);
-
-        var fieldWidth = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Size',
-            type: 'number',
-            placeholder: 'Width',
-            min: 0,
-            link: entities,
-            path: 'components.element.width'
-        });
-
-        fieldWidth.style.width = '32px';
-        fieldWidth.parent.hidden = fieldType.value !== 'image' || !fieldTextureAsset.value;
-
-        // reference
-        editor.call('attributes:reference:attach', 'element:size', fieldWidth.parent.innerElement.firstChild.ui);
-
-        var fieldHeight = editor.call('attributes:addField', {
-            panel: fieldWidth.parent,
-            type: 'number',
-            placeholder: 'Height',
-            min: 0,
-            link: entities,
-            path: 'components.element.height'
-        });
-
-        fieldHeight.style.width = '32px';
-
-        var fieldRect = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Rect',
-            type: 'vec4',
-            placeholder: ['u', 'v', 'w', 'h'],
-            link: entities,
-            path: 'components.element.rect'
-        });
-
-        fieldRect[0].parent.hidden = fieldType.value !== 'image' || !fieldTextureAsset.value;
-
-        // reference
-        editor.call('attributes:reference:attach', 'element:rect', fieldRect[0].parent.innerElement.firstChild.ui);
-
-        var fieldMaterialAsset = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Material',
-            type: 'asset',
-            kind: 'material',
-            link: entities,
-            path: 'components.element.materialAsset'
-        });
-
-        fieldMaterialAsset.parent.hidden = fieldType.value !== 'image' || fieldTextureAsset.value;
-        fieldTextureAsset.parent.hidden = fieldType.value !== 'image' || fieldMaterialAsset.value;
-
-        // reference
-        editor.call('attributes:reference:attach', 'element:materialAsset', fieldMaterialAsset.parent.innerElement.firstChild.ui);
-
         events.push(fieldType.on('change', function (value) {
             fieldText.parent.hidden = value !== 'text';
             fieldFontAsset.parent.hidden = value !== 'text';
             fieldFontSize.parent.hidden = value !== 'text';
             fieldLineHeight.parent.hidden = value !== 'text';
             fieldSpacing.parent.hidden = value !== 'text';
-            fieldTextureAsset.parent.hidden = value !== 'image' || fieldMaterialAsset.value;
-            fieldMaterialAsset.parent.hidden = value !== 'image' || fieldTextureAsset.value;
-            fieldRect[0].parent.hidden = value !== 'image' || !fieldTextureAsset.value;
-            fieldWidth.parent.hidden = value !== 'image' || !fieldTextureAsset.value;
+            fieldTextureAsset.parent.hidden = value !== 'image';
+            fieldMaterialAsset.parent.hidden = value !== 'image';
+            fieldRect[0].parent.hidden = value !== 'image';
+            fieldWidth.parent.hidden = value !== 'image';
             fieldColor.parent.hidden = value !== 'text' && value !== 'image';
             fieldOpacity.parent.hidden = value !== 'text' && value !== 'image';
         }));
 
 
         events.push(fieldTextureAsset.on('change', function (value) {
-            fieldRect[0].parent.hidden = fieldType.value !== 'image' || !value;
-            fieldWidth.parent.hidden = fieldType.value !== 'image' || !value;
-            fieldMaterialAsset.parent.hidden = fieldType.value !== 'image' || value;
+            fieldRect[0].parent.hidden = fieldType.value !== 'image';
+            fieldWidth.parent.hidden = fieldType.value !== 'image';
+            fieldMaterialAsset.parent.hidden = fieldType.value !== 'image';
         }));
 
         // handle local changes to texture field to
@@ -436,9 +437,6 @@ editor.once('load', function() {
 
         }));
 
-        events.push(fieldMaterialAsset.on('change', function (value) {
-            fieldTextureAsset.parent.hidden = fieldType.value !== 'image' || value;
-        }));
 
         panel.on('destroy', function () {
             events.forEach(function (e) {

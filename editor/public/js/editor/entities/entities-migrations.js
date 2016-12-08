@@ -111,8 +111,15 @@ editor.once('load', function() {
 
             // element
             if (entity.has('components.element')) {
+                var color = entity.get('components.element.color');
+                var opacity = 1.0;
+                if (color.length > 3) {
+                    opacity = color[3];
+                    entity.set('components.element.color', [color[0], color[1], color[2]]);
+                }
+
                 if (! entity.has('components.element.opacity')) {
-                    entity.set('components.element.opacity', 1.0);
+                    entity.set('components.element.opacity', opacity);
                 }
             }
 
