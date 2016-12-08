@@ -21,7 +21,7 @@ editor.once('load', function() {
     }, {
         name: 'invert',
         title: 'INVERT',
-        description: 'Enable this to invert the generated font texture.'
+        description: 'Enable this to invert the generated font texture. Click Process Font after changing this option.'
     }];
 
     for(var i = 0; i < fields.length; i++) {
