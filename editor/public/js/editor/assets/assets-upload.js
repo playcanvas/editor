@@ -4,7 +4,7 @@ editor.once('load', function() {
     var uploadJobs = 0;
     var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
 
-    var targetExtensions = [ 'jpg', 'jpeg', 'png', 'js', 'css', 'html', 'json', 'xml', 'txt', 'vert', 'frag', 'glsl', 'mp3', 'ogg', 'wav', 'mp4', 'atlas' ];
+    var targetExtensions = [ 'jpg', 'jpeg', 'png', 'gif', 'js', 'css', 'html', 'json', 'xml', 'txt', 'vert', 'frag', 'glsl', 'mp3', 'ogg', 'wav', 'mp4', 'atlas' ];
     var tmp = { };
     for(var i = 0; i < targetExtensions.length; i++)
         tmp[targetExtensions[i]] = true;

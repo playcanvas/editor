@@ -28,6 +28,5 @@ editor.once('load', function () {
             if (error)
                 error(status, data);
         });
-
     });
 });

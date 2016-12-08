@@ -119,8 +119,13 @@ editor.once('load', function() {
             meta.format = 'jpeg';
 
         // target format
-        options.format = 'jpeg';
-        if (meta.format === 'png' || meta.alpha || meta.depth > 8)
+        if (meta.format === 'gif') {
+            options.format = 'gif';
+        } else {
+            options.format = 'jpeg';
+        }
+
+        if ((meta.format === 'png' || meta.alpha || meta.depth > 8) && meta.format !== 'gif')
             options.format = 'png';
 
         // rgbm
