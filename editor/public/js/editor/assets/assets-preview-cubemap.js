@@ -27,9 +27,9 @@ editor.once('load', function() {
 
     var camera = new pc.Camera();
     camera._node = cameraNode;
-    camera._nearClip = 1;
-    camera._farClip = 32;
-    camera._clearOptions.color = [ 0, 0, 0, 1 ];
+    camera.nearClip = 1;
+    camera.farClip = 32;
+    camera.clearColor = [ 0, 0, 0, 1 ];
     camera.fov = 75;
     camera.frustumCulling = false;
 

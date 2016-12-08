@@ -137,6 +137,18 @@ editor.once('load', function () {
             }
         }
 
+        if (first && entity.element) {
+            if (entity.element.type === 'image') {
+                bbC.copy(entity.element._image._meshInstance.aabb);
+            }
+
+            if (entity.element.type === 'text') {
+                bbC.copy(entity.element._text._meshInstance.aabb);
+            }
+
+            first = false;
+        }
+
         if (first && entity.zone) {
             first = false;
             bbD.halfExtents.copy(entity.zone.size).scale(0.5);

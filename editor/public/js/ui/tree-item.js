@@ -345,7 +345,7 @@ TreeItem.prototype._onKeyDown = function(evt) {
                 item = item.ui;
 
             if (item) {
-                if (item._children && item.open) {
+                if (item._children && item.open && item !== this.ui.parent) {
                     var last = item.element.lastChild;
                     if (last.ui)
                         last = last.ui;

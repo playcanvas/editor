@@ -50,9 +50,9 @@ editor.once('load', function() {
 
     var camera = new pc.Camera();
     camera._node = cameraNode;
-    camera._nearClip = 0.01;
-    camera._farClip = 32;
-    camera._clearOptions.color = [ 41 / 255, 53 / 255, 56 / 255, 0.0 ];
+    camera.nearClip = 0.01;
+    camera.farClip = 32;
+    camera.clearColor = [ 41 / 255, 53 / 255, 56 / 255, 0.0 ];
     camera.frustumCulling = false;
 
 
@@ -110,7 +110,7 @@ editor.once('load', function() {
         lightNode.setLocalRotation(cameraOrigin.getLocalRotation());
         lightNode.rotateLocal(90, 0, 0);
 
-        camera._farClip = max * 5.0;
+        camera.farClip = max * 5.0;
 
         light.intensity = 1.0 / (Math.min(1.0, scene.exposure) || 0.01);
 
