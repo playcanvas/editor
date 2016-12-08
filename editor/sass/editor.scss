@@ -300,7 +300,7 @@ strong {
         position: absolute;
         top: -32px;
         left: 4px;
-        width: 563px;
+        width: 594px;
 
         &:after {
             content: '\E183';
@@ -339,6 +339,10 @@ strong {
                             color: $text-dark;
                             background-color: transparent;
                         }
+                    }
+                    &.up {
+                        transform: rotate(90deg);
+                        -webkit-transform: rotate(90deg);
                     }
                 }
             }
@@ -2886,6 +2890,7 @@ strong {
 
             &.back {
                 transform: rotate(180deg);
+                -webkit-transform: rotate(180deg);
             }
         }
     }

@@ -29,19 +29,9 @@ function TextField(args) {
     this.blurOnEnter = true;
     this.refocusable = true;
 
-    this.on('disable', function() {
-        this.elementInput.disabled = true;
-    });
-    this.on('enable', function() {
-        this.elementInput.disabled = false;
-    });
-
-    this.on('change', function() {
-        if (! this.renderChanges)
-            return;
-
-        this.flash();
-    });
+    this.on('disable', this._onDisable);
+    this.on('enable', this._onEnable);
+    this.on('change', this._onChangeField);
 
     if (args.placeholder)
         this.placeholder = args.placeholder;
@@ -108,6 +98,21 @@ TextField.prototype._onInputFocus = function() {
 TextField.prototype._onInputBlur = function() {
     this.ui.class.remove('focus');
     this.ui.emit('input:blur');
+};
+
+TextField.prototype._onDisable = function() {
+    this.elementInput.readOnly = true;
+};
+
+TextField.prototype._onEnable = function() {
+    this.elementInput.readOnly = false;
+};
+
+TextField.prototype._onChangeField = function() {
+    if (! this.renderChanges)
+        return;
+
+    this.flash();
 };
 
 

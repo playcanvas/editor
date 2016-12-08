@@ -41,19 +41,9 @@ function NumberField(args) {
     this._dragDiff = 0;
     this._dragStart = 0;
 
-    this.on('disable', function() {
-        this.elementInput.disabled = true;
-    });
-    this.on('enable', function() {
-        this.elementInput.disabled = false;
-    });
-
-    this.on('change', function() {
-        if (! this.renderChanges)
-            return;
-
-        this.flash();
-    });
+    this.on('disable', this._onDisable);
+    this.on('enable', this._onEnable);
+    this.on('change', this._onChangeField);
 
     if (args.placeholder)
         this.placeholder = args.placeholder;
@@ -135,6 +125,22 @@ NumberField.prototype._onKeyDown = function(evt) {
 NumberField.prototype._onFullSelect = function() {
     this.select();
 };
+
+NumberField.prototype._onDisable = function() {
+    this.elementInput.readOnly = true;
+};
+
+NumberField.prototype._onEnable = function() {
+    this.elementInput.readOnly = false;
+};
+
+NumberField.prototype._onChangeField = function() {
+    if (! this.renderChanges)
+        return;
+
+    this.flash();
+};
+
 
 // NumberField.prototype._onMouseDown = function(evt) {
 //     if (evt.button !== 0) return;
