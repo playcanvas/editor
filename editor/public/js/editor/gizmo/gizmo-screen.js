@@ -158,7 +158,7 @@ editor.once('load', function() {
                 var r = entity.right;
                 var u = entity.up;
                 var scale = entity.getLocalScale();
-                var resolution = isScreenSpace ? entity.screen.referenceResolution : entity.screen.resolution;
+                var resolution = entity.screen.scaleMode === 'blend' ? entity.screen.referenceResolution : entity.screen.resolution;
 
                 left
                 .copy(r)
