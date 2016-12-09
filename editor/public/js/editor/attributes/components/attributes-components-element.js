@@ -168,6 +168,33 @@ editor.once('load', function() {
             changingPreset = false;
         }));
 
+        var fieldWidth = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Size',
+            type: 'number',
+            placeholder: 'Width',
+            min: 0,
+            link: entities,
+            path: 'components.element.width'
+        });
+
+        fieldWidth.style.width = '32px';
+        fieldWidth.parent.hidden = fieldType.value !== 'image';
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:size', fieldWidth.parent.innerElement.firstChild.ui);
+
+        var fieldHeight = editor.call('attributes:addField', {
+            panel: fieldWidth.parent,
+            type: 'number',
+            placeholder: 'Height',
+            min: 0,
+            link: entities,
+            path: 'components.element.height'
+        });
+
+        fieldHeight.style.width = '32px';
+
         var fieldText = editor.call('attributes:addField', {
             parent: panel,
             name: 'Text',
@@ -180,20 +207,6 @@ editor.once('load', function() {
 
         // reference
         editor.call('attributes:reference:attach', 'element:text', fieldText.parent.innerElement.firstChild.ui);
-
-        var fieldFontAsset = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Font',
-            type: 'asset',
-            kind: 'font',
-            link: entities,
-            path: 'components.element.fontAsset'
-        });
-
-        fieldFontAsset.parent.hidden = fieldType.value !== 'text';
-
-        // reference
-        editor.call('attributes:reference:attach', 'element:fontAsset', fieldFontAsset.parent.innerElement.firstChild.ui);
 
         var fieldFontSize = editor.call('attributes:addField', {
             parent: panel,
@@ -234,6 +247,21 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'element:spacing', fieldSpacing.parent.innerElement.firstChild.ui);
 
+
+        var fieldRect = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Rect',
+            type: 'vec4',
+            placeholder: ['u', 'v', 'w', 'h'],
+            link: entities,
+            path: 'components.element.rect'
+        });
+
+        fieldRect[0].parent.hidden = fieldType.value !== 'image';
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:rect', fieldRect[0].parent.innerElement.firstChild.ui);
+
         var fieldTextureAsset = editor.call('attributes:addField', {
             parent: panel,
             name: 'Texture',
@@ -246,46 +274,34 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'element:textureAsset', fieldTextureAsset.parent.innerElement.firstChild.ui);
 
-        var fieldWidth = editor.call('attributes:addField', {
+        var fieldMaterialAsset = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Size',
-            type: 'number',
-            placeholder: 'Width',
-            min: 0,
+            name: 'Material',
+            type: 'asset',
+            kind: 'material',
             link: entities,
-            path: 'components.element.width'
+            path: 'components.element.materialAsset'
         });
 
-        fieldWidth.style.width = '32px';
-        fieldWidth.parent.hidden = fieldType.value !== 'image' || !fieldTextureAsset.value;
+        fieldMaterialAsset.parent.hidden = fieldType.value !== 'image';
+        fieldTextureAsset.parent.hidden = fieldType.value !== 'image';
 
         // reference
-        editor.call('attributes:reference:attach', 'element:size', fieldWidth.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'element:materialAsset', fieldMaterialAsset.parent.innerElement.firstChild.ui);
 
-        var fieldHeight = editor.call('attributes:addField', {
-            panel: fieldWidth.parent,
-            type: 'number',
-            placeholder: 'Height',
-            min: 0,
-            link: entities,
-            path: 'components.element.height'
-        });
-
-        fieldHeight.style.width = '32px';
-
-        var fieldRect = editor.call('attributes:addField', {
+        var fieldFontAsset = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Rect',
-            type: 'vec4',
-            placeholder: ['u', 'v', 'w', 'h'],
+            name: 'Font',
+            type: 'asset',
+            kind: 'font',
             link: entities,
-            path: 'components.element.rect'
+            path: 'components.element.fontAsset'
         });
 
-        fieldRect[0].parent.hidden = fieldType.value !== 'image' || !fieldTextureAsset.value;
+        fieldFontAsset.parent.hidden = fieldType.value !== 'text';
 
         // reference
-        editor.call('attributes:reference:attach', 'element:rect', fieldRect[0].parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'element:fontAsset', fieldFontAsset.parent.innerElement.firstChild.ui);
 
         var fieldColor = editor.call('attributes:addField', {
             parent: panel,
@@ -296,25 +312,39 @@ editor.once('load', function() {
             path: 'components.element.color'
         });
 
-        fieldColor.parent.hidden = fieldType.value !== 'text';
+        fieldColor.parent.hidden = fieldType.value !== 'text' && fieldType.value !== 'image';
 
         // reference
         editor.call('attributes:reference:attach', 'element:color', fieldColor.parent.innerElement.firstChild.ui);
 
-        var fieldMaterialAsset = editor.call('attributes:addField', {
+        var fieldOpacity = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Material',
-            type: 'asset',
-            kind: 'material',
+            name: 'Opacity',
+            type: 'number',
+            min: 0,
+            max: 1,
             link: entities,
-            path: 'components.element.materialAsset'
+            path: 'components.element.opacity'
         });
 
-        fieldMaterialAsset.parent.hidden = fieldType.value !== 'image' || fieldTextureAsset.value;
-        fieldTextureAsset.parent.hidden = fieldType.value !== 'image' || fieldMaterialAsset.value;
+        fieldOpacity.style.width = '32px';
+        fieldOpacity.parent.hidden = fieldType.value !== 'text' && fieldType.value !== 'image';
 
         // reference
-        editor.call('attributes:reference:attach', 'element:materialAsset', fieldMaterialAsset.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'element:opacity', fieldOpacity.parent.innerElement.firstChild.ui);
+
+        var fieldOpacitySlider = editor.call('attributes:addField', {
+            panel: fieldOpacity.parent,
+            precision: 3,
+            step: 1,
+            min: 0,
+            max: 1,
+            type: 'number',
+            slider: true,
+            link: entities,
+            path: 'components.element.opacity'
+        });
+        fieldOpacitySlider.flexGrow = 4;
 
         events.push(fieldType.on('change', function (value) {
             fieldText.parent.hidden = value !== 'text';
@@ -322,23 +352,91 @@ editor.once('load', function() {
             fieldFontSize.parent.hidden = value !== 'text';
             fieldLineHeight.parent.hidden = value !== 'text';
             fieldSpacing.parent.hidden = value !== 'text';
-            fieldTextureAsset.parent.hidden = value !== 'image' || fieldMaterialAsset.value;
-            fieldMaterialAsset.parent.hidden = value !== 'image' || fieldTextureAsset.value;
-            fieldRect[0].parent.hidden = value !== 'image' || !fieldTextureAsset.value;
-            fieldWidth.parent.hidden = value !== 'image' || !fieldTextureAsset.value;
-            fieldColor.parent.hidden = value !== 'text';
+            fieldTextureAsset.parent.hidden = value !== 'image';
+            fieldMaterialAsset.parent.hidden = value !== 'image';
+            fieldRect[0].parent.hidden = value !== 'image';
+            fieldWidth.parent.hidden = value !== 'image';
+            fieldColor.parent.hidden = value !== 'text' && value !== 'image';
+            fieldOpacity.parent.hidden = value !== 'text' && value !== 'image';
         }));
 
 
         events.push(fieldTextureAsset.on('change', function (value) {
-            fieldRect[0].parent.hidden = fieldType.value !== 'image' || !value;
-            fieldWidth.parent.hidden = fieldType.value !== 'image' || !value;
-            fieldMaterialAsset.parent.hidden = fieldType.value !== 'image' || value;
+            fieldRect[0].parent.hidden = fieldType.value !== 'image';
+            fieldWidth.parent.hidden = fieldType.value !== 'image';
+            fieldMaterialAsset.parent.hidden = fieldType.value !== 'image';
         }));
 
-        events.push(fieldMaterialAsset.on('change', function (value) {
-            fieldTextureAsset.parent.hidden = fieldType.value !== 'image' || value;
+        // handle local changes to texture field to
+        // auto set width and height and combine all of them in the same
+        // history action
+        events.push(fieldTextureAsset.on('beforechange', function (value) {
+            if (! value) return;
+            var asset = editor.call('assets:get', value);
+            if (! asset) return;
+
+            if (! asset.has('meta.width') || ! asset.has('meta.height')) return;
+
+            var width = asset.get('meta.width');
+            var height = asset.get('meta.height');
+            if (width === fieldWidth.value && height === fieldHeight.value)
+                return;
+
+            fieldTextureAsset.once('change', function (value) {
+                var lastHistoryAction = editor.call('history:list')[editor.call('history:current')];
+                var lastUndo = lastHistoryAction.undo;
+                var lastRedo = lastHistoryAction.redo;
+
+                var previous = {};
+                for (var i = 0, len = entities.length; i < len; i++) {
+                    previous[entities[i].get('resource_id')] = {
+                        width: entities[i].get('components.element.width'),
+                        height: entities[i].get('components.element.height')
+                    };
+                }
+
+                lastHistoryAction.undo = function () {
+                    lastUndo();
+
+                    for (var i = 0, len = entities.length; i < len; i++) {
+                        var entity = editor.call('entities:get', entities[i].get('resource_id'));
+                        if (! entity) continue;
+
+                        var history = entity.history.enabled;
+                        entity.history.enabled = false;
+                        if (entity.has('components.element')) {
+                            entity.set('components.element.width', previous[entity.get('resource_id')].width);
+                            entity.set('components.element.height', previous[entity.get('resource_id')].height);
+                        }
+                        entity.history.enabled = history;
+                    }
+                };
+
+                var redo = function () {
+                    for (var i = 0, len = entities.length; i < len; i++) {
+                        var entity = editor.call('entities:get', entities[i].get('resource_id'));
+                        if (! entity) continue;
+
+                        var history = entity.history.enabled;
+                        entity.history.enabled = false;
+                        if (entity.has('components.element')) {
+                            entity.set('components.element.width', width);
+                            entity.set('components.element.height', height);
+                        }
+                        entity.history.enabled = history;
+                    }
+                };
+
+                lastHistoryAction.redo = function () {
+                    lastRedo();
+                    redo();
+                };
+
+                redo();
+            });
+
         }));
+
 
         panel.on('destroy', function () {
             events.forEach(function (e) {

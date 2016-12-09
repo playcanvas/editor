@@ -77,6 +77,11 @@ editor.once('load', function() {
         subTitle: '{pc.Color}',
         description: 'TODO',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#color'
+    }, {
+        title: 'opacity',
+        subTitle: '{Number}',
+        description: 'TODO',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#opacity'
     }];
 
     for(var i = 0; i < fields.length; i++) {

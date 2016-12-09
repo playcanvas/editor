@@ -21,7 +21,6 @@ function TextField(args) {
 
     this.elementInput.addEventListener('change', this._onChange, false);
     this.elementInput.addEventListener('keydown', this._onKeyDown, false);
-    this.elementInput.addEventListener('dblclick', this._onFullSelect, false);
     this.elementInput.addEventListener('contextmenu', this._onFullSelect, false);
     this.evtKeyChange = false;
     this.ignoreChange = false;

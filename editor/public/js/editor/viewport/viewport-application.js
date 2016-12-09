@@ -33,14 +33,8 @@ editor.once('load', function() {
 
     Application = pc.inherits(Application, pc.Application);
 
-    Application.prototype.render = function () {
-        var self = this;
-
-        var context = this;
-        var renderer = this.renderer;
-
-        var root = context.root;
-        context.root.syncHierarchy();
+    Application.prototype.render = function() {
+        this.root.syncHierarchy();
 
         this.fire('prerender', null);
         editor.emit('viewport:preRender');
@@ -48,17 +42,6 @@ editor.once('load', function() {
         var device = this.graphicsDevice;
         var dw = device.width;
         var dh = device.height;
-
-        // Give viewport(s) a grey border
-        // device.setRenderTarget(null);
-        // device.updateBegin();
-        // device.setViewport(0, 0, dw, dh);
-        // device.setScissor(0, 0, dw, dh);
-        // device.clear({
-        //     color: [ 0.5, 0.5, 0.5, 1 ],
-        //     flags: pc.gfx.CLEARFLAG_COLOR
-        // });
-        // device.updateEnd();
 
         // render current camera
         var cameraEntity = editor.call('camera:current');
@@ -79,7 +62,7 @@ editor.once('load', function() {
             cameraEntity.camera.rect = rect;
 
             cameraEntity.camera.frameBegin();
-            renderer.render(context.scene, cameraNode);
+            this.renderer.render(this.scene, cameraNode);
             cameraEntity.camera.frameEnd();
         }
     };
@@ -113,6 +96,8 @@ editor.once('load', function() {
                 editor.emit('viewport:gizmoUpdate', dt);
 
                 app.render();
+
+                editor.emit('viewport:postRender');
             }
         };
     };

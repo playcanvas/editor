@@ -317,6 +317,68 @@ editor.once('load', function() {
     treeDropBorder.classList.add('assets-drop-border');
     root.append(treeDropBorder);
 
+    var tooltipAsset = new ui.Tooltip({
+        text: 'Asset',
+        align: 'top',
+        hoverable: false
+    });
+    root.append(tooltipAsset);
+
+    var tooltipTarget = null;
+    var tooltipTimeout = null;
+
+    var tooltipShow = function() {
+        if (! tooltipTarget)
+            return;
+
+        while(tooltipTarget && tooltipTarget.nodeName !== 'LI' && ! tooltipTarget.classList.contains('ui-grid-item'))
+            tooltipTarget = tooltipTarget.parentNode;
+
+        if (! tooltipTarget || ! tooltipTarget.ui)
+            return;
+
+        var rect = tooltipTarget.getBoundingClientRect();
+        var off = 16;
+
+        if (rect.width < 64) off = rect.width / 2;
+        tooltipAsset.flip = rect.left + off > window.innerWidth / 2;
+        if (tooltipAsset.flip) {
+            tooltipAsset.position(rect.right - off, rect.bottom);
+        } else {
+            tooltipAsset.position(rect.left + off, rect.bottom);
+        }
+
+        tooltipAsset.text = tooltipTarget.ui.asset.get('name');
+        tooltipAsset.hidden = false;
+    };
+
+    var onAssetItemHover = function(evt) {
+        if (tooltipTimeout) {
+            clearTimeout(tooltipTimeout);
+            tooltipTimeout = null;
+        }
+
+        tooltipTarget = evt.target;
+        tooltipTimeout = setTimeout(tooltipShow, 300);
+    };
+    var onAssetItemBlur = function() {
+        tooltipAsset.hidden = true;
+
+        if (tooltipTimeout) {
+            clearTimeout(tooltipTimeout);
+            tooltipTimeout = null;
+        }
+    };
+
+    grid.innerElement.addEventListener('mousewheel', function() {
+        tooltipAsset.hidden = true;
+
+        if (tooltipTimeout) {
+            clearTimeout(tooltipTimeout);
+            tooltipTimeout = null;
+        }
+    }, false);
+
     tree.on('select', function(item) {
         if (assetsChanged)
             return;
@@ -728,6 +790,9 @@ editor.once('load', function() {
         var item = new ui.GridItem();
         item.asset = asset;
         item.class.add('type-' + asset.get('type'));
+
+        item.element.addEventListener('mouseover', onAssetItemHover, false);
+        item.element.addEventListener('mouseout', onAssetItemBlur, false);
 
         var onDragStart = function(evt) {
             evt.preventDefault();

@@ -120,6 +120,10 @@ editor.once('load', function() {
         title: 'Device Pixel Ratio',
         description: 'When enabled the canvas resolution will be calculated including the device pixel ratio. Enabling this might affect performance.'
     }, {
+        name: 'project:antiAlias',
+        title: 'Anti-Alias',
+        description: 'When disabled, anti-aliasing will be disabled for back-buffer.'
+    }, {
         name: 'project:transparentCanvas',
         title: 'Transparent Canvas',
         description: 'When enabled the canvas will blend with the web page.'

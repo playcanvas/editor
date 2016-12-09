@@ -109,6 +109,20 @@ editor.once('load', function() {
                     entity.set('components.model.lightmapSizeMultiplier', 1.0);
             }
 
+            // element
+            if (entity.has('components.element')) {
+                var color = entity.get('components.element.color');
+                var opacity = 1.0;
+                if (color.length > 3) {
+                    opacity = color[3];
+                    entity.set('components.element.color', [color[0], color[1], color[2]]);
+                }
+
+                if (! entity.has('components.element.opacity')) {
+                    entity.set('components.element.opacity', opacity);
+                }
+            }
+
             entity.history.enabled = true;
         }, 0);
     });
