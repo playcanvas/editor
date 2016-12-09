@@ -146,8 +146,11 @@ editor.once('load', function() {
 
                     // reset resolution
                     var res = entities[key].entity.get('components.screen.resolution');
-                    tempVec2.set(res[0], res[1]);
-                    entity.screen.resolution = tempVec2;
+                    var currentRes = entity.screen.resolution;
+                    if (currentRes.x !== res[0] || currentRes.y !== res[1]) {
+                        tempVec2.set(currentRes.x, currentRes.y);
+                        entity.screen.resolution = tempVec2;
+                    }
                 }
 
                 // calculate corners
@@ -155,7 +158,7 @@ editor.once('load', function() {
                 var r = entity.right;
                 var u = entity.up;
                 var scale = entity.getLocalScale();
-                var resolution = entity.screen.resolution;
+                var resolution = isScreenSpace ? entity.screen.referenceResolution : entity.screen.resolution;
 
                 left
                 .copy(r)
