@@ -44,6 +44,14 @@ editor.once('load', function() {
         return entity;
     };
 
+    var insertChild = function (parent, node, index) {
+        if (parent._children.length <= index) {
+            parent.addChild(node);
+        } else {
+            parent.insertChild(node, index);
+        }
+    };
+
     var processEntity = function (obj) {
         // create entity
         var entity = obj.entity = createEntity(obj);
@@ -64,10 +72,14 @@ editor.once('load', function() {
 
         var children = obj.get('children');
         for(var i = 0; i < children.length; i++) {
-            childIndex[children[i]] = entity;
+            childIndex[children[i]] = {
+                index: i,
+                parent: entity
+            };
 
-            if (entitiesIndex[children[i]])
-                entity.addChild(entitiesIndex[children[i]]);
+            if (entitiesIndex[children[i]]) {
+                insertChild(entity, entitiesIndex[children[i]], i);
+            }
         }
 
         // parenting
@@ -76,9 +88,10 @@ editor.once('load', function() {
             app.context.root.addChild(entity);
         } else {
             // child
-            var parent = childIndex[obj.get('resource_id')];
-            if (parent)
-                parent.addChild(entity);
+            var details = childIndex[obj.get('resource_id')];
+            if (details && details.parent) {
+                insertChild(details.parent, entity, details.index);
+            }
         }
 
         // queue resync hierarchy
