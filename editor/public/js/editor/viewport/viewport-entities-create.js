@@ -45,11 +45,21 @@ editor.once('load', function() {
     };
 
     var insertChild = function (parent, node, index) {
-        if (parent._children.length <= index) {
-            parent.addChild(node);
-        } else {
-            parent.insertChild(node, index);
+        // try to insert the node at the right index
+        for (var i = 0, len = parent._children.length; i < len; i++) {
+            var child = parent._children[i];
+            if (childIndex[child._guid]) {
+                // if our indes is less than this child's index
+                // then put the item here
+                if (index < childIndex[child._guid].index) {
+                    parent.insertChild(node, i);
+                    return;
+                }
+            }
         }
+
+        // the node can be safely added to the end of the child list
+        parent.addChild(node);
     };
 
     var processEntity = function (obj) {
