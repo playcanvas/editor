@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     var auth = false;
-    var socket = new SockJS(config.url.realtime.http);
+    var socket = new WebSocket(config.url.realtime.http);
     var connection = new sharejs.Connection(socket);
     var data;
     var reconnectAttempts = 0;
@@ -74,7 +74,7 @@ editor.once('load', function() {
 
     var reconnect = function () {
         // create new socket...
-        socket = new SockJS(config.url.realtime.http);
+        socket = new WebSocket(config.url.realtime.http);
         // ... and new sharejs connection
         connection = new sharejs.Connection(socket);
         // connect again
