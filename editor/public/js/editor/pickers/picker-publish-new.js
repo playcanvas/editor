@@ -20,7 +20,10 @@ editor.once('load', function () {
     editor.call('picker:project:registerPanel', 'publish-new', 'Publish New Build', panel);
     editor.call('picker:project:registerPanel', 'publish-facebook', 'Publish to Facebook Instant Games', panel);
 
+    var mode = 'publish';
+
     editor.method('picker:publish:new', function () {
+        mode = 'publish';
         editor.call('picker:project', 'publish-new');
         panel.class.remove('download-mode');
         panel.class.remove('facebook-mode');
@@ -28,6 +31,7 @@ editor.once('load', function () {
     });
 
     editor.method('picker:publish:download', function () {
+        mode = 'download';
         editor.call('picker:project', 'publish-download');
         panel.class.add('download-mode');
         panel.class.remove('facebook-mode');
@@ -40,6 +44,7 @@ editor.once('load', function () {
     });
 
     editor.method('picker:publish:facebook', function () {
+        mode = 'facebook';
         editor.call('picker:project', 'publish-facebook')
         panel.class.remove('download-mode');
         panel.class.add('facebook-mode');
@@ -922,7 +927,12 @@ editor.once('load', function () {
 
         selectAll.value = false;
 
+        var loadedApps = mode !== 'publish';
+        var loadedScenes = false;
+
         editor.call('scenes:list', function (items) {
+            loadedScenes = true;
+
             scenes = items;
             // select primary scene
             for (var i = 0; i < scenes.length; i++) {
@@ -932,8 +942,36 @@ editor.once('load', function () {
                 }
             }
 
-            refreshScenes();
+            if (loadedApps)
+                refreshScenes();
         });
+
+        if (! loadedApps) {
+            editor.call('apps:list', function (apps) {
+                loadedApps = true;
+
+                var version = 'e.g. 1.0.0';
+
+                if (apps.length) {
+                    apps.sort(function (a, b) {
+                        if (b.modified_at < a.modified_at)
+                            return -1;
+                        else if (a.modified_at > b.modified_at)
+                            return 1;
+
+                        return 0;
+                    });
+
+                    version = 'Previous version: ' + apps[0].version;
+                }
+
+                inputVersion.placeholder = version;
+
+                if (loadedScenes)
+                    refreshScenes();
+            });
+        }
+
 
         inputName.elementInput.focus();
 
