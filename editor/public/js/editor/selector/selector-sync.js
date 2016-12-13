@@ -4,9 +4,18 @@ editor.once('load', function() {
     var lastSelectionType = null;
     var lastIds = [ ];
     var selection = { };
+    var timeout;
+    var lastCheck = 0;
 
-    editor.on('selector:change', function(type, items) {
-        var selectionType = type;
+
+    var checkSelector = function() {
+        timeout = null;
+        lastCheck = Date.now();
+
+        var type = editor.call('selector:type');
+        var items = editor.call('selector:items');
+
+        var selectionType = editor.call('selector:type');
         var ids = [ ];
 
         if (type === 'entity') {
@@ -52,6 +61,18 @@ editor.once('load', function() {
                 t: selectionType,
                 ids: ids
             });
+        }
+    };
+
+
+    editor.on('selector:change', function(type, items) {
+        if (timeout)
+            return;
+
+        if ((Date.now() - lastCheck) > 500) {
+            checkSelector();
+        } else {
+            timeout = setTimeout(checkSelector, 500);
         }
     });
 
