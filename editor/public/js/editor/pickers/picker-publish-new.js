@@ -954,6 +954,10 @@ editor.once('load', function () {
 
                 if (apps.length) {
                     apps.sort(function (a, b) {
+                        if (a.id === config.project.primaryApp)
+                            return -1;
+                        if (b.id === config.project.primaryApp)
+                            return 1;
                         if (b.modified_at < a.modified_at)
                             return -1;
                         else if (a.modified_at > b.modified_at)
@@ -962,7 +966,9 @@ editor.once('load', function () {
                         return 0;
                     });
 
-                    version = 'Previous version: ' + apps[0].version;
+                    if (apps[0].version) {
+                        version = 'Previous version: ' + apps[0].version;
+                    }
                 }
 
                 inputVersion.placeholder = version;
