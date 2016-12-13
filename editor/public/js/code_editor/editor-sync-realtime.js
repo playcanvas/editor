@@ -141,30 +141,7 @@ editor.once('load', function() {
             editor.emit('realtime:connecting');
 
             // create new socket...
-            socket = new SockJS(config.url.realtime.http);
-
-            var lastHearbeat = Date.now();
-            var interval = 3000;
-            var heartbeatTimeoutRef;
-
-            var heartbeatTimeout = function () {
-                heartbeatTimeoutRef = null;
-
-                if (Date.now() - lastHearbeat > interval) {
-                    connection.socket.close();
-                } else {
-                    heartbeatTimeoutRef = setTimeout(heartbeatTimeout, interval);
-                }
-            };
-
-            socket.onheartbeat = function () {
-                if (heartbeatTimeoutRef) {
-                    clearTimeout(heartbeatTimeoutRef);
-                }
-
-                lastHearbeat = Date.now();
-                heartbeatTimeoutRef = setTimeout(heartbeatTimeout, interval);
-            };
+            socket = new WebSocket(config.url.realtime.http);
 
             // if the connection does not exist
             // then create a new sharejs connection
@@ -251,11 +228,6 @@ editor.once('load', function() {
                     // as soon as we reconnect (before authentication) causing
                     // forbidden errors
                     textDocument.pause();
-                }
-
-                if (heartbeatTimeoutRef) {
-                    clearTimeout(heartbeatTimeoutRef);
-                    heartbeatTimeoutRef = null;
                 }
 
                 isLoading = false;

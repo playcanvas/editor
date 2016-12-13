@@ -33,7 +33,10 @@ editor.once('load', function() {
             'components.collision.asset': true,
             'components.particlesystem.colorMapAsset': true,
             'components.particlesystem.normalMapAsset': true,
-            'components.particlesystem.mesh': true
+            'components.particlesystem.mesh': true,
+            'components.element.textureAsset': true,
+            'components.element.materialAsset': true,
+            'components.element.fontAsset': true,
         },
         'entity-lists': {
             'components.animation.assets': true,

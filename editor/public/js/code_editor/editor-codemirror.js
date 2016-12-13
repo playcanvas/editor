@@ -15,6 +15,7 @@ editor.once('load', function () {
         unComment: true,
         continueComments: true,
         styleActiveLine: true,
+        scrollPastEnd: true,
 
         readOnly: editor.call('editor:isReadonly') ? true : false,
 

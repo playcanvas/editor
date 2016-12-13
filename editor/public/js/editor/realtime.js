@@ -3,7 +3,8 @@ editor.once('load', function() {
 
     editor.once('start', function() {
         var auth = false;
-        var socket = new SockJS(config.url.realtime.http);
+
+        var socket = new WebSocket(config.url.realtime.http);
         var connection = new sharejs.Connection(socket);
         var scene = null;
         var data;
@@ -104,10 +105,8 @@ editor.once('load', function() {
             });
 
             connection.on('error', function(msg) {
-                if (connection.state === 'connected') {
-                    console.log(msg);
+                if (connection.state === 'connected')
                     return;
-                }
 
                 editor.emit('realtime:error', msg);
             });
@@ -139,7 +138,7 @@ editor.once('load', function() {
 
         var reconnect = function () {
             // create new socket...
-            socket = new SockJS(config.url.realtime.http);
+            socket = new WebSocket(config.url.realtime.http);
             // ... and new sharejs connection
             connection = new sharejs.Connection(socket);
             // connect again
