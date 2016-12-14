@@ -3,6 +3,7 @@ editor.once('load', function() {
 
     var entity = null;
     var items = [ ];
+    var customMenuItems = [ ];
     var root = editor.call('layout.root');
 
     var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
@@ -443,6 +444,39 @@ editor.once('load', function() {
         // menu
         menu = ui.Menu.fromData(menuData);
         root.append(menu);
+
+        menu.on('open', function() {
+            var selection = getSelection();
+
+            for(var i = 0; i < customMenuItems.length; i++) {
+                if (! customMenuItems[i].filter)
+                    continue;
+
+                customMenuItems[i].hidden = ! customMenuItems[i].filter(selection);
+            }
+        });
+    });
+
+    editor.method('entities:contextmenu:add', function(data) {
+        var item = new ui.MenuItem({
+            text: data.text,
+            icon: data.icon,
+            value: data.value
+        });
+
+        item.on('select', function() {
+            data.select.call(item, getSelection());
+        });
+
+        var parent = data.parent || menu;
+        parent.append(item);
+
+        if (data.filter)
+            item.filter = data.filter;
+
+        customMenuItems.push(item);
+
+        return item;
     });
 
     // for each entity added
