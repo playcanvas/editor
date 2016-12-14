@@ -48,9 +48,11 @@ editor.once('load', function() {
         fieldControls.append(btnPlay);
 
         var playingState = -1;
+        var loopingState = -1;
 
         var checkPlayingState = function() {
             var playing = -1;
+            var looping = -1;
 
             for(var i = 0; i < entities.length; i++) {
                 if (! entities[i].entity || ! entities[i].entity.particlesystem)
@@ -61,14 +63,26 @@ editor.once('load', function() {
                         playing = 1;
                     } else if (playing === 0) {
                         playing = 2;
-                        break;
                     }
                 } else {
                     if (playing === -1) {
                         playing = 0;
                     } else if (playing === 1) {
                         playing = 2;
-                        break;
+                    }
+                }
+
+                if (entities[i].entity.particlesystem.emitter && entities[i].entity.particlesystem.emitter.loop) {
+                    if (looping === -1) {
+                        looping = 1;
+                    } else if (looping === 0) {
+                        looping = 2;
+                    }
+                } else {
+                    if (looping === -1) {
+                        looping = 0;
+                    } else if (looping === 1) {
+                        looping = 2;
                     }
                 }
             }
@@ -82,6 +96,16 @@ editor.once('load', function() {
                 } else {
                     btnPlay.text = '&#57649;'; // play
                     btnPlay.class.remove('pause');
+                }
+            }
+
+            if (loopingState !== looping) {
+                loopingState = looping;
+
+                if (loopingState === 0) {
+                    btnStop.disabled = true;
+                } else {
+                    btnStop.disabled = false;
                 }
             }
         };
@@ -100,8 +124,15 @@ editor.once('load', function() {
                 if (! entities[i].entity || ! entities[i].entity.particlesystem)
                     continue;
 
-                entities[i].entity.particlesystem.stop();
+                if (playingState === 1) {
+                    entities[i].entity.particlesystem.stop();
+                } else {
+                    entities[i].entity.particlesystem.stop();
+                    entities[i].entity.particlesystem.reset();
+                }
             }
+
+            checkPlayingState();
         });
         fieldControls.append(btnStop);
 
@@ -117,8 +148,13 @@ editor.once('load', function() {
                 entities[i].entity.particlesystem.reset();
                 entities[i].entity.particlesystem.play();
             }
+
+            checkPlayingState();
         });
         fieldControls.append(btnReset);
+
+        checkPlayingState();
+
 
         // autoPlay
         var fieldAutoPlay = editor.call('attributes:addField', {

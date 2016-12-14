@@ -74,8 +74,10 @@ editor.once('load', function() {
                     continue;
 
                 // override particlesystem
-                if (key === 'particlesystem')
+                if (key === 'particlesystem') {
                     components[key].enabled = false;
+                    components[key].autoPlay = true;
+                }
 
                 app.context.systems[key].addComponent(entity, components[key]);
             } else if (! unknowns[key]) {

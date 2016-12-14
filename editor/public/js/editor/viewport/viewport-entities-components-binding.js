@@ -38,8 +38,10 @@ editor.once('load', function() {
                     var data = runtimeComponentData(component, value);
 
                     // override particlesystem
-                    if (component === 'particlesystem')
+                    if (component === 'particlesystem') {
                         data.enabled = false;
+                        data.autoPlay = true;
+                    }
 
                     app = editor.call('viewport:app');
                     app.context.systems[component].addComponent(entity, data);
@@ -52,8 +54,13 @@ editor.once('load', function() {
                 value = obj.get('components.' + component + '.' + property);
 
                 // override particlesystem
-                if (component === 'particlesystem' && property === 'enabled')
-                    value = false;
+                if (component === 'particlesystem') {
+                    if (property === 'enabled') {
+                        value = false;
+                    } else if (property === 'autoPlay') {
+                        value = true;
+                    }
+                }
 
                 entity[component][property] = editor.call('components:convertValue', component, property, value);
 
