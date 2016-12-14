@@ -36,6 +36,11 @@ editor.once('load', function() {
                 if (!property) {
                     // add component
                     var data = runtimeComponentData(component, value);
+
+                    // override particlesystem
+                    if (component === 'particlesystem')
+                        data.enabled = false;
+
                     app = editor.call('viewport:app');
                     app.context.systems[component].addComponent(entity, data);
 
@@ -45,12 +50,16 @@ editor.once('load', function() {
             } else if (property) {
                 // edit component property
                 value = obj.get('components.' + component + '.' + property);
+
+                // override particlesystem
+                if (component === 'particlesystem' && property === 'enabled')
+                    value = false;
+
                 entity[component][property] = editor.call('components:convertValue', component, property, value);
 
                 // render
                 editor.call('viewport:render');
             }
-
         });
 
         var setComponentProperty = function (path, value) {

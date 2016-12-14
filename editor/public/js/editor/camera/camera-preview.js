@@ -61,7 +61,7 @@ editor.once('load', function() {
     };
 
     var updateCameraState = function() {
-        if (selectedEntity && selectedEntity.entity && ! (currentCamera && selectedEntity.entity === currentCamera) && selectedEntity.entity.camera) {
+        if (selectedEntity && selectedEntity.entity && ! (currentCamera && selectedEntity.entity === currentCamera) && selectedEntity.has('components.camera')) {
             renderCamera = true;
 
             cameraPreviewBorder.classList.add('active');

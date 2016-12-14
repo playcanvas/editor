@@ -64,7 +64,6 @@ editor.once('load', function() {
         }
     };
 
-
     editor.on('selector:change', function(type, items) {
         if (timeout)
             return;

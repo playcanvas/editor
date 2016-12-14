@@ -6,60 +6,9 @@ editor.once('load', function() {
     var defaultSizeSmall = new pc.Vec3(.2, .2, .2);
     var aabb = new pc.BoundingBox();
     var aabbA = new pc.BoundingBox();
-    var aabbB = new pc.BoundingBox();
-    var aabbC = new pc.BoundingBox();
-    var matA = new pc.Mat4();
 
     var calculateChildAABB = function(entity) {
-        var pos = entity.getPosition();
-        aabbB.center.copy(pos);
-        aabbB.halfExtents.copy(defaultSizeSmall);
-        aabbA.add(aabbB);
-
-        if (entity.model && entity.model.model && entity.model.model.meshInstances.length) {
-            var meshes = entity.model.model.meshInstances;
-            for(var i = 0; i < meshes.length; i++) {
-                meshes[i].node.getWorldTransform();
-                aabbA.add(meshes[i].aabb);
-            }
-        } else if (entity.collision) {
-            switch(entity.collision.type) {
-                case 'box':
-                    aabbC.center.set(0, 0, 0);
-                    aabbC.halfExtents.copy(entity.collision.halfExtents);
-                    var rotation = entity.getRotation();
-                    matA.setTRS(pos, rotation, pc.Vec3.ONE);
-                    aabbB.setFromTransformedAabb(aabbC, matA);
-                    aabbA.add(aabbB);
-                    break;
-                case 'sphere':
-                    aabbB.center.copy(entity.getPosition());
-                    aabbB.halfExtents.set(entity.collision.radius, entity.collision.radius, entity.collision.radius);
-                    aabbA.add(aabbB);
-                    break;
-                case 'capsule':
-                case 'cylinder':
-                    aabbC.center.set(0, 0, 0);
-                    aabbC.halfExtents.set(entity.collision.radius, entity.collision.radius, entity.collision.radius);
-                    aabbC.halfExtents.data[entity.collision.axis] = entity.collision.height * 0.5;
-                    var rotation = entity.getRotation();
-                    matA.setTRS(pos, rotation, pc.Vec3.ONE);
-                    aabbB.setFromTransformedAabb(aabbC, matA);
-                    aabbA.add(aabbB);
-                    break;
-            }
-        } else if (entity.zone) {
-            aabbC.halfExtents.copy(entity.zone.size).scale(0.5);
-            var position = entity.getPosition();
-            var rotation = entity.getRotation();
-            matA.setTRS(position, rotation, pc.Vec3.ONE);
-            aabbB.setFromTransformedAabb(aabbC, matA);
-            aabbA.copy(aabbB);
-        } else {
-            aabbB.center.copy(entity.getPosition());
-            aabbB.halfExtents.copy(defaultSize);
-            aabbA.add(aabbB);
-        }
+        aabbA.add(editor.call('entities:boundingbox:entity', entity));
 
         var children = entity.getChildren();
         for(var i = 0; i < children.length; i++) {

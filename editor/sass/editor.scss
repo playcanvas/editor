@@ -1611,6 +1611,31 @@ strong {
                 padding: 0;
             }
         }
+        &.particlesystem {
+            > .content {
+                > .controls {
+                    > .content {
+                        > .ui-button {
+                            @extend .font-icon;
+                            padding: 0;
+                            width: 20px;
+                            height: 20px;
+                            line-height: 22px;
+                            text-align: center;
+
+                            &.pause {
+                                font-family: Arial, sans-serif;
+                                font-size: 10px;
+                                line-height: 20px;
+                            }
+                        }
+                        > .ui-progress {
+                            margin: 12px 0 0 3px;
+                        }
+                    }
+                }
+            }
+        }
         &.variants {
             > .content {
                 > .ui-panel {
