@@ -155,6 +155,8 @@ editor.once('load', function() {
                     }
 
                     editor.emit('gizmo:rotate:offset', data.angle, data.point);
+
+                    editor.call('viewport:render');
                 }
 
                 var posGizmo = gizmo.root.getPosition();
@@ -248,8 +250,6 @@ editor.once('load', function() {
                 // cull
                 gizmo.line.cull.node.worldTransform = worldTransform;
                 app.renderMeshInstance(gizmo.line.cull);
-
-                editor.call('viewport:render');
             }
 
             mouseTapMoved = false

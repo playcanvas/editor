@@ -25,6 +25,8 @@ editor.once('load', function() {
 
         // define the tick method
         this.tick = this.makeTick();;
+
+        pc.ComponentSystem.on('toolsUpdate', this.systems.particlesystem.onUpdate, this.systems.particlesystem);
     };
 
     editor.method('viewport:application', function() {
@@ -82,8 +84,11 @@ editor.once('load', function() {
 
             pc.app = app;
 
+            var dt = app.getDt();
+
+            app.update(dt);
+
             if (app.redraw) {
-                var dt = app.getDt();
                 app.redraw = editor.call('viewport:keepRendering');
 
                 app.graphicsDevice.updateClientRect();

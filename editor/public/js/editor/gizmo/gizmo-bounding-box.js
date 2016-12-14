@@ -97,6 +97,7 @@ editor.once('load', function () {
         var first = true;
 
         entity.getWorldTransform();
+        bbD.center.set(0, 0, 0);
 
         if (entity.model && entity.model.model && entity.model.model.meshInstances.length) {
             var meshes = entity.model.model.meshInstances;
@@ -133,7 +134,7 @@ editor.once('load', function () {
                 case 'cylinder':
                     first = false;
                     bbD.halfExtents.set(entity.collision.radius, entity.collision.radius, entity.collision.radius);
-                    bbD.halfExtents.data[entity.collision.axis] = entity.collision.height;
+                    bbD.halfExtents.data[entity.collision.axis] = entity.collision.height / 2;
                     bbE.setFromTransformedAabb(bbD, entity.getWorldTransform());
                     bbC.copy(bbE);
                     break;
@@ -145,14 +146,32 @@ editor.once('load', function () {
                 if (entity.element._image._meshInstance) {
                     bbC.copy(entity.element._image._meshInstance.aabb);
                 }
-            }
-            else if (entity.element.type === 'text') {
+            } else if (entity.element.type === 'text') {
                 if (entity.element._text._meshInstance) {
                     bbC.copy(entity.element._text._meshInstance.aabb);
                 }
             }
 
             first = false;
+        }
+
+        if (first && entity.particlesystem) {
+            if (entity.particlesystem.emitter) {
+                first = false;
+                bbD.copy(entity.particlesystem.emitter.localBounds);
+                bbE.setFromTransformedAabb(bbD, entity.getWorldTransform());
+                bbC.copy(bbE);
+            } else if (entity.particlesystem.emitterShape === pc.EMITTERSHAPE_BOX) {
+                first = false;
+                bbD.halfExtents.copy(entity.particlesystem.emitterExtents).scale(0.5);
+                bbE.setFromTransformedAabb(bbD, entity.getWorldTransform());
+                bbC.copy(bbE);
+            } else if (entity.particlesystem.emitterShape === pc.EMITTERSHAPE_SPHERE) {
+                first = false;
+                bbD.center.copy(entity.getPosition());
+                bbD.halfExtents.set(entity.particlesystem.emitterRadius, entity.particlesystem.emitterRadius, entity.particlesystem.emitterRadius);
+                bbC.copy(bbD);
+            }
         }
 
         if (first && entity.zone) {

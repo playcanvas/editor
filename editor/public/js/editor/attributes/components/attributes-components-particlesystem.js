@@ -15,6 +15,147 @@ editor.once('load', function() {
         });
 
 
+        // controls
+        var fieldControls = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Controls',
+        });
+        var label = fieldControls;
+        fieldControls = fieldControls.parent;
+        label.destroy();
+        fieldControls.class.add('controls');
+
+        var btnPlay = new ui.Button({
+            text: '&#57649;'
+        });
+        btnPlay.on('click', function() {
+            for(var i = 0; i < entities.length; i++) {
+                if (! entities[i].entity || ! entities[i].entity.particlesystem)
+                    continue;
+
+                if (playingState === 1) {
+                    entities[i].entity.particlesystem.pause();
+                } else if (entities[i].entity.particlesystem.data.paused) {
+                    entities[i].entity.particlesystem.unpause();
+                } else {
+                    entities[i].entity.particlesystem.stop();
+                    entities[i].entity.particlesystem.reset();
+                    entities[i].entity.particlesystem.play();
+                }
+            }
+            checkPlayingState();
+        });
+        fieldControls.append(btnPlay);
+
+        var playingState = -1;
+        var loopingState = -1;
+
+        var checkPlayingState = function() {
+            var playing = -1;
+            var looping = -1;
+
+            for(var i = 0; i < entities.length; i++) {
+                if (! entities[i].entity || ! entities[i].entity.particlesystem)
+                    continue;
+
+                if (entities[i].entity.particlesystem.emitter && entities[i].entity.particlesystem.isPlaying()) {
+                    if (playing === -1) {
+                        playing = 1;
+                    } else if (playing === 0) {
+                        playing = 2;
+                    }
+                } else {
+                    if (playing === -1) {
+                        playing = 0;
+                    } else if (playing === 1) {
+                        playing = 2;
+                    }
+                }
+
+                if (entities[i].entity.particlesystem.emitter && entities[i].entity.particlesystem.emitter.loop) {
+                    if (looping === -1) {
+                        looping = 1;
+                    } else if (looping === 0) {
+                        looping = 2;
+                    }
+                } else {
+                    if (looping === -1) {
+                        looping = 0;
+                    } else if (looping === 1) {
+                        looping = 2;
+                    }
+                }
+            }
+
+            if (playingState !== playing) {
+                playingState = playing;
+
+                if (playingState === 1) {
+                    btnPlay.text = '&#10074;&#10074;'; // pause
+                    btnPlay.class.add('pause');
+                } else {
+                    btnPlay.text = '&#57649;'; // play
+                    btnPlay.class.remove('pause');
+                }
+            }
+
+            if (loopingState !== looping) {
+                loopingState = looping;
+
+                if (loopingState === 0) {
+                    btnStop.disabled = true;
+                } else {
+                    btnStop.disabled = false;
+                }
+            }
+        };
+
+        var evtCheckPlayingState = setInterval(checkPlayingState, 100);
+        btnPlay.once('destroy', function() {
+            clearInterval(evtCheckPlayingState);
+        });
+
+
+        var btnStop = new ui.Button({
+            text: '	&#57653;'
+        });
+        btnStop.on('click', function() {
+            for(var i = 0; i < entities.length; i++) {
+                if (! entities[i].entity || ! entities[i].entity.particlesystem)
+                    continue;
+
+                if (playingState === 1) {
+                    entities[i].entity.particlesystem.stop();
+                } else {
+                    entities[i].entity.particlesystem.stop();
+                    entities[i].entity.particlesystem.reset();
+                }
+            }
+
+            checkPlayingState();
+        });
+        fieldControls.append(btnStop);
+
+        var btnReset = new ui.Button({
+            text: '&#57619;'
+        });
+        btnReset.on('click', function() {
+            for(var i = 0; i < entities.length; i++) {
+                if (! entities[i].entity || ! entities[i].entity.particlesystem)
+                    continue;
+
+                entities[i].entity.particlesystem.rebuild();
+                entities[i].entity.particlesystem.reset();
+                entities[i].entity.particlesystem.play();
+            }
+
+            checkPlayingState();
+        });
+        fieldControls.append(btnReset);
+
+        checkPlayingState();
+
+
         // autoPlay
         var fieldAutoPlay = editor.call('attributes:addField', {
             parent: panel,

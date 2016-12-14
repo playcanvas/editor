@@ -172,6 +172,8 @@ editor.once('load', function() {
                         }
                         editor.emit('gizmo:translate:offset', point.x, point.y, point.z);
                     }
+
+                    editor.call('viewport:render');
                 }
 
                 editor.emit('gizmo:translate:render', dt);
@@ -285,8 +287,6 @@ editor.once('load', function() {
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
                     app.renderLine(vecB, vecC, gizmo.arrow.z.model.material.color, pc.LINEBATCH_GIZMO);
                 }
-
-                editor.call('viewport:render');
             }
 
             mouseTapMoved = false
@@ -593,6 +593,3 @@ editor.once('load', function() {
         return obj;
     };
 });
-
-
-
