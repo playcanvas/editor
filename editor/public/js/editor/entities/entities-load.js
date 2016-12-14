@@ -12,6 +12,10 @@ editor.on('load', function() {
 
     var loadedEntities = false;
 
+    editor.method('entities:loaded', function() {
+        return loadedEntities;
+    });
+
     editor.on('scene:raw', function(data) {
         // check if we're reloading the scene
 

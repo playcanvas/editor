@@ -95,28 +95,36 @@ editor.once('plugins:load:entities-to-obj', function() {
         return obj;
     });
 
-    editor.call('entities:contextmenu:add', {
-        text: 'Export to OBJ',
-        icon: '&#57896;',
-        value: 'export-to-obj',
-        select: function(selection) {
-            var obj = editor.call('plugins:entities-to-obj', selection);
-            if (! obj) return;
+    var onEntitiesLoaded = function() {
+        editor.call('entities:contextmenu:add', {
+            text: 'Export to OBJ',
+            icon: '&#57896;',
+            value: 'export-to-obj',
+            select: function(selection) {
+                var obj = editor.call('plugins:entities-to-obj', selection);
+                if (! obj) return;
 
-            var element = document.createElement('a');
-            element.href = window.URL.createObjectURL(new Blob([ obj ], { type: 'text/plain;charset=utf-8' }))
-            element.download = 'model.obj';
-            element.style.display = 'none';
-            document.body.appendChild(element);
-            element.click();
-            document.body.removeChild(element);
-        },
-        filter: function(selection) {
-            for(var i = 0; i < selection.length; i++) {
-                if (selection[i].entity && selection[i].entity.model)
-                    return true;
+                var element = document.createElement('a');
+                element.href = window.URL.createObjectURL(new Blob([ obj ], { type: 'text/plain;charset=utf-8' }))
+                element.download = 'model.obj';
+                element.style.display = 'none';
+                document.body.appendChild(element);
+                element.click();
+                document.body.removeChild(element);
+            },
+            filter: function(selection) {
+                for(var i = 0; i < selection.length; i++) {
+                    if (selection[i].entity && selection[i].entity.model)
+                        return true;
+                }
+                return false;
             }
-            return false;
-        }
-    });
+        });
+    };
+
+    if (editor.call('entities:loaded')) {
+        onEntitiesLoaded();
+    } else {
+        editor.once('entities:load', onEntitiesLoaded);
+    }
 });
