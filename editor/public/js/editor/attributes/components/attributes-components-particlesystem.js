@@ -38,6 +38,7 @@ editor.once('load', function() {
                 } else if (entities[i].entity.particlesystem.data.paused) {
                     entities[i].entity.particlesystem.unpause();
                 } else {
+                    entities[i].entity.particlesystem.reset();
                     entities[i].entity.particlesystem.play();
                 }
             }
