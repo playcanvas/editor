@@ -48,6 +48,19 @@ function CurveField(args) {
     this.curveNames = args.curves;
 
     this.gradient = !!(args.gradient);
+
+    this.min = 0;
+    if (args.min !== undefined)
+        this.min = args.min;
+    else if (args.verticalValue !== undefined)
+        this.min = -args.verticalValue;
+
+
+    this.max = 1;
+    if (args.max !== undefined)
+        this.max = args.max;
+    else if (args.verticalValue !== undefined)
+        this.max = args.verticalValue;
 }
 CurveField.prototype = Object.create(ui.Element.prototype);
 
@@ -181,6 +194,15 @@ CurveField.prototype._render = function () {
     }
 };
 
+// clamp val between min and max only if it's less / above them but close to them
+// this is mostly to allow splines to go over the limit but if they are too close to
+// the edge then they will avoid rendering half-height lines
+CurveField.prototype._clampEdge = function (val, min, max) {
+    if (val < min && val > min - 2) return min;
+    if (val > max && val < max + 2) return max;
+    return val;
+};
+
 // Renders all curves
 CurveField.prototype._renderCurves = function () {
     var canvas = this.canvas.element;
@@ -209,6 +231,8 @@ CurveField.prototype._renderCurves = function () {
 
         context.lineWidth = 1;
 
+        var height = canvas.height;
+
         for (var i = 0; i < primaryCurves.length; i++) {
             var val, x;
 
@@ -216,19 +240,19 @@ CurveField.prototype._renderCurves = function () {
             context.fillStyle = fillColors[i];
 
             context.beginPath();
-            context.moveTo(0, canvas.height * (1 - (primaryCurves[i].value(0) - minValue) / (maxValue - minValue)));
+            context.moveTo(0, this._clampEdge(height * (1 - (primaryCurves[i].value(0) - minValue) / (maxValue - minValue)), 1, height - 1));
 
             var precision = 1;
 
             for(x = 0; x < Math.floor(canvas.width / precision); x++) {
                 val = primaryCurves[i].value(x * precision / canvas.width);
-                context.lineTo(x * precision, canvas.height * (1 - (val - minValue) / (maxValue - minValue)));
+                context.lineTo(x * precision, this._clampEdge(height * (1 - (val - minValue) / (maxValue - minValue)), 1, height - 1));
             }
 
             if (secondaryCurves) {
                 for(x = Math.floor(canvas.width / precision) ; x >= 0; x--) {
                     val = secondaryCurves[i].value(x * precision / canvas.width);
-                    context.lineTo(x * precision, canvas.height * (1 - (val - minValue) / (maxValue - minValue)));
+                    context.lineTo(x * precision, this._clampEdge(height * (1 - (val - minValue) / (maxValue - minValue)), 1, height - 1));
                 }
 
                 context.closePath();
@@ -333,21 +357,22 @@ CurveField.prototype._getMinMaxValues = function (curves) {
         });
     }
 
-    // If no curves were found set min to 0...
     if (minValue === Infinity) {
-        minValue = 0;
+        minValue = this.min;
     }
 
-    // ... and max to 1
     if (maxValue === -Infinity) {
-        maxValue = 1;
+        maxValue = this.max;
     }
 
-    // if min and max are equal then offset them both by 0.5
-    // so that the straight line is rendered in the middle of the canvas
-    if (minValue === maxValue) {
-        minValue -= 0.5;
-        maxValue += 0.5;
+    // try to limit minValue and maxValue
+    // between the min / max values for the curve field
+    if (minValue > this.min) {
+        minValue = this.min;
+    }
+
+    if (maxValue < this.max) {
+        maxValue = this.max;
     }
 
     return [minValue, maxValue];
