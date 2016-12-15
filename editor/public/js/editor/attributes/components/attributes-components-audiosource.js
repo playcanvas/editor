@@ -20,8 +20,6 @@ editor.once('load', function() {
             panel: panel,
             path: 'components.audiosource.assets'
         });
-        // reference
-        editor.call('attributes:reference:attach', 'audiosource:assets', fieldAssets.parent.innerElement.firstChild.ui);
 
         // audiosource.playback
         var panelPlayback = new ui.Panel();
