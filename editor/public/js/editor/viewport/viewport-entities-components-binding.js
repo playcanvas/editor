@@ -41,6 +41,8 @@ editor.once('load', function() {
                     if (component === 'particlesystem') {
                         data.enabled = false;
                         data.autoPlay = true;
+                    } else if (component === 'animation') {
+                        data.enabled = false;
                     }
 
                     app = editor.call('viewport:app');
@@ -59,6 +61,10 @@ editor.once('load', function() {
                         value = false;
                     } else if (property === 'autoPlay') {
                         value = true;
+                    }
+                } else if (component === 'animation') {
+                    if (property === 'enabled') {
+                        value = false;
                     }
                 }
 

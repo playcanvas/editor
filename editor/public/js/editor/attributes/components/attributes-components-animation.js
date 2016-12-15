@@ -7,6 +7,8 @@ editor.once('load', function() {
         if (! panelComponents)
             return;
 
+        var app = editor.call('viewport:app');
+
 
         var panel = editor.call('attributes:entity:addComponentPanel', {
             title: 'Animation',
@@ -24,6 +26,97 @@ editor.once('load', function() {
         });
         // reference
         editor.call('attributes:reference:attach', 'animation:assets', fieldAssets.parent.innerElement.firstChild.ui);
+
+        var first = true;
+        var initial = true;
+
+        var onAssetAdd = function(item) {
+            var btnPlay = new ui.Button();
+            btnPlay.class.add('play');
+            btnPlay.on('click', function(evt) {
+                evt.stopPropagation();
+
+                var id = parseInt(item.asset.get('id'), 10);
+
+                for(var i = 0; i < entities.length; i++) {
+                    if (! entities[i].entity || ! entities[i].entity.animation)
+                        continue;
+
+                    if (entities[i].entity.animation.assets.indexOf(id) === -1) {
+                        entities[i].entity.animation._stopCurrentAnimation();
+                        continue;
+                    }
+
+                    var name = entities[i].entity.animation.animationsIndex[id];
+                    if (! name) continue;
+
+                    entities[i].entity.animation.play(name);
+                }
+            });
+            btnPlay.parent = item;
+            item.element.appendChild(btnPlay.element);
+
+            if (first || ! initial) {
+                first = false;
+                var id = item.asset.get('id');
+                var asset = app.assets.get(id);
+
+                var onAssetAdd = function(asset) {
+                    if (asset.resource) {
+                        editor.once('viewport:update', function() {
+                            btnPlay.element.click();
+                        });
+                    } else {
+                        asset.once('load', function() {
+                            btnPlay.element.click();
+                        });
+                    }
+                };
+
+                if (asset) {
+                    onAssetAdd(asset);
+                } else {
+                    app.assets.once('add:' + id, onAssetAdd);
+                }
+            }
+
+            item.once('destroy', function() {
+                var id = parseInt(item.asset.get('id'), 10);
+
+                for(var i = 0; i < entities.length; i++) {
+                    if (! entities[i].entity || ! entities[i].entity.animation || entities[i].entity.animation.assets.indexOf(id) === -1)
+                        continue;
+
+                    var name = entities[i].entity.animation.animationsIndex[id];
+                    if (! name || entities[i].entity.animation.currAnim !== name)
+                        continue;
+
+                    entities[i].entity.animation._stopCurrentAnimation();
+                }
+            });
+        };
+
+        var nodes = fieldAssets.element.childNodes;
+        for(var i = 0; i < nodes.length; i++) {
+            if (! nodes[i].ui || ! nodes[i].ui.asset)
+                continue;
+
+            onAssetAdd(nodes[i].ui);
+        }
+        initial = false;
+
+        if (first) {
+            first = false;
+
+            for(var i = 0; i < entities.length; i++) {
+                if (! entities[i].entity || ! entities[i].entity.animation)
+                    continue;
+
+                entities[i].entity.animation._stopCurrentAnimation();
+            }
+        }
+
+        fieldAssets.on('append', onAssetAdd);
 
         // animation.speed
         var fieldSpeed = editor.call('attributes:addField', {

@@ -1320,14 +1320,14 @@ strong {
             > .ui-list-item {
                 position: relative;
 
-                > .remove {
+                > .remove,
+                > .play {
                     position: absolute;
                     display: block;
                     top: 0;
-                    right: 0;
                     width: 22px;
                     height: 22px;
-                    line-height: 22px;
+                    line-height: 24px;
                     margin: 0;
                     padding: 0;
                     border: none;
@@ -1336,10 +1336,25 @@ strong {
                     text-align: center;
 
                     &:hover {
+                        color: $text-primary;
+                    }
+                }
+
+                > .remove {
+                    right: 0;
+
+                    &:hover {
                         color: #d34141;
                     }
                     &:after {
                         content: '\E132';
+                    }
+                }
+                > .play {
+                    right: 22px;
+
+                    &:after {
+                        content: '\E131';
                     }
                 }
             }

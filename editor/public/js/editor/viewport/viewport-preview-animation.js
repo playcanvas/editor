@@ -10,30 +10,30 @@ editor.once('load', function() {
     });
 
     var checkState = function(item, remove) {
-        if (remove || ! item.entity.entity || ! item.entity.entity.particlesystem) {
+        if (remove || ! item.entity.entity || ! item.entity.entity.animation) {
             if (item.active) {
                 render--;
                 item.active = false;
 
-                if (item.entity.entity && item.entity.entity.particlesystem)
-                    item.entity.entity.particlesystem.enabled = false;
+                if (item.entity.entity && item.entity.entity.animation)
+                    item.entity.entity.animation.enabled = false;
             }
             return;
         }
 
-        if (! remove && item.entity.get('components.particlesystem.enabled')) {
+        if (! remove && item.entity.get('components.animation.enabled')) {
             if (! item.active) {
                 render++;
                 item.active = true;
 
-                item.entity.entity.particlesystem.enabled = true;
+                item.entity.entity.animation.enabled = true;
 
                 editor.call('viewport:render');
             }
         } else if (item.active) {
             render--;
             item.active = false;
-            item.entity.entity.particlesystem.enabled = false;
+            item.entity.entity.animation.enabled = false;
         }
     };
 
@@ -51,11 +51,11 @@ editor.once('load', function() {
             id: id,
             entity: entity,
             active: false,
-            evtEnable: entity.on('components.particlesystem.enabled:set', function() {
+            evtEnable: entity.on('components.animation.enabled:set', function() {
                 setTimeout(onCheckState, 0);
             }),
-            evtSet: entity.on('components.particlesystem:set', onCheckState),
-            evtUnset: entity.on('components.particlesystem:unset', onCheckState)
+            evtSet: entity.on('components.animation:set', onCheckState),
+            evtUnset: entity.on('components.animation:unset', onCheckState)
         };
 
         checkState(item);

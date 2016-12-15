@@ -77,6 +77,8 @@ editor.once('load', function() {
                 if (key === 'particlesystem') {
                     components[key].enabled = false;
                     components[key].autoPlay = true;
+                } else if (key === 'animation') {
+                    components[key].enabled = false;
                 }
 
                 app.context.systems[key].addComponent(entity, components[key]);

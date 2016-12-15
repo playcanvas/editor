@@ -1910,6 +1910,7 @@ editor.once('load', function() {
 
             if (item.count === 0) {
                 item.destroy();
+                fieldAssets.emit('remove', item);
             } else {
                 item.text = (item.count === link.length ? '' : '* ') + item._assetText;
             }
