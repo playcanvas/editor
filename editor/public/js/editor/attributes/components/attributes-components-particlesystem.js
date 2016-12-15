@@ -155,6 +155,18 @@ editor.once('load', function() {
 
         checkPlayingState();
 
+        editor.once('viewport:update', function() {
+            for(var i = 0; i < entities.length; i++) {
+                if (! entities[i].entity || ! entities[i].entity.particlesystem)
+                    continue;
+
+                entities[i].entity.particlesystem.rebuild();
+                entities[i].entity.particlesystem.reset();
+                entities[i].entity.particlesystem.play();
+            }
+        });
+        editor.call('viewport:render');
+
 
         // autoPlay
         var fieldAutoPlay = editor.call('attributes:addField', {
