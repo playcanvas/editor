@@ -24,8 +24,6 @@ editor.once('load', function() {
             link: entities,
             path: 'components.animation.assets'
         });
-        // reference
-        editor.call('attributes:reference:attach', 'animation:assets', fieldAssets.parent.innerElement.firstChild.ui);
 
         var first = true;
         var initial = true;
