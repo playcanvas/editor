@@ -87,8 +87,6 @@ editor.once('load', function() {
 
             var dt = app.getDt();
 
-            app.update(dt);
-
             if (app.redraw) {
                 app.redraw = editor.call('viewport:keepRendering');
 

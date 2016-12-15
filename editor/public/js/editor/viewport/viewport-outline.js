@@ -375,7 +375,7 @@ editor.once('load', function() {
     }
 
 
-    editor.on('viewport:preRender', function() {
+    editor.on('viewport:postUpdate', function() {
         if (! render && cleared) return;
 
         if (targets[0] && (targets[0].width !== device.width || targets[1].height !== device.height)) {
