@@ -123,13 +123,29 @@ editor.once('load', function() {
             parent: panel,
             name: 'Speed',
             type: 'number',
-            precision: 2,
-            step: .1,
+            precision: 3,
+            step: 0.1,
             link: entities,
             path: 'components.animation.speed'
         });
+        fieldSpeed.style.width = '32px';
         // reference
         editor.call('attributes:reference:attach', 'animation:speed', fieldSpeed.parent.innerElement.firstChild.ui);
+
+        // intensity slider
+        var fieldSpeedSlider = editor.call('attributes:addField', {
+            panel: fieldSpeed.parent,
+            precision: 3,
+            step: 0.1,
+            min: -2,
+            max: 2,
+            type: 'number',
+            slider: true,
+            link: entities,
+            path: 'components.animation.speed'
+        });
+        fieldSpeedSlider.flexGrow = 4;
+
 
         // animation.playback
         var panelPlayback = new ui.Panel();
