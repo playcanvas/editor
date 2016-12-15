@@ -27,6 +27,7 @@ editor.once('load', function() {
         this.tick = this.makeTick();;
 
         pc.ComponentSystem.on('toolsUpdate', this.systems.particlesystem.onUpdate, this.systems.particlesystem);
+        pc.ComponentSystem.on('toolsUpdate', this.systems.animation.onUpdate, this.systems.animation);
     };
 
     editor.method('viewport:application', function() {
