@@ -534,18 +534,15 @@ editor.once('load', function() {
         for (var i = 0, len = entities.length; i < len; i++) {
             var e = entities[i];
 
-            var parent = e.get('parent');
+            var p = childToParent[e.get('resource_id')];
             var isParentSelected = false;
-            while (parent) {
-                if (selection[parent]) {
+            while (p) {
+                if (selection[p]) {
                     isParentSelected = true;
                     break;
                 }
 
-                var p = editor.call('entities:get', parent);
-                if (! p) break;
-
-                parent = p.get('parent');
+                p = childToParent[p];
             }
 
             // if parent is also selected then skip child
