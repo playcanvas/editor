@@ -473,6 +473,9 @@ editor.once('load', function() {
                             }
 
                             if (instance.skinInstance) {
+                                instance.skinInstance.updateMatrices();
+                                instance.skinInstance.updateMatrixPalette();
+
                                 renderer._skinDrawCalls++;
                                 renderer.skinPosOffsetId.setValue(instance.skinInstance.rootNode.getPosition().data);
                                 if (device.supportsBoneTextures) {
