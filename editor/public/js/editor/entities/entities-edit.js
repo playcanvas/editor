@@ -576,6 +576,10 @@ editor.once('load', function() {
         if (! data)
             return;
 
+        // paste on root if no parent specified
+        if (! parent)
+            parent = editor.call('entities:root');
+
         // check it's the same project
         if (data.project !== config.project.id)
             return;

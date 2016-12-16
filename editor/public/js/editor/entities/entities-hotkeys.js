@@ -119,15 +119,9 @@ editor.once('load', function() {
             if (! editor.call('permissions:write'))
                 return;
 
-            var type = editor.call('selector:type');
-            if (type !== 'entity')
-                return;
-
             var items = editor.call('selector:items');
-            if (items.length !== 1)
-                return;
-
-            editor.call('entities:paste', items[0]);
+            if (items.length === 0 || items.length === 1 && editor.call('selector:type') === 'entity')
+                editor.call('entities:paste', items[0]);
         }
     });
 

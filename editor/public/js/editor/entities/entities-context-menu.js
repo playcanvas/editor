@@ -269,7 +269,7 @@ editor.once('load', function() {
             title: 'Paste',
             icon: '&#58184;',
             filter: function () {
-                return items.length === 1 && ! editor.call('entities:clipboard:empty');
+                return items.length <= 1 && ! editor.call('entities:clipboard:empty');
             },
             select: function() {
                 editor.call('entities:paste', entity);

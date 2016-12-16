@@ -286,10 +286,16 @@ editor.once('load', function() {
                         if (! editor.call('permissions:write'))
                             return false;
 
-                        return editor.call('selector:type') === 'entity' &&
-                               editor.call('selector:items').length === 1 &&
-                             ! editor.call('entities:clipboard:empty') &&
-                               editor.call('entities:clipboard:get').project === config.project.id;
+                        if (! editor.call('entities:clipboard:empty') &&
+                              editor.call('entities:clipboard:get').project === config.project.id) {
+
+                            var items = editor.call('selector:items');
+                            if (items.length === 0 || items.length === 1 && editor.call('selector:type') === 'entity') {
+                                return true;
+                            }
+                        }
+
+                        return false;
                     },
                     select: function () {
                         var items = editor.call('selector:items');
