@@ -480,7 +480,7 @@ editor.once('load', function() {
     });
 
     // copy entity to local storage
-    editor.method('entities:copy', function (entity) {
+    editor.method('entities:copy', function (entities) {
         var data = {
             project: config.project.id,
             hierarchy: {}
@@ -499,10 +499,74 @@ editor.once('load', function() {
             }
         };
 
-        gatherDependencies(entity);
+        // build index
+        var selection = {};
+        for (var i = 0, len = entities.length; i < len; i++) {
+            selection[entities[i].get('resource_id')] = entities[i];
+        }
 
-        // remove parent from copied entity
-        data.hierarchy[entity.get('resource_id')].parent = null;
+
+        // sort entities by their index in their parent's children list
+        entities.sort(function (a, b) {
+            var pA = a.get('parent');
+            if (! pA)
+                return -1;
+
+            pA = editor.call('entities:get', pA);
+            if (! pA)
+                return -1;
+
+            var indA = pA.get('children').indexOf(a.get('resource_id'));
+
+            var pB = b.get('parent');
+            if (! pB)
+                return 1;
+
+            pB = editor.call('entities:get', pB);
+            if (! pB)
+                return -1;
+
+            var indB = pB.get('children').indexOf(b.get('resource_id'));
+
+            return indA - indB;
+        });
+
+        for (var i = 0, len = entities.length; i < len; i++) {
+            var e = entities[i];
+
+            var parent = e.get('parent');
+            var isParentSelected = false;
+            while (parent) {
+                if (selection[parent]) {
+                    isParentSelected = true;
+                    break;
+                }
+
+                var p = editor.call('entities:get', parent);
+                if (! p) break;
+
+                parent = p.get('parent');
+            }
+
+            // if parent is also selected then skip child
+            // and only add parent to copied entities
+            if (isParentSelected) {
+                // remove entity from selection
+                // since its parent is selected
+                delete selection[e.get('resource_id')];
+                continue;
+            }
+
+            // add entity to clipboard if not already added as a child of
+            // a higher level entity
+            gatherDependencies(e)
+        }
+
+        for (var key in selection) {
+            // set parent of each copied entity to null
+            if (data.hierarchy[key])
+                data.hierarchy[key].parent = null;
+        }
 
         // save to local storage
         editor.call('entities:clipboard:set', data);
@@ -553,16 +617,12 @@ editor.once('load', function() {
         };
 
         // add all entities with different resource ids
-        var newEntity = null;
         var newEntities = [];
+        var selectedEntities = [];
 
         for (var resourceId in data.hierarchy) {
             // create new entity
             var entity = new Observer(data.hierarchy[resourceId]);
-
-            // find root of pasted hierarchy
-            if (!entity.get('parent'))
-                newEntity = entity;
 
             // change resource ids
             remapResourceIds(entity);
@@ -570,6 +630,22 @@ editor.once('load', function() {
             // add it
             editor.call('entities:add', entity);
             newEntities.push(entity);
+
+            // check if it should be selected
+            var p = childToParent[resourceId];
+            var foundParent = false;
+            while (p) {
+                if (data.hierarchy[p]) {
+                    foundParent = true;
+                    break;
+                }
+
+                p = childToParent[p];
+            }
+
+            if (! foundParent) {
+                selectedEntities.push(entity);
+            }
         }
 
         // reparent children correctly
@@ -589,27 +665,25 @@ editor.once('load', function() {
             parentEntity.history.enabled = true;
         }
 
-        // select pasted entity
+        // select pasted entities
         setTimeout(function() {
             editor.call('selector:history', false);
-            editor.call('selector:set', 'entity', [ newEntity ]);
+            editor.call('selector:set', 'entity', selectedEntities);
             editor.once('selector:change', function() {
                 editor.call('selector:history', true);
             });
         }, 0);
 
-        // get final raw json for pasted entity
-        var pastedData = newEntity.json();
-
         // add history
         editor.call('history:add', {
-            name: 'paste entity ' + pastedData.resource_id,
+            name: 'paste entities',
             undo: function() {
-                var entity = editor.call('entities:get', pastedData.resource_id);
-                if (! entity)
-                    return;
+                for (var i = selectedEntities.length - 1; i >= 0; i--) {
+                    var entity = editor.call('entities:get', selectedEntities[i].get('resource_id'));
+                    if (! entity) continue;
 
-                removeEntity(entity);
+                    removeEntity(entity);
+                }
 
                 var selectorType = editor.call('selector:type');
                 var selectorItems = editor.call('selector:items');
@@ -631,13 +705,77 @@ editor.once('load', function() {
                 }
             },
             redo: function() {
-                var parentEntity = editor.call('entities:get', parent.get('resource_id'));
-                if (! parentEntity)
-                    return;
+                var newParent = editor.call('entities:get', parent.get('resource_id'));
+                if (! newParent) return;
 
-                var entity = new Observer(pastedData);
-                childToParent[entity.get('resource_id')] = parentEntity.get('resource_id');
-                addEntity(entity, parentEntity, true);
+                var numChildren = newParent.get('children').length;
+
+                var entities = [];
+                // re-add entities
+                for (var i = 0; i < selectedEntities.length; i++) {
+                    var fromCache = deletedCache[selectedEntities[i].get('resource_id')];
+                    if (! fromCache) continue;
+                    var e = new Observer(fromCache);
+                    addEntity(e, newParent, false, numChildren + i);
+                    entities.push(e);
+                }
+
+                editor.call('selector:history', false);
+                editor.call('selector:set', 'entity', entities);
+                editor.once('selector:change', function() {
+                    editor.call('selector:history', true);
+                });
+            }
+        });
+    });
+
+    editor.method('entities:addComponent', function (entities, component) {
+        var componentData = editor.call('components:getDefault', component);
+        var records = [ ];
+
+        for(var i = 0; i < entities.length; i++) {
+            if (entities[i].has('components.' + component))
+                continue;
+
+            records.push({
+                get: entities[i].history._getItemFn,
+                value: componentData
+            });
+
+            entities[i].history.enabled = false;
+            entities[i].set('components.' + component, componentData);
+            entities[i].history.enabled = true;
+        }
+
+        // if it's a collision or rigidbody component then enable physics
+        if (component === 'collision' || component === 'rigidbody') {
+            var settings = editor.call('project:settings');
+            settings.history = false;
+            settings.set('libraries', ['physics-engine-3d']);
+            settings.history = true;
+        }
+
+        editor.call('history:add', {
+            name: 'entities.' + component,
+            undo: function() {
+                for(var i = 0; i < records.length; i++) {
+                    var item = records[i].get();
+                    if (! item)
+                        continue;
+                    item.history.enabled = false;
+                    item.unset('components.' + component);
+                    item.history.enabled = true;
+                }
+            },
+            redo: function() {
+                for(var i = 0; i < records.length; i++) {
+                    var item = records[i].get();
+                    if (! item)
+                        continue;
+                    item.history.enabled = false;
+                    item.set('components.' + component, records[i].value);
+                    item.history.enabled = true;
+                }
             }
         });
     });

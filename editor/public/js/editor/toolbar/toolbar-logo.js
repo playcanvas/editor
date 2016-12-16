@@ -26,19 +26,6 @@ editor.once('load', function() {
         'script': '&#57910;'
     };
 
-    var addComponent = function (entity, component) {
-        var componentData = editor.call('components:getDefault', component);
-        entity.set('components.' + component, componentData);
-
-        // if it's a collision or rigidbody component then enable physics
-        if (component === 'collision' || component === 'rigidbody') {
-            var settings = editor.call('project:settings');
-            settings.history = false;
-            settings.set('libraries', ['physics-engine-3d']);
-            settings.history = true;
-        }
-    };
-
     var hasLegacyScript = function (entity, url) {
         var scriptComponent = entity.get('components.script');
         if (scriptComponent) {
@@ -133,7 +120,7 @@ editor.once('load', function() {
                 e.history.enabled = false;
 
                 if (!e.get('components.script')) {
-                    addComponent(e, 'script');
+                    editor.call('entities:addComponent', [e], 'script');
                     addedComponent = true;
                 }
 
@@ -168,14 +155,14 @@ editor.once('load', function() {
         'entity': {
             title: 'Entity',
             filter: function() {
-                if (editor.call('selector:type') === 'entity' && editor.call('selector:items').length !== 1)
-                    return false;
-
-                return editor.call('permissions:write');
+                return editor.call('selector:type') === 'entity' && editor.call('permissions:write');
             },
             items: {
                 'new-entity': {
                     title: 'New Entity',
+                    filter: function () {
+                        return editor.call('selector:items').length === 1;
+                    },
                     select: function () {
                         editor.call('entities:new', {parent: editor.call('entities:selectedFirst')});
                     },
@@ -285,11 +272,11 @@ editor.once('load', function() {
                         if (! editor.call('permissions:write'))
                             return false;
 
-                        return editor.call('selector:type') === 'entity' && editor.call('selector:items').length === 1;
+                        return editor.call('selector:type') === 'entity' && editor.call('selector:items').length;
                     },
                     select: function () {
                         var items = editor.call('selector:items');
-                        editor.call('entities:copy', items[0]);
+                        editor.call('entities:copy', items);
                     }
                 },
                 'paste': {
@@ -575,17 +562,24 @@ editor.once('load', function() {
                 if (editor.call('selector:type') !== 'entity')
                     return false;
 
-                var entity = editor.call('selector:items')[0];
-                return ! entity.has('components.' + key);
+                var items = editor.call('selector:items');
+                var path = 'components.' + key;
+
+                for (var i = 0, len = items.length; i < len; i++) {
+                    if (! items[i].has(path))
+                        return true;
+                }
+
+                return false;
             },
             select: function() {
                 if (editor.call('selector:type') !== 'entity')
                     return;
 
-                var entity = editor.call('selector:items')[0];
+                var items = editor.call('selector:items');
                 var component = this._value;
 
-                addComponent(entity, component);
+                editor.call('entities:addComponent', items, component);
             }
         };
 

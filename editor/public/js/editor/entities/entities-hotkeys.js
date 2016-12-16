@@ -103,10 +103,10 @@ editor.once('load', function() {
                 return;
 
             var items = editor.call('selector:items');
-            if (items.length !== 1)
+            if (!items.length)
                 return;
 
-            editor.call('entities:copy', items[0]);
+            editor.call('entities:copy', items);
         }
     });
 

@@ -39,56 +39,9 @@ editor.once('load', function() {
         }
     });
     menuAddComponent.on('select', function(path) {
-        var componentData = editor.call('components:getDefault', path[0]);
         var items = editor.call('selector:items');
-        var records = [ ];
         var component = path[0];
-
-        for(var i = 0; i < items.length; i++) {
-            if (items[i].has('components.' + component))
-                continue;
-
-            records.push({
-                get: items[i].history._getItemFn,
-                value: componentData
-            });
-
-            items[i].history.enabled = false;
-            items[i].set('components.' + component, componentData);
-            items[i].history.enabled = true;
-        }
-
-        // if it's a collision or rigidbody component then enable physics
-        if (component === 'collision' || component === 'rigidbody') {
-            var settings = editor.call('project:settings');
-            settings.history = false;
-            settings.set('libraries', ['physics-engine-3d']);
-            settings.history = true;
-        }
-
-        editor.call('history:add', {
-            name: 'entities.' + component,
-            undo: function() {
-                for(var i = 0; i < records.length; i++) {
-                    var item = records[i].get();
-                    if (! item)
-                        continue;
-                    item.history.enabled = false;
-                    item.unset('components.' + component);
-                    item.history.enabled = true;
-                }
-            },
-            redo: function() {
-                for(var i = 0; i < records.length; i++) {
-                    var item = records[i].get();
-                    if (! item)
-                        continue;
-                    item.history.enabled = false;
-                    item.set('components.' + component, records[i].value);
-                    item.history.enabled = true;
-                }
-            }
-        });
+        editor.call('entities:addComponent', items, component);
     });
     editor.call('layout.root').append(menuAddComponent);
 
