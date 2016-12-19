@@ -286,9 +286,7 @@ editor.once('load', function() {
                         if (! editor.call('permissions:write'))
                             return false;
 
-                        if (! editor.call('entities:clipboard:empty') &&
-                              editor.call('entities:clipboard:get').project === config.project.id) {
-
+                        if (! editor.call('entities:clipboard:empty')) {
                             var items = editor.call('selector:items');
                             if (items.length === 0 || items.length === 1 && editor.call('selector:type') === 'entity') {
                                 return true;
