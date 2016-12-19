@@ -342,6 +342,29 @@ editor.once('load', function() {
         }
     };
 
+    // Paths in components that represent
+    // assets. Used when copy pasting. Does not include
+    // asset script attributes
+    var assetPaths = [
+        'components.animation.assets',
+        'components.light.cookieAsset',
+        'components.model.asset',
+        'components.model.materialAsset',
+        'components.audiosource.assets',
+        'components.sound.slots.*.asset',
+        'components.collision.asset',
+        'components.particlesystem.colorMapAsset',
+        'components.particlesystem.normalMapAsset',
+        'components.particlesystem.mesh',
+        'components.element.fontAsset',
+        'components.element.textureAsset',
+        'components.element.materialAsset'
+    ];
+
+    editor.method('components:assetPaths', function () {
+        return assetPaths;
+    });
+
     if (editor.call('project:settings').get('use_legacy_scripts')) {
         schema.script.default.scripts = [ ];
         delete schema.script.default.order;
