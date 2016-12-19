@@ -726,9 +726,14 @@ editor.once('load', function() {
         // try to find asset id in this project
         // from path of asset in old project
         var remapAsset = function (assetId) {
+            if (! assetId) return null;
+
+            // return the old asset id if not found
+            var result = parseInt(assetId, 10);
+
             var assetData = data.assets[assetId];
             if (! assetData)
-                return null;
+                return result;
 
             var len = assetData.path.length;
             var name = assetData.path[len-1];
@@ -752,7 +757,7 @@ editor.once('load', function() {
                 }
 
                 if (!folder)
-                    return null;
+                    return result;
 
                 pathToId[i] === folder.get('id');
             }
@@ -780,11 +785,12 @@ editor.once('load', function() {
                             continue;
                     }
 
-                    return parseInt(asset.get('id'), 10);
+                    result = parseInt(asset.get('id'), 10);
+                    break;
                 }
             }
 
-            return null;
+            return result;
         };
 
         // remap assets
