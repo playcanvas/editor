@@ -826,8 +826,7 @@ editor.once('load', function() {
             // are going to get added later on
             entity.set('children', []);
 
-            // if this is not the same project then try to
-            // match asset references by path
+            // remap assets and entities
             if (data.project !== config.project.id) {
                 for (var i = 0; i < componentAssetPaths.length; i++) {
                     var path = componentAssetPaths[i];
@@ -869,89 +868,91 @@ editor.once('load', function() {
                         }
                     }
                 }
+            }
 
-                // remap script asset attributes
-                if (entity.has('components.script.scripts')) {
-                    if (entity.has('components.script')) {
-                        // remove script component if legacy scripts flag is different between the two projects
-                        if (legacy_scripts !== data.legacy_scripts) {
-                            entity.unset('components.script');
-                        } else {
-                            var scripts = entity.get('components.script.scripts');
-                            // legacy scripts
-                            if (legacy_scripts) {
-                                for (var i = 0, len = scripts.length; i < len; i++) {
-                                    var script = scripts[i];
-                                    if (! script.attributes) continue;
+            // remap script asset attributes
+            if (entity.has('components.script.scripts')) {
+                if (entity.has('components.script')) {
+                    // remove script component if legacy scripts flag is different between the two projects
+                    if (legacy_scripts !== data.legacy_scripts) {
+                        entity.unset('components.script');
+                    } else {
+                        var scripts = entity.get('components.script.scripts');
+                        // legacy scripts
+                        if (legacy_scripts) {
+                            for (var i = 0, len = scripts.length; i < len; i++) {
+                                var script = scripts[i];
+                                if (! script.attributes) continue;
 
-                                    for (var name in script.attributes) {
-                                        var attr = script.attributes[name];
-                                        if (! attr) continue;
+                                for (var name in script.attributes) {
+                                    var attr = script.attributes[name];
+                                    if (! attr) continue;
 
-                                        if (attr.type === 'asset') {
-                                            if (attr.value) {
-                                                if (attr.value.length) {
-                                                    for (var j = 0; j < attr.value.length; j++) {
-                                                        entity.set('components.script.scripts.' + i + '.attributes.' + name + '.value.' + j, data.assets[attr.value[j]])
-                                                    }
-                                                } else {
-                                                    entity.set('components.script.scripts.' + i + '.attributes.' + name + '.value', data.assets[attr.value]);
+                                    if (attr.type === 'asset' && data.project !== config.project.id) {
+                                        if (attr.value) {
+                                            if (attr.value.length) {
+                                                for (var j = 0; j < attr.value.length; j++) {
+                                                    entity.set('components.script.scripts.' + i + '.attributes.' + name + '.value.' + j, data.assets[attr.value[j]])
                                                 }
+                                            } else {
+                                                entity.set('components.script.scripts.' + i + '.attributes.' + name + '.value', data.assets[attr.value]);
                                             }
-
-                                            if (attr.defaultValue) {
-                                                if (attr.defaultValue.length) {
-                                                    for (var j = 0; j < attr.defaultValue.length; j++) {
-                                                        entity.set('components.script.scripts.' + i + '.attributes.' + name + '.defaultValue.' + j, data.assets[attr.value[j]])
-                                                    }
-                                                } else {
-                                                    entity.set('components.script.scripts.' + i + '.attributes.' + name + '.defaultValue', data.assets[attr.value]);
-                                                }
-                                            }
-                                        } else if (attr.type === 'entity') {
-                                            entity.set('components.script.scripts.' + i + '.attributes.' + name + '.value', mapping[attr.value]);
-                                            entity.set('components.script.scripts.' + i + '.attributes.' + name + '.defaultValue', mapping[attr.defaultValue]);
                                         }
+
+                                        if (attr.defaultValue) {
+                                            if (attr.defaultValue.length) {
+                                                for (var j = 0; j < attr.defaultValue.length; j++) {
+                                                    entity.set('components.script.scripts.' + i + '.attributes.' + name + '.defaultValue.' + j, data.assets[attr.value[j]])
+                                                }
+                                            } else {
+                                                entity.set('components.script.scripts.' + i + '.attributes.' + name + '.defaultValue', data.assets[attr.value]);
+                                            }
+                                        }
+                                    } else if (attr.type === 'entity') {
+                                        if (mapping[attr.value])
+                                            entity.set('components.script.scripts.' + i + '.attributes.' + name + '.value', mapping[attr.value]);
+                                        if (mapping[attr.defaultValue])
+                                            entity.set('components.script.scripts.' + i + '.attributes.' + name + '.defaultValue', mapping[attr.defaultValue]);
                                     }
                                 }
-                            } else {
-                                // scripts 2.0
-                                if (scripts) {
-                                    for(var script in scripts) {
-                                        var asset = editor.call('assets:scripts:assetByScript', script);
-                                        if (! asset) continue;
+                            }
+                        } else {
+                            // scripts 2.0
+                            if (scripts) {
+                                for(var script in scripts) {
+                                    var asset = editor.call('assets:scripts:assetByScript', script);
+                                    if (! asset) continue;
 
-                                        var attrs = scripts[script].attributes;
-                                        if (! attrs) continue;
+                                    var attrs = scripts[script].attributes;
+                                    if (! attrs) continue;
 
-                                        for (var key in attrs) {
-                                            var attrData = asset.get('data.scripts.' + script + '.attributes.' + key);
-                                            if (attrData) {
-                                                if (attrData.type === 'asset') {
-                                                    // remap asset ids
-                                                    if (attrData.array) {
-                                                        for (var j = 0; j < attrs[key].length; j++) {
-                                                            entity.set('components.script.scripts.' + script + '.attributes.' + key + '.' + j, data.assets[attrs[key][j]]);
-                                                        }
-                                                    } else {
-                                                        entity.set('components.script.scripts.' + script + '.attributes.' + key, data.assets[attrs[key]]);
+                                    for (var key in attrs) {
+                                        var attrData = asset.get('data.scripts.' + script + '.attributes.' + key);
+                                        if (attrData) {
+                                            if (attrData.type === 'asset' && data.project !== config.project.id) {
+                                                // remap asset ids
+                                                if (attrData.array) {
+                                                    for (var j = 0; j < attrs[key].length; j++) {
+                                                        entity.set('components.script.scripts.' + script + '.attributes.' + key + '.' + j, data.assets[attrs[key][j]]);
                                                     }
-                                                } else if (attrData.type === 'entity') {
-                                                    // try to remap entities
-                                                    if (mapping[attrs[key]]) {
-                                                        entity.set('components.script.scripts.' + script + '.attributes.' + key, mapping[attrs[key]]);
-                                                    }
+                                                } else {
+                                                    entity.set('components.script.scripts.' + script + '.attributes.' + key, data.assets[attrs[key]]);
                                                 }
-
+                                            } else if (attrData.type === 'entity') {
+                                                // try to remap entities
+                                                if (mapping[attrs[key]]) {
+                                                    entity.set('components.script.scripts.' + script + '.attributes.' + key, mapping[attrs[key]]);
+                                                }
                                             }
+
                                         }
                                     }
                                 }
                             }
                         }
                     }
-
                 }
+
             }
         };
 
