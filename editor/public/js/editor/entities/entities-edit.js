@@ -764,7 +764,8 @@ editor.once('load', function() {
                 var asset = assets[i];
 
                 if (asset.get('name') === name &&
-                    asset.get('type') === type) {
+                    asset.get('type') === type &&
+                    !asset.get('source')) {
                     var path = asset.get('path');
                     if (path && path.length === pathToId.length) {
                         var pathsEqual = true;
