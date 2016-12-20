@@ -443,12 +443,18 @@ editor.once('load', function() {
             removeEntity(items[i]);
         }
 
+        // sort records by index
+        // so that items are re-added
+        // in the correct order in undo
+        records.sort(function (a, b) {
+            return a.ind - b.ind;
+        });
+
         editor.call('history:add', {
             name: 'delete entities',
             undo: function() {
                 var items = [ ];
-                var i = records.length;
-                while(i--) {
+                for (var i = 0, len = records.length; i < len; i++) {
                     var parent = editor.call('entities:get', records[i].parentId);
                     if (! parent)
                         return;
@@ -468,7 +474,7 @@ editor.once('load', function() {
                 }, 0);
             },
             redo: function() {
-                for(var i = 0; i < records.length; i++) {
+                for(var i = 0, len = records.length; i < len; i++) {
                     var entity = editor.call('entities:get', records[i].resourceId);
                     if (! entity)
                         return;
