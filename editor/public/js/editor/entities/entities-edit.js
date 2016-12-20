@@ -558,7 +558,7 @@ editor.once('load', function() {
 
                         var assets = entity.get(fullKey);
                         if (! assets) continue;
-                        if (assets.length) {
+                        if (assets instanceof Array) {
                             assets.forEach(storeAssetPath);
                         } else {
                             storeAssetPath(assets);
@@ -569,7 +569,7 @@ editor.once('load', function() {
                     var assets = entity.get(path);
                     if (! assets) continue;
 
-                    if (assets.length) {
+                    if (assets instanceof Array) {
                         assets.forEach(storeAssetPath);
                     } else {
                         storeAssetPath(assets);
@@ -852,7 +852,7 @@ editor.once('load', function() {
                             var assets = entity.get(fullKey);
                             if (! assets) continue;
 
-                            if (assets.length) {
+                            if (assets instanceof Array) {
                                 for (var j = 0; j < assets.length; j++) {
                                     assets[j] = data.assets[assets[j]];
                                 }
@@ -866,7 +866,7 @@ editor.once('load', function() {
                         var assets = entity.get(path);
                         if (! assets) continue;
 
-                        if (assets.length) {
+                        if (assets instanceof Array) {
                             for (var j = 0; j < assets.length; j++) {
                                 assets[j] = data.assets[assets[j]];
                             }
@@ -898,7 +898,7 @@ editor.once('load', function() {
 
                                     if (attr.type === 'asset' && data.project !== config.project.id) {
                                         if (attr.value) {
-                                            if (attr.value.length) {
+                                            if (attr.value instanceof Array) {
                                                 for (var j = 0; j < attr.value.length; j++) {
                                                     entity.set('components.script.scripts.' + i + '.attributes.' + name + '.value.' + j, data.assets[attr.value[j]])
                                                 }
@@ -908,7 +908,7 @@ editor.once('load', function() {
                                         }
 
                                         if (attr.defaultValue) {
-                                            if (attr.defaultValue.length) {
+                                            if (attr.defaultValue instanceof Array) {
                                                 for (var j = 0; j < attr.defaultValue.length; j++) {
                                                     entity.set('components.script.scripts.' + i + '.attributes.' + name + '.defaultValue.' + j, data.assets[attr.value[j]])
                                                 }
