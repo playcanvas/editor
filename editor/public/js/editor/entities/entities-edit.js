@@ -765,9 +765,10 @@ editor.once('load', function() {
                 if (!folder)
                     return result;
 
-                pathToId[i] === folder.get('id');
+                pathToId.push(parseInt(folder.get('id'), 10));
             }
 
+            var pathToIdLen = pathToId.length;
 
             // search for asset of same name, type
             // and path as original
@@ -778,10 +779,11 @@ editor.once('load', function() {
                     asset.get('type') === type &&
                     !asset.get('source')) {
                     var path = asset.get('path');
-                    if (path && path.length === pathToId.length) {
+                    var pathLen = path && path.length;
+                    if (path && pathLen === pathToIdLen) {
                         var pathsEqual = true;
-                        for (var i = 0; i < path.length; i++) {
-                            if (path[i] !== pathToId[i]) {
+                        for (var j = 0; j < pathLen; j++) {
+                            if (path[j] !== pathToId[j]) {
                                 pathsEqual = false;
                                 break;
                             }
