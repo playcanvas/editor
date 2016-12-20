@@ -274,8 +274,6 @@ editor.once('load', function() {
         });
     });
 
-    editor.method('entities:scripts:indexAdd', indexAdd);
-
     editor.on('assets:scripts:primary:set', function(asset, script) {
         if (! index[script])
             return;
