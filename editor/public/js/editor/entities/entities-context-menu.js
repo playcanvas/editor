@@ -39,19 +39,6 @@ editor.once('load', function() {
         }
     };
 
-    var addComponent = function (entity, component) {
-        var componentData = editor.call('components:getDefault', component);
-        entity.set('components.' + component, componentData);
-
-        // if it's a collision or rigidbody component then enable physics
-        if (component === 'collision' || component === 'rigidbody') {
-            var settings = editor.call('project:settings');
-            settings.history = false;
-            settings.set('libraries', ['physics-engine-3d']);
-            settings.history = true;
-        }
-    };
-
     var hasLegacyScript = function (entity, url) {
         var scriptComponent = entity.get('components.script');
         if (scriptComponent) {
@@ -107,7 +94,7 @@ editor.once('load', function() {
                 e.history.enabled = false;
 
                 if (!e.get('components.script')) {
-                    addComponent(e, 'script');
+                    editor.call('entities:addComponent', [e], 'script');
                     addedComponent = true;
                 }
 
@@ -199,9 +186,6 @@ editor.once('load', function() {
 
         menuData['add-component'] = {
             title: 'Add Component',
-            filter: function() {
-                return items.length === 1;
-            },
             items: { }
         };
 
@@ -276,11 +260,8 @@ editor.once('load', function() {
         menuData['copy'] = {
             title: 'Copy',
             icon: '&#58193;',
-            filter: function() {
-                return items.length === 1;
-            },
             select: function() {
-                editor.call('entities:copy', entity);
+                editor.call('entities:copy', items);
             }
         };
 
@@ -288,7 +269,7 @@ editor.once('load', function() {
             title: 'Paste',
             icon: '&#58184;',
             filter: function () {
-                return items.length === 1 && ! editor.call('entities:clipboard:empty');
+                return items.length <= 1 && ! editor.call('entities:clipboard:empty');
             },
             select: function() {
                 editor.call('entities:paste', entity);
@@ -332,20 +313,17 @@ editor.once('load', function() {
                 title: components[key].title,
                 icon: componentsLogos[key],
                 filter: function() {
-                    if (items.length !== 1)
-                        return false;
+                    var name = 'components.' + key;
+                    for (var i = 0, len = items.length; i < len; i++) {
+                        if (!items[i].has(name))
+                            return true;
+                    }
 
-                    return ! items[0].has('components.' + key);
+                    return false;
                 },
 
                 select: function() {
-                    if (items.length !== 1)
-                        return false;
-
-                    var entity = items[0];
-                    var component = this._value;
-
-                    addComponent(entity, component);
+                    editor.call('entities:addComponent', items, this._value);
                 }
             };
 
