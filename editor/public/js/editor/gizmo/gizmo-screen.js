@@ -15,19 +15,8 @@ editor.once('load', function() {
 
     for (var i = 0; i < 8; i++) {
         corners.push(new pc.Vec3());
-        cornerColors.push(new pc.Color(217/255, 42/255, 1));
+        cornerColors.push(new pc.Color(1, 1, 1));
     }
-
-    // convert resource id to color
-    var getColor = function (entity) {
-        var hash = 0;
-        var string = entity.get('resource_id');
-        for(var i = 0; i < string.length; i++)
-            hash += string.charCodeAt(i);
-
-        var data = editor.call('color:hsl2rgb', (hash % 128) / 128, 0.5, 0.5);
-        return new pc.Color(data[0], data[1], data[2]);
-    };
 
     editor.once('viewport:load', function (app) {
         var entities = {};
@@ -73,8 +62,7 @@ editor.once('load', function() {
                     return;
 
                 entities[key] = {
-                    entity: entity,
-                    color: getColor(entity)
+                    entity: entity
                 };
 
                 editor.call('viewport:render');
@@ -108,20 +96,6 @@ editor.once('load', function() {
 
                 var isScreenSpace =  entities[key].entity.get('components.screen.screenSpace');
 
-                // only show screen space screens
-                // if they are selected or one of their children are selected
-                if (selectedEntities[key] || isChildSelected(entities[key].entity)) {
-                    if (isScreenSpace) {
-                        entity.enabled = entities[key].entity.get('enabled');
-                    }
-                } else {
-                    if (isScreenSpace) {
-                        entity.enabled = false;
-                    }
-
-                    continue;
-                }
-
                 // always render screens as 3d screens in the viewport
                 if (isScreenSpace) {
                     entity.setLocalScale(0.01, 0.01, 0.01);
@@ -153,6 +127,12 @@ editor.once('load', function() {
                     }
                 }
 
+                // only render screen gizmo if it's selected
+                // or a child is selected
+                if (!selectedEntities[key] && !isChildSelected(entities[key].entity)) {
+                    continue;
+                }
+
                 // calculate corners
                 var position = entity.getPosition();
                 var r = entity.right;
@@ -175,10 +155,6 @@ editor.once('load', function() {
                 bottom
                 .copy(u)
                 .scale(-0.5 * resolution.y * scale.y);
-
-                for (var i = 0; i < 8; i++) {
-                    cornerColors[i].copy(entities[key].color);
-                }
 
                 corners[0].copy(position).add(left).add(top);
                 corners[1].copy(position).add(left).add(bottom);
