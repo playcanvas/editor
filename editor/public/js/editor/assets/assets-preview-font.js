@@ -108,7 +108,7 @@ editor.once('load', function() {
             scale = scale / maxScale;
 
             // yoffset of character relative to maxYOffset
-            var yoffset = maxYOffset - (charData.yoffset / charData.height || 0) - 1;
+            var yoffset = maxYOffset - (charData.yoffset / charData.height || 0) - height / 2;
 
             // calculate position for character
             positions.push(maxWidth, yoffset, 0);
@@ -173,7 +173,7 @@ editor.once('load', function() {
 
         camera.aspectRatio = target.height / target.width;
         camera.renderTarget = target;
-        
+
         var engineAsset = app.assets.get(asset.get('id'));
 
         // skip if the font isn't ready
@@ -213,7 +213,7 @@ editor.once('load', function() {
 
         scene.addModel(model);
 
-        updateMesh(text, engineAsset.resource); 
+        updateMesh(text, engineAsset.resource);
 
         renderer.render(scene, camera);
 
