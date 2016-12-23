@@ -1067,7 +1067,7 @@ editor.once('load', function() {
                     });
                 }
             });
-            item.on('hide', function() {
+            var onUnwatch = function() {
                 if (! watching)
                     return;
 
@@ -1075,7 +1075,9 @@ editor.once('load', function() {
                 watching = null;
 
                 renderQueueRemove(asset);
-            });
+            };
+            item.on('hide', onUnwatch);
+            item.once('destroy', onUnwatch);
             if (! item.hidden) {
                 requestAnimationFrame(queueRender);
 
@@ -1179,7 +1181,8 @@ editor.once('load', function() {
                     });
                 }
             });
-            item.on('hide', function() {
+
+            var onUnwatch = function() {
                 if (! watching)
                     return;
 
@@ -1187,7 +1190,9 @@ editor.once('load', function() {
                 watching = null;
 
                 renderQueueRemove(asset);
-            });
+            };
+            item.on('hide', onUnwatch);
+            item.once('destroy', onUnwatch);
 
             if (! item.hidden) {
                 requestAnimationFrame(queueRender);
