@@ -13,19 +13,8 @@ editor.once('load', function() {
 
     for (var i = 0; i < 8; i++) {
         corners.push(new pc.Vec3());
-        cornerColors.push(new pc.Color(217/255, 42/255, 1));
+        cornerColors.push(new pc.Color(1, 1, 1, 0.9));
     }
-
-    // convert resource id to color
-    var getColor = function (entity) {
-        var hash = 0;
-        var string = entity.get('resource_id');
-        for(var i = 0; i < string.length; i++)
-            hash += string.charCodeAt(i);
-
-        var data = editor.call('color:hsl2rgb', (hash % 128) / 128, 0.5, 0.5);
-        return new pc.Color(data[0], data[1], data[2]);
-    };
 
     editor.once('viewport:load', function (app) {
         var entities = {};
@@ -53,8 +42,7 @@ editor.once('load', function() {
                     return;
 
                 entities[key] = {
-                    entity: entity,
-                    color: getColor(entity)
+                    entity: entity
                 };
 
                 editor.call('viewport:render');
@@ -127,10 +115,6 @@ editor.once('load', function() {
                 bottom
                 .copy(u)
                 .scale((height * scale.y) * (-pivot.y));
-
-                for (var i = 0; i < 8; i++) {
-                    cornerColors[i].copy(entities[key].color);
-                }
 
                 corners[0].copy(position).add(left).add(top);
                 corners[1].copy(position).add(left).add(bottom);

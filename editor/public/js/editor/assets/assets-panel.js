@@ -1021,7 +1021,7 @@ editor.once('load', function() {
         var thumbnail;
         var evtSceneSettings, evtAssetChanged;
 
-        if (asset.get('type') === 'material' || asset.get('type') === 'model') {
+        if (asset.get('type') === 'material' || asset.get('type') === 'model' || (asset.get('type') === 'font') && !asset.get('source')) {
             var queuedRender = false;
 
             thumbnail = document.createElement('canvas');

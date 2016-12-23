@@ -154,11 +154,18 @@ editor.once('load', function() {
 
         // preview
         if (assets.length === 1) {
-            var canvas = document.createElement('canvas');
-            var ctx = canvas.getContext('2d');
-            canvas.classList.add('asset-preview');
+            var previewContainer = document.createElement('div');
+            previewContainer.classList.add('asset-preview-container');
 
-            canvas.addEventListener('click', function() {
+            var preview = document.createElement('canvas');
+            var ctx = preview.getContext('2d');
+            preview.width = 256;
+            preview.height = 256;
+            preview.classList.add('asset-preview');
+            preview.classList.add('flipY');
+            previewContainer.appendChild(preview);
+
+            preview.addEventListener('click', function() {
                 if (root.element.classList.contains('large')) {
                     root.element.classList.remove('large');
                 } else {
@@ -167,34 +174,55 @@ editor.once('load', function() {
             }, false);
 
             root.class.add('asset-preview');
-            root.element.insertBefore(canvas, root.innerElement);
+            root.element.insertBefore(previewContainer, root.innerElement);
+
+            var renderQueued;
 
             var renderPreview = function () {
-                // resize canvas
-                canvas.width = root.element.clientWidth;
-                canvas.height = canvas.width;
-                editor.call('preview:render:font', assets[0], canvas.width, function (sourceCanvas) {
-                    ctx.drawImage(sourceCanvas, 0, 0);
-                });
+                if (renderQueued)
+                    renderQueued = false;
+
+                // render
+                var imageData = editor.call('preview:render', assets[0], root.element.clientWidth, root.element.clientWidth, {});
+
+                preview.width = imageData.width;
+                preview.height = imageData.height;
+
+                ctx.putImageData(imageData, 0, 0);
             };
             renderPreview();
 
+            // queue up the rendering to prevent too oftern renders
+            var queueRender = function() {
+                if (renderQueued) return;
+                renderQueued = true;
+                requestAnimationFrame(renderPreview);
+            };
+
+            // render on resize
+            var evtPanelResize = root.on('resize', queueRender);
+            var evtSceneSettings = editor.on('preview:scene:changed', queueRender);
+
+            // model resource loaded
+            var watcher = editor.call('assets:font:watch', {
+                asset: assets[0],
+                autoLoad: true,
+                callback: queueRender
+            });
+
             var renderTimeout;
 
-            var evtPanelResize = root.on('resize', function () {
-                if (renderTimeout)
-                    clearTimeout(renderTimeout);
-
-                renderTimeout = setTimeout(renderPreview, 100);
-            });
-            var evtMaterialChanged = editor.on('preview:font:changed', function (id) {
-                if (id === assets[0].get('id'))
-                    renderPreview();
-            });
-
             paramsPanel.once('destroy', function() {
-                canvas.remove();
                 root.class.remove('asset-preview', 'animate');
+
+                editor.call('assets:model:unwatch', assets[0], watcher);
+                evtPanelResize.unbind();
+                evtSceneSettings.unbind();
+
+                if (previewContainer.parentNode)
+                    previewContainer.parentNode.removeChild(previewContainer);
+
+                paramsPanel = null;
             });
         }
 

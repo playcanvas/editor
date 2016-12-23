@@ -15,7 +15,6 @@ editor.once('load', function () {
 
     // return true if there is no data in the clipboard
     editor.method('entities:clipboard:empty', function () {
-        var metaData = editor.call('localStorage:get', CLIPBOARD_META);
-        return !metaData || metaData.project !== config.project.id;
+        return !editor.call('localStorage:get', CLIPBOARD_META);
     });
 });
