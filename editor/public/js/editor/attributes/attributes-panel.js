@@ -929,7 +929,7 @@ editor.once('load', function() {
 
             case 'asset':
                 field = new ui.ImageField({
-                    canvas: args.kind === 'material' || args.kind === 'model' || args.kind === 'cubemap'
+                    canvas: args.kind === 'material' || args.kind === 'model' || args.kind === 'cubemap' || args.kind === 'font'
                 });
                 var evtPick;
 
@@ -1059,7 +1059,7 @@ editor.once('load', function() {
                             field.image = '/editor/scene/img/asset-placeholder-' + asset.get('type') + '.png';
                         }
 
-                        if (args.kind === 'material' || args.kind === 'model' || args.kind === 'cubemap') {
+                        if (args.kind === 'material' || args.kind === 'model' || args.kind === 'cubemap' || args.kind == 'font') {
                             watchAsset = asset;
                             watch = editor.call('assets:' + args.kind + ':watch', {
                                 asset: watchAsset,
@@ -1073,7 +1073,7 @@ editor.once('load', function() {
                         queueRender();
                 };
 
-                if (args.kind === 'material' || args.kind === 'model') {
+                if (args.kind === 'material' || args.kind === 'model' || args.kind === 'font') {
                     field.elementImage.classList.add('flipY');
 
                     var renderPreview = function() {
