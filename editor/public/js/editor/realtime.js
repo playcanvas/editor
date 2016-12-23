@@ -130,7 +130,11 @@ editor.once('load', function() {
                 // try to reconnect after a while
                 editor.emit('realtime:nextAttempt', reconnectInterval);
 
-                setTimeout(reconnect, reconnectInterval * 1000);
+                if (editor.call('visibility')) {
+                    setTimeout(reconnect, reconnectInterval * 1000);
+                } else {
+                    editor.once('visible', reconnect);
+                }
 
                 reconnectInterval++;
             };

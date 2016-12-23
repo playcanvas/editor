@@ -246,9 +246,8 @@ editor.once('load', function() {
 
                 setTimeout(reconnect, reconnectInterval * 1000);
 
-                if (reconnectInterval < 5) {
+                if (reconnectInterval < 5)
                     reconnectInterval++;
-                }
             };
         };
 
