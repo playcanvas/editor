@@ -260,6 +260,10 @@ editor.once('load', function() {
     editor.method('drop:item', function(args) {
         args.element.draggable = true;
 
+        args.element.addEventListener('mousedown', function(evt) {
+            evt.stopPropagation();
+        }, false);
+
         args.element.addEventListener('dragstart', function(evt) {
             evt.preventDefault();
             evt.stopPropagation();

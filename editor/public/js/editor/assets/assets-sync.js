@@ -341,9 +341,11 @@ editor.once('load', function() {
     // handle disconnection
     editor.on('realtime:disconnected', function () {
         var viewport = editor.call('viewport:app');
-        if (!viewport) return;
+        if (viewport) {
+            // clear ALL asset registry events
+            viewport.assets._callbacks = { };
+        }
 
-        // clear ALL asset registry events
-        viewport.assets._callbacks = {};
+        editor.call('assets:clear');
     });
 });

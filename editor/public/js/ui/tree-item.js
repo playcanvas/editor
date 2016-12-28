@@ -46,6 +46,7 @@ function TreeItem(args) {
 
     this._dragRelease = null;
     this._dragging = false;
+    this.elementTitle.addEventListener('mousedown', this._onMouseDown, false);
     this.elementTitle.addEventListener('dragstart', this._onDragStart, false);
     this.elementTitle.addEventListener('mouseover', this._onMouseOver, false);
 
@@ -178,6 +179,7 @@ TreeItem.prototype.remove = function(item) {
 TreeItem.prototype._onDestroy = function() {
     this.elementTitle.removeEventListener('click', this._onClick);
     this.elementTitle.removeEventListener('dblclick', this._onDblClick);
+    this.elementTitle.removeEventListener('mousedown', this._onMouseDown);
     this.elementTitle.removeEventListener('dragstart', this._onDragStart);
     this.elementTitle.removeEventListener('mouseover', this._onMouseOver);
     this.elementTitle.removeEventListener('keydown', this._onKeyDown);
@@ -262,6 +264,13 @@ TreeItem.prototype._onDblClick = function(evt) {
     } else {
         this.ui._onRename();
     }
+};
+
+TreeItem.prototype._onMouseDown = function(evt) {
+    if (this.ui.tree.disabled || ! this.ui.tree.draggable)
+        return;
+
+    evt.stopPropagation();
 };
 
 TreeItem.prototype._onDragStart = function(evt) {

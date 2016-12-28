@@ -12,10 +12,15 @@ editor.once('load', function() {
             return;
 
         visible = ! document.hidden;
-        editor.emit('visible', visible);
+        if (visible) {
+            editor.emit('visible');
+        } else {
+            editor.emit('hidden');
+        }
+        editor.emit('visibility', visible);
     }, false);
 
-    editor.method('visible', function() {
+    editor.method('visibility', function() {
         return visible;
     });
 

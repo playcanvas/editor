@@ -365,10 +365,11 @@ Connection.prototype.send = function(msg) {
     this.messageBuffer.shift();
   }
 
-  if (!this.socket.canSendJSON) {
+  if (!this.socket.canSendJSON)
     msg = JSON.stringify(msg);
-  }
-  this.socket.send(msg);
+
+  if (this.socket.readyState === 1)
+    this.socket.send(msg);
 };
 
 

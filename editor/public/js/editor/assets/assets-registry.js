@@ -75,9 +75,11 @@ editor.once('load', function() {
 
         // remove assets from asset registry
         editor.on('assets:remove', function (asset) {
-            var realtimeAsset = assetRegistry.get(asset.get('id'));
-            if (realtimeAsset)
-                assetRegistry.remove(realtimeAsset);
+            var item = assetRegistry.get(asset.get('id'));
+            if (item) {
+                item.unload();
+                assetRegistry.remove(item);
+            }
         });
     });
 });

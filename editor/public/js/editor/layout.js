@@ -1,6 +1,36 @@
 editor.on('load', function() {
     'use strict';
 
+    var ignoreClasses = /(ui-list-item)|(ui-button)|(ui-text-field)|(ui-number-field)/i;
+    var ignoreElements = /(input)|(textarea)/i;
+
+    // prevent drag'n'select
+    window.addEventListener('mousedown', function(evt) {
+        // don't prevent for certain cases
+        if (evt.target) {
+            if (ignoreClasses.test(evt.target.className)) {
+                return;
+            } else if (ignoreElements.test(evt.target.tagName)) {
+                return;
+            }
+        }
+
+        // blur inputs
+        if (window.getSelection) {
+            var focusNode = window.getSelection().focusNode;
+            if (focusNode) {
+                if (focusNode.tagName === 'INPUT') {
+                    focusNode.blur();
+                } else if (focusNode.firstChild && focusNode.firstChild.tagName === 'INPUT') {
+                    focusNode.firstChild.blur();
+                }
+            }
+        }
+
+        // prevent default will prevent blur, dragstart and selection
+        evt.preventDefault();
+    }, false);
+
 
     // main container
     var root = new ui.Panel();

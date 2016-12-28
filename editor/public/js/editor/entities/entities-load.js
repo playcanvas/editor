@@ -17,12 +17,9 @@ editor.on('load', function() {
     });
 
     editor.on('scene:raw', function(data) {
-        // check if we're reloading the scene
-
-        if (loadedEntities) {
-            editor.call('selector:clear');
-            editor.call('entities:clear');
-        }
+        editor.call('selector:clear');
+        editor.call('entities:clear');
+        editor.call('attributes:clear');
 
         var total = Object.keys(data.entities).length;
         var i = 0;
@@ -30,7 +27,7 @@ editor.on('load', function() {
         // list
         for(var key in data.entities) {
             editor.call('entities:add',  new Observer(data.entities[key]));
-            p.progress = (++i / total) * .8 + .1;
+            p.progress = (++i / total) * 0.8 + 0.1;
         }
 
         p.progress = 1;
@@ -39,6 +36,11 @@ editor.on('load', function() {
         editor.emit('entities:load');
     });
 
+    editor.on('realtime:disconnected', function() {
+        editor.call('selector:clear');
+        editor.call('entities:clear');
+        editor.call('attributes:clear');
+    });
 
     editor.call('attributes:clear');
 
@@ -50,6 +52,6 @@ editor.on('load', function() {
     editor.on('scene:beforeload', function () {
         hierarchyOverlay.hidden = false;
         p.hidden = false;
-        p.progress = .1;
+        p.progress = 0.1;
     });
 });

@@ -794,6 +794,10 @@ editor.once('load', function() {
         item.element.addEventListener('mouseover', onAssetItemHover, false);
         item.element.addEventListener('mouseout', onAssetItemBlur, false);
 
+        var onMouseDown = function(evt) {
+            evt.stopPropagation();
+        };
+
         var onDragStart = function(evt) {
             evt.preventDefault();
             evt.stopPropagation();
@@ -871,6 +875,7 @@ editor.once('load', function() {
 
             // draggable
             item.tree.elementTitle.draggable = true;
+            item.tree.elementTitle.addEventListener('mousedown', onMouseDown, false);
             item.tree.elementTitle.addEventListener('dragstart', onDragStart, false);
 
             var onMouseOver = function() {
@@ -975,6 +980,7 @@ editor.once('load', function() {
         asset.on('task:set', updateTask);
 
         item.element.draggable = true;
+        item.element.addEventListener('mousedown', onMouseDown, false);
         item.element.addEventListener('dragstart', onDragStart, false);
 
         assetsIndex[asset.get('id')] = item;
@@ -1067,7 +1073,7 @@ editor.once('load', function() {
                     });
                 }
             });
-            item.on('hide', function() {
+            var onUnwatch = function() {
                 if (! watching)
                     return;
 
@@ -1075,7 +1081,9 @@ editor.once('load', function() {
                 watching = null;
 
                 renderQueueRemove(asset);
-            });
+            };
+            item.on('hide', onUnwatch);
+            item.once('destroy', onUnwatch);
             if (! item.hidden) {
                 requestAnimationFrame(queueRender);
 
@@ -1179,7 +1187,8 @@ editor.once('load', function() {
                     });
                 }
             });
-            item.on('hide', function() {
+
+            var onUnwatch = function() {
                 if (! watching)
                     return;
 
@@ -1187,7 +1196,9 @@ editor.once('load', function() {
                 watching = null;
 
                 renderQueueRemove(asset);
-            });
+            };
+            item.on('hide', onUnwatch);
+            item.once('destroy', onUnwatch);
 
             if (! item.hidden) {
                 requestAnimationFrame(queueRender);
