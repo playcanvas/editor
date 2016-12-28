@@ -764,7 +764,7 @@ editor.once('load', function() {
         if (renderQueueIndex[id])
             return;
 
-        if (! assetsIndex[id].thumbnail || ! assetsIndex[id].thumbnail.render)
+        if (! assetsIndex[id] || ! assetsIndex[id].thumbnail || ! assetsIndex[id].thumbnail.render)
             return;
 
         renderQueueIndex[id] = true;

@@ -4,8 +4,7 @@ editor.once('load', function() {
     editor.once('start', function() {
         var auth = false;
 
-        var socket = new WebSocket(config.url.realtime.http);
-        var connection = new sharejs.Connection(socket);
+        var socket, connection;
         var scene = null;
         var data;
         var reconnectAttempts = 0;
@@ -149,7 +148,11 @@ editor.once('load', function() {
             connect();
         };
 
-        connect();
+        if (editor.call('visibility')) {
+            reconnect();
+        } else {
+            editor.once('visible', reconnect);
+        }
 
         var emitOp = function(type, op) {
             // console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
