@@ -244,14 +244,22 @@ editor.once('load', function() {
                 // try to reconnect after a while
                 editor.emit('realtime:nextAttempt', reconnectInterval);
 
-                setTimeout(reconnect, reconnectInterval * 1000);
+                if (editor.call('visibility')) {
+                    setTimeout(reconnect, reconnectInterval * 1000);
+                } else {
+                    editor.once('visible', reconnect);
+                }
 
                 if (reconnectInterval < 5)
                     reconnectInterval++;
             };
         };
 
-        reconnect();
+        if (editor.call('visibility')) {
+            reconnect();
+        } else {
+            editor.once('visible', reconnect);
+        }
 
         var checkIfDirty = function () {
             isDirty = false;
