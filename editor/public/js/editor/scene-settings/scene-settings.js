@@ -56,7 +56,7 @@ editor.once('load', function() {
             sceneSettings.set('render.skyboxMip', 0);
     });
 
-    editor.on('scene:unload', function () {
+    var onUnload = function() {
         if (sceneSettings.history)
             sceneSettings.history.enabled = false;
         if (sceneSettings.sync)
@@ -68,5 +68,8 @@ editor.once('load', function() {
             sceneSettings.history.enabled = true;
         if (sceneSettings.sync)
             sceneSettings.sync.enabled = true;
-    });
+    };
+
+    editor.on('realtime:disconnected', onUnload);
+    editor.on('scene:unload', onUnload);
 });
