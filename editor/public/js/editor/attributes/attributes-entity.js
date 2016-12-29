@@ -314,8 +314,6 @@ editor.once('load', function() {
 
     // link data to fields when inspecting
     editor.on('attributes:inspect[entity]', function(entities) {
-        var start = performance.now();
-
         if (entities.length > 1) {
             editor.call('attributes:header', entities.length + ' Entities');
         } else {
@@ -346,7 +344,5 @@ editor.once('load', function() {
         // enable renderChanges
         for(var i = 0; i < argsFieldsChanges.length; i++)
             argsFieldsChanges[i].renderChanges = true;
-
-        console.log(performance.now() - start);
     });
 });
