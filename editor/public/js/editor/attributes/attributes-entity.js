@@ -33,9 +33,8 @@ editor.once('load', function() {
             }
             this.findByPath([ list[i] ]).disabled = different ? false : disabled;
 
-            if (list[i] === 'audiosource') {
-                this.findByPath([list[i]]).hidden = !legacyAudio;
-            }
+            if (list[i] === 'audiosource')
+                this.findByPath([list[i]]).hidden = ! legacyAudio;
         }
     });
     menuAddComponent.on('select', function(path) {
@@ -171,110 +170,117 @@ editor.once('load', function() {
     });
 
 
-    editor.on('attributes:inspect[entity]', function(entities) {
-        if (entities.length > 1) {
-            editor.call('attributes:header', entities.length + ' Entities');
-        } else {
-            editor.call('attributes:header', 'Entity');
-        }
+    var items = null;
+    var argsList = [ ];
+    var argsFieldsChanges = [ ];
+
+
+    // initialize fields
+    var initialize = function() {
+        items = { };
 
         // panel
-        var panel = editor.call('attributes:addPanel');
+        var panel = items.panel = editor.call('attributes:addPanel');
         panel.class.add('component');
 
 
         // enabled
-        var fieldEnabled = editor.call('attributes:addField', {
+        var argsEnabled = {
             parent: panel,
             name: 'Enabled',
             type: 'checkbox',
-            link: entities,
             path: 'enabled'
-        });
-        // reference
-        editor.call('attributes:reference:attach', 'entity:enabled', fieldEnabled.parent.innerElement.firstChild.ui);
+        };
+        items.fieldEnabled = editor.call('attributes:addField', argsEnabled);
+        editor.call('attributes:reference:attach', 'entity:enabled', items.fieldEnabled.parent.innerElement.firstChild.ui);
+        argsList.push(argsEnabled);
+        argsFieldsChanges.push(items.fieldEnabled);
 
 
         // name
-        var fieldName = editor.call('attributes:addField', {
+        var argsName = {
             parent: panel,
             name: 'Name',
             type: 'string',
-            link: entities,
-            path: 'name',
-            trim: true
-        });
-        fieldName.class.add('entity-name');
-        // reference
-        editor.call('attributes:reference:attach', 'entity:name', fieldName.parent.innerElement.firstChild.ui);
+            trim: true,
+            path: 'name'
+        };
+        items.fieldName = editor.call('attributes:addField', argsName);
+        items.fieldName.class.add('entity-name');
+        editor.call('attributes:reference:attach', 'entity:name', items.fieldName.parent.innerElement.firstChild.ui);
+        argsList.push(argsName);
+        argsFieldsChanges.push(items.fieldName);
 
 
         // tags
-        var fieldTags = editor.call('attributes:addField', {
+        var argsTags = {
             parent: panel,
             name: 'Tags',
             placeholder: 'Add Tag',
             type: 'strings',
-            link: entities,
             path: 'tags'
-        });
-        // reference
-        editor.call('attributes:reference:attach', 'entity:tags', fieldTags.parent.parent.innerElement.firstChild.ui);
+        };
+        items.fieldTags = editor.call('attributes:addField', argsTags);
+        editor.call('attributes:reference:attach', 'entity:tags', items.fieldTags.parent.parent.innerElement.firstChild.ui);
+        argsList.push(argsTags);
 
 
         // position
-        var fieldPosition = editor.call('attributes:addField', {
+        var argsPosition = {
             parent: panel,
             name: 'Position',
             placeholder: [ 'X', 'Y', 'Z' ],
             precision: 3,
-            step: .05,
+            step: 0.05,
             type: 'vec3',
-            link: entities,
             path: 'position'
-        });
-        // reference
-        editor.call('attributes:reference:attach', 'entity:position', fieldPosition[0].parent.innerElement.firstChild.ui);
+        };
+        items.fieldPosition = editor.call('attributes:addField', argsPosition);
+        editor.call('attributes:reference:attach', 'entity:position', items.fieldPosition[0].parent.innerElement.firstChild.ui);
+        argsList.push(argsPosition);
+        argsFieldsChanges = argsFieldsChanges.concat(items.fieldPosition);
 
 
         // rotation
-        var fieldRotation = editor.call('attributes:addField', {
+        var argsRotation = {
             parent: panel,
             name: 'Rotation',
             placeholder: [ 'X', 'Y', 'Z' ],
             precision: 2,
-            step: .1,
+            step: 0.1,
             type: 'vec3',
-            link: entities,
             path: 'rotation'
-        });
-        // reference
-        editor.call('attributes:reference:attach', 'entity:rotation', fieldRotation[0].parent.innerElement.firstChild.ui);
+        };
+        items.fieldRotation = editor.call('attributes:addField', argsRotation);
+        editor.call('attributes:reference:attach', 'entity:rotation', items.fieldRotation[0].parent.innerElement.firstChild.ui);
+        argsList.push(argsRotation);
+        argsFieldsChanges = argsFieldsChanges.concat(items.fieldRotation);
 
 
         // scale
-        var fieldScale = editor.call('attributes:addField', {
+        var argsScale = {
             parent: panel,
             name: 'Scale',
             placeholder: [ 'X', 'Y', 'Z' ],
             precision: 3,
-            step: .05,
+            step: 0.05,
             type: 'vec3',
-            link: entities,
             path: 'scale'
-        });
-        // reference
-        editor.call('attributes:reference:attach', 'entity:scale', fieldScale[0].parent.innerElement.firstChild.ui);
+        };
+        items.fieldScale = editor.call('attributes:addField', argsScale);
+        editor.call('attributes:reference:attach', 'entity:scale', items.fieldScale[0].parent.innerElement.firstChild.ui);
+        argsList.push(argsScale);
+        argsFieldsChanges = argsFieldsChanges.concat(items.fieldScale);
 
 
         // components
-        panelComponents = editor.call('attributes:addPanel');
+        panelComponents = items.panelComponents = editor.call('attributes:addPanel');
 
         // add component
-        var btnAddComponent = new ui.Button();
+        var btnAddComponent = items.btnAddComponent = new ui.Button();
 
         btnAddComponent.hidden = ! editor.call('permissions:write');
-        var evtBtnAddComponentPermissions = editor.on('permissions:writeState', function(state) {
+        editor.on('permissions:writeState', function(state) {
             btnAddComponent.hidden = ! state;
         });
 
@@ -285,11 +291,62 @@ editor.once('load', function() {
             menuAddComponent.open = true;
         });
         panel.append(btnAddComponent);
-        btnAddComponent.once('destroy', function() {
-            evtBtnAddComponentPermissions.unbind();
-        });
+    };
+
+    // before clearing inspector, preserve elements
+    editor.on('attributes:beforeClear', function() {
+        if (! items || ! items.panel.parent)
+            return;
+
+        // remove panel from inspector
+        items.panel.parent.remove(items.panel);
+
+        // clear components
+        items.panelComponents.parent.remove(items.panelComponents);
+        items.panelComponents.clear();
+
+        // unlink fields
+        for(var i = 0; i < argsList.length; i++) {
+            argsList[i].link = null;
+            argsList[i].unlinkField();
+        }
+    });
+
+    // link data to fields when inspecting
+    editor.on('attributes:inspect[entity]', function(entities) {
+        var start = performance.now();
+
+        if (entities.length > 1) {
+            editor.call('attributes:header', entities.length + ' Entities');
+        } else {
+            editor.call('attributes:header', 'Entity');
+        }
+
+        if (! items)
+            initialize();
+
+        var root = editor.call('attributes.rootPanel');
+
+        if (! items.panel.parent)
+            root.append(items.panel);
+
+        if (! items.panelComponents.parent)
+            root.append(items.panelComponents);
+
+        // disable renderChanges
+        for(var i = 0; i < argsFieldsChanges.length; i++)
+            argsFieldsChanges[i].renderChanges = false;
+
+        // link fields
+        for(var i = 0; i < argsList.length; i++) {
+            argsList[i].link = entities;
+            argsList[i].linkField();
+        }
+
+        // enable renderChanges
+        for(var i = 0; i < argsFieldsChanges.length; i++)
+            argsFieldsChanges[i].renderChanges = true;
+
+        console.log(performance.now() - start);
     });
 });
-
-
-
