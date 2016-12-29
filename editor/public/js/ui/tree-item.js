@@ -8,15 +8,14 @@ function TreeItem(args) {
     this.tree = null;
 
     this.element = document.createElement('div');
-    this.element.classList.add('ui-tree-item');
-    this.element.ui = this;
+    this._element.classList.add('ui-tree-item');
 
     this.elementTitle = document.createElement('div');
     this.elementTitle.classList.add('title');
     this.elementTitle.draggable = true;
     this.elementTitle.tabIndex = 0;
     this.elementTitle.ui = this;
-    this.element.appendChild(this.elementTitle);
+    this._element.appendChild(this.elementTitle);
 
     this.elementIcon = document.createElement('span');
     this.elementIcon.classList.add('icon');
@@ -63,11 +62,11 @@ TreeItem.prototype = Object.create(ui.Element.prototype);
 
 TreeItem.prototype.append = function(item) {
     if (this._children === 1) {
-        this.element.childNodes[1].classList.remove('single');
+        this._element.childNodes[1].classList.remove('single');
     }
 
     item.parent = this;
-    this.element.appendChild(item.element);
+    this._element.appendChild(item.element);
     this._children++;
 
     if (this._children === 1) {
@@ -92,11 +91,11 @@ TreeItem.prototype.append = function(item) {
 
 TreeItem.prototype.appendBefore = function(item, referenceItem) {
     if (this._children === 1) {
-        this.element.childNodes[1].classList.remove('single');
+        this._element.childNodes[1].classList.remove('single');
     }
 
     item.parent = this;
-    this.element.insertBefore(item.element, referenceItem.element);
+    this._element.insertBefore(item.element, referenceItem.element);
     this._children++;
 
     if (this._children === 1) {
@@ -127,14 +126,14 @@ TreeItem.prototype.appendAfter = function(item, referenceItem) {
     if (! referenceItem)
         this.append(item);
 
-    this.element.insertBefore(item.element, referenceItem);
+    this._element.insertBefore(item.element, referenceItem);
     this._children++;
 
     if (this._children === 1) {
         item.class.add('single');
         this.class.add('container');
     } else if (this._children === 2) {
-        this.element.childNodes[1].classList.remove('single');
+        this._element.childNodes[1].classList.remove('single');
     }
 
     var appendChildren = function(treeItem) {
@@ -151,16 +150,16 @@ TreeItem.prototype.appendAfter = function(item, referenceItem) {
 
 
 TreeItem.prototype.remove = function(item) {
-    if (! this._children || ! this.element.contains(item.element))
+    if (! this._children || ! this._element.contains(item.element))
         return;
 
-    this.element.removeChild(item.element);
+    this._element.removeChild(item.element);
     this._children--;
 
     if (this._children === 0) {
         this.class.remove('container');
-    } else if (this._children === 1 && this.element.childNodes.length > 2) {
-        this.element.childNodes[1].classList.add('single');
+    } else if (this._children === 1 && this._element.childNodes.length > 2) {
+        this._element.childNodes[1].classList.add('single');
     }
 
     var removeChildren = function(treeItem) {
@@ -482,20 +481,20 @@ Object.defineProperty(TreeItem.prototype, 'open', {
 
 Object.defineProperty(TreeItem.prototype, 'prev', {
     get: function() {
-        return this.element.previousSibling && this.element.previousSibling.ui || null;
+        return this._element.previousSibling && this._element.previousSibling.ui || null;
     }
 });
 
 
 Object.defineProperty(TreeItem.prototype, 'next', {
     get: function() {
-        return this.element.nextSibling && this.element.nextSibling.ui || null;
+        return this._element.nextSibling && this._element.nextSibling.ui || null;
     }
 });
 
 
 TreeItem.prototype.child = function(ind) {
-    return this.element.childNodes[ind + 1];
+    return this._element.childNodes[ind + 1];
 };
 
 

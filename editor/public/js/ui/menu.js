@@ -7,58 +7,70 @@ function Menu(args) {
     ui.ContainerElement.call(this);
 
     this.element = document.createElement('div');
-    this.element.ui = this;
-    this.element.tabIndex = 1;
-    this.element.classList.add('ui-menu');
+    this._element.tabIndex = 1;
+    this._element.classList.add('ui-menu');
+    this._element.addEventListener('keydown', this._onKeyDown, false);
 
     this.elementOverlay = document.createElement('div');
+    this.elementOverlay.ui = this;
     this.elementOverlay.classList.add('overlay');
-    this.elementOverlay.addEventListener('click', function() {
-        self.open = false;
-    }, false);
-    this.elementOverlay.addEventListener('contextmenu', function() {
-        self.open = false;
-    }, false);
-    this.element.appendChild(this.elementOverlay);
+    this.elementOverlay.addEventListener('click', this._onClick, false);
+    this.elementOverlay.addEventListener('contextmenu', this._onContextMenu, false);
+    this._element.appendChild(this.elementOverlay);
 
     this.innerElement = document.createElement('div');
     this.innerElement.classList.add('inner');
-    this.element.appendChild(this.innerElement);
-
-    this.element.addEventListener('keydown', function(evt) {
-        if (self.open && evt.keyCode === 27)
-            self.open = false;
-    });
-
-    this.on('select-propagate', function(path) {
-        this.open = false;
-        this.emit(path.join('.') + ':select', path);
-        this.emit('select', path);
-    });
+    this._element.appendChild(this.innerElement);
 
     this._index = { };
-    this.on('append', function(item) {
-        this._index[item._value] = item;
-
-        item.on('value', function(value, valueOld) {
-           delete self._index[this.valueOld];
-           self._index[value] = item;
-        });
-        item.once('destroy', function() {
-            delete self._index[this._value];
-        });
-    });
-
     this._hovered = [ ];
-    this.on('over', function(path) {
-        this._updatePath(path);
-    });
-    this.on('open', function(state) {
-        if (state) return;
-        this._updatePath([ ]);
-    });
+
+    this.on('select-propagate', this._onSelectPropagate);
+    this.on('append', this._onAppend);
+    this.on('over', this._onOver);
+    this.on('open', this._onOpen);
 }
 Menu.prototype = Object.create(ui.ContainerElement.prototype);
+
+Menu.prototype._onClick = function() {
+    this.ui.open = false;
+};
+
+Menu.prototype._onContextMenu = function() {
+    this.ui.open = false;
+};
+
+Menu.prototype._onKeyDown = function(evt) {
+    if (this.ui.open && evt.keyCode === 27)
+        this.ui.open = false;
+};
+
+Menu.prototype._onSelectPropagate = function(path) {
+    this.open = false;
+    this.emit(path.join('.') + ':select', path);
+    this.emit('select', path);
+};
+
+Menu.prototype._onAppend = function(item) {
+    this._index[item._value] = item;
+
+    item.on('value', function(value, valueOld) {
+       delete self._index[this.valueOld];
+       self._index[value] = item;
+    });
+    item.once('destroy', function() {
+        delete self._index[this._value];
+    });
+};
+
+Menu.prototype._onOver = function(path) {
+    this._updatePath(path);
+};
+
+Menu.prototype._onOpen = function(state) {
+    if (state) return;
+    this._updatePath([ ]);
+};
 
 
 Object.defineProperty(Menu.prototype, 'open', {
@@ -71,7 +83,7 @@ Object.defineProperty(Menu.prototype, 'open', {
 
         if (value) {
             this.class.add('open');
-            this.element.focus();
+            this._element.focus();
         } else {
             this.class.remove('open');
         }
@@ -140,7 +152,7 @@ Menu.prototype._updatePath = function(path) {
 
 
 Menu.prototype.position = function(x, y) {
-    this.element.style.display = 'block';
+    this._element.style.display = 'block';
 
     var rect = this.innerElement.getBoundingClientRect();
 
@@ -162,7 +174,7 @@ Menu.prototype.position = function(x, y) {
     this.innerElement.style.left = left + 'px';
     this.innerElement.style.top = top + 'px';
 
-    this.element.style.display = '';
+    this._element.style.display = '';
 };
 
 

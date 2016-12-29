@@ -6,7 +6,7 @@ function Panel(header) {
     ui.ContainerElement.call(this);
 
     this.element = document.createElement('div');
-    this.element.classList.add('ui-panel', 'noHeader', 'noAnimation');
+    this._element.classList.add('ui-panel', 'noHeader', 'noAnimation');
 
     this.headerElement = null;
     this.headerElementTitle = null;
@@ -14,34 +14,26 @@ function Panel(header) {
     if (header)
         this.header = header;
 
-    this.on('nodesChanged', function() {
-        if (! this.foldable || this.folded || this.horizontal || this.hidden)
-            return;
-
-        this.style.height = ((this.headerSize || 32) + this.innerElement.clientHeight) + 'px';
-    });
+    this.on('nodesChanged', this._onNodesChanged);
 
     // content
     this.innerElement = document.createElement('div');
+    this.innerElement.ui = this;
     this.innerElement.classList.add('content');
-    this.element.appendChild(this.innerElement);
+    this._element.appendChild(this.innerElement);
 
-    this.innerElement.addEventListener('scroll', this._onScroll.bind(this), false);
+    this.innerElement.addEventListener('scroll', this._onScroll, false);
 
     // HACK
     // skip 2 frames before enabling transitions
     requestAnimationFrame(function() {
         requestAnimationFrame(function() {
-            this.class.remove('noAnimation');
-        }.bind(this));
-    }.bind(this));
+            self.class.remove('noAnimation');
+        });
+    });
 
     // on parent change
-    this.on('parent', function() {
-        // HACK
-        // wait till DOM parses, then reflow
-        requestAnimationFrame(this._reflow.bind(this));
-    });
+    this.on('parent', this._onParent);
 
     this._handleElement = null;
     this._handle = null;
@@ -55,6 +47,18 @@ function Panel(header) {
 }
 Panel.prototype = Object.create(ui.ContainerElement.prototype);
 
+Panel.prototype._onNodesChanged = function() {
+    if (! this.foldable || this.folded || this.horizontal || this.hidden)
+        return;
+
+    this.style.height = ((this.headerSize || 32) + this.innerElement.clientHeight) + 'px';
+};
+
+Panel.prototype._onParent = function() {
+    // HACK
+    // wait till DOM parses, then reflow
+    requestAnimationFrame(this._reflow.bind(this));
+};
 
 Object.defineProperty(Panel.prototype, 'header', {
     get: function() {
@@ -70,11 +74,11 @@ Object.defineProperty(Panel.prototype, 'header', {
             this.headerElementTitle.textContent = value;
             this.headerElement.appendChild(this.headerElementTitle);
 
-            var first = this.element.firstChild;
+            var first = this._element.firstChild;
             if (first) {
-                this.element.insertBefore(this.headerElement, first);
+                this._element.insertBefore(this.headerElement, first);
             } else {
-                this.element.appendChild(this.headerElement);
+                this._element.appendChild(this.headerElement);
             }
 
             this.class.remove('noHeader');
@@ -138,7 +142,7 @@ Panel.prototype._reflow = function() {
 
 
 Panel.prototype._onScroll = function(evt) {
-    this.emit('scroll', evt);
+    this.ui.emit('scroll', evt);
 };
 
 
@@ -170,6 +174,9 @@ Object.defineProperty(Panel.prototype, 'folded', {
     },
     set: function(value) {
         if (this.hidden)
+            return;
+
+        if (this.class.contains('folded') === !! value)
             return;
 
         if (this.headerElement && this.headerSize === 0)

@@ -25,45 +25,51 @@ function Slider(args) {
     this.elementHandle.classList.add('handle');
     this.elementBar.appendChild(this.elementHandle);
 
-    this.element.addEventListener('mousedown', this._onMouseDown.bind(this), false);
+    this.element.addEventListener('mousedown', this._onMouseDown, false);
     this.evtMouseMove = null;
     this.evtMouseUp = null;
 
-    this.on('change', function() {
-        if (! this.renderChanges)
-            return;
-
-        this.flash();
-    });
+    this.on('change', this.__onChange);
 
     // arrows - change
-    this.element.addEventListener('keydown', function(evt) {
-        if (evt.keyCode === 27)
-            return self.elementHandle.blur();
-
-        if (self.disabled || [ 37, 39 ].indexOf(evt.keyCode) === -1)
-            return;
-
-        evt.stopPropagation();
-        evt.preventDefault();
-
-        var x = evt.keyCode === 37 ? -1 : 1;
-
-        if (evt.shiftKey)
-            x *= 10;
-
-        var rect = self.element.getBoundingClientRect();
-        var step = (self._max - self._min) / rect.width;
-        var value = Math.max(self._min, Math.min(self._max, self.value + x * step));
-        value = parseFloat(value.toFixed(self.precision), 10);
-
-        self.renderChanges = false;
-        self._updateHandle(value);
-        self.value = value;
-        self.renderChanges = true;
-    }, false);
+    this.element.addEventListener('keydown', this._onKeyDown, false);
 }
 Slider.prototype = Object.create(ui.Element.prototype);
+
+
+Slider.prototype._onChange = function() {
+    if (! this.renderChanges)
+        return;
+
+    this.flash();
+};
+
+
+Slider.prototype._onKeyDown = function(evt) {
+    if (evt.keyCode === 27)
+        return this.ui.elementHandle.blur();
+
+    if (this.ui.disabled || [ 37, 39 ].indexOf(evt.keyCode) === -1)
+        return;
+
+    evt.stopPropagation();
+    evt.preventDefault();
+
+    var x = evt.keyCode === 37 ? -1 : 1;
+
+    if (evt.shiftKey)
+        x *= 10;
+
+    var rect = this.getBoundingClientRect();
+    var step = (this.ui._max - this.ui._min) / rect.width;
+    var value = Math.max(this.ui._min, Math.min(this.ui._max, this.ui.value + x * step));
+    value = parseFloat(value.toFixed(this.ui.precision), 10);
+
+    this.ui.renderChanges = false;
+    this.ui._updateHandle(value);
+    this.ui.value = value;
+    this.ui.renderChanges = true;
+};
 
 
 Slider.prototype._onLinkChange = function(value) {
@@ -95,27 +101,27 @@ Slider.prototype._handleEvt = function(evt) {
 
 
 Slider.prototype._onMouseDown = function(evt) {
-    if (evt.button !== 0 || this.disabled)
+    if (evt.button !== 0 || this.ui.disabled)
         return;
 
-    this.elementHandle.focus();
+    this.ui.elementHandle.focus();
 
-    this.renderChanges = false;
+    this.ui.renderChanges = false;
 
-    this.evtMouseMove = this._onMouseMove.bind(this);
-    window.addEventListener('mousemove', this.evtMouseMove, false);
+    this.ui.evtMouseMove = this.ui._onMouseMove.bind(this.ui);
+    window.addEventListener('mousemove', this.ui.evtMouseMove, false);
 
-    this.evtMouseUp = this._onMouseUp.bind(this);
-    window.addEventListener('mouseup', this.evtMouseUp, false);
+    this.ui.evtMouseUp = this.ui._onMouseUp.bind(this.ui);
+    window.addEventListener('mouseup', this.ui.evtMouseUp, false);
 
-    this.class.add('active');
+    this.ui.class.add('active');
 
-    this.emit('start', this.value);
+    this.ui.emit('start', this.ui.value);
 
-    this._handleEvt(evt);
+    this.ui._handleEvt(evt);
 
-    if (this._link && this._link.history)
-        this._link.history.combine = true;
+    if (this.ui._link && this.ui._link.history)
+        this.ui._link.history.combine = true;
 };
 
 

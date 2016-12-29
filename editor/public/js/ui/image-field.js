@@ -6,9 +6,8 @@ function ImageField(args) {
     args = args || { };
 
     this.element = document.createElement('div');
-    this.element.ui = this;
-    this.element.tabIndex = 0;
-    this.element.classList.add('ui-image-field', 'empty');
+    this._element.tabIndex = 0;
+    this._element.classList.add('ui-image-field', 'empty');
 
     if (args.canvas) {
         this.elementImage = document.createElement('canvas');
@@ -19,37 +18,42 @@ function ImageField(args) {
     }
 
     this.elementImage.classList.add('preview');
-    this.element.appendChild(this.elementImage);
+    this._element.appendChild(this.elementImage);
 
     this._value = null;
 
-    this.element.removeEventListener('click', this._evtClick);
-    this.element.addEventListener('click', function(evt) {
-        self.emit('click', evt);
-    });
-
-    this.on('change', function() {
-        if (! this.renderChanges)
-            return;
-
-        this.flash();
-    });
+    this._element.removeEventListener('click', this._evtClick);
+    this._element.addEventListener('click', this._onClick, false);
+    this.on('change', this._onChange);
 
     // space > click
-    this.element.addEventListener('keydown', function(evt) {
-        if (evt.keyCode === 27)
-            return self.element.blur();
-
-        if (evt.keyCode !== 32 || self.disabled)
-            return;
-
-        evt.stopPropagation();
-        evt.preventDefault();
-        self.emit('pick');
-    }, false);
+    this._element.addEventListener('keydown', this._onKeyDown, false);
 }
 ImageField.prototype = Object.create(ui.Element.prototype);
 
+
+ImageField.prototype._onClick = function() {
+    this.ui.emit('click', evt);
+};
+
+ImageField.prototype._onChange = function() {
+    if (! this.renderChanges)
+        return;
+
+    this.flash();
+};
+
+ImageField.prototype._onKeyDown = function(evt) {
+    if (evt.keyCode === 27)
+        return this.blur();
+
+    if (evt.keyCode !== 32 || this.ui.disabled)
+        return;
+
+    evt.stopPropagation();
+    evt.preventDefault();
+    this.ui.emit('pick');
+};
 
 ImageField.prototype._onLinkChange = function(value) {
     this._value = value;

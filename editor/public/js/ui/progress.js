@@ -14,12 +14,12 @@ function Progress(args) {
     this._lastProgress = Math.floor(this._progress * 100);
 
     this.element = document.createElement('div');
-    this.element.classList.add('ui-progress');
+    this._element.classList.add('ui-progress');
 
     this._inner = document.createElement('div');
     this._inner.classList.add('inner');
     this._inner.style.width = (this._progress * 100) + '%';
-    this.element.appendChild(this._inner);
+    this._element.appendChild(this._inner);
 
     this._speed = args.speed || 1;
 

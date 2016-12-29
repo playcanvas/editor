@@ -7,15 +7,15 @@ function Tooltip(args) {
     ui.ContainerElement.call(this);
 
     this.element = document.createElement('div');
-    this.element.classList.add('ui-tooltip', 'align-left');
+    this._element.classList.add('ui-tooltip', 'align-left');
 
     this.innerElement = document.createElement('div');
     this.innerElement.classList.add('inner');
-    this.element.appendChild(this.innerElement);
+    this._element.appendChild(this.innerElement);
 
     this.arrow = document.createElement('div');
     this.arrow.classList.add('arrow');
-    this.element.appendChild(this.arrow);
+    this._element.appendChild(this.arrow);
 
     this.hoverable = args.hoverable || false;
 
@@ -33,21 +33,27 @@ function Tooltip(args) {
         this.text = args.text || '';
     }
 
-    this.element.addEventListener('mouseover', function(evt) {
-        if (! self.hoverable)
-            return;
-
-        self.hidden = false;
-        self.emit('hover', evt);
-    }, false);
-    this.element.addEventListener('mouseleave', function() {
-        if (! self.hoverable)
-            return;
-
-        self.hidden = true;
-    }, false);
+    this._element.addEventListener('mouseover', this._onMouseOver, false);
+    this._element.addEventListener('mouseleave', this._onMouseLeave, false);
 }
 Tooltip.prototype = Object.create(ui.ContainerElement.prototype);
+
+
+Tooltip.prototype._onMouseOver = function(evt) {
+    if (! this.ui.hoverable)
+        return;
+
+    this.ui.hidden = false;
+    this.ui.emit('hover', evt);
+};
+
+
+Tooltip.prototype._onMouseLeave = function() {
+    if (! this.ui.hoverable)
+        return;
+
+    this.ui.hidden = true;
+};
 
 
 Object.defineProperty(Tooltip.prototype, 'align', {
@@ -116,69 +122,69 @@ Tooltip.prototype._reflow = function() {
     if (this.hidden)
         return;
 
-    this.element.style.top = '';
-    this.element.style.right = '';
-    this.element.style.bottom = '';
-    this.element.style.left = '';
+    this._element.style.top = '';
+    this._element.style.right = '';
+    this._element.style.bottom = '';
+    this._element.style.left = '';
 
     this.arrow.style.top = '';
     this.arrow.style.right = '';
     this.arrow.style.bottom = '';
     this.arrow.style.left = '';
 
-    this.element.style.display = 'block';
+    this._element.style.display = 'block';
 
     // alignment
     switch(this._align) {
         case 'top':
-            this.element.style.top = this.y + 'px';
+            this._element.style.top = this.y + 'px';
             if (this.flip) {
-                this.element.style.right = 'calc(100% - ' + this.x + 'px)';
+                this._element.style.right = 'calc(100% - ' + this.x + 'px)';
             } else {
-                this.element.style.left = this.x + 'px';
+                this._element.style.left = this.x + 'px';
             }
             break;
         case 'right':
-            this.element.style.top = this.y + 'px';
-            this.element.style.right = 'calc(100% - ' + this.x + 'px)';
+            this._element.style.top = this.y + 'px';
+            this._element.style.right = 'calc(100% - ' + this.x + 'px)';
             break;
         case 'bottom':
-            this.element.style.bottom = 'calc(100% - ' + this.y + 'px)';
+            this._element.style.bottom = 'calc(100% - ' + this.y + 'px)';
             if (this.flip) {
-                this.element.style.right = 'calc(100% - ' + this.x + 'px)';
+                this._element.style.right = 'calc(100% - ' + this.x + 'px)';
             } else {
-                this.element.style.left = this.x + 'px';
+                this._element.style.left = this.x + 'px';
             }
             break;
         case 'left':
-            this.element.style.top = this.y + 'px';
-            this.element.style.left = this.x + 'px';
+            this._element.style.top = this.y + 'px';
+            this._element.style.left = this.x + 'px';
             break;
     }
 
     // limit to screen bounds
-    var rect = this.element.getBoundingClientRect();
+    var rect = this._element.getBoundingClientRect();
 
     if (rect.left < 0) {
-        this.element.style.left = '0px';
-        this.element.style.right = '';
+        this._element.style.left = '0px';
+        this._element.style.right = '';
     }
     if (rect.top < 0) {
-        this.element.style.top = '0px';
-        this.element.style.bottom = '';
+        this._element.style.top = '0px';
+        this._element.style.bottom = '';
     }
     if (rect.right > window.innerWidth) {
-        this.element.style.right = '0px';
-        this.element.style.left = '';
+        this._element.style.right = '0px';
+        this._element.style.left = '';
         this.arrow.style.left = Math.floor(rect.right - window.innerWidth + 8) + 'px';
     }
     if (rect.bottom > window.innerHeight) {
-        this.element.style.bottom = '0px';
-        this.element.style.top = '';
+        this._element.style.bottom = '0px';
+        this._element.style.top = '';
         this.arrow.style.top = Math.floor(rect.bottom - window.innerHeight + 8) + 'px';
     }
 
-    this.element.style.display = '';
+    this._element.style.display = '';
 };
 
 

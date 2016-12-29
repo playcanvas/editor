@@ -4,11 +4,11 @@ function Tree() {
     ui.ContainerElement.call(this);
 
     this.element = document.createElement('div');
-    this.element.classList.add('ui-tree');
+    this._element.classList.add('ui-tree');
 
     this.elementDrag = document.createElement('div');
     this.elementDrag.classList.add('drag-handle');
-    this.element.appendChild(this.elementDrag);
+    this._element.appendChild(this.elementDrag);
 
     var self = this;
     this.elementDrag.addEventListener('mousemove', function(evt) {
@@ -17,7 +17,7 @@ function Tree() {
 
         self._onDragMove(evt);
     });
-    this.element.addEventListener('mouseleave', function(evt) {
+    this._element.addEventListener('mouseleave', function(evt) {
         self._onDragOut();
     });
 
