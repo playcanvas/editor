@@ -262,6 +262,7 @@ strong {
 .ui-panel.assets {
     overflow: visible;
     background-color: $bcg-darker;
+    @extend .noSelect;
 
     &.resizable {
         &.resizable-top.scrollable > .content {
@@ -1320,14 +1321,14 @@ strong {
             > .ui-list-item {
                 position: relative;
 
-                > .remove,
-                > .play {
+                > .remove {
                     position: absolute;
                     display: block;
                     top: 0;
+                    right: 0;
                     width: 22px;
                     height: 22px;
-                    line-height: 24px;
+                    line-height: 22px;
                     margin: 0;
                     padding: 0;
                     border: none;
@@ -1336,25 +1337,10 @@ strong {
                     text-align: center;
 
                     &:hover {
-                        color: $text-primary;
-                    }
-                }
-
-                > .remove {
-                    right: 0;
-
-                    &:hover {
                         color: #d34141;
                     }
                     &:after {
                         content: '\E132';
-                    }
-                }
-                > .play {
-                    right: 22px;
-
-                    &:after {
-                        content: '\E131';
                     }
                 }
             }
@@ -2718,6 +2704,8 @@ strong {
 }
 
 .ui-panel.viewport {
+    @extend .noSelect;
+
     > .content {
         > .camera-preview {
             display: none;
@@ -3135,7 +3123,7 @@ strong {
                 content: '\E299';
             }
             > .icon {
-                content: '\E299';
+                display: none;
             }
         }
 

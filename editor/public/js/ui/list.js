@@ -5,7 +5,7 @@ function List(args) {
     ui.ContainerElement.call(this);
 
     this.element = document.createElement('ul');
-    this.element.classList.add('ui-list');
+    this._element.classList.add('ui-list');
     this.selectable = args.selectable !== undefined ? args.selectable : true;
 
     this.on('select', this._onSelect);
@@ -14,7 +14,7 @@ List.prototype = Object.create(ui.ContainerElement.prototype);
 
 
 List.prototype._onSelect = function(item) {
-    var items = this.element.querySelectorAll('.ui-list-item.selected');
+    var items = this._element.querySelectorAll('.ui-list-item.selected');
 
     if (items.length > 1) {
         for(var i = 0; i < items.length; i++) {
@@ -49,7 +49,7 @@ Object.defineProperty(List.prototype, 'selectable', {
 Object.defineProperty(List.prototype, 'selected', {
     get: function() {
         var items = [ ];
-        var elements = this.element.querySelectorAll('.ui-list-item.selected');
+        var elements = this._element.querySelectorAll('.ui-list-item.selected');
 
         for(var i = 0; i < elements.length; i++) {
             items.push(elements[i].ui);

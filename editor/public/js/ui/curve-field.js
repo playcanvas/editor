@@ -7,14 +7,13 @@ function CurveField(args) {
     args = args || { };
 
     this.element = document.createElement('div');
-    this.element.classList.add('ui-curve-field');
-    this.element.ui = this;
-    this.element.tabIndex = 0;
-    this.element.addEventListener('keydown', this._onKeyDown.bind(this), false);
+    this._element.classList.add('ui-curve-field');
+    this._element.tabIndex = 0;
+    this._element.addEventListener('keydown', this._onKeyDown, false);
 
     // canvas to render mini version of curves
     this.canvas = new ui.Canvas();
-    this.element.appendChild(this.canvas.element);
+    this._element.appendChild(this.canvas.element);
     this.canvas.on('resize', this._render.bind(this));
 
     // create checkerboard pattern
@@ -50,32 +49,33 @@ function CurveField(args) {
     this.gradient = !!(args.gradient);
 
     this.min = 0;
-    if (args.min !== undefined)
+    if (args.min !== undefined) {
         this.min = args.min;
-    else if (args.verticalValue !== undefined)
+    } else if (args.verticalValue !== undefined) {
         this.min = -args.verticalValue;
-
+    }
 
     this.max = 1;
-    if (args.max !== undefined)
+    if (args.max !== undefined) {
         this.max = args.max;
-    else if (args.verticalValue !== undefined)
+    } else if (args.verticalValue !== undefined) {
         this.max = args.verticalValue;
+    }
 }
 CurveField.prototype = Object.create(ui.Element.prototype);
 
 CurveField.prototype._onKeyDown = function(evt) {
     // esc
     if (evt.keyCode === 27)
-        return this.element.blur();
+        return this.blur();
 
     // enter
-    if (evt.keyCode !== 32 || this.disabled)
+    if (evt.keyCode !== 32 || this.ui.disabled)
         return;
 
     evt.stopPropagation();
     evt.preventDefault();
-    this.emit('click');
+    this.ui.emit('click');
 };
 
 CurveField.prototype._resize = function(width, height) {
@@ -109,7 +109,7 @@ CurveField.prototype.link = function(link, paths) {
         clearInterval(this._resizeInterval);
 
     this._resizeInterval = setInterval(function() {
-        var rect = this.element.getBoundingClientRect();
+        var rect = this._element.getBoundingClientRect();
         this.canvas.resize(rect.width, rect.height);
     }.bind(this), 1000 / 20);
 

@@ -7,11 +7,10 @@ function Checkbox(args) {
     this._text = args.text || '';
 
     this.element = document.createElement('div');
-    this.element.classList.add('ui-checkbox', 'noSelect');
-    this.element.tabIndex = 0;
-    this.element.ui = this;
+    this._element.classList.add('ui-checkbox', 'noSelect');
+    this._element.tabIndex = 0;
 
-    this.element.addEventListener('keydown', this._onKeyDown, false);
+    this._element.addEventListener('keydown', this._onKeyDown, false);
 
     this.on('click', this._onClick);
     this.on('change', this._onChange);
@@ -21,7 +20,7 @@ Checkbox.prototype = Object.create(ui.Element.prototype);
 
 Checkbox.prototype._onClick = function() {
     this.value = ! this.value;
-    this.element.blur();
+    this._element.blur();
 };
 
 Checkbox.prototype._onChange = function() {
@@ -45,13 +44,13 @@ Checkbox.prototype._onKeyDown = function(evt) {
 
 Checkbox.prototype._onLinkChange = function(value) {
     if (value === null) {
-        this.element.classList.remove('checked');
-        this.element.classList.add('null');
+        this._element.classList.remove('checked');
+        this._element.classList.add('null');
     } else if (value) {
-        this.element.classList.add('checked');
-        this.element.classList.remove('null');
+        this._element.classList.add('checked');
+        this._element.classList.remove('null');
     } else {
-        this.element.classList.remove('checked', 'null');
+        this._element.classList.remove('checked', 'null');
     }
     this.emit('change', value);
 };
@@ -62,14 +61,14 @@ Object.defineProperty(Checkbox.prototype, 'value', {
         if (this._link) {
             return this._link.get(this.path);
         } else {
-            return this.element.classList.contains('checked');
+            return this._element.classList.contains('checked');
         }
     },
     set: function(value) {
         if (this._link) {
             this._link.set(this.path, value);
         } else {
-            if (this.element.classList.contains('checked') !== value)
+            if (this._element.classList.contains('checked') !== value)
                 this._onLinkChange(value);
         }
     }

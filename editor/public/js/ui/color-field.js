@@ -6,63 +6,69 @@ function ColorField(args) {
     args = args || { };
 
     this.element = document.createElement('div');
-    this.element.ui = this;
-    this.element.tabIndex = 0;
-    this.element.classList.add('ui-color-field', 'rgb');
+    this._element.tabIndex = 0;
+    this._element.classList.add('ui-color-field', 'rgb');
 
     this.elementColor = document.createElement('span');
     this.elementColor.classList.add('color');
-    this.element.appendChild(this.elementColor);
+    this._element.appendChild(this.elementColor);
 
     this._channels = args.channels || 3;
     this._values = [ 0, 0, 0, 0 ];
 
     // space > click
-    this.element.addEventListener('keydown', function(evt) {
-        if (evt.keyCode === 27)
-            return self.element.blur();
-
-        if (evt.keyCode !== 13 || self.disabled)
-            return;
-
-        evt.stopPropagation();
-        evt.preventDefault();
-        self.emit('click');
-    }, false);
+    this._element.addEventListener('keydown', this._onKeyDown, false);
 
     // render color back
-    this.on('change', function(color) {
-        if (this._channels === 1) {
-            this.elementColor.style.backgroundColor = 'rgb(' + [ this.r, this.r, this.r ].join(',') + ')';
-        } else if (this._channels === 3) {
-            this.elementColor.style.backgroundColor = 'rgb(' + this._values.slice(0, 3).join(',') + ')';
-        } else if (this._channels === 4) {
-            var rgba = this._values.slice(0, 4);
-            rgba[3] /= 255;
-            this.elementColor.style.backgroundColor = 'rgba(' + rgba.join(',') + ')';
-        } else {
-            console.log('unknown channels', color);
-        }
-    });
+    this.on('change', this._onChange);
 
     // link to channels
-    var evtLinkChannels = [ ];
-    this.on('link', function() {
-        for(var i = 0; i < 4; i++) {
-            evtLinkChannels[i] = this._link.on(this.path + '.' + i + ':set', function(value) {
-                this._setValue(this._link.get(this.path));
-            }.bind(this));
-        }
-    });
-    this.on('unlink', function() {
-        for(var i = 0; i < evtLinkChannels.length; i++)
-            evtLinkChannels[i].unbind();
-
-        evtLinkChannels = [ ];
-    });
+    this.evtLinkChannels = [ ];
+    this.on('link', this._onLink);
+    this.on('unlink', this._onUnlink);
 }
 ColorField.prototype = Object.create(ui.Element.prototype);
 
+ColorField.prototype._onKeyDown = function(evt) {
+    if (evt.keyCode === 27)
+        return this.blur();
+
+    if (evt.keyCode !== 13 || this.ui.disabled)
+        return;
+
+    evt.stopPropagation();
+    evt.preventDefault();
+    this.ui.emit('click');
+};
+
+ColorField.prototype._onChange = function(color) {
+    if (this._channels === 1) {
+        this.elementColor.style.backgroundColor = 'rgb(' + [ this.r, this.r, this.r ].join(',') + ')';
+    } else if (this._channels === 3) {
+        this.elementColor.style.backgroundColor = 'rgb(' + this._values.slice(0, 3).join(',') + ')';
+    } else if (this._channels === 4) {
+        var rgba = this._values.slice(0, 4);
+        rgba[3] /= 255;
+        this.elementColor.style.backgroundColor = 'rgba(' + rgba.join(',') + ')';
+    } else {
+        console.log('unknown channels', color);
+    }
+};
+
+ColorField.prototype._onLink = function() {
+    for(var i = 0; i < 4; i++) {
+        this.evtLinkChannels[i] = this._link.on(this.path + '.' + i + ':set', function(value) {
+            this._setValue(this._link.get(this.path));
+        }.bind(this));
+    }
+};
+
+ColorField.prototype._onUnlink = function() {
+    for(var i = 0; i < this.evtLinkChannels.length; i++)
+        this.evtLinkChannels[i].unbind();
+
+    this.evtLinkChannels = [ ];
+};
 
 ColorField.prototype._onLinkChange = function(value) {
     if (! value)

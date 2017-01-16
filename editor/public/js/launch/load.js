@@ -2,8 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     var auth = false;
-    var socket = new WebSocket(config.url.realtime.http);
-    var connection = new sharejs.Connection(socket);
+    var socket, connection;
     var data;
     var reconnectAttempts = 0;
     var reconnectInterval = 1;
@@ -46,7 +45,8 @@ editor.once('load', function() {
             reconnectInterval = 1;
 
             this.socket.send('auth' + JSON.stringify({
-                accessToken: config.accessToken
+                accessToken: config.accessToken,
+                timeout: false
             }));
 
             editor.emit('realtime:connected');
@@ -66,7 +66,11 @@ editor.once('load', function() {
             // try to reconnect after a while
             editor.emit('realtime:nextAttempt', reconnectInterval);
 
-            setTimeout(reconnect, reconnectInterval * 1000);
+            if (editor.call('visibility')) {
+                setTimeout(reconnect, reconnectInterval * 1000);
+            } else {
+                editor.once('visible', reconnect);
+            }
 
             reconnectInterval++;
         };
@@ -81,5 +85,9 @@ editor.once('load', function() {
         connect();
     };
 
-    connect();
+    if (editor.call('visibility')) {
+        reconnect();
+    } else {
+        editor.once('visible', reconnect);
+    }
 });

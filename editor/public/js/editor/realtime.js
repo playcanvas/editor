@@ -4,19 +4,18 @@ editor.once('load', function() {
     editor.once('start', function() {
         var auth = false;
 
-        var socket = new WebSocket(config.url.realtime.http);
-        var connection = new sharejs.Connection(socket);
+        var socket, connection;
         var scene = null;
         var data;
         var reconnectAttempts = 0;
-        var reconnectInterval = 1;
+        var reconnectInterval = 3;
 
         editor.method('realtime:connection', function () {
             return connection;
         });
 
         var connect = function () {
-            if (reconnectAttempts > 8) {
+            if (reconnectAttempts > 4) {
                 editor.emit('realtime:cannotConnect');
                 return;
             }
@@ -95,7 +94,7 @@ editor.once('load', function() {
 
             connection.on('connected', function() {
                 reconnectAttempts = 0;
-                reconnectInterval = 1;
+                reconnectInterval = 3;
 
                 this.socket.send('auth' + JSON.stringify({
                     accessToken: config.accessToken
@@ -130,7 +129,11 @@ editor.once('load', function() {
                 // try to reconnect after a while
                 editor.emit('realtime:nextAttempt', reconnectInterval);
 
-                setTimeout(reconnect, reconnectInterval * 1000);
+                if (editor.call('visibility')) {
+                    setTimeout(reconnect, reconnectInterval * 1000);
+                } else {
+                    editor.once('visible', reconnect);
+                }
 
                 reconnectInterval++;
             };
@@ -145,7 +148,11 @@ editor.once('load', function() {
             connect();
         };
 
-        connect();
+        if (editor.call('visibility')) {
+            reconnect();
+        } else {
+            editor.once('visible', reconnect);
+        }
 
         var emitOp = function(type, op) {
             // console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
@@ -201,7 +208,8 @@ editor.once('load', function() {
 
         editor.method('realtime:send', function(name, data) {
             // console.log(name, data);
-            socket.send(name + JSON.stringify(data));
+            if (socket.readyState === 1)
+                socket.send(name + JSON.stringify(data));
         });
 
         editor.on('realtime:disconnected', function () {

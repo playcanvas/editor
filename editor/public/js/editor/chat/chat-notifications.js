@@ -5,7 +5,7 @@ editor.once('load', function() {
     var inputField = editor.call('chat:inputField');
     var number = 0;
 
-    editor.on('visible', function(state) {
+    editor.on('visibility', function(state) {
         if (state) {
             number = 0;
             editor.call('notify:title', config.project.name + ' | Editor');
@@ -19,7 +19,7 @@ editor.once('load', function() {
         editor.call('notify:permission');
 
         var granted = editor.call('localStorage:get', 'editor:notifications:chat');
-        var visible = editor.call('visible');
+        var visible = editor.call('visibility');
 
         if (! visible) {
             number++;

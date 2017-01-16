@@ -7,6 +7,7 @@ editor.once('load', function() {
     root.header = title;
 
     var clearPanel = function() {
+        editor.emit('attributes:beforeClear');
         root.clear();
         editor.emit('attributes:clear');
     };
@@ -344,7 +345,7 @@ editor.once('load', function() {
 
         if (args.type === 'rgb') {
             var colorPickerOn = false;
-            args.field.on('click', function() {
+            events.push(args.field.on('click', function() {
                 colorPickerOn = true;
 
                 // set picker color
@@ -387,7 +388,7 @@ editor.once('load', function() {
                     colorPickerOn = false;
                     args.field.element.focus();
                 });
-            });
+            }));
 
             // close picker if field destroyed
             args.field.once('destroy', function() {
@@ -407,17 +408,19 @@ editor.once('load', function() {
         }
 
         update();
-        args.field.on('change', changeField);
+        events.push(args.field.on('change', changeField));
 
         for(var i = 0; i < args.link.length; i++) {
             events.push(args.link[i].on(args.path + ':set', changeFieldQueue));
             events.push(args.link[i].on(args.path + ':unset', changeFieldQueue));
         }
 
-        args.field.once('destroy', function() {
+        events.push(args.field.once('destroy', function() {
             for(var i = 0; i < events.length; i++)
                 events[i].unbind();
-        });
+        }));
+
+        return events;
     });
 
     // add field
@@ -464,10 +467,12 @@ editor.once('load', function() {
 
         var field;
 
-        var linkField = function() {
+        args.linkEvents = [ ];
+
+        var linkField = args.linkField = function() {
             if (args.link) {
                 var link = function(field, path) {
-                    editor.call('attributes:linkField', {
+                    args.linkEvents = args.linkEvents.concat(editor.call('attributes:linkField', {
                         field: field,
                         path: path || args.path,
                         type: args.type,
@@ -475,7 +480,7 @@ editor.once('load', function() {
                         enum: args.enum,
                         link: args.link,
                         trim: args.trim
-                    });
+                    }));
                 };
                 if (field instanceof Array) {
                     for(var i = 0; i < field.length; i++) {
@@ -485,6 +490,13 @@ editor.once('load', function() {
                     link(field);
                 }
             }
+        };
+
+        var unlinkField = args.unlinkField = function() {
+            for(var i = 0; i < args.linkEvents.length; i++)
+                args.linkEvents[i].unbind();
+
+            args.linkEvents = [ ];
         };
 
         switch(args.type) {
@@ -512,8 +524,6 @@ editor.once('load', function() {
                 var innerPanel = new ui.Panel();
                 innerPanel.flex = true;
                 innerPanel.flexGrow = 1;
-
-                var events = [ ];
 
                 field = new ui.TextField();
                 field.blurOnEnter = false;
@@ -558,20 +568,20 @@ editor.once('load', function() {
 
                     var records = [ ];
 
-                    for(var i = 0; i < link.length; i++) {
-                        if (link[i].get(args.path).indexOf(tag) === -1)
+                    for(var i = 0; i < args.link.length; i++) {
+                        if (args.link[i].get(args.path).indexOf(tag) === -1)
                             continue;
 
                         records.push({
-                            get: link[i].history !== undefined ? link[i].history._getItemFn : null,
-                            item: link[i],
+                            get: args.link[i].history !== undefined ? args.link[i].history._getItemFn : null,
+                            item: args.link[i],
                             path: args.path,
                             value: tag
                         });
 
-                        historyState(link[i], false);
-                        link[i].removeValue(args.path, tag);
-                        historyState(link[i], true);
+                        historyState(args.link[i], false);
+                        args.link[i].removeValue(args.path, tag);
+                        historyState(args.link[i], true);
                     }
 
                     editor.call('history:add', {
@@ -614,20 +624,20 @@ editor.once('load', function() {
                 var addTag = function(tag) {
                     var records = [ ];
 
-                    for(var i = 0; i < link.length; i++) {
-                        if (link[i].get(args.path).indexOf(tag) !== -1)
+                    for(var i = 0; i < args.link.length; i++) {
+                        if (args.link[i].get(args.path).indexOf(tag) !== -1)
                             continue;
 
                         records.push({
-                            get: link[i].history !== undefined ? link[i].history._getItemFn : null,
-                            item: link[i],
+                            get: args.link[i].history !== undefined ? args.link[i].history._getItemFn : null,
+                            item: args.link[i],
                             path: args.path,
                             value: tag
                         });
 
-                        historyState(link[i], false);
-                        link[i].insert(args.path, tag);
-                        historyState(link[i], true);
+                        historyState(args.link[i], false);
+                        args.link[i].insert(args.path, tag);
+                        historyState(args.link[i], true);
                     }
 
                     editor.call('history:add', {
@@ -692,7 +702,7 @@ editor.once('load', function() {
                         delete tagItems[tag];
                         delete tagIndex[tag];
                     } else {
-                        if (tagIndex[tag] === link.length) {
+                        if (tagIndex[tag] === args.link.length) {
                             tagItems[tag].classList.remove('partial');
                         } else {
                             tagItems[tag].classList.add('partial');
@@ -724,7 +734,7 @@ editor.once('load', function() {
                         }
                     }
 
-                    if (tagIndex[tag] === link.length) {
+                    if (tagIndex[tag] === args.link.length) {
                         tagItems[tag].classList.remove('partial');
                     } else {
                         tagItems[tag].classList.add('partial');
@@ -747,41 +757,59 @@ editor.once('load', function() {
                     field.placeholder = args.placeholder;
 
                 // list
-                var link = args.link;
-                if (! (args.link instanceof Array))
-                    link = [ link ];
+                args.linkEvents = [ ];
 
-                for(var i = 0; i < link.length; i++) {
-                    var tags = link[i].get(args.path);
+                args.linkField = function() {
+                    if (args.link) {
+                        if (! (args.link instanceof Array))
+                            args.link = [ args.link ];
 
-                    events.push(link[i].on(args.path + ':insert', onInsert));
-                    events.push(link[i].on(args.path + ':remove', onRemove));
+                        for(var i = 0; i < args.link.length; i++) {
+                            var tags = args.link[i].get(args.path);
 
-                    if (! tags)
-                        continue;
+                            args.linkEvents.push(args.link[i].on(args.path + ':insert', onInsert));
+                            args.linkEvents.push(args.link[i].on(args.path + ':remove', onRemove));
 
-                    for(var t = 0; t < tags.length; t++) {
-                        if (! tags[t])
-                            continue;
+                            if (! tags)
+                                continue;
 
-                        if (! tagIndex.hasOwnProperty(tags[t])) {
-                            tagIndex[tags[t]] = 0;
-                            tagList.push(tags[t]);
+                            for(var t = 0; t < tags.length; t++) {
+                                if (! tags[t])
+                                    continue;
+
+                                if (! tagIndex.hasOwnProperty(tags[t])) {
+                                    tagIndex[tags[t]] = 0;
+                                    tagList.push(tags[t]);
+                                }
+
+                                tagIndex[tags[t]]++;
+                            }
                         }
-
-                        tagIndex[tags[t]]++;
                     }
-                }
 
-                sortTags();
+                    sortTags();
 
-                for(var i = 0; i < tagList.length; i++)
-                    insertElement(tagList[i]);
+                    for(var i = 0; i < tagList.length; i++)
+                        insertElement(tagList[i]);
+                };
 
-                panel.once('destroy', function() {
-                    for(var i = 0; i < events.length; i++)
-                        events[i].unbind();
-                });
+                args.unlinkField = function() {
+                    for(var i = 0; i < args.linkEvents.length; i++)
+                        args.linkEvents[i].unbind();
+
+                    args.linkEvents = [ ];
+
+                    for(var key in tagItems)
+                        innerPanel.innerElement.removeChild(tagItems[key]);
+
+                    tagList = [ ];
+                    tagIndex = { };
+                    tagItems = { };
+                };
+
+                args.linkField();
+
+                panel.once('destroy', args.unlinkField);
 
                 panel.append(innerPanel);
                 break;

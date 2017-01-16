@@ -5,9 +5,8 @@ function Grid() {
     ui.ContainerElement.call(this);
 
     this.element = document.createElement('ul');
-    this.element.ui = this;
-    this.element.tabIndex = 0;
-    this.element.classList.add('ui-grid');
+    this._element.tabIndex = 0;
+    this._element.classList.add('ui-grid');
 
     this._lastSelect = null;
     this._selecting = false;
@@ -26,7 +25,7 @@ Grid.prototype._onSelect = function(item) {
         return;
 
     if (Grid._shift && Grid._shift()) {
-        var children = Array.prototype.slice.call(this.element.childNodes, 0);
+        var children = Array.prototype.slice.call(this._element.childNodes, 0);
 
         // multi select from-to
         if (this._lastSelect) {
@@ -58,7 +57,7 @@ Grid.prototype._onSelect = function(item) {
         this._lastSelect = item;
     } else {
         // single select
-        var items = this.element.querySelectorAll('.ui-grid-item.selected');
+        var items = this._element.querySelectorAll('.ui-grid-item.selected');
 
         if (items.length > 1) {
             for(var i = 0; i < items.length; i++) {
@@ -85,7 +84,7 @@ Grid.prototype._onBeforeDeselect = function(item) {
     } else if (Grid._ctrl && Grid._ctrl()) {
         this._lastSelect = null;
     } else {
-        var items = this.element.querySelectorAll('.ui-grid-item.selected');
+        var items = this._element.querySelectorAll('.ui-grid-item.selected');
         if (items.length > 1) {
             for(var i = 0; i < items.length; i++) {
                 if (items[i].ui === item)
@@ -109,7 +108,7 @@ Grid.prototype.filter = function(fn) {
 
 
 Grid.prototype.forEach = function(fn) {
-    var child = this.element.firstChild;
+    var child = this._element.firstChild;
     while(child) {
         if (child.ui)
             fn(child.ui);
@@ -121,7 +120,7 @@ Grid.prototype.forEach = function(fn) {
 Object.defineProperty(Grid.prototype, 'selected', {
     get: function() {
         var items = [ ];
-        var elements = this.element.querySelectorAll('.ui-grid-item.selected');
+        var elements = this._element.querySelectorAll('.ui-grid-item.selected');
 
         for(var i = 0; i < elements.length; i++)
             items.push(elements[i].ui);

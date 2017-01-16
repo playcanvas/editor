@@ -4,7 +4,7 @@ function Code() {
     ui.ContainerElement.call(this);
 
     this.element = document.createElement('pre');
-    this.element.classList.add('ui-code');
+    this._element.classList.add('ui-code');
 }
 Code.prototype = Object.create(ui.ContainerElement.prototype);
 

@@ -9,11 +9,12 @@ function MenuItem(args) {
     this._value = args.value || '';
 
     this.element = document.createElement('div');
-    this.element.classList.add('ui-menu-item');
+    this._element.classList.add('ui-menu-item');
 
     this.elementTitle = document.createElement('div');
     this.elementTitle.classList.add('title');
-    this.element.appendChild(this.elementTitle);
+    this.elementTitle.ui = this;
+    this._element.appendChild(this.elementTitle);
 
     this.elementIcon = null;
 
@@ -24,66 +25,74 @@ function MenuItem(args) {
 
     this.innerElement = document.createElement('div');
     this.innerElement.classList.add('content');
-    this.element.appendChild(this.innerElement);
+    this._element.appendChild(this.innerElement);
 
     this._index = { };
 
     this._container = false;
 
-    this.elementTitle.addEventListener('mouseenter', function(evt) {
-        evt.stopPropagation();
-        evt.preventDefault();
+    this.elementTitle.addEventListener('mouseenter', this._onMouseEnter, false);
+    this.elementTitle.addEventListener('click', this._onClick, false);
 
-        self.parent.emit('over', [ self._value ]);
-    });
-
-    this.on('over', function(path) {
-        if (! this.parent)
-            return;
-
-        path.splice(0, 0, this._value);
-
-        this.parent.emit('over', path);
-    });
-
-    this.elementTitle.addEventListener('click', function(evt) {
-        if (! self.parent || self.disabled)
-            return;
-
-        self.emit('select', self._value);
-        self.parent.emit('select-propagate', [ self._value ]);
-        self.class.remove('hover');
-    }, false);
-
-    this.on('select-propagate', function(path) {
-        if (! this.parent)
-            return;
-
-        path.splice(0, 0, this._value);
-
-        this.parent.emit('select-propagate', path);
-        this.class.remove('hover');
-    });
-
-    this.on('append', function(item) {
-        this._container = true;
-        this.class.add('container');
-
-        this._index[item._value] = item;
-
-        item.on('value', function(value, valueOld) {
-           delete self._index[this.valueOld];
-           self._index[value] = item;
-        });
-        item.once('destroy', function() {
-            delete self._index[this._value];
-        });
-    });
+    this.on('over', this._onOver);
+    this.on('select-propagate', this._onSelectPropagate);
+    this.on('append', this._onAppend);
 
     if (args.icon)
         this.icon = args.icon;
 }
 MenuItem.prototype = Object.create(ui.ContainerElement.prototype);
+
+
+MenuItem.prototype._onMouseEnter = function(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+
+    this.ui.parent.emit('over', [ this.ui._value ]);
+};
+
+MenuItem.prototype._onOver = function(path) {
+    if (! this.parent)
+        return;
+
+    path.splice(0, 0, this._value);
+
+    this.parent.emit('over', path);
+};
+
+MenuItem.prototype._onClick = function() {
+    if (! this.ui.parent || this.ui.disabled)
+        return;
+
+    this.ui.emit('select', this.ui._value);
+    this.ui.parent.emit('select-propagate', [ this.ui._value ]);
+    this.ui.class.remove('hover');
+};
+
+MenuItem.prototype._onSelectPropagate = function(path) {
+    if (! this.parent)
+        return;
+
+    path.splice(0, 0, this._value);
+
+    this.parent.emit('select-propagate', path);
+    this.class.remove('hover');
+};
+
+MenuItem.prototype._onAppend = function(item) {
+    this._container = true;
+    this.class.add('container');
+
+    this._index[item._value] = item;
+
+    item.on('value', function(value, valueOld) {
+       delete self._index[this.valueOld];
+       self._index[value] = item;
+    });
+    item.once('destroy', function() {
+        delete self._index[this._value];
+    });
+};
 
 
 Object.defineProperty(MenuItem.prototype, 'value', {

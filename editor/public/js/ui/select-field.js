@@ -19,13 +19,13 @@ function SelectField(args) {
     }
 
     this.element = document.createElement('div');
-    this.element.ui = this;
-    this.element.tabIndex = 0;
-    this.element.classList.add('ui-select-field', 'noSelect');
+    this._element.tabIndex = 0;
+    this._element.classList.add('ui-select-field', 'noSelect');
 
     this.elementValue = document.createElement('div');
+    this.elementValue.ui = this;
     this.elementValue.classList.add('value');
-    this.element.appendChild(this.elementValue);
+    this._element.appendChild(this.elementValue);
 
     this._oldValue = null;
     this._value = null;
@@ -49,25 +49,10 @@ function SelectField(args) {
         self.close();
     };
 
-    this.elementValue.addEventListener('mousedown', function(evt) {
-        if (self.disabled && ! self.disabledClick)
-            return;
-
-        if (self.element.classList.contains('active')) {
-            self.close();
-        } else {
-            evt.preventDefault();
-            evt.stopPropagation();
-            self.evtMouseDist[0] = evt.clientX;
-            self.evtMouseDist[1] = evt.clientY;
-            self.element.focus();
-            self.open();
-            window.addEventListener('mouseup', self.evtMouseUp);
-        }
-    });
+    this.elementValue.addEventListener('mousedown', this._onMouseDown, false);
 
     this.elementOptions = document.createElement('ul');
-    this.element.appendChild(this.elementOptions);
+    this._element.appendChild(this.elementOptions);
 
     this.optionElements = { };
 
@@ -78,56 +63,78 @@ function SelectField(args) {
 
     this._optionSelectHandler = null;
 
-    this.on('link', function(path) {
-        if (this._link.schema && this._link.schema.has(path)) {
-            var field = this._link.schema.get(path);
-            var options = field.options || { };
-            this._updateOptions(options);
-        }
-    });
-
+    this.on('link', this._onLink);
     this._updateOptions();
 
-    this.on('change', function() {
-        if (! this.renderChanges)
-            return;
-
-        this.flash();
-    });
+    this.on('change', this._onChange);
 
     // arrows - change
-    this.element.addEventListener('keydown', function(evt) {
-        if (evt.keyCode === 27) {
-            self.close();
-            self.element.blur();
-            return;
-        }
-
-        if ((self.disabled && ! self.disabledClick) || [ 38, 40 ].indexOf(evt.keyCode) === -1)
-            return;
-
-        evt.stopPropagation();
-        evt.preventDefault();
-
-        var keys = Object.keys(self.options);
-        var ind = keys.indexOf(self.value !== undefined ? self.value.toString() : null);
-
-        var y = evt.keyCode === 38 ? -1 : 1;
-
-        // already first item
-        if (y === -1 && ind <= 0)
-            return;
-
-        // already last item
-        if (y === 1 && ind === (keys.length - 1))
-            return
-
-        // set new item
-        self.value = keys[ind + y];
-    }, false);
+    this._element.addEventListener('keydown', this._onKeyDown, false);
 }
 SelectField.prototype = Object.create(ui.Element.prototype);
 
+
+SelectField.prototype._onMouseDown = function(evt) {
+    if (this.ui.disabled && ! this.ui.disabledClick)
+        return;
+
+    if (this.ui.element.classList.contains('active')) {
+        this.ui.close();
+    } else {
+        evt.preventDefault();
+        evt.stopPropagation();
+        this.ui.evtMouseDist[0] = evt.clientX;
+        this.ui.evtMouseDist[1] = evt.clientY;
+        this.ui.element.focus();
+        this.ui.open();
+        window.addEventListener('mouseup', this.ui.evtMouseUp);
+    }
+};
+
+SelectField.prototype._onLink = function(path) {
+    if (this._link.schema && this._link.schema.has(path)) {
+        var field = this._link.schema.get(path);
+        var options = field.options || { };
+        this._updateOptions(options);
+    }
+};
+
+SelectField.prototype._onChange = function() {
+    if (! this.renderChanges)
+        return;
+
+    this.flash();
+};
+
+SelectField.prototype._onKeyDown = function(evt) {
+    if (evt.keyCode === 27) {
+        this.ui.close();
+        this.blur();
+        return;
+    }
+
+    if ((this.ui.disabled && ! this.ui.disabledClick) || [ 38, 40 ].indexOf(evt.keyCode) === -1)
+        return;
+
+    evt.stopPropagation();
+    evt.preventDefault();
+
+    var keys = Object.keys(this.ui.options);
+    var ind = keys.indexOf(this.ui.value !== undefined ? this.ui.value.toString() : null);
+
+    var y = evt.keyCode === 38 ? -1 : 1;
+
+    // already first item
+    if (y === -1 && ind <= 0)
+        return;
+
+    // already last item
+    if (y === 1 && ind === (keys.length - 1))
+        return
+
+    // set new item
+    this.ui.value = keys[ind + y];
+};
 
 SelectField.prototype.valueToType = function(value) {
     switch(this._type) {
@@ -145,15 +152,15 @@ SelectField.prototype.valueToType = function(value) {
 
 
 SelectField.prototype.open = function() {
-    if ((this.disabled && ! this.disabledClick) || this.element.classList.contains('active'))
+    if ((this.disabled && ! this.disabledClick) || this._element.classList.contains('active'))
         return;
 
-    this.element.classList.add('active');
+    this._element.classList.add('active');
 
-    var rect = this.element.getBoundingClientRect();
+    var rect = this._element.getBoundingClientRect();
 
     // left
-    var left = Math.round(rect.left) + ((Math.round(rect.width) - this.element.clientWidth) / 2);
+    var left = Math.round(rect.left) + ((Math.round(rect.width) - this._element.clientWidth) / 2);
 
     // top
     var top = rect.top;
@@ -174,7 +181,7 @@ SelectField.prototype.open = function() {
     // left
     this.elementOptions.style.left = left + 'px';
     // right
-    this.elementOptions.style.width = Math.round(this.element.clientWidth) + 'px';
+    this.elementOptions.style.width = Math.round(this._element.clientWidth) + 'px';
     // bottom
     if (top <= 0 && this.elementOptions.offsetHeight >= window.innerHeight) {
         this.elementOptions.style.bottom = '0';
@@ -206,7 +213,7 @@ SelectField.prototype.open = function() {
 
 
 SelectField.prototype.close = function() {
-    if ((this.disabled && ! this.disabledClick) || ! this.element.classList.contains('active'))
+    if ((this.disabled && ! this.disabledClick) || ! this._element.classList.contains('active'))
         return;
 
     window.removeEventListener('mouseup', this.evtMouseUp);
@@ -215,7 +222,7 @@ SelectField.prototype.close = function() {
         this.timerClickAway = null;
     }
 
-    this.element.classList.remove('active');
+    this._element.classList.remove('active');
 
     this.elementOptions.style.top = '';
     this.elementOptions.style.right = '';
@@ -229,7 +236,7 @@ SelectField.prototype.close = function() {
 
 
 SelectField.prototype.toggle = function() {
-    if (this.element.classList.contains('active')) {
+    if (this._element.classList.contains('active')) {
         this.close();
     } else {
         this.open();
@@ -350,6 +357,3 @@ Object.defineProperty(SelectField.prototype, 'value', {
 
 
 window.ui.SelectField = SelectField;
-
-
-

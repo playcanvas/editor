@@ -8,11 +8,11 @@ function ListItem(args) {
     this._selected = args.selected || false;
 
     this.element = document.createElement('li');
-    this.element.classList.add('ui-list-item');
+    this._element.classList.add('ui-list-item');
 
     this.elementText = document.createElement('span');
     this.elementText.textContent = this._text;
-    this.element.appendChild(this.elementText);
+    this._element.appendChild(this.elementText);
 
     this.on('click', this._onClick);
 }
@@ -47,9 +47,9 @@ Object.defineProperty(ListItem.prototype, 'selected', {
         this._selected = value;
 
         if (this._selected) {
-            this.element.classList.add('selected');
+            this._element.classList.add('selected');
         } else {
-            this.element.classList.remove('selected');
+            this._element.classList.remove('selected');
         }
 
         this.emit(this.selected ? 'select' : 'deselect');

@@ -21,9 +21,9 @@ editor.once('load', function() {
     var modelNode = new pc.GraphNode();
 
     var meshSphere = pc.createSphere(device, {
-        radius: 0.5,
-        latitudeBands: 4,
-        longitudeBands: 4
+        radius: 0,
+        latitudeBands: 2,
+        longitudeBands: 2
     });
 
     var modelPlaceholder = new pc.Model();

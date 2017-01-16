@@ -4,13 +4,13 @@ function AutoCompleteElement() {
     ui.Element.call(this);
 
     this.element = document.createElement('div');
-    this.element.classList.add('ui-autocomplete', 'hidden');
+    this._element.classList.add('ui-autocomplete', 'hidden');
 
     this._inputField = null;
     this._inputFieldPosition = null;
 
     this.innerElement = document.createElement('ul');
-    this.element.appendChild(this.innerElement);
+    this._element.appendChild(this.innerElement);
 
     // list of strings to show in the dropdown
     this._items = null;

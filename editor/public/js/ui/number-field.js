@@ -11,7 +11,7 @@ function NumberField(args) {
     this.min = (args.min !== null) ? args.min : null;
 
     this.element = document.createElement('div');
-    this.element.classList.add('ui-number-field');
+    this._element.classList.add('ui-number-field');
 
     this.elementInput = document.createElement('input');
     this.elementInput.ui = this;
@@ -23,14 +23,14 @@ function NumberField(args) {
     this.elementInput.addEventListener('keydown', this._onKeyDown, false);
     this.elementInput.addEventListener('dblclick', this._onFullSelect, false);
     this.elementInput.addEventListener('contextmenu', this._onFullSelect, false);
-    this.element.appendChild(this.elementInput);
+    this._element.appendChild(this.elementInput);
 
     if (args.default !== undefined)
         this.value = args.default;
 
     this.elementInput.addEventListener('change', this._onChange, false);
-    // this.element.addEventListener('mousedown', this._onMouseDown.bind(this), false);
-    // this.element.addEventListener('mousewheel', this._onMouseDown.bind(this), false);
+    // this._element.addEventListener('mousedown', this._onMouseDown.bind(this), false);
+    // this._element.addEventListener('mousewheel', this._onMouseDown.bind(this), false);
 
     this.blurOnEnter = true;
     this.refocusable = true;
@@ -141,72 +141,6 @@ NumberField.prototype._onChangeField = function() {
     this.flash();
 };
 
-
-// NumberField.prototype._onMouseDown = function(evt) {
-//     if (evt.button !== 0) return;
-
-//     this._mouseY = evt.clientY;
-//     this._dragStart = this.value;
-
-//     this._mouseMove = this._onMouseMove.bind(this);
-//     this._mouseUp = this._onMouseUp.bind(this);
-//     window.addEventListener('mousemove', this._mouseMove, false);
-//     window.addEventListener('mouseup', this._mouseUp, false);
-
-//     evt.preventDefault();
-//     evt.stopPropagation();
-// };
-
-
-// NumberField.prototype._onMouseUp = function(evt) {
-//     this._dragging = false;
-//     this.element.disabled = false;
-//     this.element.focus();
-//     this.element.classList.remove('noSelect', 'active');
-//     document.body.classList.remove('noSelect');
-
-//     if (this._mouseMove) {
-//         window.removeEventListener('mousemove', this._mouseMove);
-//         this._mouseMove = null;
-//     }
-//     if (this._mouseUp) {
-//         window.removeEventListener('mouseup', this._mouseUp);
-//         this._mouseUp = null;
-//     }
-
-//     evt.preventDefault();
-//     evt.stopPropagation();
-// };
-
-// NumberField.prototype._onMouseMove = function(evt) {
-//     if (this._mouseMove === null) return;
-//     if (! this._dragging) {
-//         if (Math.abs(evt.clientY - this._mouseY) > 16) {
-//             this._dragging = true;
-//         } else {
-//             return;
-//         }
-//         this._mouseY = evt.clientY;
-//         this.element.disabled = true;
-//         this.element.blur();
-//         this.element.classList.add('noSelect', 'active');
-//         document.body.classList.add('noSelect');
-//     }
-
-//     this._dragDiff = this._mouseY - evt.clientY;
-
-//     if (this.step !== 1)
-//         this._dragDiff *= this.step;
-
-//     if (this.precision !== null)
-//         this._dragDiff = parseFloat(this._dragDiff.toFixed(this.precision));
-
-//     this.value = this._dragStart + this._dragDiff;
-
-//     evt.preventDefault();
-//     evt.stopPropagation();
-// };
-
 Object.defineProperty(NumberField.prototype, 'value', {
     get: function() {
         if (this._link) {
@@ -246,13 +180,13 @@ Object.defineProperty(NumberField.prototype, 'value', {
 
 Object.defineProperty(NumberField.prototype, 'placeholder', {
     get: function() {
-        return this.element.getAttribute('placeholder');
+        return this._element.getAttribute('placeholder');
     },
     set: function(value) {
         if (! value) {
-            this.element.removeAttribute('placeholder');
+            this._element.removeAttribute('placeholder');
         } else {
-            this.element.setAttribute('placeholder', value);
+            this._element.setAttribute('placeholder', value);
         }
     }
 });
@@ -260,13 +194,13 @@ Object.defineProperty(NumberField.prototype, 'placeholder', {
 
 Object.defineProperty(NumberField.prototype, 'proxy', {
     get: function() {
-        return this.element.getAttribute('proxy');
+        return this._element.getAttribute('proxy');
     },
     set: function(value) {
         if (! value) {
-            this.element.removeAttribute('proxy');
+            this._element.removeAttribute('proxy');
         } else {
-            this.element.setAttribute('proxy', value);
+            this._element.setAttribute('proxy', value);
         }
     }
 });

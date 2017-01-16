@@ -93,7 +93,6 @@ editor.once('load', function() {
             }
         };
         var onItemDragStart = function(evt) {
-            console.log('dragstart', editor.call('assets:get', dragItem).get('name'));
             // dragend
             window.addEventListener('blur', onItemDragEnd, false);
             window.addEventListener('mouseup', onItemDragEnd, false);
@@ -225,10 +224,6 @@ editor.once('load', function() {
                         indOld: dragItemInd
                     };
 
-                    console.log('dragend', editor.call('assets:get', dragItem).get('name'), dragItemInd, ind);
-                    console.log(editor.call('assets:get', projectSettings.get('scripts')[dragItemInd]).get('name'));
-                    console.log(editor.call('assets:get', projectSettings.get('scripts')[ind]).get('name'));
-
                     editor.call('history:add', {
                         name: 'project.scripts.move',
                         undo: function() {
@@ -347,7 +342,6 @@ editor.once('load', function() {
 
         var assetMove = function(asset, ind) {
             var assetId = parseInt(asset.get('id'), 10);
-            console.log(asset.get('name'));
 
             var panel = itemsIndex[assetId];
             if (! panel) return;
