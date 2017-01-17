@@ -7,6 +7,13 @@ editor.once('load', function() {
     panel.classList.add('hidden');
     document.body.appendChild(panel);
 
+    panel.addEventListener('mousedown', function(evt) {
+        evt.stopPropagation();
+    }, false);
+    panel.addEventListener('click', function(evt) {
+        evt.stopPropagation();
+    }, false);
+
     // close button img
     var closeBtn = document.createElement('img');
     closeBtn.src = 'https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/icons/fa/16x16/remove.png';
