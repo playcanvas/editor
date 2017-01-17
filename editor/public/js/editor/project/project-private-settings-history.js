@@ -9,8 +9,6 @@ editor.once('load', function() {
         if (! this.history)
             return;
 
-        console.log(path);
-
         editor.call('history:add', {
             name: 'project.private_settings.' + path,
             undo: function() {

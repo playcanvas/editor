@@ -193,6 +193,10 @@ editor.once('load', function() {
         name: 'facebook:upload-token',
         title: 'Upload Access Token',
         description: 'An Access Token for uploading a build to Facebook.'
+    }, {
+        name: 'facebook:sdk-version',
+        title: 'SDK Version',
+        description: 'The Facebook Instant SDK version to use when publishing to Facebook. If you want you can also enter a version manually.'
     }];
 
     for(var i = 0; i < fields.length; i++) {

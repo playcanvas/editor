@@ -56,7 +56,7 @@ editor.once('load', function () {
         }
 
         panelFbId.hidden = !!privateSettings.get('facebook.app_id');
-        panelFbToken.hidden = privateSettings.get('facebook.upload_token');
+        panelFbToken.hidden = !!privateSettings.get('facebook.upload_token');
         if (! panelFbToken.hidden) {
             tooltipToken.html = getTooltipTokenHtml();
         }

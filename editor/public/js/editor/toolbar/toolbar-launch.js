@@ -72,9 +72,10 @@ editor.once('load', function() {
     var tooltip = Tooltip.attach({
         target: launch.element,
         text: 'Launch',
-        align: 'left',
         root: root
     });
+
+    var layoutRight = editor.call('layout.right');
 
     var launchOptions = { };
 
@@ -201,6 +202,9 @@ editor.once('load', function() {
     launch.element.addEventListener('mouseenter', function () {
         if (! editor.call('permissions:read') || launch.disabled)
             return;
+
+
+        tooltip.align = layoutRight && layoutRight.folded ? 'right' : 'left';
 
         panelOptions.hidden = false;
         if (timeout)
