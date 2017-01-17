@@ -52,6 +52,185 @@ editor.once('load', function() {
         });
         tooltip = editor.call('attributes:reference:attach', 'settings:facebook:upload-token', fieldFbUploadToken.parent.innerElement.firstChild.ui);
 
+        var fieldSdk = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'SDK Version',
+            type: 'string'
+        });
+
+        fieldSdk.value = settings.get('facebook.sdk_version');
+        fieldSdk.class.add('facebook-version');
+        fieldSdk.renderChanges = false;
+
+        // ref
+        editor.call('attributes:reference:attach', 'settings:facebook:sdk-version', fieldSdk.parent.innerElement.firstChild.ui);
+
+        // version should be in this form: 1.0 or 1.0.4 etc.
+        var versionRegex = /^[0-9]+(\.[0-9]+)+$/;
+
+        var changingVersion = false;
+
+        // check if version exists and if so set it
+        var setVersion = function (version) {
+            if (versions.indexOf(version) === -1) {
+                (new AjaxRequest({
+                    method: 'GET',
+                    url: '/editor/facebook/version/' + version,
+                    notJson: true
+                }))
+                .on('load', function () {
+                    settings.set('facebook.sdk_version', version);
+                })
+                .on('error', function () {
+                    fieldSdk.class.add('error');
+                });
+            } else {
+                settings.set('facebook.sdk_version', version);
+            }
+        }
+
+        fieldSdk.on('change', function (value) {
+            if (! value) {
+                fieldSdk.value = settings.get('facebook.sdk_version');
+            } else if (! versionRegex.test(value)) {
+                fieldSdk.class.add('error');
+            } else {
+                fieldSdk.class.remove('error');
+
+                if (! changingVersion) {
+                    setVersion(value);
+                }
+            }
+
+            if (! changingVersion)
+                list.hidden = true;
+        });
+
+        settings.on('facebook.sdk_version:set', function (value) {
+            changingVersion = true;
+            fieldSdk.value = value;
+            changingVersion = false;
+
+            fieldSdk.class.remove('error');
+        });
+
+        fieldSdk.elementInput.addEventListener('click', function () {
+            list.hidden = false;
+        });
+
+        fieldSdk.elementInput.addEventListener('keydown', function (e) {
+            // up arrow
+            if (e.keyCode === 38) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                listItems[focused].class.remove('focused');
+
+                focused--;
+                if (focused < 0)
+                    focused = listItems.length - 1;
+
+                listItems[focused].class.add('focused');
+
+                changingVersion = true;
+                fieldSdk.value = versions[focused];
+                changingVersion = false;
+            }
+            // down arrow
+            else if (e.keyCode === 40) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                listItems[focused].class.remove('focused');
+
+                focused++;
+                if (focused >= listItems.length)
+                    focused = 0;
+
+                listItems[focused].class.add('focused');
+
+                changingVersion = true;
+                fieldSdk.value = versions[focused];
+                changingVersion = false;
+            }
+            // enter
+            else if (e.keyCode === 13) {
+                var val = fieldSdk.value;
+                var focusedVal = versions[focused];
+                // if we have the same value as the field
+                // then call setVersion otherwise it will be handled
+                // by the 'change' event of the field
+                if (val === focusedVal) {
+                    setVersion(focusedVal);
+                    list.hidden = true;
+                }
+            }
+            // esc
+            else if (e.keyCode === 27) {
+                fieldSdk.value = settings.get('facebook.sdk_version');
+                list.hidden = true;
+            }
+        });
+
+        var list = new ui.List();
+        list.class.add('facebook-versions');
+        list.hidden = true;
+        fieldSdk.element.appendChild(list.element);
+
+        var versions = ['1.0', '2.0', '2.1'];
+        var listItems = [];
+        var focused = 0;
+
+        var hideList = function (e) {
+            var el = e.target;
+            var found = false;
+            while (el) {
+                if (el === fieldSdk.element) {
+                    found = true;
+                    break;
+                }
+
+                el = el.parentElement;
+            }
+
+            if (! found) {
+                list.hidden = true;
+                fieldSdk.value = settings.get('facebook.sdk_version');
+            }
+        }
+
+        list.on('show', function () {
+            window.addEventListener('mousedown', hideList);
+
+            listItems.forEach(function (item, index) {
+                if (versions[index] === fieldSdk.value) {
+                    focused = index;
+                    item.class.add('focused');
+                } else {
+                    item.class.remove('focused');
+                }
+            })
+        });
+        list.on('hide', function () {
+            window.removeEventListener('mousedown', hideList);
+        });
+
+        var createListItem = function (version) {
+            var item = new ui.ListItem({
+                text: version
+            });
+            list.append(item);
+
+            item.on('click', function () {
+                fieldSdk.value = version;
+                list.hidden = true;
+            });
+
+            listItems.push(item);
+        };
+
+        versions.forEach(createListItem);
+
         var tokenParagraph = tooltip.innerElement.querySelector('p');
         if (! originalTokenHelp)
             originalTokenHelp = tokenParagraph.innerHTML;

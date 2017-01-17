@@ -8,33 +8,36 @@ function Button(args) {
     this._text = args.text || '';
 
     this.element = document.createElement('div');
-    this.element.classList.add('ui-button');
-    this.element.innerHTML = this._text;
+    this._element.classList.add('ui-button');
+    this._element.innerHTML = this._text;
 
-    this.element.ui = this;
-    this.element.tabIndex = 0;
+    this._element.ui = this;
+    this._element.tabIndex = 0;
 
     // space > click
-    this.element.addEventListener('keydown', function(evt) {
-        if (evt.keyCode === 27)
-            return self.element.blur();
-
-        if (evt.keyCode !== 32 || self.disabled)
-            return;
-
-        evt.stopPropagation();
-        evt.preventDefault();
-        self.emit('click');
-    }, false);
-
-    this.on('click', function() {
-        this.element.blur();
-    });
+    this._element.addEventListener('keydown', this._onKeyDown, false);
+    this.on('click', this._onClick);
 }
 Button.prototype = Object.create(ui.Element.prototype);
 
+Button.prototype._onKeyDown = function(evt) {
+    if (evt.keyCode === 27)
+        return this.blur();
+
+    if (evt.keyCode !== 32 || this.ui.disabled)
+        return;
+
+    evt.stopPropagation();
+    evt.preventDefault();
+    this.ui.emit('click');
+};
+
+Button.prototype._onClick = function() {
+    this._element.blur();
+};
+
 Button.prototype._onLinkChange = function(value) {
-    this.element.value = value;
+    this._element.value = value;
 };
 
 Object.defineProperty(Button.prototype, 'text', {
@@ -44,7 +47,7 @@ Object.defineProperty(Button.prototype, 'text', {
     set: function(value) {
         if (this._text === value) return;
         this._text = value;
-        this.element.innerHTML = this._text;
+        this._element.innerHTML = this._text;
     }
 });
 

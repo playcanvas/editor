@@ -7,21 +7,25 @@ function Label(args) {
     this._text = args.text || '';
 
     this.element = document.createElement('span');
-    this.element.classList.add('ui-label');
-    this.element.innerHTML = this._text;
+    this._element.classList.add('ui-label');
 
-    this.on('change', function() {
-        if (! this.renderChanges)
-            return;
+    if (this._text)
+        this._element.innerHTML = this._text;
 
-        this.flash();
-    });
+    this.on('change', this._onChange);
 
     if (args.placeholder)
         this.placeholder = args.placeholder;
 }
 Label.prototype = Object.create(ui.Element.prototype);
 
+
+Label.prototype._onChange = function() {
+    if (! this.renderChanges)
+        return;
+
+    this.flash();
+};
 
 Label.prototype._onLinkChange = function(value) {
     this.text = value;
@@ -41,7 +45,7 @@ Object.defineProperty(Label.prototype, 'text', {
         if (this._link) {
             if (! this._link.set(this.path, value)) {
                 value = this._link.get(this.path);
-                this.element.innerHTML = value;
+                this._element.innerHTML = value;
             }
         } else {
             if (this._text === value) return;
@@ -50,7 +54,7 @@ Object.defineProperty(Label.prototype, 'text', {
             if (value === undefined || value === null)
                 this._text = '';
 
-            this.element.innerHTML = this._text;
+            this._element.innerHTML = this._text;
             this.emit('change', value);
         }
     }
@@ -60,7 +64,6 @@ Object.defineProperty(Label.prototype, 'value', {
     get: function () {
         return this.text;
     },
-
     set: function (value) {
         this.text = value;
     }
@@ -68,10 +71,10 @@ Object.defineProperty(Label.prototype, 'value', {
 
 Object.defineProperty(Label.prototype, 'placeholder', {
     get: function() {
-        return this.element.getAttribute('placeholder');
+        return this._element.getAttribute('placeholder');
     },
     set: function(value) {
-        this.element.setAttribute('placeholder', value);
+        this._element.setAttribute('placeholder', value);
     }
 });
 

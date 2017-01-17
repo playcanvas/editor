@@ -5,61 +5,58 @@ function Canvas(args) {
     args = args || { };
 
     this.element = document.createElement('canvas');
-    this.class.add('ui-canvas');
-
-    this.element.ui = this;
+    this._element.classList.add('ui-canvas');
 
     if (args.id !== undefined)
-        this.element.id = args.id;
+        this._element.id = args.id;
 
     if (args.tabindex !== undefined)
-        this.element.setAttribute('tabindex', args.tabindex);
+        this._element.setAttribute('tabindex', args.tabindex);
 
     // Disable I-bar cursor on click+drag
-    this.element.onselectstart = function () {
-        return false;
-    };
+    this._element.onselectstart = this.onselectstart;
 }
-
 Canvas.prototype = Object.create(ui.Element.prototype);
 
+Canvas.prototype.onselectstart = function() {
+    return false;
+};
+
+Canvas.prototype.resize = function(width, height) {
+    if (this._element.width === width && this._element.height === height)
+        return;
+
+    this._element.width = width;
+    this._element.height = height;
+    this.emit('resize', this._element.width, this._element.height);
+};
 
 Object.defineProperty(Canvas.prototype, 'width', {
     get: function() {
-        return this.element.width;
+        return this._element.width;
     },
     set: function(value) {
-        if (this.element.width === value)
+        if (this._element.width === value)
             return;
 
-        this.element.width = value;
-        this.emit('resize', this.element.width, this.element.height);
+        this._element.width = value;
+        this.emit('resize', this._element.width, this._element.height);
     }
 });
 
 
 Object.defineProperty(Canvas.prototype, 'height', {
     get: function() {
-        return this.element.height;
+        return this._element.height;
     },
     set: function(value) {
-        if (this.element.height === value)
+        if (this._element.height === value)
             return;
 
-        this.element.height = value;
-        this.emit('resize', this.element.width, this.element.height);
+        this._element.height = value;
+        this.emit('resize', this._element.width, this._element.height);
     }
 });
-
-
-Canvas.prototype.resize = function(width, height) {
-    if (this.element.width === width && this.element.height === height)
-        return;
-
-    this.element.width = width;
-    this.element.height = height;
-    this.emit('resize', this.element.width, this.element.height);
-};
 
 
 window.ui.Canvas = Canvas;

@@ -5,33 +5,38 @@ function Overlay(args) {
     args = args || { };
 
     this.element = document.createElement('div');
-    this.element.classList.add('ui-overlay', 'center');
+    this._element.classList.add('ui-overlay', 'center');
 
     this.elementOverlay = document.createElement('div');
+    this.elementOverlay.ui = this;
     this.elementOverlay.classList.add('overlay', 'clickable');
-    this.element.appendChild(this.elementOverlay);
+    this._element.appendChild(this.elementOverlay);
 
-    this.elementOverlay.addEventListener('mousedown', function(evt) {
-        if (! this.clickable)
-            return false;
-
-        // some field might be in focus
-        document.body.blur();
-
-        // wait till blur takes in account
-        setTimeout(function() {
-            // hide overlay
-            this.hidden = true;
-        }.bind(this), 0);
-
-        evt.preventDefault();
-    }.bind(this), false);
+    this.elementOverlay.addEventListener('mousedown', this._onMouseDown, false);
 
     this.innerElement = document.createElement('div');
     this.innerElement.classList.add('content');
-    this.element.appendChild(this.innerElement);
+    this._element.appendChild(this.innerElement);
 }
 Overlay.prototype = Object.create(ui.ContainerElement.prototype);
+
+Overlay.prototype._onMouseDown = function(evt) {
+    if (! this.ui.clickable)
+        return false;
+
+    var self = this;
+
+    // some field might be in focus
+    document.body.blur();
+
+    // wait till blur takes in account
+    requestAnimationFrame(function() {
+        // hide overlay
+        self.ui.hidden = true;
+    }, 0);
+
+    evt.preventDefault();
+};
 
 
 Object.defineProperty(Overlay.prototype, 'center', {

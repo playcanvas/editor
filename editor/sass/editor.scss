@@ -821,6 +821,33 @@ strong {
         }
     }
 
+    .ui-panel.facebook:not(.folded) {
+        overflow: visible;
+
+        .error {
+            outline: 1px solid #d34141;
+        }
+
+        .facebook-version {
+            position: relative;
+
+            .facebook-versions {
+                margin: 0;
+                padding: 0;
+                left: -1px;
+                right: -1px;
+                width: auto;
+                position: absolute;
+                z-index: 1;
+
+                .ui-list-item.focused {
+                    background-color: $bcg-darkest;
+                }
+            }
+        }
+
+    }
+
     &.asset-preview {
         &.large {
             > .asset-preview-container > .asset-preview {
@@ -6528,7 +6555,7 @@ strong {
             }
 
             .ui-panel {
-                &.info, &.scenes, &.options {
+                &.info, &.scenes, &.options, &.notes {
                     display: none;
                 }
             }

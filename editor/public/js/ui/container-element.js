@@ -102,6 +102,21 @@ ContainerElement.prototype.prepend = function(element) {
     }
 };
 
+ContainerElement.prototype.remove = function(element) {
+    var html = (element instanceof HTMLElement);
+    var node = html ? element : element.element;
+
+    if (! node.parentNode || node.parentNode !== this._innerElement)
+        return;
+
+    this._innerElement.removeChild(node);
+
+    if (! html) {
+        element.parent = null;
+        this.emit('remove', element);
+    }
+};
+
 
 Object.defineProperty(ContainerElement.prototype, 'innerElement', {
     get: function() {

@@ -5,7 +5,7 @@ function TextField(args) {
     args = args || { };
 
     this.element = document.createElement('div');
-    this.element.classList.add('ui-text-field');
+    this._element.classList.add('ui-text-field');
 
     this.elementInput = document.createElement('input');
     this.elementInput.ui = this;
@@ -14,7 +14,7 @@ function TextField(args) {
     this.elementInput.tabIndex = 0;
     this.elementInput.addEventListener('focus', this._onInputFocus, false);
     this.elementInput.addEventListener('blur', this._onInputBlur, false);
-    this.element.appendChild(this.elementInput);
+    this._element.appendChild(this.elementInput);
 
     if (args.default !== undefined)
         this.value = args.default;
@@ -141,13 +141,13 @@ Object.defineProperty(TextField.prototype, 'value', {
 
 Object.defineProperty(TextField.prototype, 'placeholder', {
     get: function() {
-        return this.element.getAttribute('placeholder');
+        return this._element.getAttribute('placeholder');
     },
     set: function(value) {
         if (! value) {
-            this.element.removeAttribute('placeholder');
+            this._element.removeAttribute('placeholder');
         } else {
-            this.element.setAttribute('placeholder', value);
+            this._element.setAttribute('placeholder', value);
         }
     }
 });
@@ -155,13 +155,13 @@ Object.defineProperty(TextField.prototype, 'placeholder', {
 
 Object.defineProperty(TextField.prototype, 'proxy', {
     get: function() {
-        return this.element.getAttribute('proxy');
+        return this._element.getAttribute('proxy');
     },
     set: function(value) {
         if (! value) {
-            this.element.removeAttribute('proxy');
+            this._element.removeAttribute('proxy');
         } else {
-            this.element.setAttribute('proxy', value);
+            this._element.setAttribute('proxy', value);
         }
     }
 });

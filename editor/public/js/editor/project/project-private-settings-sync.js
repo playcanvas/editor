@@ -11,6 +11,9 @@ editor.once('load', function() {
 
         if (! config.project.privateSettings.facebook.upload_token)
             config.project.privateSettings.facebook.upload_token = '';
+
+        if (! config.project.privateSettings.facebook.sdk_version)
+            config.project.privateSettings.facebook.sdk_version = '';
     };
 
     initializePrivateSettings();
@@ -100,4 +103,22 @@ editor.once('load', function() {
             });
         }
     });
+
+    // if we don't have an sdk version stored yet
+    // then save the latest sdk version if the app id is set
+    editor.on('realtime:authenticated', function () {
+        if (! config.project.privateSettings.facebook.sdk_version) {
+            if (config.project.privateSettings.facebook.app_id) {
+                settings.set('facebook.sdk_version', config.facebook.version);
+            } else {
+                settings.once('facebook.app_id:set', function (value) {
+                    if (! settings.get('facebook.sdk_version')) {
+                        settings.set('facebook.sdk_version', config.facebook.version);
+                    }
+                });
+            }
+        }
+
+    });
+
 });
