@@ -32,7 +32,7 @@ function ImageField(args) {
 ImageField.prototype = Object.create(ui.Element.prototype);
 
 
-ImageField.prototype._onClick = function() {
+ImageField.prototype._onClick = function(evt) {
     this.ui.emit('click', evt);
 };
 
