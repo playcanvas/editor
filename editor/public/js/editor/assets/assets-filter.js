@@ -7,10 +7,49 @@ editor.once('load', function() {
     var currentFolder = null;
     var currentPath = [ ];
 
+    var searchLastValue = '';
+    var searchTags = null;
+
     // filters
     var panelFilters = new ui.Panel();
     panelFilters.class.add('filters');
     assetsPanel.headerAppend(panelFilters);
+
+    var tagsCheck = function(asset, tags) {
+        var data = asset.get('tags');
+
+        if (! data.length)
+            return false;
+
+        tags = pc.Tags.prototype._processArguments(tags);
+
+        if (! data.length || ! tags.length)
+            return false;
+
+        for(var i = 0; i < tags.length; i++) {
+            if (tags[i].length === 1) {
+                // single occurance
+                if (data.indexOf(tags[i][0]) !== -1)
+                    return true;
+            } else {
+                // combined occurance
+                var multiple = true;
+
+                for(var t = 0; t < tags[i].length; t++) {
+                    if (data.indexOf(tags[i][t]) !== -1)
+                        continue;
+
+                    multiple = false;
+                    break;
+                }
+
+                if (multiple)
+                    return true;
+            }
+        }
+
+        return false;
+    };
 
     var filter = function(type, item) {
         if (! item)
@@ -32,7 +71,75 @@ editor.once('load', function() {
             var name = (type === 'scripts') ? item : item.get(type === 'asset' ? 'name' : 'filename');
             var normalSearch = true;
 
-            if (search.value[0] === '*' && search.value.length > 1) {
+            if (searchTags !== false && ((searchTags instanceof Array) || (search.value[0] === '[' && search.value.length > 2 && /^\[.+\]$/.test(search.value)))) {
+                if (searchTags === null) {
+                    try {
+                        var raw = search.value.slice(1, -1);
+                        var bits = raw.split(',');
+                        var tags = [ ];
+                        var merge = '';
+
+                        for(var i = 0; i < bits.length; i++) {
+                            var tag = bits[i].trim();
+                            if (! tag) continue;
+
+                            if ((tag[0] === '[' && tag[tag.length - 1] !== ']') || (merge && tag[tag.length - 1] !== ']')) {
+                                merge += tag + ',';
+                                continue;
+                            }
+
+                            if (merge && tag[tag.length - 1] === ']') {
+                                tag = merge + tag;
+                                merge = '';
+                            }
+
+                            if (tag[0] === '[' && tag.length > 2 && tag[tag.length - 1] === ']') {
+                                var subRaw = tag.slice(1, -1);
+                                var subBits = subRaw.split(',');
+                                if (subBits.length === 1) {
+                                    var subTag = subBits[0].trim();
+                                    if (! subTag) continue;
+                                    tags.push(subTag);
+                                } else {
+                                    var subTags = [ ];
+                                    for(var s = 0; s < subBits.length; s++) {
+                                        var subTag = subBits[s].trim();
+                                        if (! subTag) continue;
+                                        subTags.push(subTag);
+                                    }
+
+                                    if (subTags.length === 0) {
+                                        continue;
+                                    } else if (subTags.length === 1) {
+                                        tags.push(subTags[0]);
+                                    } else {
+                                        tags.push(subTags);
+                                    }
+                                }
+                            } else {
+                                tags.push(tag);
+                            }
+                        }
+
+                        searchTags = tags;
+                        normalSearch = false;
+                    } catch(ex) {
+                        searchTags = false;
+                    }
+                } else {
+                    normalSearch = false;
+                }
+
+                if (searchTags) {
+                    if (type === 'scripts' || (type === 'script' && legacyScripts)) {
+                        visible = false;
+                    } else {
+                        visible = tagsCheck(item, searchTags);
+                    }
+                } else {
+                    normalSearch = true;
+                }
+            } else if (search.value[0] === '*' && search.value.length > 1) {
                 try {
                     visible = (new RegExp(search.value.slice(1), 'i')).test(name);
                     normalSearch = false;
@@ -230,11 +337,18 @@ editor.once('load', function() {
     search.on('change', function(value) {
         value = value.trim();
 
+        if (searchLastValue === value)
+            return;
+
+        searchLastValue = value;
+
         if (value) {
             search.class.add('not-empty');
         } else {
             search.class.remove('not-empty');
         }
+
+        searchTags = null;
 
         editor.call('assets:panel:filter', filter);
     });
@@ -246,6 +360,3 @@ editor.once('load', function() {
         root: root
     });
 });
-
-
-
