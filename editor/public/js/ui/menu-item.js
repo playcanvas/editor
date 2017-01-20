@@ -80,6 +80,8 @@ MenuItem.prototype._onSelectPropagate = function(path) {
 };
 
 MenuItem.prototype._onAppend = function(item) {
+    var self = this;
+
     this._container = true;
     this.class.add('container');
 
