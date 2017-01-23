@@ -1,0 +1,76 @@
+$bcg-primary: #324447;
+$bcg-darkest: #1d292c;
+$bcg-darker: mix($bcg-primary, $bcg-darkest, 25%);
+$bcg-dark: mix($bcg-primary, $bcg-darkest, 75%);
+
+$text-darkest: #5b7073;
+$text-dark: #9ba1a3;
+$text-secondary: #b1b8ba;
+$text-primary: #ffffff;
+$text-active: #f60;
+
+$field-padding: 3px;
+
+$border-primary: #232e30;
+
+$disabled-opacity: .4;
+
+$editor-bg: #1d292c;
+$editor-gutter-bg: lighten($editor-bg, 2%);
+$editor-text-color: #f8f4f0;
+$editor-gutter-fg: #5b7073;
+$editor-line-highlight: #324447;//#163a43;
+$editor-selection: #677173; //#324447;//#275C69;
+$editor-activeline-bg: lighten($editor-bg, 10);
+$editor-activeline-linenumber-bg: lighten($editor-bg, 10);
+$editor-activeline-linenumber: #B1B8BA;
+$editor-tooltip-bg: #324447;
+$editor-hint-line: #b1b8ba;
+$editor-hint-line-active: $editor-text-color;
+$editor-yellow: #f1c40f;
+$editor-step-bg: #c6dbae;
+$editor-search: #b1b8ba;
+$editor-fold-bg: #3cff94;
+$editor-operator: #ed1e79;
+$editor-numeric: #c978eb;
+$editor-keyword: #77bef3;
+$editor-tag: #ed1e79;
+$editor-string: $editor-yellow;
+$editor-link: #F16524;
+$editor-comment: #779296;
+$editor-meta: #779296;
+$editor-def: #3cff94;
+$editor-variable: white;
+$editor-variable-2: white;
+$editor-variable-3: white;
+$editor-parameter: #ff842f;
+$editor-attribute-name: #A9E884;
+$editor-property: white;
+$editor-attribute: white;
+$editor-function: $editor-variable;
+$editor-invalid-text: white;
+$editor-invalid-bg: #ff3295;
+$editor-invalid-deprecated-bg: #e3a9ff;
+
+$editor-font-family: Monaco, Menlo, Consolas, source-code-pro, monospace;
+
+$save-btn-disabled-bg: #35454a;
+$save-btn-disabled-color: #29363b;
+
+$editor-btn-bg: lighten($save-btn-disabled-color, 5%);
+$editor-btn-bg-hover: lighten($save-btn-disabled-color, 7%);
+
+$top-bar-line-height: 34px;
+$top-bar-border: 1px;
+$top-bar-height: $top-bar-line-height + $top-bar-border;
+
+$muted-green: #27AE60;
+$bright-green: #2ECC71;
+$bg-bright: #5B7073;
+$bright-red: #E74C3C;
+$gray-light: lighten(#000, 60%);
+$text-color: #324447;
+
+$status-error: #E74C3C;
+$status-warning: #f1c40f;
+$status-log: #ccc;

@@ -1,0 +1,654 @@
+@import 'variables';
+@import '../fonts';
+
+html {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    @extend .font-regular;
+    min-height: 100%;
+    height: 100%;
+    overflow: hidden;
+    margin: 0;
+    font-size: 14px;
+}
+
+strong {
+    @extend .font-bold;
+}
+
+@media (max-width: 480px) {
+    .hidden-xs {
+        display: none;
+    }
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: $editor-tooltip-bg;
+}
+::-webkit-scrollbar-thumb {
+    background: black;
+}
+::-webkit-scrollbar-corner {
+    background: $editor-tooltip-bg;
+}
+
+
+.noSelect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+#ui-root {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    background-color: $bcg-primary;
+    color: $text-primary;
+
+    > .content {
+        max-height: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+}
+
+#ui-top {
+    height: 40px;
+    line-height: 40px;
+    border-bottom: 1px solid $border-primary;
+    background-color: $bcg-darker;
+}
+
+#ui-center {
+    background-color: $bcg-darkest;
+}
+
+#ui-code {
+    height: calc(100% - 30px);
+    > .content {
+        height: 100%;
+    }
+}
+
+#ui-tabs {
+    background-color: $bcg-darker;
+}
+
+#ui-left {
+    color: $text-primary;
+    width: 300px;
+    > .content {
+        width: 300px;
+    }
+}
+
+#ui-bottom {
+    display: none;
+
+    height: 24px;
+    line-height: 24px;
+    background-color: $bcg-darker;
+    border-top: 1px solid $border-primary;
+
+    .ui-label.status {
+        margin: 0 0 0 5px;
+
+        color: $status-log;
+
+        &.error {
+            color: $status-error;
+        }
+
+        &.warning {
+            color: $status-warning;
+        }
+    }
+}
+
+#editor-container {
+    height: calc(100% - 35px);
+    clear: both;
+}
+
+.ui-panel {
+    background-color: transparent;
+
+    &.resizable {
+        $handle-size: 2px;
+
+        &.resizing > .handle {
+            background-color: transparent;
+        }
+        &.resizable-left {
+            padding-left: 0;
+
+            &.scrollable > .content {
+                left: 0;
+            }
+            > .handle {
+                width: $handle-size;
+                border-left: 3px solid $bcg-darkest;
+            }
+        }
+        &.resizable-right {
+            padding-right: 0;
+
+            > .handle {
+                width: $handle-size;
+                border-right: 3px solid $bcg-darkest;
+            }
+        }
+        &.resizable-top {
+            padding-top: 0;
+
+            &.scrollable > .content {
+                top: 32px;
+            }
+            > .handle {
+                height: $handle-size;
+                border-top: 3px solid $bcg-darkest;
+            }
+        }
+        &.resizable-bottom {
+            padding-bottom: 0;
+
+            > .handle {
+                height: $handle-size;
+                border-bottom: 3px solid $bcg-darkest;
+            }
+        }
+        &.resizing > .handle {
+            opacity: 1;
+        }
+        > .handle {
+            opacity: 0;
+            background-color: transparent;
+
+            &:hover {
+                opacity: 1;
+                background-color: transparent;
+            }
+        }
+    }
+}
+
+.ui-tree.files {
+    width: calc(100% - 5px);
+
+    .ui-tree-item {
+        &.selected {
+            > .title {
+                > .icon {
+                    color: #fff;
+                }
+            }
+        }
+        &.container {
+            > .title {
+                &:hover {
+                    &:before {
+                        color: $text-secondary;
+                    }
+                }
+                &:before {
+                    background-color: mix($text-darkest, $bcg-darker, 30%);
+
+                    &:hover {
+                        background-color: $text-active;
+                    }
+                }
+            }
+
+            &.open {
+                > .title:before {
+                    background-color: mix($text-darkest, $bcg-darker, 30%);
+                }
+            }
+        }
+        > .title {
+            > .text {
+                @extend .font-regular;
+            }
+
+            &:hover {
+                > .icon {
+                    color: #fff;
+                }
+            }
+            > .icon {
+                color: $text-darkest;
+                &:after {
+                    @extend .font-icon;
+                    font-size: 16px;
+                    line-height: 23px;
+                    text-align: center;
+                    background-color: transparent;
+                }
+            }
+        }
+
+        &.type-folder .icon:after {
+            content: '\E139';
+        }
+        &.type-script .icon:after {
+            content: '\E392';
+        }
+        &.type-html .icon:after {
+            content: '\E205';
+        }
+        &.type-css .icon:after {
+            content: '\E206';
+        }
+        &.type-shader .icon:after {
+            content: '\E219';
+        }
+        &.type-text .icon:after {
+            content: '\E209';
+        }
+        &.type-json .icon:after {
+            content: '\E207';
+        }
+
+    }
+}
+
+.ui-tree-item {
+    $line-color: mix($bcg-dark, $bcg-primary, 50%);
+
+    &.container {
+        // plus icon
+        > .title:before {
+            content: '\E120';
+            width: 16px;
+            height: 16px;
+            margin: 3px;
+            @extend .font-icon;
+            font-size: 10px;
+            text-align: center;
+            color: $text-secondary;
+            text-align: center;
+            line-height: 16px;
+            background: transparent;
+            font-weight: bold;
+            background-color: $bcg-dark;
+        }
+        // minus icon
+        &.open {
+            > .title:before {
+                content: '\E121';
+                color: $text-secondary;
+                background-color: $bcg-dark;
+            }
+        }
+    }
+    &.disabled {
+        > .title > .icon:after {
+            background-color: mix($text-darkest, $bcg-primary, 50%);
+            opacity: 1;
+        }
+    }
+    > .title {
+        color: $text-secondary;
+
+        &:hover,
+        &:focus {
+            color: $text-primary;
+            border-color: transparent;
+            background-color: $bcg-dark;
+
+            > .icon:after {
+                background-color: mix($text-darkest, $text-active, 50%);
+            }
+        }
+        > .icon {
+            // line-left
+            &:before {
+                background-color: $line-color;
+                left: -12px;
+                top: 10px;
+                height: 2px;
+            }
+            // icon
+            &:after {
+                background-color: $text-darkest;
+            }
+        }
+    }
+    &.selected {
+        > .title {
+            background-color: $bcg-darkest;
+            color: $text-primary;
+            border-color: transparent;
+
+            > .icon {
+                &:after {
+                    background-color: $text-active;
+                }
+            }
+        }
+    }
+    &.dragged {
+        > .title {
+            background-color: rgba($bcg-dark, .5);
+            color: $text-primary;
+        }
+    }
+    // line-top
+    &:before {
+        background-color: $line-color;
+        width: 2px;
+        left: 14px;
+        top: -12px;
+        bottom: 12px;
+    }
+    // line-top, last item
+    &:last-child {
+        &:before {
+            height: 25px;
+        }
+    }
+    // line-top, single item
+    &.single {
+        &:before {
+            left: 14px;
+            top: -12px;
+            width: 2px;
+            background-color: $line-color;
+        }
+    }
+}
+
+
+.cm-s-default {
+    &.CodeMirror {
+        height: 100%;
+        background-color: $editor-bg;
+        color: $editor-text-color;
+        font-size: 12px;
+        font-family: $editor-font-family;
+        font-style: normal;
+        font-variant: normal;
+        font-weight: normal;
+    }
+
+    div.CodeMirror-selected {
+        background-color: $editor-selection !important;
+    }
+
+    .CodeMirror-gutters {
+        min-height: 100%;
+        width: 61px;
+        background-color: $editor-gutter-bg;
+        border-right: none;
+    }
+
+    .CodeMirror-lines {
+        padding: 0;
+    }
+
+    .CodeMirror-linenumber {
+        color: $editor-gutter-fg;
+        min-width: 29px;
+        width: 32px !important;
+        left: 16px !important;
+        padding-right: 10px;
+    }
+
+    .CodeMirror-pc-gutter {
+        width: 16px;
+    }
+
+    .CodeMirror-sizer {
+        margin-left: 61px !important;
+    }
+
+    .CodeMirror-cursor {
+       border-left: 1px solid $editor-text-color !important;
+       border-right: 1px solid $editor-text-color !important;
+       margin-left: -1px;
+    }
+
+    span.cm-comment {
+        color: $editor-comment;
+    }
+
+    span.cm-atom, span.cm-keyword {
+        color: $editor-keyword;
+    }
+
+    span.cm-number {
+        color: $editor-numeric;
+    }
+
+    span.cm-property {
+        color: $editor-property;
+    }
+
+    span.cm-attribute {
+        color: $editor-keyword;
+    }
+
+    span.cm-string {
+        color: $editor-string;
+    }
+
+    span.cm-tag, span.cm-qualifier, span.cm-builtin {
+        color: $editor-tag;
+    }
+
+    span.cm-meta {
+        color: $editor-meta;
+    }
+
+    span.cm-def {
+        color: $editor-def;
+    }
+
+    span.cm-variable {
+        color: $editor-variable;
+    }
+
+    span.cm-variable-2 {
+        color: $editor-variable-2;
+    }
+
+    span.cm-variable-3 {
+        color: $editor-variable-3;
+    }
+
+    span.cm-operator {
+        color: $editor-operator;
+    }
+
+    span.cm-searching {
+        background-color: transparent;
+        border: 1px solid $editor-search;
+    }
+
+    span.cm-bracket {
+        color: $editor-text-color;
+    }
+
+    .CodeMirror-matchingbracket {
+        text-decoration: underline;
+        color: $editor-text-color !important;
+    }
+
+    .CodeMirror-nonmatchingbracket {
+        color: $editor-text-color !important;
+    }
+}
+
+.cm-matchhighlight {
+    border: 1px solid $editor-text-color;
+    border-radius: 2px;
+    margin: -1px;
+}
+
+.CodeMirror-Tern-tooltip {
+    border-color:  $editor-bg;
+    color: $editor-text-color;
+    padding: 5px 10px;
+    background-color: $editor-tooltip-bg;
+    text-align: left;
+    border-radius: 0;
+
+    @extend .font-regular;
+    font-size: 12px;
+    line-height: 1.5;
+
+    a {
+        color: $editor-link;
+    }
+}
+
+.CodeMirror-hints {
+    border: none;
+    background: $editor-tooltip-bg;
+    font-size: 12px;
+    margin: 0;
+    padding: 0;
+    max-width: none;
+    border-radius: 0;
+}
+
+.CodeMirror-hint {
+    color: $editor-hint-line;
+    height: 20px;
+    padding: 0 25px;
+    line-height: 20px;
+    max-width: none;
+    border-radius: 0;
+}
+
+li.CodeMirror-hint-active {
+    background: black;
+    color: $editor-hint-line-active;
+}
+
+.CodeMirror-Tern-hint-doc {
+    margin-left: 10px;
+}
+
+.CodeMirror-Tern-completion:before {
+    left: 0;
+    top: 0;
+    border-radius: 0;
+    font-size: 10px;
+    font-weight: bold;
+    height: 20px;
+    width: 20px;
+    line-height: 20px;
+    text-align: center;
+    color: $editor-text-color;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.CodeMirror-Tern-farg {
+    opacity: 1;
+}
+
+.CodeMirror-Tern-fname {
+    color: $editor-text-color;
+}
+
+.CodeMirror-Tern-farg {
+    color: $editor-text-color;
+}
+
+.CodeMirror-Tern-farg-current {
+    color: $editor-yellow;
+}
+
+.CodeMirror-Tern-type {
+    color: $editor-keyword;
+}
+
+.CodeMirror-dialog-top {
+    background-color: rgba(0,0,0,0.9);
+    border: none;
+    top: 0;
+    padding: 10px 20px;
+    font-size: 12px;
+    color: $editor-hint-line !important;
+}
+
+.CodeMirror-search-field {
+    color: white !important;
+    font-size: 12px;
+}
+
+.CodeMirror-lint-tooltip {
+    background-color: $editor-tooltip-bg;
+    border: none;
+    border-radius: 0;
+    color: $editor-text-color;
+    font-size: 12px;
+    text-align: justify;
+    padding: 5px;
+    line-height: 1.5;
+
+    @extend .font-regular;
+}
+
+.CodeMirror-activeline-background {
+    background-color: $editor-activeline-bg;
+    opacity: 0.3;
+}
+
+.error .CodeMirror-activeline-background {
+    background-color: red;
+    opacity: 0.5;
+}
+
+.CodeMirror-activeline-gutter {
+    background-color: $editor-activeline-linenumber-bg;
+    .CodeMirror-linenumber {
+        color: $editor-activeline-linenumber;
+    }
+}
+
+.CodeMirror-fhint {
+    font-family: monospace;
+}
+
+.CodeMirror-foldmarker {
+    display: inline-block;
+    vertical-align: middle;
+    height: 7px;
+    width: 12px;
+    text-align: center;
+    font-size: 15px;
+    line-height: 0;
+    color: $editor-bg;
+    background-color: $editor-yellow;
+    text-shadow: none;
+    font-family: $editor-font-family;
+    cursor: pointer;
+}
+
+.CodeMirror-scrollbar-filler {
+   background-color: $editor-bg;
+}
+
+a.link-docs {
+    margin-left: 10px;
+}
+
