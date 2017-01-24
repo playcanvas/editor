@@ -99,11 +99,9 @@ strong {
 }
 
 #ui-bottom {
-    display: none;
-
     height: 24px;
     line-height: 24px;
-    background-color: $bcg-darker;
+    background-color: $bcg-darkest;
     border-top: 1px solid $border-primary;
 
     .ui-label.status {

@@ -7,7 +7,6 @@ editor.on('load', function () {
     root.flex = true;
     root.flexDirection = 'column';
     root.flexWrap = 'nowrap';
-    root.scroll = true;
     document.body.appendChild(root.element);
     // expose
     editor.method('layout.root', function() { return root; });
