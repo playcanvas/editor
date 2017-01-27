@@ -22,4 +22,19 @@ editor.once('load', function () {
             editor.call('status:error', 'Error - Status ' + status);
         }
     });
+
+    // Load asset file contents and call callback
+    editor.method('assets:loadFile', function (asset, fn) {
+        Ajax({
+            url: '{{url.api}}/assets/' + asset.get('id') + '/file/' + asset.get('file.filename'),
+            auth: true,
+            notJson: true
+        })
+        .on('load', function(status, data) {
+            fn(null, data);
+        })
+        .on('error', function (err) {
+            fn(err);
+        });
+    });
 });

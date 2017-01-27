@@ -1,7 +1,9 @@
 editor.once('load', function () {
     'use strict';
 
-    var element = editor.call('layout.code').innerElement;
+    var panel = editor.call('layout.code');
+
+    var element = panel.innerElement;
     var cm = null;
     var tern = null;
 
@@ -17,7 +19,7 @@ editor.once('load', function () {
         unComment: true,
         continueComments: true,
         styleActiveLine: true,
-        scrollPastEnd: false,
+        scrollPastEnd: true,
 
         readOnly: !editor.call('permissions:write'),
 
@@ -56,8 +58,8 @@ editor.once('load', function () {
     options.extraKeys['Shift-Cmd-Z'] = function (cm) { editor.call('editor:redo');};
     options.extraKeys['Ctrl-Y'] = function (cm) { editor.call('editor:redo');};
     options.extraKeys['Cmd-Y'] = function (cm) { editor.call('editor:redo');};
-    options.extraKeys['Ctrl-S'] = function (cm) {editor.call('editor:save');};
-    options.extraKeys['Cmd-S'] = function (cm) {editor.call('editor:save');};
+    options.extraKeys['Ctrl-S'] = function (cm) {editor.call('editor:command:save');};
+    options.extraKeys['Cmd-S'] = function (cm) {editor.call('editor:command:save');};
     options.extraKeys['Tab'] = function(cm) {
         if (cm.somethingSelected()) {
             cm.indentSelection("add");
@@ -158,8 +160,11 @@ editor.once('load', function () {
             // update hints on cursor activity
             // if we are editing a script
             cm.on("cursorActivity", function(cm) {
-                var focused = editor.call('editor:focusedDocument');
-                if (focused && focused.type === 'script') {
+                var focused = editor.call('documents:getFocused');
+                if (! focused) return;
+
+                var asset = editor.call('assets:get', focused);
+                if (asset && asset.get('type') === 'script') {
                     tern.updateArgHints(cm);
                 }
             });
@@ -172,8 +177,11 @@ editor.once('load', function () {
 
             var wordChar = /\w/;
             var shouldComplete = function (e) {
-                var focused = editor.call('focusedDocument');
-                if (! focused || focused.type !== 'script') return false;
+                var focused = editor.call('documents:getFocused');
+                if (! focused) return false;
+
+                var asset = editor.call('assets:get', focused);
+                if (! asset || asset.get('type') !== 'script') return false;
 
                 // auto complete on '.' or word chars
                 return !e.ctrlKey && !e.altKey && !e.metaKey && (e.keyCode === 190 || (e.key.length === 1 && wordChar.test(e.key)));

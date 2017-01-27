@@ -11,12 +11,12 @@ $text-active: #f60;
 
 $field-padding: 3px;
 
-$border-primary: #232e30;
+$border-primary: mix($bcg-darkest, $bcg-dark, 50%);
 
 $disabled-opacity: .4;
 
 $editor-bg: #1d292c;
-$editor-gutter-bg: lighten($editor-bg, 2%);
+$editor-gutter-bg: $editor-bg;//lighten($editor-bg, 2%);
 $editor-text-color: #f8f4f0;
 $editor-gutter-fg: #5b7073;
 $editor-line-highlight: #324447;//#163a43;
@@ -24,7 +24,7 @@ $editor-selection: #677173; //#324447;//#275C69;
 $editor-activeline-bg: lighten($editor-bg, 10);
 $editor-activeline-linenumber-bg: lighten($editor-bg, 10);
 $editor-activeline-linenumber: #B1B8BA;
-$editor-tooltip-bg: #324447;
+$editor-tooltip-bg: $bcg-primary;
 $editor-hint-line: #b1b8ba;
 $editor-hint-line-active: $editor-text-color;
 $editor-yellow: #f1c40f;
@@ -68,9 +68,13 @@ $muted-green: #27AE60;
 $bright-green: #2ECC71;
 $bg-bright: #5B7073;
 $bright-red: #E74C3C;
+$bright-blue: #2999F0;
+$muted-blue: #1D7BEA;
 $gray-light: lighten(#000, 60%);
+$bright-yellow: #F1C40F;
+$muted-yellow: #F4A62A;
 $text-color: #324447;
 
-$status-error: #E74C3C;
-$status-warning: #f1c40f;
+$status-error: $bright-red;
+$status-warning: $bright-yellow;
 $status-log: #ccc;

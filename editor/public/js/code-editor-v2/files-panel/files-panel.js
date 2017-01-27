@@ -28,29 +28,6 @@ editor.once('load', function () {
     tree.on('close', resizeQueue);
     setInterval(resizeQueue, 1000);
 
-    tree.on('select', function(item) {
-        // open items till parent
-        var parent = item.parent;
-        while(parent && parent instanceof ui.TreeItem) {
-            parent.open = true;
-            parent = parent.parent;
-        }
-        // focus
-        item.elementTitle.focus();
-
-        if (! item._assetId)
-            return;
-
-        var asset = editor.call('assets:get', item._assetId);
-        if (! asset)
-            return;
-
-        editor.call('status:log', 'Selected asset "' + asset.get('name') + '" (id: ' + item._assetId + ')');
-
-        // load document
-        editor.call('document:load', asset);
-    });
-
     // tree root
     var treeRoot = new ui.TreeItem({
         text: '/'
@@ -179,9 +156,44 @@ editor.once('load', function () {
         }
     });
 
-    // Return tree node by asset id
-    editor.method('files:tree:get', function (id) {
-        return itemIndex[id];
-    })
+    // handle selections
+    tree.on('select', function(item) {
+        // open items till parent
+        var parent = item.parent;
+        while(parent && parent instanceof ui.TreeItem) {
+            parent.open = true;
+            parent = parent.parent;
+        }
+        // focus
+        item.elementTitle.focus();
+
+        if (! item._assetId)
+            return;
+
+        var asset = editor.call('assets:get', item._assetId);
+        if (! asset)
+            return;
+
+        editor.call('status:log', 'Selected asset "' + asset.get('name') + '" (id: ' + item._assetId + ')');
+
+        editor.emit('select:asset', asset);
+    });
+
+    // Select file by id
+    editor.method('files:select', function (id) {
+        var item = itemIndex[id];
+        if (item && !item.selected) {
+            tree.clear()
+            item.selected = true;
+        }
+    });
+
+
+    // deselect tree item
+    editor.on('documents:close', function (id) {
+        var item = itemIndex[id];
+        if (item)
+            item.selected = false;
+    });
 
 });

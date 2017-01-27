@@ -17,10 +17,9 @@ editor.on('load', function () {
     top.flexShrink = false;
     root.append(top);
 
-    var label = new ui.Label({
-        text: 'top'
-    });
-    top.append(label);
+    // expose
+    editor.method('layout.top', function () { return top; });
+
 
     // middle
     var middle = new ui.Panel();
@@ -31,7 +30,7 @@ editor.on('load', function () {
 
 
     // left
-    var left = new ui.Panel();
+    var left = new ui.Panel('FILES');
     left.element.id = 'ui-left';
     left.class.add('noSelect');
     left.foldable = true;
@@ -61,18 +60,16 @@ editor.on('load', function () {
     tabs.element.id = 'ui-tabs';
     tabs.flexShrink = false;
     tabs.flexWrap = 'nowrap';
+    tabs.hidden = true;
     center.append(tabs);
 
     // expose
     editor.method('layout.tabs', function () { return tabs; });
 
-    tabs.append(new ui.Label({
-        text: 'tabs'
-    }));
-
     // code
     var code = new ui.Panel();
     code.element.id = 'ui-code';
+    code.hidden = true;
     center.append(code);
 
     editor.method('layout.code', function () { return code; });
@@ -91,11 +88,35 @@ editor.on('load', function () {
     // code panel otherwise codemirror will not show scrollbars
     // correctly due to flex
     var setCodePanelWidth = function () {
-        code.innerElement.style.width = (document.body.clientWidth - left.innerElement.clientWidth) + 'px';
+        code.innerElement.style.width = (document.body.clientWidth - left.element.clientWidth) + 'px';
     };
 
     window.addEventListener('resize', setCodePanelWidth);
     left.on('resize', setCodePanelWidth);
-    setCodePanelWidth();
+
+    // on fold - unfold refresh width
+    // until fold animation is finished
+    var interval, timeout;
+    var onFold = function () {
+        if (timeout) {
+            clearTimeout(timeout);
+        }
+
+        timeout = setTimeout(function () {
+            clearInterval(interval);
+            timeout = null;
+        }, 1000);
+
+        if (interval)
+            clearInterval(interval);
+
+        interval = setInterval(setCodePanelWidth, 1000 / 60);
+
+    };
+
+    left.on('fold', onFold);
+    left.on('unfold', onFold);
+
+    setTimeout(setCodePanelWidth);
 
 });
