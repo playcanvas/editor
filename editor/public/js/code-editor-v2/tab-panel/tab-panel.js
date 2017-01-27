@@ -310,4 +310,13 @@ editor.once('load', function () {
         return tabOrder.slice();
     });
 
+    // handle asset name changes
+    editor.on('assets:add', function (asset) {
+        asset.on('name:set', function (name) {
+            var entry = tabsIndex[asset.get('id')];
+            if (entry)
+                entry.name.text = name;
+        });
+    });
+
 });

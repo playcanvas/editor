@@ -231,6 +231,28 @@ strong {
 
 }
 
+.ui-tree-item {
+    &.rename {
+        > .title {
+            > .text {
+                display: none;
+            }
+            > .ui-text-field {
+                width: calc(100% - 24px);
+                margin: 0;
+                padding: 0;
+                border: none;
+                background-color: transparent;
+
+                > .field {
+                    padding: 0;
+                    @extend .font-regular;
+                    font-size: 14px;
+                }
+            }
+        }
+    }
+}
 
 .cm-s-default {
     &.CodeMirror {

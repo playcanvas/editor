@@ -15,7 +15,7 @@ body {
     background: $bcg-primary;
 }
 ::-webkit-scrollbar-thumb {
-    background: black;
+    background: transparentize($text-secondary, 0.5);
 }
 ::-webkit-scrollbar-corner {
     background: $bcg-primary;
@@ -475,5 +475,39 @@ a:visited {
         background-position: 0px 0px;
         background-size: 24px 24px;
         background-repeat: repeat;
+    }
+}
+
+.ui-text-field {
+    border: 1px solid $bcg-darker;
+    background-color: $bcg-dark;
+    margin: $field-padding;
+
+    > input.field {
+        color: $text-secondary;
+    }
+    &.active,
+    &:hover,
+    &:focus,
+    &.focus {
+        border-color: $bcg-darkest;
+        background-color: $bcg-darkest;
+    }
+    > input.field:focus,
+    > input.field:hover {
+        box-shadow: none;
+        color: $text-primary;
+        outline: none;
+        border: none;
+    }
+
+    &.flash {
+        @extend .ui-flash;
+    }
+}
+.ui-text-field[placeholder] {
+    &:after {
+        color: $text-darkest;
+        background-color: $bcg-dark;
     }
 }

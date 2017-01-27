@@ -227,8 +227,13 @@ TreeItem.prototype._onRename = function() {
     });
     field.on('change', function(value) {
         value = value.trim();
-        if (value)
-            self.entity.set('name', value);
+        if (value) {
+            if (self.entity) {
+                self.entity.set('name', value);
+            }
+
+            self.emit('rename', value);
+        }
 
         field.destroy();
         self.class.remove('rename');

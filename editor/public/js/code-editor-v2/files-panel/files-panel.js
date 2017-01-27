@@ -159,6 +159,21 @@ editor.once('load', function () {
             addItem(item, path);
         });
 
+        // handle name changes (need to keep alphabetical order)
+        asset.on('name:set', function (name) {
+            // remove and re-insert item
+            var parent = item.parent;
+            if (! parent) return;
+
+            parent.remove(item);
+            item.text = name;
+            appendAlphabetically(item, parent);
+        });
+
+        // rename item
+        item.on('rename', function (name) {
+            asset.set('name', name);
+        });
     };
 
     // add all assets once they're all loaded
