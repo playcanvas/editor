@@ -4,82 +4,27 @@ editor.once('load', function () {
     var connection = editor.call('realtime:connection');
 
     var documentsIndex = {};
-    var assetsIndex = {};
 
     // the last document id the
     // user requested to focus
     var lastFocusedId = null;
 
-    // Load asset from C3
-    var loadAsset = function (asset) {
-        var id = asset.get('id');
-
-        var assetDoc = connection.get('assets', id);
-
-        // store index entry
-        var entry = {
-            doc: assetDoc,
-            isSaving: false,
-            fileContent: null
-        };
-
-        assetsIndex[id] = entry;
-
-        // listen to "after op" in order to check if the asset
-        // file has been saved. When the file changes this means that the
-        // save operation has finished
-        assetDoc.on('after op', function (ops, local) {
-            if (local) return;
-
-            for (var i = 0; i < ops.length; i++) {
-                if (ops[i].p.length === 1 && ops[i].p[0] === 'file') {
-                    entry.isSaving = false;
-
-                    var docEntry = documentsIndex[id];
-                    if (docEntry && docEntry.isDirty) {
-                        docEntry.isDirty = false;
-                    }
-
-                    editor.emit('documents:dirty', id, false);
-
-                    break;
-                }
-            }
-        });
-
-        // Every time the 'subscribe' event is fired on the asset document
-        // reload the asset content and check if it's different than the document content in
-        // order to activate the REVERT button
-        assetDoc.on('subscribe', function () {
-            // load asset file to check if it has different contents
-            // than the sharejs document
-            editor.call('assets:loadFile', asset, function (err, data) {
-                if (err) {
-                    entry.fileContent = null;
-                    return;
-                }
-
-                entry.fileContent = data;
-                checkIfDirty(id);
-            });
-        });
-
-        assetDoc.subscribe();
-    };
-
     // Checks if a document with the specified id
     // is dirty
     var checkIfDirty = function (id) {
-        var assetDoc = assetsIndex[id];
-        if (! assetDoc || assetDoc.fileContent === null) return;
+        var asset = editor.call('assets:get', id);
+        if (! asset) return;
+
+        var assetContent = asset.get('content');
+        if (! assetContent) return;
 
         var doc = documentsIndex[id];
         if (! doc || doc.content === null) return;
 
-        var dirty = assetDoc.fileContent !== doc.content;
+        var dirty = assetContent !== doc.content;
 
         // clear contents to save memory
-        assetDoc.fileContent = null;
+        asset.set('content', null);
         doc.content = null;
 
         if (doc.isDirty !== dirty) {
@@ -87,6 +32,14 @@ editor.once('load', function () {
             editor.emit('documents:dirty', id, dirty);
         }
     }
+
+    // update dirty flag when asset content changes
+    editor.on('assets:add', function (asset) {
+        asset.on('content:set', function (content) {
+            if (content)
+                checkIfDirty(asset.get('id'));
+        });
+    });
 
     // Loads the editable document that corresponds to the specified asset id
     var loadDocument = function (asset) {
@@ -142,8 +95,6 @@ editor.once('load', function () {
                     checkIfDirty(id);
                 // }, debugDuration);
 
-
-
             });
         });
 
@@ -166,22 +117,11 @@ editor.once('load', function () {
         }
 
         loadDocument(asset);
-
-        // load asset if necessary
-        if (! assetsIndex[id]) {
-            loadAsset(asset);
-        }
     });
 
     // Unload document
     editor.on('documents:close', function (id) {
-        var entry = assetsIndex[id];
-        if (entry) {
-            entry.doc.destroy();
-            delete assetsIndex[id];
-        }
-
-        entry = documentsIndex[id];
+        var entry = documentsIndex[id];
         if (entry) {
             entry.doc.destroy();
             delete documentsIndex[id];
@@ -197,13 +137,20 @@ editor.once('load', function () {
 
         entry.error = err;
         var asset = editor.call('assets:get', id);
-        editor.call('status:error', 'Realtime error for document ' + asset.get('name') + ': ' + err);
+        editor.call('status:error', 'Realtime error for document "' + asset.get('name') + '": ' + err);
     });
 
     // Check if document content differs from asset file contents
     editor.method('documents:isDirty', function (id) {
         var entry = documentsIndex[id];
         return entry ? entry.isDirty : false;
+    });
+
+    // Update dirty status
+    editor.on('documents:dirty', function (id, dirty) {
+        var entry = documentsIndex[id];
+        if (entry)
+            entry.isDirty = dirty;
     });
 
     // Returns true if the document hasn't finished loading yet

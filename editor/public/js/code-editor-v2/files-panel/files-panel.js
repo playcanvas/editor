@@ -3,10 +3,22 @@ editor.once('load', function () {
 
     var panel = editor.call('layout.left');
 
+    // files tree
     var tree = new ui.Tree();
     tree.allowRenaming = editor.call('permissions:write');
+    tree.reordering = false;
     tree.class.add('files');
+    tree.hidden = true;
     panel.append(tree);
+
+    // loading progress bar
+    var progressBar = new ui.Progress();
+    panel.append(progressBar);
+
+    editor.on('assets:load:progress', function (progress) {
+        progressBar.hidden = progress >= 1;
+        progressBar.progress = progress;
+    });
 
     editor.on('permissions:writeState', function(state) {
         tree.allowRenaming = state;
@@ -96,12 +108,13 @@ editor.once('load', function () {
     };
 
     // Create tree nodes for each asset
-    editor.on('assets:add', function (asset) {
+    var addAsset = function (asset) {
         var id = asset.get('id');
 
         var item = new ui.TreeItem({
-            text: asset.get('name')
-        })
+            text: asset.get('name'),
+            allowDrop: asset.get('type') === 'folder'
+        });
         item.class.add('type-' + asset.get('type'));
 
         item._assetId = id;
@@ -145,6 +158,17 @@ editor.once('load', function () {
             // append item to new folder
             addItem(item, path);
         });
+
+    };
+
+    // add all assets once they're all loaded
+    editor.on('assets:load', function () {
+        tree.hidden = false;
+        var assets = editor.call('assets:list');
+        assets.forEach(addAsset);
+
+        // subscribe for new assets being added
+        editor.on('assets:add', addAsset);
     });
 
     // Delete tree node for removed assets
@@ -186,6 +210,17 @@ editor.once('load', function () {
             tree.clear()
             item.selected = true;
         }
+    });
+
+    // handle reparenting
+    tree.on('reparent', function (nodes) {
+        var assets = nodes.map(function (node) {
+            return editor.call('assets:get', node.item._assetId);
+        });
+
+        var parent = editor.call('assets:get', nodes[0].new._assetId);
+
+        editor.call('assets:fs:move', assets, parent);
     });
 
 

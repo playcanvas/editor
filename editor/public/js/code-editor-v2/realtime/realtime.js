@@ -52,6 +52,18 @@ editor.once('load', function () {
                         isAuthenticated = true;
                         editor.emit('realtime:authenticated');
                     }
+                } else if (msg.data.startsWith('fs:')) {
+                    data = msg.data.slice('fs:'.length);
+                    var ind = data.indexOf(':');
+                    if (ind !== -1) {
+                        var op = data.slice(0, ind);
+                        if (op === 'paths') {
+                            data = JSON.parse(data.slice(ind + 1));
+                            editor.call('assets:fs:paths:patch', data);
+                        }
+                    } else {
+                        onSharejsMessage(msg);
+                    }
                 } else if (msg.data.startsWith('whoisonline:')) {
                     var data = msg.data.slice('whoisonline:'.length);
                     var ind = data.indexOf(':');
@@ -91,7 +103,7 @@ editor.once('load', function () {
             if (editor.call('visibility')) {
                 setTimeout(connect, reconnectInterval * 1000);
             } else {
-                editor.once('visible', reconnect);
+                editor.once('visible', connect);
             }
 
             if (reconnectInterval < 5)
@@ -120,7 +132,7 @@ editor.once('load', function () {
     if (editor.call('visibility')) {
         connect();
     } else {
-        editor.once('visible', reconnect);
+        editor.once('visible', connect);
     }
 
 

@@ -186,8 +186,18 @@ strong {
 #ui-left {
     color: $text-primary;
     width: 220px;
+
     > .content {
         width: 220px;
+
+        > .ui-progress {
+            box-sizing: border-box;
+            width: 100%;
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            border-right: 1px solid $border-primary;
+        }
     }
 }
 
