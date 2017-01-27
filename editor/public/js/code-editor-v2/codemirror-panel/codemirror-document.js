@@ -142,6 +142,11 @@ editor.once('load', function () {
 
     });
 
+    editor.on('documents:unfocus', function () {
+        focusedView = null;
+        panel.hidden = true;
+    });
+
     // Get focused document
     editor.call('editor:focusedView', function () {
         return focusedView;

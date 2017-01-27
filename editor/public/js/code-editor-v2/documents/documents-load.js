@@ -16,7 +16,7 @@ editor.once('load', function () {
         if (! asset) return;
 
         var assetContent = asset.get('content');
-        if (! assetContent) return;
+        if (assetContent === null) return;
 
         var doc = documentsIndex[id];
         if (! doc || doc.content === null) return;
@@ -36,7 +36,7 @@ editor.once('load', function () {
     // update dirty flag when asset content changes
     editor.on('assets:add', function (asset) {
         asset.on('content:set', function (content) {
-            if (content)
+            if (content !== null)
                 checkIfDirty(asset.get('id'));
         });
     });
@@ -92,7 +92,14 @@ editor.once('load', function () {
                         editor.emit('documents:focus', id);
 
                     // check if it's diry
-                    checkIfDirty(id);
+                    if (asset.get('content') !== null) {
+                        checkIfDirty(id);
+                    } else {
+                        // re-load asset content
+                        // which will set the content and re-trigger
+                        // dirty check
+                        editor.call('assets:loadFile', asset);
+                    }
                 // }, debugDuration);
 
             });
@@ -105,7 +112,10 @@ editor.once('load', function () {
     // Load document for the specified asset if not loaded already
     // and focus it
     editor.on('select:asset', function (asset) {
-        if (asset.get('type') === 'folder') return;
+        if (asset.get('type') === 'folder') {
+            editor.emit('documents:unfocus');
+            return;
+        };
 
         var id = asset.get('id')
         lastFocusedId = id;
@@ -126,6 +136,11 @@ editor.once('load', function () {
             entry.doc.destroy();
             delete documentsIndex[id];
         }
+    });
+
+    // unload document if asset is removed
+    editor.on('assets:remove', function (asset) {
+        editor.emit('documents:close', asset.get('id'));
     });
 
     // Document error
@@ -182,6 +197,10 @@ editor.once('load', function () {
 
     editor.method('documents:getFocused', function () {
         return lastFocusedId;
+    });
+
+    editor.on('documents:unfocus', function (id) {
+        lastFocusedId = null;
     });
 
     // get an array with all the ids of open documents

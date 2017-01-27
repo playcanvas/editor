@@ -464,6 +464,10 @@ editor.once('load', function () {
         focusedDocument = documentIndex[id];
     });
 
+    editor.on('documents:unfocus', function () {
+        focusedDocument = null;
+    });
+
     // Undo
     editor.method('editor:undo', function () {
         if (! editor.call('realtime:isConnected') || ! focusedDocument || ! focusedDocument.undo.length) return;

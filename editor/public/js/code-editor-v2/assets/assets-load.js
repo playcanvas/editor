@@ -9,8 +9,8 @@ editor.once('load', function () {
     var totalAssets = 0;
     var loadedAssets = 0;
 
-    // Load asset from C3
-    var loadAsset = function (asset) {
+    // Load asset from C3 and call callback
+    editor.method('assets:loadOne', function (asset, callback) {
         var connection = editor.call('realtime:connection');
         var id = asset.get('id');
         var assetDoc = connection.get('assets', id);
@@ -53,14 +53,9 @@ editor.once('load', function () {
 
         // mark asset as done
         assetDoc.whenReady(function () {
-            loadedAssets++;
-
             editor.call('assets:add', asset);
-            editor.emit('assets:load:progress', loadedAssets / totalAssets);
-            if (totalAssets === loadedAssets) {
-                editor.emit('assets:load');
-                editor.call('status:clear');
-            }
+            if (callback)
+                callback(asset);
         });
 
         // Every time the 'subscribe' event is fired on the asset document
@@ -70,15 +65,14 @@ editor.once('load', function () {
             assetDoc.on('subscribe', function () {
                 // load asset file to check if it has different contents
                 // than the sharejs document
-                editor.call('assets:loadFile', asset, function (err, data) {
-                    asset.set('content', data);
-                });
+                editor.call('assets:loadFile', asset);
             });
         }
 
 
         assetDoc.subscribe();
-    };
+    });
+
 
     // Load asset file contents and call callback
     editor.method('assets:loadFile', function (asset, fn) {
@@ -88,10 +82,14 @@ editor.once('load', function () {
             notJson: true
         })
         .on('load', function(status, data) {
-            fn(null, data);
+            asset.set('content', data);
+
+            if (fn)
+                fn(null, data);
         })
         .on('error', function (err) {
-            fn(err);
+            if (fn)
+                fn(err);
         });
     });
 
@@ -119,6 +117,15 @@ editor.once('load', function () {
         }
     });
 
+    // destroy documents if assets are deleted
+    editor.on('assets:remove', function (asset) {
+        var connection = editor.call('realtime:connection');
+        var doc = connection.getExisting(asset.get('id'));
+        if (doc) {
+            doc.destroy();
+        }
+    });
+
     var loadEditableAssets = function () {
         editor.call('assets:load:progress', 0);
 
@@ -130,9 +137,18 @@ editor.once('load', function () {
             totalAssets = res.length;
             loadedAssets = 0;
 
+            var onLoad = function () {
+                loadedAssets++;
+                editor.emit('assets:load:progress', loadedAssets / totalAssets);
+                if (totalAssets === loadedAssets) {
+                    editor.emit('assets:load');
+                    editor.call('status:clear');
+                }
+            };
+
             res.forEach(function (raw) {
                 var asset = new Observer(raw);
-                loadAsset(asset);
+                editor.call('assets:loadOne', asset, onLoad);
             });
         })
         .on('error', function (status, error) {

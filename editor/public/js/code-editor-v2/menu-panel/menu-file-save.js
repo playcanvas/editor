@@ -4,13 +4,37 @@ editor.once('load', function () {
     var menu = editor.call('menu:file');
 
     // create save menu
-    menu.append(menu.createItem('save', {
+    var item = menu.createItem('save', {
         title: 'Save File (' + editor.call('hotkey:ctrl:string') + '-S)',
         filter: function () {
             return editor.call('editor:command:can:save');
         },
         select: function () {
             return editor.call('editor:command:save');
+        }
+    });
+    item.class.add('noBorder');
+    menu.append(item);
+
+    item = menu.createItem('save-selected', {
+        title: 'Save Selected Files',
+        filter: function () {
+            return editor.call('editor:command:can:saveSelected');
+        },
+        select: function () {
+            return editor.call('editor:command:saveSelected');
+        }
+    });
+    item.class.add('noBorder');
+    menu.append(item);
+
+    menu.append(menu.createItem('save-all', {
+        title: 'Save All Files',
+        filter: function () {
+            return editor.call('editor:command:can:saveAll');
+        },
+        select: function () {
+            return editor.call('editor:command:saveAll');
         }
     }));
 
@@ -26,13 +50,10 @@ editor.once('load', function () {
     // documents currently being saved
     var savingIndex = {};
 
-    // ids that are waiting to be saved when we reconnect
-    var saveQueue = [];
-
     // Returns true if we can save
-    editor.method('editor:command:can:save', function () {
+    editor.method('editor:command:can:save', function (id) {
         if (editor.call('permissions:write') && editor.call('realtime:isConnected')) {
-            var focused = editor.call('documents:getFocused');
+            var focused = id || editor.call('documents:getFocused');
 
             return focused &&
                    !savingIndex[focused] &&
@@ -44,36 +65,77 @@ editor.once('load', function () {
         return false;
     });
 
-    // Save focused
-    editor.method('editor:command:save', function () {
-        if (! editor.call('permissions:write') || ! editor.call('realtime:isConnected'))
+    // Save
+    editor.method('editor:command:save', function (id) {
+        if (! editor.call('editor:command:can:save', id))
             return;
 
-        var focused = editor.call('documents:getFocused');
-        if (! focused || ! editor.call('documents:isDirty', focused) || editor.call('documents:isLoading', focused))
-            return;
+        save(id || editor.call('documents:getFocused'));
+    });
 
-        if (savingIndex[focused]) return;
+    editor.method('editor:command:can:saveSelected', function () {
+        if (editor.call('permissions:write') && editor.call('realtime:isConnected')) {
+            var selected = editor.call('assets:selected');
+            var hasDirty = false;
+            for (var i = 0; i < selected.length; i++) {
+                var id = selected[i].get('id');
+                if (!savingIndex[id] && editor.call('documents:isDirty', id)) {
+                    hasDirty = true;
+                    break;
+                }
+            }
 
-        savingIndex[focused] = true;
-
-        editor.emit('editor:command:save:start', focused);
-
-        if (! editor.call('realtime:isConnected')) {
-            saveQueue.push(focused);
-            return;
+            return hasDirty;
         }
 
-        var doc = editor.call('documents:get', focused);
 
-        if (doc.hasPending()) {
-            // wait for pending data to be sent and
-            // acknowledged by the server before saving
-            doc.once('nothing pending', function () {
-                editor.call('realtime:send', 'doc:save:', parseInt(doc.name, 10));
-            });
-        } else {
-            editor.call('realtime:send', 'doc:save:', parseInt(doc.name, 10));
+        return false;
+    });
+
+    editor.method('editor:command:saveSelected', function () {
+        if (! editor.call('editor:command:can:saveSelected'))
+            return;
+
+        var selected = editor.call('assets:selected');
+        for (var i = 0; i < selected.length; i++) {
+            var id = selected[i].get('id');
+            if (savingIndex[id] || ! editor.call('documents:isDirty', id))
+                continue;
+
+            save(id);
+        }
+    });
+
+    editor.method('editor:command:can:saveAll', function () {
+        if (editor.call('permissions:write') && editor.call('realtime:isConnected')) {
+            var open = editor.call('documents:list');
+            var hasDirty = false;
+            for (var i = 0; i < open.length; i++) {
+                var id = open[i];
+                if (!savingIndex[id] && editor.call('documents:isDirty', id)) {
+                    hasDirty = true;
+                    break;
+                }
+            }
+
+            return hasDirty;
+        }
+
+
+        return false;
+    });
+
+    editor.method('editor:command:saveAll', function () {
+        if (! editor.call('editor:command:can:saveAll'))
+            return;
+
+        var open = editor.call('documents:list');
+        for (var i = 0; i < open.length; i++) {
+            var id = open[i];
+            if (savingIndex[id] || ! editor.call('documents:isDirty', id))
+                continue;
+
+            save(id);
         }
     });
 
@@ -88,6 +150,25 @@ editor.once('load', function () {
             editor.emit('editor:command:save:end', id);
         }
     });
+
+    // Save document
+    var save = function (id) {
+        savingIndex[id] = true;
+
+        editor.emit('editor:command:save:start', id);
+
+        var doc = editor.call('documents:get', id);
+
+        if (doc.hasPending()) {
+            // wait for pending data to be sent and
+            // acknowledged by the server before saving
+            doc.once('nothing pending', function () {
+                editor.call('realtime:send', 'doc:save:', parseInt(doc.name, 10));
+            });
+        } else {
+            editor.call('realtime:send', 'doc:save:', parseInt(doc.name, 10));
+        }
+    };
 
 
     editor.on('editor:command:save:start', function (id) {

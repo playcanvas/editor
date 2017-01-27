@@ -221,14 +221,23 @@ editor.once('load', function () {
     // Select file by id
     editor.method('files:select', function (id) {
         var item = itemIndex[id];
-        if (item && !item.selected) {
+        if (item) {
             tree.clear()
             item.selected = true;
         }
     });
 
+    // Get selected assets
+    editor.method('assets:selected', function () {
+        return tree.selected.map(function (item) {
+            return editor.call('assets:get', item._assetId);
+        });
+    });
+
     // handle reparenting
     tree.on('reparent', function (nodes) {
+        if (! nodes.length) return;
+
         var assets = nodes.map(function (node) {
             return editor.call('assets:get', node.item._assetId);
         });

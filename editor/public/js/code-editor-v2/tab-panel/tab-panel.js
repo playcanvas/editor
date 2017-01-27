@@ -128,9 +128,9 @@ editor.once('load', function () {
             focusedTab = null;
 
             if (order > 0) {
-                editor.emit('select:asset', tabOrder[order -1 ].asset);
+                editor.call('files:select', tabOrder[order - 1].asset.get('id'));
             } else if (order < tabOrder.length - 1) {
-                editor.emit('select:asset', tabOrder[order + 1].asset);
+                editor.call('files:select', tabOrder[order + 1].asset.get('id'));
             } else {
                 panel.hidden = true;
             }
@@ -278,6 +278,14 @@ editor.once('load', function () {
     // hide progress when document is loaded
     editor.on('documents:load', function (doc, asset) {
         toggleProgress(doc.name, false);
+    });
+
+    // unfocus tab
+    editor.on('documents:unfocus', function () {
+        if (! focusedTab) return;
+
+        focusedTab.tab.class.remove('focused');
+        focusedTab = null;
     });
 
     // change title on dirty doc

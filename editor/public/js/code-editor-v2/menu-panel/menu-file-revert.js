@@ -3,8 +3,8 @@ editor.once('load', function () {
 
     var menu = editor.call('menu:file');
 
-    // create menu item
-    menu.append(menu.createItem('revert', {
+    // create menu items
+    var item = menu.createItem('revert', {
         title: 'Revert File',
         filter: function () {
             return editor.call('editor:command:can:revert');
@@ -12,13 +12,58 @@ editor.once('load', function () {
         select: function () {
             return editor.call('editor:command:revert');
         }
+    });
+    item.class.add('noBorder');
+    menu.append(item);
+
+    item = menu.createItem('revert-selected', {
+        title: 'Revert Selected Files',
+        filter: function () {
+            return editor.call('editor:command:can:revertSelected');
+        },
+        select: function () {
+            return editor.call('editor:command:revertSelected');
+        }
+    });
+    item.class.add('noBorder');
+    menu.append(item);
+
+    menu.append(menu.createItem('revert-all', {
+        title: 'Revert All Files',
+        filter: function () {
+            return editor.call('editor:command:can:revertAll');
+        },
+        select: function () {
+            return editor.call('editor:command:revertAll');
+        }
     }));
 
 
+    var revert = function (id) {
+        var asset = editor.call('assets:get', id);
+        if (! asset) return;
+
+        editor.call('assets:loadFile', asset, function (err, content) {
+            if (err) {
+                return editor.call('status:error', 'Could not revert "' + asset.get('name') + '". Try again later.');
+            }
+
+            var view = editor.call('views:get', id);
+            if (! view) return;
+
+            // force concatenation of ops so that
+            // otherwise the user will have to undo 2 times to get to the previous result
+            editor.call('views:setValue', id, content, true);
+
+            // save result
+            editor.call('editor:command:save', id);
+        });
+    };
+
     // True if you can revert
-    editor.method('editor:command:can:revert', function () {
-        if (editor.call('editor:command:can:save')) {
-            var focused = editor.call('documents:getFocused');
+    editor.method('editor:command:can:revert', function (id) {
+        if (editor.call('editor:command:can:save', id)) {
+            var focused = id || editor.call('documents:getFocused');
             if (editor.call('assets:get', focused) && editor.call('views:get', focused)) {
                 return true;
             }
@@ -33,24 +78,50 @@ editor.once('load', function () {
         if (! editor.call('editor:command:can:revert')) return;
 
         var focused = editor.call('documents:getFocused');
-        var asset = editor.call('assets:get', focused);
-        if (! asset) return;
+        revert(focused);
+    });
 
-        editor.call('assets:loadFile', asset, function (err, content) {
-            if (err) {
-                return editor.call('status:error', 'Could not revert "' + asset.get('name') + '". Try again later.');
+    editor.method('editor:command:can:revertSelected', function () {
+        var selected = editor.call('assets:selected');
+        for (var i = 0; i < selected.length; i++) {
+            var id = selected[i].get('id');
+            if (editor.call('editor:command:can:revert', id)) {
+                return true;
             }
+        }
 
-            var view = editor.call('views:get', focused);
-            if (! view) return;
+        return false;
+    });
 
-            // force concatenation of ops so that
-            // otherwise the user will have to undo 2 times to get to the previous result
-            editor.call('views:setValue', focused, content, true);
+    editor.method('editor:command:revertSelected', function () {
+        var selected = editor.call('assets:selected');
+        for (var i = 0; i < selected.length; i++) {
+            var id = selected[i].get('id');
+            if (editor.call('editor:command:can:revert', id))
+                revert(id);
+        }
+    });
 
-            // save result
-            editor.call('editor:command:save');
-        });
+    editor.method('editor:command:can:revertAll', function () {
+        var open = editor.call('documents:list');
+        for (var i = 0; i < open.length; i++) {
+            var id = open[i];
+            if (editor.call('editor:command:can:revert', id)) {
+                return true;
+            }
+        }
+
+        return false;
+    });
+
+    editor.method('editor:command:revertAll', function () {
+        var open = editor.call('documents:list');
+        for (var i = 0; i < open.length; i++) {
+            var id = open[i];
+            if (editor.call('editor:command:can:revert', id)) {
+                revert(id);
+            }
+        }
     });
 
 });
