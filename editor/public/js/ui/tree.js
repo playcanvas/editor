@@ -390,11 +390,15 @@ Tree.prototype._onDragOver = function(item, evt) {
 
     var dragOver = null;
 
-    if (this._dragItems.indexOf(item) === -1)
-        dragOver = item;
+    if (item.allowDrop) {
+        if (this._dragItems.indexOf(item) === -1)
+            dragOver = item;
 
-    if (this._dragOver === null && dragOver)
-        this.emit('dragin');
+        if (this._dragOver === null && dragOver)
+            this.emit('dragin');
+    }
+
+
 
     this._dragOver = dragOver;
 

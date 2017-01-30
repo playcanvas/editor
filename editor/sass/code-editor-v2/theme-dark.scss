@@ -1,0 +1,522 @@
+@import 'variables';
+@import 'fonts';
+
+
+body {
+    color: $text-secondary;
+    background-color: $bcg-darker;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: $bcg-primary;
+}
+::-webkit-scrollbar-thumb {
+    background: transparentize($text-secondary, 0.5);
+}
+::-webkit-scrollbar-corner {
+    background: $bcg-primary;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: $text-active;
+}
+
+::-moz-selection {
+    color: $text-active;
+    background-color: $bcg-darkest;
+}
+::selection {
+    color: $text-active;
+    background-color: $bcg-darkest;
+}
+
+a {
+    color: $text-active;
+    text-decoration: none;
+}
+a:hover {
+    color: saturate(lighten($text-active, 10%), 10%);
+    text-decoration: underline;
+}
+a:visited {
+    color: $text-active;
+}
+
+.ui-flash {
+    outline: 1px solid $text-active;
+    -webkit-animation: ui-flash-animation 200ms ease-in-out forwards;
+    animation: ui-flash-animation 200ms ease-in-out forwards;
+}
+
+.ui-panel {
+    background-color: transparent;
+
+    &.disabled {
+        > header {
+            background-color: mix($bcg-dark, $bcg-primary, 60);
+        }
+    }
+    &.scrollable {
+        > .content {
+            top: 32px;
+        }
+    }
+    > header {
+        @extend .font-bold;
+        @extend .font-smooth;
+        background-color: $bcg-darker;
+        color: $text-primary;
+        font-size: 12px;
+    }
+    &.foldable {
+        &.folded {
+            > header {
+                color: $text-dark;
+
+                &:after {
+                    color: $text-dark;
+                    content: '\E180';
+                }
+            }
+            &.horizontal {
+                background-color: $bcg-darker;
+
+                > header {
+                    top: -32px;
+                }
+            }
+
+            &.resizable-top {
+                > header:after {
+                    content: '\E181';
+                }
+            }
+        }
+        > header {
+            padding-left: 32px;
+
+            &:hover {
+                color: $text-primary;
+
+                &:after {
+                    color: $text-primary;
+                }
+            }
+            // fold icon
+            &:after {
+                right: auto;
+                left: 0;
+                content: '\E179';
+                @extend .font-icon;
+                font-size: 14px;
+                text-align: center;
+                margin: 0;
+                padding: 0;
+                width: 32px;
+                height: 32px;
+                line-height: 32px;
+                color: $text-active;
+                background-color: transparent;
+            }
+        }
+        &.horizontal {
+            > header:after {
+                content: '\E183';
+            }
+            &.resizable-right {
+                &.folded {
+                    > header:after {
+                        content: '\E181';
+                    }
+                }
+            }
+
+            &.resizable-left {
+                > header:after {
+                    content: '\E183';
+                }
+
+                &.folded > header:after {
+                    content: '\E183';
+                }
+            }
+        }
+    }
+    &.resizable {
+        $handle-size: 2px;
+
+        &.resizing > .handle {
+            background-color: transparent;
+        }
+        &.resizable-left {
+            padding-left: 0;
+
+            &.scrollable > .content {
+                left: 0;
+            }
+            > .handle {
+                width: $handle-size;
+                border-left: 3px solid $bcg-darkest;
+            }
+        }
+        &.resizable-right {
+            padding-right: 0;
+
+            > .handle {
+                width: $handle-size;
+                border-right: 3px solid $bcg-darkest;
+            }
+        }
+        &.resizable-top {
+            padding-top: 0;
+
+            &.scrollable > .content {
+                top: 32px;
+            }
+            > .handle {
+                height: $handle-size;
+                border-top: 3px solid $bcg-darkest;
+            }
+        }
+        &.resizable-bottom {
+            padding-bottom: 0;
+
+            > .handle {
+                height: $handle-size;
+                border-bottom: 3px solid $bcg-darkest;
+            }
+        }
+        &.resizing > .handle {
+            opacity: 1;
+        }
+        > .handle {
+            opacity: 0;
+            background-color: transparent;
+
+            &:hover {
+                opacity: 1;
+                background-color: transparent;
+            }
+        }
+    }
+    &.flash {
+        @extend .ui-flash;
+    }
+}
+
+.ui-tree.files {
+    width: calc(100% - 5px);
+
+    .ui-tree-item {
+        &.selected {
+            > .title {
+                > .icon {
+                    color: #fff;
+                }
+            }
+        }
+        &.container {
+            > .title {
+                &:hover {
+                    &:before {
+                        color: $text-secondary;
+                    }
+                }
+                &:before {
+                    background-color: mix($text-darkest, $bcg-darker, 30%);
+
+                    &:hover {
+                        background-color: $text-active;
+                    }
+                }
+            }
+
+            &.open {
+                > .title:before {
+                    background-color: mix($text-darkest, $bcg-darker, 30%);
+                }
+            }
+        }
+        > .title {
+            > .text {
+                @extend .font-regular;
+            }
+
+            &:hover {
+                > .icon {
+                    color: #fff;
+                }
+            }
+            > .icon {
+                color: $text-darkest;
+                &:after {
+                    @extend .font-icon;
+                    font-size: 16px;
+                    line-height: 23px;
+                    text-align: center;
+                    background-color: transparent;
+                }
+            }
+        }
+
+        &.type-folder .icon:after {
+            content: '\E139';
+        }
+        &.type-script .icon:after {
+            content: '\E392';
+        }
+        &.type-html .icon:after {
+            content: '\E205';
+        }
+        &.type-css .icon:after {
+            content: '\E206';
+        }
+        &.type-shader .icon:after {
+            content: '\E219';
+        }
+        &.type-text .icon:after {
+            content: '\E209';
+        }
+        &.type-json .icon:after {
+            content: '\E207';
+        }
+
+    }
+}
+
+.ui-tree-item {
+    $line-color: mix($bcg-dark, $bcg-primary, 50%);
+
+    &.container {
+        // plus icon
+        > .title:before {
+            content: '\E120';
+            width: 16px;
+            height: 16px;
+            margin: 3px;
+            @extend .font-icon;
+            font-size: 10px;
+            text-align: center;
+            color: $text-secondary;
+            text-align: center;
+            line-height: 16px;
+            background: transparent;
+            font-weight: bold;
+            background-color: $bcg-dark;
+        }
+        // minus icon
+        &.open {
+            > .title:before {
+                content: '\E121';
+                color: $text-secondary;
+                background-color: $bcg-dark;
+            }
+        }
+    }
+    &.disabled {
+        > .title > .icon:after {
+            background-color: mix($text-darkest, $bcg-primary, 50%);
+            opacity: 1;
+        }
+    }
+    > .title {
+        color: $text-secondary;
+
+        &:hover,
+        &:focus {
+            color: $text-primary;
+            border-color: transparent;
+            background-color: $bcg-dark;
+
+            > .icon:after {
+                background-color: mix($text-darkest, $text-active, 50%);
+            }
+        }
+        > .icon {
+            // line-left
+            &:before {
+                background-color: $line-color;
+                left: -12px;
+                top: 10px;
+                height: 2px;
+            }
+            // icon
+            &:after {
+                background-color: $text-darkest;
+            }
+        }
+    }
+    &.selected {
+        > .title {
+            background-color: $bcg-darkest;
+            color: $text-primary;
+            border-color: transparent;
+
+            > .icon {
+                &:after {
+                    background-color: $text-active;
+                }
+            }
+        }
+    }
+    &.dragged {
+        > .title {
+            background-color: rgba($bcg-dark, .5);
+            color: $text-primary;
+        }
+    }
+    // line-top
+    &:before {
+        background-color: $line-color;
+        width: 2px;
+        left: 14px;
+        top: -12px;
+        bottom: 12px;
+    }
+    // line-top, last item
+    &:last-child {
+        &:before {
+            height: 25px;
+        }
+    }
+    // line-top, single item
+    &.single {
+        &:before {
+            left: 14px;
+            top: -12px;
+            width: 2px;
+            background-color: $line-color;
+        }
+    }
+}
+
+
+.ui-menu-item {
+    font-size: 14px;
+
+    background-color: $bcg-darkest;
+
+    &.disabled > .title:hover {
+        color: $text-dark;
+
+        > .icon {
+            color: $text-dark;
+        }
+    }
+    &.container {
+        > .title:after {
+            content: '\E160';
+            @extend .font-icon;
+            font-size: 14px;
+            text-align: center;
+            background-color: transparent;
+            color: $text-dark;
+            line-height: 14px;
+        }
+        &.hover > .title {
+            color: $text-primary;
+            background-color: $text-darkest;
+
+            &:after {
+                color: $text-primary;
+            }
+            > .icon {
+                color: $text-primary;
+            }
+        }
+    }
+    &:last-child {
+        > .title {
+            border-bottom: none;
+        }
+    }
+    > .title {
+        color: $text-dark;
+        border-bottom: 1px solid mix($bcg-darkest, $bcg-dark, 50%);
+
+        &:hover {
+            color: $text-primary;
+            background-color: $text-darkest;
+
+            > .icon {
+                color: $text-primary;
+            }
+        }
+        > .icon {
+            @extend .font-icon;
+            font-size: 14px;
+            text-align: center;
+            background-color: transparent;
+            color: $text-dark;
+        }
+    }
+    > .content {
+        box-shadow: 0 0 8px rgba(0, 0, 0, .3);
+    }
+}
+
+.ui-progress {
+    background-color: $bcg-darkest;
+
+    > .inner {
+        $first: rgba($text-active, 1);
+        $second: rgba(darken($text-active, 17%), 1);
+
+        background: $text-active;
+        background: -webkit-gradient(left top, right bottom, color-stop(0%, $first), color-stop(25%, $first), color-stop(26%, $second), color-stop(50%, $second), color-stop(51%, $first), color-stop(75%, $first), color-stop(76%, $second), color-stop(100%, $second));
+        background: -webkit-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+        background: -moz-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+        background: -ms-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+        background: -o-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+        background: linear-gradient(135deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+        background-position: 0px 0px;
+        background-size: 24px 24px;
+        background-repeat: repeat;
+    }
+}
+
+.ui-text-field {
+    border: 1px solid $bcg-darker;
+    background-color: $bcg-dark;
+    margin: $field-padding;
+
+    > input.field {
+        color: $text-secondary;
+    }
+    &.active,
+    &:hover,
+    &:focus,
+    &.focus {
+        border-color: $bcg-darkest;
+        background-color: $bcg-darkest;
+    }
+    > input.field:focus,
+    > input.field:hover {
+        box-shadow: none;
+        color: $text-primary;
+        outline: none;
+        border: none;
+    }
+
+    &.flash {
+        @extend .ui-flash;
+    }
+}
+.ui-text-field[placeholder] {
+    &:after {
+        color: $text-darkest;
+        background-color: $bcg-dark;
+    }
+}
+
+.ui-overlay {
+    > .overlay {
+        background-color: rgba($bcg-darkest, .4);
+    }
+    > .content {
+        background-color: $bcg-primary;
+    }
+}

@@ -152,11 +152,19 @@ a:visited {
         display: flex;
         display: -webkit-flex;
 
+        // firefox scrolling fix
+        min-height: 0;
+        min-width: 0;
+
     }
     &.flex {
         > .content {
             display: flex;
             display: -webkit-flex;
+
+            // firefox scrolling fix
+            min-height: 0;
+            min-width: 0;
         }
     }
     &.foldable {

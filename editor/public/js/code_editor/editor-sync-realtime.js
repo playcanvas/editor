@@ -205,6 +205,15 @@ editor.once('load', function() {
                         } else {
                             sharejsMessage(msg);
                         }
+                    } else if (msg.data.startsWith('fs:')) {
+                        data = msg.data.slice('fs:'.length);
+                        var ind = data.indexOf(':');
+                        if (ind !== -1) {
+                            // asset move - ignore this
+                            // just don't error on it
+                        } else {
+                            onSharejsMessage(msg);
+                        }
                     } else {
                         sharejsMessage(msg);
                     }

@@ -177,39 +177,43 @@ Menu.prototype.position = function(x, y) {
     this._element.style.display = '';
 };
 
+Menu.prototype.createItem = function (key, data) {
+    var item = new ui.MenuItem({
+        text: data.title || key,
+        value: key,
+        icon: data.icon
+    });
+
+    if (data.select) {
+        item.on('select', data.select);
+    }
+
+    if (data.filter) {
+        this.on('open', function() {
+            item.enabled = data.filter();
+        });
+    }
+
+    if (data.hide) {
+        this.on('open', function () {
+            item.hidden = data.hide();
+        });
+    }
+
+    return item;
+};
+
 
 Menu.fromData = function(data) {
     var menu = new ui.Menu();
 
     var addItem = function(key, data) {
-        var item = new ui.MenuItem({
-            text: data.title || key,
-            value: key,
-            icon: data.icon
-        });
 
-        if (data.select) {
-            item.on('select', data.select);
-        }
-
-        if (data.filter) {
-            menu.on('open', function() {
-                item.enabled = data.filter();
-            });
-        }
-
-        if (data.hide) {
-            menu.on('open', function () {
-                item.hidden = data.hide();
-            });
-        }
-
-        return item;
     };
 
     var listItems = function(data, parent) {
         for(var key in data) {
-            var item = addItem(key, data[key]);
+            var item = menu.createItem(key, data[key]);
             parent.append(item);
 
             if (data[key].items)
