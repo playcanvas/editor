@@ -36,6 +36,7 @@ editor.once('load', function () {
             // create tab
             var tab = new ui.Panel();
             tab.class.add('tab');
+            tab._assetId = id;
 
             // name container
             var panelName = new ui.Panel();
@@ -86,13 +87,15 @@ editor.once('load', function () {
 
             // grab tab
             tab.element.addEventListener('mousedown', function (e) {
-                if (e.target === btnClose.element)
+                if (e.target === btnClose.element || e.button !== 0)
                     return;
 
                 editor.call('files:select', id);
                 grabTab(entry, e);
             });
 
+            // context menu
+            editor.call('tabs:contextmenu:attach', entry);
         }
 
         focusTab(id);
@@ -317,8 +320,8 @@ editor.once('load', function () {
     });
 
     // returns all tabs
-    editor.call('tabs:list', function () {
-        return tabOrder.slice();
+    editor.method('tabs:list', function () {
+        return tabOrder;
     });
 
     // handle asset name changes
