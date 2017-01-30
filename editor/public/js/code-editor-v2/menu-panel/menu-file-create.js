@@ -15,7 +15,7 @@ editor.once('load', function () {
     });
     menu.append(group);
 
-    [
+    var types = [
         'script',
         'css',
         'html',
@@ -23,9 +23,21 @@ editor.once('load', function () {
         'shader',
         'text',
         'folder'
-    ].forEach(function (type) {
+    ];
+
+    var titles = [
+        'Script Asset',
+        'CSS Asset',
+        'HTML Asset',
+        'JSON Asset',
+        'Shader Asset',
+        'Text Asset',
+        'Folder'
+    ];
+
+    types.forEach(function (type, index) {
         group.append(menu.createItem('create-' + type, {
-            title: type[0].toUpperCase() + type.substring(1) + (type !== 'folder' ? ' Asset' : ''),
+            title: titles[index],
             filter: function () {
                 return editor.call('editor:command:can:create');
             },
@@ -56,17 +68,9 @@ editor.once('load', function () {
     group.class.add('noBorder');
     ctxMenu.append(group);
 
-    [
-        'script',
-        'css',
-        'html',
-        'json',
-        'shader',
-        'text',
-        'folder'
-    ].forEach(function (type) {
+    types.forEach(function (type, index) {
         group.append(menu.createItem('create-' + type, {
-            title: type[0].toUpperCase() + type.substring(1) + (type !== 'folder' ? ' Asset' : ''),
+            title: titles[index],
             filter: function () {
                 var selection = editor.call('files:contextmenu:selected');
                 if (selection.length <= 1)

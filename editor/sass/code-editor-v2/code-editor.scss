@@ -207,6 +207,7 @@ strong {
     line-height: 32px;
     background-color: mix($bcg-darkest, black, 75%);
     border-top: 1px solid $border-primary;
+    z-index: 10;
 
     .ui-label {
         margin: 0 0 0 5px;
