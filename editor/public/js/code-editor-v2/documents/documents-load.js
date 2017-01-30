@@ -5,6 +5,11 @@ editor.once('load', function () {
 
     var documentsIndex = {};
 
+    // load requests that have been
+    // queued for after an asset file
+    // becomes available for example
+    var queuedLoad = {};
+
     // the last document id the
     // user requested to focus
     var lastFocusedId = null;
@@ -77,8 +82,16 @@ editor.once('load', function () {
         // and when ready check if the document content is different
         // than the asset content in order to activate the REVERT button
         doc.on('subscribe', function () {
+            // check if already closed by the user
+            if (! documentsIndex[id])
+                return;
+
             // ready to sync
             doc.whenReady(function () {
+                // check if closed by the user
+                if (! documentsIndex[id]) {
+                    return;
+                }
 
                 // var debugDuration = 1000;
                 // setTimeout(function () {
@@ -126,7 +139,23 @@ editor.once('load', function () {
             return;
         }
 
-        loadDocument(asset);
+        // if the asset has a file
+        // load it
+        if (asset.get('file.filename')) {
+            loadDocument(asset);
+        } else {
+            // wait until the asset's file is ready
+            // and load it then
+            if (! queuedLoad[asset.get('id')]) {
+                var evtLoad = asset.once('file.filename:set', function () {
+                    delete queuedLoad[asset.get('id')];
+                    loadDocument(asset);
+                });
+
+                queuedLoad[asset.get('id')] = evtLoad;
+            }
+
+        }
     });
 
     // Unload document
@@ -135,6 +164,12 @@ editor.once('load', function () {
         if (entry) {
             entry.doc.destroy();
             delete documentsIndex[id];
+        }
+
+        // stop any queued load events
+        if (queuedLoad[id]) {
+            queuedLoad[id].unbind();
+            delete queuedLoad[id];
         }
     });
 

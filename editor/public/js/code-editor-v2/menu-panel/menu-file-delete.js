@@ -13,6 +13,17 @@ editor.once('load', function () {
         }
     }));
 
+    var ctxMenu = editor.call('files:contextmenu');
+    ctxMenu.append(ctxMenu.createItem('delete', {
+        title: 'Delete',
+        filter: function () {
+            return editor.call('permissions:write') && editor.call('files:contextmenu:selected').length;
+        },
+        select: function () {
+            editor.call('assets:delete:picker', editor.call('files:contextmenu:selected'));
+        }
+    }));
+
     // True if you can delete selected files
     editor.method('editor:command:can:deleteSelected', function () {
         return editor.call('permissions:write') && editor.call('assets:selected').length;

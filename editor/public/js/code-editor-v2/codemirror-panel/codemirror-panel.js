@@ -177,6 +177,9 @@ editor.once('load', function () {
 
             var wordChar = /\w/;
             var shouldComplete = function (e) {
+                if (! editor.call('permissions:write'))
+                    return false;
+
                 var focused = editor.call('documents:getFocused');
                 if (! focused) return false;
 

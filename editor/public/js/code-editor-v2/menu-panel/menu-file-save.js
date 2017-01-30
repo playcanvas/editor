@@ -47,6 +47,27 @@ editor.once('load', function () {
         }
     });
 
+    var ctxMenu = editor.call('files:contextmenu');
+    ctxMenu.append(ctxMenu.createItem('save', {
+        title: 'Save',
+        filter: function () {
+            var selection = editor.call('files:contextmenu:selected');
+            for (var i = 0; i < selection.length; i++) {
+                if (editor.call('editor:command:can:save', selection[i].get('id'))) {
+                    return true;
+                }
+            }
+        },
+        select: function () {
+            var selection = editor.call('files:contextmenu:selected');
+            for (var i = 0; i < selection.length; i++) {
+                if (editor.call('editor:command:can:save', selection[i].get('id'))) {
+                    editor.call('editor:command:save', selection[i].get('id'));
+                }
+            }
+        }
+    }));
+
     // documents currently being saved
     var savingIndex = {};
 

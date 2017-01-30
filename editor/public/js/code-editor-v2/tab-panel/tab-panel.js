@@ -86,6 +86,9 @@ editor.once('load', function () {
 
             // grab tab
             tab.element.addEventListener('mousedown', function (e) {
+                if (e.target === btnClose.element)
+                    return;
+
                 editor.call('files:select', id);
                 grabTab(entry, e);
             });

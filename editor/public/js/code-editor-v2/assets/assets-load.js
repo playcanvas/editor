@@ -3,72 +3,82 @@ editor.once('load', function () {
 
     var syncPaths = [
         'name',
-        'file'
+        'file',
+        'data'
     ];
 
     var totalAssets = 0;
     var loadedAssets = 0;
 
     // Load asset from C3 and call callback
-    editor.method('assets:loadOne', function (asset, callback) {
+    editor.method('assets:loadOne', function (id, callback) {
         var connection = editor.call('realtime:connection');
-        var id = asset.get('id');
         var assetDoc = connection.get('assets', id);
 
-        // create observer sync
-        asset.sync = new ObserverSync({
-            item: asset,
-            paths: syncPaths
-        });
-
-        // client -> server
-        asset.sync.on('op', function (op) {
-            if (! editor.call('permissions:write'))
-                return;
-
-            assetDoc.submitOp([op]);
-        });
-
-        // server -> client
-        assetDoc.on('after op', function (ops, local) {
-            if (local) return;
-
-            for (var i = 0; i < ops.length; i++) {
-                asset.sync.write(ops[i]);
-
-                // When the file changes this means that the
-                // save operation has finished
-                if (ops[i].p.length === 1 && ops[i].p[0] === 'file') {
-                    editor.emit('documents:dirty', id, false);
-                }
-            }
-        });
+        var asset;
 
         // handle errors
         assetDoc.on('error', function (err) {
             console.error(err);
             editor.emit('assets:error', err);
-            editor.call('status:error', 'Realtime error for asset "' + asset.get('name') + '": ' + err);
+            editor.call('status:error', 'Realtime error for asset "' + (asset ? asset.get('name') : id) + '": ' + err);
         });
 
         // mark asset as done
         assetDoc.whenReady(function () {
+            var data = assetDoc.getSnapshot();
+            data.id = id;
+            asset = new Observer(data);
+
+            // create observer sync
+            asset.sync = new ObserverSync({
+                item: asset,
+                paths: syncPaths
+            });
+
+            // client -> server
+            asset.sync.on('op', function (op) {
+                if (! editor.call('permissions:write'))
+                    return;
+
+                assetDoc.submitOp([op]);
+            });
+
+            // server -> client
+            assetDoc.on('after op', function (ops, local) {
+                if (local) return;
+
+                for (var i = 0; i < ops.length; i++) {
+                    asset.sync.write(ops[i]);
+
+                    // When the file changes this means that the
+                    // save operation has finished
+                    if (ops[i].p.length === 1 && ops[i].p[0] === 'file') {
+                        editor.emit('documents:dirty', id, false);
+                    }
+                }
+            });
+
             editor.call('assets:add', asset);
+
             if (callback)
                 callback(asset);
+
+
         });
 
         // Every time the 'subscribe' event is fired on the asset document
         // reload the asset content and check if it's different than the document content in
         // order to activate the REVERT button
-        if (asset.get('type') !== 'folder') {
-            assetDoc.on('subscribe', function () {
-                // load asset file to check if it has different contents
-                // than the sharejs document
-                editor.call('assets:loadFile', asset);
+        assetDoc.on('subscribe', function () {
+            assetDoc.whenReady(function () {
+                if (asset && asset.get('type') !== 'folder' && asset.get('file.filename')) {
+                    // load asset file to check if it has different contents
+                    // than the sharejs document
+                    editor.call('assets:loadFile', asset);
+                }
             });
-        }
-
+        });
 
         assetDoc.subscribe();
     });
@@ -134,6 +144,12 @@ editor.once('load', function () {
             auth: true
         })
         .on('load', function (status, res) {
+            if (! res.length) {
+                editor.emit('assets:load');
+                editor.call('status:clear');
+                return;
+            }
+
             totalAssets = res.length;
             loadedAssets = 0;
 
@@ -147,9 +163,9 @@ editor.once('load', function () {
             };
 
             res.forEach(function (raw) {
-                var asset = new Observer(raw);
-                editor.call('assets:loadOne', asset, onLoad);
+                editor.call('assets:loadOne', raw.id, onLoad);
             });
+
         })
         .on('error', function (status, error) {
             if (error) {

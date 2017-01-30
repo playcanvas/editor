@@ -511,3 +511,12 @@ a:visited {
         background-color: $bcg-dark;
     }
 }
+
+.ui-overlay {
+    > .overlay {
+        background-color: rgba($bcg-darkest, .4);
+    }
+    > .content {
+        background-color: $bcg-primary;
+    }
+}

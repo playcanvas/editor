@@ -11,6 +11,7 @@ editor.on('load', function () {
     // expose
     editor.method('layout.root', function() { return root; });
 
+
     var top = new ui.Panel();
     top.element.id = 'ui-top';
     top.flexWrap = 'nowrap';
@@ -118,5 +119,12 @@ editor.on('load', function () {
     left.on('unfold', onFold);
 
     setTimeout(setCodePanelWidth);
+
+    // disable context menu for everything but the code view
+    root.element.addEventListener('contextmenu', function (e) {
+        if (! code.innerElement.contains(e.target)) {
+            e.preventDefault();
+        }
+    });
 
 });

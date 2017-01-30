@@ -50,6 +50,7 @@ editor.once('load', function () {
     treeRoot.on('select', function() {
         this.selected = false;
     });
+    editor.call('files:contextmenu:attach', treeRoot);
 
     // contains <asset id, tree item>
     var itemIndex = {};
@@ -116,6 +117,8 @@ editor.once('load', function () {
             allowDrop: asset.get('type') === 'folder'
         });
         item.class.add('type-' + asset.get('type'));
+
+        editor.call('files:contextmenu:attach', item);
 
         item._assetId = id;
 
@@ -229,9 +232,50 @@ editor.once('load', function () {
 
     // Get selected assets
     editor.method('assets:selected', function () {
-        return tree.selected.map(function (item) {
-            return editor.call('assets:get', item._assetId);
-        });
+        var result = [];
+        for (var i = 0, len = tree.selected.length; i < len; i++) {
+            if (! tree.selected[i]._assetId) continue;
+            var asset = editor.call('assets:get', tree.selected[i]._assetId);
+            if (asset)
+                result.push(asset);
+        }
+        return result;
+    });
+
+    // Get selected folder or folder that the
+    // selected asset is in if no specific folder
+    // is selected
+    editor.method('assets:selected:folder', function () {
+        var result = null;
+
+        if (tree.selected.length) {
+            // get last item selected
+            var last = tree.selected.length;
+            while (last--) {
+                if (! tree.selected[last]._assetId) {
+                    continue;
+                }
+
+                var asset = editor.call('assets:get', tree.selected[last]._assetId);
+                if (! asset) {
+                    continue;
+                }
+
+                if (asset.get('type') === 'folder') {
+                    result = asset;
+                    break;
+                }
+
+                var path = asset.get('path');
+                if (path.length) {
+                    result = editor.call('assets:get', path[path.length - 1]);
+                }
+
+                break;
+            }
+        }
+
+        return result;
     });
 
     // handle reparenting
