@@ -5,6 +5,8 @@ editor.once('load', function () {
     var panel = editor.call('layout.top');
 
     var menuFile = new ui.Menu();
+    menuFile.class.add('top');
+    menuFile.class.add('files');
 
     menuFile.position(0, 33);
     root.append(menuFile);

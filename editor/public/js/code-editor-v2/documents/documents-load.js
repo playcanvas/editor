@@ -245,7 +245,7 @@ editor.once('load', function () {
 
     // get a sharejs document
     editor.method('documents:get', function (id) {
-        return documentsIndex[id].doc;
+        return documentsIndex[id] ? documentsIndex[id].doc : null;
     });
 
 });

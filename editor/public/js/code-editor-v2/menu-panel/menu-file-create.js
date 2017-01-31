@@ -13,6 +13,7 @@ editor.once('load', function () {
             return editor.call('editor:command:create', 'script');
         }
     });
+    group.class.add('create-new');
     menu.append(group);
 
     var types = [

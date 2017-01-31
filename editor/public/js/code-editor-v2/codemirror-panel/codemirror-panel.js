@@ -20,6 +20,7 @@ editor.once('load', function () {
         continueComments: true,
         styleActiveLine: true,
         scrollPastEnd: true,
+        keyMap: 'sublime',
 
         readOnly: !editor.call('permissions:write'),
 
@@ -52,29 +53,22 @@ editor.once('load', function () {
     // set up key bindings
     options.extraKeys = {};
 
-    options.extraKeys['Ctrl-Z'] = function (cm) { editor.call('editor:undo');};
-    options.extraKeys['Cmd-Z'] = function (cm) { editor.call('editor:undo');};
-    options.extraKeys['Shift-Ctrl-Z'] = function (cm) { editor.call('editor:redo');};
-    options.extraKeys['Shift-Cmd-Z'] = function (cm) { editor.call('editor:redo');};
-    options.extraKeys['Ctrl-Y'] = function (cm) { editor.call('editor:redo');};
-    options.extraKeys['Cmd-Y'] = function (cm) { editor.call('editor:redo');};
+    options.extraKeys['Ctrl-Z'] = function (cm) { editor.call('editor:command:undo');};
+    options.extraKeys['Cmd-Z'] = function (cm) { editor.call('editor:command:undo');};
+    options.extraKeys['Shift-Ctrl-Z'] = function (cm) { editor.call('editor:command:redo');};
+    options.extraKeys['Shift-Cmd-Z'] = function (cm) { editor.call('editor:command:redo');};
+    options.extraKeys['Ctrl-Y'] = function (cm) { editor.call('editor:command:redo');};
+    options.extraKeys['Cmd-Y'] = function (cm) { editor.call('editor:command:redo');};
     options.extraKeys['Ctrl-S'] = function (cm) {editor.call('editor:command:save');};
     options.extraKeys['Cmd-S'] = function (cm) {editor.call('editor:command:save');};
-    options.extraKeys['Tab'] = function(cm) {
-        if (cm.somethingSelected()) {
-            cm.indentSelection("add");
-        } else {
-            cm.execCommand('insertSoftTab');
-        }
-    };
+    options.extraKeys['Tab'] = function(cm) {editor.call('editor:command:indent');};
+    options.extraKeys['Ctrl-I'] = function(cm) {editor.call('editor:command:autoindent');};
+    options.extraKeys['Cmd-I'] = function(cm) {editor.call('editor:command:autoindent');};
 
     options.extraKeys['Esc'] = function (cm) {cm.execCommand('clearSearch'); cm.setSelection(cm.getCursor("anchor"), cm.getCursor("anchor"));};
-    options.extraKeys["Shift-Tab"] = "indentLess";
     options.extraKeys['Ctrl-/'] = 'toggleComment';
     options.extraKeys['Cmd-/'] = 'toggleComment';
 
-    options.extraKeys['Ctrl-I'] = 'indentAuto';
-    options.extraKeys['Cmd-I'] = 'indentAuto';
 
     options.extraKeys['Alt-Up'] = function (cm) {cm.execCommand('goLineUp'); cm.execCommand('goLineEnd');};
     options.extraKeys['Alt-Down'] = function (cm) {cm.execCommand('goLineDown'); cm.execCommand('goLineEnd');};
@@ -89,6 +83,8 @@ editor.once('load', function () {
     options.extraKeys['Ctrl-.'] = function (cm) {tern && tern.selectName(cm);};
 
     options.extraKeys = CodeMirror.normalizeKeyMap(options.extraKeys);
+
+
 
     // create code mirror
     cm = CodeMirror(element, options);

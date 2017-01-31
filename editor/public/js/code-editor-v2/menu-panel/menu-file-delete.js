@@ -3,6 +3,8 @@ editor.once('load', function () {
 
     var menu = editor.call('menu:file');
 
+    var codePanel = editor.call('layout.code');
+
     menu.append(menu.createItem('delete-selected', {
         title: 'Delete Selected Files',
         filter: function () {
@@ -23,6 +25,24 @@ editor.once('load', function () {
             editor.call('assets:delete:picker', editor.call('files:contextmenu:selected'));
         }
     }));
+
+    // hotkeys
+    editor.call('hotkey:register', 'delete-files', {
+        key: 'delete',
+        callback: function (e) {
+            if (! codePanel.element.contains(e.target))
+                editor.call('editor:command:deleteSelected');
+        }
+    });
+
+    editor.call('hotkey:register', 'delete-files', {
+        key: 'backspace',
+        ctrl: true,
+        callback: function (e) {
+            if (! codePanel.element.contains(e.target))
+                editor.call('editor:command:deleteSelected');
+        }
+    });
 
     // True if you can delete selected files
     editor.method('editor:command:can:deleteSelected', function () {

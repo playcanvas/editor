@@ -3,6 +3,19 @@ editor.once('load', function () {
 
     var menu = editor.call('menu:file');
 
+    var item = menu.createItem('close', {
+        title: 'Close File',
+        filter: function () {
+            return editor.call('editor:command:can:close');
+        },
+        select: function () {
+            return editor.call('editor:command:close');
+        }
+    });
+    item.class.add('noBorder');
+    editor.call('menu:item:setShortcut', item, 'Alt+W');
+    menu.append(item);
+
     var item = menu.createItem('close-selected', {
         title: 'Close Selected Files',
         filter: function () {
@@ -16,7 +29,7 @@ editor.once('load', function () {
 
     menu.append(item);
 
-    menu.append(menu.createItem('close-all', {
+    item = menu.createItem('close-all', {
         title: 'Close All Files',
         filter: function () {
             return editor.call('editor:command:can:closeAll');
@@ -24,7 +37,61 @@ editor.once('load', function () {
         select: function () {
             return editor.call('editor:command:closeAll');
         }
+    });
+    editor.call('menu:item:setShortcut', item, 'Alt+Shift+W');
+    menu.append(item);
+
+    // hotkeys
+    editor.call('hotkey:register', 'close-selected', {
+        key: 'w',
+        alt: true,
+        callback: function () {
+            editor.call('editor:command:close');
+        }
+    });
+
+    editor.call('hotkey:register', 'close-all', {
+        key: 'w',
+        alt: true,
+        shift: true,
+        callback: function () {
+            editor.call('editor:command:closeAll');
+        }
+    });
+
+    var ctxMenu = editor.call('files:contextmenu');
+    ctxMenu.append(ctxMenu.createItem('close', {
+        title: 'Close',
+        filter: function () {
+            var selected = editor.call('files:contextmenu:selected');
+            for (var i = 0; i < selected.length; i++) {
+                if (editor.call('documents:get', selected[i].get('id'))) {
+                    return true;
+                }
+            }
+        },
+        select: function () {
+            var selected = editor.call('files:contextmenu:selected');
+            for (var i = 0; i < selected.length; i++) {
+                if (editor.call('documents:get', selected[i].get('id'))) {
+                    editor.emit('documents:close', selected[i].get('id'));
+                }
+            }
+
+        }
     }));
+
+    // True if you can close focused file
+    editor.method('editor:command:can:close', function () {
+        return !!editor.call('documents:getFocused');
+    });
+
+    // Close focused
+    editor.method('editor:command:close', function () {
+        var focused = editor.call('documents:getFocused');
+        if (focused)
+            editor.emit('documents:close', focused);
+    });
 
 
     // True if you can close selected files

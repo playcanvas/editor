@@ -468,30 +468,42 @@ editor.once('load', function () {
         focusedDocument = null;
     });
 
+    editor.method('editor:command:can:undo', function () {
+        return editor.call('realtime:isConnected') && focusedDocument && focusedDocument.undo.length;
+    });
+
     // Undo
-    editor.method('editor:undo', function () {
-        if (! editor.call('realtime:isConnected') || ! focusedDocument || ! focusedDocument.undo.length) return;
+    editor.method('editor:command:undo', function () {
+        if (editor.call('editor:command:can:undo')) {
+            var snapshot = focusedDocument.context.get() || '';
+            var curr = focusedDocument.undo.pop();
 
-        var snapshot = focusedDocument.context.get() || '';
-        var curr = focusedDocument.undo.pop();
+            var inverseOp = {op: invert(curr.op, snapshot, focusedDocument)};
+            focusedDocument.redo.push(inverseOp);
 
-        var inverseOp = {op: invert(curr.op, snapshot, focusedDocument)};
-        focusedDocument.redo.push(inverseOp);
+            applyCustomOp(curr.op, focusedDocument);
+        }
 
-        applyCustomOp(curr.op, focusedDocument);
+        cm.focus();
+    });
+
+    editor.method('editor:command:can:redo', function () {
+        return editor.call('realtime:isConnected') && focusedDocument && focusedDocument.redo.length;
     });
 
     // Redo
-    editor.method('editor:redo', function () {
-        if (! editor.call('realtime:isConnected') || ! focusedDocument || ! focusedDocument.redo.length) return;
+    editor.method('editor:command:redo', function () {
+        if (editor.call('editor:command:can:redo')) {
+            var snapshot = focusedDocument.context.get() || '';
+            var curr = focusedDocument.redo.pop();
 
-        var snapshot = focusedDocument.context.get() || '';
-        var curr = focusedDocument.redo.pop();
+            var inverseOp = {op: invert(curr.op, snapshot, focusedDocument)};
+            focusedDocument.undo.push(inverseOp);
 
-        var inverseOp = {op: invert(curr.op, snapshot, focusedDocument)};
-        focusedDocument.undo.push(inverseOp);
+            applyCustomOp(curr.op, focusedDocument);
+        }
 
-        applyCustomOp(curr.op, focusedDocument);
+        cm.focus();
     });
 
     // set the value on a view and specifly if you want to force concatenating it with previous ops

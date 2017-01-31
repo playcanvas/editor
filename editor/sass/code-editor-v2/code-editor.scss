@@ -261,11 +261,49 @@ strong {
     }
 }
 
+
 .ui-menu-item {
     &.noBorder {
         > .title {
             border-bottom: 0;
         }
+    }
+
+    .ui-label.shortcut {
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 2;
+        transition: none;
+    }
+}
+
+.ui-menu {
+    &.top, &.context {
+        .inner {
+            -moz-box-shadow: 0 1px 1px 0px rgba(0,0,0,0.5);
+            -webkit-box-shadow: 0 1px 1px 0px rgba(0,0,0,0.5);
+            box-shadow: 0 1px 1px 0px rgba(0,0,0,0.5);
+        }
+    }
+
+    &.top {
+        &.files .ui-menu-item {
+            min-width: 240px;
+        }
+
+        .create-new .ui-menu-item {
+            min-width: 150px;
+        }
+
+        &.edit .ui-menu-item {
+            min-width: 240px;
+        }
+
+        .selection .ui-menu-item {
+            min-width: 280px;
+        }
+
     }
 }
 

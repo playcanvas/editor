@@ -5,6 +5,8 @@ editor.once('load', function () {
     var menu = new ui.Menu();
     root.append(menu);
 
+    menu.class.add('context');
+
     var currentAsset = null;
 
     // Return menu

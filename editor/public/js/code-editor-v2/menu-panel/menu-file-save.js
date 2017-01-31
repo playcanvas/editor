@@ -5,7 +5,7 @@ editor.once('load', function () {
 
     // create save menu
     var item = menu.createItem('save', {
-        title: 'Save File (' + editor.call('hotkey:ctrl:string') + '-S)',
+        title: 'Save File',
         filter: function () {
             return editor.call('editor:command:can:save');
         },
@@ -14,6 +14,7 @@ editor.once('load', function () {
         }
     });
     item.class.add('noBorder');
+    editor.call('menu:item:setShortcut', item, editor.call('hotkey:ctrl:string') + '+S');
     menu.append(item);
 
     item = menu.createItem('save-selected', {

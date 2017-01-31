@@ -8,6 +8,9 @@ editor.once('load', function() {
     var ctrl = false;
     var shift = false;
     var alt = false;
+    var meta = false;
+
+    var isMac = navigator.userAgent.indexOf('Mac OS X') !== -1;
 
     var keyMap = {
         'backspace': 8,
@@ -55,7 +58,25 @@ editor.once('load', function() {
         hotkeys[name] = args;
 
         // keys list
-        var keys = [ args.ctrl ? 1 : 0, args.alt ? 1 : 0, args.shift ? 1 : 0 ];
+        var keys;
+        if (isMac) {
+            // on mac if we haven't specified
+            // the meta key for this hotkey then allow
+            // the meta key to be used as well for the control key
+            if (args.ctrl && args.meta === undefined) {
+                var argsCopy = {};
+                for (var key in args)
+                    argsCopy[key] = args[key];
+
+                argsCopy.ctrl = false;
+                argsCopy.meta = true;
+                editor.call('hotkey:register', name, argsCopy);
+            }
+
+            keys = [ args.ctrl ? 1 : 0, args.alt ? 1 : 0, args.shift ? 1 : 0, args.meta ? 1 : 0 ];
+        } else {
+            keys = [ args.ctrl ? 1 : 0, args.alt ? 1 : 0, args.shift ? 1 : 0, args.meta ? 1 : 0 ];
+        }
 
         // map string to keyCode
         if (typeof(args.key) === 'string')
@@ -104,6 +125,9 @@ editor.once('load', function() {
         return alt;
     });
 
+    editor.method('hotkey:meta', function () {
+        return meta;
+    });
 
     var updateModifierKeys = function(evt) {
         if (shift !== evt.shiftKey) {
@@ -111,9 +135,14 @@ editor.once('load', function() {
             editor.emit('hotkey:shift', shift);
         }
 
-        if (ctrl !== (evt.ctrlKey || evt.metaKey)) {
-            ctrl = evt.ctrlKey || evt.metaKey;
+        if (ctrl !== evt.ctrlKey) {
+            ctrl = evt.ctrlKey;
             editor.emit('hotkey:ctrl', ctrl);
+        }
+
+        if (meta !== evt.metaKey) {
+            meta = evt.metaKey;
+            editor.emit('hotkey:meta', meta);
         }
 
         if (alt !== evt.altKey) {
@@ -140,12 +169,12 @@ editor.once('load', function() {
         if ([ 92, 93 ].indexOf(evt.keyCode) !== -1)
             return;
 
-        var index = [ ctrl+0, alt+0, shift+0, evt.keyCode ].join('+');
+        var index = [ ctrl+0, alt+0, shift+0, meta+0, evt.keyCode ].join('+');
 
         if (keyIndex[index]) {
             var skipPreventDefault = false;
             for(var i = 0; i < keyIndex[index].length; i++) {
-                hotkeys[keyIndex[index][i]].callback();
+                hotkeys[keyIndex[index][i]].callback(evt);
                 if (! skipPreventDefault && hotkeys[keyIndex[index][i]].skipPreventDefault)
                     skipPreventDefault = true;
             }
@@ -159,7 +188,6 @@ editor.once('load', function() {
     window.addEventListener('mousedown', updateModifierKeys, false);
 
     // Returns Ctrl or Cmd for Mac
-    var isMac = navigator.userAgent.indexOf('Mac OS X') !== -1;
     editor.method('hotkey:ctrl:string', function () {
         return isMac ? 'Cmd' : 'Ctrl';
     });

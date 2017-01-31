@@ -4,53 +4,9 @@ editor.once('load', function () {
     var root = editor.call('layout.root');
     var panel = editor.call('layout.top');
 
-    var menuEdit = ui.Menu.fromData({
-        'undo': {
-            title: 'Undo',
-            filter: function () {
-                return editor.call('permissions:write');
-            },
-            select: function () {
-
-            }
-        },
-        'redo': {
-            title: 'Redo',
-            filter: function () {
-                return editor.call('permissions:write')
-            },
-            select: function () {
-
-            }
-        },
-        'cut': {
-            title: 'Cut',
-            filter: function () {
-                return editor.call('permissions:write')
-            },
-            select: function () {
-
-            }
-        },
-        'copy': {
-            title: 'Copy',
-            filter: function () {
-                return editor.call('permissions:write')
-            },
-            select: function () {
-
-            }
-        },
-        'paste': {
-            title: 'Paste',
-            filter: function () {
-                return editor.call('permissions:write')
-            },
-            select: function () {
-
-            }
-        }
-    });
+    var menuEdit = new ui.Menu();
+    menuEdit.class.add('top');
+    menuEdit.class.add('edit');
 
     menuEdit.position(44, 33);
     root.append(menuEdit);
@@ -61,6 +17,10 @@ editor.once('load', function () {
 
     panel.append(btnEdit);
 
+    btnEdit.on('click', function () {
+        menuEdit.open = true;
+    });
+
     menuEdit.on('open', function (open) {
         if (open) {
             btnEdit.class.add('open');
@@ -69,8 +29,6 @@ editor.once('load', function () {
         }
     });
 
-    btnEdit.on('click', function () {
-        menuEdit.open = true;
-    });
+    editor.method('menu:edit', function () { return menuEdit; });
 
 });
