@@ -199,7 +199,7 @@ editor.once('load', function () {
     });
 
     // handle selections
-    tree.on('select', function(item) {
+    tree.on('select', function (item) {
         // open items till parent
         var parent = item.parent;
         while(parent && parent instanceof ui.TreeItem) {
@@ -209,9 +209,16 @@ editor.once('load', function () {
         // focus
         item.elementTitle.focus();
 
+        // if we have other items selected too
+        // then do nothing
+        if (tree.selected.length > 1)
+            return;
+
+        // if this item has no asset return
         if (! item._assetId)
             return;
 
+        // emit asset select event
         var asset = editor.call('assets:get', item._assetId);
         if (! asset)
             return;
