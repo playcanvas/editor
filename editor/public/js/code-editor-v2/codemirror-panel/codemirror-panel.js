@@ -64,10 +64,10 @@ editor.once('load', function () {
     options.extraKeys['Tab'] = function(cm) {editor.call('editor:command:indent');};
     options.extraKeys['Ctrl-I'] = function(cm) {editor.call('editor:command:autoindent');};
     options.extraKeys['Cmd-I'] = function(cm) {editor.call('editor:command:autoindent');};
+    options.extraKeys['Ctrl-/'] = function(cm) {editor.call('editor:command:toggleComment');};
+    options.extraKeys['Cmd-/'] = function(cm) {editor.call('editor:command:toggleComment');};
 
     options.extraKeys['Esc'] = function (cm) {cm.execCommand('clearSearch'); cm.setSelection(cm.getCursor("anchor"), cm.getCursor("anchor"));};
-    options.extraKeys['Ctrl-/'] = 'toggleComment';
-    options.extraKeys['Cmd-/'] = 'toggleComment';
 
 
     options.extraKeys['Alt-Up'] = function (cm) {cm.execCommand('goLineUp'); cm.execCommand('goLineEnd');};

@@ -2,6 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     var menu = editor.call('menu:edit');
+    var codePanel = editor.call('layout.code');
 
     var item = menu.createItem('redo', {
         title: 'Redo',
@@ -19,7 +20,10 @@ editor.once('load', function () {
     editor.call('hotkey:register', 'redo', {
         key: 'y',
         ctrl: true,
-        callback: function () {
+        callback: function (e) {
+            if (codePanel.element.contains(e.target))
+                return;
+
             editor.call('editor:command:redo');
         }
     });
@@ -28,7 +32,10 @@ editor.once('load', function () {
         key: 'z',
         ctrl: true,
         shift: true,
-        callback: function () {
+        callback: function (e) {
+            if (codePanel.element.contains(e.target))
+                return;
+
             editor.call('editor:command:redo');
         }
     });
