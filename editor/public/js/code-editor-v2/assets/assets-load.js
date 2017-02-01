@@ -153,6 +153,11 @@ editor.once('load', function () {
             totalAssets = res.length;
             loadedAssets = 0;
 
+            // do bulk subsribe in batches of 'batchSize' assets
+            var batchSize = 256;
+            var startBatch = 0;
+            var connection = editor.call('realtime:connection');
+
             var onLoad = function () {
                 loadedAssets++;
                 editor.emit('assets:load:progress', loadedAssets / totalAssets);
@@ -162,10 +167,17 @@ editor.once('load', function () {
                 }
             };
 
-            res.forEach(function (raw) {
-                editor.call('assets:loadOne', raw.id, onLoad);
-            });
+            while (startBatch < totalAssets) {
+                // start bulk subscribe
+                connection.bsStart();
+                for(var i = startBatch; i < startBatch + batchSize && i < totalAssets; i++) {
+                    editor.call('assets:loadOne', res[i].id, onLoad);
+                }
+                // end bulk subscribe and send message to server
+                connection.bsEnd();
 
+                startBatch += batchSize;
+            }
         })
         .on('error', function (status, error) {
             if (error) {
