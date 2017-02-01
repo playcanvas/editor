@@ -22,7 +22,8 @@ editor.once('load', function () {
         scrollPastEnd: true,
         keyMap: 'sublime',
 
-        readOnly: !editor.call('permissions:write'),
+        readOnly: true,
+        cursorBlinkRate: -1,
 
         /* match - highlighter */
         highlightSelectionMatches: {
@@ -45,10 +46,6 @@ editor.once('load', function () {
 
         lineNumbers: true,
     };
-
-    if (options.readOnly) {
-        options.cursorBlinkRate = -1; // hide cursor
-    }
 
     // set up key bindings
     options.extraKeys = {};
@@ -171,9 +168,12 @@ editor.once('load', function () {
                 tern.complete(cm);
             };
 
+            var isReadOnly = true;
+            editor.on('permissions:writeState')
+
             var wordChar = /\w/;
             var shouldComplete = function (e) {
-                if (! editor.call('permissions:write'))
+                if (cm.isReadOnly())
                     return false;
 
                 var focused = editor.call('documents:getFocused');

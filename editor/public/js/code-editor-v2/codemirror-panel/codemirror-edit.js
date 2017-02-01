@@ -445,6 +445,12 @@ editor.once('load', function () {
         var entry = documentIndex[id];
         if (! entry || entry.ignoreLocalChanges) return;
 
+        // this happens sometimes when there is a doc error
+        if (! entry.doc.type) {
+            console.warn('Document ' + entry.doc.name + ' has no type');
+            return;
+        }
+
         applyToShareJs(change, entry);
 
         // clear redo stack

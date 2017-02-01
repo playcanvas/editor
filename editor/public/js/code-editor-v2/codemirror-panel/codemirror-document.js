@@ -112,6 +112,8 @@ editor.once('load', function () {
             cm.refresh();
         }
 
+        refreshReadonly();
+
         // focus editor
         cm.focus();
 
@@ -152,17 +154,26 @@ editor.once('load', function () {
         return focusedView;
     })
 
+    editor.method('editor:isReadOnly', function () {
+        return ! focusedView ||
+               ! editor.call('permissions:write') ||
+                 editor.call('errors:hasRealtime') ||
+                 editor.call('documents:hasError', focusedView.asset.get('id'));
+    });
 
-    // set code editor to readonly if necessary
-    editor.on('permissions:writeState', function (write) {
-        if (write) {
-            cm.setOption('readOnly', false);
-            cm.setOption('cursorBlinkRate', 530);
-        } else {
+    var refreshReadonly = function () {
+        var readonly = editor.call('editor:isReadOnly');
+        if (readonly) {
             cm.setOption('readOnly', true);
             cm.setOption('cursorBlinkRate', -1);
+        } else {
+            cm.setOption('readOnly', false);
+            cm.setOption('cursorBlinkRate', 530);
         }
-    });
+    };
+
+    // set code editor to readonly if necessary
+    editor.on('permissions:writeState', refreshReadonly);
 
     // Returns the codemirror view for an id
     editor.method('views:get', function (id) {
@@ -171,31 +182,6 @@ editor.once('load', function () {
     });
 
 });
-
-
-
-// TODO
-    // // remember state before we make this read only
-        // if (readOnly) {
-        //     stateBeforeReadOnly = {
-        //         scrollInfo: cm.getScrollInfo(),
-        //         cursor: cm.getCursor()
-        //     };
-        // }
-
-
-        // // if we are enabling write then restore
-        // // previous state
-        // if (! readOnly && stateBeforeReadOnly) {
-        //     var cursorCoords = cm.cursorCoords(stateBeforeReadOnly.cursor, 'local');
-        //     cm.setCursor(stateBeforeReadOnly.cursor);
-
-        //     // scroll back to where we were if needed
-        //     var scrollInfo = stateBeforeReadOnly.scrollInfo;
-        //     if (cursorCoords.top >= scrollInfo.top && cursorCoords.top <= scrollInfo.top + scrollInfo.clientHeight) {
-        //         cm.scrollTo(scrollInfo.left, scrollInfo.top);
-        //     }
-        // }
 
 
     // // if there is a line parameter then go to that line

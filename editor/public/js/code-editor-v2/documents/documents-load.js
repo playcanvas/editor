@@ -65,7 +65,7 @@ editor.once('load', function () {
 
         // handle errors
         doc.on('error', function (err) {
-            document.emit('documents:error', id, err);
+            editor.emit('documents:error', id, err);
         });
 
         // mark document as dirty on every
@@ -93,28 +93,24 @@ editor.once('load', function () {
                     return;
                 }
 
-                // var debugDuration = 1000;
-                // setTimeout(function () {
-                    entry.isLoading = false;
-                    entry.content = doc.getSnapshot();
+                entry.isLoading = false;
+                entry.content = doc.getSnapshot();
 
-                    // load event
-                    editor.emit('documents:load', doc, asset);
-                    // focus doc if necessary
-                    if (lastFocusedId === id)
-                        editor.emit('documents:focus', id);
+                // load event
+                editor.emit('documents:load', doc, asset);
+                // focus doc if necessary
+                if (lastFocusedId === id)
+                    editor.emit('documents:focus', id);
 
-                    // check if it's diry
-                    if (asset.get('content') !== null) {
-                        checkIfDirty(id);
-                    } else {
-                        // re-load asset content
-                        // which will set the content and re-trigger
-                        // dirty check
-                        editor.call('assets:loadFile', asset);
-                    }
-                // }, debugDuration);
-
+                // check if it's diry
+                if (asset.get('content') !== null) {
+                    checkIfDirty(id);
+                } else {
+                    // re-load asset content
+                    // which will set the content and re-trigger
+                    // dirty check
+                    editor.call('assets:loadFile', asset);
+                }
             });
         });
 
@@ -187,7 +183,7 @@ editor.once('load', function () {
 
         entry.error = err;
         var asset = editor.call('assets:get', id);
-        editor.call('status:error', 'Realtime error for document "' + asset.get('name') + '": ' + err);
+        editor.call('status:error', 'Realtime error for document "' + asset.get('name') + '": ' + err + '. Please reload this document.');
     });
 
     // Check if document content differs from asset file contents
@@ -248,4 +244,8 @@ editor.once('load', function () {
         return documentsIndex[id] ? documentsIndex[id].doc : null;
     });
 
+    // returns true if the document has an error
+    editor.method('documents:hasError', function (id) {
+        return documentsIndex[id] && documentsIndex[id].error;
+    });
 });

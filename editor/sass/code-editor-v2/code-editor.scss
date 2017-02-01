@@ -143,7 +143,7 @@ strong {
             z-index: 1;
         }
 
-        &.dirty {
+        &.dirty:not(.error) {
             color: transparentize($muted-yellow, 0.15);
 
             &:hover, &.focused {
@@ -153,6 +153,10 @@ strong {
 
         &.grabbed {
             z-index: 10;
+        }
+
+        &.error {
+            color: $bright-red;
         }
 
         > .content {

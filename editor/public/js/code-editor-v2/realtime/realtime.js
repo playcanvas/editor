@@ -11,7 +11,6 @@ editor.once('load', function () {
     var isAuthenticated = false;
 
     var onError = function (err) {
-        console.error(err);
         editor.emit('realtime:error', err);
     };
 

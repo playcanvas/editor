@@ -334,4 +334,10 @@ editor.once('load', function () {
         });
     });
 
+    // Mark errored tab
+    editor.on('documents:error', function (id) {
+        var entry = tabsIndex[id];
+        if (entry)
+            entry.tab.class.add('error');
+    });
 });
