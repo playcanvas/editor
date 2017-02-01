@@ -475,7 +475,8 @@ editor.once('load', function () {
     });
 
     editor.method('editor:command:can:undo', function () {
-        return editor.call('realtime:isConnected') && focusedDocument && focusedDocument.undo.length;
+        return !editor.call('editor:isReadOnly') &&
+               focusedDocument && focusedDocument.undo.length;
     });
 
     // Undo
@@ -494,7 +495,8 @@ editor.once('load', function () {
     });
 
     editor.method('editor:command:can:redo', function () {
-        return editor.call('realtime:isConnected') && focusedDocument && focusedDocument.redo.length;
+        return !editor.call('editor:isReadOnly') &&
+               focusedDocument && focusedDocument.redo.length;
     });
 
     // Redo

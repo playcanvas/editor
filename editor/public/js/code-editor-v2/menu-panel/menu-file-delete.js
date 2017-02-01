@@ -19,7 +19,9 @@ editor.once('load', function () {
     ctxMenu.append(ctxMenu.createItem('delete', {
         title: 'Delete',
         filter: function () {
-            return editor.call('permissions:write') && editor.call('files:contextmenu:selected').length;
+            return editor.call('permissions:write') &&
+                   editor.call('files:contextmenu:selected').length &&
+                   ! editor.call('errors:hasRealtime');
         },
         select: function () {
             editor.call('assets:delete:picker', editor.call('files:contextmenu:selected'));
@@ -46,7 +48,9 @@ editor.once('load', function () {
 
     // True if you can delete selected files
     editor.method('editor:command:can:deleteSelected', function () {
-        return editor.call('permissions:write') && editor.call('assets:selected').length;
+        return editor.call('permissions:write') &&
+               editor.call('assets:selected').length &&
+               ! editor.call('errors:hasRealtime');
     });
 
     // Delete selected files

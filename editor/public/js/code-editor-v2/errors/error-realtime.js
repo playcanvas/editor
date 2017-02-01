@@ -11,7 +11,7 @@ editor.once('load', function () {
     editor.on('realtime:error', function (err) {
         hasError = true;
         console.error(err);
-        editor.call('status:error', 'There was a realtime error that the Code Editor could not recover from. Please refresh the Code Editor.');
+        editor.call('status:permanentError', 'There was a realtime error that the Code Editor could not recover from. Please refresh the Code Editor.');
         editor.emit('permissions:writeState', false);
     });
 

@@ -1,8 +1,6 @@
 editor.once('load', function () {
     'use strict';
 
-    var connection = editor.call('realtime:connection');
-
     var documentsIndex = {};
 
     // load requests that have been
@@ -49,7 +47,7 @@ editor.once('load', function () {
     // Loads the editable document that corresponds to the specified asset id
     var loadDocument = function (asset) {
         var id = asset.get('id');
-
+        var connection = editor.call('realtime:connection');
         var doc = connection.get('documents', id);
 
         // add index entry
@@ -135,6 +133,10 @@ editor.once('load', function () {
             return;
         }
 
+        // if we have a global error do not load it
+        if (editor.call('errors:hasRealtime'))
+            return;
+
         // if the asset has a file
         // load it
         if (asset.get('file.filename') && editor.call('realtime:isConnected')) {
@@ -217,11 +219,10 @@ editor.once('load', function () {
 
     // handle reconnections
     editor.on('realtime:authenticated', function () {
+        var connection = editor.call('realtime:connection');
+
+        // resume docs
         for (var id in documentsIndex) {
-            // send doc:reconnect for each document
-            // that was loaded before we disconnected in order
-            // to fetch the document and its asset in C3
-            connection.socket.send('doc:reconnect:' + id);
             documentsIndex[id].doc.resume();
         }
 

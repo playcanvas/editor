@@ -88,7 +88,9 @@ editor.once('load', function () {
 
 
     editor.method('editor:command:can:create', function (folder) {
-        return editor.call('permissions:write') && (!folder || folder.get('type') === 'folder');
+        return editor.call('permissions:write') &&
+              (!folder || folder.get('type') === 'folder') &&
+              !editor.call('errors:hasRealtime');
     });
 
     editor.method('editor:command:create', function (type, folder) {

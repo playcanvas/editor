@@ -14,13 +14,26 @@ editor.once('load', function () {
     connection.class.add('connection-status');
     panel.append(connection);
 
+    // if true then do not clear the errors
+    var permanentError = false;
+
     editor.method('status:log', function (msg) {
+        if (permanentError) {
+            console.log(msg);
+            return;
+        }
+
         label.class.remove('error');
         label.class.remove('warning');
         label.text = msg;
     });
 
     editor.method('status:warning', function (msg) {
+        if (permanentError) {
+            console.warn(msg);
+            return;
+        }
+
         label.class.remove('error');
         label.class.add('warning');
         label.text = msg;
@@ -30,6 +43,11 @@ editor.once('load', function () {
         label.class.add('error');
         label.class.remove('warning');
         label.text = msg;
+    });
+
+    editor.method('status:permanentError', function (msg) {
+        editor.call('status:error', msg);
+        permanentError = true;
     });
 
     editor.method('status:clear', function () {

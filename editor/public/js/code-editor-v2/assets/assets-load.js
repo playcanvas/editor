@@ -10,10 +10,13 @@ editor.once('load', function () {
     var totalAssets = 0;
     var loadedAssets = 0;
 
+    var docIndex = {};
+
     // Load asset from C3 and call callback
     editor.method('assets:loadOne', function (id, callback) {
         var connection = editor.call('realtime:connection');
         var assetDoc = connection.get('assets', id);
+        docIndex[id] = assetDoc;
 
         var asset;
 
@@ -130,9 +133,10 @@ editor.once('load', function () {
     // destroy documents if assets are deleted
     editor.on('assets:remove', function (asset) {
         var connection = editor.call('realtime:connection');
-        var doc = connection.getExisting(asset.get('id'));
+        var doc = docIndex[asset.get('id')]
         if (doc) {
             doc.destroy();
+            delete docIndex[asset.get('id')];
         }
     });
 
@@ -188,5 +192,21 @@ editor.once('load', function () {
         });
     };
 
+    // this is for reconnections
+    editor.on('realtime:authenticated', function () {
+        for (var id in docIndex) {
+            docIndex[id].resume();
+        }
+    });
+
+    // of first connection load assets
     editor.once('realtime:authenticated', loadEditableAssets);
+
+    // pause any asset operations while we are disconnected
+    // and resume when we reauthenticate
+    editor.on('realtime:disconnected', function () {
+        for (var id in docIndex) {
+            docIndex[id].pause();
+        }
+    });
 });

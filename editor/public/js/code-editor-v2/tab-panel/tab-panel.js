@@ -33,6 +33,11 @@ editor.once('load', function () {
         var id = asset.get('id')
 
         if (! tabsIndex[id]) {
+
+            // if we have a global error skip opening a new tab
+            if (editor.call('errors:hasRealtime'))
+                return;
+
             // create tab
             var tab = new ui.Panel();
             tab.class.add('tab');

@@ -74,7 +74,7 @@ editor.once('load', function () {
 
     // Returns true if we can save
     editor.method('editor:command:can:save', function (id) {
-        if (editor.call('permissions:write') && editor.call('realtime:isConnected')) {
+        if (editor.call('permissions:write') && editor.call('realtime:isConnected') && !editor.call('errors:hasRealtime')) {
             var focused = id || editor.call('documents:getFocused');
 
             return focused &&
@@ -96,7 +96,7 @@ editor.once('load', function () {
     });
 
     editor.method('editor:command:can:saveSelected', function () {
-        if (editor.call('permissions:write') && editor.call('realtime:isConnected')) {
+        if (editor.call('permissions:write') && editor.call('realtime:isConnected') && !editor.call('errors:hasRealtime')) {
             var selected = editor.call('assets:selected');
             var hasDirty = false;
             for (var i = 0; i < selected.length; i++) {
@@ -129,7 +129,7 @@ editor.once('load', function () {
     });
 
     editor.method('editor:command:can:saveAll', function () {
-        if (editor.call('permissions:write') && editor.call('realtime:isConnected')) {
+        if (editor.call('permissions:write') && editor.call('realtime:isConnected') && !editor.call('errors:hasRealtime')) {
             var open = editor.call('documents:list');
             var hasDirty = false;
             for (var i = 0; i < open.length; i++) {
