@@ -10,9 +10,10 @@ editor.once('load', function () {
 
     panel.append(readonly);
 
-    readonly.hidden = ! editor.call('editor:isReadOnly');
+    readonly.hidden = editor.call('permissions:write');
 
-    editor.on('permissions:writeState', function () {
-        readonly.hidden = ! editor.call('editor:isReadOnly');
+    editor.on('editor:readonly:change', function (isReadonly) {
+        readonly.hidden = ! isReadonly;
     });
+
 });

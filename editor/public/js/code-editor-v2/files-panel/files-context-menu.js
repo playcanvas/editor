@@ -35,9 +35,6 @@ editor.once('load', function () {
             e.stopPropagation();
             e.preventDefault();
 
-            if (! editor.call('permissions:write'))
-                return;
-
             currentAsset = editor.call('assets:get', treeItem._assetId);
 
             menu.open = true;

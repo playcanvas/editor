@@ -168,9 +168,6 @@ editor.once('load', function () {
                 tern.complete(cm);
             };
 
-            var isReadOnly = true;
-            editor.on('permissions:writeState')
-
             var wordChar = /\w/;
             var shouldComplete = function (e) {
                 if (cm.isReadOnly())

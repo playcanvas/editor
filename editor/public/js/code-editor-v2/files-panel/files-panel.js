@@ -3,9 +3,16 @@ editor.once('load', function () {
 
     var panel = editor.call('layout.left');
 
+    var isTreeEditable = function () {
+        return  editor.call('permissions:write') &&
+                editor.call('realtime:isConnected') &&
+                ! editor.call('errors:hasRealtime');
+    };
+
     // files tree
     var tree = new ui.Tree();
-    tree.allowRenaming = editor.call('permissions:write');
+    tree.allowRenaming = false;
+    tree.draggable = false;
     tree.reordering = false;
     tree.class.add('files');
     tree.hidden = true;
@@ -20,9 +27,16 @@ editor.once('load', function () {
         progressBar.progress = progress;
     });
 
-    editor.on('permissions:writeState', function(state) {
-        tree.allowRenaming = state;
-    });
+    var refreshTreePermissions = function () {
+        tree.allowRenaming = isTreeEditable();
+        tree.draggable = isTreeEditable();
+    }
+
+    refreshTreePermissions();
+
+    editor.on('permissions:writeState', refreshTreePermissions);
+    editor.on('realtime:authenticated', refreshTreePermissions);
+    editor.on('realtime:disconnected', refreshTreePermissions);
 
     var resizeQueued = false;
     var resizeTree = function() {

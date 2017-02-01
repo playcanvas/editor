@@ -7,7 +7,7 @@ editor.once('load', function () {
     var mac = navigator.userAgent.indexOf('Mac OS X') !== -1;
 
     var canEditLine = function () {
-        return editor.call('permissions:write') && editor.call('documents:getFocused');
+        return editor.call('documents:getFocused') && !cm.isReadOnly();
     };
 
     var group = menu.createItem('line', {

@@ -152,7 +152,11 @@ editor.once('load', function () {
     // Get focused document
     editor.call('editor:focusedView', function () {
         return focusedView;
-    })
+    });
+
+    editor.on('documents:error', function () {
+        refreshReadonly();
+    });
 
     editor.method('editor:isReadOnly', function () {
         return ! focusedView ||
@@ -163,6 +167,7 @@ editor.once('load', function () {
 
     var refreshReadonly = function () {
         var readonly = editor.call('editor:isReadOnly');
+        var wasReadonly = cm.isReadOnly();
         if (readonly) {
             cm.setOption('readOnly', true);
             cm.setOption('cursorBlinkRate', -1);
@@ -170,6 +175,9 @@ editor.once('load', function () {
             cm.setOption('readOnly', false);
             cm.setOption('cursorBlinkRate', 530);
         }
+
+        if (readonly !== wasReadonly)
+            editor.emit('editor:readonly:change', readonly);
     };
 
     // set code editor to readonly if necessary

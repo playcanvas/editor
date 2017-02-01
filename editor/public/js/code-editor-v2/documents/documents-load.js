@@ -137,11 +137,11 @@ editor.once('load', function () {
 
         // if the asset has a file
         // load it
-        if (asset.get('file.filename')) {
+        if (asset.get('file.filename') && editor.call('realtime:isConnected')) {
             loadDocument(asset);
         } else {
             // wait until the asset's file is ready
-            // and load it then
+            // or when we are reconnected and load it then
             if (! queuedLoad[asset.get('id')]) {
                 var evtLoad = asset.once('file.filename:set', function () {
                     delete queuedLoad[asset.get('id')];
@@ -224,6 +224,19 @@ editor.once('load', function () {
             connection.socket.send('doc:reconnect:' + id);
             documentsIndex[id].doc.resume();
         }
+
+        // load any queued documents
+        for (var id in queuedLoad) {
+            var asset = editor.call('assets:get', id);
+            if (! asset || asset.get('file.filename')) {
+                queuedLoad[id].unbind();
+                delete queuedLoad[id];
+
+                if (asset) {
+                    loadDocument(asset);
+                }
+            }
+        }
     });
 
     editor.method('documents:getFocused', function () {
@@ -246,6 +259,6 @@ editor.once('load', function () {
 
     // returns true if the document has an error
     editor.method('documents:hasError', function (id) {
-        return documentsIndex[id] && documentsIndex[id].error;
+        return documentsIndex[id] && !!documentsIndex[id].error;
     });
 });

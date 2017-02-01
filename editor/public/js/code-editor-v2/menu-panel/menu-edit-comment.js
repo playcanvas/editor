@@ -6,7 +6,7 @@ editor.once('load', function () {
     var codePanel = editor.call('layout.code');
 
     var canEditLine = function () {
-        return editor.call('permissions:write') && editor.call('documents:getFocused');
+        return editor.call('documents:getFocused') && !cm.isReadOnly();
     };
 
     // toggle comment
