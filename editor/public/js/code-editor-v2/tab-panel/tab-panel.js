@@ -37,6 +37,7 @@ editor.once('load', function () {
             var tab = new ui.Panel();
             tab.class.add('tab');
             tab._assetId = id;
+            tab.element.title = asset.get('name');
 
             // name container
             var panelName = new ui.Panel();
