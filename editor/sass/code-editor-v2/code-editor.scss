@@ -296,7 +296,7 @@ strong {
             min-width: 240px;
         }
 
-        .create-new .ui-menu-item {
+        .ui-menu-item.create-new .ui-menu-item {
             min-width: 150px;
         }
 
@@ -304,8 +304,12 @@ strong {
             min-width: 240px;
         }
 
-        .selection .ui-menu-item {
+        .ui-menu-item.selection .ui-menu-item {
             min-width: 280px;
+        }
+
+        .ui-menu-item.text .ui-menu-item {
+            min-width: 320px;
         }
 
     }
