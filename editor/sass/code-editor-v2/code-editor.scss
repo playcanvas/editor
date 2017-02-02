@@ -667,13 +667,20 @@ li.CodeMirror-hint-active {
     color: $editor-keyword;
 }
 
-.CodeMirror-dialog-top {
+.CodeMirror-dialog {
     background-color: rgba(0,0,0,0.9);
+    color: $editor-hint-line !important;
     border: none;
-    top: 0;
     padding: 10px 20px;
     font-size: 12px;
-    color: $editor-hint-line !important;
+}
+
+.CodeMirror-dialog-top {
+    top: 0;
+}
+
+.CodeMirror-dialog-bottom {
+    bottom: 0;
 }
 
 .CodeMirror-search-field {
