@@ -67,6 +67,11 @@ editor.once('load', function () {
 
     // Focus document in code mirror
     editor.on('documents:focus', function (id) {
+        if (! viewIndex[id]) {
+            // This happens on some rare occasions not sure why yet...
+            console.warn('Requested to focus document that has no view yet', 'Document ' + id);
+            return;
+        }
         // unide code panel
         panel.hidden = false;
 

@@ -312,6 +312,10 @@ strong {
             min-width: 320px;
         }
 
+        .ui-menu-item.mark .ui-menu-item {
+            min-width: 320px;
+        }
+
     }
 }
 
@@ -728,6 +732,16 @@ li.CodeMirror-hint-active {
 
 .CodeMirror-scrollbar-filler {
    background-color: $editor-bg;
+}
+
+.CodeMirror-bookmark {
+    width: 2px;
+    display: inline-block;
+    height: 13px;
+    background: $editor-yellow;
+    margin-right: -1px;
+    margin-left: -1px;
+    vertical-align: top;
 }
 
 a.link-docs {

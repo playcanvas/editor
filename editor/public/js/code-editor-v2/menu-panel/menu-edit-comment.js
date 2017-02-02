@@ -9,6 +9,11 @@ editor.once('load', function () {
         return editor.call('documents:getFocused') && !cm.isReadOnly();
     };
 
+    var group = menu.createItem('command', {
+        title: 'Comment'
+    });
+    menu.append(group);
+
     // toggle comment
     var item = menu.createItem('toggle-comment', {
         title: 'Toggle Comment',
@@ -20,7 +25,7 @@ editor.once('load', function () {
         }
     });
     editor.call('menu:item:setShortcut', item, editor.call('hotkey:ctrl:string') + '+/');
-    menu.append(item);
+    group.append(item);
 
     // hotkeys
     editor.call('hotkey:register', 'indent', {

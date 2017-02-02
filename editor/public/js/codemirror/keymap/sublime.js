@@ -20,6 +20,10 @@
   var mac = CodeMirror.keyMap["default"] == CodeMirror.keyMap.macDefault;
   var ctrl = mac ? "Cmd-" : "Ctrl-";
 
+  // by vaios - create widget to show on bookmarked line
+  var bookmarkWidget = document.createElement('div');
+  bookmarkWidget.classList.add('CodeMirror-bookmark');
+
   // This is not exactly Sublime's algorithm. I couldn't make heads or tails of that.
   function findPosSubword(doc, start, dir) {
     if (dir < 0 && start.ch == 0) return doc.clipPos(Pos(start.line - 1));
@@ -387,8 +391,21 @@
 
   cmds[map["Shift-" + ctrl + "F2"] = "clearBookmarks"] = function(cm) {
     var marks = cm.state.sublimeBookmarks;
-    if (marks) for (var i = 0; i < marks.length; i++) marks[i].clear();
-    marks.length = 0;
+    if (marks) {
+      for (var i = 0; i < marks.length; i++) {
+        marks[i].clear();
+      }
+
+      // bug fix by Vaios - this was outside
+      // the 'if' causing exceptions
+      marks.length = 0;
+    }
+
+    // added by vaios
+    if (cm.state.sublimeMark) {
+      cm.state.sublimeMark.clear();
+      cm.state.sublimeMark = null;
+    }
   };
 
   cmds[map["Alt-F2"] = "selectBookmarks"] = function(cm) {
@@ -475,13 +492,14 @@
 
   cmds[map[cK + ctrl + "Space"] = "setSublimeMark"] = function(cm) {
     if (cm.state.sublimeMark) cm.state.sublimeMark.clear();
-    cm.state.sublimeMark = cm.setBookmark(cm.getCursor());
+    cm.state.sublimeMark = cm.setBookmark(cm.getCursor(), bookmarkWidget);
   };
   cmds[map[cK + ctrl + "A"] = "selectToSublimeMark"] = function(cm) {
     var found = cm.state.sublimeMark && cm.state.sublimeMark.find();
     if (found) cm.setSelection(cm.getCursor(), found);
   };
-  cmds[map[cK + ctrl + "W"] = "deleteToSublimeMark"] = function(cm) {
+    // by vaios - change ctrl+k ctrl+w to ctrl+k ctrl+backspace to avoid browser tab closing
+  cmds[map[cK + ctrl + "Backspace"] = "deleteToSublimeMark"] = function(cm) {
     var found = cm.state.sublimeMark && cm.state.sublimeMark.find();
     if (found) {
       var from = cm.getCursor(), to = found;
@@ -494,7 +512,7 @@
     var found = cm.state.sublimeMark && cm.state.sublimeMark.find();
     if (found) {
       cm.state.sublimeMark.clear();
-      cm.state.sublimeMark = cm.setBookmark(cm.getCursor());
+      cm.state.sublimeMark = cm.setBookmark(cm.getCursor(), bookmarkWidget);
       cm.setCursor(found);
     }
   };
