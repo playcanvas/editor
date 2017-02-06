@@ -57,6 +57,8 @@ editor.once('load', function () {
     options.extraKeys['Cmd-I'] = function(cm) {editor.call('editor:command:autoindent');};
     options.extraKeys['Ctrl-/'] = function(cm) {editor.call('editor:command:toggleComment');};
     options.extraKeys['Cmd-/'] = function(cm) {editor.call('editor:command:toggleComment');};
+    options.extraKeys['Shift-Ctrl-/'] = function(cm) {editor.call('editor:command:toggleBlockComment');};
+    options.extraKeys['Shift-Cmd-/'] = function(cm) {editor.call('editor:command:toggleBlockComment');};
 
     options.extraKeys['Esc'] = function (cm) {
         if (cm.somethingSelected()) {

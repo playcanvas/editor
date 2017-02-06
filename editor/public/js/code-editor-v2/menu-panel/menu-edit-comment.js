@@ -16,21 +16,39 @@ editor.once('load', function () {
     // toggle comment
     var item = menu.createItem('toggle-comment', {
         title: 'Toggle Comment',
-        filter: function () {
-            return editor.call('editor:command:can:toggleComment');
-        },
+        filter: canEditLine,
         select: function () {
             return editor.call('editor:command:toggleComment');
         }
     });
+    item.class.add('noBorder');
     editor.call('menu:item:setShortcut', item, editor.call('hotkey:ctrl:string') + '+/');
     group.append(item);
 
-    editor.method('editor:command:can:toggleComment', canEditLine);
-
     editor.method('editor:command:toggleComment', function () {
-        if (! editor.call('editor:command:can:toggleComment')) return;
+        if (! canEditLine()) return;
         cm.execCommand('toggleCommentIndented');
         cm.focus();
     });
+
+    // toggle comment
+    var item = menu.createItem('toggle-comment', {
+        title: 'Block Comment',
+        filter: canEditLine,
+        select: function () {
+            return editor.call('editor:command:toggleBlockComment');
+        }
+    });
+    editor.call('menu:item:setShortcut', item, 'Shift+' + editor.call('hotkey:ctrl:string') + '+/');
+    group.append(item);
+
+    editor.method('editor:command:toggleBlockComment', function () {
+        if (! canEditLine()) return;
+        var from = cm.getCursor('from');
+        var to = cm.getCursor('to');
+        cm.blockComment(from, to, {
+            fullLines: CodeMirror.cmpPos(from, to) === 0
+        });
+        cm.focus();
+    })
 });
