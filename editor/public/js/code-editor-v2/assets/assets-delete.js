@@ -33,16 +33,5 @@ editor.once('load', function() {
 
         editor.call('assets:delete:picker', editor.call('selector:items'));
     };
-    // delete
-    editor.call('hotkey:register', 'asset:delete', {
-        key: 'delete',
-        callback: deleteCallback
-    });
-    // ctrl + backspace
-    editor.call('hotkey:register', 'asset:delete', {
-        ctrl: true,
-        key: 'backspace',
-        callback: deleteCallback
-    });
 
 });

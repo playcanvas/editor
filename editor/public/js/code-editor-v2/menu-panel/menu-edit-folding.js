@@ -2,7 +2,6 @@ editor.once('load', function () {
     'use strict';
 
     var menu = editor.call('menu:edit');
-    var codePanel = editor.call('layout.code');
     var ctrl = editor.call('hotkey:ctrl:string');
     var cm = editor.call('editor:codemirror');
 

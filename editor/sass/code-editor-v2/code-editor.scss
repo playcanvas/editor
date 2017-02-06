@@ -84,7 +84,7 @@ strong {
 }
 
 #ui-code {
-    height: calc(100% - 30px);
+    height: calc(100% - 32px);
     > .content {
         height: 100%;
     }
@@ -316,6 +316,10 @@ strong {
             min-width: 320px;
         }
 
+        &.find .ui-menu-item {
+            min-width: 320px;
+        }
+
     }
 }
 
@@ -460,6 +464,61 @@ strong {
     }
 }
 
+.picker-search {
+    height: 32px;
+
+    > .content {
+        height: 100%;
+        background-color: rgba(0,0,0, 0.5);
+
+        > .ui-text-field {
+            background-color: transparent;
+            border: 0;
+            margin: 0;
+            height: auto;
+            line-height: initial;
+
+            > input {
+                font-size: 14px;
+            }
+
+            > .ui-label.error {
+                color: $bright-red;
+                font-size: 12px;
+                position: absolute;
+                top: 0;
+                right: 5px;
+            }
+        }
+
+        > .ui-button.option {
+            border: 1px solid transparent;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            margin: 0 0 0 1px;
+            padding: 0;
+            text-align: center;
+
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+
+            @extend .font-bold;
+
+            &:hover {
+                border-color: transparentize($text-active, 0.5);
+            }
+
+            &.toggled {
+                border-color: $text-active;
+                background-color: $text-active;
+                color: $text-primary;
+            }
+        }
+    }
+}
+
 
 .cm-s-default {
     &.CodeMirror {
@@ -565,6 +624,11 @@ strong {
     span.cm-searching {
         background-color: transparent;
         border: 1px solid $editor-search;
+    }
+
+    span.cm-highlighted {
+        background-color: transparent;
+        border: 1px dotted $editor-search;
     }
 
     span.cm-bracket {
@@ -755,3 +819,8 @@ a.link-docs {
     margin-left: 10px;
 }
 
+.animate-height {
+    -webkit-transition: height 200ms ease;
+    -moz-transition: height 200ms ease;
+    transition: height 200ms ease;
+}

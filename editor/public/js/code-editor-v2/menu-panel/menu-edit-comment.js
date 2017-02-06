@@ -3,7 +3,6 @@ editor.once('load', function () {
 
     var menu = editor.call('menu:edit');
     var cm = editor.call('editor:codemirror');
-    var codePanel = editor.call('layout.code');
 
     var canEditLine = function () {
         return editor.call('documents:getFocused') && !cm.isReadOnly();
@@ -26,16 +25,6 @@ editor.once('load', function () {
     });
     editor.call('menu:item:setShortcut', item, editor.call('hotkey:ctrl:string') + '+/');
     group.append(item);
-
-    // hotkeys
-    editor.call('hotkey:register', 'indent', {
-        key: 'forward slash',
-        ctrl: true,
-        callback: function (e) {
-            if (! codePanel.element.contains(e.target))
-                editor.call('editor:command:toggleComment');
-        }
-    });
 
     editor.method('editor:command:can:toggleComment', canEditLine);
 

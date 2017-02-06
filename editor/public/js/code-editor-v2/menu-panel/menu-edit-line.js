@@ -3,7 +3,6 @@ editor.once('load', function () {
 
     var menu = editor.call('menu:edit');
     var cm = editor.call('editor:codemirror');
-    var codePanel = editor.call('layout.code');
     var mac = navigator.userAgent.indexOf('Mac OS X') !== -1;
 
     var canEditLine = function () {
@@ -29,15 +28,6 @@ editor.once('load', function () {
     item.class.add('noBorder');
     editor.call('menu:item:setShortcut', item, 'Tab');
     group.append(item);
-
-    // hotkeys
-    editor.call('hotkey:register', 'indent', {
-        key: 'tab',
-        callback: function (e) {
-            if (! codePanel.element.contains(e.target))
-                editor.call('editor:command:indent');
-        }
-    });
 
     editor.method('editor:command:can:indent', canEditLine);
 
@@ -65,16 +55,6 @@ editor.once('load', function () {
     editor.call('menu:item:setShortcut', item, 'Shift+Tab');
     group.append(item);
 
-    // hotkeys
-    editor.call('hotkey:register', 'unindent', {
-        key: 'tab',
-        shift: true,
-        callback: function (e) {
-            if (! codePanel.element.contains(e.target))
-                editor.call('editor:command:unindent');
-        }
-    });
-
     editor.method('editor:command:can:unindent', canEditLine);
 
     editor.method('editor:command:unindent', function () {
@@ -96,16 +76,6 @@ editor.once('load', function () {
     });
     editor.call('menu:item:setShortcut', item, editor.call('hotkey:ctrl:string') + '+I');
     group.append(item);
-
-    // hotkeys
-    editor.call('hotkey:register', 'auto-indent', {
-        key: 'i',
-        ctrl: true,
-        callback: function (e) {
-            if (! codePanel.element.contains(e.target))
-                editor.call('editor:command:autoindent');
-        }
-    });
 
     editor.method('editor:command:can:autoindent', canEditLine);
 
@@ -129,18 +99,6 @@ editor.once('load', function () {
     editor.call('menu:item:setShortcut', item, mac ? 'Cmd+Ctrl+Up' : 'Shift+Ctrl+Up');
     group.append(item);
 
-    // hotkeys
-    editor.call('hotkey:register', 'swap-up', {
-        key: 'up arrow',
-        ctrl: true,
-        shift: !mac,
-        meta: mac,
-        callback: function (e) {
-            if (! codePanel.element.contains(e.target))
-                editor.call('editor:command:swapUp');
-        }
-    });
-
     editor.method('editor:command:can:swapUp', canEditLine);
 
     editor.method('editor:command:swapUp', function () {
@@ -162,18 +120,6 @@ editor.once('load', function () {
     });
     editor.call('menu:item:setShortcut', item, mac ? 'Cmd+Ctrl+Down' : 'Shift+Ctrl+Down');
     group.append(item);
-
-    // hotkeys
-    editor.call('hotkey:register', 'swap-down', {
-        key: 'down arrow',
-        ctrl: true,
-        shift: !mac,
-        meta: mac,
-        callback: function (e) {
-            if (! codePanel.element.contains(e.target))
-                editor.call('editor:command:swapDown');
-        }
-    });
 
     editor.method('editor:command:can:swapDown', canEditLine);
 
@@ -197,17 +143,6 @@ editor.once('load', function () {
     editor.call('menu:item:setShortcut', item, 'Shift+' + (mac ? 'Cmd' : 'Ctrl') + '+D');
     group.append(item);
 
-    // hotkeys
-    editor.call('hotkey:register', 'duplicate', {
-        key: 'd',
-        ctrl: true,
-        shift: true,
-        callback: function (e) {
-            if (! codePanel.element.contains(e.target))
-                editor.call('editor:command:duplicateLine');
-        }
-    });
-
     editor.method('editor:command:can:duplicateLine', canEditLine);
 
     editor.method('editor:command:duplicateLine', function () {
@@ -229,18 +164,6 @@ editor.once('load', function () {
     });
     editor.call('menu:item:setShortcut', item, 'Shift+Ctrl+K');
     group.append(item);
-
-    // hotkeys
-    editor.call('hotkey:register', 'deleteLine', {
-        key: 'k',
-        ctrl: true,
-        shift: true,
-        meta: false,
-        callback: function (e) {
-            if (! codePanel.element.contains(e.target))
-                editor.call('editor:command:deleteLine');
-        }
-    });
 
     editor.method('editor:command:can:deleteLine', canEditLine);
 
@@ -264,15 +187,6 @@ editor.once('load', function () {
     editor.call('menu:item:setShortcut', item, (mac ? 'Cmd' : 'Ctrl') + '+J');
     group.append(item);
 
-    // hotkeys
-    editor.call('hotkey:register', 'joinLine', {
-        key: 'j',
-        ctrl: true,
-        callback: function (e) {
-            if (! codePanel.element.contains(e.target))
-                editor.call('editor:command:joinLines');
-        }
-    });
 
     editor.method('editor:command:can:joinLines', canEditLine);
 

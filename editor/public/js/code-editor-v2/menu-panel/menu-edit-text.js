@@ -3,7 +3,6 @@ editor.once('load', function () {
 
     var menu = editor.call('menu:edit');
     var cm = editor.call('editor:codemirror');
-    var codePanel = editor.call('layout.code');
 
     var mac = navigator.userAgent.indexOf('Mac OS X') !== -1;
 
@@ -31,17 +30,6 @@ editor.once('load', function () {
     editor.call('menu:item:setShortcut', item, 'Shift+' + editor.call('hotkey:ctrl:string') + '+Enter');
     group.append(item);
 
-    // hotkeys
-    editor.call('hotkey:register', 'insert-line-before', {
-        key: 'enter',
-        shift: true,
-        ctrl: true,
-        callback: function (e) {
-            if (! codePanel.element.contains(e.target))
-                editor.call('editor:command:insertLineBefore');
-        }
-    });
-
     editor.method('editor:command:can:insertLineBefore', canEditLine);
 
     editor.method('editor:command:insertLineBefore', function () {
@@ -62,16 +50,6 @@ editor.once('load', function () {
     });
     editor.call('menu:item:setShortcut', item, editor.call('hotkey:ctrl:string') + '+Enter');
     group.append(item);
-
-    // hotkeys
-    editor.call('hotkey:register', 'insert-line-after', {
-        key: 'enter',
-        ctrl: true,
-        callback: function (e) {
-            if (! codePanel.element.contains(e.target))
-                editor.call('editor:command:insertLineAfter');
-        }
-    });
 
     editor.method('editor:command:can:insertLineAfter', canEditLine);
 
@@ -95,17 +73,6 @@ editor.once('load', function () {
     editor.call('menu:item:setShortcut', item, mac ? 'Alt+Backspace' : 'Ctrl+Backspace');
     group.append(item);
 
-    // hotkeys
-    editor.call('hotkey:register', 'delete-word-backward', {
-        key: 'backspace',
-        ctrl: !mac,
-        alt: mac,
-        callback: function (e) {
-            if (! codePanel.element.contains(e.target))
-                editor.call('editor:command:deleteWordBackward');
-        }
-    });
-
     editor.method('editor:command:can:deleteWordBackward', canEditLine);
 
     editor.method('editor:command:deleteWordBackward', function () {
@@ -127,17 +94,6 @@ editor.once('load', function () {
     item.class.add('noBorder');
     editor.call('menu:item:setShortcut', item, mac ? 'Ctrl+Alt+Backspace' : 'Ctrl+Delete');
     group.append(item);
-
-    // hotkeys
-    editor.call('hotkey:register', 'delete-word-forward', {
-        key: mac ? 'backspace' : 'delete',
-        ctrl: true,
-        alt: mac,
-        callback: function (e) {
-            if (! codePanel.element.contains(e.target))
-                editor.call('editor:command:deleteWordForward');
-        }
-    });
 
     editor.method('editor:command:can:deleteWordForward', canEditLine);
 
@@ -161,9 +117,6 @@ editor.once('load', function () {
     editor.call('menu:item:setShortcut', item, mac ? 'Cmd+K Cmd+Backspace' : 'Ctrl+K Ctrl+Backspace');
     group.append(item);
 
-    // no hotkey for that if not focused
-    // because we currently don't support combinations
-
     editor.method('editor:command:can:deleteBeginning', canEditLine);
 
     editor.method('editor:command:deleteBeginning', function () {
@@ -184,9 +137,6 @@ editor.once('load', function () {
     });
     editor.call('menu:item:setShortcut', item, mac ? 'Cmd+K Cmd+K' : 'Ctrl+K Ctrl+K');
     group.append(item);
-
-    // no hotkey for that if not focused
-    // because we currently don't support combinations
 
     editor.method('editor:command:can:deleteEnd', canEditLine);
 

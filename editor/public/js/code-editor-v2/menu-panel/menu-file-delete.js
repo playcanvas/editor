@@ -2,8 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     var menu = editor.call('menu:file');
-
-    var codePanel = editor.call('layout.code');
+    var leftPanel = editor.call('layout.left');
 
     menu.append(menu.createItem('delete-selected', {
         title: 'Delete Selected Files',
@@ -31,18 +30,24 @@ editor.once('load', function () {
     // hotkeys
     editor.call('hotkey:register', 'delete-files', {
         key: 'delete',
+        skipPreventDefault: true,
         callback: function (e) {
-            if (! codePanel.element.contains(e.target))
+            if (leftPanel.element.contains(e.target)) {
+                e.preventDefault();
                 editor.call('editor:command:deleteSelected');
+            }
         }
     });
 
     editor.call('hotkey:register', 'delete-files', {
         key: 'backspace',
         ctrl: true,
+        skipPreventDefault: true,
         callback: function (e) {
-            if (! codePanel.element.contains(e.target))
+            if (leftPanel.element.contains(e.target)) {
+                e.preventDefault();
                 editor.call('editor:command:deleteSelected');
+            }
         }
     });
 

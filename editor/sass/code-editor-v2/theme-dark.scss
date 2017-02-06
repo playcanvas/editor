@@ -520,3 +520,17 @@ a:visited {
         background-color: $bcg-primary;
     }
 }
+
+.ui-button {
+    border: 1px solid $bcg-darker;
+    background-color: $bcg-dark;
+    color: $text-secondary;
+    margin: $field-padding;
+
+    &:hover,
+    &:focus {
+        color: $text-primary;
+        border-color: $bcg-darkest;
+        background-color: $bcg-darkest;
+    }
+}

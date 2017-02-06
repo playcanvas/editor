@@ -25,12 +25,6 @@ editor.once('load', function () {
         readOnly: true,
         cursorBlinkRate: -1,
 
-        /* match - highlighter */
-        highlightSelectionMatches: {
-            delay: 0,
-            wordsOnly: true
-        },
-
         // auto complete
         hintOptions: {
             completeSingle: false,
@@ -64,8 +58,18 @@ editor.once('load', function () {
     options.extraKeys['Ctrl-/'] = function(cm) {editor.call('editor:command:toggleComment');};
     options.extraKeys['Cmd-/'] = function(cm) {editor.call('editor:command:toggleComment');};
 
-    options.extraKeys['Esc'] = function (cm) {cm.execCommand('clearSearch'); cm.setSelection(cm.getCursor("anchor"), cm.getCursor("anchor"));};
-
+    options.extraKeys['Esc'] = function (cm) {cm.execCommand('clearSearch');};
+    options.extraKeys['Ctrl-F'] = function (cm) {editor.call('editor:command:find');};
+    options.extraKeys['Cmd-F'] = function (cm) {editor.call('editor:command:find');};
+    options.extraKeys['F3'] = function (cm) {editor.call('editor:command:findNext');};
+    options.extraKeys['Shift-F3'] = function (cm) {editor.call('editor:command:findPrevious');};
+    options.extraKeys['Ctrl-D'] = function (cm) {editor.call('editor:command:selectNextOccurrence');};
+    options.extraKeys['Cmd-D'] = function (cm) {editor.call('editor:command:selectNextOccurrence');};
+    options.extraKeys['Ctrl-F3'] = function (cm) {editor.call('editor:command:findUnder');};
+    options.extraKeys['Cmd-F3'] = function (cm) {editor.call('editor:command:findUnder');};
+    options.extraKeys['Shift-Ctrl-F3'] = function (cm) {editor.call('editor:command:findUnderPrev');};
+    options.extraKeys['Shift-Cmd-F3'] = function (cm) {editor.call('editor:command:findUnderPrev');};
+    options.extraKeys['Alt-F3'] = function (cm) {editor.call('editor:command:findAllUnder');};
 
     options.extraKeys['Alt-Up'] = function (cm) {cm.execCommand('goLineUp'); cm.execCommand('goLineEnd');};
     options.extraKeys['Alt-Down'] = function (cm) {cm.execCommand('goLineDown'); cm.execCommand('goLineEnd');};
@@ -105,7 +109,7 @@ editor.once('load', function () {
 
                 // replace code before sending it to tern
                 fileFilter: function (code) {
-                    // match last occurence of 'return Name' and replace it with
+                    // match last occurrence of 'return Name' and replace it with
                     // new Name(new pc.Entity()); return Name'
                     // This is so that the type inference system can deduce that Name.entity
                     // is a pc.Entity
