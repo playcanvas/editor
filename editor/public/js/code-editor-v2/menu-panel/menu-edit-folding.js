@@ -12,7 +12,7 @@ editor.once('load', function () {
     menu.append(group);
 
     var canFold = function () {
-        return !!editor.call('documents:hasFocused');
+        return !!editor.call('documents:getFocused');
     };
 
     // Fold
