@@ -49,7 +49,7 @@ editor.once('load', function () {
         }
     });
     item.class.add('noBorder');
-    editor.call('menu:item:setShortcut', item, 'Shift+' + ctrl + 'F3');
+    editor.call('menu:item:setShortcut', item, 'Shift+' + ctrl + '+F3');
     menu.append(item);
 
     editor.call('hotkey:register', 'find-under-prev', {
