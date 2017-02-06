@@ -83,7 +83,7 @@ editor.once('load', function () {
 
             editor.call('status:error', data);
             if (fn)
-                fn(data);
+                fn(data || new Error('Status ' + status));
         });
     });
 
