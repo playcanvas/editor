@@ -169,7 +169,7 @@ editor.once('load', function () {
         try {
             regexp = new RegExp(
                 pattern,
-                overrides.caseSensitive !== undefined ? overrides.caseSensitive : caseSensitive ?
+                (overrides.caseSensitive !== undefined ? overrides.caseSensitive : caseSensitive) ?
                 'g' : 'gi'
             );
             error.hidden = true;
