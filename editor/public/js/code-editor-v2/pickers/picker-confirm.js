@@ -49,22 +49,26 @@ editor.once('load', function() {
     // esc > no
     editor.call('hotkey:register', 'picker:confirm:no', {
         key: 'esc',
-        callback: function() {
+        stopPropagation: true,
+        callback: function (e) {
             if (overlay.hidden)
                 return;
 
             btnNo.emit('click');
+            return true;
         }
     });
 
     // enter > yes
     editor.call('hotkey:register', 'picker:confirm:yes', {
         key: 'enter',
-        callback: function() {
+        stopPropagation: true,
+        callback: function () {
             if (overlay.hidden)
                 return;
 
             btnYes.emit('click');
+            return true;
         }
     });
 

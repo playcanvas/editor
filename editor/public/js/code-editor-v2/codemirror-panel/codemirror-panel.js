@@ -58,7 +58,13 @@ editor.once('load', function () {
     options.extraKeys['Ctrl-/'] = function(cm) {editor.call('editor:command:toggleComment');};
     options.extraKeys['Cmd-/'] = function(cm) {editor.call('editor:command:toggleComment');};
 
-    options.extraKeys['Esc'] = function (cm) {cm.execCommand('clearSearch');};
+    options.extraKeys['Esc'] = function (cm) {
+        if (cm.somethingSelected()) {
+            cm.setSelection(cm.getCursor('anchor'), cm.getCursor('anchor'));
+        } else {
+            cm.execCommand('clearSearch');
+        }
+    };
     options.extraKeys['Ctrl-F'] = function (cm) {editor.call('editor:command:find');};
     options.extraKeys['Cmd-F'] = function (cm) {editor.call('editor:command:find');};
     options.extraKeys['F3'] = function (cm) {editor.call('editor:command:findNext');};

@@ -174,9 +174,14 @@ editor.once('load', function() {
         if (keyIndex[index]) {
             var skipPreventDefault = false;
             for(var i = 0; i < keyIndex[index].length; i++) {
-                hotkeys[keyIndex[index][i]].callback(evt);
+                var result = hotkeys[keyIndex[index][i]].callback(evt);
                 if (! skipPreventDefault && hotkeys[keyIndex[index][i]].skipPreventDefault)
                     skipPreventDefault = true;
+
+                if (result && hotkeys[keyIndex[index][i]].stopPropagation) {
+                    evt.stopPropagation();
+                    break;
+                }
             }
             if (! skipPreventDefault)
                 evt.preventDefault();

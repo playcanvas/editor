@@ -204,9 +204,11 @@ editor.once('load', function () {
     // Esc hotkey
     editor.call('hotkey:register', 'search-close', {
         key: 'esc',
+        stopPropagation: true,
         callback: function (e) {
             if (open) {
                 editor.call('editor:picker:search:close');
+                return true;
             }
         }
     });

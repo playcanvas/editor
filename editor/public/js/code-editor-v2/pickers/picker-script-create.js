@@ -46,6 +46,7 @@ editor.once('load', function() {
             }
         } else if (evt.keyCode === 27) {
             // esc
+            evt.stopPropagation();
             overlay.hidden = true;
         }
     }, false);
