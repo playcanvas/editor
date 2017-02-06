@@ -100,9 +100,9 @@ editor.once('load', function () {
             if (fn)
                 fn(null, data);
         })
-        .on('error', function (err) {
+        .on('error', function (status, err) {
             if (fn)
-                fn(err);
+                fn(err || new Error('Status: ' + status));
         });
     });
 
