@@ -538,3 +538,86 @@ a:visited {
         @extend .font-icon;
     }
 }
+
+.ui-tooltip {
+    padding: 0;
+
+    &.flip {
+        &.align-top,
+        &.align-bottom {
+            margin-left: auto;
+            margin-right: -16px;
+
+            > .arrow {
+                left: auto;
+                right: 8px;
+            }
+        }
+    }
+    &.align-top {
+        margin-left: -16px;
+
+        > .inner {
+            margin-top: 8px;
+        }
+        > .arrow {
+            top: -8px;
+            left: 8px;
+            border-bottom-color: mix($bcg-darkest, #000, 75%);
+        }
+    }
+    &.align-right {
+        margin-top: -16px;
+
+        > .inner {
+            margin-right: 8px;
+        }
+        > .arrow {
+            top: 8px;
+            right: -8px;
+            border-left-color: mix($bcg-darkest, #000, 75%);
+        }
+    }
+    &.align-bottom {
+        margin-left: -16px;
+
+        > .inner {
+            margin-bottom: 8px;
+        }
+        > .arrow {
+            bottom: -8px;
+            left: 8px;
+            border-top-color: mix($bcg-darkest, #000, 75%);
+        }
+    }
+    &.align-left {
+        margin-top: -16px;
+
+        > .inner {
+            margin-left: 8px;
+        }
+        > .arrow {
+            top: 8px;
+            left: -8px;
+            border-right-color: mix($bcg-darkest, #000, 75%);
+        }
+    }
+    > .inner {
+        padding: 0 16px;
+        line-height: 32px;
+        font-size: 14px;
+        background-color: mix($bcg-darkest, #000, 75%);
+        color: $text-primary;
+    }
+    > .arrow {
+        width: 0;
+        height: 0;
+        position: absolute;
+        border: 8px solid transparent;
+    }
+    &.innactive {
+        > .inner {
+            color: $text-darkest;
+        }
+    }
+}

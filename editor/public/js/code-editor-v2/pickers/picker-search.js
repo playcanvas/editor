@@ -95,6 +95,50 @@ editor.once('load', function () {
     btnReplaceAll.hidden = !editor.call('permissions:write');
     panel.append(btnReplaceAll);
 
+    // Tooltips
+    Tooltip.attach({
+        target: optionCase.element,
+        text: 'Case Sensitive',
+        align: 'bottom',
+        root: editor.call('layout.root')
+    });
+
+    Tooltip.attach({
+        target: optionRegex.element,
+        text: 'Regular Expression',
+        align: 'bottom',
+        root: editor.call('layout.root')
+    });
+
+    Tooltip.attach({
+        target: optionWholeWords.element,
+        text: 'Whole Word',
+        align: 'bottom',
+        root: editor.call('layout.root')
+    });
+
+    Tooltip.attach({
+        target: btnFindPrev.element,
+        text: 'Find Previous',
+        align: 'bottom',
+        root: editor.call('layout.root')
+    });
+
+    Tooltip.attach({
+        target: btnFindNext.element,
+        text: 'Find Next',
+        align: 'bottom',
+        root: editor.call('layout.root')
+    });
+
+    Tooltip.attach({
+        target: replaceField.element,
+        text: 'Use $0-9 to insert the text of capturing groups.',
+        align: 'bottom',
+        root: editor.call('layout.root')
+    });
+
+
     var regexp = null;
     var caseSensitive = false;
     var isRegex = false;
