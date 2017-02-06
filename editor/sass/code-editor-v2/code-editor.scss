@@ -469,14 +469,16 @@ strong {
 
     > .content {
         height: 100%;
-        background-color: rgba(0,0,0, 0.5);
+        background-color: $bcg-darker;
 
         > .ui-text-field {
-            background-color: transparent;
+            background-color: rgba(0,0,0, 0.5);
             border: 0;
             margin: 0;
             height: auto;
             line-height: initial;
+            flex-grow: 1;
+            position: relative;
 
             > input {
                 font-size: 14px;
@@ -488,6 +490,16 @@ strong {
                 position: absolute;
                 top: 0;
                 right: 5px;
+            }
+
+            &.replace {
+                -webkit-transition: flex-grow 200ms ease;
+                -moz-transition: flex-grow 200ms ease;
+                transition: flex-grow 200ms ease;
+
+                &:not(.focused) {
+                    flex-grow: 0.3;
+                }
             }
         }
 
@@ -824,3 +836,4 @@ a.link-docs {
     -moz-transition: height 200ms ease;
     transition: height 200ms ease;
 }
+

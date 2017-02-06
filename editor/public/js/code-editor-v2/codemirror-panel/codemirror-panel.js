@@ -70,6 +70,10 @@ editor.once('load', function () {
     options.extraKeys['Shift-Ctrl-F3'] = function (cm) {editor.call('editor:command:findUnderPrev');};
     options.extraKeys['Shift-Cmd-F3'] = function (cm) {editor.call('editor:command:findUnderPrev');};
     options.extraKeys['Alt-F3'] = function (cm) {editor.call('editor:command:findAllUnder');};
+    options.extraKeys['Ctrl-H'] = function (cm) {editor.call('editor:command:replace');};
+    options.extraKeys['Cmd-H'] = function (cm) {editor.call('editor:command:replace');};
+    options.extraKeys['Shift-Ctrl-H'] = function (cm) {editor.call('editor:command:replaceNext');};
+    options.extraKeys['Shift-Cmd-H'] = function (cm) {editor.call('editor:command:replaceNext');};
 
     options.extraKeys['Alt-Up'] = function (cm) {cm.execCommand('goLineUp'); cm.execCommand('goLineEnd');};
     options.extraKeys['Alt-Down'] = function (cm) {cm.execCommand('goLineDown'); cm.execCommand('goLineEnd');};

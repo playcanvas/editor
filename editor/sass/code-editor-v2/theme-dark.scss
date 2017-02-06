@@ -533,4 +533,8 @@ a:visited {
         border-color: $bcg-darkest;
         background-color: $bcg-darkest;
     }
+
+    &.icon {
+        @extend .font-icon;
+    }
 }

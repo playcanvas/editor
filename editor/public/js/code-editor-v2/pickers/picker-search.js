@@ -43,7 +43,6 @@ editor.once('load', function () {
 
     var searchField = new ui.TextField();
     searchField.class.add('search');
-    searchField.flexGrow = 1;
     searchField.renderChanges = false;
     searchField.keyChange = true;
     searchField.elementInput.placeholder = 'Find';
@@ -53,6 +52,48 @@ editor.once('load', function () {
     error.class.add('error');
     error.hidden = true;
     searchField.element.append(error.element);
+
+    var btnFindPrev = new ui.Button({
+        'text': '&#57698;'
+    });
+    btnFindPrev.class.add('icon');
+    btnFindPrev.element.tabIndex = -1;
+    panel.append(btnFindPrev);
+
+    var btnFindNext = new ui.Button({
+        'text': '&#57700;'
+    });
+    btnFindNext.class.add('icon');
+    btnFindNext.element.tabIndex = -1;
+    panel.append(btnFindNext);
+
+    var replaceField = new ui.TextField();
+    replaceField.class.add('replace');
+    replaceField.renderChanges = false;
+    replaceField.keyChange = true;
+    replaceField.elementInput.placeholder = 'Replace';
+    replaceField.hidden = !editor.call('permissions:write');
+    panel.append(replaceField);
+
+    replaceField.on('input:focus', function () {
+        replaceField.class.add('focused');
+    });
+
+    replaceField.on('input:blur', function () {
+        replaceField.class.remove('focused');
+    });
+
+    var btnReplace = new ui.Button({
+        text: 'Replace'
+    });
+    btnReplace.hidden = !editor.call('permissions:write');
+    panel.append(btnReplace);
+
+    var btnReplaceAll = new ui.Button({
+        text: 'Replace All'
+    });
+    btnReplaceAll.hidden = !editor.call('permissions:write');
+    panel.append(btnReplaceAll);
 
     var regexp = null;
     var caseSensitive = false;
@@ -110,6 +151,12 @@ editor.once('load', function () {
         editor.emit('editor:picker:search:close');
     });
 
+    // Open and focus replace picker
+    editor.method('editor:picker:replace:open', function () {
+        editor.call('editor:picker:search:open');
+        replaceField.focus();
+    })
+
     // Esc hotkey
     editor.call('hotkey:register', 'search-close', {
         key: 'esc',
@@ -123,6 +170,11 @@ editor.once('load', function () {
     // Return search regex
     editor.method('editor:picker:search:regex', function () {
         return regexp;
+    });
+
+    // Return replace string
+    editor.method('editor:picker:replace:text', function () {
+        return replaceField.value;
     });
 
     // Set search term externally.
@@ -186,13 +238,13 @@ editor.once('load', function () {
     var search = function (reverse) {
         if (queryDirty) {
             queryDirty = false;
-            cm.execCommand('find');
+            cm.execCommand('clearSearch');
+        }
+
+        if (reverse) {
+            cm.execCommand('findPrev');
         } else {
-            if (reverse) {
-                cm.execCommand('findPrev');
-            } else {
-                cm.execCommand('findNext');
-            }
+            cm.execCommand('findNext');
         }
 
         if (open)
@@ -246,6 +298,37 @@ editor.once('load', function () {
             optionWholeWords.class.add('toggled');
         } else {
             optionWholeWords.class.remove('toggled');
+        }
+    });
+
+    // search buttons
+    btnFindPrev.on('click', function () {
+        search(true);
+    });
+
+    btnFindNext.on('click', function () {
+        search();
+    });
+
+    // replace buttons
+    btnReplace.on('click', function () {
+        cm.execCommand('replace');
+    });
+
+    btnReplaceAll.on('click', function () {
+        cm.execCommand('replaceAll');
+        cm.focus();
+    });
+
+    // replace field
+    replaceField.elementInput.addEventListener('keydown', function (e) {
+        if (e.keyCode === 13) {
+            if (e.shiftKey) {
+                cm.execCommand('replacePrev');
+            } else {
+                cm.execCommand('replace');
+            }
+            replaceField.focus();
         }
     });
 });

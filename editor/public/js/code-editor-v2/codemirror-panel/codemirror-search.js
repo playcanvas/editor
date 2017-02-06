@@ -138,7 +138,7 @@ editor.once('load', function () {
         if (! cursor.find(reverse)) {
             cursor = cm.getSearchCursor(regex, reverse ? CodeMirror.Pos(cm.lastLine()) : CodeMirror.Pos(cm.firstLine(), 0), regex.ignoreCase);
             if (! cursor.find(reverse))
-                return false;
+                return;
         }
 
         posFrom = cursor.from();
@@ -150,7 +150,7 @@ editor.once('load', function () {
             cm.setSelection(posFrom, posTo);
         }
         cm.scrollIntoView({from: posFrom, to: posTo}, 20);
-        return true;
+        return cursor;
     };
 
     // Returns {from: Pos, to: Pos, text: string, newSelection: bool}.
@@ -312,6 +312,62 @@ editor.once('load', function () {
             }
         }
         cm.setSelections(matches, primaryIndex);
+    };
+
+
+    // Replace next occurrence of regex with text provided in the replace picker.
+    // After we replace we select the next occurence.
+    var replace = function (reverse) {
+        if (cm.getOption("readOnly")) return;
+
+        regex = regex || editor.call('editor:picker:search:regex');
+        if (! regex)
+            return;
+
+        var text = editor.call('editor:picker:replace:text') || '';
+
+        cm.operation(function () {
+            var from = cm.getCursor('from');
+            var to = cm.getCursor('to');
+            resetSearchPositions(reverse ?  to : from);
+
+            var cursor = findNext(reverse);
+            if (cursor) {
+                var match = cm.getRange(cursor.from(), cursor.to()).match(regex);
+                cursor.replace(text.replace(/\$(\d)/g, function(_, i) {return match[i];}));
+                findNext(reverse);
+            }
+
+        });
+
+    };
+
+    // Replace next occurrence or current selection if it matches
+    CodeMirror.commands.replace = function (cm) {
+        replace();
+    };
+
+    // Replace previous occurrence or current selection if it matches
+    CodeMirror.commands.replacePrev = function (cm) {
+        replace(true);
+    };
+
+    // Replace all occurrences
+    CodeMirror.commands.replaceAll = function (cm) {
+        if (cm.getOption("readOnly")) return;
+
+        regex = regex || editor.call('editor:picker:search:regex');
+        if (! regex)
+            return;
+
+        var text = editor.call('editor:picker:replace:text') || '';
+
+        cm.operation(function() {
+            for (var cursor = cm.getSearchCursor(regex); cursor.findNext();) {
+                var match = cm.getRange(cursor.from(), cursor.to()).match(regex);
+                cursor.replace(text.replace(/\$(\d)/g, function(_, i) {return match[i];}));
+            }
+        });
     };
 
 });
