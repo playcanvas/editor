@@ -276,7 +276,7 @@ strong {
     .ui-label.shortcut {
         position: absolute;
         top: 0;
-        right: 0;
+        right: 4px;
         z-index: 2;
         transition: none;
     }
@@ -292,6 +292,10 @@ strong {
     }
 
     &.top {
+        .ui-menu-item > .title {
+            padding-left: 4px;
+        }
+
         &.files .ui-menu-item {
             min-width: 240px;
         }

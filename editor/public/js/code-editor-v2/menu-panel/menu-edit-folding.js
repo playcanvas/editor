@@ -11,9 +11,14 @@ editor.once('load', function () {
     group.class.add('folding');
     menu.append(group);
 
+    var canFold = function () {
+        return !!editor.call('documents:hasFocused');
+    };
+
     // Fold
     var item = menu.createItem('fold', {
         title: 'Fold',
+        filter: canFold,
         select: function () {
             return editor.call('editor:command:fold');
         }
@@ -39,6 +44,7 @@ editor.once('load', function () {
     // Unfold
     var item = menu.createItem('unfold', {
         title: 'Unfold',
+        filter: canFold,
         select: function () {
             return editor.call('editor:command:unfold');
         }
@@ -64,6 +70,7 @@ editor.once('load', function () {
     // Unfold All
     var item = menu.createItem('unfold-all', {
         title: 'Unfold All',
+        filter: canFold,
         select: function () {
             return editor.call('editor:command:unfoldAll');
         }
