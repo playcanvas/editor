@@ -205,7 +205,7 @@ editor.once('load', function() {
                         } else {
                             sharejsMessage(msg);
                         }
-                    } else {
+                    } else if (!msg.data.startsWith('fs:')) {
                         sharejsMessage(msg);
                     }
                 } catch (e) {

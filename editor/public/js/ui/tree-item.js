@@ -45,6 +45,8 @@ function TreeItem(args) {
 
     this._dragRelease = null;
     this._dragging = false;
+    this._allowDrop = (args.allowDrop !== undefined ? !!args.allowDrop : true);
+
     this.elementTitle.addEventListener('mousedown', this._onMouseDown, false);
     this.elementTitle.addEventListener('dragstart', this._onDragStart, false);
     this.elementTitle.addEventListener('mouseover', this._onMouseOver, false);
@@ -225,8 +227,13 @@ TreeItem.prototype._onRename = function() {
     });
     field.on('change', function(value) {
         value = value.trim();
-        if (value)
-            self.entity.set('name', value);
+        if (value) {
+            if (self.entity) {
+                self.entity.set('name', value);
+            }
+
+            self.emit('rename', value);
+        }
 
         field.destroy();
         self.class.remove('rename');
@@ -492,6 +499,16 @@ Object.defineProperty(TreeItem.prototype, 'next', {
     }
 });
 
+// Default is true. If false then it's not allowed to drop
+// other tree items on this item
+Object.defineProperty(TreeItem.prototype, 'allowDrop', {
+    get: function () {
+        return this._allowDrop;
+    },
+    set: function (value) {
+        this._allowDrop = !!value;
+    }
+});
 
 TreeItem.prototype.child = function(ind) {
     return this._element.childNodes[ind + 1];

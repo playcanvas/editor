@@ -188,6 +188,7 @@
     if (old && old != CodeMirror.Init) {
       clearMarks(cm);
       cm.off("change", onChange);
+      cm.off("swapDoc", onChange); // fix by vaios
       CodeMirror.off(cm.getWrapperElement(), "mouseover", cm.state.lint.onMouseOver);
       clearTimeout(cm.state.lint.timeout);
       delete cm.state.lint;
@@ -198,6 +199,7 @@
       for (var i = 0; i < gutters.length; ++i) if (gutters[i] == GUTTER_ID) hasLintGutter = true;
       var state = cm.state.lint = new LintState(cm, parseOptions(cm, val), hasLintGutter);
       cm.on("change", onChange);
+      cm.on("swapDoc", onChange); // fix by vaios
       if (state.options.tooltips != false)
         CodeMirror.on(cm.getWrapperElement(), "mouseover", state.onMouseOver);
 
