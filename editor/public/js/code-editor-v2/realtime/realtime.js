@@ -100,18 +100,17 @@ editor.once('load', function () {
                             onSharejsMessage(msg);
                         }
                     } else if (msg.data.startsWith('whoisonline:')) {
-                        var data = msg.data.slice('whoisonline:'.length);
-                        var ind = data.indexOf(':');
-                        if (ind !== -1) {
-                            var op = data.slice(0, ind);
+                        var parts = msg.data.split(':');
+                        if (parts.length === 5 && parts[1] === 'doc') {
+                            var data;
+                            var doc = parts[2];
+                            var op = parts[3];
                             if (op === 'set') {
-                                data = JSON.parse(data.slice(ind + 1));
+                                data = JSON.parse(parts[4]);
                             } else if (op === 'add' || op === 'remove') {
-                                data = parseInt(data.slice(ind + 1), 10);
+                                data = parseInt(parts[4], 10);
                             }
-                            editor.call('whoisonline:' + op, data);
-                        } else {
-                            onSharejsMessage(msg);
+                            editor.call('whoisonline:' + op, doc, data);
                         }
                     } else {
                         onSharejsMessage(msg);
