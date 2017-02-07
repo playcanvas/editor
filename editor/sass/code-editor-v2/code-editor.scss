@@ -545,12 +545,20 @@ strong {
         a {
             margin-right: 3px;
             display: inline-block;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            vertical-align: middle;
+
+            -webkit-transition: border-color 300ms ease;
+            -moz-transition: border-color 300ms ease;
+            transition: border-color 300ms ease;
 
             img {
                 border-radius: 50%;
-                vertical-align: middle;
-                width: 28px;
-                height: 28px;
+                width: 24px;
+                height: 24px;
             }
         }
     }

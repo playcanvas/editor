@@ -6,6 +6,7 @@ editor.once('load', function () {
     panel.append(wioPanel);
 
     var itemsIndex = {};
+    var tooltips = {};
 
     var createItem = function (id) {
         var item = document.createElement('a');
@@ -13,10 +14,25 @@ editor.once('load', function () {
         item.target = '_blank';
 
         var img = new Image();
+        img.onload = function () {
+            item.style.borderColor = editor.call('whoisonline:color', id, 'hex');
+        };
+
         img.src = '/api/' + id + '/thumbnail?size=28';
         item.appendChild(img);
 
         itemsIndex[id] = item;
+
+        editor.call('users:loadOne', id, function (user) {
+            item.href = '/' + user.username;
+
+            tooltips[id] = Tooltip.attach({
+                target: item,
+                text: user.username,
+                align: 'top',
+                root: editor.call('layout.root')
+            });
+        });
 
         wioPanel.append(item);
     };
@@ -24,13 +40,23 @@ editor.once('load', function () {
     var reset = function (whoisonline) {
         // clear old
         for (var id in itemsIndex) {
+            if (whoisonline[id]) {
+                continue;
+            };
+
             var item = itemsIndex[id];
             wioPanel.remove(item);
             delete itemsIndex[id];
+
+            if (tooltips[id]) {
+                tooltips[id].destroy();
+                delete tooltips[id];
+            }
         }
 
         for (var id in whoisonline) {
-            createItem(id);
+            if (! itemsIndex[id])
+                createItem(id);
         }
     };
 
@@ -59,6 +85,11 @@ editor.once('load', function () {
         if (item) {
             wioPanel.remove(item);
             delete itemsIndex[userId];
+
+            if (tooltips[userId]) {
+                tooltips[userId].destroy();
+                delete tooltips[userId];
+            }
         }
     });
 
