@@ -85,11 +85,13 @@ editor.once('load', function () {
     var btnReplace = new ui.Button({
         text: 'Replace'
     });
+    btnReplace.element.tabIndex = -1;
     panel.append(btnReplace);
 
     var btnReplaceAll = new ui.Button({
         text: 'Replace All'
     });
+    btnReplaceAll.element.tabIndex = -1;
     panel.append(btnReplaceAll);
 
     // Tooltips

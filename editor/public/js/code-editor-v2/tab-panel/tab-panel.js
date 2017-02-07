@@ -102,6 +102,9 @@ editor.once('load', function () {
 
             // context menu
             editor.call('tabs:contextmenu:attach', entry);
+
+            // emit event
+            editor.emit('tabs:open', entry);
         }
 
         focusTab(id);
@@ -151,6 +154,9 @@ editor.once('load', function () {
         // remove tab
         delete tabsIndex[id];
         tabOrder.splice(order, 1);
+
+        // emit event
+        editor.emit('tabs:close', tab);
     };
 
     var updateTitle = function (id, dirty) {
@@ -218,6 +224,8 @@ editor.once('load', function () {
 
         grabbedTab = null;
         tabPositions.length = 0;
+
+        editor.emit('tabs:reorder', tabOrder);
     };
 
     var moveTab = function (e) {

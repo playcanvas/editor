@@ -201,6 +201,9 @@ editor.once('load', function () {
 
         // subscribe for new assets being added
         editor.on('assets:add', addAsset);
+
+        // tree done
+        editor.emit('files:load');
     });
 
     // Delete tree node for removed assets
