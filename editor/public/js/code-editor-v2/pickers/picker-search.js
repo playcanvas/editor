@@ -72,7 +72,6 @@ editor.once('load', function () {
     replaceField.renderChanges = false;
     replaceField.keyChange = true;
     replaceField.elementInput.placeholder = 'Replace';
-    replaceField.hidden = !editor.call('permissions:write');
     panel.append(replaceField);
 
     replaceField.on('input:focus', function () {
@@ -86,13 +85,13 @@ editor.once('load', function () {
     var btnReplace = new ui.Button({
         text: 'Replace'
     });
-    btnReplace.hidden = !editor.call('permissions:write');
+    btnReplace.element.tabIndex = -1;
     panel.append(btnReplace);
 
     var btnReplaceAll = new ui.Button({
         text: 'Replace All'
     });
-    btnReplaceAll.hidden = !editor.call('permissions:write');
+    btnReplaceAll.element.tabIndex = -1;
     panel.append(btnReplaceAll);
 
     // Tooltips
@@ -377,4 +376,15 @@ editor.once('load', function () {
             replaceField.focus();
         }
     });
+
+    // permissions
+    var refreshPermissions = function () {
+        replaceField.hidden = !editor.call('permissions:write');
+        btnReplace.hidden = !editor.call('permissions:write');
+        btnReplaceAll.hidden = !editor.call('permissions:write');
+    };
+
+    refreshPermissions();
+
+    editor.on('permissions:set', refreshPermissions);
 });

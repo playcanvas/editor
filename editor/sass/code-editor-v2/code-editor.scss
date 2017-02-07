@@ -328,13 +328,11 @@ strong {
 }
 
 .ui-label.readonly {
-    position: absolute;
-    right: 0;
+    margin: 0 0 0 auto;
     padding: 0px 10px;
     height: 100%;
     line-height: 34px;
     background-color: $bcg-primary;
-    margin: 0;
 }
 
 .picker-confirm {
@@ -535,6 +533,28 @@ strong {
     }
 }
 
+.ui-panel.whoisonline {
+    flex-grow: 1;
+    text-align: right;
+    margin: auto;
+    height: 32px;
+    line-height: 32px;
+    > .content {
+        height: 100%;
+
+        a {
+            margin-right: 3px;
+            display: inline-block;
+
+            img {
+                border-radius: 50%;
+                vertical-align: middle;
+                width: 28px;
+                height: 28px;
+            }
+        }
+    }
+}
 
 .cm-s-default {
     &.CodeMirror {

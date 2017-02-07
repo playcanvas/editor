@@ -162,6 +162,10 @@ editor.once('load', function () {
         if (entry) {
             entry.doc.destroy();
             delete documentsIndex[id];
+
+            // send close message to update whoisonline for document
+            var connection = editor.call('realtime:connection');
+            connection.socket.send('close:document:' + id);
         }
 
         // stop any queued load events
