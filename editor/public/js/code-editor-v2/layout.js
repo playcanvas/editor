@@ -48,9 +48,9 @@ editor.on('load', function () {
     // center
     var center = new ui.Panel();
     center.element.id = 'ui-center';
-    center.flexible = true;
-    center.flexGrow = true;
-    center.flexDirection = 'column';
+    // center.flexible = true;
+    // center.flexGrow = true;
+    // center.flexDirection = 'column';
     middle.append(center);
 
     // expose

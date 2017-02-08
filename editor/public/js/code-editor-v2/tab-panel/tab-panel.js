@@ -203,6 +203,20 @@ editor.once('load', function () {
             tabOrder[i].tab.element.style.top = '0';
         }
 
+        // add animated class to other tabs
+        // in order for them to be animated while moving around
+        // Do it in a timeout because of a Safari bug
+        setTimeout(function () {
+            if (! grabbedTab)
+                return;
+
+            for (var i = 0; i < tabOrder.length; i++) {
+                if (tabOrder[i] !== grabbedTab)
+                    tabOrder[i].tab.class.add('animated');
+            }
+        });
+
+
         grabbedTab.tab.class.add('grabbed');
 
         window.addEventListener('mouseup', releaseTab);
@@ -220,6 +234,7 @@ editor.once('load', function () {
             tabOrder[i].tab.style.left = '';
             tabOrder[i].tab.style.top = '';
             tabOrder[i].tab.style.width = '';
+            tabOrder[i].tab.class.remove('animated');
         }
 
         grabbedTab = null;
@@ -248,11 +263,11 @@ editor.once('load', function () {
             if (tabPositions[i] + el.offsetWidth / 2 > x) {
                 searchRight = false;
 
-                // move tab to the right
-                el.style.left = tabPositions[i] + grabbedTab.tab.element.offsetWidth + 'px';
-
                 // swap DOM
                 panel.appendBefore(grabbedTab.tab, tabOrder[i].tab);
+
+                // move tab to the right
+                el.style.left = tabPositions[i] + grabbedTab.tab.element.offsetWidth + 'px';
 
                 // swap
                 tabOrder[index] = tabOrder[i];
@@ -274,11 +289,11 @@ editor.once('load', function () {
                 var el = tabOrder[i].tab.element;
                 if (tabPositions[i] < x + width / 2) {
 
-                    // move tab to the left
-                    el.style.left = tabPositions[i] - grabbedTab.tab.element.offsetWidth + 'px';
-
                     // swap DOM
                     panel.appendAfter(grabbedTab.tab, tabOrder[i].tab);
+
+                    // move tab to the left
+                    el.style.left = tabPositions[i] - grabbedTab.tab.element.offsetWidth + 'px';
 
                     // swap
                     tabOrder[index] = tabOrder[i];
