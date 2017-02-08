@@ -26,18 +26,21 @@ editor.once('load', function () {
     var optionRegex = new ui.Button({
         text: '.*'
     });
+    optionRegex.element.tabIndex = -1;
     optionRegex.class.add('option');
     panel.append(optionRegex);
 
     var optionCase = new ui.Button({
         text: 'Aa'
     });
+    optionCase.element.tabIndex = -1;
     optionCase.class.add('option');
     panel.append(optionCase);
 
     var optionWholeWords = new ui.Button({
         text: '“ ”'
     });
+    optionWholeWords.element.tabIndex = -1;
     optionWholeWords.class.add('option');
     panel.append(optionWholeWords);
 
