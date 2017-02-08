@@ -40,7 +40,6 @@ editor.on('load', function () {
     left.resizable = 'right';
     left.resizeMin = 200;
     left.resizeMax = 500;
-    // left.flexShrink = false;
     middle.append(left);
     // expose
     editor.method('layout.left', function() { return left; });
@@ -48,9 +47,6 @@ editor.on('load', function () {
     // center
     var center = new ui.Panel();
     center.element.id = 'ui-center';
-    // center.flexible = true;
-    // center.flexGrow = true;
-    // center.flexDirection = 'column';
     middle.append(center);
 
     // expose
