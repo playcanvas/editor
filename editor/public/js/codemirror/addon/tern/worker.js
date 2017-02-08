@@ -18,7 +18,7 @@ this.onmessage = function(e) {
     var c = pending[data.id];
     delete pending[data.id];
     return c(data.err, data.text);
-  default: throw new Error("Unknown message type: " + data.type);
+  default: return;
   }
 };
 
