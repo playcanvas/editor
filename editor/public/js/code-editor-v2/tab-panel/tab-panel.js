@@ -338,6 +338,11 @@ editor.once('load', function () {
         return tabOrder;
     });
 
+    // returns focused tab
+    editor.method('tabs:focused', function () {
+        return focusedTab;
+    });
+
     // handle asset name changes
     editor.on('assets:add', function (asset) {
         asset.on('name:set', function (name) {
@@ -353,4 +358,6 @@ editor.once('load', function () {
         if (entry)
             entry.tab.class.add('error');
     });
+
+
 });
