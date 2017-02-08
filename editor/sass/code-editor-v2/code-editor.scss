@@ -81,9 +81,16 @@ strong {
 
 #ui-center {
     background-color: $bcg-darkest;
+    height: calc(100vh - 64px);
+    flex-grow: 1;
+    overflow: hidden;
+    > .content {
+        height: 100%;
+    }
 }
 
 #ui-code {
+    display: block;
     height: calc(100% - 32px);
     > .content {
         height: 100%;
@@ -126,9 +133,10 @@ strong {
         font-size: 13px;
         white-space: nowrap;
 
-        &:not(.grabbed) {
-            transition: left 200ms ease;
+        &.animated {
             -webkit-transition: left 200ms ease;
+            -moz-transition: left 200ms ease;
+            transition: left 200ms ease;
         }
 
         &:hover {
@@ -477,13 +485,15 @@ strong {
             background-color: rgba(0,0,0, 0.5);
             border: 0;
             margin: 0;
-            height: auto;
-            line-height: initial;
+            height: 32px;
+            line-height: 32px;
             flex-grow: 1;
             position: relative;
 
             > input {
                 font-size: 14px;
+                height: 32px;
+                line-height: 32px;
             }
 
             > .ui-label.error {
@@ -499,10 +509,17 @@ strong {
                 -moz-transition: flex-grow 200ms ease;
                 transition: flex-grow 200ms ease;
 
+
                 &:not(.focused) {
                     flex-grow: 0.3;
                 }
             }
+        }
+
+        > .ui-button {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         > .ui-button.option {

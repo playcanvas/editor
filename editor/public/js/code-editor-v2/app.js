@@ -1,6 +1,11 @@
 (function() {
     'use strict';
 
+    // set window name if necessary
+    if (! window.name) {
+        window.name = 'codeeditor:' + config.project.id;
+    }
+
     function CodeEditor() {
         Events.call(this);
 

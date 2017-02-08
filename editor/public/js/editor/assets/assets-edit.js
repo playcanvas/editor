@@ -10,11 +10,31 @@ editor.once('load', function() {
         'text': 1
     };
 
+    var firefox = navigator.userAgent.indexOf('Firefox') !== -1;
+
     editor.method('assets:edit', function (asset) {
         if (asset.get('type') === 'script' && editor.call('project:settings').get('use_legacy_scripts')) {
             window.open('/editor/code/' + config.project.id + '/' + asset.get('filename'));
         } else {
-            window.open('/editor/asset/' + asset.get('id'), asset.get('id')).focus();
+            if (config.self.codeEditor2) {
+                // open the new code editor - try to focus existing tab if it exists
+                // (only works in Chrome and only if the Code Editor has been opened by the Editor)
+
+                if (firefox) {
+                    // (Firefox doesn't work at all so open a new tab everytime)
+                    window.open('/editor/code/' + config.project.id + '?tabs=' + asset.get('id'));
+                } else {
+                    var wnd = window.open('', 'codeeditor:' + config.project.id);
+                    if (wnd.editor) {
+                        wnd.editor.call('files:selectWhenReady', asset.get('id'));
+                    } else {
+                        wnd.location.href = '/editor/code/' + config.project.id + '?tabs=' + asset.get('id');
+                    }
+                }
+
+            } else {
+                window.open('/editor/asset/' + asset.get('id'), asset.get('id')).focus();
+            }
         }
     });
 

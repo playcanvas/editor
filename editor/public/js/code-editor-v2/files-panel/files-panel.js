@@ -72,6 +72,9 @@ editor.once('load', function () {
     // contains <folder id, nodes that wait for folder id to be added>
     var waitingParent = {};
 
+    // assets to be selected once everything is loaded
+    var toBeSelected = [];
+
     // append item to parent in alphabetical order
     // if item is a folder also append any other items
     // that were waiting for this folder to be added
@@ -204,6 +207,12 @@ editor.once('load', function () {
 
         // tree done
         editor.emit('files:load');
+
+        // select any assets requested to be selected
+        // before assets were loaded
+        for (var i = 0, len = toBeSelected.length; i < len; i++) {
+            editor.call('files:select', toBeSelected[i]);
+        }
     });
 
     // Delete tree node for removed assets
@@ -251,6 +260,18 @@ editor.once('load', function () {
         if (item) {
             tree.clear()
             item.selected = true;
+        }
+    });
+
+    // Select file once assets are all loaded
+    editor.method('files:selectWhenReady', function (id) {
+        var item = itemIndex[id];
+        if (item) {
+            tree.clear();
+            item.selected = true;
+        } else {
+            if (toBeSelected.indexOf(id) === -1)
+                toBeSelected.push(id);
         }
     });
 

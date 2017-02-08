@@ -39,8 +39,8 @@ editor.on('load', function () {
     left.scroll = true;
     left.resizable = 'right';
     left.resizeMin = 200;
-    left.resizeMax = 600;
-    left.flexShrink = false;
+    left.resizeMax = 500;
+    // left.flexShrink = false;
     middle.append(left);
     // expose
     editor.method('layout.left', function() { return left; });
@@ -48,9 +48,9 @@ editor.on('load', function () {
     // center
     var center = new ui.Panel();
     center.element.id = 'ui-center';
-    center.flexible = true;
-    center.flexGrow = true;
-    center.flexDirection = 'column';
+    // center.flexible = true;
+    // center.flexGrow = true;
+    // center.flexDirection = 'column';
     middle.append(center);
 
     // expose
@@ -83,42 +83,6 @@ editor.on('load', function () {
     root.append(bottom);
     // expose
     editor.method('layout.bottom', function() { return bottom; });
-
-
-    // calculate and hardcode with width of the
-    // code panel otherwise codemirror will not show scrollbars
-    // correctly due to flex
-    var setCodePanelWidth = function () {
-        code.innerElement.style.width = (document.body.clientWidth - left.element.clientWidth) + 'px';
-    };
-
-    window.addEventListener('resize', setCodePanelWidth);
-    left.on('resize', setCodePanelWidth);
-
-    // on fold - unfold refresh width
-    // until fold animation is finished
-    var interval, timeout;
-    var onFold = function () {
-        if (timeout) {
-            clearTimeout(timeout);
-        }
-
-        timeout = setTimeout(function () {
-            clearInterval(interval);
-            timeout = null;
-        }, 1000);
-
-        if (interval)
-            clearInterval(interval);
-
-        interval = setInterval(setCodePanelWidth, 1000 / 60);
-
-    };
-
-    left.on('fold', onFold);
-    left.on('unfold', onFold);
-
-    setTimeout(setCodePanelWidth);
 
     // disable context menu for everything but the code view
     root.element.addEventListener('contextmenu', function (e) {

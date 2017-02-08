@@ -51,7 +51,7 @@ editor.once('load', function () {
     var error = new ui.Label();
     error.class.add('error');
     error.hidden = true;
-    searchField.element.append(error.element);
+    searchField.element.appendChild(error.element);
 
     var btnFindPrev = new ui.Button({
         'text': '&#57698;'
