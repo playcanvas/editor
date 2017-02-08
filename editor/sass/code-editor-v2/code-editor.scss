@@ -204,6 +204,7 @@ strong {
 #ui-left {
     color: $text-primary;
     width: 220px;
+    flex-shrink: 0;
 
     > .content {
         width: 220px;
