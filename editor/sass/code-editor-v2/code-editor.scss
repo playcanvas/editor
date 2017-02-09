@@ -616,6 +616,10 @@ strong {
                         > .title {
                             background: $text-darkest;
                             color: $text-primary;
+
+                            .path {
+                                color: $bcg-darkest;
+                            }
                         }
                     }
                 }
