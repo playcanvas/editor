@@ -90,7 +90,9 @@ strong {
 }
 
 #ui-code {
-    display: block;
+    &:not(.hidden) {
+        display: block;
+    }
     height: calc(100% - 32px);
     > .content {
         height: 100%;
