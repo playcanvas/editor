@@ -262,12 +262,30 @@ editor.once('load', function () {
 
     var createResultItem = function (asset, index) {
         var item = menuResults.createItem(asset.get('id'), {
-            title: asset.get('name'),
             select: function () {
                 editor.call('files:select', asset.get('id'));
                 editor.call('picker:fuzzy:close');
             }
         });
+
+        var path = asset.get('path');
+        if (path && path.length) {
+            for (var i = 0, len = path.length; i < len; i++) {
+                var a = editor.call('assets:get', path[i]);
+                path[i] = a ? a.get('name') : a.get('id');
+            }
+
+            path = './' + path.join('/') + '/' + asset.get('name');
+        } else {
+            path = './' + asset.get('name');
+        }
+
+        item.elementTitle.innerHTML =
+            '<div class="name">' +
+            asset.get('name') +
+            '</div><div class="path">' +
+            path +
+            '</div>';
         item._assetId = asset.get('id');
         return item;
     };

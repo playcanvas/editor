@@ -587,6 +587,16 @@ strong {
                 box-shadow: 0 1px 1px 0px rgba(0,0,0,0.5);
 
                 > .ui-menu-item {
+                    > .title {
+                        padding: 5px 10px;
+                        line-height: initial;
+
+                        > .path {
+                            font-size: 12px;
+                            opacity: 0.9;
+                        }
+                    }
+
                     &:hover {
                         > .title {
                             background: transparent;
