@@ -301,38 +301,17 @@ strong {
     }
 
     &.top {
-        .ui-menu-item > .title {
-            padding-left: 4px;
-        }
+        .ui-menu-item {
+            min-width: 320px;
 
-        &.files .ui-menu-item {
-            min-width: 240px;
+            > .title {
+                padding-left: 4px;
+            }
         }
 
         .ui-menu-item.create-new .ui-menu-item {
             min-width: 150px;
         }
-
-        &.edit .ui-menu-item {
-            min-width: 240px;
-        }
-
-        .ui-menu-item.selection .ui-menu-item {
-            min-width: 280px;
-        }
-
-        .ui-menu-item.text .ui-menu-item {
-            min-width: 320px;
-        }
-
-        .ui-menu-item.mark .ui-menu-item {
-            min-width: 320px;
-        }
-
-        &.find .ui-menu-item {
-            min-width: 320px;
-        }
-
     }
 }
 

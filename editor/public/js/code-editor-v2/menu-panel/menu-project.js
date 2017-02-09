@@ -8,7 +8,7 @@ editor.once('load', function () {
     menuProject.class.add('top');
     menuProject.class.add('project');
 
-    menuProject.position(138, 33);
+    menuProject.position(215, 33);
     root.append(menuProject);
 
     var btnProject = new ui.Button({
