@@ -275,17 +275,17 @@ editor.once('load', function () {
                 path[i] = a ? a.get('name') : a.get('id');
             }
 
-            path = './' + path.join('/') + '/' + asset.get('name');
+            path = path.join('/') + '/';
         } else {
-            path = './' + asset.get('name');
+            path = '';
         }
 
         item.elementTitle.innerHTML =
             '<div class="name">' +
             asset.get('name') +
-            '</div><div class="path">' +
+            '<span class="path">' +
             path +
-            '</div>';
+            '</span></div>';
         item._assetId = asset.get('id');
         return item;
     };

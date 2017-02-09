@@ -591,9 +591,17 @@ strong {
                         padding: 5px 10px;
                         line-height: initial;
 
-                        > .path {
+                        .name {
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
+
+                        .path {
                             font-size: 12px;
-                            opacity: 0.9;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            margin-left: 15px;
+                            color: $text-darkest;
                         }
                     }
 
