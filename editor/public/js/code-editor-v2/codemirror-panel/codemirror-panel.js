@@ -44,22 +44,7 @@ editor.once('load', function () {
     // set up key bindings
     options.extraKeys = {};
 
-    options.extraKeys['Ctrl-Z'] = function (cm) { editor.call('editor:command:undo');};
-    options.extraKeys['Cmd-Z'] = function (cm) { editor.call('editor:command:undo');};
-    options.extraKeys['Shift-Ctrl-Z'] = function (cm) { editor.call('editor:command:redo');};
-    options.extraKeys['Shift-Cmd-Z'] = function (cm) { editor.call('editor:command:redo');};
-    options.extraKeys['Ctrl-Y'] = function (cm) { editor.call('editor:command:redo');};
-    options.extraKeys['Cmd-Y'] = function (cm) { editor.call('editor:command:redo');};
-    options.extraKeys['Ctrl-S'] = function (cm) {editor.call('editor:command:save');};
-    options.extraKeys['Cmd-S'] = function (cm) {editor.call('editor:command:save');};
-    options.extraKeys['Tab'] = function(cm) {editor.call('editor:command:indent');};
-    options.extraKeys['Shift-Tab'] = function(cm) {editor.call('editor:command:unindent');};
-    options.extraKeys['Ctrl-I'] = function(cm) {editor.call('editor:command:autoindent');};
-    options.extraKeys['Cmd-I'] = function(cm) {editor.call('editor:command:autoindent');};
-    options.extraKeys['Ctrl-/'] = function(cm) {editor.call('editor:command:toggleComment');};
-    options.extraKeys['Cmd-/'] = function(cm) {editor.call('editor:command:toggleComment');};
-    options.extraKeys['Shift-Ctrl-/'] = function(cm) {editor.call('editor:command:toggleBlockComment');};
-    options.extraKeys['Shift-Cmd-/'] = function(cm) {editor.call('editor:command:toggleBlockComment');};
+    var mac = navigator.userAgent.indexOf('Mac OS X') !== -1;
 
     options.extraKeys['Esc'] = function (cm) {
         if (cm.somethingSelected()) {
@@ -68,21 +53,26 @@ editor.once('load', function () {
             cm.execCommand('clearSearch');
         }
     };
+
+    options.extraKeys['Ctrl-Z'] = function (cm) { editor.call('editor:command:undo');};
+    options.extraKeys['Shift-Ctrl-Z'] = function (cm) { editor.call('editor:command:redo');};
+    options.extraKeys['Ctrl-Y'] = function (cm) { editor.call('editor:command:redo');};
+    options.extraKeys['Ctrl-S'] = function (cm) {editor.call('editor:command:save');};
+    options.extraKeys['Tab'] = function(cm) {editor.call('editor:command:indent');};
+    options.extraKeys['Shift-Tab'] = function(cm) {editor.call('editor:command:unindent');};
+    options.extraKeys['Ctrl-I'] = function(cm) {editor.call('editor:command:autoindent');};
+    options.extraKeys['Ctrl-/'] = function(cm) {editor.call('editor:command:toggleComment');};
+    options.extraKeys['Ctrl-K Ctrl-J'] = function(cm) {editor.call('editor:command:unfoldAll');};
+
     options.extraKeys['Ctrl-F'] = function (cm) {editor.call('editor:command:find');};
-    options.extraKeys['Cmd-F'] = function (cm) {editor.call('editor:command:find');};
     options.extraKeys['F3'] = function (cm) {editor.call('editor:command:findNext');};
     options.extraKeys['Shift-F3'] = function (cm) {editor.call('editor:command:findPrevious');};
     options.extraKeys['Ctrl-D'] = function (cm) {editor.call('editor:command:selectNextOccurrence');};
-    options.extraKeys['Cmd-D'] = function (cm) {editor.call('editor:command:selectNextOccurrence');};
     options.extraKeys['Ctrl-F3'] = function (cm) {editor.call('editor:command:findUnder');};
-    options.extraKeys['Cmd-F3'] = function (cm) {editor.call('editor:command:findUnder');};
     options.extraKeys['Shift-Ctrl-F3'] = function (cm) {editor.call('editor:command:findUnderPrev');};
-    options.extraKeys['Shift-Cmd-F3'] = function (cm) {editor.call('editor:command:findUnderPrev');};
     options.extraKeys['Alt-F3'] = function (cm) {editor.call('editor:command:findAllUnder');};
     options.extraKeys['Ctrl-H'] = function (cm) {editor.call('editor:command:replace');};
-    options.extraKeys['Cmd-H'] = function (cm) {editor.call('editor:command:replace');};
     options.extraKeys['Shift-Ctrl-H'] = function (cm) {editor.call('editor:command:replaceNext');};
-    options.extraKeys['Shift-Cmd-H'] = function (cm) {editor.call('editor:command:replaceNext');};
 
     options.extraKeys['Alt-Up'] = function (cm) {cm.execCommand('goLineUp'); cm.execCommand('goLineEnd');};
     options.extraKeys['Alt-Down'] = function (cm) {cm.execCommand('goLineDown'); cm.execCommand('goLineEnd');};
@@ -90,15 +80,35 @@ editor.once('load', function () {
     // auto complete keys
     options.extraKeys['Ctrl-Space'] = function (cm) {tern && tern.complete(cm);};
     options.extraKeys['Ctrl-O'] = function (cm) {tern && tern.showDocs(cm);};
-    options.extraKeys['Cmd-O'] = function (cm) {tern && tern.showDocs(cm);};
     options.extraKeys['Alt-.'] = function (cm) {tern && tern.jumpToDef(cm);};
     options.extraKeys['Alt-,'] = function (cm) {tern && tern.jumpBack(cm);};
     options.extraKeys['Ctrl-Q'] = function (cm) {tern && tern.rename(cm);};
     options.extraKeys['Ctrl-.'] = function (cm) {tern && tern.selectName(cm);};
 
+    if (mac) {
+        options.extraKeys['Cmd-Z'] = function (cm) { editor.call('editor:command:undo');};
+        options.extraKeys['Shift-Cmd-Z'] = function (cm) { editor.call('editor:command:redo');};
+        options.extraKeys['Cmd-Y'] = function (cm) { editor.call('editor:command:redo');};
+        options.extraKeys['Cmd-S'] = function (cm) {editor.call('editor:command:save');};
+        options.extraKeys['Cmd-I'] = function(cm) {editor.call('editor:command:autoindent');};
+        options.extraKeys['Cmd-/'] = function(cm) {editor.call('editor:command:toggleComment');};
+        options.extraKeys['Alt-Ctrl-['] = function(cm) {editor.call('editor:command:fold');};
+        options.extraKeys['Alt-Ctrl-]'] = function(cm) {editor.call('editor:command:unfold');};
+        options.extraKeys['Cmd-K Cmd-J'] = function(cm) {editor.call('editor:command:unfoldAll');};
+        options.extraKeys['Cmd-F'] = function (cm) {editor.call('editor:command:find');};
+        options.extraKeys['Cmd-D'] = function (cm) {editor.call('editor:command:selectNextOccurrence');};
+        options.extraKeys['Cmd-F3'] = function (cm) {editor.call('editor:command:findUnder');};
+        options.extraKeys['Shift-Cmd-F3'] = function (cm) {editor.call('editor:command:findUnderPrev');};
+        options.extraKeys['Cmd-H'] = function (cm) {editor.call('editor:command:replace');};
+        options.extraKeys['Shift-Cmd-H'] = function (cm) {editor.call('editor:command:replaceNext');};
+        options.extraKeys['Cmd-O'] = function (cm) {tern && tern.showDocs(cm);};
+    } else {
+        options.extraKeys['Shift-Ctrl-/'] = function(cm) {editor.call('editor:command:toggleBlockComment');};
+        options.extraKeys['Shift-Ctrl-['] = function(cm) {editor.call('editor:command:fold');};
+        options.extraKeys['Shift-Ctrl-]'] = function(cm) {editor.call('editor:command:unfold');};
+    }
+
     options.extraKeys = CodeMirror.normalizeKeyMap(options.extraKeys);
-
-
 
     // create code mirror
     cm = CodeMirror(element, options);
@@ -197,7 +207,7 @@ editor.once('load', function () {
                 if (! asset || asset.get('type') !== 'script') return false;
 
                 // auto complete on '.' or word chars
-                return !e.ctrlKey && !e.altKey && !e.metaKey && (e.keyCode === 190 || (e.key.length === 1 && wordChar.test(e.key)));
+                return !e.ctrlKey && !e.altKey && !e.metaKey && (e.keyCode === 190 || (e.key && e.key.length === 1 && wordChar.test(e.key)));
             }
 
             // auto complete on keydown after a bit
