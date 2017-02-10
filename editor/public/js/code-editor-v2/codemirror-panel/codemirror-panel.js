@@ -53,6 +53,7 @@ editor.once('load', function () {
     options.extraKeys['Ctrl-S'] = function (cm) {editor.call('editor:command:save');};
     options.extraKeys['Cmd-S'] = function (cm) {editor.call('editor:command:save');};
     options.extraKeys['Tab'] = function(cm) {editor.call('editor:command:indent');};
+    options.extraKeys['Shift-Tab'] = function(cm) {editor.call('editor:command:unindent');};
     options.extraKeys['Ctrl-I'] = function(cm) {editor.call('editor:command:autoindent');};
     options.extraKeys['Cmd-I'] = function(cm) {editor.call('editor:command:autoindent');};
     options.extraKeys['Ctrl-/'] = function(cm) {editor.call('editor:command:toggleComment');};
