@@ -597,10 +597,11 @@ strong {
                         }
 
                         .path {
+                            display: block;
                             font-size: 12px;
                             overflow: hidden;
                             text-overflow: ellipsis;
-                            margin-left: 15px;
+                            // margin-left: 15px;
                             color: $text-darkest;
                         }
                     }

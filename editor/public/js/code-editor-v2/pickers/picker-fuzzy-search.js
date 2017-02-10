@@ -275,9 +275,9 @@ editor.once('load', function () {
                 path[i] = a ? a.get('name') : a.get('id');
             }
 
-            path = path.join('/') + '/';
+            path = path.join('/');
         } else {
-            path = '';
+            path = '/';
         }
 
         item.elementTitle.innerHTML =
