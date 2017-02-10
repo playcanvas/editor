@@ -114,7 +114,7 @@ editor.once('load', function () {
         }
     });
     item.class.add('noBorder');
-    editor.call('menu:item:setShortcut', item, mac ? 'Cmd+K Cmd+Backspace' : 'Ctrl+K Ctrl+Backspace');
+    editor.call('menu:item:setShortcut', item, mac ? 'Cmd+Backspace' : 'Shift+Ctrl+Backspace');
     group.append(item);
 
     editor.method('editor:command:can:deleteBeginning', canEditLine);

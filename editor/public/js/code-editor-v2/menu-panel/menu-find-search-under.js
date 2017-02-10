@@ -4,6 +4,7 @@ editor.once('load', function () {
     var menu = editor.call('menu:find');
     var codePanel = editor.call('layout.code');
     var ctrl = editor.call('hotkey:ctrl:string');
+    var mac = navigator.userAgent.indexOf('Mac OS X') !== -1;
     var cm = editor.call('editor:codemirror');
 
     var hasFocused = function () {
@@ -19,12 +20,14 @@ editor.once('load', function () {
         }
     });
     item.class.add('noBorder');
-    editor.call('menu:item:setShortcut', item, ctrl + '+F3');
+    editor.call('menu:item:setShortcut', item, mac ? 'Alt+Cmd+G' : 'Ctrl+F3');
     menu.append(item);
 
     editor.call('hotkey:register', 'find-under', {
-        key: 'f3',
-        ctrl: true,
+        key: mac ? 'g' : 'f3',
+        alt: mac,
+        meta: mac,
+        ctrl: !mac,
         callback: function (e) {
             if (codePanel.element.contains(e.target))
                 return;
@@ -49,20 +52,7 @@ editor.once('load', function () {
         }
     });
     item.class.add('noBorder');
-    editor.call('menu:item:setShortcut', item, 'Shift+' + ctrl + '+F3');
     menu.append(item);
-
-    editor.call('hotkey:register', 'find-under-prev', {
-        key: 'f3',
-        ctrl: true,
-        shift: true,
-        callback: function (e) {
-            if (codePanel.element.contains(e.target))
-                return;
-
-            editor.call('editor:command:findUnderPrev');
-        }
-    });
 
     editor.method('editor:command:findUnderPrev', function () {
         if (hasFocused()) {
@@ -80,12 +70,14 @@ editor.once('load', function () {
         }
     });
     item.class.add('noBorder');
-    editor.call('menu:item:setShortcut', item, 'Alt+F3');
+    editor.call('menu:item:setShortcut', item, mac ? 'Ctrl+Cmd+G' : 'Alt+F3');
     menu.append(item);
 
     editor.call('hotkey:register', 'find-all-under', {
-        key: 'f3',
-        alt: true,
+        key: mac ? 'g' : 'f3',
+        ctrl: mac,
+        meta: mac,
+        alt: !mac,
         callback: function (e) {
             if (codePanel.element.contains(e.target))
                 return;
@@ -102,7 +94,7 @@ editor.once('load', function () {
     });
 
     // Select next occurrence
-    var item = menu.createItem('find-all-under', {
+    var item = menu.createItem('select-next-occurrence', {
         title: 'Quick Add Next',
         filter: hasFocused,
         select: function () {

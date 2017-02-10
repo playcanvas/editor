@@ -5,6 +5,7 @@ editor.once('load', function () {
     var codePanel = editor.call('layout.code');
     var ctrl = editor.call('hotkey:ctrl:string');
     var cm = editor.call('editor:codemirror');
+    var mac = navigator.userAgent.indexOf('Mac OS X') !== -1;
 
     var pickerOpen = false;
 
@@ -37,12 +38,14 @@ editor.once('load', function () {
         }
     });
     item.class.add('noBorder');
-    editor.call('menu:item:setShortcut', item, ctrl + '+H');
+    editor.call('menu:item:setShortcut', item, mac ? 'Alt+Cmd+F' : 'Ctrl+H');
     menu.append(item);
 
     editor.call('hotkey:register', 'replace', {
-        key: 'h',
-        ctrl: true,
+        key: mac ? 'f' : 'h',
+        alt: mac,
+        meta: mac,
+        ctrl: !mac,
         callback: function (e) {
             if (codePanel.element.contains(e.target))
                 return;
@@ -69,13 +72,15 @@ editor.once('load', function () {
         }
     });
     item.class.add('noBorder');
-    editor.call('menu:item:setShortcut', item, 'Shift+' + ctrl + '+H');
+    editor.call('menu:item:setShortcut', item, mac ? 'Alt+Cmd+E' : 'Shift+Ctrl+H');
     menu.append(item);
 
     editor.call('hotkey:register', 'replace-next', {
-        key: 'h',
-        ctrl: true,
-        shift: true,
+        key: mac ? 'e' : 'h',
+        alt: mac,
+        meta: mac,
+        ctrl: !mac,
+        shift: !mac,
         callback: function (e) {
             if (codePanel.element.contains(e.target))
                 return;

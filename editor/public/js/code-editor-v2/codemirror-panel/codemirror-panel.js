@@ -65,14 +65,14 @@ editor.once('load', function () {
     options.extraKeys['Ctrl-K Ctrl-J'] = function(cm) {editor.call('editor:command:unfoldAll');};
 
     options.extraKeys['Ctrl-F'] = function (cm) {editor.call('editor:command:find');};
-    options.extraKeys['F3'] = function (cm) {editor.call('editor:command:findNext');};
-    options.extraKeys['Shift-F3'] = function (cm) {editor.call('editor:command:findPrevious');};
     options.extraKeys['Ctrl-D'] = function (cm) {editor.call('editor:command:selectNextOccurrence');};
-    options.extraKeys['Ctrl-F3'] = function (cm) {editor.call('editor:command:findUnder');};
-    options.extraKeys['Shift-Ctrl-F3'] = function (cm) {editor.call('editor:command:findUnderPrev');};
-    options.extraKeys['Alt-F3'] = function (cm) {editor.call('editor:command:findAllUnder');};
-    options.extraKeys['Ctrl-H'] = function (cm) {editor.call('editor:command:replace');};
-    options.extraKeys['Shift-Ctrl-H'] = function (cm) {editor.call('editor:command:replaceNext');};
+
+    options.extraKeys['Ctrl-K Ctrl-Space'] = function (cm) {editor.call('editor:command:setMark');};
+    options.extraKeys['Ctrl-K Ctrl-A'] = function (cm) {editor.call('editor:command:selectToMark');};
+    options.extraKeys['Ctrl-K Ctrl-Backspace'] = function (cm) {editor.call('editor:command:deleteToMark');};
+    options.extraKeys['Ctrl-K Ctrl-X'] = function (cm) {editor.call('editor:command:swapMark');};
+    options.extraKeys['Ctrl-K Ctrl-G'] = function (cm) {editor.call('editor:command:clearMark');};
+    options.extraKeys['Ctrl-K Ctrl-Y'] = function (cm) {editor.call('editor:command:yank');};
 
     options.extraKeys['Alt-Up'] = function (cm) {cm.execCommand('goLineUp'); cm.execCommand('goLineEnd');};
     options.extraKeys['Alt-Down'] = function (cm) {cm.execCommand('goLineDown'); cm.execCommand('goLineEnd');};
@@ -95,17 +95,31 @@ editor.once('load', function () {
         options.extraKeys['Alt-Ctrl-['] = function(cm) {editor.call('editor:command:fold');};
         options.extraKeys['Alt-Ctrl-]'] = function(cm) {editor.call('editor:command:unfold');};
         options.extraKeys['Cmd-K Cmd-J'] = function(cm) {editor.call('editor:command:unfoldAll');};
-        options.extraKeys['Cmd-F'] = function (cm) {editor.call('editor:command:find');};
-        options.extraKeys['Cmd-D'] = function (cm) {editor.call('editor:command:selectNextOccurrence');};
-        options.extraKeys['Cmd-F3'] = function (cm) {editor.call('editor:command:findUnder');};
-        options.extraKeys['Shift-Cmd-F3'] = function (cm) {editor.call('editor:command:findUnderPrev');};
-        options.extraKeys['Cmd-H'] = function (cm) {editor.call('editor:command:replace');};
-        options.extraKeys['Shift-Cmd-H'] = function (cm) {editor.call('editor:command:replaceNext');};
+        options.extraKeys['Cmd-Backspace'] = function (cm) {editor.call('editor:command:deleteBeginning');};
         options.extraKeys['Cmd-O'] = function (cm) {tern && tern.showDocs(cm);};
+
+        options.extraKeys['Cmd-F'] = function (cm) {editor.call('editor:command:find');};
+        options.extraKeys['Cmd-G'] = function (cm) {editor.call('editor:command:findNext');};
+        options.extraKeys['Shift-Cmd-G'] = function (cm) {editor.call('editor:command:findPrevious');};
+        options.extraKeys['Ctrl-H'] = function (cm) {}; // nothing
+        options.extraKeys['Alt-Cmd-F'] = function (cm) {editor.call('editor:command:replace');};
+        options.extraKeys['Alt-Cmd-E'] = function (cm) {editor.call('editor:command:replaceNext');};
+        options.extraKeys['Cmd-D'] = function (cm) {editor.call('editor:command:selectNextOccurrence');};
+        options.extraKeys['Alt-Cmd-G'] = function (cm) {editor.call('editor:command:findUnder');};
+        options.extraKeys['Ctrl-Cmd-G'] = function (cm) {editor.call('editor:command:findAllUnder');};
+
     } else {
         options.extraKeys['Shift-Ctrl-/'] = function(cm) {editor.call('editor:command:toggleBlockComment');};
         options.extraKeys['Shift-Ctrl-['] = function(cm) {editor.call('editor:command:fold');};
         options.extraKeys['Shift-Ctrl-]'] = function(cm) {editor.call('editor:command:unfold');};
+        options.extraKeys['Ctrl-Shift-Backspace'] = function (cm) {editor.call('editor:command:deleteBeginning');};
+
+        options.extraKeys['F3'] = function (cm) {editor.call('editor:command:findNext');};
+        options.extraKeys['Shift-F3'] = function (cm) {editor.call('editor:command:findPrevious');};
+        options.extraKeys['Ctrl-H'] = function (cm) {editor.call('editor:command:replace');};
+        options.extraKeys['Shift-Ctrl-H'] = function (cm) {editor.call('editor:command:replaceNext');};
+        options.extraKeys['Ctrl-F3'] = function (cm) {editor.call('editor:command:findUnder');};
+        options.extraKeys['Alt-F3'] = function (cm) {editor.call('editor:command:findAllUnder');};
     }
 
     options.extraKeys = CodeMirror.normalizeKeyMap(options.extraKeys);
