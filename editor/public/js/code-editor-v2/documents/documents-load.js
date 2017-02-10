@@ -96,9 +96,11 @@ editor.once('load', function () {
 
                 // load event
                 editor.emit('documents:load', doc, asset);
+
                 // focus doc if necessary
-                if (lastFocusedId === id)
+                if (lastFocusedId === id) {
                     editor.emit('documents:focus', id);
+                }
 
                 // check if it's diry
                 if (asset.get('content') !== null) {

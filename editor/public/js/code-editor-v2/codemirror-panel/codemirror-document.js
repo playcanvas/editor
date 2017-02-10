@@ -63,6 +63,8 @@ editor.once('load', function () {
         });
 
         viewIndex[doc.name] = entry;
+
+        editor.emit('views:new:' + doc.name, entry.view);
     });
 
     // Focus document in code mirror
@@ -119,11 +121,13 @@ editor.once('load', function () {
 
         refreshReadonly();
 
-        // focus editor
-        cm.focus();
-
         // reset cursor
         cm.setSelections(focusedView.view.listSelections());
+
+        // focus editor
+        setTimeout(function () {
+            cm.focus();
+        });
     });
 
 
