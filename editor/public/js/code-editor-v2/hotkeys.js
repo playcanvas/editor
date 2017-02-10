@@ -166,22 +166,26 @@ editor.once('load', function() {
 
         updateModifierKeys(evt);
 
-        if ([ 92, 93 ].indexOf(evt.keyCode) !== -1)
+        var keyCode = evt.keyCode;
+
+        // fix weirdness between chrome / safari / firefox
+        if (keyCode === 91 && (evt.code === 'MetaLeft' || evt.keyIdentifier === 'Meta'))
             return;
 
-        var index = [ ctrl+0, alt+0, shift+0, meta+0, evt.keyCode ].join('+');
+        if (keyCode === 219 && (evt.code === 'BracketLeft' || evt.keyIdentifier === 'U+005B'))
+            keyCode = 91;
+
+        if (keyCode === 221 && (evt.code === 'BracketRight' || evt.keyIdentifier === 'U+005D'))
+            keyCode = 93;
+
+        var index = [ ctrl+0, alt+0, shift+0, meta+0, keyCode ].join('+');
 
         if (keyIndex[index]) {
             var skipPreventDefault = false;
             for(var i = 0; i < keyIndex[index].length; i++) {
-                var result = hotkeys[keyIndex[index][i]].callback(evt);
+                hotkeys[keyIndex[index][i]].callback(evt);
                 if (! skipPreventDefault && hotkeys[keyIndex[index][i]].skipPreventDefault)
                     skipPreventDefault = true;
-
-                if (result && hotkeys[keyIndex[index][i]].stopPropagation) {
-                    evt.stopPropagation();
-                    break;
-                }
             }
             if (! skipPreventDefault)
                 evt.preventDefault();

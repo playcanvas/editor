@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     var menu = editor.call('menu:edit');
-    var ctrl = editor.call('hotkey:ctrl:string');
+    var ctrl = 'Ctrl';
     var cm = editor.call('editor:codemirror');
 
     var canEditLine = function () {

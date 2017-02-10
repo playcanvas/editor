@@ -22,7 +22,7 @@ editor.once('load', function () {
         }
     });
     item.class.add('noBorder');
-    editor.call('menu:item:setShortcut', item, editor.call('hotkey:ctrl:string') + '+/');
+    editor.call('menu:item:setShortcut', item, 'Ctrl+/');
     group.append(item);
 
     editor.method('editor:command:toggleComment', function () {
@@ -39,7 +39,7 @@ editor.once('load', function () {
             return editor.call('editor:command:toggleBlockComment');
         }
     });
-    editor.call('menu:item:setShortcut', item, 'Shift+' + editor.call('hotkey:ctrl:string') + '+/');
+    editor.call('menu:item:setShortcut', item, 'Shift+Ctrl+/');
     group.append(item);
 
     editor.method('editor:command:toggleBlockComment', function () {

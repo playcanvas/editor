@@ -722,7 +722,7 @@ editor.once('load', function() {
             btnEdit.class.add('edit');
             panel.headerAppend(btnEdit);
             btnEdit.on('click', function() {
-                window.open('/editor/asset/' + scriptAsset.get('id'));
+                editor.call('assets:edit', scriptAsset);
             });
             btnEdit.hidden = editor.call('assets:scripts:collide', script) || ! editor.call('assets:scripts:assetByScript', script);
             // tooltip

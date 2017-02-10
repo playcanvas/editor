@@ -2,7 +2,6 @@ editor.once('load', function () {
     'use strict';
 
     var menu = editor.call('menu:navigate');
-    var ctrl = editor.call('hotkey:ctrl:string');
 
     // Next tab
     var item = menu.createItem('next-tab', {
@@ -15,7 +14,7 @@ editor.once('load', function () {
         }
     });
     item.class.add('noBorder');
-    editor.call('menu:item:setShortcut', item, ctrl + '+Alt+Right');
+    editor.call('menu:item:setShortcut', item, 'Ctrl+Alt+Right');
     menu.append(item);
 
     // hotkey
@@ -23,6 +22,7 @@ editor.once('load', function () {
         key: 'right arrow',
         ctrl: true,
         alt: true,
+        meta: false,
         callback: function () {
             editor.call('editor:command:nextTab');
         }
@@ -51,7 +51,7 @@ editor.once('load', function () {
             editor.call('editor:command:previousTab');
         }
     });
-    editor.call('menu:item:setShortcut', item, ctrl + '+Alt+Left');
+    editor.call('menu:item:setShortcut', item, 'Ctrl+Alt+Left');
     menu.append(item);
 
     // hotkey
@@ -59,6 +59,7 @@ editor.once('load', function () {
         key: 'left arrow',
         ctrl: true,
         alt: true,
+        meta: false,
         callback: function () {
             editor.call('editor:command:previousTab');
         }

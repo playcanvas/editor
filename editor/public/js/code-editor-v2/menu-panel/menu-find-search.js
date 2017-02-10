@@ -5,6 +5,7 @@ editor.once('load', function () {
     var codePanel = editor.call('layout.code');
     var ctrl = editor.call('hotkey:ctrl:string');
     var cm = editor.call('editor:codemirror');
+    var mac = navigator.userAgent.indexOf('Mac OS X') !== -1;
 
     var hasFocused = function () {
         return !!editor.call('documents:getFocused');
@@ -48,11 +49,12 @@ editor.once('load', function () {
         }
     });
     item.class.add('noBorder');
-    editor.call('menu:item:setShortcut', item, 'F3');
+    editor.call('menu:item:setShortcut', item, mac ? 'Cmd+G' : 'F3');
     menu.append(item);
 
     editor.call('hotkey:register', 'find-next', {
-        key: 'f3',
+        key: mac ? 'g' : 'f3',
+        meta: mac,
         callback: function (e) {
             if (codePanel.element.contains(e.target))
                 return;
@@ -75,12 +77,13 @@ editor.once('load', function () {
             return editor.call('editor:command:findPrevious');
         }
     });
-    editor.call('menu:item:setShortcut', item, 'Shift+F3');
+    editor.call('menu:item:setShortcut', item, mac ? 'Shift+Cmd+G' : 'Shift+F3');
     menu.append(item);
 
     editor.call('hotkey:register', 'find-previous', {
-        key: 'f3',
+        key: mac ? 'g' : 'f3',
         shift: true,
+        meta: mac,
         callback: function (e) {
             if (codePanel.element.contains(e.target))
                 return;

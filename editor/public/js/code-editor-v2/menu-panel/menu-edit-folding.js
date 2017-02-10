@@ -5,6 +5,8 @@ editor.once('load', function () {
     var ctrl = editor.call('hotkey:ctrl:string');
     var cm = editor.call('editor:codemirror');
 
+    var mac = navigator.userAgent.indexOf('Mac OS X') !== -1;
+
     var group = menu.createItem('folding', {
         title: 'Folding'
     });
@@ -24,13 +26,17 @@ editor.once('load', function () {
         }
     });
     item.class.add('noBorder');
-    editor.call('menu:item:setShortcut', item, 'Shift+' + ctrl + '+[');
+    editor.call('menu:item:setShortcut', item, (mac ? 'Alt+' : 'Shift+') + ctrl + '+[');
     group.append(item);
 
     editor.call('hotkey:register', 'fold', {
-        key: 'left window key',
-        ctrl: true,
-        shift: true,
+        key: 91,
+        // ctrl: !mac,
+        // meta: mac,
+        // shift: !mac,
+        // alt: mac,
+        alt: true,
+        meta: true,
         callback: function () {
             editor.call('editor:command:fold');
         }
@@ -50,13 +56,15 @@ editor.once('load', function () {
         }
     });
     item.class.add('noBorder');
-    editor.call('menu:item:setShortcut', item, 'Shift+' + ctrl + '+]');
+    editor.call('menu:item:setShortcut', item, (mac ? 'Alt+' : 'Shift+') + ctrl + '+]');
     group.append(item);
 
     editor.call('hotkey:register', 'unfold', {
-        key: 'right window key',
-        ctrl: true,
-        shift: true,
+        key: 93,
+        ctrl: !mac,
+        meta: mac,
+        shift: !mac,
+        alt: mac,
         callback: function () {
             editor.call('editor:command:unfold');
         }

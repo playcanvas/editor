@@ -241,7 +241,7 @@ editor.once('load', function () {
             foldOps = [];
             for (var i = 0; i < folds.length; i++) {
                 var pos = CodeMirror.Pos(folds[i].lines[0].lineNo(), 0);
-                foldOps.push(createCursorOp(pos, entry.view));
+                foldOps.push(createCursorOp(pos, entry));
             }
 
             transformCursorOps(foldOps, op, entry);
