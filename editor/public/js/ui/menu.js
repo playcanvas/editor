@@ -52,6 +52,7 @@ Menu.prototype._onSelectPropagate = function(path) {
 };
 
 Menu.prototype._onAppend = function(item) {
+    var self = this;
     this._index[item._value] = item;
 
     item.on('value', function(value, valueOld) {

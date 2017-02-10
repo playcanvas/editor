@@ -90,7 +90,9 @@ strong {
 }
 
 #ui-code {
-    display: block;
+    &:not(.hidden) {
+        display: block;
+    }
     height: calc(100% - 32px);
     > .content {
         height: 100%;
@@ -301,38 +303,17 @@ strong {
     }
 
     &.top {
-        .ui-menu-item > .title {
-            padding-left: 4px;
-        }
+        .ui-menu-item {
+            min-width: 320px;
 
-        &.files .ui-menu-item {
-            min-width: 240px;
+            > .title {
+                padding-left: 4px;
+            }
         }
 
         .ui-menu-item.create-new .ui-menu-item {
             min-width: 150px;
         }
-
-        &.edit .ui-menu-item {
-            min-width: 240px;
-        }
-
-        .ui-menu-item.selection .ui-menu-item {
-            min-width: 280px;
-        }
-
-        .ui-menu-item.text .ui-menu-item {
-            min-width: 320px;
-        }
-
-        .ui-menu-item.mark .ui-menu-item {
-            min-width: 320px;
-        }
-
-        &.find .ui-menu-item {
-            min-width: 320px;
-        }
-
     }
 }
 
@@ -546,6 +527,103 @@ strong {
                 border-color: $text-active;
                 background-color: $text-active;
                 color: $text-primary;
+            }
+        }
+    }
+}
+
+.ui-overlay.picker-fuzzy-search {
+    z-index: 50;
+    > .overlay {
+        background-color: transparent;
+        cursor: default;
+    }
+    > .content {
+        display: none;
+    }
+}
+
+.ui-panel.picker-fuzzy-search {
+    position: absolute;
+    z-index: 51;
+    top: 28px;
+    left: calc(50% - 25vw) ;
+    width: 50vw;
+    height: 32px;
+    line-height: 32px;
+
+    > .content {
+        height: 100%;
+
+        > .ui-text-field {
+            width: 100%;
+            height: 32px;
+            line-height: 32px;
+            margin: 0;
+            padding: 0;
+
+            > input {
+                font-size: 14px;
+            }
+
+            &:hover, &.active, &:focus, &.focus {
+                background-color: $bcg-primary;
+            }
+        }
+
+        > .ui-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+
+            > .inner {
+                position: absolute;
+                width: 100%;
+                max-height: 50vh;
+                overflow-y: auto;
+
+                -moz-box-shadow: 0 1px 1px 0px rgba(0,0,0,0.5);
+                -webkit-box-shadow: 0 1px 1px 0px rgba(0,0,0,0.5);
+                box-shadow: 0 1px 1px 0px rgba(0,0,0,0.5);
+
+                > .ui-menu-item {
+                    > .title {
+                        padding: 5px 10px;
+                        line-height: initial;
+
+                        .name {
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
+
+                        .path {
+                            display: block;
+                            font-size: 12px;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            // margin-left: 15px;
+                            color: $text-darkest;
+                        }
+                    }
+
+                    &:hover {
+                        > .title {
+                            background: transparent;
+                            color: $text-dark;
+                        }
+                    }
+
+                    &.selected {
+                        > .title {
+                            background: $text-darkest;
+                            color: $text-primary;
+
+                            .path {
+                                color: $bcg-darkest;
+                            }
+                        }
+                    }
+                }
             }
         }
     }
