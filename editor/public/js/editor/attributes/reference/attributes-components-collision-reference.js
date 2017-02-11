@@ -5,7 +5,7 @@ editor.once('load', function() {
         name: 'component',
         title: 'pc.CollisionComponent',
         subTitle: '{pc.Component}',
-        description: 'A collision volume. use this in conjunction with a pc.RigidBodyComponent to make a collision volume that can be simulated using the physics engine.<br /><br />If the pc.Entity does not have a pc.RigidBodyComponent then this collision volume will act as a trigger volume. When an entity with a dynamic or kinematic body enters or leaves an entity with a trigger volume, both entities will receive trigger events.',
+        description: 'A collision volume. use this in conjunction with a pc.RigidBodyComponent to make a collision volume that can be simulated using the physics engine. If the pc.Entity does not have a pc.RigidBodyComponent then this collision volume will act as a trigger volume. When an entity with a dynamic or kinematic body enters or leaves an entity with a trigger volume, both entities will receive trigger events.',
         url: 'http://developer.playcanvas.com/api/pc.CollisionComponent.html'
     }, {
         title: 'asset',

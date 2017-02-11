@@ -15,7 +15,7 @@ editor.once('load', function() {
     }, {
         title: 'distance',
         subTitle: '{Number}',
-        description: "refDistance - The reference distance for reducing volume as the sound source moves further from the listener.<br />maxDistance - The maximum distance from the listener at which audio falloff stops. Note the volume of the audio is not 0 after this distance, but just doesn't fall off anymore.",
+        description: "refDistance - The reference distance for reducing volume as the sound source moves further from the listener. maxDistance - The maximum distance from the listener at which audio falloff stops. Note the volume of the audio is not 0 after this distance, but just doesn't fall off anymore.",
         url: 'http://developer.playcanvas.com/api/pc.SoundComponent.html#refDistance'
     }, {
         title: 'pitch',
