@@ -48,6 +48,9 @@ editor.once('load', function() {
         if (! renderCamera)
             return;
 
+        if (! selectedEntity.entity)
+            return;
+
         var camera = selectedEntity.entity.camera;
         if (! camera)
             return;
