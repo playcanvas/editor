@@ -1662,6 +1662,7 @@ editor.once('load', function() {
                 field = new ui.Label();
                 field.flexGrow = 1;
                 field.text = args.value || '';
+                field.class.add('selectable');
 
                 if (args.placeholder)
                     field.placeholder = args.placeholder;

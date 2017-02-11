@@ -978,6 +978,7 @@ strong {
             }
         }
         .ui-label.label-field {
+            @extend .noSelect;
             -webkit-flex-shrink: 0;
             flex-shrink: 0;
             width: 27%;

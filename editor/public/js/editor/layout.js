@@ -12,6 +12,8 @@ editor.on('load', function() {
                 return;
             } else if (ignoreElements.test(evt.target.tagName)) {
                 return;
+            } else if (evt.target.classList.contains('selectable')) {
+                return;
             }
         }
 
