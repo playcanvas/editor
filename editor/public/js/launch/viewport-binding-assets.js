@@ -25,6 +25,22 @@ editor.once('load', function() {
                 for (var key in updatedFields) {
                     var raw = asset.get(key);
 
+                    // do not hot-reload script if it has no `swap` methods already defined
+                    if (key === 'file' && asset.get('type') === 'script' && realtimeAsset.data && realtimeAsset.data.scripts) {
+                        var swappable = false;
+
+                        for(var script in realtimeAsset.data.scripts) {
+                            var scriptType = app.scripts.get(script);
+                            if (scriptType && scriptType.prototype.hasOwnProperty('swap')) {
+                                swappable = true;
+                                break;
+                            }
+                        }
+
+                        if (! swappable)
+                            continue;
+                    }
+
                     // this will trigger the 'update' event on the asset in the engine
                     // handling all resource loading automatically
                     realtimeAsset[key] = raw;

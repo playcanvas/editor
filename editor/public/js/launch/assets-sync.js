@@ -121,7 +121,6 @@ editor.once('load', function() {
         };
 
         if (data.length) {
-
             var connection = editor.call('realtime:connection');
 
             // do bulk subsribe in batches of 'batchSize' assets
