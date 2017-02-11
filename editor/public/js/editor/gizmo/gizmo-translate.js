@@ -443,6 +443,7 @@ editor.once('load', function() {
             castShadowsLightmap: false
         });
         planeX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
+        planeX.model.model.meshInstances[0].mask = 8;
         entity.addChild(planeX);
         planeX.setLocalEulerAngles(90, -90, 0);
         planeX.setLocalScale(.8, .8, .8);
@@ -462,6 +463,7 @@ editor.once('load', function() {
             castShadowsLightmap: false
         });
         planeY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
+        planeY.model.model.meshInstances[0].mask = 8;
         entity.addChild(planeY);
         planeY.setLocalEulerAngles(0, 0, 0);
         planeY.setLocalScale(.8, .8, .8);
@@ -481,6 +483,7 @@ editor.once('load', function() {
             castShadowsLightmap: false
         });
         planeZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
+        planeZ.model.model.meshInstances[0].mask = 8;
         entity.addChild(planeZ);
         planeZ.setLocalEulerAngles(90, 0, 0);
         planeZ.setLocalScale(.8, .8, .8);
@@ -499,6 +502,7 @@ editor.once('load', function() {
             castShadowsLightmap: false
         });
         lineX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
+        lineX.model.model.meshInstances[0].mask = 8;
         entity.addChild(lineX);
         lineX.setLocalEulerAngles(90, 90, 0);
         lineX.setLocalPosition(1.6, 0, 0);
@@ -516,6 +520,7 @@ editor.once('load', function() {
             castShadowsLightmap: false
         });
         lineY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
+        lineY.model.model.meshInstances[0].mask = 8;
         entity.addChild(lineY);
         lineY.setLocalEulerAngles(0, 0, 0);
         lineY.setLocalPosition(0, 1.6, 0);
@@ -533,6 +538,7 @@ editor.once('load', function() {
             castShadowsLightmap: false
         });
         lineZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
+        lineZ.model.model.meshInstances[0].mask = 8;
         entity.addChild(lineZ);
         lineZ.setLocalEulerAngles(90, 0, 0);
         lineZ.setLocalPosition(0, 0, 1.6);
@@ -550,6 +556,7 @@ editor.once('load', function() {
             castShadowsLightmap: false
         });
         arrowX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
+        arrowX.model.model.meshInstances[0].mask = 8;
         entity.addChild(arrowX);
         arrowX.setLocalEulerAngles(90, 90, 0);
         arrowX.setLocalPosition(2.3, 0, 0);
@@ -567,6 +574,7 @@ editor.once('load', function() {
             castShadowsLightmap: false
         });
         arrowY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
+        arrowY.model.model.meshInstances[0].mask = 8;
         entity.addChild(arrowY);
         arrowY.setLocalEulerAngles(0, 0, 0);
         arrowY.setLocalPosition(0, 2.3, 0);
@@ -584,6 +592,7 @@ editor.once('load', function() {
             castShadowsLightmap: false
         });
         arrowZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
+        arrowZ.model.model.meshInstances[0].mask = 8;
         entity.addChild(arrowZ);
         arrowZ.setLocalEulerAngles(90, 0, 0);
         arrowZ.setLocalPosition(0, 0, 2.3);

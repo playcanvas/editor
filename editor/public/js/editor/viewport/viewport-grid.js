@@ -41,10 +41,10 @@ pc.Grid = function (device, size, divisions) {
     var library = device.getProgramLibrary();
     var shader = library.getProgram("basic", { vertexColors: true, diffuseMapping: false });
 
-    var material = new pc.scene.Material();
+    var material = new pc.Material();
     material.shader = shader;
 
-    var mesh = new pc.scene.Mesh();
+    var mesh = new pc.Mesh();
     mesh.vertexBuffer = vertexBuffer;
     mesh.indexBuffer[0] = null;
     mesh.primitive[0].type = pc.gfx.PRIMITIVE_LINES;
@@ -52,12 +52,13 @@ pc.Grid = function (device, size, divisions) {
     mesh.primitive[0].count = vertexBuffer.getNumVertices();
     mesh.primitive[0].indexed = false;
 
-    var node = new pc.scene.GraphNode();
+    var node = new pc.GraphNode();
     node.setName('grid');
 
-    var meshInstance = new pc.scene.MeshInstance(node, mesh, material);
+    var meshInstance = new pc.MeshInstance(node, mesh, material);
+    meshInstance.mask = 8;
 
-    var model = new pc.scene.Model();
+    var model = new pc.Model();
     model.graph = node;
     model.meshInstances = [ meshInstance ];
 

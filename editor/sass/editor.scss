@@ -2760,6 +2760,30 @@ strong {
                     border-color: $text-active;
                 }
             }
+            > .pin {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 24px;
+                height: 24px;
+                line-height: 26px;
+                text-align: center;
+                padding: 0;
+                margin: 0;
+                border: none;
+                color: rgba($text-primary, .75);
+                background-color: rgba($bcg-darker, .5);
+                @extend .font-icon;
+
+                &.active {
+                    color: $text-active;
+                    background-color: transparent;
+                }
+                &:hover {
+                    color: $text-primary;
+                    background-color: rgba($bcg-darker, .75);
+                }
+            }
         }
     }
 }

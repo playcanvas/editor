@@ -250,6 +250,7 @@ editor.once('load', function() {
     meshInstance.updateKey();
     meshInstance.cull = false;
     meshInstance.pick = false;
+    meshInstance.mask = 8;
     meshInstance.drawToDepth = false;
 
     scene.drawCalls.push(meshInstance);
