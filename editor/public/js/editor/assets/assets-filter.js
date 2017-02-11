@@ -60,7 +60,17 @@ editor.once('load', function() {
         // type
         if (visible && filterField.value !== 'all') {
             if (type === 'asset') {
-                visible = item.get('type') === filterField.value;
+                var assetType = item.get('type');
+
+                if (assetType === 'texture') {
+                    if (item.get('source')) {
+                        assetType = 'textureSource';
+                    } else {
+                        assetType = 'textureTarget';
+                    }
+                }
+
+                visible = assetType === filterField.value;
             } else if (type === 'script') {
                 visible = filterField.value === 'script';
             }
@@ -198,7 +208,8 @@ editor.once('load', function() {
                 script: 'Script',
                 shader: 'Shader',
                 text: 'Text',
-                texture: 'Texture'
+                textureTarget: 'Texture',
+                textureSource: 'Texture (source)'
             }
         });
     } else {
@@ -220,7 +231,8 @@ editor.once('load', function() {
                 script: 'Script',
                 shader: 'Shader',
                 text: 'Text',
-                texture: 'Texture'
+                textureTarget: 'Texture',
+                textureSource: 'Texture (source)'
             }
         });
     }
