@@ -105,6 +105,10 @@ editor.once('load', function() {
             title: 'Controls',
             icons: [ '&#57654;']
         }, {
+            buttons: ['Alt', '$+', 'A'],
+            title: 'Focus on Assets Search Field',
+            icons: [ '&#57641;']
+        }, {
             buttons: ['Ctrl', '$+', 'Space'],
             title: 'How do I...?',
             icons: [ '&#57656;']

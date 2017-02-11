@@ -325,6 +325,15 @@ editor.once('load', function() {
             searchClear.click();
     }, false);
 
+    // hotkeys
+    editor.call('hotkey:register', 'assets-focus-search', {
+        key: 'a',
+        alt: true,
+        callback: function (e) {
+            search.focus();
+        }
+    });
+
     var searchClear = document.createElement('div');
     searchClear.innerHTML = '&#57650;';
     searchClear.classList.add('clear');
