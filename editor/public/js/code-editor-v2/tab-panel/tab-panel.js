@@ -109,6 +109,18 @@ editor.once('load', function () {
                 }
             });
 
+            // use hovered class for the close button
+            // because the :hover selector doesn't seem to work
+            // right all the time due to the fact that
+            // each tab is removed-readded to the DOM when we move it
+            tab.element.addEventListener('mouseenter', function () {
+                tab.class.add('hovered');
+            });
+
+            tab.element.addEventListener('mouseleave', function () {
+                tab.class.remove('hovered');
+            });
+
             // context menu
             editor.call('tabs:contextmenu:attach', entry);
 
