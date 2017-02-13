@@ -31,21 +31,24 @@ editor.once('load', function () {
         }
     };
 
-    suspendEvents = true;
-
     // Select tabs when ready
-    for (var i = 0, len = config.tabs.length; i < len; i++) {
-        var options = {
-            callback: onOpen
-        };
+    if (config.tabs.length) {
+        suspendEvents = true;
+        for (var i = 0, len = config.tabs.length; i < len; i++) {
+            var options = {
+                callback: onOpen
+            };
 
-        if (i === len - 1) {
-            // if this is the last tab then also focus line / col
-            options.line = config.file.line;
-            options.col = config.file.col;
-            options.error = config.file.error;
+            if (i === len - 1) {
+                // if this is the last tab then also focus line / col
+                options.line = config.file.line;
+                options.col = config.file.col;
+                options.error = config.file.error;
+            }
+
+            editor.call('integration:selectWhenReady', config.tabs[i], options);
         }
 
-        editor.call('integration:selectWhenReady', config.tabs[i], options);
     }
+
 });
