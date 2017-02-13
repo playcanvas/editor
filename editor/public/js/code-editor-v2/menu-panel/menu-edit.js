@@ -5,8 +5,6 @@ editor.once('load', function () {
     var panel = editor.call('layout.top');
 
     var menuEdit = new ui.Menu();
-    menuEdit.class.add('top');
-    menuEdit.class.add('edit');
 
     menuEdit.position(44, 33);
     root.append(menuEdit);
@@ -17,18 +15,5 @@ editor.once('load', function () {
 
     panel.append(btnEdit);
 
-    btnEdit.on('click', function () {
-        menuEdit.open = true;
-    });
-
-    menuEdit.on('open', function (open) {
-        if (open) {
-            btnEdit.class.add('open');
-        } else {
-            btnEdit.class.remove('open');
-        }
-    });
-
-    editor.method('menu:edit', function () { return menuEdit; });
-
+    editor.call('menu:register', 'edit', btnEdit, menuEdit);
 });

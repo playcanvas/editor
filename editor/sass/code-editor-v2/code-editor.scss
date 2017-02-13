@@ -341,6 +341,7 @@ strong {
     }
 
     &.top {
+
         .ui-menu-item {
             min-width: 320px;
 
@@ -351,6 +352,12 @@ strong {
 
         .ui-menu-item.create-new .ui-menu-item {
             min-width: 150px;
+        }
+
+        // move overlay below the top menu bar to allow hovering on other items
+        top: 32px;
+        .overlay {
+            top: 32px;
         }
     }
 }
