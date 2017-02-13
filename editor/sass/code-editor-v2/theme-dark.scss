@@ -218,6 +218,11 @@ a:visited {
                 }
             }
         }
+        &.rename {
+            > .title {
+                background-color: $bcg-darkest;
+            }
+        }
         &.container {
             > .title {
                 &:hover {

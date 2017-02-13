@@ -263,6 +263,11 @@ editor.once('load', function () {
         }
     });
 
+    // Get a tree item by id
+    editor.method('files:getTreeItem', function (id) {
+        return itemIndex[id];
+    });
+
     // Select file once assets are all loaded
     editor.method('files:selectWhenReady', function (id) {
         var item = itemIndex[id];
