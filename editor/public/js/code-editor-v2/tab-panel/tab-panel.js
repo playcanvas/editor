@@ -93,11 +93,20 @@ editor.once('load', function () {
 
             // grab tab
             tab.element.addEventListener('mousedown', function (e) {
-                if (e.target === btnClose.element || e.button !== 0)
+                if (e.target === btnClose.element)
                     return;
 
-                editor.call('files:select', id);
-                grabTab(entry, e);
+                // close on middle click
+                if (e.button === 1) {
+                    e.stopPropagation();
+                    editor.emit('documents:close', id);
+                    return;
+                }
+
+                if (e.button === 0) {
+                    editor.call('files:select', id);
+                    grabTab(entry, e);
+                }
             });
 
             // context menu
