@@ -315,14 +315,6 @@ editor.once('load', function () {
         toggleProgress(doc.name, false);
     });
 
-    // unfocus tab
-    editor.on('documents:unfocus', function () {
-        if (! focusedTab) return;
-
-        focusedTab.tab.class.remove('focused');
-        focusedTab = null;
-    });
-
     // change title on dirty doc
     editor.on('documents:dirty', function (id, dirty) {
         updateTitle(id, dirty);

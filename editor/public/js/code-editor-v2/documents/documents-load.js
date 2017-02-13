@@ -122,7 +122,6 @@ editor.once('load', function () {
     // and focus it
     editor.on('select:asset', function (asset) {
         if (asset.get('type') === 'folder') {
-            editor.emit('documents:unfocus');
             return;
         };
 
@@ -248,10 +247,6 @@ editor.once('load', function () {
 
     editor.method('documents:getFocused', function () {
         return lastFocusedId;
-    });
-
-    editor.on('documents:unfocus', function (id) {
-        lastFocusedId = null;
     });
 
     // get an array with all the ids of open documents
