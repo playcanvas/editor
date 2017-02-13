@@ -4,6 +4,8 @@ editor.once('load', function() {
     var selectedEntity = null;
     var currentCamera = null;
     var renderCamera = false;
+    var pinnedCamera = null;
+    var lastCamera = null;
     var events = [ ];
     var evtUpdate = null;
     var rect = new pc.Vec4(0, 0.8, 0.2, 0.2);
@@ -15,13 +17,39 @@ editor.once('load', function() {
     if (editor.call('permissions:write'))
         cameraPreviewBorder.classList.add('clickable');
 
+    var btnPin = new ui.Button({
+        text: '&#58177;'
+    });
+    btnPin.class.add('pin');
+    cameraPreviewBorder.appendChild(btnPin.element);
+
+    btnPin.on('click', function(evt) {
+        evt.stopPropagation();
+
+        if (lastCamera) {
+            lastCamera.cullingMask = 0xFFFFFFFF;
+            lastCamera = null;
+        }
+
+        if (pinnedCamera) {
+            pinnedCamera = null;
+            btnPin.class.remove('active');
+        } else {
+            pinnedCamera = selectedEntity;
+            btnPin.class.add('active');
+        }
+
+        updateCameraState();
+    });
+
     viewport.append(cameraPreviewBorder);
 
     cameraPreviewBorder.addEventListener('click', function() {
-        if (! selectedEntity || ! selectedEntity.entity || ! editor.call('permissions:write'))
+        var obj = pinnedCamera || selectedEntity;
+        if (! obj || ! obj.entity || ! editor.call('permissions:write'))
             return;
 
-        editor.call('camera:set', selectedEntity.entity);
+        editor.call('camera:set', obj.entity);
     }, false);
 
 
@@ -48,12 +76,20 @@ editor.once('load', function() {
         if (! renderCamera)
             return;
 
-        var camera = selectedEntity.entity.camera;
+        var obj = pinnedCamera || selectedEntity;
+
+        if (! obj.entity)
+            return;
+
+        var camera = obj.entity.camera;
         if (! camera)
             return;
 
         camera.camera.renderTarget = null;
+        camera.camera.cullingMask = 1;
         camera.rect = rect;
+
+        lastCamera = camera.camera;
 
         camera.frameBegin();
         app.renderer.render(app.scene, camera.camera);
@@ -61,18 +97,30 @@ editor.once('load', function() {
     };
 
     var updateCameraState = function() {
-        if (selectedEntity && selectedEntity.entity && ! (currentCamera && selectedEntity.entity === currentCamera) && selectedEntity.has('components.camera')) {
+        if (pinnedCamera) {
+            if (currentCamera && currentCamera === pinnedCamera.entity) {
+                renderCamera = false;
+            } else {
+                renderCamera = true;
+            }
+        } else if (selectedEntity && selectedEntity.entity && ! (currentCamera && selectedEntity.entity === currentCamera) && selectedEntity.has('components.camera')) {
             renderCamera = true;
+        } else {
+            renderCamera = false;
+        }
 
+        if (renderCamera) {
             cameraPreviewBorder.classList.add('active');
 
             if (! evtUpdate)
                 evtUpdate = editor.on('viewport:postRender', update);
-
         } else {
-            renderCamera = false;
-
             cameraPreviewBorder.classList.remove('active');
+
+            if (lastCamera) {
+                lastCamera.cullingMask = 0xFFFFFFFF;
+                lastCamera = null;
+            }
 
             if (evtUpdate) {
                 evtUpdate.unbind();
@@ -97,6 +145,11 @@ editor.once('load', function() {
                 events[i].unbind();
 
             events = [ ];
+        }
+
+        if (lastCamera) {
+            lastCamera.cullingMask = 0xFFFFFFFF;
+            lastCamera = null;
         }
 
         if (type === 'entity' && items.length === 1) {

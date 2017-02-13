@@ -89,7 +89,7 @@ a:visited {
     display: inline-block;
     border: 1px solid #666;
     width: 128px;
-    height: 24px;
+    height: 22px;
     margin: 4px;
     background-color: #000;
     vertical-align: top;
@@ -941,8 +941,9 @@ a:visited {
 .ui-number-field {
     display: inline-block;
     border: 1px solid #666;
-    width: 128px;
-    height: 22px;
+    box-sizing: border-box;
+    width: 130px;
+    height: 24px;
     margin: 4px;
     background-color: #000;
     vertical-align: top;
@@ -1039,8 +1040,9 @@ a:visited {
 .ui-text-field {
     display: inline-block;
     border: 1px solid #666;
-    width: 128px;
-    height: 22px;
+    box-sizing: border-box;
+    width: 130px;
+    height: 24px;
     margin: 4px;
     background-color: #000;
     vertical-align: top;
@@ -1224,10 +1226,11 @@ a:visited {
 .ui-image-field {
     @extend .noSelect;
     position: relative;
-    width: 64px;
-    height: 64px;
+    width: 66px;
+    height: 66px;
     margin: 4px;
     border: 1px solid #666;
+    box-sizing: border-box;
     overflow: hidden;
     cursor: pointer;
 
@@ -1275,6 +1278,7 @@ a:visited {
     @extend .noSelect;
     display: inline-block;
     border: 1px solid #666;
+    box-sizing: border-box;
     background-color: #000;
     color: #fff;
     padding: 0 8px;
@@ -1297,11 +1301,12 @@ a:visited {
     display: inline-block;
     vertical-align: text-bottom;
     border: 1px solid #666;
+    box-sizing: border-box;
     background-color: #000;
     color: #fff;
     margin: 4px;
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
     cursor: pointer;
     transition: opacity 100ms;
     flex-shrink: 0;
@@ -1323,11 +1328,12 @@ a:visited {
 .ui-select-field {
     position: relative;
     display: inline-block;
-    width: 112px;
+    width: 114px;
     margin: 4px;
     line-height: 22px;
     background-color: #000;
     border: 1px solid #666;
+    box-sizing: border-box;
     padding: 0 8px;
     font-size: 12px;
     cursor: pointer;

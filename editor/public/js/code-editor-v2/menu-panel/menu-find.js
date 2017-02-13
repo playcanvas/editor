@@ -5,9 +5,6 @@ editor.once('load', function () {
     var panel = editor.call('layout.top');
 
     var menuFind = new ui.Menu();
-    menuFind.class.add('top');
-    menuFind.class.add('find');
-
     menuFind.position(89, 33);
     root.append(menuFind);
 
@@ -17,18 +14,6 @@ editor.once('load', function () {
 
     panel.append(btnFind);
 
-    btnFind.on('click', function () {
-        menuFind.open = true;
-    });
-
-    menuFind.on('open', function (open) {
-        if (open) {
-            btnFind.class.add('open');
-        } else {
-            btnFind.class.remove('open');
-        }
-    });
-
-    editor.method('menu:find', function () { return menuFind; });
+    editor.call('menu:register', 'find', btnFind, menuFind);
 
 });

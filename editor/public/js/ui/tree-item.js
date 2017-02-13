@@ -203,9 +203,11 @@ TreeItem.prototype.focus = function() {
     this.elementTitle.focus();
 };
 
-TreeItem.prototype._onRename = function() {
-    this.tree.clear();
-    this.tree._onItemClick(this);
+TreeItem.prototype._onRename = function(select) {
+    if (select) {
+        this.tree.clear();
+        this.tree._onItemClick(this);
+    }
 
     var self = this;
     this.class.add('rename');
@@ -268,7 +270,7 @@ TreeItem.prototype._onDblClick = function(evt) {
     if (this.ui._children && (evt.clientX - rect.left) < 0) {
         return;
     } else {
-        this.ui._onRename();
+        this.ui._onRename(true);
     }
 };
 

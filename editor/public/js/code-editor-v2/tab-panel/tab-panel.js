@@ -93,11 +93,32 @@ editor.once('load', function () {
 
             // grab tab
             tab.element.addEventListener('mousedown', function (e) {
-                if (e.target === btnClose.element || e.button !== 0)
+                if (e.target === btnClose.element)
                     return;
 
-                editor.call('files:select', id);
-                grabTab(entry, e);
+                // close on middle click
+                if (e.button === 1) {
+                    e.stopPropagation();
+                    editor.emit('documents:close', id);
+                    return;
+                }
+
+                if (e.button === 0) {
+                    editor.call('files:select', id);
+                    grabTab(entry, e);
+                }
+            });
+
+            // use hovered class for the close button
+            // because the :hover selector doesn't seem to work
+            // right all the time due to the fact that
+            // each tab is removed-readded to the DOM when we move it
+            tab.element.addEventListener('mouseenter', function () {
+                tab.class.add('hovered');
+            });
+
+            tab.element.addEventListener('mouseleave', function () {
+                tab.class.remove('hovered');
             });
 
             // context menu
@@ -313,14 +334,6 @@ editor.once('load', function () {
     // hide progress when document is loaded
     editor.on('documents:load', function (doc, asset) {
         toggleProgress(doc.name, false);
-    });
-
-    // unfocus tab
-    editor.on('documents:unfocus', function () {
-        if (! focusedTab) return;
-
-        focusedTab.tab.class.remove('focused');
-        focusedTab = null;
     });
 
     // change title on dirty doc

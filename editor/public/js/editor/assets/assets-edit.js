@@ -26,7 +26,7 @@ editor.once('load', function() {
                 } else {
                     var wnd = window.open('', 'codeeditor:' + config.project.id);
                     if (wnd.editor) {
-                        wnd.editor.call('files:selectWhenReady', asset.get('id'));
+                        wnd.editor.call('integration:selectWhenReady', asset.get('id'));
                     } else {
                         wnd.location.href = '/editor/code/' + config.project.id + '?tabs=' + asset.get('id');
                     }

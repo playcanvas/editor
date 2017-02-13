@@ -978,6 +978,7 @@ strong {
             }
         }
         .ui-label.label-field {
+            @extend .noSelect;
             -webkit-flex-shrink: 0;
             flex-shrink: 0;
             width: 27%;
@@ -993,7 +994,7 @@ strong {
         }
         &.field-strings {
             > .content > .ui-panel {
-                max-width: calc(100% - 89px);
+                // max-width: calc(100% - 77px);
 
                 &.disabled > .content {
                     > .tag {
@@ -1023,7 +1024,8 @@ strong {
                         padding: 0 24px 0 8px;
                         overflow: hidden;
                         text-overflow: ellipsis;
-                        white-space: nowrap;
+                        //white-space: nowrap;
+                        word-break: break-all;
                         background-color: $bcg-dark;
                         cursor: default;
 
@@ -1061,7 +1063,7 @@ strong {
                         }
                     }
                     > .ui-text-field {
-                        width: calc(100% - 27px);
+                        width: calc(100% - 26px);
                         margin: 1px 0 1px 1px;
                         flex-shrink: 0;
                         display: block;
@@ -1070,7 +1072,7 @@ strong {
                         margin: 1px 1px 1px 0;
                         border-left: none;
                         padding: 0;
-                        width: 22px;
+                        width: 24px;
                         line-height: 22px;
                         text-align: center;
                         @extend .font-icon;
@@ -1085,8 +1087,8 @@ strong {
         &.field-asset {
             > .content > .top > .controls > .ui-select-field {
                 float: right;
-                width: 32px;
-                height: 22px;
+                width: 48px;
+                height: 24px;
                 margin: 5px 3px 0 6px;
             }
             &.channel {
@@ -1094,11 +1096,11 @@ strong {
                     > .top {
                         > .ui-label {
                             float: left;
-                            width: calc(100% - 100px);
+                            width: calc(100% - 60px);
                         }
                         > .ui-select-field {
                             float: right;
-                            width: 32px;
+                            width: 48px;
                         }
                     }
                 }
@@ -1201,8 +1203,8 @@ strong {
                         }
                     }
                     > .ui-label {
-                        width: calc(100% - 44px);
-                        height: 22px;
+                        width: calc(100% - 6px);
+                        height: 24px;
                         line-height: 22px;
                         margin: 3px;
                         padding: 0 28px 0 8px;
@@ -1212,6 +1214,7 @@ strong {
                         font-size: 12px;
                         background-color: $bcg-dark;
                         border: 1px solid $bcg-darker;
+                        box-sizing: border-box;
                         cursor: pointer;
 
                         &:hover {
@@ -1560,6 +1563,8 @@ strong {
                 }
                 > .ui-checkbox.component-toggle {
                     float: right;
+                    width: 30px;
+                    height: 16px;
                     margin: 7px 4px 0 0;
                     background-color: $bcg-primary;
                 }
@@ -1634,8 +1639,8 @@ strong {
                 font-weight: bold;
                 text-align: center;
                 line-height: 24px;
-                width: 22px;
-                height: 22px;
+                width: 24px;
+                height: 24px;
                 padding: 0;
             }
         }
@@ -1646,8 +1651,8 @@ strong {
                         > .ui-button {
                             @extend .font-icon;
                             padding: 0;
-                            width: 20px;
-                            height: 20px;
+                            width: 22px;
+                            height: 22px;
                             line-height: 22px;
                             text-align: center;
 
@@ -1889,6 +1894,8 @@ strong {
                                 }
                                 > .ui-checkbox.component-toggle {
                                     float: right;
+                                    width: 30px;
+                                    height: 16px;
                                     margin: 7px 4px 0 0;
                                     background-color: $bcg-primary;
                                 }
@@ -2203,7 +2210,7 @@ strong {
                 height: 28px;
                 line-height: 30px;
                 padding-left: 28px;
-                width: calc(100% - 36px);
+                width: 100%;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -2478,8 +2485,8 @@ strong {
 }
 
 .ui-checkbox.tick {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     overflow: hidden;
     // border-width: 2px;
 
@@ -2573,7 +2580,7 @@ strong {
     > .ui-text-field.search {
         margin: 0;
         width: 100%;
-        height: 24px;
+        height: 26px;
         border: none;
         border-top: 1px solid $bcg-primary;
         background-color: $bcg-darker;
@@ -2751,6 +2758,30 @@ strong {
 
                 &:hover {
                     border-color: $text-active;
+                }
+            }
+            > .pin {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 24px;
+                height: 24px;
+                line-height: 26px;
+                text-align: center;
+                padding: 0;
+                margin: 0;
+                border: none;
+                color: rgba($text-primary, .75);
+                background-color: rgba($bcg-darker, .5);
+                @extend .font-icon;
+
+                &.active {
+                    color: $text-active;
+                    background-color: transparent;
+                }
+                &:hover {
+                    color: $text-primary;
+                    background-color: rgba($bcg-darker, .75);
                 }
             }
         }
@@ -3461,8 +3492,7 @@ strong {
     top: 2px;
     right: 109px;
     margin: 2px 0;
-
-    height: 31px;
+    height: 33px;
     line-height: 33px;
     padding: 0px 10px;
 
@@ -5429,9 +5459,10 @@ strong {
             position: relative;
             display: none;
             float: left;
-            width: 144px;
-            height: 144px;
+            width: 146px;
+            height: 146px;
             border: 1px solid #000;
+            box-sizing: border-box;
             margin: 8px 0 8px 8px;
             background-color: #f00;
             cursor: crosshair;
@@ -5480,10 +5511,11 @@ strong {
             position: relative;
             display: none;
             float: left;
-            width: 12px;
-            height: 144px;
+            width: 14px;
+            height: 146px;
             margin: 8px 0 8px 8px;
             border: 1px solid #000;
+            box-sizing: border-box;
             cursor: crosshair;
 
             background: #000;
@@ -5587,7 +5619,7 @@ strong {
 
             > .field {
                 display: none;
-                width: calc(106px - 10px);
+                width: calc(106px - 6px);
             }
         }
     }
@@ -6295,7 +6327,7 @@ strong {
 
         .ui-text-field.input-field {
             margin: 0;
-            height: 34px;
+            height: 36px;
             line-height: 34px;
             width: 100%;
             display: block;
@@ -6391,24 +6423,20 @@ strong {
                 padding-right: 10px;
                 padding-left: 20px;
             }
-
             &:not(.disabled):hover:before {
                 color: $text-active;
             }
-
             &.publish, &.publish-fb {
-                padding-left: 130px;
-                width: calc(100% - 160px);
+                text-align: center;
+                width: calc(100% - 30px);
 
                 &:before {
                     content: '\E226';
                 }
             }
-
             &.publish-fb {
                 display: none;
             }
-
             &.web-download, &.ios-download {
                 display: none;
                 width: 187px;

@@ -106,6 +106,7 @@ strong {
     -moz-box-sizing: border-box;
 
     $tab-bottom-margin: 2px;
+    $tab-bg-color:  mix($bcg-darker, $bcg-darkest, 25%);
 
     height: 32px - $tab-bottom-margin;
     line-height: 32px - $tab-bottom-margin;
@@ -123,10 +124,14 @@ strong {
         -webkit-box-sizing: border-box;
         -moz-box-sizing: border-box;
 
-        background-color: mix($bcg-darker, $bcg-darkest, 25%);
+        background-color: $tab-bg-color;
         color: $text-secondary;
 
-        padding: 0 30px 0 5px;
+        -webkit-transition: color 200ms ease;
+        -moz-transition: color 200ms ease;
+        transition: color 200ms ease;
+
+        padding: 0 5px;
         height: 32px - $tab-bottom-margin;
         line-height: 32px - $tab-bottom-margin;
 
@@ -145,12 +150,29 @@ strong {
             color: $text-primary;
         }
 
+        // use hovered class for
+        // opacity because :hover seems
+        // to breaks sometimes due to the fact
+        // that tabs are removed / readded to the DOM
+        &.hovered {
+            > .content > .close {
+                opacity: 1;
+            }
+        }
+
         &.focused {
             background-color: $bcg-darkest;
             color: $text-primary;
             border-bottom: 2px solid $text-active;
             min-width: 100px;
             z-index: 1;
+
+            > .content > .close {
+                background-color: $bcg-darkest;
+                -webkit-box-shadow: -2px -2px 2px $bcg-darkest;
+                -moz-box-shadow: -2px -2px 2px $bcg-darkest;
+                box-shadow: -2px -2px 2px $bcg-darkest;
+            }
         }
 
         &.dirty:not(.error) {
@@ -163,6 +185,10 @@ strong {
 
         &.grabbed {
             z-index: 10;
+
+            > .content > .close {
+                opacity: 0;
+            }
         }
 
         &.error {
@@ -177,14 +203,26 @@ strong {
             > .close {
                 @extend .font-icon;
                 color: $text-secondary;
-                background-color: transparent;
+                background-color: $tab-bg-color;
+                -webkit-box-shadow: -2px -2px 2px $tab-bg-color;
+                -moz-box-shadow: -2px -2px 2px $tab-bg-color;
+                box-shadow: -2px -2px 2px $tab-bg-color;
                 border: 0;
                 position: absolute;
                 padding: 0;
                 margin: 0;
-                top: 4px;
-                right: -25px;
-                font-size: 13px;
+                top: 0;
+                right: -5px;
+                width: 22px;
+                height: 28px;
+                line-height: 32px;
+                font-size: 14px;
+                text-align: center;
+                opacity: 0;
+
+                -webkit-transition: opacity 200ms ease;
+                -moz-transition: opacity 200ms ease;
+                transition: opacity 200ms ease;
 
                 &:hover {
                     color: $text-active;
@@ -192,7 +230,7 @@ strong {
             }
 
             > .ui-progress {
-                width: calc(100% + 35px);
+                width: calc(100% + 10px);
                 position: absolute;
                 bottom: -2px;
                 left: -5px;
@@ -253,29 +291,49 @@ strong {
 
 }
 
-.ui-tree-item {
-    &.rename {
-        > .title {
-            > .text {
-                display: none;
-            }
-            > .ui-text-field {
-                width: calc(100% - 24px);
-                margin: 0;
-                padding: 0;
-                border: none;
-                background-color: transparent;
+.ui-tree.files {
 
-                > .field {
+    .ui-tree-item {
+        &.rename {
+            > .title {
+                > .text {
+                    display: none;
+                }
+                > .ui-text-field {
+                    width: calc(100% - 24px);
+                    margin: 0;
                     padding: 0;
-                    @extend .font-regular;
-                    font-size: 14px;
+                    border: none;
+                    background-color: transparent;
+
+                    > .field {
+                        padding: 0;
+                        @extend .font-regular;
+                        font-size: 14px;
+                    }
                 }
             }
         }
+
+        &.dirty {
+            > .title {
+                > .text {
+                    color: transparentize($muted-yellow, 0.15);
+                }
+            }
+
+            &.selected {
+                > .title {
+                    > .text {
+                        color: $muted-yellow;
+                    }
+                }
+
+            }
+        }
+
     }
 }
-
 
 .ui-menu-item {
     &.noBorder {
@@ -303,6 +361,7 @@ strong {
     }
 
     &.top {
+
         .ui-menu-item {
             min-width: 320px;
 
@@ -313,6 +372,12 @@ strong {
 
         .ui-menu-item.create-new .ui-menu-item {
             min-width: 150px;
+        }
+
+        // move overlay below the top menu bar to allow hovering on other items
+        top: 32px;
+        .overlay {
+            top: 32px;
         }
     }
 }

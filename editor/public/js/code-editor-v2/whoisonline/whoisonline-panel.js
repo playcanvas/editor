@@ -37,40 +37,10 @@ editor.once('load', function () {
         wioPanel.append(item);
     };
 
-    var reset = function (whoisonline) {
-        // clear old
-        for (var id in itemsIndex) {
-            if (whoisonline[id]) {
-                continue;
-            };
-
-            var item = itemsIndex[id];
-            wioPanel.remove(item);
-            delete itemsIndex[id];
-
-            if (tooltips[id]) {
-                tooltips[id].destroy();
-                delete tooltips[id];
-            }
-        }
-
-        for (var id in whoisonline) {
-            if (! itemsIndex[id])
-                createItem(id);
-        }
-    };
-
-    editor.on('whoisonline:set', function (assetId, whoisonline) {
-        // check if this is the focused document
-        if (editor.call('documents:getFocused') !== assetId)
-            return;
-
-        reset(whoisonline);
-    });
 
     editor.on('whoisonline:add', function (assetId, userId) {
         // check if this is the focused document
-        if (editor.call('documents:getFocused') !== assetId)
+        if (editor.call('documents:getFocused') !== assetId || itemsIndex[userId])
             return;
 
         createItem(userId);
@@ -95,7 +65,28 @@ editor.once('load', function () {
 
     // when we change documents reset whoisonline panel
     editor.on('documents:focus', function (id) {
-        reset(editor.call('whoisonline:get', id));
+        var whoisonline = editor.call('whoisonline:get', id);
+
+        // clear old
+        for (var id in itemsIndex) {
+            if (whoisonline[id]) {
+                continue;
+            };
+
+            var item = itemsIndex[id];
+            wioPanel.remove(item);
+            delete itemsIndex[id];
+
+            if (tooltips[id]) {
+                tooltips[id].destroy();
+                delete tooltips[id];
+            }
+        }
+
+        for (var id in whoisonline) {
+            if (! itemsIndex[id])
+                createItem(id);
+        }
     });
 
 });

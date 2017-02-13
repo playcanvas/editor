@@ -7,6 +7,8 @@ editor.once('load', function() {
     panel.classList.add('hidden');
     document.body.appendChild(panel);
 
+    var errorCount = 0;
+
     panel.addEventListener('mousedown', function(evt) {
         evt.stopPropagation();
     }, false);
@@ -50,19 +52,19 @@ editor.once('load', function() {
         if (cls)
             element.classList.add(cls);
 
-        var links = element.querySelectorAll('.code-link');
-        for(var i = 0; i < links.length; i++) {
-            links[i].addEventListener('click', function(evt) {
-                evt.preventDefault();
-                var scope = window;
+        // var links = element.querySelectorAll('.code-link');
+        // for(var i = 0; i < links.length; i++) {
+        //     links[i].addEventListener('click', function(evt) {
+        //         evt.preventDefault();
+        //         var scope = window;
 
-                // TODO
-                // possible only when launcher and editor are within same domain (HTTPS)
-                // var scope = window.opener || window;
+        //         // TODO
+        //         // possible only when launcher and editor are within same domain (HTTPS)
+        //         // var scope = window.opener || window;
 
-                scope.open(this.getAttribute('href') + this.getAttribute('query'), this.getAttribute('href')).focus();
-            }, false);
-        }
+        //         scope.open(this.getAttribute('href') + this.getAttribute('query'), this.getAttribute('href')).focus();
+        //     }, false);
+        // }
 
         panel.appendChild(element);
 
@@ -76,6 +78,7 @@ editor.once('load', function() {
             var codeEditorUrl = '';
             var query = '';
             var target = null;
+            var assetId = null;
 
             // if this is a playcanvas script
             // then create a URL that will open the code editor
@@ -93,19 +96,47 @@ editor.once('load', function() {
                 codeEditorUrl = 'https://' + window.location.host + target;
                 query = '?line=' + line + '&col=' + col + '&error=true';
             } else if (! editor.call('project:settings').get('use_legacy_scripts') && url.indexOf('/api/assets/') !== -1 && url.indexOf('.js') !== -1) {
-                var assetId = parseInt(url.match(/\/api\/assets\/files\/.+?id=([0-9]+)/)[1], 10);
-                target = '/editor/asset/' + assetId;
+                assetId = parseInt(url.match(/\/api\/assets\/files\/.+?id=([0-9]+)/)[1], 10);
+                if (config.self.codeEditor2) {
+                    target = 'codeeditor:' + config.project.id;
+                    codeEditorUrl = 'https://' + window.location.host + '/editor/code/' + config.project.id;
+                    query = '?tabs=' + assetId + '&line=' + line + '&col=' + col + '&error=true';
+                } else {
+                    target = '/editor/asset/' + assetId;
+                    codeEditorUrl = 'https://' + window.location.host + target;
+                    query = '?line=' + line + '&col=' + col + '&error=true';
+                }
 
-                codeEditorUrl = 'https://' + window.location.host + target;
-                query = '?line=' + line + '&col=' + col + '&error=true';
             } else {
                 codeEditorUrl = url;
             }
 
             var slash = url.lastIndexOf('/');
             var relativeUrl = url.slice(slash + 1);
+            errorCount++;
 
-            append(pc.string.format('<a href="{0}" query="{1}" target="{2}" class="code-link">[{3}:{4}]</a>: {5}', codeEditorUrl, query, target, relativeUrl, line, msg), 'error');
+            append(pc.string.format('<a href="{0}{1}" target="{2} class="code-link" id="{6}">[{3}:{4}]</a>: {5}', codeEditorUrl, query, target, relativeUrl, line, msg, 'error-' + errorCount), 'error');
+
+            if (assetId && config.self.codeEditor2) {
+                var link = document.getElementById('error-' + errorCount);
+                link.addEventListener('click', function (e) {
+                    var existing = window.open('', target);
+                    if (existing) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        if (existing.editor) {
+                            existing.editor.call('integration:selectWhenReady', assetId, {
+                                line: line,
+                                col: col,
+                                error: true
+                            });
+                        } else {
+                            existing.location.href = codeEditorUrl + query;
+                        }
+                    }
+                });
+            }
 
             // append stacktrace as well
             if (e && e.stack)

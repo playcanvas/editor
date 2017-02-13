@@ -470,10 +470,6 @@ editor.once('load', function () {
         focusedDocument = documentIndex[id];
     });
 
-    editor.on('documents:unfocus', function () {
-        focusedDocument = null;
-    });
-
     editor.method('editor:command:can:undo', function () {
         return !editor.call('editor:isReadOnly') &&
                focusedDocument && focusedDocument.undo.length;

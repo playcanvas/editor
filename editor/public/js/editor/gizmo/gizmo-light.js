@@ -70,6 +70,7 @@ editor.once('load', function () {
                 }
                 // set to model
                 this.entity.model.model = model;
+                model.meshInstances[0].mask = 8;
                 this.entity.setLocalScale(1, 1, 1);
                 this.entity.setEulerAngles(0, 0, 0);
             } else {
@@ -104,6 +105,8 @@ editor.once('load', function () {
         // render behind model
         if (this.entity.enabled && this.entity.model.model) {
             var instance = new pc.MeshInstance(this.entity, this.entity.model.model.meshInstances[0].mesh, material);
+            instance.mask = 8;
+            instance.pick = false;
             if (this.type === 'spot') {
                 instance.layer = pc.LAYER_GIZMO;
                 instance.setParameter('range', light.range);
@@ -327,6 +330,8 @@ editor.once('load', function () {
         mesh.primitive[0].indexed = false;
         // meshInstance
         meshInstance = new pc.MeshInstance(node, mesh, material);
+        meshInstance.mask = 8;
+        meshInstance.pick = false;
         meshInstance.updateKey();
         // model
         model = new pc.Model();
@@ -359,6 +364,8 @@ editor.once('load', function () {
         mesh.primitive[0].indexed = false;
         // meshInstance
         meshInstance = new pc.MeshInstance(node, mesh, material);
+        meshInstance.mask = 8;
+        meshInstance.pick = false;
         meshInstance.updateKey();
         // model
         model = new pc.Model();
@@ -400,6 +407,8 @@ editor.once('load', function () {
         mesh.primitive[0].indexed = false;
         // meshInstance
         meshInstance = new pc.MeshInstance(node, mesh, material);
+        meshInstance.mask = 8;
+        meshInstance.pick = false;
         meshInstance.updateKey();
         // model
         model = new pc.Model();
@@ -458,6 +467,8 @@ editor.once('load', function () {
         mesh.primitive[0].indexed = false;
         // meshInstance
         meshInstance = new pc.MeshInstance(node, mesh, materialSpot);
+        meshInstance.mask = 8;
+        meshInstance.pick = false;
         meshInstance.updateKey();
         // model
         model = new pc.Model();

@@ -5,7 +5,7 @@ editor.once('load', function() {
         name: 'asset',
         title: 'pc.Material',
         subTitle: '{Class}',
-        description: 'Every surface on a 3D model is rendered using a material. The material defines the properties of that surface, such as its color, shininess, bumpiness.<br /><br />In PlayCanvas, a material is an Asset type which collects all these properties together. By default, it represents a Physical material. This exposes the fundamental properties that can be used to create many different types for visual effects, from smooth plastic, to rough wood, or scratched metal.',
+        description: 'Every surface on a 3D model is rendered using a material. The material defines the properties of that surface, such as its color, shininess, bumpiness. In PlayCanvas, a material is an Asset type which collects all these properties together. By default, it represents a Physical material. This exposes the fundamental properties that can be used to create many different types for visual effects, from smooth plastic, to rough wood, or scratched metal.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html'
     }, {
         name: 'ambientOverview',
@@ -54,7 +54,7 @@ editor.once('load', function() {
     }, {
         title: 'blendType',
         subTitle: '{pc.BLEND_*}',
-        description: 'The type of blending for this material. Options are:<br />None {pc.BLEND_NONE}: The mesh is opaque. This is the default.<br />Normal {pc.BLEND_NORMAL}: The mesh is transparent, like stained glass.<br />Additive {pc.BLEND_ADDITIVE}: The mesh color is added to whatever has already been rendered to the frame buffer.<br />Pre-multiply {pc.BLEND_PREMULTIPLIED}: Like \'Normal\' blending except it is assumed that the color of the mesh being rendered with this material has already been modulated by its alpha value.<br />Multiply {pc.BLEND_MULTIPLICATIVE}: When rendered, the mesh color is multiplied by whatever has already been rendered to the frame buffer.',
+        description: 'The type of blending for this material. Options are: None {pc.BLEND_NONE}: The mesh is opaque. This is the default. Normal {pc.BLEND_NORMAL}: The mesh is transparent, like stained glass. Additive {pc.BLEND_ADDITIVE}: The mesh color is added to whatever has already been rendered to the frame buffer. Pre-multiply {pc.BLEND_PREMULTIPLIED}: Like \'Normal\' blending except it is assumed that the color of the mesh being rendered with this material has already been modulated by its alpha value. Multiply {pc.BLEND_MULTIPLICATIVE}: When rendered, the mesh color is multiplied by whatever has already been rendered to the frame buffer.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#blendType'
     }, {
         title: 'bumpiness',
@@ -91,7 +91,7 @@ editor.once('load', function() {
     }, {
         title: 'cull',
         subTitle: '{pc.CULLFACE_*}',
-        description: 'Options are:<br />None {pc.CULLFACE_NONE}: Both front faces and back faces are rendered.<br />Front Faces {pc.CULLFACE_FRONT}: front faces are rendered and back faces are not.<br />Back Faces {pc.CULLFACE_BACK}: back faces are rendered and front faces are not. This is the default.<br />PlayCanvas dictates that a counter-clockwise vertex winding specifies a front face triangle. Note that backface culling is often good for performance because backface pixels are often overwritten (for convex meshes) which can result in redundant filling of pixels.'
+        description: 'Options are: None {pc.CULLFACE_NONE}: Both front faces and back faces are rendered. Front Faces {pc.CULLFACE_FRONT}: front faces are rendered and back faces are not. Back Faces {pc.CULLFACE_BACK}: back faces are rendered and front faces are not. This is the default. PlayCanvas dictates that a counter-clockwise vertex winding specifies a front face triangle. Note that backface culling is often good for performance because backface pixels are often overwritten (for convex meshes) which can result in redundant filling of pixels.'
     }, {
         title: 'depthTest',
         subTitle: '{Boolean}',
@@ -438,12 +438,12 @@ editor.once('load', function() {
     }, {
         title: 'shadingModel',
         subTitle: '{pc.SPECULAR_*}',
-        description: 'Defines the shading model.<br />Phong {pc.SPECULAR_PHONG}: Phong without energy conservation. You should only use it as a backwards compatibility with older projects.<br />Physical {pc.SPECULAR_BLINN}: Energy-conserving Blinn-Phong.',
+        description: 'Defines the shading model. Phong {pc.SPECULAR_PHONG}: Phong without energy conservation. You should only use it as a backwards compatibility with older projects. Physical {pc.SPECULAR_BLINN}: Energy-conserving Blinn-Phong.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#shadingModel'
     }, {
         title: 'shadowSampleType',
         subTitle: '{Number}',
-        description: 'Options are:<br />Hard<br />PCF 3x3',
+        description: 'Options are: Hard PCF 3x3',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#shadowSampleType'
     }, {
         title: 'shininess',

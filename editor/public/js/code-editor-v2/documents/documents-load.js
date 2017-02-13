@@ -96,9 +96,11 @@ editor.once('load', function () {
 
                 // load event
                 editor.emit('documents:load', doc, asset);
+
                 // focus doc if necessary
-                if (lastFocusedId === id)
+                if (lastFocusedId === id) {
                     editor.emit('documents:focus', id);
+                }
 
                 // check if it's diry
                 if (asset.get('content') !== null) {
@@ -120,7 +122,6 @@ editor.once('load', function () {
     // and focus it
     editor.on('select:asset', function (asset) {
         if (asset.get('type') === 'folder') {
-            editor.emit('documents:unfocus');
             return;
         };
 
@@ -173,6 +174,9 @@ editor.once('load', function () {
             queuedLoad[id].unbind();
             delete queuedLoad[id];
         }
+
+        if (lastFocusedId === id)
+            lastFocusedId = null;
     });
 
     // unload document if asset is removed
@@ -246,10 +250,6 @@ editor.once('load', function () {
 
     editor.method('documents:getFocused', function () {
         return lastFocusedId;
-    });
-
-    editor.on('documents:unfocus', function (id) {
-        lastFocusedId = null;
     });
 
     // get an array with all the ids of open documents

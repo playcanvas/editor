@@ -160,7 +160,7 @@ editor.once('load', function() {
     }, {
         title: 'sort',
         subTitle: '{pc.PARTICLESORT_*}',
-        description: 'Sorting mode gives you control over the order in which particles are rendered. The options are:<br />None: Particles are rendered in arbitrary order. When this option is selected, the particle system is simulated on the GPU (if the underlying hardware supports floating point textures) and it is recommended you use this setting to get the best performance.<br />Camera Distance: Particles are sorted on the CPU and rendered in back to front order (in terms of camera z depth).<br />Newer First: Particles are sorted on the CPU and rendered in age order, youngest first.<br />Older First: Particles are sorted on the CPU and rendered in age order, oldest first.',
+        description: 'Sorting mode gives you control over the order in which particles are rendered. The options are: None: Particles are rendered in arbitrary order. When this option is selected, the particle system is simulated on the GPU (if the underlying hardware supports floating point textures) and it is recommended you use this setting to get the best performance. Camera Distance: Particles are sorted on the CPU and rendered in back to front order (in terms of camera z depth). Newer First: Particles are sorted on the CPU and rendered in age order, youngest first. Older First: Particles are sorted on the CPU and rendered in age order, oldest first.',
         url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#sort'
     }, {
         title: 'startAngle',

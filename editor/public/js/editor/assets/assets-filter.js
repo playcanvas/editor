@@ -60,7 +60,17 @@ editor.once('load', function() {
         // type
         if (visible && filterField.value !== 'all') {
             if (type === 'asset') {
-                visible = item.get('type') === filterField.value;
+                var assetType = item.get('type');
+
+                if (assetType === 'texture') {
+                    if (item.get('source')) {
+                        assetType = 'textureSource';
+                    } else {
+                        assetType = 'textureTarget';
+                    }
+                }
+
+                visible = assetType === filterField.value;
             } else if (type === 'script') {
                 visible = filterField.value === 'script';
             }
@@ -198,7 +208,8 @@ editor.once('load', function() {
                 script: 'Script',
                 shader: 'Shader',
                 text: 'Text',
-                texture: 'Texture'
+                textureTarget: 'Texture',
+                textureSource: 'Texture (source)'
             }
         });
     } else {
@@ -220,7 +231,8 @@ editor.once('load', function() {
                 script: 'Script',
                 shader: 'Shader',
                 text: 'Text',
-                texture: 'Texture'
+                textureTarget: 'Texture',
+                textureSource: 'Texture (source)'
             }
         });
     }
@@ -324,6 +336,15 @@ editor.once('load', function() {
         if (evt.keyCode === 27)
             searchClear.click();
     }, false);
+
+    // hotkeys
+    editor.call('hotkey:register', 'assets-focus-search', {
+        key: 'a',
+        alt: true,
+        callback: function (e) {
+            search.focus();
+        }
+    });
 
     var searchClear = document.createElement('div');
     searchClear.innerHTML = '&#57650;';

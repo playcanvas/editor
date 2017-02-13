@@ -221,7 +221,8 @@ editor.once('load', function() {
         });
         var instance = plane.model.meshInstances[0];
         instance.material = materialPlane;
-        plane.model.meshInstances.push(new pc.MeshInstance(instance.node, instance.mesh, materialPlaneBehind));
+        var instanceBehind = new pc.MeshInstance(instance.node, instance.mesh, materialPlaneBehind);
+        plane.model.meshInstances.push(instanceBehind);
 
         // gizmo class
         function Gizmo() {

@@ -5,9 +5,6 @@ editor.once('load', function () {
     var panel = editor.call('layout.top');
 
     var menuProject = new ui.Menu();
-    menuProject.class.add('top');
-    menuProject.class.add('project');
-
     menuProject.position(215, 33);
     root.append(menuProject);
 
@@ -17,18 +14,6 @@ editor.once('load', function () {
 
     panel.append(btnProject);
 
-    btnProject.on('click', function () {
-        menuProject.open = true;
-    });
 
-    menuProject.on('open', function (open) {
-        if (open) {
-            btnProject.class.add('open');
-        } else {
-            btnProject.class.remove('open');
-        }
-    });
-
-    editor.method('menu:project', function () { return menuProject; });
-
+    editor.call('menu:register', 'project', btnProject, menuProject);
 });

@@ -19,6 +19,8 @@ editor.once('load', function () {
     // if the asset is not loaded hide
     // the code panel until it's loaded
     editor.on('select:asset', function (asset) {
+        if (asset.get('type') === 'folder') return;
+
         if (! viewIndex[asset.get('id')]) {
             panel.hidden = true;
         }
@@ -63,6 +65,8 @@ editor.once('load', function () {
         });
 
         viewIndex[doc.name] = entry;
+
+        editor.emit('views:new:' + doc.name, entry.view);
     });
 
     // Focus document in code mirror
@@ -119,11 +123,13 @@ editor.once('load', function () {
 
         refreshReadonly();
 
-        // focus editor
-        cm.focus();
-
         // reset cursor
         cm.setSelections(focusedView.view.listSelections());
+
+        // focus editor
+        setTimeout(function () {
+            cm.focus();
+        });
     });
 
 
@@ -147,11 +153,6 @@ editor.once('load', function () {
 
         delete viewIndex[id];
 
-    });
-
-    editor.on('documents:unfocus', function () {
-        focusedView = null;
-        panel.hidden = true;
     });
 
     // Get focused document
