@@ -2,13 +2,24 @@ editor.once('load', function () {
     var whoisonline = { };
 
     editor.method('whoisonline:set', function (assetId, list) {
-        if (! whoisonline[assetId])
-            whoisonline[assetId] = {};
-
+        var index = {};
         for (var i = 0; i < list.length; i++)
-            whoisonline[assetId][list[i]] = true;
+            index[list[i]] = true;
 
-        editor.emit('whoisonline:set', assetId, whoisonline[assetId]);
+        var existing = whoisonline[assetId] || {};
+        for (var key in existing) {
+            if (! index[key]) {
+                editor.emit('whoisonline:remove', assetId, key);
+            }
+        }
+
+        for (var key in index) {
+            if (! existing[key]) {
+                editor.emit('whoisonline:add', assetId, key);
+            }
+        }
+
+        whoisonline[assetId] = index;
     });
 
     editor.method('whoisonline:get', function (assetId) {

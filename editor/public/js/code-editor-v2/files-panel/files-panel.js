@@ -135,6 +135,11 @@ editor.once('load', function () {
         });
         item.class.add('type-' + asset.get('type'));
 
+        // var users = document.createElement('span');
+        // users.classList.add('users');
+        // item.elementTitle.appendChild(users);
+        // item.elementUsers = users;
+
         editor.call('files:contextmenu:attach', item);
 
         item._assetId = id;
@@ -254,29 +259,28 @@ editor.once('load', function () {
         editor.emit('select:asset', asset);
     });
 
+    editor.method('files:getTreeItem', function (id) {
+        return itemIndex[id];
+    });
+
+    // show dirty assets
+    editor.on('documents:dirty', function (id, dirty) {
+        var item = itemIndex[id];
+        if (item) {
+            if (dirty) {
+                item.class.add('dirty');
+            } else {
+                item.class.remove('dirty');
+            }
+        }
+    });
+
     // Select file by id
     editor.method('files:select', function (id) {
         var item = itemIndex[id];
         if (item) {
             tree.clear()
             item.selected = true;
-        }
-    });
-
-    // Get a tree item by id
-    editor.method('files:getTreeItem', function (id) {
-        return itemIndex[id];
-    });
-
-    // Select file once assets are all loaded
-    editor.method('files:selectWhenReady', function (id) {
-        var item = itemIndex[id];
-        if (item) {
-            tree.clear();
-            item.selected = true;
-        } else {
-            if (toBeSelected.indexOf(id) === -1)
-                toBeSelected.push(id);
         }
     });
 
@@ -345,8 +349,10 @@ editor.once('load', function () {
     // deselect tree item
     editor.on('documents:close', function (id) {
         var item = itemIndex[id];
-        if (item)
+        if (item) {
             item.selected = false;
+            item.class.remove('dirty');
+        }
     });
 
 });

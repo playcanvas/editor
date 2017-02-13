@@ -291,29 +291,49 @@ strong {
 
 }
 
-.ui-tree-item {
-    &.rename {
-        > .title {
-            > .text {
-                display: none;
-            }
-            > .ui-text-field {
-                width: calc(100% - 24px);
-                margin: 0;
-                padding: 0;
-                border: none;
-                background-color: transparent;
+.ui-tree.files {
 
-                > .field {
+    .ui-tree-item {
+        &.rename {
+            > .title {
+                > .text {
+                    display: none;
+                }
+                > .ui-text-field {
+                    width: calc(100% - 24px);
+                    margin: 0;
                     padding: 0;
-                    @extend .font-regular;
-                    font-size: 14px;
+                    border: none;
+                    background-color: transparent;
+
+                    > .field {
+                        padding: 0;
+                        @extend .font-regular;
+                        font-size: 14px;
+                    }
                 }
             }
         }
+
+        &.dirty {
+            > .title {
+                > .text {
+                    color: transparentize($muted-yellow, 0.15);
+                }
+            }
+
+            &.selected {
+                > .title {
+                    > .text {
+                        color: $muted-yellow;
+                    }
+                }
+
+            }
+        }
+
     }
 }
-
 
 .ui-menu-item {
     &.noBorder {
