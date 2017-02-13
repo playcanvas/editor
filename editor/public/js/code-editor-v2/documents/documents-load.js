@@ -174,6 +174,9 @@ editor.once('load', function () {
             queuedLoad[id].unbind();
             delete queuedLoad[id];
         }
+
+        if (lastFocusedId === id)
+            lastFocusedId = null;
     });
 
     // unload document if asset is removed
