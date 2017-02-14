@@ -9,8 +9,12 @@ editor.once('load', function () {
     // tab order
     var tabOrder = [];
 
+    // The focused tab
     var focusedTab = null;
-
+    // The tab that new files will use
+    // to open in
+    var temporaryTab = null;
+    // The tab that the user is currently dragging
     var grabbedTab = null;
 
     // mouse x when we grabbed a tab
@@ -20,6 +24,10 @@ editor.once('load', function () {
 
     // tab positions when we grabbed a tab
     var tabPositions = [];
+
+    // if true then when we close a tab
+    // we won't automatically select a different tab
+    var suspendReselectOnClose = false;
 
     // unhide tabs panel when asset
     // is selected and create tab for asset
@@ -32,17 +40,30 @@ editor.once('load', function () {
 
         var id = asset.get('id')
 
-        if (! tabsIndex[id]) {
+        var isNew = !tabsIndex[id];
+
+        if (isNew) {
 
             // if we have a global error skip opening a new tab
             if (editor.call('errors:hasRealtime'))
                 return;
 
+            // // if we are focused on the temporary tab then use
+            // // that instead of opening a new tab
+            // if (focusedTab) {
+            //     if (focusedTab === temporaryTab) {
+            //         suspendReselectOnClose = true;
+            //         editor.emit('documents:close', temporaryTab.asset.get('id'));
+            //         suspendReselectOnClose = false;
+            //     } else if (temporaryTab) {
+            //         editor.emit('documents:close', temporaryTab.asset.get('id'));
+            //     }
+            // }
+
             // create tab
             var tab = new ui.Panel();
             tab.class.add('tab');
             tab._assetId = id;
-            tab.element.title = asset.get('name');
 
             // name container
             var panelName = new ui.Panel();
@@ -95,40 +116,52 @@ editor.once('load', function () {
                 panel.append(tab);
             }
 
-
+            // close tab button
             btnClose.on('click', function (e) {
                 e.stopPropagation();
-                editor.emit('documents:close', id);
+                editor.emit('documents:close', entry.asset.get('id'));
             });
 
-            // grab tab
-            tab.element.addEventListener('mousedown', function (e) {
+            var onGrab = function (e) {
                 if (e.target === btnClose.element)
                     return;
 
                 // close on middle click
                 if (e.button === 1) {
                     e.stopPropagation();
-                    editor.emit('documents:close', id);
+                    editor.emit('documents:close', entry.asset.get('id'));
                     return;
                 }
 
                 if (e.button === 0) {
-                    editor.call('files:select', id);
+                    editor.call('files:select', entry.asset.get('id'));
                     grabTab(entry, e);
                 }
-            });
+            }
+
+            var onMouseEnter = function (e) {
+                tab.class.add('hovered');
+            };
+
+            var onMouseLeave = function (e) {
+                tab.class.remove('hovered');
+            };
+
+            // grab tab
+            tab.element.addEventListener('mousedown', onGrab);
 
             // use hovered class for the close button
             // because the :hover selector doesn't seem to work
             // right all the time due to the fact that
             // each tab is removed-readded to the DOM when we move it
-            tab.element.addEventListener('mouseenter', function () {
-                tab.class.add('hovered');
-            });
+            tab.element.addEventListener('mouseenter', onMouseEnter);
 
-            tab.element.addEventListener('mouseleave', function () {
-                tab.class.remove('hovered');
+            tab.element.addEventListener('mouseleave', onMouseLeave);
+
+            tab.on('destroy', function () {
+                tab.element.removeEventListener('mousedown', onGrab);
+                tab.element.removeEventListener('mouseenter', onMouseEnter);
+                tab.element.removeEventListener('mouseleave', onMouseLeave);
             });
 
             // context menu
@@ -139,6 +172,16 @@ editor.once('load', function () {
         }
 
         focusTab(id);
+
+        // If this is a new tab then make it temporary
+        // and close old temporary
+        if (isNew) {
+            if (temporaryTab)
+                editor.emit('documents:close', temporaryTab.asset.get('id'));
+
+            temporaryTab = tabsIndex[id];
+            temporaryTab.tab.class.add('temporary');
+        }
     });
 
     // focus a tab
@@ -173,14 +216,19 @@ editor.once('load', function () {
         if (focusedTab === tab) {
             focusedTab = null;
 
-            if (order > 0) {
-                editor.call('files:select', tabOrder[order - 1].asset.get('id'));
-            } else if (order < tabOrder.length - 1) {
-                editor.call('files:select', tabOrder[order + 1].asset.get('id'));
-            } else {
-                panel.hidden = true;
+            if (! suspendReselectOnClose) {
+                if (order > 0) {
+                    editor.call('files:select', tabOrder[order - 1].asset.get('id'));
+                } else if (order < tabOrder.length - 1) {
+                    editor.call('files:select', tabOrder[order + 1].asset.get('id'));
+                } else {
+                    panel.hidden = true;
+                }
             }
         }
+
+        if (temporaryTab === tab)
+            temporaryTab = null;
 
         // remove tab
         delete tabsIndex[id];
@@ -200,10 +248,6 @@ editor.once('load', function () {
 
             }
         }
-
-        // if (focusedTab === entry) {
-        //     document.title = text + ' | ' + config.project.id + ' | ' + ' Code Editor';
-        // }
     };
 
     var toggleProgress = function (id, toggle) {
@@ -346,6 +390,17 @@ editor.once('load', function () {
         toggleProgress(doc.name, false);
     });
 
+
+    // clear temporary tab which means
+    // that when another file is selected it will open
+    // in a new tab instead of using the same
+    editor.method('tabs:clearTemporary', function () {
+        if (temporaryTab) {
+            temporaryTab.tab.class.remove('temporary');
+            temporaryTab = null;
+        }
+    });
+
     // change title on dirty doc
     editor.on('documents:dirty', function (id, dirty) {
         updateTitle(id, dirty);
@@ -357,6 +412,14 @@ editor.once('load', function () {
         // or we reconnected to the server and found out that
         // our save operation did not complete since the document is still dirty
         toggleProgress(id, false);
+    });
+
+    // when the user edits a document locally then make the tab permanent
+    editor.on('documents:dirtyLocal', function (id, dirty) {
+        // if this is the temporary tab make it permanent
+        if (dirty && temporaryTab && temporaryTab === tabsIndex[id]) {
+            editor.call('tabs:clearTemporary');
+        }
     });
 
     // close tab

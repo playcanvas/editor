@@ -22,7 +22,10 @@ editor.once('load', function () {
         if (events[id])
             events[id].unbind();
 
+        // select id
         editor.call('files:select', id);
+        // make sure each new selection goes in a new tab
+        editor.call('tabs:clearTemporary');
 
         if (! editor.call('views:get', id)) {
             events[id] = editor.once('views:new:' + id, function () {
