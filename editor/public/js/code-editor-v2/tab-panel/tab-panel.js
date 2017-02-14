@@ -71,9 +71,6 @@ editor.once('load', function () {
             progress.progress = 100;
             tab.append(progress);
 
-            // append tab
-            panel.append(tab);
-
             // add index entry
             var entry = {
                 tab: tab,
@@ -84,7 +81,20 @@ editor.once('load', function () {
 
             tabsIndex[id] = entry;
 
-            tabOrder.push(tabsIndex[id]);
+            // add the tab next to the focused tab
+            var focused = -1;
+            if (focusedTab) {
+                focused = tabOrder.indexOf(focusedTab);
+            }
+
+            if (focused >= 0) {
+                tabOrder.splice(focused + 1, 0, entry);
+                panel.appendAfter(tab, focusedTab.tab);
+            } else {
+                tabOrder.push(entry);
+                panel.append(tab);
+            }
+
 
             btnClose.on('click', function (e) {
                 e.stopPropagation();
