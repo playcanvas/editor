@@ -28,7 +28,6 @@ editor.once('load', function () {
     });
 
     var refreshTreePermissions = function () {
-        tree.allowRenaming = isTreeEditable();
         tree.draggable = isTreeEditable();
     }
 
@@ -74,6 +73,43 @@ editor.once('load', function () {
 
     // assets to be selected once everything is loaded
     var toBeSelected = [];
+
+    // Select item or expand children
+    // but never de-select
+    var onItemClick = function (evt) {
+        if (evt.button !== 0 || ! this.ui.selectable)
+            return;
+
+        var rect = this.getBoundingClientRect();
+
+        if (this.ui._children && (evt.clientX - rect.left) < 0) {
+            this.ui.open = ! this.ui.open;
+        } else if (! this.ui.selected) {
+            this.ui.tree._onItemClick(this.ui);
+            evt.stopPropagation();
+        } else {
+            evt.stopPropagation();
+
+        }
+    };
+
+    // On double click make this tab stay open
+    // and subsequent file selections will open a new tab
+    var onItemDblClick = function (evt) {
+        if (evt.button !== 0 || ! this.ui.selectable)
+            return;
+
+        var rect = this.getBoundingClientRect();
+
+        if (! this.ui._children || (evt.clientX - rect.left) >= 0) {
+            var asset = editor.call('assets:get', this.ui._assetId);
+            if (! asset || asset.get('type') === 'folder')
+                return;
+
+            evt.stopPropagation();
+            editor.call('tabs:clearTemporary');
+        }
+    };
 
     // append item to parent in alphabetical order
     // if item is a folder also append any other items
@@ -149,6 +185,15 @@ editor.once('load', function () {
         }
 
         itemIndex[id] = item;
+
+        // Override click / double click
+        item.elementTitle.removeEventListener('click', item._onClick);
+        item.elementTitle.addEventListener('click', onItemClick);
+        item.elementTitle.addEventListener('dblclick', onItemDblClick);
+        item.on('destroy', function () {
+            item.elementTitle.removeEventListener('click', onItemClick);
+            item.elementTitle.removeEventListener('dblclick', onItemDblClick);
+        });
 
         var addItem = function (item, path) {
             var length = path.length;

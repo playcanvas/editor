@@ -2,18 +2,18 @@ editor.once('load', function () {
     'use strict';
 
     var filePanelReady = false;
-    var queue = {};
+    var queue = [];
     var codePanel = editor.call('layout.code');
     var cm = editor.call('editor:codemirror');
 
     editor.once('files:load', function () {
         filePanelReady = true;
 
-        for (var id in queue) {
-            selectAndHighlight(id, queue[id]);
+        for (var i = 0, len = queue.length; i < len; i++) {
+            selectAndHighlight(queue[i].id, queue[i].options);
         }
 
-        queue = {};
+        queue.length = 0;
     });
 
     var events = {};
@@ -22,7 +22,10 @@ editor.once('load', function () {
         if (events[id])
             events[id].unbind();
 
+        // select id
         editor.call('files:select', id);
+        // make sure each new selection goes in a new tab
+        editor.call('tabs:clearTemporary');
 
         if (! editor.call('views:get', id)) {
             events[id] = editor.once('views:new:' + id, function () {
@@ -67,7 +70,17 @@ editor.once('load', function () {
         if (filePanelReady) {
             selectAndHighlight(id, options);
         } else {
-            queue[id] = options;
+            for (var i = 0, len = queue.length; i < len; i++) {
+                if (queue[i].id === id) {
+                    queue.splice(i, 1);
+                    break;
+                }
+            }
+
+            queue.push({
+                id: id,
+                options: options
+            });
         }
     });
 });

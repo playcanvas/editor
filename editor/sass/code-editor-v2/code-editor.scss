@@ -195,6 +195,12 @@ strong {
             color: $bright-red;
         }
 
+        &.temporary {
+            > .content > .ui-panel.name {
+                font-style: italic;
+            }
+        }
+
         > .content {
             > .ui-panel.name {
                 overflow: hidden;

@@ -56,7 +56,8 @@ editor.once('load', function () {
             error: null,
             content: null,
             isLoading: true,
-            isDirty: false
+            isDirty: false,
+            hasLocalChanges: false
         };
 
         documentsIndex[id] = entry;
@@ -72,6 +73,11 @@ editor.once('load', function () {
             if (!entry.isDirty) {
                 entry.isDirty = true;
                 editor.emit('documents:dirty', id, true);
+            }
+
+            if (local && ! entry.hasLocalChanges) {
+                entry.hasLocalChanges = true;
+                editor.emit('documents:dirtyLocal', id, true);
             }
         });
 
