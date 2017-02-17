@@ -47,10 +47,24 @@ editor.once('load', function () {
     var mac = navigator.userAgent.indexOf('Mac OS X') !== -1;
 
     options.extraKeys['Esc'] = function (cm) {
+        var selections = cm.listSelections();
+
         if (cm.somethingSelected()) {
-            cm.setSelection(cm.getCursor('anchor'), cm.getCursor('anchor'));
+            // Reset selections for each cursor
+            cm.setSelections(selections.map(function (selection) {
+                return {
+                    anchor: selection.anchor,
+                    head: selection.anchor
+                }
+            }));
         } else {
-            cm.execCommand('clearSearch');
+            if (selections.length > 1) {
+                // clear multiple cursors
+                cm.setCursor(selections[0].anchor);
+            } else {
+                // clear search
+                cm.execCommand('clearSearch');
+            }
         }
     };
 

@@ -260,10 +260,22 @@ editor.once('load', function () {
         return 0;
     };
 
+    var pick = function (assetId) {
+        // open new file in new tab (if it's not open already)
+        editor.call('tabs:temp:lock');
+        editor.call('files:select', assetId);
+        editor.call('tabs:temp:unlock');
+
+        // if the file is the temp tab then make it stick
+        if (editor.call('tabs:isTemp', assetId))
+            editor.call('tabs:temp:stick');
+
+    };
+
     var createResultItem = function (asset, index) {
         var item = menuResults.createItem(asset.get('id'), {
             select: function () {
-                editor.call('files:select', asset.get('id'));
+                pick(asset.get('id'));
                 editor.call('picker:fuzzy:close');
             }
         });
@@ -347,7 +359,6 @@ editor.once('load', function () {
         var selected = children[selectedIndex];
         if (! selected) return;
 
-        var assetId = selected.ui._assetId;
-        editor.call('files:select', assetId);
+        pick(selected.ui._assetId);
     };
 });

@@ -20,16 +20,26 @@ editor.once('load', function() {
                 // open the new code editor - try to focus existing tab if it exists
                 // (only works in Chrome and only if the Code Editor has been opened by the Editor)
 
+                var url = '/editor/code/' + config.project.id + '?tabs=' + asset.get('id');
+                var name = 'codeeditor:' + config.project.id;
+
                 if (firefox) {
                     // (Firefox doesn't work at all so open a new tab everytime)
-                    window.open('/editor/code/' + config.project.id + '?tabs=' + asset.get('id'));
+                    window.open(url);
                 } else {
-                    var wnd = window.open('', 'codeeditor:' + config.project.id);
-                    if (wnd.editor) {
-                        wnd.editor.call('integration:selectWhenReady', asset.get('id'));
-                    } else {
-                        wnd.location.href = '/editor/code/' + config.project.id + '?tabs=' + asset.get('id');
+                    var wnd = window.open('', name);
+                    try {
+                        if (wnd.editor && wnd.editor.isCodeEditor) {
+                            wnd.editor.call('integration:selectWhenReady', asset.get('id'));
+                        } else {
+                            wnd.location.href = url;
+                        }
+                    } catch (ex) {
+                        // accessing wnd will throw an exception if it
+                        // is at a different domain
+                        window.open(url, name);
                     }
+
                 }
 
             } else {
