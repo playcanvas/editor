@@ -223,28 +223,6 @@ a:visited {
                 background-color: $bcg-darkest;
             }
         }
-        &.container {
-            > .title {
-                &:hover {
-                    &:before {
-                        color: $text-secondary;
-                    }
-                }
-                &:before {
-                    background-color: mix($text-darkest, $bcg-darker, 30%);
-
-                    &:hover {
-                        background-color: $text-active;
-                    }
-                }
-            }
-
-            &.open {
-                > .title:before {
-                    background-color: mix($text-darkest, $bcg-darker, 30%);
-                }
-            }
-        }
         > .title {
             > .text {
                 @extend .font-regular;
@@ -316,8 +294,6 @@ a:visited {
         &.open {
             > .title:before {
                 content: '\E121';
-                color: $text-secondary;
-                background-color: $bcg-dark;
             }
         }
     }
