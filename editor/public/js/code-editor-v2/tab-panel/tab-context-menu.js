@@ -82,11 +82,13 @@ editor.once('load', function () {
     menu.append(menu.createItem('close-all', {
         title: 'Close All Tabs',
         select: function () {
+            editor.call('tabs:batchClose:start');
             var tabs = editor.call('tabs:list');
             var i = tabs.length;
             while (i--) {
                 editor.emit('documents:close', tabs[i].asset.get('id'));
             }
+            editor.call('tabs:batchClose:end');
         }
     }));
 });

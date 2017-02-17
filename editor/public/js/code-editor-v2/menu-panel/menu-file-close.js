@@ -117,9 +117,11 @@ editor.once('load', function () {
     // Close all
     editor.method('editor:command:closeAll', function () {
         var open = editor.call('documents:list');
+        editor.call('tabs:batchClose:start');
         for (var i = 0; i < open.length; i++) {
             editor.emit('documents:close', open[i]);
         }
+        editor.call('tabs:batchClose:end');
     });
 
 });

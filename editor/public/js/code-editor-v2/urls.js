@@ -17,9 +17,15 @@ editor.once('load', function () {
         window.history.replaceState('', '', url);
     };
 
-    editor.on('tabs:open', updateUrl);
-    editor.on('tabs:close', updateUrl);
-    editor.on('tabs:reorder', updateUrl);
+    var timeout;
+    var deferredUpdate = function () {
+        clearTimeout(timeout);
+        timeout = setTimeout(updateUrl);
+    }
+
+    editor.on('tabs:open', deferredUpdate);
+    editor.on('tabs:close', deferredUpdate);
+    editor.on('tabs:reorder', deferredUpdate);
 
     var totalTabs = config.tabs.length;
     var openedTabs = 0;

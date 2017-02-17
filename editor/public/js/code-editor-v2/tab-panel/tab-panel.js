@@ -27,7 +27,7 @@ editor.once('load', function () {
 
     // if true then when we close a tab
     // we won't automatically select a different tab
-    var suspendReselectOnClose = false;
+    var batchClose = false;
 
     // If true then the temporary tab will
     // not switch to a different file
@@ -209,7 +209,7 @@ editor.once('load', function () {
         if (focusedTab === tab) {
             focusedTab = null;
 
-            if (! suspendReselectOnClose) {
+            if (! batchClose) {
                 if (order > 0) {
                     editor.call('files:select', tabOrder[order - 1].asset.get('id'));
                 } else if (order < tabOrder.length - 1) {
@@ -446,6 +446,16 @@ editor.once('load', function () {
     // returns true if the asset id is shown in the temporary tab
     editor.method('tabs:isTemp', function (id) {
         return temporaryTab && temporaryTab === tabsIndex[id];
+    });
+
+    // starts batch closing tabs
+    editor.method('tabs:batchClose:start', function () {
+        batchClose = true;
+    });
+
+    // ends batch closing tabs
+    editor.method('tabs:batchClose:end', function () {
+        batchClose = false;
     });
 
     // handle asset name changes
