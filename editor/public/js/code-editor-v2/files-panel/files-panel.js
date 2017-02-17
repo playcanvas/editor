@@ -128,16 +128,18 @@ editor.once('load', function () {
         }
     };
 
-    // append item to parent keeping order alphabetical
+    // Append item to parent keeping order alphabetical.
+    // Puts folders first.
     var appendAlphabetically = function (item, parent) {
         var children = Array.prototype.slice.call(parent.element.childNodes, 1);
         if (! children.length)
             return parent.append(item);
 
         var text = item.text.toLowerCase();
+        var folder  = item._folder;
         var low = 0;
         var hi = children.length - 1;
-        var mid, node, nodeText;
+        var mid, node, nodeText, nodeFolder;
 
         var done = false;
 
@@ -145,19 +147,39 @@ editor.once('load', function () {
             mid = Math.floor((low + hi) / 2);
             node = children[mid].ui;
             nodeText = node.text.toLowerCase();
-            if (text === nodeText) {
-                break;
-            } else if (text < nodeText) {
-                hi = mid - 1;
-            } else if (text > nodeText) {
-                low = mid + 1;
+            nodeFolder = node._folder;
+
+            if (folder === nodeFolder) {
+                if (text === nodeText) {
+                    break;
+                } else if (text < nodeText) {
+                    hi = mid - 1;
+                } else if (text > nodeText) {
+                    low = mid + 1;
+                }
+
+            } else {
+                if (folder) {
+                    hi = mid - 1;
+                } else {
+                    low = mid + 1;
+                }
+
             }
         }
 
-        if (text < nodeText) {
-            parent.appendBefore(item, node);
+        if (folder === nodeFolder) {
+            if (text < nodeText) {
+                parent.appendBefore(item, node);
+            } else {
+                parent.appendAfter(item, node);
+            }
         } else {
-            parent.appendAfter(item, node);
+            if (folder) {
+                parent.appendBefore(item, node);
+            } else {
+                parent.appendAfter(item, node);
+            }
         }
     };
 
@@ -179,6 +201,9 @@ editor.once('load', function () {
         editor.call('files:contextmenu:attach', item);
 
         item._assetId = id;
+
+        if (asset.get('type') === 'folder')
+            item._folder = true;
 
         if (itemIndex[id]) {
             itemIndex[id].destroy();
