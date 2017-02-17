@@ -121,19 +121,25 @@ editor.once('load', function() {
                 var link = document.getElementById('error-' + errorCount);
                 link.addEventListener('click', function (e) {
                     var existing = window.open('', target);
-                    if (existing) {
-                        e.preventDefault();
-                        e.stopPropagation();
+                    try {
+                        if (existing) {
+                            e.preventDefault();
+                            e.stopPropagation();
 
-                        if (existing.editor) {
-                            existing.editor.call('integration:selectWhenReady', assetId, {
-                                line: line,
-                                col: col,
-                                error: true
-                            });
-                        } else {
-                            existing.location.href = codeEditorUrl + query;
+                            if (existing.editor && existing.editor.isCodeEditor) {
+                                existing.editor.call('integration:selectWhenReady', assetId, {
+                                    line: line,
+                                    col: col,
+                                    error: true
+                                });
+                            } else {
+                                existing.location.href = codeEditorUrl + query;
+                            }
                         }
+                    } catch (ex) {
+                        // if we try to access 'existing' and it's in a different
+                        // domain an exception will be raised
+                        window.open(codeEditorUrl + query, target);
                     }
                 });
             }

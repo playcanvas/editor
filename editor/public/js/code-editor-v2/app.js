@@ -10,6 +10,10 @@
         Events.call(this);
 
         this._hooks = { };
+
+        // used by other tabs to identify if this is
+        // the code editor
+        this.isCodeEditor = true;
     }
     CodeEditor.prototype = Object.create(Events.prototype);
 
