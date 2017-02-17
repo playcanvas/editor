@@ -151,19 +151,7 @@ editor.once('load', function() {
         }
     };
 
-    var codePanel = editor.call('layout.code');
-
     window.addEventListener('keydown', function(evt) {
-        if (evt.target) {
-            var tag = evt.target.tagName;
-            if (tag === 'textarea' && ! codePanel.innerElement.contains(evt.target)) {
-                return;
-            }
-
-            if (tag === 'input')
-                return;
-        }
-
         updateModifierKeys(evt);
 
         var keyCode = evt.keyCode;
