@@ -107,7 +107,7 @@ editor.once('load', function () {
                 return;
 
             evt.stopPropagation();
-            editor.call('tabs:clearTemporary');
+            editor.call('tabs:temp:stick');
         }
     };
 

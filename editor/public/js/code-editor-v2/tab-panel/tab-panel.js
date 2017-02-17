@@ -29,6 +29,11 @@ editor.once('load', function () {
     // we won't automatically select a different tab
     var suspendReselectOnClose = false;
 
+    // If true then the temporary tab will
+    // not switch to a different file
+    var lockTemporary = false;
+
+
     // unhide tabs panel when asset
     // is selected and create tab for asset
     // or focus existing tab
@@ -47,18 +52,6 @@ editor.once('load', function () {
             // if we have a global error skip opening a new tab
             if (editor.call('errors:hasRealtime'))
                 return;
-
-            // // if we are focused on the temporary tab then use
-            // // that instead of opening a new tab
-            // if (focusedTab) {
-            //     if (focusedTab === temporaryTab) {
-            //         suspendReselectOnClose = true;
-            //         editor.emit('documents:close', temporaryTab.asset.get('id'));
-            //         suspendReselectOnClose = false;
-            //     } else if (temporaryTab) {
-            //         editor.emit('documents:close', temporaryTab.asset.get('id'));
-            //     }
-            // }
 
             // create tab
             var tab = new ui.Panel();
@@ -175,7 +168,7 @@ editor.once('load', function () {
 
         // If this is a new tab then make it temporary
         // and close old temporary
-        if (isNew) {
+        if (isNew && ! lockTemporary) {
             if (temporaryTab)
                 editor.emit('documents:close', temporaryTab.asset.get('id'));
 
@@ -391,14 +384,20 @@ editor.once('load', function () {
     });
 
 
-    // clear temporary tab which means
-    // that when another file is selected it will open
-    // in a new tab instead of using the same
-    editor.method('tabs:clearTemporary', function () {
+    // Make temporary tab stick and not be in preview mode anymore
+    editor.method('tabs:temp:stick', function () {
         if (temporaryTab) {
             temporaryTab.tab.class.remove('temporary');
             temporaryTab = null;
         }
+    });
+
+    editor.method('tabs:temp:lock', function () {
+        lockTemporary = true;
+    });
+
+    editor.method('tabs:temp:unlock', function () {
+        lockTemporary = false;
     });
 
     // change title on dirty doc
@@ -418,7 +417,7 @@ editor.once('load', function () {
     editor.on('documents:dirtyLocal', function (id, dirty) {
         // if this is the temporary tab make it permanent
         if (dirty && temporaryTab && temporaryTab === tabsIndex[id]) {
-            editor.call('tabs:clearTemporary');
+            editor.call('tabs:temp:stick');
         }
     });
 
@@ -442,6 +441,11 @@ editor.once('load', function () {
     // returns focused tab
     editor.method('tabs:focused', function () {
         return focusedTab;
+    });
+
+    // returns true if the asset id is shown in the temporary tab
+    editor.method('tabs:isTemp', function (id) {
+        return temporaryTab && temporaryTab === tabsIndex[id];
     });
 
     // handle asset name changes

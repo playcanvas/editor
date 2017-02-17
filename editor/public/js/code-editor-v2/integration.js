@@ -22,10 +22,15 @@ editor.once('load', function () {
         if (events[id])
             events[id].unbind();
 
+        // if asset does not exist exit early
+        if (! editor.call('assets:get', id)) {
+            return options.callback && options.callback();
+        }
+
         // select id
         editor.call('files:select', id);
         // make sure each new selection goes in a new tab
-        editor.call('tabs:clearTemporary');
+        editor.call('tabs:temp:stick');
 
         if (! editor.call('views:get', id)) {
             events[id] = editor.once('views:new:' + id, function () {
