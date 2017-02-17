@@ -27,6 +27,7 @@ editor.once('load', function () {
             if (codePanel.element.contains(e.target) || e.target.tagName.toLowerCase() === 'input')
                 return;
 
+            e.preventDefault();
             editor.call('editor:command:undo');
         }
     });
