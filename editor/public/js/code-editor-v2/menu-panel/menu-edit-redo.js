@@ -31,7 +31,7 @@ editor.once('load', function () {
         }
     });
 
-    editor.call('hotkey:register', 'redo', {
+    editor.call('hotkey:register', 'redo-2', {
         key: 'z',
         ctrl: true,
         shift: true,

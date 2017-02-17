@@ -32,19 +32,19 @@ editor.once('load', function () {
         key: 'delete',
         skipPreventDefault: true,
         callback: function (e) {
-            if (leftPanel.element.contains(e.target)) {
+            if (leftPanel.element.contains(e.target) && e.target.tagName.toLowerCase() !== 'input') {
                 e.preventDefault();
                 editor.call('editor:command:deleteSelected');
             }
         }
     });
 
-    editor.call('hotkey:register', 'delete-files', {
+    editor.call('hotkey:register', 'delete-files-2', {
         key: 'backspace',
         ctrl: true,
         skipPreventDefault: true,
         callback: function (e) {
-            if (leftPanel.element.contains(e.target)) {
+            if (leftPanel.element.contains(e.target) && e.target.tagName.toLowerCase() !== 'input') {
                 e.preventDefault();
                 editor.call('editor:command:deleteSelected');
             }
