@@ -429,7 +429,11 @@ editor.once('load', function () {
         toggleProgress(id, true);
     });
 
-    editor.on('editor:command:save:end', function (id) {
+    editor.on('documents:save:success', function (id) {
+        toggleProgress(id, false);
+    });
+
+    editor.on('documents:save:error', function (id) {
         toggleProgress(id, false);
     });
 

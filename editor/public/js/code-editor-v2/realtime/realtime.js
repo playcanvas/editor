@@ -112,6 +112,15 @@ editor.once('load', function () {
                             }
                             editor.call('whoisonline:' + op, doc, data);
                         }
+                    } else if (msg.data.startsWith('doc:save:')) {
+                        var parts = msg.data.split(':');
+                        if (parts.length === 4) {
+                            if (parts[2] === 'success') {
+                                editor.emit('documents:save:success', parseInt(parts[3], 10));
+                            } else if (parts[2] === 'error') {
+                                editor.emit('documents:save:error', parseInt(parts[3], 10));
+                            }
+                        }
                     } else {
                         onSharejsMessage(msg);
                     }

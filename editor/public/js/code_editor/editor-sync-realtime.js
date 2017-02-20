@@ -205,7 +205,7 @@ editor.once('load', function() {
                             editor.call('whoisonline:' + op, data);
                         }
                     }
-                    else if (!msg.data.startsWith('fs:')) {
+                    else if (!msg.data.startsWith('fs:') && !msg.data.startsWith('doc:save:')) {
                         sharejsMessage(msg);
                     }
                 } catch (e) {
