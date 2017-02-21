@@ -70,18 +70,6 @@ editor.once('load', function () {
 
         });
 
-        // Every time the 'subscribe' event is fired on the asset document
-        // reload the asset content and check if it's different than the document content in
-        // order to activate the REVERT button
-        assetDoc.on('subscribe', function () {
-            assetDoc.whenReady(function () {
-                if (asset && asset.get('type') !== 'folder' && asset.get('file.filename')) {
-                    // load asset file to check if it has different contents
-                    // than the sharejs document
-                    editor.call('assets:loadFile', asset);
-                }
-            });
-        });
 
         assetDoc.subscribe();
     });
