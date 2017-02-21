@@ -18,7 +18,8 @@ editor.once('viewport:load', function() {
     var vecA = new pc.Vec3();
     var vecB = new pc.Vec3();
     var distance = 1;
-
+    var rootAabb = new pc.BoundingBox();
+    var lastRootAabb = 0;
 
     editor.on('hotkey:shift', function(state) {
         shiftKey = state;
@@ -48,7 +49,6 @@ editor.once('viewport:load', function() {
                     editor.call('camera:orbit:distance', dist);
                 } else {
                     if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
-
                         var mouseWPos = camera.camera.screenToWorld(mouseCoords.x, mouseCoords.y, 1);
                         var rayDirection = vecB.copy(mouseWPos).sub(camera.getPosition()).normalize();
 
@@ -63,8 +63,15 @@ editor.once('viewport:load', function() {
                                 distance = Math.max(1, Math.min(zoomMax, aabb.center.clone().sub(camera.getPosition()).length()));
                             } else {
                                 // nothing selected, then size of aabb of scene or distance to center of aabb
-                                aabb = editor.call('entities:aabb', editor.call('entities:root'));
-                                if (aabb) {
+
+                                if ((Date.now() - lastRootAabb) > 1000) {
+                                    lastRootAabb = Date.now();
+                                    rootAabb.copy(editor.call('entities:aabb', editor.call('entities:root')));
+                                }
+
+                                aabb = rootAabb;
+
+                                if (editor.call('entities:root')) {
                                     distance = Math.max(aabb.halfExtents.length(), aabb.center.clone().sub(camera.getPosition()).length());
                                     distance = Math.max(1, Math.min(zoomMax, distance));
                                 }
