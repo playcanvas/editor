@@ -994,79 +994,17 @@ strong {
         }
         &.field-strings {
             > .content > .ui-panel {
+                width: 100%;
                 // max-width: calc(100% - 77px);
 
-                &.disabled > .content {
-                    > .tag {
-                        opacity: .5;
-
-                        > .icon {
-                            cursor: default;
-                        }
-                    }
-                }
-
                 > .content {
-                    flex-direction: row;
-                    flex-wrap: wrap;
-
                     padding: 2px;
 
-                    > .tag {
-                        position: relative;
-                        font-family: "Lucida Console", Monaco, monospace;
-                        font-weight: normal;
-                        font-size: 10px;
-                        display: inline-block;
-                        line-height: 21px;
-                        height: 20px;
-                        margin: 1px;
-                        padding: 0 24px 0 8px;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        //white-space: nowrap;
-                        word-break: break-all;
-                        background-color: $bcg-dark;
-                        cursor: default;
-
-                        &:hover {
-                            color: $text-primary;
-                            background-color: $bcg-darkest;
-                            // padding-right: 26px;
-                            > .icon {
-                                padding-left: 0;
-                            }
-                        }
-                        &.partial {
-                            opacity: .5;
-                        }
-                        > .icon {
-                            @extend .font-icon;
-                            position: absolute;
-                            right: 0;
-                            top: 0;
-                            width: 16px;
-                            line-height: 20px;
-                            padding-right: 1px;
-                            font-size: 12px;
-                            text-align: center;
-                            cursor: pointer;
-                            color: $text-secondary;
-                            border-left: 1px solid $bcg-darker;
-                            background-color: $bcg-dark;
-
-                            &:hover {
-                                color: #d34141;
-                                background-color: $bcg-darkest;
-                                border-left-color: $bcg-darkest;
-                            }
-                        }
-                    }
                     > .ui-text-field {
                         width: calc(100% - 26px);
                         margin: 1px 0 1px 1px;
                         flex-shrink: 0;
-                        display: block;
+                        float: left;
                     }
                     > .ui-button {
                         margin: 1px 1px 1px 0;
@@ -1079,6 +1017,75 @@ strong {
 
                         &:hover {
                             color: $text-active;
+                        }
+                    }
+                    > .ui-panel.tags {
+                        &.disabled > .content {
+                            > .tag {
+                                opacity: .5;
+
+                                > .icon {
+                                    cursor: default;
+                                }
+                            }
+                        }
+                        > .content {
+                            flex-direction: row;
+                            flex-wrap: wrap;
+                            max-height: 188px;
+                            overflow-y: auto;
+                            overflow-x: hidden;
+
+                            > .tag {
+                                position: relative;
+                                font-family: "Lucida Console", Monaco, monospace;
+                                font-weight: normal;
+                                font-size: 10px;
+                                display: inline-block;
+                                line-height: 21px;
+                                height: 20px;
+                                margin: 1px;
+                                padding: 0 24px 0 8px;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                //white-space: nowrap;
+                                word-break: break-all;
+                                background-color: $bcg-dark;
+                                cursor: default;
+
+                                &:hover {
+                                    color: $text-primary;
+                                    background-color: $bcg-darkest;
+                                    // padding-right: 26px;
+                                    > .icon {
+                                        padding-left: 0;
+                                    }
+                                }
+                                &.partial {
+                                    opacity: .5;
+                                }
+                                > .icon {
+                                    @extend .font-icon;
+                                    position: absolute;
+                                    right: 0;
+                                    top: 0;
+                                    width: 16px;
+                                    line-height: 20px;
+                                    padding-right: 1px;
+                                    font-size: 12px;
+                                    text-align: center;
+                                    cursor: pointer;
+                                    color: $text-secondary;
+                                    border-left: 1px solid $bcg-darker;
+                                    background-color: $bcg-dark;
+
+                                    &:hover {
+                                        color: #d34141;
+                                        background-color: $bcg-darkest;
+                                        border-left-color: $bcg-darkest;
+                                    }
+                                }
+                            }
                         }
                     }
                 }

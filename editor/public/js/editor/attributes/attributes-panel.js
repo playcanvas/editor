@@ -522,8 +522,6 @@ editor.once('load', function() {
 
             case 'strings':
                 var innerPanel = new ui.Panel();
-                innerPanel.flex = true;
-                innerPanel.flexGrow = 1;
 
                 field = new ui.TextField();
                 field.blurOnEnter = false;
@@ -550,6 +548,11 @@ editor.once('load', function() {
                     field.value = '';
                 });
                 innerPanel.append(btnAdd);
+
+                var tagsPanel = new ui.Panel();
+                tagsPanel.class.add('tags');
+                tagsPanel.flex = true;
+                innerPanel.append(tagsPanel);
 
                 var tagItems = { };
                 var tagIndex = { };
@@ -694,7 +697,7 @@ editor.once('load', function() {
                     tagIndex[tag]--;
 
                     if (! tagIndex[tag]) {
-                        innerPanel.innerElement.removeChild(tagItems[tag]);
+                        tagsPanel.innerElement.removeChild(tagItems[tag]);
                         var ind = tagList.indexOf(tag);
                         if (ind !== -1)
                             tagList.splice(ind, 1);
@@ -728,9 +731,9 @@ editor.once('load', function() {
 
                         var ind = tagList.indexOf(tag);
                         if (tagItems[tagList[ind + 1]]) {
-                            innerPanel.appendBefore(item, tagItems[tagList[ind + 1]]);
+                            tagsPanel.appendBefore(item, tagItems[tagList[ind + 1]]);
                         } else {
-                            innerPanel.append(item);
+                            tagsPanel.append(item);
                         }
                     }
 
@@ -800,7 +803,7 @@ editor.once('load', function() {
                     args.linkEvents = [ ];
 
                     for(var key in tagItems)
-                        innerPanel.innerElement.removeChild(tagItems[key]);
+                        tagsPanel.innerElement.removeChild(tagItems[key]);
 
                     tagList = [ ];
                     tagIndex = { };
