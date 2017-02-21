@@ -161,6 +161,7 @@ editor.once('load', function () {
         }
     });
 
+    // Handle save success
     editor.on('documents:save:success', function (id) {
         var asset = editor.call('assets:get', id);
         editor.call('status:log', 'Saved "' + asset.get('name') + '"');
@@ -168,6 +169,7 @@ editor.once('load', function () {
         delete savingIndex[id];
     });
 
+    // Handle save error
     editor.on('documents:save:error', function (id) {
         var asset = editor.call('assets:get', id);
         editor.call('status:error', 'Could not save "' + asset.get('name') + '"');
@@ -175,9 +177,35 @@ editor.once('load', function () {
         delete savingIndex[id];
     });
 
+    // When a document is marked as clean
+    // we should delete any saving locks since it's fine
+    // to re-save
+    editor.on('documents:dirty', function (id, dirty) {
+        if (! dirty) {
+            if (savingIndex[id]) {
+                delete savingIndex[id];
+                editor.call('status:clear');
+            }
+        }
+    });
+
+    // if a document is loaded it either means it's loaded for the first time
+    // or it's reloaded. In either case make sure we can save the document again
+    // if we got disconnected in the meantime
+    editor.on('documents:load', function (doc, asset) {
+        var id = doc.name;
+        if (savingIndex[id]) {
+            delete savingIndex[id];
+            editor.call('status:clear');
+        }
+    });
+
     // when we close a document remove it's saving status
     editor.on('documents:close', function (id) {
-        delete savingIndex[id];
+        if (savingIndex[id]) {
+            delete savingIndex[id];
+            editor.call('status:clear');
+        }
     });
 
     // Save document
