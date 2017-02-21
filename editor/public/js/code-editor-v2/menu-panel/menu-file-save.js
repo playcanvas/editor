@@ -161,16 +161,23 @@ editor.once('load', function () {
         }
     });
 
-    // When a document stops being dirty
-    // it means it was saved so check for pending save requests
-    // and end them
-    editor.on('documents:dirty', function (id, dirty) {
-        if (dirty) return;
+    editor.on('documents:save:success', function (id) {
+        var asset = editor.call('assets:get', id);
+        editor.call('status:log', 'Saved "' + asset.get('name') + '"');
 
-        if (savingIndex[id]) {
-            delete savingIndex[id];
-            editor.emit('editor:command:save:end', id);
-        }
+        delete savingIndex[id];
+    });
+
+    editor.on('documents:save:error', function (id) {
+        var asset = editor.call('assets:get', id);
+        editor.call('status:error', 'Could not save "' + asset.get('name') + '"');
+
+        delete savingIndex[id];
+    });
+
+    // when we close a document remove it's saving status
+    editor.on('documents:close', function (id) {
+        delete savingIndex[id];
     });
 
     // Save document
@@ -197,15 +204,4 @@ editor.once('load', function () {
         var asset = editor.call('assets:get', id);
         editor.call('status:log', 'Saving "' + asset.get('name') + '"...');
     });
-
-    editor.on('editor:command:save:end', function (id) {
-        var asset = editor.call('assets:get', id);
-        editor.call('status:log', 'Saved "' + asset.get('name') + '"');
-    });
-
-    editor.on('editor:command:save:cancel', function (id) {
-        var asset = editor.call('assets:get', id);
-        editor.call('status:clear');
-    });
-
 });

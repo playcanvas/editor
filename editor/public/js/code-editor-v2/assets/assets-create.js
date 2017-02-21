@@ -92,7 +92,9 @@ editor.once('load', function () {
         // do this in a timeout to give the asset a frame
         // to be added to the tree
         setTimeout(function () {
+            editor.call('tabs:temp:lock');
             editor.call('files:select', asset.get('id'));
+            editor.call('tabs:temp:unlock');
         });
     };
 
