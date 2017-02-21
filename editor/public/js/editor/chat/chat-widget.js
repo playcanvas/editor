@@ -234,6 +234,7 @@ editor.once('load', function() {
     // messages
     var messages = new ui.Panel();
     messages.class.add('messages');
+    messages.innerElement.classList.add('selectable');
     messages.scroll = true;
     panel.append(messages);
 

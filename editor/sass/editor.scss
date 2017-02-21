@@ -3828,6 +3828,13 @@ strong {
         > .messages {
             height: 128px;
 
+            -webkit-touch-callout: auto;
+            -webkit-user-select: auto;
+            -khtml-user-select: auto;
+            -moz-user-select: auto;
+            -ms-user-select: auto;
+            user-select: auto;
+
             > .content {
                 width: 240px;
                 overflow-x: hidden;
@@ -3858,6 +3865,7 @@ strong {
                         vertical-align: text-bottom;
                         margin-right: 4px;
                         margin-left: -18px;
+                        @extend .noSelect;
                     }
                     > span {
                         vertical-align: text-top;
@@ -3865,10 +3873,6 @@ strong {
                         &.username {
                             font-weight: bold;
                             color: $text-primary;
-
-                            &:after {
-                                content: ': ';
-                            }
                         }
                     }
                 }
