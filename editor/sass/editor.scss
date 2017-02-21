@@ -5640,28 +5640,24 @@ strong {
                 padding: 5px 10px;
 
                 > .content {
-                    .ui-button.picker-curve-toggle {
+                    > .ui-button.picker-curve-toggle {
                         float: right;
                         text-align: center;
-                        line-height: 22px;
-                        width: auto;
+                        height: 24px;
+                        line-height: 24px;
+                        width: 24px;
                         min-width: 14px;
-                        padding-left: 5px;
-                        padding-right: 5px;
                         margin: 3px 0px;
 
                         & + .ui-button.picker-curve-toggle {
                             border-right: none;
                         }
-
                         &.active.first {
                             color: rgb(255, 0, 0);
                         }
-
                         &.active.second {
                             color: rgb(0, 255, 0);
                         }
-
                         &.active.third {
                             color: rgb(133, 133, 252);
                         }
@@ -5673,11 +5669,19 @@ strong {
             > .picker-curve-footer {
                 padding: 5px 10px;
 
-                .ui-button {
-                    @extend .font-icon;
-                    font-size: 14px;
-                    line-height: 24px;
-                    height: 22px;
+                > .content {
+                    > .ui-number-field {
+                        width: 143px;
+                    }
+                    > .ui-button {
+                        @extend .font-icon;
+                        font-size: 14px;
+                        width: 32px;
+                        height: 24px;
+                        line-height: 24px;
+                        padding: 0;
+                        text-align: center;
+                    }
                 }
             }
 
@@ -6412,6 +6416,7 @@ strong {
             line-height: 34px;
             font-size: 12px;
             text-transform: uppercase;
+            text-align: center;
             @extend .font-bold;
             @extend .font-smooth;
 
@@ -6421,7 +6426,6 @@ strong {
                 color: $text-secondary;
                 vertical-align: top;
                 padding-right: 10px;
-                padding-left: 20px;
             }
             &:not(.disabled):hover:before {
                 color: $text-active;
@@ -6439,8 +6443,7 @@ strong {
             }
             &.web-download, &.ios-download {
                 display: none;
-                width: 187px;
-                padding-left: 20px;
+                width: 208px;
 
                 &:before {
                     content: '\E245'
@@ -6808,21 +6811,20 @@ strong {
             border-bottom: 1px solid $border-primary;
 
             > .content {
-
-                .ui-label {
+                > .ui-label {
                     vertical-align: middle;
                     padding: 15px;
                     width: 40%;
                 }
-
-                .ui-button {
+                > .ui-button {
                     margin: 15px 0 15px 15px;
                     padding: 0;
-                    width: 190px;
+                    width: 210px;
                     height: 34px;
                     line-height: 34px;
                     font-size: 12px;
                     text-transform: uppercase;
+                    text-align: center;
                     @extend .font-bold;
                     @extend .font-smooth;
 
@@ -6832,7 +6834,6 @@ strong {
                         color: $text-secondary;
                         vertical-align: top;
                         padding-right: 10px;
-                        padding-left: 50px;
                     }
 
                     &:not(.disabled):hover:before {
