@@ -158,21 +158,23 @@ editor.once('load', function() {
     });
     tooltipFb.class.add('launch-tooltip');
 
-    if (privateSettings.get('facebook.app_id')) {
+    if (privateSettings.get('facebook.app_id'))
         tooltipFb.class.add('invisible');
-    }
 
     privateSettings.on('facebook.app_id:set', function (value) {
-        if (value)
+        if (value) {
             tooltipFb.class.add('invisible');
-        else
+        } else {
             tooltipFb.class.remove('invisible');
+        }
     });
 
     fb.on('change', function (value) {
         if (! value) return;
 
         if (! privateSettings.get('facebook.app_id')) {
+            editor.call('viewport:expand', false);
+
             // open facebook settings
             editor.call('selector:set', 'editorSettings', [ editor.call('editorSettings') ]);
             setTimeout(function() {
@@ -203,8 +205,7 @@ editor.once('load', function() {
         if (! editor.call('permissions:read') || launch.disabled)
             return;
 
-
-        tooltip.align = layoutRight && layoutRight.folded ? 'right' : 'left';
+        tooltip.align = (layoutRight && (layoutRight.hidden || layoutRight.folded)) ? 'right' : 'left';
 
         panelOptions.hidden = false;
         if (timeout)
