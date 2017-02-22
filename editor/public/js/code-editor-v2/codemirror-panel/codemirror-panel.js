@@ -2,6 +2,13 @@ editor.once('load', function () {
     'use strict';
 
     var panel = editor.call('layout.code');
+    panel.toggleCode = function (toggle) {
+        if (toggle) {
+            cm.getWrapperElement().classList.remove('invisible');
+        } else {
+            cm.getWrapperElement().classList.add('invisible');
+        }
+    }
 
     var element = panel.innerElement;
     var cm = null;
@@ -79,6 +86,7 @@ editor.once('load', function () {
     options.extraKeys['Ctrl-K Ctrl-J'] = function(cm) {editor.call('editor:command:unfoldAll');};
 
     options.extraKeys['Ctrl-F'] = function (cm) {editor.call('editor:command:find');};
+    options.extraKeys['Shift-Ctrl-F'] = function (cm) {editor.call('editor:command:findInFiles');};
     options.extraKeys['Ctrl-D'] = function (cm) {editor.call('editor:command:selectNextOccurrence');};
 
     options.extraKeys['Ctrl-K Ctrl-Space'] = function (cm) {editor.call('editor:command:setMark');};
@@ -113,6 +121,7 @@ editor.once('load', function () {
         options.extraKeys['Cmd-O'] = function (cm) {tern && tern.showDocs(cm);};
 
         options.extraKeys['Cmd-F'] = function (cm) {editor.call('editor:command:find');};
+        options.extraKeys['Shift-Cmd-F'] = function (cm) {editor.call('editor:command:findInFiles');};
         options.extraKeys['Cmd-G'] = function (cm) {editor.call('editor:command:findNext');};
         options.extraKeys['Shift-Cmd-G'] = function (cm) {editor.call('editor:command:findPrevious');};
         options.extraKeys['Ctrl-H'] = function (cm) {}; // nothing
@@ -140,6 +149,9 @@ editor.once('load', function () {
 
     // create code mirror
     cm = CodeMirror(element, options);
+
+    // hide initially
+    panel.toggleCode(false);
 
     // expose
     editor.method('editor:codemirror', function () {
@@ -215,6 +227,11 @@ editor.once('load', function () {
                 if (asset && asset.get('type') === 'script') {
                     tern.updateArgHints(cm);
                 }
+            });
+
+            // close arg hints when we swap docs
+            cm.on('swapDoc', function () {
+                tern.updateArgHints(cm);
             });
 
             // autocomplete

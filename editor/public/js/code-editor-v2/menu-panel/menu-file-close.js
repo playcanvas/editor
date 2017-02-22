@@ -83,14 +83,14 @@ editor.once('load', function () {
 
     // True if you can close focused file
     editor.method('editor:command:can:close', function () {
-        return !!editor.call('documents:getFocused');
+        return editor.call('tabs:focused');
     });
 
     // Close focused
     editor.method('editor:command:close', function () {
-        var focused = editor.call('documents:getFocused');
-        if (focused)
-            editor.emit('documents:close', focused);
+        var tab = editor.call('tabs:focused');
+        if (tab)
+            editor.call('tabs:close', tab.id);
     });
 
 
@@ -111,15 +111,16 @@ editor.once('load', function () {
 
     // True if you can close all files
     editor.method('editor:command:can:closeAll', function () {
-        return editor.call('documents:list').length;
+        return editor.call('tabs:list').length;
     });
 
     // Close all
     editor.method('editor:command:closeAll', function () {
-        var open = editor.call('documents:list');
+        var tabs = editor.call('tabs:list');
         editor.call('tabs:batchClose:start');
-        for (var i = 0; i < open.length; i++) {
-            editor.emit('documents:close', open[i]);
+        var i = tabs.length;
+        while (i--) {
+            editor.call('tabs:close', tabs[i].id);
         }
         editor.call('tabs:batchClose:end');
     });

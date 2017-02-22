@@ -1036,3 +1036,18 @@ a.link-docs {
     transition: height 200ms ease;
 }
 
+.search-results-file {
+    color: $editor-yellow !important;
+}
+
+.search-results-line {
+    color: $editor-numeric;
+}
+
+.search-results-match {
+    border: 1px solid white;
+}
+
+.invisible {
+    visibility: hidden;
+}
