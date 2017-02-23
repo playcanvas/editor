@@ -6702,6 +6702,8 @@ strong {
                     height: 34px;
                     font-size: 12px;
                     line-height: 34px;
+                    padding: 0;
+                    text-align: center;
                     color: $text-primary;
                     text-transform: uppercase;
                     @extend .font-bold;
@@ -6712,7 +6714,6 @@ strong {
                         font-size: 16px;
                         vertical-align: top;
                         padding-right: 10px;
-                        padding-left: 10px;
                     }
 
                     &:hover {

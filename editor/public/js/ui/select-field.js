@@ -32,24 +32,43 @@ function SelectField(args) {
     this._type = args.type || 'string';
 
     this.timerClickAway = null;
+    this.evtTouchId = null;
+    this.evtTouchSecond = false;
     this.evtMouseDist = [ 0, 0 ];
     this.evtMouseUp = function(evt) {
         evt.preventDefault();
         evt.stopPropagation();
 
-        if (evt.target && evt.target.uiElement && evt.target.classList.contains('selected'))
-            return;
+        self._onHoldSelect(evt.target, evt.pageX, evt.pageY);
+    };
 
-        if ((Math.abs(evt.clientX - self.evtMouseDist[0]) + Math.abs(evt.clientY - self.evtMouseDist[1])) < 8)
-            return;
+    this.evtTouchEnd = function(evt) {
+        for(var i = 0; i < evt.changedTouches.length; i++) {
+            var touch = evt.changedTouches[i];
+            if (touch.identifier !== self.evtTouchId)
+                continue;
 
-        if (evt.target && evt.target.uiElement)
-            self._onOptionSelect.call(evt.target);
+            self.evtTouchId = null;
 
-        self.close();
+            evt.preventDefault();
+            evt.stopPropagation();
+
+            var target = document.elementFromPoint(touch.pageX, touch.pageY);
+
+            self._onHoldSelect(target, touch.pageX, touch.pageY);
+        }
+
+        if (self.evtTouchSecond) {
+            evt.preventDefault();
+            evt.stopPropagation();
+            self.close();
+        } else if (self._element.classList.contains('active')) {
+            self.evtTouchSecond = true;
+        }
     };
 
     this.elementValue.addEventListener('mousedown', this._onMouseDown, false);
+    this.elementValue.addEventListener('touchstart', this._onTouchStart, false);
 
     this.elementOptions = document.createElement('ul');
     this._element.appendChild(this.elementOptions);
@@ -74,6 +93,19 @@ function SelectField(args) {
 SelectField.prototype = Object.create(ui.Element.prototype);
 
 
+SelectField.prototype._onHoldSelect = function(target, x, y) {
+    if (target && target.uiElement && target.uiElement === this && target.classList.contains('selected'))
+        return;
+
+    if ((Math.abs(x - this.evtMouseDist[0]) + Math.abs(y - this.evtMouseDist[1])) < 8)
+        return;
+
+    if (target && target.uiElement && target.uiElement === this)
+        this._onOptionSelect.call(target);
+
+    this.close();
+};
+
 SelectField.prototype._onMouseDown = function(evt) {
     if (this.ui.disabled && ! this.ui.disabledClick)
         return;
@@ -83,11 +115,43 @@ SelectField.prototype._onMouseDown = function(evt) {
     } else {
         evt.preventDefault();
         evt.stopPropagation();
-        this.ui.evtMouseDist[0] = evt.clientX;
-        this.ui.evtMouseDist[1] = evt.clientY;
+        this.ui.evtMouseDist[0] = evt.pageX;
+        this.ui.evtMouseDist[1] = evt.pageY;
         this.ui.element.focus();
         this.ui.open();
         window.addEventListener('mouseup', this.ui.evtMouseUp);
+    }
+};
+
+SelectField.prototype._onTouchStart = function(evt) {
+    if (this.ui.disabled && ! this.ui.disabledClick)
+        return;
+
+    if (this.ui.element.classList.contains('active')) {
+        this.ui.close();
+    } else {
+        evt.preventDefault();
+        evt.stopPropagation();
+
+        var touch;
+
+        for(var i = 0; i < evt.changedTouches.length; i++) {
+            if (evt.changedTouches[i].target !== this)
+                continue;
+
+            touch = evt.changedTouches[i];
+
+            break;
+        }
+
+        if (! touch) return;
+
+        this.ui.evtTouchId = touch.identifier;
+        this.ui.evtMouseDist[0] = touch.pageX;
+        this.ui.evtMouseDist[1] = touch.pageY;
+        this.ui.element.focus();
+        this.ui.open();
+        window.addEventListener('touchend', this.ui.evtTouchEnd);
     }
 };
 
@@ -217,6 +281,8 @@ SelectField.prototype.close = function() {
         return;
 
     window.removeEventListener('mouseup', this.evtMouseUp);
+    window.removeEventListener('touchend', this.evtTouchEnd);
+
     if (this.timerClickAway) {
         clearTimeout(this.timerClickAway);
         this.timerClickAway = null;
@@ -232,6 +298,8 @@ SelectField.prototype.close = function() {
     this.elementOptions.style.height = '';
 
     this.emit('close');
+
+    this.evtTouchSecond = false;
 };
 
 
@@ -278,6 +346,7 @@ SelectField.prototype._updateOptions = function(options) {
         element.uiElement = this;
         element.uiValue = this.optionsKeys[i];
         element.addEventListener('click', this._onOptionSelect);
+        element.addEventListener('touchstart', this._onOptionSelect);
         element.addEventListener('mouseover', this._onOptionHover);
         element.addEventListener('mouseout', this._onOptionOut);
         this.elementOptions.appendChild(element);
