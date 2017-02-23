@@ -18,13 +18,24 @@ editor.once('load', function () {
         className: 'search-results-match'
     };
 
+    var setDoc = function () {
+        cm.setOption('lineWrapping', false);
+        cm.setOption('foldGutter', false);
+        cm.setOption('gutters', ['CodeMirror-pc-gutter']);
+        cm.setOption('lint', false);
+
+        cm.swapDoc(doc);
+    }
+
     // create new doc and start adding results to it
     editor.on('editor:search:files:start', function () {
         totalMatches = 0;
         totalFiles = 0;
 
         doc = CodeMirror.Doc('Searching files...');
-        cm.swapDoc(doc);
+        setDoc();
+
+        doc.setCursor(CodeMirror.Pos(doc.firstLine(), 0));
 
         // open find in files tab
         tab = editor.call('tabs:findInFiles');
@@ -64,24 +75,36 @@ editor.once('load', function () {
     // show results again
     editor.on('tabs:focus', function (t) {
         if (t === tab && doc) {
-            cm.swapDoc(doc);
+            setDoc();
         }
     });
 
     var lastMouseDown = null;
+    var lastLineClicked = null;
 
     // do a custom double click detection
     // here because codemirror eats the dblclick event
     // depending on where you click
-    var onMouseDown = function (e) {
+    var onMouseDown = function (cm, e) {
+        var pos = cm.coordsChar({left: e.x, top: e.y});
+        var line = cm.getLineHandle(pos.line);
+
+        var sameLine = true;
+        if (lastLineClicked) {
+            sameLine = (lastLineClicked === line);
+        }
+
+        lastLineClicked = line;
+
         if (! lastMouseDown) {
             lastMouseDown = Date.now();
             return;
         } else {
-            if (Date.now() - lastMouseDown < 300) {
+            if (Date.now() - lastMouseDown < 300 && sameLine) {
                 // double click
                 lastMouseDown = null;
-                onDblClick(e);
+                lastLineClicked = null;
+                onDblClick(line);
             } else {
                 lastMouseDown = Date.now();
             }
@@ -90,21 +113,17 @@ editor.once('load', function () {
     };
 
     // Open asset on double click
-    var onDblClick = function (e) {
-        if (!e.state.activeLines || !e.state.activeLines.length)
-            return;
-
-        var activeLine = e.state.activeLines[0];
-        if (activeLine._assetId) {
+    var onDblClick = function (line) {
+        if (line._assetId) {
             // go to line and column if clicking on a match
-            if (activeLine._line !== undefined || activeLine._col !== undefined) {
-                editor.call('integration:selectWhenReady', activeLine._assetId, {
-                    line: activeLine._line,
-                    col: activeLine._col
+            if (line._line !== undefined || line._col !== undefined) {
+                editor.call('integration:selectWhenReady', line._assetId, {
+                    line: line._line,
+                    col: line._col
                 });
             } else {
                 // if clicking on the asset name then just open the asset
-                editor.call('files:select', activeLine._assetId);
+                editor.call('files:select', line._assetId);
             }
 
             // open the regular find
@@ -126,7 +145,9 @@ editor.once('load', function () {
         var firstLine = doc.firstLine();
         doc.replaceRange((done === total ? 'Searched (' : 'Searching (') + done + ' out of ' + total + ' files)', CodeMirror.Pos(firstLine, 0), CodeMirror.Pos(firstLine, firstLine.length));
 
-        if (! results.matches.length) return;
+        if (! results.matches.length) {
+            return;
+        };
 
         totalFiles++;
 
@@ -184,6 +205,5 @@ editor.once('load', function () {
             // decorate match
             doc.markText(CodeMirror.Pos(doc.lastLine() - 1, match.char + lineLength + indent.length), CodeMirror.Pos(doc.lastLine() - 1, match.char + match.length + lineLength + indent.length), matchDecoration);
         }
-
     });
 });
