@@ -7,6 +7,7 @@ editor.once('load', function () {
     var totalFiles = 0;
     var tab = null;
     var codePanel = editor.call('layout.code');
+    var contextLimit = 30;
 
     // options for decorating line numbers
     var lineDecoration = {
@@ -145,65 +146,189 @@ editor.once('load', function () {
         var firstLine = doc.firstLine();
         doc.replaceRange((done === total ? 'Searched (' : 'Searching (') + done + ' out of ' + total + ' files)', CodeMirror.Pos(firstLine, 0), CodeMirror.Pos(firstLine, firstLine.length));
 
-        if (! results.matches.length) {
-            return;
-        };
+        var len = results.matches.length;
+        if (! len) return;
 
         totalFiles++;
+        totalMatches += len;
 
         // show asset name
         doc.replaceRange('\n\n' + asset.get('name') + ':\n', CodeMirror.Pos(doc.lastLine()));
         doc.addLineClass(doc.lastLine() - 1, 'text', 'search-results-file');
         doc.getLineHandle(doc.lastLine() - 1)._assetId = results.id;
 
-        var len = results.matches.length;
-
         // find maximum line length so that we
         // can align stuff better
-        var lineIndent = ' ';
-        var maxLineLength = 1;
+        var maxLine = 0;
         for (var i = 0; i < len; i++) {
             var match = results.matches[i];
-            var lineLength = match.line.toString().length;
-            if (lineLength > maxLineLength) {
-                maxLineLength = lineLength;
-            }
+            if (match.line + 1 > maxLine)
+                maxLine = match.line + 1;
         }
 
-        // show all matches
-        for (var i = 0; i < len; i++) {
+        // The next loop goes through each match and tries to
+        // only keep text that is up to 'contextLimit' characters around
+        // the match. Multiple matches on the same line will be concatenated
+        // and if their distance is more than 'contextLimit' they will be separated
+        // with dots.
+        var space = ' ';
+        var maxLineLength = maxLine.toString().length;
+        var previousMatchLine = null;
+        var previousEndingDots = null;
+        var previousEndPosition = null;
+        var i = 0;
+        while (i < len) {
             var match = results.matches[i];
 
-            totalMatches++;
+            // this match is on a different line than the previous
+            // match so reset previous variables
+            if (match.line !== previousMatchLine) {
+                previousMatchLine = null;
+                previousEndingDots = null;
+                previousEndPosition = null;
+            }
 
-            // indent after line number
-            var indent = lineIndent;
-            var lineLength = match.line.toString().length;
-            if (lineLength < maxLineLength) {
-                for (var j = 0; j < maxLineLength - lineLength; j++) {
-                    indent += lineIndent;
+            var textLen = match.text.length;
+
+            // 'from' is the start of the substring
+            var from = Math.max(0, match.char - contextLimit);
+            // 'to' is the end of the substring
+            var to = Math.min(textLen, match.char + match.length + contextLimit);
+
+            // index of last match which belongs to the same 'group' of matches
+            // on the same line - meaning matches that are close together
+            var end = i;
+
+            for (var j = end + 1; j < len; j++) {
+                var nextMatch = results.matches[j];
+                if (nextMatch.line === match.line) {
+                    var nextFrom = nextMatch.char - contextLimit;
+                    // if the next match with context starts before the end
+                    // of the previous match then extend the context to include this match
+                    if (nextFrom <= to) {
+                        to = Math.min(textLen, nextMatch.char + nextMatch.length + contextLimit);
+                        end++;
+                    } else {
+                        break;
+                    }
+                } else {
+                    break;
                 }
             }
 
-            // add a new match or use same line if match is on the same line
-            if (!i || match.line !== results.matches[i-1].line) {
+            // add dots in the beginning
+            var addStartingDots = false;
+            if (! previousEndingDots) {
+                for (var s = 0; s < from; s++) {
+                if (match.text[s] !== space) {
+                        addStartingDots = true;
+                        break;
+                    }
+                }
+            }
+
+            // add dots to the end
+            var addEndingDots = false;
+            for (var s = textLen - 1; s > to; s--) {
+                if (match.text[s] !== space) {
+                    addEndingDots = true;
+                }
+            }
+
+            // trim spaces from the beginning
+            while (match.char > from && match.text[from] === space) {
+                from++;
+            }
+
+            // trim spaces from the end
+            while (match.char + match.length < to && match.text[to - 1] === space) {
+                to--;
+            }
+
+            // cut text with context
+            var text = match.text.substring(from, to);
+
+            // add dots
+            if (addStartingDots) {
+                text = '...' + text;
+                from = Math.max(0, from - 3);
+            }
+
+            if (addEndingDots) {
+                text += '...';
+                to += 3;
+            }
+
+            var addNewLine = (end === results.matches.length - 1 || results.matches[end + 1].line !== match.line);
+            var lastLine = doc.lastLine();
+            var matchStart = previousEndPosition;
+
+            // if this is a new line then
+            // add text on the bottom
+            if (! previousMatchLine) {
+                var line = (match.line + 1).toString();
+
+                // indent after line number
+                var indent = space;
+                var lineLength = line.length;
+                if (lineLength < maxLineLength) {
+                    for (var j = lineLength; j < maxLineLength; j++) {
+                        indent += space;
+                    }
+                }
+
                 doc.replaceRange(
-                    (match.line + 1) + ':' + indent + match.text + '\n',
+                    line + ':' + indent + text + (addNewLine ? '\n' : ''),
                     CodeMirror.Pos(doc.lastLine())
                 );
 
-                // decorate line number
-                doc.markText(CodeMirror.Pos(doc.lastLine() - 1, 0), CodeMirror.Pos(doc.lastLine() - 1, lineLength + 1), lineDecoration);
+                if (addNewLine)
+                    lastLine = doc.lastLine() - 1;
 
-                // hook up match results to the line
-                var lineHandle = doc.getLineHandle(doc.lastLine() - 1);
+                matchStart = (lineLength + 1) + indent.length;
+                previousEndPosition =  matchStart + (to - from);
+
+                // decorate line number
+                doc.markText(CodeMirror.Pos(lastLine, 0), CodeMirror.Pos(lastLine, lineLength + 1), lineDecoration);
+
+                // clicking on line will get us to the
+                // first match
+                var lineHandle = doc.getLineHandle(lastLine);
                 lineHandle._assetId = results.id;
                 lineHandle._line = match.line + 1;
                 lineHandle._col = match.char;
+            } else {
+                // this belongs to the same line as the previous batch of matches
+                // so append text to the same line
+                doc.replaceRange(text + (addNewLine ? '\n' : ''), CodeMirror.Pos(lastLine, previousEndPosition));
+                previousEndPosition += to - from;
             }
 
-            // decorate match
-            doc.markText(CodeMirror.Pos(doc.lastLine() - 1, match.char + lineLength + indent.length), CodeMirror.Pos(doc.lastLine() - 1, match.char + match.length + lineLength + indent.length), matchDecoration);
+            // mark matches on text
+            for (var j = i; j <= end; j++) {
+                match = results.matches[j];
+
+                var matchFrom = match.char - from;
+
+                // decorate match
+                doc.markText(
+                    CodeMirror.Pos(
+                        lastLine,
+                        matchStart + matchFrom
+                    ),
+                    CodeMirror.Pos(
+                        lastLine,
+                        matchStart + matchFrom + match.length
+                    ),
+                    matchDecoration
+                );
+            }
+
+            previousMatchLine = match.line;
+            previousEndingDots = addEndingDots;
+
+            // go to next batch of matches
+            i = end + 1;
         }
     });
 });
