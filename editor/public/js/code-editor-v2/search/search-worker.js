@@ -31,7 +31,10 @@ this.onmessage = function (evt) {
     var query = data.query;
     query.lastIndex = 0;
 
+    // start matching
     while (match = query.exec(text)) {
+
+        // binary search the line of the match
         var index = match.index;
         var low = 0;
         var hi = newLines.length - 1;
@@ -52,14 +55,16 @@ this.onmessage = function (evt) {
         var start = 0;
         var end = 0;
 
+        // extract line and column of the match
+        // and also start / end indices for the line text
         if (index > newLines[mid]) {
             line = mid + 1;
-            char = index - newLines[mid];
+            char = index - newLines[mid] - 1;
             start = newLines[mid] + 1;
             end = newLines[mid+1];
         } else if (index <= newLines[mid]) {
             line = mid;
-            char = mid > 0 ? index - newLines[mid-1] : index;
+            char = mid > 0 ? index - newLines[mid-1] - 1 : index;
             start = mid > 0 ? newLines[mid-1] + 1 : 0;
             end = newLines[mid];
         }
