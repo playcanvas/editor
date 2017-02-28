@@ -21,6 +21,7 @@ editor.once('load', function () {
 
     var setDoc = function () {
         cm.setOption('lineWrapping', false);
+        cm.setOption('lineNumbers', false);
         cm.setOption('foldGutter', false);
         cm.setOption('gutters', ['CodeMirror-pc-gutter']);
         cm.setOption('lint', false);
@@ -59,6 +60,8 @@ editor.once('load', function () {
 
             // show code
             codePanel.toggleCode(true);
+        } else {
+            cm.setOption('lineNumbers', true);
         }
     });
 
@@ -261,35 +264,27 @@ editor.once('load', function () {
 
             var addNewLine = (end === results.matches.length - 1 || results.matches[end + 1].line !== match.line);
             var lastLine = doc.lastLine();
-            var matchStart = previousEndPosition;
+            var matchStart = 0;
 
             // if this is a new line then
             // add text on the bottom
             if (! previousMatchLine) {
-                var line = (match.line + 1).toString();
-
-                // indent after line number
-                var indent = space;
-                var lineLength = line.length;
-                if (lineLength < maxLineLength) {
-                    for (var j = lineLength; j < maxLineLength; j++) {
-                        indent += space;
-                    }
-                }
-
                 doc.replaceRange(
-                    line + ':' + indent + text + (addNewLine ? '\n' : ''),
+                    text + (addNewLine ? '\n' : ''),
                     CodeMirror.Pos(doc.lastLine())
                 );
 
                 if (addNewLine)
                     lastLine = doc.lastLine() - 1;
 
-                matchStart = (lineLength + 1) + indent.length;
-                previousEndPosition =  matchStart + (to - from);
+                previousEndPosition = to - from;
 
-                // decorate line number
-                doc.markText(CodeMirror.Pos(lastLine, 0), CodeMirror.Pos(lastLine, lineLength + 1), lineDecoration);
+                // Show line numbers in the gutter
+                var lineDiv = document.createElement('div');
+                lineDiv.classList.add('CodeMirror-linenumber');
+                lineDiv.classList.add('CodeMirror-gutter-elt');
+                lineDiv.innerHTML = (match.line + 1).toString();
+                cm.setGutterMarker(lastLine, 'CodeMirror-pc-gutter', lineDiv);
 
                 // clicking on line will get us to the
                 // first match
@@ -300,6 +295,7 @@ editor.once('load', function () {
             } else {
                 // this belongs to the same line as the previous batch of matches
                 // so append text to the same line
+                matchStart = previousEndPosition;
                 doc.replaceRange(text + (addNewLine ? '\n' : ''), CodeMirror.Pos(lastLine, previousEndPosition));
                 previousEndPosition += to - from;
             }
