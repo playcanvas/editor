@@ -86,7 +86,17 @@ editor.once('load', function() {
             var item = items[i];
 
             // direct hit
-            if (item.name === search || item.name.indexOf(search) === 0) {
+            if (item.subFull !== Infinity) {
+                results.push(item);
+
+                if (item.edits === Infinity)
+                    item.edits = 0;
+
+                if (item.sub === Infinity)
+                    item.sub = item.subFull;
+
+                continue;
+            } else if (item.name === search || item.name.indexOf(search) === 0) {
                 results.push(item);
 
                 if (item.edits === Infinity)
@@ -156,7 +166,7 @@ editor.once('load', function() {
     ]
     */
     editor.method('search:items', function(items, search, args) {
-        search = (search || '').trim();
+        search = (search || '').toLowerCase().trim();
 
         if (! search)
             return [ ];
@@ -174,11 +184,14 @@ editor.once('load', function() {
         var records = [ ];
 
         for(var i = 0; i < items.length; i++) {
+            var subInd = items[i][0].toLowerCase().trim().indexOf(search);
+
             records.push({
                 name: items[i][0],
                 item: items[i][1],
                 tokens: editor.call('search:stringTokenize', items[i][0]),
                 edits: Infinity,
+                subFull: (subInd !== -1) ? subInd : Infinity,
                 sub: Infinity
             });
         }
@@ -189,7 +202,9 @@ editor.once('load', function() {
 
         // sort result first by substring? then by edits number
         records.sort(function(a, b) {
-            if (a.sub !== b.sub) {
+            if (a.subFull !== b.subFull) {
+                return a.subFull - b.subFull;
+            } else if (a.sub !== b.sub) {
                 return a.sub - b.sub;
             } else if (a.edits !== b.edits) {
                 return a.edits - b.edits;

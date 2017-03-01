@@ -24,6 +24,50 @@ function Panel(header) {
 
     this.innerElement.addEventListener('scroll', this._onScroll, false);
 
+    this._resizeEvtMove = function(evt) {
+        evt.preventDefault();
+        evt.stopPropagation();
+        self._resizeMove(evt.clientX, evt.clientY);
+    };
+
+    this._resizeEvtEnd = function(evt) {
+        evt.preventDefault();
+        evt.stopPropagation();
+        self._resizeEnd();
+    };
+
+    this._resizeEvtTouchMove = function(evt) {
+        for(var i = 0; i < evt.changedTouches.length; i++) {
+            var touch = evt.changedTouches[i];
+
+            if (touch.identifier !== self._resizeTouchId)
+                continue;
+
+            evt.preventDefault();
+            evt.stopPropagation();
+            self._resizeMove(touch.clientX, touch.clientY);
+
+            return;
+        }
+    };
+
+    this._resizeEvtTouchEnd = function(evt) {
+        for(var i = 0; i < evt.changedTouches.length; i++) {
+            var touch = evt.changedTouches[i];
+
+            if (touch.identifier !== self._resizeTouchId)
+                continue;
+
+            self._resouzeTouchId = null;
+
+            evt.preventDefault();
+            evt.stopPropagation();
+            self._resizeEnd();
+
+            return;
+        }
+    };
+
     // HACK
     // skip 2 frames before enabling transitions
     requestAnimationFrame(function() {
@@ -37,6 +81,7 @@ function Panel(header) {
 
     this._handleElement = null;
     this._handle = null;
+    this._resizeTouchId = null;
     this._resizeData = null;
     this._resizeLimits = {
         min: 0,
@@ -228,9 +273,10 @@ Object.defineProperty(Panel.prototype, 'resizable', {
         if (this._handle) {
             if (! this._handleElement) {
                 this._handleElement = document.createElement('div');
+                this._handleElement.ui = this;
                 this._handleElement.classList.add('handle');
-                this._handleElement.addEventListener('mousedown', this._resizeStart.bind(this), false);
-                // this._handleElement.on('mouseup', this._resizeStart.bind(this));
+                this._handleElement.addEventListener('mousedown', this._resizeStart, false);
+                this._handleElement.addEventListener('touchstart', this._resizeStart, false);
             }
 
             if (this._handleElement.parentNode)
@@ -270,35 +316,45 @@ Object.defineProperty(Panel.prototype, 'resizeMax', {
 
 
 Panel.prototype._resizeStart = function(evt) {
-    if (! this._handle)
+    if (! this.ui._handle)
         return;
 
-    this.class.add('noAnimation', 'resizing');
-    this._resizeData = null;
+    if (evt.changedTouches) {
+        for(var i = 0; i < evt.changedTouches.length; i++) {
+            var touch = evt.changedTouches[i];
+            if (touch.target !== this)
+                continue;
 
-    this._resizeEvtMove = this._resizeMove.bind(this);
-    this._resizeEvtEnd = this._resizeEnd.bind(this);
+            this.ui._resizeTouchId = touch.identifier;
+        }
+    }
 
-    window.addEventListener('mousemove', this._resizeEvtMove, false);
-    window.addEventListener('mouseup', this._resizeEvtEnd, false);
+    this.ui.class.add('noAnimation', 'resizing');
+    this.ui._resizeData = null;
+
+    window.addEventListener('mousemove', this.ui._resizeEvtMove, false);
+    window.addEventListener('mouseup', this.ui._resizeEvtEnd, false);
+
+    window.addEventListener('touchmove', this.ui._resizeEvtTouchMove, false);
+    window.addEventListener('touchend', this.ui._resizeEvtTouchEnd, false);
 
     evt.preventDefault();
     evt.stopPropagation();
 };
 
 
-Panel.prototype._resizeMove = function(evt) {
+Panel.prototype._resizeMove = function(x, y) {
     if (! this._resizeData) {
         this._resizeData = {
-            x: evt.clientX,
-            y: evt.clientY,
+            x: x,
+            y: y,
             width: this._innerElement.clientWidth,
             height: this._innerElement.clientHeight
         };
     } else {
         if (this._handle === 'left' || this._handle === 'right') {
             // horizontal
-            var offsetX = this._resizeData.x - evt.clientX;
+            var offsetX = this._resizeData.x - x;
 
             if (this._handle === 'right')
                 offsetX = -offsetX;
@@ -309,7 +365,7 @@ Panel.prototype._resizeMove = function(evt) {
             this._innerElement.style.width = (width + 4) + 'px';
         } else {
             // vertical
-            var offsetY = this._resizeData.y - evt.clientY;
+            var offsetY = this._resizeData.y - y;
 
             if (this._handle === 'bottom')
                 offsetY = -offsetY;
@@ -321,9 +377,6 @@ Panel.prototype._resizeMove = function(evt) {
         }
     }
 
-    evt.preventDefault();
-    evt.stopPropagation();
-
     this.emit('resize');
 };
 
@@ -331,11 +384,11 @@ Panel.prototype._resizeEnd = function(evt) {
     window.removeEventListener('mousemove', this._resizeEvtMove, false);
     window.removeEventListener('mouseup', this._resizeEvtEnd, false);
 
+    window.removeEventListener('touchmove', this._resizeEvtTouchMove, false);
+    window.removeEventListener('touchend', this._resizeEvtTouchEnd, false);
+
     this.class.remove('noAnimation', 'resizing');
     this._resizeData = null;
-
-    evt.preventDefault();
-    evt.stopPropagation();
 };
 
 

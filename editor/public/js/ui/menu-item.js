@@ -32,6 +32,8 @@ function MenuItem(args) {
     this._container = false;
 
     this.elementTitle.addEventListener('mouseenter', this._onMouseEnter, false);
+    this.elementTitle.addEventListener('touchstart', this._onTouchStart, false);
+    this.elementTitle.addEventListener('touchend', this._onTouchEnd, false);
     this.elementTitle.addEventListener('click', this._onClick, false);
 
     this.on('over', this._onOver);
@@ -67,6 +69,27 @@ MenuItem.prototype._onClick = function() {
     this.ui.emit('select', this.ui._value);
     this.ui.parent.emit('select-propagate', [ this.ui._value ]);
     this.ui.class.remove('hover');
+};
+
+MenuItem.prototype._onTouchStart = function(evt) {
+    if (! this.ui.parent || this.ui.disabled)
+        return;
+
+    if (! this.ui._container || this.ui.class.contains('hover')) {
+        this.ui.emit('select', this.ui._value);
+        this.ui.parent.emit('select-propagate', [ this.ui._value ]);
+        this.ui.class.remove('hover');
+    } else {
+        this.ui.parent.emit('over', [ this.ui._value ]);
+    }
+};
+
+MenuItem.prototype._onTouchEnd = function(evt) {
+    if (! this.ui.parent || this.ui.disabled)
+        return;
+
+    evt.preventDefault();
+    evt.stopPropagation();
 };
 
 MenuItem.prototype._onSelectPropagate = function(path) {

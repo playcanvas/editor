@@ -431,6 +431,17 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'settings:project:fillMode', fieldFillMode.parent.innerElement.firstChild.ui);
 
 
+        var fieldPreferWebGl2 = editor.call('attributes:addField', {
+            parent: panelRendering,
+            name: 'Prefer WebGL 2.0',
+            type: 'checkbox',
+            link: projectSettings,
+            path: 'preferWebGl2'
+        });
+        fieldPreferWebGl2.parent.innerElement.firstChild.style.width = 'auto';
+        editor.call('attributes:reference:attach', 'settings:project:preferWebGl2', fieldPreferWebGl2.parent.innerElement.firstChild.ui);
+
+
         var fieldAntiAlias = editor.call('attributes:addField', {
             parent: panelRendering,
             name: 'Anti-Alias',

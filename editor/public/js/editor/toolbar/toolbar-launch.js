@@ -47,6 +47,9 @@ editor.once('load', function() {
             query.push('local=' + settings.get('local_server'));
         }
 
+        if (launchOptions.webgl1)
+            query.push('webgl1=true');
+
         if (launchOptions.profiler)
             query.push('profile=true');
 
@@ -145,6 +148,24 @@ editor.once('load', function() {
         tooltipLocal.class.add('launch-tooltip');
     }
 
+    var preferWebGl1 = createOption('webgl1', 'Prefer WebGL 1.0');
+
+    var tooltipPreferWebGl1 = Tooltip.attach({
+        target: preferWebGl1.parent.element,
+        text: 'If WebGL 2.0 is preferred in Project Settings, for testing purposes WebGL 1.0 can be enforced.',
+        align: 'right',
+        root: root
+    });
+    tooltipPreferWebGl1.class.add('launch-tooltip');
+
+    if (! editor.call('project:settings').get('preferWebGl2'))
+        preferWebGl1.parent.disabled = true;
+
+    editor.call('project:settings').on('preferWebGl2:set', function(value) {
+        preferWebGl1.parent.disabled = ! value;
+    });
+
+    // facebook
     var fb = createOption('facebook', 'Launch on Facebook');
 
     if (!config.self.superUser && !config.self.publishFacebook)
@@ -158,21 +179,23 @@ editor.once('load', function() {
     });
     tooltipFb.class.add('launch-tooltip');
 
-    if (privateSettings.get('facebook.app_id')) {
+    if (privateSettings.get('facebook.app_id'))
         tooltipFb.class.add('invisible');
-    }
 
     privateSettings.on('facebook.app_id:set', function (value) {
-        if (value)
+        if (value) {
             tooltipFb.class.add('invisible');
-        else
+        } else {
             tooltipFb.class.remove('invisible');
+        }
     });
 
     fb.on('change', function (value) {
         if (! value) return;
 
         if (! privateSettings.get('facebook.app_id')) {
+            editor.call('viewport:expand', false);
+
             // open facebook settings
             editor.call('selector:set', 'editorSettings', [ editor.call('editorSettings') ]);
             setTimeout(function() {
@@ -203,8 +226,7 @@ editor.once('load', function() {
         if (! editor.call('permissions:read') || launch.disabled)
             return;
 
-
-        tooltip.align = layoutRight && layoutRight.folded ? 'right' : 'left';
+        tooltip.align = (layoutRight && (layoutRight.hidden || layoutRight.folded)) ? 'right' : 'left';
 
         panelOptions.hidden = false;
         if (timeout)

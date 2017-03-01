@@ -86,7 +86,7 @@ editor.once('load', function () {
 
         var children = entity.getChildren();
         for(var i = 0; i < children.length; i++) {
-            if (children[i].__editor)
+            if (children[i].__editor || ! (children[i] instanceof pc.Entity))
                 continue;
 
             editor.call('entities:boundingbox', children[i]);
@@ -99,8 +99,9 @@ editor.once('load', function () {
         entity.getWorldTransform();
         bbD.center.set(0, 0, 0);
 
-        if (entity.model && entity.model.model && entity.model.model.meshInstances.length) {
-            var meshes = entity.model.model.meshInstances;
+        if (entity.model && entity.model.model && entity.model.meshInstances.length) {
+            var meshes = entity.model.meshInstances;
+
             for(var i = 0; i < meshes.length; i++) {
                 if (meshes[i]._hidden)
                     continue;
@@ -142,6 +143,8 @@ editor.once('load', function () {
         }
 
         if (first && entity.element) {
+            first = false;
+
             if (entity.element.type === 'image') {
                 if (entity.element._image._meshInstance) {
                     bbC.copy(entity.element._image._meshInstance.aabb);
@@ -151,8 +154,6 @@ editor.once('load', function () {
                     bbC.copy(entity.element._text._meshInstance.aabb);
                 }
             }
-
-            first = false;
         }
 
         if (first && entity.particlesystem) {
