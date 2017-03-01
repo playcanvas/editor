@@ -13,6 +13,7 @@ editor.once('load', function() {
     overlay.append(panel);
 
     var label = new ui.Label();
+    label.renderChanges = false;
     panel.append(label);
 
     var btn = new ui.Button({

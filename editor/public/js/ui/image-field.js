@@ -6,7 +6,6 @@ function ImageField(args) {
     args = args || { };
 
     this.element = document.createElement('div');
-    this._element.tabIndex = 0;
     this._element.classList.add('ui-image-field', 'empty');
 
     if (args.canvas) {

@@ -994,79 +994,17 @@ strong {
         }
         &.field-strings {
             > .content > .ui-panel {
+                width: 100%;
                 // max-width: calc(100% - 77px);
 
-                &.disabled > .content {
-                    > .tag {
-                        opacity: .5;
-
-                        > .icon {
-                            cursor: default;
-                        }
-                    }
-                }
-
                 > .content {
-                    flex-direction: row;
-                    flex-wrap: wrap;
-
                     padding: 2px;
 
-                    > .tag {
-                        position: relative;
-                        font-family: "Lucida Console", Monaco, monospace;
-                        font-weight: normal;
-                        font-size: 10px;
-                        display: inline-block;
-                        line-height: 21px;
-                        height: 20px;
-                        margin: 1px;
-                        padding: 0 24px 0 8px;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        //white-space: nowrap;
-                        word-break: break-all;
-                        background-color: $bcg-dark;
-                        cursor: default;
-
-                        &:hover {
-                            color: $text-primary;
-                            background-color: $bcg-darkest;
-                            // padding-right: 26px;
-                            > .icon {
-                                padding-left: 0;
-                            }
-                        }
-                        &.partial {
-                            opacity: .5;
-                        }
-                        > .icon {
-                            @extend .font-icon;
-                            position: absolute;
-                            right: 0;
-                            top: 0;
-                            width: 16px;
-                            line-height: 20px;
-                            padding-right: 1px;
-                            font-size: 12px;
-                            text-align: center;
-                            cursor: pointer;
-                            color: $text-secondary;
-                            border-left: 1px solid $bcg-darker;
-                            background-color: $bcg-dark;
-
-                            &:hover {
-                                color: #d34141;
-                                background-color: $bcg-darkest;
-                                border-left-color: $bcg-darkest;
-                            }
-                        }
-                    }
                     > .ui-text-field {
                         width: calc(100% - 26px);
                         margin: 1px 0 1px 1px;
                         flex-shrink: 0;
-                        display: block;
+                        float: left;
                     }
                     > .ui-button {
                         margin: 1px 1px 1px 0;
@@ -1079,6 +1017,75 @@ strong {
 
                         &:hover {
                             color: $text-active;
+                        }
+                    }
+                    > .ui-panel.tags {
+                        &.disabled > .content {
+                            > .tag {
+                                opacity: .5;
+
+                                > .icon {
+                                    cursor: default;
+                                }
+                            }
+                        }
+                        > .content {
+                            flex-direction: row;
+                            flex-wrap: wrap;
+                            max-height: 188px;
+                            overflow-y: auto;
+                            overflow-x: hidden;
+
+                            > .tag {
+                                position: relative;
+                                font-family: "Lucida Console", Monaco, monospace;
+                                font-weight: normal;
+                                font-size: 10px;
+                                display: inline-block;
+                                line-height: 21px;
+                                height: 20px;
+                                margin: 1px;
+                                padding: 0 24px 0 8px;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                //white-space: nowrap;
+                                word-break: break-all;
+                                background-color: $bcg-dark;
+                                cursor: default;
+
+                                &:hover {
+                                    color: $text-primary;
+                                    background-color: $bcg-darkest;
+                                    // padding-right: 26px;
+                                    > .icon {
+                                        padding-left: 0;
+                                    }
+                                }
+                                &.partial {
+                                    opacity: .5;
+                                }
+                                > .icon {
+                                    @extend .font-icon;
+                                    position: absolute;
+                                    right: 0;
+                                    top: 0;
+                                    width: 16px;
+                                    line-height: 20px;
+                                    padding-right: 1px;
+                                    font-size: 12px;
+                                    text-align: center;
+                                    cursor: pointer;
+                                    color: $text-secondary;
+                                    border-left: 1px solid $bcg-darker;
+                                    background-color: $bcg-dark;
+
+                                    &:hover {
+                                        color: #d34141;
+                                        background-color: $bcg-darkest;
+                                        border-left-color: $bcg-darkest;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -3828,6 +3835,13 @@ strong {
         > .messages {
             height: 128px;
 
+            -webkit-touch-callout: auto;
+            -webkit-user-select: auto;
+            -khtml-user-select: auto;
+            -moz-user-select: auto;
+            -ms-user-select: auto;
+            user-select: auto;
+
             > .content {
                 width: 240px;
                 overflow-x: hidden;
@@ -3858,6 +3872,7 @@ strong {
                         vertical-align: text-bottom;
                         margin-right: 4px;
                         margin-left: -18px;
+                        @extend .noSelect;
                     }
                     > span {
                         vertical-align: text-top;
@@ -3865,10 +3880,6 @@ strong {
                         &.username {
                             font-weight: bold;
                             color: $text-primary;
-
-                            &:after {
-                                content: ': ';
-                            }
                         }
                     }
                 }
@@ -5640,28 +5651,24 @@ strong {
                 padding: 5px 10px;
 
                 > .content {
-                    .ui-button.picker-curve-toggle {
+                    > .ui-button.picker-curve-toggle {
                         float: right;
                         text-align: center;
-                        line-height: 22px;
-                        width: auto;
+                        height: 24px;
+                        line-height: 24px;
+                        width: 24px;
                         min-width: 14px;
-                        padding-left: 5px;
-                        padding-right: 5px;
                         margin: 3px 0px;
 
                         & + .ui-button.picker-curve-toggle {
                             border-right: none;
                         }
-
                         &.active.first {
                             color: rgb(255, 0, 0);
                         }
-
                         &.active.second {
                             color: rgb(0, 255, 0);
                         }
-
                         &.active.third {
                             color: rgb(133, 133, 252);
                         }
@@ -5673,11 +5680,19 @@ strong {
             > .picker-curve-footer {
                 padding: 5px 10px;
 
-                .ui-button {
-                    @extend .font-icon;
-                    font-size: 14px;
-                    line-height: 24px;
-                    height: 22px;
+                > .content {
+                    > .ui-number-field {
+                        width: 143px;
+                    }
+                    > .ui-button {
+                        @extend .font-icon;
+                        font-size: 14px;
+                        width: 32px;
+                        height: 24px;
+                        line-height: 24px;
+                        padding: 0;
+                        text-align: center;
+                    }
                 }
             }
 
@@ -6412,6 +6427,7 @@ strong {
             line-height: 34px;
             font-size: 12px;
             text-transform: uppercase;
+            text-align: center;
             @extend .font-bold;
             @extend .font-smooth;
 
@@ -6421,7 +6437,6 @@ strong {
                 color: $text-secondary;
                 vertical-align: top;
                 padding-right: 10px;
-                padding-left: 20px;
             }
             &:not(.disabled):hover:before {
                 color: $text-active;
@@ -6439,8 +6454,7 @@ strong {
             }
             &.web-download, &.ios-download {
                 display: none;
-                width: 187px;
-                padding-left: 20px;
+                width: 208px;
 
                 &:before {
                     content: '\E245'
@@ -6688,6 +6702,8 @@ strong {
                     height: 34px;
                     font-size: 12px;
                     line-height: 34px;
+                    padding: 0;
+                    text-align: center;
                     color: $text-primary;
                     text-transform: uppercase;
                     @extend .font-bold;
@@ -6698,7 +6714,6 @@ strong {
                         font-size: 16px;
                         vertical-align: top;
                         padding-right: 10px;
-                        padding-left: 10px;
                     }
 
                     &:hover {
@@ -6808,21 +6823,20 @@ strong {
             border-bottom: 1px solid $border-primary;
 
             > .content {
-
-                .ui-label {
+                > .ui-label {
                     vertical-align: middle;
                     padding: 15px;
                     width: 40%;
                 }
-
-                .ui-button {
+                > .ui-button {
                     margin: 15px 0 15px 15px;
                     padding: 0;
-                    width: 190px;
+                    width: 210px;
                     height: 34px;
                     line-height: 34px;
                     font-size: 12px;
                     text-transform: uppercase;
+                    text-align: center;
                     @extend .font-bold;
                     @extend .font-smooth;
 
@@ -6832,7 +6846,6 @@ strong {
                         color: $text-secondary;
                         vertical-align: top;
                         padding-right: 10px;
-                        padding-left: 50px;
                     }
 
                     &:not(.disabled):hover:before {

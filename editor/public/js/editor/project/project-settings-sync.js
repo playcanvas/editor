@@ -66,7 +66,7 @@ editor.once('load', function() {
     });
 
     // migrate
-    if (! editor.call('project:settings').get('use_legacy_scripts')) {
+    if (! settings.get('use_legacy_scripts')) {
         // scripts order
         if (! (settings.get('scripts') instanceof Array))
             settings.set('scripts', [ ]);
@@ -75,4 +75,8 @@ editor.once('load', function() {
     } else {
         pc.script.legacy = true;
     }
+
+    // migrate preferWebGl2
+    if (! settings.has('preferWebGl2'))
+        settings.set('preferWebGl2', true);
 });

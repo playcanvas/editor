@@ -16,6 +16,7 @@ function Slider(args) {
     this.element.classList.add('ui-slider');
 
     this.elementBar = document.createElement('div');
+    this.elementBar.ui = this;
     this.elementBar.classList.add('bar');
     this.element.appendChild(this.elementBar);
 
@@ -26,8 +27,50 @@ function Slider(args) {
     this.elementBar.appendChild(this.elementHandle);
 
     this.element.addEventListener('mousedown', this._onMouseDown, false);
-    this.evtMouseMove = null;
-    this.evtMouseUp = null;
+    this.element.addEventListener('touchstart', this._onTouchStart, false);
+
+    this.evtMouseMove = function(evt) {
+        evt.stopPropagation();
+        evt.preventDefault();
+
+        self._onSlideMove(evt.pageX);
+    };
+    this.evtMouseUp = function(evt) {
+        evt.stopPropagation();
+        evt.preventDefault();
+
+        self._onSlideEnd(evt.pageX);
+    };
+
+    this.evtTouchMove = function(evt) {
+        for(var i = 0; i < evt.changedTouches.length; i++) {
+            var touch = evt.changedTouches[i];
+
+            if (touch.identifier !== self.evtTouchId)
+                continue;
+
+            evt.stopPropagation();
+            evt.preventDefault();
+
+            self._onSlideMove(touch.pageX);
+            break;
+        }
+    };
+    this.evtTouchEnd = function(evt) {
+        for(var i = 0; i < evt.changedTouches.length; i++) {
+            var touch = evt.changedTouches[i];
+
+            if (touch.identifier !== self.evtTouchId)
+                continue;
+
+            evt.stopPropagation();
+            evt.preventDefault();
+
+            self._onSlideEnd(touch.pageX);
+            self.evtTouchId = null;
+            break;
+        }
+    };
 
     this.on('change', this.__onChange);
 
@@ -84,12 +127,57 @@ Slider.prototype._updateHandle = function(value) {
 };
 
 
-Slider.prototype._handleEvt = function(evt) {
-    evt.stopPropagation();
-    evt.preventDefault();
+Slider.prototype._onMouseDown = function(evt) {
+    if (evt.button !== 0 || this.ui.disabled)
+        return;
 
+    this.ui._onSlideStart(evt.pageX);
+};
+
+
+Slider.prototype._onTouchStart = function(evt) {
+    if (this.ui.disabled)
+        return;
+
+    for(var i = 0; i < evt.changedTouches.length; i++) {
+        var touch = evt.changedTouches[i];
+        if (! touch.target.ui || touch.target.ui !== this.ui)
+            continue;
+
+        this.ui.evtTouchId = touch.identifier;
+        this.ui._onSlideStart(touch.pageX);
+        break;
+    }
+};
+
+
+Slider.prototype._onSlideStart = function(pageX) {
+    this.elementHandle.focus();
+
+    this.renderChanges = false;
+
+    if (this.evtTouchId === null) {
+        window.addEventListener('mousemove', this.evtMouseMove, false);
+        window.addEventListener('mouseup', this.evtMouseUp, false);
+    } else {
+        window.addEventListener('touchmove', this.evtTouchMove, false);
+        window.addEventListener('touchend', this.evtTouchEnd, false);
+    }
+
+    this.class.add('active');
+
+    this.emit('start', this.value);
+
+    this._onSlideMove(pageX);
+
+    if (this._link && this._link.history)
+        this._link.history.combine = true;
+};
+
+
+Slider.prototype._onSlideMove = function(pageX) {
     var rect = this.element.getBoundingClientRect();
-    var x = Math.max(0, Math.min(1, (evt.clientX - rect.left) / rect.width));
+    var x = Math.max(0, Math.min(1, (pageX - rect.left) / rect.width));
 
     var range = this._max - this._min;
     var value = (x * range) + this._min;
@@ -100,45 +188,20 @@ Slider.prototype._handleEvt = function(evt) {
 };
 
 
-Slider.prototype._onMouseDown = function(evt) {
-    if (evt.button !== 0 || this.ui.disabled)
-        return;
-
-    this.ui.elementHandle.focus();
-
-    this.ui.renderChanges = false;
-
-    this.ui.evtMouseMove = this.ui._onMouseMove.bind(this.ui);
-    window.addEventListener('mousemove', this.ui.evtMouseMove, false);
-
-    this.ui.evtMouseUp = this.ui._onMouseUp.bind(this.ui);
-    window.addEventListener('mouseup', this.ui.evtMouseUp, false);
-
-    this.ui.class.add('active');
-
-    this.ui.emit('start', this.ui.value);
-
-    this.ui._handleEvt(evt);
-
-    if (this.ui._link && this.ui._link.history)
-        this.ui._link.history.combine = true;
-};
-
-
-Slider.prototype._onMouseMove = function(evt) {
-    this._handleEvt(evt);
-};
-
-
-Slider.prototype._onMouseUp = function(evt) {
-    this._handleEvt(evt);
+Slider.prototype._onSlideEnd = function(pageX) {
+    this._onSlideMove(pageX);
 
     this.renderChanges = true;
 
     this.class.remove('active');
 
-    window.removeEventListener('mousemove', this.evtMouseMove);
-    window.removeEventListener('mouseup', this.evtMouseUp);
+    if (this.evtTouchId === null) {
+        window.removeEventListener('mousemove', this.evtMouseMove);
+        window.removeEventListener('mouseup', this.evtMouseUp);
+    } else {
+        window.removeEventListener('touchmove', this.evtTouchMove);
+        window.removeEventListener('touchend', this.evtTouchEnd);
+    }
 
     if (this._link && this._link.history)
         this._link.history.combine = false;

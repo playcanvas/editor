@@ -94,8 +94,10 @@ editor.once('load', function () {
             return;
 
         var element = document.createElement('div');
+        element.classList.add('selectable');
 
         var text = element.text = document.createElement('span');
+        text.classList.add('selectable');
         element.appendChild(text);
 
         var message;
@@ -114,6 +116,7 @@ editor.once('load', function () {
             // don't add image and username
             if (lastUser !== type || (Date.now() - lastMessage) > lastMessageDelay) {
                 var img = document.createElement('img');
+                img.classList.add('selectable');
                 img.width = 14;
                 img.height = 14;
                 img.src = '/api/' + type + '/thumbnail?size=14';
@@ -131,8 +134,8 @@ editor.once('load', function () {
                 var user = editor.call('users:get', type);
 
                 var username = document.createElement('span');
-                username.classList.add('username');
-                username.textContent = user ? user.username : '';
+                username.classList.add('username', 'selectable');
+                username.textContent = (user ? user.username : '') + ': ';
                 if (type !== config.self.id)
                     username.style.color = editor.call('whoisonline:color', user.id, 'hex');
                 element.insertBefore(username, text);

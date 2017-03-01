@@ -176,8 +176,15 @@ editor.once('load', function() {
     var scriptPrefix = config.project.scriptPrefix;
 
     // queryParams.local can be true or it can be a URL
-    if (queryParams.local) {
+    if (queryParams.local)
         scriptPrefix = queryParams.local === 'true' ? 'http://localhost:51000' : queryParams.local;
+
+    // WebGL 1.0 enforced?
+    var preferWebGl2 = config.project.settings.preferWebGl2;
+    if (queryParams.hasOwnProperty('webgl1')) {
+        try {
+            preferWebGl2 = queryParams.webgl1 === undefined ? false : ! JSON.parse(queryParams.webgl1);
+        } catch (ex) { }
     }
 
     // listen for project setting changes
@@ -196,6 +203,7 @@ editor.once('load', function() {
         scriptsOrder: projectSettings.get('scripts') || [ ],
         assetPrefix: '/api',
         graphicsDeviceOptions: {
+            preferWebGl2: preferWebGl2,
             antialias: config.project.settings.antiAlias === false ? false : true,
             alpha: config.project.settings.transparent_canvas === false ? false : true,
             preserveDrawingBuffer: !!config.project.settings.preserve_drawing_buffer
@@ -283,6 +291,10 @@ editor.once('load', function() {
     projectSettings.on('use_device_pixel_ratio:set', function (value) {
         config.project.settings.use_device_pixel_ratio = value;
         app.graphicsDevice.maxPixelRatio = value ? window.devicePixelRatio : 1;
+    });
+
+    projectSettings.on('preferWebGl2:set', function (value) {
+        config.project.settings.preferWebGl2 = value;
     });
 
     window.addEventListener('resize', reflow, false);
