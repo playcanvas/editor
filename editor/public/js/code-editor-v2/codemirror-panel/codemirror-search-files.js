@@ -6,6 +6,7 @@ editor.once('load', function () {
     var totalMatches = 0;
     var totalFiles = 0;
     var tab = null;
+    var isFocused = false;
     var codePanel = editor.call('layout.code');
     var contextLimit = 30;
 
@@ -27,6 +28,9 @@ editor.once('load', function () {
         cm.setOption('lint', false);
 
         cm.swapDoc(doc);
+        setTimeout(function () {
+            cm.focus();
+        });
     }
 
     // create new doc and start adding results to it
@@ -60,8 +64,11 @@ editor.once('load', function () {
 
             // show code
             codePanel.toggleCode(true);
+
+            isFocused = true;
         } else {
             cm.setOption('lineNumbers', true);
+            isFocused = false;
         }
     });
 
@@ -70,8 +77,11 @@ editor.once('load', function () {
     editor.on('tabs:close', function (t) {
         if (tab && tab === t) {
             doc = null;
-            editor.call('editor:search:files:cancel');
             tab = null;
+            editor.call('editor:search:files:cancel');
+
+            if (isFocused)
+                codePanel.toggleCode(false);
         }
     });
 
@@ -108,6 +118,7 @@ editor.once('load', function () {
                 // double click
                 lastMouseDown = null;
                 lastLineClicked = null;
+                e.preventDefault();
                 onDblClick(line);
             } else {
                 lastMouseDown = Date.now();

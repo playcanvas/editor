@@ -132,11 +132,6 @@ editor.once('load', function () {
         });
     });
 
-    // when a tab closes hide the code
-    editor.on('tabs:close', function () {
-        panel.toggleCode(false);
-    });
-
     // Close document
     editor.on('documents:close', function (id) {
         if (focusedView === viewIndex[id]) {
@@ -147,6 +142,8 @@ editor.once('load', function () {
             focusedView.suppressChanges = true;
             cm.setValue('');
             cm.clearHistory();
+
+            panel.toggleCode(false);
 
             focusedView = null;
         }
