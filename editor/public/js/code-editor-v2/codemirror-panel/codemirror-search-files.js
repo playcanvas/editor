@@ -291,7 +291,7 @@ editor.once('load', function () {
                 var lineHandle = doc.getLineHandle(lastLine);
                 lineHandle._assetId = results.id;
                 lineHandle._line = match.line + 1;
-                lineHandle._col = match.char;
+                lineHandle._col = match.char + 1;
             } else {
                 // this belongs to the same line as the previous batch of matches
                 // so append text to the same line
