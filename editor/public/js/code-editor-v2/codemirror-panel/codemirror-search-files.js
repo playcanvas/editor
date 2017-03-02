@@ -268,7 +268,7 @@ editor.once('load', function () {
 
             // if this is a new line then
             // add text on the bottom
-            if (! previousMatchLine) {
+            if (previousMatchLine === null) {
                 doc.replaceRange(
                     text + (addNewLine ? '\n' : ''),
                     CodeMirror.Pos(doc.lastLine())
