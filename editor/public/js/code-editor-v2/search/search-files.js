@@ -21,22 +21,33 @@ editor.once('load', function () {
 
     var searchAsset = function (asset, regex, searchId) {
         todo++;
-        editor.call('assets:contents:get', asset, function (err, contents) {
-            if (searchId !== lastSearchId)
-                return;
 
-            if (err) {
-                done++;
-                return checkDone();
-            }
-
+        // get open document if it exists
+        var doc = editor.call('documents:get', asset.get('id'));
+        if (doc) {
             worker.postMessage({
                 id: asset.get('id'),
-                text: contents,
+                text: doc.getSnapshot(),
                 query: regex
             });
+        } else {
+            editor.call('assets:contents:get', asset, function (err, contents) {
+                if (searchId !== lastSearchId)
+                    return;
 
-        });
+                if (err) {
+                    done++;
+                    return checkDone();
+                }
+
+                worker.postMessage({
+                    id: asset.get('id'),
+                    text: contents,
+                    query: regex
+                });
+
+            });
+        }
     };
 
     editor.method('editor:search:files', function (regex, filter) {
