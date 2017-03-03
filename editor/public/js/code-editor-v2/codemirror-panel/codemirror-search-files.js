@@ -56,6 +56,16 @@ editor.once('load', function () {
         doc.replaceRange('\n\n' + str, CodeMirror.Pos(doc.lastLine()));
     });
 
+    // hide highlighted search results when the user
+    // is searching within the results
+    editor.on('editor:search:overlay:open', function () {
+        cm.getWrapperElement().classList.add('hide-find-in-files');
+    });
+
+    editor.on('editor:search:overlay:close', function () {
+        cm.getWrapperElement().classList.remove('hide-find-in-files');
+    });
+
     // release mousedown event if we switch documents
     cm.on('swapDoc', function (cm) {
         cm.off('mousedown', onMouseDown);

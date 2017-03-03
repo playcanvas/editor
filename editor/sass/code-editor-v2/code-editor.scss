@@ -1044,6 +1044,12 @@ a.link-docs {
     border: 1px solid white;
 }
 
+.hide-find-in-files {
+    .search-results-match {
+        border-color: transparent;
+    }
+}
+
 .invisible {
     visibility: hidden;
 }
