@@ -492,24 +492,59 @@ editor.once('load', function() {
         return grid;
     });
 
+    var searchingInProgress = false;
+    var searchingElement = null;
+    var searchingFunction = null;
+    var searchingBatchLimit = 512;
+
+    var searchNextBatch = function() {
+        var done = 0;
+
+        while(searchingElement && (searchingBatchLimit === 0 || done < searchingBatchLimit)) {
+            var item = searchingElement.ui;
+
+            if (item) {
+                if (item.asset) {
+                    item.hidden = ! searchingFunction('asset', item.asset);
+                } else if (item.script) {
+                    item.hidden = ! searchingFunction('script', item.script);
+                }
+                done++;
+            }
+
+            searchingElement = searchingElement.nextSibling;
+        }
+
+        if (! searchingElement) {
+            searchingInProgress = false;
+        } else {
+            requestAnimationFrame(searchNextBatch);
+        }
+    };
 
     // filter assets in grid
-    editor.method('assets:panel:filter', function(fn) {
+    editor.method('assets:panel:filter', function(fn, immediate) {
         if (! fn)
             fn = editor.call('assets:panel:filter:default');
 
         labelNoAssets.hidden = true;
 
-        grid.forEach(function(gridItem) {
-            if (gridItem.asset) {
-                gridItem.hidden = ! fn('asset', gridItem.asset);
-            } else if (gridItem.script) {
-                gridItem.hidden = ! fn('script', gridItem.script);
-            }
-        });
+        searchingElement = grid._element.firstChild;
+        searchingFunction = fn;
 
         var type = editor.call('assets:filter:type');
         var search = editor.call('assets:filter:search');
+
+        if (! search || immediate) {
+            searchingBatchLimit = 0;
+        } else {
+            searchingBatchLimit = 512;
+        }
+
+        if (! searchingInProgress) {
+            searchingInProgress = true;
+            requestAnimationFrame(searchNextBatch);
+        }
 
         // navigate to selected assets folder
         if (searching && ! search) {
