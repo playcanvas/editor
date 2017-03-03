@@ -8,17 +8,28 @@ editor.once('load', function () {
         if (suspendEvents)
             return;
 
-        var tabs = editor.call('tabs:list').map(function (tab) {return tab.asset.get('id');}).join(',');
+        var tabs = editor.call('tabs:list');
+        var str = '';
+        var comma = '';
+        for (var i = 0, len = tabs.length; i < len; i++) {
+            if (tabs[i].asset) {
+                str += comma + tabs[i].id;
+                comma = ',';
+            }
+        }
+
         var url = '/editor/code/' + config.project.id;
-        if (tabs) {
-            url += '?tabs=' + tabs;
+        if (str) {
+            url += '?tabs=' + str;
         }
 
         window.history.replaceState('', '', url);
     };
 
     var timeout;
-    var deferredUpdate = function () {
+    var deferredUpdate = function (tab) {
+        if (! tab.asset) return;
+
         clearTimeout(timeout);
         timeout = setTimeout(updateUrl);
     }

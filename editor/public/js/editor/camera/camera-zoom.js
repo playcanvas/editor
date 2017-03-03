@@ -18,14 +18,25 @@ editor.once('viewport:load', function() {
     var vecA = new pc.Vec3();
     var vecB = new pc.Vec3();
     var distance = 1;
-    var rootAabb = new pc.BoundingBox();
-    var lastRootAabb = 0;
+
+    var selectorLastType = null;
+    var aabbSelection = new pc.BoundingBox();
+    var aabbSelectionLast = 0;
+    var aabbRoot = new pc.BoundingBox();
+    var aabbRootLast = 0;
 
     editor.on('hotkey:shift', function(state) {
         shiftKey = state;
     });
     editor.on('viewport:hover', function(state) {
         hovering = state;
+    });
+
+    editor.on('selector:change', function(type) {
+        if (selectorLastType !== type || type === 'entity') {
+            selectorLastType = type;
+            aabbSelectionLast = 0;
+        }
     });
 
     editor.on('viewport:update', function(dt) {
@@ -58,18 +69,30 @@ editor.once('viewport:load', function() {
                             distance = Math.max(1, Math.min(zoomMax, point.length()));
                         } else {
                             // distance to selected entity
-                            var aabb = editor.call('selection:aabb');
+                            var aabb;
+
+                            // cache and recalculate aabb only periodically
+                            if (selectorLastType === 'entity') {
+                                if ((Date.now() - aabbSelectionLast > 1000)) {
+                                    aabbSelectionLast = Date.now();
+                                    aabb = editor.call('selection:aabb');
+                                    if (aabb) aabbSelection.copy(aabb);
+                                } else {
+                                    aabb = aabbSelection;
+                                }
+                            }
+
                             if (aabb) {
                                 distance = Math.max(1, Math.min(zoomMax, aabb.center.clone().sub(camera.getPosition()).length()));
                             } else {
                                 // nothing selected, then size of aabb of scene or distance to center of aabb
 
-                                if ((Date.now() - lastRootAabb) > 1000) {
-                                    lastRootAabb = Date.now();
-                                    rootAabb.copy(editor.call('entities:aabb', editor.call('entities:root')));
+                                if ((Date.now() - aabbRootLast) > 1000) {
+                                    aabbRootLast = Date.now();
+                                    aabbRoot.copy(editor.call('entities:aabb', editor.call('entities:root')));
                                 }
 
-                                aabb = rootAabb;
+                                aabb = aabbRoot;
 
                                 if (editor.call('entities:root')) {
                                     distance = Math.max(aabb.halfExtents.length(), aabb.center.clone().sub(camera.getPosition()).length());

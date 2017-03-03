@@ -12,14 +12,6 @@ editor.once('load', function () {
     panel.hidden = true;
     parent.append(panel);
 
-    codePanel.on('show', function () {
-        panel.hidden = false;
-    });
-
-    codePanel.on('hide', function () {
-        panel.hidden = true;
-    });
-
     panel.class.add('animate-height');
     codePanel.class.add('animate-height');
 
@@ -69,6 +61,12 @@ editor.once('load', function () {
     btnFindNext.class.add('icon');
     btnFindNext.element.tabIndex = -1;
     panel.append(btnFindNext);
+
+    var btnFindInFiles = new ui.Button({
+        'text': 'Find'
+    });
+    btnFindInFiles.element.tabIndex = -1;
+    panel.append(btnFindInFiles);
 
     var replaceField = new ui.TextField();
     replaceField.class.add('replace');
@@ -149,6 +147,7 @@ editor.once('load', function () {
     var previousText = '';
 
     var open = false;
+    var findInFiles = false;
     var suspendChangeEvt = false;
 
     // Returns the picker panel
@@ -156,13 +155,58 @@ editor.once('load', function () {
         return panel;
     });
 
-    // Open and focus search picker
-    editor.method('editor:picker:search:open', function () {
+    var growPicker = function () {
+        panel.style.height = '';
+        codePanel.style.height = 'calc(100% - 64px)';
+    };
+
+    var shrinkPicker = function () {
+        panel.style.height = '0px';
+        codePanel.style.height = 'calc(100% - 32px)';
+    };
+
+    var toggleFindInFilesMode = function (toggle) {
+        findInFiles = toggle;
+        if (findInFiles) {
+            searchField.elementInput.placeholder = 'Find in files';
+            replaceField.hidden = true;
+            btnReplace.hidden = true;
+            btnReplaceAll.hidden = true;
+            btnFindNext.hidden = true;
+            btnFindPrev.hidden = true;
+            btnFindInFiles.hidden = false;
+        } else {
+            searchField.elementInput.placeholder = 'Find';
+            replaceField.hidden = false;
+            btnReplace.hidden = false;
+            btnReplaceAll.hidden = false;
+            btnFindNext.hidden = false;
+            btnFindPrev.hidden = false;
+            btnFindInFiles.hidden = true;
+        }
+    };
+
+    toggleFindInFilesMode(false);
+
+    var onTransitionEnd;
+
+    panel.element.addEventListener('transitionend', function (e) {
+        if (onTransitionEnd) {
+            onTransitionEnd();
+            onTransitionEnd = null;
+        }
+    });
+
+    var openPicker = function () {
         if (! open) {
             open = true;
-            panel.style.height = '';
-            codePanel.style.height = 'calc(100% - 64px)';
-            editor.emit('editor:picker:search:open');
+            panel.hidden = false;
+            growPicker();
+            if (findInFiles) {
+                editor.emit('editor:picker:search:files:open');
+            } else {
+                editor.emit('editor:picker:search:open');
+            }
         }
 
         // set search field to selected text in the editor
@@ -179,22 +223,94 @@ editor.once('load', function () {
         searchField.elementInput.focus();
 
         updateQuery();
+
+    };
+
+    // Open and focus search picker
+    editor.method('editor:picker:search:open', function (instantToggleMode) {
+        onTransitionEnd = null;
+
+        if (findInFiles) {
+            if (open && !instantToggleMode) {
+                onTransitionEnd = function () {
+                    open = false;
+                    editor.emit('editor:picker:search:files:close');
+                    openPicker();
+                    toggleFindInFilesMode(false);
+                };
+                if (panel.style.height !== '0px') {
+                    shrinkPicker();
+                } else {
+                    onTransitionEnd();
+                }
+            } else {
+                if (open) {
+                    open = false;
+                    editor.emit('editor:picker:search:files:close');
+                }
+
+                toggleFindInFilesMode(false);
+                openPicker();
+            }
+        } else {
+            openPicker();
+        }
+    });
+
+    // Make this work in find-in-files mode
+    editor.method('editor:picker:search:files:open', function (instantToggleMode) {
+        onTransitionEnd = null;
+
+        if (! findInFiles) {
+            if (open && !instantToggleMode) {
+                onTransitionEnd = function () {
+                    open = false;
+                    editor.emit('editor:picker:search:close');
+                    toggleFindInFilesMode(true);
+                    openPicker();
+                };
+                if (panel.style.height !== '0px') {
+                    shrinkPicker();
+                } else {
+                    onTransitionEnd();
+                }
+            } else {
+                if (open) {
+                    open = false;
+                    editor.emit('editor:picker:search:close');
+                }
+                onTransitionEnd = null;
+                toggleFindInFilesMode(true);
+                openPicker();
+            }
+        } else {
+            onTransitionEnd = null;
+            openPicker();
+        }
     });
 
     // Close picker and focus editor
     editor.method('editor:picker:search:close', function () {
+        onTransitionEnd = null;
         if (! open) return;
 
+        onTransitionEnd = function () {
+            panel.hidden = true;
+        };
+
         open = false;
-        panel.style.height = '0px';
-        codePanel.style.height = 'calc(100% - 32px)';
+        shrinkPicker();
 
         // clear search too
         cm.execCommand('clearSearch');
 
         cm.focus();
 
-        editor.emit('editor:picker:search:close');
+        if (findInFiles) {
+            editor.emit('editor:picker:search:files:close');
+        } else {
+            editor.emit('editor:picker:search:close');
+        }
     });
 
     // Open and focus replace picker
@@ -280,7 +396,9 @@ editor.once('load', function () {
             error.hidden = false;
         }
 
-        editor.emit('editor:picker:search:change', regexp);
+        if (! findInFiles) {
+            editor.emit('editor:picker:search:change', regexp);
+        }
     };
 
     var search = function (reverse) {
@@ -289,11 +407,17 @@ editor.once('load', function () {
             cm.execCommand('clearSearch');
         }
 
-        if (reverse) {
-            cm.execCommand('findPrev');
+        if (findInFiles) {
+            if (regexp)
+                editor.call('editor:search:files', regexp);
         } else {
-            cm.execCommand('findNext');
+            if (reverse) {
+                cm.execCommand('findPrev');
+            } else {
+                cm.execCommand('findNext');
+            }
         }
+
 
         if (open)
             searchField.focus();
@@ -311,7 +435,9 @@ editor.once('load', function () {
 
         if (previousText !== value) {
             updateQuery();
-            search();
+
+            if (! findInFiles)
+                search();
         }
     });
 
@@ -319,7 +445,10 @@ editor.once('load', function () {
     optionRegex.on('click', function () {
         isRegex = !isRegex;
         updateQuery();
-        search();
+
+        if (! findInFiles)
+            search();
+
         if (isRegex) {
             optionRegex.class.add('toggled');
         } else {
@@ -330,7 +459,10 @@ editor.once('load', function () {
     optionCase.on('click', function () {
         caseSensitive = !caseSensitive;
         updateQuery();
-        search();
+
+        if (! findInFiles)
+            search();
+
         if (caseSensitive) {
             optionCase.class.add('toggled');
         } else {
@@ -341,7 +473,10 @@ editor.once('load', function () {
     optionWholeWords.on('click', function () {
         matchWholeWords = !matchWholeWords;
         updateQuery();
-        search();
+
+        if (! findInFiles)
+            search();
+
         if (matchWholeWords) {
             optionWholeWords.class.add('toggled');
         } else {
@@ -355,6 +490,10 @@ editor.once('load', function () {
     });
 
     btnFindNext.on('click', function () {
+        search();
+    });
+
+    btnFindInFiles.on('click', function () {
         search();
     });
 

@@ -22,7 +22,7 @@ editor.once('load', function () {
         if (asset.get('type') === 'folder') return;
 
         if (! viewIndex[asset.get('id')]) {
-            panel.hidden = true;
+            panel.toggleCode(false);
         }
     });
 
@@ -76,8 +76,8 @@ editor.once('load', function () {
             console.warn('Requested to focus document that has no view yet', 'Document ' + id);
             return;
         }
-        // unide code panel
-        panel.hidden = false;
+        // unhide code
+        panel.toggleCode(true);
 
         if (focusedView && viewIndex[id] === focusedView) {
             var content = focusedView.doc.getSnapshot();
@@ -132,8 +132,6 @@ editor.once('load', function () {
         });
     });
 
-
-
     // Close document
     editor.on('documents:close', function (id) {
         if (focusedView === viewIndex[id]) {
@@ -145,14 +143,18 @@ editor.once('load', function () {
             cm.setValue('');
             cm.clearHistory();
 
-            focusedView = null;
+            panel.toggleCode(false);
 
-            // hide code panel
-            panel.hidden = true;
+            focusedView = null;
         }
 
         delete viewIndex[id];
 
+    });
+
+    // unfocus
+    editor.on('documents:unfocus', function () {
+        focusedView = null;
     });
 
     // Get focused document

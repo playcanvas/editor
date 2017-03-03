@@ -75,25 +75,6 @@ editor.once('load', function () {
     });
 
 
-    // Load asset file contents and call callback
-    editor.method('assets:loadFile', function (asset, fn) {
-        Ajax({
-            url: '{{url.api}}/assets/' + asset.get('id') + '/file/' + asset.get('file.filename'),
-            auth: true,
-            notJson: true
-        })
-        .on('load', function(status, data) {
-            asset.set('content', data);
-
-            if (fn)
-                fn(null, data);
-        })
-        .on('error', function (status, err) {
-            if (fn)
-                fn(err || new Error('Status: ' + status));
-        });
-    });
-
     // Handle asset path changes
     editor.method('assets:fs:paths:patch', function (data) {
         var connection = editor.call('realtime:connection');

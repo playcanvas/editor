@@ -19,8 +19,6 @@ editor.once('viewport:load', function(app) {
     var panPoint = new pc.Vec3();
     var grabbed = false;
     var panButton = 0;
-    var rootAabb = new pc.BoundingBox();
-    var lastRootAabb = 0;
 
 
     editor.on('hotkey:shift', function(state) {
@@ -87,19 +85,14 @@ editor.once('viewport:load', function(app) {
         } else {
             // distance to selected entity
             var aabb = editor.call('selection:aabb');
+
             if (aabb) {
                 var dist = aabb.center.clone().sub(camera.getPosition()).length();
                 panPoint.copy(camera.camera.screenToWorld(vecA.x, vecA.y, dist));
                 grabbed = true;
             } else {
                 // nothing selected, then size of aabb of scene or distance to center of aabb
-
-                if ((Date.now() - lastRootAabb) > 1000) {
-                    lastRootAabb = Date.now();
-                    rootAabb.copy(editor.call('entities:aabb', editor.call('entities:root')));
-                }
-
-                aabb = rootAabb;
+                aabb = editor.call('entities:aabb', editor.call('entities:root'));
 
                 if (editor.call('entities:root')) {
                     var dist = Math.max(aabb.halfExtents.length(), aabb.center.clone().sub(camera.getPosition()).length());

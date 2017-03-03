@@ -151,33 +151,8 @@ editor.once('load', function () {
 
             var name = asset.get('name');
 
-            // calculate score:
-            // Higher score for more matches close to the beginning
-            var score = 0;
-            var nlen = name.length;
-            var n = 0;
-            var p = 0;
-
-            while (n < nlen && p < plen) {
-                if (name[n] === pattern[p]) {
-                    score += 1 / (n+1);
-                    p++;
-                } else {
-                    var otherCase = name[n].toLowerCase();
-                    if (otherCase === name[n])
-                        otherCase = name[n].toUpperCase();
-
-                    if (otherCase === pattern[p]) {
-                        score += 0.9 / (n+1);
-                        p++;
-                    }
-                }
-
-                n++;
-            }
-
-            if (! score || p < plen)
-                continue;
+            var score = calculateScore(name, pattern, plen);
+            if (! score) continue;
 
             scoreIndex[asset.get('id')] = score;
 
@@ -190,6 +165,38 @@ editor.once('load', function () {
 
         // select first node
         selectIndex(0);
+    };
+
+    // calculate score:
+    // Higher score for more matches close to the beginning
+    var calculateScore = function (name, pattern, patternLength) {
+        var score = 0;
+        var nameLength = name.length;
+        var n = 0;
+        var p = 0;
+
+        while (n < nameLength && p < patternLength) {
+            if (name[n] === pattern[p]) {
+                score += 1 / (n+1);
+                p++;
+            } else {
+                var otherCase = name[n].toUpperCase();
+                if (otherCase === name[n])
+                    otherCase = name[n].toLowerCase();
+
+                if (otherCase === pattern[p]) {
+                    score += 0.9 / (n+1);
+                    p++;
+                }
+            }
+
+            n++;
+        }
+
+        if (p < patternLength)
+            score = 0;
+
+        return score;
     };
 
     var stackBasedSearch = function () {

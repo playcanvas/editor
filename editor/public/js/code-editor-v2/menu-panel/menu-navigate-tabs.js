@@ -38,7 +38,7 @@ editor.once('load', function () {
 
         var idx = tabs.indexOf(focused);
         var next = tabs[(idx + 1) % tabs.length];
-        editor.call('files:select', next.asset.get('id'));
+        editor.call('files:select', next.id);
     });
 
     // Previous tab
@@ -79,7 +79,7 @@ editor.once('load', function () {
             idx = tabs.length - 1;
 
         var next = tabs[idx];
-        editor.call('files:select', next.asset.get('id'));
+        editor.call('files:select', next.id);
     });
 
     var createSelectTabByNumber = function (number) {
@@ -119,7 +119,7 @@ editor.once('load', function () {
         var select = tabs[index];
         if (! select) return;
 
-        editor.call('files:select', select.asset.get('id'));
+        editor.call('files:select', select.id);
     });
 
 });

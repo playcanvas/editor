@@ -2,6 +2,13 @@ editor.once('load', function () {
     'use strict';
 
     var panel = editor.call('layout.code');
+    panel.toggleCode = function (toggle) {
+        if (toggle) {
+            cm.getWrapperElement().classList.remove('invisible');
+        } else {
+            cm.getWrapperElement().classList.add('invisible');
+        }
+    }
 
     var element = panel.innerElement;
     var cm = null;
@@ -79,6 +86,7 @@ editor.once('load', function () {
     options.extraKeys['Ctrl-K Ctrl-J'] = function(cm) {editor.call('editor:command:unfoldAll');};
 
     options.extraKeys['Ctrl-F'] = function (cm) {editor.call('editor:command:find');};
+    options.extraKeys['Shift-Ctrl-F'] = function (cm) {editor.call('editor:command:findInFiles');};
     options.extraKeys['Ctrl-D'] = function (cm) {editor.call('editor:command:selectNextOccurrence');};
 
     options.extraKeys['Ctrl-K Ctrl-Space'] = function (cm) {editor.call('editor:command:setMark');};
@@ -92,12 +100,12 @@ editor.once('load', function () {
     options.extraKeys['Alt-Down'] = function (cm) {cm.execCommand('goLineDown'); cm.execCommand('goLineEnd');};
 
     // auto complete keys
-    options.extraKeys['Ctrl-Space'] = function (cm) {tern && tern.complete(cm);};
-    options.extraKeys['Ctrl-O'] = function (cm) {tern && tern.showDocs(cm);};
-    options.extraKeys['Alt-.'] = function (cm) {tern && tern.jumpToDef(cm);};
-    options.extraKeys['Alt-,'] = function (cm) {tern && tern.jumpBack(cm);};
-    options.extraKeys['Ctrl-Q'] = function (cm) {tern && tern.rename(cm);};
-    options.extraKeys['Ctrl-.'] = function (cm) {tern && tern.selectName(cm);};
+    options.extraKeys['Ctrl-Space'] = function (cm) {isTernEnabled() && tern.complete(cm);};
+    options.extraKeys['Ctrl-O'] = function (cm) {isTernEnabled() && tern.showDocs(cm);};
+    options.extraKeys['Alt-.'] = function (cm) {isTernEnabled() && tern.jumpToDef(cm);};
+    options.extraKeys['Alt-,'] = function (cm) {isTernEnabled() && tern.jumpBack(cm);};
+    options.extraKeys['Ctrl-Q'] = function (cm) {isTernEnabled() && tern.rename(cm);};
+    options.extraKeys['Ctrl-.'] = function (cm) {isTernEnabled() && tern.selectName(cm);};
 
     if (mac) {
         options.extraKeys['Cmd-Z'] = function (cm) { editor.call('editor:command:undo');};
@@ -110,9 +118,10 @@ editor.once('load', function () {
         options.extraKeys['Alt-Ctrl-]'] = function(cm) {editor.call('editor:command:unfold');};
         options.extraKeys['Cmd-K Cmd-J'] = function(cm) {editor.call('editor:command:unfoldAll');};
         options.extraKeys['Cmd-Backspace'] = function (cm) {editor.call('editor:command:deleteBeginning');};
-        options.extraKeys['Cmd-O'] = function (cm) {tern && tern.showDocs(cm);};
+        options.extraKeys['Cmd-O'] = function (cm) {isTernEnabled() && tern.showDocs(cm);};
 
         options.extraKeys['Cmd-F'] = function (cm) {editor.call('editor:command:find');};
+        options.extraKeys['Shift-Cmd-F'] = function (cm) {editor.call('editor:command:findInFiles');};
         options.extraKeys['Cmd-G'] = function (cm) {editor.call('editor:command:findNext');};
         options.extraKeys['Shift-Cmd-G'] = function (cm) {editor.call('editor:command:findPrevious');};
         options.extraKeys['Ctrl-H'] = function (cm) {}; // nothing
@@ -141,10 +150,26 @@ editor.once('load', function () {
     // create code mirror
     cm = CodeMirror(element, options);
 
+    // hide initially
+    panel.toggleCode(false);
+
     // expose
     editor.method('editor:codemirror', function () {
         return cm;
     });
+
+    var isTernEnabled = function () {
+        if (! tern || cm.isReadOnly())
+            return false;
+
+        var focused = editor.call('documents:getFocused');
+        if (! focused) return false;
+
+        var asset = editor.call('assets:get', focused);
+        if (! asset || asset.get('type') !== 'script') return false;
+
+        return true;
+    };
 
     // wait for tern definitions to be loaded
     editor.on('tern:load', function () {
@@ -217,6 +242,11 @@ editor.once('load', function () {
                 }
             });
 
+            // close arg hints when we swap docs
+            cm.on('swapDoc', function () {
+                tern.updateArgHints(cm);
+            });
+
             // autocomplete
             var completeTimeout = null;
             var doComplete = function () {
@@ -225,14 +255,8 @@ editor.once('load', function () {
 
             var wordChar = /\w/;
             var shouldComplete = function (e) {
-                if (cm.isReadOnly())
+                if (! isTernEnabled())
                     return false;
-
-                var focused = editor.call('documents:getFocused');
-                if (! focused) return false;
-
-                var asset = editor.call('assets:get', focused);
-                if (! asset || asset.get('type') !== 'script') return false;
 
                 // auto complete on '.' or word chars
                 return !e.ctrlKey && !e.altKey && !e.metaKey && (e.keyCode === 190 || (e.key && e.key.length === 1 && wordChar.test(e.key)));

@@ -12,38 +12,6 @@ editor.once('load', function () {
     // user requested to focus
     var lastFocusedId = null;
 
-    // Checks if a document with the specified id
-    // is dirty
-    var checkIfDirty = function (id) {
-        var asset = editor.call('assets:get', id);
-        if (! asset) return;
-
-        var assetContent = asset.get('content');
-        if (assetContent === null) return;
-
-        var doc = documentsIndex[id];
-        if (! doc || doc.content === null) return;
-
-        var dirty = assetContent !== doc.content;
-
-        // clear contents to save memory
-        asset.set('content', null);
-        doc.content = null;
-
-        if (doc.isDirty !== dirty) {
-            doc.isDirty = dirty;
-            editor.emit('documents:dirty', id, dirty);
-        }
-    }
-
-    // update dirty flag when asset content changes
-    editor.on('assets:add', function (asset) {
-        asset.on('content:set', function (content) {
-            if (content !== null)
-                checkIfDirty(asset.get('id'));
-        });
-    });
-
     // Loads the editable document that corresponds to the specified asset id
     var loadDocument = function (asset) {
         var id = asset.get('id');
@@ -54,7 +22,6 @@ editor.once('load', function () {
         var entry = {
             doc: doc,
             error: null,
-            content: null,
             isLoading: true,
             isDirty: false,
             hasLocalChanges: false
@@ -98,7 +65,6 @@ editor.once('load', function () {
                 }
 
                 entry.isLoading = false;
-                entry.content = doc.getSnapshot();
 
                 // load event
                 editor.emit('documents:load', doc, asset);
@@ -108,15 +74,18 @@ editor.once('load', function () {
                     editor.emit('documents:focus', id);
                 }
 
-                // check if it's diry
-                if (asset.get('content') !== null) {
-                    checkIfDirty(id);
-                } else {
-                    // re-load asset content
-                    // which will set the content and re-trigger
-                    // dirty check
-                    editor.call('assets:loadFile', asset);
-                }
+                // check if it's dirty
+                editor.call('assets:contents:get', asset, function (err, content) {
+                    // re-check if we haven't closed the file
+                    if (! documentsIndex[id] || err) return;
+
+                    var dirty = doc.getSnapshot() !== content;
+                    if (entry.isDirty !== dirty) {
+                        entry.isDirty = dirty;
+                        editor.emit('documents:dirty', id, dirty);
+                    }
+                });
+
             });
         });
 
@@ -183,6 +152,11 @@ editor.once('load', function () {
 
         if (lastFocusedId === id)
             lastFocusedId = null;
+    });
+
+    // unfocus
+    editor.on('documents:unfocus', function () {
+        lastFocusedId = null;
     });
 
     // unload document if asset is removed

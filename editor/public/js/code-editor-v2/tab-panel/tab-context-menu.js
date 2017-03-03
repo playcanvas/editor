@@ -37,7 +37,7 @@ editor.once('load', function () {
     menu.append(menu.createItem('close', {
         title: 'Close',
         select: function () {
-            editor.emit('documents:close', currentTab.asset.get('id'));
+            editor.call('tabs:close', currentTab.id);
         }
     }))
 
@@ -54,7 +54,7 @@ editor.once('load', function () {
                 if (tabs[i] === currentTab)
                     continue;
 
-                editor.emit('documents:close', tabs[i].asset.get('id'));
+                editor.call('tabs:close', tabs[i].id);
             }
         }
     }));
@@ -69,11 +69,11 @@ editor.once('load', function () {
         },
         select: function () {
             var tabs = editor.call('tabs:list');
-            var idx = tabs.indexOf(currentTab);
+        var idx = tabs.indexOf(currentTab);
             if (idx === -1) return;
             var i = tabs.length;
             while (i-- && i > idx) {
-                editor.emit('documents:close', tabs[i].asset.get('id'));
+                editor.call('tabs:close', tabs[i].id);
             }
         }
     }));
@@ -86,7 +86,7 @@ editor.once('load', function () {
             var tabs = editor.call('tabs:list');
             var i = tabs.length;
             while (i--) {
-                editor.emit('documents:close', tabs[i].asset.get('id'));
+                editor.call('tabs:close', tabs[i].id);
             }
             editor.call('tabs:batchClose:end');
         }
