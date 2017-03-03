@@ -190,9 +190,11 @@ editor.once('load', function () {
 
     var onTransitionEnd;
 
-    panel.element.addEventListener('transitionend', function () {
-        if (onTransitionEnd)
+    panel.element.addEventListener('transitionend', function (e) {
+        if (onTransitionEnd) {
             onTransitionEnd();
+            onTransitionEnd = null;
+        }
     });
 
     var openPicker = function () {
@@ -200,7 +202,11 @@ editor.once('load', function () {
             open = true;
             panel.hidden = false;
             growPicker();
-            editor.emit('editor:picker:search:open');
+            if (findInFiles) {
+                editor.emit('editor:picker:search:files:open');
+            } else {
+                editor.emit('editor:picker:search:open');
+            }
         }
 
         // set search field to selected text in the editor
@@ -228,6 +234,7 @@ editor.once('load', function () {
             if (open && !instantToggleMode) {
                 onTransitionEnd = function () {
                     open = false;
+                    editor.emit('editor:picker:search:files:close');
                     openPicker();
                     toggleFindInFilesMode(false);
                 };
@@ -237,7 +244,11 @@ editor.once('load', function () {
                     onTransitionEnd();
                 }
             } else {
-                open = false;
+                if (open) {
+                    open = false;
+                    editor.emit('editor:picker:search:files:close');
+                }
+
                 toggleFindInFilesMode(false);
                 openPicker();
             }
@@ -254,8 +265,9 @@ editor.once('load', function () {
             if (open && !instantToggleMode) {
                 onTransitionEnd = function () {
                     open = false;
-                    openPicker();
+                    editor.emit('editor:picker:search:close');
                     toggleFindInFilesMode(true);
+                    openPicker();
                 };
                 if (panel.style.height !== '0px') {
                     shrinkPicker();
@@ -263,7 +275,10 @@ editor.once('load', function () {
                     onTransitionEnd();
                 }
             } else {
-                open = false;
+                if (open) {
+                    open = false;
+                    editor.emit('editor:picker:search:close');
+                }
                 onTransitionEnd = null;
                 toggleFindInFilesMode(true);
                 openPicker();
@@ -291,7 +306,11 @@ editor.once('load', function () {
 
         cm.focus();
 
-        editor.emit('editor:picker:search:close');
+        if (findInFiles) {
+            editor.emit('editor:picker:search:files:close');
+        } else {
+            editor.emit('editor:picker:search:close');
+        }
     });
 
     // Open and focus replace picker
@@ -377,7 +396,9 @@ editor.once('load', function () {
             error.hidden = false;
         }
 
-        editor.emit('editor:picker:search:change', regexp);
+        if (! findInFiles) {
+            editor.emit('editor:picker:search:change', regexp);
+        }
     };
 
     var search = function (reverse) {
