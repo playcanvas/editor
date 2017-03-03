@@ -75,7 +75,8 @@ editor.once('load', function () {
     var toBeSelected = [];
 
     // Select item or expand children
-    // but never de-select
+    // but only de-select if there are multiple items selected.
+    // This is to avoid having no selected files in the tree view
     var onItemClick = function (evt) {
         if (evt.button !== 0 || ! this.ui.selectable)
             return;
@@ -84,7 +85,7 @@ editor.once('load', function () {
 
         if (this.ui._children && (evt.clientX - rect.left) < 0) {
             this.ui.open = ! this.ui.open;
-        } else if (! this.ui.selected) {
+        } else if (! this.ui.selected || this.ui.tree._selected.length > 1) {
             this.ui.tree._onItemClick(this.ui);
             evt.stopPropagation();
         } else {
