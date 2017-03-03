@@ -500,7 +500,7 @@ editor.once('load', function() {
     var searchNextBatch = function() {
         var done = 0;
 
-        while(searchingElement && done < searchingBatchLimit) {
+        while(searchingElement && (searchingBatchLimit === 0 || done < searchingBatchLimit)) {
             var item = searchingElement.ui;
 
             if (item) {
@@ -523,7 +523,7 @@ editor.once('load', function() {
     };
 
     // filter assets in grid
-    editor.method('assets:panel:filter', function(fn) {
+    editor.method('assets:panel:filter', function(fn, immediate) {
         if (! fn)
             fn = editor.call('assets:panel:filter:default');
 
@@ -534,6 +534,12 @@ editor.once('load', function() {
 
         var type = editor.call('assets:filter:type');
         var search = editor.call('assets:filter:search');
+
+        if (! search || immediate) {
+            searchingBatchLimit = 0;
+        } else {
+            searchingBatchLimit = 512;
+        }
 
         if (! searchingInProgress) {
             searchingInProgress = true;

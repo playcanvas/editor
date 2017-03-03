@@ -298,7 +298,9 @@ editor.once('load', function() {
             currentFolder = null;
             currentPath = null;
         }
-        editor.call('assets:panel:filter', filter);
+
+
+        editor.call('assets:panel:filter', filter, true);
     });
 
     editor.on('assets:add', function(asset) {
