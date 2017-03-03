@@ -38,10 +38,15 @@ editor.once('load', function () {
         totalMatches = 0;
         totalFiles = 0;
 
+        // if we are already showing results
+        // then scroll to the top first (if we try to scroll
+        // after it's not gonna work)
+        if (doc) {
+            doc.setCursor(CodeMirror.Pos(doc.firstLine(), 0));
+        }
+
         doc = CodeMirror.Doc('Searching files...');
         setDoc();
-
-        doc.setCursor(CodeMirror.Pos(doc.firstLine(), 0));
 
         // open find in files tab
         tab = editor.call('tabs:findInFiles');
