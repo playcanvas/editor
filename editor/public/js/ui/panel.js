@@ -96,7 +96,7 @@ Panel.prototype._onNodesChanged = function() {
     if (! this.foldable || this.folded || this.horizontal || this.hidden)
         return;
 
-    this.style.height = ((this.headerSize || 32) + this.innerElement.clientHeight) + 'px';
+    this.style.height = (Math.max(0, (this.headerSize || 32)) + this.innerElement.clientHeight) + 'px';
 };
 
 Panel.prototype._onParent = function() {
