@@ -7,14 +7,15 @@ editor.once('load', function () {
     var cm = editor.call('editor:codemirror');
     var mac = navigator.userAgent.indexOf('Mac OS X') !== -1;
 
-    var hasFocused = function () {
-        return !!editor.call('documents:getFocused');
+    var canFind = function () {
+        var focusedTab = editor.call('tabs:focused');
+        return focusedTab && (!focusedTab.asset || !!editor.call('documents:getFocused'));
     };
 
     // Find
     var item = menu.createItem('find', {
         title: 'Find',
-        filter: hasFocused,
+        filter: canFind,
         select: function () {
             return editor.call('editor:command:find');
         }
@@ -35,7 +36,7 @@ editor.once('load', function () {
     });
 
     editor.method('editor:command:find', function () {
-        if (hasFocused()) {
+        if (canFind()) {
             editor.call('editor:picker:search:open');
         }
     });
@@ -43,7 +44,7 @@ editor.once('load', function () {
     // Find Next
     var item = menu.createItem('find-next', {
         title: 'Find Next',
-        filter: hasFocused,
+        filter: canFind,
         select: function (e) {
             return editor.call('editor:command:findNext');
         }
@@ -64,7 +65,7 @@ editor.once('load', function () {
     });
 
     editor.method('editor:command:findNext', function () {
-        if (hasFocused()) {
+        if (canFind()) {
             cm.execCommand('findNext');
         }
     });
@@ -72,7 +73,7 @@ editor.once('load', function () {
     // Find Previous
     var item = menu.createItem('find-previous', {
         title: 'Find Previous',
-        filter: hasFocused,
+        filter: canFind,
         select: function () {
             return editor.call('editor:command:findPrevious');
         }
@@ -93,7 +94,7 @@ editor.once('load', function () {
     });
 
     editor.method('editor:command:findPrevious', function () {
-        if (hasFocused()) {
+        if (canFind()) {
             cm.execCommand('findPrev');
         }
     });

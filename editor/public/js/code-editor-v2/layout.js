@@ -57,7 +57,7 @@ editor.on('load', function () {
     tabs.element.id = 'ui-tabs';
     tabs.flexShrink = false;
     tabs.flexWrap = 'nowrap';
-    tabs.hidden = true;
+    tabs.class.add('invisible');
     center.append(tabs);
 
     // expose
@@ -66,9 +66,7 @@ editor.on('load', function () {
     // code
     var code = new ui.Panel();
     code.element.id = 'ui-code';
-    code.hidden = true;
     center.append(code);
-
     editor.method('layout.code', function () { return code; });
 
 

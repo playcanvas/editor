@@ -49,21 +49,21 @@ editor.once('load', function () {
         var view = editor.call('views:get', id);
         if (! view) return;
 
-        view.setCursor(line - 1, col - 1);
+        setTimeout(function () {
+            view.setCursor(line - 1, col - 1);
 
-        if (options.error) {
-            setTimeout(function () {
+            if (options.error) {
                 codePanel.class.add('error');
                 var clearError = function () {
                     codePanel.class.remove('error');
                     cm.off('beforeSelectionChange', clearError);
                 };
                 cm.on('beforeSelectionChange', clearError);
-                cm.focus();
-            });
-        } else {
+            }
+
+            cm.scrollIntoView(null, document.body.clientHeight / 2);
             cm.focus();
-        }
+        });
 
         if (options.callback)
             options.callback();

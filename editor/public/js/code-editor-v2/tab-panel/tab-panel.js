@@ -14,6 +14,7 @@ editor.once('load', function () {
     // The tab that new files will use
     // to open in
     var temporaryTab = null;
+
     // The tab that the user is currently dragging
     var grabbedTab = null;
 
@@ -33,6 +34,8 @@ editor.once('load', function () {
     // not switch to a different file
     var lockTemporary = false;
 
+    // pseudo-id of find in files tab
+    var FIND_IN_FILES = 'Find Results';
 
     // unhide tabs panel when asset
     // is selected and create tab for asset
@@ -40,8 +43,6 @@ editor.once('load', function () {
     editor.on('select:asset', function (asset) {
         if (asset.get('type') === 'folder')
             return;
-
-        panel.hidden = false;
 
         var id = asset.get('id')
 
@@ -53,115 +54,7 @@ editor.once('load', function () {
             if (editor.call('errors:hasRealtime'))
                 return;
 
-            // create tab
-            var tab = new ui.Panel();
-            tab.class.add('tab');
-            tab._assetId = id;
-
-            // name container
-            var panelName = new ui.Panel();
-            panelName.class.add('name');
-
-            tab.append(panelName);
-
-            // tab name
-            var name = new ui.Label({
-                text: asset.get('name')
-            });
-            name.class.add('name');
-
-            panelName.append(name);
-
-            // close button
-            var btnClose = new ui.Button({
-                text: '&#57650;'
-            });
-            btnClose.class.add('close');
-
-            tab.append(btnClose);
-
-            // loading progress
-            var progress = new ui.Progress();
-            progress.progress = 100;
-            tab.append(progress);
-
-            // add index entry
-            var entry = {
-                tab: tab,
-                asset: asset,
-                name: name,
-                progress: progress
-            };
-
-            tabsIndex[id] = entry;
-
-            // add the tab next to the focused tab
-            var focused = -1;
-            if (focusedTab) {
-                focused = tabOrder.indexOf(focusedTab);
-            }
-
-            if (focused >= 0) {
-                tabOrder.splice(focused + 1, 0, entry);
-                panel.appendAfter(tab, focusedTab.tab);
-            } else {
-                tabOrder.push(entry);
-                panel.append(tab);
-            }
-
-            // close tab button
-            btnClose.on('click', function (e) {
-                e.stopPropagation();
-                editor.emit('documents:close', entry.asset.get('id'));
-            });
-
-            var onGrab = function (e) {
-                if (e.target === btnClose.element)
-                    return;
-
-                // close on middle click
-                if (e.button === 1) {
-                    e.stopPropagation();
-                    editor.emit('documents:close', entry.asset.get('id'));
-                    return;
-                }
-
-                if (e.button === 0) {
-                    editor.call('files:select', entry.asset.get('id'));
-                    grabTab(entry, e);
-                }
-            }
-
-            var onMouseEnter = function (e) {
-                tab.class.add('hovered');
-            };
-
-            var onMouseLeave = function (e) {
-                tab.class.remove('hovered');
-            };
-
-            // grab tab
-            tab.element.addEventListener('mousedown', onGrab);
-
-            // use hovered class for the close button
-            // because the :hover selector doesn't seem to work
-            // right all the time due to the fact that
-            // each tab is removed-readded to the DOM when we move it
-            tab.element.addEventListener('mouseenter', onMouseEnter);
-
-            tab.element.addEventListener('mouseleave', onMouseLeave);
-
-            tab.on('destroy', function () {
-                tab.element.removeEventListener('mousedown', onGrab);
-                tab.element.removeEventListener('mouseenter', onMouseEnter);
-                tab.element.removeEventListener('mouseleave', onMouseLeave);
-            });
-
-            // context menu
-            editor.call('tabs:contextmenu:attach', entry);
-
-            // emit event
-            editor.emit('tabs:open', entry);
+            createTab(id, asset);
         }
 
         focusTab(id);
@@ -170,12 +63,147 @@ editor.once('load', function () {
         // and close old temporary
         if (isNew && ! lockTemporary) {
             if (temporaryTab)
-                editor.emit('documents:close', temporaryTab.asset.get('id'));
+                editor.emit('documents:close', temporaryTab.id);
 
             temporaryTab = tabsIndex[id];
             temporaryTab.tab.class.add('temporary');
         }
     });
+
+    // creates a tab
+    var createTab = function (id, asset) {
+        var tabName = asset ? asset.get('name') : id;
+
+        var tab = new ui.Panel();
+        tab.class.add('tab');
+
+        if (asset)
+            tab._assetId = id;
+
+        // name container
+        var panelName = new ui.Panel();
+        panelName.class.add('name');
+
+        tab.append(panelName);
+
+        // tab name
+        var name = new ui.Label({
+            text: tabName
+        });
+        name.class.add('name');
+
+        panelName.append(name);
+
+        // close button
+        var btnClose = new ui.Button({
+            text: '&#57650;'
+        });
+        btnClose.class.add('close');
+
+        tab.append(btnClose);
+
+        // loading progress
+        var progress;
+        if (asset) {
+            progress = new ui.Progress();
+            progress.progress = 100;
+            tab.append(progress);
+        }
+
+        // add index entry
+        var entry = {
+            id: id,
+            tab: tab,
+            name: name
+        };
+
+        if (asset) {
+            entry.asset = asset;
+            entry.progress = progress;
+        }
+
+        tabsIndex[id] = entry;
+
+        // add the tab next to the focused tab
+        var focused = -1;
+        if (focusedTab) {
+            focused = tabOrder.indexOf(focusedTab);
+        }
+
+        if (focused >= 0) {
+            tabOrder.splice(focused + 1, 0, entry);
+            panel.appendAfter(tab, focusedTab.tab);
+        } else {
+            tabOrder.push(entry);
+            panel.append(tab);
+        }
+
+        var close = function () {
+            if (asset)
+                editor.emit('documents:close', id);
+            else
+                closeTab(id);
+        };
+
+        // close tab button
+        btnClose.on('click', function (e) {
+            e.stopPropagation();
+            close();
+        });
+
+        var onGrab = function (e) {
+            if (e.target === btnClose.element)
+                return;
+
+            // close on middle click
+            if (e.button === 1) {
+                e.stopPropagation();
+                close();
+                return;
+            }
+
+            if (e.button === 0) {
+                if (asset) {
+                    editor.call('files:select', entry.asset.get('id'));
+                } else {
+                    focusTab(id);
+                }
+
+                grabTab(entry, e);
+            }
+        }
+
+        var onMouseEnter = function (e) {
+            tab.class.add('hovered');
+        };
+
+        var onMouseLeave = function (e) {
+            tab.class.remove('hovered');
+        };
+
+        // grab tab
+        tab.element.addEventListener('mousedown', onGrab);
+
+        // use hovered class for the close button
+        // because the :hover selector doesn't seem to work
+        // right all the time due to the fact that
+        // each tab is removed-readded to the DOM when we move it
+        tab.element.addEventListener('mouseenter', onMouseEnter);
+
+        tab.element.addEventListener('mouseleave', onMouseLeave);
+
+        tab.on('destroy', function () {
+            tab.element.removeEventListener('mousedown', onGrab);
+            tab.element.removeEventListener('mouseenter', onMouseEnter);
+            tab.element.removeEventListener('mouseleave', onMouseLeave);
+        });
+
+        // context menu
+        editor.call('tabs:contextmenu:attach', entry);
+
+        // emit event
+        editor.emit('tabs:open', entry);
+    };
 
     // focus a tab
     var focusTab = function (id) {
@@ -183,6 +211,8 @@ editor.once('load', function () {
         if (focusedTab === entry) {
             return;
         }
+
+        panel.class.remove('invisible');
 
         if (focusedTab) {
             focusedTab.tab.class.remove('focused');
@@ -192,7 +222,14 @@ editor.once('load', function () {
 
         focusedTab.tab.class.add('focused');
 
-        updateTitle(id, editor.call('documents:isDirty', id));
+        if (entry.asset) {
+            updateDirty(id, editor.call('documents:isDirty', id));
+        } else {
+            // unfocus any documents
+            editor.emit('documents:unfocus');
+        }
+
+        editor.emit('tabs:focus', focusedTab);
     };
 
     // Closes a tab
@@ -204,22 +241,6 @@ editor.once('load', function () {
 
         var order = tabOrder.indexOf(tab);
 
-        // focus previous tab or next tab if
-        // this was the first tab
-        if (focusedTab === tab) {
-            focusedTab = null;
-
-            if (! batchClose) {
-                if (order > 0) {
-                    editor.call('files:select', tabOrder[order - 1].asset.get('id'));
-                } else if (order < tabOrder.length - 1) {
-                    editor.call('files:select', tabOrder[order + 1].asset.get('id'));
-                } else {
-                    panel.hidden = true;
-                }
-            }
-        }
-
         if (temporaryTab === tab)
             temporaryTab = null;
 
@@ -229,9 +250,29 @@ editor.once('load', function () {
 
         // emit event
         editor.emit('tabs:close', tab);
+
+        // focus previous tab or next tab if
+        // this was the first tab
+        if (focusedTab === tab) {
+            focusedTab = null;
+
+            if (! batchClose) {
+                var next = tabOrder[order - 1] || tabOrder[order];
+
+                if (next) {
+                    if (next.asset) {
+                        editor.call('files:select', next.id);
+                    } else {
+                        focusTab(next.id);
+                    }
+                } else {
+                    panel.class.add('invisible');
+                }
+            }
+        }
     };
 
-    var updateTitle = function (id, dirty) {
+    var updateDirty = function (id, dirty) {
         var entry = tabsIndex[id];
         if (entry) {
             if (dirty) {
@@ -245,7 +286,7 @@ editor.once('load', function () {
 
     var toggleProgress = function (id, toggle) {
         var tab = tabsIndex[id];
-        if (tab)
+        if (tab && tab.progress)
             tab.progress.hidden = !toggle;
     };
 
@@ -305,10 +346,10 @@ editor.once('load', function () {
             tabOrder[i].tab.class.remove('animated');
         }
 
+        editor.emit('tabs:reorder', grabbedTab, tabOrder);
+
         grabbedTab = null;
         tabPositions.length = 0;
-
-        editor.emit('tabs:reorder', tabOrder);
     };
 
     var moveTab = function (e) {
@@ -402,7 +443,7 @@ editor.once('load', function () {
 
     // change title on dirty doc
     editor.on('documents:dirty', function (id, dirty) {
-        updateTitle(id, dirty);
+        updateDirty(id, dirty);
 
         // hide saving progress
         // no matter if the doc is dirty or not
@@ -460,6 +501,29 @@ editor.once('load', function () {
     // ends batch closing tabs
     editor.method('tabs:batchClose:end', function () {
         batchClose = false;
+    });
+
+    // create find in files tab or open existing
+    editor.method('tabs:findInFiles', function () {
+        if (tabsIndex[FIND_IN_FILES]) {
+            focusTab(FIND_IN_FILES);
+        } else {
+            createTab(FIND_IN_FILES);
+            focusTab(FIND_IN_FILES);
+        }
+
+        return tabsIndex[FIND_IN_FILES];
+    });
+
+    // close tab
+    editor.method('tabs:close', function (id) {
+        var entry = tabsIndex[id];
+        if (! entry) return;
+
+        if (entry.asset)
+            editor.emit('documents:close', id);
+        else
+            closeTab(id);
     });
 
     // handle asset name changes

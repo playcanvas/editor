@@ -14,6 +14,7 @@ editor.once('load', function () {
     menu.append(item);
 
     editor.method('editor:command:openProject', function () {
+        menu.open = false;
         window.open('/project/' + config.project.id);
     });
 
@@ -27,6 +28,7 @@ editor.once('load', function () {
     menu.append(item);
 
     editor.method('editor:command:openEditor', function () {
+        menu.open = false;
         window.open('/editor/project/' + config.project.id);
     });
 
