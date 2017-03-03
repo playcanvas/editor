@@ -8,7 +8,8 @@ editor.once('load', function () {
     var cm = editor.call('editor:codemirror');
 
     var hasFocused = function () {
-        return !!editor.call('documents:getFocused');
+        var focusedTab = editor.call('tabs:focused');
+        return focusedTab && (!focusedTab.asset || !!editor.call('documents:getFocused'));
     };
 
     // Find Under
