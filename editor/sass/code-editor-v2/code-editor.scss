@@ -271,8 +271,11 @@ strong {
     font-size: 14px;
     line-height: 32px;
     background-color: mix($bcg-darkest, black, 75%);
-    border-top: 1px solid $border-primary;
     z-index: 10;
+
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
 
     .ui-label {
         margin: 0 0 0 5px;
@@ -576,7 +579,7 @@ strong {
         }
 
         > .ui-button.option {
-            border: 1px solid transparent;
+            border: 0;
             width: 32px;
             height: 32px;
             line-height: 32px;
@@ -590,12 +593,7 @@ strong {
 
             @extend .font-bold;
 
-            &:hover {
-                border-color: transparentize($text-active, 0.5);
-            }
-
             &.toggled {
-                border-color: $text-active;
                 background-color: $text-active;
                 color: $text-primary;
             }
