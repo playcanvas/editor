@@ -15,7 +15,7 @@ body {
     background: $bcg-primary;
 }
 ::-webkit-scrollbar-thumb {
-    background: transparentize($text-secondary, 0.5);
+    background: $bcg-dark;
 }
 ::-webkit-scrollbar-corner {
     background: $bcg-primary;
@@ -146,7 +146,7 @@ a:visited {
         }
     }
     &.resizable {
-        $handle-size: 2px;
+        $handle-size: 1px;
 
         &.resizing > .handle {
             background-color: transparent;
