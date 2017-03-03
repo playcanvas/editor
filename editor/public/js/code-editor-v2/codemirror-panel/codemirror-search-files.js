@@ -66,6 +66,9 @@ editor.once('load', function () {
             codePanel.toggleCode(true);
 
             isFocused = true;
+
+            // deselect files in tree view
+            editor.call('files:deselectAll');
         } else {
             cm.setOption('lineNumbers', true);
             isFocused = false;

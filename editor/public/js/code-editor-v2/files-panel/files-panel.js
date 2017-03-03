@@ -313,7 +313,7 @@ editor.once('load', function () {
 
         // if we have other items selected too
         // then do nothing
-        if (tree.selected.length > 1)
+        if (tree._selected.length > 1)
             return;
 
         // if this item has no asset return
@@ -355,12 +355,20 @@ editor.once('load', function () {
         }
     });
 
+    // deselect all
+    editor.method('files:deselectAll', function () {
+        var i = tree._selected.length;
+        while (i--) {
+            tree._selected[i].selected = false;
+        }
+    });
+
     // Get selected assets
     editor.method('assets:selected', function () {
         var result = [];
-        for (var i = 0, len = tree.selected.length; i < len; i++) {
-            if (! tree.selected[i]._assetId) continue;
-            var asset = editor.call('assets:get', tree.selected[i]._assetId);
+        for (var i = 0, len = tree._selected.length; i < len; i++) {
+            if (! tree._selected[i]._assetId) continue;
+            var asset = editor.call('assets:get', tree._selected[i]._assetId);
             if (asset)
                 result.push(asset);
         }
@@ -373,15 +381,15 @@ editor.once('load', function () {
     editor.method('assets:selected:folder', function () {
         var result = null;
 
-        if (tree.selected.length) {
+        if (tree._selected.length) {
             // get last item selected
-            var last = tree.selected.length;
+            var last = tree._selected.length;
             while (last--) {
-                if (! tree.selected[last]._assetId) {
+                if (! tree._selected[last]._assetId) {
                     continue;
                 }
 
-                var asset = editor.call('assets:get', tree.selected[last]._assetId);
+                var asset = editor.call('assets:get', tree._selected[last]._assetId);
                 if (! asset) {
                     continue;
                 }
