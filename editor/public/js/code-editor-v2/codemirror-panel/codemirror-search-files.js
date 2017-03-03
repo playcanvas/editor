@@ -8,7 +8,7 @@ editor.once('load', function () {
     var tab = null;
     var isFocused = false;
     var codePanel = editor.call('layout.code');
-    var contextLimit = 30;
+    var contextLimit = 128;
 
     // options for decorating line numbers
     var lineDecoration = {
