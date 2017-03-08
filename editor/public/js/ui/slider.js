@@ -42,6 +42,8 @@ function Slider(args) {
         self._onSlideEnd(evt.pageX);
     };
 
+    this.evtTouchId = null;
+
     this.evtTouchMove = function(evt) {
         for(var i = 0; i < evt.changedTouches.length; i++) {
             var touch = evt.changedTouches[i];
