@@ -109,6 +109,10 @@ editor.once('load', function() {
             title: 'Focus on Assets Search Field',
             icons: [ '&#57641;']
         }, {
+            buttons: ['Ctrl', '$+', 'I'],
+            title: 'Open Code Editor',
+            icons: [ '&#57648;' ]
+        }, {
             buttons: ['Ctrl', '$+', 'Space'],
             title: 'How do I...?',
             icons: [ '&#57656;']
