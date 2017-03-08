@@ -301,7 +301,7 @@ strong {
         position: absolute;
         top: -32px;
         left: 4px;
-        width: 626px;
+        width: 602px;
 
         &:after {
             content: '\E183';
@@ -398,6 +398,7 @@ strong {
                 }
                 > .ui-select-field.options {
                     margin: 0;
+                    width: 122px;
                     height: 32px;
                     line-height: 32px;
                     border: none;
@@ -424,6 +425,9 @@ strong {
                         > .value {
                             color: $text-active;
                         }
+                        background-color: $bcg-darkest;
+                    }
+                    &:hover {
                         background-color: $bcg-darkest;
                     }
                 }
