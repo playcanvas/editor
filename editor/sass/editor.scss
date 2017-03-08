@@ -2659,7 +2659,7 @@ strong {
         }
     }
     &.scrollable > .content {
-        top: 57px;
+        top: 58px;
     }
     > .content {
         > .search-results {
@@ -2893,6 +2893,7 @@ strong {
                 }
                 > .ui-text-field {
                     width: calc(100% - 24px);
+                    height: 22px;
                     margin: 0;
                     padding: 0;
                     border: none;

@@ -629,7 +629,7 @@ editor.once('load', function() {
             path: 'meta.compress.pvrBpp'
         });
         fieldPvrBpp.flexGrow = 0;
-        fieldPvrBpp.style.width = '42px';
+        fieldPvrBpp.style.width = '62px';
         // reference
         editor.call('attributes:reference:attach', 'asset:texture:compress:pvrBpp', fieldPvrBpp);
 

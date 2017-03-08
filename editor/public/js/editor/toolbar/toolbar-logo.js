@@ -485,6 +485,13 @@ editor.once('load', function() {
                 editor.call('lightmapper:bake');
             }
         },
+        'code-editor': {
+            title: 'Code Editor',
+            icon: '&#57648;',
+            select: function () {
+                editor.call('picker:codeeditor');
+            }
+        },
         'settings': {
             title: 'Settings',
             icon: '&#57652;',
