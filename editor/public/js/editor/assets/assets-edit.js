@@ -10,38 +10,12 @@ editor.once('load', function() {
         'text': 1
     };
 
-    var firefox = navigator.userAgent.indexOf('Firefox') !== -1;
-
     editor.method('assets:edit', function (asset) {
         if (asset.get('type') === 'script' && editor.call('project:settings').get('use_legacy_scripts')) {
             window.open('/editor/code/' + config.project.id + '/' + asset.get('filename'));
         } else {
             if (config.self.codeEditor2) {
-                // open the new code editor - try to focus existing tab if it exists
-                // (only works in Chrome and only if the Code Editor has been opened by the Editor)
-
-                var url = '/editor/code/' + config.project.id + '?tabs=' + asset.get('id');
-                var name = 'codeeditor:' + config.project.id;
-
-                if (firefox) {
-                    // (Firefox doesn't work at all so open a new tab everytime)
-                    window.open(url);
-                } else {
-                    var wnd = window.open('', name);
-                    try {
-                        if (wnd.editor && wnd.editor.isCodeEditor) {
-                            wnd.editor.call('integration:selectWhenReady', asset.get('id'));
-                        } else {
-                            wnd.location.href = url;
-                        }
-                    } catch (ex) {
-                        // accessing wnd will throw an exception if it
-                        // is at a different domain
-                        window.open(url, name);
-                    }
-
-                }
-
+                editor.call('picker:codeeditor', asset);
             } else {
                 window.open('/editor/asset/' + asset.get('id'), asset.get('id')).focus();
             }
