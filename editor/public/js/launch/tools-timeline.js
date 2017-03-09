@@ -4,6 +4,7 @@ editor.once('load', function() {
     // variables
     var enabled = editor.call('tools:enabled');
     var counter = 0;
+    var frame = 0;
     var scale = .2;
     var events = [ ];
     var cacheAssetLoading = { };
@@ -23,14 +24,15 @@ editor.once('load', function() {
 
     // resize
     editor.on('tools:resize', function(width, height) {
-        canvas.width = width - 300;
+        canvas.width = width - 300 - 32;
         canvas.height = 275;
         scale = canvas.width / editor.call('tools:time:capacity');
-        ctx.font = '12px monospace';
+        ctx.font = '10px Arial';
         render();
     });
-    canvas.width = editor.call('tools:size:width') - 300;
+    canvas.width = editor.call('tools:size:width') - 300 - 32;
     canvas.height = 275;
+    ctx.font = '10px Arial';
     scale = canvas.width / editor.call('tools:time:capacity');
 
     editor.on('tools:clear', function() {
@@ -47,6 +49,15 @@ editor.once('load', function() {
     // colors for different kinds of events
     var kindColors = {
         '': '#ff0',
+        'asset': 'rgba(128, 255, 128, 0.1)',
+        'shader': '#f60',
+        'update': '#06f',
+        'render': '#07f',
+        'physics': '#0ff',
+        'lightmap': '#f6f'
+    };
+    var kindColorsOverview = {
+        '': '#ff0',
         'asset': '#6f6',
         'shader': '#f60',
         'update': '#06f',
@@ -55,7 +66,7 @@ editor.once('load', function() {
         'lightmap': '#f6f'
     };
     editor.method('tools:timeline:color', function(kind) {
-        return kindColors[kind] || '#fff';
+        return kindColorsOverview[kind] || '#fff';
     });
 
     // add event to history
@@ -284,7 +295,11 @@ editor.once('load', function() {
                     }
                 }
                 if (! foundY) {
-                    y = stack.length * (barHeight + barMargin);
+                    if (e.k === 'asset') {
+                        y = stack.length;
+                    } else {
+                        y = stack.length * (barHeight + barMargin);
+                    }
                     stack.push(t2 + scrollTime);
                 }
 
