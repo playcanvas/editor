@@ -30,7 +30,7 @@ editor.once('load', function () {
     });
 
     editor.method('editor:command:findInFiles', function () {
-        editor.call('editor:picker:search:files:open');
+        editor.call('picker:search:files:open');
     });
 
 });

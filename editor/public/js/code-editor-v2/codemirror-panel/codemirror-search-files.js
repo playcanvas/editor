@@ -161,7 +161,7 @@ editor.once('load', function () {
 
             // open the regular find
             setTimeout(function () {
-                editor.call('editor:picker:search:open', true); // true for instant change mode to normal find
+                editor.call('picker:search:open', true); // true for instant change mode to normal find
                 cm.focus();
             })
         }
