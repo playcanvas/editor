@@ -118,7 +118,7 @@ editor.once('load', function () {
     // here because codemirror eats the dblclick event
     // depending on where you click
     var onMouseDown = function (cm, e) {
-        var pos = cm.coordsChar({left: e.x, top: e.y});
+        var pos = cm.coordsChar({left: e.clientX, top: e.clientY});
         var line = cm.getLineHandle(pos.line);
 
         var sameLine = true;
