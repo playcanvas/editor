@@ -8,7 +8,9 @@ editor.once('load', function() {
         text: '&#57648;'
     });
     button.class.add('pc-icon');
-    toolbar.append(button);
+
+    var publishButton = toolbar.innerElement.querySelector('.publish-download');
+    toolbar.appendBefore(button, publishButton);
 
     button.on('click', function() {
         editor.call('picker:codeeditor');
