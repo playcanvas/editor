@@ -43,6 +43,8 @@ editor.once('load', function() {
             html += '<h1>' + sanitize(args.title) + '</h1>';
         if (args.subTitle)
             html += '<h2>' + sanitize(args.subTitle) + '</h2>';
+        if (args.webgl2)
+            html += '<div class="tag">WebGL 2.0 Only</div>';
         if (args.description)
             html += '<p>' + sanitize(args.description) + '</p>';
         if (args.code)

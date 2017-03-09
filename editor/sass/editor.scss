@@ -649,6 +649,7 @@ strong {
 .ui-tooltip {
     &.reference {
         > .inner {
+            position: relative;
             max-width: 320px;
             padding: 16px;
             white-space: normal;
@@ -667,6 +668,16 @@ strong {
                 font-size: 12px;
                 font-weight: normal;
                 color: $text-dark;
+            }
+            > .tag {
+                position: absolute;
+                top: 16px;
+                right: 16px;
+                line-height: 22px;
+                padding: 0 8px;
+                font-size: 14px;
+                color: $text-secondary;
+                background-color: $bcg-dark;
             }
             > p {
                 @extend .font-regular;

@@ -519,6 +519,12 @@ editor.once('load', function() {
         description: 'The alpha test reference value to control which fragements are written to the currently active render target based on alpha value. All fragments with an alpha value of less than the alphaTest reference value will be discarded. alphaTest defaults to 0 (all fragments pass).',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#alphaTest'
     }, {
+        title: 'alphaToCoverage',
+        subTitle: '{Boolean}',
+        webgl2: true,
+        description: 'Enables or disables alpha to coverage. When enabled, and if hardware anti-aliasing is on, limited order-independent transparency can be achieved. Quality depends on the number of MSAA samples of the current render target. It can nicely soften edges of otherwise sharp alpha cutouts, but isn\'t recommended for large area semi-transparent surfaces. Note, that you don\'t need to enable blending to make alpha to coverage work. It will work without it, just like alphaTest.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#alphaToCoverage'
+    }, {
         title: 'useFog',
         subTitle: '{Boolean}',
         description: 'Apply fogging (as configured in scene settings).',
