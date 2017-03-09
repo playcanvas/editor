@@ -834,11 +834,13 @@ strong {
     span.cm-searching {
         background-color: transparent;
         border: 1px solid $editor-search;
+        margin: -1px;
     }
 
     span.cm-highlighted {
         background-color: transparent;
         border: 1px dotted $editor-search;
+        margin: -1px;
     }
 
     span.cm-bracket {
@@ -1041,6 +1043,7 @@ a.link-docs {
 
 .search-results-match {
     border: 1px solid white;
+    margin: -1px;
 }
 
 .hide-find-in-files {
