@@ -639,6 +639,10 @@ strong {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+
+            &.icon {
+                @extend .font-icon;
+            }
         }
 
         > .ui-button.option {
