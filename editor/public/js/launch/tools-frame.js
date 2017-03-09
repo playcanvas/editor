@@ -453,7 +453,8 @@ editor.once('load', function() {
 
     var title = document.createElement('div');
     title.classList.add('title');
-    title.textContent = 'Camera Skip Frames';
+    title.textContent = 'Camera Drawcalls Limit';
+    title.style.fontSize = '11px'
     row.appendChild(title);
 
     var cameras = document.createElement('select');
@@ -494,7 +495,7 @@ editor.once('load', function() {
     panelDrawCalls.appendChild(rowCameraSkip);
 
     var cameraSkipFramesLeft0 = document.createElement('div');
-    cameraSkipFramesLeft0.classList.add('framesSkipButton');
+    cameraSkipFramesLeft0.classList.add('drawcallsLimitButton');
     cameraSkipFramesLeft0.textContent = '|<';
     cameraSkipFramesLeft0.addEventListener('click', function() {
         cameraSkipFrames.value = '0';
@@ -503,7 +504,7 @@ editor.once('load', function() {
     rowCameraSkip.appendChild(cameraSkipFramesLeft0);
 
     var cameraSkipFramesLeft10 = document.createElement('div');
-    cameraSkipFramesLeft10.classList.add('framesSkipButton');
+    cameraSkipFramesLeft10.classList.add('drawcallsLimitButton');
     cameraSkipFramesLeft10.textContent = '<<';
     cameraSkipFramesLeft10.addEventListener('click', function() {
         cameraSkipFrames.value = Math.max(0, (parseInt(cameraSkipFrames.value, 10) || 0) - 10);
@@ -512,7 +513,7 @@ editor.once('load', function() {
     rowCameraSkip.appendChild(cameraSkipFramesLeft10);
 
     var cameraSkipFramesLeft1 = document.createElement('div');
-    cameraSkipFramesLeft1.classList.add('framesSkipButton');
+    cameraSkipFramesLeft1.classList.add('drawcallsLimitButton');
     cameraSkipFramesLeft1.textContent = '<';
     cameraSkipFramesLeft1.addEventListener('click', function() {
         cameraSkipFrames.value = Math.max(0, (parseInt(cameraSkipFrames.value, 10) || 0) - 1);
@@ -552,7 +553,7 @@ editor.once('load', function() {
     });
 
     var cameraSkipFramesRight1 = document.createElement('div');
-    cameraSkipFramesRight1.classList.add('framesSkipButton');
+    cameraSkipFramesRight1.classList.add('drawcallsLimitButton');
     cameraSkipFramesRight1.textContent = '>';
     cameraSkipFramesRight1.addEventListener('click', function() {
         cameraSkipFrames.value = Math.min(Number.MAX_SAFE_INTEGER, (parseInt(cameraSkipFrames.value, 10) || 0) + 1);
@@ -561,7 +562,7 @@ editor.once('load', function() {
     rowCameraSkip.appendChild(cameraSkipFramesRight1);
 
     var cameraSkipFramesRight10 = document.createElement('div');
-    cameraSkipFramesRight10.classList.add('framesSkipButton');
+    cameraSkipFramesRight10.classList.add('drawcallsLimitButton');
     cameraSkipFramesRight10.textContent = '>>';
     cameraSkipFramesRight10.addEventListener('click', function() {
         cameraSkipFrames.value = Math.min(Number.MAX_SAFE_INTEGER, (parseInt(cameraSkipFrames.value, 10) || 0) + 10);
