@@ -833,14 +833,12 @@ strong {
 
     span.cm-searching {
         background-color: transparent;
-        border: 1px solid $editor-search;
-        margin: -1px;
+        outline: 1px solid $editor-search;
     }
 
     span.cm-highlighted {
         background-color: transparent;
-        border: 1px dotted $editor-search;
-        margin: -1px;
+        outline: 1px dotted $editor-search;
     }
 
     span.cm-bracket {
@@ -855,12 +853,6 @@ strong {
     .CodeMirror-nonmatchingbracket {
         color: $editor-text-color !important;
     }
-}
-
-.cm-matchhighlight {
-    border: 1px solid $editor-text-color;
-    border-radius: 2px;
-    margin: -1px;
 }
 
 .CodeMirror-Tern-tooltip {
@@ -1042,13 +1034,12 @@ a.link-docs {
 }
 
 .search-results-match {
-    border: 1px solid white;
-    margin: -1px;
+    outline: 1px solid white;
 }
 
 .hide-find-in-files {
     .search-results-match {
-        border-color: transparent;
+        outline: 0;
     }
 }
 
