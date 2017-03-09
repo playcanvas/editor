@@ -50,7 +50,7 @@ editor.once('load', function() {
 
     Tooltip.attach({
         target: button.element,
-        text: 'Open Code Editor',
+        text: 'Code Editor',
         align: 'left',
         root: editor.call('layout.root')
     });
