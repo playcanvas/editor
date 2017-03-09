@@ -466,7 +466,9 @@ editor.once('load', function() {
                 { v: 8, t: 'Screen' },
                 { v: 4, t: 'Premultiplied Alpha' },
                 { v: 5, t: 'Multiply' },
-                { v: 7, t: 'Modulate 2x' }
+                { v: 7, t: 'Modulate 2x' },
+                { v: 9, t: 'Min (Partial Support)' },
+                { v: 10, t: 'Max (Partial Support)' },
             ],
             'type': 'int'
         },

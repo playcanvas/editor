@@ -45,8 +45,12 @@ editor.once('load', function() {
             html += '<h2>' + sanitize(args.subTitle) + '</h2>';
         if (args.webgl2)
             html += '<div class="tag">WebGL 2.0 Only</div>';
-        if (args.description)
-            html += '<p>' + sanitize(args.description) + '</p>';
+        if (args.description) {
+            var description = sanitize(args.description);
+            description = description.replace(/\n/g, '<br />'); // new lines
+            description = description.replace(/&lt;b&gt;/g, '<b>').replace(/&lt;\/b&gt;/g, '</b>'); // bold
+            html += '<p>' + description + '</p>';
+        }
         if (args.code)
             html += '<pre class="ui-code">' + sanitize(args.code) + '</pre>';
         if (args.url)
