@@ -19,6 +19,12 @@ strong {
     @extend .font-bold;
 }
 
+.code-editor {
+    .ui-panel {
+        background-color: transparent;
+    }
+}
+
 @media (max-width: 480px) {
     .hidden-xs {
         display: none;
@@ -301,10 +307,64 @@ strong {
 }
 
 .ui-tree.files {
+    width: calc(100% - 5px);
 
     .ui-tree-item {
+        &.selected {
+            > .title {
+                > .icon {
+                    color: #fff;
+                }
+            }
+        }
+        > .title {
+            > .text {
+                @extend .font-regular;
+            }
+
+            &:hover {
+                > .icon {
+                    color: #fff;
+                }
+            }
+            > .icon {
+                color: $text-darkest;
+                &:after {
+                    @extend .font-icon;
+                    font-size: 16px;
+                    line-height: 23px;
+                    text-align: center;
+                    background-color: transparent;
+                }
+            }
+        }
+
+        &.type-folder .icon:after {
+            content: '\E139';
+        }
+        &.type-script .icon:after {
+            content: '\E392';
+        }
+        &.type-html .icon:after {
+            content: '\E205';
+        }
+        &.type-css .icon:after {
+            content: '\E206';
+        }
+        &.type-shader .icon:after {
+            content: '\E219';
+        }
+        &.type-text .icon:after {
+            content: '\E209';
+        }
+        &.type-json .icon:after {
+            content: '\E207';
+        }
+
         &.rename {
             > .title {
+                background-color: $bcg-darkest;
+
                 > .text {
                     display: none;
                 }
@@ -346,6 +406,8 @@ strong {
 }
 
 .ui-menu-item {
+    font-size: 14px;
+
     &.noBorder {
         > .title {
             border-bottom: 0;

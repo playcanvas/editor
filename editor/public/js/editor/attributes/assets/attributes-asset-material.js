@@ -327,6 +327,10 @@ editor.once('load', function() {
             'max': 1,
             'type': 'float'
         },
+        alphaToCoverage: {
+            'default': false,
+            'type': 'boolean'
+        },
         opacity: {
             'default': 1,
             'min': 0,
@@ -2563,6 +2567,19 @@ editor.once('load', function() {
         fieldAlphaTestSlider.flexGrow = 4;
 
         filterBlendFields();
+
+
+        // alphaToCoverage
+        var fieldAlphaToCoverage = editor.call('attributes:addField', {
+            parent: panelOpacity,
+            name: 'Alpha To Coverage',
+            type: 'checkbox',
+            link: assets,
+            path: 'data.alphaToCoverage'
+        });
+        fieldAlphaToCoverage.element.previousSibling.style.width = 'auto';
+        // reference
+        editor.call('attributes:reference:attach', 'asset:material:alphaToCoverage', fieldAlphaToCoverage.parent.innerElement.firstChild.ui);
 
 
         // normals
