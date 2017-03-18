@@ -5,6 +5,7 @@ editor.once('load', function () {
     var label = new ui.Label({
         text: 'Loading...'
     });
+    label.renderChanges = false;
     label.class.add('status');
     panel.append(label);
 

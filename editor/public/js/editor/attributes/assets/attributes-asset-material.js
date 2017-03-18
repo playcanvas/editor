@@ -327,6 +327,10 @@ editor.once('load', function() {
             'max': 1,
             'type': 'float'
         },
+        alphaToCoverage: {
+            'default': false,
+            'type': 'boolean'
+        },
         opacity: {
             'default': 1,
             'min': 0,
@@ -462,7 +466,9 @@ editor.once('load', function() {
                 { v: 8, t: 'Screen' },
                 { v: 4, t: 'Premultiplied Alpha' },
                 { v: 5, t: 'Multiply' },
-                { v: 7, t: 'Modulate 2x' }
+                { v: 7, t: 'Modulate 2x' },
+                { v: 9, t: 'Min (Partial Support)' },
+                { v: 10, t: 'Max (Partial Support)' },
             ],
             'type': 'int'
         },
@@ -2563,6 +2569,19 @@ editor.once('load', function() {
         fieldAlphaTestSlider.flexGrow = 4;
 
         filterBlendFields();
+
+
+        // alphaToCoverage
+        var fieldAlphaToCoverage = editor.call('attributes:addField', {
+            parent: panelOpacity,
+            name: 'Alpha To Coverage',
+            type: 'checkbox',
+            link: assets,
+            path: 'data.alphaToCoverage'
+        });
+        fieldAlphaToCoverage.element.previousSibling.style.width = 'auto';
+        // reference
+        editor.call('attributes:reference:attach', 'asset:material:alphaToCoverage', fieldAlphaToCoverage.parent.innerElement.firstChild.ui);
 
 
         // normals

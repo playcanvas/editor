@@ -81,10 +81,10 @@ editor.once('load', function() {
         editor.emit('tools:clear');
         editor.emit('tools:state', true);
 
-        updateInterval = setInterval(function() {
-            update();
-            editor.emit('tools:render');
-        }, 1000 / 60);
+        // updateInterval = setInterval(function() {
+        //     update();
+        //     editor.emit('tools:render');
+        // }, 1000 / 60);
     });
 
     editor.method('tools:disable', function() {
@@ -95,7 +95,7 @@ editor.once('load', function() {
         root.style.display = 'none';
         editor.emit('tools:clear');
         editor.emit('tools:state', false);
-        clearInterval(updateInterval);
+        // clearInterval(updateInterval);
     });
 
     // methods to access view params
@@ -212,6 +212,7 @@ editor.once('load', function() {
 
     root.addEventListener('mousedown', function(evt) {
         evt.stopPropagation();
+        evt.preventDefault();
 
         if (evt.button !== 0 || mouse.click || mouse.down || ! mouse.hover)
             return;
@@ -274,10 +275,23 @@ editor.once('load', function() {
         }
     };
 
-    if (enabled) {
-        updateInterval = setInterval(function() {
-            update();
-            editor.emit('tools:render');
-        }, 1000 / 60);
-    }
+    var app = editor.call('viewport:app');
+    var frame = 0;
+    var frameLast = 0;
+
+    var onFrame = function() {
+        requestAnimationFrame(onFrame);
+
+        if (enabled) {
+            var now = Date.now();
+
+            if ((now - frameLast) >= 40) {
+                frameLast = now;
+
+                update();
+                editor.emit('tools:render');
+            }
+        }
+    };
+    requestAnimationFrame(onFrame);
 });

@@ -17,14 +17,15 @@ editor.once('load', function() {
 
     // resize
     editor.on('tools:resize', function(width, height) {
-        canvas.width = width - 300;
+        canvas.width = width - 300 - 32;
         canvas.height = 24;
         scale = canvas.width / editor.call('tools:capacity');
-        ctx.font = '12px monospace';
+        ctx.font = '10px Arial';
         render();
     });
-    canvas.width = editor.call('tools:size:width') - 300;
+    canvas.width = editor.call('tools:size:width') - 300 - 32;
     canvas.height = 24;
+    ctx.font = '10px Arial';
     scale = canvas.width / editor.call('tools:capacity');
 
     editor.on('tools:clear', function() {
@@ -122,8 +123,8 @@ editor.once('load', function() {
         ctx.fillStyle = '#fff';
         // start time
         ctx.textAlign = 'left';
-        ctx.strokeText('00:00.0', 2.5, canvas.height - 2.5);
-        ctx.fillText('00:00.0', 2.5, canvas.height - 2.5);
+        ctx.strokeText('00:00.0 FPS', 2.5, canvas.height - 2.5);
+        ctx.fillText('00:00.0 FPS', 2.5, canvas.height - 2.5);
         // now time
         ctx.textAlign = 'right';
         ctx.strokeText(editor.call('tools:time:toHuman', now, 1), canvas.width - 2.5, canvas.height - 2.5);

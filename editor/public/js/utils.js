@@ -22,6 +22,10 @@ utils.deepCopy = function deepCopy(data) {
     }
 };
 
+utils.isMobile = function() {
+  return /Android/i.test(navigator.userAgent) ||
+      /iPhone|iPad|iPod/i.test(navigator.userAgent);
+};
 
 // String.startsWith
 if (! String.prototype.startsWith) {

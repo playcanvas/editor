@@ -53,6 +53,9 @@ editor.once('load', function() {
         if (launchOptions.profiler)
             query.push('profile=true');
 
+        if (launchOptions.debug)
+            query.push('debug=true');
+
         if (!launchOptions.local && launchOptions.facebook && privateSettings.get('facebook.app_id')) {
             url = 'https://www.facebook.com/embed/instantgames/' +
                   privateSettings.get('facebook.app_id') +
@@ -115,7 +118,28 @@ editor.once('load', function() {
         return option;
     }
 
-    createOption('profiler', 'Profiler');
+    var optionProfiler = createOption('profiler', 'Profiler');
+    var tooltipProfiler = Tooltip.attach({
+        target: optionProfiler.parent.element,
+        text: 'Enable to include panel for profiling Frame, Scene and Timeline data.',
+        align: 'right',
+        root: root
+    });
+    tooltipProfiler.class.add('launch-tooltip');
+
+    var optionDebug = createOption('debug', 'Debug');
+
+    // TODO remember this in user-project settings
+    optionDebug.value = true;
+
+    var tooltipDebug = Tooltip.attach({
+        target: optionDebug.parent.element,
+        text: 'Enable to ensure engine logs warnings and errors to be addressed during development.',
+        align: 'right',
+        root: root
+    });
+    tooltipDebug.class.add('launch-tooltip');
+
 
     if (legacyScripts) {
         var local = createOption('local', 'Use Local Server');

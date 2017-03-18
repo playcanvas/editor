@@ -19,6 +19,9 @@ editor.once('load', function() {
 
             if (! asset.get('data.cubeMapProjectionBox'))
                 asset.set('data.cubeMapProjectionBox', { center: [ 0, 0, 0 ], halfExtents: [ 0.5, 0.5, 0.5 ] });
+
+            if (! asset.has('data.alphaToCoverage'))
+                asset.set('data.alphaToCoverage', false);
         }
 
         if (asset.get('type') === 'texture' && ! asset.get('source')) {

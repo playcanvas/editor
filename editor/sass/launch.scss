@@ -16,6 +16,19 @@ $rotation-period: 5s;
     font-style: normal;
 }
 
+@font-face {
+    font-family: 'pc-icon';
+    src: url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/pcicon-regular.eot');
+    src: url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/pcicon-regular.eot?#iefix') format('embedded-opentype'),
+         url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/pcicon-regular.woff2') format('woff2'),
+         url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/pcicon-regular.woff') format('woff'),
+         url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/pcicon-regular.ttf') format('truetype'),
+         url('https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/fonts/pcicon-regular.svg#playicons8regular') format('svg');
+
+    font-weight: normal;
+    font-style: normal;
+}
+
 html {
     height: 100%;
     background-color: #1d292c;
@@ -106,6 +119,26 @@ canvas:focus {
     top: 5px;
 }
 
+.noSelect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.font-smooth {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-smoothing: antialiased;
+}
+
+.font-icon {
+    font-family: 'pc-icon';
+    @extend .font-smooth;
+}
+
 body > #dev-tools {
     position: absolute;
     z-index: 10001;
@@ -129,6 +162,8 @@ body > #dev-tools {
         top: 0px;
         display: block;
         background-color: #202020;
+
+        @extend .noSelect;
     }
     > .timeline {
         position: absolute;
@@ -136,6 +171,8 @@ body > #dev-tools {
         top: 24px;
         display: block;
         background-color: #303030;
+
+        @extend .noSelect;
     }
     > .frame {
         position: absolute;
@@ -189,6 +226,50 @@ body > #dev-tools {
                 > .field {
                     float: left;
                 }
+                > select {
+                    padding: 0;
+                    margin: 0;
+                    border: none;
+                    width: calc(100% - 150px);
+                    background-color: #202020;
+                    color: #fff;
+                    font-size: 12px;
+                    font-family: 'Courier New', monospace;
+                }
+                > input[type='text'] {
+                    float: left;
+                    padding: 4px 8px;
+                    margin: 0;
+                    border: none;
+                    background-color: #202020;
+                    color: #fff;
+                    font-size: 12px;
+                    line-height: 16px;
+                    font-family: 'Courier New', monospace;
+
+                    &.framesSkip {
+                        width: calc(100% - 140px - 16px);
+                        margin-right: 4px;
+                    }
+                }
+                > .drawcallsLimitButton {
+                    float: left;
+                    width: 24px;
+                    height: 24px;
+                    line-height: 24px;
+                    text-align: center;
+                    margin-right: 4px;
+                    background-color: #202020;
+                    color: #fff;
+                    cursor: pointer;
+
+                    &:hover {
+                        background-color: #000;
+                    }
+                    &:last-child {
+                        margin-right: 0;
+                    }
+                }
             }
             &.folded {
                 height: 24px;
@@ -196,6 +277,31 @@ body > #dev-tools {
                 > .header {
                     color: mix(#202020, #fff, 50%);
                 }
+            }
+        }
+    }
+    > .toolbar {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 32px;
+        background-color: #202020;
+
+        > .button {
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            text-align: center;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            // background-color: #07f;
+
+            @extend .font-icon;
+
+            &:hover {
+                background-color: #000;
             }
         }
     }

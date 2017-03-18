@@ -61,7 +61,7 @@ editor.once('load', function() {
             value: value
         });
         fieldsCustom[name] = field;
-        panelGame.appendChild(field);
+        panelApp.appendChild(field);
     });
     editor.method('tools:frame:field:value', function(name, value) {
         if (! fieldsCustom[name])
@@ -109,9 +109,9 @@ editor.once('load', function() {
     var panelVram = addPanel({
         title: 'VRAM'
     });
-    // game
-    var panelGame = addPanel({
-        title: 'Game'
+    // app
+    var panelApp = addPanel({
+        title: 'App'
     });
 
 
@@ -432,7 +432,7 @@ editor.once('load', function() {
         title: 'Total',
         panel: panelVram,
         format: bytesToHuman
-    }]
+    }];
 
     // create fields
     for(var i = 0; i < fields.length; i++) {
@@ -444,6 +444,193 @@ editor.once('load', function() {
         if (fields[i].custom)
             fieldsCustom[fields[i].custom] = fields[i].field;
     }
+
+
+    // controlls for skip rendering
+    var row = document.createElement('div');
+    row.classList.add('row');
+    panelDrawCalls.appendChild(row);
+
+    var title = document.createElement('div');
+    title.classList.add('title');
+    title.textContent = 'Camera Drawcalls Limit';
+    title.style.fontSize = '11px'
+    row.appendChild(title);
+
+    var cameras = document.createElement('select');
+    cameras.classList.add('cameras');
+    row.appendChild(cameras);
+    cameras.addEventListener('mousedown', function(evt) {
+        evt.stopPropagation();
+    });
+    cameras.addEventListener('change', function() {
+        if (cameras.value === 'none') {
+            rowCameraSkip.style.display = 'none';
+            pc.skipRenderCamera = null;
+        } else {
+            rowCameraSkip.style.display = '';
+
+            var entity = app.root.findByGuid(cameras.value);
+            if (entity && entity.camera) {
+                pc.skipRenderCamera = entity.camera.camera;
+                pc.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
+            }
+        }
+    });
+
+    var cameraIndex = { };
+    var cameraAddQueue = [ ];
+
+    var cameraNone = document.createElement('option');
+    cameraNone.value = 'none';
+    cameraNone.selected = true;
+    cameraNone.textContent = 'Disabled';
+    cameras.appendChild(cameraNone);
+
+
+    // frames control
+    var rowCameraSkip = document.createElement('div');
+    rowCameraSkip.classList.add('row');
+    rowCameraSkip.style.display = 'none';
+    panelDrawCalls.appendChild(rowCameraSkip);
+
+    var cameraSkipFramesLeft0 = document.createElement('div');
+    cameraSkipFramesLeft0.classList.add('drawcallsLimitButton');
+    cameraSkipFramesLeft0.textContent = '|<';
+    cameraSkipFramesLeft0.addEventListener('click', function() {
+        cameraSkipFrames.value = '0';
+        pc.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
+    });
+    rowCameraSkip.appendChild(cameraSkipFramesLeft0);
+
+    var cameraSkipFramesLeft10 = document.createElement('div');
+    cameraSkipFramesLeft10.classList.add('drawcallsLimitButton');
+    cameraSkipFramesLeft10.textContent = '<<';
+    cameraSkipFramesLeft10.addEventListener('click', function() {
+        cameraSkipFrames.value = Math.max(0, (parseInt(cameraSkipFrames.value, 10) || 0) - 10);
+        pc.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
+    });
+    rowCameraSkip.appendChild(cameraSkipFramesLeft10);
+
+    var cameraSkipFramesLeft1 = document.createElement('div');
+    cameraSkipFramesLeft1.classList.add('drawcallsLimitButton');
+    cameraSkipFramesLeft1.textContent = '<';
+    cameraSkipFramesLeft1.addEventListener('click', function() {
+        cameraSkipFrames.value = Math.max(0, (parseInt(cameraSkipFrames.value, 10) || 0) - 1);
+        pc.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
+    });
+    rowCameraSkip.appendChild(cameraSkipFramesLeft1);
+
+    var cameraSkipFrames = document.createElement('input');
+    cameraSkipFrames.classList.add('framesSkip');
+    cameraSkipFrames.type = 'text';
+    cameraSkipFrames.value = '0';
+    rowCameraSkip.appendChild(cameraSkipFrames);
+    cameraSkipFrames.addEventListener('mousedown', function(evt) {
+        evt.stopPropagation();
+    });
+    cameraSkipFrames.addEventListener('change', function() {
+        pc.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
+        pc.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
+    }, false);
+    cameraSkipFrames.addEventListener('keydown', function(evt) {
+        var inc = 0;
+
+        if (evt.keyCode === 38) {
+            inc = evt.shiftKey ? 10 : 1;
+        } else if (evt.keyCode === 40) {
+            inc = evt.shiftKey ? -10 : -1;
+        }
+
+        if (inc === 0)
+            return;
+
+        evt.preventDefault();
+        evt.stopPropagation();
+
+        cameraSkipFrames.value = Math.max(0, Math.min(Number.MAX_SAFE_INTEGER, (parseInt(cameraSkipFrames.value, 10) || 0) + inc));
+        pc.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
+    });
+
+    var cameraSkipFramesRight1 = document.createElement('div');
+    cameraSkipFramesRight1.classList.add('drawcallsLimitButton');
+    cameraSkipFramesRight1.textContent = '>';
+    cameraSkipFramesRight1.addEventListener('click', function() {
+        cameraSkipFrames.value = Math.min(Number.MAX_SAFE_INTEGER, (parseInt(cameraSkipFrames.value, 10) || 0) + 1);
+        pc.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
+    });
+    rowCameraSkip.appendChild(cameraSkipFramesRight1);
+
+    var cameraSkipFramesRight10 = document.createElement('div');
+    cameraSkipFramesRight10.classList.add('drawcallsLimitButton');
+    cameraSkipFramesRight10.textContent = '>>';
+    cameraSkipFramesRight10.addEventListener('click', function() {
+        cameraSkipFrames.value = Math.min(Number.MAX_SAFE_INTEGER, (parseInt(cameraSkipFrames.value, 10) || 0) + 10);
+        pc.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
+    });
+    rowCameraSkip.appendChild(cameraSkipFramesRight10);
+
+
+    var cameraAdd = function(id) {
+        if (cameraAddQueue) {
+            cameraAddQueue.push(id);
+            return;
+        }
+
+        if (cameraIndex[id])
+            return;
+
+        var entity = app.root.findByGuid(id);
+        if (! entity)
+            return;
+
+        var option = cameraIndex[id] = document.createElement('option');
+        option.value = id;
+        option.entity = entity;
+        option.textContent = entity.name;
+        cameras.appendChild(option);
+    };
+
+    var cameraRemove = function(id) {
+        if (! cameraIndex[id])
+            return;
+
+        if (cameraIndex[id].selected)
+            cameras.value = 'none';
+
+        cameras.removeChild(cameraIndex[id]);
+        delete cameraIndex[id];
+    };
+
+    editor.on('entities:add', function(obj) {
+        var id = obj.get('resource_id');
+
+        obj.on('components.camera:set', function() {
+            cameraAdd(id);
+        });
+        obj.on('components.camera:unset', function() {
+            cameraRemove(id);
+        });
+        obj.on('name:set', function(value) {
+            if (! cameraIndex[id])
+                return;
+
+            cameraIndex.textContent = value;
+        });
+
+        if (obj.has('components.camera'))
+            cameraAdd(id);
+    });
+
+    app.on('start', function() {
+        if (cameraAddQueue) {
+            var queue = cameraAddQueue;
+            cameraAddQueue = null;
+
+            for(var i = 0; i < queue.length; i++)
+                cameraAdd(queue[i]);
+        }
+    });
 
     // update frame fields
     app.on('frameEnd', function() {
