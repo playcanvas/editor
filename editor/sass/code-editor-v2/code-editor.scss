@@ -639,10 +639,6 @@ strong {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-
-            &.icon {
-                @extend .font-icon;
-            }
         }
 
         > .ui-button.option {
@@ -676,6 +672,46 @@ strong {
     }
     > .content {
         display: none;
+    }
+}
+
+.ui-overlay.picker-settings {
+    > .content {
+        $settings-width: 300px;
+        width: $settings-width;
+        height: $settings-width;
+        left: calc(50% - #{$settings-width/2});
+        top: calc(50% - #{$settings-width/2});
+
+        > .ui-panel {
+            > .ui-header {
+                > .close {
+                    float: right;
+                    background: transparent;
+
+                    &:hover {
+                        border-color: transparent;
+                    }
+                }
+            }
+
+            > .content {
+                padding: 10px;
+
+                > .ui-panel.field-container {
+                    margin-bottom: 10px;
+
+                    > .content {
+                        > .ui-label {
+                            width: 155px;
+                            text-align: right;
+                            margin-right: 30px;
+                        }
+                    }
+
+                }
+            }
+        }
     }
 }
 
@@ -1111,4 +1147,77 @@ a.link-docs {
 
 .invisible {
     visibility: hidden;
+}
+
+.ui-checkbox.tick {
+    width: 14px;
+    height: 14px;
+    overflow: hidden;
+
+    &.null {
+        &:after {
+            color: mix($bcg-primary, $text-darkest, 50%);
+            left: 0;
+        }
+        &:hover:after {
+            color: $text-primary;
+        }
+    }
+    &:after {
+        @extend .font-icon;
+        position: absolute;
+        margin: 0;
+        content: none;
+        width: 12px;
+        height: 12px;
+        line-height: 13px;
+        font-weight: bold;
+        font-size: 11px;
+        text-align: center;
+        left: 0;
+        top: 0;
+        border-radius: 0;
+        background-color: transparent;
+        transition: none;
+    }
+    &.null {
+        &:after {
+            @extend .font-regular;
+            content: '?';
+            color: $text-dark;
+            font-weight: bold;
+            background-color: transparent;
+        }
+        &:hover {
+            &:after {
+                @extend .font-icon;
+                content: '\E133';
+                color: $text-primary;
+                background-color: transparent;
+            }
+        }
+    }
+    &:hover {
+        &:after {
+            @extend .font-icon;
+            content: '\E133';
+            color: $text-primary;
+        }
+        &.checked:after {
+            color: $text-primary;
+            background-color: mix($text-dark, $bcg-darkest, 50%);
+        }
+    }
+    &.checked {
+        background-color: $text-dark;
+
+        &:after {
+            content: '\E133';
+            color: $bcg-dark;
+        }
+    }
+}
+
+.ui-button.icon {
+    @extend .font-icon;
 }

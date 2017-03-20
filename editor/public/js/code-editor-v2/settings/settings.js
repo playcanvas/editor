@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     var defaultSettings = {
-        fontSize: 14,
+        fontSize: 12,
         continueComments: true,
         autoCloseBrackets: true,
         highlightBrackets: true
