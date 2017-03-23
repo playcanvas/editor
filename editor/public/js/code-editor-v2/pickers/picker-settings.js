@@ -3,16 +3,8 @@ editor.once('load', function() {
 
     var settings = editor.call('editor:settings');
 
-    // overlay
-    var overlay = new ui.Overlay();
-    overlay.class.add('picker-settings');
-    overlay.hidden = true;
-
-    var root = editor.call('layout.root');
-    root.append(overlay);
-
-    var panel = new ui.Panel('PREFERENCES');
-    overlay.append(panel);
+    var panel = editor.call('layout.right');
+    var panelWidth = '220px';
 
     // close button
     var btnClose = new ui.Button({
@@ -20,7 +12,9 @@ editor.once('load', function() {
     });
     btnClose.class.add('icon', 'close');
     btnClose.on('click', function () {
-        overlay.hidden = true;
+        panelWidth = panel.style.width;
+        panel.hidden = true;
+        panel.style.width = '';
     });
     panel.headerElement.appendChild(btnClose.element);
 
@@ -69,16 +63,19 @@ editor.once('load', function() {
     fieldHighlightBrackets.class.add('tick');
     addField('Highlight Brackets:', fieldHighlightBrackets, 'highlightBrackets');
 
-    overlay.on('show', function () {
+    panel.on('show', function () {
         editor.emit('picker:settings:open');;
     });
 
-    overlay.on('hide', function() {
+    panel.on('hide', function() {
         editor.emit('picker:settings:close');
     });
 
     editor.method('picker:settings', function () {
-        overlay.hidden = false;
+        panel.hidden = false;
+        setTimeout(function () {
+            panel.style.width = panelWidth;
+        });
     });
 
 });

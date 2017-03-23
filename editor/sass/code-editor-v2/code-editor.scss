@@ -272,6 +272,21 @@ strong {
     }
 }
 
+#ui-right {
+    color: $text-primary;
+    width: 0;
+    flex-shrink: 0;
+
+    &:not(.resizing) {
+        transition: width 200ms ease;
+    }
+
+    > .content {
+        width: 100%;
+        padding: 10px;
+    }
+}
+
 #ui-bottom {
     height: 32px;
     font-size: 14px;
