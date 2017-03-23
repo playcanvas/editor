@@ -13,7 +13,7 @@ editor.once('load', function() {
 
     SharedSceneHandler.prototype = {
         load: function (url, callback, settingsOnly) {
-            var id = parseInt(url.replace(".json", ""));
+            var id = parseInt(url.replace("/api/", "").replace(".json", ""));
 
             if (typeof(id) === "number") {
                 editor.call('loadScene', id, function (err, scene) {
@@ -70,7 +70,7 @@ editor.once('load', function() {
 
     SharedSceneSettingsHandler.prototype = {
         load: function (url, callback) {
-            var id = parseInt(url.replace(".json", ""));
+            var id = parseInt(url.replace("/api/", "").replace(".json", ""));
             if (typeof(id) === "number") {
                 editor.call('loadScene', id, function (err, scene) {
                     callback(err, scene);

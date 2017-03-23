@@ -1035,6 +1035,8 @@ strong {
                         }
                     }
                     > .ui-panel.tags {
+                        margin-top: 1px;
+
                         &.disabled > .content {
                             > .tag {
                                 opacity: .5;
