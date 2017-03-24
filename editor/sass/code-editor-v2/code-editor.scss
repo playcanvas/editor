@@ -23,6 +23,16 @@ strong {
     .ui-panel {
         background-color: transparent;
     }
+
+    .ui-tooltip {
+        max-width: 280px;
+        > .inner {
+            padding: 10px;
+            white-space: normal;
+            line-height: 1.6;
+            font-size: 13px;
+        }
+    }
 }
 
 @media (max-width: 480px) {
@@ -315,16 +325,16 @@ strong {
     }
 
     > .content {
+        padding: 8px 6px;
         width: 100% !important;
         white-space: nowrap;
         overflow: hidden;
 
         > .ui-panel.field-container {
-            padding: 5px 7px;
-
             > .content {
                 > .ui-label {
                     max-width: 150px;
+                    font-size: 12px;
                     flex-grow: 1;
                 }
             }
@@ -465,6 +475,7 @@ strong {
 
     }
 }
+
 
 .ui-menu-item {
     font-size: 14px;

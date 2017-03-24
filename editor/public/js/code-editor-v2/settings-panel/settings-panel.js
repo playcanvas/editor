@@ -3,6 +3,7 @@ editor.once('load', function() {
 
     var settings = editor.call('editor:settings');
 
+    var root = editor.call('layout.root');
     var panel = editor.call('layout.right');
     var hidden = true;
     var width = '220px';
@@ -38,7 +39,7 @@ editor.once('load', function() {
     });
 
 
-    var addField = function (name, field, path) {
+    var addField = function (name, field, path, tooltip) {
         var container = new ui.Panel();
         container.flex = true;
         container.class.add('field-container');
@@ -65,25 +66,34 @@ editor.once('load', function() {
 
             settings.set(path, value);
         });
+
+        if (tooltip) {
+            Tooltip.attach({
+                target: label.element,
+                html:  tooltip,
+                align: 'right',
+                root: root
+            });
+        }
     };
 
     var fieldFontSize = new ui.NumberField({
         min: 1
     });
     fieldFontSize.style.width = '30px';
-    addField('Font Size (in pixels):', fieldFontSize, 'fontSize');
+    addField('Font Size (in pixels):', fieldFontSize, 'fontSize', 'The font size of the code.');
 
     var fieldContinueComments = new ui.Checkbox();
     fieldContinueComments.class.add('tick');
-    addField('Continue Comments:', fieldContinueComments, 'continueComments');
+    addField('Continue Comments:', fieldContinueComments, 'continueComments', 'If enabled the editor will make the next line continue a comment when you press Enter inside a comment block.');
 
     var fieldAutoCloseBrackets = new ui.Checkbox();
     fieldAutoCloseBrackets.class.add('tick');
-    addField('Auto Close Brackets:', fieldAutoCloseBrackets, 'autoCloseBrackets');
+    addField('Auto Close Brackets:', fieldAutoCloseBrackets, 'autoCloseBrackets', 'If enabled the editor will auto-close brackets and quotes when typed.');
 
     var fieldHighlightBrackets = new ui.Checkbox();
     fieldHighlightBrackets.class.add('tick');
-    addField('Highlight Brackets:', fieldHighlightBrackets, 'highlightBrackets');
+    addField('Highlight Brackets:', fieldHighlightBrackets, 'highlightBrackets', 'If enabled causes matching brackets to be highlighted whenever the cursor is next to them.');
 
     panel.on('show', function () {
         editor.emit('picker:settings:open');
