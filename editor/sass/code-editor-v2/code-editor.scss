@@ -274,16 +274,67 @@ strong {
 
 #ui-right {
     color: $text-primary;
-    width: 0;
     flex-shrink: 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: $bcg-primary;
+    width: 220px;
+    height: 100%;
+    transition: transform 200ms ease;
 
-    &:not(.resizing) {
-        transition: width 200ms ease;
+    -webkit-transform: translateX(100%);
+    -ms-transform: translateX(100%);
+    transform: translateX(100%);
+
+    > .ui-header {
+        padding: 0;
+        > .title:before {
+            @extend .font-icon;
+            content: '\E134';
+            display: inline-block;
+            font-size: 14px;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            text-align: center;
+            color: $text-active;
+        }
+
+        > .close {
+            float: right;
+            background: transparent;
+            border-color: transparent;
+            display: block;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            text-align: center;
+            padding: 0;
+            margin: 0;
+
+            &:hover {
+                border-color: transparent;
+            }
+        }
     }
 
     > .content {
-        width: 100%;
-        padding: 10px;
+        width: 100% !important;
+        white-space: nowrap;
+        overflow: hidden;
+
+        > .ui-panel.field-container {
+            padding: 5px 7px;
+
+            > .content {
+                > .ui-label {
+                    max-width: 150px;
+                    flex-grow: 1;
+                }
+            }
+
+        }
     }
 }
 
@@ -687,46 +738,6 @@ strong {
     }
     > .content {
         display: none;
-    }
-}
-
-.ui-overlay.picker-settings {
-    > .content {
-        $settings-width: 300px;
-        width: $settings-width;
-        height: $settings-width;
-        left: calc(50% - #{$settings-width/2});
-        top: calc(50% - #{$settings-width/2});
-
-        > .ui-panel {
-            > .ui-header {
-                > .close {
-                    float: right;
-                    background: transparent;
-
-                    &:hover {
-                        border-color: transparent;
-                    }
-                }
-            }
-
-            > .content {
-                padding: 10px;
-
-                > .ui-panel.field-container {
-                    margin-bottom: 10px;
-
-                    > .content {
-                        > .ui-label {
-                            width: 155px;
-                            text-align: right;
-                            margin-right: 30px;
-                        }
-                    }
-
-                }
-            }
-        }
     }
 }
 

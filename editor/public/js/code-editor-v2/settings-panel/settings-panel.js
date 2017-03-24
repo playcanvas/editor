@@ -4,7 +4,13 @@ editor.once('load', function() {
     var settings = editor.call('editor:settings');
 
     var panel = editor.call('layout.right');
-    var panelWidth = '220px';
+    var hidden = true;
+
+    panel.element.addEventListener('transitionend', function () {
+        if (hidden) {
+            panel.hidden = true;
+        }
+    });
 
     // close button
     var btnClose = new ui.Button({
@@ -12,14 +18,16 @@ editor.once('load', function() {
     });
     btnClose.class.add('icon', 'close');
     btnClose.on('click', function () {
-        panelWidth = panel.style.width;
-        panel.hidden = true;
-        panel.style.width = '';
+        hidden = true;
+        panel.style.transform = '';
+        panel.style['-webkit-transform'] = '';
+        panel.style['-ms-transform'] = '';
     });
     panel.headerElement.appendChild(btnClose.element);
 
     var addField = function (name, field, path) {
         var container = new ui.Panel();
+        container.flex = true;
         container.class.add('field-container');
         var label = new ui.Label({
             text: name
@@ -28,6 +36,7 @@ editor.once('load', function() {
         container.append(field);
         panel.append(container);
 
+        field.class.add('field');
         field.value = settings.get(path);
 
         var suspendChange = false;
@@ -64,7 +73,7 @@ editor.once('load', function() {
     addField('Highlight Brackets:', fieldHighlightBrackets, 'highlightBrackets');
 
     panel.on('show', function () {
-        editor.emit('picker:settings:open');;
+        editor.emit('picker:settings:open');
     });
 
     panel.on('hide', function() {
@@ -72,10 +81,13 @@ editor.once('load', function() {
     });
 
     editor.method('picker:settings', function () {
+        hidden = false;
         panel.hidden = false;
         setTimeout(function () {
-            panel.style.width = panelWidth;
-        });
+            panel.style.transform = 'translate(0px)';
+            panel.style['-webkit-transform'] = 'translate(0px)';
+            panel.style['-ms-transform'] = 'translate(0px)';
+        }, 100);
     });
 
 });
