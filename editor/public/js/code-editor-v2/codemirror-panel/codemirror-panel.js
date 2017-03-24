@@ -86,6 +86,7 @@ editor.once('load', function () {
     options.extraKeys['Ctrl-I'] = function(cm) {editor.call('editor:command:autoindent');};
     options.extraKeys['Ctrl-/'] = function(cm) {editor.call('editor:command:toggleComment');};
     options.extraKeys['Ctrl-K Ctrl-J'] = function(cm) {editor.call('editor:command:unfoldAll');};
+    options.extraKeys['Shift-Enter'] = 'newlineAndIndent';
 
     options.extraKeys['Ctrl-F'] = function (cm) {editor.call('editor:command:find');};
     options.extraKeys['Shift-Ctrl-F'] = function (cm) {editor.call('editor:command:findInFiles');};
