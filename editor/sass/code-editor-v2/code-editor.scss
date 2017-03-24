@@ -275,17 +275,12 @@ strong {
 #ui-right {
     color: $text-primary;
     flex-shrink: 0;
-    position: absolute;
-    top: 0;
-    right: 0;
     background-color: $bcg-primary;
-    width: 220px;
-    height: 100%;
-    transition: transform 200ms ease;
+    width: 0px;
 
-    -webkit-transform: translateX(100%);
-    -ms-transform: translateX(100%);
-    transform: translateX(100%);
+    &:not(.resizing) {
+        transition: width 200ms ease;
+    }
 
     > .ui-header {
         padding: 0;
@@ -302,10 +297,10 @@ strong {
         }
 
         > .close {
-            float: right;
             background: transparent;
             border-color: transparent;
-            display: block;
+            position: absolute;
+            right: 0;
             width: 32px;
             height: 32px;
             line-height: 32px;

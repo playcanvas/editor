@@ -5,25 +5,38 @@ editor.once('load', function() {
 
     var panel = editor.call('layout.right');
     var hidden = true;
-
-    panel.element.addEventListener('transitionend', function () {
-        if (hidden) {
-            panel.hidden = true;
-        }
-    });
+    var width = '220px';
 
     // close button
     var btnClose = new ui.Button({
         text: '&#57650;'
     });
     btnClose.class.add('icon', 'close');
+    btnClose.hidden = true;
     btnClose.on('click', function () {
         hidden = true;
-        panel.style.transform = '';
-        panel.style['-webkit-transform'] = '';
-        panel.style['-ms-transform'] = '';
+        width = panel.style.width;
+        panel.style.width = '';
+        btnClose.hidden = true;
     });
     panel.headerElement.appendChild(btnClose.element);
+
+    panel.element.addEventListener('transitionend', function () {
+        if (hidden) {
+            panel.hidden = true;
+        } else {
+            btnClose.hidden = false;
+        }
+    });
+
+    editor.method('picker:settings', function () {
+        hidden = false;
+        panel.hidden = false;
+        setTimeout(function () {
+            panel.style.width = width;
+        }, 100);
+    });
+
 
     var addField = function (name, field, path) {
         var container = new ui.Panel();
@@ -78,16 +91,6 @@ editor.once('load', function() {
 
     panel.on('hide', function() {
         editor.emit('picker:settings:close');
-    });
-
-    editor.method('picker:settings', function () {
-        hidden = false;
-        panel.hidden = false;
-        setTimeout(function () {
-            panel.style.transform = 'translate(0px)';
-            panel.style['-webkit-transform'] = 'translate(0px)';
-            panel.style['-ms-transform'] = 'translate(0px)';
-        }, 100);
     });
 
 });
