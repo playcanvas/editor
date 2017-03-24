@@ -6,7 +6,7 @@ editor.once('load', function() {
     var root = editor.call('layout.root');
     var panel = editor.call('layout.right');
     var hidden = true;
-    var width = '220px';
+    var width = panel.resizeMin + 'px';
 
     // close button
     var btnClose = new ui.Button({
@@ -78,10 +78,12 @@ editor.once('load', function() {
     };
 
     var fieldFontSize = new ui.NumberField({
-        min: 1
+        min: 1,
+        placeholder: 'pixels'
     });
-    fieldFontSize.style.width = '30px';
-    addField('Font Size (in pixels):', fieldFontSize, 'fontSize', 'The font size of the code.');
+    fieldFontSize.flexGrow = 1;
+    fieldFontSize.style.minWidth = '80px';
+    addField('Font Size:', fieldFontSize, 'fontSize', 'The font size of the code.');
 
     var fieldContinueComments = new ui.Checkbox();
     fieldContinueComments.class.add('tick');

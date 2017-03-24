@@ -76,7 +76,7 @@ editor.on('load', function () {
     right.horizontal = true;
     right.scroll = true;
     right.resizable = 'left';
-    right.resizeMin = 200;
+    right.resizeMin = 264;
     right.resizeMax = 500;
     right.hidden = true;
     middle.append(right);

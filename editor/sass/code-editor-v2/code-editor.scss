@@ -325,6 +325,7 @@ strong {
     }
 
     > .content {
+        box-sizing: border-box;
         padding: 8px 6px;
         width: 100% !important;
         white-space: nowrap;
@@ -334,6 +335,7 @@ strong {
             > .content {
                 > .ui-label {
                     max-width: 150px;
+                    min-width: 150px;
                     font-size: 12px;
                     flex-grow: 1;
                 }
