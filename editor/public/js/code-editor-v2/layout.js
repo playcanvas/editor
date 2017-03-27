@@ -69,6 +69,19 @@ editor.on('load', function () {
     center.append(code);
     editor.method('layout.code', function () { return code; });
 
+    // right
+    var right = new ui.Panel('PREFERENCES');
+    right.element.id = 'ui-right';
+    right.class.add('noSelect');
+    right.horizontal = true;
+    right.scroll = true;
+    right.resizable = 'left';
+    right.resizeMin = 264;
+    right.resizeMax = 500;
+    right.hidden = true;
+    middle.append(right);
+    // expose
+    editor.method('layout.right', function() { return right; });
 
     // bottom (status)
     var bottom = new ui.Panel();

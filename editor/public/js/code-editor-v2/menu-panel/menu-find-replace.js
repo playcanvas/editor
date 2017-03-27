@@ -9,17 +9,17 @@ editor.once('load', function () {
 
     var pickerOpen = false;
 
-    editor.on('editor:picker:search:open', function () {
+    editor.on('picker:search:open', function () {
         pickerOpen = true;
     });
 
-    editor.on('editor:picker:search:close', function () {
+    editor.on('picker:search:close', function () {
         pickerOpen = false;
     });
 
     var canReplace = function () {
         if (!!editor.call('documents:getFocused') && !cm.isReadOnly()) {
-            if (editor.call('editor:picker:replace:text') || pickerOpen) {
+            if (editor.call('picker:replace:text') || pickerOpen) {
                 return true;
             }
         }
@@ -56,7 +56,7 @@ editor.once('load', function () {
 
     editor.method('editor:command:replace', function () {
         if (!!editor.call('documents:getFocused') && !cm.isReadOnly()) {
-            editor.call('editor:picker:replace:open');
+            editor.call('picker:replace:open');
         }
     });
 

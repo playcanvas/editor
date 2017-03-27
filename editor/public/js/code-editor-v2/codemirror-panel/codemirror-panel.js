@@ -14,17 +14,19 @@ editor.once('load', function () {
     var cm = null;
     var tern = null;
 
+    var settings = editor.call('editor:settings');
+
     // create editor
     var options = {
         mode: 'javascript',
         tabIndex: 1,
-        autoCloseBrackets: true,
-        matchBrackets: true,
+        autoCloseBrackets: settings.get('autoCloseBrackets'),
+        matchBrackets: settings.get('highlightBrackets'),
         lineComment: true,
         blockComment: true,
         indentUnit: 4,
         unComment: true,
-        continueComments: true,
+        continueComments: settings.get('continueComments'),
         styleActiveLine: true,
         scrollPastEnd: true,
         keyMap: 'sublime',
@@ -84,6 +86,7 @@ editor.once('load', function () {
     options.extraKeys['Ctrl-I'] = function(cm) {editor.call('editor:command:autoindent');};
     options.extraKeys['Ctrl-/'] = function(cm) {editor.call('editor:command:toggleComment');};
     options.extraKeys['Ctrl-K Ctrl-J'] = function(cm) {editor.call('editor:command:unfoldAll');};
+    options.extraKeys['Shift-Enter'] = 'newlineAndIndent';
 
     options.extraKeys['Ctrl-F'] = function (cm) {editor.call('editor:command:find');};
     options.extraKeys['Shift-Ctrl-F'] = function (cm) {editor.call('editor:command:findInFiles');};
@@ -149,6 +152,25 @@ editor.once('load', function () {
 
     // create code mirror
     cm = CodeMirror(element, options);
+
+    cm.getWrapperElement().style.fontSize = settings.get('fontSize') + 'px';
+
+    // subscribe to settings changes
+    settings.on('fontSize:set', function (value) {
+        cm.getWrapperElement().style.fontSize = value + 'px';
+    });
+
+    settings.on('continueComments:set', function (value) {
+        cm.setOption('continueComments', !!value);
+    });
+
+    settings.on('autoCloseBrackets:set', function (value) {
+        cm.setOption('autoCloseBrackets', !!value);
+    });
+
+    settings.on('highlightBrackets:set', function (value) {
+        cm.setOption('matchBrackets', !!value);
+    });
 
     // hide initially
     panel.toggleCode(false);

@@ -37,19 +37,19 @@ editor.once('load', function () {
     // searching from
     cm.on('cursorActivity', onCursorActivity);
 
-    editor.on('editor:picker:search:open', function () {
+    editor.on('picker:search:open', function () {
         isPickerOpen = true;
         resetSearchPositions();
         resetSearchOverlay();
     });
 
-    editor.on('editor:picker:search:close', function () {
+    editor.on('picker:search:close', function () {
         isPickerOpen = false;
         resetSearchPositions();
     });
 
     // When the search query changes update the overlay
-    editor.on('editor:picker:search:change', function (value) {
+    editor.on('picker:search:change', function (value) {
         regex = value;
         if (overlay)
             resetSearchOverlay();
@@ -79,7 +79,7 @@ editor.once('load', function () {
         // either we don't have a regex or the overlay is closed
         // so perform a clean search
         else {
-            regex = editor.call('editor:picker:search:regex');
+            regex = editor.call('picker:search:regex');
             if(! regex)
                 return;
 
@@ -221,7 +221,7 @@ editor.once('load', function () {
             fullWord = true;
         }
 
-        editor.call('editor:picker:search:set', underCursor.text, {isRegex: false, matchWholeWords: fullWord});
+        editor.call('picker:search:set', underCursor.text, {isRegex: false, matchWholeWords: fullWord});
 
         cm.off('cursorActivity', onCursorActivity);
         cm.operation(function () {
@@ -247,7 +247,7 @@ editor.once('load', function () {
             resetSearchPositions(underCursor.to);
         }
 
-        editor.call('editor:picker:search:set', underCursor.text, {isRegex: false, matchWholeWords: fullWord});
+        editor.call('picker:search:set', underCursor.text, {isRegex: false, matchWholeWords: fullWord});
 
         cm.off('cursorActivity', onCursorActivity);
         cm.operation(function () {
@@ -272,7 +272,7 @@ editor.once('load', function () {
             resetSearchPositions(underCursor.from);
         }
 
-        editor.call('editor:picker:search:set', underCursor.text, {isRegex: false, matchWholeWords: fullWord});
+        editor.call('picker:search:set', underCursor.text, {isRegex: false, matchWholeWords: fullWord});
 
         cm.off('cursorActivity', onCursorActivity);
         cm.operation(function () {
@@ -298,7 +298,7 @@ editor.once('load', function () {
 
         // only do full words with this - won't work in all cases like if you select non-word characters
         // but that's also kinda how sublime works.
-        editor.call('editor:picker:search:set', underCursor.text, {isRegex: false, matchWholeWords: true});
+        editor.call('picker:search:set', underCursor.text, {isRegex: false, matchWholeWords: true});
 
         resetSearchOverlay();
 
@@ -320,11 +320,11 @@ editor.once('load', function () {
     var replace = function (reverse) {
         if (cm.getOption("readOnly")) return;
 
-        regex = regex || editor.call('editor:picker:search:regex');
+        regex = regex || editor.call('picker:search:regex');
         if (! regex)
             return;
 
-        var text = editor.call('editor:picker:replace:text') || '';
+        var text = editor.call('picker:replace:text') || '';
 
         cm.operation(function () {
             var from = cm.getCursor('from');
@@ -356,11 +356,11 @@ editor.once('load', function () {
     CodeMirror.commands.replaceAll = function (cm) {
         if (cm.getOption("readOnly")) return;
 
-        regex = regex || editor.call('editor:picker:search:regex');
+        regex = regex || editor.call('picker:search:regex');
         if (! regex)
             return;
 
-        var text = editor.call('editor:picker:replace:text') || '';
+        var text = editor.call('picker:replace:text') || '';
 
         cm.operation(function() {
             for (var cursor = cm.getSearchCursor(regex); cursor.findNext();) {
