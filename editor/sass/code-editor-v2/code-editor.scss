@@ -23,6 +23,16 @@ strong {
     .ui-panel {
         background-color: transparent;
     }
+
+    .ui-tooltip {
+        max-width: 280px;
+        > .inner {
+            padding: 10px;
+            white-space: normal;
+            line-height: 1.6;
+            font-size: 13px;
+        }
+    }
 }
 
 @media (max-width: 480px) {
@@ -272,6 +282,69 @@ strong {
     }
 }
 
+#ui-right {
+    color: $text-primary;
+    flex-shrink: 0;
+    background-color: $bcg-primary;
+    width: 0px;
+
+    &:not(.resizing) {
+        transition: width 200ms ease;
+    }
+
+    > .ui-header {
+        padding: 0;
+        > .title:before {
+            @extend .font-icon;
+            content: '\E134';
+            display: inline-block;
+            font-size: 14px;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            text-align: center;
+            color: $text-active;
+        }
+
+        > .close {
+            background: transparent;
+            border-color: transparent;
+            position: absolute;
+            right: 0;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            text-align: center;
+            padding: 0;
+            margin: 0;
+
+            &:hover {
+                border-color: transparent;
+            }
+        }
+    }
+
+    > .content {
+        box-sizing: border-box;
+        padding: 8px 6px;
+        width: 100% !important;
+        white-space: nowrap;
+        overflow: hidden;
+
+        > .ui-panel.field-container {
+            > .content {
+                > .ui-label {
+                    max-width: 150px;
+                    min-width: 150px;
+                    font-size: 13px;
+                    flex-grow: 1;
+                }
+            }
+
+        }
+    }
+}
+
 #ui-bottom {
     height: 32px;
     font-size: 14px;
@@ -404,6 +477,7 @@ strong {
 
     }
 }
+
 
 .ui-menu-item {
     font-size: 14px;
@@ -639,10 +713,6 @@ strong {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-
-            &.icon {
-                @extend .font-icon;
-            }
         }
 
         > .ui-button.option {
@@ -1111,4 +1181,77 @@ a.link-docs {
 
 .invisible {
     visibility: hidden;
+}
+
+.ui-checkbox.tick {
+    width: 14px;
+    height: 14px;
+    overflow: hidden;
+
+    &.null {
+        &:after {
+            color: mix($bcg-primary, $text-darkest, 50%);
+            left: 0;
+        }
+        &:hover:after {
+            color: $text-primary;
+        }
+    }
+    &:after {
+        @extend .font-icon;
+        position: absolute;
+        margin: 0;
+        content: none;
+        width: 12px;
+        height: 12px;
+        line-height: 13px;
+        font-weight: bold;
+        font-size: 11px;
+        text-align: center;
+        left: 0;
+        top: 0;
+        border-radius: 0;
+        background-color: transparent;
+        transition: none;
+    }
+    &.null {
+        &:after {
+            @extend .font-regular;
+            content: '?';
+            color: $text-dark;
+            font-weight: bold;
+            background-color: transparent;
+        }
+        &:hover {
+            &:after {
+                @extend .font-icon;
+                content: '\E133';
+                color: $text-primary;
+                background-color: transparent;
+            }
+        }
+    }
+    &:hover {
+        &:after {
+            @extend .font-icon;
+            content: '\E133';
+            color: $text-primary;
+        }
+        &.checked:after {
+            color: $text-primary;
+            background-color: mix($text-dark, $bcg-darkest, 50%);
+        }
+    }
+    &.checked {
+        background-color: $text-dark;
+
+        &:after {
+            content: '\E133';
+            color: $bcg-dark;
+        }
+    }
+}
+
+.ui-button.icon {
+    @extend .font-icon;
 }

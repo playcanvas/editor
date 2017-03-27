@@ -37,7 +37,7 @@ editor.once('load', function () {
 
     editor.method('editor:command:find', function () {
         if (canFind()) {
-            editor.call('editor:picker:search:open');
+            editor.call('picker:search:open');
         }
     });
 

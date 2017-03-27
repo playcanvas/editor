@@ -151,7 +151,7 @@ editor.once('load', function () {
     var suspendChangeEvt = false;
 
     // Returns the picker panel
-    editor.method('editor:picker:search', function () {
+    editor.method('picker:search', function () {
         return panel;
     });
 
@@ -203,9 +203,9 @@ editor.once('load', function () {
             panel.hidden = false;
             growPicker();
             if (findInFiles) {
-                editor.emit('editor:picker:search:files:open');
+                editor.emit('picker:search:files:open');
             } else {
-                editor.emit('editor:picker:search:open');
+                editor.emit('picker:search:open');
             }
         }
 
@@ -227,16 +227,16 @@ editor.once('load', function () {
     };
 
     // Open and focus search picker
-    editor.method('editor:picker:search:open', function (instantToggleMode) {
+    editor.method('picker:search:open', function (instantToggleMode) {
         onTransitionEnd = null;
 
         if (findInFiles) {
             if (open && !instantToggleMode) {
                 onTransitionEnd = function () {
                     open = false;
-                    editor.emit('editor:picker:search:files:close');
-                    openPicker();
+                    editor.emit('picker:search:files:close');
                     toggleFindInFilesMode(false);
+                    openPicker();
                 };
                 if (panel.style.height !== '0px') {
                     shrinkPicker();
@@ -246,7 +246,7 @@ editor.once('load', function () {
             } else {
                 if (open) {
                     open = false;
-                    editor.emit('editor:picker:search:files:close');
+                    editor.emit('picker:search:files:close');
                 }
 
                 toggleFindInFilesMode(false);
@@ -258,14 +258,14 @@ editor.once('load', function () {
     });
 
     // Make this work in find-in-files mode
-    editor.method('editor:picker:search:files:open', function (instantToggleMode) {
+    editor.method('picker:search:files:open', function (instantToggleMode) {
         onTransitionEnd = null;
 
         if (! findInFiles) {
             if (open && !instantToggleMode) {
                 onTransitionEnd = function () {
                     open = false;
-                    editor.emit('editor:picker:search:close');
+                    editor.emit('picker:search:close');
                     toggleFindInFilesMode(true);
                     openPicker();
                 };
@@ -277,7 +277,7 @@ editor.once('load', function () {
             } else {
                 if (open) {
                     open = false;
-                    editor.emit('editor:picker:search:close');
+                    editor.emit('picker:search:close');
                 }
                 onTransitionEnd = null;
                 toggleFindInFilesMode(true);
@@ -290,7 +290,7 @@ editor.once('load', function () {
     });
 
     // Close picker and focus editor
-    editor.method('editor:picker:search:close', function () {
+    editor.method('picker:search:close', function () {
         onTransitionEnd = null;
         if (! open) return;
 
@@ -307,15 +307,15 @@ editor.once('load', function () {
         cm.focus();
 
         if (findInFiles) {
-            editor.emit('editor:picker:search:files:close');
+            editor.emit('picker:search:files:close');
         } else {
-            editor.emit('editor:picker:search:close');
+            editor.emit('picker:search:close');
         }
     });
 
     // Open and focus replace picker
-    editor.method('editor:picker:replace:open', function () {
-        editor.call('editor:picker:search:open');
+    editor.method('picker:replace:open', function () {
+        editor.call('picker:search:open');
         replaceField.focus();
     })
 
@@ -325,24 +325,24 @@ editor.once('load', function () {
         stopPropagation: true,
         callback: function (e) {
             if (open) {
-                editor.call('editor:picker:search:close');
+                editor.call('picker:search:close');
                 return true;
             }
         }
     });
 
     // Return search regex
-    editor.method('editor:picker:search:regex', function () {
+    editor.method('picker:search:regex', function () {
         return regexp;
     });
 
     // Return replace string
-    editor.method('editor:picker:replace:text', function () {
+    editor.method('picker:replace:text', function () {
         return replaceField.value;
     });
 
     // Set search term externally.
-    editor.method('editor:picker:search:set', function (text, options) {
+    editor.method('picker:search:set', function (text, options) {
         var dirty = false;
 
         suspendChangeEvt = true;
@@ -397,7 +397,7 @@ editor.once('load', function () {
         }
 
         if (! findInFiles) {
-            editor.emit('editor:picker:search:change', regexp);
+            editor.emit('picker:search:change', regexp);
         }
     };
 
