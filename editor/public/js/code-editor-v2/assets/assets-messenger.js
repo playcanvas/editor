@@ -1,20 +1,31 @@
 editor.once('load', function() {
     'use strict';
 
-    var create = function(data) {
+    var validTypes = [
+        'css',
+        'folder',
+        'html',
+        'json',
+        'script',
+        'shader',
+        'text'
+    ];
+
+    // create new asset
+    editor.on('messenger:asset.new', function (data) {
         var assetId = data.asset.id;
 
         if (data.asset.source === false && data.asset.status && data.asset.status !== 'complete')
+            return;
+
+        if (validTypes.indexOf(data.asset.type) === -1)
             return;
 
         var asset = editor.call('assets:get', assetId);
         if (! asset) {
             editor.call('assets:loadOne', assetId);
         }
-    };
-
-    // create new asset
-    editor.on('messenger:asset.new', create);
+    });
 
     // remove
     editor.on('messenger:asset.delete', function(data) {
