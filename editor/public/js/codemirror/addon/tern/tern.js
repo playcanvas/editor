@@ -205,7 +205,9 @@
   // Completion
 
   function hint(ts, cm, c) {
-    ts.request(cm, {type: "completions", types: true, docs: true, urls: true}, function(error, data) {
+    // fix by vaios: set 'guess' to false to avoid getting back
+    // irrelevant results
+    ts.request(cm, {type: "completions", types: true, docs: true, urls: true, guess: false}, function(error, data) {
       if (error) return showError(ts, cm, error);
       var completions = [], after = "";
       var from = data.start, to = data.end;
