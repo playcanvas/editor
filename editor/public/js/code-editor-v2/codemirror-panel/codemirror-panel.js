@@ -267,6 +267,9 @@ editor.once('load', function () {
 
             // close arg hints when we swap docs
             cm.on('swapDoc', function () {
+                if (cm.state.completionActive)
+                    cm.state.completionActive.close();
+
                 tern.updateArgHints(cm);
             });
 
@@ -283,7 +286,7 @@ editor.once('load', function () {
 
                 // auto complete on '.' or word chars
                 return !e.ctrlKey && !e.altKey && !e.metaKey && (e.keyCode === 190 || (e.key && e.key.length === 1 && wordChar.test(e.key)));
-            }
+            };
 
             // auto complete on keydown after a bit
             // so that we have the chance to cancel autocompletion
