@@ -117,6 +117,7 @@ editor.once('load', function () {
         options.extraKeys['Cmd-S'] = function (cm) {editor.call('editor:command:save');};
         options.extraKeys['Cmd-I'] = function(cm) {editor.call('editor:command:autoindent');};
         options.extraKeys['Cmd-/'] = function(cm) {editor.call('editor:command:toggleComment');};
+        options.extraKeys['Alt-Cmd-/'] = function(cm) {editor.call('editor:command:toggleBlockComment');};
         options.extraKeys['Alt-Ctrl-['] = function(cm) {editor.call('editor:command:fold');};
         options.extraKeys['Alt-Ctrl-]'] = function(cm) {editor.call('editor:command:unfold');};
         options.extraKeys['Cmd-K Cmd-J'] = function(cm) {editor.call('editor:command:unfoldAll');};

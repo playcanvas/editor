@@ -3,6 +3,7 @@ editor.once('load', function () {
 
     var menu = editor.call('menu:edit');
     var cm = editor.call('editor:codemirror');
+    var mac = navigator.userAgent.indexOf('Mac OS X') !== -1;
 
     var canEditLine = function () {
         return editor.call('documents:getFocused') && !cm.isReadOnly();
@@ -32,14 +33,14 @@ editor.once('load', function () {
     });
 
     // toggle comment
-    var item = menu.createItem('toggle-comment', {
+    item = menu.createItem('toggle-comment', {
         title: 'Block Comment',
         filter: canEditLine,
         select: function () {
             return editor.call('editor:command:toggleBlockComment');
         }
     });
-    editor.call('menu:item:setShortcut', item, 'Shift+Ctrl+/');
+    editor.call('menu:item:setShortcut', item, mac ? 'Alt+Cmd+/' : 'Shift+Ctrl+/');
     group.append(item);
 
     editor.method('editor:command:toggleBlockComment', function () {
@@ -50,5 +51,5 @@ editor.once('load', function () {
             fullLines: CodeMirror.cmpPos(from, to) === 0
         });
         cm.focus();
-    })
+    });
 });
