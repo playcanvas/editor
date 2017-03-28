@@ -212,19 +212,28 @@ editor.once('load', function() {
                         data: task
                     });
 
-                    events.push(asset.once('file:set', function() {
+                    var onFileSet = function(value) {
                         editor.call('assets:jobs:remove', asset.get('id'));
+
+                        if (! value) return;
+                        asset.off('file:set', onFileSet);
+
                         setTimeout(function() {
                             editor.call('assets:jobs:thumbnails', null, asset);
                         }, 0);
-                    }));
+                    };
+
+                    events.push(asset.on('file:set', onFileSet));
 
                     // no changes to asset
                     if (Object.keys(task.options).length === 2 && task.options.format === meta.format) {
                         editor.call('assets:jobs:remove', asset.get('id'));
-                        setTimeout(function() {
-                            editor.call('assets:jobs:thumbnails', null, asset);
-                        }, 0);
+
+                        if (asset.get('file')) {
+                            setTimeout(function() {
+                                editor.call('assets:jobs:thumbnails', null, asset);
+                            }, 0);
+                        }
                     }
                 } else {
                     var filename = asset.get('file.filename').split('.');
@@ -252,8 +261,12 @@ editor.once('load', function() {
                             data: task
                         });
 
-                        events.push(target.once('file:set', function() {
+                        var onFileSet = function(value) {
                             editor.call('assets:jobs:remove', asset.get('id'));
+
+                            if (! value) return;
+                            target.off('file:set', onFileSet);
+
                             setTimeout(function() {
                                 if (target.get('data.rgbm')) {
                                     editor.call('assets:jobs:thumbnails', asset, target);
@@ -261,7 +274,9 @@ editor.once('load', function() {
                                     editor.call('assets:jobs:thumbnails', null, target);
                                 }
                             }, 0);
-                        }));
+                        };
+
+                        events.push(target.once('file:set', onFileSet));
                     };
 
                     if (target) {
