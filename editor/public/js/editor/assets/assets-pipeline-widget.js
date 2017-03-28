@@ -110,6 +110,8 @@ editor.once('load', function() {
 
 
     editor.method('assets:jobs:texture-convert-options', function(meta) {
+        if (! meta) return null;
+
         var options = {
             new: false
         };
@@ -216,7 +218,7 @@ editor.once('load', function() {
                         editor.call('assets:jobs:remove', asset.get('id'));
 
                         if (! value) return;
-                        asset.off('file:set', onFileSet);
+                        asset.unbind('file:set', onFileSet);
 
                         setTimeout(function() {
                             editor.call('assets:jobs:thumbnails', null, asset);
@@ -265,7 +267,7 @@ editor.once('load', function() {
                             editor.call('assets:jobs:remove', asset.get('id'));
 
                             if (! value) return;
-                            target.off('file:set', onFileSet);
+                            target.unbind('file:set', onFileSet);
 
                             setTimeout(function() {
                                 if (target.get('data.rgbm')) {
