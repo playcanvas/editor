@@ -345,7 +345,10 @@ editor.once('plugins:load:asset-texture-lod', function() {
 
                         editor.call('status:text', 'texture-lod: converting \'' + name + '-' + options.name + '.' + ext + '\' asset');
 
-                        target.once('file:set', function() {
+                        var onFileSet = function(value) {
+                            if (! value) return;
+                            target.off('file:set', onFileSet);
+
                             setTimeout(function() {
                                 editor.call('assets:jobs:thumbnails', null, target);
 
@@ -356,7 +359,9 @@ editor.once('plugins:load:asset-texture-lod', function() {
                                         uiItem.class.remove('task', 'running');
                                 }
                             }, 0);
-                        });
+                        };
+
+                        target.on('file:set', onFileSet);
                     };
 
                     if (target) {

@@ -369,6 +369,12 @@ editor.once('load', function() {
             tooltipTimeout = null;
         }
     };
+    var onAssetItemRemove = function() {
+        if (! tooltipTarget || tooltipTarget.ui.asset !== this)
+            return;
+
+        onAssetItemBlur();
+    };
 
     grid.innerElement.addEventListener('mousewheel', function() {
         tooltipAsset.hidden = true;
@@ -828,6 +834,8 @@ editor.once('load', function() {
 
         item.element.addEventListener('mouseover', onAssetItemHover, false);
         item.element.addEventListener('mouseout', onAssetItemBlur, false);
+
+        asset.once('destroy', onAssetItemRemove);
 
         var onMouseDown = function(evt) {
             evt.stopPropagation();

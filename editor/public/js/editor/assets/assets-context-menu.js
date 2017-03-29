@@ -236,7 +236,11 @@ editor.once('load', function() {
                 data: task
             });
 
-            target.once('file:set', function(value) {
+            var onFileSet = function(value) {
+                if (! value) return;
+
+                target.off('file:set', onFileSet);
+
                 setTimeout(function() {
                     if (target.get('data.rgbm')) {
                         editor.call('assets:jobs:thumbnails', source, target);
@@ -244,7 +248,9 @@ editor.once('load', function() {
                         editor.call('assets:jobs:thumbnails', null, target);
                     }
                 }, 0);
-            });
+            };
+
+            target.on('file:set', onFileSet);
         } else if (source.get('type') === 'scene') {
             if (! source.get('meta'))
                 return;
