@@ -370,7 +370,7 @@ editor.once('load', function() {
         }
     };
     var onAssetItemRemove = function() {
-        if (! tooltipTarget || tooltipTarget.ui.asset !== this)
+        if (! tooltipTarget || ! tooltipTarget.ui || tooltipTarget.ui.asset !== this)
             return;
 
         onAssetItemBlur();

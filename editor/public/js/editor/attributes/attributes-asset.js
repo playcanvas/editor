@@ -21,6 +21,8 @@ editor.once('load', function() {
     var assetsPanel = null;
 
     editor.on('attributes:inspect[asset]', function(assets) {
+        var events = [ ];
+
         // unfold panel
         var panel = editor.call('attributes.rootPanel');
         if (panel.folded)
@@ -48,6 +50,11 @@ editor.once('load', function() {
         assetsPanel = panel;
         panel.once('destroy', function () {
             assetsPanel = null;
+
+            for(var i = 0; i < events.length; i++)
+                events[i].unbind();
+
+            events = null;
         });
 
         if (multi) {
@@ -264,6 +271,25 @@ editor.once('load', function() {
                 });
                 // reference
                 editor.call('attributes:reference:attach', 'asset:runtime', fieldRuntime.parent.innerElement.firstChild.ui);
+
+
+                // taskInfo
+                var fieldFailed = editor.call('attributes:addField', {
+                    parent: panel,
+                    name: 'Failed',
+                    link: assets[0],
+                    path: 'taskInfo'
+                });
+                fieldFailed.class.add('error');
+
+                var checkFailed = function() {
+                    fieldFailed.parent.hidden = assets[0].get('task') !== 'failed' || ! assets[0].get('taskInfo');
+                };
+                checkFailed();
+
+                events.push(assets[0].on('task:set', checkFailed));
+                events.push(assets[0].on('taskInfo:set', checkFailed));
+                events.push(assets[0].on('taskInfo:unset', checkFailed));
             }
 
 
@@ -431,6 +457,3 @@ editor.once('load', function() {
         return assetsPanel;
     });
 });
-
-
-

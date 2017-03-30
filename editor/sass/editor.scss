@@ -975,6 +975,9 @@ strong {
                         @extend .noSelect;
                     }
                 }
+                > .ui-label.error {
+                    color: #ff2020;
+                }
             }
         }
         &.field-number, &.field {
