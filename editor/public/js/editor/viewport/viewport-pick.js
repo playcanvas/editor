@@ -2,6 +2,8 @@ editor.once('load', function() {
     'use strict';
 
     var app = editor.call('viewport:app');
+    if (! app) return; // webgl not available
+
     var picker = new pc.scene.Picker(app.graphicsDevice, 1, 1);
     var pickedData = {
         node: null,

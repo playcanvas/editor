@@ -5,6 +5,7 @@ editor.once('load', function() {
     if (! canvas) return;
 
     var app = editor.call('viewport:app');
+    if (! app) return; // webgl not available
 
     var aabb = new pc.BoundingBox();
     var vecA = new pc.Vec3();

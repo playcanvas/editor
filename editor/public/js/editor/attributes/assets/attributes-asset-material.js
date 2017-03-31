@@ -567,6 +567,7 @@ editor.once('load', function() {
         }
 
         var app = editor.call('viewport:app');
+        if (! app) return; // webgl not available
 
         if (assets.length > 1)
             editor.call('attributes:header', assets.length + ' Materials');
@@ -742,6 +743,7 @@ editor.once('load', function() {
                     model: currentPreviewModel,
                     params: previewTexturesHover
                 });
+                if (! imageData) return;
 
                 preview.width = imageData.width;
                 preview.height = imageData.height;

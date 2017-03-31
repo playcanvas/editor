@@ -184,6 +184,7 @@ editor.once('load', function() {
 
                 // render
                 var imageData = editor.call('preview:render', assets[0], root.element.clientWidth, root.element.clientWidth, {});
+                if (! imageData) return;
 
                 preview.width = imageData.width;
                 preview.height = imageData.height;

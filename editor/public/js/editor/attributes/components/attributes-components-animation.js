@@ -8,6 +8,7 @@ editor.once('load', function() {
             return;
 
         var app = editor.call('viewport:app');
+        if (! app) return; // webgl not available
 
 
         var panel = editor.call('attributes:entity:addComponentPanel', {

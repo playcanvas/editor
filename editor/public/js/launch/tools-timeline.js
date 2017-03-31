@@ -13,6 +13,7 @@ editor.once('load', function() {
     var cacheLightmapper = null;
     var cacheLightmapperEvent = null;
     var app = editor.call('viewport:app');
+    if (! app) return; // webgl not available
 
     // canvas
     var canvas = document.createElement('canvas');

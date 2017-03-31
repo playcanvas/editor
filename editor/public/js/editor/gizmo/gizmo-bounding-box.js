@@ -38,6 +38,8 @@ editor.once('load', function () {
     });
 
     editor.method('viewport:render:aabb', function(aabb) {
+        if (! app) return; // webgl not available
+
         var ind = 0;
         for(var x = -1; x <= 1; x += 2) {
             for(var y = -1; y <= 1; y += 2) {

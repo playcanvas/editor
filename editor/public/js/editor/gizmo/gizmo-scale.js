@@ -83,6 +83,7 @@ editor.once('load', function() {
     // initialize gizmo
     editor.once('viewport:load', function() {
         var app = editor.call('viewport:app');
+        if (! app) return; // webgl not available
 
         gizmo = createEntity();
         gizmo.root.enabled = false;

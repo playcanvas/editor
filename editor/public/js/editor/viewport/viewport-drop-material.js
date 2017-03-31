@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     var app = editor.call('viewport:app');
-    if (! app) return;
+    if (! app) return; // webgl not available
 
     var canvas = editor.call('viewport:canvas');
     var active = false;

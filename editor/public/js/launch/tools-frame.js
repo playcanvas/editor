@@ -3,6 +3,7 @@ editor.once('load', function() {
 
     var enabled = editor.call('tools:enabled');
     var app = editor.call('viewport:app');
+    if (! app) return; // webgl not available
 
     editor.on('tools:state', function(state) {
         enabled = state;

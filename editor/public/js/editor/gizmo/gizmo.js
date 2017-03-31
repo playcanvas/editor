@@ -69,6 +69,7 @@ editor.once('load', function() {
 
     editor.once('viewport:load', function() {
         var app = editor.call('viewport:app');
+        if (! app) return; // webgl not available
 
         // clear depth buffer before gizmo layer
         app.scene.drawCalls.push(new pc.scene.Command(pc.LAYER_GIZMO, pc.BLEND_NONE, function() {

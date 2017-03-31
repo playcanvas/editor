@@ -4,6 +4,7 @@ editor.once('load', function() {
     var container = editor.call('layout.viewport');
     var canvas = editor.call('viewport:canvas');
     var app = editor.call('viewport:app');
+    if (! app) return; // webgl not available
 
     if (! canvas)
         return;

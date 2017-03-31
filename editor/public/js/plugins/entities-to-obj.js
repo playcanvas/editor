@@ -2,6 +2,7 @@ editor.once('plugins:load:entities-to-obj', function() {
     'use strict';
 
     var app = editor.call('viewport:app');
+    if (! app) return; // webgl not available
 
     editor.method('plugins:entities-to-obj', function(items) {
         var entities = [ ];

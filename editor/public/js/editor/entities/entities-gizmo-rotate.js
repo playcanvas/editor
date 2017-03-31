@@ -11,7 +11,6 @@ editor.once('load', function() {
     var startPosition = new pc.Vec3();
     var timeoutUpdatePosition, timeoutUpdateRotation;
     var coordSystem = 'world';
-    var app;
     var gizmoPos = new pc.Vec3();
     var gizmoMoving = false;
     var gizmoAxis;
@@ -270,10 +269,6 @@ editor.once('load', function() {
             editor.call('gizmo:rotate:rotation', rot[0], rot[1], rot[2]);
         }
     };
-
-    editor.once('viewport:load', function() {
-        app = editor.call('viewport:app');
-    });
 
     var updateChildRelation = function() {
         var itemIds = { };

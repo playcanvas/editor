@@ -46,6 +46,7 @@ editor.once('load', function() {
                     }
 
                     app = editor.call('viewport:app');
+                    if (! app) return; // webgl not available
                     app.context.systems[component].addComponent(entity, data);
 
                     // render
@@ -124,6 +125,8 @@ editor.once('load', function() {
             } else if (entity[component]) {
                 // remove component
                 var app = editor.call('viewport:app');
+                if (! app) return; // webgl not available
+
                 app.context.systems[component].removeComponent(entity);
             }
 

@@ -2,6 +2,8 @@ editor.once('load', function() {
     'use strict';
 
     var app = editor.call('viewport:app');
+    if (! app) return; // webgl not available
+
     app.loader.removeHandler("scene");
     app.loader.removeHandler("hierarchy");
     app.loader.removeHandler("scenesettings");

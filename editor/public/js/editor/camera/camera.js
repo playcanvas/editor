@@ -8,6 +8,7 @@ editor.once('load', function() {
         var currentCamera = null;
         var defaultCamera = null;
         var app = editor.call('viewport:app');
+        if (! app) return; // webgl not available
 
 
         editor.method('camera:get', function(name) {

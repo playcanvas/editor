@@ -23,6 +23,8 @@ editor.once('load', function() {
         editor.call('attributes:header', 'Settings');
 
         var app = editor.call('viewport:app');
+        if (! app) return; // webgl not available
+
         var root = editor.call('layout.root');
 
         var filteredFields = [ ];

@@ -3,6 +3,8 @@ editor.once('viewport:load', function() {
 
     var depthTarget;
     var app = editor.call('viewport:app');
+    if (! app) return; // webgl not available
+
     var scene = app.scene;
     var renderer = app.renderer;
     var device = renderer.device;

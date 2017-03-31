@@ -340,10 +340,10 @@ editor.once('load', function() {
 
     // handle disconnection
     editor.on('realtime:disconnected', function () {
-        var viewport = editor.call('viewport:app');
-        if (viewport) {
+        var app = editor.call('viewport:app');
+        if (app) {
             // clear ALL asset registry events
-            viewport.assets._callbacks = { };
+            app.assets._callbacks = { };
         }
 
         editor.call('assets:clear');
