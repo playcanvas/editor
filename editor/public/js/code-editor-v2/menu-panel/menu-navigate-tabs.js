@@ -14,15 +14,14 @@ editor.once('load', function () {
         }
     });
     item.class.add('noBorder');
-    editor.call('menu:item:setShortcut', item, 'Ctrl+Alt+Right');
+    editor.call('menu:item:setShortcut', item, 'Ctrl+Alt+>');
     menu.append(item);
 
     // hotkey
     editor.call('hotkey:register', 'next-tab', {
-        key: 'right arrow',
+        key: 'period',
         ctrl: true,
         alt: true,
-        meta: false,
         callback: function () {
             editor.call('editor:command:nextTab');
         }
@@ -51,15 +50,14 @@ editor.once('load', function () {
             editor.call('editor:command:previousTab');
         }
     });
-    editor.call('menu:item:setShortcut', item, 'Ctrl+Alt+Left');
+    editor.call('menu:item:setShortcut', item, 'Ctrl+Alt+<');
     menu.append(item);
 
     // hotkey
     editor.call('hotkey:register', 'prev-tab', {
-        key: 'left arrow',
+        key: 'comma',
         ctrl: true,
         alt: true,
-        meta: false,
         callback: function () {
             editor.call('editor:command:previousTab');
         }

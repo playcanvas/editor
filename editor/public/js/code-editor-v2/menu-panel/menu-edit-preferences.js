@@ -23,6 +23,7 @@ editor.once('load', function () {
     });
     group.append(item);
 
+
     // Increase font size
     item = menu.createItem('increase-font-size', {
         title: 'Increase Font Size',
@@ -31,23 +32,13 @@ editor.once('load', function () {
         }
     });
     item.class.add('noBorder');
-    editor.call('menu:item:setShortcut', item,  'Ctrl+Alt+=');
     group.append(item);
-
-    editor.call('hotkey:register', 'increase-font-size', {
-        key: 'equal sign',
-        alt: true,
-        ctrl: true,
-        meta: false,
-        callback: function () {
-            editor.call('editor:command:increaseFontSize');
-        }
-    });
 
     editor.method('editor:command:increaseFontSize', function () {
         var settings = editor.call('editor:settings');
         settings.set('fontSize', settings.get('fontSize') + 1);
     });
+
 
     // Decrease font size
     item = menu.createItem('decrease-font-size', {
@@ -56,18 +47,7 @@ editor.once('load', function () {
             return editor.call('editor:command:decreaseFontSize');
         }
     });
-    editor.call('menu:item:setShortcut', item,  'Ctrl+Alt+-');
     group.append(item);
-
-    editor.call('hotkey:register', 'decrease-font-size', {
-        key: 'dash',
-        alt: true,
-        ctrl: true,
-        meta: false,
-        callback: function () {
-            editor.call('editor:command:decreaseFontSize');
-        }
-    });
 
     editor.method('editor:command:decreaseFontSize', function () {
         var settings = editor.call('editor:settings');

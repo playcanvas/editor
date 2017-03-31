@@ -26,17 +26,13 @@ editor.once('load', function () {
         }
     });
     item.class.add('noBorder');
-    editor.call('menu:item:setShortcut', item, (mac ? 'Alt+' : 'Shift+') + ctrl + '+[');
+    editor.call('menu:item:setShortcut', item, ctrl + '+Alt+[');
     group.append(item);
 
     editor.call('hotkey:register', 'fold', {
-        key: 91,
-        // ctrl: !mac,
-        // meta: mac,
-        // shift: !mac,
-        // alt: mac,
+        key: 'open bracket',
         alt: true,
-        meta: true,
+        ctrl: true,
         callback: function () {
             editor.call('editor:command:fold');
         }
@@ -56,15 +52,13 @@ editor.once('load', function () {
         }
     });
     item.class.add('noBorder');
-    editor.call('menu:item:setShortcut', item, (mac ? 'Alt+' : 'Shift+') + ctrl + '+]');
+    editor.call('menu:item:setShortcut', item, ctrl + '+Alt+]');
     group.append(item);
 
     editor.call('hotkey:register', 'unfold', {
-        key: 93,
-        ctrl: !mac,
-        meta: mac,
-        shift: !mac,
-        alt: mac,
+        key: 'close bracket',
+        alt: true,
+        ctrl: true,
         callback: function () {
             editor.call('editor:command:unfold');
         }
