@@ -472,15 +472,6 @@ editor.once('load', function() {
             ],
             'type': 'int'
         },
-        shadowSampleType: {
-            'default': 1,
-            'enum': [
-                { v: '', t: '...' },
-                { v: 0, t: 'Hard' },
-                { v: 1, t: 'PCF 3x3' }
-            ],
-            'type': 'int'
-        },
         useFog: {
             'default': true,
             'type': 'boolean'
@@ -576,6 +567,7 @@ editor.once('load', function() {
         }
 
         var app = editor.call('viewport:app');
+        if (! app) return; // webgl not available
 
         if (assets.length > 1)
             editor.call('attributes:header', assets.length + ' Materials');
@@ -751,6 +743,7 @@ editor.once('load', function() {
                     model: currentPreviewModel,
                     params: previewTexturesHover
                 });
+                if (! imageData) return;
 
                 preview.width = imageData.width;
                 preview.height = imageData.height;
@@ -3237,19 +3230,6 @@ editor.once('load', function() {
         });
         // reference
         editor.call('attributes:reference:attach', 'asset:material:cull', fieldCull.parent.innerElement.firstChild.ui);
-
-
-        // shadowSampleType
-        var fieldShadowSampleType = editor.call('attributes:addField', {
-            parent: panelRenderStates,
-            type: 'number',
-            enum: mapping.shadowSampleType.enum,
-            name: 'Shadow Sample Type',
-            link: assets,
-            path: 'data.shadowSampleType'
-        });
-        // reference
-        editor.call('attributes:reference:attach', 'asset:material:shadowSampleType', fieldShadowSampleType.parent.innerElement.firstChild.ui);
 
 
         // useFog

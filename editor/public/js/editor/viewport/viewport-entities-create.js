@@ -14,6 +14,8 @@ editor.once('load', function() {
     var resyncHierarchy = function() {
         awaitingResyncHierarchy = false;
 
+        if (! app) return; // webgl not available
+
         // sync hierarchy
         app.context.root.syncHierarchy();
 
@@ -63,6 +65,8 @@ editor.once('load', function() {
     };
 
     var processEntity = function (obj) {
+        if (! app) return; // webgl not available
+
         // create entity
         var entity = obj.entity = createEntity(obj);
 

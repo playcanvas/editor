@@ -31,6 +31,8 @@ editor.once('load', function () {
     }
     // update lines
     Gizmo.prototype.update = function() {
+        if (! app) return; // webgl not available
+
         if (! this._link || ! this._link.entity)
             return;
 
@@ -97,6 +99,8 @@ editor.once('load', function () {
     };
     // link to entity
     Gizmo.prototype.link = function(obj) {
+        if (! app) return; // webgl not available
+
         this.unlink();
         this._link = obj;
 
@@ -117,6 +121,8 @@ editor.once('load', function () {
     };
     // unlink
     Gizmo.prototype.unlink = function() {
+        if (! app) return; // webgl not available
+
         if (! this._link)
             return;
 
@@ -190,6 +196,7 @@ editor.once('load', function () {
 
     editor.once('viewport:load', function() {
         app = editor.call('viewport:app');
+        if (! app) return; // webgl not available
 
         container = new pc.Entity(app);
         app.root.addChild(container);

@@ -148,6 +148,8 @@ editor.once('load', function() {
     };
 
     var onRender = function() {
+        if (! app) return; // webgl not available
+
         if (gizmoMoving) {
             var camera = editor.call('camera:current');
 

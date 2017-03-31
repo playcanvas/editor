@@ -2,6 +2,8 @@ editor.once('load', function() {
     'use strict';
 
     var app = editor.call('viewport:app');
+    if (! app) return; // webgl not available
+
     var device = app.graphicsDevice;
     var renderer = app.renderer;
     var scene = editor.call('preview:scene');

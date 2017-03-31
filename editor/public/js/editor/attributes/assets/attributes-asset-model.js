@@ -489,6 +489,7 @@ editor.once('load', function() {
                 var imageData = editor.call('preview:render', assets[0], root.element.clientWidth, root.element.clientWidth, {
                     rotation: [ Math.max(-90, Math.min(90, previewRotation[0] + (sy - y) * 0.3)), previewRotation[1] + (sx - x) * 0.3 ]
                 });
+                if (! imageData) return;
 
                 preview.width = imageData.width;
                 preview.height = imageData.height;
@@ -535,7 +536,10 @@ editor.once('load', function() {
             var nodeItems = [ ];
 
             var addField = function(ind) {
-                var engineAsset = editor.call('viewport:app').assets.get(assets[0].get('id'));
+                var app = editor.call('viewport:app');
+                if (! app) return; // webgl not available
+
+                var engineAsset = app.assets.get(assets[0].get('id'));
                 var valueBefore = null;
 
                 nodeItems[ind] = editor.call('attributes:addField', {

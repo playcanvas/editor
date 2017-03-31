@@ -53,6 +53,8 @@ editor.once('load', function() {
         if (this.entity)
             return;
 
+        if (! app) return; // webgl not available
+
         var self = this;
 
         this.entity = new pc.Entity(app);
@@ -225,6 +227,7 @@ editor.once('load', function() {
 
     editor.once('viewport:load', function() {
         app = editor.call('viewport:app');
+        if (! app) return; // webgl not available
 
         var shader;
 

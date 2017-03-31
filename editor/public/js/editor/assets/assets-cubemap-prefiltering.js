@@ -30,6 +30,12 @@ editor.once('load', function () {
     };
 
     var prefilterHdrCubemap = function (assetCubeMap, cubemap, callback) {
+        if (! app) {
+            // webgl not available
+            callback(new Error('webgl not available'));
+            return;
+        }
+
         try {
             var textureAssets = getTextureAssets(assetCubeMap);
             if (textureAssets) {
@@ -112,13 +118,18 @@ editor.once('load', function () {
                     });
                 });
             }
-        }
-        catch (ex) {
+        } catch (ex) {
             callback(ex);
         }
     };
 
     var prefilterCubemap = function (assetCubeMap, cubemap, callback) {
+        if (! app) {
+            // webgl not available
+            callback(new Error('webgl not available'));
+            return;
+        }
+
         try {
             var count = 0;
             var textures = [ ];
@@ -191,6 +202,12 @@ editor.once('load', function () {
     };
 
     editor.method('assets:cubemaps:prefilter', function (assetCubeMap, callback) {
+        if (! app) {
+            // webgl not available
+            callback(new Error('webgl not available'));
+            return;
+        }
+
         var asset = app.assets.get(parseInt(assetCubeMap.get('id'), 10));
         if (! asset)
             return;

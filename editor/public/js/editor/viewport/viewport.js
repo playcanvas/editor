@@ -10,14 +10,19 @@ editor.once('load', function() {
     var Application = editor.call('viewport:application');
 
     // create playcanvas application
-    var app = new Application(canvas.element, {
-        mouse: new pc.input.Mouse(canvas.element),
-        touch: !!('ontouchstart' in window) ? new pc.input.TouchDevice(canvas.element) : null,
-        editorSettings: editorSettings.json(),
-        graphicsDeviceOptions: {
-            alpha: false
-        }
-    });
+    try {
+        var app = new Application(canvas.element, {
+            mouse: new pc.input.Mouse(canvas.element),
+            touch: !!('ontouchstart' in window) ? new pc.input.TouchDevice(canvas.element) : null,
+            editorSettings: editorSettings.json(),
+            graphicsDeviceOptions: {
+                alpha: false
+            }
+        });
+    } catch(ex) {
+        editor.emit('viewport:error', ex);
+        return;
+    }
 
     editorSettings.on('*:set', function() {
         app.setEditorSettings(editorSettings.json());

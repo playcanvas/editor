@@ -276,6 +276,8 @@ editor.once('load', function() {
     };
 
     var app = editor.call('viewport:app');
+    if (! app) return; // webgl not available
+
     var frame = 0;
     var frameLast = 0;
 

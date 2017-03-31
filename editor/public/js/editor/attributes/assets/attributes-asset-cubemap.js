@@ -117,6 +117,9 @@ editor.once('load', function() {
                     mipLevel: mipLevel
                 });
 
+                if (! imageData)
+                    return;
+
                 preview.width = imageData.width;
                 preview.height = imageData.height;
 

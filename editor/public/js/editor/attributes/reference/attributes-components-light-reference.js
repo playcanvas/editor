@@ -90,17 +90,17 @@ editor.once('load', function() {
     }, {
         title: 'shadowUpdateMode',
         subTitle: '{pc.SHADOWUPDATE_*}',
-        description: 'Tells the renderer how often shadows must be updated for this light. Options:\npc.SHADOWUPDATE_NONE: Don\'t render shadows.\npc.SHADOWUPDATE_THISFRAME: Render shadows only once (then automatically switches to pc.SHADOWUPDATE_NONE)\npc.SHADOWUPDATE_REALTIME: Render shadows every frame (default)',
+        description: 'Tells the renderer how often shadows must be updated for this light. Options:\n<b>pc.SHADOWUPDATE_NONE</b>: Don\'t render shadows.\n<b>pc.SHADOWUPDATE_THISFRAME</b>: Render shadows only once (then automatically switches to pc.SHADOWUPDATE_NONE).\n<b>pc.SHADOWUPDATE_REALTIME</b>: Render shadows every frame (default)',
         url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#shadowUpdateMode'
     }, {
         title: 'shadowType',
         subTitle: '{pc.SHADOW_*}',
-        description: 'Type of shadows being rendered by this light. Options:\npc.SHADOW_DEPTH: Render packed depth, can be used for hard or PCF sampling\npc.SHADOW_VSM8: Render packed variance shadow map. All shadow receivers must also cast shadows for this mode to work correctly\npc.SHADOW_VSM16: Render 16-bit exponential variance shadow map. Requires OES_texture_half_float extension. Falls back to pc.SHADOW_VSM8, if not supported\npc.SHADOW_VSM32: Render 32-bit exponential variance shadow map. Requires OES_texture_float extension. Falls back to pc.SHADOW_VSM16, if not supported',
+        description: 'Type of shadows being rendered by this light. Options:\n<b>pc.SHADOW_PCF3</b>: Render packed depth, can be used for PCF sampling.\n<b>pc.SHADOW_PCF5</b>: Render depth buffer only, can be used for better hardware-accelerated PCF sampling. Requires WebGL2. Falls back to pc.SHADOW_PCF3 on WebGL 1.0.\n<b>pc.SHADOW_VSM8</b>: Render packed variance shadow map. All shadow receivers must also cast shadows for this mode to work correctly.\n<b>pc.SHADOW_VSM16</b>: Render 16-bit exponential variance shadow map. Requires OES_texture_half_float extension. Falls back to pc.SHADOW_VSM8, if not supported.\n<b>pc.SHADOW_VSM32</b>: Render 32-bit exponential variance shadow map. Requires OES_texture_float extension. Falls back to pc.SHADOW_VSM16, if not supported.',
         url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#shadowType'
     }, {
         title: 'vsmBlurMode',
         subTitle: '{pc.BLUR_*}',
-        description: 'Blurring mode for variance shadow maps:\npc.BLUR_BOX: Box filter\npc.BLUR_GAUSSIAN: Gaussian filter. May look smoother than box, but requires more samples',
+        description: 'Blurring mode for variance shadow maps:\n<b>pc.BLUR_BOX</b>: Box filter.\n<b>pc.BLUR_GAUSSIAN</b>: Gaussian filter. May look smoother than box, but requires more samples.',
         url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#vsmBlurMode'
     }, {
         title: 'vsmBlurSize',

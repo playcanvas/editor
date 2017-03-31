@@ -1093,8 +1093,7 @@ editor.once('load', function() {
                 if (! ctx) ctx = thumbnail.ctx = thumbnail.getContext('2d');
 
                 var imageData = editor.call('preview:render', asset, 64);
-
-                ctx.putImageData(imageData, 0, 0);
+                if (imageData) ctx.putImageData(imageData, 0, 0);
             };
             var queueRender = function() {
                 if (item.hidden) {

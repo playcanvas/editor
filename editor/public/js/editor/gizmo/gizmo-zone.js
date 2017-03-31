@@ -33,6 +33,7 @@ editor.once('load', function() {
 
     editor.once('viewport:load', function () {
         app = editor.call('viewport:app');
+        if (! app) return; // webgl not available
 
         var container = new pc.Entity();
         container.name = 'zones';

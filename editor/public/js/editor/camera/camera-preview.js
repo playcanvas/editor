@@ -10,6 +10,8 @@ editor.once('load', function() {
     var evtUpdate = null;
     var rect = new pc.Vec4(0, 0.8, 0.2, 0.2);
     var app = editor.call('viewport:app');
+    if (! app) return; // webgl not available
+
     var viewport = editor.call('layout.viewport');
 
     var cameraPreviewBorder = document.createElement('div');

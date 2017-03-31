@@ -3,6 +3,7 @@ editor.once('viewport:load', function() {
 
     var viewport = editor.call('layout.viewport');
     var app = editor.call('viewport:app');
+    if (! app) return; // webgl not available
 
     var options = { };
     var index = { };
@@ -88,6 +89,3 @@ editor.once('viewport:load', function() {
         combo.value = entity.getGuid();
     });
 });
-
-
-

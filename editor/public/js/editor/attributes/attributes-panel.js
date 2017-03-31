@@ -1117,6 +1117,7 @@ editor.once('load', function() {
                         if (watchAsset) {
                             // render
                             var imageData = editor.call('preview:render', watchAsset, 128, 128);
+                            if (! imageData) return;
 
                             field.elementImage.width = imageData.width;
                             field.elementImage.height = imageData.height;

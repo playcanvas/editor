@@ -2,6 +2,8 @@ editor.once('load', function() {
     'use strict';
 
     var app = editor.call('viewport:app');
+    if (! app) return; // webgl not available
+
     var picker = new pc.scene.Picker(app.graphicsDevice, 1, 1);
     var pickedData = {
         node: null,
@@ -67,10 +69,7 @@ editor.once('load', function() {
         picker.prepare(editor.call('camera:current').camera.camera, scene);
 
         // pick node
-        var picked = picker.getSelection({
-            x: x,
-            y: app.graphicsDevice.canvas.height - y
-        });
+        var picked = picker.getSelection(x, y);
 
         if (! picked.length || ! picked[0]) {
             fn(null, null);

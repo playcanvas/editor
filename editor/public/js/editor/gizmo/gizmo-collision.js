@@ -91,6 +91,8 @@ editor.once('load', function () {
     }
     // update lines
     Gizmo.prototype.update = function() {
+        if (! app) return; // webgl not available
+
         if (! this._link || ! this._link.entity)
             return;
 
@@ -271,6 +273,8 @@ editor.once('load', function () {
     };
     // link to entity
     Gizmo.prototype.link = function(obj) {
+        if (! app) return; // webgl not available
+
         this.unlink();
         this._link = obj;
 
@@ -297,6 +301,8 @@ editor.once('load', function () {
     };
     // unlink
     Gizmo.prototype.unlink = function() {
+        if (! app) return; // webgl not available
+
         if (! this._link)
             return;
 
@@ -324,6 +330,8 @@ editor.once('load', function () {
     };
     // create wireframe
     Gizmo.prototype.createWireframe = function(asset) {
+        if (! app) return; // webgl not available
+
         asset = app.assets.get(asset);
         if (! asset)
             return null;
@@ -389,6 +397,7 @@ editor.once('load', function () {
 
     editor.once('viewport:load', function() {
         app = editor.call('viewport:app');
+        if (! app) return; // webgl not available
 
         app.scene.drawCalls.push(new pc.Command(10, pc.BLEND_NONE, function() {
             app.graphicsDevice.clear({

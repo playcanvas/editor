@@ -2,6 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     var timeout;
+    var viewportError = false;
 
     // overlay
     var overlay = new ui.Overlay();
@@ -25,6 +26,8 @@ editor.once('load', function() {
     overlay.innerElement.appendChild(content);
 
     editor.on('realtime:connected', function () {
+        if (viewportError) return;
+
         overlay.hidden = true;
         clearIconClass();
     });
@@ -65,6 +68,8 @@ editor.once('load', function() {
     });
 
     editor.on('realtime:connecting', function (attempt) {
+        if (viewportError) return;
+
         overlay.hidden = true;
         clearTimeout(timeout);
     });
@@ -84,6 +89,14 @@ editor.once('load', function() {
         overlay.hidden = false;
     };
 
+    editor.on('viewport:error', function(err) {
+        viewportError = true;
+        console.error(err);
+        console.trace();
+        setIconClass('error');
+        content.innerHTML = 'Failed creating WebGL Context.<br />Please check <a href="http://webglreport.com/" target="_blank">WebGL Report</a> and report to <a href="http://forum.playcanvas.com/" target="_blank">Forum</a>.';
+        overlay.hidden = false;
+    });
 
     editor.on('realtime:error', onError);
     editor.on('realtime:scene:error', onError);
@@ -101,6 +114,8 @@ editor.once('load', function() {
     });
 
     editor.on('scene:unload', function () {
+        if (viewportError) return;
+
         overlay.hidden = true;
     });
 

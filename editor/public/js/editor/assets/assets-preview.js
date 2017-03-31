@@ -2,6 +2,8 @@ editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
+    if (! app) return; // webgl not available
+
     var renderTargets = { };
     var canvas = document.createElement('canvas');
     var ctx = canvas.getContext('2d');

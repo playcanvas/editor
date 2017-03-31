@@ -217,6 +217,8 @@ editor.once('load', function() {
     };
 
     var onRender = function() {
+        if (! app) return; // webgl not available
+
         if (! gizmoMoving && items.length) {
             var dirty = false;
             for(var i = 0; i < items.length; i++) {

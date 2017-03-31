@@ -451,11 +451,6 @@ editor.once('load', function() {
         description: 'Defines the shading model. Phong {pc.SPECULAR_PHONG}: Phong without energy conservation. You should only use it as a backwards compatibility with older projects. Physical {pc.SPECULAR_BLINN}: Energy-conserving Blinn-Phong.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#shadingModel'
     }, {
-        title: 'shadowSampleType',
-        subTitle: '{Number}',
-        description: 'Options are: Hard PCF 3x3',
-        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#shadowSampleType'
-    }, {
         title: 'shininess',
         subTitle: '{Number}',
         description: 'A value determining the smoothness of a surface. For smaller shininess values, a surface is rougher and specular highlights will be broader. For larger shininess values, a surface is smoother and will exhibit more concentrated specular highlights (as is the surace is polished and shiny).',
