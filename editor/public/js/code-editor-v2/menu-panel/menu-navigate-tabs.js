@@ -14,7 +14,7 @@ editor.once('load', function () {
         }
     });
     item.class.add('noBorder');
-    editor.call('menu:item:setShortcut', item, 'Ctrl+Alt+>');
+    editor.call('menu:item:setShortcut', item, 'Ctrl+Alt+.');
     menu.append(item);
 
     // hotkey
@@ -50,7 +50,7 @@ editor.once('load', function () {
             editor.call('editor:command:previousTab');
         }
     });
-    editor.call('menu:item:setShortcut', item, 'Ctrl+Alt+<');
+    editor.call('menu:item:setShortcut', item, 'Ctrl+Alt+,');
     menu.append(item);
 
     // hotkey
