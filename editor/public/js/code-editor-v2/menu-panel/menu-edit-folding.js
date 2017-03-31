@@ -26,17 +26,17 @@ editor.once('load', function () {
         }
     });
     item.class.add('noBorder');
-    editor.call('menu:item:setShortcut', item, ctrl + '+Alt+[');
+    // editor.call('menu:item:setShortcut', item, ctrl + '+Alt+[');
     group.append(item);
 
-    editor.call('hotkey:register', 'fold', {
-        key: 'open bracket',
-        alt: true,
-        ctrl: true,
-        callback: function () {
-            editor.call('editor:command:fold');
-        }
-    });
+    // editor.call('hotkey:register', 'fold', {
+    //     key: 'open bracket',
+    //     alt: true,
+    //     ctrl: true,
+    //     callback: function () {
+    //         editor.call('editor:command:fold');
+    //     }
+    // });
 
     editor.method('editor:command:fold', function () {
         cm.execCommand('fold');
@@ -52,17 +52,17 @@ editor.once('load', function () {
         }
     });
     item.class.add('noBorder');
-    editor.call('menu:item:setShortcut', item, ctrl + '+Alt+]');
+    // editor.call('menu:item:setShortcut', item, ctrl + '+Alt+]');
     group.append(item);
 
-    editor.call('hotkey:register', 'unfold', {
-        key: 'close bracket',
-        alt: true,
-        ctrl: true,
-        callback: function () {
-            editor.call('editor:command:unfold');
-        }
-    });
+    // editor.call('hotkey:register', 'unfold', {
+    //     key: 'close bracket',
+    //     alt: true,
+    //     ctrl: true,
+    //     callback: function () {
+    //         editor.call('editor:command:unfold');
+    //     }
+    // });
 
     editor.method('editor:command:unfold', function () {
         cm.execCommand('unfold');
