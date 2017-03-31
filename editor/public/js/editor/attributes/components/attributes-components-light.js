@@ -373,7 +373,8 @@ editor.once('load', function() {
             type: 'number',
             enum: [
                 { v: '', t: '...' },
-                { v: 0, t: 'Shadow Map' },
+                { v: 0, t: 'Shadow Map 3x3' },
+                { v: 4, t: 'Shadow Map 5x5' },
                 { v: 1, t: 'Variance Shadow Map (8bit)' },
                 { v: 2, t: 'Variance Shadow Map (16bit)' },
                 { v: 3, t: 'Variance Shadow Map (32bit)' }
@@ -400,9 +401,9 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'light:vsmBlurMode', fieldShadowVsmBlurMode.parent.innerElement.firstChild.ui);
         //
-        fieldShadowVsmBlurMode.parent.hidden = fieldShadowType.value === 0;
+        fieldShadowVsmBlurMode.parent.hidden = fieldShadowType.value === 0 || fieldShadowType.value === 4;
         fieldShadowType.on('change', function() {
-            fieldShadowVsmBlurMode.parent.hidden = fieldShadowType.value === 0;
+            fieldShadowVsmBlurMode.parent.hidden = fieldShadowType.value === 0 || fieldShadowType.value === 4;
         });
 
         // vsmBlurSize
@@ -419,9 +420,9 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'light:vsmBlurSize', fieldShadowVsmBlurSize.parent.innerElement.firstChild.ui);
         //
-        fieldShadowVsmBlurSize.parent.hidden = fieldShadowType.value === 0;
+        fieldShadowVsmBlurSize.parent.hidden = fieldShadowType.value === 0 || fieldShadowType.value === 4;
         fieldShadowType.on('change', function() {
-            fieldShadowVsmBlurSize.parent.hidden = fieldShadowType.value === 0;
+            fieldShadowVsmBlurSize.parent.hidden = fieldShadowType.value === 0 || fieldShadowType.value === 4;
         });
         // vsmBlurSize slider
         var fieldShadowVsmBlurSizeSlider = editor.call('attributes:addField', {
@@ -453,9 +454,9 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'light:vsmBias', fieldVsmBias.parent.innerElement.firstChild.ui);
         //
-        fieldVsmBias.parent.hidden = fieldShadowType.value === 0;
+        fieldVsmBias.parent.hidden = fieldShadowType.value === 0 || fieldShadowType.value === 4;
         fieldShadowType.on('change', function() {
-            fieldVsmBias.parent.hidden = fieldShadowType.value === 0;
+            fieldVsmBias.parent.hidden = fieldShadowType.value === 0 || fieldShadowType.value === 4;
         });
 
 
@@ -475,9 +476,9 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'light:shadowBias', fieldShadowBias.parent.innerElement.firstChild.ui);
         //
-        fieldShadowBias.parent.hidden = fieldShadowType.value !== 0;
+        fieldShadowBias.parent.hidden = fieldShadowType.value !== 0 && fieldShadowType.value !== 4;
         fieldShadowType.on('change', function() {
-            fieldShadowBias.parent.hidden = fieldShadowType.value !== 0;
+            fieldShadowBias.parent.hidden = fieldShadowType.value !== 0 && fieldShadowType.value !== 4;
         });
 
 
