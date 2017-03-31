@@ -220,6 +220,7 @@ editor.once('load', function() {
                         app.renderMeshInstance(gizmo.line.x);
                     }
                 }
+
                 // y
                 if (moving && hoverAxis === 'y') {
                     // behind line

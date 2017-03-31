@@ -31,5 +31,4 @@ editor.once('load', function () {
             editor.call('editor:command:undo');
         }
     });
-
 });

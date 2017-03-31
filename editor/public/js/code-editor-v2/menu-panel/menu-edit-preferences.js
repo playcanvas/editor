@@ -31,14 +31,13 @@ editor.once('load', function () {
         }
     });
     item.class.add('noBorder');
-    editor.call('menu:item:setShortcut', item,  'Ctrl+Alt+=');
+    editor.call('menu:item:setShortcut', item,  'Ctrl+Alt+Page Up');
     group.append(item);
 
     editor.call('hotkey:register', 'increase-font-size', {
-        key: 'equal sign',
+        key: 'page up',
         alt: true,
         ctrl: true,
-        meta: false,
         callback: function () {
             editor.call('editor:command:increaseFontSize');
         }
@@ -56,14 +55,13 @@ editor.once('load', function () {
             return editor.call('editor:command:decreaseFontSize');
         }
     });
-    editor.call('menu:item:setShortcut', item,  'Ctrl+Alt+-');
+    editor.call('menu:item:setShortcut', item,  'Ctrl+Alt+Page Down');
     group.append(item);
 
     editor.call('hotkey:register', 'decrease-font-size', {
-        key: 'dash',
+        key: 'page down',
         alt: true,
         ctrl: true,
-        meta: false,
         callback: function () {
             editor.call('editor:command:decreaseFontSize');
         }
