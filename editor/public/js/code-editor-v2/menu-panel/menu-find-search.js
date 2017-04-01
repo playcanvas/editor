@@ -55,7 +55,7 @@ editor.once('load', function () {
 
     editor.call('hotkey:register', 'find-next', {
         key: mac ? 'g' : 'f3',
-        meta: mac,
+        ctrl: mac,
         callback: function (e) {
             if (codePanel.element.contains(e.target))
                 return;
@@ -84,7 +84,7 @@ editor.once('load', function () {
     editor.call('hotkey:register', 'find-previous', {
         key: mac ? 'g' : 'f3',
         shift: true,
-        meta: mac,
+        ctrl: mac,
         callback: function (e) {
             if (codePanel.element.contains(e.target))
                 return;

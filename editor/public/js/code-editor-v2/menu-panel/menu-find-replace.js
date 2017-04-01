@@ -44,8 +44,7 @@ editor.once('load', function () {
     editor.call('hotkey:register', 'replace', {
         key: mac ? 'f' : 'h',
         alt: mac,
-        meta: mac,
-        ctrl: !mac,
+        ctrl: true,
         callback: function (e) {
             if (codePanel.element.contains(e.target))
                 return;
@@ -78,8 +77,7 @@ editor.once('load', function () {
     editor.call('hotkey:register', 'replace-next', {
         key: mac ? 'e' : 'h',
         alt: mac,
-        meta: mac,
-        ctrl: !mac,
+        ctrl: true,
         shift: !mac,
         callback: function (e) {
             if (codePanel.element.contains(e.target))
