@@ -12,7 +12,7 @@ editor.once('load', function() {
                 return;
 
             if (path === 'name') {
-                entity.setName(obj.get('name'));
+                entity.name = obj.get('name');
 
             } else if (path.startsWith('position')) {
                 entity.setLocalPosition(obj.get('position.0'), obj.get('position.1'), obj.get('position.2'));
