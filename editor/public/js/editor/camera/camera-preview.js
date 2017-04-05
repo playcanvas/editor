@@ -9,8 +9,7 @@ editor.once('load', function() {
     var events = [ ];
     var evtUpdate = null;
     var rect = new pc.Vec4(0, 0.8, 0.2, 0.2);
-    var app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    var app = null;
 
     var viewport = editor.call('layout.viewport');
 
@@ -75,6 +74,8 @@ editor.once('load', function() {
     });
 
     var update = function() {
+        if (! app) return; // WebGL might not be created
+
         if (! renderCamera)
             return;
 
