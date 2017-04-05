@@ -27,8 +27,7 @@ editor.once('load', function () {
     editor.call('hotkey:register', 'find-under', {
         key: mac ? 'g' : 'f3',
         alt: mac,
-        meta: mac,
-        ctrl: !mac,
+        ctrl: true,
         callback: function (e) {
             if (codePanel.element.contains(e.target))
                 return;
@@ -71,21 +70,24 @@ editor.once('load', function () {
         }
     });
     item.class.add('noBorder');
-    editor.call('menu:item:setShortcut', item, mac ? 'Ctrl+Cmd+G' : 'Alt+F3');
+    // no shortcut for mac for now
+    if (! mac) {
+        editor.call('menu:item:setShortcut', item, 'Alt+F3');
+    }
     menu.append(item);
 
-    editor.call('hotkey:register', 'find-all-under', {
-        key: mac ? 'g' : 'f3',
-        ctrl: mac,
-        meta: mac,
-        alt: !mac,
-        callback: function (e) {
-            if (codePanel.element.contains(e.target))
-                return;
+    if (! mac) {
+        editor.call('hotkey:register', 'find-all-under', {
+            key: 'f3',
+            alt: true,
+            callback: function (e) {
+                if (codePanel.element.contains(e.target))
+                    return;
 
-            editor.call('editor:command:findAllUnder');
-        }
-    });
+                editor.call('editor:command:findAllUnder');
+            }
+        });
+    }
 
     editor.method('editor:command:findAllUnder', function () {
         if (hasFocused()) {
