@@ -2,8 +2,8 @@ editor.once('load', function () {
     'use strict';
 
     var viewport = editor.call('layout.viewport');
-    var editorSettings = editor.call('editorSettings');
     var focusedMenuItem = null;
+    var settings = editor.call('settings:user');
 
     // create main panel
     var panel = new ui.Panel();
@@ -11,34 +11,28 @@ editor.once('load', function () {
     viewport.append(panel);
     panel.hidden = true;
 
+    var settingsLoaded = false;
     var tipsLoaded = false;
     editor.once('help:howdoi:load', function () {
         tipsLoaded = true;
         checkShow();
     });
 
-    var settingsLoaded = false;
-
-    var checkShow = function () {
-        if (tipsLoaded && settingsLoaded) {
-            panel.hidden = !editorSettings.get('help');
-        }
-    };
-
-    // hide / show panel based on editor settings
-    editor.once('editorSettings:load', function () {
+    editor.once('settings:user:load', function () {
         settingsLoaded = true;
         checkShow();
     });
 
+    var checkShow = function () {
+        if (tipsLoaded && settingsLoaded) {
+            panel.hidden = !settings.get('editor.howdoi');
+        }
+    };
+
     // events when panel is shown
     panel.on('show', function () {
         editor.emit('help:howdoi:open');
-
-        var history = editorSettings.history;
-        editorSettings.history = false;
-        editorSettings.set('help', true);
-        editorSettings.history = history;
+        settings.set('editor.howdoi', true);
 
         editor.on('scene:name', positionWidget);
         editor.on('viewport:resize', positionWidget);
@@ -48,12 +42,7 @@ editor.once('load', function () {
     // events when panel is hidden
     panel.on('hide', function () {
         editor.emit('help:howdoi:close');
-
-        var history = editorSettings.history;
-        editorSettings.history = false;
-        editorSettings.set('help', false);
-        editorSettings.history = history;
-
+        settings.set('editor.howdoi', false);
         editor.unbind('scene:name', positionWidget);
         editor.unbind('viewport:resize', positionWidget);
 
@@ -74,12 +63,12 @@ editor.once('load', function () {
         );
 
         bubble.element.style.top = '';
-        bubble.element.style.bottom = '118px';
+        bubble.element.style.bottom = '164px';
         return bubble;
     };
 
-    // open / close panel depending on editor settings
-    editorSettings.on('help:set', function (value) {
+    // open / close panel depending on settings
+    settings.on('editor.howdoi:set', function (value) {
         panel.hidden = !value;
     });
 
