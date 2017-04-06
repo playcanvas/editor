@@ -49,15 +49,15 @@ editor.once('load', function() {
         checkSnap();
     });
 
-    var editorSettings = editor.call('editorSettings');
-    editorSettings.on('snap_increment:set', function(value) {
+    var editorSettings = editor.call('settings:editor');
+    editorSettings.on('editor.snapIncrement:set', function(value) {
         if (snapIncrement === (value || 1))
             return;
 
         snapIncrement = value || 1;
         editor.emit('gizmo:snap', snap, snapIncrement);
     });
-    snapIncrement = editorSettings.get('snap_increment') || 1;
+    snapIncrement = editorSettings.get('editor.snapIncrement') || 1;
 
     editor.on('hotkey:shift', function(state) {
         if (snapShift === state)
@@ -77,5 +77,5 @@ editor.once('load', function() {
                 flags: pc.CLEARFLAG_DEPTH
             });
         }));
-    })
+    });
 });

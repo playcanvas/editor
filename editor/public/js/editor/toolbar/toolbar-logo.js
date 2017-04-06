@@ -499,7 +499,7 @@ editor.once('load', function() {
                 return editor.call('selector:type') !== 'editorSettings' && ! editor.call('viewport:expand:state');
             },
             select: function() {
-                editor.call('selector:set', 'editorSettings', [ editor.call('editorSettings') ]);
+                editor.call('selector:set', 'editorSettings', [ editor.call('settings:editor') ]);
             }
         },
         'priorityScripts': null,
@@ -557,7 +557,7 @@ editor.once('load', function() {
                 return editor.call('permissions:write');
             },
             select: function() {
-                editor.call('selector:set', 'editorSettings', [ editor.call('editorSettings') ]);
+                editor.call('selector:set', 'editorSettings', [ editor.call('settings:editor') ]);
                 setTimeout(function() {
                     editor.call('editorSettings:panel:unfold', 'scripts-order');
                 }, 0);

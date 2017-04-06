@@ -445,7 +445,7 @@ editor.once('load', function() {
                         if (type === 'editorSettings') {
                             menuItem.text = 'Scene Settings';
                             menuItem.icon = '&#57652;';
-                            item = editor.call('editorSettings');
+                            item = editor.call('settings:editor');
                             if (! item) return;
                         } else {
                             if (type === 'entity') {

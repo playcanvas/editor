@@ -2,14 +2,26 @@ editor.once('load', function () {
     'use strict';
 
     var settings = editor.call('settings:create',
-        'user',
-        'user',
-        config.self.id, {
+        'editor',
+        'project',
+        config.project.id, {
             editor: {
-                howdoi: true,
-                iconSize: 0.2
+                cameraNearClip: 0.1,
+                cameraFarClip: 1000,
+                cameraClearColor: [
+                    0.118,
+                    0.118,
+                    0.118,
+                    1
+                ],
+                gridDivisions: 8,
+                gridDivisionSize: 1,
+                snapIncrement: 1,
+                localServer: 'http://localhost:51000',
+                launchDebug: true
             }
-        }
+        },
+        config.self.id
     );
 
     // add history
@@ -19,7 +31,7 @@ editor.once('load', function () {
             return;
 
         editor.call('history:add', {
-            name: 'changed user settings ' + path,
+            name: 'changed editor settings ' + path,
             undo: function() {
                 settings.history = false;
                 settings.set(path, oldValue);

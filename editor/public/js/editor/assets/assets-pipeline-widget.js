@@ -41,7 +41,7 @@ editor.once('load', function() {
     });
     btnSettings.class.add('settings');
     btnSettings.on('click', function () {
-        editor.call('selector:set', 'editorSettings', [ editor.call('editorSettings') ]);
+        editor.call('selector:set', 'editorSettings', [ editor.call('settings:editor') ]);
         setTimeout(function() {
             editor.call('editorSettings:panel:unfold', 'pipeline');
         }, 0);

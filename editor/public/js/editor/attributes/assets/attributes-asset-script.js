@@ -35,7 +35,7 @@ editor.once('load', function() {
             panelOrder.innerElement.removeChild(fieldOrder.element);
             panelOrder.append(btnOrder);
             btnOrder.on('click', function() {
-                editor.call('selector:set', 'editorSettings', [ editor.call('editorSettings') ]);
+                editor.call('selector:set', 'editorSettings', [ editor.call('settings:editor') ]);
                 setTimeout(function() {
                     editor.call('editorSettings:panel:unfold', 'scripts-order');
                 }, 0);

@@ -1,7 +1,8 @@
 editor.once('load', function() {
     'use strict';
 
-    var editorSettings = editor.call('editorSettings');
+    var settings = editor.call('settings:editor');
+    var userSettings = editor.call('settings:user');
 
     var sceneName = 'Untitled';
     editor.on('scene:raw', function(data) {
@@ -76,8 +77,8 @@ editor.once('load', function() {
             precision: 1,
             step: 1,
             min: 0,
-            link: editorSettings,
-            path: 'grid_divisions'
+            link: settings,
+            path: 'editor.gridDivisions'
         });
         fieldGrid.style.width = '32px';
         // reference
@@ -85,16 +86,16 @@ editor.once('load', function() {
 
 
         // grid divisions size
-        var fieldFarClip = new ui.NumberField({
+        var fieldGridDivisionSize = new ui.NumberField({
             precision: 1,
             step: 1,
             min: 0
         });
-        fieldFarClip.placeholder = 'Size';
-        fieldFarClip.style.width = '32px';
-        fieldFarClip.flexGrow = 1;
-        fieldFarClip.link(editorSettings, 'grid_division_size');
-        fieldGrid.parent.append(fieldFarClip);
+        fieldGridDivisionSize.placeholder = 'Size';
+        fieldGridDivisionSize.style.width = '32px';
+        fieldGridDivisionSize.flexGrow = 1;
+        fieldGridDivisionSize.link(settings, 'editor.gridDivisionSize');
+        fieldGrid.parent.append(fieldGridDivisionSize);
 
 
         // snap increment
@@ -106,8 +107,8 @@ editor.once('load', function() {
             step: 1,
             min: 0,
             placeholder: 'Increment',
-            link: editorSettings,
-            path: 'snap_increment'
+            link: settings,
+            path: 'editor.snapIncrement'
         });
         // reference
         editor.call('attributes:reference:attach', 'settings:snap', fieldSnap.parent.innerElement.firstChild.ui);
@@ -122,8 +123,8 @@ editor.once('load', function() {
             precision: 2,
             step: .1,
             min: 0,
-            link: editorSettings,
-            path: 'camera_near_clip'
+            link: settings,
+            path: 'editor.cameraNearClip'
         });
         fieldClip.style.width = '32px';
         // reference
@@ -139,7 +140,7 @@ editor.once('load', function() {
         fieldFarClip.placeholder = 'Far';
         fieldFarClip.style.width = '32px';
         fieldFarClip.flexGrow = 1;
-        fieldFarClip.link(editorSettings, 'camera_far_clip');
+        fieldFarClip.link(settings, 'editor.cameraFarClip');
         fieldClip.parent.append(fieldFarClip);
 
 
@@ -148,8 +149,8 @@ editor.once('load', function() {
             parent: panel,
             name: 'Clear Color',
             type: 'rgb',
-            link: editorSettings,
-            path: 'camera_clear_color'
+            link: settings,
+            path: 'editor.cameraClearColor'
         });
         // reference
         editor.call('attributes:reference:attach', 'settings:clearColor', fieldClearColor.parent.innerElement.firstChild.ui);
@@ -163,8 +164,8 @@ editor.once('load', function() {
             precision: 2,
             step: .1,
             min: 0,
-            link: editorSettings,
-            path: 'icons_size'
+            link: userSettings,
+            path: 'editor.iconSize'
         });
         // reference
         editor.call('attributes:reference:attach', 'settings:iconsSize', fieldIconsSize.parent.innerElement.firstChild.ui);
@@ -175,8 +176,8 @@ editor.once('load', function() {
             parent: panel,
             name: 'Local Server',
             type: 'string',
-            link: editorSettings,
-            path: 'local_server'
+            link: settings,
+            path: 'editor.localServer'
         });
 
         var changingLocalServer = false;

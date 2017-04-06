@@ -11,7 +11,7 @@ editor.once('load', function() {
     toolbar.append(button);
 
     button.on('click', function() {
-        editor.call('selector:set', 'editorSettings', [ editor.call('editorSettings') ]);
+        editor.call('selector:set', 'editorSettings', [ editor.call('settings:editor') ]);
     });
 
     editor.on('attributes:clear', function() {

@@ -5,7 +5,7 @@ editor.once('load', function() {
     var viewport = editor.call('layout.viewport');
     var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
 
-    var settings = editor.call('editorSettings');
+    var settings = editor.call('settings:editor');
     var privateSettings = editor.call('project:privateSettings');
 
     // panel
@@ -44,7 +44,7 @@ editor.once('load', function() {
 
         if (launchOptions.local) {
             url = url.replace(/^https/, 'http');
-            query.push('local=' + settings.get('local_server'));
+            query.push('local=' + settings.get('editor.localServer'));
         }
 
         if (launchOptions.webgl1)
@@ -116,7 +116,7 @@ editor.once('load', function() {
         });
 
         return option;
-    }
+    };
 
     var optionProfiler = createOption('profiler', 'Profiler');
     var tooltipProfiler = Tooltip.attach({
@@ -129,8 +129,17 @@ editor.once('load', function() {
 
     var optionDebug = createOption('debug', 'Debug');
 
-    // TODO remember this in user-project settings
-    optionDebug.value = true;
+    var suspendDebug = false;
+    optionDebug.value = settings.get('editor.launchDebug');
+    settings.on('editor.launchDebug:set', function (value) {
+        suspendDebug = true;
+        optionDebug.value = value;
+        suspendDebug = false;
+    });
+    optionDebug.on('change', function (value) {
+        if (suspendDebug) return;
+        settings.set('editor.launchDebug', value);
+    });
 
     var tooltipDebug = Tooltip.attach({
         target: optionDebug.parent.element,
@@ -149,16 +158,16 @@ editor.once('load', function() {
 
         var getTooltipText = function () {
             var tooltipText = 'Enable this if you want to load scripts from your local server.';
-            if (settings.get('local_server')) {
+            if (settings.get('editor.localServer')) {
                 tooltipText +=  ' If enabled scripts will be loaded from <a href="' +
-                       settings.get('local_server') + '" target="_blank">' + settings.get('local_server') + '</a>.';
+                       settings.get('editor.localServer') + '" target="_blank">' + settings.get('editor.localServer') + '</a>.';
             }
 
             tooltipText += ' You can change your Local Server URL from the Editor settings.';
             return tooltipText;
         };
 
-        settings.on('local_server:set', function () {
+        settings.on('editor.localServer:set', function () {
             tooltipLocal.html = getTooltipText();
         });
 
@@ -221,7 +230,7 @@ editor.once('load', function() {
             editor.call('viewport:expand', false);
 
             // open facebook settings
-            editor.call('selector:set', 'editorSettings', [ editor.call('editorSettings') ]);
+            editor.call('selector:set', 'editorSettings', [ editor.call('settings:editor') ]);
             setTimeout(function() {
                 editor.call('editorSettings:panel:unfold', 'facebook');
             }, 0);

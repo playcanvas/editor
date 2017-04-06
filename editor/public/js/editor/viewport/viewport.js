@@ -6,7 +6,7 @@ editor.once('load', function() {
     });
 
     var keepRendering = false;
-    var editorSettings = editor.call('editorSettings');
+    var editorSettings = editor.call('settings:editor');
     var Application = editor.call('viewport:application');
 
     // create playcanvas application
@@ -14,7 +14,7 @@ editor.once('load', function() {
         var app = new Application(canvas.element, {
             mouse: new pc.input.Mouse(canvas.element),
             touch: !!('ontouchstart' in window) ? new pc.input.TouchDevice(canvas.element) : null,
-            editorSettings: editorSettings.json(),
+            editorSettings: editorSettings.json().editor,
             graphicsDeviceOptions: {
                 alpha: false
             }
@@ -25,7 +25,7 @@ editor.once('load', function() {
     }
 
     editorSettings.on('*:set', function() {
-        app.setEditorSettings(editorSettings.json());
+        app.setEditorSettings(editorSettings.json().editor);
     });
 
 

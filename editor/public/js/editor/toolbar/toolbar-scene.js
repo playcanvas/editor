@@ -46,7 +46,7 @@ editor.once('load', function() {
     });
 
     sceneName.on('click', function() {
-        editor.call('selector:set', 'editorSettings', [ editor.call('editorSettings') ]);
+        editor.call('selector:set', 'editorSettings', [ editor.call('settings:editor') ]);
     });
 
     editor.on('attributes:clear', function() {
