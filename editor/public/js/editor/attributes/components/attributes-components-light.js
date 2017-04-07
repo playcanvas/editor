@@ -374,7 +374,7 @@ editor.once('load', function() {
             enum: [
                 { v: '', t: '...' },
                 { v: 0, t: 'Shadow Map PCF 3x3' },
-                // { v: 4, t: 'Shadow Map PCF 5x5' },
+                { v: 4, t: 'Shadow Map PCF 5x5' },
                 { v: 1, t: 'Variance Shadow Map (8bit)' },
                 { v: 2, t: 'Variance Shadow Map (16bit)' },
                 { v: 3, t: 'Variance Shadow Map (32bit)' }
