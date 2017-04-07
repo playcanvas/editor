@@ -28,7 +28,7 @@ editor.once('load', function() {
 
         entitiesIndex[obj.get('resource_id')] = entity;
 
-        entity.setName(obj.get('name'));
+        entity.name = obj.get('name');
         entity.setGuid(obj.get('resource_id'));
         entity.setLocalPosition(obj.get('position.0'), obj.get('position.1'), obj.get('position.2'));
         entity.setLocalEulerAngles(obj.get('rotation.0'), obj.get('rotation.1'), obj.get('rotation.2'));

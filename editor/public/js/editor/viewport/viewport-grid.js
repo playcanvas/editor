@@ -52,8 +52,7 @@ pc.Grid = function (device, size, divisions) {
     mesh.primitive[0].count = vertexBuffer.getNumVertices();
     mesh.primitive[0].indexed = false;
 
-    var node = new pc.GraphNode();
-    node.setName('grid');
+    var node = new pc.GraphNode('grid');
 
     var meshInstance = new pc.MeshInstance(node, mesh, material);
     meshInstance.mask = 8;
