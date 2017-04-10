@@ -1,13 +1,13 @@
 editor.once('load', function () {
     'use strict';
 
-    editor.method('settings:create', function (name, scopeType, scopeId, defaultData, userId) {
+    editor.method('settings:create', function (args) {
         // settings observer
-        var settings = new Observer(defaultData);
-        settings.scopeId = scopeId;
+        var settings = new Observer(args.data);
+        settings.scopeId = args.scopeId;
 
         // Get settings
-        editor.method('settings:' + name, function () {
+        editor.method('settings:' + args.name, function () {
             return settings;
         });
 
@@ -17,9 +17,9 @@ editor.once('load', function () {
             settings.scopeId = scopeId;
 
             var connection = editor.call('realtime:connection');
-            var name = scopeType + '_' + scopeId;
-            if (userId)
-                name += '_' + userId;
+            var name = args.scopeType + '_' + args.scopeId;
+            if (args.userId)
+                name += '_' + args.userId;
 
             if (doc)
                 doc.destroy();
@@ -29,7 +29,7 @@ editor.once('load', function () {
             // handle errors
             doc.on('error', function (err) {
                 console.error(err);
-                editor.emit('settings:' + scopeType + ':error', err);
+                editor.emit('settings:' + args.scopeType + ':error', err);
             });
 
             // load settings
@@ -60,7 +60,7 @@ editor.once('load', function () {
                             settings.history = true;
                     });
 
-                    editor.emit('settings:' + scopeType + ':load');
+                    editor.emit('settings:' + args.scopeType + ':load');
                 });
             });
 

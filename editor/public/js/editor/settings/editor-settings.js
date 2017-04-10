@@ -1,10 +1,11 @@
 editor.once('load', function () {
     'use strict';
 
-    var settings = editor.call('settings:create',
-        'editor',
-        'project',
-        config.project.id, {
+    var settings = editor.call('settings:create', {
+        name: 'editor',
+        scopeType: 'project',
+        scopeId: config.project.id,
+        data: {
             editor: {
                 cameraNearClip: 0.1,
                 cameraFarClip: 1000,
@@ -21,8 +22,8 @@ editor.once('load', function () {
                 launchDebug: true
             }
         },
-        config.self.id
-    );
+        userId: config.self.id
+    });
 
     // add history
     settings.history = true;
