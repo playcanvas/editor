@@ -131,7 +131,6 @@ editor.once('load', function () {
 
         editor.call('images:upload', file, function (data) {
             imageS3Key = data.s3Key;
-            console.log(imageS3Key)
             isUploadingImage = false;
             refreshButtonsState();
 
