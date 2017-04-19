@@ -7,7 +7,7 @@ editor.once('load', function () {
         form.append('file', file);
 
         var data = {
-            url: '/editor/project/{{project.id}}/upload/image',
+            url: '/api/projects/{{project.id}}/image',
             method: 'POST',
             auth: true,
             data: form,
