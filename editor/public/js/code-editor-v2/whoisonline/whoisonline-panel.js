@@ -18,7 +18,7 @@ editor.once('load', function () {
             item.style.borderColor = editor.call('whoisonline:color', id, 'hex');
         };
 
-        img.src = '/api/' + id + '/thumbnail?size=28';
+        img.src = '/api/users/' + id + '/thumbnail?size=28';
         item.appendChild(img);
 
         itemsIndex[id] = item;
