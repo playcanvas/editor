@@ -40,7 +40,7 @@ editor.once('load', function() {
         } else if (typeof(type) === 'number') {
             var user = editor.call('users:get', type);
             title = 'Message from ' + (user && ('@' + user.username) || 'a user');
-            icon = '/api/' + user.id + '/thumbnail?size=128'
+            icon = '/api/users/' + user.id + '/thumbnail?size=128'
         }
 
         editor.call('notify', {
