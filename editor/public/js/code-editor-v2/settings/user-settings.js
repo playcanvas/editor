@@ -11,7 +11,7 @@ editor.once('load', function () {
         }
     });
 
-    // Get settigns
+    // Get settings
     editor.method('editor:settings', function () {
         return settings;
     });

@@ -6,7 +6,7 @@ editor.once('load', function() {
     });
 
     var keepRendering = false;
-    var editorSettings = editor.call('settings:editor');
+    var editorSettings = editor.call('settings:projectUser');
     var Application = editor.call('viewport:application');
 
     // create playcanvas application

@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     var settings = editor.call('settings:create', {
-        name: 'editor',
+        name: 'projectUser',
         scopeType: 'project',
         scopeId: config.project.id,
         data: {
@@ -20,7 +20,8 @@ editor.once('load', function () {
                 snapIncrement: 1,
                 localServer: 'http://localhost:51000',
                 launchDebug: true
-            }
+            },
+            facebook: null
         },
         userId: config.self.id
     });
@@ -32,7 +33,7 @@ editor.once('load', function () {
             return;
 
         editor.call('history:add', {
-            name: 'changed editor settings ' + path,
+            name: 'changed project-user settings ' + path,
             undo: function() {
                 settings.history = false;
                 settings.set(path, oldValue);

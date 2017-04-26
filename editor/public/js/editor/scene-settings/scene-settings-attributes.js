@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     var sceneSettings = editor.call('sceneSettings');
-    var projectSettings = editor.call('project:settings');
+    var projectSettings = editor.call('settings:project');
 
     editor.method('editorSettings:panel:unfold', function(panel) {
         var element = editor.call('layout.right').innerElement.querySelector('.ui-panel.component.foldable.' + panel);
@@ -54,42 +54,15 @@ editor.once('load', function() {
         physicsPanel.on('unfold', function() { foldStates['physics'] = false; });
         physicsPanel.class.add('component');
 
-        var projectSettings = editor.call('project:settings');
-
         // enable 3d physics
         var fieldPhysics = editor.call('attributes:addField', {
             parent: physicsPanel,
             name: 'Enable',
-            type: 'checkbox'
+            type: 'checkbox',
+            link: projectSettings,
+            path: 'use3dPhysics'
         });
         editor.call('attributes:reference:attach', 'settings:project:physics', fieldPhysics.parent.innerElement.firstChild.ui);
-
-        var changing = false;
-        fieldPhysics.value = projectSettings.get('libraries').indexOf('physics-engine-3d') !== -1;
-        fieldPhysics.on('change', function (value) {
-            if (changing) return;
-            changing = true;
-            if (value) {
-                projectSettings.set('libraries', ['physics-engine-3d']);
-            } else {
-                projectSettings.set('libraries', []);
-            }
-            changing = false;
-        });
-
-        var evtPhysicsChange = projectSettings.on('*:set', function (path, value, oldValue) {
-            if (path === 'libraries') {
-                if (changing) return;
-                changing = true;
-                fieldPhysics.value = value.indexOf('physics-engine-3d') !== -1;
-                changing = false;
-            }
-        });
-
-        physicsPanel.on('destroy', function () {
-            evtPhysicsChange.unbind();
-        });
-
 
         // gravity
         var fieldGravity = editor.call('attributes:addField', {
@@ -413,7 +386,7 @@ editor.once('load', function() {
                 'AUTO': 'Auto'
             },
             link: projectSettings,
-            path: 'resolution_mode'
+            path: 'resolutionMode'
         });
         editor.call('attributes:reference:attach', 'settings:project:resolutionMode', fieldResolutionMode);
 
@@ -428,7 +401,7 @@ editor.once('load', function() {
                 'FILL_WINDOW': 'Fill window',
             },
             link: projectSettings,
-            path: 'fill_mode'
+            path: 'fillMode'
         });
         editor.call('attributes:reference:attach', 'settings:project:fillMode', fieldFillMode.parent.innerElement.firstChild.ui);
 
@@ -454,22 +427,12 @@ editor.once('load', function() {
         fieldAntiAlias.parent.innerElement.firstChild.style.width = 'auto';
         editor.call('attributes:reference:attach', 'settings:project:antiAlias', fieldAntiAlias.parent.innerElement.firstChild.ui);
 
-        // value not migrated so show it as 'true' by default
-        if (! projectSettings.has('antiAlias')) {
-            projectSettings.sync = false;
-            projectSettings.history = false;
-            projectSettings.set('antiAlias', true);
-            projectSettings.sync = true;
-            projectSettings.history = true;
-        }
-
-
         var fieldPixelRatio = editor.call('attributes:addField', {
             parent: panelRendering,
             name: 'Device Pixel Ratio',
             type: 'checkbox',
             link: projectSettings,
-            path: 'use_device_pixel_ratio'
+            path: 'useDevicePixelRatio'
         });
         fieldPixelRatio.parent.innerElement.firstChild.style.width = 'auto';
         editor.call('attributes:reference:attach', 'settings:project:pixelRatio', fieldPixelRatio.parent.innerElement.firstChild.ui);
@@ -480,26 +443,17 @@ editor.once('load', function() {
             name: 'Transparent Canvas',
             type: 'checkbox',
             link: projectSettings,
-            path: 'transparent_canvas'
+            path: 'transparentCanvas'
         });
         fieldTransparentCanvas.parent.innerElement.firstChild.style.width = 'auto';
         editor.call('attributes:reference:attach', 'settings:project:transparentCanvas', fieldTransparentCanvas.parent.innerElement.firstChild.ui);
-
-        // value not migrated so show it as 'true' by default
-        if (! projectSettings.has('transparent_canvas')) {
-            projectSettings.sync = false;
-            projectSettings.history = false;
-            projectSettings.set('transparent_canvas', true);
-            projectSettings.sync = true;
-            projectSettings.history = true;
-        }
 
         var fieldPreserveDrawingBuffer = editor.call('attributes:addField', {
             parent: panelRendering,
             name: 'Preserve Drawing Buffer',
             type: 'checkbox',
             link: projectSettings,
-            path: 'preserve_drawing_buffer'
+            path: 'preserveDrawingBuffer'
         });
         fieldPreserveDrawingBuffer.parent.innerElement.firstChild.style.width = 'auto';
         editor.call('attributes:reference:attach', 'settings:project:preserveDrawingBuffer', fieldPreserveDrawingBuffer.parent.innerElement.firstChild.ui);
@@ -524,7 +478,7 @@ editor.once('load', function() {
             evtFilter.unbind();
         });
 
-        if (projectSettings.has('use_legacy_audio')) {
+        if (projectSettings.has('useLegacyAudio')) {
 
             var panelAudio = editor.call('attributes:addPanel', {
                 name: 'Audio'
@@ -540,7 +494,7 @@ editor.once('load', function() {
                 name: 'Use Legacy Audio',
                 type: 'checkbox',
                 link: projectSettings,
-                path: 'use_legacy_audio'
+                path: 'useLegacyAudio'
             });
             fieldLegacyAudio.parent.innerElement.firstChild.style.width = 'auto';
             editor.call('attributes:reference:attach', 'settings:project:useLegacyAudio', fieldLegacyAudio.parent.innerElement.firstChild.ui);
@@ -626,7 +580,7 @@ editor.once('load', function() {
 
             var tooltipText = 'Create a default loading screen script.';
 
-            if (projectSettings.get('use_legacy_scripts')) {
+            if (projectSettings.get('useLegacyScripts')) {
                 var repositories = editor.call('repositories');
                 // disable create button for non directory repos
                 btnDefaultScript.disabled = repositories.get('current') !== 'directory';
@@ -654,7 +608,7 @@ editor.once('load', function() {
 
                 var setLoadingScreen = function (data) {
                     var loadingScreen = data && data.get ? data.get('filename') : data;
-                    projectSettings.set('loading_screen_script', loadingScreen);
+                    projectSettings.set('loadingScreenScript', loadingScreen);
                     fieldScriptPicker.text = loadingScreen ? loadingScreen : 'Select loading screen script';
                     if (loadingScreen) {
                         btnRemove.class.remove('not-visible');
@@ -672,7 +626,7 @@ editor.once('load', function() {
                         asset.set('preload', false);
                     }
 
-                    projectSettings.set('loading_screen_script', asset ? asset.get('id') : null);
+                    projectSettings.set('loadingScreenScript', asset ? asset.get('id') : null);
                     fieldScriptPicker.text = asset ? asset.get('name') : 'Select loading screen script';
                     if (asset) {
                         btnRemove.class.remove('not-visible');
@@ -759,7 +713,7 @@ editor.once('load', function() {
             var onLoadingScreen = function (loadingScreen) {
                 var text;
                 var missing = false;
-                if (projectSettings.get('use_legacy_scripts')) {
+                if (projectSettings.get('useLegacyScripts')) {
                     text = loadingScreen;
                 } else if (loadingScreen) {
                     var asset = editor.call('assets:get', loadingScreen);
@@ -787,13 +741,13 @@ editor.once('load', function() {
                 }
             };
 
-            var evtLoadingScreen = projectSettings.on('loading_screen_script:set', onLoadingScreen);
+            var evtLoadingScreen = projectSettings.on('loadingScreenScript:set', onLoadingScreen);
 
             panelLoadingScreen.on('destroy', function () {
                 evtLoadingScreen.unbind();
             });
 
-            onLoadingScreen(projectSettings.get('loading_screen_script'));
+            onLoadingScreen(projectSettings.get('loadingScreenScript'));
 
             fieldScriptPicker.on('click', function () {
                 var evtPick = editor.once("picker:asset", function (asset) {
@@ -823,7 +777,7 @@ editor.once('load', function() {
                     var rectB = panelLoadingScreen.element.getBoundingClientRect();
                     if (type === 'asset.script' && rectB.top > rectA.top && rectB.bottom < rectA.bottom) {
 
-                        if (projectSettings.get('use_legacy_scripts')) {
+                        if (projectSettings.get('useLegacyScripts')) {
                             return data.filename !== fieldScriptPicker.text;
                         } else {
                             var asset = editor.call('assets:get', data.id);
@@ -837,7 +791,7 @@ editor.once('load', function() {
                     if (type !== 'asset.script')
                         return;
 
-                    if (projectSettings.get('use_legacy_scripts')) {
+                    if (projectSettings.get('useLegacyScripts')) {
                         setLoadingScreen(data.filename);
                     } else {
                         var asset = editor.call('assets:get', data.id);

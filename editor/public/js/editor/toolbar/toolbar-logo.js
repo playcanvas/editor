@@ -3,7 +3,7 @@ editor.once('load', function() {
 
     var root = editor.call('layout.root');
     var toolbar = editor.call('layout.toolbar');
-    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
+    var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
 
     var logo = new ui.Button();
@@ -488,6 +488,9 @@ editor.once('load', function() {
         'code-editor': {
             title: 'Code Editor',
             icon: '&#57648;',
+            hide: function () {
+                return editor.call('settings:project').get('useLegacyScripts');
+            },
             select: function () {
                 editor.call('picker:codeeditor');
             }
@@ -499,7 +502,7 @@ editor.once('load', function() {
                 return editor.call('selector:type') !== 'editorSettings' && ! editor.call('viewport:expand:state');
             },
             select: function() {
-                editor.call('selector:set', 'editorSettings', [ editor.call('settings:editor') ]);
+                editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
             }
         },
         'priorityScripts': null,
@@ -557,7 +560,7 @@ editor.once('load', function() {
                 return editor.call('permissions:write');
             },
             select: function() {
-                editor.call('selector:set', 'editorSettings', [ editor.call('settings:editor') ]);
+                editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
                 setTimeout(function() {
                     editor.call('editorSettings:panel:unfold', 'scripts-order');
                 }, 0);
@@ -596,7 +599,7 @@ editor.once('load', function() {
 
         if (key === 'audiosource') {
             data.hide = function () {
-                return !editor.call('project:settings').get('use_legacy_audio');
+                return !editor.call('settings:project').get('useLegacyAudio');
             };
         }
 

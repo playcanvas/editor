@@ -49,7 +49,7 @@ editor.once('load', function() {
         checkSnap();
     });
 
-    var editorSettings = editor.call('settings:editor');
+    var editorSettings = editor.call('settings:projectUser');
     editorSettings.on('editor.snapIncrement:set', function(value) {
         if (snapIncrement === (value || 1))
             return;

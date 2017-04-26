@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
+    var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
 
     editor.on('attributes:inspect[asset]', function(assets) {
@@ -35,7 +35,7 @@ editor.once('load', function() {
             panelOrder.innerElement.removeChild(fieldOrder.element);
             panelOrder.append(btnOrder);
             btnOrder.on('click', function() {
-                editor.call('selector:set', 'editorSettings', [ editor.call('settings:editor') ]);
+                editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
                 setTimeout(function() {
                     editor.call('editorSettings:panel:unfold', 'scripts-order');
                 }, 0);

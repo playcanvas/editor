@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     var uploadJobs = 0;
-    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
+    var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
     var targetExtensions = [ 'jpg', 'jpeg', 'png', 'gif', 'js', 'css', 'html', 'json', 'xml', 'txt', 'vert', 'frag', 'glsl', 'mp3', 'ogg', 'wav', 'mp4', 'atlas' ];
     var tmp = { };

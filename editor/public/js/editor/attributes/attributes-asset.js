@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
+    var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
     var sourceRuntimeOptions = {
         '-1': 'various',

@@ -20,7 +20,7 @@ editor.once('load', function() {
     menuAddComponent.on('open', function() {
         var items = editor.call('selector:items');
 
-        var legacyAudio = editor.call('project:settings').get('use_legacy_audio');
+        var legacyAudio = editor.call('settings:project').get('useLegacyAudio');
         for(var i = 0; i < list.length; i++) {
             var different = false;
             var disabled = items[0].has('components.' + list[i]);

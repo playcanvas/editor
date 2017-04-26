@@ -36,6 +36,13 @@ editor.once('load', function () {
             doc.on('subscribe', function () {
                 doc.whenReady(function () {
                     var data = doc.getSnapshot();
+
+                    // remove unnecessary fields
+                    delete data._id;
+                    delete data.scope;
+                    delete data.user;
+                    delete data.project;
+
                     var history = settings.history;
                     if (history) {
                         settings.history = false;

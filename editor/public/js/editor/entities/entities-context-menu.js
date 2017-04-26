@@ -6,7 +6,7 @@ editor.once('load', function() {
     var customMenuItems = [ ];
     var root = editor.call('layout.root');
 
-    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
+    var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
     // create data for entity menu
     var menu;
@@ -329,7 +329,7 @@ editor.once('load', function() {
 
             if (key === 'audiosource') {
                 data.hide = function () {
-                    return !editor.call('project:settings').get('use_legacy_audio');
+                    return !editor.call('settings:project').get('useLegacyAudio');
                 };
             }
 

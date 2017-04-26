@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     var enabled = true;
-    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
+    var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
     var selector = new ObserverList();
     selector.type = null;
 
@@ -17,7 +17,7 @@ editor.once('load', function() {
                 return 'id';
         }
         return null;
-    }
+    };
 
     var setIndex = function(type, item) {
         var key = keyByType(type);

@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     var currentAsset = null;
-    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
+    var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
     var root = editor.call('layout.root');
 
     var customMenuItems = [ ];
@@ -445,7 +445,7 @@ editor.once('load', function() {
                         if (type === 'editorSettings') {
                             menuItem.text = 'Scene Settings';
                             menuItem.icon = '&#57652;';
-                            item = editor.call('settings:editor');
+                            item = editor.call('settings:projectUser');
                             if (! item) return;
                         } else {
                             if (type === 'entity') {

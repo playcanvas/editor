@@ -487,11 +487,11 @@ editor.once('load', function() {
 
     // copy entity to local storage
     editor.method('entities:copy', function (entities) {
-        var settings = editor.call('project:settings');
+        var settings = editor.call('settings:project');
 
         var data = {
             project: config.project.id,
-            legacy_scripts: settings.get('use_legacy_scripts'),
+            legacy_scripts: settings.get('useLegacyScripts'),
             hierarchy: {},
             assets: {}
         };
@@ -582,7 +582,7 @@ editor.once('load', function() {
                 var scripts = entity.get('components.script.scripts');
                 if (scripts) {
                     // legacy scripts
-                    if (settings.get('use_legacy_scripts')) {
+                    if (settings.get('useLegacyScripts')) {
                         for (var i = 0, len = scripts.length; i < len; i++) {
                             var script = scripts[i];
                             if (! script.attributes) continue;
@@ -723,8 +723,8 @@ editor.once('load', function() {
         if (! parent)
             parent = editor.call('entities:root');
 
-        var settings = editor.call('project:settings');
-        var legacy_scripts = settings.get('use_legacy_scripts');
+        var settings = editor.call('settings:project');
+        var legacy_scripts = settings.get('useLegacyScripts');
 
         var componentAssetPaths = editor.call('components:assetPaths');
         var containsStar = /\.\*\./;
@@ -1087,10 +1087,11 @@ editor.once('load', function() {
 
         // if it's a collision or rigidbody component then enable physics
         if (component === 'collision' || component === 'rigidbody') {
-            var settings = editor.call('project:settings');
+            var settings = editor.call('settings:project');
+            var history = settings.history;
             settings.history = false;
-            settings.set('libraries', ['physics-engine-3d']);
-            settings.history = true;
+            settings.set('use3dPhysics', true);
+            settings.history = history;
         }
 
         editor.call('history:add', {

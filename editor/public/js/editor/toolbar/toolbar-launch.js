@@ -3,9 +3,9 @@ editor.once('load', function() {
 
     var root = editor.call('layout.root');
     var viewport = editor.call('layout.viewport');
-    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
+    var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
-    var settings = editor.call('settings:editor');
+    var settings = editor.call('settings:projectUser');
     var privateSettings = editor.call('project:privateSettings');
 
     // panel
@@ -191,10 +191,10 @@ editor.once('load', function() {
     });
     tooltipPreferWebGl1.class.add('launch-tooltip');
 
-    if (! editor.call('project:settings').get('preferWebGl2'))
+    if (! editor.call('settings:project').get('preferWebGl2'))
         preferWebGl1.parent.disabled = true;
 
-    editor.call('project:settings').on('preferWebGl2:set', function(value) {
+    editor.call('settings:project').on('preferWebGl2:set', function(value) {
         preferWebGl1.parent.disabled = ! value;
     });
 
@@ -230,7 +230,7 @@ editor.once('load', function() {
             editor.call('viewport:expand', false);
 
             // open facebook settings
-            editor.call('selector:set', 'editorSettings', [ editor.call('settings:editor') ]);
+            editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
             setTimeout(function() {
                 editor.call('editorSettings:panel:unfold', 'facebook');
             }, 0);

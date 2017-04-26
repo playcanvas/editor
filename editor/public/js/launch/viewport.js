@@ -12,7 +12,7 @@ editor.once('load', function() {
     var sceneSettings = null;
     var loadingScreen = false;
     var scriptList = [];
-    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
+    var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
     // update progress bar
     var setProgress = function (value) {
@@ -126,12 +126,12 @@ editor.once('load', function() {
 
         // if the project has a loading screen script then
         // download it and execute it
-        if (config.project.settings.loading_screen_script) {
+        if (config.project.settings.loadingScreenScript) {
             var loadingScript = document.createElement('script');
-            if (config.project.settings.use_legacy_scripts) {
-                loadingScript.src = scriptPrefix + '/' + config.project.settings.loading_screen_script;
+            if (config.project.settings.useLegacyScripts) {
+                loadingScript.src = scriptPrefix + '/' + config.project.settings.loadingScreenScript;
             } else {
-                loadingScript.src = '/api/assets/' + config.project.settings.loading_screen_script + '/download';
+                loadingScript.src = '/api/assets/' + config.project.settings.loadingScreenScript + '/download';
             }
 
             loadingScript.onload = function() {
@@ -140,7 +140,7 @@ editor.once('load', function() {
             };
 
             loadingScript.onerror = function () {
-                console.error("Could not load loading screen script: " + config.project.settings.loading_screen_script);
+                console.error("Could not load loading screen script: " + config.project.settings.loadingScreenScript);
                 defaultLoadingScreen();
             };
 
@@ -157,14 +157,8 @@ editor.once('load', function() {
 
     // convert library properties into URLs
     var libraryUrls = [];
-    if (config.project.settings.libraries) {
-        for (var i = 0; i < config.project.settings.libraries.length; i++) {
-            if (config.project.settings.libraries[i] === 'physics-engine-3d') {
-                libraryUrls.push(config.url.physics);
-            } else {
-                libraryUrls.push(config.project.settings.libraries[i]);
-            }
-        }
+    if (config.project.settings.use3dPhysics) {
+        libraryUrls.push(config.url.physics);
     }
 
     if (config.project.settings.vr && (utils.isMobile() || !pc.VrManager.isSupported)) {
@@ -188,10 +182,10 @@ editor.once('load', function() {
     }
 
     // listen for project setting changes
-    var projectSettings = editor.call('project:settings');
+    var projectSettings = editor.call('settings:project');
 
     // legacy scripts
-    pc.script.legacy = projectSettings.get('use_legacy_scripts');
+    pc.script.legacy = projectSettings.get('useLegacyScripts');
 
     // playcanvas app
     var app = new pc.Application(canvas, {
@@ -205,21 +199,21 @@ editor.once('load', function() {
         graphicsDeviceOptions: {
             preferWebGl2: preferWebGl2,
             antialias: config.project.settings.antiAlias === false ? false : true,
-            alpha: config.project.settings.transparent_canvas === false ? false : true,
-            preserveDrawingBuffer: !!config.project.settings.preserve_drawing_buffer
+            alpha: config.project.settings.transparentCanvas === false ? false : true,
+            preserveDrawingBuffer: !!config.project.settings.preserveDrawingBuffer
         }
     });
 
     if (canvas.classList) {
-        canvas.classList.add('fill-mode-' + config.project.settings.fill_mode);
+        canvas.classList.add('fill-mode-' + config.project.settings.fillMode);
     }
 
-    if (config.project.settings.use_device_pixel_ratio) {
+    if (config.project.settings.useDevicePixelRatio) {
         app.graphicsDevice.maxPixelRatio = window.devicePixelRatio;
     }
 
-    app.setCanvasResolution(config.project.settings.resolution_mode, config.project.settings.width, config.project.settings.height);
-    app.setCanvasFillMode(config.project.settings.fill_mode, config.project.settings.width, config.project.settings.height);
+    app.setCanvasResolution(config.project.settings.resolutionMode, config.project.settings.width, config.project.settings.height);
+    app.setCanvasFillMode(config.project.settings.fillMode, config.project.settings.width, config.project.settings.height);
 
     app._loadLibraries(libraryUrls, function (err) {
         app._onVrChange(config.project.settings.vr);
@@ -255,8 +249,8 @@ editor.once('load', function() {
     createCss();
 
     var refreshResolutionProperties = function () {
-        app.setCanvasResolution(config.project.settings.resolution_mode, config.project.settings.width, config.project.settings.height);
-        app.setCanvasFillMode(config.project.settings.fill_mode, config.project.settings.width, config.project.settings.height);
+        app.setCanvasResolution(config.project.settings.resolutionMode, config.project.settings.width, config.project.settings.height);
+        app.setCanvasFillMode(config.project.settings.fillMode, config.project.settings.width, config.project.settings.height);
         reflow();
     };
 
@@ -271,8 +265,8 @@ editor.once('load', function() {
         refreshResolutionProperties();
     });
 
-    projectSettings.on('fill_mode:set', function (value, oldValue) {
-        config.project.settings.fill_mode = value;
+    projectSettings.on('fillMode:set', function (value, oldValue) {
+        config.project.settings.fillMode = value;
         if (canvas.classList) {
             if (oldValue)
                 canvas.classList.remove('fill-mode-' + oldValue);
@@ -283,13 +277,13 @@ editor.once('load', function() {
         refreshResolutionProperties();
     });
 
-    projectSettings.on('resolution_mode:set', function (value) {
-        config.project.settings.resolution_mode = value;
+    projectSettings.on('resolutionMode:set', function (value) {
+        config.project.settings.resolutionMode = value;
         refreshResolutionProperties();
     });
 
-    projectSettings.on('use_device_pixel_ratio:set', function (value) {
-        config.project.settings.use_device_pixel_ratio = value;
+    projectSettings.on('useDevicePixelRatio:set', function (value) {
+        config.project.settings.useDevicePixelRatio = value;
         app.graphicsDevice.maxPixelRatio = value ? window.devicePixelRatio : 1;
     });
 

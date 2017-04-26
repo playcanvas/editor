@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var settings = editor.call('settings:editor');
+    var settings = editor.call('settings:projectUser');
     var userSettings = editor.call('settings:user');
 
     var sceneName = 'Untitled';
@@ -66,7 +66,7 @@ editor.once('load', function() {
         panel.on('unfold', function() { foldStates['editor'] = false; });
         panel.class.add('component');
         // reference
-        editor.call('attributes:reference:attach', 'settings:editor', panel, panel.headerElement);
+        editor.call('attributes:reference:attach', 'settings:projectUser', panel, panel.headerElement);
 
         // grid divisions
         var fieldGrid = editor.call('attributes:addField', {

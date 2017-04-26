@@ -4,7 +4,7 @@ editor.once('load', function() {
     var app = editor.call('viewport:app');
     if (! app) return; // webgl not available
 
-    var settings = editor.call('project:settings');
+    var settings = editor.call('settings:project');
     var docs = { };
 
     editor.method('loadAsset', function (id, callback) {
@@ -91,7 +91,7 @@ editor.once('load', function() {
         var count = 0;
         var scripts = { };
 
-        var legacyScripts = settings.get('use_legacy_scripts');
+        var legacyScripts = settings.get('useLegacyScripts');
 
         var loadScripts = function() {
             var order = settings.get('scripts');

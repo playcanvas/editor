@@ -4,7 +4,7 @@ editor.once('load', function() {
     var pluginNameCheck = /[a-z0-9\-_]/i;
     var pluginsLoading = { };
     var plugins = { };
-    var projectSettigns = editor.call('project:settings');
+    var projectSettings = editor.call('settings:project');
 
 
     editor.method('plugins:load', function(name, fn) {
@@ -71,7 +71,7 @@ editor.once('load', function() {
     });
 
 
-    var pluginsPreload = projectSettigns.get('plugins');
+    var pluginsPreload = projectSettings.get('plugins');
     if (pluginsPreload) {
         for(var i = 0; i < pluginsPreload.length; i++)
             editor.call('plugins:load', pluginsPreload[i]);
