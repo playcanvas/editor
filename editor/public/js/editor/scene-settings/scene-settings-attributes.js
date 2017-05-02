@@ -252,8 +252,7 @@ editor.once('load', function() {
             type: 'number',
             enum: {
                 0: '1.0',
-                1: '2.2',
-                2: '2.2 Fast'
+                1: '2.2'
             },
             link: sceneSettings,
             path: 'render.gamma_correction'

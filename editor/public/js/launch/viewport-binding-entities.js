@@ -20,9 +20,8 @@ editor.once('load', function() {
     };
 
     var createEntity = function (obj) {
-        var entity = new pc.Entity();
+        var entity = new pc.Entity(obj.get('name'));
 
-        entity.setName(obj.get('name'));
         entity.setGuid(obj.get('resource_id'));
         entity.setLocalPosition(obj.get('position.0'), obj.get('position.1'), obj.get('position.2'));
         entity.setLocalEulerAngles(obj.get('rotation.0'), obj.get('rotation.1'), obj.get('rotation.2'));
@@ -111,7 +110,7 @@ editor.once('load', function() {
                 return;
 
             if (path === 'name') {
-                entity.setName(obj.get('name'));
+                entity.name = obj.get('name');
 
             } else if (path.startsWith('position')) {
                 resetPhysics(entity);
