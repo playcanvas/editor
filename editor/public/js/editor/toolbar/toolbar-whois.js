@@ -31,7 +31,7 @@ editor.once('load', function() {
         panel.append(link);
 
         var img = document.createElement('img');
-        img.src = '/api/' + id + '/thumbnail?size=28';
+        img.src = '/api/users/' + id + '/thumbnail?size=28';
         link.appendChild(img);
 
         link.tooltip = Tooltip.attach({

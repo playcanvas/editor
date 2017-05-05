@@ -119,7 +119,7 @@ editor.once('load', function () {
                 img.classList.add('selectable');
                 img.width = 14;
                 img.height = 14;
-                img.src = '/api/' + type + '/thumbnail?size=14';
+                img.src = '/api/users/' + type + '/thumbnail?size=14';
                 element.insertBefore(img, text);
 
                 var date = new Date();

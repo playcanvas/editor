@@ -206,7 +206,7 @@ editor.once('load', function () {
         a.id = 'user-' + id;
         a.target = '_blank';
         var img = document.createElement('img');
-        img.src = '/api/' + id + '/thumbnail?size=32';
+        img.src = '/api/users/' + id + '/thumbnail?size=32';
         a.appendChild(img);
         users.appendChild(a);
     };
