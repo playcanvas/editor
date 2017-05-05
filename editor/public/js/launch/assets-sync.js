@@ -151,7 +151,8 @@ editor.once('load', function() {
     editor.on('realtime:authenticated', function() {
         Ajax({
             url: '{{url.api}}/projects/{{project.id}}/assets?view=launcher',
-            auth: true
+            auth: true,
+            cookies: true
         })
         .on('load', function(status, data) {
             onLoad(data);
