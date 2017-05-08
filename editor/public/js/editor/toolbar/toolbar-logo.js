@@ -398,8 +398,6 @@ editor.once('load', function() {
             title: 'Launch',
             select: function() {
                 editor.call('launch');
-                // var url = (window.location.origin + window.location.pathname).replace(/^https/, 'http') + '/launch';
-                // window.open(url, 'pc.launch.' + config.scene.id);
             },
             items: {
                 'launch-remote': {
