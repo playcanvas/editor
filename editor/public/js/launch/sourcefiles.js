@@ -19,6 +19,7 @@ editor.once('load', function() {
     // load scripts
     Ajax({
         url: '{{url.home}}{{project.repositoryUrl}}',
+        withCredentials: true,
         auth: true
     })
     .on('load', function(status, data) {
