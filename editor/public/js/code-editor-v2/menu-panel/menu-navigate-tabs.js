@@ -94,13 +94,14 @@ editor.once('load', function () {
         if (number < 10)
             item.class.add('noBorder');
 
-        editor.call('menu:item:setShortcut', item, 'Alt+' + (number%10));
+        editor.call('menu:item:setShortcut', item, 'Alt+Shift+' + (number%10));
         menu.append(item);
 
         // hotkey
         editor.call('hotkey:register', 'goto-tab-' + number, {
             key: (number%10) + '',
             alt: true,
+            shift: true,
             callback: function () {
                 editor.call('editor:command:selectTab', number-1);
             }
