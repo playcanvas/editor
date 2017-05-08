@@ -49,9 +49,7 @@ editor.once('load', function() {
             app.preload(function (err) {
                 // load scripts that are in the scene data
                 app._preloadScripts(sceneData, function (err) {
-                    if (err) {
-                        console.error(err);
-                    }
+                    if (err) console.error(err);
 
                     // create scene
                     app.scene = app.loader.open("scene", sceneData);
@@ -65,10 +63,7 @@ editor.once('load', function() {
                     sceneSettings = null;
                     scriptList = null;
 
-                    editor.call('entities:')
-                    if (err) {
-                        console.error(err);
-                    }
+                    if (err) console.error(err);
 
                     app.start();
                 });
@@ -146,10 +141,9 @@ editor.once('load', function() {
 
             var head = document.getElementsByTagName('head')[0];
             head.insertBefore(loadingScript, head.firstChild);
-         }
-         // no loading screen script so just use default splash screen
-         else {
-            defaultLoadingScreen();
+         } else {
+             // no loading screen script so just use default splash screen
+             defaultLoadingScreen();
          }
     };
 
@@ -224,9 +218,7 @@ editor.once('load', function() {
     app._loadLibraries(libraryUrls, function (err) {
         app._onVrChange(config.project.settings.vr);
         libraries = true;
-        if (err) {
-            console.error(err);
-        }
+        if (err) console.error(err);
         init();
     });
 
