@@ -7,8 +7,6 @@ editor.once('load', function() {
     var settings = editor.call('project:settings');
     var docs = { };
 
-    window.docs = docs;
-
     editor.method('loadAsset', function (id, callback) {
         var connection = editor.call('realtime:connection');
 
