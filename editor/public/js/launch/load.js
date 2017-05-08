@@ -45,7 +45,6 @@ editor.once('load', function() {
             reconnectInterval = 1;
 
             this.socket.send('auth' + JSON.stringify({
-                accessToken: config.accessToken,
                 timeout: false
             }));
 

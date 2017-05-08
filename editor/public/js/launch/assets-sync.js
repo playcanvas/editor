@@ -7,6 +7,8 @@ editor.once('load', function() {
     var settings = editor.call('project:settings');
     var docs = { };
 
+    window.docs = docs;
+
     editor.method('loadAsset', function (id, callback) {
         var connection = editor.call('realtime:connection');
 
@@ -151,7 +153,8 @@ editor.once('load', function() {
     editor.on('realtime:authenticated', function() {
         Ajax({
             url: '{{url.api}}/projects/{{project.id}}/assets?view=launcher',
-            auth: true
+            auth: true,
+            cookies: true
         })
         .on('load', function(status, data) {
             onLoad(data);

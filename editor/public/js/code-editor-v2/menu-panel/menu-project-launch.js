@@ -18,6 +18,7 @@ editor.once('load', function () {
 
     editor.method('editor:command:launchPrimary', function () {
         window.open('/editor/scene/' + config.project.primaryScene + '/launch');
+        // window.open(config.url.launch + config.project.primaryScene);
     });
 
     // Launch primary build
