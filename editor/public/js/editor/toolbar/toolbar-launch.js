@@ -38,7 +38,8 @@ editor.once('load', function() {
     launch.append(buttonLaunch);
 
     var launchApp = function () {
-        var url = config.url.launch + config.scene.id;
+        var url = (window.location.origin + window.location.pathname) + '/launch';
+        // var url = config.url.launch + config.scene.id;
 
         var query = [ ];
 

@@ -17,7 +17,8 @@ editor.once('load', function () {
     menu.append(item);
 
     editor.method('editor:command:launchPrimary', function () {
-        window.open(config.url.launch + config.project.primaryScene);
+        window.open('/editor/scene/' + config.project.primaryScene + '/launch');
+        // window.open(config.url.launch + config.project.primaryScene);
     });
 
     // Launch primary build
