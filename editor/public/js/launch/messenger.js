@@ -9,7 +9,7 @@ editor.on('load', function() {
     messenger.connect(config.url.messenger.ws);
 
     messenger.on('connect', function() {
-        this.authenticate(config.accessToken, 'designer');
+        this.authenticate(null, 'designer');
     });
 
     messenger.on('welcome', function() {

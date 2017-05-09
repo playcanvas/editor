@@ -114,7 +114,7 @@ editor.once('load', function() {
 
         // file
         if (args.file && args.file.size)
-            form.append('file', args.file, args.filename || args.name);
+            form.append('file', args.file, (args.filename || args.name));
 
         var job = ++uploadJobs;
         editor.call('status:job', 'asset-upload:' + job, 0);

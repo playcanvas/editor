@@ -55,6 +55,10 @@ function AjaxRequest(args) {
     // xhr
     this._xhr = new XMLHttpRequest();
 
+    // send cookies
+    if (args.cookies)
+        this._xhr.withCredentials = true;
+
     // events
     this._xhr.addEventListener('load', this._onLoad.bind(this), false);
     // this._xhr.addEventListener('progress', this._onProgress.bind(this), false);
