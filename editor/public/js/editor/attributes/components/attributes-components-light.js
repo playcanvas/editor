@@ -321,6 +321,15 @@ editor.once('load', function() {
             }
             editor.call('viewport:render');
         });
+        var updateShadowTooltip = Tooltip.attach({
+            target: btnUpdateShadow.element,
+            text: 'Update',
+            align: 'bottom',
+            root: editor.call('layout.root')
+        });
+        btnUpdateShadow.once('destroy', function() {
+            updateShadowTooltip.destroy();
+        });
 
 
         // shadowResolution

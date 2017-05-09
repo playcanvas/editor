@@ -14,6 +14,7 @@ editor.once('load', function() {
 
     buttonBake.on('click', function () {
         editor.call('lightmapper:bake');
+        editor.call('entities:shadows:update');
     });
     editor.on('lightmapper:uv1Missing', function(state) {
         if (state) {
@@ -107,6 +108,7 @@ editor.once('load', function() {
         ctrl: true,
         callback: function() {
             editor.call('lightmapper:bake');
+            editor.call('entities:shadows:update');
         }
     });
 
@@ -146,6 +148,3 @@ editor.once('load', function() {
         }
     });
 });
-
-
-

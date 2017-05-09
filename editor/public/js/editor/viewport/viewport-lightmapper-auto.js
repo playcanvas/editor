@@ -107,8 +107,8 @@ editor.once('load', function() {
                 return;
 
             bakingNextFrame = false;
-            // console.log('rebake global');
             editor.call('lightmapper:bake');
+            editor.call('entities:shadows:update');
         });
     };
 

@@ -482,6 +482,7 @@ editor.once('load', function() {
             icon: '&#57745;',
             select: function() {
                 editor.call('lightmapper:bake');
+                editor.call('entities:shadows:update');
             }
         },
         'code-editor': {
