@@ -50,6 +50,33 @@ editor.once('load', function() {
     }, false);
 
 
+    var addItem = function(entity) {
+        var item = new ui.ListItem({
+            text: entity.get('name')
+        });
+        item.entity = entity;
+
+        if (entity.get('children').length)
+            item.class.add('container');
+
+        // icon
+        var components = Object.keys(entity.get('components'));
+        for(var c = 0; c < components.length; c++)
+            item.class.add('c-' + components[c]);
+
+        item.element.addEventListener('contextmenu', function(evt) {
+            var openned = editor.call('entities:contextmenu:open', entity, evt.clientX, evt.clientY);
+
+            if (openned) {
+                evt.preventDefault();
+                evt.stopPropagation();
+            }
+        });
+
+        return item;
+    };
+
+
     search.on('change', function(value) {
         value = value.trim();
 
@@ -71,22 +98,9 @@ editor.once('load', function() {
             hierarchy.hidden = true;
             results.hidden = false;
 
-            for(var i = 0; i < result.length; i++) {
-                var item = new ui.ListItem({
-                    text: result[i].get('name')
-                });
-                item.entity = result[i];
+            for(var i = 0; i < result.length; i++)
+                results.append(addItem(result[i]));
 
-                if (result[i].get('children').length)
-                    item.class.add('container');
-
-                // icon
-                var components = Object.keys(result[i].get('components'));
-                for(var c = 0; c < components.length; c++)
-                    item.class.add('c-' + components[c]);
-
-                results.append(item);
-            }
         } else {
             results.hidden = true;
             hierarchy.hidden = false;

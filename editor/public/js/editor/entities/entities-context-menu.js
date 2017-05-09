@@ -457,6 +457,23 @@ editor.once('load', function() {
         return item;
     });
 
+    editor.method('entities:contextmenu:open', function(item, x, y, ignoreSelection) {
+        if (! menu || ! editor.call('permissions:write')) return;
+
+        entity = item;
+
+        if (ignoreSelection) {
+            items = [ ];
+        } else {
+            items = getSelection();
+        }
+
+        menu.open = true;
+        menu.position(x + 1, y);
+
+        return true;
+    });
+
     // for each entity added
     editor.on('entities:add', function(item) {
         // get tree item
@@ -465,16 +482,12 @@ editor.once('load', function() {
 
         // attach contextmenu event
         treeItem.element.addEventListener('contextmenu', function(evt) {
-            if (! menu || ! editor.call('permissions:write')) return;
+            var openned = editor.call('entities:contextmenu:open', item, evt.clientX, evt.clientY);
 
-            entity = item;
-            items = getSelection();
-
-            menu.open = true;
-            menu.position(evt.clientX + 1, evt.clientY);
-
-            evt.preventDefault();
-            evt.stopPropagation();
+            if (openned) {
+                evt.preventDefault();
+                evt.stopPropagation();
+            }
         });
     });
 });
