@@ -172,14 +172,14 @@ editor.once('load', function() {
             } else {
                 assetsGrid.element.focus();
             }
-        }, 100);
 
-        // if no assets then show message
-        var visible = assetsGrid.element.querySelectorAll('.ui-grid-item:not(.hidden)');
-        if (visible.length === 0) {
-            var msg = getNoResultsMessage(type, assetsPanelSearch);
-            editor.call('assets:panel:message', msg);
-        }
+            // if no assets then show message
+            var visible = assetsGrid.element.querySelectorAll('.ui-grid-item:not(.hidden)');
+            if (visible.length === 0) {
+                var msg = getNoResultsMessage(type, assetsPanelSearch);
+                editor.call('assets:panel:message', msg);
+            }
+        }, 100);
     });
 
 
