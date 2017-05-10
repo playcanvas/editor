@@ -39,7 +39,7 @@ editor.once('load', function () {
 
                     // remove unnecessary fields
                     delete data._id;
-                    delete data.scope;
+                    delete data.name;
                     delete data.user;
                     delete data.project;
 
