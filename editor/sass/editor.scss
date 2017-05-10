@@ -2693,6 +2693,10 @@ strong {
             border: none;
             background-color: $bcg-primary;
 
+            &:focus {
+                outline: none;
+                border: none;
+            }
             > .ui-list-item {
                 @extend .font-regular;
                 font-size: 14px;
@@ -2710,6 +2714,27 @@ strong {
                     text-align: center;
                     background-color: transparent;
                     color: $text-darkest;
+                }
+                &:hover {
+                    background-color: $bcg-dark;
+
+                    &:before {
+                        color: $text-primary;
+                    }
+                }
+                &.selected {
+                    background-color: $bcg-darkest;
+
+                    &:before {
+                        color: $text-primary;
+                    }
+                }
+                &.disabled {
+                    opacity: 1;
+
+                    > span {
+                        opacity: 0.4;
+                    }
                 }
                 &.container:before {
                     content: '\E139';
@@ -2752,9 +2777,6 @@ strong {
                 }
                 &.c-screen:before {
                     content: '\E378';
-                }
-                &:hover > .icon:after {
-                    color: $text-primary;
                 }
             }
         }

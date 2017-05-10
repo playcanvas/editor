@@ -8,22 +8,86 @@ function List(args) {
     this._element.classList.add('ui-list');
     this.selectable = args.selectable !== undefined ? args.selectable : true;
 
+    this._changing = false;
+    this._selected = [ ];
+
     this.on('select', this._onSelect);
+    this.on('deselect', this._onDeselect);
+    this.on('append', this._onAppend);
 }
 List.prototype = Object.create(ui.ContainerElement.prototype);
 
 
 List.prototype._onSelect = function(item) {
-    var items = this._element.querySelectorAll('.ui-list-item.selected');
+    var ind = this._selected.indexOf(item);
+    if (ind === -1)
+        this._selected.push(item);
 
-    if (items.length > 1) {
-        for(var i = 0; i < items.length; i++) {
-            if (items[i].ui === item)
-                continue;
+    if (this._changing)
+        return;
 
-            items[i].ui.selected = false;
+    if (List._ctrl && List._ctrl()) {
+
+    } else if (List._shift && List._shift() && this.selected.length) {
+
+    } else {
+        this._changing = true;
+
+        var items = this.selected;
+
+        if (items.length > 1) {
+            for(var i = 0; i < items.length; i++) {
+                if (items[i] === item)
+                    continue;
+
+                items[i].selected = false;
+            }
         }
+
+        this._changing = false;
     }
+
+    this.emit('change');
+};
+
+List.prototype._onDeselect = function(item) {
+    var ind = this._selected.indexOf(item);
+    if (ind !== -1) this._selected.splice(ind, 1);
+
+    if (this._changing)
+        return;
+
+    if (List._ctrl && List._ctrl()) {
+
+    } else {
+        this._changing = true;
+
+        var items = this.selected;
+
+        if (items.length) {
+            for(var i = 0; i < items.length; i++)
+                items[i].selected = false;
+
+            item.selected = true;
+        }
+
+        this._changing = false;
+    }
+
+    this.emit('change');
+};
+
+List.prototype._onAppend = function(item) {
+    if (! item.selected)
+        return;
+
+    var ind = this._selected.indexOf(item);
+    if (ind === -1) this._selected.push(item);
+};
+
+List.prototype.clear = function() {
+    this._selected = [ ];
+    ContainerElement.prototype.clear.call(this);
 };
 
 
@@ -48,21 +112,17 @@ Object.defineProperty(List.prototype, 'selectable', {
 
 Object.defineProperty(List.prototype, 'selected', {
     get: function() {
-        var items = [ ];
-        var elements = this._element.querySelectorAll('.ui-list-item.selected');
-
-        for(var i = 0; i < elements.length; i++) {
-            items.push(elements[i].ui);
-        }
-
-        return items;
+        return this._selected.slice(0);
     },
     set: function(value) {
+        this._changing = true;
+
         // deselecting
         var items = this.selected;
         for(var i = 0; i < items.length; i++) {
             if (value.indexOf(items[i]) !== -1)
                 continue;
+
             items[i].selected = false;
         }
 
@@ -70,6 +130,8 @@ Object.defineProperty(List.prototype, 'selected', {
         for(var i = 0; i < value.length; i++) {
             value[i].selected = true;
         }
+
+        this._changing = false;
     }
 });
 
