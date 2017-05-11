@@ -43,13 +43,29 @@ editor.once('load', function () {
                     delete data.user;
                     delete data.project;
 
+                    if (! settings.sync) {
+                        settings.sync = new ObserverSync({
+                            item: settings,
+                            paths: Object.keys(settings._data)
+                        });
+
+                        // local -> server
+                        settings.sync.on('op', function (op) {
+                            if (doc)
+                                doc.submitOp([ op ]);
+                        });
+                    }
+
                     var history = settings.history;
                     if (history) {
                         settings.history = false;
                     }
+
+                    settings.sync._enabled = false;
                     for (var key in data) {
                         settings.set(key, data[key]);
                     }
+                    settings.sync._enabled = true;
                     if (history)
                         settings.history = true;
 
@@ -75,19 +91,11 @@ editor.once('load', function () {
             doc.subscribe();
         };
 
-        editor.on('realtime:authenticated', function () {
-            settings.reload(settings.scopeId);
-        });
-
-        // local -> server
-        settings.sync = new ObserverSync({
-            item: settings,
-            paths: Object.keys(settings._data)
-        });
-        settings.sync.on('op', function (op) {
-            if (doc)
-                doc.submitOp([ op ]);
-        });
+        if (! args.deferLoad) {
+            editor.on('realtime:authenticated', function () {
+                settings.reload(settings.scopeId);
+            });
+        }
 
         editor.on('realtime:disconnected', function () {
             if (doc) {
@@ -95,6 +103,18 @@ editor.once('load', function () {
                 doc = null;
             }
         });
+
+        settings.disconnect = function () {
+            if (doc) {
+                doc.destroy();
+                doc = null;
+            }
+
+            if (settings.sync) {
+                settings.sync.unbind();
+                delete settings.sync;
+            }
+        };
 
 
         return settings;

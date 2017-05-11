@@ -6,7 +6,7 @@ editor.once('load', function() {
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
     var settings = editor.call('settings:projectUser');
-    var privateSettings = editor.call('project:privateSettings');
+    var privateSettings = editor.call('settings:projectPrivate');
 
     // panel
     var panel = new ui.Panel();
@@ -56,9 +56,9 @@ editor.once('load', function() {
         if (launchOptions.debug)
             query.push('debug=true');
 
-        if (!launchOptions.local && launchOptions.facebook && privateSettings.get('facebook.app_id')) {
+        if (!launchOptions.local && launchOptions.facebook && privateSettings.get('facebook.appId')) {
             url = 'https://www.facebook.com/embed/instantgames/' +
-                  privateSettings.get('facebook.app_id') +
+                  privateSettings.get('facebook.appId') +
                   '/player?game_url=' +
                   url;
 
@@ -212,10 +212,10 @@ editor.once('load', function() {
     });
     tooltipFb.class.add('launch-tooltip');
 
-    if (privateSettings.get('facebook.app_id'))
+    if (privateSettings.get('facebook.appId'))
         tooltipFb.class.add('invisible');
 
-    privateSettings.on('facebook.app_id:set', function (value) {
+    privateSettings.on('facebook.appId:set', function (value) {
         if (value) {
             tooltipFb.class.add('invisible');
         } else {
@@ -226,7 +226,7 @@ editor.once('load', function() {
     fb.on('change', function (value) {
         if (! value) return;
 
-        if (! privateSettings.get('facebook.app_id')) {
+        if (! privateSettings.get('facebook.appId')) {
             editor.call('viewport:expand', false);
 
             // open facebook settings
