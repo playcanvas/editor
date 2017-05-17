@@ -74,4 +74,19 @@ editor.once('load', function() {
         if (jobs === 0)
             readyForBake();
     });
+
+
+    editor.method('entities:shadows:update', function() {
+        var entities = editor.call('entities:list').filter(function(e) {
+            return e.get('components.light.castShadows') && e.get('components.light.shadowUpdateMode') === 1 && e.entity && e.entity.light && e.entity.light.shadowUpdateMode === pc.SHADOWUPDATE_THISFRAME;
+        });
+
+        if (! entities.length)
+            return;
+
+        for(var i = 0; i < entities.length; i++)
+            entities[i].entity.light.light.shadowUpdateMode = pc.SHADOWUPDATE_THISFRAME;
+
+        editor.call('viewport:render');
+    });
 });
