@@ -129,6 +129,4 @@ editor.once('load', function () {
             if (fn) fn(err, res.asset.id);
         });
     });
-
-
 });
