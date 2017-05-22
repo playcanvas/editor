@@ -27,7 +27,7 @@ editor.once('load', function () {
             return;
 
         editor.call('history:add', {
-            name: 'changed project private settings ' + path,
+            name: 'private project settings:' + path,
             undo: function() {
                 settings.history = false;
                 settings.set(path, oldValue);

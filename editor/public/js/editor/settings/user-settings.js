@@ -20,7 +20,7 @@ editor.once('load', function () {
             return;
 
         editor.call('history:add', {
-            name: 'changed user settings ' + path,
+            name: 'user settings:' + path,
             undo: function() {
                 settings.history = false;
                 settings.set(path, oldValue);

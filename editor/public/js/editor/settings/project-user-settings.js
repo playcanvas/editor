@@ -32,7 +32,7 @@ editor.once('load', function () {
             return;
 
         editor.call('history:add', {
-            name: 'changed project-user settings ' + path,
+            name: 'project user settings:' + path,
             undo: function() {
                 settings.history = false;
                 settings.set(path, oldValue);
