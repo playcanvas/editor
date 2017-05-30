@@ -8,7 +8,7 @@ editor.once('load', function () {
         } else {
             cm.getWrapperElement().classList.add('invisible');
         }
-    }
+    };
 
     var element = panel.innerElement;
     var cm = null;
@@ -20,13 +20,13 @@ editor.once('load', function () {
     var options = {
         mode: 'javascript',
         tabIndex: 1,
-        autoCloseBrackets: settings.get('autoCloseBrackets'),
-        matchBrackets: settings.get('highlightBrackets'),
+        autoCloseBrackets: settings.get('ide.autoCloseBrackets'),
+        matchBrackets: settings.get('ide.highlightBrackets'),
         lineComment: true,
         blockComment: true,
         indentUnit: 4,
         unComment: true,
-        continueComments: settings.get('continueComments'),
+        continueComments: settings.get('ide.continueComments'),
         styleActiveLine: true,
         scrollPastEnd: true,
         keyMap: 'sublime',
@@ -154,22 +154,22 @@ editor.once('load', function () {
     // create code mirror
     cm = CodeMirror(element, options);
 
-    cm.getWrapperElement().style.fontSize = settings.get('fontSize') + 'px';
+    cm.getWrapperElement().style.fontSize = settings.get('ide.fontSize') + 'px';
 
     // subscribe to settings changes
-    settings.on('fontSize:set', function (value) {
+    settings.on('ide.fontSize:set', function (value) {
         cm.getWrapperElement().style.fontSize = value + 'px';
     });
 
-    settings.on('continueComments:set', function (value) {
+    settings.on('ide.continueComments:set', function (value) {
         cm.setOption('continueComments', !!value);
     });
 
-    settings.on('autoCloseBrackets:set', function (value) {
+    settings.on('ide.autoCloseBrackets:set', function (value) {
         cm.setOption('autoCloseBrackets', !!value);
     });
 
-    settings.on('highlightBrackets:set', function (value) {
+    settings.on('ide.highlightBrackets:set', function (value) {
         cm.setOption('matchBrackets', !!value);
     });
 

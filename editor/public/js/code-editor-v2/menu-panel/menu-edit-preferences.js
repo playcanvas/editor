@@ -36,7 +36,7 @@ editor.once('load', function () {
 
     editor.method('editor:command:increaseFontSize', function () {
         var settings = editor.call('editor:settings');
-        settings.set('fontSize', settings.get('fontSize') + 1);
+        settings.set('ide.fontSize', settings.get('ide.fontSize') + 1);
     });
 
 
@@ -51,9 +51,9 @@ editor.once('load', function () {
 
     editor.method('editor:command:decreaseFontSize', function () {
         var settings = editor.call('editor:settings');
-        var size = settings.get('fontSize');
+        var size = settings.get('ide.fontSize');
         if (size > 1) {
-            settings.set('fontSize', size - 1);
+            settings.set('ide.fontSize', size - 1);
         }
     });
 });

@@ -3,7 +3,7 @@ editor.once('load', function() {
 
     var root = editor.call('layout.root');
     var assetsPanel = editor.call('layout.assets');
-    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
+    var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
     var currentFolder = null;
     var currentPath = [ ];
 

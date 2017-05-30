@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var projectSettings = editor.call('project:settings');
+    var projectSettings = editor.call('settings:project');
 
     var schema = {
         animation: {
@@ -365,7 +365,7 @@ editor.once('load', function() {
         return assetPaths;
     });
 
-    if (editor.call('project:settings').get('use_legacy_scripts')) {
+    if (editor.call('settings:project').get('useLegacyScripts')) {
         schema.script.default.scripts = [ ];
         delete schema.script.default.order;
     } else {

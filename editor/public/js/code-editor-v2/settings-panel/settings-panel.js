@@ -83,19 +83,19 @@ editor.once('load', function() {
     });
     fieldFontSize.flexGrow = 1;
     fieldFontSize.style.minWidth = '80px';
-    addField('Font Size:', fieldFontSize, 'fontSize', 'The font size of the code.');
+    addField('Font Size:', fieldFontSize, 'ide.fontSize', 'The font size of the code.');
 
     var fieldContinueComments = new ui.Checkbox();
     fieldContinueComments.class.add('tick');
-    addField('Continue Comments:', fieldContinueComments, 'continueComments', 'If enabled the editor will make the next line continue a comment when you press Enter inside a comment block.');
+    addField('Continue Comments:', fieldContinueComments, 'ide.continueComments', 'If enabled the editor will make the next line continue a comment when you press Enter inside a comment block.');
 
     var fieldAutoCloseBrackets = new ui.Checkbox();
     fieldAutoCloseBrackets.class.add('tick');
-    addField('Auto Close Brackets:', fieldAutoCloseBrackets, 'autoCloseBrackets', 'If enabled the editor will auto-close brackets and quotes when typed.');
+    addField('Auto Close Brackets:', fieldAutoCloseBrackets, 'ide.autoCloseBrackets', 'If enabled the editor will auto-close brackets and quotes when typed.');
 
     var fieldHighlightBrackets = new ui.Checkbox();
     fieldHighlightBrackets.class.add('tick');
-    addField('Highlight Brackets:', fieldHighlightBrackets, 'highlightBrackets', 'If enabled causes matching brackets to be highlighted whenever the cursor is next to them.');
+    addField('Highlight Brackets:', fieldHighlightBrackets, 'ide.highlightBrackets', 'If enabled causes matching brackets to be highlighted whenever the cursor is next to them.');
 
     panel.on('show', function () {
         editor.emit('picker:settings:open');

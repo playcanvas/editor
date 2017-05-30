@@ -149,7 +149,7 @@ editor.once('load', function() {
         });
     });
 
-    // re-bake on scene settigns loaded
+    // re-bake on scene settings loaded
     editor.on('sceneSettings:load', function() {
         rebakeScene(true);
     });

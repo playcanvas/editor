@@ -8,7 +8,7 @@ editor.once('load', function() {
         'facebook': true
     };
 
-    var settings = editor.call('project:privateSettings');
+    var settings = editor.call('settings:projectPrivate');
 
     var originalTokenHelp;
     var originalAppIdHelp;
@@ -22,8 +22,7 @@ editor.once('load', function() {
         panel.folded = foldStates['facebook'];
         panel.on('fold', function() { foldStates['facebook'] = true; });
         panel.on('unfold', function() { foldStates['facebook'] = false; });
-        panel.disabled = !editor.call('permissions:write');
-        panel.hidden = !editor.call('permissions:read');
+        panel.hidden = !editor.call('permissions:write');
         panel.class.add('component', 'facebook');
 
         // reference
@@ -34,7 +33,7 @@ editor.once('load', function() {
             name: 'App ID',
             type: 'string',
             link: settings,
-            path: 'facebook.app_id'
+            path: 'facebook.appId'
         });
         var tooltip = editor.call('attributes:reference:attach', 'settings:facebook:app-id', fieldFbAppId.parent.innerElement.firstChild.ui);
         var appIdParagraph = tooltip.innerElement.querySelector('p')
@@ -48,7 +47,7 @@ editor.once('load', function() {
             name: 'Upload Token',
             type: 'string',
             link: settings,
-            path: 'facebook.upload_token'
+            path: 'facebook.uploadToken'
         });
         tooltip = editor.call('attributes:reference:attach', 'settings:facebook:upload-token', fieldFbUploadToken.parent.innerElement.firstChild.ui);
 
@@ -58,7 +57,7 @@ editor.once('load', function() {
             type: 'string'
         });
 
-        fieldSdk.value = settings.get('facebook.sdk_version');
+        fieldSdk.value = settings.get('facebook.sdkVersion');
         fieldSdk.class.add('facebook-version');
         fieldSdk.renderChanges = false;
 
@@ -79,19 +78,19 @@ editor.once('load', function() {
                     notJson: true
                 }))
                 .on('load', function () {
-                    settings.set('facebook.sdk_version', version);
+                    settings.set('facebook.sdkVersion', version);
                 })
                 .on('error', function () {
                     fieldSdk.class.add('error');
                 });
             } else {
-                settings.set('facebook.sdk_version', version);
+                settings.set('facebook.sdkVersion', version);
             }
-        }
+        };
 
         fieldSdk.on('change', function (value) {
             if (! value) {
-                fieldSdk.value = settings.get('facebook.sdk_version');
+                fieldSdk.value = settings.get('facebook.sdkVersion') || config.facebook.version;
             } else if (! versionRegex.test(value)) {
                 fieldSdk.class.add('error');
             } else {
@@ -106,7 +105,7 @@ editor.once('load', function() {
                 list.hidden = true;
         });
 
-        settings.on('facebook.sdk_version:set', function (value) {
+        settings.on('facebook.sdkVersion:set', function (value) {
             changingVersion = true;
             fieldSdk.value = value;
             changingVersion = false;
@@ -167,7 +166,7 @@ editor.once('load', function() {
             }
             // esc
             else if (e.keyCode === 27) {
-                fieldSdk.value = settings.get('facebook.sdk_version');
+                fieldSdk.value = settings.get('facebook.sdkVersion');
                 list.hidden = true;
             }
         });
@@ -195,9 +194,9 @@ editor.once('load', function() {
 
             if (! found) {
                 list.hidden = true;
-                fieldSdk.value = settings.get('facebook.sdk_version');
+                fieldSdk.value = settings.get('facebook.sdkVersion');
             }
-        }
+        };
 
         list.on('show', function () {
             window.addEventListener('mousedown', hideList);
@@ -209,7 +208,7 @@ editor.once('load', function() {
                 } else {
                     item.class.remove('focused');
                 }
-            })
+            });
         });
         list.on('hide', function () {
             window.removeEventListener('mousedown', hideList);
@@ -236,17 +235,17 @@ editor.once('load', function() {
             originalTokenHelp = tokenParagraph.innerHTML;
 
         var getTokenText = function () {
-            return originalTokenHelp + ' You can find this under the ' + (settings.get('facebook.app_id') ? '<a href="https://developers.facebook.com/apps/' + settings.get('facebook.app_id') + '/hosting/" target="_blank">Canvas Hosting Page</a>' : 'Canvas Hosting page') + ' at the dashboard of your Facebook application.';
+            return originalTokenHelp + ' You can find this under the ' + (settings.get('facebook.appId') ? '<a href="https://developers.facebook.com/apps/' + settings.get('facebook.appId') + '/hosting/" target="_blank">Canvas Hosting Page</a>' : 'Canvas Hosting page') + ' at the dashboard of your Facebook application.';
         };
 
         tokenParagraph.innerHTML = getTokenText();
 
-        var evtAppId = settings.on('facebook.app_id:set', function (value) {
+        var evtAppId = settings.on('facebook.appId:set', function (value) {
             tokenParagraph.innerHTML = getTokenText();
         });
 
         var evtPermissions = editor.on('permissions:set:' + config.self.id, function (accesslevel) {
-            panel.hidden = accesslevel !== 'admin' && accesslevel !== 'write';
+            panel.hidden = !editor.call('permissions:write');
         });
 
         panel.on('destroy', function () {

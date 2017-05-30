@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
+    var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
     var overlay = new ui.Overlay();
     overlay.class.add('picker-asset');
@@ -172,14 +172,14 @@ editor.once('load', function() {
             } else {
                 assetsGrid.element.focus();
             }
-        }, 100);
 
-        // if no assets then show message
-        var visible = assetsGrid.element.querySelectorAll('.ui-grid-item:not(.hidden)');
-        if (visible.length === 0) {
-            var msg = getNoResultsMessage(type, assetsPanelSearch);
-            editor.call('assets:panel:message', msg);
-        }
+            // if no assets then show message
+            var visible = assetsGrid.element.querySelectorAll('.ui-grid-item:not(.hidden)');
+            if (visible.length === 0) {
+                var msg = getNoResultsMessage(type, assetsPanelSearch);
+                editor.call('assets:panel:message', msg);
+            }
+        }, 100);
     });
 
 
