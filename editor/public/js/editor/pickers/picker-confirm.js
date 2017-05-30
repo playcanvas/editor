@@ -58,14 +58,13 @@ editor.once('load', function() {
     });
 
     // enter > yes
-    editor.call('hotkey:register', 'picker:confirm:yes', {
-        key: 'enter',
-        callback: function() {
-            if (overlay.hidden)
-                return;
+    window.addEventListener('keydown', function(evt) {
+        if (evt.keyCode !== 13 || overlay.hidden)
+            return;
 
-            btnYes.emit('click');
-        }
+        btnYes.emit('click');
+        evt.preventDefault();
+        evt.stopPropagation();
     });
 
 

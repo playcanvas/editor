@@ -384,8 +384,12 @@ editor.once('load', function() {
                     if (name.endsWith('.jpg'))
                         name = name.slice(0, -4) + '.jpeg';
 
+                    textures[i].options = editor.call('assets:jobs:texture-convert-options', textures[i].meta);
+
+                    var fileName = name.replace(/\.[0-9a-z]{3,4}$/i, '') + '.' + textures[i].options.format;
+
                     var target = editor.call('assets:findOne', function(a) {
-                        if (a.get('source_asset_id') !== asset.get('id') || a.get('name').toLowerCase() !== name || a.get('type') !== 'texture' || a.get('source'))
+                        if (a.get('source_asset_id') !== asset.get('id') || a.get('name').toLowerCase() !== fileName || a.get('type') !== 'texture' || a.get('source'))
                             return false;
 
                         if (! editor.call('assets:pipeline:settings', 'searchRelatedAssets') && ! a.get('path').equals(path))
@@ -398,8 +402,6 @@ editor.once('load', function() {
                         textures[i].asset = parseInt(target[1].get('id'), 10);
                         textures[i].override = editor.call('assets:pipeline:settings', 'overwriteTexture');;
                     }
-
-                    textures[i].options = editor.call('assets:jobs:texture-convert-options', textures[i].meta);
                 }
 
                 var task = {

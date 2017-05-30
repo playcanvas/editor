@@ -495,6 +495,7 @@ editor.once('load', function() {
             editor.emit('hotkey:alt', alt);
         }
     };
+    editor.method('hotkey:updateModifierKeys', updateModifierKeys);
 
 
     window.addEventListener('keydown', function(evt) {
@@ -549,6 +550,13 @@ editor.once('load', function() {
         return ctrl;
     };
     ui.Tree._shift = function() {
+        return shift;
+    };
+
+    ui.List._ctrl = function() {
+        return ctrl;
+    };
+    ui.List._shift = function() {
         return shift;
     };
 });

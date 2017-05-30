@@ -53,11 +53,11 @@ Object.defineProperty(ListItem.prototype, 'selected', {
         }
 
         this.emit(this.selected ? 'select' : 'deselect');
-        this.emit('change', this.selected);
 
-        if (this.parent) {
+        if (this.parent)
             this.parent.emit(this.selected ? 'select' : 'deselect', this);
-        }
+
+        this.emit('change', this.selected);
     }
 });
 
