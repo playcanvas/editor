@@ -1,15 +1,14 @@
 editor.once('load', function() {
     'use strict';
 
-    if (editor.call('project:settings').get('use_legacy_scripts'))
+    if (editor.call('settings:project').get('useLegacyScripts'))
         return;
 
     var foldStates = {
         'scripts': true
     };
 
-    var projectSettings = editor.call('project:settings');
-
+    var projectSettings = editor.call('settings:project');
 
     editor.on('assets:add', function(asset) {
         if (asset.get('type') !== 'script')
@@ -276,7 +275,7 @@ editor.once('load', function() {
             var children = panelItems.innerElement.children;
             for(var i = 0; i < children.length; i++)
                 children[i].ui.number.textContent = i + 1;
-        }
+        };
 
 
         var assetAdd = function(asset, ind) {

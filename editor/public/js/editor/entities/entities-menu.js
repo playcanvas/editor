@@ -49,7 +49,7 @@ editor.once('load', function() {
                 title: 'Audio Source',
                 icon: componentsLogos.audiosource,
                 hide: function () {
-                    return ! editor.call('project:settings').get('use_legacy_audio');
+                    return ! editor.call('settings:project').get('useLegacyAudio');
                 },
                 select: function() {
                     editor.call('entities:new', {

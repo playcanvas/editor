@@ -41,7 +41,7 @@ editor.once('load', function() {
                 }
             } else if (property) {
                 // edit component property
-                if (component === 'script' && property === 'scripts' && !editor.call('project:settings').get('use_legacy_scripts')) {
+                if (component === 'script' && property === 'scripts' && !editor.call('settings:project').get('useLegacyScripts')) {
                     if (parts.length <= 3)
                         return;
 
@@ -83,7 +83,7 @@ editor.once('load', function() {
             var property = parts[2];
 
             if (property) {
-                if (component === 'script' && property === 'scripts' && ! editor.call('project:settings').get('use_legacy_scripts')) {
+                if (component === 'script' && property === 'scripts' && ! editor.call('settings:project').get('useLegacyScripts')) {
                     if (! entity.script || parts.length <= 3)
                         return;
 

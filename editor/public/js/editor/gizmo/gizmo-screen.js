@@ -11,7 +11,7 @@ editor.once('load', function() {
 
     var tempVec2 = new pc.Vec2();
 
-    var projectSettings = editor.call('project:settings');
+    var projectSettings = editor.call('settings:project');
 
     for (var i = 0; i < 8; i++) {
         corners.push(new pc.Vec3());

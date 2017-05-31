@@ -1,16 +1,26 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
-    var settings = editor.call('project:settings');
+    var settings = editor.call('settings:create', {
+        name: 'user',
+        scopeType: 'user',
+        scopeId: config.self.id,
+        data: {
+            editor: {
+                howdoi: true,
+                iconSize: 0.2
+            }
+        }
+    });
 
+    // add history
     settings.history = true;
-
     settings.on('*:set', function(path, value, oldValue) {
-        if (! this.history)
+        if (! settings.history)
             return;
 
         editor.call('history:add', {
-            name: 'project.settings.' + path,
+            name: 'user settings:' + path,
             undo: function() {
                 settings.history = false;
                 settings.set(path, oldValue);
@@ -23,5 +33,4 @@ editor.once('load', function() {
             }
         });
     });
-
 });

@@ -39,6 +39,8 @@ editor.once('load', function() {
     container.class.add('container');
     overlay.append(container);
 
+    var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
+
     var items = [
         {
             buttons: [ 'Ctrl', '$+', 'Enter' ],
@@ -109,15 +111,19 @@ editor.once('load', function() {
             title: 'Focus on Assets Search Field',
             icons: [ '&#57641;']
         }, {
-            buttons: ['Ctrl', '$+', 'I'],
-            title: 'Open Code Editor',
-            icons: [ '&#57648;' ]
-        }, {
             buttons: ['Ctrl', '$+', 'Space'],
             title: 'How do I...?',
             icons: [ '&#57656;']
         }
     ];
+
+    if (! legacyScripts) {
+        items.push({
+            buttons: ['Ctrl', '$+', 'I'],
+            title: 'Open Code Editor',
+            icons: [ '&#57648;' ]
+        });
+    }
 
     for(var i = 0; i < items.length; i++) {
         var row = document.createElement('div');

@@ -330,9 +330,9 @@ editor.once('load', function() {
         editor.call('viewport:render');
     });
 
-    var editorSettings = editor.call('editorSettings');
-    editor.call('viewport:icons:size', editorSettings.get('icons_size'));
-    editorSettings.on('icons_size:set', function(size) {
+    var settings = editor.call('settings:user');
+    editor.call('viewport:icons:size', settings.get('editor.iconSize'));
+    settings.on('editor.iconSize:set', function(size) {
         editor.call('viewport:icons:size', size);
     });
 });

@@ -1,6 +1,9 @@
 editor.once('load', function() {
     'use strict';
 
+    if (editor.call('settings:project').get('useLegacyScripts'))
+        return;
+
     var toolbar = editor.call('layout.toolbar');
     var firefox = navigator.userAgent.indexOf('Firefox') !== -1;
 

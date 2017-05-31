@@ -1,7 +1,7 @@
 editor.once('load', function () {
     'use strict';
 
-    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
+    var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
     // holds all tooltips
     var tooltips = [];
@@ -13,7 +13,7 @@ editor.once('load', function () {
     var panel = new ui.Panel();
     panel.class.add('picker-publish-new');
 
-    var privateSettings = editor.call('project:privateSettings');
+    var privateSettings = editor.call('settings:projectPrivate');
 
     // register panel with project popup
     editor.call('picker:project:registerPanel', 'publish-download', 'Download New Build', panel);
@@ -55,8 +55,8 @@ editor.once('load', function () {
             panel.class.remove('upgrade');
         }
 
-        panelFbId.hidden = !!privateSettings.get('facebook.app_id');
-        panelFbToken.hidden = !!privateSettings.get('facebook.upload_token');
+        panelFbId.hidden = !!privateSettings.get('facebook.appId');
+        panelFbToken.hidden = !!privateSettings.get('facebook.uploadToken');
         if (! panelFbToken.hidden) {
             tooltipToken.html = getTooltipTokenHtml();
         }
@@ -254,16 +254,24 @@ editor.once('load', function () {
     });
     tooltipFbId.class.add('publish-facebook');
 
+    var suspendFbChanges = false;
+
     var inputFbAppId = new ui.TextField();
     inputFbAppId.class.add('input-field');
     inputFbAppId.renderChanges = false;
     inputFbAppId.placeholder = 'e.g. 777394875732366';
     panelFbId.append(inputFbAppId);
-
     inputFbAppId.on('change', function (value) {
-        editor.call('project:privateSettings').set('facebook.app_id', value);
+        if (! suspendFbChanges)
+            privateSettings.set('facebook.appId', value);
         tooltipToken.html = getTooltipTokenHtml();
         refreshButtonsState();
+    });
+
+    privateSettings.on('facebook.appId:set', function (value) {
+        suspendFbChanges = true;
+        inputFbAppId.value = value;
+        suspendFbChanges = false;
     });
 
     // upload token
@@ -283,14 +291,14 @@ editor.once('load', function () {
 
     var getTooltipTokenHtml = function () {
         var result = 'An Access Token used when uploading a build to Facebook. You can find this under the ';
-        if (privateSettings.get('facebook.app_id')) {
-            result += '<a href="https://developers.facebook.com/apps/' + privateSettings.get('facebook.app_id') + '/hosting/" target="_blank">Canvas Hosting page</a>';
+        if (privateSettings.get('facebook.appId')) {
+            result += '<a href="https://developers.facebook.com/apps/' + privateSettings.get('facebook.appId') + '/hosting/" target="_blank">Canvas Hosting page</a>';
         } else {
             result +=  'Canvas Hosting page';
         }
         result += ' at the dashboard of your Facebook application.';
         return result;
-    }
+    };
 
     var tooltipToken = Tooltip.attach({
         target: btnHelpToken.element,
@@ -307,8 +315,15 @@ editor.once('load', function () {
     panelFbToken.append(inputFbUploadToken);
 
     inputFbUploadToken.on('change', function (value) {
-        editor.call('project:privateSettings').set('facebook.upload_token', value);
+        if (! suspendFbChanges)
+            privateSettings.set('facebook.uploadToken', value);
         refreshButtonsState();
+    });
+
+    privateSettings.on('facebook.uploadToken:set', function (value) {
+        suspendFbChanges = true;
+        inputFbUploadToken.value = value;
+        suspendFbChanges = false;
     });
 
     // release notes
@@ -724,7 +739,7 @@ editor.once('load', function () {
     facebookProgressInfo.appendChild(btnFacebookLink.element);
 
     btnFacebookLink.on('click', function () {
-        window.open('https://developers.facebook.com/apps/' + privateSettings.get('facebook.app_id') + '/hosting');
+        window.open('https://developers.facebook.com/apps/' + privateSettings.get('facebook.appId') + '/hosting');
     });
 
     var refreshButtonsState = function () {
@@ -742,8 +757,8 @@ editor.once('load', function () {
         btnIosDownload.disabled = disabled;
 
         btnPublishFb.disabled = jobInProgress ||
-                                !privateSettings.get('facebook.app_id') ||
-                                !privateSettings.get('facebook.upload_token') ||
+                                !privateSettings.get('facebook.appId') ||
+                                !privateSettings.get('facebook.uploadToken') ||
                                 !selectedScenes.length;
     };
 

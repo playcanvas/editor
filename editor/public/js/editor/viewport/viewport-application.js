@@ -54,11 +54,11 @@ editor.once('load', function() {
             cameraNode.renderTarget = null;
 
             if (cameraEntity.__editorCamera) {
-                var clearColor = this.editorSettings.camera_clear_color;
+                var clearColor = this.editorSettings.cameraClearColor;
                 cameraEntity.camera.clearColor = new pc.Color(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
                 if (cameraEntity.camera.projection === pc.PROJECTION_PERSPECTIVE) {
-                    cameraEntity.camera.nearClip = this.editorSettings.camera_near_clip || 0.0001;
-                    cameraEntity.camera.farClip = this.editorSettings.camera_far_clip;
+                    cameraEntity.camera.nearClip = this.editorSettings.cameraNearClip || 0.0001;
+                    cameraEntity.camera.farClip = this.editorSettings.cameraFarClip;
                 }
             }
 
@@ -121,10 +121,10 @@ editor.once('load', function() {
             this.grid.destroy();
         }
 
-        settings.grid_divisions = parseInt(settings.grid_divisions, 10);
-        if (settings.grid_divisions > 0) {
-            var size = settings.grid_divisions * settings.grid_division_size;
-            this.grid = new pc.Grid(this.graphicsDevice, size, settings.grid_divisions);
+        settings.gridDivisions = parseInt(settings.gridDivisions, 10);
+        if (settings.gridDivisions > 0) {
+            var size = settings.gridDivisions * settings.gridDivisionSize;
+            this.grid = new pc.Grid(this.graphicsDevice, size, settings.gridDivisions);
             this.grid.model.meshInstances[0].aabb.halfExtents.set(size / 2, size / 2, size / 2);
             this.scene.addModel(this.grid.model);
         }

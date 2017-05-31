@@ -3,10 +3,10 @@ editor.once('load', function() {
 
     var root = editor.call('layout.root');
     var viewport = editor.call('layout.viewport');
-    var legacyScripts = editor.call('project:settings').get('use_legacy_scripts');
+    var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
-    var settings = editor.call('editorSettings');
-    var privateSettings = editor.call('project:privateSettings');
+    var settings = editor.call('settings:projectUser');
+    var privateSettings = editor.call('settings:projectPrivate');
 
     // panel
     var panel = new ui.Panel();
@@ -44,7 +44,7 @@ editor.once('load', function() {
 
         if (launchOptions.local) {
             url = url.replace(/^https/, 'http');
-            query.push('local=' + settings.get('local_server'));
+            query.push('local=' + settings.get('editor.localServer'));
         }
 
         if (launchOptions.webgl1)
@@ -56,9 +56,9 @@ editor.once('load', function() {
         if (launchOptions.debug)
             query.push('debug=true');
 
-        if (!launchOptions.local && launchOptions.facebook && privateSettings.get('facebook.app_id')) {
+        if (!launchOptions.local && launchOptions.facebook && privateSettings.get('facebook.appId')) {
             url = 'https://www.facebook.com/embed/instantgames/' +
-                  privateSettings.get('facebook.app_id') +
+                  privateSettings.get('facebook.appId') +
                   '/player?game_url=' +
                   url;
 
@@ -116,7 +116,7 @@ editor.once('load', function() {
         });
 
         return option;
-    }
+    };
 
     var optionProfiler = createOption('profiler', 'Profiler');
     var tooltipProfiler = Tooltip.attach({
@@ -129,8 +129,17 @@ editor.once('load', function() {
 
     var optionDebug = createOption('debug', 'Debug');
 
-    // TODO remember this in user-project settings
-    optionDebug.value = true;
+    var suspendDebug = false;
+    optionDebug.value = settings.get('editor.launchDebug');
+    settings.on('editor.launchDebug:set', function (value) {
+        suspendDebug = true;
+        optionDebug.value = value;
+        suspendDebug = false;
+    });
+    optionDebug.on('change', function (value) {
+        if (suspendDebug) return;
+        settings.set('editor.launchDebug', value);
+    });
 
     var tooltipDebug = Tooltip.attach({
         target: optionDebug.parent.element,
@@ -149,16 +158,16 @@ editor.once('load', function() {
 
         var getTooltipText = function () {
             var tooltipText = 'Enable this if you want to load scripts from your local server.';
-            if (settings.get('local_server')) {
+            if (settings.get('editor.localServer')) {
                 tooltipText +=  ' If enabled scripts will be loaded from <a href="' +
-                       settings.get('local_server') + '" target="_blank">' + settings.get('local_server') + '</a>.';
+                       settings.get('editor.localServer') + '" target="_blank">' + settings.get('editor.localServer') + '</a>.';
             }
 
             tooltipText += ' You can change your Local Server URL from the Editor settings.';
             return tooltipText;
         };
 
-        settings.on('local_server:set', function () {
+        settings.on('editor.localServer:set', function () {
             tooltipLocal.html = getTooltipText();
         });
 
@@ -182,10 +191,10 @@ editor.once('load', function() {
     });
     tooltipPreferWebGl1.class.add('launch-tooltip');
 
-    if (! editor.call('project:settings').get('preferWebGl2'))
+    if (! editor.call('settings:project').get('preferWebGl2'))
         preferWebGl1.parent.disabled = true;
 
-    editor.call('project:settings').on('preferWebGl2:set', function(value) {
+    editor.call('settings:project').on('preferWebGl2:set', function(value) {
         preferWebGl1.parent.disabled = ! value;
     });
 
@@ -203,10 +212,10 @@ editor.once('load', function() {
     });
     tooltipFb.class.add('launch-tooltip');
 
-    if (privateSettings.get('facebook.app_id'))
+    if (privateSettings.get('facebook.appId'))
         tooltipFb.class.add('invisible');
 
-    privateSettings.on('facebook.app_id:set', function (value) {
+    privateSettings.on('facebook.appId:set', function (value) {
         if (value) {
             tooltipFb.class.add('invisible');
         } else {
@@ -217,11 +226,11 @@ editor.once('load', function() {
     fb.on('change', function (value) {
         if (! value) return;
 
-        if (! privateSettings.get('facebook.app_id')) {
+        if (! privateSettings.get('facebook.appId')) {
             editor.call('viewport:expand', false);
 
             // open facebook settings
-            editor.call('selector:set', 'editorSettings', [ editor.call('editorSettings') ]);
+            editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
             setTimeout(function() {
                 editor.call('editorSettings:panel:unfold', 'facebook');
             }, 0);
