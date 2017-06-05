@@ -155,11 +155,16 @@ editor.once('load', function() {
         libraryUrls.push(config.url.physics);
     }
 
+    var queryParams = (new pc.URI(window.location.href)).getQuery();
+
     if (config.project.settings.vr && (utils.isMobile() || !pc.VrManager.isSupported)) {
-        libraryUrls.push(config.url.webvr);
+        if (queryParams.vrpolyfill) {
+            libraryUrls.push(queryParams.vrpolyfill);
+        } else {
+            libraryUrls.push(config.url.webvr);    
+        }
     }
 
-    var queryParams = (new pc.URI(window.location.href)).getQuery();
 
     var scriptPrefix = config.project.scriptPrefix;
 
