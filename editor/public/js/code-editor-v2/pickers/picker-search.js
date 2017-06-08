@@ -41,6 +41,8 @@ editor.once('load', function () {
     searchField.renderChanges = false;
     searchField.keyChange = true;
     searchField.elementInput.placeholder = 'Find';
+    // prevent default behaviour on browser shortcuts
+    searchField.elementInput.classList.add('hotkeys');
     panel.append(searchField);
 
     var error = new ui.Label();
@@ -73,6 +75,7 @@ editor.once('load', function () {
     replaceField.renderChanges = false;
     replaceField.keyChange = true;
     replaceField.elementInput.placeholder = 'Replace';
+    replaceField.elementInput.classList.add('hotkeys');
     panel.append(replaceField);
 
     replaceField.on('input:focus', function () {
