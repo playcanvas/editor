@@ -16,6 +16,7 @@ editor.once('load', function () {
 
     // this is where we type our search query
     var fieldSearch = new ui.TextField();
+    fieldSearch.elementInput.classList.add('hotkeys');
     fieldSearch.renderChanges = false;
     panel.append(fieldSearch);
 
