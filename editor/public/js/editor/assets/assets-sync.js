@@ -56,7 +56,7 @@ editor.once('load', function() {
 
                 if (assetData.file.variants) {
                     for(var key in assetData.file.variants) {
-                        assetData.file.variants[key].url = getFileUrl(assetData.id, assetData.revision, assetData.file.variants[key].filename, assetData.file.variants[key].filename);
+                        assetData.file.variants[key].url = getFileUrl(assetData.id, assetData.revision, assetData.file.variants[key].filename, assetData.file.variants[key].hash);
                     }
                 }
             }
