@@ -48,7 +48,7 @@ editor.once('load', function() {
             }
             // load data
             Ajax
-            .get('{{url.home}}' + asset.get('file.url'))
+            .get('{{url.home}}' + asset.get('file.url') + '?t=' + asset.get('file.hash'))
             .on('load', function(status, data) {
                 fieldCode.text = JSON.stringify(data, null, 4);
                 fieldCode.hidden = false;

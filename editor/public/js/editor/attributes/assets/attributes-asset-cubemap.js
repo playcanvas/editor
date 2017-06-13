@@ -412,16 +412,9 @@ editor.once('load', function() {
             var watchingAssets = [ null, null, null, null, null, null ];
 
             var makeThumbnailUrl = function(asset) {
-                var url = config.url.home + '/';
-                if (asset.get('thumbnails.l')) {
-                    var thumb = asset.get('thumbnails.l');
-                    var separator = thumb.indexOf('?') !== -1 ? '&' : '?';
-                    thumb += separator + 't=' + asset.get('file.hash');
-                    url += thumb;
-                } else {
-                    url += asset.get('file.url');
-                }
-
+                var url = config.url.home + '/' + (asset.get('thumbnails.l') || asset.get('file.url'));
+                var separator = url.indexOf('?') !== -1 ? '&' : '?';
+                url += separator + 't=' + asset.get('file.hash');
                 return url;
             };
 

@@ -52,11 +52,11 @@ editor.once('load', function() {
             assetData.id = id;
 
             if (assetData.file) {
-                assetData.file.url = getFileUrl(assetData.id, assetData.revision, assetData.file.filename, assetData.file.hash);
+                assetData.file.url = getFileUrl(assetData.id, assetData.revision, assetData.file.filename);
 
                 if (assetData.file.variants) {
                     for(var key in assetData.file.variants) {
-                        assetData.file.variants[key].url = getFileUrl(assetData.id, assetData.revision, assetData.file.variants[key].filename, assetData.file.variants[key].hash);
+                        assetData.file.variants[key].url = getFileUrl(assetData.id, assetData.revision, assetData.file.variants[key].filename);
                     }
                 }
             }
@@ -237,8 +237,8 @@ editor.once('load', function() {
         }
     });
 
-    var getFileUrl = function (id, revision, filename, hash) {
-        return '/api/assets/' + id + '/file/' + encodeURIComponent(filename) + '?t=' + hash;
+    var getFileUrl = function (id, revision, filename) {
+        return '/api/assets/' + id + '/file/' + encodeURIComponent(filename);
     };
 
     var assetSetThumbnailPaths = function(asset) {
@@ -297,12 +297,12 @@ editor.once('load', function() {
 
             if ((parts.length === 1 || parts.length === 2) && parts[1] !== 'variants') {
                 // reset file url
-                asset.set('file.url', getFileUrl(asset.get('id'), asset.get('revision'), asset.get('file.filename'), asset.get('file.hash')));
+                asset.set('file.url', getFileUrl(asset.get('id'), asset.get('revision'), asset.get('file.filename')));
                 // set thumbnails
                 assetSetThumbnailPaths(asset);
             } else if (parts.length >= 3 && parts[1] === 'variants') {
                 var format = parts[2];
-                asset.set('file.variants.' + format + '.url', getFileUrl(asset.get('id'), asset.get('revision'), asset.get('file.variants.' + format + '.filename'), asset.get('file.variants.' + format + '.hash')));
+                asset.set('file.variants.' + format + '.url', getFileUrl(asset.get('id'), asset.get('revision'), asset.get('file.variants.' + format + '.filename')));
             }
 
             setting = false;
