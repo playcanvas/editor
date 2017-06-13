@@ -23,7 +23,7 @@ editor.once('load', function () {
         var onOpen = function () {
             isConnected = true;
             reconnectInterval = RECONNECT_INTERVAL;
-            socket.send('auth' + JSON.stringify({accessToken: config.accessToken}));
+            socket.send('auth' + JSON.stringify({}));
         };
 
         // If socket is closed try to reconnect
