@@ -48,7 +48,7 @@ editor.once('load', function() {
             }
             // load data
             Ajax({
-                url: '{{url.home}}' + asset.get('file.url') + '?t=' + asset.get('file.hash'),
+                url: '{{url.home}}' + asset.get('file.url'),
                 notJson: true
             })
             .on('load', function(status, data) {
