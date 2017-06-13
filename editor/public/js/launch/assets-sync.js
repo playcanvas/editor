@@ -46,11 +46,11 @@ editor.once('load', function() {
             assetData.id = id;
 
             if (assetData.file) {
-                assetData.file.url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.filename);
+                assetData.file.url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.filename, assetData.file.hash);
 
                 if (assetData.file.variants) {
                     for(var key in assetData.file.variants) {
-                        assetData.file.variants[key].url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.variants[key].filename);
+                        assetData.file.variants[key].url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.variants[key].filename, assetData.file.variants[key].hash);
                     }
                 }
             }
@@ -175,7 +175,7 @@ editor.once('load', function() {
         }
     });
 
-    var getFileUrl = function (folders, id, revision, filename) {
+    var getFileUrl = function (folders, id, revision, filename, hash) {
         var path = '';
         for(var i = 0; i < folders.length; i++) {
             var folder = editor.call('assets:get', folders[i]);
@@ -185,7 +185,7 @@ editor.once('load', function() {
                 path += 'unknown/';
             }
         }
-        return '/assets/files/' + path + encodeURIComponent(filename) + '?id=' + id;
+        return '/assets/files/' + path + encodeURIComponent(filename) + '?id=' + id + '&t=' + hash;
     };
 
     // hook sync to new assets
@@ -208,10 +208,10 @@ editor.once('load', function() {
             var parts = path.split('.');
 
             if ((parts.length === 1 || parts.length === 2) && parts[1] !== 'variants') {
-                asset.set('file.url', getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), asset.get('file.filename')));
+                asset.set('file.url', getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), asset.get('file.filename'), asset.get('file.hash')));
             } else if (parts.length >= 3 && parts[1] === 'variants') {
                 var format = parts[2];
-                asset.set('file.variants.' + format + '.url', getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), asset.get('file.variants.' + format + '.filename')));
+                asset.set('file.variants.' + format + '.url', getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), asset.get('file.variants.' + format + '.filename'), asset.get('file.variants.' + format + '.hash')));
             }
 
             setting = false;
