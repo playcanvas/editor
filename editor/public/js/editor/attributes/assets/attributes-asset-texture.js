@@ -525,6 +525,7 @@ editor.once('load', function() {
 
                 var ext = assets[i].get('file.url');
                 ext = ext.slice(ext.lastIndexOf('.') + 1).toUpperCase();
+                ext = ext.split('?')[0];
 
                 if (originalExt !== 'various' && originalExt && originalExt !== ext) {
                     originalExt = 'various';
@@ -859,7 +860,6 @@ editor.once('load', function() {
 
             var reloadImage = function() {
                 if (assets[0].get('has_thumbnail') && assets[0].get('thumbnails.xl') && assets[0].get('file.hash')) {
-                    // image.src = config.url.home + assets[0].get('file.url') + '?t=' + assets[0].get('file.hash');
                     image.src = config.url.home + assets[0].get('thumbnails.xl') + '?t=' + assets[0].get('file.hash');
                     previewContainer.style.display = '';
                 } else {
