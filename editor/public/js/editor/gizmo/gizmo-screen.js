@@ -72,6 +72,13 @@ editor.once('load', function() {
                 if (! entities[key])
                     return;
 
+                var e = app.root.findByGuid(key);
+                if (e) {
+                    // reset scale
+                    var scale = entity.get('scale');
+                    e.setLocalScale(scale[0], scale[1], scale[2]);
+                }
+
                 delete entities[key];
 
                 editor.call('viewport:render');
