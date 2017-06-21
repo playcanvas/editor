@@ -36,7 +36,6 @@ editor.once('load', function() {
         });
     });
 
-
     editor.on('attributes:inspect[editorSettings]', function() {
         var events = [ ];
 
@@ -359,11 +358,10 @@ editor.once('load', function() {
 
 
         var assetRemove = function(assetId) {
-            if (! itemsIndex[assetId])
-                return;
-
-            itemsIndex[assetId].destroy();
-            delete itemsIndex[assetId];
+            if (itemsIndex[assetId]) {
+                itemsIndex[assetId].destroy();
+                delete itemsIndex[assetId];
+            }
 
             assetUpdateNumbers();
         };
@@ -371,17 +369,24 @@ editor.once('load', function() {
         // get assets
         var assets = projectSettings.get('scripts') || [ ];
 
-        // remove null assets
-        var i = assets.length;
-        while(i--) {
-            if (assets[i] === null)
-                projectSettings.remove('scripts', i);
+        // remove null assets or assets that do not exist
+        if (editor.call('permissions:write')) {
+            var history = projectSettings.history;
+            projectSettings.history = false;
+            var i = assets.length;
+            while (i--) {
+                var id = assets[i];
+                var asset = id ? editor.call('assets:get', id) : null;
+                if (! asset) {
+                    projectSettings.remove('scripts', i);
+                }
+            }
+            projectSettings.history = history;
         }
 
         // add assets
         for(var i = 0; i < assets.length; i++)
             assetAdd(editor.call('assets:get', assets[i]));
-
 
         // on add
         events.push(projectSettings.on('scripts:insert', function(assetId, ind) {
