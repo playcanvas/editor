@@ -358,11 +358,10 @@ editor.once('load', function() {
 
 
         var assetRemove = function(assetId) {
-            if (! itemsIndex[assetId])
-                return;
-
-            itemsIndex[assetId].destroy();
-            delete itemsIndex[assetId];
+            if (itemsIndex[assetId]) {
+                itemsIndex[assetId].destroy();
+                delete itemsIndex[assetId];
+            }
 
             assetUpdateNumbers();
         };
