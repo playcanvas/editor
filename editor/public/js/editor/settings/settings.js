@@ -63,7 +63,11 @@ editor.once('load', function () {
 
                     settings.sync._enabled = false;
                     for (var key in data) {
-                        settings.set(key, data[key]);
+                        if (data[key] instanceof Array) {
+                            settings.set(key, data[key].slice(0));
+                        } else {
+                            settings.set(key, data[key]);
+                        }
                     }
                     settings.sync._enabled = true;
                     if (history)
