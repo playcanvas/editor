@@ -10,32 +10,6 @@ editor.once('load', function() {
 
     var projectSettings = editor.call('settings:project');
 
-    editor.on('assets:add', function(asset) {
-        if (asset.get('type') !== 'script')
-            return;
-
-        var assetId = parseInt(asset.get('id'), 10);
-
-        if (asset.get('preload') && projectSettings.get('scripts').indexOf(assetId) === -1)
-            projectSettings.insert('scripts', assetId);
-
-        asset.on('preload:set', function(state) {
-            var added = projectSettings.get('scripts').indexOf(assetId) !== -1;
-            if (state && ! added) {
-                projectSettings.insert('scripts', assetId);
-            } else if (! state && added) {
-                projectSettings.removeValue('scripts', assetId);
-            }
-        });
-
-        asset.once('destroy', function() {
-            if (projectSettings.get('scripts').indexOf(assetId) === -1)
-                return;
-
-            projectSettings.removeValue('scripts', assetId);
-        });
-    });
-
 
     editor.on('attributes:inspect[editorSettings]', function() {
         var events = [ ];
@@ -339,9 +313,7 @@ editor.once('load', function() {
         };
 
 
-        var assetMove = function(asset, ind) {
-            var assetId = parseInt(asset.get('id'), 10);
-
+        var assetMove = function(assetId, ind) {
             var panel = itemsIndex[assetId];
             if (! panel) return;
 
@@ -372,10 +344,12 @@ editor.once('load', function() {
         var assets = projectSettings.get('scripts') || [ ];
 
         // remove null assets
-        var i = assets.length;
-        while(i--) {
-            if (assets[i] === null)
-                projectSettings.remove('scripts', i);
+        if (editor.call('permissions:write')) {
+            var i = assets.length;
+            while(i--) {
+                if (assets[i] === null)
+                    projectSettings.remove('scripts', i);
+            }
         }
 
         // add assets
@@ -389,7 +363,7 @@ editor.once('load', function() {
         }));
         // on move
         events.push(projectSettings.on('scripts:move', function(assetId, ind) {
-            assetMove(editor.call('assets:get', assetId), ind);
+            assetMove(parseInt(assetId, 10), ind);
         }));
         // on remove
         events.push(projectSettings.on('scripts:remove', function(assetId) {
@@ -398,6 +372,11 @@ editor.once('load', function() {
         // on set
         events.push(projectSettings.on('scripts:set', function() {
             assetFullSet();
+        }));
+        // on asset add
+        events.push(editor.on('assets:add', function(asset) {
+            if (asset.get('type') == 'script' && projectSettings.get('scripts').indexOf(parseInt(asset.get('id'), 10)) !== -1)
+                assetAdd(asset);
         }));
 
 
