@@ -237,7 +237,7 @@ editor.once('load', function() {
                 if (itemsIndex[scripts[i]]) {
                     panelItems.innerElement.appendChild(itemsIndex[scripts[i]].element);
                 } else {
-                    assetAdd(editor.call('assets:get', scripts[i]));
+                    assetAdd(scripts[i]);
                 }
             }
 
@@ -252,11 +252,13 @@ editor.once('load', function() {
         };
 
 
-        var assetAdd = function(asset, ind) {
-            if (! asset) return;
-
+        var assetAdd = function(assetId, ind) {
             var events = [ ];
-            var assetId = parseInt(asset.get('id'), 10);
+            var asset = editor.call('assets:get', assetId);
+            if (! asset)
+                return;
+
+            assetId = parseInt(assetId, 10);
 
             if (itemsIndex[assetId])
                 return;
@@ -354,12 +356,12 @@ editor.once('load', function() {
 
         // add assets
         for(var i = 0; i < assets.length; i++)
-            assetAdd(editor.call('assets:get', assets[i]));
+            assetAdd(assets[i]);
 
 
         // on add
         events.push(projectSettings.on('scripts:insert', function(assetId, ind) {
-            assetAdd(editor.call('assets:get', assetId), ind);
+            assetAdd(assetId, ind);
         }));
         // on move
         events.push(projectSettings.on('scripts:move', function(assetId, ind) {
@@ -375,8 +377,11 @@ editor.once('load', function() {
         }));
         // on asset add
         events.push(editor.on('assets:add', function(asset) {
-            if (asset.get('type') == 'script' && projectSettings.get('scripts').indexOf(parseInt(asset.get('id'), 10)) !== -1)
-                assetAdd(asset);
+            if (asset.get('type') !== 'script') return;
+
+            var assetId = parseInt(asset.get('id'), 10);
+            if (projectSettings.get('scripts').indexOf(assetId) !== -1)
+                assetAdd(assetId);
         }));
 
 
