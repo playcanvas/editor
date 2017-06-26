@@ -330,6 +330,7 @@ editor.once('load', function() {
                 textureAsset: null,
                 width: 32,
                 height: 32,
+                margin: [0,0,0,0],
                 rect: [0, 0, 1, 1],
                 materialAsset: null
             },
@@ -337,7 +338,8 @@ editor.once('load', function() {
                 anchor: 'vec4',
                 pivot: 'vec2',
                 color: 'rgb',
-                rect: 'vec4'
+                rect: 'vec4',
+                margin: 'vec4'
             }
         }
     };

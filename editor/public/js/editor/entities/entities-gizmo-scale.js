@@ -143,6 +143,10 @@ editor.once('load', function() {
             if (items[i].child)
                 continue;
 
+            // skip 2D screens
+            if (items[i].obj.get('components.screen.screenSpace'))
+                continue;
+
             items[i].obj.set('scale', [ items[i].start[0] * x, items[i].start[1] * y, items[i].start[2] * z ]);
         }
     };

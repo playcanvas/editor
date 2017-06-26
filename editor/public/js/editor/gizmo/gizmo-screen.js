@@ -77,6 +77,10 @@ editor.once('load', function() {
                     // reset scale
                     var scale = entity.get('scale');
                     e.setLocalScale(scale[0], scale[1], scale[2]);
+
+                    // reset rotation
+                    var rotation = entity.get('rotation');
+                    e.setLocalEulerAngles(rotation[0], rotation[1], rotation[2]);
                 }
 
                 delete entities[key];
@@ -101,11 +105,12 @@ editor.once('load', function() {
                 if (! entity)
                     continue;
 
-                var isScreenSpace =  entities[key].entity.get('components.screen.screenSpace');
+                var isScreenSpace = entities[key].entity.get('components.screen.screenSpace');
 
                 // always render screens as 3d screens in the viewport
                 if (isScreenSpace) {
                     entity.setLocalScale(0.01, 0.01, 0.01);
+                    entity.setLocalEulerAngles(0, 0, 0);
 
                     if (entity.screen.screenSpace)
                         entity.screen.screenSpace = false;

@@ -70,6 +70,15 @@ editor.once('load', function() {
             path: 'components.element.anchor'
         });
 
+        var onAnchorChange = function () {
+            fieldWidth.parent.hidden = fieldType.value !== 'image' || useSplitAnchors();
+            fieldMargin[0].parent.hidden = !fieldWidth.parent.hidden;
+        };
+
+        fieldAnchor.forEach(function (field) {
+            field.on('change', onAnchorChange);
+        });
+
         // reference
         editor.call('attributes:reference:attach', 'element:anchor', fieldAnchor[0].parent.innerElement.firstChild.ui);
 
@@ -127,14 +136,23 @@ editor.once('load', function() {
             var anchor = fields[0].split(',').map(function (v){ return parseFloat(v);} );
             var pivot = fields[1].split(',').map(function (v){ return parseFloat(v);} );
 
+            var prev = {};
+
             var prevAnchors = [];
             var prevPivots = [];
+            var prevPositions = [];
 
             for (var i = 0; i < entities.length; i++) {
                 var history = entities[i].history.enabled;
                 entities[i].history.enabled = false;
-                prevAnchors.push(entities[i].get('components.element.anchor'));
-                prevPivots.push(entities[i].get('components.element.pivot'));
+                prev[entities[i].get('resource_id')] = {
+                    anchor: entities[i].get('components.element.anchor'),
+                    pivot: entities[i].get('components.element.pivot'),
+                    margin: entities[i].get('components.element.margin'),
+                    pos: entities[i].get('position')
+                };
+                entities[i].set('components.element.margin', [0, 0, 0, 0]);
+                entities[i].set('position', [0, 0, 0]);
                 entities[i].set('components.element.anchor', anchor);
                 entities[i].set('components.element.pivot', pivot);
                 entities[i].history.enabled = history;
@@ -147,8 +165,11 @@ editor.once('load', function() {
                         var entity = entities[i];
                         var history = entity.history.enabled;
                         entity.history.enabled = false;
-                        entity.set('components.element.anchor', prevAnchors[i]);
-                        entity.set('components.element.pivot', prevPivots[i]);
+                        var prevRecord = prev[entity.get('resource_id')];
+                        entity.set('components.element.margin', prevRecord.margin);
+                        entity.set('position', prevRecord.pos);
+                        entity.set('components.element.anchor', prevRecord.anchor);
+                        entity.set('components.element.pivot', prevRecord.pivot);
                         entity.history.enabled = history;
                     }
                 },
@@ -157,6 +178,8 @@ editor.once('load', function() {
                         var entity = entities[i];
                         var history = entity.history.enabled;
                         entity.history.enabled = false;
+                        entity.set('components.element.margin', [0, 0, 0, 0]);
+                        entity.set('position', [0, 0, 0]);
                         entity.set('components.element.anchor', anchor);
                         entity.set('components.element.pivot', pivot);
                         entity.history.enabled = history;
@@ -167,6 +190,20 @@ editor.once('load', function() {
 
             changingPreset = false;
         }));
+
+        var useSplitAnchors = function () {
+            var result = false;
+            for (var i = 0, len = entities.length; i < len; i++) {
+                var e = entities[i];
+                var anchor = e.get('components.element.anchor');
+                if (! anchor) continue;
+                if (anchor[0] !== anchor[2] || anchor[1] !== anchor[3]) {
+                    result = true;
+                    break;
+                }
+            }
+            return result;
+        };
 
         var fieldWidth = editor.call('attributes:addField', {
             parent: panel,
@@ -179,7 +216,7 @@ editor.once('load', function() {
         });
 
         fieldWidth.style.width = '32px';
-        fieldWidth.parent.hidden = fieldType.value !== 'image';
+        fieldWidth.parent.hidden = fieldType.value !== 'image' || useSplitAnchors();
 
         // reference
         editor.call('attributes:reference:attach', 'element:size', fieldWidth.parent.innerElement.firstChild.ui);
@@ -194,6 +231,18 @@ editor.once('load', function() {
         });
 
         fieldHeight.style.width = '32px';
+
+        var fieldMargin = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Margin',
+            type: 'vec4',
+            placeholder: ['←', '↓', '→', '↑'],
+            step: 1,
+            link: entities,
+            path: 'components.element.margin'
+        });
+
+        fieldMargin[0].parent.hidden = fieldType.value !== 'image' || !useSplitAnchors();
 
         var fieldText = editor.call('attributes:addField', {
             parent: panel,
@@ -355,7 +404,8 @@ editor.once('load', function() {
             fieldTextureAsset.parent.hidden = value !== 'image';
             fieldMaterialAsset.parent.hidden = value !== 'image';
             fieldRect[0].parent.hidden = value !== 'image';
-            fieldWidth.parent.hidden = value !== 'image';
+            fieldWidth.parent.hidden = value !== 'image' || useSplitAnchors();
+            fieldMargin[0].parent.hidden = !fieldWidth.parent.hidden;
             fieldColor.parent.hidden = value !== 'text' && value !== 'image';
             fieldOpacity.parent.hidden = value !== 'text' && value !== 'image';
         }));
@@ -363,7 +413,7 @@ editor.once('load', function() {
 
         events.push(fieldTextureAsset.on('change', function (value) {
             fieldRect[0].parent.hidden = fieldType.value !== 'image';
-            fieldWidth.parent.hidden = fieldType.value !== 'image';
+            fieldWidth.parent.hidden = fieldType.value !== 'image' || useSplitAnchors();
             fieldMaterialAsset.parent.hidden = fieldType.value !== 'image';
         }));
 

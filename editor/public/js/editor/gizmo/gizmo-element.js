@@ -7,80 +7,157 @@ editor.once('load', function() {
     var bottom = new pc.Vec3();
 
     var corners = [];
-    var cornerColors = [];
-
-    var tempVec2 = new pc.Vec2();
+    var cornerColor = new pc.Color(1,1,1,0.9);
 
     for (var i = 0; i < 8; i++) {
         corners.push(new pc.Vec3());
-        cornerColors.push(new pc.Color(1, 1, 1, 0.9));
     }
 
-    editor.once('viewport:load', function (app) {
-        var entities = {};
+    var vecA = new pc.Vec3();
+    var vecB = new pc.Vec3();
+    var vecC = new pc.Vec3();
+    var vecD = new pc.Vec3();
+    var vec4 = new pc.Vec4();
+    var quat = new pc.Quat();
 
-        // remember selected entities
-        var selectedEntities = {};
+    var gizmoAnchor = null;
+    var evtTapStart = null;
+    var moving = false;
+    var mouseTap = null;
+    var mouseTapMoved = false;
+    var pickStart = new pc.Vec3();
+    var posCameraLast = new pc.Vec3();
+    var selectedElementEntity = null;
+    var anchorDirty = false;
+    var anchorStart = [];
+    var anchorCurrent = [];
+    var localPosition = [];
+
+    var createAnchorGizmo = function () {
+        var obj = {
+            root: null,
+            handles: {
+                tl: null,
+                tr: null,
+                bl: null,
+                br: null,
+                center: null
+            },
+            matActive: null,
+            matInactive: null,
+            handle: null
+        };
+
+        obj.root = new pc.Entity();
+        obj.root.enabled = false;
+
+        obj.matInactive = createMaterial(new pc.Color(1, 1, 1, 0.5));
+        obj.matActive = createMaterial(new pc.Color(1, 1, 1, 1));
+
+        var createCone = function (angle) {
+            var result = new pc.Entity();
+            result.setLocalEulerAngles(0, 0, angle);
+            obj.root.addChild(result);
+
+            var cone = new pc.Entity();
+            cone.addComponent('model', {type: 'cone'});
+            cone.model.meshInstances[0].material = obj.matInactive;
+            cone.model.meshInstances[0].layer = pc.LAYER_GIZMO;
+            cone.setLocalPosition(0, -0.5, 0);
+            cone.setLocalScale(1, 1, 0.01);
+            cone.handle = result;
+            result.addChild(cone);
+
+            result.handleModel = cone;
+
+            return result;
+        };
+
+        obj.handles.tl = createCone(230);
+        obj.handles.tr = createCone(130);
+        obj.handles.bl = createCone(130+180);
+        obj.handles.br = createCone(230+180);
+
+        obj.handles.center = new pc.Entity();
+        var sphere = new pc.Entity();
+        obj.handles.center.addChild(sphere);
+        sphere.addComponent('model', {type: 'sphere'});
+        sphere.model.meshInstances[0].material = obj.matInactive;
+        sphere.model.meshInstances[0].layer = pc.LAYER_GIZMO;
+        sphere.setLocalPosition(0,0,0.1);
+        sphere.setLocalScale(0.5, 0.5, 0.5);
+        sphere.handle = obj.handles.center;
+        obj.handles.center.handleModel = sphere;
+        obj.root.addChild(obj.handles.center);
+
+        return obj;
+    };
+
+    var createMaterial = function(color) {
+        var mat = new pc.BasicMaterial();
+        mat.color = color;
+        if (color.a !== 1) {
+            mat.blend = true;
+            mat.blendSrc = pc.BLENDMODE_SRC_ALPHA;
+            mat.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
+        }
+        mat.update();
+        return mat;
+    };
+
+    var setModelMaterial = function (entity, material) {
+        if (entity.model.meshInstances[0].material !== material)
+            entity.model.meshInstances[0].material = material;
+    };
+
+    editor.once('viewport:load', function (app) {
+        var gizmoAnchor = createAnchorGizmo();
+        app.root.addChild(gizmoAnchor.root);
 
         editor.on('selector:add', function (item, type) {
-            if (type === 'entity') {
-                selectedEntities[item.get('resource_id')] = true;
+            if (type !== 'entity') return;
+
+            if (! selectedElementEntity && item.has('components.element')) {
+                selectedElementEntity = item;
             }
         });
 
         editor.on('selector:remove', function (item, type) {
-            if (type === 'entity') {
-                delete selectedEntities[item.get('resource_id')];
+            if (type !== 'entity') return;
+
+            if (selectedElementEntity === item) {
+                selectedElementEntity = null;
             }
         });
 
-        editor.on('entities:add', function(entity) {
-            var key = entity.get('resource_id');
+        var isAnchorSplit = function (anchor) {
+            return Math.abs(anchor[0] - anchor[2] > 0.001 || Math.abs(anchor[1] - anchor[3]) > 0.001);
+        };
 
-            var addGizmo = function() {
-                if (entities[key])
-                    return;
-
-                entities[key] = {
-                    entity: entity
-                };
-
-                editor.call('viewport:render');
-            };
-
-            var removeGizmo = function() {
-                if (! entities[key])
-                    return;
-
-                delete entities[key];
-
-                editor.call('viewport:render');
-            };
-
-            if (entity.has('components.element'))
-                addGizmo();
-
-            entity.on('components.element:set', addGizmo);
-            entity.on('components.element:unset', removeGizmo);
-
-            entity.once('destroy', function() {
-                removeGizmo();
-            });
-        });
+        var clamp = function (value, min, max) {
+            return Math.min(Math.max(value, min), max);
+        };
 
         editor.on('viewport:gizmoUpdate', function (dt) {
-            for (var key in entities) {
-                var entity = app.root.findByGuid(key);
-                if (! entity)
+            if (editor.call('selector:type') !== 'entity') {
+                gizmoAnchor.root.enabled = false;
+                return;
+            }
+
+            var numSelectedElements = 0;
+
+            var selected = editor.call('selector:itemsRaw');
+            for (var i = 0, len = selected.length; i < len; i++) {
+                var item = selected[i];
+
+                var entity = item.entity;
+                if (! entity || ! entity.element)
                     continue;
 
-                // skip not selected
-                if (!selectedEntities[key]) {
-                    continue;
-                }
+                numSelectedElements++;
 
-                if (entity.element.type === 'group')
-                    continue;
+                // if (entity.element.type === 'group')
+                //     continue;
 
                 var width = entity.element.width;
                 var height = entity.element.height;
@@ -125,9 +202,305 @@ editor.once('load', function() {
                 corners[6].copy(position).add(right).add(top);
                 corners[7].copy(position).add(left).add(top);
 
-                // render rectangle for screen
-                app.renderLines(corners, cornerColors, pc.LINEBATCH_GIZMO);
+                app.renderLines(corners, cornerColor, pc.LINEBATCH_GIZMO);
+            }
+
+            // anchor gizmo only show if 1 element is selected
+            var showAnchors = false;
+            if (numSelectedElements === 1) {
+                var entity = selectedElementEntity.entity;
+                if (entity) {
+                    var parent = entity.parent && entity.parent.element ? entity.parent : entity.element.screen;
+                    if (parent) {
+                        showAnchors = true;
+
+                        var camera = editor.call('camera:current');
+                        var posCamera = camera.getPosition();
+
+                        gizmoAnchor.root.setPosition(parent.getPosition());
+                        gizmoAnchor.root.setRotation(parent.getRotation());
+
+                        var resX, resY;
+                        if (parent === entity.element.screen) {
+                            resX = parent.screen.resolution.x;
+                            resY = parent.screen.resolution.y;
+                        } else {
+                            resX = parent.element.width;
+                            resY = parent.element.height;
+                        }
+
+                        var parentScale = parent.getLocalScale();
+                        resX *= parentScale.x;
+                        resY *= parentScale.y;
+
+                        var offset = pc.Vec3.ZERO;
+                        if (moving && (vecA.copy(posCameraLast).sub(posCamera).length() > 0.01 || mouseTapMoved)) {
+                            offset = pickPlane(mouseTap.x, mouseTap.y);
+                            if (offset) {
+                                offset.sub(pickStart);
+                                anchorDirty = true;
+                                // if (snap) {
+                                //     point.scale(1 / snapIncrement);
+                                //     point.x = Math.round(point.x);
+                                //     point.y = Math.round(point.y);
+                                //     point.z = Math.round(point.z);
+                                //     point.scale(snapIncrement);
+                                // }
+                                // editor.emit('gizmo:translate:offset', point.x, point.y, point.z);
+
+                                for (var i = 0; i < 4; i++)
+                                    anchorCurrent[i] = anchorStart[i];
+
+                                if (gizmoAnchor.handle === gizmoAnchor.handles.tr || gizmoAnchor.handle === gizmoAnchor.handles.tl) {
+                                    anchorCurrent[3] = clamp(anchorCurrent[3] + offset.y / resY, anchorCurrent[1], 1);
+                                    if (gizmoAnchor.handle === gizmoAnchor.handles.tr) {
+                                        anchorCurrent[2] = clamp(anchorCurrent[2] + offset.x / resX, anchorCurrent[0], 1);
+                                    } else {
+                                        anchorCurrent[0] = clamp(anchorCurrent[0] + offset.x / resX, 0, anchorCurrent[2]);
+                                    }
+                                } else if (gizmoAnchor.handle === gizmoAnchor.handles.br || gizmoAnchor.handle === gizmoAnchor.handles.bl) {
+                                    anchorCurrent[1] = clamp(anchorCurrent[1] + offset.y / resY, 0, anchorCurrent[3]);
+                                    if (gizmoAnchor.handle === gizmoAnchor.handles.br) {
+                                        anchorCurrent[2] = clamp(anchorCurrent[2] + offset.x / resX, anchorCurrent[0], 1);
+                                    } else {
+                                        anchorCurrent[0] = clamp(anchorCurrent[0] + offset.x / resX, 0, anchorCurrent[2]);
+                                    }
+                                } else if (gizmoAnchor.handle === gizmoAnchor.handles.center) {
+                                    var dx = anchorCurrent[2] - anchorCurrent[0];
+                                    var dy = anchorCurrent[3] - anchorCurrent[1];
+
+                                    anchorCurrent[0] = clamp(anchorCurrent[0] + offset.x / resX, 0, 1 - dx);
+                                    anchorCurrent[2] = clamp(anchorCurrent[2] + offset.x / resX, dx, 1);
+                                    anchorCurrent[1] = clamp(anchorCurrent[1] + offset.y / resY, 0, 1 - dy);
+                                    anchorCurrent[3] = clamp(anchorCurrent[3] + offset.y / resY, dy, 1);
+                                }
+
+                                selectedElementEntity.set('components.element.anchor', anchorCurrent);
+                            }
+
+                            editor.call('viewport:render');
+                        }
+
+                        posCameraLast.copy(posCamera);
+                        mouseTapMoved = false;
+
+                        var anchor = entity.element.anchor;
+
+                        gizmoAnchor.handles.tl.setLocalPosition(resX * (anchor.x - 0.5), resY * (anchor.w - 0.5), 0);
+                        gizmoAnchor.handles.tr.setLocalPosition(resX * (anchor.z - 0.5), resY * (anchor.w - 0.5), 0);
+                        gizmoAnchor.handles.bl.setLocalPosition(resX * (anchor.x - 0.5), resY * (anchor.y - 0.5), 0);
+                        gizmoAnchor.handles.br.setLocalPosition(resX * (anchor.z - 0.5), resY * (anchor.y - 0.5), 0);
+
+                        gizmoAnchor.handles.center.setLocalPosition(resX * (pc.math.lerp(anchor.x,anchor.z,0.5) - 0.5), resY * (pc.math.lerp(anchor.y,anchor.w,0.5) - 0.5), 0, 0.1);
+
+                        // scale to screen space
+                        var scale = 1;
+                        var gizmoSize = 0.3;
+                        if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
+                            var dot = vecA.copy(gizmoAnchor.handles.center.getPosition()).sub(posCamera).dot(camera.forward);
+                            var denom = 1280 / (2 * Math.tan(camera.camera.fov * pc.math.DEG_TO_RAD / 2));
+                            scale = Math.max(0.0001, (dot / denom) * 150) * gizmoSize;
+                        } else {
+                            scale = camera.camera.orthoHeight / 3 * gizmoSize;
+                        }
+
+                        gizmoAnchor.handles.tr.setLocalScale(scale, scale, scale);
+                        gizmoAnchor.handles.tl.setLocalScale(scale, scale, scale);
+                        gizmoAnchor.handles.br.setLocalScale(scale, scale, scale);
+                        gizmoAnchor.handles.bl.setLocalScale(scale, scale, scale);
+                        gizmoAnchor.handles.center.setLocalScale(scale, scale, scale);
+                    }
+                }
+            }
+
+            gizmoAnchor.root.enabled = showAnchors;
+        });
+
+        editor.on('viewport:pick:hover', function(node, picked) {
+            if (! node || ! node.handle) {
+                if (gizmoAnchor.handle) {
+                    gizmoAnchor.handle = null;
+
+                    for (var key in gizmoAnchor.handles) {
+                        setModelMaterial(gizmoAnchor.handles[key].handleModel, gizmoAnchor.matInactive);
+                    }
+
+                    if (evtTapStart) {
+                        evtTapStart.unbind();
+                        evtTapStart = null;
+                    }
+                }
+            } else {
+                if (! gizmoAnchor.handle || gizmoAnchor.handle !== node.handle) {
+                    gizmoAnchor.handle = node.handle;
+
+                    for (var key in gizmoAnchor.handles) {
+                        setModelMaterial(gizmoAnchor.handles[key].handleModel, gizmoAnchor.handles[key] === gizmoAnchor.handle ? gizmoAnchor.matActive : gizmoAnchor.matInactive);
+                    }
+
+                    if (! evtTapStart) {
+                        evtTapStart = editor.on('viewport:tap:start', onTapStart);
+                    }
+                }
             }
         });
+
+        var onTapStart = function (tap) {
+            if (moving || tap.button !== 0)
+                return;
+
+            editor.emit('camera:toggle', false);
+            editor.call('viewport:pick:state', false);
+
+            moving = true;
+            mouseTap = tap;
+            anchorDirty = false;
+
+            if (gizmoAnchor.root.enabled) {
+                pickStart.copy(pickPlane(tap.x, tap.y));
+            }
+
+            if (selectedElementEntity) {
+                selectedElementEntity.history.enabled = false;
+
+                anchorStart = selectedElementEntity.get('components.element.anchor').slice(0);
+            }
+
+            editor.call('gizmo:translate:visible', false);
+            editor.call('gizmo:rotate:visible', false);
+            editor.call('gizmo:scale:visible', false);
+        };
+
+        var onTapMove = function(tap) {
+            if (! moving)
+                return;
+
+            mouseTap = tap;
+            mouseTapMoved = true;
+        };
+
+        var onTapEnd = function(tap) {
+            if (tap.button !== 0)
+                return;
+
+            editor.emit('camera:toggle', true);
+
+            if (! moving)
+                return;
+
+            moving = false;
+            mouseTap = tap;
+
+            editor.call('gizmo:translate:visible', true);
+            editor.call('gizmo:rotate:visible', true);
+            editor.call('gizmo:scale:visible', true);
+            editor.call('viewport:pick:state', true);
+
+            // update entity anchor
+            if (selectedElementEntity) {
+                if (anchorDirty) {
+                    var resourceId = selectedElementEntity.get('resource_id');
+                    var previousAnchor = anchorStart.slice(0);
+                    var newAnchor = anchorCurrent.slice(0);
+                    var prevPos;
+                    var newPos;
+                    var prevMargin;
+                    var newMargin;
+
+                    var prevSplit = isAnchorSplit(previousAnchor);
+                    var newSplit = isAnchorSplit(newAnchor);
+
+                    if (! prevSplit && newSplit) {
+                        // reset position
+                        prevPos = selectedElementEntity.get('position');
+                        newPos = [0, 0, 0];
+
+                        var localPos = selectedElementEntity.entity.getLocalPosition().clone();
+                        selectedElementEntity.set('position', newPos);
+                        selectedElementEntity.entity.setLocalPosition(localPos);
+                    } else if (prevSplit && ! newSplit) {
+                        // reset margin
+                        prevMargin = selectedElementEntity.get('components.element.margin');
+                        newMargin = [0, 0, 0, 0];
+
+                        selectedElementEntity.set('components.element.margin', newMargin);
+                        vec4.set(0,0,0,0);
+                        selectedElementEntity.entity.element.margin = vec4;
+                        selectedElementEntity.entity.element.width = selectedElementEntity.get('components.element.width');
+                        selectedElementEntity.entity.element.height = selectedElementEntity.get('components.element.height');
+
+                        var pos = selectedElementEntity.get('position');
+                        selectedElementEntity.entity.setLocalPosition(pos[0], pos[1], pos[2]);
+                    }
+
+                    editor.call('history:add', {
+                        name: 'entity.element.anchor',
+                        undo: function() {
+                            var item = editor.call('entities:get', resourceId);
+                            if (! item)
+                                return;
+
+                            var history = item.history.enabled;
+                            item.history.enabled = false;
+                            if (prevPos)
+                                item.set('position', prevPos);
+                            item.set('components.element.anchor', previousAnchor);
+                            if (prevMargin)
+                                item.set('components.element.margin', prevMargin);
+                            item.history.enabled = history;
+                        },
+                        redo: function() {
+                            var item = editor.call('entities:get', resourceId);
+                            if (! item)
+                                return;
+
+                            var history = item.history.enabled;
+                            item.history.enabled = false;
+                            if (newPos)
+                                item.set('position', newPos);
+                            item.set('components.element.anchor', newAnchor);
+                            if (newMargin)
+                                item.set('components.element.margin', newMargin);
+                            item.history.enabled = history;
+                        }
+                    });
+                }
+
+                selectedElementEntity.history.enabled = true;
+            }
+        };
+
+        var pickPlane = function(x, y) {
+            var camera = editor.call('camera:current');
+
+            var mouseWPos = camera.camera.screenToWorld(x, y, 1);
+            var posGizmo = gizmoAnchor.root.getPosition();
+            var rayOrigin = vecA.copy(camera.getPosition());
+            var rayDirection = vecB.set(0, 0, 0);
+
+            vecC.copy(gizmoAnchor.root.forward);
+            var planeNormal = vecC.scale(-1);
+
+            if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
+                rayDirection.copy(mouseWPos).sub(rayOrigin).normalize();
+            } else {
+                rayOrigin.add(mouseWPos);
+                camera.getWorldTransform().transformVector(vecD.set(0, 0, -1), rayDirection);
+            }
+
+            var rayPlaneDot = planeNormal.dot(rayDirection);
+            var planeDist = posGizmo.dot(planeNormal);
+            var pointPlaneDist = (planeNormal.dot(rayOrigin) - planeDist) / rayPlaneDot;
+            var pickedPos = rayDirection.scale(-pointPlaneDist).add(rayOrigin);
+
+            // convert pickedPos to local position relative to the gizmo
+            quat.copy(gizmoAnchor.root.getRotation()).invert().transformVector(pickedPos, pickedPos);
+
+            return pickedPos;
+        };
+
+        editor.on('viewport:tap:move', onTapMove);
+        editor.on('viewport:tap:end', onTapEnd);
+
     });
 });

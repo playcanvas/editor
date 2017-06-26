@@ -208,6 +208,10 @@ editor.once('load', function() {
             if (items[i].child)
                 continue;
 
+            // skip 2D screens
+            if (items[i].obj.get('components.screen.screenSpace'))
+                continue;
+
             vecA.set(0, 0, 0);
             vecA[gizmoAxis] = 1;
 
