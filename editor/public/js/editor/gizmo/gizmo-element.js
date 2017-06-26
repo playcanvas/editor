@@ -138,6 +138,16 @@ editor.once('load', function() {
             return Math.min(Math.max(value, min), max);
         };
 
+        var offsetAnchor = function (value, offset, min, max, snap) {
+            value += offset;
+            value = Math.round(value / snap)  * snap;
+            if (value < min + snap)
+                value = min;
+            else if (value > max - snap)
+                value = max;
+            return value;
+        };
+
         editor.on('viewport:gizmoUpdate', function (dt) {
             if (editor.call('selector:type') !== 'entity') {
                 gizmoAnchor.root.enabled = false;
@@ -156,8 +166,8 @@ editor.once('load', function() {
 
                 numSelectedElements++;
 
-                // if (entity.element.type === 'group')
-                //     continue;
+                if (entity.element.type !== 'group')
+                    continue;
 
                 var width = entity.element.width;
                 var height = entity.element.height;
@@ -220,6 +230,23 @@ editor.once('load', function() {
                         gizmoAnchor.root.setPosition(parent.getPosition());
                         gizmoAnchor.root.setRotation(parent.getRotation());
 
+                        // scale to screen space
+                        var scale = 1;
+                        var gizmoSize = 0.3;
+                        if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
+                            var dot = vecA.copy(gizmoAnchor.handles.center.getPosition()).sub(posCamera).dot(camera.forward);
+                            var denom = 1280 / (2 * Math.tan(camera.camera.fov * pc.math.DEG_TO_RAD / 2));
+                            scale = Math.max(0.0001, (dot / denom) * 150) * gizmoSize;
+                        } else {
+                            scale = camera.camera.orthoHeight / 3 * gizmoSize;
+                        }
+
+                        gizmoAnchor.handles.tr.setLocalScale(scale, scale, scale);
+                        gizmoAnchor.handles.tl.setLocalScale(scale, scale, scale);
+                        gizmoAnchor.handles.br.setLocalScale(scale, scale, scale);
+                        gizmoAnchor.handles.bl.setLocalScale(scale, scale, scale);
+                        gizmoAnchor.handles.center.setLocalScale(scale, scale, scale);
+
                         var resX, resY;
                         if (parent === entity.element.screen) {
                             resX = parent.screen.resolution.x;
@@ -229,9 +256,11 @@ editor.once('load', function() {
                             resY = parent.element.height;
                         }
 
-                        var parentScale = parent.getLocalScale();
-                        resX *= parentScale.x;
-                        resY *= parentScale.y;
+                        var screenScale = entity.element.screen ? entity.element.screen.getLocalScale() : parent.getLocalScale();
+                        resX *= screenScale.x;
+                        resY *= screenScale.y;
+
+                        var snapIncrement = 0.04 * scale;
 
                         var offset = pc.Vec3.ZERO;
                         if (moving && (vecA.copy(posCameraLast).sub(posCamera).length() > 0.01 || mouseTapMoved)) {
@@ -239,31 +268,23 @@ editor.once('load', function() {
                             if (offset) {
                                 offset.sub(pickStart);
                                 anchorDirty = true;
-                                // if (snap) {
-                                //     point.scale(1 / snapIncrement);
-                                //     point.x = Math.round(point.x);
-                                //     point.y = Math.round(point.y);
-                                //     point.z = Math.round(point.z);
-                                //     point.scale(snapIncrement);
-                                // }
-                                // editor.emit('gizmo:translate:offset', point.x, point.y, point.z);
 
                                 for (var i = 0; i < 4; i++)
                                     anchorCurrent[i] = anchorStart[i];
 
                                 if (gizmoAnchor.handle === gizmoAnchor.handles.tr || gizmoAnchor.handle === gizmoAnchor.handles.tl) {
-                                    anchorCurrent[3] = clamp(anchorCurrent[3] + offset.y / resY, anchorCurrent[1], 1);
+                                    anchorCurrent[3] = offsetAnchor(anchorCurrent[3], offset.y / resY, anchorCurrent[1], 1, snapIncrement);
                                     if (gizmoAnchor.handle === gizmoAnchor.handles.tr) {
-                                        anchorCurrent[2] = clamp(anchorCurrent[2] + offset.x / resX, anchorCurrent[0], 1);
+                                        anchorCurrent[2] = offsetAnchor(anchorCurrent[2], offset.x / resX, anchorCurrent[0], 1, snapIncrement);
                                     } else {
-                                        anchorCurrent[0] = clamp(anchorCurrent[0] + offset.x / resX, 0, anchorCurrent[2]);
+                                        anchorCurrent[0] = offsetAnchor(anchorCurrent[0], offset.x / resX, 0, anchorCurrent[2], snapIncrement);
                                     }
                                 } else if (gizmoAnchor.handle === gizmoAnchor.handles.br || gizmoAnchor.handle === gizmoAnchor.handles.bl) {
-                                    anchorCurrent[1] = clamp(anchorCurrent[1] + offset.y / resY, 0, anchorCurrent[3]);
+                                    anchorCurrent[1] = offsetAnchor(anchorCurrent[1], offset.y / resY, 0, anchorCurrent[3], snapIncrement);
                                     if (gizmoAnchor.handle === gizmoAnchor.handles.br) {
-                                        anchorCurrent[2] = clamp(anchorCurrent[2] + offset.x / resX, anchorCurrent[0], 1);
+                                        anchorCurrent[2] = offsetAnchor(anchorCurrent[2], offset.x / resX, anchorCurrent[0], 1, snapIncrement);
                                     } else {
-                                        anchorCurrent[0] = clamp(anchorCurrent[0] + offset.x / resX, 0, anchorCurrent[2]);
+                                        anchorCurrent[0] = offsetAnchor(anchorCurrent[0], offset.x / resX, 0, anchorCurrent[2], snapIncrement);
                                     }
                                 } else if (gizmoAnchor.handle === gizmoAnchor.handles.center) {
                                     var dx = anchorCurrent[2] - anchorCurrent[0];
@@ -293,22 +314,7 @@ editor.once('load', function() {
 
                         gizmoAnchor.handles.center.setLocalPosition(resX * (pc.math.lerp(anchor.x,anchor.z,0.5) - 0.5), resY * (pc.math.lerp(anchor.y,anchor.w,0.5) - 0.5), 0, 0.1);
 
-                        // scale to screen space
-                        var scale = 1;
-                        var gizmoSize = 0.3;
-                        if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
-                            var dot = vecA.copy(gizmoAnchor.handles.center.getPosition()).sub(posCamera).dot(camera.forward);
-                            var denom = 1280 / (2 * Math.tan(camera.camera.fov * pc.math.DEG_TO_RAD / 2));
-                            scale = Math.max(0.0001, (dot / denom) * 150) * gizmoSize;
-                        } else {
-                            scale = camera.camera.orthoHeight / 3 * gizmoSize;
-                        }
 
-                        gizmoAnchor.handles.tr.setLocalScale(scale, scale, scale);
-                        gizmoAnchor.handles.tl.setLocalScale(scale, scale, scale);
-                        gizmoAnchor.handles.br.setLocalScale(scale, scale, scale);
-                        gizmoAnchor.handles.bl.setLocalScale(scale, scale, scale);
-                        gizmoAnchor.handles.center.setLocalScale(scale, scale, scale);
                     }
                 }
             }

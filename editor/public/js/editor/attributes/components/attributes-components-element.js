@@ -72,7 +72,7 @@ editor.once('load', function() {
 
         var onAnchorChange = function () {
             fieldWidth.parent.hidden = fieldType.value !== 'image' || useSplitAnchors();
-            fieldMargin[0].parent.hidden = !fieldWidth.parent.hidden;
+            fieldMargin[0].parent.hidden = ! useSplitAnchors();
         };
 
         fieldAnchor.forEach(function (field) {
@@ -242,7 +242,7 @@ editor.once('load', function() {
             path: 'components.element.margin'
         });
 
-        fieldMargin[0].parent.hidden = fieldType.value !== 'image' || !useSplitAnchors();
+        fieldMargin[0].parent.hidden = !useSplitAnchors();
 
         var fieldText = editor.call('attributes:addField', {
             parent: panel,
@@ -405,7 +405,7 @@ editor.once('load', function() {
             fieldMaterialAsset.parent.hidden = value !== 'image';
             fieldRect[0].parent.hidden = value !== 'image';
             fieldWidth.parent.hidden = value !== 'image' || useSplitAnchors();
-            fieldMargin[0].parent.hidden = !fieldWidth.parent.hidden;
+            fieldMargin[0].parent.hidden = ! useSplitAnchors();
             fieldColor.parent.hidden = value !== 'text' && value !== 'image';
             fieldOpacity.parent.hidden = value !== 'text' && value !== 'image';
         }));
