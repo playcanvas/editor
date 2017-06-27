@@ -146,7 +146,7 @@ editor.once('load', function() {
                     // reset resolution
                     var res = entities[key].entity.get('components.screen.resolution');
                     var currentRes = entity.screen.resolution;
-                    vecA.set(res.x, res.y);
+                    vecA.set(res[0], res[1]);
                     if (currentRes.x !== res[0] || currentRes.y !== res[1]) {
                         entity.screen.resolution = vecA;
                     }
