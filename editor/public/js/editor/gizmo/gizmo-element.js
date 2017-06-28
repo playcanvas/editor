@@ -251,6 +251,12 @@ editor.once('load', function() {
                         if (parent === entity.element.screen) {
                             resX = parent.screen.resolution.x;
                             resY = parent.screen.resolution.y;
+
+                            if (parent.screen.scaleMode === 'blend') {
+                                var resScale = parent.screen._calcScale(parent.screen.resolution, parent.screen.referenceResolution) || Number.MIN_VALUE;
+                                resX /= resScale;
+                                resY /= resScale;
+                            }
                         } else {
                             resX = parent.element.width;
                             resY = parent.element.height;
