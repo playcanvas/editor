@@ -57,6 +57,8 @@ editor.once('load', function() {
             enum: presetsEnum
         });
 
+        editor.call('attributes:reference:attach', 'element:preset', fieldPreset.parent.innerElement.firstChild.ui);
+
         var fieldAnchor = editor.call('attributes:addField', {
             parent: panel,
             placeholder: ['←', '↓', '→', '↑'],
@@ -352,6 +354,9 @@ editor.once('load', function() {
             link: entities,
             path: 'components.element.margin'
         });
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:margin', fieldMargin[0].parent.innerElement.firstChild.ui);
 
         var toggleMargin = function () {
             var horizontalSplit = hasSplitAnchors(true);
