@@ -71,12 +71,98 @@ editor.once('load', function() {
         });
 
         var onAnchorChange = function () {
-            fieldWidth.parent.hidden = fieldType.value !== 'image' || useSplitAnchors();
-            fieldMargin[0].parent.hidden = ! useSplitAnchors();
+            toggleSize();
+            toggleMargin();
         };
 
-        fieldAnchor.forEach(function (field) {
+
+        fieldAnchor.forEach(function (field, index) {
             field.on('change', onAnchorChange);
+
+            // var changing = false;
+
+            // var refreshValue = function () {
+            //     var value = null;
+            //     for (var i = 0, len = entities.length; i < len; i++) {
+            //         var anchor = entities[i].get('components.element.anchor.' + index);
+            //         if (value === null) {
+            //             value = anchor;
+            //         } else if (value !== anchor) {
+            //             value = null;
+            //             break;
+            //         }
+            //     }
+
+            //     changing = true;
+            //     field.value = value;
+            //     changing = false;
+            //     field.proxy = value !== null ? null : '...';
+            // };
+
+            // refreshValue();
+
+            // field.on('change', function (value) {
+            //     if (changing) return;
+
+            //     changing = true;
+
+            //     var prev = {};
+
+            //     for (var i = 0, len = entities.length; i < len; i++) {
+            //         if (entities[i].has('components.element')) {
+            //             var prevData = {
+            //                 anchor: entities[i].get('components.element.anchor.' + index)
+            //             };
+
+            //             prev[entities[i].get('resource_id')] = prevData;
+
+            //             var history = entities[i].history.enabled;
+            //             entities[i].history.enabled = false;
+            //             entities[i].set('components.element.anchor.' + index, value);
+            //             entities[i].history.enabled = history;
+            //         }
+            //     }
+
+            //     editor.call('history:add', {
+            //         name: 'components.element.anchor.' + index,
+            //         undo: function () {
+            //             for (var i = 0, len = entities.length; i < len; i++) {
+            //                 var prevData = prev[entities[i].get('resource_id')];
+            //                 if (! prevData) continue;
+
+            //                 var obj = editor.call('entities:get', entities[i].get('resource_id'));
+            //                 if (! obj) return;
+            //                 var history = obj.history.enabled;
+            //                 obj.history.enabled = false;
+            //                 obj.set('components.element.anchor.' + index, prevData.anchor);
+            //                 obj.history.enabled = history;
+            //             }
+            //         },
+            //         redo: function () {
+            //             for (var i = 0, len = entities.length; i < len; i++) {
+            //                 var obj = editor.call('entities:get', entities[i].get('resource_id'));
+            //                 if (! obj) return;
+
+            //                 var history = obj.history.enabled;
+            //                 obj.history.enabled = false;
+            //                 obj.set('components.element.anchor.' + index, value);
+            //                 obj.history.enabled = history;
+            //             }
+
+            //         }
+            //     });
+
+            //     changing = false;
+
+            // });
+
+            // for (var i = 0, len = entities.length; i < len; i++) {
+            //     events.push(entities[i].on('components.element.anchor:set', refreshValue));
+            //     events.push(entities[i].on('components.element.anchor.0:set', refreshValue));
+            //     events.push(entities[i].on('components.element.anchor.1:set', refreshValue));
+            //     events.push(entities[i].on('components.element.anchor.2:set', refreshValue));
+            //     events.push(entities[i].on('components.element.anchor.3:set', refreshValue));
+            // }
         });
 
         // reference
@@ -145,16 +231,20 @@ editor.once('load', function() {
             for (var i = 0; i < entities.length; i++) {
                 var history = entities[i].history.enabled;
                 entities[i].history.enabled = false;
+                var width = entities[i].get('components.element.width');
+                var height = entities[i].get('components.element.height');
                 prev[entities[i].get('resource_id')] = {
                     anchor: entities[i].get('components.element.anchor'),
                     pivot: entities[i].get('components.element.pivot'),
-                    margin: entities[i].get('components.element.margin'),
-                    pos: entities[i].get('position')
+                    width: width,
+                    height: height
                 };
-                entities[i].set('components.element.margin', [0, 0, 0, 0]);
-                entities[i].set('position', [0, 0, 0]);
                 entities[i].set('components.element.anchor', anchor);
                 entities[i].set('components.element.pivot', pivot);
+                if (entities[i].entity) {
+                    entities[i].entity.element.width = width;
+                    entities[i].entity.element.height = height;
+                }
                 entities[i].history.enabled = history;
             }
 
@@ -166,10 +256,12 @@ editor.once('load', function() {
                         var history = entity.history.enabled;
                         entity.history.enabled = false;
                         var prevRecord = prev[entity.get('resource_id')];
-                        entity.set('components.element.margin', prevRecord.margin);
-                        entity.set('position', prevRecord.pos);
                         entity.set('components.element.anchor', prevRecord.anchor);
                         entity.set('components.element.pivot', prevRecord.pivot);
+                        if (entity.entity) {
+                            entity.entity.element.width = prevRecord.width;
+                            entity.entity.element.height = prevRecord.height;
+                        }
                         entity.history.enabled = history;
                     }
                 },
@@ -178,10 +270,16 @@ editor.once('load', function() {
                         var entity = entities[i];
                         var history = entity.history.enabled;
                         entity.history.enabled = false;
-                        entity.set('components.element.margin', [0, 0, 0, 0]);
-                        entity.set('position', [0, 0, 0]);
                         entity.set('components.element.anchor', anchor);
                         entity.set('components.element.pivot', pivot);
+
+                        var prevRecord = prev[entity.get('resource_id')];
+
+                        if (entity.entity) {
+                            entity.entity.element.width = prevRecord.width;
+                            entity.entity.element.height = prevRecord.height;
+                        }
+
                         entity.history.enabled = history;
                     }
                 }
@@ -191,18 +289,23 @@ editor.once('load', function() {
             changingPreset = false;
         }));
 
-        var useSplitAnchors = function () {
-            var result = false;
+        var hasSplitAnchors = function (horizontal) {
             for (var i = 0, len = entities.length; i < len; i++) {
                 var e = entities[i];
                 var anchor = e.get('components.element.anchor');
                 if (! anchor) continue;
-                if (anchor[0] !== anchor[2] || anchor[1] !== anchor[3]) {
-                    result = true;
-                    break;
+                if (horizontal) {
+                    if (Math.abs(anchor[0] - anchor[2]) > 0.001) {
+                        return true;
+                    }
+                } else {
+                    if (Math.abs(anchor[1] - anchor[3]) > 0.001) {
+                        return true;
+                    }
                 }
             }
-            return result;
+
+            return false;
         };
 
         var fieldWidth = editor.call('attributes:addField', {
@@ -216,7 +319,6 @@ editor.once('load', function() {
         });
 
         fieldWidth.style.width = '32px';
-        fieldWidth.parent.hidden = fieldType.value !== 'image' || useSplitAnchors();
 
         // reference
         editor.call('attributes:reference:attach', 'element:size', fieldWidth.parent.innerElement.firstChild.ui);
@@ -232,6 +334,15 @@ editor.once('load', function() {
 
         fieldHeight.style.width = '32px';
 
+        var toggleSize = function () {
+            fieldWidth.disabled = fieldType.value !== 'image' || hasSplitAnchors(true);
+            fieldWidth.renderChanges = !fieldWidth.disabled;
+            fieldHeight.disabled = fieldType.value !== 'image' || hasSplitAnchors(false);
+            fieldHeight.renderChanges = !fieldHeight.disabled;
+        };
+
+        toggleSize();
+
         var fieldMargin = editor.call('attributes:addField', {
             parent: panel,
             name: 'Margin',
@@ -242,7 +353,20 @@ editor.once('load', function() {
             path: 'components.element.margin'
         });
 
-        fieldMargin[0].parent.hidden = !useSplitAnchors();
+        var toggleMargin = function () {
+            var horizontalSplit = hasSplitAnchors(true);
+            var verticalSplit = hasSplitAnchors(false);
+            fieldMargin[0].disabled = ! horizontalSplit;
+            fieldMargin[2].disabled = ! horizontalSplit;
+
+            fieldMargin[1].disabled = ! verticalSplit;
+            fieldMargin[3].disabled = ! verticalSplit;
+
+            for (var i = 0; i < 4; i++)
+                fieldMargin[i].renderChanges = !fieldMargin[i].disabled;
+        };
+
+        toggleMargin();
 
         var fieldText = editor.call('attributes:addField', {
             parent: panel,
@@ -404,8 +528,8 @@ editor.once('load', function() {
             fieldTextureAsset.parent.hidden = value !== 'image';
             fieldMaterialAsset.parent.hidden = value !== 'image';
             fieldRect[0].parent.hidden = value !== 'image';
-            fieldWidth.parent.hidden = value !== 'image' || useSplitAnchors();
-            fieldMargin[0].parent.hidden = ! useSplitAnchors();
+            toggleSize();
+            toggleMargin();
             fieldColor.parent.hidden = value !== 'text' && value !== 'image';
             fieldOpacity.parent.hidden = value !== 'text' && value !== 'image';
         }));
@@ -413,7 +537,7 @@ editor.once('load', function() {
 
         events.push(fieldTextureAsset.on('change', function (value) {
             fieldRect[0].parent.hidden = fieldType.value !== 'image';
-            fieldWidth.parent.hidden = fieldType.value !== 'image' || useSplitAnchors();
+            toggleSize();
             fieldMaterialAsset.parent.hidden = fieldType.value !== 'image';
         }));
 
@@ -439,24 +563,37 @@ editor.once('load', function() {
 
                 var previous = {};
                 for (var i = 0, len = entities.length; i < len; i++) {
-                    previous[entities[i].get('resource_id')] = {
+                    var anchor = entities[i].get('components.element.anchor');
+                    if (Math.abs(anchor[0] - anchor[2]) > 0.001 || Math.abs(anchor[1] - anchor[3]) > 0.001) {
+                        continue;
+                    }
+
+                    var prevData = {
                         width: entities[i].get('components.element.width'),
-                        height: entities[i].get('components.element.height')
+                        height: entities[i].get('components.element.height'),
+                        margin: entities[i].get('components.element.margin')
                     };
+
+
+                    previous[entities[i].get('resource_id')] = prevData;
                 }
 
                 lastHistoryAction.undo = function () {
                     lastUndo();
 
                     for (var i = 0, len = entities.length; i < len; i++) {
+                        var prev = previous[entities[i].get('resource_id')];
+                        if (! prev) continue;
+
                         var entity = editor.call('entities:get', entities[i].get('resource_id'));
                         if (! entity) continue;
 
                         var history = entity.history.enabled;
                         entity.history.enabled = false;
                         if (entity.has('components.element')) {
-                            entity.set('components.element.width', previous[entity.get('resource_id')].width);
-                            entity.set('components.element.height', previous[entity.get('resource_id')].height);
+                            entity.set('components.element.width', prev.width);
+                            entity.set('components.element.height', prev.height);
+                            entity.set('components.element.margin', prev.margin);
                         }
                         entity.history.enabled = history;
                     }
@@ -464,6 +601,9 @@ editor.once('load', function() {
 
                 var redo = function () {
                     for (var i = 0, len = entities.length; i < len; i++) {
+                        var prev = previous[entities[i].get('resource_id')];
+                        if (! prev) continue;
+
                         var entity = editor.call('entities:get', entities[i].get('resource_id'));
                         if (! entity) continue;
 
@@ -472,6 +612,11 @@ editor.once('load', function() {
                         if (entity.has('components.element')) {
                             entity.set('components.element.width', width);
                             entity.set('components.element.height', height);
+
+                            if (entity.entity) {
+                                var margin = entity.entity.element.margin.data;
+                                entity.set('components.element.margin', [margin[0], margin[1], margin[2], margin[3]]);
+                            }
                         }
                         entity.history.enabled = history;
                     }

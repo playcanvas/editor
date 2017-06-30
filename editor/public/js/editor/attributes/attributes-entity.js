@@ -381,6 +381,10 @@ editor.once('load', function() {
             items.fieldPosition[i].enabled = !disablePosition;
             items.fieldRotation[i].enabled = !disableRotation;
             items.fieldScale[i].enabled = !disableScale;
+
+            items.fieldPosition[i].renderChanges = !disablePosition;
+            items.fieldRotation[i].renderChanges = !disableRotation;
+            items.fieldScale[i].renderChanges = !disableScale;
         }
 
     };
@@ -390,7 +394,7 @@ editor.once('load', function() {
 
         var addEvents = function (entity) {
             inspectEvents.push(entity.on('*:set', function (path) {
-                if (/components.[screen.screenSpace|element.anchor]/.test(path)) {
+                if (/components.(screen.screenSpace|element.anchor)/.test(path)) {
                     toggleFieldsIfNeeded(entity);
                 }
             }));

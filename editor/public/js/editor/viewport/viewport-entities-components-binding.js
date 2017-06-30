@@ -66,34 +66,9 @@ editor.once('load', function() {
                     if (property === 'enabled') {
                         value = false;
                     }
-                } else if (component === 'element') {
-                    if (property === 'margin') {
-                        var anchor = obj.get('components.element.anchor');
-                        if (Math.abs(anchor[0] - anchor[2]) < 0.001 && Math.abs(anchor[1] - anchor[3]) < 0.001) {
-                            return;
-                        }
-                    } else if (property === 'width' || property === 'height') {
-                        var anchor = obj.get('components.element.anchor');
-                        if (Math.abs(anchor[0] - anchor[2]) > 0.001 || Math.abs(anchor[1] - anchor[3]) > 0.001) {
-                            return;
-                        }
-                    }
                 }
 
                 entity[component][property] = editor.call('components:convertValue', component, property, value);
-
-                if (component === 'element' && property === 'anchor') {
-                    if (Math.abs(value[0] - value[2]) > 0.001 || Math.abs(value[1] - value[3]) > 0.001) {
-                        var margin = obj.get('components.element.margin');
-                        entity.element.margin.set(margin[0], margin[1], margin[2], margin[3]);
-                        entity.element.margin = entity.element.margin; // force change
-                    } else {
-                        entity.element.width = obj.get('components.element.width');
-                        entity.element.height = obj.get('components.element.height');
-                        var pos = obj.get('position');
-                        entity.setLocalPosition(pos[0], pos[1], pos[2]);
-                    }
-                }
 
                 // render
                 editor.call('viewport:render');

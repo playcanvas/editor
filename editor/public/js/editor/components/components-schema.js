@@ -330,7 +330,7 @@ editor.once('load', function() {
                 textureAsset: null,
                 width: 32,
                 height: 32,
-                margin: [0,0,0,0],
+                margin: [-16,-16,-16,-16],
                 rect: [0, 0, 1, 1],
                 materialAsset: null
             },

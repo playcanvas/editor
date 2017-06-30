@@ -129,14 +129,6 @@ editor.once('load', function() {
             items[i].startLocal[1] = pos[1];
             items[i].startLocal[2] = pos[2];
 
-            if (items[i].obj.entity.element) {
-                var margin = items[i].obj.entity.element.margin;
-                items[i].startMargin[0] = margin.x;
-                items[i].startMargin[1] = margin.y;
-                items[i].startMargin[2] = margin.z;
-                items[i].startMargin[3] = margin.w;
-            }
-
             items[i].obj.history.enabled = false;
         }
     };
@@ -155,11 +147,6 @@ editor.once('load', function() {
                 value: items[i].obj.get('position')
             };
 
-            if (items[i].obj.entity.element) {
-                data.marginOld = items[i].startMargin.slice(0);
-                data.margin = items[i].obj.get('components.element.margin');
-            }
-
             records.push(data);
         }
 
@@ -173,8 +160,6 @@ editor.once('load', function() {
 
                     item.history.enabled = false;
                     item.set('position', records[i].valueOld);
-                    if (records[i].marginOld)
-                        item.set('components.element.margin', records[i].marginOld);
                     item.history.enabled = true;
                 }
             },
@@ -186,8 +171,6 @@ editor.once('load', function() {
 
                     item.history.enabled = false;
                     item.set('position', records[i].value);
-                    if (records[i].margin)
-                        item.set('components.element.margin', records[i].margin);
                     item.history.enabled = true;
                 }
             }
@@ -203,7 +186,6 @@ editor.once('load', function() {
                 continue;
 
             var entity = items[i].obj.entity;
-            var marginDirty = false;
 
             if (coordSystem === 'local') {
                 vecA.set(x, y, z);
@@ -217,43 +199,17 @@ editor.once('load', function() {
                 }
                 quat.copy(entity.getLocalRotation()).transformVector(vecA, vecA);
                 vecA.mul(vecB);
-
-                if (entity.element && (Math.abs(entity.element.anchor.x - entity.element.anchor.z) > 0.001 || Math.abs(entity.element.anchor.y - entity.element.anchor.w) > 0.001)) {
-                    entity.element.margin.set(items[i].startMargin[0] + vecA.x, items[i].startMargin[1] + vecA.y, items[i].startMargin[2] - vecA.x, items[i].startMargin[3] - vecA.y);
-                    entity.setLocalPosition(items[i].startLocal[0], items[i].startLocal[1], items[i].startLocal[2] + vecA.z);
-                    marginDirty = true;
-                } else {
-                    entity.setLocalPosition(items[i].startLocal[0] + vecA.x, items[i].startLocal[1] + vecA.y, items[i].startLocal[2] + vecA.z);
-                }
+                entity.setLocalPosition(items[i].startLocal[0] + vecA.x, items[i].startLocal[1] + vecA.y, items[i].startLocal[2] + vecA.z);
             } else {
-                if (entity.element && (Math.abs(entity.element.anchor.x - entity.element.anchor.z) > 0.001 || Math.abs(entity.element.anchor.y - entity.element.anchor.w) > 0.001)) {
-                    if (entity.element.screen) {
-                        vecB.copy(entity.element.screen.getLocalScale())
-                        vecA.set(x/vecB.x, y/vecB.y, z/vecB.z);
-                    } else {
-                        vecA.set(x, y, z);
-                    }
-
-                    entity.element.margin.set(items[i].startMargin[0] + vecA.x, items[i].startMargin[1] + vecA.y, items[i].startMargin[2] - vecA.x, items[i].startMargin[3] - vecA.y);
-                    entity.setPosition(items[i].start[0], items[i].start[1], items[i].start[2] + z);
-                    marginDirty = true;
-                } else {
-                    entity.setPosition(items[i].start[0] + x, items[i].start[1] + y, items[i].start[2] + z);
-                }
+                entity.setPosition(items[i].start[0] + x, items[i].start[1] + y, items[i].start[2] + z);
             }
 
             // if (entity.collision) {
             //     app.systems.collision.onTransformChanged(entity.collision, entity.getPosition(), entity.getRotation(), entity.getLocalScale());
             // }
 
-            if (marginDirty) {
-                var margin = entity.element.margin;
-                items[i].obj.set('components.element.margin', [margin.x, margin.y, margin.z, margin.w]);
-            } else {
-                var pos = entity.getLocalPosition();
-                items[i].obj.set('position', [ pos.x, pos.y, pos.z ]);
-            }
-
+            var pos = entity.getLocalPosition();
+            items[i].obj.set('position', [ pos.x, pos.y, pos.z ]);
         }
 
         timeoutUpdateRotation = false;
@@ -388,17 +344,12 @@ editor.once('load', function() {
 
                 var pos = objects[i].entity.getPosition();
 
-                var data = {
+                items.push({
                     obj: objects[i],
                     pos: [ pos.x, pos.y, pos.z ],
                     start: [ 0, 0, 0 ],
-                    startLocal: [ 0, 0, 0 ],
-                };
-                if (objects[i].entity.element) {
-                    data.startMargin = [0, 0, 0, 0];
-                }
-
-                items.push(data);
+                    startLocal: [ 0, 0, 0 ]
+                });
 
                 // position
                 events.push(objects[i].on('position:set', updateGizmoPosition));
