@@ -27,7 +27,7 @@ editor.once('load', function() {
     var mouseTapMoved = false;
     var pickStart = new pc.Vec3();
     var posCameraLast = new pc.Vec3();
-    var selectedElementEntity = null;
+    var selectedEntity = null;
     var anchorDirty = false;
     var anchorStart = [];
     var anchorCurrent = [];
@@ -117,16 +117,16 @@ editor.once('load', function() {
         editor.on('selector:add', function (item, type) {
             if (type !== 'entity') return;
 
-            if (! selectedElementEntity && item.has('components.element')) {
-                selectedElementEntity = item;
+            if (! selectedEntity) {
+                selectedEntity = item;
             }
         });
 
         editor.on('selector:remove', function (item, type) {
             if (type !== 'entity') return;
 
-            if (selectedElementEntity === item) {
-                selectedElementEntity = null;
+            if (selectedEntity === item) {
+                selectedEntity = null;
             }
         });
 
@@ -217,8 +217,8 @@ editor.once('load', function() {
 
             // anchor gizmo only show if 1 element is selected
             var showAnchors = false;
-            if (numSelectedElements === 1) {
-                var entity = selectedElementEntity.entity;
+            if (numSelectedElements === 1 && selectedEntity) {
+                var entity = selectedEntity.entity;
                 if (entity) {
                     var parent = entity.parent && entity.parent.element ? entity.parent : entity.element.screen;
                     if (parent) {
@@ -302,7 +302,7 @@ editor.once('load', function() {
                                     anchorCurrent[3] = clamp(anchorCurrent[3] + offset.y / resY, dy, 1);
                                 }
 
-                                selectedElementEntity.set('components.element.anchor', anchorCurrent);
+                                selectedEntity.set('components.element.anchor', anchorCurrent);
                             }
 
                             editor.call('viewport:render');
@@ -372,10 +372,10 @@ editor.once('load', function() {
                 pickStart.copy(pickPlane(tap.x, tap.y));
             }
 
-            if (selectedElementEntity) {
-                selectedElementEntity.history.enabled = false;
+            if (selectedEntity) {
+                selectedEntity.history.enabled = false;
 
-                anchorStart = selectedElementEntity.get('components.element.anchor').slice(0);
+                anchorStart = selectedEntity.get('components.element.anchor').slice(0);
             }
 
             editor.call('gizmo:translate:visible', false);
@@ -409,41 +409,11 @@ editor.once('load', function() {
             editor.call('viewport:pick:state', true);
 
             // update entity anchor
-            if (selectedElementEntity) {
+            if (selectedEntity) {
                 if (anchorDirty) {
-                    var resourceId = selectedElementEntity.get('resource_id');
+                    var resourceId = selectedEntity.get('resource_id');
                     var previousAnchor = anchorStart.slice(0);
                     var newAnchor = anchorCurrent.slice(0);
-                    var prevPos;
-                    var newPos;
-                    var prevMargin;
-                    var newMargin;
-
-                    var prevSplit = isAnchorSplit(previousAnchor);
-                    var newSplit = isAnchorSplit(newAnchor);
-
-                    if (! prevSplit && newSplit) {
-                        // reset position
-                        prevPos = selectedElementEntity.get('position');
-                        newPos = [0, 0, 0];
-
-                        var localPos = selectedElementEntity.entity.getLocalPosition().clone();
-                        selectedElementEntity.set('position', newPos);
-                        selectedElementEntity.entity.setLocalPosition(localPos);
-                    } else if (prevSplit && ! newSplit) {
-                        // reset margin
-                        prevMargin = selectedElementEntity.get('components.element.margin');
-                        newMargin = [0, 0, 0, 0];
-
-                        selectedElementEntity.set('components.element.margin', newMargin);
-                        vec4.set(0,0,0,0);
-                        selectedElementEntity.entity.element.margin = vec4;
-                        selectedElementEntity.entity.element.width = selectedElementEntity.get('components.element.width');
-                        selectedElementEntity.entity.element.height = selectedElementEntity.get('components.element.height');
-
-                        var pos = selectedElementEntity.get('position');
-                        selectedElementEntity.entity.setLocalPosition(pos[0], pos[1], pos[2]);
-                    }
 
                     editor.call('history:add', {
                         name: 'entity.element.anchor',
@@ -454,11 +424,7 @@ editor.once('load', function() {
 
                             var history = item.history.enabled;
                             item.history.enabled = false;
-                            if (prevPos)
-                                item.set('position', prevPos);
                             item.set('components.element.anchor', previousAnchor);
-                            if (prevMargin)
-                                item.set('components.element.margin', prevMargin);
                             item.history.enabled = history;
                         },
                         redo: function() {
@@ -468,17 +434,13 @@ editor.once('load', function() {
 
                             var history = item.history.enabled;
                             item.history.enabled = false;
-                            if (newPos)
-                                item.set('position', newPos);
                             item.set('components.element.anchor', newAnchor);
-                            if (newMargin)
-                                item.set('components.element.margin', newMargin);
                             item.history.enabled = history;
                         }
                     });
                 }
 
-                selectedElementEntity.history.enabled = true;
+                selectedEntity.history.enabled = true;
             }
         };
 
