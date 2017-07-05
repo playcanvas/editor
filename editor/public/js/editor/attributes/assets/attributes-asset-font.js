@@ -237,7 +237,8 @@ editor.once('load', function() {
             var proxy = new Observer({
                 'id': asset.get('id'),
                 'chars': asset.get('meta.chars'),
-                'invert': !!asset.get('meta.invert')
+                'invert': !!asset.get('meta.invert'),
+                'pxrange': asset.get('meta.pxrange')
             });
 
             proxyObservers.push(proxy);
@@ -248,6 +249,10 @@ editor.once('load', function() {
 
             events.push(asset.on('meta.invert:set', function (value) {
                 proxy.set('invert', value);
+            }));
+
+            events.push(asset.on('meta.pxrange:set', function (value) {
+                proxy.set('pxrange', value);
             }));
         };
 
@@ -280,6 +285,39 @@ editor.once('load', function() {
 
         // reference
         editor.call('attributes:reference:attach', 'asset:font:invert', fieldInvert.parent.innerElement.firstChild.ui);
+
+        // signed distance range
+        var fieldRange = editor.call('attributes:addField', {
+            parent: paramsPanel,
+            type: 'number',
+            name: 'MSDF Range',
+            link: proxyObservers,
+            path: 'pxrange',
+            min: 0,
+            max: 15,
+            step: 1,
+            precision: 0
+        });
+
+        fieldRange.style.width = '32px';
+
+        // reference
+        editor.call('attributes:reference:attach', 'asset:font:pxrange', fieldRange.parent.innerElement.firstChild.ui);
+
+
+        var fieldRangeSlider = editor.call('attributes:addField', {
+            panel: fieldRange.parent,
+            type: 'number',
+            link: proxyObservers,
+            path: 'pxrange',
+            min: 0,
+            max: 15,
+            step: 1,
+            slider: true,
+            precision: 0
+        });
+
+        fieldRangeSlider.flexGrow = 4;
 
         var panelSave = editor.call('attributes:addPanel', {
             parent: paramsPanel
@@ -369,7 +407,8 @@ editor.once('load', function() {
                     source: parseInt(source.get('id'), 10),
                     target: parseInt(asset.get('id'), 10),
                     chars: unique,
-                    invert: fieldInvert.value
+                    invert: fieldInvert.value,
+                    pxrange: fieldRange.value
                 };
 
                 editor.call('realtime:send', 'pipeline', {

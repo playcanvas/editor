@@ -331,6 +331,7 @@ editor.once('load', function() {
                 width: 32,
                 height: 32,
                 margin: [-16,-16,-16,-16],
+                alignment: [0.5, 0.5],
                 rect: [0, 0, 1, 1],
                 materialAsset: null
             },
@@ -339,7 +340,8 @@ editor.once('load', function() {
                 pivot: 'vec2',
                 color: 'rgb',
                 rect: 'vec4',
-                margin: 'vec4'
+                margin: 'vec4',
+                alignment: 'vec2'
             }
         }
     };

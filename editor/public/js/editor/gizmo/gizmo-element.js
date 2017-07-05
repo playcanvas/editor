@@ -140,7 +140,7 @@ editor.once('load', function() {
 
         var offsetAnchor = function (value, offset, min, max, snap) {
             value += offset;
-            value = Math.round(value / snap)  * snap;
+            // value = Math.round(value / snap)  * snap;
             if (value < min + snap)
                 value = min;
             else if (value > max - snap)
@@ -166,17 +166,15 @@ editor.once('load', function() {
 
                 numSelectedElements++;
 
-                if (entity.element.type !== 'group')
-                    continue;
-
                 var width = entity.element.width;
                 var height = entity.element.height;
 
-                var screen = entity.element.screen;
-                if (screen) {
-                    var scale = screen.getLocalScale();
-                    width = width * scale.x;
-                    height = height * scale.y;
+                var parent = entity.parent;
+                while (parent) {
+                    var scale = parent.getLocalScale();
+                    width *= scale.x;
+                    height *= scale.y;
+                    parent = parent.parent;
                 }
 
                 var pivot = entity.element.pivot;
@@ -266,7 +264,7 @@ editor.once('load', function() {
                         resX *= screenScale.x;
                         resY *= screenScale.y;
 
-                        var snapIncrement = 0.04 * scale;
+                        var snapIncrement = 0.01;
 
                         var offset = pc.Vec3.ZERO;
                         if (moving && (vecA.copy(posCameraLast).sub(posCamera).length() > 0.01 || mouseTapMoved)) {

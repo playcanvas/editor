@@ -29,7 +29,7 @@ editor.once('load', function() {
     }, {
         title: 'text',
         subTitle: '{String}',
-        description: 'The text content of the Element.',
+        description: 'The text content of the Element. Hit Shift+Enter to add new lines.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#text'
     }, {
         title: 'fontAsset',
@@ -56,6 +56,11 @@ editor.once('load', function() {
         subTitle: 'margin {pc.Vec4}',
         description: 'Controls the spacing between each edge of the Element and the respective anchor. You can only edit the margin if the related anchors are split.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#margin'
+    }, {
+        title: 'alignment',
+        subTitle: 'alignment {pc.Vec2}',
+        description: 'Controls the horizontal and vertical alignment of the text relative to its element transform.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#alignment'
     }, {
         title: 'rect',
         subTitle: '{pc.Vec4}',

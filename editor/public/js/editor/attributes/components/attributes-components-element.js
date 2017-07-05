@@ -337,9 +337,9 @@ editor.once('load', function() {
         fieldHeight.style.width = '32px';
 
         var toggleSize = function () {
-            fieldWidth.disabled = fieldType.value !== 'image' || hasSplitAnchors(true);
+            fieldWidth.disabled = hasSplitAnchors(true);
             fieldWidth.renderChanges = !fieldWidth.disabled;
-            fieldHeight.disabled = fieldType.value !== 'image' || hasSplitAnchors(false);
+            fieldHeight.disabled = hasSplitAnchors(false);
             fieldHeight.renderChanges = !fieldHeight.disabled;
         };
 
@@ -350,7 +350,6 @@ editor.once('load', function() {
             name: 'Margin',
             type: 'vec4',
             placeholder: ['←', '↓', '→', '↑'],
-            step: 1,
             link: entities,
             path: 'components.element.margin'
         });
@@ -373,10 +372,28 @@ editor.once('load', function() {
 
         toggleMargin();
 
+        var fieldAlignment = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Alignment',
+            type: 'vec2',
+            placeholder: ['↔', '↕'],
+            precision: 2,
+            step: 0.1,
+            min: 0,
+            max: 1,
+            link: entities,
+            path: 'components.element.alignment'
+        });
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:alignment', fieldAlignment[0].parent.innerElement.firstChild.ui);
+
+        fieldAlignment[0].parent.hidden = fieldType.value !== 'text';
+
         var fieldText = editor.call('attributes:addField', {
             parent: panel,
             name: 'Text',
-            type: 'string',
+            type: 'text',
             link: entities,
             path: 'components.element.text'
         });
@@ -535,6 +552,7 @@ editor.once('load', function() {
             fieldRect[0].parent.hidden = value !== 'image';
             toggleSize();
             toggleMargin();
+            fieldAlignment[0].parent.hidden = value !== 'text';
             fieldColor.parent.hidden = value !== 'text' && value !== 'image';
             fieldOpacity.parent.hidden = value !== 'text' && value !== 'image';
         }));
