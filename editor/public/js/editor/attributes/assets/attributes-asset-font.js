@@ -301,6 +301,9 @@ editor.once('load', function() {
 
         fieldRange.style.width = '32px';
 
+        // hide for now
+        fieldRange.parent.hidden = true;
+
         // reference
         editor.call('attributes:reference:attach', 'asset:font:pxrange', fieldRange.parent.innerElement.firstChild.ui);
 
@@ -407,9 +410,11 @@ editor.once('load', function() {
                     source: parseInt(source.get('id'), 10),
                     target: parseInt(asset.get('id'), 10),
                     chars: unique,
-                    invert: fieldInvert.value,
-                    pxrange: fieldRange.value
+                    invert: fieldInvert.value
                 };
+
+                // if (fieldRange.value !== null)
+                //     task.pxrange = fieldRange.value;
 
                 editor.call('realtime:send', 'pipeline', {
                     name: 'convert',
