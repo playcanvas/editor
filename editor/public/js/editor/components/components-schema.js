@@ -333,8 +333,8 @@ editor.once('load', function() {
                 margin: [-16,-16,-16,-16],
                 alignment: [0.5, 0.5],
                 rect: [0, 0, 1, 1],
-                autoWidth: true,
-                autoHeight: true,
+                autoWidth: false,
+                autoHeight: false,
                 materialAsset: null
             },
             types: {
