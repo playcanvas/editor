@@ -47,6 +47,16 @@ editor.once('load', function() {
         description: 'The material used by the element.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#materialAsset'
     }, {
+        title: 'autoWidth',
+        subTitle: '{Booelan}',
+        description: 'Make the width of the element match the width of the text content automatically.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#autoWidth'
+    }, {
+        title: 'autoHeight',
+        subTitle: '{Booelan}',
+        description: 'Make the height of the element match the height of the text content automatically.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#autoHeight'
+    }, {
         title: 'size',
         subTitle: 'width / height {Number}',
         description: 'The width and height of the Element. You can only edit the width or the height if the corresponding anchors of the Element are not split.',

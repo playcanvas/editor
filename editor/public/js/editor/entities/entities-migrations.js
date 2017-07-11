@@ -122,6 +122,14 @@ editor.once('load', function() {
                     entity.set('components.element.opacity', opacity);
                 }
 
+                if (! entity.has('components.element.autoWidth')) {
+                    entity.set('components.element.autoWidth', entity.get('components.element.type') === 'text');
+                }
+
+                if (! entity.has('components.element.autoHeight')) {
+                    entity.set('components.element.autoHeight', entity.get('components.element.type') === 'text');
+                }
+
                 if (! entity.has('components.element.margin')) {
                     if (entity.entity && entity.entity.element) {
                         var margin = entity.entity.element.margin.data;

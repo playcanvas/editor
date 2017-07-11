@@ -186,6 +186,59 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'element:pivot', fieldPivot[0].parent.innerElement.firstChild.ui);
 
+        // auto size
+        var panelAutoSize = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Auto-Size'
+        });
+        var label = panelAutoSize;
+        panelAutoSize = panelAutoSize.parent;
+        label.destroy();
+
+        panelAutoSize.hidden = fieldType.value !== 'text';
+
+        // autoWidth
+        var fieldAutoWidth = editor.call('attributes:addField', {
+            panel: panelAutoSize,
+            type: 'checkbox',
+            link: entities,
+            path: 'components.element.autoWidth'
+        });
+        // label
+        label = new ui.Label({ text: 'Width' });
+        label.class.add('label-infield');
+        label.style.paddingRight = '12px';
+        panelAutoSize.append(label);
+        // reference
+        editor.call('attributes:reference:attach', 'element:autoWidth', label);
+
+        fieldAutoWidth.on('change', function (value) {
+            toggleSize();
+            toggleMargin();
+        });
+
+        // autoHeight
+        var fieldAutoHeight = editor.call('attributes:addField', {
+            panel: panelAutoSize,
+            type: 'checkbox',
+            link: entities,
+            path: 'components.element.autoHeight'
+        });
+        // label
+        label = new ui.Label({ text: 'Height' });
+        label.class.add('label-infield');
+        label.style.paddingRight = '12px';
+        panelAutoSize.append(label);
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:autoHeight', label);
+
+        fieldAutoHeight.on('change', function (value) {
+            toggleSize();
+            toggleMargin();
+        });
+
+
         var setPresetValue = function () {
             var val = fieldAnchor.map(function (f) {return f.value}).join(',') + '/' + fieldPivot.map(function (f) {return f.value}).join(',');
             if (! presets[val])
@@ -315,7 +368,6 @@ editor.once('load', function() {
             name: 'Size',
             type: 'number',
             placeholder: 'Width',
-            min: 0,
             link: entities,
             path: 'components.element.width'
         });
@@ -329,7 +381,6 @@ editor.once('load', function() {
             panel: fieldWidth.parent,
             type: 'number',
             placeholder: 'Height',
-            min: 0,
             link: entities,
             path: 'components.element.height'
         });
@@ -337,9 +388,9 @@ editor.once('load', function() {
         fieldHeight.style.width = '32px';
 
         var toggleSize = function () {
-            fieldWidth.disabled = hasSplitAnchors(true);
+            fieldWidth.disabled = hasSplitAnchors(true) || fieldAutoWidth.value;
             fieldWidth.renderChanges = !fieldWidth.disabled;
-            fieldHeight.disabled = hasSplitAnchors(false);
+            fieldHeight.disabled = hasSplitAnchors(false) || fieldAutoHeight.value;
             fieldHeight.renderChanges = !fieldHeight.disabled;
         };
 
@@ -360,11 +411,11 @@ editor.once('load', function() {
         var toggleMargin = function () {
             var horizontalSplit = hasSplitAnchors(true);
             var verticalSplit = hasSplitAnchors(false);
-            fieldMargin[0].disabled = ! horizontalSplit;
-            fieldMargin[2].disabled = ! horizontalSplit;
+            fieldMargin[0].disabled = ! horizontalSplit || fieldAutoWidth.value;
+            fieldMargin[2].disabled = fieldMargin[0].disabled;
 
-            fieldMargin[1].disabled = ! verticalSplit;
-            fieldMargin[3].disabled = ! verticalSplit;
+            fieldMargin[1].disabled = ! verticalSplit || fieldAutoHeight.value;
+            fieldMargin[3].disabled = fieldMargin[1].disabled;
 
             for (var i = 0; i < 4; i++)
                 fieldMargin[i].renderChanges = !fieldMargin[i].disabled;
@@ -552,6 +603,7 @@ editor.once('load', function() {
             fieldRect[0].parent.hidden = value !== 'image';
             toggleSize();
             toggleMargin();
+            panelAutoSize.hidden = value !== 'text';
             fieldAlignment[0].parent.hidden = value !== 'text';
             fieldColor.parent.hidden = value !== 'text' && value !== 'image';
             fieldOpacity.parent.hidden = value !== 'text' && value !== 'image';

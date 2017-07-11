@@ -22,7 +22,10 @@ editor.once('load', function() {
             anchor: false,
             pivot: false,
             size: false,
-            margin: false
+            margin: false,
+            text: false,
+            autoWidth: false,
+            autoHeight: false
         };
 
         events.push(entity.on('*:set', function (path) {
@@ -60,12 +63,10 @@ editor.once('load', function() {
 
                     var history = entity.history.enabled;
                     entity.history.enabled = false;
-                    setting.position = true;
                     setting.size = true;
                     entity.set('position', [fixed(pos[0]), fixed(pos[1]), fixed(pos[2])]);
                     entity.set('components.element.width', fixed(width));
                     entity.set('components.element.height', fixed(height));
-                    setting.position = false;
                     setting.size = false;
                     entity.history.enabled = history;
 
@@ -139,6 +140,61 @@ editor.once('load', function() {
 
                     setting.margin = false;
                 });
+            }
+            // autoWidth change
+            else if (/^components.element.autoWidth/.test(path)) {
+                if (setting.autoWidth) return;
+
+                setting.autoWidth = true;
+                setTimeout(function () {
+                    var width = entity.entity.element.width;
+
+                    var history = entity.history.enabled;
+                    entity.history.enabled = false;
+                    entity.set('components.element.width', fixed(width));
+                    entity.history.enabled = history;
+                    setting.autoWidth = false;
+                });
+            }
+            // autoHeight change
+            else if (/^components.element.autoHeight/.test(path)) {
+                if (setting.autoHeight) return;
+
+                setting.autoHeight = true;
+                setTimeout(function () {
+                    var height = entity.entity.element.height;
+
+                    var history = entity.history.enabled;
+                    entity.history.enabled = false;
+                    entity.set('components.element.height', fixed(height));
+                    entity.history.enabled = history;
+                    setting.autoHeight = false;
+                });
+            }
+            // text / font change
+            else if (/^components.element.(text|fontAsset)/.test(path)) {
+                if (setting.text) return;
+
+                setting.text = true;
+                if (entity.get('components.element.autoWidth') ||
+                    entity.get('components.element.autoHeight')) {
+
+                    setTimeout(function () {
+                        var width = entity.entity.element.width;
+                        var height = entity.entity.element.height;
+
+                        var history = entity.history.enabled;
+                        entity.history.enabled = false;
+                        if (entity.get('components.element.autoWidth'))
+                            entity.set('components.element.width', fixed(width));
+                        if (entity.get('components.element.autoHeight'))
+                            entity.set('components.element.height', fixed(height));
+                        entity.history.enabled = history;
+
+                        setting.text = false;
+                    });
+
+                }
             }
         }));
     };
