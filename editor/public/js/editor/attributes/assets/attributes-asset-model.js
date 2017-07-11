@@ -571,12 +571,69 @@ editor.once('load', function() {
                 nodeItems[ind].parent.on('click', function() {
                     this.class.remove('active');
                 });
+
+                nodeItems[ind].on('beforechange', function (id) {
+                    nodeItems[ind].once('change', function () {
+                        var history = assets[0].history.enabled;
+                        assets[0].history.enabled = false;
+
+                        var previous = assets[0].get('meta.userMapping.' + ind);
+                        if (! assets[0].has('meta.userMapping'))
+                            assets[0].set('meta.userMapping', {});
+
+                        assets[0].set('meta.userMapping.' + ind, true);
+
+                        assets[0].history.enabled = history;
+
+                        var lastHistoryAction = editor.call('history:list')[editor.call('history:current')];
+                        var undo = lastHistoryAction.undo;
+                        var redo = lastHistoryAction.redo;
+
+                        lastHistoryAction.undo = function () {
+                            undo();
+
+                            var item = editor.call('assets:get', assets[0].get('id'));
+                            if (! item) return;
+
+                            var history = item.history.enabled;
+                            item.history.enabled = false;
+
+                            if (! previous) {
+                                item.unset('meta.userMapping.' + ind);
+
+                                if (Object.keys(item.get('meta.userMapping')).length === 0) {
+                                    item.unset('meta.userMapping');
+                                }
+                            }
+
+                            item.history.enabled = history;
+                        };
+
+                        lastHistoryAction.redo = function () {
+                            redo();
+
+                            var item = editor.call('assets:get', assets[0].get('id'));
+                            if (! item) return;
+
+                            var history = item.history.enabled;
+                            item.history.enabled = false;
+
+                            if (! item.has('meta.userMapping'))
+                                item.set('meta.userMapping', {});
+
+                            item.set('meta.userMapping.' + ind, true);
+
+                            item.history.enabled = history;
+                        };
+                    });
+                });
             };
 
             // create node fields
             var mapping = assets[0].get('data.mapping');
-            for(var i = 0; i < mapping.length; i++)
+            for(var i = 0; i < mapping.length; i++) {
                 addField(i);
+            }
 
             panelNodes.on('destroy', function () {
                 root.class.remove('asset-preview', 'animate');

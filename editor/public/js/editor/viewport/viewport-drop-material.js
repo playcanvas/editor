@@ -139,72 +139,122 @@ editor.once('load', function() {
                 // if we are setting the model asset mapping then set it and return
                 if (hoverAsset) {
                     var asset = editor.call('assets:get', hoverAsset.id);
-                    if (asset.has('data.mapping.' + ind + '.material'))
-                        asset.set('data.mapping.' + ind + '.material', hoverMaterial.id);
+                    if (asset.has('data.mapping.' + ind + '.material')) {
+                        var history = asset.history.enabled;
+                        asset.history.enabled = false;
 
-                    return;
-                }
+                        var prevMapping = asset.get('data.mapping.' + ind + '.material');
+                        var prevUserMapping = asset.get('meta.userMapping.' + ind);
+                        var newMapping = hoverMaterial.id;
 
-                // set mapping with custom history action
-                // to prevent bug where undoing will set the mapping to
-                // null instead of unsetting it
-                var history = entity.history.enabled;
-                entity.history.enabled = false;
-                var resourceId = entity.get('resource_id');
+                        // set mapping and also userMapping
+                        asset.set('data.mapping.' + ind + '.material', newMapping);
+                        if (! asset.has('meta.userMapping')) {
+                            asset.set('meta.userMapping', {});
+                        }
 
-                var undo = {};
-                var redo = {};
+                        asset.set('meta.userMapping.' + ind, true);
 
-                if (!entity.get('components.model.mapping')) {
-                    var mapping = {};
-                    mapping[ind] = parseInt(hoverMaterial.id, 10);
-                    entity.set('components.model.mapping', mapping);
-                    undo.path = 'components.model.mapping';
-                    undo.value = undefined;
-                    redo.path = undo.path;
-                    redo.value = mapping;
-                } else {
-                    undo.path = 'components.model.mapping.' + ind;
-                    undo.value = entity.has('components.model.mapping.' + ind) ?
-                                 entity.get('components.model.mapping.' + ind) :
-                                 undefined;
-                    redo.path = undo.path;
-                    redo.value = parseInt(hoverMaterial.id, 10);
+                        asset.history.enabled = history;
 
-                    entity.set('components.model.mapping.' + ind, parseInt(hoverMaterial.id, 10));
+                        editor.call('history:add', {
+                            name: 'assets.' + asset.get('id') + '.data.mapping.' + ind + '.material',
+                            undo: function() {
+                                var item = editor.call('assets:get', asset.get('id'));
+                                if (! item) return;
 
-                }
-                entity.history.enabled = history;
+                                var history = item.history.enabled;
+                                item.history.enabled = false;
+                                item.set('data.mapping.' + ind + '.material', prevMapping);
 
-                editor.call('history:add', {
-                    name: 'entities.' + resourceId + '.components.model.mapping',
-                    undo: function() {
-                        var item = editor.call('entities:get', resourceId);
-                        if (! item) return;
+                                if (! prevUserMapping) {
+                                    item.unset('meta.userMapping.' + ind);
 
-                        var history = item.history.enabled;
-                        item.history.enabled = false;
+                                    if (! Object.keys(item.get('meta.userMapping')).length) {
+                                        item.unset('meta.userMapping');
+                                    }
+                                }
 
-                        if (undo.value === undefined)
-                            item.unset(undo.path);
-                        else
-                            item.set(undo.path, undo.value);
+                                item.history.enabled = history;
+                            },
+                            redo: function() {
+                                var item = editor.call('assets:get', asset.get('id'));
+                                if (! item) return;
 
-                        item.history.enabled = history;
-                    },
-                    redo: function() {
-                        var item = editor.call('entities:get', resourceId);
-                        if (! item) return;
+                                var history = item.history.enabled;
+                                item.history.enabled = false;
+                                item.set('data.mapping.' + ind + '.material', newMapping);
+                                if (! item.has('meta.userMapping')) {
+                                    item.set('meta.userMapping', {});
+                                }
 
-                        var history = item.history.enabled;
-                        item.history.enabled = false;
-                        if (redo.value === undefined)
-                            item.unset(redo.path);
-                        else
-                            item.set(redo.path, redo.value);
-                        item.history.enabled = history;
+                                item.set('meta.userMapping.' + ind, true);
+                                item.history.enabled = history;
+                            }
+                        });
                     }
-                });
+                } else {
+                    // set mapping with custom history action
+                    // to prevent bug where undoing will set the mapping to
+                    // null instead of unsetting it
+                    var history = entity.history.enabled;
+                    entity.history.enabled = false;
+                    var resourceId = entity.get('resource_id');
+
+                    var undo = {};
+                    var redo = {};
+
+                    if (!entity.get('components.model.mapping')) {
+                        var mapping = {};
+                        mapping[ind] = parseInt(hoverMaterial.id, 10);
+                        entity.set('components.model.mapping', mapping);
+                        undo.path = 'components.model.mapping';
+                        undo.value = undefined;
+                        redo.path = undo.path;
+                        redo.value = mapping;
+                    } else {
+                        undo.path = 'components.model.mapping.' + ind;
+                        undo.value = entity.has('components.model.mapping.' + ind) ?
+                                     entity.get('components.model.mapping.' + ind) :
+                                     undefined;
+                        redo.path = undo.path;
+                        redo.value = parseInt(hoverMaterial.id, 10);
+
+                        entity.set('components.model.mapping.' + ind, parseInt(hoverMaterial.id, 10));
+
+                    }
+                    entity.history.enabled = history;
+
+                    editor.call('history:add', {
+                        name: 'entities.' + resourceId + '.components.model.mapping',
+                        undo: function() {
+                            var item = editor.call('entities:get', resourceId);
+                            if (! item) return;
+
+                            var history = item.history.enabled;
+                            item.history.enabled = false;
+
+                            if (undo.value === undefined)
+                                item.unset(undo.path);
+                            else
+                                item.set(undo.path, undo.value);
+
+                            item.history.enabled = history;
+                        },
+                        redo: function() {
+                            var item = editor.call('entities:get', resourceId);
+                            if (! item) return;
+
+                            var history = item.history.enabled;
+                            item.history.enabled = false;
+                            if (redo.value === undefined)
+                                item.unset(redo.path);
+                            else
+                                item.set(redo.path, redo.value);
+                            item.history.enabled = history;
+                        }
+                    });
+                }
             } else {
                 // primitive model
                 entity.set('components.model.materialAsset', hoverMaterial.id);
