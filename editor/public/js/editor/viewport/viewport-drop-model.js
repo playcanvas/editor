@@ -83,9 +83,9 @@ editor.once('load', function() {
                     for(var m = 0; m < meshes.length; m++) {
                         if (first) {
                             first = false;
-                            aabb.copy(meshes[i].aabb);
+                            aabb.copy(meshes[m].aabb);
                         } else {
-                            aabb.add(meshes[i].aabb);
+                            aabb.add(meshes[m].aabb);
                         }
                     }
                 }
