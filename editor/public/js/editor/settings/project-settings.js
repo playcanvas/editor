@@ -15,7 +15,8 @@ editor.once('load', function () {
         'useDevicePixelRatio',
         'useLegacyScripts',
         'vr',
-        'loadingScreenScript'
+        'loadingScreenScript',
+        'plugins'
     ];
 
     var data = {};
