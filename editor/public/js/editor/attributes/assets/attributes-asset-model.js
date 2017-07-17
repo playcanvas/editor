@@ -139,7 +139,7 @@ editor.once('load', function() {
         var btnGetMetaVisibility = function() {
             var visible = false;
             for(var i = 0; i < assets.length; i++) {
-                if (! visible && ! assets[i].get('meta'))
+                if (! visible && (! assets[i].get('meta') || ! assets[i].has('meta.vertices')))
                     visible = true;
             }
             btnGetMeta.hidden = ! visible;
@@ -149,7 +149,7 @@ editor.once('load', function() {
                 return;
 
             for(var i = 0; i < assets.length; i++) {
-                if (assets[i].get('meta'))
+                if (assets[i].get('meta') && assets[i].has('meta.vertices'))
                     continue;
 
                 editor.call('realtime:send', 'pipeline', {
@@ -183,6 +183,10 @@ editor.once('load', function() {
                 value += assets[i].get('meta.' + key);
                 noValue = false;
             }
+            if (noValue)
+                metaFields[key].field.parent.hidden = true;
+            else
+                metaFields[key].field.parent.hidden = false;
             metaFields[key].field.value = noValue ? '' : value.toLocaleString();
         };
 
@@ -272,6 +276,7 @@ editor.once('load', function() {
             }
 
             fieldMetaAttributes.value = attributesValue;
+            fieldMetaAttributes.parent.hidden = !attributesValue;
         };
 
 
@@ -578,8 +583,14 @@ editor.once('load', function() {
                         assets[0].history.enabled = false;
 
                         var previous = assets[0].get('meta.userMapping.' + ind);
-                        if (! assets[0].has('meta.userMapping'))
-                            assets[0].set('meta.userMapping', {});
+                        if (! assets[0].get('meta')) {
+                            assets[0].set('meta', {
+                                userMapping: {}
+                            });
+                        } else {
+                            if (! assets[0].has('meta.userMapping'))
+                                assets[0].set('meta.userMapping', {});
+                        }
 
                         assets[0].set('meta.userMapping.' + ind, true);
 
@@ -618,8 +629,14 @@ editor.once('load', function() {
                             var history = item.history.enabled;
                             item.history.enabled = false;
 
-                            if (! item.has('meta.userMapping'))
-                                item.set('meta.userMapping', {});
+                            if (! item.get('meta')) {
+                                item.set('meta', {
+                                    userMapping: {}
+                                });
+                            } else {
+                                if (! item.has('meta.userMapping'))
+                                    item.set('meta.userMapping', {});
+                            }
 
                             item.set('meta.userMapping.' + ind, true);
 

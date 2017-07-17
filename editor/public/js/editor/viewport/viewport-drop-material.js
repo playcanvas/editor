@@ -149,8 +149,14 @@ editor.once('load', function() {
 
                         // set mapping and also userMapping
                         asset.set('data.mapping.' + ind + '.material', newMapping);
-                        if (! asset.has('meta.userMapping')) {
-                            asset.set('meta.userMapping', {});
+                        if (! asset.get('meta')) {
+                            asset.set('meta', {
+                                userMapping: {}
+                            });
+                        } else {
+                            if (! asset.has('meta.userMapping')) {
+                                asset.set('meta.userMapping', {});
+                            }
                         }
 
                         asset.set('meta.userMapping.' + ind, true);
@@ -184,8 +190,14 @@ editor.once('load', function() {
                                 var history = item.history.enabled;
                                 item.history.enabled = false;
                                 item.set('data.mapping.' + ind + '.material', newMapping);
-                                if (! item.has('meta.userMapping')) {
-                                    item.set('meta.userMapping', {});
+                                if (! item.get('meta')) {
+                                    item.set('meta', {
+                                        userMapping: {}
+                                    });
+                                } else {
+                                    if (! item.has('meta.userMapping')) {
+                                        item.set('meta.userMapping', {});
+                                    }
                                 }
 
                                 item.set('meta.userMapping.' + ind, true);

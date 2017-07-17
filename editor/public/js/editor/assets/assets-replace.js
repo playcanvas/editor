@@ -77,8 +77,14 @@ editor.once('load', function() {
                                 // change meta.userMapping as well
                                 var history = obj.history.enabled;
                                 obj.history.enabled = false;
-                                if (! obj.has('meta.userMapping'))
-                                    obj.set('meta.userMapping', {});
+                                if (! obj.get('meta')) {
+                                    obj.set('meta', {
+                                        userMapping: {}
+                                    });
+                                } else {
+                                    if (! obj.has('meta.userMapping'))
+                                        obj.set('meta.userMapping', {});
+                                }
 
                                 obj.set('meta.userMapping.' + ind, true);
 
@@ -332,8 +338,15 @@ editor.once('load', function() {
 
                         // if we changed data.mapping also change meta.userMapping
                         if (/^data.mapping/.test(records[i].path)) {
-                            if (! obj.has('meta.userMapping'))
-                                obj.set('meta.userMapping', {});
+                            if (! obj.get('meta')) {
+                                obj.set('meta', {
+                                    userMapping: {}
+                                });
+                            } else {
+                                if (! obj.has('meta.userMapping'))
+                                    obj.set('meta.userMapping', {});
+                            }
+
 
                             var parts = records[i].path.split('.');
                             obj.set('meta.userMapping.' + parts[2], true);
