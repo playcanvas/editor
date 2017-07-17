@@ -139,7 +139,7 @@ editor.once('load', function() {
         var btnGetMetaVisibility = function() {
             var visible = false;
             for(var i = 0; i < assets.length; i++) {
-                if (! visible && ! assets[i].get('meta'))
+                if (! visible && (! assets[i].get('meta') || ! assets[i].has('meta.vertices')))
                     visible = true;
             }
             btnGetMeta.hidden = ! visible;
@@ -149,7 +149,7 @@ editor.once('load', function() {
                 return;
 
             for(var i = 0; i < assets.length; i++) {
-                if (assets[i].get('meta'))
+                if (assets[i].get('meta') && assets[i].has('meta.vertices'))
                     continue;
 
                 editor.call('realtime:send', 'pipeline', {
@@ -183,6 +183,10 @@ editor.once('load', function() {
                 value += assets[i].get('meta.' + key);
                 noValue = false;
             }
+            if (noValue)
+                metaFields[key].field.parent.hidden = true;
+            else
+                metaFields[key].field.parent.hidden = false;
             metaFields[key].field.value = noValue ? '' : value.toLocaleString();
         };
 
@@ -272,6 +276,7 @@ editor.once('load', function() {
             }
 
             fieldMetaAttributes.value = attributesValue;
+            fieldMetaAttributes.parent.hidden = !attributesValue;
         };
 
 
@@ -571,12 +576,81 @@ editor.once('load', function() {
                 nodeItems[ind].parent.on('click', function() {
                     this.class.remove('active');
                 });
+
+                nodeItems[ind].on('beforechange', function (id) {
+                    nodeItems[ind].once('change', function () {
+                        var history = assets[0].history.enabled;
+                        assets[0].history.enabled = false;
+
+                        var previous = assets[0].get('meta.userMapping.' + ind);
+                        if (! assets[0].get('meta')) {
+                            assets[0].set('meta', {
+                                userMapping: {}
+                            });
+                        } else {
+                            if (! assets[0].has('meta.userMapping'))
+                                assets[0].set('meta.userMapping', {});
+                        }
+
+                        assets[0].set('meta.userMapping.' + ind, true);
+
+                        assets[0].history.enabled = history;
+
+                        var lastHistoryAction = editor.call('history:list')[editor.call('history:current')];
+                        var undo = lastHistoryAction.undo;
+                        var redo = lastHistoryAction.redo;
+
+                        lastHistoryAction.undo = function () {
+                            undo();
+
+                            var item = editor.call('assets:get', assets[0].get('id'));
+                            if (! item) return;
+
+                            var history = item.history.enabled;
+                            item.history.enabled = false;
+
+                            if (! previous) {
+                                item.unset('meta.userMapping.' + ind);
+
+                                if (Object.keys(item.get('meta.userMapping')).length === 0) {
+                                    item.unset('meta.userMapping');
+                                }
+                            }
+
+                            item.history.enabled = history;
+                        };
+
+                        lastHistoryAction.redo = function () {
+                            redo();
+
+                            var item = editor.call('assets:get', assets[0].get('id'));
+                            if (! item) return;
+
+                            var history = item.history.enabled;
+                            item.history.enabled = false;
+
+                            if (! item.get('meta')) {
+                                item.set('meta', {
+                                    userMapping: {}
+                                });
+                            } else {
+                                if (! item.has('meta.userMapping'))
+                                    item.set('meta.userMapping', {});
+                            }
+
+                            item.set('meta.userMapping.' + ind, true);
+
+                            item.history.enabled = history;
+                        };
+                    });
+                });
             };
 
             // create node fields
             var mapping = assets[0].get('data.mapping');
-            for(var i = 0; i < mapping.length; i++)
+            for(var i = 0; i < mapping.length; i++) {
                 addField(i);
+            }
 
             panelNodes.on('destroy', function () {
                 root.class.remove('asset-preview', 'animate');

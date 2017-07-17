@@ -5,6 +5,7 @@ editor.once('load', function() {
         'auto': true,
         'texturePot': true,
         'searchRelatedAssets': true,
+        'preserveMapping': false,
         'overwriteModel': true,
         'overwriteAnimation': true,
         'overwriteMaterial': false,
@@ -58,6 +59,16 @@ editor.once('load', function() {
         });
         fieldSearchRelatedAssets.parent.innerElement.firstChild.style.width = 'auto';
         editor.call('attributes:reference:attach', 'settings:asset-tasks:searchRelatedAssets', fieldSearchRelatedAssets.parent.innerElement.firstChild.ui);
+
+        var fieldMapping = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Preserve material mappings',
+            type: 'checkbox',
+            link: settings,
+            path: 'preserveMapping'
+        });
+        fieldMapping.parent.innerElement.firstChild.style.width = 'auto';
+        editor.call('attributes:reference:attach', 'settings:asset-tasks:preserveMapping', fieldMapping.parent.innerElement.firstChild.ui);
 
         var fieldOverwrite = editor.call('attributes:addField', {
             parent: panel,
