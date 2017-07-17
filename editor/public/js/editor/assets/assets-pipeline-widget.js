@@ -411,7 +411,8 @@ editor.once('load', function() {
                         materials: materials,
                         mappings: asset.get('meta.mappings'),
                         animation: animation,
-                        model: model
+                        model: model,
+                        preserveMapping: editor.call('assets:pipeline:settings', 'preserveMapping')
                     }
                 };
 
