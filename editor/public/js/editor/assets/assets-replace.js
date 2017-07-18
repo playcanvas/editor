@@ -18,9 +18,7 @@ editor.once('load', function() {
         var set = function(obj, path) {
             var history = obj.history.enabled;
             obj.history.enabled = false;
-
             obj.set(path, idNew);
-
             obj.history.enabled = history;
 
             if (history) {
@@ -75,6 +73,22 @@ editor.once('load', function() {
 
                                 // data.mapping.?.material
                                 set(obj, 'data.mapping.' + ind + '.material');
+
+                                // change meta.userMapping as well
+                                var history = obj.history.enabled;
+                                obj.history.enabled = false;
+                                if (! obj.get('meta')) {
+                                    obj.set('meta', {
+                                        userMapping: {}
+                                    });
+                                } else {
+                                    if (! obj.has('meta.userMapping'))
+                                        obj.set('meta.userMapping', {});
+                                }
+
+                                obj.set('meta.userMapping.' + ind, true);
+
+                                obj.history.enabled = history;
                             }
                         }
                     }
@@ -296,7 +310,19 @@ editor.once('load', function() {
 
                         var history = asset.history.enabled;
                         obj.history.enabled = false;
+
                         obj.set(records[i].path, id);
+
+                        // if we changed data.mapping also change meta.userMapping
+                        if (/^data.mapping/.test(records[i].path)) {
+                            if (obj.has('meta.userMapping')) {
+                                var parts = records[i].path.split('.');
+                                obj.unset('meta.userMapping.' + parts[2], true);
+                                if (Object.keys(obj.get('meta.userMapping')).length === 0)
+                                    obj.unset('meta.userMapping');
+                            }
+                        }
+
                         obj.history.enabled = history;
                     }
                 },
@@ -309,6 +335,23 @@ editor.once('load', function() {
                         var history = asset.history.enabled;
                         obj.history.enabled = false;
                         obj.set(records[i].path, idNew);
+
+                        // if we changed data.mapping also change meta.userMapping
+                        if (/^data.mapping/.test(records[i].path)) {
+                            if (! obj.get('meta')) {
+                                obj.set('meta', {
+                                    userMapping: {}
+                                });
+                            } else {
+                                if (! obj.has('meta.userMapping'))
+                                    obj.set('meta.userMapping', {});
+                            }
+
+
+                            var parts = records[i].path.split('.');
+                            obj.set('meta.userMapping.' + parts[2], true);
+                        }
+
                         obj.history.enabled = history;
                     }
                 }

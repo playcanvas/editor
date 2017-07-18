@@ -160,6 +160,10 @@ editor.once('load', function() {
         title: 'Search related assets',
         description: 'If enabled, importing a source asset will update target assets where ever they are located. If disabled, assets will only be updated if they are in the same folder, otherwise new assets will be created.'
     }, {
+        name: 'asset-tasks:preserveMapping',
+        title: 'Preserve model material mappings',
+        description: 'If enabled, after importing an existing source model we will try to preserve the material mappings that were set by the user on the existing model.'
+    }, {
         name: 'asset-tasks:overwrite:model',
         title: 'Overwrite model',
         description: 'When a model is imported, overwrite a previously imported model asset.'
