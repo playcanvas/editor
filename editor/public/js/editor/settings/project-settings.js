@@ -16,7 +16,8 @@ editor.once('load', function () {
         'useLegacyScripts',
         'vr',
         'loadingScreenScript',
-        'plugins'
+        'plugins',
+        'useModelV2'
     ];
 
     var data = {};
