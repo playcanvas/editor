@@ -592,6 +592,14 @@ editor.once('load', function() {
         });
         fieldOpacitySlider.flexGrow = 4;
 
+        var fieldInputEnabled = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Enable Input',
+            type: 'checkbox',
+            link: entities,
+            path: 'components.element.inputEnabled'
+        });
+
         events.push(fieldType.on('change', function (value) {
             fieldText.parent.hidden = value !== 'text';
             fieldFontAsset.parent.hidden = value !== 'text';

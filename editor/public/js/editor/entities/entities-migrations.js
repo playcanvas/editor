@@ -122,6 +122,10 @@ editor.once('load', function() {
                     entity.set('components.element.opacity', opacity);
                 }
 
+                if (! entity.has('components.element.inputEnabled')) {
+                    entity.set('components.element.inputEnabled', false);
+                }
+
                 if (! entity.has('components.element.autoWidth')) {
                     entity.set('components.element.autoWidth', entity.get('components.element.type') === 'text');
                 }
