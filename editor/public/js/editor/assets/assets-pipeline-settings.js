@@ -12,6 +12,8 @@ editor.once('load', function() {
         'overwriteTexture': true
     });
 
+    var projectSettings = editor.call('settings:project');
+
     settings.on('*:set', function(path, value) {
         editor.emit('assets:pipeline:settings:' + path, value);
     });
@@ -69,6 +71,17 @@ editor.once('load', function() {
         });
         fieldMapping.parent.innerElement.firstChild.style.width = 'auto';
         editor.call('attributes:reference:attach', 'settings:asset-tasks:preserveMapping', fieldMapping.parent.innerElement.firstChild.ui);
+
+        var fieldModelV2 = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Force legacy model v2',
+            type: 'checkbox',
+            link: projectSettings,
+            path: 'useModelV2'
+        });
+        fieldModelV2.parent.innerElement.firstChild.style.width = 'auto';
+        editor.call('attributes:reference:attach', 'settings:asset-tasks:useModelV2', fieldModelV2.parent.innerElement.firstChild.ui);
+
 
         var fieldOverwrite = editor.call('attributes:addField', {
             parent: panel,
