@@ -166,49 +166,16 @@ editor.once('load', function() {
 
                 numSelectedElements++;
 
-                var width = entity.element.width;
-                var height = entity.element.height;
+                var worldCorners = entity.element.worldCorners;
 
-                var parent = entity.parent;
-                while (parent) {
-                    var scale = parent.getLocalScale();
-                    width *= scale.x;
-                    height *= scale.y;
-                    parent = parent.parent;
-                }
-
-                var pivot = entity.element.pivot;
-
-                // calculate corners
-                var position = entity.getPosition();
-                var r = entity.right;
-                var u = entity.up;
-                var scale = entity.getLocalScale();
-
-                left
-                .copy(r)
-                .scale(width * scale.x * (-pivot.x));
-
-                right
-                .copy(r)
-                .scale((width * scale.x) * (1 - pivot.x));
-
-                top
-                .copy(u)
-                .scale((height * scale.y) * (1 - pivot.y));
-
-                bottom
-                .copy(u)
-                .scale((height * scale.y) * (-pivot.y));
-
-                corners[0].copy(position).add(left).add(top);
-                corners[1].copy(position).add(left).add(bottom);
-                corners[2].copy(position).add(left).add(bottom);
-                corners[3].copy(position).add(right).add(bottom);
-                corners[4].copy(position).add(right).add(bottom);
-                corners[5].copy(position).add(right).add(top);
-                corners[6].copy(position).add(right).add(top);
-                corners[7].copy(position).add(left).add(top);
+                corners[0].copy(worldCorners[0]);
+                corners[1].copy(worldCorners[1]);
+                corners[2].copy(worldCorners[1]);
+                corners[3].copy(worldCorners[2]);
+                corners[4].copy(worldCorners[2]);
+                corners[5].copy(worldCorners[3]);
+                corners[6].copy(worldCorners[3]);
+                corners[7].copy(worldCorners[0]);
 
                 app.renderLines(corners, cornerColor, pc.LINEBATCH_GIZMO);
             }
