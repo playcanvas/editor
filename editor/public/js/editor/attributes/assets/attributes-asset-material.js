@@ -1169,7 +1169,7 @@ editor.once('load', function() {
             'emissive': [ 'e', 'emissive' ],
             'opacity': [ 'o', 't', 'opacity', 'alpha', 'transparency', 'gmat', 'gmao', 'gmaa', 'rgba', 'rmat', 'rmao', 'rmaa' ],
             'normal': [ 'n', 'norm', 'normal', 'normals' ],
-            'parallax': [ 'p', 'parallax', 'bump' ],
+            'height': [ 'p', 'h', 'height', 'parallax', 'bump' ],
             'light': [ 'l', 'lm', 'light', 'lightmap' ]
         };
 
