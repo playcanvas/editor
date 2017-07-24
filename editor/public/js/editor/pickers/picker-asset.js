@@ -129,8 +129,9 @@ editor.once('load', function() {
         // initial grid selected items
         gridSelected = assetsGrid.selected;
         // filters
-        editor.call('assets:filter:type', (type === '*') ? 'all' : type);
-        editor.call('assets:filter:type:disabled', (! type || type === '*') ? false : true);
+        var pickerType = type === 'texture' ? 'textureTarget' : type;
+        editor.call('assets:filter:type', (pickerType === '*') ? 'all' : pickerType);
+        editor.call('assets:filter:type:disabled', (! pickerType || pickerType === '*') ? false : true);
         // disable selector
         editor.call('selector:enabled', false);
         // find current asset
