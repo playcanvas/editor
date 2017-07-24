@@ -1117,6 +1117,46 @@ editor.once('load', function() {
             updateAllTilingOffsetFields(fieldTiling, 'Tiling', 1, value);
         });
 
+        var queuedOffsetsCheck = null;
+        var queueOffsetsCheck = function() {
+            if (queuedOffsetsCheck)
+                return;
+
+            queuedOffsetsCheck = setTimeout(function() {
+                queuedOffsetsCheck = null;
+
+                if (! fieldTilingOffset.value)
+                    return;
+
+                var offset = assets[0].get('data.diffuseMapOffset');
+                var tiling = assets[0].get('data.diffuseMapTiling');
+
+                tilingOffsetsChanging = true;
+
+                fieldOffset[0].value = offset[0];
+                fieldOffset[1].value = offset[1];
+
+                fieldTiling[0].value = tiling[0];
+                fieldTiling[1].value = tiling[1];
+
+                tilingOffsetsChanging = false;
+            });
+        };
+
+        for(var i = 0; i < assets.length; i++) {
+            for(var m = 0; m < mappingMaps.length; m++) {
+                assets[i].on('data.' + mappingMaps[m] + 'MapOffset.0:set', queueOffsetsCheck);
+                assets[i].on('data.' + mappingMaps[m] + 'MapOffset.1:set', queueOffsetsCheck);
+                assets[i].on('data.' + mappingMaps[m] + 'MapTiling.0:set', queueOffsetsCheck);
+                assets[i].on('data.' + mappingMaps[m] + 'MapTiling.1:set', queueOffsetsCheck);
+            }
+        }
+
+        panelTiling.once('destroy', function() {
+            if (queuedOffsetsCheck)
+                clearTimeout(queuedOffsetsCheck);
+        });
+
         var rgxExtension = /\.[a-z]+$/;
         var textureFields = { };
         var texturePanels = { };

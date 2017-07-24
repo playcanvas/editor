@@ -211,8 +211,6 @@ editor.once('load', function() {
 
                 task.options = editor.call('assets:jobs:texture-convert-options', meta);
 
-                console.log(task.options, meta);
-
                 if (! task.options.new) {
                     task.target = task.source;
 
