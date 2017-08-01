@@ -239,7 +239,7 @@ editor.once('load', function() {
             var onFileSet = function(value) {
                 if (! value) return;
 
-                target.off('file:set', onFileSet);
+                target.unbind('file:set', onFileSet);
 
                 setTimeout(function() {
                     if (target.get('data.rgbm')) {
