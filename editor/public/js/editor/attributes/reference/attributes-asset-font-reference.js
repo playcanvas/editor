@@ -22,6 +22,10 @@ editor.once('load', function() {
         name: 'invert',
         title: 'INVERT',
         description: 'Enable this to invert the generated font texture. Click Process Font after changing this option.'
+    }, {
+        name: 'pxrange',
+        title: 'MULTI-CHANNEL SIGNED DISTANCE PIXEL RANGE',
+        description: 'Specifies the width of the range around each font glyph between the minimum and maximum representable signed distance, in pixels. Click Process Font after changing this option.'
     }];
 
     for(var i = 0; i < fields.length; i++) {

@@ -769,6 +769,40 @@ a:visited {
     }
 }
 
+.ui-textarea-field {
+    border: 1px solid $bcg-darker;
+    background-color: $bcg-dark;
+    margin: $field-padding;
+
+    > textarea.field {
+        color: $text-secondary;
+    }
+    &.active,
+    &:hover,
+    &:focus,
+    &.focus {
+        border-color: $bcg-darkest;
+        background-color: $bcg-darkest;
+    }
+    > textarea.field:focus,
+    > textarea.field:hover {
+        box-shadow: none;
+        color: $text-primary;
+        outline: none;
+        border: none;
+    }
+
+    &.flash {
+        @extend .ui-flash;
+    }
+}
+.ui-textarea-field[placeholder] {
+    &:after {
+        color: $text-darkest;
+        background-color: $bcg-dark;
+    }
+}
+
 .ui-color-field {
     border: 2px solid $bcg-dark;
     margin: $field-padding;

@@ -37,9 +37,6 @@ editor.once('load', function() {
         });
 
         fieldResolution[0].parent.hidden = !!fieldScreenspace.value;
-        events.push(fieldScreenspace.on('change', function (value) {
-            fieldResolution[0].parent.hidden = !!value;
-        }));
 
         // reference
         editor.call('attributes:reference:attach', 'screen:resolution', fieldResolution[0].parent.innerElement.firstChild.ui);
@@ -71,8 +68,10 @@ editor.once('load', function() {
             path: 'components.screen.scaleMode'
         });
 
+        fieldScaleMode.parent.hidden = !fieldScreenspace.value;
+
         // hide ref resolution if necessary
-        fieldRefResolution[0].parent.hidden = fieldScaleMode.value === 'none';
+        fieldRefResolution[0].parent.hidden = fieldScaleMode.value === 'none' || !fieldScreenspace.value;
 
         // reference
         editor.call('attributes:reference:attach', 'screen:scaleMode', fieldScaleMode.parent.innerElement.firstChild.ui);
@@ -91,10 +90,10 @@ editor.once('load', function() {
         });
 
         fieldScaleBlend.style.width = '32px';
-        fieldScaleBlend.parent.hidden = fieldScaleMode.value !== 'blend';
+        fieldScaleBlend.parent.hidden = fieldScaleMode.value !== 'blend' || ! fieldScreenspace.value;
         events.push(fieldScaleMode.on('change', function (value) {
-            fieldScaleBlend.parent.hidden = value !== 'blend';
-            fieldRefResolution[0].parent.hidden = value === 'none';
+            fieldScaleBlend.parent.hidden = value !== 'blend' || ! fieldScreenspace.value;
+            fieldRefResolution[0].parent.hidden = value === 'none' || !fieldScreenspace.value;
         }));
 
         var fieldScaleBlendSlider = editor.call('attributes:addField', {
@@ -112,6 +111,14 @@ editor.once('load', function() {
 
         // reference
         editor.call('attributes:reference:attach', 'screen:scaleBlend', fieldScaleBlend.parent.innerElement.firstChild.ui);
+
+        // on screenspace change
+        events.push(fieldScreenspace.on('change', function (value) {
+            fieldResolution[0].parent.hidden = !!value;
+            fieldRefResolution[0].parent.hidden = fieldScaleMode.value === 'none' || !value;
+            fieldScaleMode.parent.hidden = !value;
+            fieldScaleBlend.parent.hidden = !value;
+        }));
 
         panel.on('destroy', function () {
             events.forEach(function (e) {

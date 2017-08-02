@@ -1125,6 +1125,96 @@ a:visited {
     }
 }
 
+.ui-textarea-field {
+    display: inline-block;
+    border: 1px solid #666;
+    box-sizing: border-box;
+    width: 130px;
+    height: 48px;
+    margin: 4px;
+    background-color: #000;
+    vertical-align: top;
+    transition: opacity 100ms;
+
+    &.disabled {
+        opacity: $disabled-opacity;
+    }
+    > textarea.field {
+        @extend .fieldFont;
+        height: 100%;
+        width: calc(100% - 16px);
+        padding: 0 8px;
+        line-height: 22px;
+        color: #fff;
+        background: transparent;
+        border: none;
+        resize: none;
+    }
+}
+
+.ui-textarea-field.active > textarea.field,
+.ui-textarea-field > textarea.field:focus {
+    outline: none;
+    border-color: #7f7;
+    box-shadow: 0 0 4px #7f7;
+}
+
+// placeholder
+.ui-textarea-field[placeholder] {
+    position: relative;
+
+    &:after {
+        @extend .fieldFont;
+        content: attr(placeholder);
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 0 8px;
+        line-height: 22px;
+        font-size: 12px;
+        font-weight: 100;
+        white-space: nowrap;
+        color: #999;
+        background-color: rgba(0, 0, 0, .7);
+    }
+    &:hover,
+    &.focus {
+        &:after {
+            content: none;
+        }
+    }
+}
+// proxy
+.ui-textarea-field[proxy] {
+    position: relative;
+
+    &:before {
+        @extend .fieldFont;
+        content: attr(proxy);
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 0 8px;
+        line-height: 22px;
+        font-size: 12px;
+        font-weight: 100;
+        white-space: nowrap;
+        color: #999;
+    }
+    &:hover,
+    &.focus {
+        &:before {
+            content: none;
+        }
+    }
+}
+.ui-textarea-field[value] {
+    &:before {
+        content: none;
+    }
+}
+
+
 .ui-slider {
     @extend .noSelect;
     display: inline-block;

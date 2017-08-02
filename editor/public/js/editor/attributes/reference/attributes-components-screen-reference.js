@@ -5,32 +5,32 @@ editor.once('load', function() {
         name: 'component',
         title: 'pc.ScreenComponent',
         subTitle: '{pc.Component}',
-        description: 'TODO',
+        description: '',
         url: 'http://developer.playcanvas.com/api/pc.ScreenComponent.html'
     }, {
         title: 'screenSpace',
         subTitle: '{Boolean}',
-        description: 'TODO',
+        description: 'If true then the screen will display its child Elements in 2D. Set this to false to make this a 3D screen.',
         url: 'http://developer.playcanvas.com/api/pc.ScreenComponent.html#screenSpace'
     }, {
         title: 'resolution',
         subTitle: '{pc.Vec2}',
-        description: 'TODO',
+        description: 'The resolution of the screen.',
         url: 'http://developer.playcanvas.com/api/pc.ScreenComponent.html#resolution'
     }, {
         title: 'referenceResolution',
         subTitle: '{pc.Vec2}',
-        description: 'TODO',
+        description: 'The reference resolution of the screen. If the window size changes the screen will adjust its size based on scaleMode using the reference resolution.',
         url: 'http://developer.playcanvas.com/api/pc.ScreenComponent.html#referenceResolution'
     }, {
         title: 'scaleMode',
         subTitle: '{String}',
-        description: 'TODO',
+        description: 'Controls how a screen-space screen is resized when the window size changes. Use Blend to have the screen adjust between the difference of the window resolution and the screen\'s reference resolution. Use None to make the screen always have a size equal to its resolution.',
         url: 'http://developer.playcanvas.com/api/pc.ScreenComponent.html#scaleMode'
     }, {
         title: 'scaleBlend',
         subTitle: '{Number}',
-        description: 'TODO',
+        description: 'Set this to 0 to only adjust to changes between the width of the window and the x of the reference resolution. Set this to 1 to only adjust to changes between the window height and the y of the reference resolution. A value in the middle will try to adjust to both.',
         url: 'http://developer.playcanvas.com/api/pc.ScreenComponent.html#scaleBlend'
     }];
 

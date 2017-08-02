@@ -161,7 +161,7 @@ editor.once('load', function() {
         if (queryParams.vrpolyfill) {
             libraryUrls.push(queryParams.vrpolyfill);
         } else {
-            libraryUrls.push(config.url.webvr);    
+            libraryUrls.push(config.url.webvr);
         }
     }
 
