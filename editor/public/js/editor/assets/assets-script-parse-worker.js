@@ -116,7 +116,14 @@ var parseScript = function(id, url, engine) {
                                 script.attributesInvalid.push('attribute `' + attr + '` args.enum option value must be an array');
                                 return;
                             }
+
                             var key = Object.keys(args.enum[i])[0];
+
+                            if (key.indexOf('.') !== -1) {
+                                script.attributesInvalid.push('attribute `' + attr + '`: invalid enum name `' + key + '` - enum names cannot contain dots');
+                                return;
+                            }
+
                             if (emumIndex[key]) {
                                 script.attributesInvalid.push('attribute `' + attr + '` args.enum option `' + key + '` defined more than once');
                                 return;

@@ -807,6 +807,34 @@ strong {
             display: none;
         }
     }
+
+    &.assets-search-field {
+        > .inner {
+            line-height: normal;
+            padding: 1px 16px;
+            white-space: normal;
+            max-width: 512px;
+
+            > h1 {
+                @extend .font-regular;
+                margin: 16px 0 0 0;
+                line-height: normal;
+                font-size: 14px;
+                font-weight: bold;
+            }
+            > p {
+                > strong {
+                    color: $text-active;
+                }
+                > code {
+                    color: $text-active;
+                    background-color: #000;
+                    font-size: 11px;
+                    padding: 1px 2px;
+                }
+            }
+        }
+    }
 }
 
 .ui-panel.attributes {

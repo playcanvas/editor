@@ -140,6 +140,11 @@ editor.once('load', function() {
                 width: nearestPow2(meta.width),
                 height: nearestPow2(meta.height)
             };
+        } else {
+            options.size = {
+                width: meta.width,
+                height: meta.height
+            };
         }
 
         // check for different format
