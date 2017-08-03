@@ -9,7 +9,7 @@ editor.once('load', function() {
         }
 
         return chars.join('');
-    };
+    };    
 
     // character presets
     var LATIN = characterRange(0x20, 0x7e);
@@ -29,6 +29,22 @@ editor.once('load', function() {
 
         if (assets.length > 1)
             editor.call('attributes:header', assets.length + ' Fonts');
+
+        // Properties
+        var panelProperties = editor.call('attributes:addPanel', {
+            name: "Properties"
+        });
+        panelProperties.class.add('component');
+        
+        var fontIntensity = editor.call('attributes:addField', {
+            parent: panelProperties,
+            name: 'Intensity',
+            type: 'number',
+            min: 0,
+            max: 1,
+            link: assets,
+            path: 'data.intensity'
+        });
 
         // Character Presets
         var panelCharacterSets = editor.call('attributes:addPanel', {
