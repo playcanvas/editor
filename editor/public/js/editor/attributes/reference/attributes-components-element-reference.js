@@ -101,6 +101,11 @@ editor.once('load', function() {
         subTitle: '{Number}',
         description: 'The opacity of the Element.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#opacity'
+    }, {
+        title: 'useInput',
+        subTitle: '{Boolean}',
+        description: 'Enable this if you want the element to receive input events.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#useInput'
     }];
 
     for(var i = 0; i < fields.length; i++) {
