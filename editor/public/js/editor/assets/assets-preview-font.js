@@ -186,6 +186,7 @@ editor.once('load', function() {
 
         // set the font texture
         defaultScreenSpaceTextMaterial.msdfMap = engineAsset.resource.texture;
+        defaultScreenSpaceTextMaterial.setParameter('font_sdfIntensity', asset.get('data.intensity'));
         defaultScreenSpaceTextMaterial.update();
 
         // try to use Aa as the text in different languages

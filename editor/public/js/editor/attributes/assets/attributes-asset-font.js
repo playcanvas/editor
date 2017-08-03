@@ -45,6 +45,19 @@ editor.once('load', function() {
             link: assets,
             path: 'data.intensity'
         });
+        fontIntensity.style.width = '32px';
+        
+        var fontIntensitySlider = editor.call('attributes:addField', {
+            panel: fontIntensity.parent,
+            slider: true,
+            type: 'number',
+            min: 0,
+            max: 1,
+            link: assets,
+            path: 'data.intensity'
+        });
+        
+        fontIntensitySlider.flexGrow = 4;
 
         // Character Presets
         var panelCharacterSets = editor.call('attributes:addPanel', {
@@ -220,7 +233,7 @@ editor.once('load', function() {
             var evtPanelResize = root.on('resize', queueRender);
             var evtSceneSettings = editor.on('preview:scene:changed', queueRender);
 
-            // model resource loaded
+            // font resource loaded
             var watcher = editor.call('assets:font:watch', {
                 asset: assets[0],
                 autoLoad: true,
@@ -232,7 +245,7 @@ editor.once('load', function() {
             paramsPanel.once('destroy', function() {
                 root.class.remove('asset-preview', 'animate');
 
-                editor.call('assets:model:unwatch', assets[0], watcher);
+                editor.call('assets:font:unwatch', assets[0], watcher);
                 evtPanelResize.unbind();
                 evtSceneSettings.unbind();
 

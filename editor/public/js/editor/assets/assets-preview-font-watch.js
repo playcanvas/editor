@@ -20,7 +20,8 @@ editor.once('load', function() {
             watch.engineAsset = asset;
             watch.engineAsset.off('load', watch.onLoad);
             watch.engineAsset.on('load', watch.onLoad);
-
+            watch.engineAsset.off('change', onFontChange);
+            watch.engineAsset.on('change', onFontChange);
             if (watch.autoLoad) loadFont(watch, asset);
         };
 
@@ -31,20 +32,27 @@ editor.once('load', function() {
         var asset = app.assets.get(watch.asset.get('id'));
         if (asset) {
             watch.onAdd(asset);
+
         } else {
             app.assets.once('add:' + watch.asset.get('id'), watch.onAdd);
         }
+
+        
     };
 
     var unsubscribe = function(watch) {
-        if (watch.engineAsset)
+        if (watch.engineAsset) {
             watch.engineAsset.off('load', watch.onLoad);
+            watch.engineAsset.off('change', onFontChange);
+        }
 
         if (watch.onAdd)
             app.assets.off('add:' + watch.asset.get('id'), watch.onAdd);
 
         for(var key in watch.watching)
             watch.watching[key].unbind();
+
+
     };
 
     var loadFont = function(watch, asset, reload) {
@@ -58,6 +66,11 @@ editor.once('load', function() {
         app.assets.load(asset);
     };
 
+    var onFontChange = function (asset, name, value) {
+        if (name === 'data') {
+            editor.emit('preview:scene:changed');
+        }
+    }
     var trigger = function(watch) {
         for(var key in watch.callbacks)
             watch.callbacks[key].callback();

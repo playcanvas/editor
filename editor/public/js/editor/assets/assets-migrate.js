@@ -53,7 +53,7 @@ editor.once('load', function() {
             }
         }
 
-        if (asset.get('type') === 'font') {
+        if (asset.get('type') === 'font' && !asset.get('source')) {
             var data = asset.get('data');
             if (!asset.has('data.intensity')) {
                 asset.set('data.intensity', 0.0);
