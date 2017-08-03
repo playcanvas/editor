@@ -122,8 +122,8 @@ editor.once('load', function() {
                     entity.set('components.element.opacity', opacity);
                 }
 
-                if (! entity.has('components.element.inputEnabled')) {
-                    entity.set('components.element.inputEnabled', false);
+                if (! entity.has('components.element.useInput')) {
+                    entity.set('components.element.useInput', false);
                 }
 
                 if (! entity.has('components.element.autoWidth')) {

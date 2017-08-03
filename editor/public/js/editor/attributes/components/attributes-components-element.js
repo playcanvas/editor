@@ -592,13 +592,16 @@ editor.once('load', function() {
         });
         fieldOpacitySlider.flexGrow = 4;
 
-        var fieldInputEnabled = editor.call('attributes:addField', {
+        var fieldUseInput = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Enable Input',
+            name: 'Use Input',
             type: 'checkbox',
             link: entities,
-            path: 'components.element.inputEnabled'
+            path: 'components.element.useInput'
         });
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:useInput', fieldUseInput.parent.innerElement.firstChild.ui);
 
         events.push(fieldType.on('change', function (value) {
             fieldText.parent.hidden = value !== 'text';
