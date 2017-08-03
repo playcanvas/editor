@@ -317,6 +317,7 @@ editor.once('load', function() {
             title: 'Element',
             default: {
                 enabled: true,
+                useInput: false,
                 type: 'text',
                 anchor: [0.5, 0.5, 0.5, 0.5],
                 pivot: [0.5, 0.5],
