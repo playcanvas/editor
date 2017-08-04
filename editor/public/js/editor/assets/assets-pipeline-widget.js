@@ -135,20 +135,12 @@ editor.once('load', function() {
             options.rgbm = true;
 
         // check if resizing to nearest power of 2 required
-        if (editor.call('assets:pipeline:settings', 'texturePot') && (((meta.width & (meta.width - 1)) !== 0) || ((meta.height & (meta.height - 1)) !== 0))) {
+        if (editor.call('assets:pipeline:settings', 'texturePot')) {
             options.size = {
                 width: nearestPow2(meta.width),
                 height: nearestPow2(meta.height)
             };
         }
-        // this breaks Non-POT re-importing (meta contains current width/height)
-        // not sure why we need this as importing seems to work without it?
-        //  else {
-        //     options.size = {
-        //         width: meta.width,
-        //         height: meta.height
-        //     };
-        // }
 
         // check for different format
         if (meta.format !== options.format)
