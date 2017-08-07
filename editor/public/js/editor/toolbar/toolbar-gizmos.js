@@ -20,11 +20,15 @@ editor.once('load', function() {
         icon: '&#57618;',
         tooltip: 'Scale',
         op: 'scale'
-    }].forEach(function (item) {
+    }, {
+        icon: '&#57666;',
+        tooltip: 'Resize Element Component',
+        op: 'resize'
+    }].forEach(function (item, index) {
         var button = new ui.Button({
             text: item.icon
         });
-        button.hidden = ! editor.call('permissions:write');
+        button.hidden = ! editor.call('permissions:write') || (index === 3 && !config.self.uiTester && !config.self.superUser);
         button.op = item.op;
         button.class.add('pc-icon');
 
@@ -118,6 +122,9 @@ editor.once('load', function() {
     editor.on('permissions:writeState', function(state) {
         for(var key in gizmoButtons) {
             gizmoButtons[key].hidden = ! state;
+
+            if (key === 'resize' && ! config.self.uiTester && ! config.self.superUser)
+                gizmoButtons[key].hidden = true;
         }
 
         buttonWorld.hidden = ! state;
@@ -179,6 +186,14 @@ editor.once('load', function() {
         key: '3',
         callback: function() {
             gizmoButtons['scale'].emit('click');
+        }
+    });
+
+    // resize hotkey
+    editor.call('hotkey:register', 'gizmo:resize', {
+        key: '4',
+        callback: function() {
+            gizmoButtons['resize'].emit('click');
         }
     });
 

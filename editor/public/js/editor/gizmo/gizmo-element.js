@@ -32,6 +32,7 @@ editor.once('load', function() {
     var anchorStart = [];
     var anchorCurrent = [];
     var localPosition = [];
+    var offset = new pc.Vec3();
 
     var createAnchorGizmo = function () {
         var obj = {
@@ -168,6 +169,7 @@ editor.once('load', function() {
 
                 var worldCorners = entity.element.worldCorners;
 
+
                 corners[0].copy(worldCorners[0]);
                 corners[1].copy(worldCorners[1]);
                 corners[2].copy(worldCorners[1]);
@@ -233,7 +235,7 @@ editor.once('load', function() {
 
                         var snapIncrement = 0.01;
 
-                        var offset = pc.Vec3.ZERO;
+                        offset.set(0, 0, 0);
                         if (moving && (vecA.copy(posCameraLast).sub(posCamera).length() > 0.01 || mouseTapMoved)) {
                             offset = pickPlane(mouseTap.x, mouseTap.y);
                             if (offset) {
@@ -412,7 +414,7 @@ editor.once('load', function() {
         var pickPlane = function(x, y) {
             var camera = editor.call('camera:current');
 
-            var mouseWPos = camera.camera.screenToWorld(x, y, 1);
+            var mouseWPos = camera.camera.screenToWorld(x, y, camera.camera.farClip);
             var posGizmo = gizmoAnchor.root.getPosition();
             var rayOrigin = vecA.copy(camera.getPosition());
             var rayDirection = vecB.set(0, 0, 0);
