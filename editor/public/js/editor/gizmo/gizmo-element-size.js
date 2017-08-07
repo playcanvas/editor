@@ -72,7 +72,7 @@ editor.once('load', function() {
     };
 
     var gizmoEnabled = function () {
-        if (editor.call('gizmo:type') === 'resize' && editor.call('permissions:write')) {
+        if (editor.call('gizmo:type') === 'resize' && editor.call('permissions:write') && editor.call('selector:itemsRaw').length === 1) {
             return (selectedEntity && selectedEntity.has('components.element') && selectedEntity.entity);
         }
 
@@ -92,8 +92,6 @@ editor.once('load', function() {
         });
 
         editor.on('selector:remove', function (item, type) {
-            if (type !== 'entity') return;
-
             if (selectedEntity === item) {
                 selectedEntity = null;
             }
@@ -141,13 +139,7 @@ editor.once('load', function() {
                     sizeCurrent[1] = sizeStart[1];
 
                     var pivot = entity.element.pivot;
-
                     var px, py, sx, sy;
-
-                    // world space offset
-                    offset.sub(pickStart);
-                    // offset in element space
-                    worldToEntitySpace.transformVector(offset, localOffset);
 
                     // bottom left
                     if (gizmo.handle === gizmo.handles[0]) {
@@ -177,6 +169,11 @@ editor.once('load', function() {
                         sx = -1;
                         sy = 1;
                     }
+
+                    // world space offset
+                    offset.sub(pickStart);
+                    // offset in element space
+                    worldToEntitySpace.transformVector(offset, localOffset);
 
                     // position changes based on the pivot - calculate the
                     // offset in element space after applying pivot
