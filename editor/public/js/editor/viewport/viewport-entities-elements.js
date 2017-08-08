@@ -28,8 +28,8 @@ editor.once('load', function() {
             autoHeight: false
         };
 
-        events.push(entity.on('*:set', function (path) {
-            if (! entity.entity || ! entity.has('components.element')) return;
+        events.push(entity.on('*:set', function (path, value, valueOld, remote) {
+            if (remote || ! entity.entity || ! entity.has('components.element')) return;
 
             // position change
             if (/^position/.test(path)) {

@@ -132,7 +132,7 @@ ObserverSync.prototype.write = function(op) {
         var path = op.p.slice(this._prefix.length).join('.');
 
         this._enabled = false;
-        this.item.set(path, op.oi);
+        this.item.set(path, op.oi, false, true);
         this._enabled = true;
 
 
@@ -141,7 +141,7 @@ ObserverSync.prototype.write = function(op) {
         var path = op.p.slice(this._prefix.length).join('.');
 
         this._enabled = false;
-        this.item.set(path, op.li);
+        this.item.set(path, op.li, false, true);
         this._enabled = true;
 
 
@@ -150,7 +150,7 @@ ObserverSync.prototype.write = function(op) {
         var path = op.p.slice(this._prefix.length, -1).join('.');
 
         this._enabled = false;
-        this.item.remove(path, op.p[op.p.length - 1]);
+        this.item.remove(path, op.p[op.p.length - 1], false, true);
         this._enabled = true;
 
 
@@ -160,7 +160,7 @@ ObserverSync.prototype.write = function(op) {
         var ind = op.p[op.p.length - 1];
 
         this._enabled = false;
-        this.item.insert(path, op.li, ind);
+        this.item.insert(path, op.li, ind, false, true);
         this._enabled = true;
 
 
@@ -171,7 +171,7 @@ ObserverSync.prototype.write = function(op) {
         var ind = op.lm;
 
         this._enabled = false;
-        this.item.move(path, indOld, ind);
+        this.item.move(path, indOld, ind, false, true);
         this._enabled = true;
 
 
@@ -179,7 +179,7 @@ ObserverSync.prototype.write = function(op) {
         // unset key value
         var path = op.p.slice(this._prefix.length).join('.');
         this._enabled = false;
-        this.item.unset(path);
+        this.item.unset(path, false, true);
         this._enabled = true;
 
 

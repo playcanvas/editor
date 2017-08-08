@@ -83,7 +83,7 @@ Observer.prototype.silenceRestore = function(state) {
 };
 
 
-Observer.prototype._prepare = function(target, key, value, silent) {
+Observer.prototype._prepare = function(target, key, value, silent, remote) {
     var self = this;
     var state;
     var path = (target._path ? (target._path + '.') : '') + key;
@@ -108,8 +108,8 @@ Observer.prototype._prepare = function(target, key, value, silent) {
                 }
             } else {
                 state = this.silence();
-                this.emit(path + '.' + i + ':set', target._data[key][i], null);
-                this.emit('*:set', path + '.' + i, target._data[key][i], null);
+                this.emit(path + '.' + i + ':set', target._data[key][i], null, remote);
+                this.emit('*:set', path + '.' + i, target._data[key][i], null, remote);
                 this.silenceRestore(state);
             }
         }
@@ -117,8 +117,8 @@ Observer.prototype._prepare = function(target, key, value, silent) {
         if (silent)
             state = this.silence();
 
-        this.emit(path + ':set', target._data[key], null);
-        this.emit('*:set', path, target._data[key], null);
+        this.emit(path + ':set', target._data[key], null, remote);
+        this.emit('*:set', path, target._data[key], null, remote);
 
         if (silent)
             this.silenceRestore(state);
@@ -133,15 +133,15 @@ Observer.prototype._prepare = function(target, key, value, silent) {
 
         for(var i in value) {
             if (typeof(value[i]) === 'object') {
-                this._prepare(target._data[key], i, value[i], true);
+                this._prepare(target._data[key], i, value[i], true, remote);
             } else {
                 state = this.silence();
 
                 target._data[key]._data[i] = value[i];
                 target._data[key]._keys.push(i);
 
-                this.emit(path + '.' + i + ':set', value[i], null);
-                this.emit('*:set', path + '.' + i, value[i], null);
+                this.emit(path + '.' + i + ':set', value[i], null, remote);
+                this.emit('*:set', path + '.' + i, value[i], null, remote);
 
                 this.silenceRestore(state);
             }
@@ -150,8 +150,10 @@ Observer.prototype._prepare = function(target, key, value, silent) {
         if (silent)
             state = this.silence();
 
-        this.emit(path + ':set', value);
-        this.emit('*:set', path, value);
+        // passing undefined as valueOld here
+        // but we should get the old value to be consistent
+        this.emit(path + ':set', value, undefined, remote);
+        this.emit('*:set', path, value, undefined, remote);
 
         if (silent)
             this.silenceRestore(state);
@@ -161,8 +163,8 @@ Observer.prototype._prepare = function(target, key, value, silent) {
 
         target._data[key] = value;
 
-        this.emit(path + ':set', value);
-        this.emit('*:set', path, value);
+        this.emit(path + ':set', value, undefined, remote);
+        this.emit('*:set', path, value, undefined, remote);
 
         if (silent)
             this.silenceRestore(state);
@@ -172,7 +174,7 @@ Observer.prototype._prepare = function(target, key, value, silent) {
 };
 
 
-Observer.prototype.set = function(path, value, silent) {
+Observer.prototype.set = function(path, value, silent, remote) {
     var keys = path.split('.');
     var key = keys[keys.length - 1];
     var node = this;
@@ -229,8 +231,8 @@ Observer.prototype.set = function(path, value, silent) {
         if (silent)
             state = obj.silence();
 
-        obj.emit(path + ':set', value, valueOld);
-        obj.emit('*:set', path, value, valueOld);
+        obj.emit(path + ':set', value, valueOld, remote);
+        obj.emit('*:set', path, value, valueOld, remote);
 
         if (silent)
             obj.silenceRestore(state);
@@ -238,7 +240,7 @@ Observer.prototype.set = function(path, value, silent) {
         return true;
     } else if (node._data && ! node._data.hasOwnProperty(key)) {
         if (typeof(value) === 'object') {
-            return obj._prepare(node, key, value);
+            return obj._prepare(node, key, value, false, remote);
         } else {
             node._data[key] = value;
             node._keys.push(key);
@@ -246,8 +248,8 @@ Observer.prototype.set = function(path, value, silent) {
             if (silent)
                 state = obj.silence();
 
-            obj.emit(path + ':set', value, null);
-            obj.emit('*:set', path, value, null);
+            obj.emit(path + ':set', value, null, remote);
+            obj.emit('*:set', path, value, null, remote);
 
             if (silent)
                 obj.silenceRestore(state);
@@ -271,8 +273,8 @@ Observer.prototype.set = function(path, value, silent) {
                         node._data[key][i].patch(value[i]);
                     } else if (node._data[key][i] !== value[i]) {
                         node._data[key][i] = value[i];
-                        obj.emit(path + '.' + i + ':set', node._data[key][i], valueOld[i] || null);
-                        obj.emit('*:set', path + '.' + i, node._data[key][i], valueOld[i] || null);
+                        obj.emit(path + '.' + i + ':set', node._data[key][i], valueOld[i] || null, remote);
+                        obj.emit('*:set', path + '.' + i, node._data[key][i], valueOld[i] || null, remote);
                     }
                 }
 
@@ -282,8 +284,8 @@ Observer.prototype.set = function(path, value, silent) {
 
                 state = obj.silence();
                 for(var i = 0; i < node._data[key].length; i++) {
-                    obj.emit(path + '.' + i + ':set', node._data[key][i], valueOld[i] || null);
-                    obj.emit('*:set', path + '.' + i, node._data[key][i], valueOld[i] || null);
+                    obj.emit(path + '.' + i + ':set', node._data[key][i], valueOld[i] || null, remote);
+                    obj.emit('*:set', path + '.' + i, node._data[key][i], valueOld[i] || null, remote);
                 }
                 obj.silenceRestore(state);
             }
@@ -291,8 +293,8 @@ Observer.prototype.set = function(path, value, silent) {
             if (silent)
                 state = obj.silence();
 
-            obj.emit(path + ':set', value, valueOld);
-            obj.emit('*:set', path, value, valueOld);
+            obj.emit(path + ':set', value, valueOld, remote);
+            obj.emit('*:set', path, value, valueOld, remote);
 
             if (silent)
                 obj.silenceRestore(state);
@@ -327,7 +329,7 @@ Observer.prototype.set = function(path, value, silent) {
                         if (c) changed = true;
                     }
                 } else {
-                    var c = obj._prepare(node._data[key], n, value[n], true);
+                    var c = obj._prepare(node._data[key], n, value[n], true, remote);
                     if (c) changed = true;
                 }
             }
@@ -341,7 +343,7 @@ Observer.prototype.set = function(path, value, silent) {
                         var c = obj.set(path + '.' + keys[i], value[keys[i]], true);
                         if (c) changed = true;
                     } else {
-                        var c = obj._prepare(node._data[key], keys[i], value[keys[i]], true);
+                        var c = obj._prepare(node._data[key], keys[i], value[keys[i]], true, remote);
                         if (c) changed = true;
                     }
                 } else if (! obj._equals(node._data[key]._data[keys[i]], value[keys[i]])) {
@@ -357,8 +359,8 @@ Observer.prototype.set = function(path, value, silent) {
                         node._data[key]._data[keys[i]] = value[keys[i]];
 
                         state = obj.silence();
-                        obj.emit(node._data[key]._path + '.' + keys[i] + ':set', node._data[key]._data[keys[i]], null);
-                        obj.emit('*:set', node._data[key]._path + '.' + keys[i], node._data[key]._data[keys[i]], null);
+                        obj.emit(node._data[key]._path + '.' + keys[i] + ':set', node._data[key]._data[keys[i]], null, remote);
+                        obj.emit('*:set', node._data[key]._path + '.' + keys[i], node._data[key]._data[keys[i]], null, remote);
                         obj.silenceRestore(state);
                     }
                 }
@@ -370,8 +372,8 @@ Observer.prototype.set = function(path, value, silent) {
 
                 var val = obj.json(node._data[key]);
 
-                obj.emit(node._data[key]._path + ':set', val, valueOld);
-                obj.emit('*:set', node._data[key]._path, val, valueOld);
+                obj.emit(node._data[key]._path + ':set', val, valueOld, remote);
+                obj.emit('*:set', node._data[key]._path, val, valueOld, remote);
 
                 if (silent)
                     obj.silenceRestore(state);
@@ -400,8 +402,8 @@ Observer.prototype.set = function(path, value, silent) {
 
             data[key] = value;
 
-            obj.emit(path + ':set', value, valueOld);
-            obj.emit('*:set', path, value, valueOld);
+            obj.emit(path + ':set', value, valueOld, remote);
+            obj.emit('*:set', path, value, valueOld, remote);
 
             if (silent)
                 obj.silenceRestore(state);
@@ -473,7 +475,7 @@ Observer.prototype._equals = function(a, b) {
 };
 
 
-Observer.prototype.unset = function(path, silent) {
+Observer.prototype.unset = function(path, silent, remote) {
     var keys = path.split('.');
     var key = keys[keys.length - 1];
     var node = this;
@@ -512,8 +514,8 @@ Observer.prototype.unset = function(path, silent) {
     if (silent)
         state = obj.silence();
 
-    obj.emit(path + ':unset', valueOld);
-    obj.emit('*:unset', path, valueOld);
+    obj.emit(path + ':unset', valueOld, remote);
+    obj.emit('*:unset', path, valueOld, remote);
 
     if (silent)
         obj.silenceRestore(state);
@@ -522,7 +524,7 @@ Observer.prototype.unset = function(path, silent) {
 };
 
 
-Observer.prototype.remove = function(path, ind, silent) {
+Observer.prototype.remove = function(path, ind, silent, remote) {
     var keys = path.split('.');
     var key = keys[keys.length - 1];
     var node = this;
@@ -562,8 +564,8 @@ Observer.prototype.remove = function(path, ind, silent) {
     if (silent)
         state = obj.silence();
 
-    obj.emit(path + ':remove', value, ind);
-    obj.emit('*:remove', path, value, ind);
+    obj.emit(path + ':remove', value, ind, remote);
+    obj.emit('*:remove', path, value, ind, remote);
 
     if (silent)
         obj.silenceRestore(state);
@@ -572,7 +574,7 @@ Observer.prototype.remove = function(path, ind, silent) {
 };
 
 
-Observer.prototype.removeValue = function(path, value, silent) {
+Observer.prototype.removeValue = function(path, value, silent, remote) {
     var keys = path.split('.');
     var key = keys[keys.length - 1];
     var node = this;
@@ -617,8 +619,8 @@ Observer.prototype.removeValue = function(path, value, silent) {
     if (silent)
         state = obj.silence();
 
-    obj.emit(path + ':remove', value, ind);
-    obj.emit('*:remove', path, value, ind);
+    obj.emit(path + ':remove', value, ind, remote);
+    obj.emit('*:remove', path, value, ind, remote);
 
     if (silent)
         obj.silenceRestore(state);
@@ -627,7 +629,7 @@ Observer.prototype.removeValue = function(path, value, silent) {
 };
 
 
-Observer.prototype.insert = function(path, value, ind, silent) {
+Observer.prototype.insert = function(path, value, ind, silent, remote) {
     var keys = path.split('.');
     var key = keys[keys.length - 1];
     var node = this;
@@ -683,8 +685,8 @@ Observer.prototype.insert = function(path, value, ind, silent) {
     if (silent)
         state = obj.silence();
 
-    obj.emit(path + ':insert', value, ind);
-    obj.emit('*:insert', path, value, ind);
+    obj.emit(path + ':insert', value, ind, remote);
+    obj.emit('*:insert', path, value, ind, remote);
 
     if (silent)
         obj.silenceRestore(state);
@@ -693,7 +695,7 @@ Observer.prototype.insert = function(path, value, ind, silent) {
 };
 
 
-Observer.prototype.move = function(path, indOld, indNew, silent) {
+Observer.prototype.move = function(path, indOld, indNew, silent, remote) {
     var keys = path.split('.');
     var key = keys[keys.length - 1];
     var node = this;
@@ -737,8 +739,8 @@ Observer.prototype.move = function(path, indOld, indNew, silent) {
     if (silent)
         state = obj.silence();
 
-    obj.emit(path + ':move', value, indNew, indOld);
-    obj.emit('*:move', path, value, indNew, indOld);
+    obj.emit(path + ':move', value, indNew, indOld, remote);
+    obj.emit('*:move', path, value, indNew, indOld, remote);
 
     if (silent)
         obj.silenceRestore(state);
