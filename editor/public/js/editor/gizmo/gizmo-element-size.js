@@ -46,6 +46,8 @@ editor.once('load', function() {
         var createHandle = function () {
             var sphere = new pc.Entity();
             sphere.addComponent('model', {type: 'sphere'});
+            sphere.model.castShadows = false;
+            sphere.model.receiveShadows = false;
             sphere.model.meshInstances[0].material = obj.matInactive;
             sphere.model.meshInstances[0].layer = pc.LAYER_GIZMO;
             sphere.setLocalScale(0.5, 0.5, 0.5);

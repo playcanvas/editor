@@ -49,6 +49,8 @@ editor.once('load', function() {
 
             var cone = new pc.Entity();
             cone.addComponent('model', {type: 'cone'});
+            cone.model.castShadows = false;
+            cone.model.receiveShadows = false;
             cone.model.meshInstances[0].material = obj.matInactive;
             cone.model.meshInstances[0].layer = pc.LAYER_GIZMO;
             cone.setLocalPosition(0, -0.5, 0);
@@ -70,6 +72,8 @@ editor.once('load', function() {
         var sphere = new pc.Entity();
         obj.handles.center.addChild(sphere);
         sphere.addComponent('model', {type: 'sphere'});
+        sphere.model.castShadows = false;
+        sphere.model.receiveShadows = false;
         sphere.model.meshInstances[0].material = obj.matInactive;
         sphere.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         sphere.setLocalPosition(0,0,0.1);
