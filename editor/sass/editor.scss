@@ -1175,9 +1175,12 @@ strong {
                         }
                     }
                     &.empty {
-                        > .preview {
+                        &:before {
                             display: block;
                             content: '';
+                            width: 60px;
+                            height: 60px;
+                            margin: 2px;
 
                             background-color: #465659;
                             background-image:
