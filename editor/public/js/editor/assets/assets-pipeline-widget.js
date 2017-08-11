@@ -462,7 +462,9 @@ editor.once('load', function() {
                 if (target) {
                     onTargetAvailable(target);
                 } else {
-                    var data = null;
+                    var data = {
+                        intensity: 0.0
+                    };
 
                     var chars = [ ];
                     for (var i = 0x20; i <= 0x7e; i++)
