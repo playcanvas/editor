@@ -28,7 +28,7 @@ editor.once('load', function() {
         var button = new ui.Button({
             text: item.icon
         });
-        button.hidden = ! editor.call('permissions:write') || (index === 3 && !config.self.uiTester && !config.self.superUser);
+        button.hidden = ! editor.call('permissions:write');
         button.op = item.op;
         button.class.add('pc-icon');
 
@@ -122,9 +122,6 @@ editor.once('load', function() {
     editor.on('permissions:writeState', function(state) {
         for(var key in gizmoButtons) {
             gizmoButtons[key].hidden = ! state;
-
-            if (key === 'resize' && ! config.self.uiTester && ! config.self.superUser)
-                gizmoButtons[key].hidden = true;
         }
 
         buttonWorld.hidden = ! state;
