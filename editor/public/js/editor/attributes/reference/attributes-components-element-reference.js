@@ -84,12 +84,12 @@ editor.once('load', function() {
     }, {
         title: 'lineHeight',
         subTitle: '{Number}',
-        description: 'TODO',
+        description: 'The height of each line of text.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#lineHeight'
     }, {
         title: 'spacing',
         subTitle: '{Number}',
-        description: 'TODO',
+        description: 'The spacing between each letter of the text.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#spacing'
     }, {
         title: 'color',
