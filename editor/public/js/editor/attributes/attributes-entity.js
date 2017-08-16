@@ -367,22 +367,12 @@ editor.once('load', function() {
                 disableRotation = true;
                 disableScale = true;
             }
-
-            // disable position for elements with split anchors
-            if (selectedEntities[i].has('components.element')) {
-                var anchor = selectedEntities[i].get('components.element.anchor');
-                if (Math.abs(anchor[0] - anchor[2]) > 0.001 || Math.abs(anchor[1] - anchor[3]) > 0.001) {
-                    disablePosition = true;
-                }
-            }
         }
 
         for (var i = 0; i < 3; i++) {
-            items.fieldPosition[i].enabled = !disablePosition;
             items.fieldRotation[i].enabled = !disableRotation;
             items.fieldScale[i].enabled = !disableScale;
 
-            items.fieldPosition[i].renderChanges = !disablePosition;
             items.fieldRotation[i].renderChanges = !disableRotation;
             items.fieldScale[i].renderChanges = !disableScale;
         }
@@ -394,7 +384,7 @@ editor.once('load', function() {
 
         var addEvents = function (entity) {
             inspectEvents.push(entity.on('*:set', function (path) {
-                if (/components.(screen.screenSpace|element.anchor)/.test(path)) {
+                if (/components.screen.screenSpace/.test(path)) {
                     toggleFieldsIfNeeded(entity);
                 }
             }));
