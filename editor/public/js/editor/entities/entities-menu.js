@@ -277,6 +277,9 @@ editor.once('load', function() {
             'add-new-2d-screen': {
                 title: '2D Screen',
                 icon: componentsLogos.screen,
+                hide: function () {
+                    return !config.self.superUser && !config.self.uiTester;
+                },
                 select: function() {
                     var data = editor.call('components:getDefault', 'screen');
                     data.screenSpace = true;
@@ -293,6 +296,9 @@ editor.once('load', function() {
             'add-new-3d-screen': {
                 title: '3D Screen',
                 icon: componentsLogos.screen,
+                hide: function () {
+                    return !config.self.superUser && !config.self.uiTester;
+                },
                 select: function() {
                     var data = editor.call('components:getDefault', 'screen');
                     data.screenSpace = false;
@@ -310,6 +316,9 @@ editor.once('load', function() {
             'add-new-text': {
                 title: 'Text Element',
                 icon: componentsLogos.element,
+                hide: function () {
+                    return !config.self.superUser && !config.self.uiTester;
+                },
                 select: function() {
                     var data = editor.call('components:getDefault', 'element');
                     data.type = 'text';
@@ -328,6 +337,9 @@ editor.once('load', function() {
             'add-new-image': {
                 title: 'Image Element',
                 icon: componentsLogos.element,
+                hide: function () {
+                    return !config.self.superUser && !config.self.uiTester;
+                },
                 select: function() {
                     var data = editor.call('components:getDefault', 'element');
                     data.type = 'image';
@@ -343,6 +355,9 @@ editor.once('load', function() {
             'add-new-group': {
                 title: 'Element Group',
                 icon: componentsLogos.element,
+                hide: function () {
+                    return !config.self.superUser && !config.self.uiTester;
+                },
                 select: function() {
                     var data = editor.call('components:getDefault', 'element');
                     data.type = 'group';

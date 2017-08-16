@@ -191,28 +191,51 @@ editor.once('load', function() {
 
 
     // options
-    var filterField = new ui.SelectField({
-        options: {
-            all: 'All',
-            animation: 'Animation',
-            audio: 'Audio',
-            binary: 'Binary',
-            cubemap: 'Cubemap',
-            css: 'Css',
-            font: 'Font',
-            json: 'Json',
-            html: 'Html',
-            material: 'Material',
-            model: 'Model',
-            scene: 'Model (source)',
-            script: 'Script',
-            shader: 'Shader',
-            text: 'Text',
-            textureTarget: 'Texture',
-            textureSource: 'Texture (source)'
-        }
-    });
-
+    if (! config.self.superUser && !config.self.betaTester && !config.self.uiTester) {
+        var filterField = new ui.SelectField({
+            options: {
+                all: 'All',
+                animation: 'Animation',
+                audio: 'Audio',
+                binary: 'Binary',
+                cubemap: 'Cubemap',
+                css: 'Css',
+                json: 'Json',
+                html: 'Html',
+                material: 'Material',
+                model: 'Model',
+                scene: 'Model (source)',
+                script: 'Script',
+                shader: 'Shader',
+                text: 'Text',
+                textureTarget: 'Texture',
+                textureSource: 'Texture (source)'
+            }
+        });
+    } else {
+        // show fonts for beta / super users
+        var filterField = new ui.SelectField({
+            options: {
+                all: 'All',
+                animation: 'Animation',
+                audio: 'Audio',
+                binary: 'Binary',
+                cubemap: 'Cubemap',
+                css: 'Css',
+                font: 'Font',
+                json: 'Json',
+                html: 'Html',
+                material: 'Material',
+                model: 'Model',
+                scene: 'Model (source)',
+                script: 'Script',
+                shader: 'Shader',
+                text: 'Text',
+                textureTarget: 'Texture',
+                textureSource: 'Texture (source)'
+            }
+        });
+    }
     filterField.class.add('options');
     filterField.value = 'all';
     filterField.renderChanges = false;
