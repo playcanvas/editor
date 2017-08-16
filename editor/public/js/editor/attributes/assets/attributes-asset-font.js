@@ -9,7 +9,7 @@ editor.once('load', function() {
         }
 
         return chars.join('');
-    };    
+    };
 
     // character presets
     var LATIN = characterRange(0x20, 0x7e);
@@ -35,7 +35,7 @@ editor.once('load', function() {
             name: "Properties"
         });
         panelProperties.class.add('component');
-        
+
         var fontIntensity = editor.call('attributes:addField', {
             parent: panelProperties,
             name: 'Intensity',
@@ -46,7 +46,7 @@ editor.once('load', function() {
             path: 'data.intensity'
         });
         fontIntensity.style.width = '32px';
-        
+
         var fontIntensitySlider = editor.call('attributes:addField', {
             panel: fontIntensity.parent,
             slider: true,
@@ -56,7 +56,7 @@ editor.once('load', function() {
             link: assets,
             path: 'data.intensity'
         });
-        
+
         fontIntensitySlider.flexGrow = 4;
 
         // Character Presets
@@ -266,7 +266,7 @@ editor.once('load', function() {
             var proxy = new Observer({
                 'id': asset.get('id'),
                 'chars': asset.get('meta.chars'),
-                'invert': !!asset.get('meta.invert'),
+                'invert': false, //!!asset.get('meta.invert'),
                 'pxrange': asset.get('meta.pxrange')
             });
 
@@ -311,6 +311,7 @@ editor.once('load', function() {
             link: proxyObservers,
             path: 'invert'
         });
+        fieldInvert.parent.hidden = true;
 
         // reference
         editor.call('attributes:reference:attach', 'asset:font:invert', fieldInvert.parent.innerElement.firstChild.ui);
@@ -439,7 +440,7 @@ editor.once('load', function() {
                     source: parseInt(source.get('id'), 10),
                     target: parseInt(asset.get('id'), 10),
                     chars: unique,
-                    invert: fieldInvert.value
+                    invert: false//fieldInvert.value
                 };
 
                 // if (fieldRange.value !== null)
