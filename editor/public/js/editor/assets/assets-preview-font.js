@@ -179,13 +179,14 @@ editor.once('load', function() {
         var engineAsset = app.assets.get(asset.get('id'));
 
         // skip if the font isn't ready
-        if (! engineAsset || ! engineAsset.resource || ! engineAsset.resource.texture || ! engineAsset.data || ! engineAsset.data.chars) {
+        if (! engineAsset || ! engineAsset.resource || ! engineAsset.resource.texture || ! engineAsset.resource.data || ! engineAsset.resource.data.chars) {
             renderer.render(scene, camera);
             return;
         }
 
         // set the font texture
         defaultScreenSpaceTextMaterial.msdfMap = engineAsset.resource.texture;
+        defaultScreenSpaceTextMaterial.setParameter('font_sdfIntensity', asset.get('data.intensity'));
         defaultScreenSpaceTextMaterial.update();
 
         // try to use Aa as the text in different languages

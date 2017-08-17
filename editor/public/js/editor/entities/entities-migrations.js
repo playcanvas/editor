@@ -121,6 +121,31 @@ editor.once('load', function() {
                 if (! entity.has('components.element.opacity')) {
                     entity.set('components.element.opacity', opacity);
                 }
+
+                if (! entity.has('components.element.useInput')) {
+                    entity.set('components.element.useInput', false);
+                }
+
+                if (! entity.has('components.element.autoWidth')) {
+                    entity.set('components.element.autoWidth', entity.get('components.element.type') === 'text');
+                }
+
+                if (! entity.has('components.element.autoHeight')) {
+                    entity.set('components.element.autoHeight', entity.get('components.element.type') === 'text');
+                }
+
+                if (! entity.has('components.element.margin')) {
+                    if (entity.entity && entity.entity.element) {
+                        var margin = entity.entity.element.margin.data;
+                        entity.set('components.element.margin', [margin[0], margin[1], margin[2], margin[3]]);
+                    } else {
+                        entity.set('components.element.margin', [0, 0, 0, 0]);
+                    }
+                }
+
+                if (! entity.has('components.element.alignment')) {
+                    entity.set('components.element.alignment', [0.5, 0.5]);
+                }
             }
 
             entity.history.enabled = true;

@@ -28,7 +28,7 @@ editor.once('load', function() {
 
             } else if (path.startsWith('parent')) {
                 var parent = editor.call('entities:get', obj.get('parent'));
-                if (parent && parent.entity)
+                if (parent && parent.entity && entity.parent !== parent.entity)
                     entity.reparent(parent.entity);
             } else if (path === 'components.model.type' && value === 'asset') {
                 // WORKAROUND
@@ -48,7 +48,23 @@ editor.once('load', function() {
         var reparent = function (child, index) {
             var childEntity = editor.call('entities:get', child);
             if (childEntity && childEntity.entity && obj.entity) {
-                childEntity.entity.reparent(obj.entity, index);
+                if (childEntity.entity.parent)
+                    childEntity.entity.parent.removeChild(childEntity.entity);
+
+                // skip any graph nodes
+                if (index > 0) {
+                    var children = obj.entity.children;
+                    for (var i = 0, len = children.length; i < len && index > 0; i++) {
+                        if (children[i] instanceof pc.Entity) {
+                            index--;
+                        }
+                    }
+
+                    index = i;
+                }
+
+                // re-insert
+                obj.entity.insertChild(childEntity.entity, index);
             }
         };
 

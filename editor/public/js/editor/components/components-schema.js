@@ -317,6 +317,7 @@ editor.once('load', function() {
             title: 'Element',
             default: {
                 enabled: true,
+                useInput: false,
                 type: 'text',
                 anchor: [0.5, 0.5, 0.5, 0.5],
                 pivot: [0.5, 0.5],
@@ -330,14 +331,20 @@ editor.once('load', function() {
                 textureAsset: null,
                 width: 32,
                 height: 32,
+                margin: [-16,-16,-16,-16],
+                alignment: [0.5, 0.5],
                 rect: [0, 0, 1, 1],
+                autoWidth: false,
+                autoHeight: false,
                 materialAsset: null
             },
             types: {
                 anchor: 'vec4',
                 pivot: 'vec2',
                 color: 'rgb',
-                rect: 'vec4'
+                rect: 'vec4',
+                margin: 'vec4',
+                alignment: 'vec2'
             }
         }
     };

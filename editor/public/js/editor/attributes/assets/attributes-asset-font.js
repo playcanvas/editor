@@ -30,6 +30,35 @@ editor.once('load', function() {
         if (assets.length > 1)
             editor.call('attributes:header', assets.length + ' Fonts');
 
+        // Properties
+        var panelProperties = editor.call('attributes:addPanel', {
+            name: "Properties"
+        });
+        panelProperties.class.add('component');
+
+        var fontIntensity = editor.call('attributes:addField', {
+            parent: panelProperties,
+            name: 'Intensity',
+            type: 'number',
+            min: 0,
+            max: 1,
+            link: assets,
+            path: 'data.intensity'
+        });
+        fontIntensity.style.width = '32px';
+
+        var fontIntensitySlider = editor.call('attributes:addField', {
+            panel: fontIntensity.parent,
+            slider: true,
+            type: 'number',
+            min: 0,
+            max: 1,
+            link: assets,
+            path: 'data.intensity'
+        });
+
+        fontIntensitySlider.flexGrow = 4;
+
         // Character Presets
         var panelCharacterSets = editor.call('attributes:addPanel', {
             name: 'Character Presets'
@@ -204,7 +233,7 @@ editor.once('load', function() {
             var evtPanelResize = root.on('resize', queueRender);
             var evtSceneSettings = editor.on('preview:scene:changed', queueRender);
 
-            // model resource loaded
+            // font resource loaded
             var watcher = editor.call('assets:font:watch', {
                 asset: assets[0],
                 autoLoad: true,
@@ -216,7 +245,7 @@ editor.once('load', function() {
             paramsPanel.once('destroy', function() {
                 root.class.remove('asset-preview', 'animate');
 
-                editor.call('assets:model:unwatch', assets[0], watcher);
+                editor.call('assets:font:unwatch', assets[0], watcher);
                 evtPanelResize.unbind();
                 evtSceneSettings.unbind();
 
@@ -237,7 +266,8 @@ editor.once('load', function() {
             var proxy = new Observer({
                 'id': asset.get('id'),
                 'chars': asset.get('meta.chars'),
-                'invert': !!asset.get('meta.invert')
+                'invert': false, //!!asset.get('meta.invert'),
+                'pxrange': asset.get('meta.pxrange')
             });
 
             proxyObservers.push(proxy);
@@ -248,6 +278,10 @@ editor.once('load', function() {
 
             events.push(asset.on('meta.invert:set', function (value) {
                 proxy.set('invert', value);
+            }));
+
+            events.push(asset.on('meta.pxrange:set', function (value) {
+                proxy.set('pxrange', value);
             }));
         };
 
@@ -277,9 +311,46 @@ editor.once('load', function() {
             link: proxyObservers,
             path: 'invert'
         });
+        fieldInvert.parent.hidden = true;
 
         // reference
         editor.call('attributes:reference:attach', 'asset:font:invert', fieldInvert.parent.innerElement.firstChild.ui);
+
+        // signed distance range
+        var fieldRange = editor.call('attributes:addField', {
+            parent: paramsPanel,
+            type: 'number',
+            name: 'MSDF Range',
+            link: proxyObservers,
+            path: 'pxrange',
+            min: 0,
+            max: 15,
+            step: 1,
+            precision: 0
+        });
+
+        fieldRange.style.width = '32px';
+
+        // hide for now
+        fieldRange.parent.hidden = true;
+
+        // reference
+        editor.call('attributes:reference:attach', 'asset:font:pxrange', fieldRange.parent.innerElement.firstChild.ui);
+
+
+        var fieldRangeSlider = editor.call('attributes:addField', {
+            panel: fieldRange.parent,
+            type: 'number',
+            link: proxyObservers,
+            path: 'pxrange',
+            min: 0,
+            max: 15,
+            step: 1,
+            slider: true,
+            precision: 0
+        });
+
+        fieldRangeSlider.flexGrow = 4;
 
         var panelSave = editor.call('attributes:addPanel', {
             parent: paramsPanel
@@ -369,8 +440,11 @@ editor.once('load', function() {
                     source: parseInt(source.get('id'), 10),
                     target: parseInt(asset.get('id'), 10),
                     chars: unique,
-                    invert: fieldInvert.value
+                    invert: false//fieldInvert.value
                 };
+
+                // if (fieldRange.value !== null)
+                //     task.pxrange = fieldRange.value;
 
                 editor.call('realtime:send', 'pipeline', {
                     name: 'convert',

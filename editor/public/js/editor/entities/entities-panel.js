@@ -204,7 +204,7 @@ editor.once('load', function() {
                     var parentOld = editor.call('entities:get', records[i].parentIdOld);
                     if (! parentOld || ! parent) continue;
 
-                    if (parent.get('children').indexOf(records[i].resourceId) === -1 || parentOld.get('children').indexOf(records[i].resourceId) !== -1)
+                    if (parent.get('children').indexOf(records[i].resourceId) === -1 || (parentOld.get('children').indexOf(records[i].resourceId) !== -1 && parentOld !== parent))
                         return;
 
                     // check if not reparenting to own child
@@ -245,6 +245,8 @@ editor.once('load', function() {
                     }
 
                     entity.history.enabled = true;
+
+                    editor.call('viewport:render');
                 }
             },
             redo: function() {
@@ -256,7 +258,7 @@ editor.once('load', function() {
                     var parentOld = editor.call('entities:get', entity.get('parent'));
                     if (! parentOld || ! parent) continue;
 
-                    if (parentOld.get('children').indexOf(records[i].resourceId) === -1 || parent.get('children').indexOf(records[i].resourceId) !== -1)
+                    if (parentOld.get('children').indexOf(records[i].resourceId) === -1 || (parent.get('children').indexOf(records[i].resourceId) !== -1 && parent !== parentOld))
                         continue;
 
                     // check if not reparenting to own child
@@ -297,11 +299,14 @@ editor.once('load', function() {
                     }
 
                     entity.history.enabled = true;
+
+                    editor.call('viewport:render');
                 }
             }
         });
 
         resizeQueue();
+        editor.call('viewport:render');
     });
 
 

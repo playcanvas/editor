@@ -9,7 +9,7 @@ editor.once('load', function() {
     var corners = [];
     var cornerColors = [];
 
-    var tempVec2 = new pc.Vec2();
+    var vecA = new pc.Vec2();
 
     var projectSettings = editor.call('settings:project');
 
@@ -77,6 +77,10 @@ editor.once('load', function() {
                     // reset scale
                     var scale = entity.get('scale');
                     e.setLocalScale(scale[0], scale[1], scale[2]);
+
+                    // reset rotation
+                    var rotation = entity.get('rotation');
+                    e.setLocalEulerAngles(rotation[0], rotation[1], rotation[2]);
                 }
 
                 delete entities[key];
@@ -101,11 +105,12 @@ editor.once('load', function() {
                 if (! entity)
                     continue;
 
-                var isScreenSpace =  entities[key].entity.get('components.screen.screenSpace');
+                var isScreenSpace = entities[key].entity.get('components.screen.screenSpace');
 
                 // always render screens as 3d screens in the viewport
                 if (isScreenSpace) {
                     entity.setLocalScale(0.01, 0.01, 0.01);
+                    entity.setLocalEulerAngles(0, 0, 0);
 
                     if (entity.screen.screenSpace)
                         entity.screen.screenSpace = false;
@@ -114,10 +119,20 @@ editor.once('load', function() {
                     var res = entity.screen.resolution;
                     var w = projectSettings.get('width');
                     var h = projectSettings.get('height');
+                    vecA.set(w, h);
+
+                    // reset resolution
                     if (res.x !== w || res.y !== h) {
-                        tempVec2.set(w, h);
-                        entity.screen.resolution = tempVec2;
+                        entity.screen.resolution = vecA;
                     }
+
+                    // reset scale mode
+                    var scaleMode = entities[key].entity.get('components.screen.scaleMode');
+                    if (entity.screen.scaleMode !== scaleMode) {
+                        entity.screen._scaleMode = scaleMode;
+                        entity.screen.resolution = vecA; // force update
+                    }
+
 
                 } else {
                     // reset scale that might have been
@@ -125,12 +140,20 @@ editor.once('load', function() {
                     var scale = entities[key].entity.get('scale');
                     entity.setLocalScale(scale[0], scale[1], scale[2]);
 
+                    var rotation = entities[key].entity.get('rotation');
+                    entity.setLocalEulerAngles(rotation[0], rotation[1], rotation[2]);
+
                     // reset resolution
                     var res = entities[key].entity.get('components.screen.resolution');
                     var currentRes = entity.screen.resolution;
+                    vecA.set(res[0], res[1]);
                     if (currentRes.x !== res[0] || currentRes.y !== res[1]) {
-                        tempVec2.set(currentRes.x, currentRes.y);
-                        entity.screen.resolution = tempVec2;
+                        entity.screen.resolution = vecA;
+                    }
+
+                    // reset scale mode
+                    if (entity.screen.scaleMode !== 'none') {
+                        entity.screen.scaleMode = 'none';
                     }
                 }
 
@@ -145,23 +168,26 @@ editor.once('load', function() {
                 var r = entity.right;
                 var u = entity.up;
                 var scale = entity.getLocalScale();
-                var resolution = entity.screen.scaleMode === 'blend' ? entity.screen.referenceResolution : entity.screen.resolution;
+                var refResolution = entities[key].entity.get('components.screen.referenceResolution');
+
+                vecA.set(refResolution[0], refResolution[1]);
+                var screenScale = entity.screen.scaleMode === 'blend' ? entity.screen._calcScale(entity.screen.resolution, vecA) || Number.MIN_VALUE : 1;
 
                 left
                 .copy(r)
-                .scale(-0.5 * resolution.x * scale.x);
+                .scale(-0.5 * entity.screen.resolution.x * scale.x / screenScale);
 
                 right
                 .copy(r)
-                .scale(0.5 * resolution.x * scale.x);
+                .scale(0.5 * entity.screen.resolution.x * scale.x / screenScale);
 
                 top
                 .copy(u)
-                .scale(0.5 * resolution.y * scale.y);
+                .scale(0.5 * entity.screen.resolution.y * scale.y / screenScale);
 
                 bottom
                 .copy(u)
-                .scale(-0.5 * resolution.y * scale.y);
+                .scale(-0.5 * entity.screen.resolution.y * scale.y / screenScale);
 
                 corners[0].copy(position).add(left).add(top);
                 corners[1].copy(position).add(left).add(bottom);

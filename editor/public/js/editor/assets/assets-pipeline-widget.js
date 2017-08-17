@@ -135,15 +135,10 @@ editor.once('load', function() {
             options.rgbm = true;
 
         // check if resizing to nearest power of 2 required
-        if (editor.call('assets:pipeline:settings', 'texturePot') && (((meta.width & (meta.width - 1)) !== 0) || ((meta.height & (meta.height - 1)) !== 0))) {
+        if (editor.call('assets:pipeline:settings', 'texturePot')) {
             options.size = {
                 width: nearestPow2(meta.width),
                 height: nearestPow2(meta.height)
-            };
-        } else {
-            options.size = {
-                width: meta.width,
-                height: meta.height
             };
         }
 
@@ -467,7 +462,9 @@ editor.once('load', function() {
                 if (target) {
                     onTargetAvailable(target);
                 } else {
-                    var data = null;
+                    var data = {
+                        intensity: 0.0
+                    };
 
                     var chars = [ ];
                     for (var i = 0x20; i <= 0x7e; i++)

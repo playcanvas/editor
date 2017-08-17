@@ -21,7 +21,7 @@ editor.once('load', function() {
         'audio': [ 'wav', 'mp3', 'mp4', 'ogg' ],
         'shader': [ 'glsl', 'frag', 'vert' ],
         'script': [ 'js' ],
-        'font': [ 'ttf', 'otf' ]
+        'font': [ 'ttf', 'ttc', 'otf', 'dfont' ]
     };
     var extToType = { };
     for(var type in typeToExt) {

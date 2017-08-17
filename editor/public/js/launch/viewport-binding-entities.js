@@ -126,7 +126,7 @@ editor.once('load', function() {
 
             } else if (path.startsWith('parent')) {
                 var parent = editor.call('entities:get', obj.get('parent'));
-                if (parent && parent.entity)
+                if (parent && parent.entity && entity.parent !== parent.entity)
                     entity.reparent(parent.entity);
             } else if (path === 'components.model.type' && value === 'asset') {
                 // WORKAROUND
@@ -169,7 +169,23 @@ editor.once('load', function() {
             var parentEntity = app.root.findByGuid(obj.get('resource_id'));
 
             if (childEntity && parentEntity) {
-                childEntity.reparent(parentEntity, index);
+                if (childEntity.parent)
+                    childEntity.parent.removeChild(childEntity);
+
+                // skip any graph nodes
+                if (index > 0) {
+                    var children = parentEntity.children;
+                    for (var i = 0, len = children.length; i < len && index > 0; i++) {
+                        if (children[i] instanceof pc.Entity) {
+                            index--;
+                        }
+                    }
+
+                    index = i;
+                }
+
+                // re-insert
+                parentEntity.insertChild(childEntity, index);
             }
         };
 

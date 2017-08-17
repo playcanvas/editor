@@ -141,11 +141,13 @@ editor.once('load', function() {
         for(var i = 0; i < items.length; i++) {
             items[i].obj.history.enabled = true;
 
-            records.push({
+            var data = {
                 get: items[i].obj.history._getItemFn,
                 valueOld: items[i].startLocal.slice(0),
                 value: items[i].obj.get('position')
-            });
+            };
+
+            records.push(data);
         }
 
         editor.call('history:add', {

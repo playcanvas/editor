@@ -323,6 +323,8 @@ editor.once('load', function() {
                     var data = editor.call('components:getDefault', 'element');
                     data.type = 'text';
                     data.text = 'Text';
+                    data.autoWidth = true;
+                    data.autoHeight = true;
                     editor.call('entities:new', {
                         name: 'Text',
                         parent: getParentFn(),

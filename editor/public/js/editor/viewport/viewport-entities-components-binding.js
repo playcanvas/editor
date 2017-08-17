@@ -56,7 +56,6 @@ editor.once('load', function() {
                 // edit component property
                 value = obj.get('components.' + component + '.' + property);
 
-                // override particlesystem
                 if (component === 'particlesystem') {
                     if (property === 'enabled') {
                         value = false;

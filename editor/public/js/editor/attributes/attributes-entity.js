@@ -240,7 +240,6 @@ editor.once('load', function() {
         argsList.push(argsPosition);
         argsFieldsChanges = argsFieldsChanges.concat(items.fieldPosition);
 
-
         // rotation
         var argsRotation = {
             parent: panel,
@@ -312,6 +311,8 @@ editor.once('load', function() {
         }
     });
 
+    var inspectEvents = [];
+
     // link data to fields when inspecting
     editor.on('attributes:inspect[entity]', function(entities) {
         if (entities.length > 1) {
@@ -344,5 +345,68 @@ editor.once('load', function() {
         // enable renderChanges
         for(var i = 0; i < argsFieldsChanges.length; i++)
             argsFieldsChanges[i].renderChanges = true;
+
+        // disable fields if needed
+        toggleFields(entities);
+
+        onInspect(entities);
     });
+
+    editor.on('attributes:clear', function () {
+        onUninspect();
+    });
+
+    var toggleFields = function (selectedEntities) {
+        var disablePosition = false;
+        var disableRotation = false;
+        var disableScale = false;
+
+        for (var i = 0, len = selectedEntities.length; i < len; i++) {
+            // disable rotation / scale for 2D screens
+            if (selectedEntities[i].get('components.screen.screenSpace')) {
+                disableRotation = true;
+                disableScale = true;
+            }
+        }
+
+        for (var i = 0; i < 3; i++) {
+            items.fieldRotation[i].enabled = !disableRotation;
+            items.fieldScale[i].enabled = !disableScale;
+
+            items.fieldRotation[i].renderChanges = !disableRotation;
+            items.fieldScale[i].renderChanges = !disableScale;
+        }
+
+    };
+
+    var onInspect = function (entities) {
+        onUninspect();
+
+        var addEvents = function (entity) {
+            inspectEvents.push(entity.on('*:set', function (path) {
+                if (/components.screen.screenSpace/.test(path)) {
+                    toggleFieldsIfNeeded(entity);
+                }
+            }));
+        };
+
+        var toggleFieldsIfNeeded = function (entity) {
+            if (editor.call('selector:has', entity))
+                toggleFields(editor.call('selector:items'));
+        };
+
+
+        for (var i = 0, len = entities.length; i < len; i++) {
+            addEvents(entities[i]);
+        }
+    };
+
+    var onUninspect = function () {
+        for (var i = 0; i < inspectEvents.length; i++) {
+            inspectEvents[i].unbind();
+        }
+
+        inspectEvents.length = 0;
+
+    };
 });

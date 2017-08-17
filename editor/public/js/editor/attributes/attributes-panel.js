@@ -817,6 +817,20 @@ editor.once('load', function() {
                 panel.append(innerPanel);
                 break;
 
+            case 'text':
+                field = new ui.TextAreaField();
+
+                field.value = args.value || '';
+                field.flexGrow = 1;
+
+                if (args.placeholder)
+                    field.placeholder = args.placeholder;
+
+                linkField();
+
+                panel.append(field);
+                break;
+
             case 'number':
                 if (args.enum) {
                     field = new ui.SelectField({

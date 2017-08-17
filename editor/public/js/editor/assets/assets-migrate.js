@@ -53,6 +53,12 @@ editor.once('load', function() {
             }
         }
 
+        if (asset.get('type') === 'font' && !asset.get('source')) {
+            if (asset.get('data') && !asset.has('data.intensity')) {
+                asset.set('data.intensity', 0.0);
+            }
+        }
+
         asset.history.enabled = true;
     };
 
