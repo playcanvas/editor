@@ -97,6 +97,10 @@ editor.once('load', function() {
     fieldHighlightBrackets.class.add('tick');
     addField('Highlight Brackets:', fieldHighlightBrackets, 'ide.highlightBrackets', 'If enabled causes matching brackets to be highlighted whenever the cursor is next to them.');
 
+    var fieldLint = new ui.Checkbox();
+    fieldLint.class.add('tick');
+    addField('Enable Script Linting:', fieldLint, 'ide.lint', 'If enabled then scripts will by analyzed for errors and warnings. This might be slow for very large scripts.');
+
     panel.on('show', function () {
         editor.emit('picker:settings:open');
     });

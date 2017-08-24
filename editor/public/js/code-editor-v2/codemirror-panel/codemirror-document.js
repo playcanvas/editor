@@ -15,6 +15,8 @@ editor.once('load', function () {
         shader: 'glsl'
     };
 
+    var settings = editor.call('editor:settings');
+
     // when we select an asset
     // if the asset is not loaded hide
     // the code panel until it's loaded
@@ -113,7 +115,7 @@ editor.once('load', function () {
             }
 
             if (focusedView.type === 'script') {
-                cm.setOption('lint', true);
+                cm.setOption('lint', !!settings.get('ide.lint'));
             } else {
                 cm.setOption('lint', false);
             }
@@ -158,7 +160,7 @@ editor.once('load', function () {
     });
 
     // Get focused document
-    editor.call('editor:focusedView', function () {
+    editor.method('editor:focusedView', function () {
         return focusedView;
     });
 

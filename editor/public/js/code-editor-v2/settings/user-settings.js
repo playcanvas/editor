@@ -7,7 +7,8 @@ editor.once('load', function () {
             fontSize: 12,
             continueComments: true,
             autoCloseBrackets: true,
-            highlightBrackets: true
+            highlightBrackets: true,
+            lint: true
         }
     });
 
@@ -48,6 +49,12 @@ editor.once('load', function () {
                         settings.sync.write(ops[i]);
                     }
                 });
+
+                // migrations
+                if (data.ide && ! data.ide.hasOwnProperty('lint')) {
+                    settings.set('ide.lint', true);
+                }
+
             });
         });
 
