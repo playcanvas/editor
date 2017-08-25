@@ -1225,6 +1225,7 @@
   };
 
   function hiddenTextarea() {
+    // Vaios: Max added "hotkeys" here
     var te = elt("textarea", null, "hotkeys", "position: absolute; bottom: -1em; padding: 0; width: 1px; height: 1em; outline: none");
     var div = elt("div", [te], null, "overflow: hidden; position: relative; width: 3px; height: 0px;");
     // The textarea is kept positioned near the cursor to prevent the
@@ -8938,6 +8939,7 @@
           }
           if (pos < i) order.splice(at, 0, new BidiSpan(1, pos, i));
         }
+
       }
       if (order[0].level == 1 && (m = str.match(/^\s+/))) {
         order[0].from = m[0].length;
