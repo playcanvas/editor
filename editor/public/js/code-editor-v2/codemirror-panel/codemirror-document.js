@@ -15,8 +15,6 @@ editor.once('load', function () {
         shader: 'glsl'
     };
 
-    var settings = editor.call('editor:settings');
-
     // when we select an asset
     // if the asset is not loaded hide
     // the code panel until it's loaded
@@ -115,7 +113,7 @@ editor.once('load', function () {
             }
 
             if (focusedView.type === 'script') {
-                cm.setOption('lint', !!settings.get('ide.lint'));
+                cm.setOption('lint', true);
             } else {
                 cm.setOption('lint', false);
             }
