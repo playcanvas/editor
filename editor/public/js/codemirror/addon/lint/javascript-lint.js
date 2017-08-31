@@ -84,32 +84,35 @@
         // not taking the replacement step into account. Here we look
         // at the evidence line and try to adjust the character position
         // to the correct value.
-        if (error.evidence) {
-          // Tab positions are computed once per line and cached
-          var tabpositions = linetabpositions[error.line];
-          if (!tabpositions) {
-            var evidence = error.evidence;
-            tabpositions = [];
-            // ugggh phantomjs does not like this
-            // forEachChar(evidence, function(item, index) {
-            Array.prototype.forEach.call(evidence, function(item,
-                                                            index) {
-              if (item === '\t') {
-                // First col is 1 (not 0) to match error
-                // positions
-                tabpositions.push(index + 1);
-              }
-            });
-            linetabpositions[error.line] = tabpositions;
-          }
-          if (tabpositions.length > 0) {
-            var pos = error.character;
-            tabpositions.forEach(function(tabposition) {
-              if (pos > tabposition) pos -= 1;
-            });
-            error.character = pos;
-          }
-        }
+
+
+        // VAIOS: disabled this because it is very slow and we don't use tabs in the code editor
+        // if (error.evidence) {
+        //   // Tab positions are computed once per line and cached
+        //   var tabpositions = linetabpositions[error.line];
+        //   if (!tabpositions) {
+        //     var evidence = error.evidence;
+        //     tabpositions = [];
+        //     // ugggh phantomjs does not like this
+        //     // forEachChar(evidence, function(item, index) {
+        //     Array.prototype.forEach.call(evidence, function(item,
+        //                                                     index) {
+        //       if (item === '\t') {
+        //         // First col is 1 (not 0) to match error
+        //         // positions
+        //         tabpositions.push(index + 1);
+        //       }
+        //     });
+        //     linetabpositions[error.line] = tabpositions;
+        //   }
+        //   if (tabpositions.length > 0) {
+        //     var pos = error.character;
+        //     tabpositions.forEach(function(tabposition) {
+        //       if (pos > tabposition) pos -= 1;
+        //     });
+        //     error.character = pos;
+        //   }
+        // }
 
         var start = error.character - 1, end = start + 1;
         if (error.evidence) {

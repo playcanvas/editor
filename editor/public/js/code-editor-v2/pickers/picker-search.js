@@ -148,6 +148,7 @@ editor.once('load', function () {
     var matchWholeWords = false;
     var queryDirty = false;
     var previousText = '';
+    var searchTimeout = null;
 
     var open = false;
     var findInFiles = false;
@@ -437,12 +438,31 @@ editor.once('load', function () {
         if (suspendChangeEvt) return;
 
         if (previousText !== value) {
-            updateQuery();
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
 
-            if (! findInFiles)
-                search();
+            // if the current asset is large then defer searching
+            // otherwise do it right away
+            var focused = editor.call('documents:getFocused');
+            if (focused) {
+                var asset = editor.call('assets:get', focused);
+                if (asset && asset.get('file.size') > 10000) {
+                    searchTimeout = setTimeout(onSearchChanged, 300);
+                    return;
+                }
+            }
+
+            onSearchChanged();
         }
     });
+
+    var onSearchChanged = function () {
+        searchTimeout = null;
+        updateQuery();
+        if (! findInFiles)
+            search();
+    };
 
     // option buttons
     optionRegex.on('click', function () {

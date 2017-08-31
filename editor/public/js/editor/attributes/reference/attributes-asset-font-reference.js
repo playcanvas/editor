@@ -7,6 +7,10 @@ editor.once('load', function() {
         subTitle: '{Font}',
         description: 'A Font that can be used to render text using the Text Component.'
     }, {
+        name: 'intensity',
+        title: 'intensity',
+        description: 'Intensity is used to boost the value read from the signed distance field, 0 is no boost, 1 is max boost. This can be useful if the font does not render with clean smooth edges with the default intensity or if you are rendering the font at small font sizes.'
+    }, {
         name: 'customRange',
         title: 'CUSTOM CHARACTER RANGE',
         description: 'Add a custom range of characters by entering their Unicode codes in the From and To fields. E.g. to add all basic Latin characters you could enter 0x20 - 0x7e and click the + button.'

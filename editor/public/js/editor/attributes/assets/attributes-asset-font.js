@@ -47,6 +47,9 @@ editor.once('load', function() {
         });
         fontIntensity.style.width = '32px';
 
+        // reference
+        editor.call('attributes:reference:attach', 'asset:font:intensity', fontIntensity.parent.innerElement.firstChild.ui);
+
         var fontIntensitySlider = editor.call('attributes:addField', {
             panel: fontIntensity.parent,
             slider: true,

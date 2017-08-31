@@ -28,8 +28,8 @@ editor.once('load', function() {
                 tl: null,
                 tr: null,
                 bl: null,
-                br: null,
-                center: null
+                br: null
+                // center: null
             },
             matActive: null,
             matInactive: null,
@@ -39,8 +39,9 @@ editor.once('load', function() {
         obj.root = new pc.Entity();
         obj.root.enabled = false;
 
-        obj.matInactive = createMaterial(new pc.Color(1, 1, 1, 0.5));
-        obj.matActive = createMaterial(new pc.Color(1, 1, 1, 1));
+        var c = 0.8;
+        obj.matInactive = createMaterial(new pc.Color(c, c, c, 0.5));
+        obj.matActive = createMaterial(new pc.Color(c, c, c, 1));
 
         var createCone = function (angle) {
             var result = new pc.Entity();
@@ -68,19 +69,19 @@ editor.once('load', function() {
         obj.handles.bl = createCone(130+180);
         obj.handles.br = createCone(230+180);
 
-        obj.handles.center = new pc.Entity();
-        var sphere = new pc.Entity();
-        obj.handles.center.addChild(sphere);
-        sphere.addComponent('model', {type: 'sphere'});
-        sphere.model.castShadows = false;
-        sphere.model.receiveShadows = false;
-        sphere.model.meshInstances[0].material = obj.matInactive;
-        sphere.model.meshInstances[0].layer = pc.LAYER_GIZMO;
-        sphere.setLocalPosition(0,0,0.1);
-        sphere.setLocalScale(0.5, 0.5, 0.5);
-        sphere.handle = obj.handles.center;
-        obj.handles.center.handleModel = sphere;
-        obj.root.addChild(obj.handles.center);
+        // obj.handles.center = new pc.Entity();
+        // var sphere = new pc.Entity();
+        // obj.handles.center.addChild(sphere);
+        // sphere.addComponent('model', {type: 'sphere'});
+        // sphere.model.castShadows = false;
+        // sphere.model.receiveShadows = false;
+        // sphere.model.meshInstances[0].material = obj.matInactive;
+        // sphere.model.meshInstances[0].layer = pc.LAYER_GIZMO;
+        // sphere.setLocalPosition(0,0,0.1);
+        // sphere.setLocalScale(0.5, 0.5, 0.5);
+        // sphere.handle = obj.handles.center;
+        // obj.handles.center.handleModel = sphere;
+        // obj.root.addChild(obj.handles.center);
 
         return obj;
     };
@@ -166,9 +167,11 @@ editor.once('load', function() {
 
             // scale to screen space
             var scale = 1;
-            var gizmoSize = 0.3;
+            var gizmoSize = 0.2;
             if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
-                var dot = vecA.copy(gizmoAnchor.handles.center.getPosition()).sub(posCamera).dot(camera.forward);
+                var center = vecA;
+                center.lerp(gizmoAnchor.handles.bl.getPosition(), gizmoAnchor.handles.tr.getPosition(), 0.5);
+                var dot = center.sub(posCamera).dot(camera.forward);
                 var denom = 1280 / (2 * Math.tan(camera.camera.fov * pc.math.DEG_TO_RAD / 2));
                 scale = Math.max(0.0001, (dot / denom) * 150) * gizmoSize;
             } else {
@@ -179,7 +182,10 @@ editor.once('load', function() {
             gizmoAnchor.handles.tl.setLocalScale(scale, scale, scale);
             gizmoAnchor.handles.br.setLocalScale(scale, scale, scale);
             gizmoAnchor.handles.bl.setLocalScale(scale, scale, scale);
-            gizmoAnchor.handles.center.setLocalScale(scale, scale, scale);
+            // gizmoAnchor.handles.center.setLocalScale(scale, scale, scale);
+
+            // scale snap by gizmo scale
+            var snapIncrement = 0.05 * scale;
 
             var resX, resY;
             if (parent === entity.element.screen) {
@@ -199,8 +205,6 @@ editor.once('load', function() {
             var screenScale = entity.element.screen ? entity.element.screen.getLocalScale() : parent.getLocalScale();
             resX *= screenScale.x;
             resY *= screenScale.y;
-
-            var snapIncrement = 0.01;
 
             offset.set(0, 0, 0);
             if (moving && (vecA.copy(posCameraLast).sub(posCamera).length() > 0.01 || mouseTapMoved)) {
@@ -226,15 +230,16 @@ editor.once('load', function() {
                         } else {
                             anchorCurrent[0] = offsetAnchor(anchorCurrent[0], offset.x / resX, 0, anchorCurrent[2], snapIncrement);
                         }
-                    } else if (gizmoAnchor.handle === gizmoAnchor.handles.center) {
-                        var dx = anchorCurrent[2] - anchorCurrent[0];
-                        var dy = anchorCurrent[3] - anchorCurrent[1];
-
-                        anchorCurrent[0] = clamp(anchorCurrent[0] + offset.x / resX, 0, 1 - dx);
-                        anchorCurrent[2] = clamp(anchorCurrent[2] + offset.x / resX, dx, 1);
-                        anchorCurrent[1] = clamp(anchorCurrent[1] + offset.y / resY, 0, 1 - dy);
-                        anchorCurrent[3] = clamp(anchorCurrent[3] + offset.y / resY, dy, 1);
                     }
+                     // else if (gizmoAnchor.handle === gizmoAnchor.handles.center) {
+                    //     var dx = anchorCurrent[2] - anchorCurrent[0];
+                    //     var dy = anchorCurrent[3] - anchorCurrent[1];
+
+                    //     anchorCurrent[0] = clamp(anchorCurrent[0] + offset.x / resX, 0, 1 - dx);
+                    //     anchorCurrent[2] = clamp(anchorCurrent[2] + offset.x / resX, dx, 1);
+                    //     anchorCurrent[1] = clamp(anchorCurrent[1] + offset.y / resY, 0, 1 - dy);
+                    //     anchorCurrent[3] = clamp(anchorCurrent[3] + offset.y / resY, dy, 1);
+                    // }
 
                     selectedEntity.set('components.element.anchor', anchorCurrent);
                 }
@@ -252,7 +257,7 @@ editor.once('load', function() {
             gizmoAnchor.handles.bl.setLocalPosition(resX * (anchor.x - 0.5), resY * (anchor.y - 0.5), 0);
             gizmoAnchor.handles.br.setLocalPosition(resX * (anchor.z - 0.5), resY * (anchor.y - 0.5), 0);
 
-            gizmoAnchor.handles.center.setLocalPosition(resX * (pc.math.lerp(anchor.x,anchor.z,0.5) - 0.5), resY * (pc.math.lerp(anchor.y,anchor.w,0.5) - 0.5), 0, 0.1);
+            // gizmoAnchor.handles.center.setLocalPosition(resX * (pc.math.lerp(anchor.x,anchor.z,0.5) - 0.5), resY * (pc.math.lerp(anchor.y,anchor.w,0.5) - 0.5), 0, 0.1);
         });
 
         editor.on('viewport:pick:hover', function(node, picked) {
