@@ -158,7 +158,7 @@ editor.once('load', function () {
     });
 
     // Get focused document
-    editor.call('editor:focusedView', function () {
+    editor.method('editor:focusedView', function () {
         return focusedView;
     });
 
