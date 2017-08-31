@@ -184,6 +184,9 @@ editor.once('load', function() {
             gizmoAnchor.handles.bl.setLocalScale(scale, scale, scale);
             // gizmoAnchor.handles.center.setLocalScale(scale, scale, scale);
 
+            // scale snap by gizmo scale
+            var snapIncrement = 0.05 * scale;
+
             var resX, resY;
             if (parent === entity.element.screen) {
                 resX = parent.screen.resolution.x;
@@ -202,8 +205,6 @@ editor.once('load', function() {
             var screenScale = entity.element.screen ? entity.element.screen.getLocalScale() : parent.getLocalScale();
             resX *= screenScale.x;
             resY *= screenScale.y;
-
-            var snapIncrement = 0.01;
 
             offset.set(0, 0, 0);
             if (moving && (vecA.copy(posCameraLast).sub(posCamera).length() > 0.01 || mouseTapMoved)) {
