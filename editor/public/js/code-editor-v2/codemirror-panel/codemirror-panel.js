@@ -173,15 +173,6 @@ editor.once('load', function () {
         cm.setOption('matchBrackets', !!value);
     });
 
-    settings.on('ide.lint:set', function (value) {
-        var view = editor.call('editor:focusedView');
-        if (value && view && view.type === 'script') {
-            cm.setOption('lint', true);
-        } else if (! value) {
-            cm.setOption('lint', false);
-        }
-    });
-
     // hide initially
     panel.toggleCode(false);
 
