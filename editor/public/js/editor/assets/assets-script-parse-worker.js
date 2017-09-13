@@ -144,6 +144,47 @@ var parseScript = function(id, url, engine) {
                     args.enum = obj;
                 }
 
+                if (args.hasOwnProperty('default')) {
+                    switch (args.type) {
+                        case 'rgb':
+                        case 'vec3':
+                            if (! (args.default instanceof Array) || args.default.length !== 3) {
+                                script.attributesInvalid.push('attribute `' + attr + '`: invalid default value - needs to be an array of 3 numbers');
+                            }
+                            break;
+                        case 'rgba':
+                        case 'vec4':
+                            if (! (args.default instanceof Array) || args.default.length !== 4) {
+                                script.attributesInvalid.push('attribute `' + attr + '`: invalid default value - needs to be an array of 4 numbers');
+                            }
+                            break;
+                        case 'vec2':
+                            if (! (args.default instanceof Array) || args.default.length !== 2) {
+                                script.attributesInvalid.push('attribute `' + attr + '`: invalid default value - needs to be an array of 2 numbers');
+                            }
+                            break;
+                        case 'number':
+                            if ( typeof args.default !== 'number') {
+                                script.attributesInvalid.push('attribute `' + attr + '`: invalid default value - needs to be a number');
+                            }
+                            break;
+
+                        case 'boolean':
+                            if (args.default !== true && args.default !== false) {
+                                script.attributesInvalid.push('attribute `' + attr + '`: invalid default value - needs to be a boolean');
+                            }
+                            break;
+
+                        case 'string':
+                            if (typeof args.default !== 'string') {
+                                script.attributesInvalid.push('attribute `' + attr + '`: invalid default value - needs to be a string');
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
                 script.attributesOrder.push(attr);
                 script.attributes[attr] = args;
             }
