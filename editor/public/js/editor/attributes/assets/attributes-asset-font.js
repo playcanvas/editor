@@ -269,7 +269,7 @@ editor.once('load', function() {
             var proxy = new Observer({
                 'id': asset.get('id'),
                 'chars': asset.get('meta.chars'),
-                'invert': false, //!!asset.get('meta.invert'),
+                'invert': !!asset.get('meta.invert'),
                 'pxrange': asset.get('meta.pxrange')
             });
 
@@ -314,7 +314,7 @@ editor.once('load', function() {
             link: proxyObservers,
             path: 'invert'
         });
-        fieldInvert.parent.hidden = true;
+        // fieldInvert.parent.hidden = true;
 
         // reference
         editor.call('attributes:reference:attach', 'asset:font:invert', fieldInvert.parent.innerElement.firstChild.ui);
@@ -443,7 +443,7 @@ editor.once('load', function() {
                     source: parseInt(source.get('id'), 10),
                     target: parseInt(asset.get('id'), 10),
                     chars: unique,
-                    invert: false//fieldInvert.value
+                    invert: fieldInvert.value
                 };
 
                 // if (fieldRange.value !== null)
