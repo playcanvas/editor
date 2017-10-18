@@ -64,6 +64,18 @@ editor.once('load', function() {
                         script[parts[5]] = obj.get('components.script.scripts.' + parts[3] + '.attributes.' + parts[5]);
                     }
                 } else {
+                    if (component === 'element') {
+                        if (property === 'width') {
+                            if (Math.abs(entity.element.anchor.x - entity.element.anchor.z) > 0.001) {
+                                return;
+                            }
+                        } else if (property === 'height') {
+                            if (Math.abs(entity.element.anchor.y - entity.element.anchor.w) > 0.001) {
+                                return;
+                            }
+                        }
+                    }
+
                     value = obj.get('components.' + component + '.' + property);
                     entity[component][property] = editor.call('components:convertValue', component, property, value);
                 }

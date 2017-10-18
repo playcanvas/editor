@@ -145,7 +145,16 @@ editor.once('load', function() {
             var rot = obj.get('rotation');
             var scale = obj.get('scale');
 
-            entity.setLocalPosition(pos[0], pos[1], pos[2]);
+            // if the entity has an element component
+            // then only set z and let the rest be handled
+            // by the element component
+            if (! entity.element) {
+                entity.setLocalPosition(pos[0], pos[1], pos[2]);
+            } else {
+                var localPos = entity.getLocalPosition();
+                entity.setLocalPosition(localPos.x, localPos.y, pos[2]);
+            }
+
             entity.setLocalEulerAngles(rot[0], rot[1], rot[2]);
             entity.setLocalScale(scale[0], scale[1], scale[2]);
 
