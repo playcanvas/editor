@@ -147,8 +147,8 @@ editor.once('load', function() {
 
             // if the entity has an element component
             // then only set z and let the rest be handled
-            // by the element component
-            if (! entity.element) {
+            // by the element component (unless autoWidth or autoHeight is true in which case we need to be able to modify position)
+            if (! entity.element || entity.element.autoWidth || entity.element.autoHeight) {
                 entity.setLocalPosition(pos[0], pos[1], pos[2]);
             } else {
                 var localPos = entity.getLocalPosition();

@@ -66,11 +66,18 @@ editor.once('load', function() {
                 } else {
                     if (component === 'element') {
                         if (property === 'width') {
-                            if (Math.abs(entity.element.anchor.x - entity.element.anchor.z) > 0.001) {
+                            // do not set width for elements with autoWidth or split horizontal anchors
+                            if (entity.element.autoWidth || Math.abs(entity.element.anchor.x - entity.element.anchor.z) > 0.001) {
                                 return;
                             }
                         } else if (property === 'height') {
-                            if (Math.abs(entity.element.anchor.y - entity.element.anchor.w) > 0.001) {
+                            // do not set height for elements with autoHeight or split vertical anchors
+                            if (entity.element.autoHeight || Math.abs(entity.element.anchor.y - entity.element.anchor.w) > 0.001) {
+                                return;
+                            }
+                        } else if (property === 'margin') {
+                            // do not set margin for elements with autoHeight or autoWidth
+                            if (entity.element.autoHeight || entity.element.autoHeight) {
                                 return;
                             }
                         }
