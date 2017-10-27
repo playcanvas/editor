@@ -8,12 +8,35 @@ editor.once('load', function() {
             clear();
 
         for (var i = 0, len = entities.length; i < len; i++) {
+            updateElementProperties(entities[i]);
             addEvents(entities[i]);
         }
     });
 
     var fixed = function (value) {
         return +value.toFixed(3);
+    };
+
+    // update entities stored properties with whatever the realtime element
+    // has - that's because depending on the screen size an element might not have
+    // the correct properties when inspected so make sure these are right
+    var updateElementProperties = function (entity) {
+        if (! entity.entity || ! entity.has('components.element')) return;
+
+        var history = entity.history.enabled;
+        var sync = entity.sync.enabled;
+        // turn off history and syncing
+        // this is only for the local user
+        entity.history.enabled = false;
+        entity.sync.enabled = false;
+        var margin = entity.entity.element.margin.data;
+        entity.set('components.element.margin', [margin[0], margin[1], margin[2], margin[3]]);
+        entity.set('components.element.width', entity.entity.element.width);
+        entity.set('components.element.height', entity.entity.element.height);
+        var pos = entity.entity.getLocalPosition().data;
+        entity.set('position', [pos[0], pos[1], pos[2]]);
+        entity.sync.enabled = sync;
+        entity.history.enabled = history;
     };
 
     var addEvents = function (entity) {
