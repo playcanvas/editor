@@ -492,17 +492,17 @@ editor.once('load', function() {
         var sinAngle, cosAngle;
         var scale = 2;
 
-        var vertexFormat = new pc.gfx.VertexFormat(app.graphicsDevice, [
-            { semantic: pc.gfx.SEMANTIC_POSITION, components: 3, type: pc.gfx.ELEMENTTYPE_FLOAT32 }
+        var vertexFormat = new pc.VertexFormat(app.graphicsDevice, [
+            { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.TYPE_FLOAT32 }
         ]);
 
         var vertexBuffers = [];
         for (var axis = 0; axis < 3; axis++) {
             // Create a vertex buffer
-            vertexBuffers.push(new pc.gfx.VertexBuffer(device, vertexFormat, numVerts));
+            vertexBuffers.push(new pc.VertexBuffer(device, vertexFormat, numVerts));
 
             // Fill the vertex buffer
-            iterator = new pc.gfx.VertexIterator(vertexBuffers[axis]);
+            iterator = new pc.VertexIterator(vertexBuffers[axis]);
             for (var seg = 0; seg <= axisSegments; seg++) {
                 angle = 2 * Math.PI * (seg / axisSegments);
                 sinAngle = Math.sin(angle);

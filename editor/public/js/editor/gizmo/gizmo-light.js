@@ -278,19 +278,19 @@ editor.once('load', function () {
         materialSpotBehind.update();
 
         var buffer, iterator, size, length, node, mesh, material, meshInstance, model;
-        var vertexFormat = new pc.gfx.VertexFormat(app.graphicsDevice, [
-            { semantic: pc.gfx.SEMANTIC_POSITION, components: 3, type: pc.gfx.ELEMENTTYPE_FLOAT32 }
+        var vertexFormat = new pc.VertexFormat(app.graphicsDevice, [
+            { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.TYPE_FLOAT32 }
         ]);
-        var vertexFormatSpot = new pc.gfx.VertexFormat(app.graphicsDevice, [
-            { semantic: pc.gfx.SEMANTIC_POSITION, components: 3, type: pc.gfx.ELEMENTTYPE_FLOAT32 },
-            { semantic: pc.gfx.SEMANTIC_ATTR0, components: 1, type: pc.gfx.ELEMENTTYPE_FLOAT32 }
+        var vertexFormatSpot = new pc.VertexFormat(app.graphicsDevice, [
+            { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.TYPE_FLOAT32 },
+            { semantic: pc.SEMANTIC_ATTR0, components: 1, type: pc.TYPE_FLOAT32 }
         ]);
         var rad = Math.PI / 180;
 
         // ================
         // directional light
-        buffer = new pc.gfx.VertexBuffer(app.graphicsDevice, vertexFormat, 14);
-        iterator = new pc.gfx.VertexIterator(buffer);
+        buffer = new pc.VertexBuffer(app.graphicsDevice, vertexFormat, 14);
+        iterator = new pc.VertexIterator(buffer);
         size = .2;
         length = -(2 - size * 2);
         // line
@@ -349,8 +349,8 @@ editor.once('load', function () {
         // ================
         // point light
         var segments = 72;
-        buffer = new pc.gfx.VertexBuffer(app.graphicsDevice, vertexFormat, segments * 2);
-        iterator = new pc.gfx.VertexIterator(buffer);
+        buffer = new pc.VertexBuffer(app.graphicsDevice, vertexFormat, segments * 2);
+        iterator = new pc.VertexIterator(buffer);
         // xz axis
         for(var i = 0; i < segments; i++) {
             iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * i * rad), Math.cos(360 / segments * i * rad), 0);
@@ -384,8 +384,8 @@ editor.once('load', function () {
         // ================
         // point light close
         var segments = 72;
-        buffer = new pc.gfx.VertexBuffer(app.graphicsDevice, vertexFormat, segments * 2 * 3);
-        iterator = new pc.gfx.VertexIterator(buffer);
+        buffer = new pc.VertexBuffer(app.graphicsDevice, vertexFormat, segments * 2 * 3);
+        iterator = new pc.VertexIterator(buffer);
         // circles
         for(var i = 0; i < segments; i++) {
             iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * i * rad), 0, Math.cos(360 / segments * i * rad));
@@ -427,8 +427,8 @@ editor.once('load', function () {
         // ================
         // spot light
         var segments = 72;
-        buffer = new pc.gfx.VertexBuffer(app.graphicsDevice, vertexFormatSpot, segments * 2 * 2 + 8);
-        iterator = new pc.gfx.VertexIterator(buffer);
+        buffer = new pc.VertexBuffer(app.graphicsDevice, vertexFormatSpot, segments * 2 * 2 + 8);
+        iterator = new pc.VertexIterator(buffer);
         // lines
         //      left
         iterator.element[pc.SEMANTIC_POSITION].set(0, 0, 0);

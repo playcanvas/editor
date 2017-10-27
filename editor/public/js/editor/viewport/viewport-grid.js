@@ -1,8 +1,8 @@
 pc.Grid = function (device, size, divisions) {
     // Create the vertex format
-    var vertexFormat = new pc.gfx.VertexFormat(device, [
-        { semantic: pc.gfx.SEMANTIC_POSITION, components: 3, type: pc.gfx.ELEMENTTYPE_FLOAT32 },
-        { semantic: pc.gfx.SEMANTIC_COLOR, components: 4, type: pc.gfx.ELEMENTTYPE_UINT8, normalize: true }
+    var vertexFormat = new pc.VertexFormat(device, [
+        { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.TYPE_FLOAT32 },
+        { semantic: pc.SEMANTIC_COLOR, components: 4, type: pc.TYPE_UINT8, normalize: true }
     ]);
 
     var size = size || 140;
@@ -14,24 +14,24 @@ pc.Grid = function (device, size, divisions) {
     var color;
 
     // Create a vertex buffer
-    this.vertexBuffer = new pc.gfx.VertexBuffer(device, vertexFormat, numVerts);
+    this.vertexBuffer = new pc.VertexBuffer(device, vertexFormat, numVerts);
     var vertexBuffer = this.vertexBuffer;
 
     // Fill the vertex buffer
-    var iterator = new pc.gfx.VertexIterator(vertexBuffer);
+    var iterator = new pc.VertexIterator(vertexBuffer);
     for (i = -(divisions / 2); i <= divisions / 2; i++) {
         color = (i === 0) ? axisColor : gridColor;
-        iterator.element[pc.gfx.SEMANTIC_POSITION].set(-size/2, 0.0, i * interval);
-        iterator.element[pc.gfx.SEMANTIC_COLOR].set(color[0], color[1], color[2], color[3]);
+        iterator.element[pc.SEMANTIC_POSITION].set(-size/2, 0.0, i * interval);
+        iterator.element[pc.SEMANTIC_COLOR].set(color[0], color[1], color[2], color[3]);
         iterator.next();
-        iterator.element[pc.gfx.SEMANTIC_POSITION].set( size/2, 0.0, i * interval);
-        iterator.element[pc.gfx.SEMANTIC_COLOR].set(color[0], color[1], color[2], color[3]);
+        iterator.element[pc.SEMANTIC_POSITION].set( size/2, 0.0, i * interval);
+        iterator.element[pc.SEMANTIC_COLOR].set(color[0], color[1], color[2], color[3]);
         iterator.next();
-        iterator.element[pc.gfx.SEMANTIC_POSITION].set(i * interval, 0.0, -size/2);
-        iterator.element[pc.gfx.SEMANTIC_COLOR].set(color[0], color[1], color[2], color[3]);
+        iterator.element[pc.SEMANTIC_POSITION].set(i * interval, 0.0, -size/2);
+        iterator.element[pc.SEMANTIC_COLOR].set(color[0], color[1], color[2], color[3]);
         iterator.next();
-        iterator.element[pc.gfx.SEMANTIC_POSITION].set(i * interval, 0.0,  size/2);
-        iterator.element[pc.gfx.SEMANTIC_COLOR].set(color[0], color[1], color[2], color[3]);
+        iterator.element[pc.SEMANTIC_POSITION].set(i * interval, 0.0,  size/2);
+        iterator.element[pc.SEMANTIC_COLOR].set(color[0], color[1], color[2], color[3]);
         if (i !== divisions / 2) {
             iterator.next();
         }
@@ -47,7 +47,7 @@ pc.Grid = function (device, size, divisions) {
     var mesh = new pc.Mesh();
     mesh.vertexBuffer = vertexBuffer;
     mesh.indexBuffer[0] = null;
-    mesh.primitive[0].type = pc.gfx.PRIMITIVE_LINES;
+    mesh.primitive[0].type = pc.PRIMITIVE_LINES;
     mesh.primitive[0].base = 0;
     mesh.primitive[0].count = vertexBuffer.getNumVertices();
     mesh.primitive[0].indexed = false;
