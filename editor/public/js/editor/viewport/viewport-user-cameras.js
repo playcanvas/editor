@@ -68,12 +68,12 @@ editor.once('load', function() {
     var vert = .375;
 
     var createCameraModel = function() {
-        var vertexFormat = new pc.gfx.VertexFormat(app.graphicsDevice, [
-            { semantic: pc.gfx.SEMANTIC_POSITION, components: 3, type: pc.gfx.ELEMENTTYPE_FLOAT32 }
+        var vertexFormat = new pc.VertexFormat(app.graphicsDevice, [
+            { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.TYPE_FLOAT32 }
         ]);
         // box
-        var buffer = new pc.gfx.VertexBuffer(app.graphicsDevice, vertexFormat, 12 * 2);
-        var iterator = new pc.gfx.VertexIterator(buffer);
+        var buffer = new pc.VertexBuffer(app.graphicsDevice, vertexFormat, 12 * 2);
+        var iterator = new pc.VertexIterator(buffer);
 
         // top
         iterator.element[pc.SEMANTIC_POSITION].set(close * horiz, close * vert, 0);

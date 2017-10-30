@@ -216,11 +216,11 @@ editor.once('load', function() {
     var node = new pc.GraphNode();
     var mesh = new pc.Mesh();
 
-    var vertexFormat = new pc.gfx.VertexFormat(device, [
-        { semantic: pc.gfx.SEMANTIC_POSITION, components: 2, type: pc.gfx.ELEMENTTYPE_FLOAT32 }
+    var vertexFormat = new pc.VertexFormat(device, [
+        { semantic: pc.SEMANTIC_POSITION, components: 2, type: pc.TYPE_FLOAT32 }
     ]);
-    var vertexBuffer = new pc.gfx.VertexBuffer(device, vertexFormat, 4);
-    var iterator = new pc.gfx.VertexIterator(vertexBuffer);
+    var vertexBuffer = new pc.VertexBuffer(device, vertexFormat, 4);
+    var iterator = new pc.VertexIterator(vertexBuffer);
     iterator.element[pc.SEMANTIC_POSITION].set(-1, -1);
     iterator.next();
     iterator.element[pc.SEMANTIC_POSITION].set(1, -1);

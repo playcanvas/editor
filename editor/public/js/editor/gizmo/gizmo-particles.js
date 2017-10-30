@@ -207,20 +207,20 @@ editor.once('load', function () {
         materialDefault.update();
 
         var buffer, iterator, size, length, node, mesh, meshInstance, model;
-        var vertexFormat = new pc.gfx.VertexFormat(app.graphicsDevice, [
-            { semantic: pc.gfx.SEMANTIC_POSITION, components: 3, type: pc.gfx.ELEMENTTYPE_FLOAT32 }
+        var vertexFormat = new pc.VertexFormat(app.graphicsDevice, [
+            { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.TYPE_FLOAT32 }
         ]);
-        var vertexFormatAttr0 = new pc.gfx.VertexFormat(app.graphicsDevice, [
-            { semantic: pc.gfx.SEMANTIC_POSITION, components: 3, type: pc.gfx.ELEMENTTYPE_FLOAT32 },
-            { semantic: pc.gfx.SEMANTIC_ATTR0, components: 1, type: pc.gfx.ELEMENTTYPE_FLOAT32 }
+        var vertexFormatAttr0 = new pc.VertexFormat(app.graphicsDevice, [
+            { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.TYPE_FLOAT32 },
+            { semantic: pc.SEMANTIC_ATTR0, components: 1, type: pc.TYPE_FLOAT32 }
         ]);
         var rad = Math.PI / 180;
 
 
         // ================
         // box
-        buffer = new pc.gfx.VertexBuffer(app.graphicsDevice, vertexFormat, 12 * 2);
-        iterator = new pc.gfx.VertexIterator(buffer);
+        buffer = new pc.VertexBuffer(app.graphicsDevice, vertexFormat, 12 * 2);
+        iterator = new pc.VertexIterator(buffer);
         // top
         iterator.element[pc.SEMANTIC_POSITION].set(1, 1, 1);
         iterator.next();
@@ -296,8 +296,8 @@ editor.once('load', function () {
         // ================
         // sphere
         var segments = 72;
-        buffer = new pc.gfx.VertexBuffer(app.graphicsDevice, vertexFormat, segments * 2 * 3);
-        iterator = new pc.gfx.VertexIterator(buffer);
+        buffer = new pc.VertexBuffer(app.graphicsDevice, vertexFormat, segments * 2 * 3);
+        iterator = new pc.VertexIterator(buffer);
         // circles
         for(var i = 0; i < segments; i++) {
             iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * i * rad), 0, Math.cos(360 / segments * i * rad));
