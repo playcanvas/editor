@@ -75,7 +75,7 @@ editor.once('load', function () {
             });
 
             // when settings are created and loaded from the server sync any pending changes
-            editor.once('settings:project-private:load', function () {
+            editor.once('settings:projectPrivate:load', function () {
                 evtOnSet.unbind();
 
                 var history = settings.history;
