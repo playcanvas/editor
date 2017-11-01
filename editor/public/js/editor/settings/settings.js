@@ -87,7 +87,7 @@ editor.once('load', function () {
                             settings.history = true;
                     });
 
-                    editor.emit('settings:' + args.scopeType + ':load');
+                    editor.emit('settings:' + args.name + ':load');
                 });
             });
 
