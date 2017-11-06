@@ -5,6 +5,8 @@ editor.once('load', function() {
     var assetsPanel = editor.call('layout.assets');
     var viewport = editor.call('layout.viewport');
 
+    var settings = editor.call('settings:projectUser');
+
     // panel
     var panel = new ui.Panel('ASSET TASKS');
     panel.class.add('pipeline-widget');
@@ -65,7 +67,7 @@ editor.once('load', function() {
         if (! editor.call('permissions:write'))
             return;
 
-        editor.call('assets:pipeline:settings', 'auto', ! editor.call('assets:pipeline:settings', 'auto'));
+        settings.set('editor.pipeline.autoRun', ! settings.get('editor.pipeline.autoRun'));
     });
     var toggleAutoSet = function(state) {
         if (state) {
@@ -78,7 +80,7 @@ editor.once('load', function() {
             tooltipAuto.class.add('innactive');
         }
     };
-    editor.on('assets:pipeline:settings:auto', toggleAutoSet);
+    settings.on('editor.pipeline.autoRun:set', toggleAutoSet);
     panel.append(toggleAuto);
 
     var tooltipAuto = Tooltip.attach({
@@ -88,8 +90,7 @@ editor.once('load', function() {
         root: root
     });
 
-    toggleAutoSet(editor.call('assets:pipeline:settings', 'auto'));
-
+    toggleAutoSet(settings.get('editor.pipeline.autoRun'));
 
     var nearestPow2 = function(size) {
         return Math.pow(2, Math.round(Math.log(size) / Math.log(2)));
@@ -135,7 +136,7 @@ editor.once('load', function() {
             options.rgbm = true;
 
         // check if resizing to nearest power of 2 required
-        if (editor.call('assets:pipeline:settings', 'texturePot')) {
+        if (settings.get('editor.pipeline.texturePot')) {
             options.size = {
                 width: nearestPow2(meta.width),
                 height: nearestPow2(meta.height)
@@ -246,7 +247,7 @@ editor.once('load', function() {
                         if (a.get('name') !== filename || a.get('source_asset_id') !== asset.get('id'))
                             return false;
 
-                        if (! editor.call('assets:pipeline:settings', 'searchRelatedAssets') && ! a.get('path').equals(path))
+                        if (! settings.get('editor.pipeline.searchRelatedAssets') && ! a.get('path').equals(path))
                             return false;
 
                         return true;
@@ -330,14 +331,14 @@ editor.once('load', function() {
                     if (a.get('source_asset_id') !== asset.get('id') || a.get('name') !== nameModel || a.get('type') !== 'model')
                         return false;
 
-                    if (! editor.call('assets:pipeline:settings', 'searchRelatedAssets') && ! a.get('path').equals(path))
+                    if (! settings.get('editor.pipeline.searchRelatedAssets') && ! a.get('path').equals(path))
                         return false;
 
                     return true;
                 });
                 if (modelTarget) {
                     model.asset = parseInt(modelTarget[1].get('id'), 10);
-                    model.override = editor.call('assets:pipeline:settings', 'overwriteModel');
+                    model.override = settings.get('editor.pipeline.overwriteModel');
                 }
 
                 // animation
@@ -348,7 +349,7 @@ editor.once('load', function() {
                         if (a.get('source_asset_id') !== asset.get('id') || a.get('name') !== nameModel || a.get('type') !== 'animation')
                             return false;
 
-                        if (! editor.call('assets:pipeline:settings', 'searchRelatedAssets') && ! a.get('path').equals(path))
+                        if (! settings.get('editor.pipeline.searchRelatedAssets') && ! a.get('path').equals(path))
                             return false;
 
                         return true;
@@ -356,7 +357,7 @@ editor.once('load', function() {
 
                     if (animationTarget) {
                         animation.asset = parseInt(animationTarget[1].get('id'), 10);
-                        animation.override = editor.call('assets:pipeline:settings', 'overwriteAnimation');;
+                        animation.override = settings.get('editor.pipeline.overwriteAnimation');
                     }
                 }
 
@@ -366,7 +367,7 @@ editor.once('load', function() {
                         if (a.get('source_asset_id') !== asset.get('id') || a.get('name') !== materials[i].name || a.get('type') !== 'material')
                             return false;
 
-                        if (! editor.call('assets:pipeline:settings', 'searchRelatedAssets') && ! a.get('path').equals(path))
+                        if (! settings.get('editor.pipeline.searchRelatedAssets') && ! a.get('path').equals(path))
                             return false;
 
                         return true;
@@ -374,7 +375,7 @@ editor.once('load', function() {
 
                     if (target) {
                         materials[i].asset = parseInt(target[1].get('id'), 10);
-                        materials[i].override = editor.call('assets:pipeline:settings', 'overwriteMaterial');;
+                        materials[i].override = settings.get('editor.pipeline.overwriteMaterial');
                     }
                 }
 
@@ -392,7 +393,7 @@ editor.once('load', function() {
                         if (a.get('source_asset_id') !== asset.get('id') || a.get('name').toLowerCase() !== fileName || a.get('type') !== 'texture' || a.get('source'))
                             return false;
 
-                        if (! editor.call('assets:pipeline:settings', 'searchRelatedAssets') && ! a.get('path').equals(path))
+                        if (! settings.get('editor.pipeline.searchRelatedAssets') && ! a.get('path').equals(path))
                             return false;
 
                         return true;
@@ -400,7 +401,7 @@ editor.once('load', function() {
 
                     if (target) {
                         textures[i].asset = parseInt(target[1].get('id'), 10);
-                        textures[i].override = editor.call('assets:pipeline:settings', 'overwriteTexture');;
+                        textures[i].override = settings.get('editor.pipeline.overwriteTexture');
                     }
                 }
 
@@ -412,7 +413,7 @@ editor.once('load', function() {
                         mappings: asset.get('meta.mappings'),
                         animation: animation,
                         model: model,
-                        preserveMapping: editor.call('assets:pipeline:settings', 'preserveMapping')
+                        preserveMapping: settings.get('editor.pipeline.preserveMapping')
                     }
                 };
 
@@ -554,7 +555,7 @@ editor.once('load', function() {
 
         auto.on('click', convertAuto);
 
-        if (editor.call('assets:pipeline:settings', 'auto')) {
+        if (settings.get('editor.pipeline.autoRun')) {
             if (type === 'font') {
                 // convert fonts once the source file has been set
                 var file = asset.get('file');
@@ -562,7 +563,7 @@ editor.once('load', function() {
                     convertAuto();
                 } else {
                     events.push(asset.once('file:set', function (value) {
-                        if (! editor.call('assets:pipeline:settings', 'auto'))
+                        if (! settings.get('editor.pipeline.autoRun'))
                             return;
 
                         convertAuto();
@@ -582,7 +583,7 @@ editor.once('load', function() {
                         if (converted)
                             return;
 
-                        if (! editor.call('assets:pipeline:settings', 'auto'))
+                        if (! settings.get('editor.pipeline.autoRun'))
                             return;
 
                         if (! asset.get('file.filename'))

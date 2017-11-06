@@ -1,22 +1,8 @@
 editor.once('load', function() {
     'use strict';
 
-    var settings = new Observer({
-        'auto': true,
-        'texturePot': true,
-        'searchRelatedAssets': true,
-        'preserveMapping': false,
-        'overwriteModel': true,
-        'overwriteAnimation': true,
-        'overwriteMaterial': false,
-        'overwriteTexture': true
-    });
-
+    var settings = editor.call('settings:projectUser');
     var projectSettings = editor.call('settings:project');
-
-    settings.on('*:set', function(path, value) {
-        editor.emit('assets:pipeline:settings:' + path, value);
-    });
 
     var foldStates = {
         'pipeline': true
@@ -39,7 +25,7 @@ editor.once('load', function() {
             name: 'Auto-run',
             type: 'checkbox',
             link: settings,
-            path: 'auto'
+            path: 'editor.pipeline.autoRun'
         });
         editor.call('attributes:reference:attach', 'settings:asset-tasks:auto', fieldAuto.parent.innerElement.firstChild.ui);
 
@@ -48,7 +34,7 @@ editor.once('load', function() {
             name: 'Textures POT',
             type: 'checkbox',
             link: settings,
-            path: 'texturePot'
+            path: 'editor.pipeline.texturePot'
         });
         editor.call('attributes:reference:attach', 'settings:asset-tasks:texturePot', fieldTexturePOT.parent.innerElement.firstChild.ui);
 
@@ -57,7 +43,7 @@ editor.once('load', function() {
             name: 'Search related assets',
             type: 'checkbox',
             link: settings,
-            path: 'searchRelatedAssets'
+            path: 'editor.pipeline.searchRelatedAssets'
         });
         fieldSearchRelatedAssets.parent.innerElement.firstChild.style.width = 'auto';
         editor.call('attributes:reference:attach', 'settings:asset-tasks:searchRelatedAssets', fieldSearchRelatedAssets.parent.innerElement.firstChild.ui);
@@ -67,7 +53,7 @@ editor.once('load', function() {
             name: 'Preserve material mappings',
             type: 'checkbox',
             link: settings,
-            path: 'preserveMapping'
+            path: 'editor.pipeline.preserveMapping'
         });
         fieldMapping.parent.innerElement.firstChild.style.width = 'auto';
         editor.call('attributes:reference:attach', 'settings:asset-tasks:preserveMapping', fieldMapping.parent.innerElement.firstChild.ui);
@@ -95,7 +81,7 @@ editor.once('load', function() {
             name: 'Model',
             type: 'checkbox',
             link: settings,
-            path: 'overwriteModel'
+            path: 'editor.pipeline.overwriteModel'
         });
         editor.call('attributes:reference:attach', 'settings:asset-tasks:overwrite:model', fieldOverwriteModel.parent.innerElement.firstChild.ui);
 
@@ -104,7 +90,7 @@ editor.once('load', function() {
             name: 'Animation',
             type: 'checkbox',
             link: settings,
-            path: 'overwriteAnimation'
+            path: 'editor.pipeline.overwriteAnimation'
         });
         editor.call('attributes:reference:attach', 'settings:asset-tasks:overwrite:animation', fieldOverwriteAnimation.parent.innerElement.firstChild.ui);
 
@@ -113,7 +99,7 @@ editor.once('load', function() {
             name: 'Material',
             type: 'checkbox',
             link: settings,
-            path: 'overwriteMaterial'
+            path: 'editor.pipeline.overwriteMaterial'
         });
         editor.call('attributes:reference:attach', 'settings:asset-tasks:overwrite:material', fieldOverwriteMaterial.parent.innerElement.firstChild.ui);
 
@@ -122,19 +108,9 @@ editor.once('load', function() {
             name: 'Texture',
             type: 'checkbox',
             link: settings,
-            path: 'overwriteTexture'
+            path: 'editor.pipeline.overwriteTexture'
         });
         editor.call('attributes:reference:attach', 'settings:asset-tasks:overwrite:texture', fieldOverwriteTexture.parent.innerElement.firstChild.ui);
     });
 
-    editor.method('assets:pipeline:settings', function(name, value) {
-        if (! name)
-            return settings;
-
-        if (typeof(value) === 'undefined')
-            return settings.get(name);
-
-        if (settings.has(name))
-            settings.set(name, value);
-    });
 });
