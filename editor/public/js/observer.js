@@ -309,8 +309,11 @@ Observer.prototype.set = function(path, value, silent, remote) {
             var keys = Object.keys(value);
 
             if (! node._data[key] || ! node._data[key]._data) {
-                if (node._data[key])
+                if (node._data[key]) {
                     obj.unset((node.__path ? node.__path + '.' : '') + key);
+                } else {
+                    changed = true;
+                }
 
                 node._data[key] = {
                     _path: path,
