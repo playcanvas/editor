@@ -215,6 +215,14 @@ editor.once('load', function() {
     app.setCanvasResolution(config.project.settings.resolutionMode, config.project.settings.width, config.project.settings.height);
     app.setCanvasFillMode(config.project.settings.fillMode, config.project.settings.width, config.project.settings.height);
 
+    var batchGroups = config.project.settings.batchGroups;
+    if (batchGroups) {
+        for (var id in batchGroups) {
+            var grp = batchGroups[id];
+            app.batcher.addGroup(grp.name, grp.dynamic, grp.maxAabbSize, grp.id);
+        }
+    }
+
     app._loadLibraries(libraryUrls, function (err) {
         app._onVrChange(config.project.settings.vr);
         libraries = true;
@@ -287,6 +295,32 @@ editor.once('load', function() {
 
     projectSettings.on('preferWebGl2:set', function (value) {
         config.project.settings.preferWebGl2 = value;
+    });
+
+    projectSettings.on('*:set', function (path, value) {
+        if (/^batchGroups\./.test(path)) {
+            var batchGroups = projectSettings.get('batchGroups');
+            for (var id in batchGroups) {
+                var grp = batchGroups[id];
+                if (app.batcher._batchGroups[id]) {
+                    app.batcher._batchGroups[id].name = grp.name;
+                    app.batcher._batchGroups[id].dynamic = grp.dynamic;
+                    app.batcher._batchGroups[id].maxAabbSize = grp.maxAabbSize;
+                } else {
+                    app.batcher.addGroup(grp.name, grp.dynamic, grp.maxAabbSize, grp.id);
+                }
+            }
+
+            app.batcher.generateBatchesForModels();
+        }
+    });
+
+    projectSettings.on('*:unset', function (path, value) {
+        if (/^batchGroups\.\d+$/.test(path)) {
+            var id = path.split('.')[1];
+            app.batcher.removeGroup(id);
+            app.batcher.generateBatchesForModels();
+        }
     });
 
     window.addEventListener('resize', reflow, false);

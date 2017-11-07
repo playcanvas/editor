@@ -56,9 +56,9 @@ editor.once('load', function () {
                         });
                     }
 
-                    var history = settings.history;
+                    var history = settings.history.enabled;
                     if (history) {
-                        settings.history = false;
+                        settings.history.enabled = false;
                     }
 
                     settings.sync._enabled = false;
@@ -71,20 +71,20 @@ editor.once('load', function () {
                     }
                     settings.sync._enabled = true;
                     if (history)
-                        settings.history = true;
+                        settings.history.enabled = true;
 
                     // server -> local
                     doc.on('after op', function (ops, local) {
                         if (local) return;
 
-                        var history = settings.history;
+                        var history = settings.history.enabled;
                         if (history)
-                            settings.history = false;
+                            settings.history.enabled = false;
                         for (var i = 0; i < ops.length; i++) {
                             settings.sync.write(ops[i]);
                         }
                         if (history)
-                            settings.history = true;
+                            settings.history.enabled = true;
                     });
 
                     editor.emit('settings:' + args.name + ':load');

@@ -597,6 +597,24 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'element:useInput', fieldUseInput.parent.innerElement.firstChild.ui);
 
+        // batch group
+        var batchGroups = editor.call('settings:project').get('batchGroups');
+        var batchEnum = {
+            '-1': 'None'
+        };
+        for (var key in batchGroups) {
+            batchEnum[key] = batchGroups[key].name;
+        }
+
+        var fieldBatchGroup = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Batch Group',
+            type: 'number',
+            enum: batchEnum,
+            link: entities,
+            path: 'components.element.batchGroupId'
+        });
+
         var toggleColorFields = function () {
             if (fieldMaterialAsset.value) {
                 fieldTextureAsset.parent.hidden = true;

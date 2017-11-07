@@ -15,6 +15,7 @@ editor.once('load', function() {
         'physics': true,
         'rendering': true,
         'lightmapping': true,
+        'batchGroups': true,
         'loading': true,
         'audio': true
     };
@@ -552,6 +553,172 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'settings:lightmapMode', fieldLightmapMode.parent.innerElement.firstChild.ui);
 
 
+        // batch groups
+        var panelBatchGroups = editor.call('attributes:addPanel', {
+            name: 'Batch Groups'
+        });
+        panelBatchGroups.foldable = true;
+        panelBatchGroups.folded = foldStates['batchGroups'];
+        panelBatchGroups.on('fold', function () { foldStates['batchGroups'] = true; });
+        panelBatchGroups.on('unfold', function () { foldStates['batchGroups'] = false; });
+        panelBatchGroups.class.add('component', 'batching');
+
+        var batchGroupPanels = {};
+
+        var createBatchGroupPanel = function (group, folded) {
+            var groupId = group.id || group.get('id');
+
+            var panelGroup = new ui.Panel(group.name || group.get('name'));
+            panelGroup.class.add('batch-group');
+            panelGroup.foldable = true;
+            panelGroup.folded = folded;
+
+            // button to remove slot
+            var btnRemove = new ui.Button();
+            btnRemove.class.add('remove');
+            panelGroup.headerElement.appendChild(btnRemove.element);
+            btnRemove.on('click', function () {
+                projectSettings.unset('batchGroups.' + groupId);
+            });
+
+            // group name
+            var fieldName = editor.call('attributes:addField', {
+                parent: panelGroup,
+                name: 'Name',
+                type: 'string'
+            });
+
+            fieldName.value = panelGroup.header;
+
+            var suspendEvents = false;
+            var evtName = projectSettings.on('batchGroups.' + groupId + '.name:set', function (value) {
+                suspendEvents = true;
+                fieldName.value = value;
+                panelGroup.header = value;
+                suspendEvents = false;
+            });
+
+            fieldName.on('change', function (value) {
+                if (suspendEvents) return;
+
+                if (! value) {
+                    fieldName.class.add('error');
+                    fieldName.focus();
+                    return;
+                } else {
+                    var batchGroups = projectSettings.get('batchGroups');
+                    for (var key in batchGroups) {
+                        if (batchGroups[key].name === value) {
+                            fieldName.class.add('error');
+                            fieldName.focus();
+                            return;
+                        }
+                    }
+
+                    fieldName.class.remove('error');
+                    projectSettings.set('batchGroups.' + groupId + '.name', value);
+                }
+            });
+
+            // dynamic
+            var fieldDynamic = editor.call('attributes:addField', {
+                parent: panelGroup,
+                name: 'Dynamic',
+                type: 'checkbox',
+                link: projectSettings,
+                path: 'batchGroups.' + groupId + '.dynamic'
+            });
+
+            // max aabb size
+            var fieldMaxAabb = editor.call('attributes:addField', {
+                parent: panelGroup,
+                name: 'Max AABB',
+                type: 'number',
+                min: 0,
+                link: projectSettings,
+                path: 'batchGroups.' + groupId + '.maxAabbSize'
+            });
+
+            var prevKey = null;
+            var batchGroups = projectSettings.get('batchGroups');
+            for (var key in batchGroups) {
+                if (parseInt(key, 10) === groupId) {
+                    batchGroupPanels[key] = panelGroup;
+
+                    if (prevKey) {
+                        panelBatchGroups.appendAfter(panelGroup, batchGroupPanels[prevKey]);
+                    } else {
+                        panelBatchGroups.appendBefore(panelGroup, btnAddBatchGroup);
+                    }
+
+                    break;
+                } else if (batchGroups[key]) {
+                    prevKey = key;
+                }
+            }
+
+            if (! folded)
+                fieldName.focus();
+
+            panelGroup.on('destroy', function () {
+                evtName.unbind();
+            });
+        };
+
+        var removeBatchGroupPanel = function (id) {
+            var panel = batchGroupPanels[id];
+            if (panel) {
+                panel.destroy();
+            }
+
+            delete batchGroupPanels[id];
+        };
+
+        projectSettings.on('*:set', function (path, value, valueOld, remote) {
+            if (/^batchGroups\.\d+$/.test(path)) {
+                if (value) {
+                    createBatchGroupPanel(value, remote);
+                } else {
+                    var parts = path.split('.');
+                    removeBatchGroupPanel(parts[parts.length - 1]);
+                }
+            }
+        });
+
+        projectSettings.on('*:unset', function (path, value) {
+            if (/^batchGroups\.\d+$/.test(path)) {
+                removeBatchGroupPanel(value.id);
+            }
+        });
+
+        // existing batch groups
+        var batchGroups = projectSettings.get('batchGroups') || {};
+        for (var id in batchGroups) {
+            createBatchGroupPanel(batchGroups[id], true);
+        }
+
+        // new batch group button
+        var btnAddBatchGroup = new ui.Button({
+            text: 'ADD GROUP'
+        });
+        btnAddBatchGroup.class.add('add-batch-group');
+        panelBatchGroups.append(btnAddBatchGroup);
+        btnAddBatchGroup.on('click', function () {
+            var batchGroups = projectSettings.get('batchGroups');
+
+            // calculate id of new group and new name
+            var id = 1;
+            for (var key in batchGroups) {
+                id = Math.max(parseInt(key, 10) + 1, id);
+            }
+
+            projectSettings.set('batchGroups.' + id, {
+                id: id,
+                name: 'Group ' + id,
+                maxAabbSize: 100,
+                dynamic: true
+            });
+        });
 
         // loading screen
         var panelLoadingScreen = editor.call('attributes:addPanel', {

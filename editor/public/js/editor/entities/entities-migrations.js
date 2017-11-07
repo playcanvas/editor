@@ -107,6 +107,10 @@ editor.once('load', function() {
                 // lightmapSizeMultiplier
                 if (! entity.has('components.model.lightmapSizeMultiplier'))
                     entity.set('components.model.lightmapSizeMultiplier', 1.0);
+
+                // batch group id
+                if (! entity.has('components.model.batchGroupId'))
+                    entity.set('components.model.batchGroupId', -1);
             }
 
             // element
@@ -145,6 +149,10 @@ editor.once('load', function() {
 
                 if (! entity.has('components.element.alignment')) {
                     entity.set('components.element.alignment', [0.5, 0.5]);
+                }
+
+                if (! entity.has('components.element.batchGroupId')) {
+                    entity.set('components.element.batchGroupId', -1);
                 }
             }
 

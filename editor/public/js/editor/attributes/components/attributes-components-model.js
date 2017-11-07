@@ -331,6 +331,23 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'model:lightmapSizeMultiplier', fieldLightmapSizeMultiplier);
 
+        // batch group
+        var batchGroups = editor.call('settings:project').get('batchGroups');
+        var batchEnum = {
+            '-1': 'None'
+        };
+        for (var key in batchGroups) {
+            batchEnum[key] = batchGroups[key].name;
+        }
+
+        var fieldBatchGroup = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Batch Group',
+            type: 'number',
+            enum: batchEnum,
+            link: entities,
+            path: 'components.model.batchGroupId'
+        });
 
         panel.on('destroy', function() {
             for(var i = 0; i < events.length; i++)

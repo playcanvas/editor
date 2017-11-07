@@ -2249,7 +2249,7 @@ strong {
                 top: 0px;
             }
 
-            > .ui-button.add-script, .ui-button.add-sound-slot {
+            > .ui-button.add-script, .ui-button.add-sound-slot, .ui-button.add-batch-group {
                 margin: 0 0 8px 0;
                 background-color: $bcg-dark;
 
@@ -2539,6 +2539,56 @@ strong {
         &.hidden {
             display: none;
         }
+    }
+
+    .ui-panel.batching {
+        > .content {
+            padding-top: 8px;
+        }
+
+        .ui-panel.batch-group {
+            margin-bottom: 2px;
+            transition: none;
+
+            > .ui-header > .title {
+                width: calc(100% - 32px);
+            }
+
+            > .content {
+                padding-top: 8px 6px;
+                transition: none;
+            }
+
+            .ui-text-field.error {
+                border-color: #fb222f;
+            }
+
+            .remove {
+                @extend .font-icon;
+
+                float: right;
+                width: 32px;
+                height: 32px;
+                line-height: 32px;
+                margin: 0;
+                padding: 0;
+                border: none;
+                font-size: 14px;
+                text-align: center;
+                background-color: transparent;
+
+                &:hover {
+                    background-color: $bcg-darkest;
+                }
+
+                &:after {
+                    content: '\E124';
+                    font-weight: 200;
+                }
+            }
+        }
+
+
     }
 }
 

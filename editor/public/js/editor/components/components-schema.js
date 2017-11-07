@@ -154,7 +154,8 @@ editor.once('load', function() {
                 castShadowsLightmap: true,
                 receiveShadows: true,
                 lightMapped: false,
-                lightMapSizeMultiplier: 1.0
+                lightMapSizeMultiplier: 1.0,
+                batchGroupId: -1
             }
         },
 
@@ -336,7 +337,8 @@ editor.once('load', function() {
                 rect: [0, 0, 1, 1],
                 autoWidth: false,
                 autoHeight: false,
-                materialAsset: null
+                materialAsset: null,
+                batchGroupId: -1
             },
             types: {
                 anchor: 'vec4',

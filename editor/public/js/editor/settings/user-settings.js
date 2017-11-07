@@ -14,23 +14,13 @@ editor.once('load', function () {
     });
 
     // add history
-    settings.history = true;
-    settings.on('*:set', function(path, value, oldValue) {
-        if (! settings.history)
-            return;
+    settings.history = new ObserverHistory({
+        item: settings,
+        getItemFn: function () {return settings;}
+    });
 
-        editor.call('history:add', {
-            name: 'user settings:' + path,
-            undo: function() {
-                settings.history = false;
-                settings.set(path, oldValue);
-                settings.history = true;
-            },
-            redo: function() {
-                settings.history = false;
-                settings.set(path, value);
-                settings.history = true;
-            }
-        });
+    // record history
+    settings.history.on('record', function(action, data) {
+        editor.call('history:' + action, data);
     });
 });
