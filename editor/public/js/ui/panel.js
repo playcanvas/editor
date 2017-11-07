@@ -58,7 +58,7 @@ function Panel(header) {
             if (touch.identifier !== self._resizeTouchId)
                 continue;
 
-            self._resouzeTouchId = null;
+            self._resizeTouchId = null;
 
             evt.preventDefault();
             evt.stopPropagation();
@@ -67,6 +67,7 @@ function Panel(header) {
             return;
         }
     };
+
 
     // HACK
     // skip 2 frames before enabling transitions
