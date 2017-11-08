@@ -299,19 +299,25 @@ editor.once('load', function() {
 
     projectSettings.on('*:set', function (path, value) {
         if (/^batchGroups\./.test(path)) {
-            var batchGroups = projectSettings.get('batchGroups');
-            for (var id in batchGroups) {
-                var grp = batchGroups[id];
-                if (app.batcher._batchGroups[id]) {
-                    app.batcher._batchGroups[id].name = grp.name;
-                    app.batcher._batchGroups[id].dynamic = grp.dynamic;
-                    app.batcher._batchGroups[id].maxAabbSize = grp.maxAabbSize;
-                } else {
-                    app.batcher.addGroup(grp.name, grp.dynamic, grp.maxAabbSize, grp.id);
-                }
-            }
+            var parts = path.split('.');
+            var groupId = parseInt(parts[1], 10);
+            var groupSettings = projectSettings.get('batchGroups.' + groupId);
+            if (! app.batcher._batchGroups[groupId]) {
+                app.batcher.addGroup(
+                    groupSettings.name,
+                    groupSettings.dynamic,
+                    groupSettings.maxAabbSize,
+                    groupId
+                );
 
-            app.batcher.generateBatchesForModels();
+                app.batcher.generateBatchesForModels();
+            } else {
+                app.batcher._batchGroups[groupId].name = groupSettings.name;
+                app.batcher._batchGroups[groupId].dynamic = groupSettings.dynamic;
+                app.batcher._batchGroups[groupId].maxAabbSize = groupSettings.maxAabbSize;
+
+                app.batcher.generateBatchesForModels([groupId]);
+            }
         }
     });
 
@@ -319,7 +325,6 @@ editor.once('load', function() {
         if (/^batchGroups\.\d+$/.test(path)) {
             var id = path.split('.')[1];
             app.batcher.removeGroup(id);
-            app.batcher.generateBatchesForModels();
         }
     });
 
