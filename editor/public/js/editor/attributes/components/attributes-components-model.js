@@ -350,6 +350,24 @@ editor.once('load', function() {
             path: 'components.model.batchGroupId'
         });
 
+        var btnAddGroup = document.createElement('li');
+        btnAddGroup.classList.add('add-batch-group');
+        btnAddGroup.innerHTML = 'Add Group';
+        fieldBatchGroup.elementOptions.appendChild(btnAddGroup);
+
+        // Create new batch group, assign it to the selected entities and focus on it in the settings panel
+        btnAddGroup.addEventListener('click', function () {
+            var group = editor.call('editorSettings:batchGroups:create');
+            batchEnum[group] = editor.call('settings:project').get('batchGroups.' + group + '.name');
+            fieldBatchGroup._updateOptions(batchEnum);
+            fieldBatchGroup.value = group;
+            editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+            setTimeout(function () {
+                editor.call('editorSettings:batchGroups:focus', group);
+            });
+        });
+
+
         panel.on('destroy', function() {
             for(var i = 0; i < events.length; i++)
                 events[i].unbind();

@@ -1753,6 +1753,19 @@ strong {
                 }
             }
         }
+        &.model, &.element {
+            > .content {
+                .add-batch-group {
+                    color: $text-active;
+                    &:before {
+                        content: '\E120';
+                        padding-right: 8px;
+                        @extend .font-icon;
+                        color: $text-active;
+                    }
+                }
+            }
+        }
         &.script {
             > .content {
                 padding-top: 6px;

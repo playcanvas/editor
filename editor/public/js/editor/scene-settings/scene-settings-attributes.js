@@ -569,6 +569,7 @@ editor.once('load', function() {
             var groupId = group.id || group.get('id');
 
             var panelGroup = new ui.Panel(group.name || group.get('name'));
+            panelGroup.element.id = 'batchgroup-panel-' + groupId;
             panelGroup.class.add('batch-group');
             panelGroup.foldable = true;
             panelGroup.folded = folded;
@@ -587,6 +588,7 @@ editor.once('load', function() {
                 name: 'Name',
                 type: 'string'
             });
+            fieldName.class.add('field-batchgroup-name');
 
             fieldName.value = panelGroup.header;
 
@@ -704,20 +706,7 @@ editor.once('load', function() {
         btnAddBatchGroup.class.add('add-batch-group');
         panelBatchGroups.append(btnAddBatchGroup);
         btnAddBatchGroup.on('click', function () {
-            var batchGroups = projectSettings.get('batchGroups');
-
-            // calculate id of new group and new name
-            var id = 1;
-            for (var key in batchGroups) {
-                id = Math.max(parseInt(key, 10) + 1, id);
-            }
-
-            projectSettings.set('batchGroups.' + id, {
-                id: id,
-                name: 'Group ' + id,
-                maxAabbSize: 100,
-                dynamic: true
-            });
+            editor.call('editorSettings:batchGroups:create');
         });
 
         // loading screen
@@ -974,5 +963,33 @@ editor.once('load', function() {
             labelUpgrade.style.color = '#fff';
             panelLoadingScreen.append(labelUpgrade);
         }
+    });
+
+    editor.method('editorSettings:batchGroups:create', function () {
+        var batchGroups = projectSettings.get('batchGroups');
+
+        // calculate id of new group and new name
+        var id = 100000;
+        for (var key in batchGroups) {
+            id = Math.max(parseInt(key, 10) + 1, id);
+        }
+
+        projectSettings.set('batchGroups.' + id, {
+            id: id,
+            name: 'New Batch Group',
+            maxAabbSize: 100,
+            dynamic: true
+        });
+
+        return id;
+    });
+
+    editor.method('editorSettings:batchGroups:focus', function (groupId) {
+        var element = document.getElementById('batchgroup-panel-' + groupId);
+        if (! element) return;
+
+        editor.call('editorSettings:panel:unfold', 'batching');
+        element.ui.folded = false;
+        element.querySelector('.field-batchgroup-name > input').focus();
     });
 });
