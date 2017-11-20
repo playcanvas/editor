@@ -565,21 +565,90 @@ editor.once('load', function() {
 
         var batchGroupPanels = {};
 
-        var createBatchGroupPanel = function (group, folded) {
+        var createBatchGroupPanel = function (group) {
             var groupId = group.id || group.get('id');
 
             var panelGroup = new ui.Panel(group.name || group.get('name'));
             panelGroup.element.id = 'batchgroup-panel-' + groupId;
             panelGroup.class.add('batch-group');
             panelGroup.foldable = true;
-            panelGroup.folded = folded;
+            panelGroup.folded = true;
 
-            // button to remove slot
+            // button to remove batch group
             var btnRemove = new ui.Button();
             btnRemove.class.add('remove');
             panelGroup.headerElement.appendChild(btnRemove.element);
+
+            // remove batch group and clear entity references
             btnRemove.on('click', function () {
-                projectSettings.unset('batchGroups.' + groupId);
+                var oldValue = projectSettings.get('batchGroups.' + groupId);
+                var affectedModels = [];
+                var affectedElements = [];
+
+                var redo = function () {
+                    var settingsHistory = projectSettings.history.enabled;
+                    projectSettings.history.enabled = false;
+                    projectSettings.unset('batchGroups.' + groupId);
+                    projectSettings.history.enabled = settingsHistory;
+
+                    var entities = editor.call('entities:list');
+                    for (var i = 0, len = entities.length; i < len; i++) {
+                        var entity = entities[i];
+
+                        if (entity.get('components.model.batchGroupId') === groupId) {
+                            var history = entity.history.enabled;
+                            entity.history.enabled = false;
+                            affectedModels.push(entity.get('resource_id'));
+                            entity.set('components.model.batchGroupId', -1);
+                            entity.history.enabled = history;
+                        }
+
+                        if (entity.get('components.element.batchGroupId') === groupId) {
+                            var history = entity.history.enabled;
+                            entity.history.enabled = false;
+                            affectedElements.push(entity.get('resource_id'));
+                            entity.set('components.element.batchGroupId', -1);
+                            entity.history.enabled = history;
+                        }
+                    }
+                };
+
+                var undo = function () {
+                    var settingsHistory = projectSettings.history.enabled;
+                    projectSettings.history.enabled = false;
+                    projectSettings.set('batchGroups.' + groupId, oldValue);
+                    projectSettings.history.enabled = settingsHistory;
+
+                    for (var i = 0, len = affectedModels.length; i < len; i++) {
+                        var entity = editor.call('entities:get', affectedModels[i]);
+                        if (! entity) continue;
+
+                        var history = entity.history.enabled;
+                        entity.history.enabled = false;
+                        entity.set('components.model.batchGroupId', groupId);
+                        entity.history.enabled = history;
+                    }
+                    affectedModels.length = 0;
+
+                    for (var i = 0, len = affectedElements.length; i < len; i++) {
+                        var entity = editor.call('entities:get', affectedElements[i]);
+                        if (! entity) continue;
+
+                        var history = entity.history.enabled;
+                        entity.history.enabled = false;
+                        entity.set('components.element.batchGroupId', groupId);
+                        entity.history.enabled = history;
+                    }
+                    affectedElements.length = 0;
+                };
+
+                editor.call('history:add', {
+                    name: 'projectSettings.batchGroups.' + groupId,
+                    undo: undo,
+                    redo: redo
+                });
+
+                redo();
             });
 
             // group name
@@ -650,7 +719,7 @@ editor.once('load', function() {
                     if (prevKey) {
                         panelBatchGroups.appendAfter(panelGroup, batchGroupPanels[prevKey]);
                     } else {
-                        panelBatchGroups.appendBefore(panelGroup, btnAddBatchGroup);
+                        panelBatchGroups.prepend(panelGroup);
                     }
 
                     break;
@@ -658,9 +727,6 @@ editor.once('load', function() {
                     prevKey = key;
                 }
             }
-
-            if (! folded)
-                fieldName.focus();
 
             panelGroup.on('destroy', function () {
                 evtName.unbind();
@@ -676,10 +742,10 @@ editor.once('load', function() {
             delete batchGroupPanels[id];
         };
 
-        projectSettings.on('*:set', function (path, value, valueOld, remote) {
+        var evtNewBatchGroup = projectSettings.on('*:set', function (path, value) {
             if (/^batchGroups\.\d+$/.test(path)) {
                 if (value) {
-                    createBatchGroupPanel(value, remote);
+                    createBatchGroupPanel(value);
                 } else {
                     var parts = path.split('.');
                     removeBatchGroupPanel(parts[parts.length - 1]);
@@ -687,16 +753,21 @@ editor.once('load', function() {
             }
         });
 
-        projectSettings.on('*:unset', function (path, value) {
+        var evtDeleteBatchGroup = projectSettings.on('*:unset', function (path, value) {
             if (/^batchGroups\.\d+$/.test(path)) {
                 removeBatchGroupPanel(value.id);
             }
         });
 
+        panelBatchGroups.on('destroy', function () {
+            evtNewBatchGroup.unbind();
+            evtDeleteBatchGroup.unbind();
+        });
+
         // existing batch groups
         var batchGroups = projectSettings.get('batchGroups') || {};
         for (var id in batchGroups) {
-            createBatchGroupPanel(batchGroups[id], true);
+            createBatchGroupPanel(batchGroups[id]);
         }
 
         // new batch group button
@@ -706,7 +777,8 @@ editor.once('load', function() {
         btnAddBatchGroup.class.add('add-batch-group');
         panelBatchGroups.append(btnAddBatchGroup);
         btnAddBatchGroup.on('click', function () {
-            editor.call('editorSettings:batchGroups:create');
+            var id = editor.call('editorSettings:batchGroups:create');
+            editor.call('editorSettings:batchGroups:focus', id);
         });
 
         // loading screen
