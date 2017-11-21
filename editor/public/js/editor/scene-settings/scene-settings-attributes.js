@@ -599,7 +599,7 @@ editor.once('load', function() {
                             var history = entity.history.enabled;
                             entity.history.enabled = false;
                             affectedModels.push(entity.get('resource_id'));
-                            entity.set('components.model.batchGroupId', -1);
+                            entity.set('components.model.batchGroupId', null);
                             entity.history.enabled = history;
                         }
 
@@ -607,7 +607,7 @@ editor.once('load', function() {
                             var history = entity.history.enabled;
                             entity.history.enabled = false;
                             affectedElements.push(entity.get('resource_id'));
-                            entity.set('components.element.batchGroupId', -1);
+                            entity.set('components.element.batchGroupId', null);
                             entity.history.enabled = history;
                         }
                     }

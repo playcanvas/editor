@@ -600,7 +600,8 @@ editor.once('load', function() {
         // batch group
         var batchGroups = editor.call('settings:project').get('batchGroups');
         var batchEnum = {
-            '-1': 'None'
+            '': '...',
+            'NaN': 'None'
         };
         for (var key in batchGroups) {
             batchEnum[key] = batchGroups[key].name;

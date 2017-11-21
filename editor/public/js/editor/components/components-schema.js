@@ -155,7 +155,7 @@ editor.once('load', function() {
                 receiveShadows: true,
                 lightMapped: false,
                 lightMapSizeMultiplier: 1.0,
-                batchGroupId: -1
+                batchGroupId: null
             }
         },
 
@@ -338,7 +338,7 @@ editor.once('load', function() {
                 autoWidth: false,
                 autoHeight: false,
                 materialAsset: null,
-                batchGroupId: -1
+                batchGroupId: null
             },
             types: {
                 anchor: 'vec4',
@@ -425,6 +425,10 @@ editor.once('load', function() {
                 }
             }
         }
+
+        // for batchGroupId convert null to -1 for runtime
+        if (result === null && property === 'batchGroupId')
+            result = -1;
 
         return result;
     });

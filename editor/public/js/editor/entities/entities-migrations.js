@@ -110,7 +110,7 @@ editor.once('load', function() {
 
                 // batch group id
                 if (! entity.has('components.model.batchGroupId'))
-                    entity.set('components.model.batchGroupId', -1);
+                    entity.set('components.model.batchGroupId', null);
             }
 
             // element
@@ -152,7 +152,7 @@ editor.once('load', function() {
                 }
 
                 if (! entity.has('components.element.batchGroupId')) {
-                    entity.set('components.element.batchGroupId', -1);
+                    entity.set('components.element.batchGroupId', null);
                 }
             }
 
