@@ -597,6 +597,43 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'element:useInput', fieldUseInput.parent.innerElement.firstChild.ui);
 
+        // batch group
+        var batchGroups = editor.call('settings:project').get('batchGroups');
+        var batchEnum = {
+            '': '...',
+            'NaN': 'None'
+        };
+        for (var key in batchGroups) {
+            batchEnum[key] = batchGroups[key].name;
+        }
+
+        var fieldBatchGroup = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Batch Group',
+            type: 'number',
+            enum: batchEnum,
+            link: entities,
+            path: 'components.element.batchGroupId'
+        });
+
+
+        var btnAddGroup = document.createElement('li');
+        btnAddGroup.classList.add('add-batch-group');
+        btnAddGroup.innerHTML = 'Add Group';
+        fieldBatchGroup.elementOptions.appendChild(btnAddGroup);
+
+        // Create new batch group, assign it to the selected entities and focus on it in the settings panel
+        btnAddGroup.addEventListener('click', function () {
+            var group = editor.call('editorSettings:batchGroups:create');
+            batchEnum[group] = editor.call('settings:project').get('batchGroups.' + group + '.name');
+            fieldBatchGroup._updateOptions(batchEnum);
+            fieldBatchGroup.value = group;
+            editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+            setTimeout(function () {
+                editor.call('editorSettings:batchGroups:focus', group);
+            });
+        });
+
         var toggleColorFields = function () {
             if (fieldMaterialAsset.value) {
                 fieldTextureAsset.parent.hidden = true;

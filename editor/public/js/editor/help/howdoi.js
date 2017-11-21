@@ -32,10 +32,10 @@ editor.once('load', function () {
     // events when panel is shown
     panel.on('show', function () {
         editor.emit('help:howdoi:open');
-        var history = settings.history;
-        settings.history = false;
+        var history = settings.history.enabled;
+        settings.history.enabled = false;
         settings.set('editor.howdoi', true);
-        settings.history = history;
+        settings.history.enabled = history;
 
         editor.on('scene:name', positionWidget);
         editor.on('viewport:resize', positionWidget);
@@ -46,10 +46,10 @@ editor.once('load', function () {
     panel.on('hide', function () {
         editor.emit('help:howdoi:close');
 
-        var history = settings.history;
-        settings.history = false;
+        var history = settings.history.enabled;
+        settings.history.enabled = false;
         settings.set('editor.howdoi', false);
-        settings.history = history;
+        settings.history.enabled = history;
 
         editor.unbind('scene:name', positionWidget);
         editor.unbind('viewport:resize', positionWidget);
