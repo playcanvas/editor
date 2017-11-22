@@ -622,6 +622,9 @@ editor.once('load', function() {
         btnAddGroup.innerHTML = 'Add Group';
         fieldBatchGroup.elementOptions.appendChild(btnAddGroup);
 
+        // reference
+        editor.call('attributes:reference:attach', 'element:batchGroupId', fieldBatchGroup.parent.innerElement.firstChild.ui);
+
         // Create new batch group, assign it to the selected entities and focus on it in the settings panel
         btnAddGroup.addEventListener('click', function () {
             var group = editor.call('editorSettings:batchGroups:create');

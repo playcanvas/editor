@@ -563,6 +563,9 @@ editor.once('load', function() {
         panelBatchGroups.on('unfold', function () { foldStates['batchGroups'] = false; });
         panelBatchGroups.class.add('component', 'batching');
 
+        // reference
+        editor.call('attributes:reference:attach', 'settings:batchGroups', panelBatchGroups, panelBatchGroups.headerElement);
+
         var batchGroupPanels = {};
 
         var createBatchGroupPanel = function (group) {
@@ -658,8 +661,10 @@ editor.once('load', function() {
                 type: 'string'
             });
             fieldName.class.add('field-batchgroup-name');
-
             fieldName.value = panelGroup.header;
+
+            // reference
+            editor.call('attributes:reference:attach', 'settings:batchGroups:name', fieldName.parent.innerElement.firstChild.ui);
 
             var suspendEvents = false;
             var evtName = projectSettings.on('batchGroups.' + groupId + '.name:set', function (value) {
@@ -700,6 +705,9 @@ editor.once('load', function() {
                 path: 'batchGroups.' + groupId + '.dynamic'
             });
 
+            // reference
+            editor.call('attributes:reference:attach', 'settings:batchGroups:dynamic', fieldDynamic.parent.innerElement.firstChild.ui);
+
             // max aabb size
             var fieldMaxAabb = editor.call('attributes:addField', {
                 parent: panelGroup,
@@ -709,6 +717,9 @@ editor.once('load', function() {
                 link: projectSettings,
                 path: 'batchGroups.' + groupId + '.maxAabbSize'
             });
+
+            // reference
+            editor.call('attributes:reference:attach', 'settings:batchGroups:maxAabbSize', fieldMaxAabb.parent.innerElement.firstChild.ui);
 
             var prevKey = null;
             var batchGroups = projectSettings.get('batchGroups');

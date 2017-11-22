@@ -209,6 +209,25 @@ editor.once('load', function() {
         name: 'facebook:sdk-version',
         title: 'SDK Version',
         description: 'The Facebook Instant SDK version to use when publishing to Facebook. If you want you can also enter a version manually.'
+    }, {
+        name: 'batchGroups',
+        title: 'Batch Groups',
+        description: 'Manage batch groups for this project. Batch groups allow you to reduce draw calls by batching similar Models and Elements together.'
+    }, {
+        name: 'batchGroups:name',
+        title: 'name',
+        subTitle: '{String}',
+        description: 'The name of the batch group'
+    }, {
+        name: 'batchGroups:dynamic',
+        title: 'dynamic',
+        subTitle: '{Boolean}',
+        description: 'Enable this if you want to allow objects in this batch group to move/rotate/scale after being batched. If your objects are completely static then disable this field.'
+    }, {
+        name: 'batchGroups:maxAabbSize',
+        title: 'maxAabbSize',
+        subTitle: '{Number}',
+        description: 'The maximum size of any dimension of a bounding box around batched objects. A larger size will batch more objects generating less draw calls but the batched objects will be larger and harder for the camera to cull. A smaller size will generate more draw calls (but less than without batching) but the resulting objects will be easier for the camera to cull.'
     }];
 
     for(var i = 0; i < fields.length; i++) {
