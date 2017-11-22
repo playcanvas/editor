@@ -94,7 +94,7 @@ editor.once('load', function() {
                         if (oldValue >= 0 && oldValue !== value)
                             batches.push(oldValue);
 
-                        app.batcher.generateBatchesForModels(batches);
+                        app.batcher.generate(batches);
                     }
                 }
             }

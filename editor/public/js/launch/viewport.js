@@ -310,13 +310,13 @@ editor.once('load', function() {
                     groupId
                 );
 
-                app.batcher.generateBatchesForModels();
+                app.batcher.generate();
             } else {
                 app.batcher._batchGroups[groupId].name = groupSettings.name;
                 app.batcher._batchGroups[groupId].dynamic = groupSettings.dynamic;
                 app.batcher._batchGroups[groupId].maxAabbSize = groupSettings.maxAabbSize;
 
-                app.batcher.generateBatchesForModels([groupId]);
+                app.batcher.generate([groupId]);
             }
         }
     });
