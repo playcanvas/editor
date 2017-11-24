@@ -353,13 +353,13 @@ editor.once('load', function() {
         editor.call('assets:panel:filter', filter);
     });
 
-    var tooltipSearch = Tooltip.attach({
-        target: search.element,
-        align: 'bottom',
-        root: root,
-        hoverable: true,
-        text: 'Search Assets',
-        html: '<h1>Assets Search</h1><p>You can perform a global search for assets in your project using this Search box. Simply start typing into the box and the Editor will show matching results dynamically in the panel below.</p><p><strong>ID</strong> - A specific asset can be found by its unique ID, by simply typing the ID in the search field, it will recognize the exact match and only show one asset with that ID.</p><p><strong>RegExp</strong> - It is possible to search using regular expressions. Add <code>*</code> at the beginning of the search field and type a regexp query after. To search for all assets use the <code>*.</code> (any character) regexp query.</p><p><strong>Tags</strong> - To search by tags and their combinations type tags in square brackets <code>[ ]</code>. Simple query operators: AND, OR are allowed by expressing a query as an array of strings or other arrays with strings. The logic of the query is the same as for <a href="https://developer.playcanvas.com/en/api/pc.AssetRegistry.html#findByTag" target="_blank">findByTag</a> from <b>pc.AssetRegistry</b>.</p><p>Here are some examples:</p><p><code>[ level-1 ]</code> - returns all assets that are tagged by <code>level-1</code>.<br /><code>[ level-1, level-2 ]</code> - returns all assets that are tagged by <code>level-1 OR level-2</code>.<br /><code>[ [ level-1, monster ] ]</code> - returns all assets that are tagged by <code>level-1 AND monster</code>. Notice extra brackets.<br /><code>[ [ level-1, monster ], [ level-2, monster ] ]</code> - returns all assets that are tagged by <code>(level-1 AND monster) OR (level-2 AND monster)</code>.</p>'
-    });
-    tooltipSearch.class.add('assets-search-field');
+    // var tooltipSearch = Tooltip.attach({
+    //     target: search.element,
+    //     align: 'bottom',
+    //     root: root,
+    //     hoverable: true,
+    //     text: 'Search Assets',
+    //     html: '<h1>Assets Search</h1><p>You can perform a global search for assets in your project using this Search box. Simply start typing into the box and the Editor will show matching results dynamically in the panel below.</p><p><strong>ID</strong> - A specific asset can be found by its unique ID, by simply typing the ID in the search field, it will recognize the exact match and only show one asset with that ID.</p><p><strong>RegExp</strong> - It is possible to search using regular expressions. Add <code>*</code> at the beginning of the search field and type a regexp query after. To search for all assets use the <code>*.</code> (any character) regexp query.</p><p><strong>Tags</strong> - To search by tags and their combinations type tags in square brackets <code>[ ]</code>. Simple query operators: AND, OR are allowed by expressing a query as an array of strings or other arrays with strings. The logic of the query is the same as for <a href="https://developer.playcanvas.com/en/api/pc.AssetRegistry.html#findByTag" target="_blank">findByTag</a> from <b>pc.AssetRegistry</b>.</p><p>Here are some examples:</p><p><code>[ level-1 ]</code> - returns all assets that are tagged by <code>level-1</code>.<br /><code>[ level-1, level-2 ]</code> - returns all assets that are tagged by <code>level-1 OR level-2</code>.<br /><code>[ [ level-1, monster ] ]</code> - returns all assets that are tagged by <code>level-1 AND monster</code>. Notice extra brackets.<br /><code>[ [ level-1, monster ], [ level-2, monster ] ]</code> - returns all assets that are tagged by <code>(level-1 AND monster) OR (level-2 AND monster)</code>.</p>'
+    // });
+    // tooltipSearch.class.add('assets-search-field');
 });
