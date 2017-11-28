@@ -42,6 +42,9 @@ body {
     font-family: Helvetica, arial, sans-serif;
     position: relative;
     width: 100%;
+
+    // do not do blue highlight if cursor=pointer on Chrome
+    -webkit-tap-highlight-color: transparent;
 }
 
 #application-canvas {
