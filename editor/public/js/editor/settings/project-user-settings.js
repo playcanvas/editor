@@ -39,31 +39,21 @@ editor.once('load', function () {
     });
 
     // add history
-    settings.history = true;
-    settings.on('*:set', function(path, value, oldValue) {
-        if (! settings.history)
-            return;
+    settings.history = new ObserverHistory({
+        item: settings,
+        getItemFn: function () {return settings;}
+    });
 
-        editor.call('history:add', {
-            name: 'project user settings:' + path,
-            undo: function() {
-                settings.history = false;
-                settings.set(path, oldValue);
-                settings.history = true;
-            },
-            redo: function() {
-                settings.history = false;
-                settings.set(path, value);
-                settings.history = true;
-            }
-        });
+    // record history
+    settings.history.on('record', function(action, data) {
+        editor.call('history:' + action, data);
     });
 
     // migrations
     editor.on('settings:projectUser:load', function () {
         setTimeout(function () {
-            var history = settings.history;
-            settings.history = false;
+            var history = settings.history.enabled;
+            settings.history.enabled= false;
 
             if (! settings.has('editor.pipeline'))
                 settings.set('editor.pipeline', {});
@@ -92,7 +82,7 @@ editor.once('load', function () {
             if (! settings.has('editor.pipeline.overwriteTexture'))
                 settings.set('editor.pipeline.overwriteTexture', true);
 
-            settings.history = history;
+            settings.history.enabled = history;
         });
     });
 
@@ -107,14 +97,14 @@ editor.once('load', function () {
         if (editor.call('permissions:read')) {
             // reload settings
             if (! settings.sync) {
-                settings.history = true;
+                settings.history.enabled = true;
                 reload();
             }
         } else {
             // unset private settings
             if (settings.sync) {
                 settings.disconnect();
-                settings.history = false;
+                settings.history.enabled = false;
             }
         }
     });

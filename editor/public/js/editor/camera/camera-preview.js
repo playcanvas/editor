@@ -1,6 +1,9 @@
 editor.once('load', function() {
     'use sctrict';
 
+    var DEFAULT_CULLING_MASK = 0xFFFFFFFF;
+    var GEOMETRY_ONLY_CULLING_MASK = 1 | 2 | 4;
+
     var selectedEntity = null;
     var currentCamera = null;
     var renderCamera = false;
@@ -28,7 +31,7 @@ editor.once('load', function() {
         evt.stopPropagation();
 
         if (lastCamera) {
-            lastCamera.cullingMask = 0xFFFFFFFF;
+            lastCamera.cullingMask = DEFAULT_CULLING_MASK;
             lastCamera = null;
         }
 
@@ -89,7 +92,7 @@ editor.once('load', function() {
             return;
 
         camera.camera.renderTarget = null;
-        camera.camera.cullingMask = 1;
+        camera.camera.cullingMask = GEOMETRY_ONLY_CULLING_MASK;
         camera.rect = rect;
 
         lastCamera = camera.camera;
@@ -121,7 +124,7 @@ editor.once('load', function() {
             cameraPreviewBorder.classList.remove('active');
 
             if (lastCamera) {
-                lastCamera.cullingMask = 0xFFFFFFFF;
+                lastCamera.cullingMask = DEFAULT_CULLING_MASK;
                 lastCamera = null;
             }
 
@@ -151,7 +154,7 @@ editor.once('load', function() {
         }
 
         if (lastCamera) {
-            lastCamera.cullingMask = 0xFFFFFFFF;
+            lastCamera.cullingMask = DEFAULT_CULLING_MASK;
             lastCamera = null;
         }
 

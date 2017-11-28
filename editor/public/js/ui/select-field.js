@@ -80,8 +80,6 @@ function SelectField(args) {
         this._oldValue = this._value;
     }
 
-    this._optionSelectHandler = null;
-
     this.on('link', this._onLink);
     this._updateOptions();
 
@@ -327,13 +325,6 @@ SelectField.prototype._updateOptions = function(options) {
         }
     }
 
-    if (! this._optionSelectHandler)
-        this._optionSelectHandler = this._onOptionSelect.bind(this);
-
-    for(var value in this.optionElements) {
-        this.optionElements[value].removeEventListener('click', this._onOptionSelect);
-    }
-
     this.optionElements = { };
     this.elementOptions.innerHTML = '';
 
@@ -345,7 +336,6 @@ SelectField.prototype._updateOptions = function(options) {
         element.textContent = this.options[this.optionsKeys[i]];
         element.uiElement = this;
         element.uiValue = this.optionsKeys[i];
-        element.addEventListener('click', this._onOptionSelect);
         element.addEventListener('touchstart', this._onOptionSelect);
         element.addEventListener('mouseover', this._onOptionHover);
         element.addEventListener('mouseout', this._onOptionOut);

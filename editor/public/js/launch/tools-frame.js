@@ -94,6 +94,10 @@ editor.once('load', function() {
     var panelDrawCalls = addPanel({
         title: 'Draw Calls'
     });
+    // batching
+    var panelBatching = addPanel({
+        title: 'Batching'
+    });
     // particles
     var panelParticles = addPanel({
         title: 'Particles'
@@ -288,6 +292,20 @@ editor.once('load', function() {
         panel: panelDrawCalls,
         format: function(value) {
             return value.toLocaleString();
+        }
+    }, {
+        key: [ 'batcher', 'createTime' ],
+        title: 'Create Time',
+        panel: panelBatching,
+        format: function(value) {
+            return value.toFixed(2);
+        }
+    }, {
+        key: [ 'batcher', 'updateLastFrameTime' ],
+        title: 'Update Last Frame Time',
+        panel: panelBatching,
+        format: function(value) {
+            return value.toFixed(2);
         }
     }, {
         key: [ 'particles', 'updatesPerFrame' ],

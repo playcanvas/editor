@@ -21,32 +21,23 @@ editor.once('load', function () {
 
 
     // add history
-    settings.history = true;
-    settings.on('*:set', function(path, value, oldValue) {
-        if (! settings.history)
-            return;
+    settings.history = new ObserverHistory({
+        item: settings,
+        getItemFn: function () {return settings;}
+    });
 
-        editor.call('history:add', {
-            name: 'private project settings:' + path,
-            undo: function() {
-                settings.history = false;
-                settings.set(path, oldValue);
-                settings.history = true;
-            },
-            redo: function() {
-                settings.history = false;
-                settings.set(path, value);
-                settings.history = true;
-            }
-        });
+    // record history
+    settings.history.on('record', function(action, data) {
+        editor.call('history:' + action, data);
     });
 
     settings.on('facebook.appId:set', function (value) {
         if (value && ! settings.get('facebook.sdkVersion')) {
             // set default sdk version
-            var history = settings.history;
+            var history = settings.history.enabled;
+            settings.history.enabled = false;
             settings.set('facebook.sdkVersion', config.facebook.version);
-            settings.history = history;
+            settings.history.enabled = history;
         }
     });
 
@@ -78,12 +69,12 @@ editor.once('load', function () {
             editor.once('settings:projectPrivate:load', function () {
                 evtOnSet.unbind();
 
-                var history = settings.history;
-                settings.history = false;
+                var history = settings.history.enabled;
+                settings.history.enabled = false;
                 for (var key in pendingChanges) {
                     settings.set(key, pendingChanges[key]);
                 }
-                settings.history = history;
+                settings.history.enabled = history;
 
                 pendingChanges = null;
             });
@@ -95,11 +86,11 @@ editor.once('load', function () {
         if (accesslevel !== 'admin' && accesslevel !== 'write') {
             // unset private settings
             settings.disconnect();
-            settings.history = false;
+            settings.history.enabled = false;
             settings.unset('facebook');
         } else {
             // reload settings
-            settings.history = true;
+            settings.history.enabled = true;
             reload();
         }
     });

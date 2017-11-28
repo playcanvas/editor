@@ -3,6 +3,7 @@ editor.once('load', function () {
 
     var syncPaths = [
         'antiAlias',
+        'batchGroups',
         'fillMode',
         'resolutionMode',
         'height',
@@ -38,26 +39,57 @@ editor.once('load', function () {
     }
 
     // add history
-    settings.history = true;
-    settings.on('*:set', function(path, value, oldValue) {
-        // update config.project.settings
-        config.project.settings[path] = value;
+    settings.history = new ObserverHistory({
+        item: settings,
+        getItemFn: function () {return settings;}
+    });
 
-        if (! settings.history)
-            return;
+    // record history
+    settings.history.on('record', function(action, data) {
+        editor.call('history:' + action, data);
+    });
 
-        editor.call('history:add', {
-            name: 'project settings:' + path,
-            undo: function() {
-                settings.history = false;
-                settings.set(path, oldValue);
-                settings.history = true;
-            },
-            redo: function() {
-                settings.history = false;
-                settings.set(path, value);
-                settings.history = true;
+    settings.on('*:set', function (path, value) {
+        var parts = path.split('.');
+        var obj = config.project.settings;
+        for (var i = 0; i < parts.length - 1; i++) {
+            if (! obj.hasOwnProperty(parts[i]))
+                obj[parts[i]] = {};
+
+            obj = obj[parts[i]];
+        }
+
+        // this is limited to simple structures for now
+        // so take care
+        if (value instanceof Object) {
+            var path = parts[parts.length-1];
+            obj[path] = {};
+            for (var key in value) {
+                obj[path][key] = value[key];
             }
-        });
+        } else {
+            obj[parts[parts.length-1]] = value;
+        }
+
+    });
+
+    settings.on('*:unset', function (path) {
+        var parts = path.split('.');
+        var obj = config.project.settings;
+        for (var i = 0; i < parts.length - 1; i++) {
+            obj = obj[parts[i]];
+        }
+
+        delete obj[parts[parts.length-1]];
+    });
+
+    // migrations
+    editor.on('settings:project:load', function () {
+        var history = settings.history.enabled;
+        settings.history.enabled = false;
+        if (! settings.get('batchGroups')) {
+            settings.set('batchGroups', {});
+        }
+        settings.history.enabled = history;
     });
 });

@@ -53,6 +53,11 @@ editor.once('load', function() {
         description: 'Changing this value will affect resolution of lightmaps for this model',
         url: 'http://developer.playcanvas.com/api/pc.ModelComponent.html#lightmapSizeMultiplier'
     }, {
+        title: 'batchGroupId',
+        subTitle: '{Number}',
+        description: 'The batch group that this model belongs to. The engine will attempt to batch models in the same batch group to reduce draw calls.',
+        url: 'http://developer.playcanvas.com/api/pc.ModelComponent.html#batchGroupId'
+    }, {
         name: 'resolution',
         description: 'Auto-generated lightmap textures resolution is calculated using area of geometry in world space and size multiplier of model and scene.',
         url: 'http://developer.playcanvas.com/en/user-manual/graphics/lighting/lightmaps/#lightmap-size-multipliers'

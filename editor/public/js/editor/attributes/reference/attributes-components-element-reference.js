@@ -106,7 +106,12 @@ editor.once('load', function() {
         subTitle: '{Boolean}',
         description: 'Enable this if you want the element to receive input events.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#useInput'
-    }];
+    }, {
+        title: 'batchGroupId',
+        subTitle: '{Number}',
+        description: 'The batch group that this Element belongs to. The engine will attempt to batch Elements in the same batch group to reduce draw calls.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#batchGroupId'
+    },];
 
     for(var i = 0; i < fields.length; i++) {
         fields[i].name = 'element:' + (fields[i].name || fields[i].title);

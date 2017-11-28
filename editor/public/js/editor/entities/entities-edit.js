@@ -1088,10 +1088,10 @@ editor.once('load', function() {
         // if it's a collision or rigidbody component then enable physics
         if (component === 'collision' || component === 'rigidbody') {
             var settings = editor.call('settings:project');
-            var history = settings.history;
-            settings.history = false;
+            var history = settings.history.enabled;
+            settings.history.enabled = false;
             settings.set('use3dPhysics', true);
-            settings.history = history;
+            settings.history.enabled = history;
         }
 
         editor.call('history:add', {
