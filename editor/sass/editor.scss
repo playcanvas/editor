@@ -5841,6 +5841,92 @@ strong {
     }
 }
 
+.sprites-editor.center {
+    > .content {
+        width: 90%;
+        height: 90%;
+        left: 5%;
+        top: 5%;
+        transition: none;
+
+        > .root-panel {
+            height: 100%;
+
+            > .ui-header {
+                border: 1px solid $border-primary;
+            }
+
+            .close {
+                @extend .font-icon;
+                font-size: 14px;
+                position: absolute;
+                top: 0px;
+                right: 0px;
+                color: $text-secondary;
+                background-color: transparent;
+                border-color: transparent;
+
+                &:hover {
+                    color: $text-primary;
+                }
+            }
+
+            > .content {
+                display: flex;
+                flex-direction: row;
+                height: calc(100% - 32px);
+
+                .sprite-canvas-root {
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+
+                    > .content {
+                        width: 100%;
+                        height: 100%;
+
+                        .canvas {
+                            background: url('../img/checker.png');
+                            width: 100%;
+                            height: 100%;
+                        }
+                    }
+                }
+
+                .left-panel {
+                    background-color: transparent;
+
+                    > .content {
+                        background-color: transparent;
+
+                        .canvas-control {
+                            position: absolute;
+                            left: 0;
+                            bottom: 0;
+                            width: 100%;
+                            height: 32px;
+                            border: {
+                                style: solid;
+                                color: $border-primary;
+                                width: 1px 0 1px 1px;
+                            };
+                            box-sizing: border-box;
+                        }
+                    }
+                }
+
+                .right-panel {
+                    top: 0px;
+                    height: 100%;
+                    right: 0px;
+                    border: 1px solid $border-primary;
+                    box-sizing: border-box;
+                }
+            }
+        }
+    }
+}
+
 .ui-label.cursor-tooltip {
     font-family: "Lucida Console", Monaco, monospace;
     font-weight: normal;

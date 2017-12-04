@@ -690,7 +690,7 @@ editor.once('load', function() {
             }
         });
 
-        // folder open
+        // scripts open
         gridScripts.element.addEventListener('dblclick', function() {
             tree.clear();
             editor.call('assets:filter:search', '');
@@ -1064,6 +1064,13 @@ editor.once('load', function() {
                 // change back selection
                 if (selector.type)
                     editor.call('selector:set', selector.prev.type, selector.prev.items);
+            }, false);
+        }
+
+        // TODO(siyu): Temporary until we have the new type for sprite texture.
+        if (asset.get('type') === 'texture') {
+            item.element.addEventListener('dblclick', function() {
+                editor.call('picker:sprites:editor', item.asset);
             }, false);
         }
 
