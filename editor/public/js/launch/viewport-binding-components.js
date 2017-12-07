@@ -86,16 +86,6 @@ editor.once('load', function() {
                     value = obj.get('components.' + component + '.' + property);
                     var oldValue = entity[component][property];
                     entity[component][property] = editor.call('components:convertValue', component, property, value);
-
-                    if (property === 'batchGroupId') {
-                        var batches = [];
-                        if (value >= 0)
-                            batches.push(value);
-                        if (oldValue >= 0 && oldValue !== value)
-                            batches.push(oldValue);
-
-                        app.batcher.generate(batches);
-                    }
                 }
             }
         });
