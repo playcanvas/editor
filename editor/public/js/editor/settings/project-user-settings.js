@@ -28,6 +28,7 @@ editor.once('load', function () {
                     texturePot: true,
                     searchRelatedAssets: true,
                     preserveMapping: false,
+                    treatAsTextureAtlas: false,
                     overwriteModel: true,
                     overwriteAnimation: true,
                     overwriteMaterial: false,
@@ -69,6 +70,9 @@ editor.once('load', function () {
 
             if (! settings.has('editor.pipeline.preserveMapping'))
                 settings.set('editor.pipeline.preserveMapping', false);
+
+            if (! settings.has('editor.pipeline.treatAsTextureAtlas'))
+                settings.set('editor.pipeline.treatAsTextureAtlas', false);
 
             if (! settings.has('editor.pipeline.overwriteModel'))
                 settings.set('editor.pipeline.overwriteModel', true);

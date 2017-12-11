@@ -68,6 +68,14 @@ editor.once('load', function() {
         fieldModelV2.parent.innerElement.firstChild.style.width = 'auto';
         editor.call('attributes:reference:attach', 'settings:asset-tasks:useModelV2', fieldModelV2.parent.innerElement.firstChild.ui);
 
+        var fieldTreatAsTextureAtlas = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Treat As Texture Atlas',
+            type: 'checkbox',
+            link: settings,
+            path: 'editor.pipeline.treatAsTextureAtlas'
+        });
+        editor.call('attributes:reference:attach', 'settings:asset-tasks:treatAsTextureAtlas', fieldTreatAsTextureAtlas.parent.innerElement.firstChild.ui);
 
         var fieldOverwrite = editor.call('attributes:addField', {
             parent: panel,
@@ -112,5 +120,4 @@ editor.once('load', function() {
         });
         editor.call('attributes:reference:attach', 'settings:asset-tasks:overwrite:texture', fieldOverwriteTexture.parent.innerElement.firstChild.ui);
     });
-
 });
