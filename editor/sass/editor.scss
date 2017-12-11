@@ -5911,6 +5911,24 @@ strong {
                                 width: 1px 0 1px 1px;
                             };
                             box-sizing: border-box;
+
+                            .alpha-control {
+                                border: {
+                                    style: solid;
+                                    color: $border-primary;
+                                    width: 0 1px 0 0;
+                                };
+                            }
+
+                            .slider-control {
+                                .ui-number-field {
+                                    width: 72px;
+                                }
+
+                                .ui-slider {
+                                    width: 140px;
+                                }
+                            }
                         }
                     }
                 }
