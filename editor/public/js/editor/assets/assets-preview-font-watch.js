@@ -6,13 +6,11 @@ editor.once('load', function() {
     var watching = { };
 
     var subscribe = function(watch) {
-        // watch.watching.change = watch.asset.on('file.hash:set', function() {
-        //     setTimeout(onChange, 0);
-        // });
-
-        // watch.watching.fileUnset = watch.asset.on('file.hash:unset', function() {
-        //     setTimeout(onChange, 0);
-        // });
+        watch.onChange = function (asset, name, value) {
+            if (name === 'data') {
+                trigger(watch);
+            }
+        };
 
         watch.onAdd = function(asset) {
             app.assets.off('add:' + watch.asset.get('id'), watch.onAdd);
@@ -20,8 +18,8 @@ editor.once('load', function() {
             watch.engineAsset = asset;
             watch.engineAsset.off('load', watch.onLoad);
             watch.engineAsset.on('load', watch.onLoad);
-            watch.engineAsset.off('change', onFontChange);
-            watch.engineAsset.on('change', onFontChange);
+            watch.engineAsset.off('change', watch.onChange);
+            watch.engineAsset.on('change', watch.onChange);
             if (watch.autoLoad) loadFont(watch, asset);
         };
 
@@ -37,13 +35,13 @@ editor.once('load', function() {
             app.assets.once('add:' + watch.asset.get('id'), watch.onAdd);
         }
 
-        
+
     };
 
     var unsubscribe = function(watch) {
         if (watch.engineAsset) {
             watch.engineAsset.off('load', watch.onLoad);
-            watch.engineAsset.off('change', onFontChange);
+            watch.engineAsset.off('change', watch.onChange);
         }
 
         if (watch.onAdd)
@@ -66,14 +64,12 @@ editor.once('load', function() {
         app.assets.load(asset);
     };
 
-    var onFontChange = function (asset, name, value) {
-        if (name === 'data') {
-            editor.emit('preview:scene:changed');
-        }
-    }
+
     var trigger = function(watch) {
-        for(var key in watch.callbacks)
+        for(var key in watch.callbacks) {
+            console.log(key, watch.callbacks[key]);
             watch.callbacks[key].callback();
+        }
     };
 
 
