@@ -67,7 +67,6 @@ editor.once('load', function() {
 
     var trigger = function(watch) {
         for(var key in watch.callbacks) {
-            console.log(key, watch.callbacks[key]);
             watch.callbacks[key].callback();
         }
     };
