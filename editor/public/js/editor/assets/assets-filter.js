@@ -68,6 +68,12 @@ editor.once('load', function() {
                     } else {
                         assetType = 'textureTarget';
                     }
+                } else if (assetType === 'textureatlas') {
+                    if (item.get('source')) {
+                        assetType = 'textureAtlasSource';
+                    } else {
+                        assetType = 'textureAtlasTarget';
+                    }
                 }
 
                 visible = assetType === filterField.value;
@@ -209,7 +215,9 @@ editor.once('load', function() {
             shader: 'Shader',
             text: 'Text',
             textureTarget: 'Texture',
-            textureSource: 'Texture (source)'
+            textureSource: 'Texture (source)',
+            textureAtlasTarget: 'Texture Atlas',
+            textureAtlasSource: 'Texture Atlas (source)'
         }
     });
 

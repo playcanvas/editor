@@ -43,6 +43,7 @@ editor.once('load', function() {
 
     var downloadable = {
         'texture': 1,
+        'textureatlas': 1,
         'html': 1,
         'css': 1,
         'shader': 1,
@@ -64,6 +65,7 @@ editor.once('load', function() {
         'shader': '&#57864;',
         'text': '&#57864;',
         'texture': '&#57857;',
+        'textureatlas': '&#57857;',
         'model': '&#57735;',
         'scene': '&#57735;',
         'animation': '&#57875;',
@@ -148,6 +150,7 @@ editor.once('load', function() {
     var replaceAvailable = {
         'material': true,
         'texture': true,
+        'textureatlas': true,
         'model': true,
         'animation': true,
         'audio': true,
@@ -220,7 +223,7 @@ editor.once('load', function() {
             source: parseInt(source.get('id'), 10)
         };
 
-        if (source.get('type') === 'texture') {
+        if (source.get('type') === 'texture' || source.get('type') === 'textureatlas') {
             task.target = parseInt(target.get('id'), 10);
             task.options = editor.call('assets:jobs:texture-convert-options', source.get('meta'));
 
@@ -517,7 +520,7 @@ editor.once('load', function() {
                 menuItemReferences.hidden = true;
                 menuItemReplace.hidden = true;
                 menuItemReImport.hidden = true;
-                menuItemExtract.hidden = [ 'scene', 'texture' ].indexOf(currentAsset.get('type')) === -1 || ! currentAsset.get('meta');
+                menuItemExtract.hidden = [ 'scene', 'texture', 'textureatlas' ].indexOf(currentAsset.get('type')) === -1 || ! currentAsset.get('meta');
             }
         } else {
             // no asset

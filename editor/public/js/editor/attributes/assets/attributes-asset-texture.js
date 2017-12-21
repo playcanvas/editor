@@ -5,7 +5,7 @@ editor.once('load', function() {
 
     editor.on('attributes:inspect[asset]', function(assets) {
         for(var i = 0; i < assets.length; i++) {
-            if (assets[i].get('type') !== 'texture' || assets[i].get('source'))
+            if (assets[i].get('type') !== 'texture' && assets[i].get('type') !== 'textureatlas' || assets[i].get('source'))
                 return;
         }
 
@@ -29,8 +29,27 @@ editor.once('load', function() {
             panelState['compression'] = false;
         }
 
-        if (assets.length > 1)
-            editor.call('attributes:header', assets.length + ' Textures');
+        if (assets.length > 1) {
+            var numTextures = 0;
+            var numTextureAtlases = 0;
+            for (var i = 0; i < assets.length; i++) {
+                if (assets[i].get('type') === 'texture') {
+                    numTextures++;
+                } else {
+                    numTextureAtlases++;
+                }
+            }
+            var msg = '';
+            var comma = '';
+            if (numTextures) {
+                msg += numTextures + ' Texture' + (numTextures > 1 ? 's' : '');
+                comma = ', ';
+            }
+            if (numTextureAtlases) {
+                msg += comma + numTextureAtlases + ' Texture Atlas' + (numTextureAtlases > 1 ? 'es' : '');
+            }
+            editor.call('attributes:header', msg);
+        }
 
         // properties panel
         var panel = editor.call('attributes:addPanel', {
@@ -370,7 +389,7 @@ editor.once('load', function() {
 
 
         // compression panel
-        var panelCompression = editor.call('attributes:addPanel', {
+        var panelCompression =editor.call('attributes:addPanel', {
             name: 'Compression',
             foldable: true,
             folded: panelState['compression']

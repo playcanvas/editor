@@ -1067,8 +1067,7 @@ editor.once('load', function() {
             }, false);
         }
 
-        // TODO(siyu): Temporary until we have the new type for sprite texture.
-        if (asset.get('type') === 'texture') {
+        if (asset.get('type') === 'textureatlas') {
             item.element.addEventListener('dblclick', function() {
                 editor.call('picker:sprites:editor', item.asset);
             }, false);

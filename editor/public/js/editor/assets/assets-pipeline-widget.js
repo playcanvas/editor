@@ -200,7 +200,7 @@ editor.once('load', function() {
                 });
             }
 
-            if (asset.get('type') === 'texture') {
+            if (asset.get('type') === 'texture' || asset.get('type') === 'textureatlas') {
                 var task = {
                     source: parseInt(asset.get('id'), 10)
                 };
@@ -294,7 +294,7 @@ editor.once('load', function() {
                         }
                         var assetNew = {
                             name: filename,
-                            type: 'texture',
+                            type: asset.get('type'),
                             source: false,
                             source_asset_id: asset.get('id'),
                             preload: true,
@@ -505,7 +505,7 @@ editor.once('load', function() {
             return;
 
         var type = asset.get('type');
-        if ([ 'texture', 'scene', 'font' ].indexOf(type) === -1)
+        if ([ 'texture', 'textureatlas', 'scene', 'font' ].indexOf(type) === -1)
             return;
 
         var events = [ ];
@@ -574,7 +574,7 @@ editor.once('load', function() {
                 var file = asset.get('file');
                 var meta = asset.get('meta');
 
-                if (file && meta && ! (asset.get('type') === 'texture' && ! meta.format)) {
+                if (file && meta && ! ((asset.get('type') === 'texture' || asset.get('type') === 'textureatlas') && ! meta.format)) {
                     convertAuto();
                 } else {
                     var converted = false;
@@ -589,7 +589,7 @@ editor.once('load', function() {
                         if (! asset.get('file.filename'))
                             return;
 
-                        if (asset.get('type') === 'texture' && ! asset.get('meta.format'))
+                        if ((asset.get('type') === 'texture' || asset.get('type') === 'textureatlas') && ! asset.get('meta.format'))
                             return;
 
                         if (! asset.get('meta'))
@@ -606,7 +606,7 @@ editor.once('load', function() {
                 }
             }
         } else {
-            if (asset.get('type') === 'texture' && ! asset.get('source')) {
+            if ((asset.get('type') === 'texture' || asset.get('type') === 'textureatlas') && ! asset.get('source')) {
                 var filename = asset.get('file.filename');
 
                 if (filename) {

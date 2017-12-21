@@ -301,7 +301,7 @@ strong {
         position: absolute;
         top: -32px;
         left: 4px;
-        width: 602px;
+        width: 632px;
 
         &:after {
             content: '\E183';
@@ -398,7 +398,7 @@ strong {
                 }
                 > .ui-select-field.options {
                     margin: 0;
-                    width: 122px;
+                    width: 152px;
                     height: 32px;
                     line-height: 32px;
                     border: none;
@@ -1472,6 +1472,9 @@ strong {
                 &.type-texture:before {
                     content: '\E201';
                 }
+                &.type-textureatlas:before {
+                    content: '\E201';
+                }
                 &.type-text:before {
                     content: '\E209';
                 }
@@ -2165,6 +2168,9 @@ strong {
                         }
                         &.edit-script:before {
                             content: '\E130';
+                        }
+                        &.sprite-editor:before {
+                            content: '\E332';
                         }
                     }
                 }
@@ -3278,6 +3284,14 @@ strong {
             }
             > .icon {
                 display: none;
+            }
+        }
+        &.type-textureatlas {
+            > .thumbnail.placeholder:after {
+                content: '\E201';
+            }
+            > .icon:after {
+                content: '\E332';
             }
         }
         &.type-text {

@@ -415,6 +415,30 @@ editor.once('load', function() {
                 });
             }
 
+            // script editor
+            if (assets[0].get('type') === 'textureatlas') {
+                var btnSpriteEditor = new ui.Button();
+                btnSpriteEditor.text = 'Sprite Editor';
+                btnSpriteEditor.hidden = ! assets[0].has('file.url');
+                btnSpriteEditor.class.add('sprite-editor', 'large-with-icon');
+                btnSpriteEditor.on('click', function () {
+                    editor.call('picker:sprites:editor', assets[0]);
+                });
+                panelButtons.append(btnSpriteEditor);
+
+                var evtAtlasFileUrl = assets[0].on('file.url:set', function() {
+                    btnSpriteEditor.hidden = false;
+                });
+                var evtAtlasFileUrlUnset = assets[0].on('file.url:unset', function() {
+                    btnSpriteEditor.hidden = true;
+                });
+
+                btnSpriteEditor.once('destroy', function() {
+                    evtAtlasFileUrl.unbind();
+                    evtAtlasFileUrlUnset.unbind();
+                });
+            }
+
             if (editableTypes[assets[0].get('type')]) {
                 // edit
                 var btnEdit = new ui.Button();

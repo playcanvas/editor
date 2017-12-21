@@ -29,15 +29,6 @@ editor.once('load', function() {
         });
         editor.call('attributes:reference:attach', 'settings:asset-tasks:auto', fieldAuto.parent.innerElement.firstChild.ui);
 
-        var fieldTexturePOT = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Textures POT',
-            type: 'checkbox',
-            link: settings,
-            path: 'editor.pipeline.texturePot'
-        });
-        editor.call('attributes:reference:attach', 'settings:asset-tasks:texturePot', fieldTexturePOT.parent.innerElement.firstChild.ui);
-
         var fieldSearchRelatedAssets = editor.call('attributes:addField', {
             parent: panel,
             name: 'Search related assets',
@@ -48,8 +39,36 @@ editor.once('load', function() {
         fieldSearchRelatedAssets.parent.innerElement.firstChild.style.width = 'auto';
         editor.call('attributes:reference:attach', 'settings:asset-tasks:searchRelatedAssets', fieldSearchRelatedAssets.parent.innerElement.firstChild.ui);
 
-        var fieldMapping = editor.call('attributes:addField', {
+        var panelTextureSettings = editor.call('attributes:addPanel', {
             parent: panel,
+            name: 'Texture Import Settings'
+        });
+
+        var fieldTexturePOT = editor.call('attributes:addField', {
+            parent: panelTextureSettings,
+            name: 'Textures POT',
+            type: 'checkbox',
+            link: settings,
+            path: 'editor.pipeline.texturePot'
+        });
+        editor.call('attributes:reference:attach', 'settings:asset-tasks:texturePot', fieldTexturePOT.parent.innerElement.firstChild.ui);
+
+        var fieldPreferTextureAtlas = editor.call('attributes:addField', {
+            parent: panelTextureSettings,
+            name: 'Create Atlases',
+            type: 'checkbox',
+            link: settings,
+            path: 'editor.pipeline.textureDefaultToAtlas'
+        });
+        editor.call('attributes:reference:attach', 'settings:asset-tasks:textureDefaultToAtlas', fieldPreferTextureAtlas.parent.innerElement.firstChild.ui);
+
+        var panelModelSettings = editor.call('attributes:addPanel', {
+            parent: panel,
+            name: 'Model Import Settings'
+        });
+
+        var fieldMapping = editor.call('attributes:addField', {
+            parent: panelModelSettings,
             name: 'Preserve material mappings',
             type: 'checkbox',
             link: settings,
@@ -59,7 +78,7 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'settings:asset-tasks:preserveMapping', fieldMapping.parent.innerElement.firstChild.ui);
 
         var fieldModelV2 = editor.call('attributes:addField', {
-            parent: panel,
+            parent: panelModelSettings,
             name: 'Force legacy model v2',
             type: 'checkbox',
             link: projectSettings,
@@ -68,56 +87,44 @@ editor.once('load', function() {
         fieldModelV2.parent.innerElement.firstChild.style.width = 'auto';
         editor.call('attributes:reference:attach', 'settings:asset-tasks:useModelV2', fieldModelV2.parent.innerElement.firstChild.ui);
 
-        var fieldTreatAsTextureAtlas = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Treat As Texture Atlas',
-            type: 'checkbox',
-            link: settings,
-            path: 'editor.pipeline.treatAsTextureAtlas'
-        });
-        editor.call('attributes:reference:attach', 'settings:asset-tasks:treatAsTextureAtlas', fieldTreatAsTextureAtlas.parent.innerElement.firstChild.ui);
-
-        var fieldOverwrite = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Overwriting behaviour:'
-        });
-        fieldOverwrite.parent.innerElement.firstChild.style.width = 'auto';
-        fieldOverwrite.destroy();
-
         var fieldOverwriteModel = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Model',
+            parent: panelModelSettings,
+            name: 'Ovewrite Models',
             type: 'checkbox',
             link: settings,
             path: 'editor.pipeline.overwriteModel'
         });
+        fieldOverwriteModel.parent.innerElement.firstChild.style.width = 'auto';
         editor.call('attributes:reference:attach', 'settings:asset-tasks:overwrite:model', fieldOverwriteModel.parent.innerElement.firstChild.ui);
 
         var fieldOverwriteAnimation = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Animation',
+            parent: panelModelSettings,
+            name: 'Overwrite Animations',
             type: 'checkbox',
             link: settings,
             path: 'editor.pipeline.overwriteAnimation'
         });
+        fieldOverwriteAnimation.parent.innerElement.firstChild.style.width = 'auto';
         editor.call('attributes:reference:attach', 'settings:asset-tasks:overwrite:animation', fieldOverwriteAnimation.parent.innerElement.firstChild.ui);
 
         var fieldOverwriteMaterial = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Material',
+            parent: panelModelSettings,
+            name: 'Overwrite Materials',
             type: 'checkbox',
             link: settings,
             path: 'editor.pipeline.overwriteMaterial'
         });
+        fieldOverwriteMaterial.parent.innerElement.firstChild.style.width = 'auto';
         editor.call('attributes:reference:attach', 'settings:asset-tasks:overwrite:material', fieldOverwriteMaterial.parent.innerElement.firstChild.ui);
 
         var fieldOverwriteTexture = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Texture',
+            parent: panelModelSettings,
+            name: 'Overwrite Textures',
             type: 'checkbox',
             link: settings,
             path: 'editor.pipeline.overwriteTexture'
         });
+        fieldOverwriteTexture.parent.innerElement.firstChild.style.width = 'auto';
         editor.call('attributes:reference:attach', 'settings:asset-tasks:overwrite:texture', fieldOverwriteTexture.parent.innerElement.firstChild.ui);
     });
 });
