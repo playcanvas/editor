@@ -129,7 +129,13 @@ editor.once('load', function() {
         // initial grid selected items
         gridSelected = assetsGrid.selected;
         // filters
-        var pickerType = type === 'texture' ? 'textureTarget' : type;
+        var pickerType = type;
+        if (type === 'texture') {
+            pickerType = 'textureTarget';
+        } else if (type === 'textureatlas') {
+            pickerType = 'textureAtlasTarget';
+        }
+
         editor.call('assets:filter:type', (pickerType === '*') ? 'all' : pickerType);
         editor.call('assets:filter:type:disabled', (! pickerType || pickerType === '*') ? false : true);
         // disable selector
