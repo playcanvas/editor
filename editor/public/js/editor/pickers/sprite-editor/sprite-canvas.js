@@ -2,13 +2,13 @@ editor.once('load', function() {
     'use strict';
 
     // overlay
-    var root = new ui.Panel();
-    root.class.add('sprite-canvas-root');
+    var panel = new ui.Panel();
+    panel.class.add('sprite-canvas');
 
     // Canvas
     var canvas = new ui.Canvas();
     canvas.class.add('canvas');
-    root.append(canvas);
+    panel.append(canvas);
 
     var resizeCanvas = function() {
         const width = canvas.element.clientWidth;
@@ -95,8 +95,53 @@ editor.once('load', function() {
     canvasControlObserver.set('zoom', 50);
     canvasControlObserver.set('brightness', 100);
 
+    var windowToCanvas = function(windowX, windowY) {
+        var rect = canvas.element.getBoundingClientRect();
+        return {
+            x: Math.round(windowX - rect.left),
+            y: Math.round(windowY - rect.top),
+        }
+    };
+
+    var knobWidth = 5;
+    // In this order: top left, top, top right, left, right, bottom left, bottom, bottom right
+    var widthWeights = [0, 0.5, 1, 0, 1, 0, 0.5, 1];
+    var heightWeights = [0, 0, 0, 0.5, 0.5, 1, 1, 1];
+    var leftOffsets = [-1, -0.5, 0, -1, 0, -1, -0.5, 0];
+    var topOffsets = [-1, -1, -1, -0.5, -0.5, 0, 0, 0];
+
+    var renderFrame = function(frame) {
+        if (frame.highlighted) {
+            ctx.fillStyle = '#2C393C';
+            for (var i = 0; i < 8; i++) {
+                ctx.fillRect(frame.left + knobWidth * leftOffsets[i] + frame.width * widthWeights[i],
+                             frame.top + knobWidth * topOffsets[i] + frame.height * heightWeights[i],
+                             knobWidth,
+                             knobWidth);
+            }
+            ctx.strokeStyle = '#2C393C';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(frame.left, frame.top, frame.width, frame.height);
+        } else {
+            ctx.strokeStyle = '#B1B8BA';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(frame.left - 0.5, frame.top - 0.5, frame.width, frame.height);
+        }
+    };
+
+    // Canvas Mouse Events
+    canvas.element.addEventListener('mousedown', function (e) {
+        panel.emit('mousedown', windowToCanvas(e.clientX, e.clientY));
+    });
+    canvas.element.addEventListener('mouseup', function (e) {
+        panel.emit('mouseup', windowToCanvas(e.clientX, e.clientY));
+    });
+    canvas.element.addEventListener('mousemove', function (e) {
+        panel.emit('mousemove', windowToCanvas(e.clientX, e.clientY));
+    });
+
     editor.method('picker:sprites:canvas:root', function() {
-        return root;
+        return panel;
     });
 
     editor.method('picker:sprites:canvas:control', function() {
@@ -108,7 +153,10 @@ editor.once('load', function() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     });
 
-    editor.method('picker:sprites:canvas:draw', function(spriteImage) {
+    editor.method('picker:sprites:canvas:draw', function(spriteImage, frames) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(spriteImage, 0, 0);
+
+        frames.forEach(renderFrame);
     });
 });

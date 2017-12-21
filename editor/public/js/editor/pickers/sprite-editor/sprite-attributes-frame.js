@@ -14,7 +14,7 @@ editor.once('load', function() {
             parent: panel,
             name: 'Position',
             type: 'vec2',
-            value: [0, 0],
+            value: [args.left, args.top],
             placeholder: ['X', 'Y'],
         });
 
@@ -22,7 +22,7 @@ editor.once('load', function() {
             parent: panel,
             name: 'Size',
             type: 'vec2',
-            value: [0, 0],
+            value: [args.width, args.height],
             placeholder: ['W', 'H'],
         });
 
@@ -48,7 +48,7 @@ editor.once('load', function() {
             name: 'Pivot',
             type: 'vec2',
             value: [0, 0],
-            placeholder: ['&#8597', '&#8596'],
+            placeholder: ['\u2195', '\u2194'],
         });
     });
 });
