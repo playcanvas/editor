@@ -20,6 +20,18 @@ editor.once('load', function() {
         });
         panelProperties.class.add('component');
 
+        var fieldPixelsPerUnit = editor.call('attributes:addField', {
+            parent: panelProperties,
+            name: 'Pixels Per Unit',
+            type: 'number',
+            min: 1,
+            link: assets,
+            path: 'data.pixelsPerUnit'
+        });
+
+        // reference
+        editor.call('attributes:reference:attach', 'asset:sprite:pixelsPerUnit', fieldPixelsPerUnit.parent.innerElement.firstChild.ui);
+
         var fieldAtlas = editor.call('attributes:addField', {
             parent: panelProperties,
             name: 'Texture Atlas',
@@ -31,6 +43,7 @@ editor.once('load', function() {
 
         // reference
         editor.call('attributes:reference:attach', 'asset:sprite:textureAtlasAsset', fieldAtlas._label);
+
 
         // preview
         if (assets.length === 1) {
