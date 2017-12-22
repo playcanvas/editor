@@ -416,20 +416,27 @@ editor.once('load', function() {
             }
 
             // script editor
+            var atlas = null;
             if (assets[0].get('type') === 'textureatlas') {
+                atlas = assets[0];
+            } else if (assets[0].get('type') === 'sprite') {
+                atlas = editor.call('assets:get', assets[0].get('data.textureAtlasAsset'));
+            }
+
+            if (assets[0].get('type') === 'textureatlas' || assets[0].get('type') === 'sprite') {
                 var btnSpriteEditor = new ui.Button();
                 btnSpriteEditor.text = 'Sprite Editor';
-                btnSpriteEditor.hidden = ! assets[0].has('file.url');
+                btnSpriteEditor.hidden = ! atlas || ! atlas.has('file.url');
                 btnSpriteEditor.class.add('sprite-editor', 'large-with-icon');
                 btnSpriteEditor.on('click', function () {
-                    editor.call('picker:sprites:editor', assets[0]);
+                    editor.call('picker:sprites:editor', atlas);
                 });
                 panelButtons.append(btnSpriteEditor);
 
-                var evtAtlasFileUrl = assets[0].on('file.url:set', function() {
+                var evtAtlasFileUrl = atlas.on('file.url:set', function() {
                     btnSpriteEditor.hidden = false;
                 });
-                var evtAtlasFileUrlUnset = assets[0].on('file.url:unset', function() {
+                var evtAtlasFileUrlUnset = atlas.on('file.url:unset', function() {
                     btnSpriteEditor.hidden = true;
                 });
 

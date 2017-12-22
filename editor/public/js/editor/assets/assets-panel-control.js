@@ -45,6 +45,10 @@ editor.once('load', function() {
             title: 'Shader',
             icon: '&#57864;'
         },
+        'sprite': {
+            title: 'Sprite',
+            icon: '&#57858;'
+        },
         'text': {
             title: 'Text',
             icon: '&#57864;'
