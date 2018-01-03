@@ -36,10 +36,15 @@ editor.once('load', function() {
     camera.frustumCulling = false;
 
 
-    editor.method('preview:cubemap:render', function(asset, target, args) {
+    editor.method('preview:cubemap:render', function(asset, canvas, args) {
         args = args || { };
 
-        camera.aspectRatio = target.height / target.width;
+        var width = canvas.width;
+        var height = canvas.height;
+
+        var target = editor.call('preview:getTexture', width, height);
+
+        camera.aspectRatio = height / width;
         camera.renderTarget = target;
 
         pitch = args.hasOwnProperty('rotation') ? args.rotation[0] : 0;
@@ -71,5 +76,12 @@ editor.once('load', function() {
         } else {
             scene.setSkybox(null);
         }
+
+        // read pixels from texture
+        device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, target._glFrameBuffer);
+        device.gl.readPixels(0, 0, width, height, device.gl.RGBA, device.gl.UNSIGNED_BYTE, target.pixels);
+
+        // render to canvas
+        canvas.getContext('2d').putImageData(new ImageData(target.pixelsClamped, width, height), 0, 0);
     });
 });

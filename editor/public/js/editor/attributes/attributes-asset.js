@@ -433,16 +433,21 @@ editor.once('load', function() {
                 });
                 panelButtons.append(btnSpriteEditor);
 
-                var evtAtlasFileUrl = atlas.on('file.url:set', function() {
-                    btnSpriteEditor.hidden = false;
-                });
-                var evtAtlasFileUrlUnset = atlas.on('file.url:unset', function() {
-                    btnSpriteEditor.hidden = true;
-                });
+                if (atlas) {
+                    var evtAtlasFileUrl = atlas.on('file.url:set', function() {
+                        btnSpriteEditor.hidden = false;
+                    });
+                    var evtAtlasFileUrlUnset = atlas.on('file.url:unset', function() {
+                        btnSpriteEditor.hidden = true;
+                    });
+                }
+
 
                 btnSpriteEditor.once('destroy', function() {
-                    evtAtlasFileUrl.unbind();
-                    evtAtlasFileUrlUnset.unbind();
+                    if (evtAtlasFileUrl)
+                        evtAtlasFileUrl.unbind();
+                    if (evtAtlasFileUrlUnset)
+                        evtAtlasFileUrlUnset.unbind();
                 });
             }
 

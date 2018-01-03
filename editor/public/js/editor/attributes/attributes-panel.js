@@ -974,7 +974,7 @@ editor.once('load', function() {
 
             case 'asset':
                 field = new ui.ImageField({
-                    canvas: args.kind === 'material' || args.kind === 'model' || args.kind === 'cubemap' || args.kind === 'font'
+                    canvas: args.kind === 'material' || args.kind === 'model' || args.kind === 'cubemap' || args.kind === 'font' || args.kind === 'sprite'
                 });
                 var evtPick;
 
@@ -1104,7 +1104,7 @@ editor.once('load', function() {
                             field.image = '/editor/scene/img/asset-placeholder-' + asset.get('type') + '.png';
                         }
 
-                        if (args.kind === 'material' || args.kind === 'model' || args.kind === 'cubemap' || args.kind == 'font') {
+                        if (args.kind === 'material' || args.kind === 'model' || args.kind === 'cubemap' || args.kind == 'font' || args.kind === 'sprite') {
                             watchAsset = asset;
                             watch = editor.call('assets:' + args.kind + ':watch', {
                                 asset: watchAsset,
@@ -1118,26 +1118,22 @@ editor.once('load', function() {
                         queueRender();
                 };
 
-                if (args.kind === 'material' || args.kind === 'model' || args.kind === 'font') {
-                    field.elementImage.classList.add('flipY');
+                if (args.kind === 'material' || args.kind === 'model' || args.kind === 'font' || args.kind === 'sprite') {
+                    if (args.kind !== 'sprite') {
+                        field.elementImage.classList.add('flipY');
+                    }
 
                     var renderPreview = function() {
                         renderQueued = false;
 
-                        var ctx = field.elementImage.ctx;
-                        if (! ctx)
-                            ctx = field.elementImage.ctx = field.elementImage.getContext('2d');
-
                         if (watchAsset) {
                             // render
-                            var imageData = editor.call('preview:render', watchAsset, 128, 128);
-                            if (! imageData) return;
-
-                            field.elementImage.width = imageData.width;
-                            field.elementImage.height = imageData.height;
-
-                            ctx.putImageData(imageData, 0, 0);
+                            editor.call('preview:render', watchAsset, 128, field.elementImage);
                         } else {
+                            var ctx = field.elementImage.ctx;
+                            if (! ctx)
+                                ctx = field.elementImage.ctx = field.elementImage.getContext('2d');
+
                             ctx.clearRect(0, 0, field.elementImage.width, field.elementImage.height);
                         }
                     };
@@ -1539,7 +1535,7 @@ editor.once('load', function() {
                     if (args.link instanceof Array)
                         link = args.link[0];
 
-                    field.link(link, args.paths || [args.path]);
+                    field.link(link, args.canRandomize ? [args.path, args.path + '2'] : [args.path]);
                 }
 
                 var curvePickerOn = false;
@@ -1577,11 +1573,13 @@ editor.once('load', function() {
 
                             var path;
                             for (var i = 0, len = paths.length; i < len; i++) {
-                                if (args.paths) {
-                                    path = args.paths[parseInt(paths[i][0])] + paths[i].substring(1);
-                                } else {
-                                    path = args.path + paths[i].substring(1);
+                                path = args.path;
+                                // use the second curve path if needed
+                                if (args.canRandomize && paths[i][0] !== '0') {
+                                    path += '2';
                                 }
+
+                                path += paths[i].substring(1);
 
                                 previous.paths.push(path);
                                 previous.values.push(field._link.get(path));
@@ -1623,11 +1621,13 @@ editor.once('load', function() {
                                 }
 
                                 for (var i = 0, len = paths.length; i < len; i++) {
-                                    if (args.paths) {
-                                        path = args.paths[parseInt(paths[i][0])] + paths[i].substring(1);
-                                    } else {
-                                        path = args.path + paths[i].substring(1);
+                                    path = args.path;
+                                    // use the second curve path if needed
+                                    if (args.canRandomize && paths[i][0] !== '0') {
+                                        path += '2';
                                     }
+
+                                    path += paths[i].substring(1);
 
                                     field._link.set(path, values[i]);
                                 }

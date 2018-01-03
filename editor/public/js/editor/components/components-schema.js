@@ -348,6 +348,26 @@ editor.once('load', function() {
                 margin: 'vec4',
                 alignment: 'vec2'
             }
+        },
+
+        sprite: {
+            title: 'Sprite',
+            default: {
+                enabled: true,
+                type: 'simple',
+                color: [1, 1, 1],
+                opacity: 1,
+                flipX: false,
+                flipY: false,
+                spriteAsset: null,
+                frame: 0,
+                clips: {},
+                speed: 1,
+                batchGroupId: null
+            },
+            types: {
+                color: 'rgb'
+            }
         }
     };
 
@@ -367,7 +387,9 @@ editor.once('load', function() {
         'components.particlesystem.mesh',
         'components.element.fontAsset',
         'components.element.textureAsset',
-        'components.element.materialAsset'
+        'components.element.materialAsset',
+        'components.sprite.spriteAsset',
+        'components.sprite.clips.*.spriteAsset',
     ];
 
     editor.method('components:assetPaths', function () {

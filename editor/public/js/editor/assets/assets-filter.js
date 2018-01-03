@@ -213,6 +213,7 @@ editor.once('load', function() {
             scene: 'Model (source)',
             script: 'Script',
             shader: 'Shader',
+            sprite: 'Sprite',
             text: 'Text',
             textureTarget: 'Texture',
             textureSource: 'Texture (source)',

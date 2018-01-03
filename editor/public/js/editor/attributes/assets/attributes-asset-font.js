@@ -215,13 +215,7 @@ editor.once('load', function() {
                     renderQueued = false;
 
                 // render
-                var imageData = editor.call('preview:render', assets[0], root.element.clientWidth, root.element.clientWidth, {});
-                if (! imageData) return;
-
-                preview.width = imageData.width;
-                preview.height = imageData.height;
-
-                ctx.putImageData(imageData, 0, 0);
+                editor.call('preview:render', assets[0], root.element.clientWidth, preview);
             };
             renderPreview();
 

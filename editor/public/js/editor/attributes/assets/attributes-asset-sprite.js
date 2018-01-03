@@ -55,7 +55,6 @@ editor.once('load', function() {
             preview.width = 256;
             preview.height = 256;
             preview.classList.add('asset-preview');
-            preview.classList.add('flipY');
             previewContainer.appendChild(preview);
 
             preview.addEventListener('click', function() {
@@ -69,6 +68,25 @@ editor.once('load', function() {
             root.class.add('asset-preview');
             root.element.insertBefore(previewContainer, root.innerElement);
 
+            var currentFrame = 0;
+
+            var btnNextFrame = new ui.Button({
+                text: '&#57649;'
+            });
+            previewContainer.appendChild(btnNextFrame.element);
+            btnNextFrame.parent = panelProperties;
+
+            btnNextFrame.on('click', function() {
+                var frames = assets[0].get('data.frameKeys');
+                if (! frames) return;
+
+                currentFrame++;
+                if (currentFrame >= frames.length)
+                    currentFrame = 0;
+
+                renderPreview();
+            });
+
             var renderQueued;
 
             var renderPreview = function () {
@@ -76,13 +94,9 @@ editor.once('load', function() {
                     renderQueued = false;
 
                 // render
-                var imageData = editor.call('preview:render', assets[0], root.element.clientWidth, root.element.clientWidth, {});
-                if (! imageData) return;
-
-                preview.width = imageData.width;
-                preview.height = imageData.height;
-
-                ctx.putImageData(imageData, 0, 0);
+                editor.call('preview:render', assets[0], root.element.clientWidth, preview, {
+                    frame: currentFrame
+                });
             };
             renderPreview();
 
@@ -97,7 +111,10 @@ editor.once('load', function() {
             var evtPanelResize = root.on('resize', queueRender);
             var evtSceneSettings = editor.on('preview:scene:changed', queueRender);
 
-            var renderTimeout;
+            var spriteWatch = editor.call('assets:sprite:watch', {
+                asset: assets[0],
+                callback: queueRender
+            });
 
             panelProperties.once('destroy', function() {
                 root.class.remove('asset-preview', 'animate');
@@ -107,6 +124,8 @@ editor.once('load', function() {
 
                 if (previewContainer.parentNode)
                     previewContainer.parentNode.removeChild(previewContainer);
+
+                editor.call('assets:sprite:unwatch', assets[0], spriteWatch);
 
                 panelProperties = null;
             });

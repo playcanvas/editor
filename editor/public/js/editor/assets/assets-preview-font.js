@@ -195,10 +195,15 @@ editor.once('load', function() {
     model.meshInstances.push(meshInstances[1]);
 
 
-    editor.method('preview:font:render', function(asset, target, args) {
+    editor.method('preview:font:render', function(asset, canvas, args) {
         args = args || { };
 
-        camera.aspectRatio = target.height / target.width;
+        var width = canvas.width;
+        var height = canvas.height;
+
+        var target = editor.call('preview:getTexture', width, height);
+
+        camera.aspectRatio = height / width;
         camera.renderTarget = target;
 
         var engineAsset = app.assets.get(asset.get('id'));
@@ -247,5 +252,11 @@ editor.once('load', function() {
 
         scene.removeModel(model);
 
+        // read pixels from texture
+        device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, target._glFrameBuffer);
+        device.gl.readPixels(0, 0, width, height, device.gl.RGBA, device.gl.UNSIGNED_BYTE, target.pixels);
+
+        // render to canvas
+        canvas.getContext('2d').putImageData(new ImageData(target.pixelsClamped, width, height), 0, 0);
     });
 });

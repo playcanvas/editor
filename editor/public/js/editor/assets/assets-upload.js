@@ -6,32 +6,26 @@ editor.once('load', function() {
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
     var targetExtensions = {
-        'jpg': 1,
-        'jpeg': 1,
-        'png': 1,
-        'gif': 1,
-        'css': 1,
-        'html': 1,
-        'json': 1,
-        'xml': 1,
-        'txt': 1,
-        'vert': 1,
-        'frag': 1,
-        'glsl': 1,
-        'mp3': 1,
-        'ogg': 1,
-        'wav': 1,
-        'mp4': 1,
-        'm4a': 1,
-        'js': 1,
-        'atlas': 1
+        'jpg': true,
+        'jpeg': true,
+        'png': true,
+        'gif': true,
+        'css': true,
+        'html': true,
+        'json': true,
+        'xml': true,
+        'txt': true,
+        'vert': true,
+        'frag': true,
+        'glsl': true,
+        'mp3': true,
+        'ogg': true,
+        'wav': true,
+        'mp4': true,
+        'm4a': true,
+        'js': true,
+        'atlas': true
     };
-
-    var tmp = { };
-    for(var i = 0; i < targetExtensions.length; i++)
-        tmp[targetExtensions[i]] = true;
-    targetExtensions = tmp;
-
 
     var typeToExt = {
         'scene': [ 'fbx', 'dae', 'obj', '3ds' ],
@@ -211,12 +205,12 @@ editor.once('load', function() {
             } else {
                 var type = extToType[ext] || 'binary';
 
+                var source = type !== 'binary' && ! targetExtensions[ext];
+
                 // check if we need to convert textures to texture atlases
                 if (type === 'texture' && userSettings.get('editor.pipeline.textureDefaultToAtlas')) {
                     type = 'textureatlas';
                 }
-
-                var source = type !== 'binary' && ! targetExtensions[ext];
 
                 // can we override another asset?
                 var sourceAsset = null;
