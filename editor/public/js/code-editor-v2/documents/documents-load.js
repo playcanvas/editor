@@ -14,7 +14,7 @@ editor.once('load', function () {
 
     // Loads the editable document that corresponds to the specified asset id
     var loadDocument = function (asset) {
-        var id = asset.get('id');
+        var id = asset.get('id').toString(); // ensure id is string
         var connection = editor.call('realtime:connection');
         var doc = connection.get('documents', id);
 
