@@ -34,9 +34,9 @@ editor.once('load', function() {
                 var atlasWidth = atlas.get('meta.width');
                 var atlasHeight = atlas.get('meta.height');
                 var x = frame.rect[0] * atlasWidth;
-                var y = frame.rect[1] * atlasHeight;
+                var y = (1 - frame.rect[1]) * atlasHeight; // reverse y
                 var w = frame.rect[2] * atlasWidth;
-                var h = frame.rect[3] * atlasHeight;
+                var h = -frame.rect[3] * atlasHeight; // negate height
 
                 ctx.drawImage(image, x, y, w, h, 0, 0, width, height);
             };

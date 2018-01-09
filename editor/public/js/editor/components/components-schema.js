@@ -362,6 +362,7 @@ editor.once('load', function() {
                 spriteAsset: null,
                 frame: 0,
                 clips: {},
+                autoPlayClip: null,
                 speed: 1,
                 batchGroupId: null
             },

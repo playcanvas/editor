@@ -1696,6 +1696,9 @@ strong {
             &.element > header > .title:before {
                 content: '\E378';
             }
+            &.sprite > header > .title:before {
+                content: '\E264';
+            }
         }
         &.light {
             .ui-button.shadowUpdate {
@@ -2878,8 +2881,8 @@ strong {
                 &.c-screen:before {
                     content: '\E141';
                 }
-                &.c-screen:before {
-                    content: '\E378';
+                &.c-sprite:before {
+                    content: '\E264';
                 }
             }
         }
@@ -3027,6 +3030,9 @@ strong {
         }
         &.c-screen > .title > .icon:after {
             content: '\E141';
+        }
+        &.c-sprite > .title > .icon:after {
+            content: '\E264';
         }
         &.c-element > .title > .icon:after {
             content: '\E378';
@@ -3331,7 +3337,7 @@ strong {
         }
         &.type-sprite {
             > .thumbnail.placeholder:after {
-                content: '\E202';
+                content: '\E264';
             }
             > .icon:after {
                 content: '\E264';

@@ -25,6 +25,7 @@ editor.once('load', function() {
         'script': '&#57910;',
         'zone': '&#57910;',
         'screen': '&#57665;',
+        'sprite': '&#57956;',
         'element': '&#58232;'
     };
 
