@@ -1067,7 +1067,7 @@ editor.once('load', function() {
             }, false);
         }
 
-        if (asset.get('type') === 'textureatlas') {
+        if (asset.get('type') === 'textureatlas' && editor.call('users:isSpriteTester')) {
             item.element.addEventListener('dblclick', function() {
                 editor.call('picker:sprites:editor', item.asset);
             }, false);

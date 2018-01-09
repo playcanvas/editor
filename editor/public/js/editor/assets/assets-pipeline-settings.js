@@ -62,6 +62,8 @@ editor.once('load', function() {
         });
         editor.call('attributes:reference:attach', 'settings:asset-tasks:textureDefaultToAtlas', fieldPreferTextureAtlas.parent.innerElement.firstChild.ui);
 
+        fieldPreferTextureAtlas.parent.hidden = ! editor.call('users:isSpriteTester');
+
         var panelModelSettings = editor.call('attributes:addPanel', {
             parent: panel,
             name: 'Model Import Settings'

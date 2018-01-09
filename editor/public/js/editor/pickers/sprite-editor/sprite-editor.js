@@ -275,6 +275,8 @@ editor.once('load', function() {
 
     // call picker
     editor.method('picker:sprites:editor', function(asset) {
+        if (! editor.call('users:isSpriteTester')) return;
+
         // show overlay
         overlay.hidden = false;
         spriteAsset = asset;

@@ -197,7 +197,7 @@ editor.once('load', function() {
 
 
     // options
-    var filterField = new ui.SelectField({
+    var filterOptions = {
         options: {
             all: 'All',
             animation: 'Animation',
@@ -220,7 +220,15 @@ editor.once('load', function() {
             textureAtlasTarget: 'Texture Atlas',
             textureAtlasSource: 'Texture Atlas (source)'
         }
-    });
+    };
+
+    if (! editor.call('users:isSpriteTester')) {
+        delete filterOptions.options.sprite;
+        delete filterOptions.options.textureAtlasTarget;
+        delete filterOptions.options.textureAtlasSource;
+    }
+
+    var filterField = new ui.SelectField(filterOptions);
 
     filterField.class.add('options');
     filterField.value = 'all';

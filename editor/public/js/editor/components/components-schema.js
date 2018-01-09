@@ -457,7 +457,14 @@ editor.once('load', function() {
     });
 
     editor.method('components:list', function () {
-        return list.slice(0);
+        var result = list.slice(0);
+        if (! editor.call('users:isSpriteTester')) {
+            var idx = result.indexOf('sprite');
+            if (idx !== -1)
+                result.splice(idx, 1);
+        }
+
+        return result;
     });
 
     editor.method('components:schema', function () {

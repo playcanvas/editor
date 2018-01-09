@@ -359,6 +359,9 @@ editor.once('load', function() {
             'add-new-sprite': {
                 title: 'Sprite',
                 icon: componentsLogos.sprite,
+                hide: function () {
+                    return !editor.call('users:isSpriteTester');
+                },
                 select: function() {
                     var data = editor.call('components:getDefault', 'sprite');
                     editor.call('entities:new', {
@@ -373,6 +376,9 @@ editor.once('load', function() {
             'add-new-animated-sprite': {
                 title: 'Animated Sprite',
                 icon: componentsLogos.sprite,
+                hide: function () {
+                    return !editor.call('users:isSpriteTester');
+                },
                 select: function() {
                     var data = editor.call('components:getDefault', 'sprite');
                     data.type = 'animated';

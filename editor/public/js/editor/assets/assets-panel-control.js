@@ -55,6 +55,9 @@ editor.once('load', function() {
         }
     };
 
+    if (! editor.call('users:isSpriteTester'))
+        delete assets['sprite'];
+
     var addNewMenuItem = function(key, data) {
         // new folder
         var item = new ui.MenuItem({
