@@ -74,14 +74,20 @@ editor.once('load', function() {
     camera.frustumCulling = false;
 
 
-    editor.method('preview:material:render', function(asset, canvas, args) {
+    editor.method('preview:material:render', function(asset, canvasWidth, canvasHeight, canvas, args) {
         var data = asset.get('data');
         if (! data) return;
 
         args = args || { };
 
-        var width = canvas.width;
-        var height = canvas.height;
+        var width = canvasWidth;
+        var height = canvasHeight;
+
+        if (width > height)
+            width = height;
+        else
+            height = width;
+        var width = height;
 
         var target = editor.call('preview:getTexture', width, height);
 
@@ -207,7 +213,9 @@ editor.once('load', function() {
         device.gl.readPixels(0, 0, width, height, device.gl.RGBA, device.gl.UNSIGNED_BYTE, target.pixels);
 
         // render to canvas
-        canvas.getContext('2d').putImageData(new ImageData(target.pixelsClamped, width, height), 0, 0);
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+        canvas.getContext('2d').putImageData(new ImageData(target.pixelsClamped, width, height), (canvasWidth - width) / 2, (canvasHeight - height) / 2);
     });
 
     var setModel = function(value) {

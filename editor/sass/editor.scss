@@ -893,9 +893,8 @@ strong {
 
     &.asset-preview {
         &.large {
-            > .asset-preview-container > .asset-preview {
-                padding: 0 0%;
-                width: calc(100% - 16px);
+            > .asset-preview-container {
+                padding-top: 100%;
             }
             > .content {
                 margin-top: 100%;
@@ -911,9 +910,13 @@ strong {
         }
         > .asset-preview-container {
             position: relative;
+            background-color: $bcg-darker;
+            height: 0;
+            padding-top: 45%;
 
             &:hover {
                 > .ui-button,
+                > .ui-button:not(.pinned),
                 > .cubeMapMipLevel {
                     display: block;
 
@@ -923,16 +926,7 @@ strong {
                 }
             }
             > .asset-preview {
-                display: block;
                 max-height: 500px;
-                width: calc(50% - 16px);
-                padding: 0 25%;
-                border: 8px solid $bcg-darker;
-                background-color: $bcg-darker;
-                background-position: center center;
-                background-size: contain;
-                background-repeat: no-repeat;
-
                 @extend .noSelect;
 
                 &.flipY {
@@ -942,9 +936,28 @@ strong {
                     -webkit-transform: scale(1, -1);
                 }
             }
+
+            > .asset-preview {
+                display: block;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                border: 8px solid $bcg-darker;
+                box-sizing: border-box;
+
+                margin: auto;
+                background-position: center;
+                background-size: contain;
+                background-repeat: no-repeat;
+            }
+
             > .ui-button {
                 @extend .font-icon;
-                display: none;
+                &:not(.pinned) {
+                    display: none;
+                }
                 position: absolute;
                 bottom: 0;
                 right: 0;

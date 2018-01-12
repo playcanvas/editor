@@ -1164,7 +1164,7 @@ editor.once('load', function() {
 
                         if (watchAsset) {
                             // render
-                            editor.call('preview:render', watchAsset, 128, field.elementImage);
+                            editor.call('preview:render', watchAsset, 128, 128, field.elementImage);
                         } else {
                             var ctx = field.elementImage.ctx;
                             if (! ctx)

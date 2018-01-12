@@ -878,8 +878,8 @@ editor.once('load', function() {
             var root = editor.call('attributes.rootPanel');
 
             var reloadImage = function() {
-                if (assets[0].get('has_thumbnail') && assets[0].get('thumbnails.xl') && assets[0].get('file.hash')) {
-                    image.src = config.url.home + assets[0].get('thumbnails.xl') + '?t=' + assets[0].get('file.hash');
+                if (assets[0].get('file.hash')) {
+                    image.src = config.url.home + assets[0].get('file.url') + '?t=' + assets[0].get('file.hash');
                     previewContainer.style.display = '';
                 } else {
                     previewContainer.style.display = 'none';
@@ -889,14 +889,17 @@ editor.once('load', function() {
             var previewContainer = document.createElement('div');
             previewContainer.classList.add('asset-preview-container');
 
+            var preview = document.createElement('div');
+            preview.classList.add('asset-preview');
             var image = new Image();
             image.onload = function() {
                 root.class.add('animate');
+                preview.style.backgroundImage = 'url("' + image.src  + '")';
             };
             reloadImage();
-            previewContainer.appendChild(image);
+            previewContainer.appendChild(preview);
 
-            image.addEventListener('click', function() {
+            preview.addEventListener('click', function() {
                 if (root.element.classList.contains('large')) {
                     root.element.classList.remove('large');
                 } else {
@@ -904,14 +907,11 @@ editor.once('load', function() {
                 }
             }, false);
 
-            image.classList.add('asset-preview');
             root.class.add('asset-preview');
             root.element.insertBefore(previewContainer, root.innerElement);
 
             var events = [ ];
             events.push(assets[0].on('file.hash:set', reloadImage));
-            events.push(assets[0].on('has_thumbnail:set', reloadImage));
-            events.push(assets[0].on('thumbnails.xl:set', reloadImage));
 
             panel.on('destroy', function() {
                 for(var i = 0; i < events.length; i++)

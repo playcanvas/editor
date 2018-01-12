@@ -114,13 +114,8 @@ editor.once('load', function () {
         return target;
     });
 
-    editor.method('preview:render', function(asset, size, canvas, args) {
-        size = nextPow2(size || 128);
-
-        canvas.width = size;
-        canvas.height = size;
-
+    editor.method('preview:render', function(asset, width, height, canvas, args) {
         // render
-        editor.call('preview:' + asset.get('type') + ':render', asset, canvas, args);
+        editor.call('preview:' + asset.get('type') + ':render', asset, width, height, canvas, args);
     });
 });

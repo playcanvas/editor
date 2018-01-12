@@ -63,28 +63,35 @@ editor.once('load', function() {
                 } else {
                     root.element.classList.add('large');
                 }
+                queueRender();
             }, false);
 
             root.class.add('asset-preview');
             root.element.insertBefore(previewContainer, root.innerElement);
 
-            var currentFrame = 0;
+            var time = 0;
+            var playing = false;
+            var fps = 10;
+            var frame = 0;
+            var lastTime = Date.now();
 
-            var btnNextFrame = new ui.Button({
+            var btnPlay = new ui.Button({
                 text: '&#57649;'
             });
-            previewContainer.appendChild(btnNextFrame.element);
-            btnNextFrame.parent = panelProperties;
+            previewContainer.appendChild(btnPlay.element);
+            btnPlay.parent = panelProperties;
 
-            btnNextFrame.on('click', function() {
-                var frames = assets[0].get('data.frameKeys');
-                if (! frames) return;
+            btnPlay.on('click', function() {
+                playing = !playing;
 
-                currentFrame++;
-                if (currentFrame >= frames.length)
-                    currentFrame = 0;
+                if (playing) {
+                    lastTime = Date.now();
+                    btnPlay.class.add('active', 'pinned');
+                } else {
+                    btnPlay.class.remove('active', 'pinned');
+                }
 
-                renderPreview();
+                queueRender();
             });
 
             var renderQueued;
@@ -93,10 +100,28 @@ editor.once('load', function() {
                 if (renderQueued)
                     renderQueued = false;
 
+                if (playing) {
+                    var now = Date.now();
+                    time += (now - lastTime) / 1000;
+
+                    frame = Math.floor(time * fps);
+                    var numFrames = assets[0].get('data.frameKeys').length;
+                    if (frame >= numFrames) {
+                        frame = 0;
+                        time -= numFrames / fps;
+                    }
+
+                    lastTime = now;
+                }
+
                 // render
-                editor.call('preview:render', assets[0], root.element.clientWidth, preview, {
-                    frame: currentFrame
+                editor.call('preview:render', assets[0], previewContainer.clientWidth, previewContainer.clientHeight, preview, {
+                    frame: frame
                 });
+
+                if (playing) {
+                    queueRender();
+                }
             };
             renderPreview();
 

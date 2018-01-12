@@ -63,6 +63,7 @@ editor.once('load', function() {
         'material': '&#57749;',
         'script': '&#57864;',
         'shader': '&#57864;',
+        'sprite': '&#57858',
         'text': '&#57864;',
         'texture': '&#57857;',
         'textureatlas': '&#57857;',
@@ -72,18 +73,35 @@ editor.once('load', function() {
         'audio': '&#57872;'
     };
 
-    var assets = {
-        'upload': 'Upload',
-        'folder': 'Folder',
-        'css': 'CSS',
-        'cubemap': 'CubeMap',
-        'html': 'HTML',
-        'json': 'JSON',
-        'material': 'Material',
-        'script': 'Script',
-        'shader': 'Shader',
-        'text': 'Text'
-    };
+
+    if (editor.call('users:isSpriteTester')) {
+        var assets = {
+            'upload': 'Upload',
+            'folder': 'Folder',
+            'css': 'CSS',
+            'cubemap': 'CubeMap',
+            'html': 'HTML',
+            'json': 'JSON',
+            'material': 'Material',
+            'script': 'Script',
+            'shader': 'Shader',
+            'sprite': 'Sprite',
+            'text': 'Text'
+        };
+    } else {
+        var assets = {
+            'upload': 'Upload',
+            'folder': 'Folder',
+            'css': 'CSS',
+            'cubemap': 'CubeMap',
+            'html': 'HTML',
+            'json': 'JSON',
+            'material': 'Material',
+            'script': 'Script',
+            'shader': 'Shader',
+            'text': 'Text'
+        };
+    }
 
     var addNewMenuItem = function(key, title) {
         // new folder

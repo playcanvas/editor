@@ -13,55 +13,50 @@ editor.once('load', function() {
 
         var watchAtlas = function () {
             var atlas = watch.asset.get('data.textureAtlasAsset');
-            if (atlas) {
-                var atlasAsset = editor.call('assets:get', atlas);
-                if (atlasAsset) {
-                    watch.events.onAtlasChange = atlasAsset.on('*:set', function (path) {
-                        if (/^data.frames/.test(path) || /^file.hash/.test(path)) {
-                            setTimeout(onChange, 0);
-                        }
-                    });
+            if (! atlas) return;
 
-                    watch.events.onAtlasRemove = atlasAsset.once('destroy', function () {
-                        if (watch.events.onAtlasRemove) {
-                            watch.events.onAtlasRemove.unbind();
-                            watch.events.onAtlasRemove = null;
-                        }
+            var atlasAsset = editor.call('assets:get', atlas);
+            if (atlasAsset) {
+                var engineAtlas = app.assets.get(atlas);
+                watch.events.onAtlasChange = engineAtlas.on('change', onChange);
+                watch.events.onAtlasLoad = engineAtlas.on('load', onChange);
 
-                        if (watch.events.onAtlasAdd) {
-                            watch.events.onAtlasAdd.unbind();
-                            watch.events.onAtlasAdd = null;
-                        }
+                watch.events.onAtlasRemove = atlasAsset.once('destroy', function () {
+                    unwatchAtlas();
+                    onChange();
+                });
 
-                        if (watch.events.onAtlasChange) {
-                            watch.events.onAtlasChange.unbind();
-                            watch.events.onAtlasChange = null;
-                        }
-
-                        if (watch.events.onAtlasChange) {
-                            watch.events.onAtlasChange.unbind();
-                            watch.events.onAtlasChange = null;
-                        }
-
-                        onChange();
-                    });
-
-                } else {
-                    watch.onAtlasAdd = editor.once('assets:add[' + atlas + ']', watchAtlas);
-                }
+            } else {
+                watch.events.onAtlasAdd = app.assets.once('assets:add[' + atlas + ']', watchAtlas);
             }
         };
 
-        if (watch.asset.get('data.textureAtlasAsset')) {
-            watchAtlas();
-        }
-
-        watch.events.onSetAtlas = watch.asset.on('data.textureAtlasAsset:set', function () {
-            if (watch.onAtlasChange) {
-                watch.onAtlasChange.unbind();
-                watch.onAtlasChange = null;
+        var unwatchAtlas = function () {
+            if (watch.events.onAtlasChange) {
+                watch.events.onAtlasChange.unbind();
+                delete watch.events.onAtlasChange;
             }
 
+            if (watch.events.onAtlasLoad) {
+                watch.events.onAtlasLoad.unbind();
+                delete watch.events.onAtlasLoad;
+            }
+
+            if (watch.events.onAtlasRemove) {
+                watch.events.onAtlasRemove.unbind();
+                delete watch.events.onAtlasRemove;
+            }
+
+            if (watch.events.onAtlasAdd) {
+                watch.events.onAtlasAdd.unbind();
+                delete watch.events.onAtlasAdd;
+            }
+        };
+
+        watchAtlas();
+
+        watch.events.onSetAtlas = watch.asset.on('data.textureAtlasAsset:set', function () {
+            unwatchAtlas();
             watchAtlas();
         });
 
@@ -74,7 +69,9 @@ editor.once('load', function() {
 
     var unsubscribe = function(watch) {
         for (var key in watch.events) {
-            watch.events[key].unbind();
+            if (watch.events[key]) {
+                watch.events[key].unbind();
+            }
         }
         watch.events = {};
     };

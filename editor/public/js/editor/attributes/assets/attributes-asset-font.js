@@ -203,6 +203,8 @@ editor.once('load', function() {
                 } else {
                     root.element.classList.add('large');
                 }
+
+                queueRender();
             }, false);
 
             root.class.add('asset-preview');
@@ -215,7 +217,7 @@ editor.once('load', function() {
                     renderQueued = false;
 
                 // render
-                editor.call('preview:render', assets[0], root.element.clientWidth, preview);
+                editor.call('preview:render', assets[0], previewContainer.clientWidth, previewContainer.clientHeight, preview);
             };
             renderPreview();
 

@@ -1098,7 +1098,7 @@ editor.once('load', function() {
 
                 thumbnail.changed = false;
 
-                editor.call('preview:render', asset, 64, thumbnail);
+                editor.call('preview:render', asset, 64, 64, thumbnail);
             };
             var queueRender = function() {
                 if (item.hidden) {
