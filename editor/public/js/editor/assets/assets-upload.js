@@ -133,11 +133,11 @@ editor.once('load', function() {
         Ajax(data)
         .on('load', function(status, data) {
             if (args.pipeline) {
-                var asset = editor.call('assets:get', data.asset.id);
+                var asset = editor.call('assets:get', data.id);
                 if (asset) {
                     editor.call('assets:jobs:add', asset);
                 } else {
-                    var evt = editor.once('assets:add[' + data.asset.id + ']', function(asset) {
+                    var evt = editor.once('assets:add[' + data.id + ']', function(asset) {
                         editor.call('assets:jobs:add', asset);
                     });
                 }
@@ -238,11 +238,11 @@ editor.once('load', function() {
                         }
                     };
 
-                    var asset = editor.call('assets:get', data.asset.id);
+                    var asset = editor.call('assets:get', data.id);
                     if (asset) {
                         onceAssetLoad(asset);
                     } else {
-                        editor.once('assets:add[' + data.asset.id + ']', onceAssetLoad);
+                        editor.once('assets:add[' + data.id + ']', onceAssetLoad);
                     }
                 });
             }
