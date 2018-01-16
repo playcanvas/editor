@@ -11,8 +11,11 @@ editor.once('load', function() {
             trigger(watch);
         };
 
+        var currentAtlas = null;
+
         var watchAtlas = function () {
             var atlas = watch.asset.get('data.textureAtlasAsset');
+            currentAtlas = atlas;
             if (! atlas) return;
 
             var atlasAsset = editor.call('assets:get', atlas);
@@ -22,7 +25,7 @@ editor.once('load', function() {
                 watch.events.onAtlasLoad = engineAtlas.on('load', onChange);
 
                 watch.events.onAtlasRemove = atlasAsset.once('destroy', function () {
-                    unwatchAtlas();
+                    unwatchAtlas(watch, currentAtlas);
                     onChange();
                 });
 
@@ -31,32 +34,10 @@ editor.once('load', function() {
             }
         };
 
-        var unwatchAtlas = function () {
-            if (watch.events.onAtlasChange) {
-                watch.events.onAtlasChange.unbind();
-                delete watch.events.onAtlasChange;
-            }
-
-            if (watch.events.onAtlasLoad) {
-                watch.events.onAtlasLoad.unbind();
-                delete watch.events.onAtlasLoad;
-            }
-
-            if (watch.events.onAtlasRemove) {
-                watch.events.onAtlasRemove.unbind();
-                delete watch.events.onAtlasRemove;
-            }
-
-            if (watch.events.onAtlasAdd) {
-                watch.events.onAtlasAdd.unbind();
-                delete watch.events.onAtlasAdd;
-            }
-        };
-
         watchAtlas();
 
         watch.events.onSetAtlas = watch.asset.on('data.textureAtlasAsset:set', function () {
-            unwatchAtlas();
+            unwatchAtlas(watch, currentAtlas);
             watchAtlas();
         });
 
@@ -67,11 +48,40 @@ editor.once('load', function() {
         });
     };
 
+    var unwatchAtlas = function (watch, atlas) {
+        if (! atlas) return;
+
+        var engineAtlas = app.assets.get(atlas);
+        if (! engineAtlas) return;
+
+        if (watch.events.onAtlasChange) {
+            if (engineAtlas)
+                engineAtlas.off('change', watch.events.onAtlasChange);
+            delete watch.events.onAtlasChange;
+        }
+
+        if (watch.events.onAtlasLoad) {
+            if (engineAtlas)
+                engineAtlas.off('change', watch.events.onAtlasLoad);
+            delete watch.events.onAtlasLoad;
+        }
+
+        if (watch.events.onAtlasRemove) {
+            watch.events.onAtlasRemove.unbind();
+            delete watch.events.onAtlasRemove;
+        }
+
+        if (watch.events.onAtlasAdd) {
+            app.assets.off('assets:add[' + atlas + ']', watch.events.onAtlasAdd);
+            delete watch.events.onAtlasAdd;
+        }
+    };
+
     var unsubscribe = function(watch) {
-        for (var key in watch.events) {
-            if (watch.events[key]) {
-                watch.events[key].unbind();
-            }
+        var atlas = watch.asset.get('data.textureAtlasAsset');
+        unwatchAtlas(watch, atlas);
+        if (watch.events.onSetAtlas) {
+            watch.events.onSetAtlas.unbind();
         }
         watch.events = {};
     };
