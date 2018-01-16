@@ -416,38 +416,28 @@ editor.once('load', function() {
             }
 
             // script editor
-            var atlas = null;
-            if (assets[0].get('type') === 'textureatlas') {
-                atlas = assets[0];
-            } else if (assets[0].get('type') === 'sprite') {
-                atlas = editor.call('assets:get', assets[0].get('data.textureAtlasAsset'));
-            }
-
-            if (assets[0].get('type') === 'textureatlas' || assets[0].get('type') === 'sprite') {
+            if (editor.call('users:isSpriteTester') && (assets[0].get('type') === 'textureatlas' || assets[0].get('type') === 'sprite')) {
                 var btnSpriteEditor = new ui.Button();
                 btnSpriteEditor.text = 'Sprite Editor';
-                btnSpriteEditor.hidden = ! atlas || ! atlas.has('file.url');
+                btnSpriteEditor.disabled = assets[0].get('type') === 'sprite' && (! assets[0].get('data.textureAtlasAsset') || ! editor.call('assets:get', assets[0].get('data.textureAtlasAsset')));
                 btnSpriteEditor.class.add('sprite-editor', 'large-with-icon');
                 btnSpriteEditor.on('click', function () {
-                    editor.call('picker:sprites:editor', atlas);
+                    editor.call('picker:sprites:editor', assets[0]);
                 });
                 panelButtons.append(btnSpriteEditor);
 
-                if (atlas) {
-                    var evtAtlasFileUrl = atlas.on('file.url:set', function() {
-                        btnSpriteEditor.hidden = false;
-                    });
-                    var evtAtlasFileUrlUnset = atlas.on('file.url:unset', function() {
-                        btnSpriteEditor.hidden = true;
+                var evtSetAtlas = null;
+                if (assets[0].get('type') === 'sprite') {
+                    evtSetAtlas = assets[0].on('data.textureAtlasAsset:set', function (value) {
+                        btnSpriteEditor.disabled = ! value || ! editor.call('assets:get', value);
                     });
                 }
 
-
-                btnSpriteEditor.once('destroy', function() {
-                    if (evtAtlasFileUrl)
-                        evtAtlasFileUrl.unbind();
-                    if (evtAtlasFileUrlUnset)
-                        evtAtlasFileUrlUnset.unbind();
+                panelButtons.once('destroy', function () {
+                    if (evtSetAtlas) {
+                        evtSetAtlas.unbind();
+                        evtSetAtlas = null;
+                    }
                 });
             }
 
