@@ -1067,7 +1067,8 @@ editor.once('load', function() {
             }, false);
         }
 
-        if (asset.get('type') === 'textureatlas' && editor.call('users:isSpriteTester')) {
+        // open sprite editor for textureatlas and sprite assets
+        if (editor.call('users:isSpriteTester') && asset.get('type') === 'sprite' || asset.get('type') === 'textureatlas') {
             item.element.addEventListener('dblclick', function() {
                 editor.call('picker:sprites:editor', item.asset);
             }, false);
