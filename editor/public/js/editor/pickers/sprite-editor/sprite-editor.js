@@ -83,7 +83,19 @@ editor.once('load', function() {
     panel.append(leftPanel);
 
     // Right panel
-    var rightPanel;
+    var rightPanel = new ui.Panel();
+    rightPanel.class.add('right-panel');
+    rightPanel.class.add('attributes');
+    rightPanel.flexShrink = false;
+    rightPanel.style.width = '320px';
+    rightPanel.innerElement.style.width = '320px';
+    rightPanel.horizontal = true;
+    rightPanel.foldable = true;
+    rightPanel.scroll = true;
+    rightPanel.resizable = 'left';
+    rightPanel.resizeMin = 256;
+    rightPanel.resizeMax = 512;
+    panel.append(rightPanel);
 
     // Canvas
     var canvasPanel = new ui.Panel();
@@ -169,6 +181,8 @@ editor.once('load', function() {
     brightnessControl.append(brightnessSlider);
     canvasControl.append(brightnessControl);
 
+
+
     var windowToCanvas = function(windowX, windowY) {
         var rect = canvas.element.getBoundingClientRect();
         return {
@@ -190,7 +204,6 @@ editor.once('load', function() {
             result = true;
         }
 
-        aspectRatio = atlasImage.width / atlasImage.height;
         canvasRatio = canvas.width / canvas.height;
 
         return result;
@@ -489,6 +502,9 @@ editor.once('load', function() {
     };
 
     var renderCanvas = function() {
+        queuedRender = false;
+        if (overlay.hidden) return;
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         var zoom = canvasControlObserver.get('zoom') / 100;
@@ -503,10 +519,7 @@ editor.once('load', function() {
 
         // draw frames
         frames.forEach(renderFrame);
-
-        queuedRender = false;
     };
-
 
     var updateRightPanel = function() {
         if (editing) {
@@ -599,6 +612,7 @@ editor.once('load', function() {
         overlay.hidden = false;
 
         atlasImage.onload = function () {
+            aspectRatio = atlasImage.width / atlasImage.height;
             renderCanvas();
         };
         atlasImage.src = atlasAsset.get('file.url') + '?t=' + atlasAsset.get('file.hash');
@@ -620,33 +634,13 @@ editor.once('load', function() {
             }
         }, 1000 / 60);
 
-        updateRightPanel();
-
         resizeCanvas();
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        updateRightPanel();
     });
 
     editor.method('picker:sprites:editor:attributesPanel', function() {
-        return rightPanel;
-    });
-
-    editor.method('picker:sprites:editor:addAttributesPanel', function(args) {
-        if (rightPanel) {
-            panel.remove(rightPanel);
-        }
-        rightPanel = new ui.Panel(args.title);
-        rightPanel.class.add('right-panel');
-        rightPanel.class.add('attributes');
-        rightPanel.flexShrink = false;
-        rightPanel.style.width = '320px';
-        rightPanel.innerElement.style.width = '320px';
-        rightPanel.horizontal = true;
-        rightPanel.foldable = true;
-        rightPanel.scroll = true;
-        rightPanel.resizable = 'left';
-        rightPanel.resizeMin = 256;
-        rightPanel.resizeMax = 512;
-        panel.append(rightPanel);
         return rightPanel;
     });
 
@@ -661,6 +655,9 @@ editor.once('load', function() {
         canvasControlObserver.set('brightness', 100);
 
         resetControls();
+
+        if (editing)
+            stopFrameEditingMode();
 
         if (resizeInterval) {
             clearInterval(resizeInterval);

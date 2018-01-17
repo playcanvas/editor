@@ -134,7 +134,6 @@ editor.once('load', function() {
 
             // render on resize
             var evtPanelResize = root.on('resize', queueRender);
-            var evtSceneSettings = editor.on('preview:scene:changed', queueRender);
 
             var spriteWatch = editor.call('assets:sprite:watch', {
                 asset: assets[0],
@@ -145,7 +144,6 @@ editor.once('load', function() {
                 root.class.remove('asset-preview', 'animate');
 
                 evtPanelResize.unbind();
-                evtSceneSettings.unbind();
 
                 if (previewContainer.parentNode)
                     previewContainer.parentNode.removeChild(previewContainer);

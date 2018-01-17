@@ -6,7 +6,7 @@ editor.once('load', function() {
 
         var panel = editor.call('attributes:addPanel', {
             parent: rootPanel,
-            name: 'Sprite Assets',
+            name: 'SPRITE ASSETS',
             foldable: true,
         });
 
