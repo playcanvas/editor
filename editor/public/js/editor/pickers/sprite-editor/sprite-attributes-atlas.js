@@ -1,23 +1,23 @@
 editor.once('load', function() {
     'use strict';
 
-    editor.method('picker:sprite:attributes:atlas', function(args) {
-        var atlasAsset = args.asset;
-
+    editor.method('picker:sprites:attributes:atlas', function (atlasAsset) {
         var panel = editor.call('picker:sprites:editor:addAttributesPanel', {
-            title: 'ATLAS',
+            title: 'TEXTURE ATLAS',
         });
 
         editor.call('attributes:addField', {
             parent: panel,
             name: 'Width',
-            value: atlasAsset.width,
+            path: 'meta.width',
+            link: atlasAsset
         });
 
         editor.call('attributes:addField', {
             parent: panel,
             name: 'Height',
-            value: atlasAsset.height,
+            path: 'meta.height',
+            link: atlasAsset
         });
 
         editor.call('attributes:addField', {

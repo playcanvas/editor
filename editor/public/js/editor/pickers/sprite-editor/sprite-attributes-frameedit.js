@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    editor.method('picker:sprite:attributes:frameedit', function(args) {
+    editor.method('picker:sprites:attributes:frameedit', function(args) {
         var panel = editor.call('picker:sprites:editor:addAttributesPanel', {
             title: 'Frame Edit Mode',
         });

@@ -5886,6 +5886,10 @@ strong {
 }
 
 .sprites-editor.center {
+    > .overlay {
+        background-color: rgba($bcg-darkest, .9);
+    }
+
     > .content {
         width: 90%;
         height: 90%;
@@ -5918,12 +5922,12 @@ strong {
             > .content {
                 display: flex;
                 flex-direction: row;
-                height: calc(100% - 32px);
+                height: 100%;
 
-                .sprite-canvas {
+                .canvas-panel {
                     position: absolute;
                     width: 100%;
-                    height: 100%;
+                    height: calc(100% - 32px);
 
                     > .content {
                         width: 100%;
@@ -5935,64 +5939,65 @@ strong {
                             background: url('../img/checker.png');
                         }
                     }
+
+                    &.panning {
+                        cursor: -webkit-grabbing;
+                        cursor: -moz-grabbing;
+                    }
+                }
+
+                .edit-frame-button {
+                    position: absolute;
+                    left: 15px;
+                    bottom: 15px;
+                    width: 302px;
+                    height: 38px;
+                    line-height: 38px;
+                    text-align: center;
+                    text-transform: capitalize;
+
+                    border: {
+                        style: solid;
+                        color: $border-primary;
+                        width: 1px;
+                    };
+                }
+
+                .canvas-control {
+                    position: absolute;
+                    left: 0;
+                    bottom: 0;
+                    width: 100%;
+                    height: 32px;
+                    border: {
+                        style: solid;
+                        color: $border-primary;
+                        width: 1px 0 1px 1px;
+                    };
+                    box-sizing: border-box;
+
+                    .alpha-control {
+                        border: {
+                            style: solid;
+                            color: $border-primary;
+                            width: 0 1px 0 0;
+                        };
+                    }
+
+                    .slider-control {
+                        .ui-number-field {
+                            width: 72px;
+                        }
+
+                        .ui-slider {
+                            width: 140px;
+                        }
+                    }
                 }
 
                 .left-panel {
-                    position: relative;
-                    top: 100%;
-                    height: 0;
-                    overflow: visible;
-
                     > .content {
-
-                        .edit-frame-button {
-                            position: absolute;
-                            left: 11px;
-                            bottom: 44px;
-                            width: 302px;
-                            height: 38px;
-                            line-height: 38px;
-                            text-align: center;
-                            text-transform: capitalize;
-
-                            border: {
-                                style: solid;
-                                color: $border-primary;
-                                width: 1px;
-                            };
-                        }
-
-                        .canvas-control {
-                            position: absolute;
-                            left: 0;
-                            bottom: 0;
-                            width: 100%;
-                            height: 32px;
-                            border: {
-                                style: solid;
-                                color: $border-primary;
-                                width: 1px 0 1px 1px;
-                            };
-                            box-sizing: border-box;
-
-                            .alpha-control {
-                                border: {
-                                    style: solid;
-                                    color: $border-primary;
-                                    width: 0 1px 0 0;
-                                };
-                            }
-
-                            .slider-control {
-                                .ui-number-field {
-                                    width: 72px;
-                                }
-
-                                .ui-slider {
-                                    width: 140px;
-                                }
-                            }
-                        }
+                        height: 100%;
                     }
                 }
 
