@@ -1,10 +1,15 @@
 editor.once('load', function() {
     'use strict';
 
-    editor.method('picker:sprites:attributes:frameedit', function(args) {
-        var panel = editor.call('picker:sprites:editor:addAttributesPanel', {
-            title: 'Frame Edit Mode',
+    editor.method('picker:sprites:attributes:slice', function(args) {
+        var rootPanel = editor.call('picker:sprites:editor:attributesPanel');
+
+        var panel = editor.call('attributes:addPanel', {
+            parent: rootPanel,
+            name: 'SLICE'
         });
+
+        var events = [];
 
         editor.call('attributes:addField', {
             parent: panel,
@@ -29,6 +34,18 @@ editor.once('load', function() {
             name: ' ',
             text: 'Create',
             type: 'button',
+        });
+
+
+        events.push(rootPanel.on('clear', function () {
+            panel.destroy();
+        }));
+
+        panel.on('destroy', function () {
+            for (var i = 0, len = events.length; i<len; i++) {
+                events[i].unbind();
+            }
+            events.length = 0;
         });
     });
 });

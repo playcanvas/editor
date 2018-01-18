@@ -3,11 +3,12 @@ editor.once('load', function() {
 
     editor.method('picker:sprites:attributes:frame', function(args) {
         var rootPanel = editor.call('picker:sprites:editor:attributesPanel');
+        rootPanel.header = 'FRAME';
+
+        var events = [];
 
         var panel = editor.call('attributes:addPanel', {
-            parent: rootPanel,
-            name: 'Frame',
-            foldable: true,
+            parent: rootPanel
         });
 
         editor.call('attributes:addField', {
@@ -49,6 +50,17 @@ editor.once('load', function() {
             type: 'vec2',
             value: [0, 0],
             placeholder: ['\u2195', '\u2194'],
+        });
+
+        events.push(rootPanel.on('clear', function () {
+            panel.destroy();
+        }));
+
+        panel.on('destroy', function () {
+            for (var i = 0, len = events.length; i<len; i++) {
+                events[i].unbind();
+            }
+            events.length = 0;
         });
     });
 });
