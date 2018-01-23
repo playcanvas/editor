@@ -11,6 +11,13 @@ function Events() {
             value: { }
         }
     );
+
+    this._suspendEvents = false;
+
+    Object.defineProperty(this, 'suspendEvents', {
+        get: function () {return this._suspendEvents;},
+        set: function (value) {this._suspendEvents = !!value;}
+    });
 }
 
 Events.prototype.on = function(name, fn) {
@@ -34,6 +41,8 @@ Events.prototype.once = function(name, fn) {
 };
 
 Events.prototype.emit = function(name, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7) {
+    if (this._suspendEvents) return;
+
     var events = this._events[name];
     if (! events)
         return this;
