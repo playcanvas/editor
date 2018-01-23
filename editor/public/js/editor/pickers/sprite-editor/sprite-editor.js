@@ -20,6 +20,7 @@ editor.once('load', function() {
     var panning = false;
     var selected = null;
     var newFrame = null;
+    var hovering = false;
     var highlightedFrames = {};
 
     var resizeInterval = null;
@@ -173,7 +174,37 @@ editor.once('load', function() {
     brightnessControl.append(brightnessSlider);
     canvasControl.append(brightnessControl);
 
+    var imageWidth = function () {
+        return controls.get('zoom') * (canvasRatio > aspectRatio ? canvas.height * aspectRatio : canvas.width);
+    };
 
+    var imageHeight = function (zoom) {
+        return controls.get('zoom') * (canvasRatio <= aspectRatio ? canvas.width / aspectRatio : canvas.height);
+    };
+
+    var imageLeft = function () {
+        return (pivotX + pivotOffsetX + zoomOffsetX) * canvas.width;
+    };
+
+    var imageTop = function () {
+        return (pivotY + pivotOffsetY + zoomOffsetY) * canvas.height;
+    };
+
+    var frameLeft = function (frame, left, width) {
+        return left + frame.rect[0] * width;
+    };
+
+    var frameTop = function (frame, top, height) {
+        return top + (1 - frame.rect[1] - frame.rect[3]) * height;
+    };
+
+    var frameWidth = function (frame, width) {
+        return frame.rect[2] * width;
+    };
+
+    var frameHeight = function (frame, height) {
+        return frame.rect[3] * height;
+    };
 
     var windowToCanvas = function(windowX, windowY) {
         var rect = canvas.element.getBoundingClientRect();
@@ -209,65 +240,6 @@ editor.once('load', function() {
         pivotOffsetY = 0;
         zoomOffsetX = 0;
         zoomOffsetY = 0;
-    };
-
-    var selectFrame = function (key, skipHistory) {
-        if (selected && selected.key === key) return;
-        if (! key && ! selected) return;
-
-        var prevSelection = selected && selected.key;
-
-        var select = function (newKey, oldKey) {
-            selected = null;
-            if (oldKey)
-                delete highlightedFrames[oldKey];
-
-            if (newKey) {
-                var asset = editor.call('assets:get', atlasAsset.get('id'));
-                if (! asset) return;
-
-                var frame = null;
-                // if key is 'new' then make a new frame
-                if (newKey === 'new') {
-                    frame = {
-                        rect: [0,0,0,0],
-                        pivot: [0.5, 0.5]
-                    };
-                } else {
-                    frame = asset.get('data.frames.' + newKey);
-                }
-
-                selected = {
-                    key: newKey,
-                    frame: frame,
-                    dirty: false
-                };
-                highlightedFrames[newKey] = true;
-            }
-
-            queueRender();
-
-            updateRightPanel();
-        };
-
-        var redo = function () {
-            select(key, prevSelection);
-        };
-
-        var undo = function () {
-            select(prevSelection, key);
-        };
-
-        if (! skipHistory) {
-            editor.call('history:add', {
-                name: 'select frame',
-                undo: undo,
-                redo: redo
-            });
-
-        }
-
-        redo();
     };
 
     var registerInputListeners = function () {
@@ -308,17 +280,18 @@ editor.once('load', function() {
     var onKeyDown = function (e) {
         if (e.shiftKey) {
             shiftDown = true;
-            canvasPanel.class.add('grab');
+            updateCursor();
         }
     };
 
     var onKeyUp = function (e) {
         if (! e.shiftKey) {
             shiftDown = false;
-            canvasPanel.class.remove('grab');
             if (panning) {
                 stopPanning();
             }
+
+            updateCursor();
         }
     };
 
@@ -328,6 +301,8 @@ editor.once('load', function() {
         } else if (e.button === 2) {
             rightButtonDown = true;
         }
+
+        if (e.button !== 0) return;
 
         // start panning with left button and shift
         if (! panning && leftButtonDown && shiftDown) {
@@ -340,8 +315,13 @@ editor.once('load', function() {
         // if a frame is already selected try to select one of its knobs
         if (selected) {
             selected.knob = knobsHitTest(p);
+            selected.oldFrame = {
+                rect: selected.frame.rect.slice(),
+                pivot: selected.frame.pivot.slice()
+            };
+
             if (selected.knob) {
-                canvasPanel.class.add('grab');
+                updateCursor();
                 queueRender();
             }
         }
@@ -353,12 +333,12 @@ editor.once('load', function() {
 
         // if no frame selected then start a new frame
         if (! selected) {
-            selectFrame('new', true);
+            newFrame =  {
+                rect: [(p.x - imageLeft()) / imageWidth(), 1 - (p.y - imageTop()) / imageHeight(), 0, 0],
+                pivot: [0.5, 0.5]
+            };
 
-            // set coords for new frame
-            selected.frame.rect[0] = (p.x - imageLeft()) / imageWidth();
-            selected.frame.rect[1] = 1 - (p.y - imageTop()) / imageHeight();
-            selected.knob = KNOB.BOTTOM_RIGHT;
+            updateCursor();
         }
     };
 
@@ -377,90 +357,24 @@ editor.once('load', function() {
         var p = windowToCanvas(mouseX, mouseY);
 
         // if a knob is selected then modify the selected frame
-        if (selected && selected.knob) {
-            var frame = selected.frame;
+        if (newFrame) {
+            modifyFrame(KNOB.BOTTOM_RIGHT, newFrame, p);
+            queueRender();
+        } else if (selected && selected.knob) {
+            modifyFrame(selected.knob, selected.frame, p);
 
-            var imgWidth = imageWidth();
-            var imgHeight = imageHeight();
-            var imgLeft = imageLeft();
-            var imgTop = imageTop();
+            // set asset so that other users can see changes too
+            var history = atlasAsset.history.enabled;
+            atlasAsset.history.enabled = false;
+            atlasAsset.set('data.frames.' + selected.key + '.rect', selected.frame.rect);
+            atlasAsset.history.enabled = history;
 
-            var left = frameLeft(frame, imgLeft, imgWidth);
-            var top = frameTop(frame, imgTop, imgHeight);
-            var width = frameWidth(frame, imgWidth);
-            var height = frameHeight(frame, imgHeight);
-
-            var dx = 0;
-            var dy = 0;
-
-            switch (selected.knob) {
-                case KNOB.TOP_LEFT: {
-                    dx = (p.x - left) / imgWidth;
-                    dy = (p.y - top) / imgHeight;
-                    frame.rect[0] += dx;
-                    frame.rect[2] -= dx;
-                    frame.rect[3] -= dy;
-                    break;
-                }
-                case KNOB.TOP: {
-                    dy = (p.y - top) / imgHeight;
-                    frame.rect[3] -= dy;
-                    break;
-                }
-                case KNOB.TOP_RIGHT: {
-                    dx = (p.x - left - width) / imgWidth;
-                    dy = (p.y - top) / imgHeight;
-                    frame.rect[2] += dx;
-                    frame.rect[3] -= dy;
-                    break;
-                }
-                case KNOB.LEFT: {
-                    dx = (p.x - left) / imgWidth;
-                    frame.rect[0] += dx;
-                    frame.rect[2] -= dx;
-                    break;
-                }
-                case KNOB.RIGHT: {
-                    dx = (p.x - left - width) / imgWidth;
-                    frame.rect[2] += dx;
-                    break;
-                }
-                case KNOB.BOTTOM_LEFT: {
-                    dx = (p.x - left) / imgWidth;
-                    dy = (p.y - top - height) / imgHeight;
-                    frame.rect[0] += dx;
-                    frame.rect[1] -= dy;
-                    frame.rect[2] -= dx;
-                    frame.rect[3] += dy;
-                    break;
-                }
-                case KNOB.BOTTOM: {
-                    dy = (p.y - top - height) / imgHeight;
-                    frame.rect[1] -= dy;
-                    frame.rect[3] += dy;
-                    break;
-                }
-                case KNOB.BOTTOM_RIGHT: {
-                    dx = (p.x - left - width) / imgWidth;
-                    dy = (p.y - top - height) / imgHeight;
-                    frame.rect[2] += dx;
-                    frame.rect[3] += dy;
-                    frame.rect[1] -= dy;
-                    break;
-                }
-            }
-
-            selected.dirty = true;
             queueRender();
         }
         // if no knob is selected then change cursor if the user hovers over a knob
         else if (selected) {
-            var hovered = knobsHitTest(p);
-            if (hovered) {
-                canvasPanel.class.add('grab');
-            } else {
-                canvasPanel.class.remove('grab');
-            }
+            hovering = !!knobsHitTest(p);
+            updateCursor();
         }
 
     };
@@ -472,157 +386,63 @@ editor.once('load', function() {
             rightButtonDown = false;
         }
 
+        if (e.button !== 0) return;
+
         // stop panning
         if (panning && ! leftButtonDown) {
             stopPanning();
         }
 
+        // if we've been editing a new frame then create it
+        if (newFrame) {
+
+            // don't generate it if it's too small
+            if (newFrame.rect[2] !== 0 && newFrame.rect[3] !== 0) {
+                // generate key name for new frame
+                var max = 0;
+                for (var existingKey in atlasAsset.get('data.frames')) {
+                    max = Math.max(parseInt(existingKey, 10), max);
+                }
+
+                commitFrameChanges((max + 1).toString(), newFrame);
+            }
+
+            newFrame = null;
+            updateCursor();
+            queueRender();
+        }
         // if we have edited the selected frame then commit the changes
-        if (selected) {
+        else if (selected) {
             // clear selected knob
             if (selected.knob) {
                 selected.knob = null;
                 queueRender();
             }
 
-            if (selected.dirty) {
-                commitFrameChanges();
-                selected.dirty = false;
-            } else {
-                if (selected.key === 'new') {
-                    selectFrame(null, true);
+            if (selected.oldFrame) {
+                var dirty = false;
+                for (var i = 0; i < 4; i++) {
+                    if (selected.oldFrame.rect[i] !== selected.frame.rect[i]) {
+                        dirty = true;
+                        break;
+                    }
+                }
+
+                if(! dirty) {
+                    for (var i = 0; i < 2; i++) {
+                        if (selected.oldFrame.pivot[i] !== selected.frame.pivot[i]) {
+                            dirty = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (dirty) {
+                    commitFrameChanges(selected.key, selected.frame, selected.oldFrame);
+                    selected.oldFrame = null;
                 }
             }
         }
-
-    };
-
-    var focus = function () {
-        resetControls();
-        queueRender();
-    };
-
-    var deleteSelectedFrame = function () {
-        if (selected) {
-            atlasAsset.unset('data.frames.' + selected.key);
-        }
-    };
-
-    var startPanning = function (x, y) {
-        panning = true;
-        mouseX = x;
-        mouseY = y;
-        prevMouseX = x;
-        prevMouseY = y;
-        canvasPanel.class.add('grabbing');
-    };
-
-    var stopPanning = function () {
-        panning = false;
-        pivotX += pivotOffsetX;
-        pivotY += pivotOffsetY;
-        pivotOffsetX = 0;
-        pivotOffsetY = 0;
-        canvasPanel.class.remove('grabbing');
-    };
-
-    var commitFrameChanges = function () {
-        var key = selected.key;
-
-        // if key is 'new' then turn it into a real frame key
-        // by picking the largest available frame number
-        if (key === 'new') {
-
-            // make sure width / height are positive
-            if (selected.frame.rect[2] < 0) {
-                selected.frame.rect[2] = Math.max(1 / atlasImage.width, -selected.frame.rect[2]);
-                selected.frame.rect[0] -= selected.frame.rect[2];
-            }
-
-            if (selected.frame.rect[3] < 0) {
-                selected.frame.rect[3] = Math.max( 1 / atlasImage.height, -selected.frame.rect[3]);
-                selected.frame.rect[1] -= selected.frame.rect[3];
-            }
-
-            var max = 0;
-            for (var existingKey in atlasAsset.get('data.frames')) {
-                max = Math.max(parseInt(existingKey, 10), max);
-            }
-            key = (max + 1).toString();
-
-            // update key on selected frame and highlightedFrames
-            selected.key = key;
-            delete highlightedFrames['new'];
-            highlightedFrames[key] = true;
-        }
-
-        var oldValue = atlasAsset.get('data.frames.' + key);
-        var newValue = {
-            rect: selected.frame.rect.slice(),
-            pivot: selected.frame.pivot.slice()
-        };
-
-        var redo = function () {
-            var asset = editor.call('assets:get', atlasAsset.get('id'));
-            if (! asset) return;
-            var history = asset.history.enabled;
-            asset.history.enabled = false;
-            asset.set('data.frames.' + key, newValue);
-            asset.history.enabled = history;
-        };
-
-        var undo = function () {
-            var asset = editor.call('assets:get', atlasAsset.get('id'));
-            if (! asset) return;
-            var history = asset.history.enabled;
-            asset.history.enabled = false;
-            if (oldValue) {
-                asset.set('data.frames.' + key, oldValue);
-            } else {
-                asset.unset('data.frames.' + key);
-            }
-            asset.history.enabled = history;
-        };
-
-        editor.call('history:add', {
-            name: 'data.frames.' + key,
-            undo: undo,
-            redo: redo
-        });
-
-        redo();
-    };
-
-    var imageWidth = function () {
-        return controls.get('zoom') * (canvasRatio > aspectRatio ? canvas.height * aspectRatio : canvas.width);
-    };
-
-    var imageHeight = function (zoom) {
-        return controls.get('zoom') * (canvasRatio <= aspectRatio ? canvas.width / aspectRatio : canvas.height);
-    };
-
-    var imageLeft = function () {
-        return (pivotX + pivotOffsetX + zoomOffsetX) * canvas.width;
-    };
-
-    var imageTop = function () {
-        return (pivotY + pivotOffsetY + zoomOffsetY) * canvas.height;
-    };
-
-    var frameLeft = function (frame, left, width) {
-        return left + frame.rect[0] * width;
-    };
-
-    var frameTop = function (frame, top, height) {
-        return top + (1 - frame.rect[1] - frame.rect[3]) * height;
-    };
-
-    var frameWidth = function (frame, width) {
-        return frame.rect[2] * width;
-    };
-
-    var frameHeight = function (frame, height) {
-        return frame.rect[3] * height;
     };
 
     var onWheel = function (e) {
@@ -642,6 +462,207 @@ editor.once('load', function() {
 
         var zoom = controls.get('zoom');
         controls.set('zoom', Math.max(1, zoom + wheel * 0.1));
+    };
+
+    // Select a frame by key and add this action to the history
+    // unless skipHistory is true
+    var selectFrame = function (key, skipHistory) {
+        if (selected && selected.key === key) return;
+        if (! key && ! selected) return;
+
+        var prevSelection = selected && selected.key;
+
+        var select = function (newKey, oldKey) {
+            selected = null;
+            if (oldKey)
+                delete highlightedFrames[oldKey];
+
+            if (newKey) {
+                var asset = editor.call('assets:get', atlasAsset.get('id'));
+                if (! asset) return;
+
+                selected = {
+                    key: newKey,
+                    frame: asset.get('data.frames.' + newKey)
+                };
+                highlightedFrames[newKey] = true;
+            }
+
+            queueRender();
+
+            updateRightPanel();
+        };
+
+        var redo = function () {
+            select(key, prevSelection);
+        };
+
+        var undo = function () {
+            select(prevSelection, key);
+        };
+
+        if (! skipHistory) {
+            editor.call('history:add', {
+                name: 'select frame',
+                undo: undo,
+                redo: redo
+            });
+
+        }
+
+        redo();
+    };
+
+    // Modify a frame using the specified knob
+    var modifyFrame = function (knob, frame, mousePoint) {
+        var imgWidth = imageWidth();
+        var imgHeight = imageHeight();
+        var imgLeft = imageLeft();
+        var imgTop = imageTop();
+
+        var left = frameLeft(frame, imgLeft, imgWidth);
+        var top = frameTop(frame, imgTop, imgHeight);
+        var width = frameWidth(frame, imgWidth);
+        var height = frameHeight(frame, imgHeight);
+
+        var dx = 0;
+        var dy = 0;
+
+        var p = mousePoint;
+
+        switch (knob) {
+            case KNOB.TOP_LEFT: {
+                dx = (p.x - left) / imgWidth;
+                dy = (p.y - top) / imgHeight;
+                frame.rect[0] += dx;
+                frame.rect[2] -= dx;
+                frame.rect[3] -= dy;
+                break;
+            }
+            case KNOB.TOP: {
+                dy = (p.y - top) / imgHeight;
+                frame.rect[3] -= dy;
+                break;
+            }
+            case KNOB.TOP_RIGHT: {
+                dx = (p.x - left - width) / imgWidth;
+                dy = (p.y - top) / imgHeight;
+                frame.rect[2] += dx;
+                frame.rect[3] -= dy;
+                break;
+            }
+            case KNOB.LEFT: {
+                dx = (p.x - left) / imgWidth;
+                frame.rect[0] += dx;
+                frame.rect[2] -= dx;
+                break;
+            }
+            case KNOB.RIGHT: {
+                dx = (p.x - left - width) / imgWidth;
+                frame.rect[2] += dx;
+                break;
+            }
+            case KNOB.BOTTOM_LEFT: {
+                dx = (p.x - left) / imgWidth;
+                dy = (p.y - top - height) / imgHeight;
+                frame.rect[0] += dx;
+                frame.rect[1] -= dy;
+                frame.rect[2] -= dx;
+                frame.rect[3] += dy;
+                break;
+            }
+            case KNOB.BOTTOM: {
+                dy = (p.y - top - height) / imgHeight;
+                frame.rect[1] -= dy;
+                frame.rect[3] += dy;
+                break;
+            }
+            case KNOB.BOTTOM_RIGHT: {
+                dx = (p.x - left - width) / imgWidth;
+                dy = (p.y - top - height) / imgHeight;
+                frame.rect[2] += dx;
+                frame.rect[3] += dy;
+                frame.rect[1] -= dy;
+                break;
+            }
+        }
+    };
+
+    var commitFrameChanges = function (key, frame, oldFrame) {
+        // make sure width / height are positive
+        if (frame.rect[2] < 0) {
+            frame.rect[2] = Math.max(1 / atlasImage.width, -frame.rect[2]);
+            frame.rect[0] -= frame.rect[2];
+        }
+
+        if (frame.rect[3] < 0) {
+            frame.rect[3] = Math.max( 1 / atlasImage.height, -frame.rect[3]);
+            frame.rect[1] -= frame.rect[3];
+        }
+
+        var newValue = {
+            rect: frame.rect.slice(),
+            pivot: frame.pivot.slice()
+        };
+
+        var redo = function () {
+            var asset = editor.call('assets:get', atlasAsset.get('id'));
+            if (! asset) return;
+            var history = asset.history.enabled;
+            asset.history.enabled = false;
+            asset.set('data.frames.' + key, newValue);
+            asset.history.enabled = history;
+        };
+
+        var undo = function () {
+            var asset = editor.call('assets:get', atlasAsset.get('id'));
+            if (! asset) return;
+            var history = asset.history.enabled;
+            asset.history.enabled = false;
+            if (oldFrame) {
+                asset.set('data.frames.' + key, oldFrame);
+            } else {
+                asset.unset('data.frames.' + key);
+            }
+            asset.history.enabled = history;
+        };
+
+        editor.call('history:add', {
+            name: 'data.frames.' + key,
+            undo: undo,
+            redo: redo
+        });
+
+        redo();
+    };
+
+    var focus = function () {
+        resetControls();
+        queueRender();
+    };
+
+    var deleteSelectedFrame = function () {
+        if (selected) {
+            atlasAsset.unset('data.frames.' + selected.key);
+        }
+    };
+
+    var startPanning = function (x, y) {
+        panning = true;
+        mouseX = x;
+        mouseY = y;
+        prevMouseX = x;
+        prevMouseY = y;
+        updateCursor();
+    };
+
+    var stopPanning = function () {
+        panning = false;
+        pivotX += pivotOffsetX;
+        pivotY += pivotOffsetY;
+        pivotOffsetX = 0;
+        pivotOffsetY = 0;
+        updateCursor();
     };
 
     controls.on('zoom:set', function (value, oldValue) {
@@ -695,6 +716,11 @@ editor.once('load', function() {
 
         if (! atlasImageLoaded) return;
 
+        // clear selection if no longer exists
+        if (selected && ! atlasAsset.has('data.frames.' + selected.key)) {
+            selectFrame(null, true);
+        }
+
         var left = imageLeft();
         var top = imageTop();
         var width = imageWidth();
@@ -730,7 +756,9 @@ editor.once('load', function() {
 
         // draw newFrame or selected frame
         if (newFrame) {
-            renderFrame(newFrame, left, top, width, height, true);
+            if (newFrame.rect[2] !== 0 && newFrame.rect[3] !== 0) {
+                renderFrame(newFrame, left, top, width, height, true);
+            }
         } else if (selected) {
             renderFrame(selected.frame, left, top, width, height, true);
         }
@@ -739,8 +767,6 @@ editor.once('load', function() {
     var renderFrame = function (frame, left, top, width, height, highlighted) {
         var w = frameWidth(frame, width);
         var h = frameHeight(frame, height);
-
-        if (! w && ! h) return;
 
         var x = frameLeft(frame, left, width);
         var y = frameTop(frame, top, height);
@@ -783,12 +809,13 @@ editor.once('load', function() {
             rightPanel.emit('clear');
         }
 
+        if (! atlasImageLoaded) return;
 
         if (selected) {
-            editor.call('picker:sprites:attributes:frame', selected.frame);
+            editor.call('picker:sprites:attributes:frame', {atlasAsset: atlasAsset, frameKey: selected.key});
         } else {
             editor.call('picker:sprites:attributes:atlas', atlasAsset);
-            editor.call('picker:sprites:attributes:slice');
+            editor.call('picker:sprites:attributes:slice', {atlasAsset: atlasAsset, atlasImage: atlasImage});
             editor.call('picker:sprites:attributes:spriteassets', {atlasAsset: atlasAsset});
         }
     };
@@ -870,43 +897,52 @@ editor.once('load', function() {
         atlasImage.onload = function () {
             atlasImageLoaded = true;
             aspectRatio = atlasImage.width / atlasImage.height;
+            updateRightPanel();
             renderCanvas();
         };
         atlasImage.src = atlasAsset.get('file.url') + '?t=' + atlasAsset.get('file.hash');
 
         selected = null;
 
-        // listen to atlas changes and render
-        events.push(atlasAsset.on('*:set', function (path, value, oldValue, remote) {
-            if (! /^data\.frames.*/.test(path)) return;
+        var updateSelectedFrameTimeout = null;
+        var lastFrameUpdated = null;
+        var isLastFrameChangeLocal = false;
+        var updateSelectedFrame = function () {
+            if (! lastFrameUpdated) return;
 
-            var parts = path.split('.');
-
-            // update selected frame coords
-            if (selected && parts.length >= 2 && parts[2] === selected.key) {
+            if (selected && selected.key === lastFrameUpdated) {
                 selected.frame = atlasAsset.get('data.frames.' + selected.key);
+            } else if (isLastFrameChangeLocal) {
+                selectFrame(lastFrameUpdated, true);
             }
 
-            // make sure new frame is selected
-            if (! remote)
-                selectFrame(parts[2], true);
+            lastFrameUpdated = null;
+            updateSelectedFrameTimeout = null;
 
             queueRender();
-        }));
+        };
 
-        events.push(atlasAsset.on('*:unset', function (path) {
-            if (! /^data\.frames\.\d+$/.test(path)) return;
+        // listen to atlas changes and render
+        var checkPath = /^data\.frames(\.(\d+))?\b/;
+        events.push(atlasAsset.on('*:set', function (path, value, oldValue, remote) {
+            var match = path.match(checkPath);
+            if (! match) return;
 
-            // if the selected frame was deleted then reset the selected frame
-            if (selected) {
-                var parts = path.split('.');
-                if (selected.key === parts[2]) {
-                    selectFrame(null, true);
+            if (match[2]) {
+                lastFrameUpdated = match[2];
+                isLastFrameChangeLocal = !remote;
+
+                // update selected frame in a timeout to avoid multiple updates
+                if (! updateSelectedFrameTimeout) {
+                    updateSelectedFrameTimeout = setTimeout(updateSelectedFrame);
                 }
+            } else if (selected) {
+                selectFrame(null, true);
             }
 
             queueRender();
         }));
+        events.push(atlasAsset.on('*:unset', queueRender));
 
         // resize 20 times a second - if size is the same nothing will happen
         if (resizeInterval) {
@@ -924,6 +960,24 @@ editor.once('load', function() {
         updateRightPanel();
 
         registerInputListeners();
+    };
+
+    var updateCursor = function () {
+        var grab = false;
+        var grabbing = false;
+
+        grab = hovering || shiftDown;
+        grabbing = newFrame || selected && selected.knob || panning;
+
+        if (grab)
+            canvasPanel.class.add('grab');
+        else
+            canvasPanel.class.remove('grab');
+
+        if (grabbing)
+            canvasPanel.class.add('grabbing');
+        else
+            canvasPanel.class.remove('grabbing');
     };
 
     var cleanUp = function () {
@@ -945,6 +999,8 @@ editor.once('load', function() {
         }
 
         selected = null;
+        newFrame = null;
+        hovering = false;
         highlightedFrames = {};
 
         leftButtonDown = false;

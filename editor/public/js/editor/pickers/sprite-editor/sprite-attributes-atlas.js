@@ -34,8 +34,11 @@ editor.once('load', function() {
             name: 'Frames'
         });
 
+        var timeout;
+
         // Update number of frames field
         var updateFrameCount = function () {
+            timeout = null;
             var frames = atlasAsset.get('data.frames');
             fieldFrames.value = Object.keys(frames).length;
         };
@@ -46,14 +49,21 @@ editor.once('load', function() {
         atlasAsset.on('*:set', function (path, value) {
             if (! /^data\.frames(\.\d+)?$/.test(path)) return;
 
-            updateFrameCount();
+            // do this in a timeout to avoid updating
+            // when we add a lot of frames at once
+            if (! timeout)
+                timeout = setTimeout(updateFrameCount) ;
+
         });
 
         // Update number of frames when a frame is deleted
         atlasAsset.on('*:unset', function (path) {
             if (! /^data\.frames\.\d+$/.test(path)) return;
 
-            updateFrameCount();
+            // do this in a timeout to avoid updating
+            // when we add a lot of frames at once
+            if (! timeout)
+                timeout = setTimeout(updateFrameCount) ;
         });
 
         events.push(rootPanel.on('clear', function () {
