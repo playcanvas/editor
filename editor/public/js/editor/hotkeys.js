@@ -517,9 +517,10 @@ editor.once('load', function() {
         if (keyIndex[index]) {
             var skipPreventDefault = false;
             for(var i = 0; i < keyIndex[index].length; i++) {
-                hotkeys[keyIndex[index][i]].callback(evt);
                 if (! skipPreventDefault && hotkeys[keyIndex[index][i]].skipPreventDefault)
                     skipPreventDefault = true;
+
+                hotkeys[keyIndex[index][i]].callback(evt);
             }
             if (! skipPreventDefault)
                 evt.preventDefault();
