@@ -13,7 +13,7 @@ editor.once('load', function() {
         ctx.drawImage(atlasImage, 0, 0, canvas.width, canvas.height);
         var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-        var rootPanel = editor.call('picker:sprites:editor:attributesPanel');
+        var rootPanel = editor.call('picker:sprites:editor:rightPanel');
 
         var panel = editor.call('attributes:addPanel', {
             parent: rootPanel,
@@ -145,6 +145,7 @@ editor.once('load', function() {
                 var asset = editor.call('assets:get', atlasAsset.get('id'));
                 if (! asset) return;
                 var history = asset.history.enabled;
+                asset.history.enabled = false;
 
                 if (type === 1) {
                     sliceGrid(fieldColsRows[0].value, fieldColsRows[1].value, newFrames);
@@ -161,7 +162,6 @@ editor.once('load', function() {
                     // TODO
                 }
 
-                asset.history.enabled = false;
                 asset.history.enabled = history;
             };
 
@@ -169,8 +169,8 @@ editor.once('load', function() {
                 var asset = editor.call('assets:get', atlasAsset.get('id'));
                 if (! asset) return;
                 var history = asset.history.enabled;
-                setFrames(asset, oldFrames);
                 asset.history.enabled = false;
+                setFrames(asset, oldFrames);
                 asset.history.enabled = history;
             };
 
@@ -185,7 +185,7 @@ editor.once('load', function() {
             setTimeout(function () {
                 redo();
                 btnSlice.disabled = false;
-            });
+            }, 50);
         });
 
         var btnClear = editor.call('attributes:addField', {
@@ -236,10 +236,11 @@ editor.once('load', function() {
         // Set frames without firing events for each individual json field
         var setFrames = function (asset, frames) {
             var suspend = asset.suspendEvents;
-            asset.suspendEvents = suspend;
+            asset.suspendEvents = true;
             asset.set('data.frames', frames);
-            asset.suspendEvents = false;
+            asset.suspendEvents = suspend;
             asset.emit('data.frames:set', frames, null, false);
+            asset.emit('*:set', 'data.frames', frames, null, false);
         };
 
         // Slice atlas in frames using a grid
@@ -265,10 +266,12 @@ editor.once('load', function() {
                     var left = offsetX + c * w + paddingX;
                     var top = offsetY + r * h + paddingY;
                     if (! isRegionEmpty(left, top, width, height)) {
-                        frames[maxKey++] = {
+                        frames[maxKey] = {
+                            name: 'Frame ' + maxKey,
                             rect: [left, 1 - (top + height), width, height],
                             pivot: pivot
                         };
+                        maxKey++;
                     }
                 }
             }

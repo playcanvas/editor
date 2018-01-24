@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     editor.method('picker:sprites:attributes:atlas', function (atlasAsset) {
-        var rootPanel = editor.call('picker:sprites:editor:attributesPanel');
+        var rootPanel = editor.call('picker:sprites:editor:rightPanel');
 
         rootPanel.header = 'TEXTURE ATLAS';
 

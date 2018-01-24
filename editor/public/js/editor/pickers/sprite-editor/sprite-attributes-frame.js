@@ -7,7 +7,7 @@ editor.once('load', function() {
         var atlasAsset = args.atlasAsset;
         var frameKey = args.frameKey;
 
-        var rootPanel = editor.call('picker:sprites:editor:attributesPanel');
+        var rootPanel = editor.call('picker:sprites:editor:rightPanel');
         rootPanel.header = 'FRAME';
 
         var panel = editor.call('attributes:addPanel', {

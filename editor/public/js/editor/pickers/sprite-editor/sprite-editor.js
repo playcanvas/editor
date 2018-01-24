@@ -8,6 +8,9 @@ editor.once('load', function() {
     var topOffsets = [-1, -1, -1, -0.5, -0.5, 0, 0, 0];
     var knobWidth = 5;
 
+    var COLOR_FRAME = '#B1B8BA';
+    var COLOR_FRAME_HIGHLIGHTED = '#2C393C';
+
     var atlasAsset = null;
     var spriteAsset = null;
     var atlasImage = new Image();
@@ -79,13 +82,27 @@ editor.once('load', function() {
     });
     panel.headerElement.appendChild(btnClose.element);
 
-    // left panel
     var leftPanel = new ui.Panel();
     leftPanel.class.add('left-panel');
-    leftPanel.flex = true;
-    leftPanel.flexGrow = true;
-    leftPanel.flexDirection = 'column';
+    // leftPanel.class.add('attributes');
+    leftPanel.flexShrink = false;
+    leftPanel.style.width = '320px';
+    leftPanel.innerElement.style.width = '320px';
+    leftPanel.horizontal = true;
+    leftPanel.foldable = true;
+    leftPanel.scroll = true;
+    leftPanel.resizable = 'right';
+    leftPanel.resizeMin = 256;
+    leftPanel.resizeMax = 512;
     panel.append(leftPanel);
+
+    // middle panel
+    var middlePanel = new ui.Panel();
+    middlePanel.class.add('middle-panel');
+    middlePanel.flex = true;
+    middlePanel.flexGrow = true;
+    middlePanel.flexDirection = 'column';
+    panel.append(middlePanel);
 
     // Right panel
     var rightPanel = null;
@@ -94,7 +111,7 @@ editor.once('load', function() {
     var canvasPanel = new ui.Panel();
     canvasPanel.flexGrow = true;
     canvasPanel.class.add('canvas-panel');
-    leftPanel.append(canvasPanel);
+    middlePanel.append(canvasPanel);
 
     var canvas = new ui.Canvas();
     canvas.class.add('canvas');
@@ -114,7 +131,7 @@ editor.once('load', function() {
     canvasControl.flex = true;
     canvasControl.flexDirection = 'row';
     canvasControl.class.add('canvas-control');
-    leftPanel.append(canvasControl);
+    middlePanel.append(canvasControl);
 
     var alphaControl = new ui.Panel();
     alphaControl.class.add('alpha-control');
@@ -262,6 +279,21 @@ editor.once('load', function() {
             key: 'delete',
             callback: deleteSelectedFrame
         });
+
+
+        // Esc to deselect and if no selection close the window
+        editor.call('hotkey:register', 'sprite-editor-esc', {
+            key: 'esc',
+            callback: function () {
+                if (! selected) {
+                    overlay.hidden = true;
+                } else {
+                    selectFrames(null, {
+                        history: true
+                    });
+                }
+            }
+        });
     };
 
     var unregisterInputListeners = function () {
@@ -275,6 +307,7 @@ editor.once('load', function() {
 
         editor.call('hotkey:unregister', 'sprite-editor-focus');
         editor.call('hotkey:unregister', 'sprite-editor-delete');
+        editor.call('hotkey:unregister', 'sprite-editor-esc');
     };
 
     var onKeyDown = function (e) {
@@ -328,7 +361,9 @@ editor.once('load', function() {
 
         // if no knob selected try to select the frame under the cursor
         if (! selected || ! selected.knob) {
-            selectFrame(framesHitTest(p));
+            selectFrames(framesHitTest(p), {
+                history: true
+            });
         }
 
         // if no frame selected then start a new frame
@@ -399,12 +434,14 @@ editor.once('load', function() {
             // don't generate it if it's too small
             if (newFrame.rect[2] !== 0 && newFrame.rect[3] !== 0) {
                 // generate key name for new frame
-                var max = 0;
+                var max = 1;
                 for (var existingKey in atlasAsset.get('data.frames')) {
-                    max = Math.max(parseInt(existingKey, 10), max);
+                    max = Math.max(parseInt(existingKey, 10) + 1, max);
                 }
 
-                commitFrameChanges((max + 1).toString(), newFrame);
+                newFrame.name = 'Frame ' + max;
+
+                commitFrameChanges(max.toString(), newFrame);
             }
 
             newFrame = null;
@@ -464,44 +501,64 @@ editor.once('load', function() {
         controls.set('zoom', Math.max(1, zoom + wheel * 0.1));
     };
 
-    // Select a frame by key and add this action to the history
-    // unless skipHistory is true
-    var selectFrame = function (key, skipHistory) {
-        if (selected && selected.key === key) return;
-        if (! key && ! selected) return;
+    // Select frames by keys
+    // options.history: Whether to add this action to the history
+    // options.add: Whether to add the frames to the existing selection
+    var selectFrames = function (keys, options) {
+        if (! keys && ! selected) return;
+
+        if (keys && ! (keys instanceof Array))
+            keys = [keys];
 
         var prevSelection = selected && selected.key;
+        var prevHighlighted = Object.keys(highlightedFrames);
 
-        var select = function (newKey, oldKey) {
+        // add to selection if necessary
+        if (keys && options && options.add) {
+            keys = prevHighlighted.concat(prevHighlighted, keys);
+        }
+
+        // TODO: check if same selection
+
+        var select = function (newKeys, newSelection, oldKeys) {
+            var i, len;
             selected = null;
-            if (oldKey)
-                delete highlightedFrames[oldKey];
 
-            if (newKey) {
-                var asset = editor.call('assets:get', atlasAsset.get('id'));
-                if (! asset) return;
+            if (oldKeys) {
+                for (i = 0, len = oldKeys.length; i < len; i++) {
+                    delete highlightedFrames[oldKeys[i]];
+                }
+            }
 
-                selected = {
-                    key: newKey,
-                    frame: asset.get('data.frames.' + newKey)
-                };
-                highlightedFrames[newKey] = true;
+            var asset = editor.call('assets:get', atlasAsset.get('id'));
+            if (asset) {
+                if (newKeys && newKeys.length) {
+                    for (i = 0, len = newKeys.length; i < len; i++) {
+                        highlightedFrames[newKeys[i]] = true;
+                    }
+
+                    selected = {
+                        key: newSelection || newKeys[len-1],
+                        frame: asset.get('data.frames.' + (newSelection || newKeys[len-1]))
+                    };
+                }
             }
 
             queueRender();
-
             updateRightPanel();
+
+            editor.emit('picker:sprites:editor:framesSelected', newKeys);
         };
 
         var redo = function () {
-            select(key, prevSelection);
+            select(keys, null, prevHighlighted);
         };
 
         var undo = function () {
-            select(prevSelection, key);
+            select(prevHighlighted, prevSelection, keys);
         };
 
-        if (! skipHistory) {
+        if (options && options.history) {
             editor.call('history:add', {
                 name: 'select frame',
                 undo: undo,
@@ -512,6 +569,12 @@ editor.once('load', function() {
 
         redo();
     };
+
+    editor.method('picker:sprites:editor:selectFrames', function (keys, options) {
+        if (!overlay.hidden) {
+            selectFrames(keys, options);
+        }
+    });
 
     // Modify a frame using the specified knob
     var modifyFrame = function (knob, frame, mousePoint) {
@@ -601,6 +664,7 @@ editor.once('load', function() {
         }
 
         var newValue = {
+            name: frame.name,
             rect: frame.rect.slice(),
             pivot: frame.pivot.slice()
         };
@@ -718,7 +782,7 @@ editor.once('load', function() {
 
         // clear selection if no longer exists
         if (selected && ! atlasAsset.has('data.frames.' + selected.key)) {
-            selectFrame(null, true);
+            selectFrames(null);
         }
 
         var left = imageLeft();
@@ -741,13 +805,20 @@ editor.once('load', function() {
 
         // draw frames
         var frames = atlasAsset.get('data.frames');
+        ctx.beginPath();
+        ctx.strokeStyle = COLOR_FRAME;
+        ctx.lineWidth = 1;
         for (var key in frames) {
             if (highlightedFrames[key]) continue;
 
             renderFrame(frames[key], left, top, width, height, false);
         }
+        ctx.stroke();
 
         // draw highlighted frames
+        ctx.beginPath();
+        ctx.strokeStyle = COLOR_FRAME_HIGHLIGHTED;
+        ctx.lineWidth = 2;
         for (var key in highlightedFrames) {
             if (selected && selected.key === key) continue;
 
@@ -762,30 +833,38 @@ editor.once('load', function() {
         } else if (selected) {
             renderFrame(selected.frame, left, top, width, height, true);
         }
+
+        ctx.stroke();
+
+        // draw knobs
+        if (newFrame || selected) {
+            renderKnobs(newFrame || selected.frame, left, top, width, height);
+        }
     };
 
     var renderFrame = function (frame, left, top, width, height, highlighted) {
         var w = frameWidth(frame, width);
         var h = frameHeight(frame, height);
+        var x = frameLeft(frame, left, width) - 0.5;
+        var y = frameTop(frame, top, height) - 0.5;
+        ctx.moveTo(x, y);
+        ctx.lineTo(x, y + h);
+        ctx.lineTo(x + w, y + h);
+        ctx.lineTo(x + w, y);
+        ctx.lineTo(x, y);
+    };
 
+    var renderKnobs = function (frame, left, top, width, height) {
+        var w = frameWidth(frame, width);
+        var h = frameHeight(frame, height);
         var x = frameLeft(frame, left, width);
         var y = frameTop(frame, top, height);
-
-        if (highlighted) {
-            ctx.fillStyle = '#2C393C';
-            for (var i = 0; i < 8; i++) {
-                ctx.fillRect(x + knobWidth * leftOffsets[i] + w * widthWeights[i],
-                             y + knobWidth * topOffsets[i] + h * heightWeights[i],
-                             knobWidth,
-                             knobWidth);
-            }
-            ctx.strokeStyle = '#2C393C';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(x, y, w, h);
-        } else {
-            ctx.strokeStyle = '#B1B8BA';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(x - 0.5, y - 0.5, w, h);
+        ctx.fillStyle = '#2C393C';
+        for (var i = 0; i < 8; i++) {
+            ctx.fillRect(x + knobWidth * leftOffsets[i] + w * widthWeights[i],
+                         y + knobWidth * topOffsets[i] + h * heightWeights[i],
+                         knobWidth,
+                         knobWidth);
         }
     };
 
@@ -898,6 +977,12 @@ editor.once('load', function() {
             atlasImageLoaded = true;
             aspectRatio = atlasImage.width / atlasImage.height;
             updateRightPanel();
+
+            editor.call('picker:sprites:attributes:frames', {
+                atlasAsset: atlasAsset,
+                atlasImage: atlasImage
+            });
+
             renderCanvas();
         };
         atlasImage.src = atlasAsset.get('file.url') + '?t=' + atlasAsset.get('file.hash');
@@ -913,7 +998,7 @@ editor.once('load', function() {
             if (selected && selected.key === lastFrameUpdated) {
                 selected.frame = atlasAsset.get('data.frames.' + selected.key);
             } else if (isLastFrameChangeLocal) {
-                selectFrame(lastFrameUpdated, true);
+                selectFrames(lastFrameUpdated);
             }
 
             lastFrameUpdated = null;
@@ -937,7 +1022,7 @@ editor.once('load', function() {
                     updateSelectedFrameTimeout = setTimeout(updateSelectedFrame);
                 }
             } else if (selected) {
-                selectFrame(null, true);
+                selectFrames(null);
             }
 
             queueRender();
@@ -998,6 +1083,8 @@ editor.once('load', function() {
             rightPanel = null;
         }
 
+        leftPanel.emit('clear');
+
         selected = null;
         newFrame = null;
         hovering = false;
@@ -1018,8 +1105,13 @@ editor.once('load', function() {
         unregisterInputListeners();
     };
 
+    // Return left panel
+    editor.method('picker:sprites:editor:leftPanel', function() {
+        return leftPanel;
+    });
+
     // Return right panel
-    editor.method('picker:sprites:editor:attributesPanel', function() {
+    editor.method('picker:sprites:editor:rightPanel', function() {
         return rightPanel;
     });
 

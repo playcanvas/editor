@@ -5928,6 +5928,7 @@ strong {
                     position: absolute;
                     width: 100%;
                     height: calc(100% - 34px);
+                    border-top: 1px solid $border-primary;
 
                     > .content {
                         width: 100%;
@@ -5950,7 +5951,7 @@ strong {
                             linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%,transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%);
                             -moz-background-size: 24px 24px;
                             background-size: 24px 24px;
-                            -webkit-background-size: 25px 25px;
+                            -webkit-background-size: 24px 24px;
                             background-position: 0 0, 12px 12px;
                         }
                     }
@@ -6023,9 +6024,75 @@ strong {
                     }
                 }
 
-                .left-panel {
+                .middle-panel {
                     > .content {
                         height: 100%;
+                    }
+                }
+
+                .left-panel {
+                    top: 0px;
+                    height: 100%;
+                    left: 0;
+                    border: 1px solid $border-primary;
+                    box-sizing: border-box;
+
+                    > .content {
+                        > .ui-panel {
+                            > .content {
+                                padding: 8px 6px;
+                            }
+                        }
+                    }
+
+                    .frames {
+                        .frame {
+                            background-color: $bcg-dark;
+                            border: 1px solid $bcg-darker;
+                            border-bottom: 0;
+                            padding: 5px;
+                            white-space: nowrap;
+
+                            &:last-child {
+                                border-bottom: 1px solid $bcg-darker;
+                            }
+
+                            &:hover {
+                                background-color: $bcg-darkest;
+                                cursor: pointer;
+                            }
+
+                            &.selected {
+                                background-color: $bcg-darkest;
+                            }
+
+                            .ui-label.name {
+                                font-size: 12px;
+                                vertical-align: top;
+                                margin-left: 5px;
+                                max-width: calc(100% - 31px);
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                            }
+
+                            canvas {
+                                $checkerboard-dark: #eaeaea;
+                                background-color: #fff;
+                                background-image:
+                                -moz-linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%,transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%),
+                                -moz-linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%,transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%);
+                                background-image:
+                                -webkit-linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%,transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%),
+                                -webkit-linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%,transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%);
+                                background-image:
+                                linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%,transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%),
+                                linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%,transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%);
+                                -moz-background-size: 12px 12px;
+                                background-size: 12px 12px;
+                                -webkit-background-size: 12px 12px;
+                                background-position: 0 0, 6px 6px;
+                            }
+                        }
                     }
                 }
 

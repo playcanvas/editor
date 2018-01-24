@@ -7,7 +7,7 @@ editor.once('load', function() {
         var atlasAsset = args.atlasAsset;
         var frame = args.frame;
 
-        var rootPanel = editor.call('picker:sprites:editor:attributesPanel');
+        var rootPanel = editor.call('picker:sprites:editor:rightPanel');
 
         // Sprites assets associated with this atlas
         var panel = editor.call('attributes:addPanel', {
