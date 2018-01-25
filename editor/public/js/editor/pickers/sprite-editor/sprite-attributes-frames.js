@@ -97,21 +97,20 @@ editor.once('load', function() {
                         var diff = parseInt(key, 10) - parseInt(lastFrameSelected, 10);
                         var rangeStart = diff >= 0 ? lastFrameSelected : key;
                         var rangeEnd = diff >= 0 ? key : lastFrameSelected;
+                        diff = Math.abs(diff);
 
                         if (diff) {
                             var range = [];
                             var p = panels[rangeStart];
 
-                            while (p && p.frameKey) {
+                            while (p && p.frameKey && diff >= 0) {
                                 range.push(p.frameKey);
-
-                                if (p.frameKey === rangeEnd)
-                                    break;
 
                                 var next = p.element.nextSibling;
                                 if (! next) break;
 
                                 p = next.ui;
+                                diff--;
                             }
 
                             editor.call('picker:sprites:editor:selectFrames', range, {

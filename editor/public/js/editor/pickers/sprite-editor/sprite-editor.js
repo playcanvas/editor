@@ -9,7 +9,8 @@ editor.once('load', function() {
     var knobWidth = 5;
 
     var COLOR_FRAME = '#B1B8BA';
-    var COLOR_FRAME_HIGHLIGHTED = '#2C393C';
+    var COLOR_FRAME_HIGHLIGHTED = '#3a4c50';
+    var COLOR_FRAME_SELECTED = '#2C393C';
 
     var atlasAsset = null;
     var spriteAsset = null;
@@ -17,6 +18,7 @@ editor.once('load', function() {
     var atlasImageLoaded = false;
 
     var shiftDown = false;
+    var ctrlDown = false;
     var leftButtonDown = false;
     var rightButtonDown = false;
 
@@ -315,6 +317,8 @@ editor.once('load', function() {
             shiftDown = true;
             updateCursor();
         }
+
+        ctrlDown = e.ctrlKey || e.metaKey;
     };
 
     var onKeyUp = function (e) {
@@ -326,6 +330,8 @@ editor.once('load', function() {
 
             updateCursor();
         }
+
+        ctrlDown = e.ctrlKey || e.metaKey;
     };
 
     var onMouseDown = function (e) {
@@ -361,8 +367,10 @@ editor.once('load', function() {
 
         // if no knob selected try to select the frame under the cursor
         if (! selected || ! selected.knob) {
-            selectFrames(framesHitTest(p), {
-                history: true
+            var frameUnderCursor = framesHitTest(p);
+            selectFrames(frameUnderCursor, {
+                history: true,
+                add: ctrlDown
             });
         }
 
@@ -510,6 +518,36 @@ editor.once('load', function() {
         if (keys && ! (keys instanceof Array))
             keys = [keys];
 
+        // check if new selection differs from old
+        var dirty = false;
+        if (! keys && selected) {
+            dirty = true;
+        } else if (keys && ! selected) {
+            dirty = true;
+        } else {
+            var index = {};
+            for (var i = 0; i < keys.length; i++) {
+                if (! highlightedFrames[keys[i]]) {
+                    dirty = true;
+                    break;
+                }
+
+                index[keys[i]] = true;
+            }
+
+            if (! dirty) {
+                for (var key in highlightedFrames) {
+                    if (! index[key]) {
+                        dirty = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (! dirty)
+            return;
+
         var prevSelection = selected && selected.key;
         var prevHighlighted = Object.keys(highlightedFrames);
 
@@ -517,8 +555,6 @@ editor.once('load', function() {
         if (keys && options && options.add) {
             keys = prevHighlighted.concat(prevHighlighted, keys);
         }
-
-        // TODO: check if same selection
 
         var select = function (newKeys, newSelection, oldKeys) {
             var i, len;
@@ -825,16 +861,23 @@ editor.once('load', function() {
             renderFrame(frames[key], left, top, width, height, true);
         }
 
-        // draw newFrame or selected frame
-        if (newFrame) {
-            if (newFrame.rect[2] !== 0 && newFrame.rect[3] !== 0) {
-                renderFrame(newFrame, left, top, width, height, true);
-            }
-        } else if (selected) {
-            renderFrame(selected.frame, left, top, width, height, true);
-        }
-
         ctx.stroke();
+
+        if (newFrame || selected) {
+            ctx.beginPath();
+            ctx.strokeStyle = COLOR_FRAME_SELECTED;
+
+            // draw newFrame or selected frame
+            if (newFrame) {
+                if (newFrame.rect[2] !== 0 && newFrame.rect[3] !== 0) {
+                    renderFrame(newFrame, left, top, width, height, true);
+                }
+            } else if (selected) {
+                renderFrame(selected.frame, left, top, width, height, true);
+            }
+
+            ctx.stroke();
+        }
 
         // draw knobs
         if (newFrame || selected) {
