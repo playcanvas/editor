@@ -482,6 +482,15 @@ editor.once('load', function() {
 
         args.linkEvents = [ ];
 
+        // if we provide multiple paths for a single Observer then turn args.link into an array
+        if (args.paths && args.paths instanceof Array && args.link && ! (args.link instanceof Array)) {
+            var link = args.link;
+            args.link = [];
+            for (var i = 0; i < args.paths.length; i++) {
+                args.link.push(link);
+            }
+        }
+
         var linkField = args.linkField = function() {
             if (args.link) {
                 var link = function(field, path) {
@@ -491,7 +500,8 @@ editor.once('load', function() {
                         slider: args.slider,
                         enum: args.enum,
                         link: args.link,
-                        trim: args.trim
+                        trim: args.trim,
+                        name: args.name
                     };
 
                     if (! path) {
