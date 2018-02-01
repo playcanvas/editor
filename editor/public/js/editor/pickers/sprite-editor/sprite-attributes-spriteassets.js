@@ -5,7 +5,6 @@ editor.once('load', function() {
         var events = [];
 
         var atlasAsset = args.atlasAsset;
-        var frame = args.frame;
 
         var rootPanel = editor.call('picker:sprites:editor:rightPanel');
 
@@ -30,8 +29,6 @@ editor.once('load', function() {
 
             // sprite panel
             var panel = new ui.Panel();
-            panel.flex = true;
-            panel.flexGrow = 1;
             panel.class.add('sprite');
 
             // sprite preview
@@ -49,16 +46,13 @@ editor.once('load', function() {
             };
 
             var renderPreview = function () {
-                editor.call('preview:render', asset, 26, 26, canvas.element);
+                var frameKeys = asset.get('data.frameKeys');
+                var frames = frameKeys.map(function (f) {return atlasAsset.get('data.frames.' + f);});
+
+                editor.call('picker:sprites:editor:renderFramePreview', frames[0], canvas.element, frames);
             };
 
             renderPreview();
-
-            // watch and re-render preview when necessary
-            var spriteWatch = editor.call('assets:sprite:watch', {
-                asset: asset,
-                callback: queueRender
-            });
 
             // sprite name
             var fieldName = new ui.Label();
@@ -74,10 +68,27 @@ editor.once('load', function() {
             var fieldPath = new ui.Label();
             fieldPath.class.add('path');
 
+            // delete sprite
+            var btnRemove = new ui.Button();
+            btnRemove.class.add('remove');
+            panel.append(btnRemove);
+
+            btnRemove.on('click', function (e) {
+                e.stopPropagation();
+                editor.call('assets:delete:picker', [ asset ]);
+            });
+
             // link to sprite asset
             panel.on('click', function () {
-                // todo
+                editor.call('picker:sprites:editor:selectSprite', asset, {
+                    history: true
+                });
             });
+
+            spriteEvents.push(editor.on('assets:remove[' + asset.get('id') + ']', function () {
+                panel.destroy();
+                updateSpriteCount();
+            }));
 
             // clean up events
             panel.on('destroy', function () {
@@ -85,8 +96,6 @@ editor.once('load', function() {
                     spriteEvents[i].unbind();
                 }
                 spriteEvents.length = 0;
-
-                editor.call('assets:sprite:unwatch', asset, spriteWatch);
             });
 
             panelSpriteAssets.append(panel);

@@ -1,277 +1,341 @@
 editor.once('load', function() {
     'use strict';
 
-    editor.method('picker:sprites:attributes:frames', function(args) {
+    editor.method('picker:sprites:attributes:frames', function (args) {
         var events = [];
-
+        var suspendChanges = false;
         var atlasAsset = args.atlasAsset;
         var atlasImage = args.atlasImage;
+        var frames = args.frames;
+        var numFrames = frames.length;
 
-        var panels = {};
-        var selectedPanels = {};
-        var lastFrameSelected = null;
+        var rootPanel = editor.call('picker:sprites:editor:rightPanel');
+        rootPanel.header = numFrames > 1 ? 'MULTIPLE FRAMES' : 'FRAME';
 
-        var shiftDown = false;
-        var ctrlDown = false;
-
-        var rootPanel = editor.call('picker:sprites:editor:leftPanel');
-        rootPanel.header = 'FRAMES';
+        editor.call('picker:sprites:attributes:frames:preview', {
+            atlasAsset: atlasAsset,
+            atlasImage: atlasImage,
+            frames: frames//frames.map(function (f) {return atlasAsset.get('data.frames.' + f);})
+        });
 
         var panel = editor.call('attributes:addPanel', {
             parent: rootPanel
         });
 
-        var panelFrames = new ui.Panel();
-        panelFrames.class.add('frames');
-        panel.append(panelFrames);
+        var fieldName = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Name',
+            type: 'string',
+            link: atlasAsset,
+            paths: frames.map(function (f) {return 'data.frames.' + f + '.name';})
+        });
 
-        var addFramePanel = function (key, frame) {
-            var frameEvents = [];
+        // add field for frame rect but hide it and only use it for multi-editing
+        // The user only will see position and size fields in pixels which is more helpful
+        // but we'll use the internal rect fields to edit it
+        var fieldRect = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Rect',
+            type: 'vec4',
+            link: atlasAsset,
+            paths: frames.map(function (f) {return 'data.frames.' + f + '.rect';})
+        });
+        fieldRect[0].parent.hidden = true;
 
-            var panel = new ui.Panel();
-            panel.flex = true;
-            panel.flexGrow = 1;
-            panel.class.add('frame');
-            panel.frameKey = key;
+        fieldRect[0].on('change', function () {
+            if (suspendChanges) return;
 
-            panels[key] = panel;
+            suspendChanges = true;
+            updatePositionX();
+            updateSizeX();
+            suspendChanges = false;
+        });
 
-            // sprite preview
-            var canvas = new ui.Canvas();
-            var previewWidth = 26;
-            var previewHeight = 26;
-            canvas.class.add('preview');
-            canvas.resize(previewWidth, previewHeight);
-            panel.append(canvas);
-            var ctx = canvas.element.getContext('2d');
+        fieldRect[1].on('change', function () {
+            if (suspendChanges) return;
 
-            var renderQueued = false;
+            suspendChanges = true;
+            updatePositionY();
+            updateSizeY();
+            suspendChanges = false;
+        });
 
-            var queueRender = function () {
-                if (renderQueued) return;
-                renderQueued = true;
-                requestAnimationFrame(renderPreview);
-            };
+        fieldRect[2].on('change', function () {
+            if (suspendChanges) return;
 
-            var renderPreview = function () {
-                var x = frame.rect[0] * atlasImage.width;
-                // convert bottom left WebGL coord to top left pixel coord
-                var y = (1 - frame.rect[1] - frame.rect[3]) * atlasImage.height;
-                var w = frame.rect[2] * atlasImage.width;
-                var h = frame.rect[3] * atlasImage.height;
+            suspendChanges = true;
+            updateSizeX();
+            suspendChanges = false;
+        });
 
-                // choose targetWidth and targetHeight keeping the aspect ratio
-                var aspectRatio = w / h;
-                var targetWidth = previewWidth;
-                var targetHeight = previewHeight;
+        fieldRect[3].on('change', function () {
+            if (suspendChanges) return;
 
-                if (w >= h) {
-                    targetHeight = previewWidth / aspectRatio;
-                } else {
-                    targetWidth = targetHeight * aspectRatio;
-                }
+            suspendChanges = true;
+            updatePositionY();
+            updateSizeY();
+            suspendChanges = false;
+        });
 
-                var offsetX = (previewWidth - targetWidth) / 2;
-                var offsetY = (previewHeight - targetHeight) / 2;
-
-                ctx.clearRect(0, 0, previewWidth, previewHeight);
-                ctx.drawImage(atlasImage, x, y, w, h, offsetX, offsetY, targetWidth, targetHeight);
-            };
-
-            renderPreview();
-
-            // sprite name
-            var fieldName = new ui.Label();
-            fieldName.class.add('name');
-            fieldName.value = frame.name;
-            panel.append(fieldName);
-
-            frameEvents.push(atlasAsset.on('data.frames.' + key + '.name:set', function (value) {
-                fieldName.value = value;
-            }));
-
-            panel.on('click', function () {
-                if (shiftDown) {
-                    // if another frame was selected then add range to selection
-                    if (lastFrameSelected) {
-                        var diff = parseInt(key, 10) - parseInt(lastFrameSelected, 10);
-                        var rangeStart = diff >= 0 ? lastFrameSelected : key;
-                        var rangeEnd = diff >= 0 ? key : lastFrameSelected;
-                        diff = Math.abs(diff);
-
-                        if (diff) {
-                            var range = [];
-                            var p = panels[rangeStart];
-
-                            while (p && p.frameKey && diff >= 0) {
-                                range.push(p.frameKey);
-
-                                var next = p.element.nextSibling;
-                                if (! next) break;
-
-                                p = next.ui;
-                                diff--;
-                            }
-
-                            editor.call('picker:sprites:editor:selectFrames', range, {
-                                add: true,
-                                history: true
-                            });
-                        }
-
-                    } else {
-                        // otherwise just select single frame
-                        editor.call('picker:sprites:editor:selectFrames', key, {
-                            history: true
-                        });
-                    }
-                } else if (ctrlDown) {
-                    // add frame to selection
-                    editor.call('picker:sprites:editor:selectFrames', key, {
-                        add: true,
-                        history: true
-                    });
-                } else {
-                    // select single frame
-                    editor.call('picker:sprites:editor:selectFrames', key, {
-                        history: true
-                    });
-                }
-
-            });
-
-            // clean up events
-            panel.on('destroy', function () {
-                for (var i = 0, len = frameEvents.length; i<len; i++) {
-                    frameEvents[i].unbind();
-                }
-                frameEvents.length = 0;
-            });
-
-            panelFrames.append(panel);
-        };
-
-        var selectPanel = function (key) {
-            if (selectedPanels[key]) return;
-            selectedPanels[key] = true;
-            panels[key].class.add('selected');
-        };
-
-        var deselectPanel = function (key) {
-            if (! selectedPanels[key]) return;
-            delete selectedPanels[key];
-            panels[key].class.remove('selected');
-        };
-
-        // create frames
-        var frames = atlasAsset.get('data.frames');
-        for (var key in frames) {
-            addFramePanel(key, frames[key]);
-        }
-
-        // keydown
-        var onKeyDown = function (e) {
-            ctrlDown = e.ctrlKey || e.metaKey;
-            shiftDown = e.shiftKey;
-        };
-        window.addEventListener('keydown', onKeyDown);
-
-        // keyup
-        var onKeyUp = function (e) {
-            ctrlDown = e.ctrlKey || e.metaKey;
-            shiftDown = e.shiftKey;
-        };
-        window.addEventListener('keyup', onKeyUp);
-
-        // listen to atlas set event
-        var checkPath = /^data\.frames(.(\d+))?$/;
-        events.push(atlasAsset.on('*:set', function (path, value) {
-            var match = path.match(checkPath);
-            if (! match) return;
-
-            // if a frame was set and it doesn't exist create it
-            var key = match[2];
-            if (key) {
-                if (! panels[key]) {
-                    addFramePanel(key, value);
-                }
+        var updatePositionX = function () {
+            if (fieldRect[0].proxy) {
+                fieldPosition[0].proxy = fieldRect[0].proxy;
+                fieldPosition[0].value = null;
             } else {
-                // if all frames are set then re-create all frame panels
-                for (key in panels) {
-                    panels[key].destroy();
+                fieldPosition[0].value = fieldRect[0].value * atlasAsset.get('meta.width');
+            }
+        };
+
+        var updatePositionY = function () {
+            if (fieldRect[1].proxy || fieldRect[3].proxy) {
+                fieldPosition[1].proxy = fieldRect[1].proxy || fieldRect[3].proxy;
+                fieldPosition[1].value = null;
+            } else {
+                fieldPosition[1].value = fieldRect[1].value * atlasAsset.get('meta.height');
+            }
+        };
+
+        var updateSizeX = function () {
+            if (fieldRect[2].proxy) {
+                fieldSize[0].proxy = fieldRect[2].proxy;
+                fieldSize[0].value = null;
+            } else {
+                fieldSize[0].value = fieldRect[2].value * atlasAsset.get('meta.width');
+            }
+        };
+
+        var updateSizeY = function () {
+            if (fieldRect[3].proxy) {
+                fieldSize[1].proxy = fieldRect[3].proxy;
+                fieldSize[1].value = null;
+            } else {
+                fieldSize[1].value = fieldRect[3].value * atlasAsset.get('meta.height');
+            }
+        };
+
+        // position in pixels
+        var fieldPosition = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Position',
+            type: 'vec2',
+            precision: 1,
+            placeholder: ['→', '↑']
+        });
+
+        updatePositionX();
+        updatePositionY();
+
+        fieldPosition[0].on('change', function (value) {
+            if (suspendChanges) return;
+            suspendChanges = true;
+            fieldRect[0].value = value / atlasAsset.get('meta.width');
+            suspendChanges = false;
+        });
+
+        fieldPosition[1].on('change', function (value) {
+            if (suspendChanges) return;
+            suspendChanges = true;
+            fieldRect[1].value = value / atlasAsset.get('meta.height');
+            suspendChanges = false;
+        });
+
+        // size in pixels
+        var fieldSize = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Size',
+            type: 'vec2',
+            precision: 1,
+            placeholder: ['→', '↑'],
+            min: 0.1
+        });
+
+        updateSizeX();
+        updateSizeY();
+
+        fieldSize[0].on('change', function (value) {
+            if (suspendChanges) return;
+            suspendChanges = true;
+            fieldRect[2].value = value / atlasAsset.get('meta.width');
+            suspendChanges = false;
+        });
+
+        fieldSize[1].on('change', function (value) {
+            if (suspendChanges) return;
+            suspendChanges = true;
+            fieldRect[3].value = value / atlasAsset.get('meta.height');
+            suspendChanges = false;
+        });
+
+        // pivot presets
+        var presetValues = [
+            [0, 1],
+            [0.5, 1],
+            [1, 1],
+            [0, 0.5],
+            [0.5, 0.5],
+            [1, 0.5],
+            [0, 0],
+            [0.5, 0],
+            [1, 0]
+        ];
+
+        var fieldPivotPreset = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Pivot Preset',
+            type: 'string',
+            enum: [
+                { v: 0, t: 'Top Left' },
+                { v: 1, t: 'Top' },
+                { v: 2, t: 'Top Right' },
+                { v: 3, t: 'Left' },
+                { v: 4, t: 'Center' },
+                { v: 5, t: 'Right' },
+                { v: 6, t: 'Bottom Left' },
+                { v: 7, t: 'Bottom' },
+                { v: 8, t: 'Bottom Right' }
+            ]
+        });
+
+        fieldPivotPreset.on('change', function (value) {
+            if (suspendChanges) return;
+
+            var newValue = presetValues[parseInt(value, 10)];
+            if (! newValue) return;
+
+            var prevValues = {};
+            for (var i = 0; i < numFrames; i++) {
+                prevValues[frames[i]] = atlasAsset.get('data.frames.' + frames[i] + '.pivot');
+            }
+
+            var redo = function () {
+                var asset = editor.call('assets:get', atlasAsset.get('id'));
+                if (! asset) return;
+
+                var history = asset.history.enabled;
+                asset.history.enabled = false;
+                for (var i = 0; i < numFrames; i++) {
+                    var key = 'data.frames.' + frames[i];
+                    if (asset.has(key)) {
+                        asset.set(key + '.pivot', newValue);
+                    }
                 }
+                asset.history.enabled = history;
+            };
 
-                panels = {};
-                selectedPanels = {};
-                lastFrameSelected = null;
+            var undo = function () {
+                var asset = editor.call('assets:get', atlasAsset.get('id'));
+                if (! asset) return;
 
-                for (key in value) {
-                    addFramePanel(key, value[key]);
+                var history = asset.history.enabled;
+                asset.history.enabled = false;
+                for (var i = 0; i < numFrames; i++) {
+                    var key = 'data.frames.' + frames[i];
+                    if (asset.has(key) && prevValues[frames[i]]) {
+                        asset.set(key + '.pivot', prevValues[frames[i]]);
+                    }
+
+                }
+                asset.history.enabled = history;
+            };
+
+            editor.call('history:add', {
+                name: 'edit pivot',
+                undo: undo,
+                redo: redo
+            });
+
+            redo();
+        });
+
+        // pivot
+        var fieldPivot = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Pivot',
+            type: 'vec2',
+            min: 0,
+            max: 1,
+            precision: 2,
+            step: 0.1,
+            placeholder: ['↔', '↕'],
+            link: atlasAsset,
+            paths: frames.map(function (f) {return 'data.frames.' + f + '.pivot';})
+        });
+
+        fieldPivot[0].on('change', function (value) {
+            if (suspendChanges) return;
+            updatePivotPreset();
+        });
+        fieldPivot[1].on('change', function (value) {
+            if (suspendChanges) return;
+            updatePivotPreset();
+        });
+
+        var updatePivotPreset = function () {
+            var suspend = suspendChanges;
+            suspendChanges = true;
+            for (var i = 0; i < presetValues.length; i++) {
+                if (presetValues[i][0] === fieldPivot[0].value && presetValues[i][1] === fieldPivot[1].value) {
+                    fieldPivotPreset.value = i;
+                    break;
                 }
             }
-        }));
+            suspendChanges = suspend;
+        };
 
-        // listen to atlas unset event
-        var checkUnsetPath = /^data\.frames\.(\d+)$/;
-        events.push(atlasAsset.on('*:unset', function (path) {
-            var match = path.match(checkUnsetPath);
-            if (! match) return;
+        updatePivotPreset();
 
-            var key = match[1];
-            if (panels[key]) {
-                panels[key].destroy();
-                delete panels[key];
-                delete selectedPanels[key];
-                if (lastFrameSelected === key)
-                    lastFrameSelected = null;
-            }
-        }));
+        var panelButtons = editor.call('attributes:addPanel', {
+            parent: rootPanel,
+            name: 'ACTIONS'
+        });
+        panelButtons.class.add('buttons');
 
-        // Listen to framesSelected event to highlight panels
-        events.push(editor.on('picker:sprites:editor:framesSelected', function (keys) {
-            var index = {};
-            var key;
+        // new sprite
+        var btnCreateSprite = new ui.Button({
+            text: 'New Sprite'
+        });
+        btnCreateSprite.class.add('icon', 'wide', 'create');
+        panelButtons.append(btnCreateSprite);
 
-            // select new keys
-            if (keys && keys.length) {
-                for (var i = 0, len = keys.length; i < len; i++) {
-                    key = keys[i];
-                    index[key] = true;
+        btnCreateSprite.on('click', function () {
+            btnCreateSprite.disabled = true;
+            editor.call('picker:sprites:editor:spriteFromSelection', function () {
+                btnCreateSprite.disabled = false;
+            });
+        });
 
-                    if (! panels[key]) continue;
-                    selectPanel(key);
-                }
+        // trim rect
+        var btnTrim = new ui.Button({
+            text: 'Trim'
+        });
+        btnTrim.class.add('icon', 'wide', 'trim');
+        panelButtons.append(btnTrim);
 
-                lastFrameSelected = len ? keys[len-1] : null;
-            }
+        btnTrim.on('click', function () {
+            // TODO
+        });
 
-            // deselect old keys
-            for (key in selectedPanels) {
-                if (! index[key]) {
-                    deselectPanel(key);
-                }
-            }
-        }));
-
+        // delete frame
+        var btnDelete = new ui.Button({
+            text: 'Delete'
+        });
+        btnDelete.class.add('icon', 'wide', 'remove');
+        panelButtons.append(btnDelete);
+        btnDelete.on('click', function () {
+            editor.call('picker:sprites:editor:deleteFrames', frames);
+        });
 
         // clean up
         events.push(rootPanel.on('clear', function () {
             panel.destroy();
+            panelButtons.destroy();
         }));
 
         panel.on('destroy', function () {
-            for (var i = 0; i < events.length; i++) {
+            for (var i = 0, len = events.length; i<len; i++) {
                 events[i].unbind();
             }
-
             events.length = 0;
-
-            window.removeEventListener('keydown', onKeyDown);
-            window.removeEventListener('keyup', onKeyUp);
-
-            panels = {};
-            selectedPanels = {};
-            lastFrameSelected = null;
         });
     });
 });

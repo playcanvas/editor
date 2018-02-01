@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    editor.method('picker:sprites:attributes:slice', function(args) {
+    editor.method('picker:sprites:attributes:slice', function (args) {
         var atlasAsset = args.atlasAsset;
         var atlasImage = args.atlasImage;
 
@@ -87,15 +87,15 @@ editor.once('load', function() {
 
         // pivot presets
         var presetValues = [
-            [0, 0],
-            [0.5, 0],
-            [1, 0],
+            [0, 1],
+            [0.5, 1],
+            [1, 1],
             [0, 0.5],
             [0.5, 0.5],
             [1, 0.5],
-            [0, 1],
-            [0.5, 1],
-            [1, 1]
+            [0, 0],
+            [0.5, 0],
+            [1, 0]
         ];
 
         var fieldPivot = editor.call('attributes:addField', {
@@ -112,7 +112,8 @@ editor.once('load', function() {
                 { v: 6, t: 'Bottom Left' },
                 { v: 7, t: 'Bottom' },
                 { v: 8, t: 'Bottom Right' }
-            ]
+            ],
+            value: 4
         });
 
         var toggleFields = function () {
@@ -128,10 +129,12 @@ editor.once('load', function() {
 
         var btnSlice = editor.call('attributes:addField', {
             parent: panel,
-            text: 'Slice',
+            text: 'Slice Atlas',
             type: 'button',
             name: ' '
         });
+
+        btnSlice.class.add('icon', 'slice');
 
         btnSlice.on('click', function () {
             btnSlice.disabled = true;
@@ -195,6 +198,8 @@ editor.once('load', function() {
             name: ' '
         });
 
+        btnClear.class.add('icon', 'remove');
+
         btnClear.on('click', function () {
             editor.call('picker:confirm', 'Are you sure you want to delete all the frames?', function () {
                 var frames = atlasAsset.get('data.frames');
@@ -257,8 +262,8 @@ editor.once('load', function() {
             var paddingX = fieldPadding[0].value / atlasImage.width;
             var paddingY = fieldPadding[1].value / atlasImage.height;
 
-            for (var c = 0; c < cols; c++) {
-                for (var r = 0; r < rows; r++) {
+            for (var r = 0; r < rows; r++) {
+                for (var c = 0; c < cols; c++) {
                     var w = 1 / cols;
                     var h = 1 / rows;
                     var width = w - 2 * paddingX;

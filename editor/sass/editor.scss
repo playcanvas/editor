@@ -5890,6 +5890,7 @@ strong {
         background-color: rgba($bcg-darkest, .9);
     }
 
+
     > .content {
         width: 90%;
         height: 90%;
@@ -6025,6 +6026,7 @@ strong {
                 }
 
                 .middle-panel {
+                    z-index: 102;
                     > .content {
                         height: 100%;
                     }
@@ -6037,60 +6039,43 @@ strong {
                     border: 1px solid $border-primary;
                     box-sizing: border-box;
 
+                    z-index: 102;
+
                     > .content {
+                        height: 100%;
+
                         > .ui-panel {
+                            height: 100%;
+
                             > .content {
-                                padding: 8px 6px;
-                            }
-                        }
-                    }
+                                height: 100%;
 
-                    .frames {
-                        .frame {
-                            background-color: $bcg-dark;
-                            border: 1px solid $bcg-darker;
-                            border-bottom: 0;
-                            padding: 5px;
-                            white-space: nowrap;
+                                > .top {
+                                    border-bottom: 1px solid $border-primary;
+                                    margin-bottom: 1px;
 
-                            &:last-child {
-                                border-bottom: 1px solid $bcg-darker;
-                            }
+                                    > .content {
+                                        padding: 8px 6px;
 
-                            &:hover {
-                                background-color: $bcg-darkest;
-                                cursor: pointer;
-                            }
+                                        .ui-label {
+                                            font-size: 12px;
+                                        }
 
-                            &.selected {
-                                background-color: $bcg-darkest;
-                            }
+                                        .ui-button {
+                                            width: 49%;
+                                        }
+                                    }
+                                }
 
-                            .ui-label.name {
-                                font-size: 12px;
-                                vertical-align: top;
-                                margin-left: 5px;
-                                max-width: calc(100% - 31px);
-                                overflow: hidden;
-                                text-overflow: ellipsis;
-                            }
+                                > .frames {
+                                    height: calc(100% - 128px);
+                                    margin: 0;
 
-                            canvas {
-                                $checkerboard-dark: #eaeaea;
-                                background-color: #fff;
-                                background-image:
-                                -moz-linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%,transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%),
-                                -moz-linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%,transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%);
-                                background-image:
-                                -webkit-linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%,transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%),
-                                -webkit-linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%,transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%);
-                                background-image:
-                                linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%,transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%),
-                                linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%,transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%);
-                                -moz-background-size: 12px 12px;
-                                background-size: 12px 12px;
-                                -webkit-background-size: 12px 12px;
-                                background-position: 0 0, 6px 6px;
+                                    > .content {
+                                        padding: 8px 6px;
+                                        height: 100%;
+                                    }
+                                }
                             }
                         }
                     }
@@ -6102,6 +6087,10 @@ strong {
                     right: 0px;
                     border: 1px solid $border-primary;
                     box-sizing: border-box;
+
+                    .handle {
+                        z-index: 103;
+                    }
 
                     > .content {
                         > .ui-panel {
@@ -6115,7 +6104,9 @@ strong {
                         }
                     }
 
-                    .sprite-assets {
+                    .ui-panel.sprite-assets {
+                        margin: 3px;
+
                         .sprite {
                             background-color: $bcg-dark;
                             border: 1px solid $bcg-darker;
@@ -6133,6 +6124,12 @@ strong {
                                 cursor: pointer;
                             }
 
+                            canvas {
+                                background-color: darken($text-darkest, 10%);
+                                border: 1px solid $border-primary;
+                                vertical-align: middle;
+                            }
+
                             .ui-label.name {
                                 font-size: 12px;
                                 vertical-align: top;
@@ -6141,9 +6138,215 @@ strong {
                                 overflow: hidden;
                                 text-overflow: ellipsis;
                             }
+
+                            .ui-button.remove {
+                                @extend .font-icon;
+
+                                width: 32px;
+                                margin: 0;
+                                padding: 0;
+                                position: absolute;
+                                right: 0;
+                                border: 0;
+                                font-size: 14px;
+                                text-align: center;
+                                background-color: transparent;
+                                color: $text-darkest;
+
+                                &:hover {
+                                    color: #d34141;
+                                }
+
+                                &:after {
+                                    content: '\E124';
+                                    font-weight: 200;
+                                }
+                            }
+                        }
+                    }
+
+                    .ui-panel.buttons {
+                        z-index: 102;
+
+                        > .content {
+                            flex-wrap: wrap;
+
+                            > .ui-button.icon {
+                                margin-bottom: 0;
+                                margin-top: 0;
+                                flex-basis: 0;
+                            }
+
+                            .ui-panel.frames {
+                                width: 100%;
+                                margin-top: 10px;
+                            }
+                        }
+                    }
+
+                    .asset-preview-container {
+                        canvas {
+                            height: calc(100% - 32px);
+                        }
+                    }
+
+                    .ui-panel.preview-controls {
+                        position: absolute;
+                        bottom: 0;
+                        z-index: 1;
+                        background: transparent;
+                        width: 100%;
+                    }
+                }
+
+                .ui-panel.frames {
+                    margin: 3px;
+
+                    .frame {
+                        background-color: $bcg-dark;
+                        border: 1px solid $bcg-darker;
+                        border-bottom: 0;
+                        padding: 5px;
+                        white-space: nowrap;
+
+                        &:last-child {
+                            border-bottom: 1px solid $bcg-darker;
+                        }
+
+                        &:hover {
+                            background-color: $bcg-darker;
+                            cursor: pointer;
+                        }
+
+                        &.selected {
+                            background-color: $bcg-darkest;
+                        }
+
+                        .ui-label.name {
+                            font-size: 12px;
+                            vertical-align: top;
+                            margin-left: 5px;
+                            max-width: calc(100% - 31px);
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
+
+                        canvas {
+                            background-color: darken($text-darkest, 10%);
+                            border: 1px solid $border-primary;
+                            vertical-align: middle;
+                        }
+
+                        .ui-button.remove {
+                            @extend .font-icon;
+
+                            width: 32px;
+                            margin: 0;
+                            padding: 0;
+                            position: absolute;
+                            right: 0;
+                            border: 0;
+                            font-size: 14px;
+                            text-align: center;
+                            background-color: transparent;
+                            color: $text-darkest;
+
+                            &:hover {
+                                color: #d34141;
+                            }
+
+                            &:after {
+                                content: '\E124';
+                                font-weight: 200;
+                            }
                         }
                     }
                 }
+
+                .ui-button.icon {
+                    background-color: $bcg-dark;
+
+                    &:hover {
+                        background-color: $bcg-darkest;
+
+                        &:before {
+                            color: $text-active;
+                        }
+
+                        &.remove:before {
+                            color: #d34141;
+                        }
+                    }
+
+                    &.wide {
+                        width: calc(100% - 6px);
+                    }
+
+                    font-size: 12px;
+                    border: none;
+                    position: relative;
+                    height: 28px;
+                    line-height: 30px;
+                    padding-left: 28px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    text-transform: uppercase;
+                    text-align: left;
+
+                    @extend .font-bold;
+
+                    &:before {
+                        @extend .font-icon;
+                        font-size: 14px;
+                        text-align: center;
+                        margin-left: -18px;
+                        margin-right: 9px;
+                    }
+
+                    &.create:before {
+                        content: '\E120';
+                    }
+
+                    &.remove:before {
+                        content: '\E124';
+                    }
+
+                    &.cancel:before {
+                        content: '\E132'
+                    }
+
+                    &.trim:before {
+                        content: '\E358';
+                    }
+
+                    &.slice:before {
+                        content: '\E332';
+                    }
+                }
+            }
+        }
+    }
+
+    .ui-overlay.overlay-frames {
+        > .overlay {
+            background-color: rgba($bcg-darkest, .7);
+        }
+
+        > .content {
+            display: none;
+        }
+    }
+
+    .select-frames-mode {
+        .left-panel, .middle-panel {
+            border: 1px solid $text-active !important;
+        }
+
+        .right-panel {
+            .ui-panel.buttons {
+                border: 1px solid $text-active;
+                margin: 0 2px 0 0;
             }
         }
     }

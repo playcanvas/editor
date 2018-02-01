@@ -32,11 +32,13 @@ editor.once('load', function() {
             // with the same proportions
             var maxHeight = 0;
             var maxWidth = 0;
+            var maxAspectRatio = 0;
             for (var i = 0, len = frameKeys.length; i<len; i++) {
                 if (frames[frameKeys[i]]) {
                     var rect = frames[frameKeys[i]].rect;
                     maxWidth = Math.max(maxWidth, rect[2]);
                     maxHeight = Math.max(maxHeight, rect[3]);
+                    maxAspectRatio = Math.max(maxAspectRatio, rect[2] * atlasWidth / (rect[3] * atlasHeight));
                 }
             }
             maxWidth *= atlasWidth;
@@ -50,19 +52,25 @@ editor.once('load', function() {
 
             // choose targetWidth and targetHeight keeping the aspect ratio
             var aspectRatio = w / h;
-            var targetWidth = width;
-            var targetHeight = height;
+            var targetWidth, targetHeight, previewMaxWidth, previewMaxHeight;
 
-            if (w > h) {
+            // make sure we never render anything higher than the available height
+            if (width / maxAspectRatio > height || maxWidth < maxHeight) {
+                targetHeight = height * h / maxHeight;
+                targetWidth = targetHeight * aspectRatio;
+
+                previewMaxHeight = height;
+                previewMaxWidth = Math.min(height * maxWidth / maxHeight, width);
+            } else {
                 targetWidth = width * w / maxWidth;
                 targetHeight = targetWidth / aspectRatio;
-            } else {
-                targetHeight = height * h / maxHeight;
-                targetWidth = aspectRatio * targetHeight;
+
+                previewMaxWidth = width;
+                previewMaxHeight = Math.min(width / (maxWidth / maxHeight), height);
             }
 
-            var offsetX = (width - targetWidth) / 2;
-            var offsetY = (height - targetHeight) / 2;
+            var offsetX = (width - previewMaxWidth) / 2 + (previewMaxWidth - targetWidth) * frame.pivot[0];
+            var offsetY = (height - previewMaxHeight) / 2 + (previewMaxHeight - targetHeight) * (1 - frame.pivot[1]);
 
             canvas.width = width;
             canvas.height = height;

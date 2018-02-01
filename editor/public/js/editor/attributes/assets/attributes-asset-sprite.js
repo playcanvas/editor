@@ -151,6 +151,8 @@ editor.once('load', function() {
                 editor.call('assets:sprite:unwatch', assets[0], spriteWatch);
 
                 panelProperties = null;
+
+                playing = false;
             });
         }
 

@@ -29,6 +29,9 @@ editor.once('load', function() {
                     onChange();
                 });
 
+                if (! engineAtlas.resource)
+                    app.assets.load(engineAtlas);
+
             } else {
                 watch.events.onAtlasAdd = app.assets.once('assets:add[' + atlas + ']', watchAtlas);
             }

@@ -10,7 +10,7 @@ editor.once('load', function() {
         var data = {
             pixelsPerUnit: args.pixelsPerUnit !== undefined ? args.pixelsPerUnit : 100,
             frameKeys: args.frameKeys !== undefined ? args.frameKeys : [],
-            textureAtlasAsset: args.textureAtlasAsset !== undefined ? args.textureAtlasAsset : null
+            textureAtlasAsset: args.textureAtlasAsset !== undefined ? parseInt(args.textureAtlasAsset, 10) : null
         };
 
         var asset = {
@@ -26,6 +26,6 @@ editor.once('load', function() {
             }
         };
 
-        editor.call('assets:create', asset);
+        editor.call('assets:create', asset, args.fn, args.noSelect);
     });
 });
