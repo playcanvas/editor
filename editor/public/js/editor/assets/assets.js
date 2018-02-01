@@ -126,5 +126,6 @@ editor.once('load', function() {
     // publish remove asset
     assets.on('remove', function(asset) {
         editor.emit('assets:remove', asset);
+        editor.emit('assets:remove[' + asset.get('id') + ']');
     });
 });
