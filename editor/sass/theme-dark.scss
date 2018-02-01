@@ -12,10 +12,10 @@ body {
     height: 8px;
 }
 ::-webkit-scrollbar-track {
-    background: $bcg-primary;
+    background: $bcg-darkest;
 }
 ::-webkit-scrollbar-thumb {
-    background: $bcg-dark;
+    background: $text-darkest;
 }
 ::-webkit-scrollbar-thumb:hover {
     background: $text-active;
