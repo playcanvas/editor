@@ -7,7 +7,6 @@ editor.once('load', function () {
         var atlasAsset = args.atlasAsset;
         var atlasImage = args.atlasImage;
         var frames = args.frames;
-
         var frameObservers = frames.map(function (f) {return atlasAsset.getRaw('data.frames.' + f);});
 
         var events = [];
@@ -95,7 +94,8 @@ editor.once('load', function () {
             canvas.height = canvas.clientHeight;
 
             // render
-            editor.call('picker:sprites:editor:renderFramePreview', frameObservers[frame]._data, canvas, frameObservers);
+            if (frameObservers[frame])
+                editor.call('picker:sprites:editor:renderFramePreview', frameObservers[frame]._data, canvas, frameObservers);
 
             if (playing) {
                 queueRender();
@@ -122,5 +122,12 @@ editor.once('load', function () {
             }
             events.length = 0;
         }));
+
+        return {
+            setFrames: function (newFrames) {
+                frames = newFrames;
+                frameObservers = frames.map(function (f) {return atlasAsset.getRaw('data.frames.' + f);});
+            }
+        };
     });
 });

@@ -38,7 +38,8 @@ editor.once('load', function() {
     var newFrame = null;
     var hovering = false;
     var highlightedFrames = [];
-    var pickingFrames = false;
+    var newSpriteFrames = [];
+    var spriteEditMode = false;
 
     var resizeInterval = null;
     var pivotX = 0;
@@ -380,7 +381,7 @@ editor.once('load', function() {
         var p = windowToCanvas(e.clientX, e.clientY);
 
         // if a frame is already selected try to select one of its handles
-        if (selected) {
+        if (selected && ! ctrlDown) {
             selected.oldFrame = atlasAsset.get('data.frames.' + selected.key);
             if (selected.oldFrame) {
                 selected.handle = handlesHitTest(p, selected.oldFrame);
@@ -396,15 +397,33 @@ editor.once('load', function() {
         // if no handle selected try to select the frame under the cursor
         if (! selected || ! selected.handle) {
             var frameUnderCursor = framesHitTest(p);
-            selectFrames(frameUnderCursor, {
-                history: true,
-                add: ctrlDown,
-                clearSprite: true
-            });
+            if (! frameUnderCursor) {
+                // clear selection
+                selectFrames(null, {history: true, clearSprite: !spriteEditMode});
+            } else {
+                var keys = spriteEditMode ? newSpriteFrames : highlightedFrames;
+                var idx = keys.indexOf(frameUnderCursor);
+                // deselect already highlighted frame if ctrl is pressed
+                if (idx !== -1 && ctrlDown) {
+                    keys = keys.slice();
+                    keys.splice(idx, 1);
+                    selectFrames(keys, {
+                        history: true,
+                        clearSprite: !spriteEditMode
+                    });
+                } else {
+                    // select new frame
+                    selectFrames(frameUnderCursor, {
+                        history: true,
+                        clearSprite: !spriteEditMode,
+                        add: ctrlDown
+                    });
+                }
+            }
         }
 
         // if no frame selected then start a new frame
-        if (! selected) {
+        if (! selected && ! spriteEditMode) {
             newFrame =  {
                 rect: [(p.x - imageLeft()) / imageWidth(), 1 - (p.y - imageTop()) / imageHeight(), 0, 0],
                 pivot: [0.5, 0.5]
@@ -466,13 +485,6 @@ editor.once('load', function() {
         // stop panning
         if (panning && ! leftButtonDown) {
             stopPanning();
-        }
-
-        // if we clicked on the canvas clear the selected spriteAsset
-        if (e.target === canvas.element) {
-            if (spriteAsset) {
-                spriteAsset = null;
-            }
         }
 
         // if we've been editing a new frame then create it
@@ -589,7 +601,7 @@ editor.once('load', function() {
             return;
 
         var prevSelection = selected && selected.key;
-        var prevHighlighted = highlightedFrames.slice();
+        var prevHighlighted = spriteEditMode ? newSpriteFrames.slice() : highlightedFrames.slice();
         var prevSprite = spriteAsset;
 
         // add to selection if necessary
@@ -607,14 +619,22 @@ editor.once('load', function() {
             selected = null;
 
             if (oldKeys) {
-                highlightedFrames.length = 0;
+                if (spriteEditMode) {
+                    newSpriteFrames.length = 0;
+                } else {
+                    highlightedFrames.length = 0;
+                }
             }
 
             var asset = editor.call('assets:get', atlasAsset.get('id'));
             if (asset) {
                 var len = newKeys && newKeys.length;
                 if (len) {
-                    highlightedFrames = newKeys.slice();
+                    if (spriteEditMode) {
+                        newSpriteFrames = newKeys.slice();
+                    } else {
+                        highlightedFrames = newKeys.slice();
+                    }
 
                     if (! spriteAsset) {
                         selected = {
@@ -627,7 +647,13 @@ editor.once('load', function() {
             }
 
             queueRender();
-            updateRightPanel();
+
+            // do not re-create the right panel
+            // while we are selecting frames to add
+            // to the sprite asset
+            if (! spriteEditMode) {
+                updateRightPanel();
+            }
 
             editor.emit('picker:sprites:editor:framesSelected', newKeys);
         };
@@ -772,7 +798,7 @@ editor.once('load', function() {
             if (oldFrame) {
                 asset.set('data.frames.' + key, oldFrame);
             } else {
-                asset.unset('data.frames.' + key);
+                deleteFrames([key]);
             }
             asset.history.enabled = history;
         };
@@ -890,7 +916,7 @@ editor.once('load', function() {
         ctx.strokeStyle = COLOR_FRAME;
         ctx.lineWidth = 1;
         for (var key in frames) {
-            if (highlightedFrames.indexOf(key) !== -1) continue;
+            if (highlightedFrames.indexOf(key) !== -1 || newSpriteFrames.indexOf(key) !== -1) continue;
 
             renderFrame(frames[key]._data, left, top, width, height);
         }
@@ -904,9 +930,33 @@ editor.once('load', function() {
             var key = highlightedFrames[i];
             if (selected && selected.key === key) continue;
 
-            renderFrame(frames[key]._data, left, top, width, height, true);
+            // check if frame no longer exists
+            if (! frames[key]) {
+                highlightedFrames.splice(i, 1);
+                len--;
+                i--;
+            } else {
+                renderFrame(frames[key]._data, left, top, width, height, 0, !spriteEditMode);
+            }
         }
+        ctx.stroke();
 
+        // draw sprite edit mode frames
+        ctx.beginPath();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = COLOR_HANDLE;
+        for (var i = 0, len = newSpriteFrames.length; i<len; i++) {
+            var key = newSpriteFrames[i];
+
+            // check if frame no longer exists
+            if (! frames[key]) {
+                newSpriteFrames.splice(i, 1);
+                len--;
+                i--;
+            } else {
+                renderFrame(frames[key]._data, left, top, width, height, 1, !spriteEditMode);
+            }
+        }
         ctx.stroke();
 
         var frame = newFrame || (selected ? atlasAsset.get('data.frames.' + selected.key) : null);
@@ -917,7 +967,7 @@ editor.once('load', function() {
 
             // draw newFrame or selected frame
             if (frame !== newFrame || newFrame.rect[2] !== 0 && newFrame.rect[3] !== 0) {
-                renderFrame(frame, left, top, width, height, false);
+                renderFrame(frame, left, top, width, height);
             }
 
             ctx.stroke();
@@ -928,18 +978,20 @@ editor.once('load', function() {
         }
     };
 
-    var renderFrame = function (frame, left, top, width, height, renderPivot) {
+    var renderFrame = function (frame, left, top, width, height, offset, renderPivot) {
         var x = frameLeft(frame, left, width);
         var y = frameTop(frame, top, height);
         var w = frameWidth(frame, width);
         var h = frameHeight(frame, height);
 
+        offset = offset || 0;
+
         // render rect
-        ctx.moveTo(x, y);
-        ctx.lineTo(x, y + h);
-        ctx.lineTo(x + w, y + h);
-        ctx.lineTo(x + w, y);
-        ctx.lineTo(x, y);
+        ctx.moveTo(x - offset, y - offset);
+        ctx.lineTo(x - offset, y + offset + h);
+        ctx.lineTo(x + offset + w, y + offset + h);
+        ctx.lineTo(x + offset + w, y - offset);
+        ctx.lineTo(x - offset, y - offset);
 
         if (renderPivot) {
             var px = x + frame.pivot[0] * w;
@@ -1159,6 +1211,69 @@ editor.once('load', function() {
         }
     }));
 
+    // Delete frames with specified keys from atlas and also
+    // remove these frames from any sprite assets that are referencing them
+    var deleteFrames = function (keys, history) {
+        if (history) {
+            // make copy of array to make sure undo / redo works
+            keys = keys.slice();
+        }
+
+        var numKeys = keys.length;
+
+        if (history) {
+            var oldFrames = {};
+            for (var i = 0; i < numKeys; i++) {
+                oldFrames[keys[i]] = atlasAsset.get('data.frames.' + keys[i]);
+            }
+        }
+
+        var redo = function () {
+            var asset = editor.call('assets:get', atlasAsset.get('id'));
+            if (! asset) return;
+            var history = asset.history.enabled;
+            asset.history.enabled = false;
+
+            for (var i = 0; i < numKeys; i++) {
+                asset.unset('data.frames.' + keys[i]);
+            }
+
+            selectFrames(null, {
+                clearSprite: true
+            });
+
+            asset.history.enabled = history;
+        };
+
+        if (history) {
+            var undo = function () {
+                var asset = editor.call('assets:get', atlasAsset.get('id'));
+                if (! asset) return;
+                var history = asset.history.enabled;
+                asset.history.enabled = false;
+
+                for (var i = 0; i < numKeys; i++) {
+                    asset.set('data.frames.' + keys[i], oldFrames[keys[i]]);
+                }
+
+                selectFrames(keys, {
+                    clearSprite: true
+                });
+
+                asset.history.enabled = history;
+
+            };
+
+            editor.call('history:add', {
+                name: 'delete frames',
+                undo: undo,
+                redo: redo
+            });
+        }
+
+        redo();
+    };
+
     var cleanUp = function () {
         // reset controls
         controls.set('zoom', 1);
@@ -1184,6 +1299,7 @@ editor.once('load', function() {
         newFrame = null;
         hovering = false;
         highlightedFrames.length = 0;
+        newSpriteFrames.length = 0;
 
         leftButtonDown = false;
         rightButtonDown = false;
@@ -1209,58 +1325,7 @@ editor.once('load', function() {
     });
 
     editor.method('picker:sprites:editor:deleteFrames', function (keys) {
-        keys = keys.slice();
-
-        var numKeys = keys.length;
-        var oldFrames = {};
-        for (var i = 0; i < numKeys; i++) {
-            oldFrames[keys[i]] = atlasAsset.get('data.frames.' + keys[i]);
-        }
-
-        var redo = function () {
-            var asset = editor.call('assets:get', atlasAsset.get('id'));
-            if (! asset) return;
-            var history = asset.history.enabled;
-            asset.history.enabled = false;
-
-            for (var i = 0; i < numKeys; i++) {
-                asset.unset('data.frames.' + keys[i]);
-            }
-
-            selectFrames(null, {
-                clearSprite: true
-            });
-
-            asset.history.enabled = history;
-
-        };
-
-        var undo = function () {
-
-            var asset = editor.call('assets:get', atlasAsset.get('id'));
-            if (! asset) return;
-            var history = asset.history.enabled;
-            asset.history.enabled = false;
-
-            for (var i = 0; i < numKeys; i++) {
-                asset.set('data.frames.' + keys[i], oldFrames[keys[i]]);
-            }
-
-            selectFrames(keys, {
-                clearSprite: true
-            });
-
-            asset.history.enabled = history;
-
-        };
-
-        editor.call('history:add', {
-            name: 'delete frames',
-            undo: undo,
-            redo: redo
-        });
-
-        redo();
+        deleteFrames(keys, true);
     });
 
     // Return left panel
@@ -1429,22 +1494,57 @@ editor.once('load', function() {
     });
 
     editor.method('picker:sprites:editor:pickFrames', function () {
-        if (pickingFrames) return;
+        if (spriteEditMode) return;
 
-        pickingFrames = true;
-        overlayPickFrames.hidden = false;
-        panel.class.add('select-frames-mode');
+        var redo = function () {
+            overlayPickFrames.hidden = false;
+        };
 
-        editor.emit('picker:sprites:editor:pickFrames:start');
+        var undo = function () {
+            overlayPickFrames.hidden = true;
+        };
+
+        editor.call('history:add', {
+            name: 'add frames',
+            undo: undo,
+            redo: redo
+        });
+
+        redo();
     });
 
+    // Adds picked frames to sprite asset and exits sprite edit mode
+    editor.method('picker:sprites:editor:pickFrames:add', function () {
+        if (! spriteAsset) return;
+
+        var length = newSpriteFrames.length;
+        if (length) {
+            var keys = spriteAsset.get('data.frameKeys');
+            keys = keys.concat(newSpriteFrames);
+            spriteAsset.set('data.frameKeys', keys);
+        }
+
+        overlayPickFrames.hidden = true;
+    });
+
+    // Exits sprite edit mode
     editor.method('picker:sprites:editor:pickFrames:cancel', function () {
         overlayPickFrames.hidden = true;
     });
 
+    overlayPickFrames.on('show', function () {
+        spriteEditMode = true;
+        panel.class.add('select-frames-mode');
+        editor.emit('picker:sprites:editor:pickFrames:start');
+    });
+
     overlayPickFrames.on('hide', function () {
-        pickingFrames = false;
         panel.class.remove('select-frames-mode');
+
+        spriteEditMode = false;
+        newSpriteFrames.length = 0;
+        queueRender();
+
         editor.emit('picker:sprites:editor:pickFrames:end');
     });
 

@@ -6119,8 +6119,7 @@ strong {
                             }
 
                             &:hover {
-                                background-color: $bcg-darkest;
-
+                                background-color: $bcg-darker;
                                 cursor: pointer;
                             }
 
@@ -6204,14 +6203,8 @@ strong {
 
                     .frame {
                         background-color: $bcg-dark;
-                        border: 1px solid $bcg-darker;
-                        border-bottom: 0;
                         padding: 5px;
                         white-space: nowrap;
-
-                        &:last-child {
-                            border-bottom: 1px solid $bcg-darker;
-                        }
 
                         &:hover {
                             background-color: $bcg-darker;
@@ -6220,6 +6213,16 @@ strong {
 
                         &.selected {
                             background-color: $bcg-darkest;
+                        }
+
+                        border: 1px solid $bcg-darker;
+
+                        & + & {
+                            border-top: 0;
+                        }
+
+                        &.highlighted {
+                            border: 1px solid #0f0;
                         }
 
                         .ui-label.name {
@@ -6260,6 +6263,11 @@ strong {
                                 font-weight: 200;
                             }
                         }
+                    }
+
+                    .frame.highlighted + .frame.highlighted {
+                        border-top: 0;
+                        margin-top: 1px;
                     }
                 }
 
@@ -6330,7 +6338,7 @@ strong {
 
     .ui-overlay.overlay-frames {
         > .overlay {
-            background-color: rgba($bcg-darkest, .7);
+            background-color: transparent;
         }
 
         > .content {

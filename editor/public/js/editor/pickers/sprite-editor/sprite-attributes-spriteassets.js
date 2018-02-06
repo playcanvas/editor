@@ -47,7 +47,11 @@ editor.once('load', function() {
 
             var renderPreview = function () {
                 var frameKeys = asset.get('data.frameKeys');
-                var frames = frameKeys.map(function (f) {return atlasAsset.get('data.frames.' + f);});
+                var frames = frameKeys.filter(function (f) {
+                    return atlasAsset.has('data.frames.' + f);
+                }).map(function (f) {
+                    return atlasAsset.getRaw('data.frames.' + f)._data;
+                });
 
                 editor.call('picker:sprites:editor:renderFramePreview', frames[0], canvas.element, frames);
             };

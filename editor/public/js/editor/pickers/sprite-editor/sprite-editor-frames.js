@@ -8,9 +8,9 @@ editor.once('load', function() {
         var atlasImage = args.atlasImage;
 
         var panels = {};
-        var selectedPanels = {};
         var selectedKeys = [];
-        var lastFrameSelected = null;
+        var spriteEditModeKeys = [];
+        var spriteEditMode = false;
 
         var shiftDown = false;
         var ctrlDown = false;
@@ -60,7 +60,7 @@ editor.once('load', function() {
         panelButtons.append(btnDelete);
 
         btnDelete.on('click', function () {
-            editor.call('picker:sprites:editor:deleteFrames', Object.keys(selectedPanels));
+            editor.call('picker:sprites:editor:deleteFrames', selectedKeys);
         });
 
         var btnAddSelectedFrames = new ui.Button({
@@ -71,6 +71,10 @@ editor.once('load', function() {
         btnAddSelectedFrames.disabled = true;
         btnAddSelectedFrames.hidden = true;
         panelButtons.append(btnAddSelectedFrames);
+
+        btnAddSelectedFrames.on('click', function () {
+            editor.call('picker:sprites:editor:pickFrames:add');
+        });
 
         var panelFrames = new ui.Panel();
         panelFrames.scroll = true;
@@ -126,7 +130,7 @@ editor.once('load', function() {
 
             btnRemove.on('click', function (e) {
                 e.stopPropagation();
-                atlasAsset.unset('data.frames.' + key);
+                editor.call('picker:sprites:editor:deleteFrames', [key]);
             });
 
             panel.on('click', function () {
@@ -134,65 +138,64 @@ editor.once('load', function() {
 
                 if (shiftDown) {
                     // if another frame was selected then add range to selection
-                    if (lastFrameSelected) {
-                        var diff = parseInt(key, 10) - parseInt(lastFrameSelected, 10);
-                        var rangeStart = diff >= 0 ? lastFrameSelected : key;
-                        var rangeEnd = diff >= 0 ? key : lastFrameSelected;
-                        diff = Math.abs(diff);
+                    var keys = spriteEditMode ? spriteEditModeKeys : selectedKeys;
+                    var len = keys.length;
+                    if (len) {
+                        var diff = parseInt(key, 10) - parseInt(keys[len-1], 10);
+                        var dir = diff < 0 ? -1 : 1;
+                        var p = panels[keys[len-1]];
+                        var range = [];
+                        while (diff !== 0) {
+                            p = dir > 0 ? p.element.nextSibling : p.element.previousSibling;
+                            if (! p) break;
+                            p = p.ui;
 
-                        if (diff) {
-                            var range = [];
-                            var p = panels[rangeStart];
+                            range.push(p.frameKey);
 
-                            while (p && p.frameKey && diff >= 0) {
-                                range.push(p.frameKey);
+                            if (p.frameKey === key)
+                                break;
 
-                                var next = p.element.nextSibling;
-                                if (! next) break;
+                            diff -= dir;
+                        }
 
-                                p = next.ui;
-                                diff--;
-                            }
-
+                        if (range.length) {
                             editor.call('picker:sprites:editor:selectFrames', range, {
                                 add: true,
                                 history: true,
-                                clearSprite: true
+                                clearSprite: !spriteEditMode
                             });
                         }
-
                     } else {
                         // otherwise just select single frame
                         editor.call('picker:sprites:editor:selectFrames', key, {
                             history: true,
-                            clearSprite: true
+                            clearSprite: !spriteEditMode
                         });
                     }
                 } else if (ctrlDown) {
                     // if not selected add frame to selection
-                    if (! selectedPanels[key]) {
+                    var keys = spriteEditMode ? spriteEditModeKeys : selectedKeys;
+                    var idx = keys.indexOf(key);
+                    if (idx === -1) {
                         editor.call('picker:sprites:editor:selectFrames', key, {
                             add: true,
                             history: true,
-                            clearSprite: true
+                            clearSprite: !spriteEditMode
                         });
                     } else {
                         // if selected remove from selection
-                        var idx = selectedKeys.indexOf(key);
-                        if (idx !== -1) {
-                            selectedKeys.splice(idx, 1);
-                            editor.call('picker:sprites:editor:selectFrames', selectedKeys, {
-                                history: true,
-                                clearSprite: true
-                            });
-                        }
+                        keys.splice(idx, 1);
+                    editor.call('picker:sprites:editor:selectFrames', keys, {
+                            history: true,
+                            clearSprite: !spriteEditMode
+                        });
                     }
 
                 } else {
                     // select single frame
                     editor.call('picker:sprites:editor:selectFrames', key, {
                         history: true,
-                        clearSprite: true
+                        clearSprite: !spriteEditMode
                     });
                 }
 
@@ -214,32 +217,6 @@ editor.once('load', function() {
                 panelFrames.appendBefore(panel, beforePanel);
             } else {
                 panelFrames.append(panel);
-            }
-        };
-
-        var selectPanel = function (key) {
-            if (selectedPanels[key]) return;
-            selectedPanels[key] = true;
-            panels[key].class.add('selected');
-
-            btnNewSprite.disabled = false;
-            btnDelete.disabled = false;
-        };
-
-        var deselectPanel = function (key) {
-            if (! selectedPanels[key]) return;
-            delete selectedPanels[key];
-            panels[key].class.remove('selected');
-
-            var hasSelected = false;
-            for (var key in selectedPanels) {
-                hasSelected = true;
-                break;
-            }
-
-            if (! hasSelected) {
-                btnNewSprite.disabled = true;
-                btnDelete.disabled = true;
             }
         };
 
@@ -294,8 +271,6 @@ editor.once('load', function() {
                 }
 
                 panels = {};
-                selectedPanels = {};
-                lastFrameSelected = null;
 
                 for (key in value) {
                     addFramePanel(key, value[key]);
@@ -313,9 +288,6 @@ editor.once('load', function() {
             if (panels[key]) {
                 panels[key].destroy();
                 delete panels[key];
-                delete selectedPanels[key];
-                if (lastFrameSelected === key)
-                    lastFrameSelected = null;
             }
         }));
 
@@ -324,10 +296,40 @@ editor.once('load', function() {
             var index = {};
             var key;
 
-            if (keys) {
-                selectedKeys = keys.slice();
+            if (spriteEditMode) {
+                // unhighlight old keys
+                var highlighted = panelFrames.innerElement.querySelectorAll('.frame.highlighted');
+                for (var i = 0, len = highlighted.length; i<len; i++) {
+                    if (! keys || keys.indexOf(highlighted[i].ui.frameKey) === -1) {
+                        highlighted[i].ui.class.remove('highlighted');
+                    }
+                }
+
+                if (keys) {
+                    spriteEditModeKeys = keys.slice();
+                    btnAddSelectedFrames.disabled = false;
+                } else {
+                    spriteEditModeKeys.length = 0;
+                    btnAddSelectedFrames.disabled = true;
+                }
+
             } else {
-                selectedKeys.length = 0;
+                var selected = panelFrames.innerElement.querySelectorAll('.frame.selected');
+                for (var i = 0, len = selected.length; i<len; i++) {
+                    if (! keys || keys.indexOf(selected[i].ui.frameKey) === -1) {
+                        selected[i].ui.class.remove('selected');
+                    }
+                }
+
+                if (keys) {
+                    selectedKeys = keys.slice();
+                    btnNewSprite.disabled = false;
+                    btnDelete.disabled = false;
+                } else {
+                    selectedKeys.length = 0;
+                    btnNewSprite.disabled = true;
+                    btnDelete.disabled = true;
+                }
             }
 
             // select new keys
@@ -339,26 +341,22 @@ editor.once('load', function() {
                     if (! panels[key]) continue;
 
                     if (scrollSelectionIntoView) {
-                        if (i === 0 && ! selectPanel[key]) {
-                            panelFrames.innerElement.scrollTop = panels[key].element.offsetTop;
+                        var scroll = false;
+                        if (i === 0) {
+                            scroll = spriteEditMode ? ! panels[key].class.contains('highlighted') : ! panels[key].class.contains('selected');
+                            if (scroll) {
+                                panelFrames.innerElement.scrollTop = panels[key].element.offsetTop;
+                            }
                         }
                     }
 
-                    selectPanel(key);
-                }
-
-                lastFrameSelected = len ? keys[len-1] : null;
-            }
-
-            // deselect old keys
-            for (key in selectedPanels) {
-                if (! index[key]) {
-                    deselectPanel(key);
+                    panels[key].class.add(spriteEditMode ? 'highlighted' : 'selected');
                 }
             }
         }));
 
         events.push(editor.on('picker:sprites:editor:pickFrames:start', function () {
+            spriteEditMode = true;
             btnAddSelectedFrames.hidden = false;
             btnAddSelectedFrames.disabled = true;
             btnNewSprite.hidden = true;
@@ -366,9 +364,18 @@ editor.once('load', function() {
         }));
 
         events.push(editor.on('picker:sprites:editor:pickFrames:end', function () {
+            spriteEditMode = false;
             btnAddSelectedFrames.hidden = true;
             btnNewSprite.hidden = false;
             btnDelete.hidden = false;
+
+            for (var i = 0, len = spriteEditModeKeys.length; i<len; i++) {
+                if (panels[spriteEditModeKeys[i]]) {
+                    panels[spriteEditModeKeys[i]].class.remove('highlighted');
+                }
+            }
+
+            spriteEditModeKeys.length = 0;
         }));
 
         // clean up
@@ -387,9 +394,8 @@ editor.once('load', function() {
             window.removeEventListener('keyup', onKeyUp);
 
             panels = {};
-            selectedPanels = {};
-            lastFrameSelected = null;
-            selectedKeys = [];
+            selectedKeys.length = 0;
+            spriteEditModeKeys.length = 0;
         });
     });
 });

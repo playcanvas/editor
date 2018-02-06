@@ -5,19 +5,29 @@ editor.once('load', function() {
         var atlasAsset = args.atlasAsset;
         var atlasImage = args.atlasImage;
         var spriteAsset = args.spriteAsset;
-        var frameKeys = spriteAsset.get('data.frameKeys');
-        var frames = frameKeys.map(function (f) {
-            return atlasAsset.get('data.frames.' + f);
-        });
 
-        var pickingFrames = false;
+        var frameKeys, frames;
+
+        var refreshFrames = function () {
+            frameKeys = spriteAsset.get('data.frameKeys').filter(function (f) {
+                return atlasAsset.has('data.frames.' + f);
+            });
+            frames = frameKeys.map(function (f) {
+                return atlasAsset.get('data.frames.' + f);
+            });
+        };
+
+        refreshFrames();
+
+        var spriteEditMode = false;
+        var selectedFrames = null;
 
         var events = [];
 
         var rootPanel = editor.call('picker:sprites:editor:rightPanel');
         rootPanel.header = 'SPRITE - ' + spriteAsset.get('name');
 
-        editor.call('picker:sprites:attributes:frames:preview', {
+        var fieldPreview = editor.call('picker:sprites:attributes:frames:preview', {
             atlasAsset: atlasAsset,
             atlasImage: atlasImage,
             frames: frameKeys
@@ -62,11 +72,7 @@ editor.once('load', function() {
         panelEdit.append(btnAddSprites);
 
         btnAddSprites.on('click', function () {
-            if (! pickingFrames) {
-                editor.call('picker:sprites:editor:pickFrames');
-            } else {
-                // TODO
-            }
+            editor.call('picker:sprites:editor:pickFrames');
         });
 
         var btnAddSelected = new ui.Button({
@@ -77,8 +83,9 @@ editor.once('load', function() {
         btnAddSelected.hidden = true;
         panelEdit.append(btnAddSelected);
 
+        // add selected frames to sprite asset
         btnAddSelected.on('click', function () {
-
+            editor.call('picker:sprites:editor:pickFrames:add');
         });
 
         var btnCancel = new ui.Button({
@@ -210,20 +217,39 @@ editor.once('load', function() {
             if (! panels[value]) return;
             panels[value].destroy();
             delete panels[value];
+
+            refreshFrames();
+
+            fieldPreview.setFrames(frameKeys);
         }));
 
         events.push(spriteAsset.on('*:insert', function (path, value, index) {
             if (panels[value]) return;
 
-            frameKeys = spriteAsset.get('data.frameKeys');
-            frames = frameKeys.map(function (f) {
-                return atlasAsset.get('data.frames.' + f);
-            });
+            refreshFrames();
 
             addFramePanel(frameKeys[index], frames[index], index);
+
+            fieldPreview.setFrames(frameKeys);
+        }));
+
+        events.push(spriteAsset.on('data.frameKeys:set', function (value) {
+            for (var key in panels)
+                panels[key].destroy();
+
+            panels = {};
+
+            refreshFrames();
+
+            for (var i = 0, len = frameKeys.length; i<len; i++) {
+                addFramePanel(frameKeys[i], frames[i]);
+            }
+
+            fieldPreview.setFrames(frameKeys);
         }));
 
         events.push(editor.on('picker:sprites:editor:pickFrames:start', function () {
+            spriteEditMode = true;
             btnAddSprites.hidden = true;
             btnAddSelected.disabled = true;
             btnAddSelected.hidden = false;
@@ -231,9 +257,28 @@ editor.once('load', function() {
         }));
 
         events.push(editor.on('picker:sprites:editor:pickFrames:end', function () {
+            spriteEditMode = false;
             btnAddSprites.hidden = false;
             btnAddSelected.hidden = true;
             btnCancel.hidden = true;
+
+            // restore preview to the actual frames that the sprite currently has
+            fieldPreview.setFrames(frameKeys);
+        }));
+
+        events.push(editor.on('picker:sprites:editor:framesSelected', function (keys) {
+            if (! spriteEditMode) return;
+
+            selectedFrames = keys;
+
+            var len = keys ? keys.length : 0;
+            btnAddSelected.disabled = !len;
+
+            // update preview to show what sprite would look like after
+            // the selected keys were added
+            if (len) {
+                fieldPreview.setFrames(frameKeys.slice().concat(keys));
+            }
         }));
 
         events.push(rootPanel.on('clear', function () {
@@ -248,7 +293,7 @@ editor.once('load', function() {
 
             events.length = 0;
             panels = {};
-            pickingFrames = false;
+            spriteEditMode = false;
         });
 
     });
