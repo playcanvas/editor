@@ -119,14 +119,14 @@ editor.once('load', function () {
                 return fn && fn(err);
             }
 
-            var asset = editor.call('assets:get', res.asset.id);
+            var asset = editor.call('assets:get', res.id);
             if (asset) {
                 onAssetSelect(asset);
             } else {
-                evtAssetAdd = editor.once('assets:add[' + res.asset.id + ']', onAssetSelect);
+                evtAssetAdd = editor.once('assets:add[' + res.id + ']', onAssetSelect);
             }
 
-            if (fn) fn(err, res.asset.id);
+            if (fn) fn(err, res.id);
         });
     });
 });

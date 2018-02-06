@@ -188,6 +188,9 @@ editor.once('load', function() {
             var item = jobs[asset.get('id')];
             var meta = asset.get('meta');
 
+            // settings
+            var searchRelatedAssets = settings.get('editor.pipeline.searchRelatedAssets');
+
             var events = [ ];
 
             if (item) {
@@ -243,15 +246,13 @@ editor.once('load', function() {
                     filename = filename.slice(0, filename.length - 1).join() + '.' + task.options.format;
                     var path = asset.get('path');
 
-                    var target = editor.call('assets:findOne', function(a) {
-                        if (a.get('name') !== filename || a.get('source_asset_id') !== asset.get('id'))
-                            return false;
-
-                        if (! settings.get('editor.pipeline.searchRelatedAssets') && ! a.get('path').equals(path))
-                            return false;
-
-                        return true;
+                    var target = editor.call('assets:findTarget', {
+                        id: asset.get('id'),
+                        filename: asset.get('file.filename'),
+                        path: path,
+                        searchRelatedAssets: searchRelatedAssets
                     });
+
                     if (target)
                         target = target[1];
 
@@ -327,15 +328,14 @@ editor.once('load', function() {
                 nameModel = nameModel.slice(0, nameModel.length - 1).join('.') + '.json';
 
                 // model
-                var modelTarget = editor.call('assets:findOne', function(a) {
-                    if (a.get('source_asset_id') !== asset.get('id') || a.get('name') !== nameModel || a.get('type') !== 'model')
-                        return false;
-
-                    if (! settings.get('editor.pipeline.searchRelatedAssets') && ! a.get('path').equals(path))
-                        return false;
-
-                    return true;
+                var modelTarget = editor.call('assets:findTarget', {
+                    id: asset.get('id'),
+                    filename: asset.get('file.filename'),
+                    path: asset.get('path'),
+                    type: 'model',
+                    searchRelatedAssets: searchRelatedAssets
                 });
+
                 if (modelTarget) {
                     model.asset = parseInt(modelTarget[1].get('id'), 10);
                     model.override = settings.get('editor.pipeline.overwriteModel');
@@ -345,14 +345,12 @@ editor.once('load', function() {
                 if (asset.get('meta.animation.available')) {
                     animation = { };
 
-                    var animationTarget = editor.call('assets:findOne', function(a) {
-                        if (a.get('source_asset_id') !== asset.get('id') || a.get('name') !== nameModel || a.get('type') !== 'animation')
-                            return false;
-
-                        if (! settings.get('editor.pipeline.searchRelatedAssets') && ! a.get('path').equals(path))
-                            return false;
-
-                        return true;
+                    var animationTarget = editor.call('assets:findTarget', {
+                        id: asset.get('id'),
+                        filename: asset.get('file.filename'),
+                        path: path,
+                        type: 'animation',
+                        searchRelatedAssets: searchRelatedAssets
                     });
 
                     if (animationTarget) {
@@ -363,14 +361,12 @@ editor.once('load', function() {
 
                 // materials
                 for(var i = 0; i < materials.length; i++) {
-                    var target = editor.call('assets:findOne', function(a) {
-                        if (a.get('source_asset_id') !== asset.get('id') || a.get('name') !== materials[i].name || a.get('type') !== 'material')
-                            return false;
-
-                        if (! settings.get('editor.pipeline.searchRelatedAssets') && ! a.get('path').equals(path))
-                            return false;
-
-                        return true;
+                    var target = editor.call('assets:findTarget', {
+                        id: asset.get('id'),
+                        filename: materials[i].name,
+                        path: path,
+                        type: 'material',
+                        searchRelatedAssets: searchRelatedAssets
                     });
 
                     if (target) {
@@ -389,14 +385,12 @@ editor.once('load', function() {
 
                     var fileName = name.replace(/\.[0-9a-z]{3,4}$/i, '') + '.' + textures[i].options.format;
 
-                    var target = editor.call('assets:findOne', function(a) {
-                        if (a.get('source_asset_id') !== asset.get('id') || a.get('name').toLowerCase() !== fileName || a.get('type') !== 'texture' || a.get('source'))
-                            return false;
-
-                        if (! settings.get('editor.pipeline.searchRelatedAssets') && ! a.get('path').equals(path))
-                            return false;
-
-                        return true;
+                    var target = editor.call('assets:findTarget', {
+                        id: asset.get('id'),
+                        filename: asset.get('file.filename').toLowerCase(),
+                        path: path,
+                        type: 'texture',
+                        searchRelatedAssets: searchRelatedAssets
                     });
 
                     if (target) {
@@ -431,8 +425,9 @@ editor.once('load', function() {
                 var filename = asset.get('file.filename');
                 var path = asset.get('path');
 
-                var target = editor.call('assets:findOne', function(a) {
-                    return a.get('name') === filename && a.get('source_asset_id') === asset.get('id');
+                var target = editor.call('assets:findTarget', {
+                    id: asset.get('id'),
+                    filename: asset.get('file.filename')
                 });
 
                 if (target)

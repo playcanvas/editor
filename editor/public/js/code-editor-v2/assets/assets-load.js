@@ -14,6 +14,7 @@ editor.once('load', function () {
 
     // Load asset from C3 and call callback
     editor.method('assets:loadOne', function (id, callback) {
+        var id = id.toString(); // ensure id is string
         var connection = editor.call('realtime:connection');
         var assetDoc = connection.get('assets', id);
         docIndex[id] = assetDoc;
