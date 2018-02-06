@@ -4,21 +4,28 @@ editor.once('load', function() {
     var app = editor.call('viewport:app');
     if (! app) return; // webgl not available
 
+    var cancelRender = function (width, height, canvas) {
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').clearRect(0, 0, width, height);
+        return false;
+    };
+
     editor.method('preview:sprite:render', function(asset, width, height, canvas, args) {
         var frameKeys = asset.get('data.frameKeys');
-        if (! frameKeys || ! frameKeys.length) return;
+        if (! frameKeys || ! frameKeys.length) return cancelRender(width, height, canvas);
 
         var atlasId = asset.get('data.textureAtlasAsset');
-        if (! atlasId) return;
+        if (! atlasId) return cancelRender(width, height, canvas);
 
         var atlas = editor.call('assets:get', atlasId);
-        if (! atlas) return;
+        if (! atlas) return cancelRender(width, height, canvas);
 
         var frames = atlas.get('data.frames');
-        if (! frames) return;
+        if (! frames) return cancelRender(width, height, canvas);
 
         var frame = frames[frameKeys[args && args.frame || 0]];
-        if (! frame) return;
+        if (! frame) return cancelRender(width, height, canvas);
 
         var ctx = canvas.getContext('2d');
 
@@ -79,11 +86,7 @@ editor.once('load', function() {
 
             return true;
         } else {
-            canvas.width = width;
-            canvas.height = height;
-            ctx.clearRect(0, 0, width, height);
-
-            return false;
+            return cancelRender(width, height, canvas);
         }
     });
 });
