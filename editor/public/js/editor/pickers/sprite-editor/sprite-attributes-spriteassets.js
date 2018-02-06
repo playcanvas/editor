@@ -53,7 +53,9 @@ editor.once('load', function() {
                     return atlasAsset.getRaw('data.frames.' + f)._data;
                 });
 
-                editor.call('picker:sprites:editor:renderFramePreview', frames[0], canvas.element, frames);
+                if (frames[0]) {
+                    editor.call('picker:sprites:editor:renderFramePreview', frames[0], canvas.element, frames);
+                }
             };
 
             renderPreview();
@@ -91,7 +93,7 @@ editor.once('load', function() {
 
             spriteEvents.push(editor.on('assets:remove[' + asset.get('id') + ']', function () {
                 panel.destroy();
-                updateSpriteCount();
+                fieldSprites.value = Math.max(0, parseInt(fieldSprites.value, 10) - 1);
             }));
 
             // clean up events
@@ -105,24 +107,18 @@ editor.once('load', function() {
             panelSpriteAssets.append(panel);
         };
 
-        // Update number of sprite assets field
-        var updateSpriteCount = function () {
-            // find all sprite assets associated with this atlas
-            var spriteAssets = editor.call('assets:find', function (asset) {
-                var atlasId = parseInt(atlasAsset.get('id'), 10);
-                return asset.get('type') === 'sprite' && parseInt(asset.get('data.textureAtlasAsset'), 10) === atlasId;
-            });
+        // find all sprite assets associated with this atlas
+        var spriteAssets = editor.call('assets:find', function (asset) {
+            var atlasId = parseInt(atlasAsset.get('id'), 10);
+            return asset.get('type') === 'sprite' && parseInt(asset.get('data.textureAtlasAsset'), 10) === atlasId;
+        });
 
-            var count = spriteAssets.length;
-            fieldSprites.value = count;
+        var count = spriteAssets.length;
+        fieldSprites.value = count;
 
-            for (var i = 0; i<count; i++) {
-                createSpriteAssetPanel(spriteAssets[i][1]);
-            }
-        };
-
-
-        updateSpriteCount();
+        for (var i = 0; i<count; i++) {
+            createSpriteAssetPanel(spriteAssets[i][1]);
+        }
 
         events.push(rootPanel.on('clear', function () {
             panel.destroy();
