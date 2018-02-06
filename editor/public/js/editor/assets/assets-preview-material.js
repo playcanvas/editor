@@ -74,14 +74,25 @@ editor.once('load', function() {
     camera.frustumCulling = false;
 
 
-    editor.method('preview:material:render', function(asset, target, args) {
-        args = args || { };
-
-        camera.aspectRatio = target.height / target.width;
-        camera.renderTarget = target;
-
+    editor.method('preview:material:render', function(asset, canvasWidth, canvasHeight, canvas, args) {
         var data = asset.get('data');
         if (! data) return;
+
+        args = args || { };
+
+        var width = canvasWidth;
+        var height = canvasHeight;
+
+        if (width > height)
+            width = height;
+        else
+            height = width;
+        var width = height;
+
+        var target = editor.call('preview:getTexture', width, height);
+
+        camera.aspectRatio = height / width;
+        camera.renderTarget = target;
 
         scene.addModel(model);
         scene.addLight(light);
@@ -196,6 +207,15 @@ editor.once('load', function() {
 
         scene.removeModel(model);
         scene.removeLight(light);
+
+        // read pixels from texture
+        device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, target._glFrameBuffer);
+        device.gl.readPixels(0, 0, width, height, device.gl.RGBA, device.gl.UNSIGNED_BYTE, target.pixels);
+
+        // render to canvas
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+        canvas.getContext('2d').putImageData(new ImageData(target.pixelsClamped, width, height), (canvasWidth - width) / 2, (canvasHeight - height) / 2);
     });
 
     var setModel = function(value) {

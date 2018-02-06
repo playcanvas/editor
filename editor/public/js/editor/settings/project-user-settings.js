@@ -26,6 +26,7 @@ editor.once('load', function () {
                 pipeline: {
                     autoRun: true,
                     texturePot: true,
+                    textureDefaultToAtlas: false,
                     searchRelatedAssets: true,
                     preserveMapping: false,
                     overwriteModel: true,
@@ -69,6 +70,9 @@ editor.once('load', function () {
 
             if (! settings.has('editor.pipeline.preserveMapping'))
                 settings.set('editor.pipeline.preserveMapping', false);
+
+            if (! settings.has('editor.pipeline.textureDefaultToAtlas'))
+                settings.set('editor.pipeline.textureDefaultToAtlas', false);
 
             if (! settings.has('editor.pipeline.overwriteModel'))
                 settings.set('editor.pipeline.overwriteModel', true);

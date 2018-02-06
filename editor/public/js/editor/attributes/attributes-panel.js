@@ -55,6 +55,11 @@ editor.once('load', function() {
         }
     };
 
+    // get the right path from args
+    var pathAt = function (args, index) {
+        return args.paths ? args.paths[index] : args.path;
+    };
+
     editor.method('attributes:linkField', function(args) {
         var update, changeField, changeFieldQueue;
         args.field._changing = false;
@@ -65,11 +70,13 @@ editor.once('load', function() {
 
         update = function() {
             var different = false;
-            var value = args.link[0].has(args.path) ? args.link[0].get(args.path) : undefined;
+            var path = pathAt(args, 0);
+            var value = args.link[0].has(path) ? args.link[0].get(path) : undefined;
             if (args.type === 'rgb') {
                 if (value) {
                     for(var i = 1; i < args.link.length; i++) {
-                        if (! value.equals(args.link[i].get(args.path))) {
+                        path = pathAt(args, i);
+                        if (! value.equals(args.link[i].get(path))) {
                             value = null;
                             different = true;
                             break;
@@ -84,14 +91,15 @@ editor.once('load', function() {
             } else if (args.type === 'asset') {
                 var countUndefined = value === undefined ? 1 : 0;
                 for(var i = 1; i < args.link.length; i++) {
-                    if (!args.link[i].has(args.path)) {
+                    path = pathAt(args, i);
+                    if (!args.link[i].has(path)) {
                         countUndefined++;
                         continue;
                     }
 
-                    var val = args.link[i].get(args.path);
+                    var val = args.link[i].get(path);
 
-                    if ((value || 0) !== (args.link[i].get(args.path) || 0)) {
+                    if ((value || 0) !== (args.link[i].get(path) || 0)) {
                         if (value !== undefined) {
                             value = args.enum ? '' : null;
                             different = true;
@@ -120,7 +128,8 @@ editor.once('load', function() {
                 }
             } else if (args.type === 'entity' || ! args.type) {
                 for(var i = 1; i < args.link.length; i++) {
-                    if (value !== args.link[i].get(args.path)) {
+                    path = pathAt(args, i);
+                    if (value !== args.link[i].get(path)) {
                         value = 'various';
                         different = true;
                         break;
@@ -135,14 +144,15 @@ editor.once('load', function() {
             } else {
                 var valueFound = false;
                 for(var i = 0; i < args.link.length; i++) {
-                    if (! args.link[i].has(args.path))
+                    path = pathAt(args, i);
+                    if (! args.link[i].has(path))
                         continue;
 
                     if (! valueFound) {
                         valueFound = true;
-                        value = args.link[i].get(args.path);
+                        value = args.link[i].get(path);
                     } else {
-                        var v = args.link[i].get(args.path);
+                        var v = args.link[i].get(path);
                         if ((value || 0) !== (v || 0)) {
                             value = args.enum ? '' : null;
                             different = true;
@@ -198,16 +208,17 @@ editor.once('load', function() {
                 args.field.value = value;
 
             for(var i = 0; i < args.link.length; i++) {
-                if (! args.link[i].has(args.path)) continue;
+                var path = pathAt(args, i);
+                if (! args.link[i].has(path)) continue;
 
                 items.push({
                     get: args.link[i].history !== undefined ? args.link[i].history._getItemFn : null,
                     item: args.link[i],
-                    value: args.link[i].has(args.path) ? args.link[i].get(args.path) : undefined
+                    value: args.link[i].has(path) ? args.link[i].get(path) : undefined
                 });
 
                 historyState(args.link[i], false);
-                args.link[i].set(args.path, value);
+                args.link[i].set(path, value);
                 historyState(args.link[i], true);
             }
             args.field._changing = false;
@@ -215,10 +226,11 @@ editor.once('load', function() {
             // history
             if (args.type !== 'rgb' && ! args.slider && ! args.field._stopHistory) {
                 editor.call('history:add', {
-                    name: args.path,
+                    name: pathAt(args, 0),
                     undo: function() {
                         var different = false;
                         for(var i = 0; i < items.length; i++) {
+                            var path = pathAt(args, i);
                             var item;
                             if (items[i].get) {
                                 item = items[i].get();
@@ -233,9 +245,9 @@ editor.once('load', function() {
 
                             historyState(item, false);
                             if (items[i].value === undefined)
-                                item.unset(args.path);
+                                item.unset(path);
                             else
-                                item.set(args.path, items[i].value);
+                                item.set(path, items[i].value);
                             historyState(item, true);
                         }
 
@@ -247,6 +259,7 @@ editor.once('load', function() {
                     },
                     redo: function() {
                         for(var i = 0; i < items.length; i++) {
+                            var path = pathAt(args, i);
                             var item;
                             if (items[i].get) {
                                 item = items[i].get();
@@ -258,10 +271,10 @@ editor.once('load', function() {
 
                             historyState(item, false);
                             if (value === undefined)
-                                item.unset(args.path);
+                                item.unset(path);
                             else
-                                item.set(args.path, value);
-                            item.set(args.path, value);
+                                item.set(path, value);
+                            item.set(path, value);
                             historyState(item, true);
                         }
 
@@ -289,7 +302,7 @@ editor.once('load', function() {
                 var items = [ ];
 
                 for(var i = 0; i < args.link.length; i++) {
-                    var v = args.link[i].get(args.path);
+                    var v = args.link[i].get(pathAt(args, i));
                     if (v instanceof Array)
                         v = v.slice(0);
 
@@ -306,7 +319,7 @@ editor.once('load', function() {
             historyEnd = function(items, value) {
                 // history
                 editor.call('history:add', {
-                    name: args.path,
+                    name: pathAt(args, 0),
                     undo: function() {
                         for(var i = 0; i < items.length; i++) {
                             var item;
@@ -319,7 +332,7 @@ editor.once('load', function() {
                             }
 
                             historyState(item, false);
-                            item.set(args.path, items[i].value);
+                            item.set(pathAt(args, i), items[i].value);
                             historyState(item, true);
                         }
                     },
@@ -335,7 +348,7 @@ editor.once('load', function() {
                             }
 
                             historyState(item, false);
-                            item.set(args.path, value);
+                            item.set(pathAt(args, i), value);
                             historyState(item, true);
                         }
                     }
@@ -411,8 +424,8 @@ editor.once('load', function() {
         events.push(args.field.on('change', changeField));
 
         for(var i = 0; i < args.link.length; i++) {
-            events.push(args.link[i].on(args.path + ':set', changeFieldQueue));
-            events.push(args.link[i].on(args.path + ':unset', changeFieldQueue));
+            events.push(args.link[i].on(pathAt(args, i) + ':set', changeFieldQueue));
+            events.push(args.link[i].on(pathAt(args, i) + ':unset', changeFieldQueue));
         }
 
         events.push(args.field.once('destroy', function() {
@@ -469,22 +482,52 @@ editor.once('load', function() {
 
         args.linkEvents = [ ];
 
+        // if we provide multiple paths for a single Observer then turn args.link into an array
+        if (args.paths && args.paths instanceof Array && args.link && ! (args.link instanceof Array)) {
+            var link = args.link;
+            args.link = [];
+            for (var i = 0; i < args.paths.length; i++) {
+                args.link.push(link);
+            }
+        }
+
         var linkField = args.linkField = function() {
             if (args.link) {
                 var link = function(field, path) {
-                    args.linkEvents = args.linkEvents.concat(editor.call('attributes:linkField', {
+                    var data = {
                         field: field,
-                        path: path || args.path,
                         type: args.type,
                         slider: args.slider,
                         enum: args.enum,
                         link: args.link,
-                        trim: args.trim
-                    }));
+                        trim: args.trim,
+                        name: args.name
+                    };
+
+                    if (! path) {
+                        path = args.paths || args.path;
+                    }
+
+                    if (path instanceof Array) {
+                        data.paths = path;
+                    } else {
+                        data.path = path;
+                    }
+
+                    args.linkEvents = args.linkEvents.concat(editor.call('attributes:linkField', data));
                 };
+
                 if (field instanceof Array) {
                     for(var i = 0; i < field.length; i++) {
-                        link(field[i], args.path + '.' + i);
+                        var paths = args.paths;
+
+                        if (paths) {
+                            paths = paths.map(function (p) {
+                                return p + '.' + i;
+                            });
+                        }
+
+                        link(field[i], paths || (args.path + '.' + i));
                     }
                 } else {
                     link(field);
@@ -572,23 +615,24 @@ editor.once('load', function() {
                     var records = [ ];
 
                     for(var i = 0; i < args.link.length; i++) {
-                        if (args.link[i].get(args.path).indexOf(tag) === -1)
+                        var path = pathAt(args, i);
+                        if (args.link[i].get(path).indexOf(tag) === -1)
                             continue;
 
                         records.push({
                             get: args.link[i].history !== undefined ? args.link[i].history._getItemFn : null,
                             item: args.link[i],
-                            path: args.path,
+                            path: path,
                             value: tag
                         });
 
                         historyState(args.link[i], false);
-                        args.link[i].removeValue(args.path, tag);
+                        args.link[i].removeValue(path, tag);
                         historyState(args.link[i], true);
                     }
 
                     editor.call('history:add', {
-                        name: args.path,
+                        name: pathAt(args, 0),
                         undo: function() {
                             for(var i = 0; i < records.length; i++) {
                                 var item;
@@ -628,23 +672,24 @@ editor.once('load', function() {
                     var records = [ ];
 
                     for(var i = 0; i < args.link.length; i++) {
-                        if (args.link[i].get(args.path).indexOf(tag) !== -1)
+                        var path = pathAt(args, i);
+                        if (args.link[i].get(path).indexOf(tag) !== -1)
                             continue;
 
                         records.push({
                             get: args.link[i].history !== undefined ? args.link[i].history._getItemFn : null,
                             item: args.link[i],
-                            path: args.path,
+                            path: path,
                             value: tag
                         });
 
                         historyState(args.link[i], false);
-                        args.link[i].insert(args.path, tag);
+                        args.link[i].insert(path, tag);
                         historyState(args.link[i], true);
                     }
 
                     editor.call('history:add', {
-                        name: args.path,
+                        name: pathAt(args, 0),
                         undo: function() {
                             for(var i = 0; i < records.length; i++) {
                                 var item;
@@ -768,10 +813,11 @@ editor.once('load', function() {
                             args.link = [ args.link ];
 
                         for(var i = 0; i < args.link.length; i++) {
-                            var tags = args.link[i].get(args.path);
+                            var path = pathAt(args, i);
+                            var tags = args.link[i].get(path);
 
-                            args.linkEvents.push(args.link[i].on(args.path + ':insert', onInsert));
-                            args.linkEvents.push(args.link[i].on(args.path + ':remove', onRemove));
+                            args.linkEvents.push(args.link[i].on(path + ':insert', onInsert));
+                            args.linkEvents.push(args.link[i].on(path + ':remove', onRemove));
 
                             if (! tags)
                                 continue;
@@ -974,7 +1020,7 @@ editor.once('load', function() {
 
             case 'asset':
                 field = new ui.ImageField({
-                    canvas: args.kind === 'material' || args.kind === 'model' || args.kind === 'cubemap' || args.kind === 'font'
+                    canvas: args.kind === 'material' || args.kind === 'model' || args.kind === 'cubemap' || args.kind === 'font' || args.kind === 'sprite'
                 });
                 var evtPick;
 
@@ -1027,7 +1073,7 @@ editor.once('load', function() {
                                     continue;
                                 }
 
-                                oldValues[id] = args.link[i].get(args.path);
+                                oldValues[id] = args.link[i].get(pathAt(args, i));
                             }
                         }
 
@@ -1104,7 +1150,7 @@ editor.once('load', function() {
                             field.image = '/editor/scene/img/asset-placeholder-' + asset.get('type') + '.png';
                         }
 
-                        if (args.kind === 'material' || args.kind === 'model' || args.kind === 'cubemap' || args.kind == 'font') {
+                        if (args.kind === 'material' || args.kind === 'model' || args.kind === 'cubemap' || args.kind == 'font' || args.kind === 'sprite') {
                             watchAsset = asset;
                             watch = editor.call('assets:' + args.kind + ':watch', {
                                 asset: watchAsset,
@@ -1118,26 +1164,22 @@ editor.once('load', function() {
                         queueRender();
                 };
 
-                if (args.kind === 'material' || args.kind === 'model' || args.kind === 'font') {
-                    field.elementImage.classList.add('flipY');
+                if (args.kind === 'material' || args.kind === 'model' || args.kind === 'font' || args.kind === 'sprite') {
+                    if (args.kind !== 'sprite') {
+                        field.elementImage.classList.add('flipY');
+                    }
 
                     var renderPreview = function() {
                         renderQueued = false;
 
-                        var ctx = field.elementImage.ctx;
-                        if (! ctx)
-                            ctx = field.elementImage.ctx = field.elementImage.getContext('2d');
-
                         if (watchAsset) {
                             // render
-                            var imageData = editor.call('preview:render', watchAsset, 128, 128);
-                            if (! imageData) return;
-
-                            field.elementImage.width = imageData.width;
-                            field.elementImage.height = imageData.height;
-
-                            ctx.putImageData(imageData, 0, 0);
+                            editor.call('preview:render', watchAsset, 128, 128, field.elementImage);
                         } else {
+                            var ctx = field.elementImage.ctx;
+                            if (! ctx)
+                                ctx = field.elementImage.ctx = field.elementImage.getContext('2d');
+
                             ctx.clearRect(0, 0, field.elementImage.width, field.elementImage.height);
                         }
                     };
@@ -1310,7 +1352,7 @@ editor.once('load', function() {
                                     continue;
                                 }
 
-                                oldValues[id] = args.link[i].get(args.path);
+                                oldValues[id] = args.link[i].get(pathAt(args, i));
                             }
                         }
 
@@ -1413,7 +1455,7 @@ editor.once('load', function() {
                         // get initial value only if it's the same for all
                         // links otherwise set it to null
                         for (var i = 0, len = args.link.length; i < len; i++) {
-                            var val = args.link[i].get(args.path);
+                            var val = args.link[i].get(pathAt(args, i));
                             if (entity !== val) {
                                 if (entity) {
                                     entity = null;
@@ -1539,7 +1581,7 @@ editor.once('load', function() {
                     if (args.link instanceof Array)
                         link = args.link[0];
 
-                    field.link(link, args.paths || [args.path]);
+                    field.link(link, args.canRandomize ? [args.path, args.path + '2'] : [args.path]);
                 }
 
                 var curvePickerOn = false;
@@ -1577,11 +1619,13 @@ editor.once('load', function() {
 
                             var path;
                             for (var i = 0, len = paths.length; i < len; i++) {
-                                if (args.paths) {
-                                    path = args.paths[parseInt(paths[i][0])] + paths[i].substring(1);
-                                } else {
-                                    path = args.path + paths[i].substring(1);
+                                path = args.path;
+                                // use the second curve path if needed
+                                if (args.canRandomize && paths[i][0] !== '0') {
+                                    path += '2';
                                 }
+
+                                path += paths[i].substring(1);
 
                                 previous.paths.push(path);
                                 previous.values.push(field._link.get(path));
@@ -1623,11 +1667,13 @@ editor.once('load', function() {
                                 }
 
                                 for (var i = 0, len = paths.length; i < len; i++) {
-                                    if (args.paths) {
-                                        path = args.paths[parseInt(paths[i][0])] + paths[i].substring(1);
-                                    } else {
-                                        path = args.path + paths[i].substring(1);
+                                    path = args.path;
+                                    // use the second curve path if needed
+                                    if (args.canRandomize && paths[i][0] !== '0') {
+                                        path += '2';
                                     }
+
+                                    path += paths[i].substring(1);
 
                                     field._link.set(path, values[i]);
                                 }
@@ -1698,7 +1744,6 @@ editor.once('load', function() {
         var link = args.link;
         var title = args.title;
         var assetType = args.type;
-        var path = args.path;
         var panel = args.panel;
         var events = [ ];
 
@@ -1731,7 +1776,7 @@ editor.once('load', function() {
                 // already added
                 var id = parseInt(data.id, 10);
                 for(var i = 0; i < link.length; i++) {
-                    if (link[i].get(path).indexOf(id) === -1)
+                    if (link[i].get(pathAt(args, i)).indexOf(id) === -1)
                         return true;
                 }
 
@@ -1746,6 +1791,7 @@ editor.once('load', function() {
                 var id = parseInt(data.id, 10);
 
                 for(var i = 0; i < link.length; i++) {
+                    var path = pathAt(args, i);
                     if (link[i].get(path).indexOf(id) !== -1)
                         continue;
 
@@ -1762,7 +1808,7 @@ editor.once('load', function() {
                 }
 
                 editor.call('history:add', {
-                    name: path,
+                    name: pathAt(args, 0),
                     undo: function() {
                         for(var i = 0; i < records.length; i++) {
                             var item;
@@ -1886,6 +1932,7 @@ editor.once('load', function() {
                 var records = [ ];
 
                 for(var i = 0; i < link.length; i++) {
+                    var path = pathAt(args, i);
                     var ind = link[i].get(path).indexOf(assetId);
                     if (ind === -1)
                         continue;
@@ -1904,7 +1951,7 @@ editor.once('load', function() {
                 }
 
                 editor.call('history:add', {
-                    name: path,
+                    name: pathAt(args, 0),
                     undo: function() {
                         for(var i = 0; i < records.length; i++) {
                             var item;
@@ -1977,6 +2024,8 @@ editor.once('load', function() {
                 var assetId = parseInt(asset.get('id'), 10);
 
                 for(var i = 0; i < link.length; i++) {
+                    var path = pathAt(args, i);
+
                     // already in list
                     if (link[i].get(path).indexOf(assetId) !== -1)
                         continue;
@@ -1995,7 +2044,7 @@ editor.once('load', function() {
                 }
 
                 editor.call('history:add', {
-                    name: path,
+                    name: pathAt(args, 0),
                     undo: function() {
                         for(var i = 0; i < records.length; i++) {
                             var item;
@@ -2041,13 +2090,13 @@ editor.once('load', function() {
 
         // list
         for(var i = 0; i < link.length; i++) {
-            var assets = link[i].get(path);
+            var assets = link[i].get(pathAt(args, i));
             if (assets) {
                 for(var a = 0; a < assets.length; a++)
                     addAsset(assets[a]);
             }
 
-            events.push(link[i].on(path + ':set', function(assets, assetsOld) {
+            events.push(link[i].on(pathAt(args, i) + ':set', function(assets, assetsOld) {
                 if (! (assets instanceof Array))
                     return;
 
@@ -2075,17 +2124,22 @@ editor.once('load', function() {
                     addAsset(id);
             }));
 
-            events.push(link[i].on(path + ':insert', function(assetId, ind) {
-                var before;
-                if (ind === 0) {
-                    before = itemAdd;
-                } else {
-                    before = assetIndex[this.get(path + '.' + ind)];
-                }
-                addAsset(assetId, before);
-            }));
+            var createInsertHandler = function (index) {
+                var path = pathAt(args, index);
+                return link[index].on(path + ':insert', function(assetId, ind) {
+                    var before;
+                    if (ind === 0) {
+                        before = itemAdd;
+                    } else {
+                        before = assetIndex[this.get(path + '.' + ind)];
+                    }
+                    addAsset(assetId, before);
+                });
+            };
 
-            events.push(link[i].on(path + ':remove', removeAsset));
+            events.push(createInsertHandler(i));
+
+            events.push(link[i].on(pathAt(args, i) + ':remove', removeAsset));
         }
 
         fieldAssetsList.once('destroy', function() {

@@ -2,27 +2,44 @@ editor.once('load', function() {
     'use strict';
 
     var uploadJobs = 0;
+    var userSettings = editor.call('settings:projectUser');
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
-    var targetExtensions = [ 'jpg', 'jpeg', 'png', 'gif', 'js', 'css', 'html', 'json', 'xml', 'txt', 'vert', 'frag', 'glsl', 'mp3', 'ogg', 'wav', 'mp4', 'atlas' ];
-    var tmp = { };
-    for(var i = 0; i < targetExtensions.length; i++)
-        tmp[targetExtensions[i]] = true;
-    targetExtensions = tmp;
-
+    var targetExtensions = {
+        'jpg': true,
+        'jpeg': true,
+        'png': true,
+        'gif': true,
+        'css': true,
+        'html': true,
+        'json': true,
+        'xml': true,
+        'txt': true,
+        'vert': true,
+        'frag': true,
+        'glsl': true,
+        'mp3': true,
+        'ogg': true,
+        'wav': true,
+        'mp4': true,
+        'm4a': true,
+        'js': true,
+        'atlas': true
+    };
 
     var typeToExt = {
         'scene': [ 'fbx', 'dae', 'obj', '3ds' ],
-        'text': [ 'txt', 'xml' ],
+        'text': [ 'txt', 'xml', 'atlas' ],
         'html': [ 'html' ],
         'css': [ 'css' ],
         'json': [ 'json' ],
         'texture': [ 'tif', 'tga', 'png', 'jpg', 'jpeg', 'gif', 'bmp', 'dds', 'hdr', 'exr' ],
-        'audio': [ 'wav', 'mp3', 'mp4', 'ogg' ],
+        'audio': [ 'wav', 'mp3', 'mp4', 'ogg', 'm4a' ],
         'shader': [ 'glsl', 'frag', 'vert' ],
         'script': [ 'js' ],
         'font': [ 'ttf', 'ttc', 'otf', 'dfont' ]
     };
+
     var extToType = { };
     for(var type in typeToExt) {
         for(var i = 0; i < typeToExt[type].length; i++) {
@@ -187,7 +204,13 @@ editor.once('load', function() {
                 editor.call('assets:upload:script', files[i]);
             } else {
                 var type = extToType[ext] || 'binary';
+
                 var source = type !== 'binary' && ! targetExtensions[ext];
+
+                // check if we need to convert textures to texture atlases
+                if (type === 'texture' && userSettings.get('editor.pipeline.textureDefaultToAtlas')) {
+                    type = 'textureatlas';
+                }
 
                 // can we override another asset?
                 var sourceAsset = null;
@@ -219,6 +242,7 @@ editor.once('load', function() {
                 editor.call('assets:uploadFile', {
                     asset: asset ? asset[1] : sourceAsset,
                     file: files[i],
+                    type: type,
                     name: files[i].name,
                     parent: editor.call('assets:panel:currentFolder'),
                     pipeline: true,

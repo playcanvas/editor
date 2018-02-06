@@ -242,7 +242,7 @@ editor.once('load', function() {
     };
 
     var assetSetThumbnailPaths = function(asset) {
-        if (asset.get('type') !== 'texture')
+        if (asset.get('type') !== 'texture' && asset.get('type') !== 'textureatlas')
             return;
 
         if (asset.get('has_thumbnail')) {

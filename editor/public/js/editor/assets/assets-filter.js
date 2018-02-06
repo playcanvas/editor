@@ -68,6 +68,12 @@ editor.once('load', function() {
                     } else {
                         assetType = 'textureTarget';
                     }
+                } else if (assetType === 'textureatlas') {
+                    if (item.get('source')) {
+                        assetType = 'textureAtlasSource';
+                    } else {
+                        assetType = 'textureAtlasTarget';
+                    }
                 }
 
                 visible = assetType === filterField.value;
@@ -191,7 +197,7 @@ editor.once('load', function() {
 
 
     // options
-    var filterField = new ui.SelectField({
+    var filterOptions = {
         options: {
             all: 'All',
             animation: 'Animation',
@@ -207,11 +213,22 @@ editor.once('load', function() {
             scene: 'Model (source)',
             script: 'Script',
             shader: 'Shader',
+            sprite: 'Sprite',
             text: 'Text',
             textureTarget: 'Texture',
-            textureSource: 'Texture (source)'
+            textureSource: 'Texture (source)',
+            textureAtlasTarget: 'Texture Atlas',
+            textureAtlasSource: 'Texture Atlas (source)'
         }
-    });
+    };
+
+    if (! editor.call('users:isSpriteTester')) {
+        delete filterOptions.options.sprite;
+        delete filterOptions.options.textureAtlasTarget;
+        delete filterOptions.options.textureAtlasSource;
+    }
+
+    var filterField = new ui.SelectField(filterOptions);
 
     filterField.class.add('options');
     filterField.value = 'all';

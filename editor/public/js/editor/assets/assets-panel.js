@@ -690,7 +690,7 @@ editor.once('load', function() {
             }
         });
 
-        // folder open
+        // scripts open
         gridScripts.element.addEventListener('dblclick', function() {
             tree.clear();
             editor.call('assets:filter:search', '');
@@ -1067,17 +1067,27 @@ editor.once('load', function() {
             }, false);
         }
 
+        // open sprite editor for textureatlas and sprite assets
+        if (editor.call('users:isSpriteTester') && asset.get('type') === 'sprite' || asset.get('type') === 'textureatlas') {
+            item.element.addEventListener('dblclick', function() {
+                editor.call('picker:sprites:editor', item.asset);
+            }, false);
+        }
+
         var thumbnail;
         var evtSceneSettings, evtAssetChanged;
 
-        if (asset.get('type') === 'material' || asset.get('type') === 'model' || (asset.get('type') === 'font') && !asset.get('source')) {
+        if (asset.get('type') === 'material' || asset.get('type') === 'model' || asset.get('type') === 'sprite' || (asset.get('type') === 'font') && !asset.get('source')) {
             var queuedRender = false;
 
             thumbnail = document.createElement('canvas');
-            thumbnail.classList.add('flipY');
             thumbnail.changed = true;
             thumbnail.width = 64;
             thumbnail.height = 64;
+
+            if (asset.get('type') !== 'sprite') {
+                thumbnail.classList.add('flipY');
+            }
 
             var watching = null;
 
@@ -1089,11 +1099,7 @@ editor.once('load', function() {
 
                 thumbnail.changed = false;
 
-                var ctx = thumbnail.ctx;
-                if (! ctx) ctx = thumbnail.ctx = thumbnail.getContext('2d');
-
-                var imageData = editor.call('preview:render', asset, 64);
-                if (imageData) ctx.putImageData(imageData, 0, 0);
+                editor.call('preview:render', asset, 64, 64, thumbnail);
             };
             var queueRender = function() {
                 if (item.hidden) {

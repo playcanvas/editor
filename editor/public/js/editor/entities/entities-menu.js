@@ -15,6 +15,7 @@ editor.once('load', function() {
         'particlesystem': '&#57753;',
         'rigidbody': '&#57737;',
         'script': '&#57910;',
+        'sprite': '&#57956;',
         'zone': '&#57910;',
         'screen': '&#57665;',
         'element': '&#58232;'
@@ -351,6 +352,51 @@ editor.once('load', function() {
                         parent: getParentFn(),
                         components: {
                             element: data
+                        }
+                    });
+                }
+            },
+            'add-new-sprite': {
+                title: 'Sprite',
+                icon: componentsLogos.sprite,
+                hide: function () {
+                    return !editor.call('users:isSpriteTester');
+                },
+                select: function() {
+                    var data = editor.call('components:getDefault', 'sprite');
+                    editor.call('entities:new', {
+                        name: 'Sprite',
+                        parent: getParentFn(),
+                        components: {
+                            sprite: data
+                        }
+                    });
+                }
+            },
+            'add-new-animated-sprite': {
+                title: 'Animated Sprite',
+                icon: componentsLogos.sprite,
+                hide: function () {
+                    return !editor.call('users:isSpriteTester');
+                },
+                select: function() {
+                    var data = editor.call('components:getDefault', 'sprite');
+                    data.type = 'animated';
+                    data.clips = {
+                        '0': {
+                            name: 'Clip 1',
+                            fps: 30,
+                            loop: true,
+                            autoPlay: true,
+                            spriteAsset: null
+                        }
+                    };
+                    data.autoPlayClip = 'Clip 1';
+                    editor.call('entities:new', {
+                        name: 'Animated Sprite',
+                        parent: getParentFn(),
+                        components: {
+                            sprite: data
                         }
                     });
                 }

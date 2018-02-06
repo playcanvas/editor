@@ -176,13 +176,14 @@ Observer.prototype._prepare = function(target, key, value, silent, remote) {
 
 Observer.prototype.set = function(path, value, silent, remote) {
     var keys = path.split('.');
-    var key = keys[keys.length - 1];
+    var length = keys.length;
+    var key = keys[length - 1];
     var node = this;
     var nodePath = '';
     var obj = this;
     var state;
 
-    for(var i = 0; i < keys.length - 1; i++) {
+    for(var i = 0; i < length - 1; i++) {
         if (node instanceof Array) {
             node = node[keys[i]];
 
@@ -191,7 +192,7 @@ Observer.prototype.set = function(path, value, silent, remote) {
                 obj = node;
             }
         } else {
-            if (i < keys.length && typeof(node._data[keys[i]]) !== 'object') {
+            if (i < length && typeof(node._data[keys[i]]) !== 'object') {
                 if (node._data[keys[i]])
                     obj.unset((node.__path ? node.__path + '.' : '') + keys[i]);
 
@@ -203,7 +204,7 @@ Observer.prototype.set = function(path, value, silent, remote) {
                 node._keys.push(keys[i]);
             }
 
-            if (i === keys.length - 1 && node.__path)
+            if (i === length - 1 && node.__path)
                 nodePath = node.__path + '.' + keys[i];
 
             node = node._data[keys[i]];
@@ -422,7 +423,7 @@ Observer.prototype.set = function(path, value, silent, remote) {
 Observer.prototype.has = function(path) {
     var keys = path.split('.');
     var node = this;
-    for (var i = 0; i < keys.length; i++) {
+    for (var i = 0, len = keys.length; i < len; i++) {
         if (node == undefined)
             return undefined;
 
@@ -769,9 +770,11 @@ Observer.prototype.patch = function(data) {
 Observer.prototype.json = function(target) {
     var obj = { };
     var node = target === undefined ? this : target;
+    var len, nlen;
 
     if (node instanceof Object && node._keys) {
-        for (var i = 0; i < node._keys.length; i++) {
+        len = node._keys.length;
+        for (var i = 0; i < len; i++) {
             var key = node._keys[i];
             var value = node._data[key];
             var type = typeof(value);
@@ -779,7 +782,8 @@ Observer.prototype.json = function(target) {
             if (type === 'object' && (value instanceof Array)) {
                 obj[key] = value.slice(0);
 
-                for(var n = 0; n < obj[key].length; n++) {
+                nlen = obj[key].length;
+                for(var n = 0; n < nlen; n++) {
                     if (typeof(obj[key][n]) === 'object')
                         obj[key][n] = this.json(obj[key][n]);
                 }
@@ -795,7 +799,8 @@ Observer.prototype.json = function(target) {
         } else if (typeof(node) === 'object' && (node instanceof Array)) {
             obj = node.slice(0);
 
-            for(var n = 0; n < obj.length; n++) {
+            len = obj.length;
+            for(var n = 0; n < len; n++) {
                 obj[n] = this.json(obj[n]);
             }
         } else if (typeof(node) === 'object') {

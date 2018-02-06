@@ -5,8 +5,6 @@ editor.once('load', function () {
     if (! app) return; // webgl not available
 
     var renderTargets = { };
-    var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d');
 
     var scene = new pc.Scene();
     scene.root = new pc.Entity();
@@ -116,35 +114,8 @@ editor.once('load', function () {
         return target;
     });
 
-    editor.method('preview:render', function(asset, width, height, args, blob) {
-        var gl = app.graphicsDevice.gl;
-
-        // choose closest POT resolution
-        width = nextPow2(width || 128);
-        height = nextPow2(height || width);
-
-        // get render target
-        var target = editor.call('preview:getTexture', width, height);
-
+    editor.method('preview:render', function(asset, width, height, canvas, args) {
         // render
-        editor.call('preview:' + asset.get('type') + ':render', asset, target, args);
-
-        canvas.width = width;
-        canvas.height = height;
-
-        // read pixels from texture
-        gl.bindFramebuffer(gl.FRAMEBUFFER, target._glFrameBuffer);
-        gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, target.pixels);
-
-        // mage image data
-        var imageData = new ImageData(target.pixelsClamped, width, height);
-
-        if (blob) {
-            // upload to canvas
-            ctx.putImageData(imageData, 0, 0);
-            return canvas.toDataURL();
-        } else {
-            return imageData;
-        }
+        editor.call('preview:' + asset.get('type') + ':render', asset, width, height, canvas, args);
     });
 });

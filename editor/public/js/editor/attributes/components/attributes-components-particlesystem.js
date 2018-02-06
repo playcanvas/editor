@@ -699,7 +699,8 @@ editor.once('load', function() {
             name: 'Local Velocity',
             type: 'curveset',
             link: entities[0],
-            paths: [ 'components.particlesystem.localVelocityGraph', 'components.particlesystem.localVelocityGraph2' ],
+            path: 'components.particlesystem.localVelocityGraph',
+            canRandomize: true,
             curves: [ 'X', 'Y', 'Z' ]
         });
         // reference
@@ -712,7 +713,8 @@ editor.once('load', function() {
             name: 'Velocity',
             type: 'curveset',
             link: entities[0],
-            paths: [ 'components.particlesystem.velocityGraph', 'components.particlesystem.velocityGraph2' ],
+            path: 'components.particlesystem.velocityGraph',
+            canRandomize: true,
             curves: [ 'X', 'Y', 'Z' ]
         });
         // reference
@@ -725,7 +727,8 @@ editor.once('load', function() {
             name: 'Rotation Speed',
             type: 'curveset',
             link: entities[0],
-            paths: [ 'components.particlesystem.rotationSpeedGraph', 'components.particlesystem.rotationSpeedGraph2' ],
+            path: 'components.particlesystem.rotationSpeedGraph',
+            canRandomize: true,
             curves: [ 'Angle' ],
             verticalValue: 180
         });
@@ -739,7 +742,8 @@ editor.once('load', function() {
             name: 'Scale',
             type: 'curveset',
             link: entities[0],
-            paths: [ 'components.particlesystem.scaleGraph', 'components.particlesystem.scaleGraph2' ],
+            path: 'components.particlesystem.scaleGraph',
+            canRandomize: true,
             curves: [ 'Scale' ],
             verticalValue: 1,
             min: 0
@@ -770,7 +774,8 @@ editor.once('load', function() {
             name: 'Opacity',
             type: 'curveset',
             link: entities[0],
-            paths: [ 'components.particlesystem.alphaGraph', 'components.particlesystem.alphaGraph2' ],
+            path: 'components.particlesystem.alphaGraph',
+            canRandomize: true,
             curves: ['Opacity' ],
             min: 0,
             max: 1

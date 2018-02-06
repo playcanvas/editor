@@ -415,6 +415,32 @@ editor.once('load', function() {
                 });
             }
 
+            // script editor
+            if (editor.call('users:isSpriteTester') && (assets[0].get('type') === 'textureatlas' || assets[0].get('type') === 'sprite')) {
+                var btnSpriteEditor = new ui.Button();
+                btnSpriteEditor.text = 'Sprite Editor';
+                btnSpriteEditor.disabled = assets[0].get('type') === 'sprite' && (! assets[0].get('data.textureAtlasAsset') || ! editor.call('assets:get', assets[0].get('data.textureAtlasAsset')));
+                btnSpriteEditor.class.add('sprite-editor', 'large-with-icon');
+                btnSpriteEditor.on('click', function () {
+                    editor.call('picker:sprites:editor', assets[0]);
+                });
+                panelButtons.append(btnSpriteEditor);
+
+                var evtSetAtlas = null;
+                if (assets[0].get('type') === 'sprite') {
+                    evtSetAtlas = assets[0].on('data.textureAtlasAsset:set', function (value) {
+                        btnSpriteEditor.disabled = ! value || ! editor.call('assets:get', value);
+                    });
+                }
+
+                panelButtons.once('destroy', function () {
+                    if (evtSetAtlas) {
+                        evtSetAtlas.unbind();
+                        evtSetAtlas = null;
+                    }
+                });
+            }
+
             if (editableTypes[assets[0].get('type')]) {
                 // edit
                 var btnEdit = new ui.Button();
