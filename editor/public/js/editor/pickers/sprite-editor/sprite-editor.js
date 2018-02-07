@@ -897,6 +897,12 @@ editor.once('load', function() {
         var width = imageWidth();
         var height = imageHeight();
 
+        // disable smoothing
+        ctx.mozImageSmoothingEnabled = false;
+        ctx.webkitImageSmoothingEnabled = false;
+        ctx.msImageSmoothingEnabled = false;
+        ctx.imageSmoothingEnabled = false;
+
         // draw image
         ctx.drawImage(
             atlasImage,
@@ -1411,6 +1417,13 @@ editor.once('load', function() {
 
 
         var ctx = canvas.getContext('2d');
+
+        // disable smoothing
+        ctx.mozImageSmoothingEnabled = false;
+        ctx.webkitImageSmoothingEnabled = false;
+        ctx.msImageSmoothingEnabled = false;
+        ctx.imageSmoothingEnabled = false;
+
         ctx.clearRect(0, 0, width, height);
         ctx.drawImage(atlasImage, x, y, w, h, offsetX, offsetY, targetWidth, targetHeight);
     });

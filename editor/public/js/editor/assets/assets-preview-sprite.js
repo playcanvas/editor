@@ -82,6 +82,12 @@ editor.once('load', function() {
             canvas.width = width;
             canvas.height = height;
             ctx.clearRect(0, 0, width, height);
+
+            ctx.mozImageSmoothingEnabled = false;
+            ctx.webkitImageSmoothingEnabled = false;
+            ctx.msImageSmoothingEnabled = false;
+            ctx.imageSmoothingEnabled = false;
+
             ctx.drawImage(atlasTexture.getSource(), x, y, w, h, offsetX, offsetY, targetWidth, targetHeight);
 
             return true;
