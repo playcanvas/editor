@@ -16,12 +16,10 @@ editor.once('load', function() {
     var handleWidth = 10;
     var pivotWidth = 7;
 
-    var COLOR_FRAME = '#B1B8BA';
-    var COLOR_FRAME_HIGHLIGHTED = '#2C393C';
-    var COLOR_FRAME_SELECTED = '#2C393C';
-    var COLOR_HANDLE = '#0f0';
-    var COLOR_PIVOT_SELECTED = '#0f0';
-    var COLOR_PIVOT_BORDER = '#2C393C';
+    var COLOR_GRAY = '#B1B8BA';
+    var COLOR_DARK = '#2C393C';
+    var COLOR_GREEN = '#0f0';
+    var COLOR_ORANGE = '#f60';
 
     var atlasAsset = null;
     var spriteAsset = null;
@@ -660,7 +658,7 @@ editor.once('load', function() {
 
         var redo = function () {
             if (options && options.clearSprite) {
-                spriteAsset = null;
+                setSprite(null);
             }
 
             select(keys, null, prevHighlighted);
@@ -919,7 +917,7 @@ editor.once('load', function() {
         // draw frames
         var frames = atlasAsset.getRaw('data.frames')._data;
         ctx.beginPath();
-        ctx.strokeStyle = COLOR_FRAME;
+        ctx.strokeStyle = COLOR_GRAY;
         ctx.lineWidth = 1;
         for (var key in frames) {
             if (highlightedFrames.indexOf(key) !== -1 || newSpriteFrames.indexOf(key) !== -1) continue;
@@ -931,7 +929,7 @@ editor.once('load', function() {
         // draw highlighted frames
         ctx.beginPath();
         ctx.lineWidth = 2;
-        ctx.strokeStyle = COLOR_FRAME_HIGHLIGHTED;
+        ctx.strokeStyle = spriteAsset ? COLOR_ORANGE : COLOR_DARK;
         for (var i = 0, len = highlightedFrames.length; i<len; i++) {
             var key = highlightedFrames[i];
             if (selected && selected.key === key) continue;
@@ -950,7 +948,7 @@ editor.once('load', function() {
         // draw sprite edit mode frames
         ctx.beginPath();
         ctx.lineWidth = 1;
-        ctx.strokeStyle = COLOR_HANDLE;
+        ctx.strokeStyle = COLOR_GREEN;
         for (var i = 0, len = newSpriteFrames.length; i<len; i++) {
             var key = newSpriteFrames[i];
 
@@ -969,7 +967,7 @@ editor.once('load', function() {
 
         if (frame) {
             ctx.beginPath();
-            ctx.strokeStyle = COLOR_FRAME_SELECTED;
+            ctx.strokeStyle = COLOR_DARK;
 
             // draw newFrame or selected frame
             if (frame !== newFrame || newFrame.rect[2] !== 0 && newFrame.rect[3] !== 0) {
@@ -1014,8 +1012,8 @@ editor.once('load', function() {
         var h = frameHeight(frame, height);
         var px = x + frame.pivot[0] * w;
         var py = y + (1 - frame.pivot[1]) * h;
-        ctx.strokeStyle = COLOR_FRAME_SELECTED;
-        ctx.fillStyle = COLOR_HANDLE;
+        ctx.strokeStyle = COLOR_DARK;
+        ctx.fillStyle = COLOR_GREEN;
         ctx.lineWidth = 1;
 
         // corners
@@ -1036,13 +1034,13 @@ editor.once('load', function() {
 
         // border
         ctx.lineWidth = 5;
-        ctx.strokeStyle = COLOR_PIVOT_BORDER;
+        ctx.strokeStyle = COLOR_DARK;
         ctx.moveTo(px + pivotWidth, py);
         ctx.arc(px, py, pivotWidth, 0, 2 * Math.PI);
         ctx.stroke();
         // inside border
         ctx.lineWidth = 3;
-        ctx.strokeStyle = COLOR_PIVOT_SELECTED;
+        ctx.strokeStyle = COLOR_GREEN;
         ctx.stroke();
     };
 
@@ -1428,6 +1426,11 @@ editor.once('load', function() {
         ctx.drawImage(atlasImage, x, y, w, h, offsetX, offsetY, targetWidth, targetHeight);
     });
 
+    var setSprite = function (asset) {
+        spriteAsset = asset;
+        editor.emit('picker:sprites:editor:spriteSelected', asset);
+    };
+
     var selectSprite = function (asset, options) {
         if (options && options.history) {
             var prevSprite = spriteAsset;
@@ -1435,7 +1438,7 @@ editor.once('load', function() {
             var selectedFrames = selected && ! prevSprite ? highlightedFrames : null;
 
             var redo = function () {
-                spriteAsset = asset;
+                setSprite(asset);
                 if (spriteAsset) {
                     selectFrames(spriteAsset.getRaw('data.frameKeys'));
                 } else {
@@ -1444,7 +1447,7 @@ editor.once('load', function() {
             };
 
             var undo = function () {
-                spriteAsset = prevSprite;
+                setSprite(prevSprite);
                 if (spriteAsset) {
                     selectFrames(spriteAsset.getRaw('data.frameKeys'));
                 } else {
@@ -1460,7 +1463,7 @@ editor.once('load', function() {
 
             redo();
         } else {
-            spriteAsset = asset;
+            setSprite(asset);
             if (spriteAsset) {
                 selectFrames(spriteAsset.getRaw('data.frameKeys'));
             } else {

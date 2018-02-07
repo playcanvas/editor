@@ -11,6 +11,7 @@ editor.once('load', function() {
         var selectedKeys = [];
         var spriteEditModeKeys = [];
         var spriteEditMode = false;
+        var selectedSprite = null;
 
         var shiftDown = false;
         var ctrlDown = false;
@@ -318,6 +319,7 @@ editor.once('load', function() {
                 for (var i = 0, len = selected.length; i<len; i++) {
                     if (! keys || keys.indexOf(selected[i].ui.frameKey) === -1) {
                         selected[i].ui.class.remove('selected');
+                        selected[i].ui.class.remove('sprite-frame');
                     }
                 }
 
@@ -351,6 +353,9 @@ editor.once('load', function() {
                     }
 
                     panels[key].class.add(spriteEditMode ? 'highlighted' : 'selected');
+                    if (selectedSprite && (keys === selectedKeys || selectedKeys.indexOf(key) !== -1)) {
+                        panels[key].class.add('sprite-frame');
+                    }
                 }
             }
         }));
@@ -376,6 +381,21 @@ editor.once('load', function() {
             }
 
             spriteEditModeKeys.length = 0;
+        }));
+
+        events.push(editor.on('picker:sprites:editor:spriteSelected', function (spriteAsset) {
+            selectedSprite = spriteAsset;
+            var keys = spriteEditMode ? spriteEditModeKeys : selectedKeys;
+            for (var i = 0, len = keys.length; i<len; i++) {
+                var panel = panels[keys[i]];
+                if (! panel) continue;
+
+                if (selectedSprite) {
+                    panel.class.add('sprite-frame');
+                } else {
+                    panel.class.remove('sprite-frame');
+                }
+            }
         }));
 
         // clean up

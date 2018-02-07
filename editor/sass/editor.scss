@@ -6217,8 +6217,8 @@ strong {
 
                         border: 1px solid $bcg-darker;
 
-                        & + & {
-                            border-top: 0;
+                        &.sprite-frame {
+                            border: 1px solid $text-active;
                         }
 
                         &.highlighted {
@@ -6268,6 +6268,21 @@ strong {
                     .frame.highlighted + .frame.highlighted {
                         border-top: 0;
                         margin-top: 1px;
+                    }
+
+                    .frame.sprite-frame + .frame.sprite-frame {
+                        border-top: 0;
+                        margin-top: 1px;
+                    }
+
+                    .frame.highlighted + .frame.sprite-frame:not(.highlighted) {
+                        border-top: 1px solid $text-active;
+                        margin-top: 0;
+                    }
+
+                    .frame.sprite-frame:not(.highlighted) + .frame.highlighted {
+                        border-top: 1px solid #0f0;
+                        margin-top: 0;
                     }
                 }
 

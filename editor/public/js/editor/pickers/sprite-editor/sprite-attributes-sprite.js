@@ -105,14 +105,18 @@ editor.once('load', function() {
         });
         panelFrames.class.add('frames');
 
-        var panels = {};
+        var panels = [];
 
         var addFramePanel = function (key, frame, index) {
             var frameEvents = [];
 
             var panel = new ui.Panel();
             panel.class.add('frame');
-            panels[key] = panel;
+            if (index !== undefined) {
+                panels.splice(index, 0, panel);
+            } else {
+                panels.push(panel);
+            }
 
             // preview
             var canvas = new ui.Canvas();
@@ -213,35 +217,34 @@ editor.once('load', function() {
             addFramePanel(frameKeys[i], frames[i]);
         }
 
-        events.push(spriteAsset.on('*:remove', function (path, value, index) {
-            if (! panels[value]) return;
-            panels[value].destroy();
-            delete panels[value];
+        events.push(spriteAsset.on('data.frameKeys:remove', function (value, index) {
+            if (! panels[index]) return;
+
+            panels[index].destroy();
+            panels.splice(index, 1);
 
             refreshFrames();
 
             fieldPreview.setFrames(frameKeys);
         }));
 
-        events.push(spriteAsset.on('*:insert', function (path, value, index) {
-            if (panels[value]) return;
-
+        events.push(spriteAsset.on('data.frameKeys:insert', function (value, index) {
             refreshFrames();
-
             addFramePanel(frameKeys[index], frames[index], index);
-
             fieldPreview.setFrames(frameKeys);
         }));
 
         events.push(spriteAsset.on('data.frameKeys:set', function (value) {
-            for (var key in panels)
-                panels[key].destroy();
+            var i, len;
 
-            panels = {};
+            for (i = 0, len = panels.length; i<len; i++) {
+                panels[i].destroy();
+            }
+            panels.length = 0;
 
             refreshFrames();
 
-            for (var i = 0, len = frameKeys.length; i<len; i++) {
+            for (i = 0, len = frameKeys.length; i<len; i++) {
                 addFramePanel(frameKeys[i], frames[i]);
             }
 
@@ -292,7 +295,7 @@ editor.once('load', function() {
             }
 
             events.length = 0;
-            panels = {};
+            panels.length = 0;
             spriteEditMode = false;
         });
 
