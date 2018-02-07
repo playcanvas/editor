@@ -158,6 +158,13 @@ editor.once('load', function () {
             }
         }
 
+        if (first && entity.sprite) {
+            first = false;
+            if (entity.sprite._meshInstance) {
+                bbC.copy(entity.sprite._meshInstance.aabb);
+            }
+        }
+
         if (first && entity.particlesystem) {
             if (entity.particlesystem.emitter) {
                 first = false;
