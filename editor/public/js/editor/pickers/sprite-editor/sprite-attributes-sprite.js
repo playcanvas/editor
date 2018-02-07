@@ -64,14 +64,14 @@ editor.once('load', function() {
         panelEdit.flex = true;
         panelEdit.class.add('buttons');
 
-        var btnAddSprites = new ui.Button({
-            text: 'ADD SPRITES'
+        var btnAddFrames = new ui.Button({
+            text: 'ADD FRAMES'
         });
-        btnAddSprites.flexGrow = 1;
-        btnAddSprites.class.add('icon', 'wide', 'create');
-        panelEdit.append(btnAddSprites);
+        btnAddFrames.flexGrow = 1;
+        btnAddFrames.class.add('icon', 'wide', 'create');
+        panelEdit.append(btnAddFrames);
 
-        btnAddSprites.on('click', function () {
+        btnAddFrames.on('click', function () {
             editor.call('picker:sprites:editor:pickFrames');
         });
 
@@ -250,7 +250,7 @@ editor.once('load', function() {
 
         events.push(editor.on('picker:sprites:editor:pickFrames:start', function () {
             spriteEditMode = true;
-            btnAddSprites.hidden = true;
+            btnAddFrames.hidden = true;
             btnAddSelected.disabled = true;
             btnAddSelected.hidden = false;
             btnCancel.hidden = false;
@@ -258,7 +258,7 @@ editor.once('load', function() {
 
         events.push(editor.on('picker:sprites:editor:pickFrames:end', function () {
             spriteEditMode = false;
-            btnAddSprites.hidden = false;
+            btnAddFrames.hidden = false;
             btnAddSelected.hidden = true;
             btnCancel.hidden = true;
 
