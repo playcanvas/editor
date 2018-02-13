@@ -7,6 +7,8 @@ editor.once('load', function() {
         if (data.asset.source === false && data.asset.status && data.asset.status !== 'complete')
             return;
 
+        // todo: data.asset.source_asset_id
+
         var asset = editor.call('assets:get', assetId);
         if (asset)
             return;

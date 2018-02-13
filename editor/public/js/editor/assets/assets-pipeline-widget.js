@@ -178,318 +178,278 @@ editor.once('load', function() {
 
 
     editor.method('assets:jobs:convert', function(asset, options) {
-        if (options) {
-            editor.call('realtime:send', 'pipeline', {
-                name: 'convert',
-                data: options
-            });
+        // auto convert
+        var item = jobs[asset.get('id')];
+        var meta = asset.get('meta');
+
+        // settings
+        var searchRelatedAssets = settings.get('editor.pipeline.searchRelatedAssets');
+
+        var events = [ ];
+
+        if (item) {
+            events = item.events;
+            item.class.add('processing');
         } else {
-            // auto convert
-            var item = jobs[asset.get('id')];
-            var meta = asset.get('meta');
+            asset.once('destroy', function() {
+                for(var i = 0; i < events.length; i++) {
+                    events[i].unbind();
+                }
+            });
+        }
 
-            // settings
-            var searchRelatedAssets = settings.get('editor.pipeline.searchRelatedAssets');
+        if (asset.get('type') === 'texture' || asset.get('type') === 'textureatlas') {
+            var task = {};
+            task.options = editor.call('assets:jobs:texture-convert-options', meta);
 
-            var events = [ ];
+            // on a high level, what's done on client:
+            //  - locate the target asset (can be a new asset)
+            //  - assets:jobs:remove when asset.file is ready. may not be needed anymore now that upload is not initiated
+            //  - assets:jobs:thumbnails
 
-            if (item) {
-                events = item.events;
-                item.class.add('processing');
-            } else {
-                asset.once('destroy', function() {
-                    for(var i = 0; i < events.length; i++)
-                        events[i].unbind();
-                });
-            }
+            if (! task.options.new) {
+                // convert to same file: make sure these code are executed regardless of the autoRun setting.
+                task.target = task.source;
 
-            if (asset.get('type') === 'texture' || asset.get('type') === 'textureatlas') {
-                var task = {
-                    source: parseInt(asset.get('id'), 10)
+                var onFileSet = function(value) {
+                    editor.call('assets:jobs:remove', asset.get('id'));
+
+                    if (! value) return;
+                    asset.unbind('file:set', onFileSet);
+
+                    setTimeout(function() {
+                        editor.call('assets:jobs:thumbnails', null, asset);
+                    }, 0);
                 };
 
-                task.options = editor.call('assets:jobs:texture-convert-options', meta);
+                events.push(asset.on('file:set', onFileSet));
 
-                if (! task.options.new) {
-                    task.target = task.source;
+                // no changes to asset
+                if (Object.keys(task.options).length === 2) {
+                    editor.call('assets:jobs:remove', asset.get('id'));
 
-                    editor.call('realtime:send', 'pipeline', {
-                        name: 'convert',
-                        data: task
-                    });
-
-                    var onFileSet = function(value) {
-                        editor.call('assets:jobs:remove', asset.get('id'));
-
-                        if (! value) return;
-                        asset.unbind('file:set', onFileSet);
-
+                    if (asset.get('file')) {
                         setTimeout(function() {
                             editor.call('assets:jobs:thumbnails', null, asset);
                         }, 0);
-                    };
-
-                    events.push(asset.on('file:set', onFileSet));
-
-                    // no changes to asset
-                    if (Object.keys(task.options).length === 2 && task.options.format === meta.format) {
-                        editor.call('assets:jobs:remove', asset.get('id'));
-
-                        if (asset.get('file')) {
-                            setTimeout(function() {
-                                editor.call('assets:jobs:thumbnails', null, asset);
-                            }, 0);
-                        }
-                    }
-                } else {
-                    var filename = asset.get('file.filename').split('.');
-                    filename = filename.slice(0, filename.length - 1).join() + '.' + task.options.format;
-                    var path = asset.get('path');
-
-                    var target = editor.call('assets:findTarget', {
-                        id: asset.get('id'),
-                        filename: asset.get('file.filename'),
-                        path: path,
-                        searchRelatedAssets: searchRelatedAssets
-                    });
-
-                    if (target)
-                        target = target[1];
-
-                    var onTargetAvailable = function(target) {
-                        task.target = parseInt(target.get('id'), 10);
-                        task.filename = filename;
-
-                        editor.call('realtime:send', 'pipeline', {
-                            name: 'convert',
-                            data: task
-                        });
-
-                        var onFileSet = function(value) {
-                            editor.call('assets:jobs:remove', asset.get('id'));
-
-                            if (! value) return;
-                            target.unbind('file:set', onFileSet);
-
-                            setTimeout(function() {
-                                if (target.get('data.rgbm')) {
-                                    editor.call('assets:jobs:thumbnails', asset, target);
-                                } else {
-                                    editor.call('assets:jobs:thumbnails', null, target);
-                                }
-                            }, 0);
-                        };
-
-                        events.push(target.once('file:set', onFileSet));
-                    };
-
-                    if (target) {
-                        onTargetAvailable(target);
-                    } else {
-                        var data = null;
-
-                        if (task.options.rgbm) {
-                            data = {
-                                rgbm: true
-                            };
-                        }
-                        var assetNew = {
-                            name: filename,
-                            type: asset.get('type'),
-                            source: false,
-                            source_asset_id: asset.get('id'),
-                            preload: true,
-                            data: data,
-                            region: asset.get('region'),
-                            parent: path.length ? path[path.length - 1] : null,
-                            scope: asset.get('scope'),
-                            meta: asset.get('meta')
-                        };
-
-                        editor.call('assets:create', assetNew, function(err, id) {
-                            var target = editor.call('assets:get', id);
-
-                            if (target) {
-                                onTargetAvailable(target)
-                            } else {
-                                events.push(editor.once('assets:add[' + id + ']', onTargetAvailable));
-                            }
-                        });
                     }
                 }
-            } else if (asset.get('type') === 'scene') {
+            } else {
+                var filename = asset.get('file.filename').split('.');
+                filename = filename.slice(0, filename.length - 1).join() + '.' + task.options.format;
                 var path = asset.get('path');
-                var model = { };
-                var animation = null;
-                var materials = asset.get('meta.materials') || [ ];
-                var textures = asset.get('meta.textures') || [ ];
 
-                var nameModel = asset.get('name').split('.');
-                nameModel = nameModel.slice(0, nameModel.length - 1).join('.') + '.json';
-
-                // model
-                var modelTarget = editor.call('assets:findTarget', {
+                var target = editor.call('assets:findTarget', {
                     id: asset.get('id'),
                     filename: asset.get('file.filename'),
-                    path: asset.get('path'),
-                    type: 'model',
+                    path: path,
                     searchRelatedAssets: searchRelatedAssets
                 });
 
-                if (modelTarget) {
-                    model.asset = parseInt(modelTarget[1].get('id'), 10);
-                    model.override = settings.get('editor.pipeline.overwriteModel');
+                if (target) {
+                    target = target[1];
                 }
 
-                // animation
-                if (asset.get('meta.animation.available')) {
-                    animation = { };
+                var onTargetAvailable = function(target) {
+                    var onFileSet = function(value) {
+                        // todo: run 'assets:jobs:remove' with source_asset_id on 'asset.new'
+                        editor.call('assets:jobs:remove', asset.get('id'));
 
-                    var animationTarget = editor.call('assets:findTarget', {
-                        id: asset.get('id'),
-                        filename: asset.get('file.filename'),
-                        path: path,
-                        type: 'animation',
-                        searchRelatedAssets: searchRelatedAssets
-                    });
+                        if (! value) {
+                            return;
+                        }
 
-                    if (animationTarget) {
-                        animation.asset = parseInt(animationTarget[1].get('id'), 10);
-                        animation.override = settings.get('editor.pipeline.overwriteAnimation');
-                    }
-                }
+                        target.unbind('file:set', onFileSet);
 
-                // materials
-                for(var i = 0; i < materials.length; i++) {
-                    var target = editor.call('assets:findTarget', {
-                        id: asset.get('id'),
-                        filename: materials[i].name,
-                        path: path,
-                        type: 'material',
-                        searchRelatedAssets: searchRelatedAssets
-                    });
+                        setTimeout(function() {
+                            if (target.get('data.rgbm')) {
+                                editor.call('assets:jobs:thumbnails', asset, target);
+                            } else {
+                                editor.call('assets:jobs:thumbnails', null, target);
+                            }
+                        }, 0);
+                    };
 
-                    if (target) {
-                        materials[i].asset = parseInt(target[1].get('id'), 10);
-                        materials[i].override = settings.get('editor.pipeline.overwriteMaterial');
-                    }
-                }
-
-                // textures
-                for(var i = 0; i < textures.length; i++) {
-                    var name = textures[i].name.toLowerCase();
-                    if (name.endsWith('.jpg'))
-                        name = name.slice(0, -4) + '.jpeg';
-
-                    textures[i].options = editor.call('assets:jobs:texture-convert-options', textures[i].meta);
-
-                    var fileName = name.replace(/\.[0-9a-z]{3,4}$/i, '') + '.' + textures[i].options.format;
-
-                    var target = editor.call('assets:findTarget', {
-                        id: asset.get('id'),
-                        filename: asset.get('file.filename').toLowerCase(),
-                        path: path,
-                        type: 'texture',
-                        searchRelatedAssets: searchRelatedAssets
-                    });
-
-                    if (target) {
-                        textures[i].asset = parseInt(target[1].get('id'), 10);
-                        textures[i].override = settings.get('editor.pipeline.overwriteTexture');
-                    }
-                }
-
-                var task = {
-                    source: parseInt(asset.get('id'), 10),
-                    options: {
-                        textures: textures,
-                        materials: materials,
-                        mappings: asset.get('meta.mappings'),
-                        animation: animation,
-                        model: model,
-                        preserveMapping: settings.get('editor.pipeline.preserveMapping')
-                    }
+                    events.push(target.once('file:set', onFileSet));
                 };
+
+                if (target) {
+                    // if file exists, make sure these code are executed regardless of the autoRun setting.
+                    onTargetAvailable(target);
+                }
+            }
+        } else if (asset.get('type') === 'scene') {
+            var path = asset.get('path');
+            var model = { };
+            var animation = null;
+            var materials = asset.get('meta.materials') || [ ];
+            var textures = asset.get('meta.textures') || [ ];
+
+            var nameModel = asset.get('name').split('.');
+            nameModel = nameModel.slice(0, nameModel.length - 1).join('.') + '.json';
+
+            // model
+            var modelTarget = editor.call('assets:findTarget', {
+                id: asset.get('id'),
+                filename: asset.get('file.filename'),
+                path: asset.get('path'),
+                type: 'model',
+                searchRelatedAssets: searchRelatedAssets
+            });
+
+            if (modelTarget) {
+                model.asset = parseInt(modelTarget[1].get('id'), 10);
+                model.override = settings.get('editor.pipeline.overwriteModel');
+            }
+
+            // animation
+            if (asset.get('meta.animation.available')) {
+                animation = { };
+
+                var animationTarget = editor.call('assets:findTarget', {
+                    id: asset.get('id'),
+                    filename: asset.get('file.filename'),
+                    path: path,
+                    type: 'animation',
+                    searchRelatedAssets: searchRelatedAssets
+                });
+
+                if (animationTarget) {
+                    animation.asset = parseInt(animationTarget[1].get('id'), 10);
+                    animation.override = settings.get('editor.pipeline.overwriteAnimation');
+                }
+            }
+
+            // materials
+            for(var i = 0; i < materials.length; i++) {
+                var target = editor.call('assets:findTarget', {
+                    id: asset.get('id'),
+                    filename: materials[i].name,
+                    path: path,
+                    type: 'material',
+                    searchRelatedAssets: searchRelatedAssets
+                });
+
+                if (target) {
+                    materials[i].asset = parseInt(target[1].get('id'), 10);
+                    materials[i].override = settings.get('editor.pipeline.overwriteMaterial');
+                }
+            }
+
+            // textures
+            for(var i = 0; i < textures.length; i++) {
+                var name = textures[i].name.toLowerCase();
+                if (name.endsWith('.jpg'))
+                    name = name.slice(0, -4) + '.jpeg';
+
+                textures[i].options = editor.call('assets:jobs:texture-convert-options', textures[i].meta);
+
+                var fileName = name.replace(/\.[0-9a-z]{3,4}$/i, '') + '.' + textures[i].options.format;
+
+                var target = editor.call('assets:findTarget', {
+                    id: asset.get('id'),
+                    filename: asset.get('file.filename').toLowerCase(),
+                    path: path,
+                    type: 'texture',
+                    searchRelatedAssets: searchRelatedAssets
+                });
+
+                if (target) {
+                    textures[i].asset = parseInt(target[1].get('id'), 10);
+                    textures[i].override = settings.get('editor.pipeline.overwriteTexture');
+                }
+            }
+
+            var task = {
+                source: parseInt(asset.get('id'), 10),
+                options: {
+                    textures: textures,
+                    materials: materials,
+                    mappings: asset.get('meta.mappings'),
+                    animation: animation,
+                    model: model,
+                    preserveMapping: settings.get('editor.pipeline.preserveMapping')
+                }
+            };
+
+            editor.call('realtime:send', 'pipeline', {
+                name: 'convert',
+                data: task
+            });
+
+            editor.call('assets:jobs:remove', asset.get('id'));
+        } else if (asset.get('type') === 'font') {
+            var task = {
+                source: parseInt(asset.get('id'), 10)
+            };
+
+            var filename = asset.get('file.filename');
+            var path = asset.get('path');
+
+            var target = editor.call('assets:findTarget', {
+                id: asset.get('id'),
+                filename: asset.get('file.filename')
+            });
+
+            if (target)
+                target = target[1];
+
+            var onTargetAvailable = function(target) {
+                var chars = null;
+                if (! target.get('meta')) {
+                    chars = [ ];
+                    for (var i = 0x20; i <= 0x7e; i++)
+                        chars.push(String.fromCharCode(i));
+                    chars = chars.join('');
+                }
+                task.target = parseInt(target.get('id'), 10);
+                task.filename = filename;
+                task.chars = chars;
 
                 editor.call('realtime:send', 'pipeline', {
                     name: 'convert',
                     data: task
                 });
 
-                editor.call('assets:jobs:remove', asset.get('id'));
-            } else if (asset.get('type') === 'font') {
-                var task = {
-                    source: parseInt(asset.get('id'), 10)
+                events.push(target.once('file:set', function() {
+                    editor.call('assets:jobs:remove', asset.get('id'));
+                }));
+            };
+
+            if (target) {
+                onTargetAvailable(target);
+            } else {
+                var data = {
+                    intensity: 0.0
                 };
 
-                var filename = asset.get('file.filename');
-                var path = asset.get('path');
+                var chars = [ ];
+                for (var i = 0x20; i <= 0x7e; i++)
+                    chars.push(String.fromCharCode(i));
+                chars = chars.join('');
 
-                var target = editor.call('assets:findTarget', {
-                    id: asset.get('id'),
-                    filename: asset.get('file.filename')
-                });
+                var assetNew = {
+                    name: filename,
+                    type: 'font',
+                    source: false,
+                    source_asset_id: asset.get('id'),
+                    preload: true,
+                    data: data,
+                    meta: { chars: chars },
+                    region: asset.get('region'),
+                    parent: path.length ? path[path.length - 1] : null,
+                    scope: asset.get('scope')
+                };
 
-                if (target)
-                    target = target[1];
+                editor.call('assets:create', assetNew, function(err, id) {
+                    var target = editor.call('assets:get', id);
 
-                var onTargetAvailable = function(target) {
-                    var chars = null;
-                    if (! target.get('meta')) {
-                        chars = [ ];
-                        for (var i = 0x20; i <= 0x7e; i++)
-                            chars.push(String.fromCharCode(i));
-                        chars = chars.join('');
+                    if (target) {
+                        onTargetAvailable(target);
+                    } else {
+                        events.push(editor.once('assets:add[' + id + ']', onTargetAvailable));
                     }
-                    task.target = parseInt(target.get('id'), 10);
-                    task.filename = filename;
-                    task.chars = chars;
-
-                    editor.call('realtime:send', 'pipeline', {
-                        name: 'convert',
-                        data: task
-                    });
-
-                    events.push(target.once('file:set', function() {
-                        editor.call('assets:jobs:remove', asset.get('id'));
-                    }));
-                };
-
-                if (target) {
-                    onTargetAvailable(target);
-                } else {
-                    var data = {
-                        intensity: 0.0
-                    };
-
-                    var chars = [ ];
-                    for (var i = 0x20; i <= 0x7e; i++)
-                        chars.push(String.fromCharCode(i));
-                    chars = chars.join('');
-
-                    var assetNew = {
-                        name: filename,
-                        type: 'font',
-                        source: false,
-                        source_asset_id: asset.get('id'),
-                        preload: true,
-                        data: data,
-                        meta: { chars: chars },
-                        region: asset.get('region'),
-                        parent: path.length ? path[path.length - 1] : null,
-                        scope: asset.get('scope')
-                    };
-
-                    editor.call('assets:create', assetNew, function(err, id) {
-                        var target = editor.call('assets:get', id);
-
-                        if (target) {
-                            onTargetAvailable(target);
-                        } else {
-                            events.push(editor.once('assets:add[' + id + ']', onTargetAvailable));
-                        }
-                    });
-                }
+                });
             }
         }
     });
