@@ -235,14 +235,10 @@ editor.once('load', function() {
                     }
                 }
             } else {
-                var filename = asset.get('file.filename').split('.');
-                filename = filename.slice(0, filename.length - 1).join() + '.' + task.options.format;
-                var path = asset.get('path');
-
                 var target = editor.call('assets:findTarget', {
                     id: asset.get('id'),
                     filename: asset.get('file.filename'),
-                    path: path,
+                    path: asset.get('path'),
                     searchRelatedAssets: searchRelatedAssets
                 });
 
@@ -379,77 +375,22 @@ editor.once('load', function() {
 
             editor.call('assets:jobs:remove', asset.get('id'));
         } else if (asset.get('type') === 'font') {
-            var task = {
-                source: parseInt(asset.get('id'), 10)
-            };
-
-            var filename = asset.get('file.filename');
-            var path = asset.get('path');
-
+            var assetId = asset.get('id');
+            
+            // todo: method name is misleading. `id` here refers to `source_asset_id`
             var target = editor.call('assets:findTarget', {
                 id: asset.get('id'),
                 filename: asset.get('file.filename')
             });
 
-            if (target)
+            if (target) {
                 target = target[1];
+            }
 
-            var onTargetAvailable = function(target) {
-                var chars = null;
-                if (! target.get('meta')) {
-                    chars = [ ];
-                    for (var i = 0x20; i <= 0x7e; i++)
-                        chars.push(String.fromCharCode(i));
-                    chars = chars.join('');
-                }
-                task.target = parseInt(target.get('id'), 10);
-                task.filename = filename;
-                task.chars = chars;
-
-                editor.call('realtime:send', 'pipeline', {
-                    name: 'convert',
-                    data: task
-                });
-
+            if (target) {
                 events.push(target.once('file:set', function() {
                     editor.call('assets:jobs:remove', asset.get('id'));
                 }));
-            };
-
-            if (target) {
-                onTargetAvailable(target);
-            } else {
-                var data = {
-                    intensity: 0.0
-                };
-
-                var chars = [ ];
-                for (var i = 0x20; i <= 0x7e; i++)
-                    chars.push(String.fromCharCode(i));
-                chars = chars.join('');
-
-                var assetNew = {
-                    name: filename,
-                    type: 'font',
-                    source: false,
-                    source_asset_id: asset.get('id'),
-                    preload: true,
-                    data: data,
-                    meta: { chars: chars },
-                    region: asset.get('region'),
-                    parent: path.length ? path[path.length - 1] : null,
-                    scope: asset.get('scope')
-                };
-
-                editor.call('assets:create', assetNew, function(err, id) {
-                    var target = editor.call('assets:get', id);
-
-                    if (target) {
-                        onTargetAvailable(target);
-                    } else {
-                        events.push(editor.once('assets:add[' + id + ']', onTargetAvailable));
-                    }
-                });
             }
         }
     });
