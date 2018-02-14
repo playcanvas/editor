@@ -7805,3 +7805,255 @@ strong {
     }
 
 }
+
+.ui-panel.asset-layers {
+    > .content {
+
+        .ui-button.icon {
+            background-color: $bcg-dark;
+
+            &:hover {
+                background-color: $bcg-darkest;
+
+                &:before {
+                    color: $text-active;
+                }
+
+                &.remove:before {
+                    color: #d34141;
+                }
+            }
+
+            &.wide {
+                width: calc(100% - 6px);
+            }
+
+            font-size: 12px;
+            border: none;
+            position: relative;
+            height: 28px;
+            line-height: 30px;
+            padding-left: 28px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-transform: uppercase;
+            text-align: left;
+
+            @extend .font-bold;
+
+            &:before {
+                @extend .font-icon;
+                font-size: 14px;
+                text-align: center;
+                margin-left: -18px;
+                margin-right: 9px;
+            }
+
+            &.create:before {
+                content: '\E120';
+            }
+
+            &.remove:before {
+                content: '\E124';
+            }
+        }
+
+        .ui-text-field.new-name {
+            &.error {
+                border: 1px solid #d34141;
+            }
+        }
+
+        .ui-panel.layers {
+            > .content {
+                .ui-panel.sublayer {
+                    background: $bcg-dark;
+                    border: 1px solid $border-primary;
+
+                    &:hover, &.hover, &.dragged {
+                        background-color: $bcg-darkest;
+                    }
+
+                    &:hover {
+                        cursor: pointer;
+                    }
+
+                    &.transparent {
+                        -moz-background-size: 20px 20px;
+                        background-size: 20px 20px;
+                        -webkit-background-size: 20px 20px;
+                        background-position: 0 -13px, 10px -3px;
+
+
+                        background-image:
+                        -moz-linear-gradient(45deg, $bcg-darker 25%, transparent 25%,transparent 75%, $bcg-darker 75%, $bcg-darker 100%),
+                        -moz-linear-gradient(45deg, $bcg-darker 25%, transparent 25%,transparent 75%, $bcg-darker 75%, $bcg-darker 100%);
+                        background-image:
+                        -webkit-linear-gradient(45deg, $bcg-darker 25%, transparent 25%,transparent 75%, $bcg-darker 75%, $bcg-darker 100%),
+                        -webkit-linear-gradient(45deg, $bcg-darker 25%, transparent 25%,transparent 75%, $bcg-darker 75%, $bcg-darker 100%);
+                        background-image:
+                        linear-gradient(45deg, $bcg-darker 25%, transparent 25%,transparent 75%, $bcg-darker 75%, $bcg-darker 100%),
+                        linear-gradient(45deg, $bcg-darker 25%, transparent 25%,transparent 75%, $bcg-darker 75%, $bcg-darker 100%);
+
+                        &.hover, &:hover, &.dragged {
+                            $color: darken($bcg-darkest, 2%);
+                            background-image:
+                            -moz-linear-gradient(45deg, $color 25%, transparent 25%,transparent 75%, $color 75%, $color 100%),
+                            -moz-linear-gradient(45deg, $color 25%, transparent 25%,transparent 75%, $color 75%, $color 100%);
+                            background-image:
+                            -webkit-linear-gradient(45deg, $color 25%, transparent 25%,transparent 75%, $color 75%, $color 100%),
+                            -webkit-linear-gradient(45deg, $color 25%, transparent 25%,transparent 75%, $color 75%, $color 100%);
+                            background-image:
+                            linear-gradient(45deg, $color 25%, transparent 25%,transparent 75%, $color 75%, $color 100%),
+                            linear-gradient(45deg, $color 25%, transparent 25%,transparent 75%, $color 75%, $color 100%);
+                        }
+
+                        > .content {
+                            > .ui-label.name {
+                                max-width: calc(100% - 150px);
+                            }
+                        }
+                    }
+
+                    &.dragged {
+                        border: 1px solid $text-active;
+
+                        > .content {
+                            > .handle {
+                                $size: 6px;
+                                $radiusI: 20%;
+                                $radiusO: 55%;
+                                $color: $text-primary;
+                                background: -webkit-radial-gradient($color $radiusI, transparent $radiusO);
+                                background: -moz-radial-gradient($color $radiusI, transparent $radiusO);
+                                background: radial-gradient($color $radiusI, transparent $radiusO);
+                                -webkit-background-size: $size ($size+1px);
+                                -moz-background-size: $size $size;
+                                background-size: $size $size;
+
+                                cursor: -webkit-grabbing;
+                                cursor: -moz-grabbing;
+                            }
+                        }
+                    }
+
+                    > .content {
+                        background: transparent;
+                        font-size: 12px;
+
+                        > .handle {
+                            position: absolute;
+                            left: 5px;
+                            top: 2px;
+                            width: 12px;
+                            height: 24px;
+                            cursor: move;
+                            @extend .noSelect;
+                            $color: mix($text-darkest, $bcg-primary, 50%);
+                            $size: 6px;
+                            $radiusI: 20%;
+                            $radiusO: 55%;
+
+                            background: -webkit-radial-gradient($color $radiusI, transparent $radiusO);
+                            background: -moz-radial-gradient($color $radiusI, transparent $radiusO);
+                            background: radial-gradient($color $radiusI, transparent $radiusO);
+                            -webkit-background-size: $size ($size+1px);
+                            -moz-background-size: $size $size;
+                            background-size: $size $size;
+
+                            &.disabled {
+                                cursor: not-allowed;
+                                opacity: 0.5;
+                            }
+
+                            &:not(.disabled):hover {
+                                $color: $text-primary;
+                                background: -webkit-radial-gradient($color $radiusI, transparent $radiusO);
+                                background: -moz-radial-gradient($color $radiusI, transparent $radiusO);
+                                background: radial-gradient($color $radiusI, transparent $radiusO);
+                                -webkit-background-size: $size ($size+1px);
+                                -moz-background-size: $size $size;
+                                background-size: $size $size;
+                            }
+                        }
+
+                        > .color {
+                            height: 28px;
+                            width: 8px;
+                            position: absolute;
+                            left: 22px;
+                            top: 0;
+
+                        }
+
+                        > .ui-label.name {
+                            color: $text-primary;
+                            margin-left: 42px;
+                            max-width: calc(100% - 130px);
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
+
+                        > .ui-label.transparent {
+                            position: absolute;
+                            right: 35px;
+                        }
+
+                        > .ui-button.remove {
+                            @extend .font-icon;
+                            position: absolute;
+                            right: 0;
+                            top: 0;
+                            height: 28px;
+                            width: 30px;
+                            margin: 0;
+                            padding: 0;
+                            text-align: center;
+                            border-color: transparent;
+                            background-color: transparent;
+
+                            &:before {
+                                content: '\E124';
+                            }
+
+                            &:hover:before {
+                                color: #d34141;
+                            }
+                        }
+                    }
+                }
+
+                .ui-panel.sublayer + .ui-panel.sublayer:not(.dragged) {
+                    border-top: 0;
+                }
+
+                .ui-panel.sublayer + .ui-panel.sublayer.dragged {
+                    margin-top: -1px;
+                }
+            }
+        }
+    }
+
+    &.dragged {
+        cursor: -webkit-grabbing;
+        cursor: -moz-grabbing;
+
+        > .content {
+            .ui-panel.layers {
+                z-index: 104;
+            }
+        }
+    }
+}
+
+.ui-overlay.asset-layers-drag {
+    > .overlay {
+        cursor: -webkit-grabbing;
+        cursor: -moz-grabbing;
+    }
+
+    > .content {
+        display: none;
+    }
+}
