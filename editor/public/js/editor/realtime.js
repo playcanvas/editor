@@ -23,7 +23,7 @@ editor.once('load', function() {
             reconnectAttempts++;
             editor.emit('realtime:connecting', reconnectAttempts);
 
-            var sharejsMessage = connection.socket.onmessage;
+            var shareDbMessage = connection.socket.onmessage;
 
             connection.socket.onmessage = function(msg) {
                 try {
@@ -78,10 +78,10 @@ editor.once('load', function() {
                                 editor.call('assets:fs:paths:patch', data);
                             }
                         } else {
-                            sharejsMessage(msg);
+                            shareDbMessage(msg);
                         }
                     } else {
-                        sharejsMessage(msg);
+                        shareDbMessage(msg);
                     }
                 } catch (e) {
                     console.error(e);
@@ -103,7 +103,7 @@ editor.once('load', function() {
             connection.on('error', function(msg) {
                 if (connection.state === 'connected')
                     return;
-
+console.log('2');
                 editor.emit('realtime:error', msg);
             });
 
@@ -139,8 +139,8 @@ editor.once('load', function() {
         var reconnect = function () {
             // create new socket...
             socket = new WebSocket(config.url.realtime.http);
-            // ... and new sharejs connection
-            connection = new sharejs.Connection(socket);
+            // ... and new sharedb connection
+            connection = new window.share.Connection(socket);
             // connect again
             connect();
         };
@@ -168,9 +168,9 @@ editor.once('load', function() {
             });
 
             // ready to sync
-            scene.on('ready', function() {
+            scene.on('load', function() {
                 // notify of operations
-                scene.on('after op', function(ops, local) {
+                scene.on('op', function(ops, local) {
                     if (local) return;
 
                     for (var i = 0; i < ops.length; i++)
@@ -179,7 +179,7 @@ editor.once('load', function() {
 
                 // notify of scene load
                 editor.emit('scene:load', id);
-                editor.emit('scene:raw', scene.getSnapshot());
+                editor.emit('scene:raw', scene.data);
             });
 
             // subscribe for realtime events

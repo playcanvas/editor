@@ -34,8 +34,8 @@ editor.once('load', function () {
 
             // load settings
             doc.on('subscribe', function () {
-                doc.whenReady(function () {
-                    var data = doc.getSnapshot();
+                doc.on('load', function () {
+                    var data = doc.data;
 
                     // remove unnecessary fields
                     delete data._id;
@@ -74,7 +74,7 @@ editor.once('load', function () {
                         settings.history.enabled = true;
 
                     // server -> local
-                    doc.on('after op', function (ops, local) {
+                    doc.on('op', function (ops, local) {
                         if (local) return;
 
                         var history = settings.history.enabled;

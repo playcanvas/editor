@@ -29,8 +29,8 @@ editor.once('load', function () {
         });
 
         // mark asset as done
-        assetDoc.whenReady(function () {
-            var data = assetDoc.getSnapshot();
+        assetDoc.on('load', function () {
+            var data = assetDoc.data;
             data.id = id;
             asset = new Observer(data);
 
@@ -49,7 +49,7 @@ editor.once('load', function () {
             });
 
             // server -> client
-            assetDoc.on('after op', function (ops, local) {
+            assetDoc.on('op', function (ops, local) {
                 if (local) return;
 
                 for (var i = 0; i < ops.length; i++) {
@@ -143,12 +143,12 @@ editor.once('load', function () {
 
             while (startBatch < totalAssets) {
                 // start bulk subscribe
-                connection.bsStart();
+                connection.startBulk();
                 for(var i = startBatch; i < startBatch + batchSize && i < totalAssets; i++) {
                     editor.call('assets:loadOne', res[i].id, onLoad);
                 }
                 // end bulk subscribe and send message to server
-                connection.bsEnd();
+                connection.endBulk();
 
                 startBatch += batchSize;
             }

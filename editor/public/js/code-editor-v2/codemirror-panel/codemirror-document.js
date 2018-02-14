@@ -43,7 +43,7 @@ editor.once('load', function () {
             doc: doc,
             type: type,
             asset: asset,
-            view: CodeMirror.Doc(doc.getSnapshot(), mode),
+            view: CodeMirror.Doc(doc.data, mode),
             suppressChanges: false
         };
 
@@ -80,7 +80,7 @@ editor.once('load', function () {
         panel.toggleCode(true);
 
         if (focusedView && viewIndex[id] === focusedView) {
-            var content = focusedView.doc.getSnapshot();
+            var content = focusedView.doc.data;
             if (focusedView.view.getValue() === content) {
                 return;
             }

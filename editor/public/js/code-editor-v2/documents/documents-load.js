@@ -36,7 +36,7 @@ editor.once('load', function () {
 
         // mark document as dirty on every
         // op
-        doc.on('after op', function (ops, local) {
+        doc.on('op', function (ops, local) {
             if (!entry.isDirty) {
                 entry.isDirty = true;
                 editor.emit('documents:dirty', id, true);
@@ -58,7 +58,7 @@ editor.once('load', function () {
                 return;
 
             // ready to sync
-            doc.whenReady(function () {
+            doc.on('load', function () {
                 // check if closed by the user
                 if (! documentsIndex[id]) {
                     return;
@@ -79,7 +79,7 @@ editor.once('load', function () {
                     // re-check if we haven't closed the file
                     if (! documentsIndex[id] || err) return;
 
-                    var dirty = doc.getSnapshot() !== content;
+                    var dirty = doc.data !== content;
                     if (entry.isDirty !== dirty) {
                         entry.isDirty = dirty;
                         editor.emit('documents:dirty', id, dirty);

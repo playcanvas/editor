@@ -7,7 +7,7 @@ editor.once('load', function() {
     var loadScene = function(id, callback, settingsOnly) {
         if (loaded[id]) {
             if (callback)
-                callback(null, loaded[id].getSnapshot());
+                callback(null, loaded[id].data);
 
             return;
         }
@@ -24,12 +24,12 @@ editor.once('load', function() {
         });
 
         // ready to sync
-        scene.on('ready', function() {
+        scene.on('load', function() {
             // cache loaded scene for any subsequent load requests
             loaded[id] = scene;
 
             // notify of operations
-            scene.on('after op', function(ops, local) {
+            scene.on('op', function(ops, local) {
                 if (local)
                     return;
 
@@ -45,7 +45,7 @@ editor.once('load', function() {
             });
 
             // notify of scene load
-            var snapshot = scene.getSnapshot();
+            var snapshot = scene.data;
             if (settingsOnly !== true) {
                 editor.emit('scene:raw', snapshot);
             }

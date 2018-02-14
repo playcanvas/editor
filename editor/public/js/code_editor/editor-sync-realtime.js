@@ -55,7 +55,7 @@ editor.once('load', function() {
         if (! assetDocument)
             return fn(new Error("Asset not loaded"));
 
-        var filename = assetDocument.getSnapshot().file.filename;
+        var filename = assetDocument.data.file.filename;
 
         Ajax({
             url: '{{url.api}}/assets/{{asset.id}}/file/' + filename,
@@ -292,7 +292,7 @@ editor.once('load', function() {
                     return;
 
                 // ready to sync
-                textDocument.whenReady(function () {
+                textDocument.on('load', function () {
                     // notify of scene load
                     isLoading = false;
 
@@ -300,7 +300,7 @@ editor.once('load', function() {
                         editingContext = textDocument.createContext();
                     }
 
-                    documentContent = textDocument.getSnapshot();
+                    documentContent = textDocument.data;
 
                     if (! loadedScriptOnce) {
                         editor.emit('editor:loadScript', documentContent);
@@ -324,7 +324,7 @@ editor.once('load', function() {
             // listen to "after op" in order to check if the asset
             // file has been saved. When the file changes this means that the
             // save operation has finished
-            assetDocument.on('after op', function(ops, local) {
+            assetDocument.on('op', function(ops, local) {
                 if (local) return;
 
                 for (var i = 0; i < ops.length; i++) {
@@ -343,7 +343,7 @@ editor.once('load', function() {
                 if (hasError)
                     return;
 
-                assetDocument.whenReady(function() {
+                assetDocument.on('load', function() {
                     // load asset file to check if it has different contents
                     // than the sharejs document, so that we can enable the
                     // SAVE button if that is the case.

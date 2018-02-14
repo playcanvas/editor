@@ -114,7 +114,7 @@ editor.once('load', function() {
         // call add event
         editor.call('entities:add', entity);
 
-        // sharejs
+        // shareDb
         editor.call('realtime:scene:op', {
             p: [ 'entities', entity.get('resource_id') ],
             oi: entity.json()
