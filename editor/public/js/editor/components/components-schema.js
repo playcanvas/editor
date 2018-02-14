@@ -348,6 +348,27 @@ editor.once('load', function() {
                 margin: 'vec4',
                 alignment: 'vec2'
             }
+        },
+
+        sprite: {
+            title: 'Sprite',
+            default: {
+                enabled: true,
+                type: 'simple',
+                color: [1, 1, 1],
+                opacity: 1,
+                flipX: false,
+                flipY: false,
+                spriteAsset: null,
+                frame: 0,
+                clips: {},
+                autoPlayClip: null,
+                speed: 1,
+                batchGroupId: null
+            },
+            types: {
+                color: 'rgb'
+            }
         }
     };
 
@@ -367,7 +388,9 @@ editor.once('load', function() {
         'components.particlesystem.mesh',
         'components.element.fontAsset',
         'components.element.textureAsset',
-        'components.element.materialAsset'
+        'components.element.materialAsset',
+        'components.sprite.spriteAsset',
+        'components.sprite.clips.*.spriteAsset',
     ];
 
     editor.method('components:assetPaths', function () {
@@ -434,7 +457,14 @@ editor.once('load', function() {
     });
 
     editor.method('components:list', function () {
-        return list.slice(0);
+        var result = list.slice(0);
+        if (! editor.call('users:isSpriteTester')) {
+            var idx = result.indexOf('sprite');
+            if (idx !== -1)
+                result.splice(idx, 1);
+        }
+
+        return result;
     });
 
     editor.method('components:schema', function () {

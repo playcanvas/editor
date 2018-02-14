@@ -156,6 +156,10 @@ editor.once('load', function() {
         title: 'Texture power of two',
         description: 'When a texture is imported it will be resized to use the nearest power of two resolution.'
     }, {
+        name: 'asset-tasks:textureDefaultToAtlas',
+        title: 'Create Atlases',
+        description: 'If enabled, when a texture is imported it will be converted to a Texture Atlas asset instead of a Texture asset.'
+    }, {
         name: 'asset-tasks:searchRelatedAssets',
         title: 'Search related assets',
         description: 'If enabled, importing a source asset will update target assets where ever they are located. If disabled, assets will only be updated if they are in the same folder, otherwise new assets will be created.'
@@ -169,19 +173,19 @@ editor.once('load', function() {
         description: 'Create model assets in legacy format (V2). Enable this for compatibility with older model imports.'
     }, {
         name: 'asset-tasks:overwrite:model',
-        title: 'Overwrite model',
+        title: 'Overwrite models',
         description: 'When a model is imported, overwrite a previously imported model asset.'
     }, {
         name: 'asset-tasks:overwrite:animation',
-        title: 'Overwrite animation',
+        title: 'Overwrite animations',
         description: 'When a model is imported, overwrite previously imported animation assets.'
     }, {
         name: 'asset-tasks:overwrite:material',
-        title: 'Overwrite material',
+        title: 'Overwrite materials',
         description: 'When a model is imported, overwrite previously imported material assets.'
     }, {
         name: 'asset-tasks:overwrite:texture',
-        title: 'Overwrite texture',
+        title: 'Overwrite textures',
         description: 'When a model is imported, overwrite previously imported texture assets.'
     }, {
         title: 'lightmapSizeMultiplier',

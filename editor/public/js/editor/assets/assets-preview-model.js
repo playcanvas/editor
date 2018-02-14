@@ -58,10 +58,20 @@ editor.once('load', function() {
     camera.frustumCulling = false;
 
 
-    editor.method('preview:model:render', function(asset, target, args) {
+    editor.method('preview:model:render', function(asset, canvasWidth, canvasHeight, canvas, args) {
         args = args || { };
 
-        camera.aspectRatio = target.height / target.width;
+        var width = canvasWidth;
+        var height = canvasHeight;
+
+        if (width > canvasHeight)
+            width = canvasHeight;
+        else
+            height = canvasWidth;
+
+        var target = editor.call('preview:getTexture', width, height);
+
+        camera.aspectRatio = height / width;
         camera.renderTarget = target;
 
         var data = asset.get('data');
@@ -130,5 +140,14 @@ editor.once('load', function() {
 
         if (model !== modelPlaceholder)
             model.destroy();
+
+        // read pixels from texture
+        device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, target._glFrameBuffer);
+        device.gl.readPixels(0, 0, width, height, device.gl.RGBA, device.gl.UNSIGNED_BYTE, target.pixels);
+
+        // render to canvas
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+        canvas.getContext('2d').putImageData(new ImageData(target.pixelsClamped, width, height), (canvasWidth - width) / 2, (canvasHeight - height) / 2);
     });
 });

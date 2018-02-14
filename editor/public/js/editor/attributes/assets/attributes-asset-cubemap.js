@@ -112,18 +112,10 @@ editor.once('load', function() {
                     renderQueued = false;
 
                 // render
-                var imageData = editor.call('preview:render', assets[0], root.element.clientWidth, root.element.clientWidth, {
+                editor.call('preview:render', assets[0], previewContainer.clientWidth, previewContainer.clientHeight, preview, {
                     rotation: [ Math.max(-90, Math.min(90, previewRotation[0] + (sy - y) * 0.3)), previewRotation[1] + (sx - x) * 0.3 ],
                     mipLevel: mipLevel
                 });
-
-                if (! imageData)
-                    return;
-
-                preview.width = imageData.width;
-                preview.height = imageData.height;
-
-                ctx.putImageData(imageData, 0, 0);
             };
             renderPreview();
 

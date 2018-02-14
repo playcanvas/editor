@@ -39,34 +39,33 @@ editor.once('load', function() {
             var timeout;
             var updatedFields = { };
 
+            var updateFields = function () {
+                var realtimeAsset = assetRegistry.get(asset.get('id'));
+
+                for (var key in updatedFields) {
+                    // this will trigger the 'update' event on the asset in the engine
+                    // handling all resource loading automatically
+                    realtimeAsset[key] = asset.get(key);
+                    delete updatedFields[key];
+                }
+
+                timeout = null;
+            };
+
+            var checkPath = /^(data|file)\b/;
             var onUpdate = function(path, value) {
-                var parts = path.split('.');
+                var match = path.match(checkPath);
+                if (! match) return;
 
-                if (parts[0] !== 'data' && parts[0] !== 'file')
-                    return;
-
-                if (timeout)
-                    clearTimeout(timeout);
-
-                updatedFields[parts[0]] = true;
+                var field = match[0];
+                updatedFields[field] = true;
 
                 // do this in a timeout to avoid multiple sets of the same
                 // fields
-                timeout = setTimeout(function () {
-                    var realtimeAsset = assetRegistry.get(asset.get('id'));
+                if (! timeout) {
+                    timeout = setTimeout(updateFields);
+                }
 
-                    for (var key in updatedFields) {
-                        var data = asset.get(key);
-
-                        // this will trigger the 'update' event on the asset in the engine
-                        // handling all resource loading automatically
-                        realtimeAsset[key] = data;
-
-                        delete updatedFields[key];
-                    }
-
-                    timeout = null;
-                });
             };
 
             asset.on('*:set', onUpdate);

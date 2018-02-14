@@ -91,7 +91,6 @@ editor.once('load', function() {
     // allow removing assets
     editor.method('assets:remove', function(asset) {
         assets.remove(asset);
-        asset.destroy();
     });
 
     // remove all assets
@@ -154,6 +153,8 @@ editor.once('load', function() {
 
     // publish remove asset
     assets.on('remove', function(asset) {
+        asset.destroy();
         editor.emit('assets:remove', asset);
+        editor.emit('assets:remove[' + asset.get('id') + ']');
     });
 });

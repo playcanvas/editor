@@ -155,11 +155,13 @@ Object.defineProperty(NumberField.prototype, 'value', {
                 this.elementInput.value = this._link.get(this.path);
             }
         } else {
-            if (this.max !== null && this.max < value)
-                value = this.max;
+            if (value !== null) {
+                if (this.max !== null && this.max < value)
+                    value = this.max;
 
-            if (this.min !== null && this.min > value)
-                value = this.min;
+                if (this.min !== null && this.min > value)
+                    value = this.min;
+            }
 
             value = (value !== null && value !== undefined && (this.precision !== null) ? parseFloat(value.toFixed(this.precision), 10) : value);
             if (value === undefined)

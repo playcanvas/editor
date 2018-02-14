@@ -5,7 +5,7 @@ editor.once('load', function() {
 
     editor.on('attributes:inspect[asset]', function(assets) {
         for(var i = 0; i < assets.length; i++) {
-            if (assets[i].get('type') !== 'texture' || assets[i].get('source'))
+            if (assets[i].get('type') !== 'texture' && assets[i].get('type') !== 'textureatlas' || assets[i].get('source'))
                 return;
         }
 
@@ -29,8 +29,27 @@ editor.once('load', function() {
             panelState['compression'] = false;
         }
 
-        if (assets.length > 1)
-            editor.call('attributes:header', assets.length + ' Textures');
+        if (assets.length > 1) {
+            var numTextures = 0;
+            var numTextureAtlases = 0;
+            for (var i = 0; i < assets.length; i++) {
+                if (assets[i].get('type') === 'texture') {
+                    numTextures++;
+                } else {
+                    numTextureAtlases++;
+                }
+            }
+            var msg = '';
+            var comma = '';
+            if (numTextures) {
+                msg += numTextures + ' Texture' + (numTextures > 1 ? 's' : '');
+                comma = ', ';
+            }
+            if (numTextureAtlases) {
+                msg += comma + numTextureAtlases + ' Texture Atlas' + (numTextureAtlases > 1 ? 'es' : '');
+            }
+            editor.call('attributes:header', msg);
+        }
 
         // properties panel
         var panel = editor.call('attributes:addPanel', {
@@ -370,7 +389,7 @@ editor.once('load', function() {
 
 
         // compression panel
-        var panelCompression = editor.call('attributes:addPanel', {
+        var panelCompression =editor.call('attributes:addPanel', {
             name: 'Compression',
             foldable: true,
             folded: panelState['compression']
@@ -859,8 +878,8 @@ editor.once('load', function() {
             var root = editor.call('attributes.rootPanel');
 
             var reloadImage = function() {
-                if (assets[0].get('has_thumbnail') && assets[0].get('thumbnails.xl') && assets[0].get('file.hash')) {
-                    image.src = config.url.home + assets[0].get('thumbnails.xl') + '?t=' + assets[0].get('file.hash');
+                if (assets[0].get('file.hash')) {
+                    image.src = config.url.home + assets[0].get('file.url') + '?t=' + assets[0].get('file.hash');
                     previewContainer.style.display = '';
                 } else {
                     previewContainer.style.display = 'none';
@@ -870,14 +889,17 @@ editor.once('load', function() {
             var previewContainer = document.createElement('div');
             previewContainer.classList.add('asset-preview-container');
 
+            var preview = document.createElement('div');
+            preview.classList.add('asset-preview');
             var image = new Image();
             image.onload = function() {
                 root.class.add('animate');
+                preview.style.backgroundImage = 'url("' + image.src  + '")';
             };
             reloadImage();
-            previewContainer.appendChild(image);
+            previewContainer.appendChild(preview);
 
-            image.addEventListener('click', function() {
+            preview.addEventListener('click', function() {
                 if (root.element.classList.contains('large')) {
                     root.element.classList.remove('large');
                 } else {
@@ -885,14 +907,11 @@ editor.once('load', function() {
                 }
             }, false);
 
-            image.classList.add('asset-preview');
             root.class.add('asset-preview');
             root.element.insertBefore(previewContainer, root.innerElement);
 
             var events = [ ];
             events.push(assets[0].on('file.hash:set', reloadImage));
-            events.push(assets[0].on('has_thumbnail:set', reloadImage));
-            events.push(assets[0].on('thumbnails.xl:set', reloadImage));
 
             panel.on('destroy', function() {
                 for(var i = 0; i < events.length; i++)

@@ -66,6 +66,13 @@ editor.once('load', function() {
                     if (property === 'enabled') {
                         value = false;
                     }
+                } else if (component === 'sprite') {
+                    if (property === 'autoPlayClip') {
+                        // stop current clip so that we can show the new one
+                        if (entity.sprite) {
+                            entity.sprite.stop();
+                        }
+                    }
                 }
 
                 entity[component][property] = editor.call('components:convertValue', component, property, value);
