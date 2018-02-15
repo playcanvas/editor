@@ -7,6 +7,8 @@ editor.once('load', function() {
     var settings = editor.call('settings:project');
     var docs = { };
 
+    var assetNames = { };
+
     editor.method('loadAsset', function (id, callback) {
         var connection = editor.call('realtime:connection');
 
@@ -134,6 +136,7 @@ editor.once('load', function() {
                 // start bulk subscribe
                 connection.bsStart();
                 for(var i = startBatch; i < startBatch + batchSize && i < total; i++) {
+                    assetNames[data[i].id] = data[i].name;
                     load(data[i].id);
                 }
                 // end bulk subscribe and send message to server
@@ -182,7 +185,7 @@ editor.once('load', function() {
             if (folder) {
                 path += encodeURIComponent(folder.get('name')) + '/';
             } else {
-                path += 'unknown/';
+                path += (assetNames[folders[i]] || 'unknown') + '/';
             }
         }
         return '/assets/files/' + path + encodeURIComponent(filename) + '?id=' + id;
