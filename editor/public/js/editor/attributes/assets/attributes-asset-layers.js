@@ -194,10 +194,10 @@ editor.once('load', function() {
                 fieldOpaqueMode.value = true;
         });
 
-        var addSublayer = function (asset, layerData, transparent, index) {
-            var dirty = false;
+        var addSublayerToAsset = function (asset, layerData, transparent, index) {
             var info = getLayerInfo(layerData.name, asset);
             var key = info && info.key;
+            var result = {};
 
             // add new layer if it doesn't exist
             if (! key) {
@@ -211,6 +211,8 @@ editor.once('load', function() {
                 asset.set('data.layers.' + maxKey, layerData);
 
                 key = maxKey;
+
+                result.layer = maxKey;
             }
 
             if (transparent && (! info || info.transparent === null)) {
@@ -219,20 +221,20 @@ editor.once('load', function() {
                     transparent: true
                 }, index);
 
-                dirty = true;
+                result.transparent = asset.getRaw('data.sublayerOrder').length - 1;
             } else if (! transparent && (! info || info.opaque === null)) {
                 asset.insert('data.sublayerOrder', {
                     layer: key,
                     transparent: false
                 }, index);
 
-                dirty = true;
+                result.opaque = asset.getRaw('data.sublayerOrder').length - 1;
             }
 
-            return dirty;
+            return result;
         };
 
-        var removeSublayer = function (asset, layerName, transparent) {
+        var removeSublayerFromAsset = function (asset, layerName, transparent) {
             var info = getLayerInfo(layerName, asset);
             if (! info) return;
 
@@ -248,6 +250,112 @@ editor.once('load', function() {
             if (removeLayer) {
                 asset.unset('data.layers.' + info.key);
             }
+        };
+
+        var createLayer = function (name, opaque, transparent) {
+            var changes = {};
+
+            var redo = function () {
+                var result;
+
+                var layer = {
+                    name: name,
+                    enabled: true,
+                    opaqueSortMode: 2,
+                    transparentSortMode: 3
+                };
+
+                for (var i = 0; i<numAssets; i++) {
+                    var id = assets[i].get('id');
+                    var asset = editor.call('assets:get', id);
+                    if (! asset) continue;
+
+                    var history = asset.history.enabled;
+                    asset.history.enabled = false;
+
+                    if (opaque) {
+                        result = addSublayerToAsset(asset, layer, false);
+                        for (var key in result) {
+                            changes[id] = changes[id] || {};
+                            changes[id][key] = result[key];
+                        }
+                    }
+                    if (transparent) {
+                        result = addSublayerToAsset(asset, layer, true);
+                        for (var key in result) {
+                            changes[id] = changes[id] || {};
+                            changes[id][key] = result[key];
+                        }
+                    }
+
+                    asset.history.enabled = history;
+                }
+
+                return !!changes[id];
+            };
+
+            var undo = function () {
+                for (var i = 0; i<numAssets; i++) {
+                    var id = assets[i].get('id');
+                    if (! changes[id]) continue;
+
+                    var asset = editor.call('assets:get', id);
+                    if (! asset) continue;
+
+                    var history = asset.history.enabled;
+                    asset.history.enabled = false;
+
+                    if (opaque && changes[id].transparent !== undefined) {
+                        asset.remove('data.sublayerOrder', changes[id].transparent);
+                        // removeSublayerFromAsset(asset, name, false);
+                    }
+                    if (transparent && changes[id].opaque !== undefined) {
+                        asset.remove('data.sublayerOrder', changes[id].opaque);
+                        // removeSublayerFromAsset(asset, name, true);
+                    }
+
+                    if (changes[id].layer) {
+                        asset.unset('data.layers.' + changes[id].layer);
+                    }
+
+                    asset.history.enabled = history;
+                }
+               selectLayer(null);
+            };
+
+            // try to add opaque or transparent layer
+            // to selected assets but if they all already have them
+            // then mark the name field with an error
+            if (redo()) {
+                editor.call('history:add', {
+                    name: 'new layer',
+                    undo: undo,
+                    redo: redo
+                });
+
+                return true;
+            } else {
+                return false;
+            }
+        };
+
+        var removeSublayer = function (name, transparent) {
+
+            var redo = function () {
+
+            };
+
+            var undo = function () {
+
+            };
+
+            editor.call('history:add', {
+                name: 'remove sublayer',
+                undo: undo,
+                redo: redo
+            });
+
+            redo();
         };
 
         var btnAdd = editor.call('attributes:addField', {
@@ -271,76 +379,8 @@ editor.once('load', function() {
 
             fieldNewLayerName.class.remove('error');
 
-            var changes = {};
-
-            var redo = function () {
-                var dirty = false;
-
-                var layer = {
-                    name: name,
-                    enabled: true,
-                    opaqueSortMode: 2,
-                    transparentSortMode: 3
-                };
-
-                for (var i = 0; i<numAssets; i++) {
-                    var asset = editor.call('assets:get', assets[i].get('id'));
-                    if (! asset) continue;
-
-                    var history = asset.history.enabled;
-                    asset.history.enabled = false;
-
-                    if (opaque) {
-                        if (addSublayer(asset, layer, false)) {
-                            dirty = true;
-                        }
-                    }
-                    if (transparent) {
-                        if (addSublayer(asset, layer, true)) {
-                            dirty = true;
-                        }
-                    }
-
-                    asset.history.enabled = history;
-                }
-
-                if (dirty) {
-                    selectLayer(name);
-                }
-
-                return dirty;
-            };
-
-            var undo = function () {
-                for (var i = 0; i<numAssets; i++) {
-                    var asset = editor.call('assets:get', assets[i].get('id'));
-                    if (! asset) continue;
-
-                    var history = asset.history.enabled;
-                    asset.history.enabled = false;
-
-                    if (opaque) {
-                        removeSublayer(asset, name, false);
-                    }
-                    if (transparent) {
-                        removeSublayer(asset, name, true);
-                    }
-
-                    asset.history.enabled = history;
-                }
-               selectLayer(null);
-            };
-
-            // try to add opaque or transparent layer
-            // to selected assets but if they all already have them
-            // then mark the name field with an error
-            if (redo()) {
-                editor.call('history:add', {
-                    name: 'new layer',
-                    undo: undo,
-                    redo: redo
-                });
-            } else {
+            var result = createLayer(name, opaque, transparent);
+            if (! result) {
                 fieldNewLayerName.class.add('error');
             }
         });
@@ -438,51 +478,7 @@ editor.once('load', function() {
 
             // Remove sublayer
             btnRemove.on('click', function () {
-                var name = fieldName.value;
-
-                var prevLayerData = {};
-                for (var i = 0; i<numAssets; i++) {
-                    prevLayerData[assets[i].get('id')] = getLayerInfo(name, assets[i]);
-                }
-
-                var redo = function () {
-                    var name = fieldName.value;
-                    for (var i = 0; i<numAssets; i++) {
-                        var asset = editor.call('assets:get', assets[i].get('id'));
-                        if (! asset) continue;
-                        var history = asset.history.enabled;
-                        asset.history.enabled = false;
-                        removeSublayer(asset, name, transparent);
-                        asset.history.enabled = history;
-                    }
-                };
-
-                var undo = function () {
-                    for (var i = 0; i<numAssets; i++) {
-                        var asset = editor.call('assets:get', assets[i].get('id'));
-                        if (! asset) continue;
-
-                        var prev = prevLayerData[asset.get('id')];
-                        if (prev) {
-                            var history = asset.history.enabled;
-                            asset.history.enabled = false;
-                            if (transparent && prev.transparent !== null) {
-                                addSublayer(asset, prev.layer, true, prev.transparent);
-                            } else if (! transparent && prev.opaque !== null) {
-                                addSublayer(asset, prev.layer, false, prev.opaque);
-                            }
-                            asset.history.enabled = history;
-                        }
-                    }
-                };
-
-                editor.call('history:add', {
-                    name: 'delete sublayer',
-                    undo: undo,
-                    redo: redo
-                });
-
-                redo();
+                removeSublayer(name, transparent);
             });
 
             panel.on('click', function () {
@@ -589,6 +585,9 @@ editor.once('load', function() {
             }
         };
 
+        var updateCommonSublayers = function () {
+
+        };
 
         var showLayerProperties = function (name) {
             hideLayerProperties();
@@ -803,28 +802,49 @@ editor.once('load', function() {
             }));
         };
 
+        var nameChangeTimeout = null;
+
         var hookNameChangeListener = function (asset, layerName) {
-            var entry = layersByName[layerName][asset.get('id')];
+            var id = asset.get('id');
+            var entry = layersByName[layerName][id];
             if (! entry) return;
 
             events.push(asset.on('data.layers.' + entry.key + '.name:set', function (value) {
-                if (panelSublayers[layerName]) {
-                    panelSublayers[value] = panelSublayers[layerName];
-                    delete panelSublayers[layerName];
+                if (nameChangeTimeout) {
+                    clearTimeout(nameChangeTimeout);
                 }
 
-                if (layerColors[layerName]) {
-                    layerColors[value] = layerColors[layerName];
-                    delete layerColors[layerName];
-                }
+                nameChangeTimeout = setTimeout(function () {
+                    refreshLayersByName();
+                });
+                // if (panelSublayers[layerName]) {
+                //     panelSublayers[value] = panelSublayers[layerName];
+                //     delete panelSublayers[layerName];
+                // }
 
-                if (selectedLayer === layerName) {
-                    selectedLayer = value;
-                }
+                // if (layerColors[layerName]) {
+                //     layerColors[value] = layerColors[layerName];
+                //     delete layerColors[layerName];
+                // }
 
-                // handle layersByName here...
+                // if (selectedLayer === layerName) {
+                //     selectedLayer = value;
+                // }
 
-                layerName = value;
+                // if (! layersByName[value]) {
+                //     layersByName[value] = {};
+                // }
+
+                // layersByName[value][id] = layersByName[layerName][id];
+                // delete layersByName[layerName][id];
+
+                // if (! Object.keys(layersByName[layerName]))  {
+                //     delete layersByName[layerName];
+                // }
+
+                // if (isSublayerCommon)
+
+                // layerName = value;
             }));
         };
 
