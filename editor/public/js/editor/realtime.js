@@ -103,7 +103,6 @@ editor.once('load', function() {
             connection.on('error', function(msg) {
                 if (connection.state === 'connected')
                     return;
-console.log('2');
                 editor.emit('realtime:error', msg);
             });
 

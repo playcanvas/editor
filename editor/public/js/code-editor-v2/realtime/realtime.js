@@ -11,7 +11,6 @@ editor.once('load', function () {
     var isAuthenticated = false;
 
     var onError = function (err) {
-        console.log('1');
         editor.emit('realtime:error', err);
     };
 
@@ -69,7 +68,7 @@ editor.once('load', function () {
             if (! connection) {
                 // if we are connecting for the first time
                 // create new sharedb connection
-                connection = new shareDB.Connection(socket);
+                connection = new window.share.Connection(socket);
                 connection.on('error', onError);
                 connection.on('bs error', onError);
             } else {
