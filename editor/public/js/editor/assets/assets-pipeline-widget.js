@@ -246,7 +246,8 @@ editor.once('load', function() {
                     target = target[1];
                 }
 
-                var onTargetAvailable = function(target) {
+                if (target) {
+                    // if file exists, make sure these code are executed regardless of the autoRun setting.
                     var onFileSet = function(value) {
                         // todo: run 'assets:jobs:remove' with source_asset_id on 'asset.new'
                         editor.call('assets:jobs:remove', asset.get('id'));
@@ -267,112 +268,9 @@ editor.once('load', function() {
                     };
 
                     events.push(target.once('file:set', onFileSet));
-                };
-
-                if (target) {
-                    // if file exists, make sure these code are executed regardless of the autoRun setting.
-                    onTargetAvailable(target);
                 }
             }
         } else if (asset.get('type') === 'scene') {
-            var path = asset.get('path');
-            var model = { };
-            var animation = null;
-            var materials = asset.get('meta.materials') || [ ];
-            var textures = asset.get('meta.textures') || [ ];
-
-            var nameModel = asset.get('name').split('.');
-            nameModel = nameModel.slice(0, nameModel.length - 1).join('.') + '.json';
-
-            // model
-            var modelTarget = editor.call('assets:findTarget', {
-                id: asset.get('id'),
-                filename: asset.get('file.filename'),
-                path: asset.get('path'),
-                type: 'model',
-                searchRelatedAssets: searchRelatedAssets
-            });
-
-            if (modelTarget) {
-                model.asset = parseInt(modelTarget[1].get('id'), 10);
-                model.override = settings.get('editor.pipeline.overwriteModel');
-            }
-
-            // animation
-            if (asset.get('meta.animation.available')) {
-                animation = { };
-
-                var animationTarget = editor.call('assets:findTarget', {
-                    id: asset.get('id'),
-                    filename: asset.get('file.filename'),
-                    path: path,
-                    type: 'animation',
-                    searchRelatedAssets: searchRelatedAssets
-                });
-
-                if (animationTarget) {
-                    animation.asset = parseInt(animationTarget[1].get('id'), 10);
-                    animation.override = settings.get('editor.pipeline.overwriteAnimation');
-                }
-            }
-
-            // materials
-            for(var i = 0; i < materials.length; i++) {
-                var target = editor.call('assets:findTarget', {
-                    id: asset.get('id'),
-                    filename: materials[i].name,
-                    path: path,
-                    type: 'material',
-                    searchRelatedAssets: searchRelatedAssets
-                });
-
-                if (target) {
-                    materials[i].asset = parseInt(target[1].get('id'), 10);
-                    materials[i].override = settings.get('editor.pipeline.overwriteMaterial');
-                }
-            }
-
-            // textures
-            for(var i = 0; i < textures.length; i++) {
-                var name = textures[i].name.toLowerCase();
-                if (name.endsWith('.jpg'))
-                    name = name.slice(0, -4) + '.jpeg';
-
-                textures[i].options = editor.call('assets:jobs:texture-convert-options', textures[i].meta);
-
-                var fileName = name.replace(/\.[0-9a-z]{3,4}$/i, '') + '.' + textures[i].options.format;
-
-                var target = editor.call('assets:findTarget', {
-                    id: asset.get('id'),
-                    filename: asset.get('file.filename').toLowerCase(),
-                    path: path,
-                    type: 'texture',
-                    searchRelatedAssets: searchRelatedAssets
-                });
-
-                if (target) {
-                    textures[i].asset = parseInt(target[1].get('id'), 10);
-                    textures[i].override = settings.get('editor.pipeline.overwriteTexture');
-                }
-            }
-
-            var task = {
-                source: parseInt(asset.get('id'), 10),
-                options: {
-                    textures: textures,
-                    materials: materials,
-                    mappings: asset.get('meta.mappings'),
-                    animation: animation,
-                    model: model,
-                    preserveMapping: settings.get('editor.pipeline.preserveMapping')
-                }
-            };
-
-            editor.call('realtime:send', 'pipeline', {
-                name: 'convert',
-                data: task
-            });
-
             editor.call('assets:jobs:remove', asset.get('id'));
         } else if (asset.get('type') === 'font') {
             var assetId = asset.get('id');
