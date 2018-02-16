@@ -144,9 +144,9 @@ editor.once('load', function() {
             socket = new WebSocket(config.url.realtime.http);
 
             // if the connection does not exist
-            // then create a new sharejs connection
+            // then create a new shareDb connection
             if (! connection) {
-                connection = new sharejs.Connection(socket);
+                connection = new window.share.Connection(socket);
 
                 connection.on('connected', function() {
                     reconnectInterval = RECONNECT_INTERVAL;
@@ -167,7 +167,7 @@ editor.once('load', function() {
                 connection.bindToSocket(socket);
             }
 
-            var sharejsMessage = connection.socket.onmessage;
+            var shareDbMessage = connection.socket.onmessage;
 
             connection.socket.onmessage = function(msg) {
                 try {
@@ -206,7 +206,7 @@ editor.once('load', function() {
                         }
                     }
                     else if (!msg.data.startsWith('fs:') && !msg.data.startsWith('doc:save:')) {
-                        sharejsMessage(msg);
+                        shareDbMessage(msg);
                     }
                 } catch (e) {
                     onError(e);
@@ -345,7 +345,7 @@ editor.once('load', function() {
 
                 assetDocument.on('load', function() {
                     // load asset file to check if it has different contents
-                    // than the sharejs document, so that we can enable the
+                    // than the shareDb document, so that we can enable the
                     // SAVE button if that is the case.
                     editor.call('editor:loadAssetFile', function (err, data) {
                         if (err) {

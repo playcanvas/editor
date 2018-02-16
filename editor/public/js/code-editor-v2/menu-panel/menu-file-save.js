@@ -193,7 +193,7 @@ editor.once('load', function () {
     // or it's reloaded. In either case make sure we can save the document again
     // if we got disconnected in the meantime
     editor.on('documents:load', function (doc, asset) {
-        var id = doc.name;
+        var id = doc.id;
         if (savingIndex[id]) {
             delete savingIndex[id];
             editor.call('status:clear');
@@ -220,10 +220,10 @@ editor.once('load', function () {
             // wait for pending data to be sent and
             // acknowledged by the server before saving
             doc.once('nothing pending', function () {
-                editor.call('realtime:send', 'doc:save:', parseInt(doc.name, 10));
+                editor.call('realtime:send', 'doc:save:', parseInt(doc.id, 10));
             });
         } else {
-            editor.call('realtime:send', 'doc:save:', parseInt(doc.name, 10));
+            editor.call('realtime:send', 'doc:save:', parseInt(doc.id, 10));
         }
     };
 
