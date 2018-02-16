@@ -113,8 +113,13 @@ editor.once('load', function() {
                 loadData();
 
             events.push(assets[0].on('file.hash:set', function(value) {
-                assets[0]._loading = 0;
-                loadData();
+                // do this in a timeout so that all the fields of the file entry
+                // have a chance to be initialized - this is mainly a problem if you
+                // select a model asset that has not finished importing yet
+                setTimeout(function () {
+                    assets[0]._loading = 0;
+                    loadData();
+                });
             }));
         }
 

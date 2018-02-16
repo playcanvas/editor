@@ -379,7 +379,7 @@ editor.once('load', function() {
                 for(var i = 0; i < textures.length; i++) {
                     var name = textures[i].name.toLowerCase();
                     if (name.endsWith('.jpg'))
-                        name = name.slice(0, -4) + '.jpeg';
+                        name = textures[i].name.slice(0, -4) + '.jpeg';
 
                     textures[i].options = editor.call('assets:jobs:texture-convert-options', textures[i].meta);
 
@@ -387,7 +387,7 @@ editor.once('load', function() {
 
                     var target = editor.call('assets:findTarget', {
                         id: asset.get('id'),
-                        filename: asset.get('file.filename').toLowerCase(),
+                        filename: fileName,
                         path: path,
                         type: 'texture',
                         searchRelatedAssets: searchRelatedAssets
