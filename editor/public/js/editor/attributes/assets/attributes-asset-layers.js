@@ -267,12 +267,12 @@ editor.once('load', function() {
                 if (transparent) {
                     if (transparentIndex !== null) {
                         asset.remove('data.sublayerOrder', transparentIndex);
-                        removeLayer = opaqueIndex !== null;
+                        removeLayer = opaqueIndex === null;
                     }
                 } else {
                     if (opaqueIndex !== null) {
                         asset.remove('data.sublayerOrder', opaqueIndex);
-                        removeLayer = transparentIndex !== null;
+                        removeLayer = transparentIndex === null;
                     }
                 }
 
@@ -296,21 +296,25 @@ editor.once('load', function() {
                     prevLayerData = null;
                 }
 
+                var sublayers = asset.get('data.sublayerOrder');
                 if (transparent) {
                     if (transparentIndex !== null) {
                         asset.insert('data.sublayerOrder', {
                             layer: key,
                             transparent: true
-                        }, transparentIndex);
+                        }, transparentIndex >= sublayers.length ? sublayers.length - 1 : transparentIndex);
                     }
                 } else {
                     if (opaqueIndex !== null) {
                         asset.insert('data.sublayerOrder', {
                             layer: key,
                             transparent: false
-                        }, opaqueIndex);
+                        }, opaqueIndex >= sublayers.length ? sublayers.length - 1 : opaqueIndex);
                     }
                 }
+
+                transparentIndex = null;
+                opaqueIndex = null;
 
                 asset.history.enabled = history;
             };

@@ -60,6 +60,7 @@ editor.once('load', function() {
         'cubemap': '&#57879;',
         'html': '&#57864;',
         'json': '&#57864;',
+        'layers': '&#57992',
         'material': '&#57749;',
         'script': '&#57864;',
         'shader': '&#57864;',
@@ -82,6 +83,7 @@ editor.once('load', function() {
             'cubemap': 'CubeMap',
             'html': 'HTML',
             'json': 'JSON',
+            'layers': 'Layer Composition',
             'material': 'Material',
             'script': 'Script',
             'shader': 'Shader',
@@ -97,6 +99,7 @@ editor.once('load', function() {
             'html': 'HTML',
             'json': 'JSON',
             'material': 'Material',
+            'layers': 'Layer Composition',
             'script': 'Script',
             'shader': 'Shader',
             'text': 'Text'
