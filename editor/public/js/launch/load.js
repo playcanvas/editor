@@ -80,7 +80,7 @@ editor.once('load', function() {
         // create new socket...
         socket = new WebSocket(config.url.realtime.http);
         // ... and new sharedb connection
-        connection = new shareDB.Connection(socket);
+        connection = new window.share.Connection(socket);
         // connect again
         connect();
     };
