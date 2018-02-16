@@ -115,6 +115,9 @@ editor.once('load', function () {
     });
 
     editor.method('preview:render', function(asset, width, height, canvas, args) {
+        width = width || 1;
+        height = height || 1;
+
         // render
         editor.call('preview:' + asset.get('type') + ':render', asset, width, height, canvas, args);
     });
