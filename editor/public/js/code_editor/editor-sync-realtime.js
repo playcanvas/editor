@@ -281,37 +281,37 @@ editor.once('load', function() {
             // error
             textDocument.on('error', onError);
 
-            // every time we subscribe to the document
-            // (so on reconnects too) listen for the 'ready' event
-            // and when ready check if the document content is different
-            // than the asset content in order to activate the REVERT button
-            textDocument.on('subscribe', function () {
-                // if we have a permanent error we need to reload the page
-                // so don't continue
-                if (hasError)
-                    return;
+            // ready to sync
+            textDocument.on('load', function () {
+                // notify of scene load
+                isLoading = false;
 
-                // ready to sync
-                textDocument.on('load', function () {
-                    // notify of scene load
-                    isLoading = false;
+                if (! editingContext) {
+                    editingContext = textDocument.type.api(function() { return textDocument.data; }, function(component, options, callback) { return textDocument.submitOp(component, options, callback); });
+                    editingContext._doc = textDocument;
+                }
 
-                    if (! editingContext) {
-                        editingContext = textDocument.type.api(function() { return textDocument.data; }, function(component, options, callback) { return textDocument.submitOp(component, options, callback); });
-                        editingContext._doc = textDocument;
-                    }
+                documentContent = textDocument.data;
 
-                    documentContent = textDocument.data;
+                if (! loadedScriptOnce) {
+                    editor.emit('editor:loadScript', documentContent);
+                    loadedScriptOnce = true;
+                } else {
+                    editor.emit('editor:reloadScript', documentContent);
+                }
 
-                    if (! loadedScriptOnce) {
-                        editor.emit('editor:loadScript', documentContent);
-                        loadedScriptOnce = true;
+                checkIfDirty();
+            });
+
+            textDocument.on('op', function (ops, local) {
+                if (!local && ops.length === 2) {
+                    // d stands for delete
+                    if (ops[1].d) {
+                        editor.emit('documents:onOpRemove', ops[0], typeof ops[1].d === 'string' ? ops[1].d.length : ops[1].d);
                     } else {
-                        editor.emit('editor:reloadScript', documentContent);
+                        editor.emit('documents:onOpInsert', ops[0], ops[1]);
                     }
-
-                    checkIfDirty();
-                });
+                }
             });
 
             // subscribe for realtime events
@@ -337,26 +337,18 @@ editor.once('load', function() {
                 }
             });
 
-            // Every time the 'subscribe' event is fired on the asset document
-            // reload the asset content and check if it's different than the document content in
-            // order to activate the REVERT button
-            assetDocument.on('subscribe', function () {
-                if (hasError)
-                    return;
+            assetDocument.on('load', function() {
+                // load asset file to check if it has different contents
+                // than the shareDb document, so that we can enable the
+                // SAVE button if that is the case.
+                editor.call('editor:loadAssetFile', function (err, data) {
+                    if (err) {
+                        onError('Could not load asset file - please try again later.');
+                        return;
+                    }
 
-                assetDocument.on('load', function() {
-                    // load asset file to check if it has different contents
-                    // than the shareDb document, so that we can enable the
-                    // SAVE button if that is the case.
-                    editor.call('editor:loadAssetFile', function (err, data) {
-                        if (err) {
-                            onError('Could not load asset file - please try again later.');
-                            return;
-                        }
-
-                        assetContent = data;
-                        checkIfDirty();
-                    });
+                    assetContent = data;
+                    checkIfDirty();
                 });
             });
 

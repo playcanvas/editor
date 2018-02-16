@@ -247,7 +247,7 @@ editor.once('load', function () {
         share = editor.call('realtime:context');
 
         // insert server -> local
-        share.onInsert = function (pos, text) {
+        editor.on('documents:onOpInsert', function (pos, text) {
             // transform undos / redos with new remote op
             var remoteOp = createInsertOp(pos, text);
             transformStacks(remoteOp);
@@ -267,10 +267,10 @@ editor.once('load', function () {
             restoreSelections(cursorOps);
 
             suppress = false;
-        };
+        });
 
         // remove server -> local
-        share.onRemove = function (pos, length) {
+        editor.on('documents:onOpRemove', function (pos, length) {
             suppress = true;
             var from = cm.posFromIndex(pos);
             var to = cm.posFromIndex(pos + length);
@@ -291,7 +291,7 @@ editor.once('load', function () {
             restoreSelections(cursorOps);
 
             suppress = false;
-        };
+        });
 
         isConnected = true;
     };
@@ -349,7 +349,7 @@ editor.once('load', function () {
     // Applies an operation to the sharejs document
     // and sets the result to the editor
     var applyCustomOp = function (op) {
-        share.submitOp(op, function (err) {
+        share._doc.submitOp(op, function (err) {
             if (err) {
                 console.error(err);
                 editor.emit('realtime:error', err);
