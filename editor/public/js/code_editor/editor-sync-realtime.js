@@ -297,7 +297,8 @@ editor.once('load', function() {
                     isLoading = false;
 
                     if (! editingContext) {
-                        editingContext = textDocument.createContext();
+                        editingContext = textDocument.type.api(function() { return textDocument.data; }, function(component, options, callback) { return textDocument.submitOp(component, options, callback); });
+                        editingContext._doc = textDocument;
                     }
 
                     documentContent = textDocument.data;

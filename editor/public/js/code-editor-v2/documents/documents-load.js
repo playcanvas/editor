@@ -34,9 +34,17 @@ editor.once('load', function () {
             editor.emit('documents:error', id, err);
         });
 
-        // mark document as dirty on every
-        // op
+        // mark document as dirty on every op
         doc.on('op', function (ops, local) {
+            if (!local && ops.length === 2) {
+                // d stands for delete
+                if (ops[1].d) {
+                    editor.emit('documents:onOpRemove', ops[0], typeof ops[1].d === 'string' ? ops[1].d.length : ops[1].d);
+                } else {
+                    editor.emit('documents:onOpInsert', ops[0], ops[1]);
+                }
+            }
+
             if (!entry.isDirty) {
                 entry.isDirty = true;
                 editor.emit('documents:dirty', id, true);
@@ -47,7 +55,6 @@ editor.once('load', function () {
                 editor.emit('documents:dirtyLocal', id, true);
             }
         });
-
 
         // ready to sync
         doc.on('load', function () {

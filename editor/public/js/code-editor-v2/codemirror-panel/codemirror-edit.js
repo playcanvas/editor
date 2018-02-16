@@ -388,7 +388,7 @@ editor.once('load', function () {
         documentIndex[doc.id] = entry;
 
         // insert server -> local
-        entry.context.onInsert = function (pos, text) {
+        editor.on('documents:onOpInsert', function (pos, text) {
             // transform undos / redos with new remote op
             var remoteOp = createInsertOp(pos, text);
             transformStacks(remoteOp, entry);
@@ -410,10 +410,10 @@ editor.once('load', function () {
             restoreSelections(cursorOps, entry);
 
             entry.ignoreLocalChanges = false;
-        };
+        });
 
         // remove server -> local
-        entry.context.onRemove = function (pos, length) {
+        editor.on('documents:onOpRemove', function (pos, length) {
             entry.ignoreLocalChanges = true;
             var from = entry.view.posFromIndex(pos);
             var to = entry.view.posFromIndex(pos + length);
@@ -436,7 +436,7 @@ editor.once('load', function () {
             restoreSelections(cursorOps, entry);
 
             entry.ignoreLocalChanges = false;
-        };
+        });
     });
 
 
