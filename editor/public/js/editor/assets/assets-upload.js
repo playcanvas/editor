@@ -151,7 +151,6 @@ editor.once('load', function() {
                 break;
         }
 
-
         // filename
         if (args.filename)
             form.append('filename', args.filename);
@@ -176,20 +175,10 @@ editor.once('load', function() {
 
         Ajax(data)
         .on('load', function(status, data) {
-            if (args.pipeline) {
-                var asset = editor.call('assets:get', data.id);
-                if (asset) {
-                    editor.call('assets:jobs:add', asset);
-                } else {
-                    var evt = editor.once('assets:add[' + data.id + ']', function(asset) {
-                        editor.call('assets:jobs:add', asset);
-                    });
-                }
-            }
-
             editor.call('status:job', 'asset-upload:' + job);
-            if (fn)
+            if (fn) {
                 fn(null, data);
+            }
         })
         .on('progress', function(progress) {
             editor.call('status:job', 'asset-upload:' + job, progress);

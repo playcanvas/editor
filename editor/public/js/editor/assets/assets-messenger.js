@@ -4,14 +4,20 @@ editor.once('load', function() {
     var create = function(data) {
         var assetId = data.asset.id;
 
-        if (data.asset.source === false && data.asset.status && data.asset.status !== 'complete')
+        console.log('label=\"xdu\" method=\"create\" asset=' + JSON.stringify(data.asset));
+
+        if (data.asset.source === false && data.asset.status && data.asset.status !== 'complete') {
             return;
+        }
 
         // todo: data.asset.source_asset_id
 
+        // todo: possibly convert this to a new event `assets:update`
         var asset = editor.call('assets:get', assetId);
-        if (asset)
+        if (asset) {
+            console.log('label=\"xdu\" method=\"create\" msg=\"existing\" assetId=' + assetId);
             return;
+        }
 
         editor.call('loadAsset', assetId);
     };

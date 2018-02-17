@@ -204,117 +204,31 @@ editor.once('load', function() {
     menu.append(menuItemReplace);
 
 
-    // extract
+    // extract. Used for source assets.
     var menuItemExtract = new ui.MenuItem({
         text: 'Re-Import',
         icon: '&#57889;',
         value: 'extract'
     });
     menuItemExtract.on('select', function() {
-        if (! currentAsset.get('meta'))
-            return;
-
-        editor.call('assets:jobs:convert', currentAsset);
+        console.log('label=\"xdu\" msg=\"extract\"');
+        // todo: xdu
+        // currentAsset
     });
     menu.append(menuItemExtract);
 
 
-    // re-import
+    // re-import. Used for target assets.
     var menuItemReImport = new ui.MenuItem({
         text: 'Re-Import',
         icon: '&#57889;',
         value: 're-import'
     });
     menuItemReImport.on('select', function() {
-        var target = currentAsset;
-        var sourceId = target.get('source_asset_id');
-
-        if (target.get('source') || ! sourceId)
-            return;
-
-        var source = editor.call('assets:get', sourceId);
-
-        if (! source)
-            return;
-
-        var task = {
-            source: parseInt(source.get('id'), 10)
-        };
-
-        if (source.get('type') === 'texture' || source.get('type') === 'textureatlas') {
-            task.target = parseInt(target.get('id'), 10);
-            task.options = editor.call('assets:jobs:texture-convert-options', source.get('meta'));
-
-            if (target.get('meta.width') && target.get('meta.height')) {
-                task.options.size = {
-                    width: target.get('meta.width'),
-                    height: target.get('meta.height')
-                };
-            }
-
-            editor.call('realtime:send', 'pipeline', {
-                name: 'convert',
-                data: task
-            });
-
-            var onFileSet = function(value) {
-                if (! value) return;
-
-                target.unbind('file:set', onFileSet);
-
-                setTimeout(function() {
-                    if (target.get('data.rgbm')) {
-                        editor.call('assets:jobs:thumbnails', source, target);
-                    } else {
-                        editor.call('assets:jobs:thumbnails', null, target);
-                    }
-                }, 0);
-            };
-
-            target.on('file:set', onFileSet);
-        } else if (source.get('type') === 'scene') {
-            if (! source.get('meta'))
-                return;
-
-            var type = target.get('type');
-
-            if (type === 'texture') {
-                // TODO
-                return;
-            } else if (type === 'material') {
-                // TODO
-                return;
-            } else if (type === 'animation') {
-                if (! source.get('meta.animation.available'))
-                    return;
-
-                task.target = parseInt(target.get('id'), 10);
-            } else if (type === 'model') {
-                task.target = parseInt(target.get('id'), 10);
-            } else {
-                return;
-            }
-
-            editor.call('realtime:send', 'pipeline', {
-                name: 'convert',
-                data: task
-            });
-        } else if (source.get('type') === 'font') {
-            var chars = null;
-            if (! target.get('meta')) {
-                chars = [ ];
-                for (var i = 0x20; i <= 0x7e; i++)
-                    chars.push(String.fromCharCode(i));
-                chars = chars.join('');
-            }
-            task.target = parseInt(target.get('id'), 10);
-            task.chars = chars;
-
-            editor.call('realtime:send', 'pipeline', {
-                name: 'convert',
-                data: task
-            });
-        }
+        console.log('label=\"xdu\" msg=\"re-import\"');
+        // todo: xdu
+        // currentAsset
+        
     });
     menu.append(menuItemReImport);
 
