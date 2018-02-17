@@ -4,8 +4,6 @@ editor.once('load', function() {
     var create = function(data) {
         var assetId = data.asset.id;
 
-        console.log('label=\"xdu\" method=\"create\" asset=' + JSON.stringify(data.asset));
-
         if (data.asset.source === false && data.asset.status && data.asset.status !== 'complete') {
             return;
         }
@@ -15,7 +13,6 @@ editor.once('load', function() {
         // todo: possibly convert this to a new event `assets:update`
         var asset = editor.call('assets:get', assetId);
         if (asset) {
-            console.log('label=\"xdu\" method=\"create\" msg=\"existing\" assetId=' + assetId);
             return;
         }
 

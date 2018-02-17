@@ -203,7 +203,9 @@ editor.once('load', function() {
     });
     menu.append(menuItemReplace);
 
-
+    // todo: xdu.
+    // todo: merge these 2 items.
+    
     // extract. Used for source assets.
     var menuItemExtract = new ui.MenuItem({
         text: 'Re-Import',
@@ -211,9 +213,7 @@ editor.once('load', function() {
         value: 'extract'
     });
     menuItemExtract.on('select', function() {
-        console.log('label=\"xdu\" msg=\"extract\"');
-        // todo: xdu
-        // currentAsset
+        editor.call('assets:reimport', currentAsset.get('id'), currentAsset.get('type'));
     });
     menu.append(menuItemExtract);
 
@@ -225,13 +225,11 @@ editor.once('load', function() {
         value: 're-import'
     });
     menuItemReImport.on('select', function() {
-        console.log('label=\"xdu\" msg=\"re-import\"');
-        // todo: xdu
-        // currentAsset
+        editor.call('assets:reimport', currentAsset.get('id'), currentAsset.get('type'));
+        });
         
     });
     menu.append(menuItemReImport);
-
 
     // download
     var menuItemDownload = new ui.MenuItem({
