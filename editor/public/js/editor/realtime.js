@@ -166,20 +166,25 @@ editor.once('load', function() {
                 editor.emit('realtime:scene:error', err);
             });
 
-            // ready to sync
-            scene.on('load', function() {
-                // notify of operations
-                scene.on('op', function(ops, local) {
-                    if (local) return;
-
-                    for (var i = 0; i < ops.length; i++)
-                        emitOp('scene', ops[i]);
-                });
-
-                // notify of scene load
+            if (scene.data && scene.eventNames().includes("load")) {
                 editor.emit('scene:load', id);
                 editor.emit('scene:raw', scene.data);
-            });
+            } else {
+                // ready to sync
+                scene.on('load', function () {
+                    // notify of operations
+                    scene.on('op', function (ops, local) {
+                        if (local) return;
+
+                        for (var i = 0; i < ops.length; i++)
+                            emitOp('scene', ops[i]);
+                    });
+
+                    // notify of scene load
+                    editor.emit('scene:load', id);
+                    editor.emit('scene:raw', scene.data);
+                });
+            }
 
             // subscribe for realtime events
             scene.subscribe();
