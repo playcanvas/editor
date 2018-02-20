@@ -252,10 +252,13 @@ editor.once('load', function() {
 
             var anchor = entity.element.anchor;
 
-            gizmoAnchor.handles.tl.setLocalPosition(resX * (anchor.x - 0.5), resY * (anchor.w - 0.5), 0);
-            gizmoAnchor.handles.tr.setLocalPosition(resX * (anchor.z - 0.5), resY * (anchor.w - 0.5), 0);
-            gizmoAnchor.handles.bl.setLocalPosition(resX * (anchor.x - 0.5), resY * (anchor.y - 0.5), 0);
-            gizmoAnchor.handles.br.setLocalPosition(resX * (anchor.z - 0.5), resY * (anchor.y - 0.5), 0);
+            var px = parent && parent.element ? parent.element.pivot.x : 0.5;
+            var py = parent && parent.element ? parent.element.pivot.y : 0.5;
+
+            gizmoAnchor.handles.tl.setLocalPosition(resX * (anchor.x - px), resY * (anchor.w - py), 0);
+            gizmoAnchor.handles.tr.setLocalPosition(resX * (anchor.z - px), resY * (anchor.w - py), 0);
+            gizmoAnchor.handles.bl.setLocalPosition(resX * (anchor.x - px), resY * (anchor.y - py), 0);
+            gizmoAnchor.handles.br.setLocalPosition(resX * (anchor.z - px), resY * (anchor.y - py), 0);
 
             // gizmoAnchor.handles.center.setLocalPosition(resX * (pc.math.lerp(anchor.x,anchor.z,0.5) - 0.5), resY * (pc.math.lerp(anchor.y,anchor.w,0.5) - 0.5), 0, 0.1);
         });
