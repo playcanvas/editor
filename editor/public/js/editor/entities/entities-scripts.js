@@ -274,6 +274,16 @@ editor.once('load', function() {
         });
     });
 
+    editor.on('entities:remove', function (entity) {
+        var scripts = entity.get('components.script.order');
+        if (scripts) {
+            var i = scripts.length;
+            while (i--) {
+                indexRemove(entity, scripts[i]);
+            }
+        }
+    });
+
     editor.on('assets:scripts:primary:set', function(asset, script) {
         if (! index[script])
             return;
