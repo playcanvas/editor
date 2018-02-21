@@ -134,10 +134,10 @@ editor.once('load', function() {
             case 'texture':
             case 'textureatlas':
                 form.append('pow2', settings.get('editor.pipeline.texturePot'));
-                form.append('related', settings.get('editor.pipeline.searchRelatedAssets'));
+                form.append('searchRelatedAssets', settings.get('editor.pipeline.searchRelatedAssets'));
                 break;
             case 'scene':
-                form.append('related', settings.get('editor.pipeline.searchRelatedAssets'));
+                form.append('searchRelatedAssets', settings.get('editor.pipeline.searchRelatedAssets'));
                 form.append('overrideModel', settings.get('editor.pipeline.overwriteModel'));
                 form.append('overrideAnimation', settings.get('editor.pipeline.overwriteAnimation'));
                 form.append('overrideMaterial', settings.get('editor.pipeline.overwriteMaterial'));
