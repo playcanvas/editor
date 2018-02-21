@@ -73,34 +73,21 @@ editor.once('load', function() {
         'audio': '&#57872;'
     };
 
+    var assets = {
+        'upload': 'Upload',
+        'folder': 'Folder',
+        'css': 'CSS',
+        'cubemap': 'CubeMap',
+        'html': 'HTML',
+        'json': 'JSON',
+        'material': 'Material',
+        'script': 'Script',
+        'shader': 'Shader',
+        'text': 'Text'
+    };
 
     if (editor.call('users:isSpriteTester')) {
-        var assets = {
-            'upload': 'Upload',
-            'folder': 'Folder',
-            'css': 'CSS',
-            'cubemap': 'CubeMap',
-            'html': 'HTML',
-            'json': 'JSON',
-            'material': 'Material',
-            'script': 'Script',
-            'shader': 'Shader',
-            'sprite': 'Sprite',
-            'text': 'Text'
-        };
-    } else {
-        var assets = {
-            'upload': 'Upload',
-            'folder': 'Folder',
-            'css': 'CSS',
-            'cubemap': 'CubeMap',
-            'html': 'HTML',
-            'json': 'JSON',
-            'material': 'Material',
-            'script': 'Script',
-            'shader': 'Shader',
-            'text': 'Text'
-        };
+        assets.sprite = 'Sprite';
     }
 
     var addNewMenuItem = function(key, title) {
@@ -226,8 +213,6 @@ editor.once('load', function() {
     });
     menuItemReImport.on('select', function() {
         editor.call('assets:reimport', currentAsset.get('id'), currentAsset.get('type'));
-        });
-        
     });
     menu.append(menuItemReImport);
 
