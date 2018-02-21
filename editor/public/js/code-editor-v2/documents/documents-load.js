@@ -12,6 +12,31 @@ editor.once('load', function () {
     // user requested to focus
     var lastFocusedId = null;
 
+    var convertToIndex = function (str) {
+        return typeof str === 'string' ? str.length : str;
+    };
+
+    var applyOperation = function (curPos, input) {
+        if (typeof input === 'number')
+            return curPos + input;
+
+        if (typeof input === 'string') {
+            editor.emit('documents:onOpInsert', curPos, input);
+            return curPos + input.length;
+        }
+
+        if (input.d) {
+            var len = typeof input.d === 'string' ? input.d.length : input.d;
+            editor.emit('documents:onOpRemove', curPos, len);
+            return curPos + len;
+        }
+
+        // TODO merih.taze: Delete below before shipping to production
+        console.log('Unexpected input');
+        console.log(input);
+        debugger;
+    };
+
     // Loads the editable document that corresponds to the specified asset id
     var loadDocument = function (asset) {
         var id = asset.get('id').toString(); // ensure id is string
@@ -37,21 +62,15 @@ editor.once('load', function () {
         // mark document as dirty on every op
         doc.on('op', function (ops, local) {
             if (!local) {
-                var location = -1, operation;
-                if (ops.length === 1) {
-                    location = 0;
-                    operation = ops[0];
-                } else if (ops.length === 2) {
-                    location = ops[0];
-                    operation = ops[1];
+                var curPos = 0;
+                for (var i = 0; i < ops.length; i++) {
+                    curPos = applyOperation(curPos, ops[i]);
                 }
-                if (location >= 0) {
-                    // d stands for delete
-                    if (operation.d) {
-                        editor.emit('documents:onOpRemove', location, typeof operation.d === 'string' ? operation.d.length : operation.d);
-                    } else {
-                        editor.emit('documents:onOpInsert', location, operation);
-                    }
+                // TODO merih.taze: Delete below before shipping to production
+                if (ops.length >= 4) {
+                    console.log('More than 3 in ops');
+                    console.log(ops);
+                    debugger;
                 }
             }
 
