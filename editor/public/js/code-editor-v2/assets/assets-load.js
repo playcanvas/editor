@@ -105,6 +105,7 @@ editor.once('load', function () {
         var connection = editor.call('realtime:connection');
         var doc = docIndex[asset.get('id')]
         if (doc) {
+            doc.unsubscribe();
             doc.destroy();
             delete docIndex[asset.get('id')];
         }

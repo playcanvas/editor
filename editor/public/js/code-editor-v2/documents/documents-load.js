@@ -36,12 +36,22 @@ editor.once('load', function () {
 
         // mark document as dirty on every op
         doc.on('op', function (ops, local) {
-            if (!local && ops.length === 2) {
-                // d stands for delete
-                if (ops[1].d) {
-                    editor.emit('documents:onOpRemove', ops[0], typeof ops[1].d === 'string' ? ops[1].d.length : ops[1].d);
-                } else {
-                    editor.emit('documents:onOpInsert', ops[0], ops[1]);
+            if (!local) {
+                var location = -1, operation;
+                if (ops.length === 1) {
+                    location = 0;
+                    operation = ops[0];
+                } else if (ops.length === 2) {
+                    location = ops[0];
+                    operation = ops[1];
+                }
+                if (location >= 0) {
+                    // d stands for delete
+                    if (operation.d) {
+                        editor.emit('documents:onOpRemove', location, typeof operation.d === 'string' ? operation.d.length : operation.d);
+                    } else {
+                        editor.emit('documents:onOpInsert', location, operation);
+                    }
                 }
             }
 
@@ -134,6 +144,7 @@ editor.once('load', function () {
     editor.on('documents:close', function (id) {
         var entry = documentsIndex[id];
         if (entry) {
+            entry.doc.unsubscribe();
             entry.doc.destroy();
             delete documentsIndex[id];
 

@@ -29,6 +29,7 @@ editor.once('load', function() {
             var assetData = doc.data;
             if (! assetData) {
                 console.error('Could not load asset: ' + id);
+                doc.unsubscribe();
                 doc.destroy();
                 return callback && callback();
             }
@@ -170,6 +171,7 @@ editor.once('load', function() {
     editor.on('assets:remove', function (asset) {
         var id = asset.get('id');
         if (docs[id]) {
+            docs[id].unsubscribe();
             docs[id].destroy();
             delete docs[id];
         }
