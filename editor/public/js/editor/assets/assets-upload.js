@@ -138,10 +138,10 @@ editor.once('load', function() {
                 break;
             case 'scene':
                 form.append('searchRelatedAssets', settings.get('editor.pipeline.searchRelatedAssets'));
-                form.append('overrideModel', settings.get('editor.pipeline.overwriteModel'));
-                form.append('overrideAnimation', settings.get('editor.pipeline.overwriteAnimation'));
-                form.append('overrideMaterial', settings.get('editor.pipeline.overwriteMaterial'));
-                form.append('overrideTexture', settings.get('editor.pipeline.overwriteTexture'));
+                form.append('overwriteModel', settings.get('editor.pipeline.overwriteModel'));
+                form.append('overwriteAnimation', settings.get('editor.pipeline.overwriteAnimation'));
+                form.append('overwriteMaterial', settings.get('editor.pipeline.overwriteMaterial'));
+                form.append('overwriteTexture', settings.get('editor.pipeline.overwriteTexture'));
                 form.append('pow2', settings.get('editor.pipeline.texturePot'));
                 form.append('preserveMapping', settings.get('editor.pipeline.preserveMapping'));
                 break
