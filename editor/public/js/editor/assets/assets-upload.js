@@ -83,10 +83,17 @@ editor.once('load', function() {
         // scope
         form.append('project', config.project.id);
 
+        // type
+        if (!args.type) {
+            console.error('\"type\" required for upload request');
+        }
+        form.append('type', args.type);
+
         // name
         if (args.name)
             form.append('name', args.name);
 
+        // todo: xdu. use `update` endpoint instead of `create` endpoint
         // update asset
         if (args.asset)
             form.append('asset', args.asset.get('id'));
@@ -106,10 +113,6 @@ editor.once('load', function() {
             }
         }
 
-        // type
-        if (args.type)
-            form.append('type', args.type);
-
         // source_asset_id
         if (args.source_asset_id)
             form.append('source_asset_id', args.source_asset_id);
@@ -124,6 +127,29 @@ editor.once('load', function() {
 
         // preload
         form.append('preload', args.preload === undefined ? true : args.preload);
+
+        // conversion pipeline specific parameters
+        var settings = editor.call('settings:projectUser');
+        switch(args.type) {
+            case 'texture':
+            case 'textureatlas':
+                form.append('pow2', settings.get('editor.pipeline.texturePot'));
+                form.append('searchRelatedAssets', settings.get('editor.pipeline.searchRelatedAssets'));
+                break;
+            case 'scene':
+                form.append('searchRelatedAssets', settings.get('editor.pipeline.searchRelatedAssets'));
+                form.append('overrideModel', settings.get('editor.pipeline.overwriteModel'));
+                form.append('overrideAnimation', settings.get('editor.pipeline.overwriteAnimation'));
+                form.append('overrideMaterial', settings.get('editor.pipeline.overwriteMaterial'));
+                form.append('overrideTexture', settings.get('editor.pipeline.overwriteTexture'));
+                form.append('pow2', settings.get('editor.pipeline.texturePot'));
+                form.append('preserveMapping', settings.get('editor.pipeline.preserveMapping'));
+                break
+            case 'font':
+                break;
+            default:
+                break;
+        }
 
         // filename
         if (args.filename)
@@ -149,20 +175,10 @@ editor.once('load', function() {
 
         Ajax(data)
         .on('load', function(status, data) {
-            if (args.pipeline) {
-                var asset = editor.call('assets:get', data.id);
-                if (asset) {
-                    editor.call('assets:jobs:add', asset);
-                } else {
-                    var evt = editor.once('assets:add[' + data.id + ']', function(asset) {
-                        editor.call('assets:jobs:add', asset);
-                    });
-                }
-            }
-
             editor.call('status:job', 'asset-upload:' + job);
-            if (fn)
+            if (fn) {
                 fn(null, data);
+            }
         })
         .on('progress', function(progress) {
             editor.call('status:job', 'asset-upload:' + job, progress);
@@ -212,7 +228,7 @@ editor.once('load', function() {
                     type = 'textureatlas';
                 }
 
-                // can we override another asset?
+                // can we overwrite another asset?
                 var sourceAsset = null;
                 var asset = editor.call('assets:findOne', function(item) {
                     // check files in current folder only
