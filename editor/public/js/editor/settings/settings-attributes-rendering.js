@@ -7,8 +7,6 @@ editor.once('load', function() {
     var folded = true;
 
     editor.on('attributes:inspect[editorSettings]', function() {
-        editor.call('attributes:header', 'Settings');
-
         var app = editor.call('viewport:app');
         if (! app) return; // webgl not available
 

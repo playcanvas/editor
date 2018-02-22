@@ -18,7 +18,9 @@ editor.once('load', function () {
         'vr',
         'loadingScreenScript',
         'plugins',
-        'useModelV2'
+        'useModelV2',
+        'layers',
+        'layerOrder'
     ];
 
     var data = {};
@@ -89,6 +91,67 @@ editor.once('load', function () {
         settings.history.enabled = false;
         if (! settings.get('batchGroups')) {
             settings.set('batchGroups', {});
+        }
+        if (! settings.get('layers')) {
+            settings.set('layers', {
+                0: {
+                    name: 'World',
+                    opaqueSortMode: 2,
+                    transparentSortMode: 3
+                },
+                1: {
+                    name: 'Depth',
+                    opaqueSortMode: 2,
+                    transparentSortMode: 3
+                },
+                2: {
+                    name: 'Skybox',
+                    opaqueSortMode: 0,
+                    transparentSortMode: 3
+                },
+                3: {
+                    name: 'UI',
+                    opaqueSortMode: 1,
+                    transparentSortMode: 1
+                },
+                4: {
+                    name: 'Immediate',
+                    opaqueSortMode: 0,
+                    transparentSortMode: 3
+                }
+            });
+
+            settings.set('layerOrder', []);
+            settings.insert('layerOrder', {
+                layer: '0',
+                transparent: false,
+                enabled: true
+            });
+            settings.insert('layerOrder', {
+                layer: '1',
+                transparent: false,
+                enabled: true
+            });
+            settings.insert('layerOrder', {
+                layer: '2',
+                transparent: false,
+                enabled: true
+            });
+            settings.insert('layerOrder', {
+                layer: '0',
+                transparent: true,
+                enabled: true
+            });
+            settings.insert('layerOrder', {
+                layer: '3',
+                transparent: true,
+                enabled: true
+            });
+            settings.insert('layerOrder', {
+                layer: '4',
+                transparent: true,
+                enabled: true
+            });
         }
         settings.history.enabled = history;
     });

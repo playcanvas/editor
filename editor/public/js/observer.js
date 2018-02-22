@@ -274,8 +274,8 @@ Observer.prototype.set = function(path, value, silent, remote) {
                         node._data[key][i].patch(value[i]);
                     } else if (node._data[key][i] !== value[i]) {
                         node._data[key][i] = value[i];
-                        obj.emit(path + '.' + i + ':set', node._data[key][i], valueOld[i] || null, remote);
-                        obj.emit('*:set', path + '.' + i, node._data[key][i], valueOld[i] || null, remote);
+                        obj.emit(path + '.' + i + ':set', node._data[key][i], valueOld && valueOld[i] || null, remote);
+                        obj.emit('*:set', path + '.' + i, node._data[key][i], valueOld && valueOld[i] || null, remote);
                     }
                 }
 
@@ -285,8 +285,8 @@ Observer.prototype.set = function(path, value, silent, remote) {
 
                 state = obj.silence();
                 for(var i = 0; i < node._data[key].length; i++) {
-                    obj.emit(path + '.' + i + ':set', node._data[key][i], valueOld[i] || null, remote);
-                    obj.emit('*:set', path + '.' + i, node._data[key][i], valueOld[i] || null, remote);
+                    obj.emit(path + '.' + i + ':set', node._data[key][i], valueOld && valueOld[i] || null, remote);
+                    obj.emit('*:set', path + '.' + i, node._data[key][i], valueOld && valueOld[i] || null, remote);
                 }
                 obj.silenceRestore(state);
             }

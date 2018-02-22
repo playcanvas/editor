@@ -33,10 +33,6 @@ editor.once('load', function() {
             title: 'JSON',
             icon: '&#57864;'
         },
-        'layers': {
-            title: 'Layer Composition',
-            icon: '&#57992;'
-        },
         'material': {
             title: 'Material',
             icon: '&#57749;'
