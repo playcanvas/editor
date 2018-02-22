@@ -226,7 +226,8 @@ editor.once('load', function() {
 
                 projectSettings.insert('layerOrder', {
                     layer: key,
-                    transparent: transparent
+                    transparent: transparent,
+                    enabled: true
                 });
 
                 projectSettings.history.enabled = history;
@@ -261,6 +262,7 @@ editor.once('load', function() {
 
         var removeSublayer = function (key, transparent) {
             var index = null;
+            var enabled = false;
 
             var redo = function () {
                 var order = projectSettings.get('layerOrder');
@@ -268,6 +270,7 @@ editor.once('load', function() {
                 for (var i = 0, len = order.length; i<len; i++) {
                     if (order[i].layer === key && order[i].transparent === transparent) {
                         index = i;
+                        enabled = order[i].enabled;
                         break;
                     }
                 }
@@ -300,10 +303,12 @@ editor.once('load', function() {
 
                 projectSettings.insert('layerOrder', {
                     layer: key,
-                    transparent: transparent
+                    transparent: transparent,
+                    enabled: enabled
                 }, Math.min(index, order.length - 1));
 
                 index = null;
+                enabled = false;
 
                 projectSettings.history.enabled = history;
             };
@@ -644,7 +649,7 @@ editor.once('load', function() {
         });
         panelSublayers.class.add('sublayers', 'component');
 
-        var createSublayerPanel = function (key, name, transparent, index) {
+        var createSublayerPanel = function (key, transparent, enabled, index) {
             var panelEvents = [];
 
             var panelSublayer = new ui.Panel();
@@ -689,15 +694,10 @@ editor.once('load', function() {
 
             // name
             var fieldName = new ui.Label({
-                text: name
+                text: projectSettings.get('layers.' + key + '.name')
             });
             fieldName.class.add('name');
             panelSublayer.append(fieldName);
-
-            panelEvents.push(projectSettings.on('layers.' + key + '.name:set', function (value) {
-                fieldName.value = value;
-                name = value;
-            }));
 
             // transparent
             var fieldTransparent = new ui.Label({
@@ -706,6 +706,22 @@ editor.once('load', function() {
             fieldTransparent.class.add('transparent');
             panelSublayer.append(fieldTransparent);
 
+            // enabled
+            var fieldEnabled = new ui.Checkbox();
+            fieldEnabled.class.add('tick');
+            panelSublayer.append(fieldEnabled);
+            fieldEnabled.value = enabled;
+
+            fieldEnabled.on('change', function (value) {
+                var order = projectSettings.get('layerOrder');
+                for (var i = 0; i < order.length; i++) {
+                    if (order[i].layer === key && order[i].transparent === transparent) {
+                        projectSettings.set('layerOrder.' + i + '.enabled', value);
+                    }
+                }
+            });
+
+            // remove
             var btnRemove = new ui.Button();
             btnRemove.class.add('remove');
             panelSublayer.append(btnRemove);
@@ -713,11 +729,6 @@ editor.once('load', function() {
             // Remove sublayer
             btnRemove.on('click', function () {
                 removeSublayer(key, transparent);
-            });
-
-            panelSublayer.on('click', function () {
-                indexLayerPanels[key].folded = false;
-                scrollIntoView(indexLayerPanels[key]);
             });
 
             panelSublayer.on('destroy', function () {
@@ -799,7 +810,7 @@ editor.once('load', function() {
                 var layer = layers[order[i].layer];
                 if (layer) {
                     var transparent = order[i].transparent;
-                    createSublayerPanel(order[i].layer, layer.name, transparent);
+                    createSublayerPanel(order[i].layer, transparent, order[i].enabled);
                     if (! index[order[i].layer]) {
                         index[order[i].layer] = {};
                     }
@@ -833,6 +844,9 @@ editor.once('load', function() {
                 indexLayerPanels[key].destroy();
                 delete indexLayerPanels[key];
             }
+
+            removeAutoCompleteItem(key, true);
+            removeAutoCompleteItem(key, false);
         }));
 
         // On layer added
@@ -849,6 +863,9 @@ editor.once('load', function() {
             var index = Object.keys(layers).indexOf(key);
 
             createLayerPanel(key, layers[key], index);
+
+            addAutoCompleteItem(key, false);
+            addAutoCompleteItem(key, true);
         }));
 
         // On sublayer removed
@@ -874,9 +891,10 @@ editor.once('load', function() {
             var key = value.get('layer');
             var transparent = value.get('transparent');
             var field = transparent ? 'transparent' : 'opaque';
+            var enabled = value.get('enabled');
             if (! indexSublayerPanels[key] || ! indexSublayerPanels[key][field]) {
                 var name = projectSettings.get('layers.' + key + '.name');
-                createSublayerPanel(key, name, transparent, index);
+                createSublayerPanel(key, transparent, enabled, index);
             }
 
             removeAutoCompleteItem(key, transparent);

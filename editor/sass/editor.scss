@@ -8016,14 +8016,6 @@ strong {
                             background: $bcg-dark;
                             border: 1px solid $border-primary;
 
-                            &:hover, &.hover, &.dragged {
-                                background-color: $bcg-darkest;
-                            }
-
-                            &:hover {
-                                cursor: pointer;
-                            }
-
                             &.transparent {
                                 -moz-background-size: 20px 20px;
                                 background-size: 20px 20px;
@@ -8041,7 +8033,7 @@ strong {
                                 linear-gradient(45deg, $bcg-darker 25%, transparent 25%,transparent 75%, $bcg-darker 75%, $bcg-darker 100%),
                                 linear-gradient(45deg, $bcg-darker 25%, transparent 25%,transparent 75%, $bcg-darker 75%, $bcg-darker 100%);
 
-                                &.hover, &:hover, &.dragged {
+                                &.dragged {
                                     $color: darken($bcg-darkest, 2%);
                                     background-image:
                                     -moz-linear-gradient(45deg, $color 25%, transparent 25%,transparent 75%, $color 75%, $color 100%),
@@ -8142,14 +8134,22 @@ strong {
 
                                 > .ui-label.transparent {
                                     position: absolute;
-                                    right: 35px;
+                                    right: 60px;
+                                }
+
+                                > .ui-checkbox {
+                                    position: absolute;
+                                    right: 28px;
+                                    &:not(.checked) {
+                                        background-color: $bcg-darker;
+                                    }
                                 }
 
                                 > .ui-button.remove {
                                     @extend .font-icon;
                                     position: absolute;
                                     right: 0;
-                                    top: 0;
+                                    top: 2px;
                                     height: 28px;
                                     width: 30px;
                                     margin: 0;
