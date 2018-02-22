@@ -12,10 +12,6 @@ editor.once('load', function () {
     // user requested to focus
     var lastFocusedId = null;
 
-    var convertToIndex = function (str) {
-        return typeof str === 'string' ? str.length : str;
-    };
-
     var applyOperation = function (curPos, input) {
         if (typeof input === 'number')
             return curPos + input;
@@ -28,7 +24,7 @@ editor.once('load', function () {
         if (input.d) {
             var len = typeof input.d === 'string' ? input.d.length : input.d;
             editor.emit('documents:onOpRemove', curPos, len);
-            return curPos + len;
+            return curPos;
         }
 
         // TODO merih.taze: Delete below before shipping to production
@@ -62,15 +58,16 @@ editor.once('load', function () {
         // mark document as dirty on every op
         doc.on('op', function (ops, local) {
             if (!local) {
-                var curPos = 0;
-                for (var i = 0; i < ops.length; i++) {
-                    curPos = applyOperation(curPos, ops[i]);
-                }
                 // TODO merih.taze: Delete below before shipping to production
                 if (ops.length >= 4) {
                     console.log('More than 3 in ops');
                     console.log(ops);
                     debugger;
+                }
+
+                var curPos = 0;
+                for (var i = 0; i < ops.length; i++) {
+                    curPos = applyOperation(curPos, ops[i]);
                 }
             }
 
