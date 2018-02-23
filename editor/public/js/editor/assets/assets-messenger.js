@@ -4,12 +4,17 @@ editor.once('load', function() {
     var create = function(data) {
         var assetId = data.asset.id;
 
-        if (data.asset.source === false && data.asset.status && data.asset.status !== 'complete')
+        if (data.asset.source === false && data.asset.status && data.asset.status !== 'complete') {
             return;
+        }
 
+        // todo: data.asset.source_asset_id
+
+        // todo: possibly convert this to a new event `assets:update`
         var asset = editor.call('assets:get', assetId);
-        if (asset)
+        if (asset) {
             return;
+        }
 
         editor.call('loadAsset', assetId);
     };

@@ -91,13 +91,13 @@ editor.once('load', function() {
 
         var i;
 
-        // initialize any skin instances
-        for (i = 0; i < model.skinInstances.length; i++) {
-            model.skinInstances[i].updateMatrices();
-        }
-
         // generate aabb for model
         for(i = 0; i < model.meshInstances.length; i++) {
+            // initialize any skin instance
+            if (model.meshInstances[i].skinInstance) {
+                model.meshInstances[i].skinInstance.updateMatrices(model.meshInstances[i].node);
+            }
+
             model.meshInstances[i].material = material;
 
             if (first) {

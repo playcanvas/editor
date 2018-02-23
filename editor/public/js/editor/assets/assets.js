@@ -114,35 +114,6 @@ editor.once('load', function() {
         return assets.findOne(fn);
     });
 
-    // return the target asset for a source asset (if one exists)
-    // options:
-    // id - required, source asset id
-    // filename - required, source name or filename
-    // type - optional, target asset type to filter by
-    // searchRelatedAssets - optional, if false, check that source and target paths are the same (assets in the same folder)
-    // path - optional, required if searchRelatedAssets is false
-    editor.method('assets:findTarget', function(options) {
-        var id = parseInt(options.id, 10);
-        var filename = options.filename.split('.');
-
-        return assets.findOne(function (a) {
-            var name = a.get('name').split('.'); // split name into [name, ext]
-            if (name[0] !== filename[0] || id !== parseInt(a.get('source_asset_id'), 10)) {
-                return false;
-            }
-
-            if (options.type && options.type !== a.get('type')) {
-                return false;
-            }
-
-            if (options.searchRelatedAssets === false && !a.get('path').equals(options.path)) {
-                return false;
-            }
-
-            return true;
-        });
-    });
-
     editor.method('assets:map', function (fn) {
         assets.map(fn);
     });
