@@ -480,7 +480,9 @@ editor.once('load', function() {
                                 instance.skinInstance.updateMatrixPalette();
 
                                 renderer._skinDrawCalls++;
-                                renderer.skinPosOffsetId.setValue(instance.skinInstance.rootNode.getPosition().data);
+                                if (renderer.skinPosOffsetId) {
+                                    renderer.skinPosOffsetId.setValue(instance.skinInstance.rootNode.getPosition().data);
+                                }
                                 if (device.supportsBoneTextures) {
                                     var boneTexture = instance.skinInstance.boneTexture;
                                     renderer.boneTextureId.setValue(boneTexture);
