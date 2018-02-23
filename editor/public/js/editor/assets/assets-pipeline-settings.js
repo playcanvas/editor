@@ -20,15 +20,6 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'settings:asset-tasks', panel, panel.headerElement);
 
-        var fieldAuto = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Auto-run',
-            type: 'checkbox',
-            link: settings,
-            path: 'editor.pipeline.autoRun'
-        });
-        editor.call('attributes:reference:attach', 'settings:asset-tasks:auto', fieldAuto.parent.innerElement.firstChild.ui);
-
         var fieldSearchRelatedAssets = editor.call('attributes:addField', {
             parent: panel,
             name: 'Search related assets',

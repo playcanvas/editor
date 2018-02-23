@@ -30,13 +30,6 @@ editor.once('load', function() {
     number.textContent = '0';
     panel.headerAppend(number);
 
-    // list
-    var list = new ui.List();
-    list.disabled = true;
-    list.class.add('jobs');
-    panel.append(list);
-
-
     // settings
     var btnSettings = new ui.Button({
         text: '&#57652;'
@@ -56,41 +49,6 @@ editor.once('load', function() {
         align: 'bottom',
         root: root
     });
-
-
-    // auto toggle
-    var toggleAuto = new ui.Button({
-        text: '&#57640;'
-    });
-    toggleAuto.class.add('toggle', 'auto', 'active');
-    toggleAuto.on('click', function () {
-        if (! editor.call('permissions:write'))
-            return;
-
-        settings.set('editor.pipeline.autoRun', ! settings.get('editor.pipeline.autoRun'));
-    });
-    var toggleAutoSet = function(state) {
-        if (state) {
-            list.disabled = true;
-            toggleAuto.class.add('active');
-            tooltipAuto.class.remove('innactive');
-        } else {
-            list.disabled = false;
-            toggleAuto.class.remove('active');
-            tooltipAuto.class.add('innactive');
-        }
-    };
-    settings.on('editor.pipeline.autoRun:set', toggleAutoSet);
-    panel.append(toggleAuto);
-
-    var tooltipAuto = Tooltip.attach({
-        target: toggleAuto.element,
-        text: 'Auto-Run',
-        align: 'bottom',
-        root: root
-    });
-
-    toggleAutoSet(settings.get('editor.pipeline.autoRun'));
 
     // offset panel if assets panel header overlaps
     var canvas = null;
