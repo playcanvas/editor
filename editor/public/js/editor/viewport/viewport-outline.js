@@ -476,7 +476,7 @@ editor.once('load', function() {
                             }
 
                             if (instance.skinInstance) {
-                                instance.skinInstance.updateMatrices();
+                                instance.skinInstance.updateMatrices(instance.node);
                                 instance.skinInstance.updateMatrixPalette();
 
                                 renderer._skinDrawCalls++;
