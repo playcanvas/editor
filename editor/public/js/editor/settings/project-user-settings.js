@@ -24,7 +24,6 @@ editor.once('load', function () {
                 localServer: 'http://localhost:51000',
                 launchDebug: true,
                 pipeline: {
-                    autoRun: true,
                     texturePot: true,
                     textureDefaultToAtlas: false,
                     searchRelatedAssets: true,
@@ -58,9 +57,6 @@ editor.once('load', function () {
 
             if (! settings.has('editor.pipeline'))
                 settings.set('editor.pipeline', {});
-
-            if (! settings.has('editor.pipeline.autoRun'))
-                settings.set('editor.pipeline.autoRun', true);
 
             if (! settings.has('editor.pipeline.texturePot'))
                 settings.set('editor.pipeline.texturePot', true);
