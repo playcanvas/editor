@@ -291,6 +291,12 @@ editor.once('load', function() {
                     editingContext._doc = textDocument;
                 }
 
+                textDocument.on('op', function (ops, local) {
+                    if (!local) {
+                        editingContext._onOp(ops);
+                    }
+                });
+
                 documentContent = textDocument.data;
 
                 if (! loadedScriptOnce) {
@@ -301,27 +307,6 @@ editor.once('load', function() {
                 }
 
                 checkIfDirty();
-            });
-
-            textDocument.on('op', function (ops, local) {
-                if (!local) {
-                    var location = -1, operation;
-                    if (ops.length === 1) {
-                        location = 0;
-                        operation = ops[0];
-                    } else if (ops.length === 2) {
-                        location = ops[0];
-                        operation = ops[1];
-                    }
-                    if (location >= 0) {
-                        // d stands for delete
-                        if (operation.d) {
-                            editor.emit('documents:onOpRemove', location, typeof operation.d === 'string' ? operation.d.length : operation.d);
-                        } else {
-                            editor.emit('documents:onOpInsert', location, operation);
-                        }
-                    }
-                }
             });
 
             // subscribe for realtime events

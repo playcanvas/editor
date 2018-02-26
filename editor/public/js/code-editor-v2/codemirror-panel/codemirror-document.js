@@ -28,7 +28,7 @@ editor.once('load', function () {
 
     // When document is loaded create codemirror document
     // and add entry to index
-    editor.on('documents:load', function (doc, asset) {
+    editor.on('documents:load', function (doc, asset, docEntry) {
         if (viewIndex[doc.id]) return;
 
         var mode;
@@ -50,7 +50,7 @@ editor.once('load', function () {
         // emit change
         // use 'beforeChange' event so that
         // we capture the state of the document before it's changed.
-        // This is so that we send correct operations to sharejs.
+        // This is so that we send correct operations to sharedb.
         entry.view.on('beforeChange', function (view, change) {
             if (entry.suppressChanges) return;
 
@@ -88,7 +88,7 @@ editor.once('load', function () {
             // if the reloaded data are different
             // than the current editor value then reset the contents
             // of the editor - that can happen if a change has been rolled back
-            // by sharejs for example
+            // by sharedb for example
             focusedView.suppressChanges = true;
             focusedView.view.setValue(content);
             focusedView.suppressChanges = false;
@@ -138,7 +138,7 @@ editor.once('load', function () {
 
             // clear code
             // but suppress changes to the doc
-            // to avoid sending them to sharejs
+            // to avoid sending them to sharedb
             focusedView.suppressChanges = true;
             cm.setValue('');
             cm.clearHistory();

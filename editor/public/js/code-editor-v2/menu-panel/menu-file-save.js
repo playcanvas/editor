@@ -192,7 +192,7 @@ editor.once('load', function () {
     // if a document is loaded it either means it's loaded for the first time
     // or it's reloaded. In either case make sure we can save the document again
     // if we got disconnected in the meantime
-    editor.on('documents:load', function (doc, asset) {
+    editor.on('documents:load', function (doc, asset, docEntry) {
         var id = doc.id;
         if (savingIndex[id]) {
             delete savingIndex[id];

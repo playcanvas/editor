@@ -215,7 +215,7 @@ editor.once('load', function () {
         }
     };
 
-    // Applies an operation to the sharejs document
+    // Applies an operation to the sharedb document
     // and sets the result to the document view
     var applyCustomOp = function (op, entry) {
         entry.doc.submitOp(op, function (err) {
@@ -286,7 +286,7 @@ editor.once('load', function () {
     };
 
     // Convert a CodeMirror change into an op understood by share.js
-    var applyToShareJs = function (change, entry) {
+    var applyToShareDb = function (change, entry) {
         var startPos = 0;  // Get character position from # of chars in each line.
         var i = 0;         // i goes through all lines.
         var text;
@@ -333,7 +333,7 @@ editor.once('load', function () {
         }
 
         if (change.next) {
-            applyToShareJs(change.next, entry);
+            applyToShareDb(change.next, entry);
         }
 
         // restore forceConcatenate after 1 frame
@@ -368,7 +368,7 @@ editor.once('load', function () {
         entry.lastEditTime = Date.now();
     };
 
-    editor.on('documents:load', function (doc, asset) {
+    editor.on('documents:load', function (doc, asset, docEntry) {
         if (documentIndex[doc.id]) return;
 
         var entry = {
@@ -381,14 +381,31 @@ editor.once('load', function () {
             forceConcatenate: false, // if true then the last two ops will be concatenated
             lastChangedLine: null,
             changedLine: null,
-            ignoreLocalChanges: false // do not send ops to sharejs while true
+            ignoreLocalChanges: false // do not send ops to sharedb while true
         };
+
+        // mark document as dirty on every op
+        doc.on('op', function (ops, local) {
+            if (!local) {
+                entry.context._onOp(ops);
+            }
+
+            if (!docEntry.isDirty) {
+                docEntry.isDirty = true;
+                editor.emit('documents:dirty', docEntry.id, true);
+            }
+
+            if (local && ! docEntry.hasLocalChanges) {
+                docEntry.hasLocalChanges = true;
+                editor.emit('documents:dirtyLocal', docEntry.id, true);
+            }
+        });
 
         // add to index
         documentIndex[doc.id] = entry;
 
         // insert server -> local
-        editor.on('documents:onOpInsert', function (pos, text) {
+        entry.context.onInsert = function (pos, text) {
             // transform undos / redos with new remote op
             var remoteOp = createInsertOp(pos, text);
             transformStacks(remoteOp, entry);
@@ -410,10 +427,10 @@ editor.once('load', function () {
             restoreSelections(cursorOps, entry);
 
             entry.ignoreLocalChanges = false;
-        });
+        };
 
         // remove server -> local
-        editor.on('documents:onOpRemove', function (pos, length) {
+        entry.context.onRemove = function (pos, length) {
             entry.ignoreLocalChanges = true;
             var from = entry.view.posFromIndex(pos);
             var to = entry.view.posFromIndex(pos + length);
@@ -436,7 +453,7 @@ editor.once('load', function () {
             restoreSelections(cursorOps, entry);
 
             entry.ignoreLocalChanges = false;
-        });
+        };
     });
 
 
@@ -451,7 +468,7 @@ editor.once('load', function () {
             return;
         }
 
-        applyToShareJs(change, entry);
+        applyToShareDb(change, entry);
 
         // clear redo stack
         entry.redo.length = 0;

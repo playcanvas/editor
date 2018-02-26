@@ -12,27 +12,6 @@ editor.once('load', function () {
     // user requested to focus
     var lastFocusedId = null;
 
-    var applyOperation = function (curPos, input) {
-        if (typeof input === 'number')
-            return curPos + input;
-
-        if (typeof input === 'string') {
-            editor.emit('documents:onOpInsert', curPos, input);
-            return curPos + input.length;
-        }
-
-        if (input.d) {
-            var len = typeof input.d === 'string' ? input.d.length : input.d;
-            editor.emit('documents:onOpRemove', curPos, len);
-            return curPos;
-        }
-
-        // TODO merih.taze: Delete below before shipping to production
-        console.log('Unexpected input');
-        console.log(input);
-        debugger;
-    };
-
     // Loads the editable document that corresponds to the specified asset id
     var loadDocument = function (asset) {
         var id = asset.get('id').toString(); // ensure id is string
@@ -41,6 +20,7 @@ editor.once('load', function () {
 
         // add index entry
         var entry = {
+            id: id,
             doc: doc,
             error: null,
             isLoading: true,
@@ -55,33 +35,6 @@ editor.once('load', function () {
             editor.emit('documents:error', id, err);
         });
 
-        // mark document as dirty on every op
-        doc.on('op', function (ops, local) {
-            if (!local) {
-                // TODO merih.taze: Delete below before shipping to production
-                if (ops.length >= 4) {
-                    console.log('More than 3 in ops');
-                    console.log(ops);
-                    debugger;
-                }
-
-                var curPos = 0;
-                for (var i = 0; i < ops.length; i++) {
-                    curPos = applyOperation(curPos, ops[i]);
-                }
-            }
-
-            if (!entry.isDirty) {
-                entry.isDirty = true;
-                editor.emit('documents:dirty', id, true);
-            }
-
-            if (local && ! entry.hasLocalChanges) {
-                entry.hasLocalChanges = true;
-                editor.emit('documents:dirtyLocal', id, true);
-            }
-        });
-
         // ready to sync
         doc.on('load', function () {
             // check if closed by the user
@@ -92,7 +45,7 @@ editor.once('load', function () {
             entry.isLoading = false;
 
             // load event
-            editor.emit('documents:load', doc, asset);
+            editor.emit('documents:load', doc, asset, entry);
 
             // focus doc if necessary
             if (lastFocusedId === id) {

@@ -250,7 +250,7 @@ editor.once('load', function() {
                 if (editor.call('permissions:read', userId)) {
                     if (! userdata[userId]) {
                         // WORKAROUND
-                        // wait a bit before adding, for userdata to be created at sharejs
+                        // wait a bit before adding, for userdata to be created at sharedb
                         setTimeout(function () {
                             addUser(userId);
                         }, 500);

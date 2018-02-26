@@ -181,7 +181,7 @@ editor.once('load', function() {
         // call remove method
         editor.call('entities:remove', entity);
 
-        // sharejs
+        // sharedb
         editor.call('realtime:scene:op', {
             p: [ 'entities', entity.get('resource_id') ],
             od: { }
@@ -206,7 +206,7 @@ editor.once('load', function() {
         // call add event
         editor.call('entities:add', entity);
 
-        // sharejs
+        // sharedb
         editor.call('realtime:scene:op', {
             p: [ 'entities', entity.get('resource_id') ],
             oi: entity.json()
@@ -978,7 +978,7 @@ editor.once('load', function() {
             // change resource ids
             remapResourceIds(entity);
 
-            // sharejs
+            // sharedb
             editor.call('realtime:scene:op', {
                 p: [ 'entities', entity.get('resource_id') ],
                 oi: entity.json()

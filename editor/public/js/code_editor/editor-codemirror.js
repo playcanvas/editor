@@ -292,7 +292,7 @@ editor.once('load', function () {
         // if the reloaded data are different
         // than the current editor value then reset the contents
         // of the editor - that can happen if a change has been rolled back
-        // by sharejs for example
+        // by sharedb for example
         if (codeMirror.getValue() === data)
             return;
 
@@ -311,7 +311,7 @@ editor.once('load', function () {
     // emit change
     // use 'beforeChange' event so that
     // we capture the state of the document before it's changed.
-    // This is so that we send correct operations to sharejs.
+    // This is so that we send correct operations to sharedb.
     codeMirror.on('beforeChange', function (cm, change) {
         if (isLoading) return;
         editor.emit('editor:change', cm, change);
@@ -358,7 +358,7 @@ editor.once('load', function () {
         toggleReadOnly(editor.call('editor:isReadonly'));
     });
 
-    // set readonly if writeState becomes false (like when we're disconnected from sharejs)
+    // set readonly if writeState becomes false (like when we're disconnected from sharedb)
     editor.on('permissions:writeState', function (state) {
         toggleReadOnly(!state);
     });
