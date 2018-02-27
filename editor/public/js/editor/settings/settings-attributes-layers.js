@@ -7,6 +7,10 @@ editor.once('load', function() {
 
     var root = editor.call('layout.root');
 
+    var LAYERID_DEPTH = '1';
+    var LAYERID_SKYBOX = '2';
+    var LAYERID_UI = '4';
+
     // overlay
     var overlay = new ui.Overlay();
     overlay.class.add('layers-drag');
@@ -78,14 +82,26 @@ editor.once('load', function() {
             panelLayer.folded = true;
             indexLayerPanels[key] = panelLayer;
 
+            var isBuiltIn = parseInt(key, 10) <= 4;
+
             var btnRemove = new ui.Button();
             btnRemove.class.add('remove');
             panelLayer.headerElement.appendChild(btnRemove.element);
+            btnRemove.disabled = isBuiltIn;
 
             // Remove sublayer
             btnRemove.on('click', function () {
                 removeLayer(key);
             });
+
+            if (isBuiltIn) {
+                var tooltip = Tooltip.attach({
+                    target: btnRemove.element,
+                    text: 'You cannot delete a built-in layer',
+                    align: 'bottom',
+                    root: editor.call('layout.root')
+                });
+            }
 
             var fieldName = editor.call('attributes:addField', {
                 parent: panelLayer,
@@ -94,6 +110,8 @@ editor.once('load', function() {
                 link: projectSettings,
                 path: 'layers.' + key + '.name'
             });
+
+            fieldName.disabled = isBuiltIn;
 
             fieldName.on('change', function (value) {
                 panelLayer.header = value;
@@ -114,6 +132,8 @@ editor.once('load', function() {
                 path: 'layers.' + key + '.opaqueSortMode'
             });
 
+            fieldOpaqueSort.disabled = isBuiltIn;
+
             var fieldTransparentSort = editor.call('attributes:addField', {
                 parent: panelLayer,
                 name: 'Transparent Sort',
@@ -129,11 +149,16 @@ editor.once('load', function() {
                 path: 'layers.' + key + '.transparentSortMode'
             });
 
+            fieldTransparentSort.disabled = isBuiltIn;
+
             panelLayer.on('destroy', function () {
                 for (var i = 0; i < panelEvents.length; i++) {
                     panelEvents[i].unbind();
                 }
                 panelEvents.length = 0;
+
+                if (tooltip)
+                    tooltip.destroy();
             });
 
 
@@ -305,7 +330,7 @@ editor.once('load', function() {
                     layer: key,
                     transparent: transparent,
                     enabled: enabled
-                }, Math.min(index, order.length - 1));
+                }, Math.min(index, order.length));
 
                 index = null;
                 enabled = false;
@@ -339,7 +364,8 @@ editor.once('load', function() {
                         projectSettings.remove('layerOrder', i);
                         prevSublayers.unshift({
                             index: i,
-                            transparent: order[i].transparent
+                            transparent: order[i].transparent,
+                            enabled: order[i].enabled
                         });
                     }
                 }
@@ -352,15 +378,17 @@ editor.once('load', function() {
                 projectSettings.history.enabled = false;
                 projectSettings.set('layers.' + key, prev);
 
-                var layerOrder = projectSettings.get('layerOrder');
+                var layerOrder = projectSettings.getRaw('layerOrder');
 
                 for (var i = 0; i < prevSublayers.length; i++) {
                     var idx = prevSublayers[i].index;
                     var transparent = prevSublayers[i].transparent;
+                    var enabled = prevSublayers[i].enabled;
                     projectSettings.insert('layerOrder', {
                         layer: key,
-                        transparent: transparent
-                    },  Math.min(idx, layerOrder.length - 1));
+                        transparent: transparent,
+                        enabled: enabled
+                    },  Math.min(idx, layerOrder.length));
                 }
 
                 prevSublayers.length = 0;
@@ -600,6 +628,14 @@ editor.once('load', function() {
                 return;
             }
 
+            if (transparent) {
+                if (layerKey === LAYERID_DEPTH || layerKey === LAYERID_SKYBOX) {
+                    return;
+                }
+            } else if (layerKey === LAYERID_UI) {
+                return;
+            }
+
             var item = new ui.ListItem({
                 text: projectSettings.get('layers.' + layerKey + '.name') + (transparent ? ' Transparent' : ' Opaque')
             });
@@ -652,8 +688,12 @@ editor.once('load', function() {
         var createSublayerPanel = function (key, transparent, enabled, index) {
             var panelEvents = [];
 
+
             var panelSublayer = new ui.Panel();
             panelSublayer.class.add('sublayer');
+
+            var isBuiltIn = parseInt(key, 10) <= 4;
+
             if (transparent)
                 panelSublayer.class.add('transparent');
 
@@ -726,6 +766,18 @@ editor.once('load', function() {
             btnRemove.class.add('remove');
             panelSublayer.append(btnRemove);
 
+            btnRemove.disabled = isBuiltIn;
+
+            if (isBuiltIn) {
+                var tooltip = Tooltip.attach({
+                    target: btnRemove.element,
+                    text: 'You cannot delete a built-in layer',
+                    align: 'bottom',
+                    root: editor.call('layout.root')
+                });
+            }
+
+
             // Remove sublayer
             btnRemove.on('click', function () {
                 removeSublayer(key, transparent);
@@ -742,6 +794,9 @@ editor.once('load', function() {
                     panelEvents[i].unbind();
                 }
                 panelEvents.length = 0;
+
+                if (tooltip)
+                    tooltip.destroy();
             });
 
             var before = null;
