@@ -23,6 +23,12 @@ editor.once('load', function () {
         'layerOrder'
     ];
 
+    var LAYERID_WORLD = 0;
+    var LAYERID_DEPTH = 1;
+    var LAYERID_SKYBOX = 2;
+    var LAYERID_IMMEDIATE = 3;
+    var LAYERID_UI = 4;
+
     var data = {};
     for (var i = 0; i < syncPaths.length; i++)
         data[syncPaths[i]] = config.project.settings.hasOwnProperty(syncPaths[i]) ? config.project.settings[syncPaths[i]] : null;
@@ -72,7 +78,6 @@ editor.once('load', function () {
         } else {
             obj[parts[parts.length-1]] = value;
         }
-
     });
 
     settings.on('*:unset', function (path) {
@@ -110,45 +115,50 @@ editor.once('load', function () {
                     transparentSortMode: 3
                 },
                 3: {
-                    name: 'UI',
-                    opaqueSortMode: 1,
-                    transparentSortMode: 1
-                },
-                4: {
                     name: 'Immediate',
                     opaqueSortMode: 0,
                     transparentSortMode: 3
+                },
+                4: {
+                    name: 'UI',
+                    opaqueSortMode: 1,
+                    transparentSortMode: 1
                 }
             });
 
             settings.set('layerOrder', []);
             settings.insert('layerOrder', {
-                layer: '0',
+                layer: LAYERID_WORLD,
                 transparent: false,
                 enabled: true
             });
             settings.insert('layerOrder', {
-                layer: '1',
+                layer: LAYERID_DEPTH,
                 transparent: false,
                 enabled: true
             });
             settings.insert('layerOrder', {
-                layer: '2',
+                layer: LAYERID_SKYBOX,
                 transparent: false,
                 enabled: true
             });
             settings.insert('layerOrder', {
-                layer: '0',
+                layer: LAYERID_WORLD,
                 transparent: true,
                 enabled: true
             });
             settings.insert('layerOrder', {
-                layer: '3',
+                layer: LAYERID_IMMEDIATE,
+                transparent: false,
+                enabled: true
+            });
+            settings.insert('layerOrder', {
+                layer: LAYERID_IMMEDIATE,
                 transparent: true,
                 enabled: true
             });
             settings.insert('layerOrder', {
-                layer: '4',
+                layer: LAYERID_UI,
                 transparent: true,
                 enabled: true
             });

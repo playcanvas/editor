@@ -3,6 +3,12 @@ editor.once('load', function() {
 
     var projectSettings = editor.call('settings:project');
 
+    var LAYERID_WORLD = 0;
+    var LAYERID_DEPTH = 1;
+    var LAYERID_SKYBOX = 2;
+    var LAYERID_IMMEDIATE = 3;
+    var LAYERID_UI = 4;
+
     var schema = {
         animation: {
             title: 'Animation',
@@ -45,7 +51,8 @@ editor.once('load', function() {
                 cookieChannel: 'rgb',
                 cookieAngle: 0.0,
                 cookieOffset: [ 0.0, 0.0 ],
-                cookieScale: [ 1.0, 1.0 ]
+                cookieScale: [ 1.0, 1.0 ],
+                layers: [LAYERID_WORLD]
             },
             types: {
                 color: 'rgb',
@@ -118,7 +125,8 @@ editor.once('load', function() {
                 nearClip: 0.1,
                 farClip: 1000,
                 priority: 0,
-                rect: [0, 0, 1, 1]
+                rect: [0, 0, 1, 1],
+                layers: [LAYERID_WORLD, LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE, LAYERID_UI]
             },
             types: {
                 clearColor: 'rgb',
@@ -155,7 +163,8 @@ editor.once('load', function() {
                 receiveShadows: true,
                 lightMapped: false,
                 lightMapSizeMultiplier: 1.0,
-                batchGroupId: null
+                batchGroupId: null,
+                layers: [LAYERID_WORLD]
             }
         },
 
@@ -338,7 +347,8 @@ editor.once('load', function() {
                 autoWidth: false,
                 autoHeight: false,
                 materialAsset: null,
-                batchGroupId: null
+                batchGroupId: null,
+                layers: [LAYERID_UI]
             },
             types: {
                 anchor: 'vec4',
@@ -364,7 +374,8 @@ editor.once('load', function() {
                 clips: {},
                 autoPlayClip: null,
                 speed: 1,
-                batchGroupId: null
+                batchGroupId: null,
+                layers: [LAYERID_WORLD]
             },
             types: {
                 color: 'rgb'

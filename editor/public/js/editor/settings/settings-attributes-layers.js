@@ -7,9 +7,9 @@ editor.once('load', function() {
 
     var root = editor.call('layout.root');
 
-    var LAYERID_DEPTH = '1';
-    var LAYERID_SKYBOX = '2';
-    var LAYERID_UI = '4';
+    var LAYERID_DEPTH = 1;
+    var LAYERID_SKYBOX = 2;
+    var LAYERID_UI = 4;
 
     // overlay
     var overlay = new ui.Overlay();
@@ -82,7 +82,7 @@ editor.once('load', function() {
             panelLayer.folded = true;
             indexLayerPanels[key] = panelLayer;
 
-            var isBuiltIn = parseInt(key, 10) <= 4;
+            var isBuiltIn = key <= 4;
 
             var btnRemove = new ui.Button();
             btnRemove.class.add('remove');
@@ -194,7 +194,7 @@ editor.once('load', function() {
                 }
 
                 // create new layer
-                newLayerKey = maxKey.toString();
+                newLayerKey = maxKey;
 
                 projectSettings.set('layers.' + newLayerKey, layer);
 
@@ -691,7 +691,7 @@ editor.once('load', function() {
             var panelSublayer = new ui.Panel();
             panelSublayer.class.add('sublayer');
 
-            var isBuiltIn = parseInt(key, 10) <= 4;
+            var isBuiltIn = (key <= 4);
 
             if (transparent)
                 panelSublayer.class.add('transparent');
@@ -861,7 +861,7 @@ editor.once('load', function() {
         var init = function () {
             var layers = projectSettings.get('layers');
             for (var key in layers) {
-                createLayerPanel(key, layers[key]);
+                createLayerPanel(parseInt(key, 10), layers[key]);
             }
 
             var index = {};
@@ -882,6 +882,7 @@ editor.once('load', function() {
 
             // Add missing items to autoComplete
             for (var key in layers) {
+                key = parseInt(key, 10);
                 if (! index[key]) {
                     addAutoCompleteItem(key, false);
                     addAutoCompleteItem(key, true);
@@ -914,7 +915,7 @@ editor.once('load', function() {
             // On layer added
             var match = path.match(/^layers\.(\d+)$/);
             if (match) {
-                var key = match[1];
+                var key = parseInt(match[1], 10);
                 if (indexLayerPanels[key]) {
                     indexLayerPanels[key].destroy();
                 }

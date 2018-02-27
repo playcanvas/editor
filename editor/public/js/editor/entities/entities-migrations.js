@@ -1,6 +1,12 @@
 editor.once('load', function() {
     'use strict'
 
+    var LAYERID_WORLD = 0;
+    var LAYERID_DEPTH = 1;
+    var LAYERID_SKYBOX = 2;
+    var LAYERID_IMMEDIATE = 3;
+    var LAYERID_UI = 4;
+
     editor.on('entities:add', function(entity) {
         setTimeout(function() {
             entity.history.enabled = false;
@@ -14,8 +20,19 @@ editor.once('load', function() {
             // camera
             if (entity.has('components.camera')) {
                 // frustumCulling
-                if (! entity.has('components.camera.frustumCulling'))
+                if (! entity.has('components.camera.frustumCulling')) {
                     entity.set('components.camera.frustumCulling', false);
+                }
+
+                // layers
+                if (! entity.has('components.camera.layers')) {
+                    entity.set('components.camera.layers', []);
+                    entity.insert('components.camera.layers', LAYERID_WORLD);
+                    entity.insert('components.camera.layers', LAYERID_DEPTH);
+                    entity.insert('components.camera.layers', LAYERID_SKYBOX);
+                    entity.insert('components.camera.layers', LAYERID_IMMEDIATE);
+                    entity.insert('components.camera.layers', LAYERID_UI);
+                }
             }
 
             // light
@@ -88,6 +105,12 @@ editor.once('load', function() {
                 // cookieOffset
                 if (! entity.has('components.light.cookieOffset'))
                     entity.set('components.light.cookieOffset', [ 0.0, 0.0 ]);
+
+                // layers
+                if (! entity.has('components.light.layers')) {
+                    entity.set('components.light.layers', []);
+                    entity.insert('components.light.layers', LAYERID_WORLD);
+                }
             }
 
             // model
@@ -111,6 +134,12 @@ editor.once('load', function() {
                 // batch group id
                 if (! entity.has('components.model.batchGroupId'))
                     entity.set('components.model.batchGroupId', null);
+
+                // layers
+                if (! entity.has('components.model.layers')) {
+                    entity.set('components.model.layers', []);
+                    entity.insert('components.model.layers', LAYERID_WORLD);
+                }
             }
 
             // element
@@ -153,6 +182,21 @@ editor.once('load', function() {
 
                 if (! entity.has('components.element.batchGroupId')) {
                     entity.set('components.element.batchGroupId', null);
+                }
+
+                // layers
+                if (! entity.has('components.element.layers')) {
+                    entity.set('components.element.layers', []);
+                    entity.insert('components.element.layers', LAYERID_UI);
+                }
+            }
+
+            // sprite
+            if (entity.has('components.sprite')) {
+                // layers
+                if (! entity.has('components.sprite.layers')) {
+                    entity.set('components.sprite.layers', []);
+                    entity.insert('components.sprite.layers', LAYERID_WORLD);
                 }
             }
 
