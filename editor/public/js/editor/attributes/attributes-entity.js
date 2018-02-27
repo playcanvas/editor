@@ -217,7 +217,8 @@ editor.once('load', function() {
             parent: panel,
             name: 'Tags',
             placeholder: 'Add Tag',
-            type: 'strings',
+            type: 'tags',
+            tagType: 'string',
             path: 'tags'
         };
         items.fieldTags = editor.call('attributes:addField', argsTags);

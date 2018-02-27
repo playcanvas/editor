@@ -88,7 +88,8 @@ editor.once('load', function() {
                     parent: panel,
                     name: 'Tags',
                     placeholder: 'Add Tag',
-                    type: 'strings',
+                    type: 'tags',
+                    tagType: 'string',
                     link: assets,
                     path: 'tags'
                 });
@@ -251,7 +252,8 @@ editor.once('load', function() {
                         parent: panel,
                         name: 'Tags',
                         placeholder: 'Add Tag',
-                        type: 'strings',
+                        type: 'tags',
+                        tagType: 'string',
                         link: assets[0],
                         path: 'tags'
                     });
