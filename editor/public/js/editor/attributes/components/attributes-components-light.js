@@ -2,16 +2,13 @@ editor.once('load', function() {
     'use strict';
 
     editor.on('attributes:inspect[entity]', function(entities) {
-        // if (entities.length !== 1)
-        //     return;
-
-        // var entity = entities[0];
-
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (! panelComponents)
             return;
 
         var events = [ ];
+
+        var projectSettings = editor.call('settings:project');
 
         var panel = editor.call('attributes:entity:addComponentPanel', {
             title: 'Light',
@@ -684,6 +681,34 @@ editor.once('load', function() {
         fieldCookie.parent.innerElement.querySelector('.top > .ui-label').parentNode.appendChild(fieldCookieChannel.element);
         // reference
         editor.call('attributes:reference:attach', 'light:cookieChannel', fieldCookieChannel);
+
+        // divider
+        var divider = document.createElement('div');
+        divider.classList.add('fields-divider');
+        panel.append(divider);
+
+        // layers
+        var layers = projectSettings.get('layers');
+        var layersEnum = {
+            '': ''
+        };
+        for (var key in layers) {
+            layersEnum[key] = layers[key].name;
+        }
+
+        var fieldLayers = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Layers',
+            type: 'tags',
+            tagType: 'number',
+            enum: layersEnum,
+            placeholder: 'Add Layer',
+            link: entities,
+            path: 'components.light.layers',
+            tagToString: function (tag) {
+                return projectSettings.get('layers.' + tag + '.name') || 'Missing';
+            }
+        });
 
     });
 });

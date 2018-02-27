@@ -6,6 +6,8 @@ editor.once('load', function() {
         if (! panelComponents)
             return;
 
+        var projectSettings = editor.call('settings:project');
+
         var panel = editor.call('attributes:entity:addComponentPanel', {
             title: 'Camera',
             name: 'camera',
@@ -199,5 +201,28 @@ editor.once('load', function() {
         });
         // reference
         editor.call('attributes:reference:attach', 'camera:rect', fieldRect[0].parent.innerElement.firstChild.ui);
+
+        // layers
+        var layers = projectSettings.get('layers');
+        var layersEnum = {
+            '': ''
+        };
+        for (var key in layers) {
+            layersEnum[key] = layers[key].name;
+        }
+
+        var fieldLayers = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Layers',
+            type: 'tags',
+            tagType: 'number',
+            enum: layersEnum,
+            placeholder: 'Add Layer',
+            link: entities,
+            path: 'components.camera.layers',
+            tagToString: function (tag) {
+                return projectSettings.get('layers.' + tag + '.name') || 'Missing';
+            }
+        });
     });
 });
