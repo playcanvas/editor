@@ -688,7 +688,6 @@ editor.once('load', function() {
         var createSublayerPanel = function (key, transparent, enabled, index) {
             var panelEvents = [];
 
-
             var panelSublayer = new ui.Panel();
             panelSublayer.class.add('sublayer');
 
@@ -738,6 +737,11 @@ editor.once('load', function() {
             });
             fieldName.class.add('name');
             panelSublayer.append(fieldName);
+            panelSublayer.fieldName = fieldName;
+
+            panelEvents.push(projectSettings.on('layers.' + key + '.name:set', function (value) {
+                fieldName.value = value;
+            }));
 
             // transparent
             var fieldTransparent = new ui.Label({
@@ -751,12 +755,14 @@ editor.once('load', function() {
             fieldEnabled.class.add('tick');
             panelSublayer.append(fieldEnabled);
             fieldEnabled.value = enabled;
+            panelSublayer.fieldEnabled = fieldEnabled;
 
             fieldEnabled.on('change', function (value) {
                 var order = projectSettings.get('layerOrder');
                 for (var i = 0; i < order.length; i++) {
                     if (order[i].layer === key && order[i].transparent === transparent) {
                         projectSettings.set('layerOrder.' + i + '.enabled', value);
+                        break;
                     }
                 }
             });
@@ -904,23 +910,37 @@ editor.once('load', function() {
             removeAutoCompleteItem(key, false);
         }));
 
-        // On layer added
-        events.push(projectSettings.on('*:set', function (path) {
+        events.push(projectSettings.on('*:set', function (path, value) {
+            // On layer added
             var match = path.match(/^layers\.(\d+)$/);
-            if (! match) return;
+            if (match) {
+                var key = match[1];
+                if (indexLayerPanels[key]) {
+                    indexLayerPanels[key].destroy();
+                }
 
-            var key = match[1];
-            if (indexLayerPanels[key]) {
-                indexLayerPanels[key].destroy();
+                var layers = projectSettings.get('layers');
+                var index = Object.keys(layers).indexOf(key);
+
+                createLayerPanel(key, layers[key], index);
+
+                addAutoCompleteItem(key, false);
+                addAutoCompleteItem(key, true);
             }
 
-            var layers = projectSettings.get('layers');
-            var index = Object.keys(layers).indexOf(key);
+            // on layerOrder enabled
+            var match = path.match(/^layerOrder\.(\d+)\.enabled$/);
+            if (match) {
+                var order = projectSettings.get('layerOrder.' + match[1]);
+                if (order) {
+                    var key = order.layer;
+                    var field = order.transparent ? 'transparent' : 'opaque';
+                    if (indexSublayerPanels[key] && indexSublayerPanels[key][field]) {
+                        indexSublayerPanels[key][field].fieldEnabled.value = value;
+                    }
+                }
+            }
 
-            createLayerPanel(key, layers[key], index);
-
-            addAutoCompleteItem(key, false);
-            addAutoCompleteItem(key, true);
         }));
 
         // On sublayer removed
