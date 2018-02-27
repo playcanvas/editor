@@ -6,92 +6,39 @@ editor.once('load', function () {
 
     var renderTargets = { };
 
-    var scene = new pc.Scene();
-    scene.root = new pc.Entity();
-    scene.root.name = 'root';
-    scene.root._enabledInHierarchy = true;
+    var layerComposition = new pc.LayerComposition();
 
-    var queueSettings = false;
-    var sceneSettings;
-
-    var skyboxOnLoad = function(asset) {
-        if (asset.resources) {
-            scene.setSkybox(asset.resources);
-            scene.skybox = null;
-            editor.emit('preview:scene:changed');
-        }
-    };
-    var skyboxAsset;
-
-    editor.method('preview:skybox', function() {
-        return skyboxAsset;
+    var layer = new pc.Layer({
+        id: -1,
+        enabled: true,
+        opaqueSortMode: 2,
+        transparentSortMode: 3
     });
 
-    app._onSkyboxChangeOld = app._onSkyboxChange;
-    app._onSkyboxChange = function(asset) {
-        skyboxOnLoad(asset);
-        app._onSkyboxChangeOld(asset);
-    };
+    layerComposition.push(layer);
 
-    app._skyboxLoadOld = app._skyboxLoad;
-    app._skyboxLoad = function(asset) {
-        app._skyboxLoadOld.call(this, asset);
+    app.on('set:skybox', function () {
+        editor.emit('preview:scene:changed');
+    });
 
-        if (skyboxAsset)
-            app.off('load:' + skyboxAsset.id, skyboxOnLoad);
-
-        skyboxAsset = asset;
-        app.on('load:' + skyboxAsset.id, skyboxOnLoad);
-
-        skyboxOnLoad(asset);
-    };
-
-    app._skyboxRemoveOld = app._skyboxRemove;
-    app._skyboxRemove = function(asset) {
-        app._skyboxRemoveOld.call(this, asset);
-
-        if (skyboxAsset && skyboxAsset.id === asset.id) {
-            app.off('load:' + skyboxAsset.id, skyboxOnLoad);
-            skyboxAsset = null;
-            scene.setSkybox(null);
-            editor.emit('preview:scene:changed');
-        }
-    };
-
-    var applySettings = function() {
-        queueSettings = false;
-        var settings = sceneSettings.json();
-
-        scene.ambientLight.set(settings.render.global_ambient[0], settings.render.global_ambient[1], settings.render.global_ambient[2]);
-        scene.gammaCorrection = settings.render.gamma_correction;
-        scene.toneMapping = settings.render.tonemapping;
-        scene.exposure = settings.render.exposure;
-        scene.skyboxIntensity = settings.render.skyboxIntensity === undefined ? 1 : settings.render.skyboxIntensity;
-
+    var onSceneSettingsChange = function () {
         editor.emit('preview:scene:changed');
     };
 
-    var queueApplySettings = function() {
-        if (queueSettings)
-            return;
-
-        queueSettings = true;
-        requestAnimationFrame(applySettings);
-    };
-
     editor.on('sceneSettings:load', function(settings) {
-        sceneSettings = settings;
-        sceneSettings.on('*:set', applySettings);
-        queueApplySettings();
+        onSceneSettingsChange();
+        settings.on('*:set', function () {
+            onSceneSettingsChange();
+            requestAnimationFrame(onSceneSettingsChange);
+        });
     });
 
+    editor.method('preview:layerComposition', function () {
+        return layerComposition;
+    });
 
-    var nextPow2 = function(size) {
-        return Math.pow(2, Math.ceil(Math.log(size) / Math.log(2)));
-    };
-
-    editor.method('preview:scene', function() {
-        return scene;
+    editor.method('preview:layer', function () {
+        return layer;
     });
 
     editor.method('preview:getTexture', function(width, height) {

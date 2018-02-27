@@ -4,21 +4,19 @@ editor.once('load', function() {
     var app = editor.call('viewport:app');
     if (! app) return; // webgl not available
 
-    var device = app.graphicsDevice;
-    var renderer = app.renderer;
-    var scene = editor.call('preview:scene');
+    var layerComposition = editor.call('preview:layerComposition');
+    var layer = editor.call('preview:layer');
 
     // camera
-    var cameraNode = new pc.GraphNode();
-    cameraNode.setLocalPosition(0, 0, 1);
-
-    var camera = new pc.Camera();
-    camera._node = cameraNode;
-    camera.nearClip = 1;
-    camera.farClip = 32;
-    camera.clearColor = [ 0, 0, 0, 0 ];
-    camera.fov = 75;
-    camera.frustumCulling = false;
+    var cameraEntity = new pc.Entity();
+    cameraEntity.addComponent('camera', {
+        nearClip: 1,
+        farClip: 32,
+        clearColor: [0, 0, 0, 0],
+        fov: 75,
+        frustumCulling: false
+    });
+    cameraEntity.setLocalPosition(0, 0, 1);
 
     var defaultTexture = new pc.Texture(app.graphicsDevice, {width:1, height:1, format:pc.PIXELFORMAT_R8_G8_B8_A8});
     var pixels = defaultTexture.lock();
@@ -76,7 +74,7 @@ editor.once('load', function() {
             indices.push(i*4 + 1, i*4 + 2, i*4 + 3);
         }
 
-        return pc.createMesh(device, positions, {normals: normals, uvs: uvs, indices: indices});
+        return pc.createMesh(app.graphicsDevice, positions, {normals: normals, uvs: uvs, indices: indices});
     };
 
     // updates mesh positions and uvs based on the font and the character specified
@@ -194,6 +192,14 @@ editor.once('load', function() {
     model.meshInstances.push(meshInstances[0]);
     model.meshInstances.push(meshInstances[1]);
 
+    // All preview objects live under this root
+    var previewRoot = new pc.Entity();
+    previewRoot._enabledInHierarchy = true;
+    previewRoot.enabled = true;
+    previewRoot.addChild(node);
+    previewRoot.addChild(cameraEntity);
+    previewRoot.syncHierarchy();
+    previewRoot.enabled = false;
 
     editor.method('preview:font:render', function(asset, canvasWidth, canvasHeight, canvas, args) {
         args = args || { };
@@ -208,62 +214,71 @@ editor.once('load', function() {
 
         var target = editor.call('preview:getTexture', width, height);
 
-        camera.aspectRatio = height / width;
-        camera.renderTarget = target;
+        previewRoot.enabled = true;
+
+        cameraEntity.camera.aspectRatio = height / width;
+        layer.renderTarget = target;
 
         var engineAsset = app.assets.get(asset.get('id'));
 
         // skip if the font isn't ready
         if (! engineAsset || ! engineAsset.resource || ! engineAsset.resource.textures || ! engineAsset.resource.textures.length || ! engineAsset.resource.data || ! engineAsset.resource.data.chars) {
-            renderer.render(scene, camera);
-            return;
-        }
+            app.renderer.renderComposition(layerComposition);
+        } else {
+            // try to use Aa as the text in different languages
+            // and if that is not found try the first two characters of the font
 
-        // try to use Aa as the text in different languages
-        // and if that is not found try the first two characters of the font
-
-        // latin
-        if (hasChars('Aa', engineAsset.resource)) {
-            var text = 'Aa';
-        }
-        // greek
-        else if (hasChars('Αα', engineAsset.resource)) {
-            var text = 'Αα';
-        }
-        // cyrillic
-        else if (hasChars('Аа', engineAsset.resource)) {
-            var text = 'Аа';
-        }
-        // rest
-        else {
-            var text = '';
-            var chars = asset.get('meta.chars');
-            for (var i = 0, len = chars.length; i < len && text.length < 2; i++) {
-                if (/\s/.test(chars[i])) continue;
-                text += chars[i];
+            // latin
+            if (hasChars('Aa', engineAsset.resource)) {
+                var text = 'Aa';
             }
+            // greek
+            else if (hasChars('Αα', engineAsset.resource)) {
+                var text = 'Αα';
+            }
+            // cyrillic
+            else if (hasChars('Аа', engineAsset.resource)) {
+                var text = 'Аа';
+            }
+            // rest
+            else {
+                var text = '';
+                var chars = asset.get('meta.chars');
+                for (var i = 0, len = chars.length; i < len && text.length < 2; i++) {
+                    if (/\s/.test(chars[i])) continue;
+                    text += chars[i];
+                }
+            }
+
+            // set the font texture based on which characters we chose to display
+            // defaultScreenSpaceTextMaterial.msdfMap = engineAsset.resource.textures[0];
+            defaultScreenSpaceTextMaterial.setParameter('font_sdfIntensity', asset.get('data.intensity'));
+            defaultScreenSpaceTextMaterial.update();
+
+            updateMeshes(text, engineAsset.resource);
+
+            layer.addMeshInstances(model.meshInstances);
+            layer.addCamera(cameraEntity.camera);
+
+            app.renderer.renderComposition(layerComposition);
+
+            // read pixels from texture
+            var device = app.graphicsDevice;
+            device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, target._glFrameBuffer);
+            device.gl.readPixels(0, 0, width, height, device.gl.RGBA, device.gl.UNSIGNED_BYTE, target.pixels);
+
+            // render to canvas
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+            canvas.getContext('2d').putImageData(new ImageData(target.pixelsClamped, width, height), (canvasWidth - width) / 2, (canvasHeight - height) / 2);
+
+            layer.removeMeshInstances(model.meshInstances);
+            layer.removeCamera(cameraEntity.camera);
         }
 
-        // set the font texture based on which characters we chose to display
-        // defaultScreenSpaceTextMaterial.msdfMap = engineAsset.resource.textures[0];
-        defaultScreenSpaceTextMaterial.setParameter('font_sdfIntensity', asset.get('data.intensity'));
-        defaultScreenSpaceTextMaterial.update();
 
-        scene.addModel(model);
+        previewRoot.enabled = false;
+        layer.renderTarget = null;
 
-        updateMeshes(text, engineAsset.resource);
-
-        renderer.render(scene, camera);
-
-        scene.removeModel(model);
-
-        // read pixels from texture
-        device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, target._glFrameBuffer);
-        device.gl.readPixels(0, 0, width, height, device.gl.RGBA, device.gl.UNSIGNED_BYTE, target.pixels);
-
-        // render to canvas
-        canvas.width = canvasWidth;
-        canvas.height = canvasHeight;
-        canvas.getContext('2d').putImageData(new ImageData(target.pixelsClamped, width, height), (canvasWidth - width) / 2, (canvasHeight - height) / 2);
     });
 });

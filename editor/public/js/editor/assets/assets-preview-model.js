@@ -4,25 +4,22 @@ editor.once('load', function() {
     var app = editor.call('viewport:app');
     if (! app) return; // webgl not available
 
-    var device = app.graphicsDevice;
-    var renderer = app.renderer;
-    var scene = editor.call('preview:scene');
+    var layerComposition = editor.call('preview:layerComposition');
+    var layer = editor.call('preview:layer');
 
     var pitch = -15;
     var yaw = 45;
 
-
     // material
     var material = new pc.StandardMaterial();
     material.useSkybox = false;
-    material._scene = scene;
 
     var aabb = new pc.BoundingBox();
 
     // model
     var modelNode = new pc.GraphNode();
 
-    var meshSphere = pc.createSphere(device, {
+    var meshSphere = pc.createSphere(app.graphicsDevice, {
         radius: 0,
         latitudeBands: 2,
         longitudeBands: 2
@@ -34,29 +31,35 @@ editor.once('load', function() {
 
 
     // light
-    var lightNode = new pc.GraphNode();
-    lightNode.setLocalEulerAngles(45, 135, 0);
-
-    var light = new pc.Light();
-    light.enabled = true;
-    light.type = pc.LIGHTTYPE_DIRECTIONAL;
-    light._node = lightNode;
+    var lightEntity = new pc.Entity();
+    lightEntity.addComponent('light', {
+        type: 'directional'
+    });
+    lightEntity.setLocalEulerAngles(45, 135, 0);
 
 
     // camera
-    var cameraOrigin = new pc.GraphNode();
+    var cameraOrigin = new pc.Entity();
 
-    var cameraNode = new pc.GraphNode();
-    cameraNode.setLocalPosition(0, 0, 1.35);
-    cameraOrigin.addChild(cameraNode);
+    var cameraEntity = new pc.Entity();
+    cameraEntity.addComponent('camera', {
+        nearClip: 0.01,
+        farClip: 32,
+        clearColor: new pc.Color(41 / 255, 53 / 255, 56 / 255, 0.0),
+        frustumCulling: false
+    });
+    cameraEntity.setLocalPosition(0, 0, 1.35);
+    cameraOrigin.addChild(cameraEntity);
 
-    var camera = new pc.Camera();
-    camera._node = cameraNode;
-    camera.nearClip = 0.01;
-    camera.farClip = 32;
-    camera.clearColor = [ 41 / 255, 53 / 255, 56 / 255, 0.0 ];
-    camera.frustumCulling = false;
-
+    // All preview objects live under this root
+    var previewRoot = new pc.Entity();
+    previewRoot._enabledInHierarchy = true;
+    previewRoot.enabled = true;
+    previewRoot.addChild(modelNode);
+    previewRoot.addChild(lightEntity);
+    previewRoot.addChild(cameraOrigin);
+    previewRoot.syncHierarchy();
+    previewRoot.enabled = false;
 
     editor.method('preview:model:render', function(asset, canvasWidth, canvasHeight, canvas, args) {
         args = args || { };
@@ -71,8 +74,10 @@ editor.once('load', function() {
 
         var target = editor.call('preview:getTexture', width, height);
 
-        camera.aspectRatio = height / width;
-        camera.renderTarget = target;
+        previewRoot.enabled = true;
+
+        cameraEntity.camera.aspectRatio = height / width;
+        layer.renderTarget = target;
 
         var data = asset.get('data');
         if (! data) return;
@@ -85,7 +90,7 @@ editor.once('load', function() {
         if (modelAsset._editorPreviewModel)
             model = modelAsset._editorPreviewModel.clone();
 
-        model.lights = [ light ];
+        model.lights = [ lightEntity.light.light ];
 
         var first = true;
 
@@ -115,33 +120,31 @@ editor.once('load', function() {
 
         material.update();
 
-        scene.addModel(model);
-
         pitch = args.hasOwnProperty('rotation') ? args.rotation[0] : -15;
         yaw = args.hasOwnProperty('rotation') ? args.rotation[1] : 45;
 
         var max = aabb.halfExtents.length();
-        cameraNode.setLocalPosition(0, 0, max * 2.5);
+        cameraEntity.setLocalPosition(0, 0, max * 2.5);
 
         cameraOrigin.setLocalPosition(aabb.center);
         cameraOrigin.setLocalEulerAngles(pitch, yaw, 0);
         cameraOrigin.syncHierarchy();
 
-        lightNode.setLocalRotation(cameraOrigin.getLocalRotation());
-        lightNode.rotateLocal(90, 0, 0);
+        lightEntity.setLocalRotation(cameraOrigin.getLocalRotation());
+        lightEntity.rotateLocal(90, 0, 0);
 
-        camera.farClip = max * 5.0;
+        cameraEntity.camera.farClip = max * 5.0;
 
-        light.intensity = 1.0 / (Math.min(1.0, scene.exposure) || 0.01);
+        lightEntity.light.intensity = 1.0 / (Math.min(1.0, app.scene.exposure) || 0.01);
 
-        renderer.render(scene, camera);
+        layer.addMeshInstances(model.meshInstances);
+        layer.addLight(lightEntity.light.light);
+        layer.addCamera(cameraEntity.camera);
 
-        scene.removeModel(model);
-
-        if (model !== modelPlaceholder)
-            model.destroy();
+        app.renderer.renderComposition(layerComposition);
 
         // read pixels from texture
+        var device = app.graphicsDevice;
         device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, target._glFrameBuffer);
         device.gl.readPixels(0, 0, width, height, device.gl.RGBA, device.gl.UNSIGNED_BYTE, target.pixels);
 
@@ -149,5 +152,14 @@ editor.once('load', function() {
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
         canvas.getContext('2d').putImageData(new ImageData(target.pixelsClamped, width, height), (canvasWidth - width) / 2, (canvasHeight - height) / 2);
+
+        layer.removeLight(lightEntity.light.light);
+        layer.removeCamera(cameraEntity.camera);
+        layer.removeMeshInstances(model.meshInstances);
+        layer.renderTarget = null;
+        previewRoot.enabled = false;
+
+        if (model !== modelPlaceholder)
+            model.destroy();
     });
 });
