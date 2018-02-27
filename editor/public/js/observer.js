@@ -54,7 +54,6 @@ function Observer(data, options) {
 }
 Observer.prototype = Object.create(Events.prototype);
 
-
 Observer.prototype.silence = function() {
     this._silent = true;
 
@@ -678,7 +677,7 @@ Observer.prototype.insert = function(path, value, ind, silent, remote) {
 
     if (value instanceof Observer) {
         value._parent = obj;
-        value._parentPath = node._path + '.' + key;
+        value._parentPath = (node._path ? node._path + '.' + key : key);
         value._parentField = arr;
         value._parentKey = null;
     } else {
