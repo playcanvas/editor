@@ -73,11 +73,7 @@ editor.once('load', function() {
         reader.readAsText(file);
     });
 
-    editor.method('assets:uploadFile', function (args, fn) {
-        // NOTE
-        // non-file form data should be above file,
-        // to make it parsed on back-end first
-
+    var create = function (args) {
         var form = new FormData();
 
         // scope
@@ -90,17 +86,47 @@ editor.once('load', function() {
         form.append('type', args.type);
 
         // name
-        if (args.name)
+        if (args.name) {
             form.append('name', args.name);
-
-        // todo: xdu. use `update` endpoint instead of `create` endpoint
-        // update asset
-        if (args.asset)
-            form.append('asset', args.asset.get('id'));
+        }
 
         // tags
-        if (args.tags)
+        if (args.tags) {
             form.append('tags', args.tags.join('\n'));
+        }
+
+        // source_asset_id
+        if (args.source_asset_id) {
+            form.append('source_asset_id', args.source_asset_id);
+        }
+
+        // data
+        if (args.data) {
+            form.append('data', JSON.stringify(args.data));
+        }
+
+        // meta
+        if (args.meta) {
+            form.append('meta', JSON.stringify(args.meta));
+        }
+
+        // preload
+        form.append('preload', args.preload === undefined ? true : args.preload);
+
+        form = appendCommon(form, args);
+        return form;
+    }
+
+    var update = function (assetId, args) {
+        var form = new FormData();
+        form = appendCommon(form, args);
+        return form;
+    }
+
+    var appendCommon = function(form, args) {
+        // NOTE
+        // non-file form data should be above file,
+        // to make it parsed on back-end first
 
         // parent folder
         if (args.parent) {
@@ -112,21 +138,6 @@ editor.once('load', function() {
                     form.append('parent', id + '');
             }
         }
-
-        // source_asset_id
-        if (args.source_asset_id)
-            form.append('source_asset_id', args.source_asset_id);
-
-        // data
-        if (args.data)
-            form.append('data', JSON.stringify(args.data));
-
-        // meta
-        if (args.meta)
-            form.append('meta', JSON.stringify(args.meta));
-
-        // preload
-        form.append('preload', args.preload === undefined ? true : args.preload);
 
         // conversion pipeline specific parameters
         var settings = editor.call('settings:projectUser');
@@ -152,19 +163,37 @@ editor.once('load', function() {
         }
 
         // filename
-        if (args.filename)
+        if (args.filename) {
             form.append('filename', args.filename);
+        }
 
         // file
-        if (args.file && args.file.size)
+        if (args.file && args.file.size) {
             form.append('file', args.file, (args.filename || args.name));
+        }
+
+        return form;
+    }
+
+    editor.method('assets:uploadFile', function (args, fn) {
+        var method = 'POST';
+        var url = '/api/assets';
+        var form = null;
+        if (args.asset) {
+            var assetId = args.asset.get('id');
+            method = 'PUT';
+            url = '/api/assets/' + assetId;
+            form = update(assetId, args);
+        } else {
+            form = create(args);
+        }
 
         var job = ++uploadJobs;
         editor.call('status:job', 'asset-upload:' + job, 0);
 
         var data = {
-            url: '/api/assets',
-            method: 'POST',
+            url: url,
+            method: method,
             auth: true,
             data: form,
             ignoreContentType: true,
@@ -184,13 +213,15 @@ editor.once('load', function() {
             editor.call('status:job', 'asset-upload:' + job, progress);
         })
         .on('error', function(status, data) {
-            if (/Disk allowance/.test(data))
+            if (/Disk allowance/.test(data)) {
                 data += '. <a href="/upgrade" target="_blank">UPGRADE</a> to get more disk space.';
+            }
 
             editor.call('status:error', data);
             editor.call('status:job', 'asset-upload:' + job);
-            if (fn)
+            if (fn) {
                 fn(data);
+            }
         });
     });
 
