@@ -86,7 +86,7 @@ editor.once('load', function () {
                 continue;
 
             // force snapshot path data
-            assets[data[i].id].snapshot.path = data[i].path;
+            assets[data[i].id].data.path = data[i].path;
 
             // sync observer
             var observer = editor.call('assets:get', data[i].id) ;
