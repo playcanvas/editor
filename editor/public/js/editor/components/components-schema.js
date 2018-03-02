@@ -3,12 +3,6 @@ editor.once('load', function() {
 
     var projectSettings = editor.call('settings:project');
 
-    var LAYERID_WORLD = 0;
-    var LAYERID_DEPTH = 1;
-    var LAYERID_SKYBOX = 2;
-    var LAYERID_IMMEDIATE = 3;
-    var LAYERID_UI = 4;
-
     var schema = {
         animation: {
             title: 'Animation',
@@ -52,7 +46,7 @@ editor.once('load', function() {
                 cookieAngle: 0.0,
                 cookieOffset: [ 0.0, 0.0 ],
                 cookieScale: [ 1.0, 1.0 ],
-                layers: [LAYERID_WORLD]
+                layers: [pc.LAYERID_WORLD]
             },
             types: {
                 color: 'rgb',
@@ -126,7 +120,7 @@ editor.once('load', function() {
                 farClip: 1000,
                 priority: 0,
                 rect: [0, 0, 1, 1],
-                layers: [LAYERID_WORLD, LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE, LAYERID_UI]
+                layers: [pc.LAYERID_WORLD, pc.LAYERID_DEPTH, pc.LAYERID_SKYBOX, pc.LAYERID_IMMEDIATE, pc.LAYERID_UI]
             },
             types: {
                 clearColor: 'rgb',
@@ -164,7 +158,7 @@ editor.once('load', function() {
                 lightMapped: false,
                 lightMapSizeMultiplier: 1.0,
                 batchGroupId: null,
-                layers: [LAYERID_WORLD]
+                layers: [pc.LAYERID_WORLD]
             }
         },
 
@@ -348,7 +342,7 @@ editor.once('load', function() {
                 autoHeight: false,
                 materialAsset: null,
                 batchGroupId: null,
-                layers: [LAYERID_UI]
+                layers: [pc.LAYERID_UI]
             },
             types: {
                 anchor: 'vec4',
@@ -375,7 +369,7 @@ editor.once('load', function() {
                 autoPlayClip: null,
                 speed: 1,
                 batchGroupId: null,
-                layers: [LAYERID_WORLD]
+                layers: [pc.LAYERID_WORLD]
             },
             types: {
                 color: 'rgb'

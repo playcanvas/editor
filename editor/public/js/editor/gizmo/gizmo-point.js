@@ -19,9 +19,6 @@ editor.once('viewport:load', function() {
     var vecE = new pc.Vec3();
     var quatA = new pc.Quat();
 
-    var color = new pc.Color(1, 1, 1, 1);
-    var colorBehind = new pc.Color(1, 1, 1, 0.25);
-
     var container = new pc.Entity();
     container.name = 'gizmo-points';
     container.__editor = true;
@@ -31,6 +28,8 @@ editor.once('viewport:load', function() {
     material.color = new pc.Color(1.0, 1.0, 1.0);
     material.cull = pc.CULLFACE_NONE;
     material.update();
+
+    var layer = editor.call('gizmo:layers', 'after-3');
 
     function Gizmo(axis, dir) {
         Events.call(this);
@@ -76,11 +75,12 @@ editor.once('viewport:load', function() {
                     receiveShadows: false,
                     castShadowsLightmap: false,
                     castShadows: false,
+                    layers: [layer.id]
                 });
                 this.entity.__editor = true;
                 this.entity.point = this;
-                this.entity.model.meshInstances[0].layer = pc.LAYER_GIZMO;
-                this.entity.model.meshInstances[0].mask = 8;
+                // this.entity.model.meshInstances[0].layer = pc.LAYER_GIZMO;
+                // this.entity.model.meshInstances[0].mask = 8;
                 this.entity.model.meshInstances[0].material = material;
                 container.addChild(this.entity);
             } else {

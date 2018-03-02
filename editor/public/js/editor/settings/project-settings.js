@@ -23,12 +23,6 @@ editor.once('load', function () {
         'layerOrder'
     ];
 
-    var LAYERID_WORLD = 0;
-    var LAYERID_DEPTH = 1;
-    var LAYERID_SKYBOX = 2;
-    var LAYERID_IMMEDIATE = 3;
-    var LAYERID_UI = 4;
-
     var data = {};
     for (var i = 0; i < syncPaths.length; i++)
         data[syncPaths[i]] = config.project.settings.hasOwnProperty(syncPaths[i]) ? config.project.settings[syncPaths[i]] : null;
@@ -128,37 +122,37 @@ editor.once('load', function () {
 
             settings.set('layerOrder', []);
             settings.insert('layerOrder', {
-                layer: LAYERID_WORLD,
+                layer: pc.LAYERID_WORLD,
                 transparent: false,
                 enabled: true
             });
             settings.insert('layerOrder', {
-                layer: LAYERID_DEPTH,
+                layer: pc.LAYERID_DEPTH,
                 transparent: false,
                 enabled: true
             });
             settings.insert('layerOrder', {
-                layer: LAYERID_SKYBOX,
+                layer: pc.LAYERID_SKYBOX,
                 transparent: false,
                 enabled: true
             });
             settings.insert('layerOrder', {
-                layer: LAYERID_WORLD,
+                layer: pc.LAYERID_WORLD,
                 transparent: true,
                 enabled: true
             });
             settings.insert('layerOrder', {
-                layer: LAYERID_IMMEDIATE,
+                layer: pc.LAYERID_IMMEDIATE,
                 transparent: false,
                 enabled: true
             });
             settings.insert('layerOrder', {
-                layer: LAYERID_IMMEDIATE,
+                layer: pc.LAYERID_IMMEDIATE,
                 transparent: true,
                 enabled: true
             });
             settings.insert('layerOrder', {
-                layer: LAYERID_UI,
+                layer: pc.LAYERID_UI,
                 transparent: true,
                 enabled: true
             });

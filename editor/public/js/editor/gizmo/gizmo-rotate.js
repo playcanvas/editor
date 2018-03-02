@@ -397,6 +397,8 @@ editor.once('load', function() {
         obj.matBehindActive.depthTest = false;
         obj.colorActive = new pc.Color(1, 1, 1, 1);
 
+        var gizmoLayer = editor.call('gizmo:layers', 'after-3').id;
+
         // root entity
         var entity = obj.root = new pc.Entity();
 
@@ -409,9 +411,9 @@ editor.once('load', function() {
             type: 'cylinder',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        planeX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(planeX);
         planeX.setLocalEulerAngles(90, -90, 0);
         planeX.setLocalScale(4.1, 0.3, 4.1);
@@ -426,9 +428,9 @@ editor.once('load', function() {
             type: 'cylinder',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        planeY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(planeY);
         planeY.setLocalEulerAngles(0, 0, 0);
         planeY.setLocalScale(4.2, 0.3, 4.2);
@@ -443,9 +445,9 @@ editor.once('load', function() {
             type: 'cylinder',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        planeZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(planeZ);
         planeZ.setLocalEulerAngles(90, 0, 0);
         planeZ.setLocalScale(4, 0.3, 4);
@@ -457,9 +459,9 @@ editor.once('load', function() {
             type: 'sphere',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        sphere.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(sphere);
         sphere.setLocalScale(3, 3, 3);
         sphere.mat = sphere.model.material = createMaterial(new pc.Color(1, 1, 1, 0));
@@ -476,10 +478,7 @@ editor.once('load', function() {
     };
 
     var createMeshInstance = function (node, mesh, material) {
-        var result = new pc.MeshInstance(node, mesh, material);
-        result.layer = pc.LAYER_GIZMO;
-        result.updateKey();
-        return result;
+        return new pc.MeshInstance(node, mesh, material);
     };
 
     var createLinesModel = function(app) {

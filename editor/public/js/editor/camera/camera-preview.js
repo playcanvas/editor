@@ -91,15 +91,17 @@ editor.once('load', function() {
         if (! camera)
             return;
 
+        var enabled = camera.enabled;
+        camera.enabled = true;
         camera.camera.renderTarget = null;
         camera.camera.cullingMask = GEOMETRY_ONLY_CULLING_MASK;
         camera.rect = rect;
 
         lastCamera = camera.camera;
 
-        camera.frameBegin();
-        app.renderer.render(app.scene, camera.camera);
-        camera.frameEnd();
+        app.renderer.renderComposition(app.scene.layers);
+
+        camera.enabled = enabled;
     };
 
     var updateCameraState = function() {

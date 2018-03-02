@@ -432,6 +432,8 @@ editor.once('load', function() {
         // root entity
         var entity = obj.root = new pc.Entity();
 
+        var gizmoLayer = editor.call('gizmo:layers', 'after-3').id;
+
         // plane x
         var planeX = obj.plane.x = new pc.Entity();
         obj.hoverable.push(planeX);
@@ -441,10 +443,10 @@ editor.once('load', function() {
             type: 'plane',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        planeX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
-        planeX.model.model.meshInstances[0].mask = 8;
+        // planeX.model.model.meshInstances[0].mask = 8;
         entity.addChild(planeX);
         planeX.setLocalEulerAngles(90, -90, 0);
         planeX.setLocalScale(.8, .8, .8);
@@ -461,10 +463,10 @@ editor.once('load', function() {
             type: 'plane',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        planeY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
-        planeY.model.model.meshInstances[0].mask = 8;
+        // planeY.model.model.meshInstances[0].mask = 8;
         entity.addChild(planeY);
         planeY.setLocalEulerAngles(0, 0, 0);
         planeY.setLocalScale(.8, .8, .8);
@@ -481,10 +483,10 @@ editor.once('load', function() {
             type: 'plane',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        planeZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
-        planeZ.model.model.meshInstances[0].mask = 8;
+        // planeZ.model.model.meshInstances[0].mask = 8;
         entity.addChild(planeZ);
         planeZ.setLocalEulerAngles(90, 0, 0);
         planeZ.setLocalScale(.8, .8, .8);
@@ -500,10 +502,10 @@ editor.once('load', function() {
             type: 'cylinder',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        lineX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
-        lineX.model.model.meshInstances[0].mask = 8;
+        // lineX.model.model.meshInstances[0].mask = 8;
         entity.addChild(lineX);
         lineX.setLocalEulerAngles(90, 90, 0);
         lineX.setLocalPosition(1.6, 0, 0);
@@ -518,10 +520,10 @@ editor.once('load', function() {
             type: 'cylinder',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        lineY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
-        lineY.model.model.meshInstances[0].mask = 8;
+        // lineY.model.model.meshInstances[0].mask = 8;
         entity.addChild(lineY);
         lineY.setLocalEulerAngles(0, 0, 0);
         lineY.setLocalPosition(0, 1.6, 0);
@@ -536,10 +538,10 @@ editor.once('load', function() {
             type: 'cylinder',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        lineZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
-        lineZ.model.model.meshInstances[0].mask = 8;
+        // lineZ.model.model.meshInstances[0].mask = 8;
         entity.addChild(lineZ);
         lineZ.setLocalEulerAngles(90, 0, 0);
         lineZ.setLocalPosition(0, 0, 1.6);
@@ -554,10 +556,10 @@ editor.once('load', function() {
             type: 'cone',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        arrowX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
-        arrowX.model.model.meshInstances[0].mask = 8;
+        // arrowX.model.model.meshInstances[0].mask = 8;
         entity.addChild(arrowX);
         arrowX.setLocalEulerAngles(90, 90, 0);
         arrowX.setLocalPosition(2.3, 0, 0);
@@ -572,10 +574,10 @@ editor.once('load', function() {
             type: 'cone',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        arrowY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
-        arrowY.model.model.meshInstances[0].mask = 8;
+        // arrowY.model.model.meshInstances[0].mask = 8;
         entity.addChild(arrowY);
         arrowY.setLocalEulerAngles(0, 0, 0);
         arrowY.setLocalPosition(0, 2.3, 0);
@@ -590,10 +592,10 @@ editor.once('load', function() {
             type: 'cone',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        arrowZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
-        arrowZ.model.model.meshInstances[0].mask = 8;
+        // arrowZ.model.model.meshInstances[0].mask = 8;
         entity.addChild(arrowZ);
         arrowZ.setLocalEulerAngles(90, 0, 0);
         arrowZ.setLocalPosition(0, 0, 2.3);

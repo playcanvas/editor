@@ -1,12 +1,6 @@
 editor.once('load', function() {
     'use strict'
 
-    var LAYERID_WORLD = 0;
-    var LAYERID_DEPTH = 1;
-    var LAYERID_SKYBOX = 2;
-    var LAYERID_IMMEDIATE = 3;
-    var LAYERID_UI = 4;
-
     editor.on('entities:add', function(entity) {
         setTimeout(function() {
             entity.history.enabled = false;
@@ -27,11 +21,11 @@ editor.once('load', function() {
                 // layers
                 if (! entity.has('components.camera.layers')) {
                     entity.set('components.camera.layers', []);
-                    entity.insert('components.camera.layers', LAYERID_WORLD);
-                    entity.insert('components.camera.layers', LAYERID_DEPTH);
-                    entity.insert('components.camera.layers', LAYERID_SKYBOX);
-                    entity.insert('components.camera.layers', LAYERID_IMMEDIATE);
-                    entity.insert('components.camera.layers', LAYERID_UI);
+                    entity.insert('components.camera.layers', pc.LAYERID_WORLD);
+                    entity.insert('components.camera.layers', pc.LAYERID_DEPTH);
+                    entity.insert('components.camera.layers', pc.LAYERID_SKYBOX);
+                    entity.insert('components.camera.layers', pc.LAYERID_IMMEDIATE);
+                    entity.insert('components.camera.layers', pc.LAYERID_UI);
                 }
             }
 
@@ -109,7 +103,7 @@ editor.once('load', function() {
                 // layers
                 if (! entity.has('components.light.layers')) {
                     entity.set('components.light.layers', []);
-                    entity.insert('components.light.layers', LAYERID_WORLD);
+                    entity.insert('components.light.layers', pc.LAYERID_WORLD);
                 }
             }
 
@@ -138,7 +132,7 @@ editor.once('load', function() {
                 // layers
                 if (! entity.has('components.model.layers')) {
                     entity.set('components.model.layers', []);
-                    entity.insert('components.model.layers', LAYERID_WORLD);
+                    entity.insert('components.model.layers', pc.LAYERID_WORLD);
                 }
             }
 
@@ -187,7 +181,7 @@ editor.once('load', function() {
                 // layers
                 if (! entity.has('components.element.layers')) {
                     entity.set('components.element.layers', []);
-                    entity.insert('components.element.layers', LAYERID_UI);
+                    entity.insert('components.element.layers', pc.LAYERID_UI);
                 }
             }
 
@@ -196,7 +190,7 @@ editor.once('load', function() {
                 // layers
                 if (! entity.has('components.sprite.layers')) {
                     entity.set('components.sprite.layers', []);
-                    entity.insert('components.sprite.layers', LAYERID_WORLD);
+                    entity.insert('components.sprite.layers', pc.LAYERID_WORLD);
                 }
             }
 

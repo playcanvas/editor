@@ -4,11 +4,29 @@ editor.once('load', function() {
     var app;
     var visible = false;
 
+    var layerBack = editor.call('gizmo:layers', 'after-0');
+    var layerFront = editor.call('gizmo:layers', 'after-1');
+
     var filterPicker = function(drawCall) {
         if (drawCall.command)
             return true;
 
         return (drawCall.__editor && drawCall.__zone) || drawCall.layer === pc.LAYER_GIZMO;
+    };
+
+    // hack: override addModelToLayers to selectively put some
+    // mesh instances to the front and others to the back layer depending
+    // on the __useFrontLayer property
+    var addModelToLayers = function () {
+        var frontMeshInstances = this.meshInstances.filter(function (mi) {
+            return mi.__useFrontLayer;
+        });
+        var backMeshInstances = this.meshInstances.filter(function (mi) {
+            return ! mi.__useFrontLayer;
+        });
+
+        // layerFront.addMeshInstances(frontMeshInstances);
+        layerBack.addMeshInstances(backMeshInstances);
     };
 
     editor.method('gizmo:zone:visible', function(state) {
@@ -218,12 +236,16 @@ editor.once('load', function() {
             type: 'plane',
             receiveShadows: false,
             castShadowsLightmap: false,
-            castShadows: false
+            castShadows: false,
+            layers: [layerFront.id, layerBack.id]
         });
+        plane.model.addModelToLayers = addModelToLayers;
+
         var instance = plane.model.meshInstances[0];
         instance.material = materialPlane;
         var instanceBehind = new pc.MeshInstance(instance.node, instance.mesh, materialPlaneBehind);
         plane.model.meshInstances.push(instanceBehind);
+        instanceBehind.__useFrontLayer = true;
 
         // gizmo class
         function Gizmo() {
@@ -275,8 +297,8 @@ editor.once('load', function() {
 
                         var old = model.meshInstances[0].material;
                         model.meshInstances[0].setParameter('offset', 0);
-                        model.meshInstances[0].layer = 12;
-                        model.meshInstances[0].updateKey();
+                        // model.meshInstances[0].layer = 12;
+                        // model.meshInstances[0].updateKey();
                         model.meshInstances[0].__editor = true;
                         model.meshInstances[0].__zone = true;
                         model.meshInstances[0].material = old.clone();
@@ -286,20 +308,21 @@ editor.once('load', function() {
 
                         var old = model.meshInstances[1].material;
                         model.meshInstances[1].setParameter('offset', 0.001);
-                        model.meshInstances[1].layer = 2;
+                        // model.meshInstances[1].layer = 2;
                         model.meshInstances[1].pick = false;
-                        model.meshInstances[1].updateKey();
+                        // model.meshInstances[1].updateKey();
                         model.meshInstances[1].__editor = true;
                         model.meshInstances[1].material = old.clone();
                         model.meshInstances[1].material.updateShader = old.updateShader;
                         model.meshInstances[1].material.color.set(color[0], color[1], color[2], alphaBehind);
                         model.meshInstances[1].material.update();
+                        model.meshInstances[1].__useFrontLayer = true;
 
-                        model.meshInstances[2].setParameter('offset', 0);
-                        model.meshInstances[2].layer = 9;
-                        model.meshInstances[2].pick = false;
-                        model.meshInstances[2].updateKey();
-                        model.meshInstances[2].__editor = true;
+                        model.meshInstances[3].setParameter('offset', 0);
+                        // model.meshInstances[2].layer = 9;
+                        model.meshInstances[3].pick = false;
+                        // model.meshInstances[2].updateKey();
+                        model.meshInstances[3].__editor = true;
                     }
 
                     this.entity.model.model = model;
@@ -337,8 +360,10 @@ editor.once('load', function() {
             this.entity.addComponent('model', {
                 castShadows: false,
                 receiveShadows: false,
-                castShadowsLightmap: false
+                castShadowsLightmap: false,
+                layers: [layerFront.id, layerBack.id]
             });
+            this.entity.model.addModelToLayers = addModelToLayers;
             this.entity._getEntity = function() {
                 return self._link.entity;
             };
@@ -721,43 +746,43 @@ editor.once('load', function() {
             var node = new pc.GraphNode();
             // meshInstance
             var meshInstance = new pc.MeshInstance(node, mesh, materialDefault);
-            meshInstance.layer = 12;
+            // meshInstance.layer = 12;
             meshInstance.__editor = true;
             meshInstance.castShadow = false;
-            meshInstance.castLightmapShadow = false;
+            // meshInstance.castLightmapShadow = false;
             meshInstance.receiveShadow = false;
             meshInstance.setParameter('offset', 0);
-            meshInstance.updateKey();
+            // meshInstance.updateKey();
 
             var meshInstanceBehind = new pc.MeshInstance(node, mesh, materialBehind);
-            meshInstanceBehind.layer = 2;
+            // meshInstanceBehind.layer = 2;
             meshInstanceBehind.__editor = true;
             meshInstanceBehind.pick = false;
             meshInstanceBehind.drawToDepth = false;
             meshInstanceBehind.castShadow = false;
-            meshInstanceBehind.castLightmapShadow = false;
+            // meshInstanceBehind.castLightmapShadow = false;
             meshInstanceBehind.receiveShadow = false;
             meshInstanceBehind.setParameter('offset', 0);
-            meshInstanceBehind.updateKey();
+            // meshInstanceBehind.updateKey();
 
             var meshInstanceOccluder = new pc.MeshInstance(node, mesh, materialOccluder);
-            meshInstanceOccluder.layer = 9;
+            // meshInstanceOccluder.layer = 9;
             meshInstanceOccluder.__editor = true;
             meshInstanceOccluder.pick = false;
             meshInstanceOccluder.castShadow = false;
-            meshInstanceOccluder.castLightmapShadow = false;
+            // meshInstanceOccluder.castLightmapShadow = false;
             meshInstanceOccluder.receiveShadow = false;
             meshInstanceOccluder.setParameter('offset', 0);
-            meshInstanceOccluder.updateKey();
+            // meshInstanceOccluder.updateKey();
 
             var meshInstanceWireframe = new pc.MeshInstance(node, meshWireframe, materialWireframe);
-            meshInstanceWireframe.layer = pc.LAYER_GIZMO;
+            // meshInstanceWireframe.layer = pc.LAYER_GIZMO;
             meshInstanceWireframe.__editor = true;
-            meshInstanceWireframe.updateKey();
+            // meshInstanceWireframe.updateKey();
             // model
             var model = new pc.Model();
             model.graph = node;
-            model.meshInstances = [ meshInstance, meshInstanceBehind, meshInstanceOccluder, meshInstanceWireframe ];
+            model.meshInstances = [ meshInstance, meshInstanceBehind, meshInstanceWireframe, meshInstanceOccluder];
 
             models['box'] = model;
         };

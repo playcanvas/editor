@@ -51,6 +51,9 @@ editor.once('load', function () {
     var axesNames = { 0: 'x', 1: 'y', 2: 'z' };
     var shaderCapsule = { };
 
+    var layerBack = editor.call('gizmo:layers', 'after-0');
+    var layerFront = editor.call('gizmo:layers', 'after-1');
+
     var filterPicker = function(drawCall) {
         if (drawCall.command)
             return true;
@@ -133,7 +136,9 @@ editor.once('load', function () {
                 var model = this.entity.model.model;
                 if (model) {
                     // put back in pool
-                    app.scene.removeModel(model);
+                    layerBack.removeMeshInstances(model.meshInstances);
+                    layerFront.removeMeshInstances(model.meshInstances);
+
                     this.entity.removeChild(model.getGraph());
                     if (poolModels[model._type])
                         poolModels[model._type].push(model);
@@ -152,8 +157,8 @@ editor.once('load', function () {
 
                     var old = model.meshInstances[0].material;
                     model.meshInstances[0].setParameter('offset', 0);
-                    model.meshInstances[0].layer = 12;
-                    model.meshInstances[0].updateKey();
+                    // model.meshInstances[0].layer = 12;
+                    // model.meshInstances[0].updateKey();
                     model.meshInstances[0].__editor = true;
                     model.meshInstances[0].__collision = true;
                     model.meshInstances[0].material = old.clone();
@@ -163,19 +168,20 @@ editor.once('load', function () {
 
                     var old = model.meshInstances[1].material;
                     model.meshInstances[1].setParameter('offset', 0.001);
-                    model.meshInstances[1].layer = 2;
+                    // model.meshInstances[1].layer = 2;
                     model.meshInstances[1].pick = false;
-                    model.meshInstances[1].updateKey();
+                    // model.meshInstances[1].updateKey();
                     model.meshInstances[1].__editor = true;
                     model.meshInstances[1].material = old.clone();
                     model.meshInstances[1].material.updateShader = old.updateShader;
                     model.meshInstances[1].material.color.set(color[0], color[1], color[2], alphaBehind);
                     model.meshInstances[1].material.update();
+                    model.meshInstances[1].__useFrontLayer = true;
 
                     model.meshInstances[2].setParameter('offset', 0);
-                    model.meshInstances[2].layer = 9;
+                    // model.meshInstances[2].layer = 9;
                     model.meshInstances[2].pick = false;
-                    model.meshInstances[2].updateKey();
+                    // model.meshInstances[2].updateKey();
                     model.meshInstances[2].__editor = true;
 
                     switch(this.type) {
@@ -291,8 +297,25 @@ editor.once('load', function () {
         this.entity.addComponent('model', {
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [layerBack.id, layerFront.id]
         });
+
+        // hack: override addModelToLayers to selectively put some
+        // mesh instances to the front and others to the back layer depending
+        // on the __useFrontLayer property
+        this.entity.model.addModelToLayers = function () {
+            var frontMeshInstances = this.meshInstances.filter(function (mi) {
+                return mi.__useFrontLayer;
+            });
+            var backMeshInstances = this.meshInstances.filter(function (mi) {
+                return ! mi.__useFrontLayer;
+            });
+
+            layerFront.addMeshInstances(frontMeshInstances);
+            layerBack.addMeshInstances(backMeshInstances);
+        };
+
         this.entity._getEntity = function() {
             return self._link.entity;
         };
@@ -320,7 +343,8 @@ editor.once('load', function () {
         var model = this.entity.model.model;
         if (model) {
             // put back in pool
-            app.scene.removeModel(model);
+            layerBack.removeMeshInstances(model.meshInstances);
+            layerFront.removeMeshInstances(model.meshInstances);
             this.entity.removeChild(model.getGraph());
             if (model._type)
                 poolModels[model._type].push(model);
@@ -607,30 +631,30 @@ editor.once('load', function () {
             var meshInstance = new pc.MeshInstance(node, mesh, args.matDefault);
             meshInstance.__editor = true;
             meshInstance.__collision = true;
-            meshInstance.layer = 12;
+            // meshInstance.layer = 12;
             meshInstance.castShadow = false;
-            meshInstance.castLightmapShadow = false;
+            // meshInstance.castLightmapShadow = false;
             meshInstance.receiveShadow = false;
-            meshInstance.updateKey();
+            // meshInstance.updateKey();
             // meshInstanceBehind
             var meshInstanceBehind = new pc.MeshInstance(node, mesh, args.matBehind);
             meshInstanceBehind.__editor = true;
             meshInstanceBehind.pick = false;
-            meshInstanceBehind.layer = 2;
+            // meshInstanceBehind.layer = 2;
             meshInstanceBehind.drawToDepth = false;
             meshInstanceBehind.castShadow = false;
-            meshInstanceBehind.castLightmapShadow = false;
+            // meshInstanceBehind.castLightmapShadow = false;
             meshInstanceBehind.receiveShadow = false;
-            meshInstanceBehind.updateKey();
+            // meshInstanceBehind.updateKey();
             // meshInstanceOccluder
             var meshInstanceOccluder = new pc.MeshInstance(node, mesh, args.matOccluder);
             meshInstanceOccluder.__editor = true;
             meshInstanceOccluder.pick = false;
-            meshInstanceOccluder.layer = 9;
+            // meshInstanceOccluder.layer = 9;
             meshInstanceOccluder.castShadow = false;
-            meshInstanceOccluder.castLightmapShadow = false;
+            // meshInstanceOccluder.castLightmapShadow = false;
             meshInstanceOccluder.receiveShadow = false;
-            meshInstanceOccluder.updateKey();
+            // meshInstanceOccluder.updateKey();
             // model
             var model = new pc.Model();
             model.graph = node;
@@ -872,14 +896,14 @@ editor.once('load', function () {
             model.meshInstances[i].material.updateShader = materialDefault.updateShader;
             model.meshInstances[i].material.color.set(color[0], color[1], color[2], alphaFront);
             model.meshInstances[i].material.update();
-            model.meshInstances[i].layer = 12;
+            // model.meshInstances[i].layer = 12;
             model.meshInstances[i].__editor = true;
             model.meshInstances[i].__collision = true;
             model.meshInstances[i].castShadow = false;
-            model.meshInstances[i].castLightmapShadow = false;
+            // model.meshInstances[i].castLightmapShadow = false;
             model.meshInstances[i].receiveShadow = false;
             model.meshInstances[i].setParameter('offset', 0);
-            model.meshInstances[i].updateKey();
+            // model.meshInstances[i].updateKey();
 
             var node = model.meshInstances[i].node;
             var mesh = model.meshInstances[i].mesh;
@@ -891,23 +915,24 @@ editor.once('load', function () {
             meshInstanceBehind.setParameter('offset', 0);
             meshInstanceBehind.__editor = true;
             meshInstanceBehind.pick = false;
-            meshInstanceBehind.layer = 2;
+            // meshInstanceBehind.layer = 2;
             meshInstanceBehind.drawToDepth = false;
             meshInstanceBehind.castShadow = false;
-            meshInstanceBehind.castLightmapShadow = false;
+            // meshInstanceBehind.castLightmapShadow = false;
             meshInstanceBehind.receiveShadow = false;
-            meshInstanceBehind.updateKey();
+            // meshInstanceBehind.updateKey();
+            meshInstanceBehind.__useFrontLayer = true;
 
             // meshInstanceOccluder
             var meshInstanceOccluder = new pc.MeshInstance(node, mesh, materialOccluder);
             meshInstanceOccluder.setParameter('offset', 0);
             meshInstanceOccluder.__editor = true;
             meshInstanceOccluder.pick = false;
-            meshInstanceOccluder.layer = 9;
+            // meshInstanceOccluder.layer = 9;
             meshInstanceOccluder.castShadow = false;
-            meshInstanceOccluder.castLightmapShadow = false;
+            // meshInstanceOccluder.castLightmapShadow = false;
             meshInstanceOccluder.receiveShadow = false;
-            meshInstanceOccluder.updateKey();
+            // meshInstanceOccluder.updateKey();
 
             meshesExtra.push(meshInstanceBehind, meshInstanceOccluder);
         }
