@@ -33,62 +33,60 @@ editor.once('load', function () {
             });
 
             // load settings
-            doc.on('subscribe', function () {
-                doc.whenReady(function () {
-                    var data = doc.getSnapshot();
+            doc.on('load', function () {
+                var data = doc.data;
 
-                    // remove unnecessary fields
-                    delete data._id;
-                    delete data.name;
-                    delete data.user;
-                    delete data.project;
+                // remove unnecessary fields
+                delete data._id;
+                delete data.name;
+                delete data.user;
+                delete data.project;
 
-                    if (! settings.sync) {
-                        settings.sync = new ObserverSync({
-                            item: settings,
-                            paths: Object.keys(settings._data)
-                        });
-
-                        // local -> server
-                        settings.sync.on('op', function (op) {
-                            if (doc)
-                                doc.submitOp([ op ]);
-                        });
-                    }
-
-                    var history = settings.history.enabled;
-                    if (history) {
-                        settings.history.enabled = false;
-                    }
-
-                    settings.sync._enabled = false;
-                    for (var key in data) {
-                        if (data[key] instanceof Array) {
-                            settings.set(key, data[key].slice(0));
-                        } else {
-                            settings.set(key, data[key]);
-                        }
-                    }
-                    settings.sync._enabled = true;
-                    if (history)
-                        settings.history.enabled = true;
-
-                    // server -> local
-                    doc.on('after op', function (ops, local) {
-                        if (local) return;
-
-                        var history = settings.history.enabled;
-                        if (history)
-                            settings.history.enabled = false;
-                        for (var i = 0; i < ops.length; i++) {
-                            settings.sync.write(ops[i]);
-                        }
-                        if (history)
-                            settings.history.enabled = true;
+                if (! settings.sync) {
+                    settings.sync = new ObserverSync({
+                        item: settings,
+                        paths: Object.keys(settings._data)
                     });
 
-                    editor.emit('settings:' + args.name + ':load');
+                    // local -> server
+                    settings.sync.on('op', function (op) {
+                        if (doc)
+                            doc.submitOp([ op ]);
+                    });
+                }
+
+                var history = settings.history.enabled;
+                if (history) {
+                    settings.history.enabled = false;
+                }
+
+                settings.sync._enabled = false;
+                for (var key in data) {
+                    if (data[key] instanceof Array) {
+                        settings.set(key, data[key].slice(0));
+                    } else {
+                        settings.set(key, data[key]);
+                    }
+                }
+                settings.sync._enabled = true;
+                if (history)
+                    settings.history.enabled = true;
+
+                // server -> local
+                doc.on('op', function (ops, local) {
+                    if (local) return;
+
+                    var history = settings.history.enabled;
+                    if (history)
+                        settings.history.enabled = false;
+                    for (var i = 0; i < ops.length; i++) {
+                        settings.sync.write(ops[i]);
+                    }
+                    if (history)
+                        settings.history.enabled = true;
                 });
+
+                editor.emit('settings:' + args.name + ':load');
             });
 
             // subscribe for realtime events
