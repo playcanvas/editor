@@ -232,6 +232,44 @@ editor.once('load', function() {
         title: 'maxAabbSize',
         subTitle: '{Number}',
         description: 'The maximum size of any dimension of a bounding box around batched objects. A larger size will batch more objects generating less draw calls but the batched objects will be larger and harder for the camera to cull. A smaller size will generate more draw calls (but less than without batching) but the resulting objects will be easier for the camera to cull.'
+    }, {
+        name: 'layers',
+        title: 'Layers',
+        description: 'Manage rendering Layers and their render order.'
+    }, {
+        name: 'layers:name',
+        title: 'name',
+        subTitle: '{String}',
+        description: 'The name of the layer',
+        url: 'http://developer.playcanvas.com/api/pc.Layer.html#name'
+    }, {
+        name: 'layers:opaqueSort',
+        title: 'opaqueSortMode',
+        subTitle: '{Number}',
+        description: 'Defines the method used for sorting opaque mesh instances before rendering.',
+        url: 'http://developer.playcanvas.com/api/pc.Layer.html#opaqueSortMode'
+    }, {
+        name: 'layers:transparentSort',
+        title: 'transparentSortMode',
+        subTitle: '{Number}',
+        description: 'Defines the method used for sorting semi-transparent mesh instances before rendering.',
+        url: 'http://developer.playcanvas.com/api/pc.Layer.html#transparentSortMode'
+    }, {
+        name: 'layers:order',
+        title: 'Render Order',
+        description: 'Manage the order of the rendering layers.'
+    }, {
+        name: 'layers:sublayers:opaque',
+        title: 'Opaque Part',
+        description: 'This is the part of the layer that renders the opaque mesh instances that belong to this layer.'
+    }, {
+        name: 'layers:sublayers:transparent',
+        title: 'Transparent Part',
+        description: 'This is the part of the layer that renders the semi-transparent mesh instances that belong to this layer.'
+    }, {
+        name: 'layers:sublayers:enabled',
+        title: 'Enabled',
+        description: 'Enables or disables this part of the layer. When a part is disabled the mesh instances of that part will not be rendered.'
     }];
 
     for(var i = 0; i < fields.length; i++) {

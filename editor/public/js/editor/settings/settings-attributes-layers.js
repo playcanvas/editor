@@ -7,10 +7,6 @@ editor.once('load', function() {
 
     var root = editor.call('layout.root');
 
-    var LAYERID_DEPTH = 1;
-    var LAYERID_SKYBOX = 2;
-    var LAYERID_UI = 4;
-
     // overlay
     var overlay = new ui.Overlay();
     overlay.class.add('layers-drag');
@@ -33,6 +29,9 @@ editor.once('load', function() {
         panel.on('fold', function () {folded = true;});
         panel.on('unfold', function () {folded = false;});
         panel.class.add('component', 'layers');
+
+        // reference
+        editor.call('attributes:reference:attach', 'settings:layers', panel, panel.headerElement);
 
         var fieldNewLayerName = editor.call('attributes:addField', {
             parent: panel,
@@ -117,6 +116,9 @@ editor.once('load', function() {
                 panelLayer.header = value;
             });
 
+            // reference
+            editor.call('attributes:reference:attach', 'settings:layers:name', fieldName.parent.innerElement.firstChild.ui);
+
             var fieldOpaqueSort = editor.call('attributes:addField', {
                 parent: panelLayer,
                 name: 'Opaque Sort',
@@ -134,6 +136,9 @@ editor.once('load', function() {
 
             fieldOpaqueSort.disabled = isBuiltIn;
 
+            // reference
+            editor.call('attributes:reference:attach', 'settings:layers:opaqueSort', fieldOpaqueSort.parent.innerElement.firstChild.ui);
+
             var fieldTransparentSort = editor.call('attributes:addField', {
                 parent: panelLayer,
                 name: 'Transparent Sort',
@@ -150,6 +155,9 @@ editor.once('load', function() {
             });
 
             fieldTransparentSort.disabled = isBuiltIn;
+
+            // reference
+            editor.call('attributes:reference:attach', 'settings:layers:transparentSort', fieldTransparentSort.parent.innerElement.firstChild.ui);
 
             panelLayer.on('destroy', function () {
                 for (var i = 0; i < panelEvents.length; i++) {
@@ -428,6 +436,9 @@ editor.once('load', function() {
         panelRenderOrder.folded = false;
         panelRenderOrder.class.add('layer-order');
 
+        // reference
+        editor.call('attributes:reference:attach', 'settings:layers:sublayers', panelRenderOrder, panelRenderOrder.headerElement);
+
         // add sublayer to order
         var panelAddSublayer = editor.call('attributes:addPanel', {
             parent: panelRenderOrder
@@ -629,10 +640,10 @@ editor.once('load', function() {
             }
 
             if (transparent) {
-                if (layerKey === LAYERID_DEPTH || layerKey === LAYERID_SKYBOX) {
+                if (layerKey === pc.LAYERID_DEPTH || layerKey === pc.LAYERID_SKYBOX) {
                     return;
                 }
-            } else if (layerKey === LAYERID_UI) {
+            } else if (layerKey === pc.LAYERID_UI) {
                 return;
             }
 
@@ -687,6 +698,7 @@ editor.once('load', function() {
 
         var createSublayerPanel = function (key, transparent, enabled, index) {
             var panelEvents = [];
+            var tooltips = [];
 
             var panelSublayer = new ui.Panel();
             panelSublayer.class.add('sublayer');
@@ -750,12 +762,18 @@ editor.once('load', function() {
             fieldTransparent.class.add('transparent');
             panelSublayer.append(fieldTransparent);
 
+            // reference
+            editor.call('attributes:reference:attach', 'settings:layers:sublayers:' + (transparent ? 'transparent' : 'opaque'), fieldTransparent);
+
             // enabled
             var fieldEnabled = new ui.Checkbox();
             fieldEnabled.class.add('tick');
             panelSublayer.append(fieldEnabled);
             fieldEnabled.value = enabled;
             panelSublayer.fieldEnabled = fieldEnabled;
+
+            // reference
+            editor.call('attributes:reference:attach', 'settings:layers:sublayers:enabled', fieldEnabled);
 
             fieldEnabled.on('change', function (value) {
                 var order = projectSettings.get('layerOrder');
@@ -775,12 +793,12 @@ editor.once('load', function() {
             btnRemove.disabled = isBuiltIn;
 
             if (isBuiltIn) {
-                var tooltip = Tooltip.attach({
+                tooltips.push(Tooltip.attach({
                     target: btnRemove.element,
                     text: 'You cannot delete a built-in layer',
                     align: 'bottom',
                     root: editor.call('layout.root')
-                });
+                }));
             }
 
 
@@ -796,13 +814,16 @@ editor.once('load', function() {
                     window.removeEventListener('mouseup', onDragEnd);
                 }
 
-                for (var i = 0, len = panelEvents.length; i<len; i++) {
+                var i, len;
+                for (i = 0, len = panelEvents.length; i<len; i++) {
                     panelEvents[i].unbind();
                 }
                 panelEvents.length = 0;
 
-                if (tooltip)
-                    tooltip.destroy();
+                for (i = 0, len = tooltips.length; i<len; i++) {
+                    tooltips[i].destroy();
+                }
+                tooltips.length = 0;
             });
 
             var before = null;

@@ -695,6 +695,10 @@ editor.once('load', function() {
         for (var key in layers) {
             layersEnum[key] = layers[key].name;
         }
+        delete layersEnum[pc.LAYERID_DEPTH];
+        delete layersEnum[pc.LAYERID_SKYBOX];
+        delete layersEnum[pc.LAYERID_IMMEDIATE];
+
 
         var fieldLayers = editor.call('attributes:addField', {
             parent: panel,
@@ -709,6 +713,8 @@ editor.once('load', function() {
                 return projectSettings.get('layers.' + tag + '.name') || 'Missing';
             }
         });
+        // reference
+        editor.call('attributes:reference:attach', 'light:layers', fieldLayers.parent.parent.innerElement.firstChild.ui);
 
     });
 });

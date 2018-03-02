@@ -386,6 +386,9 @@ editor.once('load', function() {
         for (var key in layers) {
             layersEnum[key] = layers[key].name;
         }
+        delete layersEnum[pc.LAYERID_DEPTH];
+        delete layersEnum[pc.LAYERID_SKYBOX];
+        delete layersEnum[pc.LAYERID_IMMEDIATE];
 
         var fieldLayers = editor.call('attributes:addField', {
             parent: panel,
@@ -401,6 +404,8 @@ editor.once('load', function() {
             }
         });
 
+        // reference
+        editor.call('attributes:reference:attach', 'model:layers', fieldLayers.parent.parent.innerElement.firstChild.ui);
 
         panel.on('destroy', function() {
             for(var i = 0; i < events.length; i++)

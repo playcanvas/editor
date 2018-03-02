@@ -224,5 +224,8 @@ editor.once('load', function() {
                 return projectSettings.get('layers.' + tag + '.name') || 'Missing';
             }
         });
+
+        // reference
+        editor.call('attributes:reference:attach', 'camera:layers', fieldLayers.parent.parent.innerElement.firstChild.ui);
     });
 });
