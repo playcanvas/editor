@@ -436,6 +436,7 @@ editor.once('load', function() {
 
         // plane x
         var planeX = obj.plane.x = new pc.Entity();
+        planeX.name = "planeX";
         obj.hoverable.push(planeX);
         planeX.axis = 'x';
         planeX.plane = true;
@@ -456,6 +457,7 @@ editor.once('load', function() {
 
         // plane y
         var planeY = obj.plane.y = new pc.Entity();
+        planeY.name = "planeY";
         obj.hoverable.push(planeY);
         planeY.axis = 'y';
         planeY.plane = true;
@@ -476,6 +478,7 @@ editor.once('load', function() {
 
         // plane z
         var planeZ = obj.plane.z = new pc.Entity();
+        planeZ.name = "planeZ";
         obj.hoverable.push(planeZ);
         planeZ.axis = 'z';
         planeZ.plane = true;
@@ -496,6 +499,7 @@ editor.once('load', function() {
 
         // line x
         var lineX = obj.line.x = new pc.Entity();
+        lineX.name = "lineX";
         obj.hoverable.push(lineX);
         lineX.axis = 'x';
         lineX.addComponent('model', {
@@ -514,6 +518,7 @@ editor.once('load', function() {
 
         // line y
         var lineY = obj.line.y = new pc.Entity();
+        lineY.name = "lineY";
         obj.hoverable.push(lineY);
         lineY.axis = 'y';
         lineY.addComponent('model', {
@@ -532,6 +537,7 @@ editor.once('load', function() {
 
         // line z
         var lineZ = obj.line.z = new pc.Entity();
+        lineZ.name = "lineZ";
         obj.hoverable.push(lineZ);
         lineZ.axis = 'z';
         lineZ.addComponent('model', {
@@ -550,6 +556,7 @@ editor.once('load', function() {
 
         // arrow x
         var arrowX = obj.arrow.x = new pc.Entity();
+        arrowX.name = "arrowX";
         obj.hoverable.push(arrowX);
         arrowX.axis = 'x';
         arrowX.addComponent('model', {
@@ -568,6 +575,7 @@ editor.once('load', function() {
 
         // arrow y
         var arrowY = obj.arrow.y = new pc.Entity();
+        arrowY.name = "arrowY";
         obj.hoverable.push(arrowY);
         arrowY.axis = 'y';
         arrowY.addComponent('model', {
@@ -586,6 +594,7 @@ editor.once('load', function() {
 
         // arrow z
         var arrowZ = obj.arrow.z = new pc.Entity();
+        arrowZ.name = "arrowZ";
         obj.hoverable.push(arrowZ);
         arrowZ.axis = 'z';
         arrowZ.addComponent('model', {
