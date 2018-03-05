@@ -58,17 +58,17 @@ editor.once('load', function () {
             // handle authentication
             isAuthenticated = true;
 
-            createShareJsConnection();
+            createShareDbConnection();
 
             editor.emit('realtime:connected');
             editor.emit('realtime:authenticated');
         };
 
-        var createShareJsConnection = function () {
+        var createShareDbConnection = function () {
             if (! connection) {
                 // if we are connecting for the first time
-                // create new sharejs connection
-                connection = new sharejs.Connection(socket);
+                // create new sharedb connection
+                connection = new window.share.Connection(socket);
                 connection.on('error', onError);
                 connection.on('bs error', onError);
             } else {
@@ -77,7 +77,7 @@ editor.once('load', function () {
             }
 
             // hook handlers on socket
-            var onSharejsMessage = connection.socket.onmessage;
+            var onShareDbMessage = connection.socket.onmessage;
 
             // Message handler
             connection.socket.onmessage = function(msg) {
@@ -97,7 +97,7 @@ editor.once('load', function () {
                                 editor.call('assets:fs:paths:patch', data);
                             }
                         } else {
-                            onSharejsMessage(msg);
+                            onShareDbMessage(msg);
                         }
                     } else if (msg.data.startsWith('whoisonline:')) {
                         var parts = msg.data.split(':');
@@ -122,7 +122,7 @@ editor.once('load', function () {
                             }
                         }
                     } else {
-                        onSharejsMessage(msg);
+                        onShareDbMessage(msg);
                     }
                 } catch (e) {
                     onError(e);
@@ -148,7 +148,7 @@ editor.once('load', function () {
         socket = new WebSocket(config.url.realtime.http);
 
         // handle authentication first before we start
-        // doing sharejs stuff
+        // doing sharedb stuff
         socket.onopen = onOpen;
         socket.onclose = onClose;
         socket.onmessage = onMessage;

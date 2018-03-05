@@ -7,7 +7,7 @@ editor.once('load', function () {
     // read only as it can be anything.
     // TODO: Would be nice if we could figure out if we really
     // need to do this but the errors could literally be anything
-    // from socket errors to sharejs errors
+    // from socket errors to sharedb errors
     editor.on('realtime:error', function (err) {
         hasError = true;
         console.error(err);

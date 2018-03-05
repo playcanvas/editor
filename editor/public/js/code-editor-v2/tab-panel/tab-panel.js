@@ -420,8 +420,8 @@ editor.once('load', function () {
     };
 
     // hide progress when document is loaded
-    editor.on('documents:load', function (doc, asset) {
-        toggleProgress(doc.name, false);
+    editor.on('documents:load', function (doc, asset, docEntry) {
+        toggleProgress(doc.id, false);
     });
 
 

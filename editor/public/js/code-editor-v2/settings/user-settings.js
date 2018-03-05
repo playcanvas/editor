@@ -33,21 +33,19 @@ editor.once('load', function () {
         });
 
         // load settings
-        doc.on('subscribe', function () {
-            doc.whenReady(function () {
-                var data = doc.getSnapshot();
-                for (var key in data) {
-                    settings.set(key, data[key]);
+        doc.on('load', function () {
+            var data = doc.data;
+            for (var key in data) {
+                settings.set(key, data[key]);
+            }
+
+            // server -> local
+            doc.on('op', function (ops, local) {
+                if (local) return;
+
+                for (var i = 0; i < ops.length; i++) {
+                    settings.sync.write(ops[i]);
                 }
-
-                // server -> local
-                doc.on('after op', function (ops, local) {
-                    if (local) return;
-
-                    for (var i = 0; i < ops.length; i++) {
-                        settings.sync.write(ops[i]);
-                    }
-                });
             });
         });
 

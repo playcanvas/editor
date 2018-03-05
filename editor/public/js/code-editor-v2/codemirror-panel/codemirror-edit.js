@@ -215,12 +215,12 @@ editor.once('load', function () {
         }
     };
 
-    // Applies an operation to the sharejs document
+    // Applies an operation to the sharedb document
     // and sets the result to the document view
     var applyCustomOp = function (op, entry) {
-        entry.context.submitOp(op, function (err) {
+        entry.doc.submitOp(op, function (err) {
             if (err) {
-                editor.emit('documents:error', entry.doc.name, err);
+                editor.emit('documents:error', entry.doc.id, err);
                 return;
             }
         });
@@ -286,7 +286,7 @@ editor.once('load', function () {
     };
 
     // Convert a CodeMirror change into an op understood by share.js
-    var applyToShareJs = function (change, entry) {
+    var applyToShareDb = function (change, entry) {
         var startPos = 0;  // Get character position from # of chars in each line.
         var i = 0;         // i goes through all lines.
         var text;
@@ -333,7 +333,7 @@ editor.once('load', function () {
         }
 
         if (change.next) {
-            applyToShareJs(change.next, entry);
+            applyToShareDb(change.next, entry);
         }
 
         // restore forceConcatenate after 1 frame
@@ -368,24 +368,41 @@ editor.once('load', function () {
         entry.lastEditTime = Date.now();
     };
 
-    editor.on('documents:load', function (doc, asset) {
-        if (documentIndex[doc.name]) return;
+    editor.on('documents:load', function (doc, asset, docEntry) {
+        if (documentIndex[doc.id]) return;
 
         var entry = {
             doc: doc, // our document
-            context: doc.createContext(), // sharejs editing context
-            view: editor.call('views:get', doc.name),
+            context: doc.type.api(function() { return doc.data; }, function(component, options, callback) { return doc.submitOp(component, options, callback); }),
+            view: editor.call('views:get', doc.id),
             undo: [], // undo stack
             redo: [], // redo stack
             lastEditTime: 0, // timestamp since last local edit
             forceConcatenate: false, // if true then the last two ops will be concatenated
             lastChangedLine: null,
             changedLine: null,
-            ignoreLocalChanges: false // do not send ops to sharejs while true
+            ignoreLocalChanges: false // do not send ops to sharedb while true
         };
 
+        // mark document as dirty on every op
+        doc.on('op', function (ops, local) {
+            if (!local) {
+                entry.context._onOp(ops);
+            }
+
+            if (!docEntry.isDirty) {
+                docEntry.isDirty = true;
+                editor.emit('documents:dirty', docEntry.id, true);
+            }
+
+            if (local && ! docEntry.hasLocalChanges) {
+                docEntry.hasLocalChanges = true;
+                editor.emit('documents:dirtyLocal', docEntry.id, true);
+            }
+        });
+
         // add to index
-        documentIndex[doc.name] = entry;
+        documentIndex[doc.id] = entry;
 
         // insert server -> local
         entry.context.onInsert = function (pos, text) {
@@ -447,11 +464,11 @@ editor.once('load', function () {
 
         // this happens sometimes when there is a doc error
         if (! entry.doc.type) {
-            console.warn('Document ' + entry.doc.name + ' has no type');
+            console.warn('Document ' + entry.doc.id + ' has no type');
             return;
         }
 
-        applyToShareJs(change, entry);
+        applyToShareDb(change, entry);
 
         // clear redo stack
         entry.redo.length = 0;

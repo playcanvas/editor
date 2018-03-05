@@ -51,5 +51,4 @@ Object.defineProperty(Button.prototype, 'text', {
     }
 });
 
-
 window.ui.Button = Button;

@@ -148,10 +148,6 @@ editor.once('load', function() {
         title: 'Asset Tasks',
         description: 'Settings for defining default behaviour rules for asset pipeline jobs: assets extracting, textures resizing, etc.'
     }, {
-        name: 'asset-tasks:auto',
-        title: 'Auto-run',
-        description: 'Automatically run the asset import pipeline when you upload a new asset.'
-    }, {
         name: 'asset-tasks:texturePot',
         title: 'Texture power of two',
         description: 'When a texture is imported it will be resized to use the nearest power of two resolution.'

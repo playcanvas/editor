@@ -30,17 +30,18 @@ editor.once('load', function() {
         });
 
         // ready to sync
-        doc.on('ready', function () {
-            var assetData = doc.getSnapshot();
+        doc.on('load', function () {
+            var assetData = doc.data;
             if (! assetData) {
                 console.error('Could not load asset: ' + id);
                 editor.call('status:error', 'Could not load asset: ' + id);
+                doc.unsubscribe();
                 doc.destroy();
                 return callback && callback();
             }
 
             // notify of operations
-            doc.on('after op', function (ops, local) {
+            doc.on('op', function (ops, local) {
                 if (local) return;
 
                 for (var i = 0; i < ops.length; i++) {
@@ -81,7 +82,7 @@ editor.once('load', function() {
                 continue;
 
             // force snapshot path data
-            assets[data[i].id].snapshot.path = data[i].path;
+            assets[data[i].id].data.path = data[i].path;
 
             // sync observer
             editor.emit('realtime:op:assets', {
@@ -118,12 +119,12 @@ editor.once('load', function() {
 
             while (startBatch < total) {
                 // start bulk subscribe
-                connection.bsStart();
+                connection.startBulk();
                 for(var i = startBatch; i < startBatch + batchSize && i < total; i++) {
                     load(data[i].id);
                 }
                 // end bulk subscribe and send message to server
-                connection.bsEnd();
+                connection.endBulk();
 
                 startBatch += batchSize;
             }
@@ -232,6 +233,7 @@ editor.once('load', function() {
     editor.on('assets:remove', function (asset) {
         var id = asset.get('id');
         if (docs[id]) {
+            docs[id].unsubscribe();
             docs[id].destroy();
             delete docs[id];
         }
