@@ -222,20 +222,21 @@ editor.once('load', function() {
         return (pivotY + pivotOffsetY + zoomOffsetY) * canvas.height;
     };
 
-    var frameLeft = function (frame, left, width) {
-        return left + frame.rect[0] * width;
+    var frameLeft = function (frame, leftOffset, scaledWidth) {
+        return leftOffset + frame.rect[0] * scaledWidth / atlasImage.width;
     };
 
-    var frameTop = function (frame, top, height) {
-        return top + (1 - frame.rect[1] - frame.rect[3]) * height;
+    var frameTop = function (frame, topOffset, scaledHeight) {
+        var inverted = 1 - (frame.rect[1] + frame.rect[3]) / atlasImage.height;
+        return topOffset + inverted * scaledHeight;
     };
 
-    var frameWidth = function (frame, width) {
-        return frame.rect[2] * width;
+    var frameWidth = function (frame, scaledWidth) {
+        return frame.rect[2] * scaledWidth / atlasImage.width;
     };
 
-    var frameHeight = function (frame, height) {
-        return frame.rect[3] * height;
+    var frameHeight = function (frame, scaledHeight) {
+        return frame.rect[3] * scaledHeight / atlasImage.height;
     };
 
     var windowToCanvas = function(windowX, windowY) {
@@ -423,7 +424,7 @@ editor.once('load', function() {
         // if no frame selected then start a new frame
         if (! selected && ! spriteEditMode) {
             newFrame =  {
-                rect: [(p.x - imageLeft()) / imageWidth(), 1 - (p.y - imageTop()) / imageHeight(), 0, 0],
+                rect: [atlasImage.width * (p.x - imageLeft()) / imageWidth(), atlasImage.height * (1 - (p.y - imageTop()) / imageHeight()), 0, 0],
                 pivot: [0.5, 0.5]
             };
 
@@ -691,6 +692,9 @@ editor.once('load', function() {
         var imgLeft = imageLeft();
         var imgTop = imageTop();
 
+        var realWidth = atlasImage.width;
+        var realHeight = atlasImage.height;
+
         var left = frameLeft(frame, imgLeft, imgWidth);
         var top = frameTop(frame, imgTop, imgHeight);
         var width = frameWidth(frame, imgWidth);
@@ -703,39 +707,39 @@ editor.once('load', function() {
 
         switch (handle) {
             case HANDLE.TOP_LEFT: {
-                dx = (p.x - left) / imgWidth;
-                dy = (p.y - top) / imgHeight;
+                dx = realWidth * (p.x - left) / imgWidth;
+                dy = realHeight * (p.y - top) / imgHeight;
                 frame.rect[0] += dx;
                 frame.rect[2] -= dx;
                 frame.rect[3] -= dy;
                 break;
             }
             case HANDLE.TOP: {
-                dy = (p.y - top) / imgHeight;
+                dy = realHeight * (p.y - top) / imgHeight;
                 frame.rect[3] -= dy;
                 break;
             }
             case HANDLE.TOP_RIGHT: {
-                dx = (p.x - left - width) / imgWidth;
-                dy = (p.y - top) / imgHeight;
+                dx = realWidth * (p.x - left - width) / imgWidth;
+                dy = realHeight * (p.y - top) / imgHeight;
                 frame.rect[2] += dx;
                 frame.rect[3] -= dy;
                 break;
             }
             case HANDLE.LEFT: {
-                dx = (p.x - left) / imgWidth;
+                dx = realWidth * (p.x - left) / imgWidth;
                 frame.rect[0] += dx;
                 frame.rect[2] -= dx;
                 break;
             }
             case HANDLE.RIGHT: {
-                dx = (p.x - left - width) / imgWidth;
+                dx = realWidth * (p.x - left - width) / imgWidth;
                 frame.rect[2] += dx;
                 break;
             }
             case HANDLE.BOTTOM_LEFT: {
-                dx = (p.x - left) / imgWidth;
-                dy = (p.y - top - height) / imgHeight;
+                dx = realWidth * (p.x - left) / imgWidth;
+                dy = realHeight * (p.y - top - height) / imgHeight;
                 frame.rect[0] += dx;
                 frame.rect[1] -= dy;
                 frame.rect[2] -= dx;
@@ -743,14 +747,14 @@ editor.once('load', function() {
                 break;
             }
             case HANDLE.BOTTOM: {
-                dy = (p.y - top - height) / imgHeight;
+                dy = realHeight * (p.y - top - height) / imgHeight;
                 frame.rect[1] -= dy;
                 frame.rect[3] += dy;
                 break;
             }
             case HANDLE.BOTTOM_RIGHT: {
-                dx = (p.x - left - width) / imgWidth;
-                dy = (p.y - top - height) / imgHeight;
+                dx = realWidth * (p.x - left - width) / imgWidth;
+                dy = realHeight * (p.y - top - height) / imgHeight;
                 frame.rect[2] += dx;
                 frame.rect[3] += dy;
                 frame.rect[1] -= dy;
@@ -764,12 +768,12 @@ editor.once('load', function() {
     var commitFrameChanges = function (key, frame, oldFrame) {
         // make sure width / height are positive
         if (frame.rect[2] < 0) {
-            frame.rect[2] = Math.max(1 / atlasImage.width, -frame.rect[2]);
+            frame.rect[2] = Math.max(1, -frame.rect[2]);
             frame.rect[0] -= frame.rect[2];
         }
 
         if (frame.rect[3] < 0) {
-            frame.rect[3] = Math.max( 1 / atlasImage.height, -frame.rect[3]);
+            frame.rect[3] = Math.max(1, -frame.rect[3]);
             frame.rect[1] -= frame.rect[3];
         }
 
@@ -1350,11 +1354,11 @@ editor.once('load', function() {
     editor.method('picker:sprites:editor:renderFramePreview', function (frame, canvas, allFrames) {
         if (! frame.pivot || ! frame.rect) return; // this might happen while we are deleting stuff
 
-        var x = frame.rect[0] * atlasImage.width;
+        var x = frame.rect[0];
         // convert bottom left WebGL coord to top left pixel coord
-        var y = (1 - frame.rect[1] - frame.rect[3]) * atlasImage.height;
-        var w = frame.rect[2] * atlasImage.width;
-        var h = frame.rect[3] * atlasImage.height;
+        var y = atlasImage.height - frame.rect[1] - frame.rect[3];
+        var w = frame.rect[2];
+        var h = frame.rect[3];
 
         var aspectRatio = w / h;
 
@@ -1377,11 +1381,8 @@ editor.once('load', function() {
 
                 maxWidth = Math.max(maxWidth, f.rect[2]);
                 maxHeight = Math.max(maxHeight, f.rect[3]);
-                maxAspectRatio = Math.max(maxAspectRatio, f.rect[2] * atlasImage.width / (f.rect[3] * atlasImage.height));
+                maxAspectRatio = Math.max(maxAspectRatio, f.rect[2] / f.rect[3]);
             }
-
-            maxWidth *= atlasImage.width;
-            maxHeight *= atlasImage.height;
 
             var previewMaxWidth, previewMaxHeight;
 

@@ -142,11 +142,11 @@ editor.once('load', function() {
 
                 if (! atlasImage) return;
 
-                var x = frame.rect[0] * atlasImage.width;
+                var x = frame.rect[0];
                 // convert bottom left WebGL coord to top left pixel coord
-                var y = (1 - frame.rect[1] - frame.rect[3]) * atlasImage.height;
-                var w = frame.rect[2] * atlasImage.width;
-                var h = frame.rect[3] * atlasImage.height;
+                var y = atlasImage.height - frame.rect[1] - frame.rect[3];
+                var w = frame.rect[2];
+                var h = frame.rect[3];
 
                 // choose targetWidth and targetHeight keeping the aspect ratio
                 var aspectRatio = w / h;

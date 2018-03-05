@@ -82,7 +82,7 @@ editor.once('load', function() {
                 fieldPosition[0].proxy = fieldRect[0].proxy;
                 fieldPosition[0].value = null;
             } else {
-                fieldPosition[0].value = fieldRect[0].value * atlasAsset.get('meta.width');
+                fieldPosition[0].value = fieldRect[0].value;
             }
         };
 
@@ -91,7 +91,7 @@ editor.once('load', function() {
                 fieldPosition[1].proxy = fieldRect[1].proxy || fieldRect[3].proxy;
                 fieldPosition[1].value = null;
             } else {
-                fieldPosition[1].value = fieldRect[1].value * atlasAsset.get('meta.height');
+                fieldPosition[1].value = fieldRect[1].value;
             }
         };
 
@@ -100,7 +100,7 @@ editor.once('load', function() {
                 fieldSize[0].proxy = fieldRect[2].proxy;
                 fieldSize[0].value = null;
             } else {
-                fieldSize[0].value = fieldRect[2].value * atlasAsset.get('meta.width');
+                fieldSize[0].value = fieldRect[2].value;
             }
         };
 
@@ -109,7 +109,7 @@ editor.once('load', function() {
                 fieldSize[1].proxy = fieldRect[3].proxy;
                 fieldSize[1].value = null;
             } else {
-                fieldSize[1].value = fieldRect[3].value * atlasAsset.get('meta.height');
+                fieldSize[1].value = fieldRect[3].value;
             }
         };
 
@@ -128,14 +128,14 @@ editor.once('load', function() {
         fieldPosition[0].on('change', function (value) {
             if (suspendChanges) return;
             suspendChanges = true;
-            fieldRect[0].value = value / atlasAsset.get('meta.width');
+            fieldRect[0].value = value;
             suspendChanges = false;
         });
 
         fieldPosition[1].on('change', function (value) {
             if (suspendChanges) return;
             suspendChanges = true;
-            fieldRect[1].value = value / atlasAsset.get('meta.height');
+            fieldRect[1].value = value;
             suspendChanges = false;
         });
 
@@ -155,14 +155,14 @@ editor.once('load', function() {
         fieldSize[0].on('change', function (value) {
             if (suspendChanges) return;
             suspendChanges = true;
-            fieldRect[2].value = value / atlasAsset.get('meta.width');
+            fieldRect[2].value = value;
             suspendChanges = false;
         });
 
         fieldSize[1].on('change', function (value) {
             if (suspendChanges) return;
             suspendChanges = true;
-            fieldRect[3].value = value / atlasAsset.get('meta.height');
+            fieldRect[3].value = value;
             suspendChanges = false;
         });
 
