@@ -108,36 +108,34 @@ editor.once('load', function() {
         }
     });
     // Third layer after every scene layer - clears depth and color buffer (used by viewport-outline)
-    editor.call('gizmo:layers:register', 'after-3', false, {
+    editor.call('gizmo:layers:register', 'after-2', false, {
         onPreRender: function () {
-            var app = editor.call('viewport:app');
-            if (app) {
-                app.graphicsDevice.clear({
-                    color: [ 0, 0, 0, 0 ],
-                    depth: 1.0,
-                    flags: pc.CLEARFLAG_COLOR | pc.CLEARFLAG_DEPTH
-                });
-            }
+            // var app = editor.call('viewport:app');
+            // if (app) {
+            //     app.graphicsDevice.clear({
+            //         color: [ 0, 0, 0, 0 ],
+            //         depth: 1.0,
+            //         flags: pc.CLEARFLAG_COLOR | pc.CLEARFLAG_DEPTH
+            //     });
+            // }
         }
     });
+
     // Forth layer after every scene layer - clears depth buffer
-    editor.call('gizmo:layers:register', 'after-3', false, {
-        onPreRender: function () {
-            var app = editor.call('viewport:app');
-            if (app) {
-                // clear depth so that gizmos appear in front of
-                // objects in the regualar scene
-                app.graphicsDevice.clear({
-                    flags: pc.CLEARFLAG_DEPTH,
-                    depth: 1
-                });
-            }
-        }
+    var after3 = editor.call('gizmo:layers:register', 'after-3', false, {
+        overrideClear: true,
+        clearDepthBuffer: true
+    });
+
+    // Forth layer after every scene layer - clears depth buffer
+    var gizmoImmediateLayer = editor.call('gizmo:layers:register', 'gizmo-immediate', false, {
+        passThrough: true
     });
 
     editor.once('viewport:load', function () {
         var app = editor.call('viewport:app');
         if (! app) return; // webgl not available
+        app._immediateLayer = gizmoImmediateLayer;
 
         editor.call('gizmo:layers:addToComposition');
     });
