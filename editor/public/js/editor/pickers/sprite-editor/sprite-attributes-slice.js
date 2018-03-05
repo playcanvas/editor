@@ -60,8 +60,8 @@ editor.once('load', function() {
             name: 'Cell Size',
             type: 'vec2',
             value: [atlasImage.width, atlasImage.height],
-            precision: 1,
-            min: 0.1,
+            precision: 0,
+            min: 1,
             placeholder: ['X', 'Y']
         });
 
@@ -70,7 +70,7 @@ editor.once('load', function() {
             name: 'Offset',
             type: 'vec2',
             value: [0, 0],
-            precision: 0.1,
+            precision: 0,
             min: 0,
             placeholder: ['X', 'Y']
         });
@@ -80,7 +80,7 @@ editor.once('load', function() {
             name: 'Padding',
             type: 'vec2',
             value: [0, 0],
-            precision: 0.1,
+            precision: 0,
             min: 0,
             placeholder: ['X', 'Y']
         });
@@ -257,23 +257,26 @@ editor.once('load', function() {
                 maxKey = Math.max(maxKey, parseInt(key, 10) + 1);
             }
 
-            var offsetX = fieldOffset[0].value / atlasImage.width;
-            var offsetY = fieldOffset[1].value / atlasImage.height;
-            var paddingX = fieldPadding[0].value / atlasImage.width;
-            var paddingY = fieldPadding[1].value / atlasImage.height;
+            var offsetX = fieldOffset[0].value;
+            var offsetY = fieldOffset[1].value;
+            var paddingX = fieldPadding[0].value;
+            var paddingY = fieldPadding[1].value;
+
+            var imgWidth = atlasImage.width;
+            var imgHeight = atlasImage.height;
 
             for (var r = 0; r < rows; r++) {
                 for (var c = 0; c < cols; c++) {
-                    var w = 1 / cols;
-                    var h = 1 / rows;
-                    var width = w - 2 * paddingX;
-                    var height = h - 2 * paddingY;
-                    var left = offsetX + c * w + paddingX;
-                    var top = offsetY + r * h + paddingY;
+                    var w = imgWidth / cols;
+                    var h = imgHeight / rows;
+                    var width = Math.floor(w - 2 * paddingX);
+                    var height = Math.floor(h - 2 * paddingY);
+                    var left = Math.floor(offsetX + c * w + paddingX);
+                    var top = Math.floor(offsetY + r * h + paddingY);
                     if (! isRegionEmpty(left, top, width, height)) {
                         frames[maxKey] = {
                             name: 'Frame ' + maxKey,
-                            rect: [left, 1 - (top + height), width, height],
+                            rect: [left, Math.floor(imgHeight - (top + height)), width, height],
                             pivot: pivot
                         };
                         maxKey++;
@@ -284,11 +287,6 @@ editor.once('load', function() {
 
         // Checks if an image region has alpha
         var isRegionEmpty = function (left, top, width, height) {
-            // convert from 0-1 to pixels
-            left = Math.floor(left * atlasImage.width);
-            top = Math.floor(top * atlasImage.height);
-            width = Math.floor(width * atlasImage.width);
-            height = Math.floor(height * atlasImage.height);
             var right = left + width;
             var bottom = top + height;
 

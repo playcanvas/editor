@@ -118,7 +118,7 @@ editor.once('load', function() {
             parent: panel,
             name: 'Position',
             type: 'vec2',
-            precision: 1,
+            precision: 0,
             placeholder: ['→', '↑']
         });
 
@@ -144,9 +144,8 @@ editor.once('load', function() {
             parent: panel,
             name: 'Size',
             type: 'vec2',
-            precision: 1,
-            placeholder: ['→', '↑'],
-            min: 0.1
+            precision: 0,
+            placeholder: ['→', '↑']
         });
 
         updateSizeX();

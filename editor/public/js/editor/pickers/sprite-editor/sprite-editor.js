@@ -423,8 +423,10 @@ editor.once('load', function() {
 
         // if no frame selected then start a new frame
         if (! selected && ! spriteEditMode) {
+            var x = Math.floor(atlasImage.width * (p.x - imageLeft()) / imageWidth());
+            var y = Math.floor(atlasImage.height * (1 - (p.y - imageTop()) / imageHeight()));
             newFrame =  {
-                rect: [atlasImage.width * (p.x - imageLeft()) / imageWidth(), atlasImage.height * (1 - (p.y - imageTop()) / imageHeight()), 0, 0],
+                rect: [ x, y, 0, 0],
                 pivot: [0.5, 0.5]
             };
 
@@ -707,39 +709,39 @@ editor.once('load', function() {
 
         switch (handle) {
             case HANDLE.TOP_LEFT: {
-                dx = realWidth * (p.x - left) / imgWidth;
-                dy = realHeight * (p.y - top) / imgHeight;
+                dx = Math.floor(realWidth * (p.x - left) / imgWidth);
+                dy = Math.floor(realHeight * (p.y - top) / imgHeight);
                 frame.rect[0] += dx;
                 frame.rect[2] -= dx;
                 frame.rect[3] -= dy;
                 break;
             }
             case HANDLE.TOP: {
-                dy = realHeight * (p.y - top) / imgHeight;
+                dy = Math.floor(realHeight * (p.y - top) / imgHeight);
                 frame.rect[3] -= dy;
                 break;
             }
             case HANDLE.TOP_RIGHT: {
-                dx = realWidth * (p.x - left - width) / imgWidth;
-                dy = realHeight * (p.y - top) / imgHeight;
+                dx = Math.floor(realWidth * (p.x - left - width) / imgWidth);
+                dy = Math.floor(realHeight * (p.y - top) / imgHeight);
                 frame.rect[2] += dx;
                 frame.rect[3] -= dy;
                 break;
             }
             case HANDLE.LEFT: {
-                dx = realWidth * (p.x - left) / imgWidth;
+                dx = Math.floor(realWidth * (p.x - left) / imgWidth);
                 frame.rect[0] += dx;
                 frame.rect[2] -= dx;
                 break;
             }
             case HANDLE.RIGHT: {
-                dx = realWidth * (p.x - left - width) / imgWidth;
+                dx = Math.floor(realWidth * (p.x - left - width) / imgWidth);
                 frame.rect[2] += dx;
                 break;
             }
             case HANDLE.BOTTOM_LEFT: {
-                dx = realWidth * (p.x - left) / imgWidth;
-                dy = realHeight * (p.y - top - height) / imgHeight;
+                dx = Math.floor(realWidth * (p.x - left) / imgWidth);
+                dy = Math.floor(realHeight * (p.y - top - height) / imgHeight);
                 frame.rect[0] += dx;
                 frame.rect[1] -= dy;
                 frame.rect[2] -= dx;
@@ -747,14 +749,14 @@ editor.once('load', function() {
                 break;
             }
             case HANDLE.BOTTOM: {
-                dy = realHeight * (p.y - top - height) / imgHeight;
+                dy = Math.floor(realHeight * (p.y - top - height) / imgHeight);
                 frame.rect[1] -= dy;
                 frame.rect[3] += dy;
                 break;
             }
             case HANDLE.BOTTOM_RIGHT: {
-                dx = realWidth * (p.x - left - width) / imgWidth;
-                dy = realHeight * (p.y - top - height) / imgHeight;
+                dx = Math.floor(realWidth * (p.x - left - width) / imgWidth);
+                dy = Math.floor(realHeight * (p.y - top - height) / imgHeight);
                 frame.rect[2] += dx;
                 frame.rect[3] += dy;
                 frame.rect[1] -= dy;
