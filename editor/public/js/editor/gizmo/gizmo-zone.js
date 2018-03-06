@@ -4,8 +4,8 @@ editor.once('load', function() {
     var app;
     var visible = false;
 
-    var layerBack = editor.call('gizmo:layers', 'after-0');
-    var layerFront = editor.call('gizmo:layers', 'after-1');
+    var layerFront = editor.call('gizmo:layers', 'Bright Collision');
+    var layerBack = editor.call('gizmo:layers', 'Dim Gizmo');
 
     var filterPicker = function(drawCall) {
         if (drawCall.command)
@@ -25,8 +25,8 @@ editor.once('load', function() {
             return ! mi.__useFrontLayer;
         });
 
-        // layerFront.addMeshInstances(frontMeshInstances);
-        layerBack.addMeshInstances(backMeshInstances);
+        // layerBack.addMeshInstances(frontMeshInstances);
+        layerFront.addMeshInstances(backMeshInstances);
     };
 
     editor.method('gizmo:zone:visible', function(state) {
@@ -237,7 +237,7 @@ editor.once('load', function() {
             receiveShadows: false,
             castShadowsLightmap: false,
             castShadows: false,
-            layers: [layerFront.id, layerBack.id]
+            layers: [layerBack.id, layerFront.id]
         });
         plane.model.addModelToLayers = addModelToLayers;
 
@@ -361,7 +361,7 @@ editor.once('load', function() {
                 castShadows: false,
                 receiveShadows: false,
                 castShadowsLightmap: false,
-                layers: [layerFront.id, layerBack.id]
+                layers: [layerBack.id, layerFront.id]
             });
             this.entity.model.addModelToLayers = addModelToLayers;
             this.entity._getEntity = function() {

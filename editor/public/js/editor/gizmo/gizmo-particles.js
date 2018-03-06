@@ -22,8 +22,8 @@ editor.once('load', function () {
     var poolModels = { 'box': [ ], 'sphere': [ ] };
     var shapes = { 0: 'box', 1: 'sphere' };
 
-    var layerBack = editor.call('gizmo:layers', 'before-0');
-    var layerFront = editor.call('gizmo:layers', 'after-1');
+    var layerBack = editor.call('gizmo:layers', 'Bright Gizmo');
+    var layerFront = editor.call('gizmo:layers', 'Dim Gizmo');
 
     // hack: override addModelToLayers to selectively put some
     // mesh instances to the front and others to the back layer depending

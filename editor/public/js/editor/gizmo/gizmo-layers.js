@@ -90,25 +90,27 @@ editor.once('load', function() {
     });
 
     // Layer before every scene layer
-    editor.call('gizmo:layers:register', 'before-0', true);
+    editor.call('gizmo:layers:register', 'Bright Gizmo', true);
     // First layer after every scene layer
-    editor.call('gizmo:layers:register', 'after-0');
+    editor.call('gizmo:layers:register', 'Bright Collision');
     // Second layer after every scene layer - clears depth buffer
-    editor.call('gizmo:layers:register', 'after-1', false, {
-        onPreRender: function () {
-            var app = editor.call('viewport:app');
-            if (app) {
-                // clear depth so that gizmos appear in front of
-                // objects in the regualar scene
-                app.graphicsDevice.clear({
-                    flags: pc.CLEARFLAG_DEPTH,
-                    depth: 1
-                });
-            }
-        }
+    editor.call('gizmo:layers:register', 'Dim Gizmo', false, {
+        overrideClear: true,
+        clearDepthBuffer: true
+        // onPreRender: function () {
+        //     var app = editor.call('viewport:app');
+        //     if (app) {
+        //         // clear depth so that gizmos appear in front of
+        //         // objects in the regualar scene
+        //         app.graphicsDevice.clear({
+        //             flags: pc.CLEARFLAG_DEPTH,
+        //             depth: 1
+        //         });
+        //     }
+        // }
     });
     // Third layer after every scene layer - clears depth and color buffer (used by viewport-outline)
-    editor.call('gizmo:layers:register', 'after-2', false, {
+    editor.call('gizmo:layers:register', 'Viewport Outline', false, {
         onPreRender: function () {
             // var app = editor.call('viewport:app');
             // if (app) {
@@ -121,21 +123,21 @@ editor.once('load', function() {
         }
     });
 
-    // Forth layer after every scene layer - clears depth buffer
-    var after3 = editor.call('gizmo:layers:register', 'after-3', false, {
+    editor.call('gizmo:layers:register', 'Axis Gizmo Immediate', false, {
+        passThrough: true,
         overrideClear: true,
-        clearDepthBuffer: true
+        clearDepthBuffer: true,
+        opaqueSortMode: pc.SORTMODE_NONE,
+        transparentSortMode: pc.SORTMODE_NONE
     });
 
-    // Forth layer after every scene layer - clears depth buffer
-    var gizmoImmediateLayer = editor.call('gizmo:layers:register', 'gizmo-immediate', false, {
-        passThrough: true
+    editor.call('gizmo:layers:register', 'Axis Gizmo', false, {
     });
+
 
     editor.once('viewport:load', function () {
         var app = editor.call('viewport:app');
         if (! app) return; // webgl not available
-        app._immediateLayer = gizmoImmediateLayer;
 
         editor.call('gizmo:layers:addToComposition');
     });

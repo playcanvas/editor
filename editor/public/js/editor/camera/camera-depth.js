@@ -126,7 +126,7 @@ editor.once('viewport:load', function() {
         var distance = (camera.nearClip || 0.0001) + (camera.farClip * (colorDistance / 255.0));
         var point = new pc.Vec3();
 
-        camera.screenToWorld(x, y, distance, depthTarget.width, depthTarget.height, point);
+        camera.camera.screenToWorld(x, y, distance, depthTarget.width, depthTarget.height, point);
 
         return point;
     });

@@ -43,7 +43,7 @@ editor.once('load', function() {
         obj.matInactive = createMaterial(new pc.Color(1, 1, 0, 0.5));
         obj.matActive = createMaterial(new pc.Color(1, 1, 0, 1));
 
-        var layer = editor.call('gizmo:layers', 'after-3');
+        var layer = editor.call('gizmo:layers', 'Axis Gizmo');
 
         var createHandle = function () {
             var sphere = new pc.Entity();

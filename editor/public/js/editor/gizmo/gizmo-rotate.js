@@ -23,6 +23,8 @@ editor.once('load', function() {
     var angleStart = 0;
     var startRotation = new pc.Quat();
 
+    var immediateRenderOptions;
+
     var snap = false;
     var snapIncrement = 5;
     editor.on('gizmo:snap', function(state, increment) {
@@ -96,6 +98,10 @@ editor.once('load', function() {
         gizmo.root.enabled = false;
         app.root.addChild(gizmo.root);
 
+        immediateRenderOptions = {
+            layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate')
+        };
+
         // on picker hover
         editor.on('viewport:pick:hover', function(node, picked) {
             var match = gizmo.hoverable.indexOf(node) !== -1;
@@ -119,6 +125,7 @@ editor.once('load', function() {
                         evtTapStart = editor.on('viewport:tap:start', onTapStart);
 
                     hoverAxis = node.axis;
+                    console.log(hoverAxis);
 
                     // set active material
                     gizmo.line[hoverAxis].material = gizmo.matActive;
@@ -211,47 +218,47 @@ editor.once('load', function() {
                 // x
                 if (moving && hoverAxis === 'x') {
                     // behind line
-                    app.renderMesh(gizmo.line.x.mesh, gizmo.matBehindActive, worldTransform);
+                    app.renderMesh(gizmo.line.x.mesh, gizmo.matBehindActive, worldTransform, immediateRenderOptions);
                 } else {
                     // behind line
-                    app.renderMesh(gizmo.line.x.mesh, gizmo.matBehindHover.x, worldTransform);
+                    app.renderMesh(gizmo.line.x.mesh, gizmo.matBehindHover.x, worldTransform, immediateRenderOptions);
                     // front line
                     if (! moving && gizmo.plane.x.model.enabled) {
                         gizmo.line.x.node.worldTransform = worldTransform;
-                        app.renderMeshInstance(gizmo.line.x);
+                        app.renderMeshInstance(gizmo.line.x, immediateRenderOptions);
                     }
                 }
 
                 // y
                 if (moving && hoverAxis === 'y') {
                     // behind line
-                    app.renderMesh(gizmo.line.y.mesh, gizmo.matBehindActive, worldTransform);
+                    app.renderMesh(gizmo.line.y.mesh, gizmo.matBehindActive, worldTransform, immediateRenderOptions);
                 } else {
                     // behind line
-                    app.renderMesh(gizmo.line.y.mesh, gizmo.matBehindHover.y, worldTransform);
+                    app.renderMesh(gizmo.line.y.mesh, gizmo.matBehindHover.y, worldTransform, immediateRenderOptions);
                     // front line
                     if (! moving && gizmo.plane.y.model.enabled) {
                         gizmo.line.y.node.worldTransform = worldTransform;
-                        app.renderMeshInstance(gizmo.line.y);
+                        app.renderMeshInstance(gizmo.line.y, immediateRenderOptions);
                     }
                 }
                 // z
                 if (moving && hoverAxis === 'z') {
                     // behind line
-                    app.renderMesh(gizmo.line.z.mesh, gizmo.matBehindActive, worldTransform);
+                    app.renderMesh(gizmo.line.z.mesh, gizmo.matBehindActive, worldTransform, immediateRenderOptions);
                 } else {
                     // behind line
-                    app.renderMesh(gizmo.line.z.mesh, gizmo.matBehindHover.z, worldTransform);
+                    app.renderMesh(gizmo.line.z.mesh, gizmo.matBehindHover.z, worldTransform, immediateRenderOptions);
                     // front line
                     if (! moving && gizmo.plane.z.model.enabled) {
                         gizmo.line.z.node.worldTransform = worldTransform;
-                        app.renderMeshInstance(gizmo.line.z);
+                        app.renderMeshInstance(gizmo.line.z, immediateRenderOptions);
                     }
                 }
 
                 // cull
                 gizmo.line.cull.node.worldTransform = worldTransform;
-                app.renderMeshInstance(gizmo.line.cull);
+                app.renderMeshInstance(gizmo.line.cull, immediateRenderOptions);
             }
 
             mouseTapMoved = false
@@ -397,7 +404,7 @@ editor.once('load', function() {
         obj.matBehindActive.depthTest = false;
         obj.colorActive = new pc.Color(1, 1, 1, 1);
 
-        var gizmoLayer = editor.call('gizmo:layers', 'after-3').id;
+        var gizmoLayer = editor.call('gizmo:layers', 'Axis Gizmo').id;
 
         // root entity
         var entity = obj.root = new pc.Entity();
@@ -528,6 +535,7 @@ editor.once('load', function() {
             createMaterial(new pc.Color(0, 0, 1, 1.1))
         ];
 
+        // create 3 rings of lines (the visible portion of the gizmo)
         for (var i = 0; i < 3; i++) {
             mesh = new pc.Mesh();
             mesh.vertexBuffer = vertexBuffers[i];
@@ -542,6 +550,7 @@ editor.once('load', function() {
             meshInstances.push(meshInstance);
         }
 
+        // create a sphere which is used to render in the center and cull the rings (via depth buffer)
         mesh = pc.createSphere(device, {
             segments: 75,
             radius: 1.95

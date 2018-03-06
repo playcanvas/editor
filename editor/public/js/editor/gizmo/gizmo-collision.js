@@ -51,8 +51,8 @@ editor.once('load', function () {
     var axesNames = { 0: 'x', 1: 'y', 2: 'z' };
     var shaderCapsule = { };
 
-    var layerBack = editor.call('gizmo:layers', 'after-0');
-    var layerFront = editor.call('gizmo:layers', 'after-1');
+    var layerFront = editor.call('gizmo:layers', 'Bright Collision');
+    var layerBack = editor.call('gizmo:layers', 'Dim Gizmo');
 
     var filterPicker = function(drawCall) {
         if (drawCall.command)
@@ -136,8 +136,8 @@ editor.once('load', function () {
                 var model = this.entity.model.model;
                 if (model) {
                     // put back in pool
-                    layerBack.removeMeshInstances(model.meshInstances);
                     layerFront.removeMeshInstances(model.meshInstances);
+                    layerBack.removeMeshInstances(model.meshInstances);
 
                     this.entity.removeChild(model.getGraph());
                     if (poolModels[model._type])
@@ -163,6 +163,7 @@ editor.once('load', function () {
                     model.meshInstances[0].__collision = true;
                     model.meshInstances[0].material = old.clone();
                     model.meshInstances[0].material.updateShader = old.updateShader;
+                    model.meshInstances[0].material.depthBias = -8;
                     model.meshInstances[0].material.color.set(color[0], color[1], color[2], alphaFront);
                     model.meshInstances[0].material.update();
 
@@ -298,7 +299,7 @@ editor.once('load', function () {
             castShadows: false,
             receiveShadows: false,
             castShadowsLightmap: false,
-            layers: [layerBack.id, layerFront.id]
+            layers: [layerFront.id, layerBack.id]
         });
 
         // hack: override addModelToLayers to selectively put some
@@ -312,8 +313,8 @@ editor.once('load', function () {
                 return ! mi.__useFrontLayer;
             });
 
-            layerFront.addMeshInstances(frontMeshInstances);
-            layerBack.addMeshInstances(backMeshInstances);
+            layerBack.addMeshInstances(frontMeshInstances);
+            layerFront.addMeshInstances(backMeshInstances);
         };
 
         this.entity._getEntity = function() {
@@ -343,8 +344,8 @@ editor.once('load', function () {
         var model = this.entity.model.model;
         if (model) {
             // put back in pool
-            layerBack.removeMeshInstances(model.meshInstances);
             layerFront.removeMeshInstances(model.meshInstances);
+            layerBack.removeMeshInstances(model.meshInstances);
             this.entity.removeChild(model.getGraph());
             if (model._type)
                 poolModels[model._type].push(model);
@@ -423,23 +424,23 @@ editor.once('load', function () {
         app = editor.call('viewport:app');
         if (! app) return; // webgl not available
 
-        app.scene.drawCalls.push(new pc.Command(10, pc.BLEND_NONE, function() {
-            app.graphicsDevice.clear({
-                depth: 1.0,
-                flags: pc.CLEARFLAG_DEPTH
-            });
-        }));
+        // app.scene.drawCalls.push(new pc.Command(10, pc.BLEND_NONE, function() {
+        //     app.graphicsDevice.clear({
+        //         depth: 1.0,
+        //         flags: pc.CLEARFLAG_DEPTH
+        //     });
+        // }));
 
-        app.scene.drawCalls.push(new pc.Command(13, pc.BLEND_NONE, function() {
-            var gl = app.graphicsDevice.gl;
-            gl.enable(gl.POLYGON_OFFSET_FILL);
-            gl.polygonOffset(0, -8);
-        }));
+        // app.scene.drawCalls.push(new pc.Command(13, pc.BLEND_NONE, function() {
+        //     var gl = app.graphicsDevice.gl;
+        //     gl.enable(gl.POLYGON_OFFSET_FILL);
+        //     gl.polygonOffset(0, -8);
+        // }));
 
-        app.scene.drawCalls.push(new pc.Command(11, pc.BLEND_NONE, function() {
-            var gl = app.graphicsDevice.gl;
-            gl.disable(gl.POLYGON_OFFSET_FILL);
-        }));
+        // app.scene.drawCalls.push(new pc.Command(11, pc.BLEND_NONE, function() {
+        //     var gl = app.graphicsDevice.gl;
+        //     gl.disable(gl.POLYGON_OFFSET_FILL);
+        // }));
 
         container = new pc.Entity(app);
         app.root.addChild(container);
@@ -569,6 +570,7 @@ editor.once('load', function () {
                 }
                 this.shader = shaderCapsule[a];
             };
+
             matDefault.update();
 
             var matBehind = materials['capsuleBehind-' + a] = materialBehind.clone();

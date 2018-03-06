@@ -22,8 +22,8 @@ editor.once('load', function () {
     var models = { };
     var poolModels = { 'directional': [ ], 'point': [ ], 'point-close': [ ], 'spot': [ ] };
 
-    var layerBack = editor.call('gizmo:layers', 'before-0');
-    var layerFront = editor.call('gizmo:layers', 'after-1');
+    var layerFront = editor.call('gizmo:layers', 'Bright Gizmo');
+    var layerBack = editor.call('gizmo:layers', 'Dim Gizmo');
 
     // hack: override addModelToLayers to selectively put some
     // mesh instances to the front and others to the back layer depending
@@ -36,8 +36,8 @@ editor.once('load', function () {
             return ! mi.__useFrontLayer;
         });
 
-        layerFront.addMeshInstances(frontMeshInstances);
-        layerBack.addMeshInstances(backMeshInstances);
+        layerBack.addMeshInstances(frontMeshInstances);
+        layerFront.addMeshInstances(backMeshInstances);
     };
 
     // gizmo class
@@ -77,8 +77,8 @@ editor.once('load', function () {
                 var model = this.entity.model.model;
                 if (model) {
                     // put back in pool
-                    layerFront.removeMeshInstances(model.meshInstances);
                     layerBack.removeMeshInstances(model.meshInstances);
+                    layerFront.removeMeshInstances(model.meshInstances);
                     this.entity.removeChild(model.getGraph());
                     poolModels[model._type].push(model);
                 }
@@ -164,7 +164,7 @@ editor.once('load', function () {
             castShadows: false,
             receiveShadows: false,
             castShadowsLightmap: false,
-            layers: [layerFront.id, layerBack.id]
+            layers: [layerBack.id, layerFront.id]
         });
         this.entity.model.addModelToLayers = addModelToLayers;
 
@@ -187,8 +187,8 @@ editor.once('load', function () {
         var model = this.entity.model.model;
         if (model) {
             // put back in pool
-            layerFront.removeMeshInstances(model.meshInstances);
             layerBack.removeMeshInstances(model.meshInstances);
+            layerFront.removeMeshInstances(model.meshInstances);
             this.entity.removeChild(model.getGraph());
             poolModels[model._type].push(model);
         }

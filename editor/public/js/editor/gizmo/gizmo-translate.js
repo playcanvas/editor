@@ -25,6 +25,7 @@ editor.once('load', function() {
     var matB = new pc.Mat4();
     var evtTapStart;
     var pickStart = new pc.Vec3();
+    var immediateRenderOptions;
 
     var snap = false;
     var snapIncrement = 1;
@@ -96,6 +97,13 @@ editor.once('load', function() {
         gizmo = createEntity();
         gizmo.root.enabled = false;
         app.root.addChild(gizmo.root);
+
+        if (!immediateRenderOptions) {
+            immediateRenderOptions = {
+                layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate'),
+                depthTest: true
+            };
+        }
 
         // on picker hover
         editor.on('viewport:pick:hover', function(node, picked) {
@@ -233,7 +241,7 @@ editor.once('load', function() {
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
                     quat.transformVector(vecD, vecD).add(gizmo.root.getPosition());
                     var clr = (hoverAxis === 'x' && hoverPlane) ? gizmo.matActive.color : gizmo.arrow.x.mat.color;
-                    app.renderLines([ vecB, vecC, vecC, vecD ], clr, pc.LINEBATCH_GIZMO);
+                    app.renderLines([ vecB, vecC, vecC, vecD ], clr, immediateRenderOptions);
                 }
                 // plane y lines
                 if (gizmo.plane.y.model.enabled) {
@@ -244,7 +252,7 @@ editor.once('load', function() {
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
                     quat.transformVector(vecD, vecD).add(gizmo.root.getPosition());
                     var clr = (hoverAxis === 'y' && hoverPlane) ? gizmo.matActive.color : gizmo.arrow.y.mat.color;
-                    app.renderLines([ vecB, vecC, vecC, vecD ], clr, pc.LINEBATCH_GIZMO);
+                    app.renderLines([ vecB, vecC, vecC, vecD ], clr, immediateRenderOptions);
                 }
                 // plane z lines
                 if (gizmo.plane.z.model.enabled) {
@@ -255,7 +263,7 @@ editor.once('load', function() {
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
                     quat.transformVector(vecD, vecD).add(gizmo.root.getPosition());
                     var clr = (hoverAxis === 'z' && hoverPlane) ? gizmo.matActive.color : gizmo.arrow.z.mat.color;
-                    app.renderLines([ vecB, vecC, vecC, vecD ], clr, pc.LINEBATCH_GIZMO);
+                    app.renderLines([ vecB, vecC, vecC, vecD ], clr, immediateRenderOptions);
                 }
 
                 // hide lines and arrows if viewed from very angle
@@ -270,7 +278,7 @@ editor.once('load', function() {
                     quat.transformVector(vecB, vecB).add(gizmo.root.getPosition());
                     vecC.set(scale * 2, 0, 0);
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
-                    app.renderLine(vecB, vecC, gizmo.arrow.x.model.material.color, pc.LINEBATCH_GIZMO);
+                    app.renderLines([vecB, vecC], gizmo.arrow.x.model.material.color, immediateRenderOptions);
                 }
                 // line y
                 if (gizmo.line.y.model.enabled) {
@@ -278,7 +286,7 @@ editor.once('load', function() {
                     quat.transformVector(vecB, vecB).add(gizmo.root.getPosition());
                     vecC.set(0, scale * 2, 0);
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
-                    app.renderLine(vecB, vecC, gizmo.arrow.y.model.material.color, pc.LINEBATCH_GIZMO);
+                    app.renderLine(vecB, vecC, gizmo.arrow.y.model.material.color, immediateRenderOptions);
                 }
                 // line z
                 if (gizmo.line.z.model.enabled) {
@@ -286,7 +294,7 @@ editor.once('load', function() {
                     quat.transformVector(vecB, vecB).add(gizmo.root.getPosition());
                     vecC.set(0, 0, scale * 2);
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
-                    app.renderLine(vecB, vecC, gizmo.arrow.z.model.material.color, pc.LINEBATCH_GIZMO);
+                    app.renderLine(vecB, vecC, gizmo.arrow.z.model.material.color, immediateRenderOptions);
                 }
             }
 
@@ -432,7 +440,7 @@ editor.once('load', function() {
         // root entity
         var entity = obj.root = new pc.Entity();
 
-        var gizmoLayer = editor.call('gizmo:layers', 'after-3').id;
+        var gizmoLayer = editor.call('gizmo:layers', 'Axis Gizmo').id;
 
         // plane x
         var planeX = obj.plane.x = new pc.Entity();

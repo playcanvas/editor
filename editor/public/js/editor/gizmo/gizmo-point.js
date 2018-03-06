@@ -29,7 +29,7 @@ editor.once('viewport:load', function() {
     material.cull = pc.CULLFACE_NONE;
     material.update();
 
-    var layer = editor.call('gizmo:layers', 'after-3');
+    var layer = editor.call('gizmo:layers', 'Axis Gizmo');
 
     function Gizmo(axis, dir) {
         Events.call(this);

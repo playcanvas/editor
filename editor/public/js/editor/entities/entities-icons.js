@@ -62,15 +62,15 @@ editor.once('load', function() {
             return self._link && self._link.entity || null;
         };
 
-        var layerBehind = editor.call('gizmo:layers', 'before-0');
-        var layerFront = editor.call('gizmo:layers', 'after-1');
+        var layerFront = editor.call('gizmo:layers', 'Bright Gizmo');
+        var layerBehind = editor.call('gizmo:layers', 'Dim Gizmo');
 
         this.entity.addComponent('model', {
             type: 'plane',
             castShadows: false,
             receiveShadows: false,
             castShadowsLightmap: false,
-            layers: [layerBehind.id],
+            layers: [layerFront.id],
         });
         this.entity.model.meshInstances[0].__editor = true;
         // this.entity.model.meshInstances[0].mask = 8;
@@ -91,7 +91,7 @@ editor.once('load', function() {
             castShadows: false,
             receiveShadows: false,
             castShadowsLightmap: false,
-            layers: [layerFront.id]
+            layers: [layerBehind.id]
         });
         // this.behind.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         // this.behind.model.model.meshInstances[0].mask = 8;

@@ -1,5 +1,5 @@
 editor.once('load', function() {
-    'use sctrict';
+    'use strict';
 
     var DEFAULT_CULLING_MASK = 0xFFFFFFFF;
     var GEOMETRY_ONLY_CULLING_MASK = 1 | 2 | 4;
