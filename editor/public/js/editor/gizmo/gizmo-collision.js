@@ -637,6 +637,7 @@ editor.once('load', function () {
             var meshInstance = new pc.MeshInstance(node, mesh, args.matDefault);
             meshInstance.__editor = true;
             meshInstance.__collision = true;
+            meshInstance.mask = GIZMO_MASK;
             // meshInstance.layer = 12;
             meshInstance.castShadow = false;
             // meshInstance.castLightmapShadow = false;
@@ -646,6 +647,7 @@ editor.once('load', function () {
             var meshInstanceBehind = new pc.MeshInstance(node, mesh, args.matBehind);
             meshInstanceBehind.__editor = true;
             meshInstanceBehind.pick = false;
+            meshInstanceBehind.mask = GIZMO_MASK;
             // meshInstanceBehind.layer = 2;
             meshInstanceBehind.drawToDepth = false;
             meshInstanceBehind.castShadow = false;
@@ -656,6 +658,7 @@ editor.once('load', function () {
             var meshInstanceOccluder = new pc.MeshInstance(node, mesh, args.matOccluder);
             meshInstanceOccluder.__editor = true;
             meshInstanceOccluder.pick = false;
+            meshInstanceOccluder.mask = GIZMO_MASK;
             // meshInstanceOccluder.layer = 9;
             meshInstanceOccluder.castShadow = false;
             // meshInstanceOccluder.castLightmapShadow = false;

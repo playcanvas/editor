@@ -299,6 +299,7 @@ editor.once('load', function() {
                         model.meshInstances[0].setParameter('offset', 0);
                         // model.meshInstances[0].layer = 12;
                         // model.meshInstances[0].updateKey();
+                        model.meshInstances[0].mask = GIZMO_MASK;
                         model.meshInstances[0].__editor = true;
                         model.meshInstances[0].__zone = true;
                         model.meshInstances[0].material = old.clone();
@@ -311,6 +312,7 @@ editor.once('load', function() {
                         // model.meshInstances[1].layer = 2;
                         model.meshInstances[1].pick = false;
                         // model.meshInstances[1].updateKey();
+                        model.meshInstances[1].mask = GIZMO_MASK;
                         model.meshInstances[1].__editor = true;
                         model.meshInstances[1].material = old.clone();
                         model.meshInstances[1].material.updateShader = old.updateShader;
@@ -318,7 +320,10 @@ editor.once('load', function() {
                         model.meshInstances[1].material.update();
                         model.meshInstances[1].__useFrontLayer = true;
 
+                        model.meshInstances[2].mask = GIZMO_MASK;
+
                         model.meshInstances[3].setParameter('offset', 0);
+                        model.meshInstances[3].mask = GIZMO_MASK;
                         // model.meshInstances[2].layer = 9;
                         model.meshInstances[3].pick = false;
                         // model.meshInstances[2].updateKey();
@@ -747,6 +752,7 @@ editor.once('load', function() {
             // meshInstance
             var meshInstance = new pc.MeshInstance(node, mesh, materialDefault);
             // meshInstance.layer = 12;
+            meshInstance.mask = GIZMO_MASK;
             meshInstance.__editor = true;
             meshInstance.castShadow = false;
             // meshInstance.castLightmapShadow = false;
@@ -756,6 +762,7 @@ editor.once('load', function() {
 
             var meshInstanceBehind = new pc.MeshInstance(node, mesh, materialBehind);
             // meshInstanceBehind.layer = 2;
+            meshInstanceBehind.mask = GIZMO_MASK;
             meshInstanceBehind.__editor = true;
             meshInstanceBehind.pick = false;
             meshInstanceBehind.drawToDepth = false;
@@ -767,6 +774,7 @@ editor.once('load', function() {
 
             var meshInstanceOccluder = new pc.MeshInstance(node, mesh, materialOccluder);
             // meshInstanceOccluder.layer = 9;
+            meshInstanceOccluder.mask = GIZMO_MASK;
             meshInstanceOccluder.__editor = true;
             meshInstanceOccluder.pick = false;
             meshInstanceOccluder.castShadow = false;
@@ -777,6 +785,7 @@ editor.once('load', function() {
 
             var meshInstanceWireframe = new pc.MeshInstance(node, meshWireframe, materialWireframe);
             // meshInstanceWireframe.layer = pc.LAYER_GIZMO;
+            meshInstanceWireframe.mask = GIZMO_MASK;
             meshInstanceWireframe.__editor = true;
             // meshInstanceWireframe.updateKey();
             // model

@@ -93,6 +93,10 @@ editor.once('load', function () {
                 }
                 // set to model
                 this.entity.model.model = model;
+                // mask meshinstance from camera preview
+                model.meshInstances.forEach(function (mi) {
+                    mi.mask = GIZMO_MASK;
+                });
                 this.entity.setLocalScale(1, 1, 1);
             } else {
                 this.entity.enabled = false;
@@ -300,9 +304,11 @@ editor.once('load', function () {
         mesh.primitive[0].indexed = false;
         // meshInstance
         meshInstance = new pc.MeshInstance(node, mesh, materialDefault);
+        meshInstance.mask = GIZMO_MASK;
         meshInstance.updateKey();
 
         var meshInstanceBehind = new pc.MeshInstance(node, mesh, materialBehind);
+        meshInstanceBehind.mask = GIZMO_MASK;
         meshInstanceBehind.__useFrontLayer = true;
 
         // model

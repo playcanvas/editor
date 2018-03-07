@@ -86,12 +86,10 @@ editor.once('load', function() {
         var app = editor.call('viewport:app');
         if (! app) return; // webgl not available
 
-        if (!immediateRenderOptions) {
-            immediateRenderOptions = {
-                layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate'),
-                depthTest: true
-            };
-        }
+        immediateRenderOptions = {
+            layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate'),
+            depthTest: true
+        };
 
         gizmo = createEntity();
         gizmo.root.enabled = false;
@@ -417,6 +415,7 @@ editor.once('load', function() {
             castShadowsLightmap: false,
             layers: [layer]
         });
+        middle.model.model.meshInstances[0].mask = GIZMO_MASK;
         middle.model.material.id = 0xFFFFFFFF;
         entity.addChild(middle);
         middle.setLocalScale(boxSize * 1.5, boxSize * 1.5, boxSize * 1.5);
@@ -485,6 +484,7 @@ editor.once('load', function() {
             castShadowsLightmap: false,
             layers: [layer]
         });
+        boxX.model.model.meshInstances[0].mask = GIZMO_MASK;
         entity.addChild(boxX);
         boxX.setLocalPosition(2.2, 0, 0);
         boxX.setLocalScale(boxSize, boxSize, boxSize);
@@ -502,6 +502,7 @@ editor.once('load', function() {
             castShadowsLightmap: false,
             layers: [layer]
         });
+        boxY.model.model.meshInstances[0].mask = GIZMO_MASK;
         entity.addChild(boxY);
         boxY.setLocalPosition(0, 2.2, 0);
         boxY.setLocalScale(boxSize, boxSize, boxSize);
@@ -519,6 +520,7 @@ editor.once('load', function() {
             castShadowsLightmap: false,
             layers: [layer]
         });
+        boxZ.model.model.meshInstances[0].mask = GIZMO_MASK;
         entity.addChild(boxZ);
         boxZ.setLocalPosition(0, 0, 2.2);
         boxZ.setLocalScale(boxSize, boxSize, boxSize);

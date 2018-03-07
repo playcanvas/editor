@@ -73,7 +73,7 @@ editor.once('load', function() {
             layers: [layerFront.id],
         });
         this.entity.model.meshInstances[0].__editor = true;
-        // this.entity.model.meshInstances[0].mask = 8;
+        this.entity.model.meshInstances[0].mask = GIZMO_MASK;
 
         if (this._link && this._link.entity)
             this.entity.setPosition(this._link.entity.getPosition());
@@ -94,7 +94,7 @@ editor.once('load', function() {
             layers: [layerBehind.id]
         });
         // this.behind.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
-        // this.behind.model.model.meshInstances[0].mask = 8;
+        this.behind.model.model.meshInstances[0].mask = GIZMO_MASK;
         this.behind.model.model.meshInstances[0].pick = false;
 
         iconsEntity.addChild(this.entity);

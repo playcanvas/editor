@@ -89,12 +89,15 @@ editor.once('load', function () {
                     model = models[this.type].clone();
                     for (var i = 0; i < model.meshInstances.length; i++) {
                         model.meshInstances[i].__useFrontLayer = models[this.type].meshInstances[i].__useFrontLayer;
+                        // model.meshInstances[i].mask = GIZMO_MASK;
                     }
                     model._type = this.type;
                 }
                 // set to model
                 this.entity.model.model = model;
-                // model.meshInstances[0].mask = 8;
+                model.meshInstances.forEach(function (mi) {
+                    mi.mask = GIZMO_MASK;
+                });
                 this.entity.setLocalScale(1, 1, 1);
                 this.entity.setEulerAngles(0, 0, 0);
             } else {
@@ -368,13 +371,13 @@ editor.once('load', function () {
         mesh.primitive[0].indexed = false;
         // meshInstance
         meshInstance = new pc.MeshInstance(node, mesh, material);
-        // meshInstance.mask = 8;
+        meshInstance.mask = GIZMO_MASK;
         meshInstance.pick = false;
         // meshInstance.updateKey();
 
         var meshInstanceBehind = new pc.MeshInstance(node, mesh, materialBehind);
         meshInstanceBehind.__useFrontLayer = true;
-        // meshInstanceBehind.mask = 8;
+        meshInstanceBehind.mask = GIZMO_MASK;
         meshInstanceBehind.pick = false;
 
         // model
@@ -408,13 +411,13 @@ editor.once('load', function () {
         mesh.primitive[0].indexed = false;
         // meshInstance
         meshInstance = new pc.MeshInstance(node, mesh, material);
-        // meshInstance.mask = 8;
+        meshInstance.mask = GIZMO_MASK;
         meshInstance.pick = false;
         // meshInstance.updateKey();
 
         meshInstanceBehind = new pc.MeshInstance(node, mesh, materialBehind);
         meshInstanceBehind.__useFrontLayer = true;
-        // meshInstanceBehind.mask = 8;
+        meshInstanceBehind.mask = GIZMO_MASK;
         meshInstanceBehind.pick = false;
 
         // model
@@ -457,13 +460,13 @@ editor.once('load', function () {
         mesh.primitive[0].indexed = false;
         // meshInstance
         meshInstance = new pc.MeshInstance(node, mesh, material);
-        // meshInstance.mask = 8;
+        meshInstance.mask = GIZMO_MASK;
         meshInstance.pick = false;
         meshInstance.updateKey();
 
         meshInstanceBehind = new pc.MeshInstance(node, mesh, materialBehind);
         meshInstanceBehind.__useFrontLayer = true;
-        // meshInstanceBehind.mask = 8;
+        meshInstanceBehind.mask = GIZMO_MASK;
         meshInstanceBehind.pick = false;
 
         // model
@@ -523,13 +526,13 @@ editor.once('load', function () {
         mesh.primitive[0].indexed = false;
         // meshInstance
         meshInstance = new pc.MeshInstance(node, mesh, materialSpot);
-        // meshInstance.mask = 8;
+        meshInstance.mask = GIZMO_MASK;
         meshInstance.pick = false;
         // meshInstance.updateKey();
 
         meshInstanceBehind = new pc.MeshInstance(node, mesh, materialSpotBehind);
         meshInstanceBehind.__useFrontLayer = true;
-        // meshInstanceBehind.mask = 8;
+        meshInstanceBehind.mask = GIZMO_MASK;
         meshInstanceBehind.pick = false;
 
         // model

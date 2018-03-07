@@ -100,12 +100,14 @@ editor.once('load', function() {
         app.root.addChild(gizmo.root);
 
         immediateRenderOptions = {
-            layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate')
+            layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate'),
+            mask: GIZMO_MASK
         };
 
         noDepthImmediateRenderOptions = {
             layer: editor.call('gizmo:layers', 'Axis Rotate Gizmo Immediate'),
-            depthTest: false
+            depthTest: false,
+            mask: GIZMO_MASK
         };
 
         // on picker hover
@@ -554,6 +556,7 @@ editor.once('load', function() {
             mesh.primitive[0].indexed = false;
 
             meshInstance = createMeshInstance(node, mesh, materials[i]);
+            meshInstance.mask = GIZMO_MASK;
             meshInstance.mat = materials[i];
             meshInstances.push(meshInstance);
         }
@@ -570,6 +573,7 @@ editor.once('load', function() {
         material.alphaWrite = false;
         material.update();
         meshInstance = createMeshInstance(node, mesh, material);
+        meshInstance.mask = GIZMO_MASK;
         meshInstances.push(meshInstance);
 
         return meshInstances;
