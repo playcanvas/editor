@@ -20,6 +20,7 @@ editor.once('load', function () {
     var vecB = new pc.Vec3();
 
     var materialDefault = new pc.BasicMaterial();
+    materialDefault.name = 'collision';
     materialDefault.color = colorPrimary;
     materialDefault.blend = true;
     materialDefault.blendSrc = pc.BLENDMODE_SRC_ALPHA;
@@ -27,6 +28,7 @@ editor.once('load', function () {
     materialDefault.update();
 
     var materialBehind = new pc.BasicMaterial();
+    materialBehind.name = 'collision behind';
     materialBehind.color = colorBehind;
     materialBehind.blend = true;
     materialBehind.blendSrc = pc.BLENDMODE_SRC_ALPHA;
@@ -36,6 +38,7 @@ editor.once('load', function () {
     materialBehind.update();
 
     var materialOccluder = new pc.BasicMaterial();
+    materialOccluder.name = 'collision occluder'
     materialOccluder.color = colorOccluder;
     materialOccluder.redWrite = false;
     materialOccluder.greenWrite = false;
@@ -161,6 +164,7 @@ editor.once('load', function () {
                     // model.meshInstances[0].updateKey();
                     model.meshInstances[0].__editor = true;
                     model.meshInstances[0].__collision = true;
+                    model.meshInstances[0].pick = false;
                     model.meshInstances[0].material = old.clone();
                     model.meshInstances[0].material.updateShader = old.updateShader;
                     model.meshInstances[0].material.depthBias = -8;
