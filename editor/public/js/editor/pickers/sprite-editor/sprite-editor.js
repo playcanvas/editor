@@ -1,18 +1,6 @@
 editor.once('load', function() {
     'use strict';
 
-    // In this order: top left, top, top right, left, right, bottom left, bottom, bottom right
-    // var widthWeights = [0, 0.5, 1, 0, 1, 0, 0.5, 1];
-    // var heightWeights = [0, 0, 0, 0.5, 0.5, 1, 1, 1];
-    // var leftOffsets = [-1, -0.5, 0, -1, 0, -1, -0.5, 0];
-    // var topOffsets = [-1, -1, -1, -0.5, -0.5, 0, 0, 0];
-
-    // In this order: top left, top right, bottom left, bottom right
-    var leftOffsets = [-0.5, -0.5, -0.5, -0.5];
-    var topOffsets = [-0.5, -0.5, -0.5, -0.5];
-    var widthWeights = [0, 1, 0, 1];
-    var heightWeights = [0, 0, 1, 1];
-
     var handleWidth = 10;
     var pivotWidth = 7;
 
@@ -20,6 +8,7 @@ editor.once('load', function() {
     var COLOR_DARK = '#2C393C';
     var COLOR_GREEN = '#0f0';
     var COLOR_ORANGE = '#f60';
+    var COLOR_BLUE = '#00f';
 
     var atlasAsset = null;
     var spriteAsset = null;
@@ -61,7 +50,17 @@ editor.once('load', function() {
         TOP_LEFT: 1,
         TOP_RIGHT: 2,
         BOTTOM_LEFT: 3,
-        BOTTOM_RIGHT: 4
+        BOTTOM_RIGHT: 4,
+        BORDER_TOP_LEFT: 5,
+        BORDER_TOP: 6,
+        BORDER_TOP_RIGHT: 7,
+        BORDER_LEFT: 8,
+        BORDER_RIGHT: 9,
+        BORDER_BOTTOM_LEFT: 10,
+        BORDER_BOTTOM: 11,
+        BORDER_BOTTOM_RIGHT: 12,
+        PIVOT: 13,
+        FRAME: 14
     };
 
     var events = [];
@@ -427,7 +426,8 @@ editor.once('load', function() {
             var y = Math.floor(atlasImage.height * (1 - (p.y - imageTop()) / imageHeight()));
             newFrame =  {
                 rect: [ x, y, 0, 0],
-                pivot: [0.5, 0.5]
+                pivot: [0.5, 0.5],
+                border: [0, 0, 0, 0]
             };
 
             updateCursor();
@@ -458,7 +458,11 @@ editor.once('load', function() {
             // set asset so that other users can see changes too
             var history = atlasAsset.history.enabled;
             atlasAsset.history.enabled = false;
-            atlasAsset.set('data.frames.' + selected.key + '.rect', frame.rect);
+            if (selected.handle <= HANDLE.BOTTOM_RIGHT) {
+                atlasAsset.set('data.frames.' + selected.key + '.rect', frame.rect);
+            } else if (selected.handle <= HANDLE.BORDER_BOTTOM_RIGHT) {
+                atlasAsset.set('data.frames.' + selected.key + '.border', frame.border);
+            }
             atlasAsset.history.enabled = history;
 
             queueRender();
@@ -702,6 +706,11 @@ editor.once('load', function() {
         var width = frameWidth(frame, imgWidth);
         var height = frameHeight(frame, imgHeight);
 
+        var leftBorder = left + frame.border[0] * imgHeight / realHeight;
+        var topBorder = top + frame.border[3] * imgHeight / realHeight;
+        var rightBorder = left + width - frame.border[2] * imgHeight / realHeight;
+        var bottomBorder = top + height - frame.border[1] * imgHeight / realHeight;
+
         var dx = 0;
         var dy = 0;
 
@@ -762,6 +771,55 @@ editor.once('load', function() {
                 frame.rect[1] -= dy;
                 break;
             }
+            case HANDLE.BORDER_TOP_LEFT: {
+                dy = Math.floor(realHeight * (p.y - topBorder) / imgHeight);
+                dx = Math.floor(realWidth * (p.x - leftBorder) / imgWidth);
+                frame.border[3] = Math.min(Math.max(frame.border[3] + dy, 0), frame.rect[3] - frame.border[1]);
+                frame.border[0] = Math.min(Math.max(frame.border[0] + dx, 0), frame.rect[2] - frame.border[2]);
+                break;
+            }
+            case HANDLE.BORDER_TOP: {
+                dy = Math.floor(realHeight * (p.y - topBorder) / imgHeight);
+                frame.border[3] = Math.min(Math.max(frame.border[3] + dy, 0), frame.rect[3] - frame.border[1]);
+                break;
+            }
+            case HANDLE.BORDER_TOP_RIGHT: {
+                dy = Math.floor(realHeight * (p.y - topBorder) / imgHeight);
+                dx = Math.floor(realWidth * (p.x - rightBorder) / imgWidth);
+                frame.border[2] = Math.min(Math.max(frame.border[2] - dx, 0), frame.rect[2] - frame.border[0]);
+                frame.border[3] = Math.min(Math.max(frame.border[3] + dy, 0), frame.rect[3] - frame.border[1]);
+                break;
+            }
+            case HANDLE.BORDER_LEFT: {
+                dx = Math.floor(realWidth * (p.x - leftBorder) / imgWidth);
+                frame.border[0] = Math.min(Math.max(frame.border[0] + dx, 0), frame.rect[2] - frame.border[2]);
+                break;
+            }
+            case HANDLE.BORDER_RIGHT: {
+                dx = Math.floor(realWidth * (p.x - rightBorder) / imgWidth);
+                frame.border[2] = Math.min(Math.max(frame.border[2] - dx, 0), frame.rect[2] - frame.border[0]);
+                break;
+            }
+            case HANDLE.BORDER_BOTTOM_LEFT: {
+                dy = Math.floor(realHeight * (p.y - bottomBorder) / imgHeight);
+                dx = Math.floor(realWidth * (p.x - leftBorder) / imgWidth);
+                frame.border[0] = Math.min(Math.max(frame.border[0] + dx, 0), frame.rect[2] - frame.border[2]);
+                frame.border[1] = Math.min(Math.max(frame.border[1] - dy, 0), frame.rect[3] - frame.border[3]);
+                break;
+            }
+            case HANDLE.BORDER_BOTTOM: {
+                dy = Math.floor(realHeight * (p.y - bottomBorder) / imgHeight);
+                frame.border[1] = Math.min(Math.max(frame.border[1] - dy, 0), frame.rect[3] - frame.border[3]);
+                break;
+            }
+            case HANDLE.BORDER_BOTTOM_RIGHT: {
+                dy = Math.floor(realHeight * (p.y - bottomBorder) / imgHeight);
+                dx = Math.floor(realWidth * (p.x - rightBorder) / imgWidth);
+                frame.border[2] = Math.min(Math.max(frame.border[2] - dx, 0), frame.rect[2] - frame.border[0]);
+                frame.border[1] = Math.min(Math.max(frame.border[1] - dy, 0), frame.rect[3] - frame.border[3]);
+                break;
+            }
+
         }
 
         return frame;
@@ -782,7 +840,8 @@ editor.once('load', function() {
         var newValue = {
             name: frame.name,
             rect: frame.rect.slice(),
-            pivot: frame.pivot.slice()
+            pivot: frame.pivot.slice(),
+            border: frame.border.slice()
         };
 
         var redo = function () {
@@ -951,6 +1010,20 @@ editor.once('load', function() {
         }
         ctx.stroke();
 
+        // render border lines
+        ctx.beginPath();
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4]);
+        if (! spriteEditMode) {
+            for (var i = 0, len = highlightedFrames.length; i<len; i++) {
+                var key = highlightedFrames[i];
+                if (selected && selected.key === key) continue;
+                renderBorderLines(frames[key]._data, left, top, width, height);
+            }
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+
         // draw sprite edit mode frames
         ctx.beginPath();
         ctx.lineWidth = 1;
@@ -1004,10 +1077,49 @@ editor.once('load', function() {
         ctx.lineTo(x - offset, y - offset);
 
         if (renderPivot) {
+            // render pivot
             var px = x + frame.pivot[0] * w;
             var py = y + (1 - frame.pivot[1]) * h;
             ctx.moveTo(px + pivotWidth, py);
             ctx.arc(px, py, pivotWidth, 0, 2 * Math.PI);
+        }
+    };
+
+    var renderBorderLines = function (frame, left, top, width, height) {
+        var x = frameLeft(frame, left, width);
+        var y = frameTop(frame, top, height);
+        var w = frameWidth(frame, width);
+        var h = frameHeight(frame, height);
+
+        var borderWidthModifier = width / atlasImage.width;
+        var borderHeightModifier = height / atlasImage.height;
+        var lb = x + frame.border[0] * borderWidthModifier;
+        var bb = y + h - frame.border[1] * borderHeightModifier;
+        var rb = x + w - frame.border[2] * borderWidthModifier;
+        var tb = y + frame.border[3] * borderHeightModifier;
+
+        // left line
+        if (frame.border[0]) {
+            ctx.moveTo(lb, y);
+            ctx.lineTo(lb, y+h);
+        }
+
+        // right line
+        if (frame.border[2]) {
+            ctx.moveTo(rb, y);
+            ctx.lineTo(rb, y+h);
+        }
+
+        // bottom line
+        if (frame.border[1]) {
+            ctx.moveTo(x, bb);
+            ctx.lineTo(x+w, bb);
+        }
+
+        // top line
+        if (frame.border[3]) {
+            ctx.moveTo(x, tb);
+            ctx.lineTo(x+w, tb);
         }
     };
 
@@ -1018,19 +1130,186 @@ editor.once('load', function() {
         var h = frameHeight(frame, height);
         var px = x + frame.pivot[0] * w;
         var py = y + (1 - frame.pivot[1]) * h;
+        var i;
+
+        ctx.fillStyle = COLOR_BLUE;
+        ctx.strokeStyle = COLOR_BLUE;
+        ctx.lineWidth = 1;
+
+        var borderWidthModifier = width / atlasImage.width;
+        var borderHeightModifier = height / atlasImage.height;
+        var lb = x + frame.border[0] * borderWidthModifier;
+        var bb = y + h - frame.border[1] * borderHeightModifier;
+        var rb = x + w - frame.border[2] * borderWidthModifier;
+        var tb = y + frame.border[3] * borderHeightModifier;
+
+        // border lines
+        ctx.beginPath();
+        ctx.setLineDash([4]);
+
+        // left line
+        if (frame.border[0]) {
+            ctx.moveTo(lb, y);
+            ctx.lineTo(lb, y+h);
+        }
+
+        // right line
+        if (frame.border[2]) {
+            ctx.moveTo(rb, y);
+            ctx.lineTo(rb, y+h);
+        }
+
+        // bottom line
+        if (frame.border[1]) {
+            ctx.moveTo(x, bb);
+            ctx.lineTo(x+w, bb);
+        }
+
+        // top line
+        if (frame.border[3]) {
+            ctx.moveTo(x, tb);
+            ctx.lineTo(x+w, tb);
+        }
+
+        ctx.stroke();
+        ctx.setLineDash([]);
+
         ctx.strokeStyle = COLOR_DARK;
         ctx.fillStyle = COLOR_GREEN;
         ctx.lineWidth = 1;
 
-        // corners
-        for (var i = 0; i < 4; i++) {
-            ctx.fillRect(x + handleWidth * leftOffsets[i] + w * widthWeights[i],
-                         y + handleWidth * topOffsets[i] + h * heightWeights[i],
+        // top left corner
+        ctx.fillRect(x - handleWidth / 2,
+                     y - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+
+        ctx.strokeRect(x - handleWidth / 2,
+                     y - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+        // top right corner
+        ctx.fillRect(x + w - handleWidth / 2,
+                     y - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+
+        ctx.strokeRect(x + w - handleWidth / 2,
+                     y - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+
+        // bottom left corner
+        ctx.fillRect(x - handleWidth / 2,
+                     y + h - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+
+        ctx.strokeRect(x - handleWidth / 2,
+                     y + h - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+        // bottom right corner
+        ctx.fillRect(x + w - handleWidth / 2,
+                     y + h - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+
+        ctx.strokeRect(x + w - handleWidth / 2,
+                     y + h - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+
+
+        ctx.fillStyle = COLOR_BLUE;
+        ctx.strokeStyle = COLOR_DARK;
+
+        // left border
+        ctx.fillRect(lb - handleWidth / 2,
+                     (bb + tb) / 2 - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+        ctx.strokeRect(lb - handleWidth / 2,
+                     (bb + tb) / 2 - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+
+
+        // bottom border
+        ctx.fillRect((lb + rb) / 2 - handleWidth / 2,
+                     bb - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+        ctx.strokeRect((lb + rb) / 2 - handleWidth / 2,
+                     bb - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+
+        // right border
+        ctx.fillRect(rb - handleWidth / 2,
+                     (bb + tb) / 2 - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+        ctx.strokeRect(rb - handleWidth / 2,
+                     (bb + tb) / 2 - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+
+        // top border
+        ctx.fillRect((lb + rb) / 2 - handleWidth / 2,
+                     tb - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+        ctx.strokeRect((lb + rb) / 2 - handleWidth / 2,
+                     tb - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+
+        // bottom left border
+        if (frame.border[0] || frame.border[1]) {
+            ctx.fillRect(lb - handleWidth / 2,
+                     bb - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+            ctx.strokeRect(lb - handleWidth / 2,
+                         bb - handleWidth / 2,
                          handleWidth,
                          handleWidth);
+        }
 
-            ctx.strokeRect(x + handleWidth * leftOffsets[i] + w * widthWeights[i],
-                         y + handleWidth * topOffsets[i] + h * heightWeights[i],
+        // bottom right border
+        if (frame.border[1] || frame.border[2]) {
+            ctx.fillRect(rb - handleWidth / 2,
+                     bb - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+            ctx.strokeRect(rb - handleWidth / 2,
+                         bb - handleWidth / 2,
+                         handleWidth,
+                         handleWidth);
+        }
+
+
+        // top right border
+        if (frame.border[2] || frame.border[3]) {
+            ctx.fillRect(rb - handleWidth / 2,
+                     tb - handleWidth / 2,
+                     handleWidth,
+                         handleWidth);
+            ctx.strokeRect(rb - handleWidth / 2,
+                         tb - handleWidth / 2,
+                         handleWidth,
+                         handleWidth);
+        }
+
+        // top left border
+        if (frame.border[3] || frame.border[0]) {
+            ctx.fillRect(lb - handleWidth / 2,
+                     tb - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+            ctx.strokeRect(lb - handleWidth / 2,
+                         tb - handleWidth / 2,
                          handleWidth,
                          handleWidth);
         }
@@ -1044,6 +1323,7 @@ editor.once('load', function() {
         ctx.moveTo(px + pivotWidth, py);
         ctx.arc(px, py, pivotWidth, 0, 2 * Math.PI);
         ctx.stroke();
+
         // inside border
         ctx.lineWidth = 3;
         ctx.strokeStyle = COLOR_GREEN;
@@ -1124,14 +1404,82 @@ editor.once('load', function() {
         var width = frameWidth(frame, imgWidth);
         var height = frameHeight(frame, imgHeight);
 
-        for (var key in HANDLE) {
-            var handle = HANDLE[key];
-            var x = left + handleWidth * leftOffsets[handle-1] + width * widthWeights[handle-1];
-            var y = top + handleWidth * topOffsets[handle-1] + height * heightWeights[handle-1];
-            if (rectContainsPoint(p, x, y, handleWidth, handleWidth)) {
-                return handle;
+        var borderWidthModifier = imgWidth / atlasImage.width;
+        var borderHeightModifier = imgHeight / atlasImage.height;
+        var lb = left + frame.border[0] * borderWidthModifier;
+        var bb = top + height - frame.border[1] * borderHeightModifier;
+        var rb = left + width - frame.border[2] * borderWidthModifier;
+        var tb = top + frame.border[3] * borderHeightModifier;
+
+        // top left border
+        if (frame.border[0] || frame.border[3]) {
+            if (rectContainsPoint(p, lb - handleWidth / 2, tb - handleWidth / 2, handleWidth, handleWidth)) {
+                return HANDLE.BORDER_TOP_LEFT;
             }
         }
+
+        // top border
+        if (rectContainsPoint(p, (lb + rb) / 2 - handleWidth / 2, tb - handleWidth / 2, handleWidth, handleWidth)) {
+            return HANDLE.BORDER_TOP;
+        }
+
+        // top right border
+        if (frame.border[2] || frame.border[3]) {
+            if (rectContainsPoint(p, rb - handleWidth / 2, tb - handleWidth / 2, handleWidth, handleWidth)) {
+                return HANDLE.BORDER_TOP_RIGHT;
+            }
+        }
+
+        // left border
+        if (rectContainsPoint(p, lb - handleWidth / 2, (bb + tb) / 2 - handleWidth / 2, handleWidth, handleWidth)) {
+            return HANDLE.BORDER_LEFT;
+        }
+
+        // right border
+        if (rectContainsPoint(p, rb - handleWidth / 2, (bb + tb) / 2 - handleWidth / 2, handleWidth, handleWidth)) {
+            return HANDLE.BORDER_RIGHT;
+        }
+
+        // bottom left border
+        if (frame.border[0] || frame.border[1]) {
+            if (rectContainsPoint(p, lb - handleWidth / 2, bb - handleWidth / 2, handleWidth, handleWidth)) {
+                return HANDLE.BORDER_BOTTOM_LEFT;
+            }
+        }
+
+        // bottom border
+        if (rectContainsPoint(p, (lb + rb) / 2 - handleWidth / 2, bb - handleWidth / 2, handleWidth, handleWidth)) {
+            return HANDLE.BORDER_BOTTOM;
+        }
+
+        // bottom right border
+        if (frame.border[1] || frame.border[2]) {
+            if (rectContainsPoint(p, rb - handleWidth / 2, bb - handleWidth / 2, handleWidth, handleWidth)) {
+                return HANDLE.BORDER_BOTTOM_RIGHT;
+            }
+        }
+
+        // top left corner
+        if (rectContainsPoint(p, left - handleWidth / 2, top - handleWidth / 2, handleWidth, handleWidth)) {
+            return HANDLE.TOP_LEFT;
+        }
+        // top right corner
+        if (rectContainsPoint(p, left + width - handleWidth / 2, top - handleWidth / 2, handleWidth, handleWidth)) {
+            return HANDLE.TOP_RIGHT;
+        }
+        // bottom left corner
+        if (rectContainsPoint(p, left - handleWidth / 2, top + height - handleWidth / 2, handleWidth, handleWidth)) {
+            return HANDLE.BOTTOM_LEFT;
+        }
+        // bottom right corner
+        if (rectContainsPoint(p, left + width - handleWidth / 2, top + height - handleWidth / 2, handleWidth, handleWidth)) {
+            return HANDLE.BOTTOM_RIGHT;
+        }
+
+
+        // pivot
+
+        // frame
 
         return null;
     };
@@ -1203,15 +1551,23 @@ editor.once('load', function() {
         grab = hovering || shiftDown;
         grabbing = newFrame || selected && selected.handle || panning;
 
-        if (grab)
-            canvasPanel.class.add('grab');
-        else
-            canvasPanel.class.remove('grab');
+        var cls = canvasPanel.class;
+        var oldGrab = cls.contains('grab');
+        var oldGrabbing = cls.contains('grabbing');
 
-        if (grabbing)
-            canvasPanel.class.add('grabbing');
-        else
-            canvasPanel.class.remove('grabbing');
+        if (grab && ! oldGrab) {
+            cls.add('grab');
+        }
+        else if (! grab && oldGrab) {
+            cls.remove('grab');
+        }
+
+        if (grabbing && ! oldGrabbing) {
+            cls.add('grabbing');
+        }
+        else if (! grabbing && oldGrabbing) {
+            cls.remove('grabbing');
+        }
     };
 
     // if the selected sprite is deleted then deselect it

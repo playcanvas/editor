@@ -35,7 +35,6 @@ editor.once('load', function() {
         // but we'll use the internal rect fields to edit it
         var fieldRect = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Rect',
             type: 'vec4',
             link: atlasAsset,
             paths: frames.map(function (f) {return 'data.frames.' + f + '.rect';})
@@ -48,6 +47,7 @@ editor.once('load', function() {
             suspendChanges = true;
             updatePositionX();
             updateSizeX();
+            updateBorderMax();
             suspendChanges = false;
         });
 
@@ -57,6 +57,7 @@ editor.once('load', function() {
             suspendChanges = true;
             updatePositionY();
             updateSizeY();
+            updateBorderMax();
             suspendChanges = false;
         });
 
@@ -65,6 +66,7 @@ editor.once('load', function() {
 
             suspendChanges = true;
             updateSizeX();
+            updateBorderMax();
             suspendChanges = false;
         });
 
@@ -74,43 +76,60 @@ editor.once('load', function() {
             suspendChanges = true;
             updatePositionY();
             updateSizeY();
+            updateBorderMax();
             suspendChanges = false;
         });
 
         var updatePositionX = function () {
             if (fieldRect[0].proxy) {
-                fieldPosition[0].proxy = fieldRect[0].proxy;
                 fieldPosition[0].value = null;
             } else {
                 fieldPosition[0].value = fieldRect[0].value;
             }
+
+            // give time to rect proxy to update
+            setTimeout(function () {
+                fieldPosition[0].proxy = fieldRect[0].proxy;
+            });
         };
 
         var updatePositionY = function () {
-            if (fieldRect[1].proxy || fieldRect[3].proxy) {
-                fieldPosition[1].proxy = fieldRect[1].proxy || fieldRect[3].proxy;
+            if (fieldRect[1].proxy) {
                 fieldPosition[1].value = null;
             } else {
                 fieldPosition[1].value = fieldRect[1].value;
             }
+
+            // give time to rect proxy to update
+            setTimeout(function () {
+                fieldPosition[1].proxy = fieldRect[1].proxy;
+            });
         };
 
         var updateSizeX = function () {
             if (fieldRect[2].proxy) {
-                fieldSize[0].proxy = fieldRect[2].proxy;
                 fieldSize[0].value = null;
             } else {
                 fieldSize[0].value = fieldRect[2].value;
             }
+
+            // give time to rect proxy to update
+            setTimeout(function () {
+                fieldSize[0].proxy = fieldRect[2].proxy;
+            });
         };
 
         var updateSizeY = function () {
             if (fieldRect[3].proxy) {
-                fieldSize[1].proxy = fieldRect[3].proxy;
                 fieldSize[1].value = null;
             } else {
                 fieldSize[1].value = fieldRect[3].value;
             }
+
+            // give time to rect proxy to update
+            setTimeout(function () {
+                fieldSize[1].proxy = fieldRect[3].proxy;
+            });
         };
 
         // position in pixels
@@ -129,6 +148,7 @@ editor.once('load', function() {
             if (suspendChanges) return;
             suspendChanges = true;
             fieldRect[0].value = value;
+            fieldPosition[0].proxy = fieldRect[0].proxy;
             suspendChanges = false;
         });
 
@@ -136,6 +156,7 @@ editor.once('load', function() {
             if (suspendChanges) return;
             suspendChanges = true;
             fieldRect[1].value = value;
+            fieldPosition[1].proxy = fieldRect[1].proxy;
             suspendChanges = false;
         });
 
@@ -155,6 +176,7 @@ editor.once('load', function() {
             if (suspendChanges) return;
             suspendChanges = true;
             fieldRect[2].value = value;
+            fieldSize[0].proxy = fieldRect[2].proxy;
             suspendChanges = false;
         });
 
@@ -162,6 +184,7 @@ editor.once('load', function() {
             if (suspendChanges) return;
             suspendChanges = true;
             fieldRect[3].value = value;
+            fieldSize[1].proxy = fieldRect[3].proxy;
             suspendChanges = false;
         });
 
@@ -282,6 +305,45 @@ editor.once('load', function() {
         };
 
         updatePivotPreset();
+
+        // border
+        var fieldBorder = editor.call('attributes:addField', {
+            parent: panel,
+            placeholder: ['←', '↓', '→', '↑'],
+            name: 'Border',
+            type: 'vec4',
+            link: atlasAsset,
+            min: 0,
+            paths: frames.map(function (f) {return 'data.frames.' + f + '.border';})
+        });
+
+        var updateBorderMax = function () {
+            // set left border max to not exceed the right border in any frame
+            var maxLeft = atlasImage.width;
+            var maxRight = atlasImage.width;
+            var maxBottom = atlasImage.height;
+            var maxTop = atlasImage.height;
+
+            var frameData = atlasAsset.getRaw('data.frames')._data;
+
+            for (var i = 0, len = frames.length; i<len; i++) {
+                var rect = frameData[frames[i]]._data.rect;
+                var border = frameData[frames[i]]._data.border;
+                maxLeft = Math.min(maxLeft, rect[2] - border[2]);
+                maxRight = Math.min(maxRight, rect[2] - border[0]);
+                maxBottom = Math.min(maxBottom, rect[3] - border[3]);
+                maxTop = Math.min(maxTop, rect[3] - border[1]);
+            }
+
+            fieldBorder[0].max = maxLeft;
+            fieldBorder[2].max = maxRight;
+            fieldBorder[1].max = maxBottom;
+            fieldBorder[3].max = maxTop;
+        };
+
+        for (var i = 0; i<4; i++) {
+            fieldBorder[i].on('change', updateBorderMax);
+        }
 
         var panelButtons = editor.call('attributes:addPanel', {
             parent: rootPanel,
