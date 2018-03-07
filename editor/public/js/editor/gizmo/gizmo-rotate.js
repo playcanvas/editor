@@ -24,6 +24,7 @@ editor.once('load', function() {
     var startRotation = new pc.Quat();
 
     var immediateRenderOptions;
+    var noDepthImmediateRenderOptions
 
     var snap = false;
     var snapIncrement = 5;
@@ -100,6 +101,11 @@ editor.once('load', function() {
 
         immediateRenderOptions = {
             layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate')
+        };
+
+        noDepthImmediateRenderOptions = {
+            layer: editor.call('gizmo:layers', 'Axis Rotate Gizmo Immediate'),
+            depthTest: false
         };
 
         // on picker hover
@@ -186,7 +192,7 @@ editor.once('load', function() {
                     // quat.invert().transformVector(vecC, vecC);
                     vecC.add(posGizmo);
 
-                    app.renderLine(posGizmo, vecC, gizmo.colorActive, pc.LINEBATCH_GIZMO);
+                    app.renderLine(posGizmo, vecC, gizmo.colorActive, noDepthImmediateRenderOptions);
                 }
 
                 editor.emit('gizmo:rotate:render', dt);
@@ -213,6 +219,10 @@ editor.once('load', function() {
                 gizmo.plane.z.model.enabled = Math.abs(vecA.z) > 0.1 && visible;
 
                 var worldTransform = gizmo.root.getWorldTransform();
+
+                // draw cull sphere
+                gizmo.line.cull.node.worldTransform = worldTransform;
+                app.renderMeshInstance(gizmo.line.cull, immediateRenderOptions);
 
                 // render lines
                 // x
@@ -256,9 +266,7 @@ editor.once('load', function() {
                     }
                 }
 
-                // cull
-                gizmo.line.cull.node.worldTransform = worldTransform;
-                app.renderMeshInstance(gizmo.line.cull, immediateRenderOptions);
+
             }
 
             mouseTapMoved = false
@@ -555,7 +563,11 @@ editor.once('load', function() {
             segments: 75,
             radius: 1.95
         });
-        var material = createMaterial(new pc.Color(1, 1, 1, 0));
+        var material = createMaterial(new pc.Color(1, 1, 1, 0.5));
+        material.redWrite = false;
+        material.greenWrite = false;
+        material.blueWrite = false;
+        material.alphaWrite = false;
         material.update();
         meshInstance = createMeshInstance(node, mesh, material);
         meshInstances.push(meshInstance);

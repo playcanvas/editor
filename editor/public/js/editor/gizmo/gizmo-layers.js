@@ -96,18 +96,10 @@ editor.once('load', function() {
     // Second layer after every scene layer - clears depth buffer
     editor.call('gizmo:layers:register', 'Dim Gizmo', false, {
         overrideClear: true,
-        clearDepthBuffer: true
-        // onPreRender: function () {
-        //     var app = editor.call('viewport:app');
-        //     if (app) {
-        //         // clear depth so that gizmos appear in front of
-        //         // objects in the regualar scene
-        //         app.graphicsDevice.clear({
-        //             flags: pc.CLEARFLAG_DEPTH,
-        //             depth: 1
-        //         });
-        //     }
-        // }
+        clearDepthBuffer: true,
+        onPreRender: function () {
+
+        }
     });
     // Third layer after every scene layer - clears depth and color buffer (used by viewport-outline)
     editor.call('gizmo:layers:register', 'Viewport Outline', false, {
@@ -124,6 +116,14 @@ editor.once('load', function() {
     });
 
     editor.call('gizmo:layers:register', 'Axis Gizmo Immediate', false, {
+        passThrough: true,
+        overrideClear: true,
+        clearDepthBuffer: true,
+        opaqueSortMode: pc.SORTMODE_NONE,
+        transparentSortMode: pc.SORTMODE_NONE
+    });
+
+    editor.call('gizmo:layers:register', 'Axis Rotate Gizmo Immediate', false, {
         passThrough: true,
         overrideClear: true,
         clearDepthBuffer: true,
