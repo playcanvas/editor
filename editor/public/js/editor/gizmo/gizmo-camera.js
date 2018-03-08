@@ -10,6 +10,8 @@ editor.once('load', function () {
     var colorBehind = new pc.Color(1, 1, 1, .15);
     var colorPrimary = new pc.Color(1, 1, 1);
 
+    var immediateRenderOptions;
+
     // gizmo class
     function Gizmo() {
         this._link = null;
@@ -99,8 +101,8 @@ editor.once('load', function () {
         if (! this.visible)
             return;
 
-        app.renderLines(this.lines, colorBehind, pc.LINEBATCH_GIZMO);
-        app.renderLines(this.lines, colorPrimary, pc.LINEBATCH_WORLD);
+        app.renderLines(this.lines, colorBehind, immediateRenderOptions);
+        app.renderLines(this.lines, colorPrimary, immediateRenderOptions);
     };
     // link to entity
     Gizmo.prototype.link = function(obj) {
@@ -175,6 +177,11 @@ editor.once('load', function () {
 
     editor.once('viewport:load', function() {
         app = editor.call('viewport:app');
+
+        immediateRenderOptions = {
+            layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate'),
+            mask: GIZMO_MASK
+        }
     });
 
     editor.on('viewport:gizmoUpdate', function(dt) {

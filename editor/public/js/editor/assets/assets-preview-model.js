@@ -138,7 +138,7 @@ editor.once('load', function() {
         lightEntity.light.intensity = 1.0 / (Math.min(1.0, app.scene.exposure) || 0.01);
 
         layer.addMeshInstances(model.meshInstances);
-        layer.addLight(lightEntity.light.light);
+        layer.addLight(lightEntity.light);
         layer.addCamera(cameraEntity.camera);
 
         app.renderer.renderComposition(layerComposition);

@@ -103,16 +103,8 @@ editor.once('load', function() {
     });
     // Third layer after every scene layer - clears depth and color buffer (used by viewport-outline)
     editor.call('gizmo:layers:register', 'Viewport Outline', false, {
-        onPreRender: function () {
-            // var app = editor.call('viewport:app');
-            // if (app) {
-            //     app.graphicsDevice.clear({
-            //         color: [ 0, 0, 0, 0 ],
-            //         depth: 1.0,
-            //         flags: pc.CLEARFLAG_COLOR | pc.CLEARFLAG_DEPTH
-            //     });
-            // }
-        }
+        passThrough: true,
+        isPostEffect: true
     });
 
     editor.call('gizmo:layers:register', 'Axis Gizmo Immediate', false, {

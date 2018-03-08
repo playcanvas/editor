@@ -113,7 +113,7 @@ editor.once('load', function() {
         scene._updateSkybox(app.graphicsDevice);
 
         layer.addCamera(cameraEntity.camera);
-        layer.addLight(lightEntity.light.light);
+        layer.addLight(lightEntity.light);
         app.renderer.renderComposition(layerComposition);
 
         // read pixels from texture

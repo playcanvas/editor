@@ -1,11 +1,12 @@
 editor.once('load', function() {
     'use strict';
 
-    var selectedEntity = null;
-    var currentCamera = null;
+    var selectedEntity = null; // currently selected entity
+    var currentCamera = null;  // current camera rendering to viewport
     var renderCamera = false;
-    var pinnedCamera = null;
-    var lastCamera = null;
+    var pinnedCamera = null;   // camera that is currently pinned in preview
+    var enabled = false;
+    var lastCamera = null;     // camera that was last set to preview
     var oldLayers = null;
     var events = [ ];
     var evtUpdate = null;
@@ -47,6 +48,8 @@ editor.once('load', function() {
             return;
 
         editor.call('camera:set', obj.entity);
+
+        // updateCameraState();
     }, false);
 
 
@@ -67,6 +70,8 @@ editor.once('load', function() {
         rect.y = 1.0 - ((43.0 + 196.0) / (height || 1.0));
         rect.z = 258.0 / width;
         rect.w = 198.0 / height;
+
+        updateCameraState();
     });
 
     var updateCameraState = function() {
@@ -83,14 +88,17 @@ editor.once('load', function() {
         }
 
         if (renderCamera) {
+            var camera;
+
             // start rendering preview
             cameraPreviewBorder.classList.add('active');
 
             var obj = pinnedCamera || selectedEntity;
-
             if (obj.entity && obj.entity.camera) {
-                var camera = obj.entity.camera;
+                camera = obj.entity.camera;
+            }
 
+            if (camera) {
                 camera.enabled = true;
                 camera.rect = rect;
                 camera.camera.cullingMask = GEOMETRY_ONLY_CULLING_MASK;
@@ -100,15 +108,23 @@ editor.once('load', function() {
                 var cameraLayers = camera.layers.slice(0);
                 // add all the gizmo layers to be rendered
                 for (var i = 0; i < gizmoLayers.length; i++) {
-                    cameraLayers.push(gizmoLayers[i].id);
+                    if (cameraLayers.indexOf(gizmoLayers[i].id) < 0) {
+                        cameraLayers.push(gizmoLayers[i].id);
+                    }
                 }
                 camera.layers = cameraLayers;
 
+                if (lastCamera && lastCamera !== camera) {
+                    lastCamera.layers = oldLayers;
+                    lastCamera.enabled = false;
+                    lastCamera.camera.cullingMask = DEFAULT_CULLING_MASK;
+                    lastCamera = null;
+                }
+
                 lastCamera = camera;
             }
-
-
         } else {
+
             // stop rendering preview
             cameraPreviewBorder.classList.remove('active');
 
@@ -118,6 +134,8 @@ editor.once('load', function() {
                 lastCamera.camera.cullingMask = DEFAULT_CULLING_MASK;
                 lastCamera = null;
             }
+
+            enabled = false;
         }
     };
 

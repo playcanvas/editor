@@ -213,7 +213,7 @@ editor.once('load', function() {
 
         // set up layer
         layer.addCamera(cameraEntity.camera);
-        layer.addLight(lightEntity.light.light);
+        layer.addLight(lightEntity.light);
         layer.addMeshInstances(sphere.enabled ? sphere.model.meshInstances : box.model.meshInstances);
 
         // render

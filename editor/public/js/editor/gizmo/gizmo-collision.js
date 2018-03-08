@@ -94,7 +94,8 @@ editor.once('load', function () {
         this.asset = 0;
         this.entity = null;
         this.color;
-    }
+    };
+
     // update lines
     Gizmo.prototype.update = function() {
         if (! app) return; // webgl not available
@@ -116,8 +117,9 @@ editor.once('load', function () {
 
         var type = collision.type;
 
-        if (type === 'cylinder' || type === 'capsule')
+        if (type === 'cylinder' || type === 'capsule') {
             type += '-' + axesNames[collision.axis];
+        }
 
         if (this.type !== type) {
             this.type = type;
@@ -204,6 +206,12 @@ editor.once('load', function () {
                 }
                 // set to model
                 this.entity.model.model = model;
+
+                // set masks after model is assigned to ensure they are correct
+                model.meshInstances.forEach(function (mi) {
+                    mi.mask = GIZMO_MASK;
+                });
+
                 this.entity.setLocalScale(1, 1, 1);
             } else if (this.type === 'mesh') {
                 this.asset = collision.asset;
@@ -428,24 +436,6 @@ editor.once('load', function () {
         app = editor.call('viewport:app');
         if (! app) return; // webgl not available
 
-        // app.scene.drawCalls.push(new pc.Command(10, pc.BLEND_NONE, function() {
-        //     app.graphicsDevice.clear({
-        //         depth: 1.0,
-        //         flags: pc.CLEARFLAG_DEPTH
-        //     });
-        // }));
-
-        // app.scene.drawCalls.push(new pc.Command(13, pc.BLEND_NONE, function() {
-        //     var gl = app.graphicsDevice.gl;
-        //     gl.enable(gl.POLYGON_OFFSET_FILL);
-        //     gl.polygonOffset(0, -8);
-        // }));
-
-        // app.scene.drawCalls.push(new pc.Command(11, pc.BLEND_NONE, function() {
-        //     var gl = app.graphicsDevice.gl;
-        //     gl.disable(gl.POLYGON_OFFSET_FILL);
-        // }));
-
         container = new pc.Entity(app);
         app.root.addChild(container);
 
@@ -637,7 +627,6 @@ editor.once('load', function () {
             var meshInstance = new pc.MeshInstance(node, mesh, args.matDefault);
             meshInstance.__editor = true;
             meshInstance.__collision = true;
-            meshInstance.mask = GIZMO_MASK;
             // meshInstance.layer = 12;
             meshInstance.castShadow = false;
             // meshInstance.castLightmapShadow = false;
@@ -647,7 +636,6 @@ editor.once('load', function () {
             var meshInstanceBehind = new pc.MeshInstance(node, mesh, args.matBehind);
             meshInstanceBehind.__editor = true;
             meshInstanceBehind.pick = false;
-            meshInstanceBehind.mask = GIZMO_MASK;
             // meshInstanceBehind.layer = 2;
             meshInstanceBehind.drawToDepth = false;
             meshInstanceBehind.castShadow = false;
@@ -658,7 +646,6 @@ editor.once('load', function () {
             var meshInstanceOccluder = new pc.MeshInstance(node, mesh, args.matOccluder);
             meshInstanceOccluder.__editor = true;
             meshInstanceOccluder.pick = false;
-            meshInstanceOccluder.mask = GIZMO_MASK;
             // meshInstanceOccluder.layer = 9;
             meshInstanceOccluder.castShadow = false;
             // meshInstanceOccluder.castLightmapShadow = false;

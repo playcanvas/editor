@@ -13,10 +13,12 @@ editor.once('load', function() {
     var colors = { };
     var render = 0;
     var cleared = false;
+    var viewportLayer = null
 
     var targets = [ ];
     var textures = [ ];
 
+    var SHADER_OUTLINE = 24;
 
     editor.on('selector:change', function(type, items) {
         if (selection[config.self.id])
@@ -33,6 +35,9 @@ editor.once('load', function() {
                 if (items[i].entity && (modelType === 'asset' && items[i].get('components.model.asset')) || modelType !== 'asset') {
                     selection[config.self.id].push(items[i].entity);
                     render++;
+                    if (!viewportLayer.enabled) {
+                        viewportLayer.enabled = true;
+                    }
                 }
             }
         }
@@ -59,6 +64,9 @@ editor.once('load', function() {
                 if (entity.entity && (modelType === 'asset' && entity.get('components.model.asset')) || modelType !== 'asset') {
                     selection[user].push(entity.entity);
                     render++;
+                    if (!viewportLayer.enabled) {
+                        viewportLayer.enabled = true;
+                    }
                 }
             }
         }
@@ -79,308 +87,139 @@ editor.once('load', function() {
         users.splice(ind, 1);
     });
 
+    // ### OVERLAY QUAD MATERIAL ###
+    var chunks = pc.shaderChunks;
+    var shaderFinal = chunks.createShaderFromCode(device, chunks.fullscreenQuadVS, chunks.outputTex2DPS, "outputTex2D");
 
-    // material final
-    var materialFinal = new pc.BasicMaterial();
-    var shaderFinal;
-    materialFinal.updateShader = function(device) {
-        if (! shaderFinal) {
-            shaderFinal = new pc.Shader(device, {
-                attributes: {
-                    aPosition: pc.SEMANTIC_POSITION
-                },
+    // ### OUTLINE EXTEND SHADER H ###
+    var shaderBlurHPS = ' \
+        precision ' + device.precision + ' float;\n \
+        varying vec2 vUv0;\n \
+        uniform float uOffset;\n \
+        uniform sampler2D source;\n \
+        void main(void)\n \
+        {\n \
+            float diff = 0.0;\n \
+            vec4 pixel;\n \
+            vec4 texel = texture2D(source, vUv0);\n \
+            vec4 firstTexel = texel;\n \
+            \n \
+            pixel = texture2D(source, vUv0 + vec2(uOffset * -2.0, 0.0));\n \
+            texel = max(texel, pixel);\n \
+            diff = max(diff, length(firstTexel.rgb - pixel.rgb));\n \
+            \n \
+            pixel = texture2D(source, vUv0 + vec2(uOffset * -1.0, 0.0));\n \
+            texel = max(texel, pixel);\n \
+            diff = max(diff, length(firstTexel.rgb - pixel.rgb));\n \
+            \n \
+            pixel = texture2D(source, vUv0 + vec2(uOffset * +1.0, 0.0));\n \
+            texel = max(texel, pixel);\n \
+            diff = max(diff, length(firstTexel.rgb - pixel.rgb));\n \
+            \n \
+            pixel = texture2D(source, vUv0 + vec2(uOffset * +2.0, 0.0));\n \
+            texel = max(texel, pixel);\n \
+            diff = max(diff, length(firstTexel.rgb - pixel.rgb));\n \
+            \n \
+            gl_FragColor = vec4(texel.rgb, min(diff, 1.0));\n \
+        }\n';
+    var shaderBlurH = chunks.createShaderFromCode(device, chunks.fullscreenQuadVS, shaderBlurHPS, "editorOutlineH");
 
-                vshader: ' \
-                    attribute vec2 aPosition;\n \
-                    varying vec2 vUv0;\n \
-                    void main(void)\n \
-                    {\n \
-                        gl_Position = vec4(aPosition, 0.0, 1.0);\n \
-                        vUv0 = (aPosition.xy + 1.0) * 0.5;\n \
-                    }\n',
+    // ### OUTLINE EXTEND SHADER V ###
+    var shaderBlurVPS = ' \
+        precision ' + device.precision + ' float;\n \
+        varying vec2 vUv0;\n \
+        uniform float uOffset;\n \
+        uniform sampler2D source;\n \
+        void main(void)\n \
+        {\n \
+            vec4 pixel;\n \
+            vec4 texel = texture2D(source, vUv0);\n \
+            vec4 firstTexel = texel;\n \
+            float diff = texel.a;\n \
+            \n \
+            pixel = texture2D(source, vUv0 + vec2(0.0, uOffset * -2.0));\n \
+            texel = max(texel, pixel);\n \
+            diff = max(diff, length(firstTexel.rgb - pixel.rgb));\n \
+            \n \
+            pixel = texture2D(source, vUv0 + vec2(0.0, uOffset * -1.0));\n \
+            texel = max(texel, pixel);\n \
+            diff = max(diff, length(firstTexel.rgb - pixel.rgb));\n \
+            \n \
+            pixel = texture2D(source, vUv0 + vec2(0.0, uOffset * +1.0));\n \
+            texel = max(texel, pixel);\n \
+            diff = max(diff, length(firstTexel.rgb - pixel.rgb));\n \
+            \n \
+            pixel = texture2D(source, vUv0 + vec2(0.0, uOffset * +2.0));\n \
+            texel = max(texel, pixel);\n \
+            diff = max(diff, length(firstTexel.rgb - pixel.rgb));\n \
+            \n \
+            gl_FragColor = vec4(texel.rgb, min(diff, 1.0));\n \
+        }\n';
+    var shaderBlurV = chunks.createShaderFromCode(device, chunks.fullscreenQuadVS, shaderBlurVPS, "editorOutlineV");
 
-                fshader: ' \
-                    precision ' + device.precision + ' float;\n \
-                    varying vec2 vUv0;\n \
-                    uniform sampler2D uColorBuffer;\n \
-                    void main(void)\n \
-                    {\n \
-                        gl_FragColor = texture2D(uColorBuffer, vUv0);\n \
-                    }\n'
-            });
-        }
-        this.shader = shaderFinal;
+
+    // ### SETUP THE LAYER ###
+    viewportLayer = editor.call('gizmo:layers', 'Viewport Outline');
+    viewportLayer.onPostRender = function () {
+        var uColorBuffer = device.scope.resolve('source');
+        uColorBuffer.setValue(textures[0]);
+        device.setBlending(true);
+        device.setBlendFunction(pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
+        pc.drawQuadWithShader(device, null, shaderFinal, null, null, true);
     };
-    materialFinal.blend = true;
-    materialFinal.blendDst = 8;
-    materialFinal.blendEquation = 0;
-    materialFinal.blendSrc = 6;
-    materialFinal.blendType = 2;
-    materialFinal.depthWrite = false;
-    materialFinal.depthTest = false;
-    materialFinal.update();
 
+    var outlineLayer = new pc.Layer({
+        name: "Outline",
+        opaqueSortMode: pc.SORTMODE_NONE,
+        passThrough: true,
+        overrideClear: true,
+        clearColorBuffer: true,
+        clearDepthBuffer: true,
+        clearColor: new pc.Color(0,0,0,0),
+        shaderPass: SHADER_OUTLINE,
 
-    var shaderBlurH = new pc.Shader(device, {
-        attributes: {
-            aPosition: pc.SEMANTIC_POSITION
-        },
+        onPostRender: function() {
+            // extend pass X
+            var uOffset = device.scope.resolve('uOffset');
+            var uColorBuffer = device.scope.resolve('source');
+            uOffset.setValue(1.0 / device.width / 2.0);
+            uColorBuffer.setValue(textures[0]);
+            pc.drawQuadWithShader(device, targets[1], shaderBlurH);
 
-        vshader: ' \
-            attribute vec2 aPosition;\n \
-            varying vec2 vUv0;\n \
-            void main(void)\n \
-            {\n \
-                gl_Position = vec4(aPosition, 0.0, 1.0);\n \
-                vUv0 = (aPosition.xy + 1.0) * 0.5;\n \
-            }\n',
-
-        fshader: ' \
-            precision ' + device.precision + ' float;\n \
-            varying vec2 vUv0;\n \
-            uniform float uOffset;\n \
-            uniform sampler2D uColorBuffer;\n \
-            void main(void)\n \
-            {\n \
-                float diff = 0.0;\n \
-                vec4 pixel;\n \
-                vec4 texel = texture2D(uColorBuffer, vUv0);\n \
-                vec4 firstTexel = texel;\n \
-                \n \
-                pixel = texture2D(uColorBuffer, vUv0 + vec2(uOffset * -2.0, 0.0));\n \
-                texel = max(texel, pixel);\n \
-                diff = max(diff, length(firstTexel.rgb - pixel.rgb));\n \
-                \n \
-                pixel = texture2D(uColorBuffer, vUv0 + vec2(uOffset * -1.0, 0.0));\n \
-                texel = max(texel, pixel);\n \
-                diff = max(diff, length(firstTexel.rgb - pixel.rgb));\n \
-                \n \
-                pixel = texture2D(uColorBuffer, vUv0 + vec2(uOffset * +1.0, 0.0));\n \
-                texel = max(texel, pixel);\n \
-                diff = max(diff, length(firstTexel.rgb - pixel.rgb));\n \
-                \n \
-                pixel = texture2D(uColorBuffer, vUv0 + vec2(uOffset * +2.0, 0.0));\n \
-                texel = max(texel, pixel);\n \
-                diff = max(diff, length(firstTexel.rgb - pixel.rgb));\n \
-                \n \
-                gl_FragColor = vec4(texel.rgb, min(diff, 1.0));\n \
-            }\n'
-    });
-    var shaderBlurV = new pc.Shader(device, {
-        attributes: {
-            aPosition: pc.SEMANTIC_POSITION
-        },
-
-        vshader: ' \
-            attribute vec2 aPosition;\n \
-            varying vec2 vUv0;\n \
-            void main(void)\n \
-            {\n \
-                gl_Position = vec4(aPosition, 0.0, 1.0);\n \
-                vUv0 = (aPosition.xy + 1.0) * 0.5;\n \
-            }\n',
-
-        fshader: ' \
-            precision ' + device.precision + ' float;\n \
-            varying vec2 vUv0;\n \
-            uniform float uOffset;\n \
-            uniform sampler2D uColorBuffer;\n \
-            void main(void)\n \
-            {\n \
-                vec4 pixel;\n \
-                vec4 texel = texture2D(uColorBuffer, vUv0);\n \
-                vec4 firstTexel = texel;\n \
-                float diff = texel.a;\n \
-                \n \
-                pixel = texture2D(uColorBuffer, vUv0 + vec2(0.0, uOffset * -2.0));\n \
-                texel = max(texel, pixel);\n \
-                diff = max(diff, length(firstTexel.rgb - pixel.rgb));\n \
-                \n \
-                pixel = texture2D(uColorBuffer, vUv0 + vec2(0.0, uOffset * -1.0));\n \
-                texel = max(texel, pixel);\n \
-                diff = max(diff, length(firstTexel.rgb - pixel.rgb));\n \
-                \n \
-                pixel = texture2D(uColorBuffer, vUv0 + vec2(0.0, uOffset * +1.0));\n \
-                texel = max(texel, pixel);\n \
-                diff = max(diff, length(firstTexel.rgb - pixel.rgb));\n \
-                \n \
-                pixel = texture2D(uColorBuffer, vUv0 + vec2(0.0, uOffset * +2.0));\n \
-                texel = max(texel, pixel);\n \
-                diff = max(diff, length(firstTexel.rgb - pixel.rgb));\n \
-                \n \
-                gl_FragColor = vec4(texel.rgb, min(diff, 1.0));\n \
-            }\n'
-    });
-
-
-    var node = new pc.GraphNode();
-    var mesh = new pc.Mesh();
-
-    var vertexFormat = new pc.VertexFormat(device, [
-        { semantic: pc.SEMANTIC_POSITION, components: 2, type: pc.TYPE_FLOAT32 }
-    ]);
-    var vertexBuffer = new pc.VertexBuffer(device, vertexFormat, 4);
-    var iterator = new pc.VertexIterator(vertexBuffer);
-    iterator.element[pc.SEMANTIC_POSITION].set(-1, -1);
-    iterator.next();
-    iterator.element[pc.SEMANTIC_POSITION].set(1, -1);
-    iterator.next();
-    iterator.element[pc.SEMANTIC_POSITION].set(-1, 1);
-    iterator.next();
-    iterator.element[pc.SEMANTIC_POSITION].set(1, 1);
-    iterator.end();
-    mesh.vertexBuffer = vertexBuffer;
-
-
-    var indices = [ 0, 1, 2, 1, 3, 2 ];
-    var indexBuffer = new pc.IndexBuffer(device, pc.INDEXFORMAT_UINT16, indices.length);
-    var dst = new Uint16Array(indexBuffer.lock());
-    dst.set(indices);
-    indexBuffer.unlock();
-    mesh.indexBuffer[0] = indexBuffer;
-
-    mesh.primitive[0].type = pc.PRIMITIVE_TRIANGLES;
-    mesh.primitive[0].base = 0;
-    mesh.primitive[0].count = indices.length;
-    mesh.primitive[0].indexed = true;
-
-    var meshInstance = new pc.MeshInstance(node, mesh, materialFinal);
-    meshInstance.updateKey = function() {
-        this.key = pc._getDrawcallSortKey(14, this.material.blendType, false, 0);
-    };
-    meshInstance.layer = 14;
-    meshInstance.updateKey();
-    meshInstance.cull = false;
-    meshInstance.pick = false;
-    meshInstance.mask = 8;
-    meshInstance.drawToDepth = false;
-
-    scene.drawCalls.push(meshInstance);
-
-    // add program lib with outline shader
-    device.programLib.register('outline', {
-        generateKey: function(device, options) {
-            var key = 'outline';
-            if (options.skin) key += '_skin';
-            if (options.opacityMap) key += '_opam';
-            if (options.instancing) key += '_inst';
-            return key;
-        },
-        createShaderDefinition: function(device, options) {
-            // attributes
-            var attributes = {
-                vertex_position: pc.SEMANTIC_POSITION
-            };
-
-            if (options.skin) {
-                attributes.vertex_boneWeights = pc.SEMANTIC_BLENDWEIGHT;
-                attributes.vertex_boneIndices = pc.SEMANTIC_BLENDINDICES;
-            }
-
-            if (options.opacityMap)
-                attributes.vertex_texCoord0 = pc.SEMANTIC_TEXCOORD0;
-
-            // vertex shader
-            var chunks = pc.shaderChunks;
-            var code = '';
-
-            // vertex start
-            code += chunks.transformDeclVS;
-            if (options.skin) {
-                code += pc.programlib.skinCode(device);
-                code += chunks.transformSkinnedVS;
-            } else if (options.instancing) {
-                attributes.instance_line1 = pc.SEMANTIC_TEXCOORD2;
-                attributes.instance_line2 = pc.SEMANTIC_TEXCOORD3;
-                attributes.instance_line3 = pc.SEMANTIC_TEXCOORD4;
-                attributes.instance_line4 = pc.SEMANTIC_TEXCOORD5;
-                code += chunks.instancingVS;
-                code += chunks.transformInstancedVS;
-            } else {
-                code += chunks.transformVS;
-            }
-            if (options.opacityMap) {
-                code += "attribute vec2 vertex_texCoord0;\n\n";
-                code += 'varying vec2 vUv0;\n\n';
-            }
-
-            // vertex body
-            code += pc.programlib.begin();
-            code += "   gl_Position = getPosition();\n";
-            if (options.opacityMap)
-                code += '    vUv0 = vertex_texCoord0;\n';
-            code += pc.programlib.end();
-
-            var vshader = code;
-
-            // fragment shader
-            code = pc.programlib.precisionCode(device);
-
-            if (options.opacityMap) {
-                code += 'varying vec2 vUv0;\n\n';
-                code += 'uniform sampler2D texture_opacityMap;\n\n';
-                code += chunks.alphaTestPS;
-            }
-
-            code += 'uniform vec4 uColor;\n';
-
-            code += pc.programlib.begin();
-
-            if (options.opacityMap) {
-                code += '    alphaTest(texture2D(texture_opacityMap, vUv0).' + options.opacityChannel + ' );\n\n';
-            }
-
-            code += "float depth = gl_FragCoord.z / gl_FragCoord.w;\n";
-            code += "gl_FragColor = uColor;\n";
-
-            code += pc.programlib.end();
-            var fshader = code;
-
-            return {
-                attributes: attributes,
-                vshader: vshader,
-                fshader: fshader
-            };
+            // extend pass Y
+            uOffset.setValue(1.0 / device.height / 2.0);
+            uColorBuffer.setValue(textures[1]);
+            pc.drawQuadWithShader(device, targets[0], shaderBlurV);
         }
     });
+    var outlineComp = new pc.LayerComposition();
+    outlineComp.pushOpaque(outlineLayer);
 
-    var shaderStatic = device.programLib.getProgram('outline', {
-        skin: false
-    });
-    var shaderSkin = device.programLib.getProgram('outline', {
-        skin: true
-    });
-    var shaderStaticOp = { };
-    var shaderSkinOp = { };
+    var onUpdateShaderOutline = function(options) {
+        if (options.pass !== SHADER_OUTLINE) return options;
+        var outlineOptions = {
+            opacityMap:                 options.opacityMap,
+            opacityMapUv:               options.opacityMapUv,
+            opacityMapChannel:          options.opacityMapChannel,
+            opacityMapTransform:        options.opacityMapTransform,
+            opacityVertexColor:         options.opacityVertexColor,
+            opacityVertexColorChannel:  options.opacityVertexColorChannel,
+            vertexColors:               options.vertexColors,
+            alphaTest:                  options.alphaTest,
+            skin:                       options.skin
+        }
+        return outlineOptions;
+    };
 
-    var chan = [ 'r', 'g', 'b', 'a' ];
-    for(var c = 0; c < chan.length; c++) {
-        shaderStaticOp[chan[c]] = device.programLib.getProgram('outline', {
-            skin: false,
-            opacityMap: true,
-            opacityChannel: chan[c]
-        });
-        shaderSkinOp[chan[c]] = device.programLib.getProgram('outline', {
-            skin: true,
-            opacityMap: true,
-            opacityChannel: chan[c]
-        });
-        shaderStaticOp[chan[c]] = device.programLib.getProgram('outline', {
-            skin: false,
-            opacityMap: true,
-            opacityChannel: chan[c]
-        });
-        shaderSkinOp[chan[c]] = device.programLib.getProgram('outline', {
-            skin: true,
-            opacityMap: true,
-            opacityChannel: chan[c]
-        });
-    }
-
-
+    // ### RENDER EVENT ###
     editor.on('viewport:postUpdate', function() {
         if (! render && cleared) return;
 
+        if (!render && !cleared) {
+            viewportLayer.enabled = false;
+        }
+
+        // ### INIT/RESIZE RENDERTARGETS ###
         if (targets[0] && (targets[0].width !== device.width || targets[1].height !== device.height)) {
             for(var i = 0; i < 2; i++) {
                 targets[i].destroy();
@@ -389,7 +228,6 @@ editor.once('load', function() {
             targets = [ ];
             textures = [ ];
         }
-
         if (! targets[0]) {
             for(var i = 0; i < 2; i++) {
                 textures[i] = new pc.Texture(device, {
@@ -404,32 +242,22 @@ editor.once('load', function() {
 
                 targets[i] = new pc.RenderTarget(device, textures[i]);
             }
-
-            meshInstance.setParameter('uColorBuffer', textures[0]);
         }
 
 
-        var camera = editor.call('camera:current').camera.camera;
+        var camera = editor.call('camera:current').camera;
 
-        var oldTarget = camera.renderTarget;
 
         if (render) {
-            meshInstance.visible = true;
-            camera.renderTarget = targets[0];
-            renderer.setCamera(camera);
+            // ### RENDER COLORED MESHINSTANCES TO RT0 ###
 
-            device.clear({
-                color: [ 0, 0, 0, 0 ],
-                depth: 1.0,
-                flags: pc.CLEARFLAG_COLOR | pc.CLEARFLAG_DEPTH
-            });
-
-            var ind = scene.drawCalls.indexOf(meshInstance);
-            scene.drawCalls.splice(ind, 1);
-            scene.drawCalls.push(meshInstance);
-
-            var oldBlending = device.getBlending();
-            device.setBlending(false);
+            outlineLayer.renderTarget = targets[0];
+            outlineLayer.clearMeshInstances();
+            if (outlineLayer.cameras[0] !== camera) {
+                outlineLayer.clearCameras();
+                outlineLayer.addCamera(camera);
+            }
+            var meshInstances = outlineLayer.opaqueMeshInstances;
 
             for(var u = 0; u < users.length; u++) {
                 var id = parseInt(users[u], 10);
@@ -438,8 +266,9 @@ editor.once('load', function() {
                     continue;
 
                 var color = colors[id];
-                if (! color) {
+                if (!color) {
                     var data = editor.call('whoisonline:color', id, 'data');
+
                     if (config.self.id === id)
                         data = [ 1, 1, 1 ];
 
@@ -457,90 +286,25 @@ editor.once('load', function() {
 
                     var meshes = model.meshInstances;
                     for(var m = 0; m < meshes.length; m++) {
-                        var opChan = 'r';
+                        //var opChan = 'r';
                         var instance = meshes[m];
 
-                        if (! instance.command && instance.drawToDepth && instance.material && instance.layer === pc.LAYER_WORLD) {
-                            var mesh = instance.mesh;
+                        //if (! instance.command && instance.drawToDepth && instance.material && instance.layer === pc.LAYER_WORLD) {
+                        if (!instance.command && instance.material) {
 
-                            var uColor = device.scope.resolve('uColor');
-                            uColor.setValue(color.data);
-
-                            renderer.modelMatrixId.setValue(instance.node.worldTransform.data);
-
-                            var material = instance.material;
-                            if (material.opacityMap) {
-                                renderer.opacityMapId.setValue(material.opacityMap);
-                                renderer.alphaTestId.setValue(material.alphaTest);
-                                if (material.opacityMapChannel) opChan = material.opacityMapChannel;
-                            }
-
-                            if (instance.skinInstance) {
-                                instance.skinInstance.updateMatrices(instance.node);
-                                instance.skinInstance.updateMatrixPalette();
-
-                                renderer._skinDrawCalls++;
-                                if (renderer.skinPosOffsetId) {
-                                    renderer.skinPosOffsetId.setValue(instance.skinInstance.rootNode.getPosition().data);
-                                }
-                                if (device.supportsBoneTextures) {
-                                    var boneTexture = instance.skinInstance.boneTexture;
-                                    renderer.boneTextureId.setValue(boneTexture);
-                                    renderer.boneTextureSizeId.setValue([boneTexture.width, boneTexture.height]);
-                                } else {
-                                    renderer.poseMatrixId.setValue(instance.skinInstance.matrixPalette);
-                                }
-                                device.setShader(material.opacityMap ? shaderSkinOp[opChan] : shaderSkin);
-                            } else {
-                                device.setShader(material.opacityMap ? shaderStaticOp[opChan] : shaderStatic);
-                            }
-
-                            var style = instance.renderStyle;
-
-                            device.setVertexBuffer(mesh.vertexBuffer, 0);
-                            device.setIndexBuffer(mesh.indexBuffer[style]);
-                            device.draw(mesh.primitive[style]);
-                            renderer._depthDrawCalls++;
+                            instance.onUpdateShader = onUpdateShaderOutline;
+                            instance.setParameter("material_emissive", color.data3, 1<<SHADER_OUTLINE);
+                            meshInstances.push(instance);
                         }
                     }
                 }
             }
 
-            // blur pass X
-            camera.renderTarget = targets[1];
-            renderer.setCamera(camera);
-            var mesh = meshInstance.mesh;
-            var uOffset = device.scope.resolve('uOffset');
-            var uColorBuffer = device.scope.resolve('uColorBuffer');
-            uOffset.setValue(1.0 / device.width / 2.0);
-            uColorBuffer.setValue(textures[0]);
-            device.setShader(shaderBlurH);
-            device.setVertexBuffer(mesh.vertexBuffer, 0);
-            device.setIndexBuffer(mesh.indexBuffer[0]);
-            device.draw(mesh.primitive[0]);
-            renderer._depthDrawCalls++;
+            app.renderer.renderComposition(outlineComp);
 
-            // blur pass Y
-            camera.renderTarget = targets[0];
-            renderer.setCamera(camera);
-            var mesh = meshInstance.mesh;
-            var uOffset = device.scope.resolve('uOffset');
-            var uColorBuffer = device.scope.resolve('uColorBuffer');
-            uOffset.setValue(1.0 / device.height / 2.0);
-            uColorBuffer.setValue(textures[1]);
-            device.setShader(shaderBlurV);
-            device.setVertexBuffer(mesh.vertexBuffer, 0);
-            device.setIndexBuffer(mesh.indexBuffer[0]);
-            device.draw(mesh.primitive[0]);
-            renderer._depthDrawCalls++;
-
-            device.setBlending(oldBlending);
             cleared = false;
         } else {
-            meshInstance.visible = false;
             cleared = true;
         }
-
-        camera.renderTarget = oldTarget;
     });
 });
