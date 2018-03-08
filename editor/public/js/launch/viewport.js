@@ -362,7 +362,7 @@ editor.once('load', function() {
             if (parts.length === 2) {
                 var layer = createLayer(parts[1], value);
                 layerIndex[layer.id] = layer;
-                var existing = app.scene.layers.getElementById(layer.id);
+                var existing = app.scene.layers.getLayerById(layer.id);
                 if (existing) {
                     app.scene.remove(existing);
                 }
