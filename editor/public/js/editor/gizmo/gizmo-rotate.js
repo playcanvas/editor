@@ -495,7 +495,9 @@ editor.once('load', function() {
     };
 
     var createMeshInstance = function (node, mesh, material) {
-        return new pc.MeshInstance(node, mesh, material);
+        var mi = new pc.MeshInstance(node, mesh, material);
+        mi.cull = false;
+        return mi;
     };
 
     var createLinesModel = function(app) {
