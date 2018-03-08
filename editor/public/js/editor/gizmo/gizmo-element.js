@@ -10,7 +10,7 @@ editor.once('load', function() {
 
     editor.once('viewport:load', function (app) {
         var immediateRenderOptions = {
-            layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate');
+            layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate'),
             mask: GIZMO_MASK
         };
 
