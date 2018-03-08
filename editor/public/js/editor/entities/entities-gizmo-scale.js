@@ -15,6 +15,7 @@ editor.once('load', function() {
     var linesColorActive = new pc.Color(1, 1, 1, 1);
     var linesColor = new pc.Color(1, 1, 1, .2);
     var linesColorBehind = new pc.Color(1, 1, 1, .05);
+    var immediateRenderOptions;
 
     // get position of gizmo based on selected entities
     var getGizmoPosition = function() {
@@ -169,7 +170,7 @@ editor.once('load', function() {
                     quat.transformVector(vecB, vecB).add(vecA);
                     vecC.set(camera.camera.farClip * -2, 0, 0);
                     quat.transformVector(vecC, vecC).add(vecA);
-                    app.renderLine(vecB, vecC, linesColorBehind, pc.LINEBATCH_GIZMO);
+                    app.renderLine(vecB, vecC, linesColorBehind, immediateRenderOptions);
                     app.renderLine(vecB, vecC, linesColorActive);
                 }
                 if (gizmoAxis === 'y' || gizmoMiddle) {
@@ -177,7 +178,7 @@ editor.once('load', function() {
                     quat.transformVector(vecB, vecB).add(vecA);
                     vecC.set(0, camera.camera.farClip * -2, 0);
                     quat.transformVector(vecC, vecC).add(vecA);
-                    app.renderLine(vecB, vecC, linesColorBehind, pc.LINEBATCH_GIZMO);
+                    app.renderLine(vecB, vecC, linesColorBehind, immediateRenderOptions);
                     app.renderLine(vecB, vecC, linesColorActive);
                 }
                 if (gizmoAxis === 'z' || gizmoMiddle) {
@@ -185,7 +186,7 @@ editor.once('load', function() {
                     quat.transformVector(vecB, vecB).add(vecA);
                     vecC.set(0, 0, camera.camera.farClip * -2);
                     quat.transformVector(vecC, vecC).add(vecA);
-                    app.renderLine(vecB, vecC, linesColorBehind, pc.LINEBATCH_GIZMO);
+                    app.renderLine(vecB, vecC, linesColorBehind, immediateRenderOptions);
                     app.renderLine(vecB, vecC, linesColorActive);
                 }
             }
@@ -213,6 +214,10 @@ editor.once('load', function() {
 
     editor.once('viewport:load', function() {
         app = editor.call('viewport:app');
+
+        immediateRenderOptions = {
+            layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate')
+        }
     });
 
     var updateChildRelation = function() {

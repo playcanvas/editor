@@ -4,6 +4,8 @@ editor.once('load', function() {
     var app;
     var visible = false;
 
+    var immediateRenderOptions;
+
     var layerFront = editor.call('gizmo:layers', 'Bright Collision');
     var layerBack = editor.call('gizmo:layers', 'Dim Gizmo');
 
@@ -246,6 +248,10 @@ editor.once('load', function() {
         var instanceBehind = new pc.MeshInstance(instance.node, instance.mesh, materialPlaneBehind);
         plane.model.meshInstances.push(instanceBehind);
         instanceBehind.__useFrontLayer = true;
+
+        immediateRenderOptions = {
+            layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate')
+        };
 
         // gizmo class
         function Gizmo() {
@@ -695,8 +701,8 @@ editor.once('load', function() {
                         vecB.copy(position).add(vecD).add(vecA);
                         vecC.copy(position).add(vecD).sub(vecA);
 
-                        app.renderLine(vecB, vecC, colorBehind, pc.LINEBATCH_GIZMO);
-                        app.renderLine(vecB, vecC, colorPrimary, pc.LINEBATCH_WORLD);
+                        app.renderLine(vecB, vecC, colorBehind, immediateRenderOptions);
+                        app.renderLine(vecB, vecC, colorPrimary, immediateRenderOptions);
                     }
                 }
             }
