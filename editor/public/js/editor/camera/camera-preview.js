@@ -110,6 +110,8 @@ editor.once('load', function() {
                 if (!previewLayer) {
                     previewLayer = editor.call('gizmo:layers', 'Camera Preview');
                     previewLayer.onPostRender = function() {
+                        var entityEnabled = previewCamera.entity.enabled;
+                        previewCamera.entity.enabled = true;
                         previewCamera.enabled = true;
                         previewCamera.rect = rect;
                         previewCamera.camera.cullingMask = GEOMETRY_ONLY_CULLING_MASK;
@@ -122,6 +124,7 @@ editor.once('load', function() {
                         previewCamera.enabled = false;
                         previewCamera.camera.cullingMask = DEFAULT_CULLING_MASK;
                         editorCamera.enabled = true;
+                        previewCamera.entity.enabled = entityEnabled;
                     };
                 }
 
