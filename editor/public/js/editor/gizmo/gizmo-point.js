@@ -80,7 +80,7 @@ editor.once('viewport:load', function() {
                 this.entity.__editor = true;
                 this.entity.point = this;
                 // this.entity.model.meshInstances[0].layer = pc.LAYER_GIZMO;
-                // this.entity.model.meshInstances[0].mask = 8;
+                this.entity.model.meshInstances[0].mask = GIZMO_MASK;
                 this.entity.model.meshInstances[0].material = material;
                 container.addChild(this.entity);
             } else {

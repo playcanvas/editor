@@ -9,6 +9,11 @@ editor.once('load', function() {
     }
 
     editor.once('viewport:load', function (app) {
+        var immediateRenderOptions = {
+            layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate');
+            mask: GIZMO_MASK
+        };
+
         editor.on('viewport:gizmoUpdate', function (dt) {
             var selected = editor.call('selector:itemsRaw');
             for (var i = 0, len = selected.length; i < len; i++) {
@@ -29,7 +34,7 @@ editor.once('load', function() {
                 corners[6].copy(worldCorners[3]);
                 corners[7].copy(worldCorners[0]);
 
-                app.renderLines(corners, cornerColor, pc.LINEBATCH_GIZMO);
+                app.renderLines(corners, cornerColor, immediateRenderOptions);
             }
         });
 

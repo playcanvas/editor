@@ -54,6 +54,7 @@ editor.once('load', function() {
             sphere.model.castShadows = false;
             sphere.model.receiveShadows = false;
             sphere.model.meshInstances[0].material = obj.matInactive;
+            sphere.model.meshInstances[0].mask = GIZMO_MASK;
             sphere.setLocalScale(0.5, 0.5, 0.5);
             obj.root.addChild(sphere);
             return sphere;

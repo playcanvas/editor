@@ -58,6 +58,7 @@ editor.once('load', function() {
             cone.model.castShadows = false;
             cone.model.receiveShadows = false;
             cone.model.meshInstances[0].material = obj.matInactive;
+            cone.model.meshInstances[0].mask = GIZMO_MASK;
             cone.setLocalPosition(0, -0.5, 0);
             cone.setLocalScale(1, 1, 0.01);
             cone.handle = result;
