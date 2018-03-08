@@ -12,6 +12,9 @@ editor.once('load', function() {
     var evtUpdate = null;
     var rect = new pc.Vec4(0, 0.8, 0.2, 0.2);
     var app = null;
+    var previewLayer = null;
+    var editorCamera = null;
+    var previewCamera = null;
 
     var viewport = editor.call('layout.viewport');
 
@@ -99,27 +102,37 @@ editor.once('load', function() {
             }
 
             if (camera) {
-                camera.enabled = true;
-                camera.rect = rect;
-                camera.camera.cullingMask = GEOMETRY_ONLY_CULLING_MASK;
+                // ### ENABLE CAMERA ###
 
-                var gizmoLayers = editor.call('gizmo:layers:list');
-                oldLayers = camera.layers;
-                var cameraLayers = camera.layers.slice(0);
-                // add all the gizmo layers to be rendered
-                for (var i = 0; i < gizmoLayers.length; i++) {
-                    if (cameraLayers.indexOf(gizmoLayers[i].id) < 0) {
-                        cameraLayers.push(gizmoLayers[i].id);
-                    }
+                previewCamera = camera;
+                editorCamera = editor.call('camera:current');
+
+                if (!previewLayer) {
+                    previewLayer = editor.call('gizmo:layers', 'Camera Preview');
+                    previewLayer.onPostRender = function() {
+                        previewCamera.enabled = true;
+                        previewCamera.rect = rect;
+                        previewCamera.camera.cullingMask = GEOMETRY_ONLY_CULLING_MASK;
+                        editorCamera.enabled = false;
+
+                        previewLayer.enabled = false;
+                        app.renderer.renderComposition(app.scene.layers);
+                        previewLayer.enabled = true;
+
+                        previewCamera.enabled = false;
+                        previewCamera.camera.cullingMask = DEFAULT_CULLING_MASK;
+                        editorCamera.enabled = true;
+                    };
                 }
-                camera.layers = cameraLayers;
+
+                previewLayer.enabled = true;
 
                 if (lastCamera && lastCamera !== camera) {
-                    lastCamera.layers = oldLayers;
                     lastCamera.enabled = false;
                     lastCamera.camera.cullingMask = DEFAULT_CULLING_MASK;
                     lastCamera = null;
                 }
+
 
                 lastCamera = camera;
             }
@@ -128,12 +141,15 @@ editor.once('load', function() {
             // stop rendering preview
             cameraPreviewBorder.classList.remove('active');
 
+
+            if (previewLayer) previewLayer.enabled = false;
             if (lastCamera) {
-                lastCamera.layers = oldLayers;
+                // ### DISABLE CAMERA ###
                 lastCamera.enabled = false;
                 lastCamera.camera.cullingMask = DEFAULT_CULLING_MASK;
                 lastCamera = null;
             }
+
 
             enabled = false;
         }

@@ -126,6 +126,10 @@ editor.once('load', function() {
     editor.call('gizmo:layers:register', 'Axis Gizmo', false, {
     });
 
+    editor.call('gizmo:layers:register', 'Camera Preview', false, {
+      passThrough: true,
+      isPostEffect: true
+    });
 
     editor.once('viewport:load', function () {
         var app = editor.call('viewport:app');
