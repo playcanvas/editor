@@ -231,6 +231,10 @@ editor.once('load', function() {
         materialPlane.cull = pc.CULLFACE_NONE;
         materialPlane.update();
 
+        var handleHighlightMaterial = new pc.BasicMaterial();
+        handleHighlightMaterial.color = new pc.Color(1,1,1,0.1);
+        handleHighlightMaterial.update();
+
         var plane = new pc.Entity();
         plane.enabled = false;
         plane.__editor = true;
@@ -414,7 +418,7 @@ editor.once('load', function() {
                 hoverPoint.entity.model.meshInstances[0].material = materials[hoverPoint.ind];
 
             hoverPoint = this;
-            hoverPoint.entity.model.meshInstances[0].material = materialDefault;
+            hoverPoint.entity.model.meshInstances[0].material = handleHighlightMaterial;
             plane.enabled = true;
         };
 
