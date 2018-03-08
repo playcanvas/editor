@@ -10,13 +10,14 @@ editor.once('load', function() {
 
     // on settings change
     projectSettings.on('*:set', function (path, value) {
-        var parts;
+        var parts, id;
 
         if (path.startsWith('layers.')) {
             parts = path.split('.');
 
             if (parts.length === 2) {
-                var layer = createLayer(parts[1], value);
+                id = parseInt(parts[1],10);
+                var layer = createLayer(id, value);
                 layerIndex[layer.id] = layer;
 
                 var existing = app.scene.layers.getLayerById(value.id);
@@ -24,9 +25,10 @@ editor.once('load', function() {
                     app.scene.layers.remove(existing);
                 }
             } else if (parts.length === 3) {
+                id = parseInt(parts[1],10);
                 // change layer property
-                if (layerIndex[parts[1]]) {
-                    layerIndex[parts[1]][parts[2]] = value;
+                if (layerIndex[id]) {
+                    layerIndex[id][parts[2]] = value;
                 }
             }
         }
@@ -37,9 +39,10 @@ editor.once('load', function() {
             var parts = path.split('.');
             // remove layer
             if (parts.length === 2) {
-                delete layerIndex[parts[1]];
+                var id = parseInt(parts[1],10);
+                delete layerIndex[id];
 
-                var existing = app.scene.layers.getLayerById(parts[1]);
+                var existing = app.scene.layers.getLayerById(id);
                 if (existing) {
                     app.scene.layers.remove(existing);
                 }
@@ -110,9 +113,9 @@ editor.once('load', function() {
         editor.call('viewport:render');
     });
 
-    var createLayer = function (key, data) {
+    var createLayer = function (id, data) {
         return new pc.Layer({
-            id: parseInt(key, 10),
+            id: parseInt(id, 10),
             enabled: true,
             name: data.name,
             opaqueSortMode: data.opaqueSortMode,
