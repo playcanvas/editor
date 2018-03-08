@@ -57,13 +57,6 @@ editor.once('load', function () {
     var layerFront = editor.call('gizmo:layers', 'Bright Collision');
     var layerBack = editor.call('gizmo:layers', 'Dim Gizmo');
 
-    var filterPicker = function(drawCall) {
-        if (drawCall.command)
-            return true;
-
-        return (drawCall.__editor && drawCall.__collision) || drawCall.layer === pc.LAYER_GIZMO;
-    };
-
     var visible = false;
     editor.method('gizmo:collision:visible', function(state) {
         if (state === undefined)
@@ -76,9 +69,6 @@ editor.once('load', function () {
 
         if (visible) {
             editor.call('gizmo:zone:visible', false);
-            editor.call('viewport:pick:filter', filterPicker);
-        } else {
-            editor.call('viewport:pick:filter', null);
         }
 
         editor.emit('gizmo:collision:visible', visible);
@@ -166,7 +156,6 @@ editor.once('load', function () {
                     // model.meshInstances[0].updateKey();
                     model.meshInstances[0].__editor = true;
                     model.meshInstances[0].__collision = true;
-                    model.meshInstances[0].pick = false;
                     model.meshInstances[0].material = old.clone();
                     model.meshInstances[0].material.updateShader = old.updateShader;
                     model.meshInstances[0].material.depthBias = -8;
@@ -195,8 +184,6 @@ editor.once('load', function () {
                         case 'capsule-x':
                         case 'capsule-y':
                         case 'capsule-z':
-                            model.meshInstances[0]._shader[pc.SHADER_PICK] = shaderCapsule['pick-' + axesNames[collision.axis]];
-
                             for(var i = 0; i < model.meshInstances.length; i++) {
                                 model.meshInstances[i].setParameter('radius', collision.radius || 0.5);
                                 model.meshInstances[i].setParameter('height', collision.height || 2);
@@ -473,19 +460,25 @@ editor.once('load', function () {
 
         var shaderDefault;
 
-        materialDefault.updateShader = function(device) {
-            if (! shaderDefault) {
-                shaderDefault = new pc.Shader(device, {
-                    attributes: {
-                        aPosition: pc.SEMANTIC_POSITION,
-                        aNormal: pc.SEMANTIC_NORMAL
-                    },
-                    vshader: defaultVShader,
-                    fshader: defaultFShader,
-                });
-            }
+        var _updateShader = materialDefault.updateShader;
 
-            this.shader = shaderDefault;
+        materialDefault.updateShader = function(device, scene, objDefs, staticLightList, pass, sortedLights) {
+            if (pass === pc.SHADER_FORWARD) {
+                if (! shaderDefault) {
+                    shaderDefault = new pc.Shader(device, {
+                        attributes: {
+                            aPosition: pc.SEMANTIC_POSITION,
+                            aNormal: pc.SEMANTIC_NORMAL
+                        },
+                        vshader: defaultVShader,
+                        fshader: defaultFShader,
+                    });
+                }
+
+                this.shader = shaderDefault;
+            } else {
+                _updateShader.call(this, device, scene, objDefs, staticLightList, pass, sortedLights);
+            }
         };
         materialDefault.update();
 
@@ -548,21 +541,40 @@ editor.once('load', function () {
             }\n';
 
 
-        var makeMaterial = function(a) {
+        var makeCapsuleMaterial = function(a) {
             var matDefault = materials['capsule-' + a] = materialDefault.clone();
-            matDefault.updateShader = function(device) {
-                if (! shaderCapsule[a]) {
-                    shaderCapsule[a] = new pc.Shader(device, {
-                        attributes: {
-                            aPosition: pc.SEMANTIC_POSITION,
-                            aNormal: pc.SEMANTIC_NORMAL,
-                            aSide: pc.SEMANTIC_ATTR0
-                        },
-                        vshader: capsuleVShader.replace('{axis}', a),
-                        fshader: capsuleFShader,
-                    });
+            var _updateShader = matDefault.updateShader;
+            matDefault.updateShader = function(device, scene, objDefs, staticLightList, pass, sortedLights) {
+                if (pass === pc.SHADER_FORWARD) {
+                    if (! shaderCapsule[a]) {
+                        shaderCapsule[a] = new pc.Shader(device, {
+                            attributes: {
+                                aPosition: pc.SEMANTIC_POSITION,
+                                aNormal: pc.SEMANTIC_NORMAL,
+                                aSide: pc.SEMANTIC_ATTR0
+                            },
+                            vshader: capsuleVShader.replace('{axis}', a),
+                            fshader: capsuleFShader,
+                        });
+                    }
+                    this.shader = shaderCapsule[a];
+                } else if (pass === pc.SHADER_PICK) {
+                    var shaderName = 'pick-' + a
+                    if (! shaderCapsule[shaderName]) {
+                        shaderCapsule[shaderName] = new pc.Shader(device, {
+                            attributes: {
+                                aPosition: pc.SEMANTIC_POSITION,
+                                aNormal: pc.SEMANTIC_NORMAL,
+                                aSide: pc.SEMANTIC_ATTR0
+                            },
+                            vshader: capsuleVShaderPick.replace('{axis}', a),
+                            fshader: capsuleFShaderPick,
+                        });
+                    }
+                    this.shader = shaderCapsule[shaderName];
+                } else {
+                    _updateShader.call(this, device, scene, objDefs, staticLightList, pass, sortedLights);
                 }
-                this.shader = shaderCapsule[a];
             };
 
             matDefault.update();
@@ -574,22 +586,10 @@ editor.once('load', function () {
             var matOccluder = materials['capsuleOcclude-' + a] = materialOccluder.clone();
             matOccluder.updateShader = matDefault.updateShader;
             matOccluder.update();
-
-            if (! shaderCapsule['pick-' + a]) {
-                shaderCapsule['pick-' + a] = new pc.Shader(app.graphicsDevice, {
-                    attributes: {
-                        aPosition: pc.SEMANTIC_POSITION,
-                        aNormal: pc.SEMANTIC_NORMAL,
-                        aSide: pc.SEMANTIC_ATTR0
-                    },
-                    vshader: capsuleVShaderPick.replace('{axis}', a),
-                    fshader: capsuleFShaderPick
-                });
-            }
         }
 
         for(var key in axesNames)
-            makeMaterial(axesNames[key]);
+            makeCapsuleMaterial(axesNames[key]);
 
         var buffer, iterator, size, length, node, mesh, meshInstance, model, indexBuffer, indices;
         var vertexFormat = new pc.VertexFormat(app.graphicsDevice, [
