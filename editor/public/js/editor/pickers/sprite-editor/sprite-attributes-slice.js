@@ -277,7 +277,8 @@ editor.once('load', function() {
                         frames[maxKey] = {
                             name: 'Frame ' + maxKey,
                             rect: [left, Math.floor(imgHeight - (top + height)), width, height],
-                            pivot: pivot
+                            pivot: pivot,
+                            border: [0,0,0,0]
                         };
                         maxKey++;
                     }
