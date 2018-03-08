@@ -392,7 +392,7 @@ editor.once('load', function() {
         };
 
         // active mat
-        obj.matActive = createMaterial(new pc.Color(1, 1, 1, 1));
+        obj.matActive = createMaterial(new pc.Color(1, 1, 1, 0.9)); // this has to be transparent otherwise it flickers when you hover over it
         obj.matActiveTransparent = createMaterial(new pc.Color(1, 1, 1, .25));
         obj.colorLineBehind = new pc.Color(1, 1, 1, 0.05);
         obj.colorLine = new pc.Color(1, 1, 1, .2);
@@ -419,7 +419,7 @@ editor.once('load', function() {
         middle.model.material.id = 0xFFFFFFFF;
         entity.addChild(middle);
         middle.setLocalScale(boxSize * 1.5, boxSize * 1.5, boxSize * 1.5);
-        middle.mat = middle.model.material = createMaterial(new pc.Color(1, 1, 1, 0.2));
+        middle.mat = middle.model.material = createMaterial(new pc.Color(1.0, 1.0, 1.0, 0.25));
         middle.mat.depthTest = false;
 
         // line x
