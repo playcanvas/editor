@@ -110,6 +110,7 @@ editor.once('load', function() {
                 if (!previewLayer) {
                     previewLayer = editor.call('gizmo:layers', 'Camera Preview');
                     previewLayer.onPostRender = function() {
+                        if (!previewCamera || !previewCamera.entity || !previewCamera.data) return;
                         var entityEnabled = previewCamera.entity.enabled;
                         previewCamera.entity.enabled = true;
                         previewCamera.enabled = true;
@@ -131,8 +132,10 @@ editor.once('load', function() {
                 previewLayer.enabled = true;
 
                 if (lastCamera && lastCamera !== camera) {
-                    lastCamera.enabled = false;
-                    lastCamera.camera.cullingMask = DEFAULT_CULLING_MASK;
+                    if (lastCamera && lastCamera.entity && lastCamera.data) {
+                        lastCamera.enabled = false;
+                        lastCamera.camera.cullingMask = DEFAULT_CULLING_MASK;
+                    }
                     lastCamera = null;
                 }
 
@@ -148,8 +151,10 @@ editor.once('load', function() {
             if (previewLayer) previewLayer.enabled = false;
             if (lastCamera) {
                 // ### DISABLE CAMERA ###
-                lastCamera.enabled = false;
-                lastCamera.camera.cullingMask = DEFAULT_CULLING_MASK;
+                if (lastCamera && lastCamera.entity && lastCamera.data) {
+                    lastCamera.enabled = false;
+                    lastCamera.camera.cullingMask = DEFAULT_CULLING_MASK;
+                }
                 lastCamera = null;
             }
 
