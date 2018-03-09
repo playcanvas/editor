@@ -31,6 +31,18 @@ editor.once('load', function() {
                     layerIndex[id][parts[2]] = value;
                 }
             }
+
+        } else if (path.startsWith('layerOrder.')) {
+            parts = path.split('.');
+
+            if (parts.length === 3) {
+                if (parts[2] === 'enabled') {
+                    var subLayerId = parseInt(parts[1]);
+                    subLayerId += 2; // Add 2 to sublayer ID, because editor has its own 2 layers in front of user's
+                    app.scene.layers.subLayerEnabled[subLayerId] = value;
+                    editor.call('viewport:render');
+                }
+            }
         }
     });
 
@@ -148,6 +160,8 @@ editor.once('load', function() {
             } else {
                 composition.pushOpaque(layer);
             }
+
+            composition.subLayerEnabled[i] = sublayer.enabled;
         }
 
         editor.call('gizmo:layers:addToComposition', composition);

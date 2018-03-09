@@ -254,6 +254,8 @@ editor.once('load', function() {
             } else {
                 composition.pushOpaque(layer);
             }
+
+            composition.subLayerEnabled[i] = sublayer.enabled;
         }
 
         app.scene.layers = composition;
@@ -375,7 +377,18 @@ editor.once('load', function() {
                     layer[parts[2]] = value;
                 }
             }
-        }
+          } else if (path.startsWith('layerOrder.')) {
+              parts = path.split('.');
+
+              if (parts.length === 3) {
+                  if (parts[2] === 'enabled') {
+                      var subLayerId = parseInt(parts[1]);
+                      // Unlike Editor, DON'T add 2 to subLayerId here
+                      app.scene.layers.subLayerEnabled[subLayerId] = value;
+                      editor.call('viewport:render');
+                  }
+              }
+          }
     });
 
     projectSettings.on('*:unset', function (path, value) {
