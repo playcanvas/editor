@@ -232,7 +232,7 @@ editor.once('load', function() {
     if (batchGroups) {
         for (var id in batchGroups) {
             var grp = batchGroups[id];
-            app.batcher.addGroup(grp.name, grp.dynamic, grp.maxAabbSize, grp.id);
+            app.batcher.addGroup(grp.name, grp.dynamic, grp.maxAabbSize, grp.id, grp.layers);
         }
     }
 
@@ -345,7 +345,8 @@ editor.once('load', function() {
                     groupSettings.name,
                     groupSettings.dynamic,
                     groupSettings.maxAabbSize,
-                    groupId
+                    groupId,
+                    groupSettings.layers
                 );
 
                 app.batcher.generate();

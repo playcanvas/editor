@@ -176,6 +176,41 @@ editor.once('load', function() {
             // reference
             editor.call('attributes:reference:attach', 'settings:batchGroups:maxAabbSize', fieldMaxAabb.parent.innerElement.firstChild.ui);
 
+            // layers
+            var layers = projectSettings.get('layers');
+            var layersEnum = {
+                '': ''
+            };
+            for (var key in layers) {
+                layersEnum[key] = layers[key].name;
+            }
+            delete layersEnum[pc.LAYERID_DEPTH];
+            delete layersEnum[pc.LAYERID_SKYBOX];
+            delete layersEnum[pc.LAYERID_IMMEDIATE];
+
+            var fieldLayers = editor.call('attributes:addField', {
+                parent: panelGroup,
+                name: 'Layers',
+                type: 'tags',
+                tagType: 'number',
+                enum: layersEnum,
+                placeholder: 'Add Layer',
+                link: projectSettings,
+                path: 'batchGroups.' + groupId + '.layers',
+                tagToString: function (tag) {
+                    return projectSettings.get('layers.' + tag + '.name') || 'Missing';
+                }
+            });
+
+            // reference
+            editor.call('attributes:reference:attach', 'settings:batchGroups:layers', fieldLayers.parent.parent.innerElement.firstChild.ui);
+
+            // layers
+            if (!projectSettings.has('batchGroups.' + groupId + '.layers')) {
+                projectSettings.set('batchGroups.' + groupId + '.layers', []);
+                projectSettings.insert('batchGroups.' + groupId + '.layers', pc.LAYERID_WORLD);
+            }
+
             var prevKey = null;
             var batchGroups = projectSettings.get('batchGroups');
             for (var key in batchGroups) {
