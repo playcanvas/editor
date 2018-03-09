@@ -101,7 +101,6 @@ editor.once('load', function() {
         if (!immediateRenderOptions) {
             immediateRenderOptions = {
                 layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate'),
-                depthTest: true,
                 mask: GIZMO_MASK
             };
         }

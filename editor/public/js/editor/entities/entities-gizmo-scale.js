@@ -16,6 +16,7 @@ editor.once('load', function() {
     var linesColor = new pc.Color(1, 1, 1, .2);
     var linesColorBehind = new pc.Color(1, 1, 1, .05);
     var immediateRenderOptions;
+    var brightRenderOptions;
 
     // get position of gizmo based on selected entities
     var getGizmoPosition = function() {
@@ -171,7 +172,7 @@ editor.once('load', function() {
                     vecC.set(camera.camera.farClip * -2, 0, 0);
                     quat.transformVector(vecC, vecC).add(vecA);
                     app.renderLine(vecB, vecC, linesColorBehind, immediateRenderOptions);
-                    app.renderLine(vecB, vecC, linesColorActive);
+                    app.renderLine(vecB, vecC, linesColorActive, brightRenderOptions);
                 }
                 if (gizmoAxis === 'y' || gizmoMiddle) {
                     vecB.set(0, camera.camera.farClip * 2, 0);
@@ -179,7 +180,7 @@ editor.once('load', function() {
                     vecC.set(0, camera.camera.farClip * -2, 0);
                     quat.transformVector(vecC, vecC).add(vecA);
                     app.renderLine(vecB, vecC, linesColorBehind, immediateRenderOptions);
-                    app.renderLine(vecB, vecC, linesColorActive);
+                    app.renderLine(vecB, vecC, linesColorActive, brightRenderOptions);
                 }
                 if (gizmoAxis === 'z' || gizmoMiddle) {
                     vecB.set(0, 0, camera.camera.farClip * 2);
@@ -187,7 +188,7 @@ editor.once('load', function() {
                     vecC.set(0, 0, camera.camera.farClip * -2);
                     quat.transformVector(vecC, vecC).add(vecA);
                     app.renderLine(vecB, vecC, linesColorBehind, immediateRenderOptions);
-                    app.renderLine(vecB, vecC, linesColorActive);
+                    app.renderLine(vecB, vecC, linesColorActive, brightRenderOptions);
                 }
             }
         } else {
@@ -217,7 +218,11 @@ editor.once('load', function() {
 
         immediateRenderOptions = {
             layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate')
-        }
+        };
+
+        brightRenderOptions = {
+            layer: editor.call('gizmo:layers', 'Bright Gizmo')
+        };
     });
 
     var updateChildRelation = function() {

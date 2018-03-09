@@ -185,6 +185,7 @@ editor.once('load', function () {
         }
 
         immediateRenderOptions = {
+            layer: editor.call('gizmo:layers', 'Bright Gizmo'),
             mask: GIZMO_MASK
         }
     });
