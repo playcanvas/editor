@@ -380,8 +380,11 @@ editor.once('load', function() {
 
     projectSettings.on('*:unset', function (path, value) {
         if (path.startsWith('batchGroups')) {
-            var id = path.split('.')[1];
-            app.batcher.removeGroup(id);
+            var propNameParts = path.split('.')[1];
+            if (propNameParts.length === 2) {
+                var id = propNameParts[1];
+                app.batcher.removeGroup(id);
+            }
         } else if (path.startsWith('layers.')) {
             var parts = path.split('.');
 
