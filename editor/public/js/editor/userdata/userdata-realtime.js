@@ -37,7 +37,7 @@ editor.once('load', function() {
         // subscribe for realtime events
         data.subscribe();
 
-        if (data.state === 'ready')
+        if (data.data)
             editor.emit('userdata:' + userId + ':raw', data.data);
 
         return data;
