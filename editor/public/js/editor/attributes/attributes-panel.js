@@ -564,6 +564,8 @@ editor.once('load', function() {
                 break;
 
             case 'tags':
+                // TODO: why isn't this in a seperate class/file???
+
                 var innerPanel = new ui.Panel();
                 var tagType = args.tagType || 'string';
 
@@ -795,6 +797,15 @@ editor.once('load', function() {
                     }
                 };
 
+                // when tag field is initialized
+                var onSet = function (values) {
+                    console.log("setting tags field to: " + values);
+                    for (var i = 0; i < values.length; i++) {
+                        var value = values[i];
+                        onInsert(value);
+                    }
+                };
+
                 var insertElement = function(tag) {
                     if (! tagItems[tag]) {
                         sortTags();
@@ -858,6 +869,7 @@ editor.once('load', function() {
                             var path = pathAt(args, i);
                             var tags = args.link[i].get(path);
 
+                            args.linkEvents.push(args.link[i].on(path + ':set', onSet));
                             args.linkEvents.push(args.link[i].on(path + ':insert', onInsert));
                             args.linkEvents.push(args.link[i].on(path + ':remove', onRemove));
 
