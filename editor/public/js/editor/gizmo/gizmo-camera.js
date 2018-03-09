@@ -32,8 +32,7 @@ editor.once('load', function () {
         }
 
         var camera = this._link.entity.camera;
-
-        this.visible = this._link.entity.enabled && camera && camera.enabled && editor.call('camera:current') !== this._link.entity;
+        this.visible = camera && this._link.get('enabled') && this._link.get('components.camera.enabled') && editor.call('camera:current') !== this._link.entity;
         if (! this.visible)
             return;
 
