@@ -367,7 +367,7 @@ editor.once('load', function() {
                 layerIndex[layer.id] = layer;
                 var existing = app.scene.layers.getLayerById(layer.id);
                 if (existing) {
-                    app.scene.remove(existing);
+                    app.scene.layers.remove(existing);
                 }
             }
             // change layer property
