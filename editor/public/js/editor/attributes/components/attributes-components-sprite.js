@@ -74,6 +74,32 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'sprite:frame', fieldFrame.parent.innerElement.firstChild.ui);
 
+        // width
+        var fieldWidth = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Size',
+            type: 'number',
+            placeholder: 'Width',
+            link: entities,
+            path: 'components.sprite.width'
+        });
+
+        fieldWidth.style.width = '32px';
+
+        // reference
+        editor.call('attributes:reference:attach', 'sprite:size', fieldWidth.parent.innerElement.firstChild.ui);
+
+        // height
+        var fieldHeight = editor.call('attributes:addField', {
+            panel: fieldWidth.parent,
+            type: 'number',
+            placeholder: 'Height',
+            link: entities,
+            path: 'components.sprite.height'
+        });
+
+        fieldHeight.style.width = '32px';
+
         // sprite color
         var fieldColor = editor.call('attributes:addField', {
             parent: panel,
