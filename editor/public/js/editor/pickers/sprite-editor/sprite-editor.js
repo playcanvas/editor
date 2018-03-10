@@ -1597,6 +1597,17 @@ editor.once('load', function() {
         updateRightPanel();
 
         registerInputListeners();
+
+        // clear current selection so that we don't
+        // accidentally delete any selected assets when pressing delete
+        editor.call('selector:history', false);
+        editor.call('selector:clear');
+        // restore selector history in a timeout
+        // because selector:clear emits a history
+        // event also in a timeout... annoying
+        setTimeout(function () {
+            editor.call('selector:history', true);
+        });
     };
 
     var updateCursor = function () {
