@@ -396,8 +396,10 @@ editor.once('load', function() {
         if (! selected || ! selected.handle) {
             var frameUnderCursor = framesHitTest(p);
             if (! frameUnderCursor) {
-                // clear selection
-                selectFrames(null, {history: true, clearSprite: !spriteEditMode});
+                // clear selection unless Ctrl is down
+                if (! ctrlDown) {
+                    selectFrames(null, {history: true, clearSprite: !spriteEditMode});
+                }
             } else {
                 var keys = spriteEditMode ? newSpriteFrames : highlightedFrames;
                 var idx = keys.indexOf(frameUnderCursor);
@@ -458,11 +460,8 @@ editor.once('load', function() {
             // set asset so that other users can see changes too
             var history = atlasAsset.history.enabled;
             atlasAsset.history.enabled = false;
-            if (selected.handle <= HANDLE.BOTTOM_RIGHT) {
-                atlasAsset.set('data.frames.' + selected.key + '.rect', frame.rect);
-            } else if (selected.handle <= HANDLE.BORDER_BOTTOM_RIGHT) {
-                atlasAsset.set('data.frames.' + selected.key + '.border', frame.border);
-            }
+            atlasAsset.set('data.frames.' + selected.key + '.rect', frame.rect);
+            atlasAsset.set('data.frames.' + selected.key + '.border', frame.border);
             atlasAsset.history.enabled = history;
 
             queueRender();
@@ -528,6 +527,12 @@ editor.once('load', function() {
                 var dirty = false;
                 for (var i = 0; i < 4; i++) {
                     if (selected.oldFrame.rect[i] !== frame.rect[i]) {
+                        dirty = true;
+                        break;
+                    }
+
+
+                    if (selected.oldFrame.border[i] !== frame.border[i]) {
                         dirty = true;
                         break;
                     }
@@ -716,6 +721,8 @@ editor.once('load', function() {
 
         var p = mousePoint;
 
+        var adjustBorders = false;
+
         switch (handle) {
             case HANDLE.TOP_LEFT: {
                 dx = Math.floor(realWidth * (p.x - left) / imgWidth);
@@ -723,11 +730,25 @@ editor.once('load', function() {
                 frame.rect[0] += dx;
                 frame.rect[2] -= dx;
                 frame.rect[3] -= dy;
-                break;
-            }
-            case HANDLE.TOP: {
-                dy = Math.floor(realHeight * (p.y - top) / imgHeight);
-                frame.rect[3] -= dy;
+
+                adjustBorders = true;
+
+                if (frame.border[2] > frame.rect[2] - frame.border[0]) {
+                    frame.border[2] = Math.max(frame.rect[2] - frame.border[0], 0);
+                }
+
+                if (frame.border[0] > frame.rect[2] - frame.border[2]) {
+                    frame.border[0] = Math.max(frame.rect[2] - frame.border[2], 0);
+                }
+
+                if (frame.border[1] > frame.rect[3] - frame.border[3]) {
+                    frame.border[1] = Math.max(frame.rect[3] - frame.border[3], 0);
+                }
+
+                if (frame.border[3] > frame.rect[3] - frame.border[1]) {
+                    frame.border[3] = Math.max(frame.rect[3] - frame.border[1], 0);
+                }
+
                 break;
             }
             case HANDLE.TOP_RIGHT: {
@@ -735,17 +756,23 @@ editor.once('load', function() {
                 dy = Math.floor(realHeight * (p.y - top) / imgHeight);
                 frame.rect[2] += dx;
                 frame.rect[3] -= dy;
-                break;
-            }
-            case HANDLE.LEFT: {
-                dx = Math.floor(realWidth * (p.x - left) / imgWidth);
-                frame.rect[0] += dx;
-                frame.rect[2] -= dx;
-                break;
-            }
-            case HANDLE.RIGHT: {
-                dx = Math.floor(realWidth * (p.x - left - width) / imgWidth);
-                frame.rect[2] += dx;
+
+                if (frame.border[0] > frame.rect[2] - frame.border[2]) {
+                    frame.border[0] = Math.max(frame.rect[2] - frame.border[2], 0);
+                }
+
+                if (frame.border[2] > frame.rect[2] - frame.border[0]) {
+                    frame.border[2] = Math.max(frame.rect[2] - frame.border[0], 0);
+                }
+
+                if (frame.border[1] > frame.rect[3] - frame.border[3]) {
+                    frame.border[1] = Math.max(frame.rect[3] - frame.border[3], 0);
+                }
+
+                if (frame.border[3] > frame.rect[3] - frame.border[1]) {
+                    frame.border[3] = Math.max(frame.rect[3] - frame.border[1], 0);
+                }
+
                 break;
             }
             case HANDLE.BOTTOM_LEFT: {
@@ -755,12 +782,23 @@ editor.once('load', function() {
                 frame.rect[1] -= dy;
                 frame.rect[2] -= dx;
                 frame.rect[3] += dy;
-                break;
-            }
-            case HANDLE.BOTTOM: {
-                dy = Math.floor(realHeight * (p.y - top - height) / imgHeight);
-                frame.rect[1] -= dy;
-                frame.rect[3] += dy;
+
+                if (frame.border[2] > frame.rect[2] - frame.border[0]) {
+                    frame.border[2] = Math.max(frame.rect[2] - frame.border[0], 0);
+                }
+
+                if (frame.border[0] > frame.rect[2] - frame.border[2]) {
+                    frame.border[0] = Math.max(frame.rect[2] - frame.border[2], 0);
+                }
+
+                if (frame.border[3] > frame.rect[3] - frame.border[1]) {
+                    frame.border[3] = Math.max(frame.rect[3] - frame.border[1], 0);
+                }
+
+                if (frame.border[1] > frame.rect[3] - frame.border[3]) {
+                    frame.border[1] = Math.max(frame.rect[3] - frame.border[3], 0);
+                }
+
                 break;
             }
             case HANDLE.BOTTOM_RIGHT: {
@@ -769,6 +807,23 @@ editor.once('load', function() {
                 frame.rect[2] += dx;
                 frame.rect[3] += dy;
                 frame.rect[1] -= dy;
+
+                if (frame.border[0] > frame.rect[2] - frame.border[2]) {
+                    frame.border[0] = Math.max(frame.rect[2] - frame.border[2], 0);
+                }
+
+                if (frame.border[2] > frame.rect[2] - frame.border[0]) {
+                    frame.border[2] = Math.max(frame.rect[2] - frame.border[0], 0);
+                }
+
+                if (frame.border[3] > frame.rect[3] - frame.border[1]) {
+                    frame.border[3] = Math.max(frame.rect[3] - frame.border[1], 0);
+                }
+
+                if (frame.border[1] > frame.rect[3] - frame.border[3]) {
+                    frame.border[1] = Math.max(frame.rect[3] - frame.border[3], 0);
+                }
+
                 break;
             }
             case HANDLE.BORDER_TOP_LEFT: {
