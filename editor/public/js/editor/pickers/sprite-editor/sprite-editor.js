@@ -468,8 +468,9 @@ editor.once('load', function() {
         }
         // if no handle is selected then change cursor if the user hovers over a handle
         else if (selected) {
-            var selectedFrame = atlasAsset.get('data.frames.' + selected.key);
+            var selectedFrame = atlasAsset.getRaw('data.frames.' + selected.key);
             if (selectedFrame) {
+                selectedFrame = selectedFrame._data;
                 hovering = !!handlesHitTest(p, selectedFrame);
                 updateCursor();
             }
@@ -498,7 +499,7 @@ editor.once('load', function() {
             if (newFrame.rect[2] !== 0 && newFrame.rect[3] !== 0) {
                 // generate key name for new frame
                 var key = 1;
-                for (var existingKey in atlasAsset.get('data.frames')) {
+                for (var existingKey in atlasAsset.getRaw('data.frames')._data) {
                     key = Math.max(parseInt(existingKey, 10) + 1, key);
                 }
 
@@ -523,7 +524,7 @@ editor.once('load', function() {
             }
 
             if (selected.oldFrame) {
-                var frame = atlasAsset.get('data.frames.' + selected.key);
+                var frame = atlasAsset.getRaw('data.frames.' + selected.key)._data;
                 var dirty = false;
                 for (var i = 0; i < 4; i++) {
                     if (selected.oldFrame.rect[i] !== frame.rect[i]) {
@@ -649,7 +650,8 @@ editor.once('load', function() {
                     if (! spriteAsset) {
                         selected = {
                             key: newSelection || newKeys[len-1],
-                            frame: asset.get('data.frames.' + (newSelection || newKeys[len-1]))
+                            handle: null,
+                            oldFrame: null
                         };
 
                     }
@@ -881,23 +883,23 @@ editor.once('load', function() {
     };
 
     var commitFrameChanges = function (key, frame, oldFrame) {
-        // make sure width / height are positive
-        if (frame.rect[2] < 0) {
-            frame.rect[2] = Math.max(1, -frame.rect[2]);
-            frame.rect[0] -= frame.rect[2];
-        }
-
-        if (frame.rect[3] < 0) {
-            frame.rect[3] = Math.max(1, -frame.rect[3]);
-            frame.rect[1] -= frame.rect[3];
-        }
-
         var newValue = {
             name: frame.name,
             rect: frame.rect.slice(),
             pivot: frame.pivot.slice(),
             border: frame.border.slice()
         };
+
+        // make sure width / height are positive
+        if (newValue.rect[2] < 0) {
+            newValue.rect[2] = Math.max(1, -newValue.rect[2]);
+            newValue.rect[0] -= newValue.rect[2];
+        }
+
+        if (newValue.rect[3] < 0) {
+            newValue.rect[3] = Math.max(1, -newValue.rect[3]);
+            newValue.rect[1] -= newValue.rect[3];
+        }
 
         var redo = function () {
             var asset = editor.call('assets:get', atlasAsset.get('id'));
@@ -1097,7 +1099,9 @@ editor.once('load', function() {
         }
         ctx.stroke();
 
-        var frame = newFrame || (selected ? atlasAsset.get('data.frames.' + selected.key) : null);
+        var frame = newFrame || (selected ? atlasAsset.getRaw('data.frames.' + selected.key) : null);
+        if (frame && frame._data)
+            frame = frame._data;
 
         if (frame) {
             ctx.beginPath();
@@ -1432,9 +1436,9 @@ editor.once('load', function() {
         var imgLeft = imageLeft();
         var imgTop = imageTop();
 
-        var frames = atlasAsset.get('data.frames');
+        var frames = atlasAsset.getRaw('data.frames')._data;
         for (var key in frames) {
-            var frame = frames[key];
+            var frame = frames[key]._data;
             var left = frameLeft(frame, imgLeft, imgWidth);
             var top = frameTop(frame, imgTop, imgHeight);
             var width = frameWidth(frame, imgWidth);

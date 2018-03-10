@@ -46,7 +46,7 @@ editor.once('load', function() {
             };
 
             var renderPreview = function () {
-                var frameKeys = asset.get('data.frameKeys');
+                var frameKeys = asset.getRaw('data.frameKeys');
                 var frames = frameKeys.filter(function (f) {
                     return atlasAsset.has('data.frames.' + f);
                 }).map(function (f) {

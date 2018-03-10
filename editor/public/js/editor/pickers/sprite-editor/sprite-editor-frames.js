@@ -222,9 +222,9 @@ editor.once('load', function() {
         };
 
         // create frames
-        var frames = atlasAsset.get('data.frames');
+        var frames = atlasAsset.getRaw('data.frames')._data;
         for (var key in frames) {
-            addFramePanel(key, frames[key]);
+            addFramePanel(key, frames[key]._data);
         }
 
         // keydown
