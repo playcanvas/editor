@@ -1547,15 +1547,14 @@ editor.once('load', function() {
     var showEditor = function (asset) {
         if (! editor.call('users:isSpriteTester')) return;
 
+        var _spriteAsset = null;
         if (asset.get('type') === 'textureatlas') {
             atlasAsset = asset;
-            spriteAsset = null;
         } else if (asset.get('type') === 'sprite') {
             atlasAsset = editor.call('assets:get', asset.get('data.textureAtlasAsset'));
-            spriteAsset = asset;
+            _spriteAsset = asset;
         } else {
             atlasAsset = null;
-            spriteAsset = null;
         }
 
         if (! atlasAsset)
@@ -1575,7 +1574,12 @@ editor.once('load', function() {
                 atlasImage: atlasImage
             });
 
-            renderCanvas();
+            if (_spriteAsset) {
+                selectSprite(_spriteAsset);
+            } else {
+                renderCanvas();
+            }
+
         };
         atlasImage.src = atlasAsset.get('file.url') + '?t=' + atlasAsset.get('file.hash');
 
@@ -1743,6 +1747,9 @@ editor.once('load', function() {
 
         overlayPickFrames.hidden = true;
 
+        atlasAsset = null;
+        setSprite(null);
+
         canvasPanel.class.remove('grab');
         canvasPanel.class.remove('grabbing');
 
@@ -1856,8 +1863,26 @@ editor.once('load', function() {
     });
 
     var setSprite = function (asset) {
+        if (spriteAsset) {
+            spriteAsset.unbind('data.frameKeys:remove', onSpriteFrameDeleted);
+            spriteAsset.unbind('data.frameKeys:insert', onSpriteFrameAdded);
+        }
+
         spriteAsset = asset;
         editor.emit('picker:sprites:editor:spriteSelected', asset);
+
+        if (! spriteAsset) return;
+
+        spriteAsset.on('data.frameKeys:remove', onSpriteFrameAdded);
+        spriteAsset.on('data.frameKeys:insert', onSpriteFrameDeleted);
+    };
+
+    var onSpriteFrameAdded = function (value, index) {
+        selectFrames(spriteAsset.getRaw('data.frameKeys'));
+    };
+
+    var onSpriteFrameDeleted = function (value, index) {
+        selectFrames(spriteAsset.getRaw('data.frameKeys'));
     };
 
     var selectSprite = function (asset, options) {
