@@ -43,6 +43,11 @@ editor.once('load', function() {
         description: 'Flips the Y axis when rendering a Sprite.',
         url: 'http://developer.playcanvas.com/api/pc.SpriteComponent.html#flipY'
     }, {
+        title: 'size',
+        subTitle: 'width / height {Number}',
+        description: 'The width and height of the Sprite when rendering using 9-Slicing. The width and height are only used when the render mode of the Sprite Asset is Sliced or Tiled.',
+        url: 'http://developer.playcanvas.com/api/pc.SpriteComponent.html#width'
+    }, {
         title: 'speed',
         subTitle: '{Number}',
         description: 'A global speed modifier used when playing Sprite Animation Clips.',
