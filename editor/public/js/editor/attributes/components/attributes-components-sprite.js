@@ -699,9 +699,34 @@ editor.once('load', function() {
             fieldSpriteAsset.parent.hidden = !hideAnimated;
             fieldSpeed.parent.hidden = hideAnimated;
             fieldBatchGroup.parent.hidden = !hideAnimated;
+
+            fieldWidth.parent.hidden = hideSpriteSize();
+        };
+
+        var hideSpriteSize = function () {
+            if (fieldType.value !== 'simple')
+                return true;
+
+            if (! fieldSpriteAsset.value)
+                return true;
+
+            var asset = editor.call('assets:get', fieldSpriteAsset.value);
+            if (! asset) {
+                return true;
+            }
+
+            if (! asset.get('data.renderMode')) {
+                return true;
+            }
+
+            return false;
         };
 
         fieldType.on('change', toggleFields);
+
+        fieldSpriteAsset.on('change', function () {
+            fieldWidth.parent.hidden = hideSpriteSize();
+        });
 
         toggleFields();
 
