@@ -6165,8 +6165,6 @@ strong {
                     }
 
                     .ui-panel.buttons {
-                        z-index: 102;
-
                         > .content {
                             flex-wrap: wrap;
 
@@ -6370,6 +6368,7 @@ strong {
             .ui-panel.buttons {
                 border: 1px solid $text-active;
                 margin: 0 2px 0 0;
+                z-index: 102;
             }
         }
     }
