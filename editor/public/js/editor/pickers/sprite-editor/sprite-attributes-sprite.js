@@ -37,6 +37,13 @@ editor.once('load', function() {
             parent: rootPanel
         });
 
+        var fieldId = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'ID',
+            link: spriteAsset,
+            path: 'id'
+        });
+
         var fieldName = editor.call('attributes:addField', {
             parent: panel,
             name: 'Name',
@@ -55,6 +62,19 @@ editor.once('load', function() {
             type: 'number',
             link: spriteAsset,
             path: 'data.pixelsPerUnit'
+        });
+
+        var fieldRenderMode = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Render Mode',
+            type: 'number',
+            enum: [
+                {v: 0, t: 'Simple'},
+                {v: 1, t: 'Sliced'},
+                {v: 2, t: 'Tiled'}
+            ],
+            link: spriteAsset,
+            path: 'data.renderMode'
         });
 
         var panelEdit = editor.call('attributes:addPanel', {
