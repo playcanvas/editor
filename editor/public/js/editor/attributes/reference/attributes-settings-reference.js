@@ -194,6 +194,11 @@ editor.once('load', function() {
         description: 'Maximum resolution for auto-generated lightmap textures.',
         url: 'http://developer.playcanvas.com/api/pc.Scene.html#lightmapMaxResolution'
     }, {
+        title: 'lightmapMode',
+        subTitle: '{Number}',
+        description: 'The lightmap baking mode. Can be "Color Only" for just a single color lightmap or "Color and Direction" for single color plus dominant light direction (used for bump/specular).',
+        url: 'http://developer.playcanvas.com/api/pc.Scene.html#lightmapMode'
+    }, {
         name: 'facebook',
         title: 'Facebook Settings',
         description: 'Settings for publishing on Facebook Instant Games'

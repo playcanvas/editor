@@ -65,8 +65,6 @@ editor.once('load', function() {
         panel.on('fold', function() { foldStates['editor'] = true; });
         panel.on('unfold', function() { foldStates['editor'] = false; });
         panel.class.add('component');
-        // reference
-        editor.call('attributes:reference:attach', 'settings:projectUser', panel, panel.headerElement);
 
         // grid divisions
         var fieldGrid = editor.call('attributes:addField', {
