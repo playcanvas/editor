@@ -4,14 +4,7 @@ editor.once('load', function() {
     editor.method('picker:sprites:attributes:slice', function (args) {
         var atlasAsset = args.atlasAsset;
         var atlasImage = args.atlasImage;
-
-        // get the image data
-        var canvas = document.createElement('canvas');
-        canvas.width = atlasImage.width;
-        canvas.height = atlasImage.height;
-        var ctx = canvas.getContext('2d');
-        ctx.drawImage(atlasImage, 0, 0, canvas.width, canvas.height);
-        var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        var imageData = args.atlasImageData;
 
         var rootPanel = editor.call('picker:sprites:editor:rightPanel');
 

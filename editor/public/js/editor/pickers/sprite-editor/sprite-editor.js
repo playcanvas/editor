@@ -14,6 +14,8 @@ editor.once('load', function() {
     var spriteAsset = null;
     var atlasImage = new Image();
     var atlasImageLoaded = false;
+    var atlasImageDataCanvas = document.createElement('canvas');
+    var atlasImageData = null;
 
     var shiftDown = false;
     var ctrlDown = false;
@@ -299,6 +301,15 @@ editor.once('load', function() {
             }
         });
 
+        // Trim selected frames
+        editor.call('hotkey:register', 'sprite-editor-trim', {
+            key: 't',
+            callback: function () {
+                if (selected && ! spriteAsset) {
+                    editor.call('picker:sprites:editor:trimFrames', highlightedFrames);
+                }
+            }
+        });
 
         // Esc to deselect and if no selection close the window
         editor.call('hotkey:register', 'sprite-editor-esc', {
@@ -334,6 +345,7 @@ editor.once('load', function() {
 
         editor.call('hotkey:unregister', 'sprite-editor-focus');
         editor.call('hotkey:unregister', 'sprite-editor-delete');
+        editor.call('hotkey:unregister', 'sprite-editor-trim');
         editor.call('hotkey:unregister', 'sprite-editor-esc');
     };
 
@@ -1418,7 +1430,7 @@ editor.once('load', function() {
                 editor.call('picker:sprites:attributes:frames', {atlasAsset: atlasAsset, atlasImage: atlasImage, frames: highlightedFrames});
             } else {
                 editor.call('picker:sprites:attributes:atlas', atlasAsset);
-                editor.call('picker:sprites:attributes:slice', {atlasAsset: atlasAsset, atlasImage: atlasImage});
+                editor.call('picker:sprites:attributes:slice', {atlasAsset: atlasAsset, atlasImage: atlasImage, atlasImageData: atlasImageData});
                 editor.call('picker:sprites:attributes:spriteassets', {atlasAsset: atlasAsset});
             }
         }
@@ -1426,6 +1438,11 @@ editor.once('load', function() {
 
     var rectContainsPoint = function(p, left, top, width, height) {
         return left <= p.x && left + width >= p.x && top <= p.y && top + height >= p.y;
+    };
+
+    var isPixelEmpty = function (x, y) {
+        var alpha = y * (atlasImage.width * 4) + x * 4 + 3;
+        return atlasImageData.data[alpha] === 0;
     };
 
     var framesHitTest = function(p) {
@@ -1566,6 +1583,13 @@ editor.once('load', function() {
         atlasImageLoaded = false;
         atlasImage.onload = function () {
             atlasImageLoaded = true;
+
+            // get image data
+            atlasImageDataCanvas.width = atlasImage.width;
+            atlasImageDataCanvas.height = atlasImage.height;
+            atlasImageDataCanvas.getContext('2d').drawImage(atlasImage, 0, 0, atlasImage.width, atlasImage.height);
+            atlasImageData = atlasImageDataCanvas.getContext('2d').getImageData(0, 0, atlasImage.width, atlasImage.height);
+
             aspectRatio = atlasImage.width / atlasImage.height;
             updateRightPanel();
 
@@ -1738,6 +1762,8 @@ editor.once('load', function() {
         selected = null;
         newFrame = null;
         hovering = false;
+        atlasImageData = null;
+        atlasImageDataCanvas.getContext('2d').clearRect(0, 0, atlasImageDataCanvas.width, atlasImageDataCanvas.height);
         highlightedFrames.length = 0;
         newSpriteFrames.length = 0;
 
@@ -2000,6 +2026,136 @@ editor.once('load', function() {
     // Exits sprite edit mode
     editor.method('picker:sprites:editor:pickFrames:cancel', function () {
         overlayPickFrames.hidden = true;
+    });
+
+    // Trim transparent pixels from specified frames
+    editor.method('picker:sprites:editor:trimFrames', function (frames) {
+        var prev = {};
+
+        var redo = function () {
+            var asset = editor.call('assets:get', atlasAsset.get('id'));
+            if (! asset) return;
+
+            var history = asset.history.enabled;
+            asset.history.enabled = false;
+
+            var dirty = false;
+
+            var frameData = atlasAsset.getRaw('data.frames')._data;
+            for (var i = 0, len = frames.length; i<len; i++) {
+                var frame = frameData[frames[i]];
+                if (! frame) continue;
+                frame = frame._data;
+
+                var left = Math.max(0, frame.rect[0]);
+                var right = Math.min(frame.rect[0] + frame.rect[2] - 1, atlasImage.width - 1);
+                var top = Math.max(0, atlasImage.height - frame.rect[1] - frame.rect[3]);
+                var bottom = Math.min(atlasImage.height - frame.rect[1] - 1, atlasImage.height - 1);
+
+                // trim vertically from left to right
+                for (var x = left; x<=right; x++) {
+                    var foundPixel = false;
+                    for (var y = top; y<=bottom; y++) {
+                        left = x;
+                        if (! isPixelEmpty(x, y)) {
+                            foundPixel = true;
+                            break;
+                        }
+                    }
+
+                    if (foundPixel) {
+                        break;
+                    }
+                }
+
+                // trim vertically from right to left
+                for (var x = right; x>=left; x--) {
+                    var foundPixel = false;
+                    for (var y = top; y<=bottom; y++) {
+                        right = x;
+                        if (! isPixelEmpty(x, y)) {
+                            foundPixel = true;
+                            break;
+                        }
+                    }
+
+                    if (foundPixel) {
+                        break;
+                    }
+                }
+
+                // trim horizontally from top to bottom
+                for (var y = top; y<=bottom; y++) {
+                    var foundPixel = false;
+                    for (var x = left; x<=right; x++) {
+                        top = y;
+                        if (! isPixelEmpty(x, y)) {
+                            foundPixel = true;
+                            break;
+                        }
+                    }
+
+                    if (foundPixel) {
+                        break;
+                    }
+                }
+
+                // trim horizontally from bottom to top
+                for (var y = bottom; y>=top; y--) {
+                    var foundPixel = false;
+                    for (var x = left; x<=right; x++) {
+                        bottom = y;
+                        if (! isPixelEmpty(x, y)) {
+                            foundPixel = true;
+                            break;
+                        }
+                    }
+
+                    if (foundPixel) {
+                        break;
+                    }
+                }
+
+                // set new rect
+                var l = left;
+                var b = atlasImage.height - bottom - 1;
+                var w = Math.max(1, right - left + 1); // don't make 0 width/height rects
+                var h = Math.max(1, bottom - top + 1);
+
+                if (l !== frame.rect[0] || b !== frame.rect[1] || w !== frame.rect[2] || h !== frame.rect[3]) {
+                    dirty = true;
+                    prev[frames[i]] = frame.rect.slice();
+                    atlasAsset.set('data.frames.' + frames[i] + '.rect', [l,b,w,h]);
+                }
+            }
+
+            asset.history.enabled = history;
+
+            return dirty;
+        };
+
+        var undo = function () {
+            var asset = editor.call('assets:get', atlasAsset.get('id'));
+            if (! asset) return;
+
+            var history = asset.history.enabled;
+            asset.history.enabled = false;
+            for (var key in prev) {
+                atlasAsset.set('data.frames.' + key + '.rect', prev[key]);
+            }
+            asset.history.enabled = history;
+
+            prev = {};
+        };
+
+        if (redo()) {
+            editor.call('history:add', {
+                name: 'trim frames',
+                undo: undo,
+                redo: redo
+            });
+        }
+
     });
 
     overlayPickFrames.on('show', function () {

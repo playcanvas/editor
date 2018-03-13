@@ -446,8 +446,9 @@ editor.once('load', function() {
         btnTrim.class.add('icon', 'wide', 'trim');
         panelButtons.append(btnTrim);
 
+        // trim transparent pixels around frame
         btnTrim.on('click', function () {
-            // TODO
+            editor.call('picker:sprites:editor:trimFrames', frames);
         });
 
         // delete frame
