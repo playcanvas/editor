@@ -5,6 +5,7 @@ editor.once('load', function() {
     var pivotWidth = 7;
 
     var COLOR_GRAY = '#B1B8BA';
+    var COLOR_DARKEST = '#20292b';
     var COLOR_DARK = '#2C393C';
     var COLOR_GREEN = '#0f0';
     var COLOR_ORANGE = '#f60';
@@ -1034,6 +1035,13 @@ editor.once('load', function() {
         ctx.webkitImageSmoothingEnabled = false;
         ctx.msImageSmoothingEnabled = false;
         ctx.imageSmoothingEnabled = false;
+
+        // draw background outside image
+        ctx.fillStyle = COLOR_DARKEST;
+        ctx.fillRect(0,0, left, canvas.height);
+        ctx.fillRect(0,0, canvas.width, top);
+        ctx.fillRect(left + width,0, canvas.width - left - width, canvas.height);
+        ctx.fillRect(0, top + height, canvas.width, canvas.height - top - height);
 
         // draw image
         ctx.drawImage(
