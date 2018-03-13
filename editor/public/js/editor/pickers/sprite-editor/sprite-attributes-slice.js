@@ -6,7 +6,7 @@ editor.once('load', function() {
         var atlasImage = args.atlasImage;
         var imageData = args.atlasImageData;
 
-        var rootPanel = editor.call('picker:sprites:editor:rightPanel');
+        var rootPanel = editor.call('picker:sprites:rightPanel');
 
         var panel = editor.call('attributes:addPanel', {
             parent: rootPanel,

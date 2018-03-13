@@ -18,7 +18,7 @@ editor.once('load', function() {
 
         var scrollSelectionIntoView = true;
 
-        var leftPanel = editor.call('picker:sprites:editor:leftPanel');
+        var leftPanel = editor.call('picker:sprites:leftPanel');
         leftPanel.header = 'FRAMES';
 
         var panel = editor.call('attributes:addPanel', {
@@ -48,7 +48,7 @@ editor.once('load', function() {
 
         btnNewSprite.on('click', function () {
             btnNewSprite.disabled = true;
-            editor.call('picker:sprites:editor:spriteFromSelection', function () {
+            editor.call('picker:sprites:spriteFromSelection', function () {
                 btnNewSprite.disabled = false;
             });
         });
@@ -61,7 +61,9 @@ editor.once('load', function() {
         panelButtons.append(btnDelete);
 
         btnDelete.on('click', function () {
-            editor.call('picker:sprites:editor:deleteFrames', selectedKeys);
+            editor.call('picker:sprites:deleteFrames', selectedKeys, {
+                history: true
+            });
         });
 
         var btnAddSelectedFrames = new ui.Button({
@@ -74,7 +76,7 @@ editor.once('load', function() {
         panelButtons.append(btnAddSelectedFrames);
 
         btnAddSelectedFrames.on('click', function () {
-            editor.call('picker:sprites:editor:pickFrames:add');
+            editor.call('picker:sprites:pickFrames:add');
         });
 
         var panelFrames = new ui.Panel();
@@ -109,7 +111,7 @@ editor.once('load', function() {
             };
 
             var renderPreview = function () {
-                editor.call('picker:sprites:editor:renderFramePreview', frame, canvas.element);
+                editor.call('picker:sprites:renderFramePreview', frame, canvas.element);
             };
 
             renderPreview();
@@ -131,7 +133,9 @@ editor.once('load', function() {
 
             btnRemove.on('click', function (e) {
                 e.stopPropagation();
-                editor.call('picker:sprites:editor:deleteFrames', [key]);
+                editor.call('picker:sprites:deleteFrames', [key], {
+                    history: true
+                });
             });
 
             panel.on('click', function () {
@@ -160,7 +164,7 @@ editor.once('load', function() {
                         }
 
                         if (range.length) {
-                            editor.call('picker:sprites:editor:selectFrames', range, {
+                            editor.call('picker:sprites:selectFrames', range, {
                                 add: true,
                                 history: true,
                                 clearSprite: !spriteEditMode
@@ -168,7 +172,7 @@ editor.once('load', function() {
                         }
                     } else {
                         // otherwise just select single frame
-                        editor.call('picker:sprites:editor:selectFrames', key, {
+                        editor.call('picker:sprites:selectFrames', key, {
                             history: true,
                             clearSprite: !spriteEditMode
                         });
@@ -178,7 +182,7 @@ editor.once('load', function() {
                     var keys = spriteEditMode ? spriteEditModeKeys : selectedKeys;
                     var idx = keys.indexOf(key);
                     if (idx === -1) {
-                        editor.call('picker:sprites:editor:selectFrames', key, {
+                        editor.call('picker:sprites:selectFrames', key, {
                             add: true,
                             history: true,
                             clearSprite: !spriteEditMode
@@ -186,7 +190,7 @@ editor.once('load', function() {
                     } else {
                         // if selected remove from selection
                         keys.splice(idx, 1);
-                    editor.call('picker:sprites:editor:selectFrames', keys, {
+                    editor.call('picker:sprites:selectFrames', keys, {
                             history: true,
                             clearSprite: !spriteEditMode
                         });
@@ -194,7 +198,7 @@ editor.once('load', function() {
 
                 } else {
                     // select single frame
-                    editor.call('picker:sprites:editor:selectFrames', key, {
+                    editor.call('picker:sprites:selectFrames', key, {
                         history: true,
                         clearSprite: !spriteEditMode
                     });
@@ -293,7 +297,7 @@ editor.once('load', function() {
         }));
 
         // Listen to framesSelected event to highlight panels
-        events.push(editor.on('picker:sprites:editor:framesSelected', function (keys) {
+        events.push(editor.on('picker:sprites:framesSelected', function (keys) {
             var index = {};
             var key;
 
@@ -360,7 +364,7 @@ editor.once('load', function() {
             }
         }));
 
-        events.push(editor.on('picker:sprites:editor:pickFrames:start', function () {
+        events.push(editor.on('picker:sprites:pickFrames:start', function () {
             spriteEditMode = true;
             btnAddSelectedFrames.hidden = false;
             btnAddSelectedFrames.disabled = true;
@@ -368,7 +372,7 @@ editor.once('load', function() {
             btnDelete.hidden = true;
         }));
 
-        events.push(editor.on('picker:sprites:editor:pickFrames:end', function () {
+        events.push(editor.on('picker:sprites:pickFrames:end', function () {
             spriteEditMode = false;
             btnAddSelectedFrames.hidden = true;
             btnNewSprite.hidden = false;
@@ -383,7 +387,7 @@ editor.once('load', function() {
             spriteEditModeKeys.length = 0;
         }));
 
-        events.push(editor.on('picker:sprites:editor:spriteSelected', function (spriteAsset) {
+        events.push(editor.on('picker:sprites:spriteSelected', function (spriteAsset) {
             selectedSprite = spriteAsset;
             var keys = spriteEditMode ? spriteEditModeKeys : selectedKeys;
             for (var i = 0, len = keys.length; i<len; i++) {

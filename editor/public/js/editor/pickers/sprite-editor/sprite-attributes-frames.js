@@ -9,7 +9,7 @@ editor.once('load', function() {
         var frames = args.frames;
         var numFrames = frames.length;
 
-        var rootPanel = editor.call('picker:sprites:editor:rightPanel');
+        var rootPanel = editor.call('picker:sprites:rightPanel');
         rootPanel.header = numFrames > 1 ? 'MULTIPLE FRAMES' : 'FRAME';
 
         editor.call('picker:sprites:attributes:frames:preview', {
@@ -434,7 +434,7 @@ editor.once('load', function() {
 
         btnCreateSprite.on('click', function () {
             btnCreateSprite.disabled = true;
-            editor.call('picker:sprites:editor:spriteFromSelection', function () {
+            editor.call('picker:sprites:spriteFromSelection', function () {
                 btnCreateSprite.disabled = false;
             });
         });
@@ -448,7 +448,7 @@ editor.once('load', function() {
 
         // trim transparent pixels around frame
         btnTrim.on('click', function () {
-            editor.call('picker:sprites:editor:trimFrames', frames);
+            editor.call('picker:sprites:trimFrames', frames);
         });
 
         // delete frame
@@ -458,7 +458,9 @@ editor.once('load', function() {
         btnDelete.class.add('icon', 'wide', 'remove');
         panelButtons.append(btnDelete);
         btnDelete.on('click', function () {
-            editor.call('picker:sprites:editor:deleteFrames', frames);
+            editor.call('picker:sprites:deleteFrames', frames, {
+                history: true
+            });
         });
 
         // clean up

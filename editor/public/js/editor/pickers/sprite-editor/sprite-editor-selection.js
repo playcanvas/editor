@@ -1,0 +1,330 @@
+editor.once('load', function () {
+    'use strict';
+
+    var selected = null;
+    var highlightedFrames = [];
+    var newSpriteFrames = [];
+
+    var atlasAsset = null;
+    var spriteAsset = null;
+
+    var spriteEditMode = false;
+
+    var overlay = editor.call('picker:sprites:overlayPick');
+
+    // Select frames by keys
+    // options.history: Whether to add this action to the history
+    // options.add: Whether to add the frames to the existing selection
+    // options.clearSprite: Clear sprite selection if true
+    var selectFrames = function (keys, options) {
+        if (keys && ! (keys instanceof Array))
+            keys = [keys];
+
+        // check if new selection differs from old
+        var dirty = false;
+        if (! keys && selected || ! keys && options && options.clearSprite && spriteAsset) {
+            dirty = true;
+        } else if (keys && ! selected) {
+            dirty = true;
+        } else if (selected && spriteAsset && (! options || ! options.clearSprite)) {
+            dirty = true;
+        } else {
+            var klen = keys ? keys.length : 0;
+            var hlen = highlightedFrames.length;
+            if (klen !== hlen) {
+                dirty = true;
+            } else {
+                for (var i = 0; i < klen; i++) {
+                    if (keys[i] !== highlightedFrames[i]) {
+                        dirty = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (! dirty)
+            return;
+
+        var prevSelection = selected;
+        var prevHighlighted = spriteEditMode ? newSpriteFrames.slice() : highlightedFrames.slice();
+        var prevSprite = spriteAsset;
+
+        // add to selection if necessary
+        if (keys && options && options.add) {
+            var temp = prevHighlighted.slice();
+            for (var i = 0, len = keys.length; i<len; i++) {
+                if (temp.indexOf(keys[i]) === -1) {
+                    temp.push(keys[i]);
+                }
+            }
+            keys = temp;
+        }
+
+        var select = function (newKeys, newSelection, oldKeys) {
+            selected = null;
+
+            if (oldKeys) {
+                if (spriteEditMode) {
+                    newSpriteFrames.length = 0;
+                } else {
+                    highlightedFrames.length = 0;
+                }
+            }
+
+            var asset = editor.call('assets:get', atlasAsset.get('id'));
+            if (asset) {
+                var len = newKeys && newKeys.length;
+                if (len) {
+                    if (spriteEditMode) {
+                        newSpriteFrames = newKeys.slice();
+                    } else {
+                        highlightedFrames = newKeys.slice();
+                    }
+
+                    if (! spriteAsset) {
+                        selected = newSelection || newKeys[len-1];
+
+                    }
+                }
+            }
+
+            editor.emit('picker:sprites:framesSelected', newKeys);
+        };
+
+        var redo = function () {
+            if (options && options.clearSprite) {
+                setSprite(null);
+            }
+
+            select(keys, null, prevHighlighted);
+        };
+
+        var undo = function () {
+            if (options && options.clearSprite && prevSprite) {
+                selectSprite(prevSprite);
+            } else {
+                select(prevHighlighted, prevSelection, keys);
+            }
+        };
+
+        if (options && options.history) {
+            editor.call('history:add', {
+                name: 'select frame',
+                undo: undo,
+                redo: redo
+            });
+
+        }
+
+        redo();
+
+        return selected;
+    };
+
+    // Sets the selected sprite and hooks event listeners
+    var setSprite = function (asset) {
+        if (spriteAsset) {
+            spriteAsset.unbind('data.frameKeys:remove', onSpriteFrameDeleted);
+            spriteAsset.unbind('data.frameKeys:insert', onSpriteFrameAdded);
+        }
+
+        spriteAsset = asset;
+        editor.emit('picker:sprites:spriteSelected', asset);
+
+        if (! spriteAsset) return;
+
+        spriteAsset.on('data.frameKeys:remove', onSpriteFrameAdded);
+        spriteAsset.on('data.frameKeys:insert', onSpriteFrameDeleted);
+    };
+
+    // When a frame is added to the selected sprite asset then re-select
+    // all its frames
+    var onSpriteFrameAdded = function (value, index) {
+        selectFrames(spriteAsset.getRaw('data.frameKeys'));
+    };
+
+    // When a frame is deleted from the selected sprite asset then re-select
+    // the sprite's frames
+    var onSpriteFrameDeleted = function (value, index) {
+        selectFrames(spriteAsset.getRaw('data.frameKeys'));
+    };
+
+    // Select specified sprite asset
+    // Options are:
+    // - history: If true make action undoable
+    var selectSprite = function (asset, options) {
+        if (options && options.history) {
+            var prevSprite = spriteAsset;
+            var newSprite = asset;
+            var selectedFrames = selected && ! prevSprite ? highlightedFrames : null;
+
+            var redo = function () {
+                setSprite(asset);
+                if (spriteAsset) {
+                    selectFrames(spriteAsset.getRaw('data.frameKeys'));
+                } else {
+                    selectFrames(null);
+                }
+            };
+
+            var undo = function () {
+                setSprite(prevSprite);
+                if (spriteAsset) {
+                    selectFrames(spriteAsset.getRaw('data.frameKeys'));
+                } else {
+                    selectFrames(selectedFrames);
+                }
+            };
+
+            editor.call('history:add', {
+                name: 'select sprite',
+                undo: undo,
+                redo: redo
+            });
+
+            redo();
+        } else {
+            setSprite(asset);
+            if (spriteAsset) {
+                selectFrames(spriteAsset.getRaw('data.frameKeys'));
+            } else {
+                selectFrames(null);
+            }
+        }
+    };
+
+    // Methods
+
+    editor.method('picker:sprites:selectSprite', selectSprite);
+
+    editor.method('picker:sprites:selectFrames', selectFrames);
+
+    // Create sprite asset from selected frames
+    editor.method('picker:sprites:spriteFromSelection', function (fn) {
+        if (! highlightedFrames.length )
+            return;
+
+        editor.call('assets:create:sprite', {
+            pixelsPerUnit: 100,
+            frameKeys: highlightedFrames,
+            textureAtlasAsset: atlasAsset.get('id'),
+            noSelect: true,
+            fn: function (err, id) {
+                var asset = editor.call('assets:get', id);
+                if (asset) {
+                    selectSprite(asset);
+                    if (fn) {
+                        fn(asset);
+                    }
+                } else {
+                    editor.once('assets:add[' + id + ']', function (asset) {
+                        selectSprite(asset);
+                        if (fn) {
+                            fn(asset);
+                        }
+                    });
+                }
+            }
+        });
+    });
+
+    // Start sprite edit mode
+    editor.method('picker:sprites:pickFrames', function () {
+        if (spriteEditMode) return;
+
+        var redo = function () {
+            overlay.hidden = false;
+        };
+
+        var undo = function () {
+            overlay.hidden = true;
+        };
+
+        editor.call('history:add', {
+            name: 'add frames',
+            undo: undo,
+            redo: redo
+        });
+
+        redo();
+    });
+
+    // Adds picked frames to sprite asset and exits sprite edit mode
+    editor.method('picker:sprites:pickFrames:add', function () {
+        if (! spriteAsset) return;
+
+        var length = newSpriteFrames.length;
+        if (length) {
+            var keys = spriteAsset.get('data.frameKeys');
+            keys = keys.concat(newSpriteFrames);
+            spriteAsset.set('data.frameKeys', keys);
+        }
+
+        overlay.hidden = true;
+    });
+
+    // Exits sprite edit mode
+    editor.method('picker:sprites:pickFrames:cancel', function () {
+        overlay.hidden = true;
+    });
+
+    // Return selected frame
+    editor.method('picker:sprites:selectedFrame', function () {
+        return selected;
+    });
+
+    // Return highlighted frames
+    editor.method('picker:sprites:highlightedFrames', function () {
+        return highlightedFrames;
+    });
+
+    // Return sprite edit mode picked frames
+    editor.method('picker:sprites:newSpriteFrames', function () {
+        return newSpriteFrames;
+    });
+
+
+    // Event Listeners
+    overlay.on('show', function () {
+        spriteEditMode = true;
+        panel.class.add('select-frames-mode');
+        editor.emit('picker:sprites:pickFrames:start');
+    });
+
+    overlay.on('hide', function () {
+        panel.class.remove('select-frames-mode');
+
+        spriteEditMode = false;
+        newSpriteFrames.length = 0;
+
+        editor.emit('picker:sprites:pickFrames:end');
+    });
+
+    editor.on('picker:sprites:open', function () {
+        atlasAsset = editor.call('picker:sprites:atlasAsset');
+
+        // Delete hotkey to delete selected frames
+        editor.call('hotkey:register', 'sprite-editor-delete', {
+            key: 'delete',
+            callback: function () {
+                if (! spriteAsset && highlightedFrames.length) {
+                    editor.call('picker:sprites:deleteFrames', highlightedFrames, {
+                        history: true
+                    });
+                }
+            }
+        });
+    });
+
+    editor.on('picker:sprites:close', function () {
+        atlasAsset = null;
+        selected = null;
+        highlightedFrames.length = 0;
+        newSpriteFrames.length = 0;
+        setSprite(null);
+
+
+        editor.call('hotkey:unregister', 'sprite-editor-delete');
+    });
+});

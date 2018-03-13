@@ -24,7 +24,7 @@ editor.once('load', function() {
 
         var events = [];
 
-        var rootPanel = editor.call('picker:sprites:editor:rightPanel');
+        var rootPanel = editor.call('picker:sprites:rightPanel');
         rootPanel.header = 'SPRITE - ' + spriteAsset.get('name');
 
         var fieldPreview = editor.call('picker:sprites:attributes:frames:preview', {
@@ -92,7 +92,7 @@ editor.once('load', function() {
         panelEdit.append(btnAddFrames);
 
         btnAddFrames.on('click', function () {
-            editor.call('picker:sprites:editor:pickFrames');
+            editor.call('picker:sprites:pickFrames');
         });
 
         var btnAddSelected = new ui.Button({
@@ -105,7 +105,7 @@ editor.once('load', function() {
 
         // add selected frames to sprite asset
         btnAddSelected.on('click', function () {
-            editor.call('picker:sprites:editor:pickFrames:add');
+            editor.call('picker:sprites:pickFrames:add');
         });
 
         var btnCancel = new ui.Button({
@@ -117,7 +117,7 @@ editor.once('load', function() {
         panelEdit.append(btnCancel);
 
         btnCancel.on('click', function () {
-            editor.call('picker:sprites:editor:pickFrames:cancel');
+            editor.call('picker:sprites:pickFrames:cancel');
         });
 
         var panelFrames = editor.call('attributes:addPanel', {
@@ -208,7 +208,7 @@ editor.once('load', function() {
             });
 
             panel.on('click', function () {
-                editor.call('picker:sprites:editor:selectFrames', key, {
+                editor.call('picker:sprites:selectFrames', key, {
                     history: true,
                     clearSprite: true
                 });
@@ -271,7 +271,7 @@ editor.once('load', function() {
             fieldPreview.setFrames(frameKeys);
         }));
 
-        events.push(editor.on('picker:sprites:editor:pickFrames:start', function () {
+        events.push(editor.on('picker:sprites:pickFrames:start', function () {
             spriteEditMode = true;
             btnAddFrames.hidden = true;
             btnAddSelected.disabled = true;
@@ -279,7 +279,7 @@ editor.once('load', function() {
             btnCancel.hidden = false;
         }));
 
-        events.push(editor.on('picker:sprites:editor:pickFrames:end', function () {
+        events.push(editor.on('picker:sprites:pickFrames:end', function () {
             spriteEditMode = false;
             btnAddFrames.hidden = false;
             btnAddSelected.hidden = true;
@@ -289,7 +289,7 @@ editor.once('load', function() {
             fieldPreview.setFrames(frameKeys);
         }));
 
-        events.push(editor.on('picker:sprites:editor:framesSelected', function (keys) {
+        events.push(editor.on('picker:sprites:framesSelected', function (keys) {
             if (! spriteEditMode) return;
 
             selectedFrames = keys;

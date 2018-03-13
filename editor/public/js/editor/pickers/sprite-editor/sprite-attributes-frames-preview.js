@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     editor.method('picker:sprites:attributes:frames:preview', function (args) {
-        var parent = editor.call('picker:sprites:editor:rightPanel');
+        var parent = editor.call('picker:sprites:rightPanel');
 
         var atlasAsset = args.atlasAsset;
         var atlasImage = args.atlasImage;
@@ -95,7 +95,7 @@ editor.once('load', function () {
 
             // render
             if (frameObservers[frame])
-                editor.call('picker:sprites:editor:renderFramePreview', frameObservers[frame]._data, canvas, frameObservers);
+                editor.call('picker:sprites:renderFramePreview', frameObservers[frame]._data, canvas, frameObservers);
 
             if (playing) {
                 queueRender();

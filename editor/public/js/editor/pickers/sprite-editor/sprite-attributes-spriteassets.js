@@ -6,7 +6,7 @@ editor.once('load', function() {
 
         var atlasAsset = args.atlasAsset;
 
-        var rootPanel = editor.call('picker:sprites:editor:rightPanel');
+        var rootPanel = editor.call('picker:sprites:rightPanel');
 
         // Sprites assets associated with this atlas
         var panel = editor.call('attributes:addPanel', {
@@ -54,7 +54,7 @@ editor.once('load', function() {
                 });
 
                 if (frames[0]) {
-                    editor.call('picker:sprites:editor:renderFramePreview', frames[0], canvas.element, frames);
+                    editor.call('picker:sprites:renderFramePreview', frames[0], canvas.element, frames);
                 }
             };
 
@@ -86,7 +86,7 @@ editor.once('load', function() {
 
             // link to sprite asset
             panel.on('click', function () {
-                editor.call('picker:sprites:editor:selectSprite', asset, {
+                editor.call('picker:sprites:selectSprite', asset, {
                     history: true
                 });
             });
