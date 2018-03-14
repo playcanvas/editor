@@ -104,7 +104,7 @@ editor.once('load', function() {
 
             var renderQueued = false;
 
-            var queueRender = function () {
+            panel.queueRender = function () {
                 if (renderQueued) return;
                 renderQueued = true;
                 requestAnimationFrame(renderPreview);
@@ -112,6 +112,7 @@ editor.once('load', function() {
 
             var renderPreview = function () {
                 editor.call('picker:sprites:renderFramePreview', frame, canvas.element);
+                renderQueued = false;
             };
 
             renderPreview();
@@ -248,37 +249,51 @@ editor.once('load', function() {
         // listen to atlas set event
         var checkPath = /^data\.frames(.(\d+))?$/;
         events.push(atlasAsset.on('*:set', function (path, value) {
-            var match = path.match(checkPath);
-            if (! match) return;
+            if (! path.startsWith('data.frames')) return;
 
-            // if a frame was set and it doesn't exist create it
-            var key = match[2];
-            if (key) {
-                if (! panels[key]) {
-                    var panelBefore = null;
-                    var panelAfter = null;
-
-                    var search = parseInt(key, 10);
-                    for (var k in panels) {
-                        if (search < parseInt(k, 10)) {
-                            panelBefore = panels[k];
-                            break;
-                        } else {
-                            panelAfter = panels[k];
-                        }
-                    }
-                    addFramePanel(key, value, panelAfter, panelBefore);
-                }
-            } else {
+            var parts = path.split('.');
+            if (parts.length === 2) {
                 // if all frames are set then re-create all frame panels
                 for (key in panels) {
                     panels[key].destroy();
+                    delete panels[key];
                 }
 
                 panels = {};
 
+                var raw = atlasAsset.getRaw('data.frames')._data;
+
                 for (key in value) {
-                    addFramePanel(key, value[key]);
+                    addFramePanel(key, raw[key]._data);
+                }
+            } else if (parts.length === 3) {
+                // if a frame was set and it doesn't exist create it
+                var key = parts[2];
+                if (key) {
+                    if (! panels[key]) {
+                        var panelBefore = null;
+                        var panelAfter = null;
+
+                        var search = parseInt(key, 10);
+                        for (var k in panels) {
+                            if (search < parseInt(k, 10)) {
+                                panelBefore = panels[k];
+                                break;
+                            } else {
+                                panelAfter = panels[k];
+                            }
+                        }
+
+
+                        var raw = atlasAsset.getRaw('data.frames')._data;
+                        addFramePanel(key, raw[key]._data, panelAfter, panelBefore);
+                    }
+                }
+            } else {
+                // if a field changed then re-render the preview for that frame
+                var key = parts[2];
+                if (panels[key]) {
+                    panels[key].queueRender();
                 }
             }
         }));
