@@ -20,6 +20,7 @@ editor.once('load', function () {
 
         // add index entry
         var entry = {
+            id: id,
             doc: doc,
             error: null,
             isLoading: true,
@@ -34,59 +35,35 @@ editor.once('load', function () {
             editor.emit('documents:error', id, err);
         });
 
-        // mark document as dirty on every
-        // op
-        doc.on('after op', function (ops, local) {
-            if (!entry.isDirty) {
-                entry.isDirty = true;
-                editor.emit('documents:dirty', id, true);
-            }
-
-            if (local && ! entry.hasLocalChanges) {
-                entry.hasLocalChanges = true;
-                editor.emit('documents:dirtyLocal', id, true);
-            }
-        });
-
-        // every time we subscribe to the document
-        // (so on reconnects too) listen for the 'ready' event
-        // and when ready check if the document content is different
-        // than the asset content in order to activate the REVERT button
-        doc.on('subscribe', function () {
-            // check if already closed by the user
-            if (! documentsIndex[id])
+        // ready to sync
+        doc.on('load', function () {
+            // check if closed by the user
+            if (! documentsIndex[id]) {
                 return;
+            }
 
-            // ready to sync
-            doc.whenReady(function () {
-                // check if closed by the user
-                if (! documentsIndex[id]) {
-                    return;
+            entry.isLoading = false;
+
+            // load event
+            editor.emit('documents:load', doc, asset, entry);
+
+            // focus doc if necessary
+            if (lastFocusedId === id) {
+                editor.emit('documents:focus', id);
+            }
+
+            // check if it's dirty
+            editor.call('assets:contents:get', asset, function (err, content) {
+                // re-check if we haven't closed the file
+                if (! documentsIndex[id] || err) return;
+
+                var dirty = doc.data !== content;
+                if (entry.isDirty !== dirty) {
+                    entry.isDirty = dirty;
+                    editor.emit('documents:dirty', id, dirty);
                 }
-
-                entry.isLoading = false;
-
-                // load event
-                editor.emit('documents:load', doc, asset);
-
-                // focus doc if necessary
-                if (lastFocusedId === id) {
-                    editor.emit('documents:focus', id);
-                }
-
-                // check if it's dirty
-                editor.call('assets:contents:get', asset, function (err, content) {
-                    // re-check if we haven't closed the file
-                    if (! documentsIndex[id] || err) return;
-
-                    var dirty = doc.getSnapshot() !== content;
-                    if (entry.isDirty !== dirty) {
-                        entry.isDirty = dirty;
-                        editor.emit('documents:dirty', id, dirty);
-                    }
-                });
-
             });
+
         });
 
         // subscribe for realtime events
@@ -136,6 +113,7 @@ editor.once('load', function () {
     editor.on('documents:close', function (id) {
         var entry = documentsIndex[id];
         if (entry) {
+            entry.doc.unsubscribe();
             entry.doc.destroy();
             delete documentsIndex[id];
 

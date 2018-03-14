@@ -28,8 +28,8 @@ editor.once('load', function () {
 
     // When document is loaded create codemirror document
     // and add entry to index
-    editor.on('documents:load', function (doc, asset) {
-        if (viewIndex[doc.name]) return;
+    editor.on('documents:load', function (doc, asset, docEntry) {
+        if (viewIndex[doc.id]) return;
 
         var mode;
         var type = asset.get('type');
@@ -43,30 +43,30 @@ editor.once('load', function () {
             doc: doc,
             type: type,
             asset: asset,
-            view: CodeMirror.Doc(doc.getSnapshot(), mode),
+            view: CodeMirror.Doc(doc.data, mode),
             suppressChanges: false
         };
 
         // emit change
         // use 'beforeChange' event so that
         // we capture the state of the document before it's changed.
-        // This is so that we send correct operations to sharejs.
+        // This is so that we send correct operations to sharedb.
         entry.view.on('beforeChange', function (view, change) {
             if (entry.suppressChanges) return;
 
-            editor.emit('views:change', doc.name, view, change);
+            editor.emit('views:change', doc.id, view, change);
         });
 
         // called after a change has been made
         entry.view.on('change', function (view, change) {
             if (entry.suppressChanges) return;
 
-            editor.emit('views:afterChange', doc.name, view, change);
+            editor.emit('views:afterChange', doc.id, view, change);
         });
 
-        viewIndex[doc.name] = entry;
+        viewIndex[doc.id] = entry;
 
-        editor.emit('views:new:' + doc.name, entry.view);
+        editor.emit('views:new:' + doc.id, entry.view);
     });
 
     // Focus document in code mirror
@@ -80,7 +80,7 @@ editor.once('load', function () {
         panel.toggleCode(true);
 
         if (focusedView && viewIndex[id] === focusedView) {
-            var content = focusedView.doc.getSnapshot();
+            var content = focusedView.doc.data;
             if (focusedView.view.getValue() === content) {
                 return;
             }
@@ -88,7 +88,7 @@ editor.once('load', function () {
             // if the reloaded data are different
             // than the current editor value then reset the contents
             // of the editor - that can happen if a change has been rolled back
-            // by sharejs for example
+            // by sharedb for example
             focusedView.suppressChanges = true;
             focusedView.view.setValue(content);
             focusedView.suppressChanges = false;
@@ -138,7 +138,7 @@ editor.once('load', function () {
 
             // clear code
             // but suppress changes to the doc
-            // to avoid sending them to sharejs
+            // to avoid sending them to sharedb
             focusedView.suppressChanges = true;
             cm.setValue('');
             cm.clearHistory();

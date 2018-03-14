@@ -27,7 +27,7 @@ editor.once('load', function () {
             evtLoadOnAuthenticated.unbind();
         }
 
-        // if we have not been authenticated with sharejs yet
+        // if we have not been authenticated with shareDb yet
         // then defer loading until we are authenticated
         if (! realtimeAuthenticated) {
             evtLoadOnAuthenticated = editor.once('realtime:authenticated', function () {

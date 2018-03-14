@@ -557,7 +557,7 @@ editor.once('load', function() {
     // Contains paths in this form: id.data.property
     // Holds material properties that are not in the db.
     // Used to set initial values for offsets and tilings
-    // to avoid sharejs errors.
+    // to avoid sharedb errors.
     var missingPaths = { };
 
     editor.on('attributes:inspect[asset]', function(assets) {
@@ -3351,7 +3351,7 @@ editor.once('load', function() {
             }
 
             // make sure our change event is first otherwise
-            // sharejs will complain that we can't insert a value on
+            // sharedb will complain that we can't insert a value on
             // a list that does not exist
             field[0]._events.change.splice(0, 0, onChange);
             field[1]._events.change.splice(0, 0, onChange);

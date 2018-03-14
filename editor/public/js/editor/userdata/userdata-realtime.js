@@ -19,9 +19,9 @@ editor.once('load', function() {
         });
 
         // ready to sync
-        data.on('ready', function() {
+        data.on('load', function() {
             // notify of operations
-            data.on('after op', function(ops, local) {
+            data.on('op', function(ops, local) {
                 if (local) return;
 
                 for (var i = 0; i < ops.length; i++) {
@@ -31,14 +31,14 @@ editor.once('load', function() {
             });
 
             // notify of scene load
-            editor.emit('userdata:' + userId + ':raw', data.getSnapshot());
+            editor.emit('userdata:' + userId + ':raw', data.data);
         });
 
         // subscribe for realtime events
         data.subscribe();
 
-        if (data.state === 'ready')
-            editor.emit('userdata:' + userId + ':raw', data.getSnapshot());
+        if (data.data)
+            editor.emit('userdata:' + userId + ':raw', data.data);
 
         return data;
     });

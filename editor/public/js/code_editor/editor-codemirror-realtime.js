@@ -9,7 +9,7 @@ editor.once('load', function () {
 
     // editor
     var cm = editor.call('editor:codemirror');
-    // sharejs document context
+    // sharedb document context
     var share;
 
     var undoStack = [];
@@ -346,10 +346,10 @@ editor.once('load', function () {
         //printStacks();
     });
 
-    // Applies an operation to the sharejs document
+    // Applies an operation to the sharedb document
     // and sets the result to the editor
     var applyCustomOp = function (op) {
-        share.submitOp(op, function (err) {
+        share._doc.submitOp(op, function (err) {
             if (err) {
                 console.error(err);
                 editor.emit('realtime:error', err);
@@ -427,7 +427,7 @@ editor.once('load', function () {
     editor.on('editor:change', function (cm, change) {
         if (!share || suppress) return;
 
-        applyToShareJS(cm, change);
+        applyToShareDb(cm, change);
 
         // clear redo stack
         redoStack.length = 0;
@@ -481,7 +481,7 @@ editor.once('load', function () {
     // setInterval(flushInterval, 500);
 
     // Convert a CodeMirror change into an op understood by share.js
-    function applyToShareJS(cm, change) {
+    function applyToShareDb(cm, change) {
         var startPos = 0;  // Get character position from # of chars in each line.
         var i = 0;         // i goes through all lines.
         var text;
@@ -528,7 +528,7 @@ editor.once('load', function () {
         }
 
         if (change.next) {
-            applyToShareJS(cm, change.next);
+            applyToShareDb(cm, change.next);
         }
 
         // restore forceConcatenate after 1 frame

@@ -20,7 +20,7 @@ editor.once('load', function() {
         reconnectAttempts++;
         editor.emit('realtime:connecting', reconnectAttempts);
 
-        var sharejsMessage = connection.socket.onmessage;
+        var shareDbMessage = connection.socket.onmessage;
 
         connection.socket.onmessage = function(msg) {
             try {
@@ -32,7 +32,7 @@ editor.once('load', function() {
                         editor.emit('realtime:authenticated');
                     }
                 } else if (! msg.data.startsWith('permissions') && ! msg.data.startsWith('chat') && ! msg.data.startsWith('selection') && ! msg.data.startsWith('whoisonline') && ! msg.data.startsWith('fs:')) {
-                    sharejsMessage(msg);
+                    shareDbMessage(msg);
                 }
             } catch (e) {
                 console.error(e);
@@ -52,6 +52,7 @@ editor.once('load', function() {
         });
 
         connection.on('error', function(msg) {
+            console.log('3');
             editor.emit('realtime:error', msg);
         });
 
@@ -78,8 +79,8 @@ editor.once('load', function() {
     var reconnect = function () {
         // create new socket...
         socket = new WebSocket(config.url.realtime.http);
-        // ... and new sharejs connection
-        connection = new sharejs.Connection(socket);
+        // ... and new sharedb connection
+        connection = new window.share.Connection(socket);
         // connect again
         connect();
     };

@@ -27,7 +27,7 @@ editor.once('load', function () {
         if (doc) {
             worker.postMessage({
                 id: asset.get('id'),
-                text: doc.getSnapshot(),
+                text: doc.data,
                 query: regex
             });
         } else {
