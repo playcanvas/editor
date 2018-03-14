@@ -493,6 +493,18 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'element:spacing', fieldSpacing.parent.innerElement.firstChild.ui);
 
+        var fieldWrapLines = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Wrap Lines',
+            type: 'checkbox',
+            link: entities,
+            path: 'components.element.wrapLines'
+        });
+
+        fieldWrapLines.parent.hidden = fieldType.value !== 'text';
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:wrapLines', fieldWrapLines.parent.innerElement.firstChild.ui);
 
         var fieldRect = editor.call('attributes:addField', {
             parent: panel,

@@ -151,6 +151,10 @@ editor.once('load', function() {
                     entity.set('components.element.alignment', [0.5, 0.5]);
                 }
 
+                if (! entity.has('components.element.wrapLines')) {
+                    entity.set('components.element.wrapLines', false);
+                }
+
                 if (! entity.has('components.element.batchGroupId')) {
                     entity.set('components.element.batchGroupId', null);
                 }
