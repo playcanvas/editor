@@ -520,6 +520,19 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'element:rect', fieldRect[0].parent.innerElement.firstChild.ui);
 
+        var fieldMask = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Mask',
+            type: 'checkbox',
+            link: entities,
+            path: 'components.element.mask'
+        });
+
+        fieldMask.parent.hidden = fieldType.value !== 'image';
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:mask', fieldMask.parent.innerElement.firstChild.ui);
+
         var fieldTextureAsset = editor.call('attributes:addField', {
             parent: panel,
             name: 'Texture',

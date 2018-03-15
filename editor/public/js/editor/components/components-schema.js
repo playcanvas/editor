@@ -339,7 +339,8 @@ editor.once('load', function() {
                 autoWidth: false,
                 autoHeight: false,
                 materialAsset: null,
-                batchGroupId: null
+                batchGroupId: null,
+                mask: false
             },
             types: {
                 anchor: 'vec4',

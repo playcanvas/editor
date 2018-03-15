@@ -158,6 +158,10 @@ editor.once('load', function() {
                 if (! entity.has('components.element.batchGroupId')) {
                     entity.set('components.element.batchGroupId', null);
                 }
+
+                if (! entity.has('components.element.mask')) {
+                    entity.set('components.element.mask', false);
+                }
             }
 
             entity.history.enabled = true;
