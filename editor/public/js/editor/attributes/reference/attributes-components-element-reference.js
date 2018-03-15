@@ -97,6 +97,11 @@ editor.once('load', function() {
         description: 'The height of each line of text.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#lineHeight'
     }, {
+        title: 'wrapLines',
+        subTitle: '{Boolean}',
+        description: 'Whether to automatically wrap lines based on the element width.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#wrapLines'
+    }, {
         title: 'spacing',
         subTitle: '{Number}',
         description: 'The spacing between each letter of the text.',
