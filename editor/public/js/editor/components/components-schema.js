@@ -326,6 +326,7 @@ editor.once('load', function() {
                 fontAsset: null,
                 fontSize: 32,
                 lineHeight: 32,
+                wrapLines: true,
                 spacing: 1,
                 color: [1, 1, 1],
                 opacity: 1,
