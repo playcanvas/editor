@@ -12,6 +12,8 @@ editor.once('load', function () {
 
     var overlay = editor.call('picker:sprites:overlayPick');
 
+    var events = [];
+
     // Select frames by keys
     // options.history: Whether to add this action to the history
     // options.add: Whether to add the frames to the existing selection
@@ -284,6 +286,11 @@ editor.once('load', function () {
         return newSpriteFrames;
     });
 
+    // Return selected sprite
+    editor.method('picker:sprites:selectedSprite', function () {
+        return spriteAsset;
+    });
+
 
     // Event Listeners
     overlay.on('show', function () {
@@ -300,6 +307,13 @@ editor.once('load', function () {
 
         editor.emit('picker:sprites:pickFrames:end');
     });
+
+    // if the selected sprite is deleted then deselect it
+    events.push(editor.on('assets:remove', function (asset) {
+        if (spriteAsset && spriteAsset.get('id') === asset.get('id')) {
+            selectSprite(null);
+        }
+    }));
 
     editor.on('picker:sprites:open', function () {
         atlasAsset = editor.call('picker:sprites:atlasAsset');
@@ -324,7 +338,13 @@ editor.once('load', function () {
         newSpriteFrames.length = 0;
         setSprite(null);
 
+        for (var i = 0; i < events.length; i++) {
+            events[i].unbind();
+        }
+        events.length = 0;
 
         editor.call('hotkey:unregister', 'sprite-editor-delete');
     });
+
+
 });

@@ -24,6 +24,11 @@ editor.once('load', function() {
         panelSpriteAssets.class.add('sprite-assets');
         panel.append(panelSpriteAssets);
 
+        // holds all panels indexed by asset id
+        var panelsIndex = {};
+        // holds the key of the first frame for each sprite asset - used for rendering preview
+        var firstFramePerSprite = {};
+
         var createSpriteAssetPanel = function (asset) {
             var spriteEvents = [];
 
@@ -37,23 +42,37 @@ editor.once('load', function() {
             canvas.resize(26, 26);
             panel.append(canvas);
 
+            panelsIndex[asset.get('id')] = panel;
+
+            panel.updateFirstFrame = function () {
+                var frameKeys = asset.getRaw('data.frameKeys');
+                firstFramePerSprite[asset.get('id')] = frameKeys[0];
+            };
+
+            panel.updateFirstFrame();
+
             var renderQueued = false;
 
-            var queueRender = function () {
+            panel.queueRender = function () {
                 if (renderQueued) return;
                 renderQueued = true;
                 requestAnimationFrame(renderPreview);
             };
 
             var renderPreview = function () {
+                renderQueued = false;
+
                 var frameKeys = asset.getRaw('data.frameKeys');
-                var frames = frameKeys.filter(function (f) {
-                    return atlasAsset.has('data.frames.' + f);
-                }).map(function (f) {
-                    return atlasAsset.getRaw('data.frames.' + f)._data;
+                var frames = frameKeys.map(function (f) {
+                    if (f) {
+                        var frame = atlasAsset.getRaw('data.frames.' + f);
+                        return frame && frame._data;
+                    } else {
+                        return null;
+                    }
                 });
 
-                if (frames[0]) {
+                if (frames.length) {
                     editor.call('picker:sprites:renderFramePreview', frames[0], canvas.element, frames);
                 }
             };
@@ -68,6 +87,20 @@ editor.once('load', function() {
 
             spriteEvents.push(asset.on('name:set', function (value) {
                 fieldName.value = value;
+            }));
+
+            spriteEvents.push(asset.on('frameKeys:insert', function (value, index) {
+                if (index === 0) {
+                    panel.updateFirstFrame();
+                    panel.queueRender();
+                }
+            }));
+
+            spriteEvents.push(asset.on('frameKeys:remove', function (value, index) {
+                if (index === 0) {
+                    panel.updateFirstFrame();
+                    panel.queueRender();
+                }
             }));
 
             // sprite path (TODO)
@@ -93,6 +126,7 @@ editor.once('load', function() {
 
             spriteEvents.push(editor.on('assets:remove[' + asset.get('id') + ']', function () {
                 panel.destroy();
+                delete panelsIndex[asset.get('id')];
                 fieldSprites.value = Math.max(0, parseInt(fieldSprites.value, 10) - 1);
             }));
 
@@ -119,6 +153,44 @@ editor.once('load', function() {
         for (var i = 0; i<count; i++) {
             createSpriteAssetPanel(spriteAssets[i][1]);
         }
+
+        events.push(atlasAsset.on('*:set', function (path) {
+            if (! path.startsWith('data.frames')) {
+                return;
+            }
+
+            var parts = path.split('.');
+            if (parts.length >= 3) {
+                var key = parts[2];
+                for (var assetId in firstFramePerSprite) {
+                    if (firstFramePerSprite[assetId] === key) {
+                        var p = panelsIndex[assetId];
+                        if (p) {
+                            p.queueRender();
+                        }
+                    }
+                }
+            }
+        }));
+
+        events.push(atlasAsset.on('*:unset', function (path) {
+            if (! path.startsWith('data.frames')) {
+                return;
+            }
+
+            var parts = path.split('.');
+            if (parts.length >= 3) {
+                var key = parts[2];
+                for (var assetId in firstFramePerSprite) {
+                    if (firstFramePerSprite[assetId] === key) {
+                        var p = panelsIndex[assetId];
+                        if (p) {
+                            p.queueRender();
+                        }
+                    }
+                }
+            }
+        }));
 
         events.push(rootPanel.on('clear', function () {
             panel.destroy();

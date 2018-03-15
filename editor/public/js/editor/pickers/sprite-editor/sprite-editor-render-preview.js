@@ -4,7 +4,14 @@ editor.once('load', function () {
     // Renders a frame to the canvas taking into account the size of all the specified frames
     // to determine aspect ratio
     editor.method('picker:sprites:renderFramePreview', function (frame, canvas, allFrames) {
-        if (! frame.pivot || ! frame.rect) return; // this might happen while we are deleting stuff
+        var ctx = canvas.getContext('2d');
+        var width = canvas.width;
+        var height = canvas.height;
+        ctx.clearRect(0, 0, width, height);
+
+        if (! frame || ! frame.pivot || ! frame.rect) {
+            return;
+        }
 
         var atlasImage = editor.call('picker:sprites:atlasImage');
         if (! atlasImage) return;
@@ -18,8 +25,6 @@ editor.once('load', function () {
         var aspectRatio = w / h;
 
         // choose targetWidth and targetHeight keeping the aspect ratio
-        var width = canvas.width;
-        var height = canvas.height;
         var targetWidth = width;
         var targetHeight = height;
         var offsetX = 0;
@@ -72,15 +77,12 @@ editor.once('load', function () {
         }
 
 
-        var ctx = canvas.getContext('2d');
-
         // disable smoothing
         ctx.mozImageSmoothingEnabled = false;
         ctx.webkitImageSmoothingEnabled = false;
         ctx.msImageSmoothingEnabled = false;
         ctx.imageSmoothingEnabled = false;
 
-        ctx.clearRect(0, 0, width, height);
         ctx.drawImage(atlasImage, x, y, w, h, offsetX, offsetY, targetWidth, targetHeight);
     });
 

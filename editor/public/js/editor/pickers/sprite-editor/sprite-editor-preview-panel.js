@@ -94,8 +94,7 @@ editor.once('load', function () {
             canvas.height = canvas.clientHeight;
 
             // render
-            if (frameObservers[frame])
-                editor.call('picker:sprites:renderFramePreview', frameObservers[frame]._data, canvas, frameObservers);
+            editor.call('picker:sprites:renderFramePreview', frameObservers[frame]._data, canvas, frameObservers);
 
             if (playing) {
                 queueRender();

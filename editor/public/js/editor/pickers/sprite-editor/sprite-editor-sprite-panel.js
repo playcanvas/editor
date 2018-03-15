@@ -6,18 +6,7 @@ editor.once('load', function() {
         var atlasImage = args.atlasImage;
         var spriteAsset = args.spriteAsset;
 
-        var frameKeys, frames;
-
-        var refreshFrames = function () {
-            frameKeys = spriteAsset.get('data.frameKeys').filter(function (f) {
-                return atlasAsset.has('data.frames.' + f);
-            });
-            frames = frameKeys.map(function (f) {
-                return atlasAsset.get('data.frames.' + f);
-            });
-        };
-
-        refreshFrames();
+        var frameKeys = spriteAsset.get('data.frameKeys');
 
         var spriteEditMode = false;
         var selectedFrames = null;
@@ -127,11 +116,12 @@ editor.once('load', function() {
 
         var panels = [];
 
-        var addFramePanel = function (key, frame, index) {
+        var addFramePanel = function (key, index) {
             var frameEvents = [];
 
             var panel = new ui.Panel();
             panel.class.add('frame');
+            panel._frameKey = key;
             if (index !== undefined) {
                 panels.splice(index, 0, panel);
             } else {
@@ -151,16 +141,22 @@ editor.once('load', function() {
 
             var renderQueued = false;
 
-            var queueRender = function () {
+            panel.queueRender = function () {
                 if (renderQueued) return;
                 renderQueued = true;
                 requestAnimationFrame(renderPreview);
             };
 
             var renderPreview = function () {
+                renderQueued = false;
+
                 ctx.clearRect(0, 0, previewWidth, previewHeight);
 
                 if (! atlasImage) return;
+
+                var frame = atlasAsset.getRaw('data.frames.' + key);
+                if (! frame) return;
+                frame = frame._data;
 
                 var x = frame.rect[0];
                 // convert bottom left WebGL coord to top left pixel coord
@@ -190,11 +186,16 @@ editor.once('load', function() {
             // sprite name
             var fieldName = new ui.Label();
             fieldName.class.add('name');
-            fieldName.value = frame.name;
+            fieldName.value = atlasAsset.get('data.frames.' + key + '.name') || 'Missing';
             panel.append(fieldName);
 
             frameEvents.push(atlasAsset.on('data.frames.' + key + '.name:set', function (value) {
                 fieldName.value = value;
+            }));
+
+            frameEvents.push(atlasAsset.on('data.frames.' + key + ':unset', function () {
+                fieldName.value = 'Missing';
+                panel.queueRender();
             }));
 
             // remove frame
@@ -234,7 +235,7 @@ editor.once('load', function() {
         };
 
         for (var i = 0, len = frameKeys.length; i<len; i++) {
-            addFramePanel(frameKeys[i], frames[i]);
+            addFramePanel(frameKeys[i]);
         }
 
         events.push(spriteAsset.on('data.frameKeys:remove', function (value, index) {
@@ -243,14 +244,14 @@ editor.once('load', function() {
             panels[index].destroy();
             panels.splice(index, 1);
 
-            refreshFrames();
+            frameKeys = spriteAsset.get('data.frameKeys');
 
             fieldPreview.setFrames(frameKeys);
         }));
 
         events.push(spriteAsset.on('data.frameKeys:insert', function (value, index) {
-            refreshFrames();
-            addFramePanel(frameKeys[index], frames[index], index);
+            frameKeys = spriteAsset.get('data.frameKeys');
+            addFramePanel(frameKeys[index], index);
             fieldPreview.setFrames(frameKeys);
         }));
 
@@ -262,13 +263,37 @@ editor.once('load', function() {
             }
             panels.length = 0;
 
-            refreshFrames();
-
+            frameKeys = spriteAsset.get('data.frameKeys');
             for (i = 0, len = frameKeys.length; i<len; i++) {
-                addFramePanel(frameKeys[i], frames[i]);
+                addFramePanel(frameKeys[i]);
             }
 
             fieldPreview.setFrames(frameKeys);
+        }));
+
+        events.push(atlasAsset.on('*:set', function (path) {
+            if (! path.startsWith('data.frames')) {
+                return;
+            }
+
+            var parts = path.split('.');
+            var partsLen = parts.length;
+            if (partsLen >= 3) {
+                // re-render frame preview
+                for (var i = 0, len = panels.length; i<len; i++) {
+                    if (panels[i]._frameKey === parts[2]) {
+                        panels[i].queueRender();
+
+                        // if this frame was added back to the atlas
+                        // then re-render preview
+                        if (partsLen === 3) {
+                            fieldPreview.setFrames(frameKeys);
+                        }
+
+                        break;
+                    }
+                }
+            }
         }));
 
         events.push(editor.on('picker:sprites:pickFrames:start', function () {

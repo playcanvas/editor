@@ -1503,15 +1503,6 @@ editor.once('load', function() {
         }
     };
 
-    // if the selected sprite is deleted then deselect it
-    events.push(editor.on('assets:remove', function (asset) {
-        if (spriteAsset && spriteAsset.get('id') === asset.get('id')) {
-            selectSprite(null);
-        }
-    }));
-
-
-
     var cleanUp = function () {
         // reset controls
         controls.set('zoom', 1);
