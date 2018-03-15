@@ -669,6 +669,7 @@ editor.once('load', function() {
             fieldFontAsset.parent.hidden = value !== 'text';
             fieldFontSize.parent.hidden = value !== 'text';
             fieldLineHeight.parent.hidden = value !== 'text';
+            fieldWrapLines.parent.hidden = value !== 'text';
             fieldSpacing.parent.hidden = value !== 'text';
             fieldRect[0].parent.hidden = value !== 'image';
             toggleSize();
