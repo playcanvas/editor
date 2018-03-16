@@ -326,6 +326,7 @@ editor.once('load', function() {
                 fontAsset: null,
                 fontSize: 32,
                 lineHeight: 32,
+                wrapLines: true,
                 spacing: 1,
                 color: [1, 1, 1],
                 opacity: 1,
@@ -338,7 +339,8 @@ editor.once('load', function() {
                 autoWidth: false,
                 autoHeight: false,
                 materialAsset: null,
-                batchGroupId: null
+                batchGroupId: null,
+                mask: false
             },
             types: {
                 anchor: 'vec4',

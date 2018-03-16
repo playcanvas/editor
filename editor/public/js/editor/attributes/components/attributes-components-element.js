@@ -493,6 +493,18 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'element:spacing', fieldSpacing.parent.innerElement.firstChild.ui);
 
+        var fieldWrapLines = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Wrap Lines',
+            type: 'checkbox',
+            link: entities,
+            path: 'components.element.wrapLines'
+        });
+
+        fieldWrapLines.parent.hidden = fieldType.value !== 'text';
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:wrapLines', fieldWrapLines.parent.innerElement.firstChild.ui);
 
         var fieldRect = editor.call('attributes:addField', {
             parent: panel,
@@ -507,6 +519,19 @@ editor.once('load', function() {
 
         // reference
         editor.call('attributes:reference:attach', 'element:rect', fieldRect[0].parent.innerElement.firstChild.ui);
+
+        var fieldMask = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Mask',
+            type: 'checkbox',
+            link: entities,
+            path: 'components.element.mask'
+        });
+
+        fieldMask.parent.hidden = fieldType.value !== 'image';
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:mask', fieldMask.parent.innerElement.firstChild.ui);
 
         var fieldTextureAsset = editor.call('attributes:addField', {
             parent: panel,
@@ -657,6 +682,7 @@ editor.once('load', function() {
             fieldFontAsset.parent.hidden = value !== 'text';
             fieldFontSize.parent.hidden = value !== 'text';
             fieldLineHeight.parent.hidden = value !== 'text';
+            fieldWrapLines.parent.hidden = value !== 'text';
             fieldSpacing.parent.hidden = value !== 'text';
             fieldRect[0].parent.hidden = value !== 'image';
             toggleSize();
