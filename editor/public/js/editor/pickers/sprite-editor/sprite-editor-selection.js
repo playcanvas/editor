@@ -136,8 +136,8 @@ editor.once('load', function () {
 
         if (! spriteAsset) return;
 
-        spriteAsset.on('data.frameKeys:remove', onSpriteFrameAdded);
-        spriteAsset.on('data.frameKeys:insert', onSpriteFrameDeleted);
+        spriteAsset.on('data.frameKeys:remove', onSpriteFrameDeleted);
+        spriteAsset.on('data.frameKeys:insert', onSpriteFrameAdded);
     };
 
     // When a frame is added to the selected sprite asset then re-select
@@ -295,13 +295,10 @@ editor.once('load', function () {
     // Event Listeners
     overlay.on('show', function () {
         spriteEditMode = true;
-        panel.class.add('select-frames-mode');
         editor.emit('picker:sprites:pickFrames:start');
     });
 
     overlay.on('hide', function () {
-        panel.class.remove('select-frames-mode');
-
         spriteEditMode = false;
         newSpriteFrames.length = 0;
 

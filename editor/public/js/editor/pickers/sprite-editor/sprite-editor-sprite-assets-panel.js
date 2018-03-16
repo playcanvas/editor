@@ -72,9 +72,7 @@ editor.once('load', function() {
                     }
                 });
 
-                if (frames.length) {
-                    editor.call('picker:sprites:renderFramePreview', frames[0], canvas.element, frames);
-                }
+                editor.call('picker:sprites:renderFramePreview', frames[0], canvas.element, frames);
             };
 
             renderPreview();
@@ -89,14 +87,14 @@ editor.once('load', function() {
                 fieldName.value = value;
             }));
 
-            spriteEvents.push(asset.on('frameKeys:insert', function (value, index) {
+            spriteEvents.push(asset.on('data.frameKeys:insert', function (value, index) {
                 if (index === 0) {
                     panel.updateFirstFrame();
                     panel.queueRender();
                 }
             }));
 
-            spriteEvents.push(asset.on('frameKeys:remove', function (value, index) {
+            spriteEvents.push(asset.on('data.frameKeys:remove', function (value, index) {
                 if (index === 0) {
                     panel.updateFirstFrame();
                     panel.queueRender();
