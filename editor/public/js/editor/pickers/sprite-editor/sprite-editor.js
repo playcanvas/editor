@@ -429,8 +429,11 @@ editor.once('load', function() {
 
         // if no frame selected then start a new frame
         if (! selected && ! spriteEditMode) {
-            var x = Math.floor(atlasImage.width * (p.x - imageLeft()) / imageWidth());
-            var y = Math.floor(atlasImage.height * (1 - (p.y - imageTop()) / imageHeight()));
+            var diffX = clamp((p.x - imageLeft()) / imageWidth(), 0, 1);
+            var diffY = clamp((1 - (p.y - imageTop()) / imageHeight()), 0, 1);
+
+            var x = Math.floor(atlasImage.width * diffX);
+            var y = Math.floor(atlasImage.height * diffY);
             newFrame =  {
                 rect: [ x, y, 0, 0],
                 pivot: [0.5, 0.5],
@@ -606,8 +609,13 @@ editor.once('load', function() {
 
         var p = mousePoint;
 
-        var dx = realWidth * (p.x - imgLeft) / imgWidth - startingHandleCoords.x;
-        var dy = realHeight * (p.y - imgTop) / imgHeight - startingHandleCoords.y;
+        var currentX = realWidth * (p.x - imgLeft) / imgWidth;
+        if (currentX < 0 && startingHandleCoords.x <= 0) return;
+        var currentY = realHeight * (p.y - imgTop) / imgHeight;
+        if (currentY < 0 && startingHandleCoords.y <= 0) return;
+
+        var dx = Math.floor(currentX - startingHandleCoords.x);
+        var dy = Math.floor(currentY - startingHandleCoords.y);
 
         switch (handle) {
             case HANDLE.TOP_LEFT: {
@@ -626,12 +634,12 @@ editor.once('load', function() {
                 // if width became negative then make it positive and
                 // adjust x coord, then switch handle to top right
                 if (frame.rect[2] < 0) {
-                    frame.rect[2] = Math.max(1, -frame.rect[2]);
+                    frame.rect[2] *= -1;
                     frame.rect[0] -= frame.rect[2];
                     setHandle(HANDLE.TOP_RIGHT, frame, p);
                 }
                 if (frame.rect[3] < 0) {
-                    frame.rect[3] = Math.max(1, -frame.rect[3]);
+                    frame.rect[3] *= -1;
                     frame.rect[1] -= frame.rect[3];
                     setHandle(selectedHandle === HANDLE.TOP_RIGHT ? HANDLE.BOTTOM_RIGHT : HANDLE.BOTTOM_LEFT, frame, p);
                 }
@@ -670,12 +678,12 @@ editor.once('load', function() {
                 }
 
                 if (frame.rect[2] < 0) {
-                    frame.rect[2] = Math.max(1, -frame.rect[2]);
+                    frame.rect[2] *= -1;
                     frame.rect[0] -= frame.rect[2];
                     setHandle(HANDLE.TOP_LEFT, frame, p);
                 }
                 if (frame.rect[3] < 0) {
-                    frame.rect[3] = Math.max(1, -frame.rect[3]);
+                    frame.rect[3] *= -1;
                     frame.rect[1] -= frame.rect[3];
                     setHandle(selectedHandle === HANDLE.TOP_LEFT ? HANDLE.BOTTOM_LEFT : HANDLE.BOTTOM_RIGHT, frame, p);
                 }
@@ -710,12 +718,12 @@ editor.once('load', function() {
                 frame.rect[3] = startingHandleFrame.rect[3] - dy;
 
                 if (frame.rect[2] < 0) {
-                    frame.rect[2] = Math.max(1, -frame.rect[2]);
+                    frame.rect[2] *= -1;
                     frame.rect[0] -= frame.rect[2];
                     setHandle(HANDLE.BOTTOM_RIGHT, frame, p);
                 }
                 if (frame.rect[3] < 0) {
-                    frame.rect[3] = Math.max(1, -frame.rect[3]);
+                    frame.rect[3] *= -1;
                     frame.rect[1] -= frame.rect[3];
                     setHandle(selectedHandle === HANDLE.BOTTOM_RIGHT ? HANDLE.TOP_RIGHT : HANDLE.TOP_LEFT, frame, p);
                 }
@@ -754,12 +762,12 @@ editor.once('load', function() {
                 }
 
                 if (frame.rect[2] < 0) {
-                    frame.rect[2] = Math.max(1, -frame.rect[2]);
+                    frame.rect[2] *= -1;
                     frame.rect[0] -= frame.rect[2];
                     setHandle(HANDLE.BOTTOM_LEFT, frame, p);
                 }
                 if (frame.rect[3] < 0) {
-                    frame.rect[3] = Math.max(1, -frame.rect[3]);
+                    frame.rect[3] *= -1;
                     frame.rect[1] -= frame.rect[3];
                     setHandle(selectedHandle === HANDLE.BOTTOM_LEFT ? HANDLE.TOP_LEFT : HANDLE.TOP_RIGHT, frame, p);
                 }
