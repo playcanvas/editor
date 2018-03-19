@@ -6245,7 +6245,41 @@ strong {
                             background-color: $bcg-darkest;
                         }
 
+                        &.dragged {
+                            background-color: darken($bcg-darkest, 2%);
+                        }
+
                         border: 1px solid $bcg-darker;
+
+                        .handle {
+                            float: left;
+                            width: 12px;
+                            height: 24px;
+                            margin: 2px 8px 2px 2px;
+                            cursor: move;
+                            @extend .noSelect;
+                            $color: mix($text-darkest, $bcg-primary, 50%);
+                            $size: 6px;
+                            $radiusI: 20%;
+                            $radiusO: 55%;
+
+                            background: -webkit-radial-gradient($color $radiusI, transparent $radiusO);
+                            background: -moz-radial-gradient($color $radiusI, transparent $radiusO);
+                            background: radial-gradient($color $radiusI, transparent $radiusO);
+                            -webkit-background-size: $size ($size+1px);
+                            -moz-background-size: $size $size;
+                            background-size: $size $size;
+
+                            &:hover {
+                                $color: $text-primary;
+                                background: -webkit-radial-gradient($color $radiusI, transparent $radiusO);
+                                background: -moz-radial-gradient($color $radiusI, transparent $radiusO);
+                                background: radial-gradient($color $radiusI, transparent $radiusO);
+                                -webkit-background-size: $size ($size+1px);
+                                -moz-background-size: $size $size;
+                                background-size: $size $size;
+                            }
+                        }
 
                         &.sprite-frame {
                             border: 1px solid $text-active;

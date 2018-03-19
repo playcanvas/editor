@@ -114,6 +114,8 @@ editor.once('load', function() {
         });
         panelFrames.class.add('frames');
 
+        var draggedPanel = null;
+
         var panels = [];
 
         var addFramePanel = function (key, index) {
@@ -127,6 +129,25 @@ editor.once('load', function() {
             } else {
                 panels.push(panel);
             }
+
+            // drag handle
+            var handle = document.createElement('div');
+            handle.classList.add('handle');
+            panel.append(handle);
+
+
+            var onDragStart = function (evt) {
+                draggedPanel = panel;
+
+                panel.class.add('dragged');
+
+                window.addEventListener('mouseup', onDragEnd);
+                panelFrames.innerElement.addEventListener('mousemove', onDragMove);
+
+                // overlay.hidden = false;
+            };
+
+            handle.addEventListener('mousedown', onDragStart);
 
             // preview
             var canvas = new ui.Canvas();
@@ -221,6 +242,12 @@ editor.once('load', function() {
                     frameEvents[i].unbind();
                 }
                 frameEvents.length = 0;
+
+                handle.removeEventListener('mousedown', onDragStart);
+                if (panel.class.contains('dragged')) {
+                    panelFrames.innerElement.removeEventListener('mousemove', onDragMove);
+                    window.removeEventListener('mouseup', onDragEnd);
+                }
             });
 
             var before = null;
@@ -232,6 +259,40 @@ editor.once('load', function() {
             } else {
                 panelFrames.append(panel);
             }
+        };
+
+        var onDragMove = function (evt) {
+            var rect = panelFrames.innerElement.getBoundingClientRect();
+            var height = draggedPanel.element.offsetHeight;
+            var top = evt.clientY - rect.top - 6;
+            var overPanelIndex = Math.floor(top / height);
+            var overPanel = panels[overPanelIndex];//panelFrames.innerElement.childNodes[overPanelIndex];
+
+            if (overPanel && overPanel !== draggedPanel) {
+                panelFrames.remove(draggedPanel);
+                panelFrames.appendBefore(draggedPanel, panelFrames.innerElement.childNodes[overPanelIndex]);
+
+                var idx = panels.splice(panels.indexOf(draggedPanel), 1);
+                panels.splice(overPanelIndex, 0, draggedPanel);
+            }
+        };
+
+        var onDragEnd = function () {
+            if (! draggedPanel) return;
+
+            // get old index of panel
+            var oldIndex = spriteAsset.get('data.frameKeys').indexOf(draggedPanel._frameKey);
+            var newIndex = Array.prototype.indexOf.call(panelFrames.innerElement.childNodes, draggedPanel.element);
+
+            // change order in sprite asset
+            if (oldIndex !== newIndex) {
+                spriteAsset.move('data.frameKeys', oldIndex, newIndex);
+            }
+
+            panelFrames.innerElement.removeEventListener('mousemove', onDragMove);
+            window.removeEventListener('mouseup', onDragEnd);
+            draggedPanel.class.remove('dragged');
+            draggedPanel = null;
         };
 
         for (var i = 0, len = frameKeys.length; i<len; i++) {
@@ -252,6 +313,20 @@ editor.once('load', function() {
         events.push(spriteAsset.on('data.frameKeys:insert', function (value, index) {
             frameKeys = spriteAsset.get('data.frameKeys');
             addFramePanel(frameKeys[index], index);
+            fieldPreview.setFrames(frameKeys);
+        }));
+
+        events.push(spriteAsset.on('data.frameKeys:move', function (value, indNew, indOld) {
+            var movedPanel = panels[indOld];
+            if (movedPanel && movedPanel._frameKey === value) {
+                panelFrames.remove(movedPanel);
+                panelFrames.appendBefore(movedPanel, panelFrames.innerElement.childNodes[indNew]);
+
+                panels.splice(indOld, 1);
+                panels.splice(indNew, 0, movedPanel);
+            }
+
+            frameKeys = spriteAsset.get('data.frameKeys');
             fieldPreview.setFrames(frameKeys);
         }));
 
