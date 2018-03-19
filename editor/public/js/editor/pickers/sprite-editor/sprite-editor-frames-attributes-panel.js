@@ -80,12 +80,46 @@ editor.once('load', function() {
             suspendChanges = false;
         });
 
+        var updateMaxPosition = function (field) {
+            var dimension = field === 0 ? atlasImage.width : atlasImage.height;
+            var maxPos = dimension;
+
+            var rectIndex = field === 0 ? 2 : 3;
+
+            var frameData = atlasAsset.getRaw('data.frames')._data;
+
+            for (var i = 0, len = frames.length; i<len; i++) {
+                var rect = frameData[frames[i]]._data.rect;
+                maxPos = Math.min(maxPos, dimension - rect[rectIndex]);
+            }
+
+            fieldPosition[field].max = maxPos;
+        };
+
+        var updateMaxSize = function (field) {
+            var dimension = field === 0 ? atlasImage.width : atlasImage.height;
+            var maxSize = dimension;
+
+            var rectIndex = field === 0 ? 0 : 1;
+
+            var frameData = atlasAsset.getRaw('data.frames')._data;
+
+            for (var i = 0, len = frames.length; i<len; i++) {
+                var rect = frameData[frames[i]]._data.rect;
+                maxSize = Math.min(maxSize, dimension - rect[rectIndex]);
+            }
+
+            fieldSize[field].max = maxSize;
+        };
+
         var updatePositionX = function () {
             if (fieldRect[0].proxy) {
                 fieldPosition[0].value = null;
             } else {
                 fieldPosition[0].value = fieldRect[0].value;
             }
+
+            updateMaxPosition(0);
 
             // give time to rect proxy to update
             setTimeout(function () {
@@ -100,6 +134,8 @@ editor.once('load', function() {
                 fieldPosition[1].value = fieldRect[1].value;
             }
 
+            updateMaxPosition(1);
+
             // give time to rect proxy to update
             setTimeout(function () {
                 fieldPosition[1].proxy = fieldRect[1].proxy;
@@ -112,6 +148,8 @@ editor.once('load', function() {
             } else {
                 fieldSize[0].value = fieldRect[2].value;
             }
+
+            updateMaxSize(0);
 
             // give time to rect proxy to update
             setTimeout(function () {
@@ -126,6 +164,8 @@ editor.once('load', function() {
                 fieldSize[1].value = fieldRect[3].value;
             }
 
+            updateMaxSize(1);
+
             // give time to rect proxy to update
             setTimeout(function () {
                 fieldSize[1].proxy = fieldRect[3].proxy;
@@ -138,6 +178,7 @@ editor.once('load', function() {
             name: 'Position',
             type: 'vec2',
             precision: 0,
+            min: 0,
             placeholder: ['→', '↑']
         });
 
@@ -149,6 +190,7 @@ editor.once('load', function() {
             suspendChanges = true;
             fieldRect[0].value = value;
             fieldPosition[0].proxy = fieldRect[0].proxy;
+            updateMaxPosition(0);
             suspendChanges = false;
         });
 
@@ -157,6 +199,7 @@ editor.once('load', function() {
             suspendChanges = true;
             fieldRect[1].value = value;
             fieldPosition[1].proxy = fieldRect[1].proxy;
+            updateMaxPosition(1);
             suspendChanges = false;
         });
 
