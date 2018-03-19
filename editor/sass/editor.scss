@@ -5928,7 +5928,7 @@ strong {
                 .canvas-panel {
                     position: absolute;
                     width: 100%;
-                    height: calc(100% - 34px);
+                    height: 100%;
                     border-top: 1px solid $border-primary;
 
                     > .content {
@@ -5980,7 +5980,6 @@ strong {
                         color: $border-primary;
                         width: 1px 0 1px 0;
                     };
-                    box-sizing: border-box;
 
                     > .content {
                         height: 100%;
@@ -6026,9 +6025,46 @@ strong {
                 }
 
                 .middle-panel {
-                    z-index: 102;
+                    width: 100%;
+                    height: 100%;
                     > .content {
                         height: 100%;
+
+                        .canvas {
+                            width: 100%;
+                            height: 100%;
+
+                            $checkerboard-dark: #eaeaea;
+                            background-color: #fff;
+                            background-image:
+                            -moz-linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%,transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%),
+                            -moz-linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%,transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%);
+                            background-image:
+                            -webkit-linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%,transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%),
+                            -webkit-linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%,transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%);
+                            background-image:
+                            linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%,transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%),
+                            linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%,transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%);
+                            -moz-background-size: 24px 24px;
+                            background-size: 24px 24px;
+                            -webkit-background-size: 24px 24px;
+                            background-position: 0 0, 12px 12px;
+                        }
+                    }
+                }
+
+                .left-columns {
+                    outline: 1px solid transparent;
+                    height: 100%;
+                    > .content {
+                        height: 100%;
+
+                        .left-rows {
+                            height: calc(100% - 34px);
+                            > .content {
+                                height: 100%;
+                            }
+                        }
                     }
                 }
 
@@ -6036,10 +6072,6 @@ strong {
                     top: 0px;
                     height: 100%;
                     left: 0;
-                    border: 1px solid $border-primary;
-                    box-sizing: border-box;
-
-                    z-index: 102;
 
                     > .content {
                         height: 100%;
@@ -6068,7 +6100,7 @@ strong {
                                 }
 
                                 > .frames {
-                                    height: calc(100% - 128px);
+                                    height: calc(100% - 100px);
                                     margin: 0;
 
                                     > .content {
@@ -6360,8 +6392,9 @@ strong {
     }
 
     .select-frames-mode {
-        .left-panel, .middle-panel {
-            border: 1px solid $text-active !important;
+        .left-columns {
+            outline: 1px solid $text-active !important;
+            z-index: 102;
         }
 
         .right-panel {

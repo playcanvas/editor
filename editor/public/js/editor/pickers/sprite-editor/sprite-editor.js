@@ -100,6 +100,19 @@ editor.once('load', function() {
     overlayPickFrames.hidden = true;
     panel.append(overlayPickFrames);
 
+    var leftColumns = new ui.Panel();
+    leftColumns.class.add('left-columns');
+    leftColumns.flex = true;
+    leftColumns.flexGrow = true;
+    leftColumns.flexDirection = 'column';
+    panel.append(leftColumns);
+
+    var leftRows = new ui.Panel();
+    leftRows.class.add('left-rows');
+    leftRows.flex = true;
+    leftRows.flexDirection = 'row';
+    leftColumns.append(leftRows);
+
     var leftPanel = new ui.Panel();
     leftPanel.class.add('left-panel');
     // leftPanel.class.add('attributes');
@@ -112,28 +125,93 @@ editor.once('load', function() {
     leftPanel.resizable = 'right';
     leftPanel.resizeMin = 256;
     leftPanel.resizeMax = 512;
-    panel.append(leftPanel);
+    leftRows.append(leftPanel);
 
     // middle panel
     var middlePanel = new ui.Panel();
     middlePanel.class.add('middle-panel');
-    middlePanel.flex = true;
-    middlePanel.flexGrow = true;
-    middlePanel.flexDirection = 'column';
-    panel.append(middlePanel);
+    // middlePanel.flex = true;
+    // middlePanel.flexGrow = true;
+    // middlePanel.flexDirection = 'column';
+    leftRows.append(middlePanel);
+
+    // // Canvas control
+    var canvasControl = new ui.Panel();
+    canvasControl.flex = true;
+    canvasControl.flexDirection = 'row';
+    canvasControl.class.add('canvas-control');
+    leftColumns.append(canvasControl);
+
+    // var alphaControl = new ui.Panel();
+    // alphaControl.class.add('alpha-control');
+    // alphaControl.flex = true;
+    // alphaControl.flexDirection = 'row';
+    // alphaControl.append(new ui.Label({
+    //     text: 'Alpha'
+    // }));
+    // canvasControl.append(alphaControl);
+
+    // var zoomControl = new ui.Panel();
+    // zoomControl.class.add('slider-control');
+    // zoomControl.flex = true;
+    // zoomControl.flexDirection = 'row';
+    // zoomControl.append(new ui.Label({
+    //     text: 'Zoom'
+    // }));
+
+    // var zoomField = new ui.NumberField({
+    //     min: 1,
+    //     precision: 2,
+    //     placeholder: 'X',
+    // });
+    // zoomField.link(controls, 'zoom');
+    // zoomControl.append(zoomField);
+    // var zoomSlider = new ui.Slider({
+    //     min: 1,
+    //     max: 100,
+    //     precision: 2,
+    // });
+    // zoomSlider.link(controls, 'zoom');
+    // zoomControl.append(zoomSlider);
+    // canvasControl.append(zoomControl);
+
+    // var brightnessControl = new ui.Panel();
+    // brightnessControl.class.add('slider-control');
+    // brightnessControl.flex = true;
+    // brightnessControl.flexDirection = 'row';
+    // brightnessControl.append(new ui.Label({
+    //     text: 'Brightness'
+    // }));
+
+    // var brightnessField = new ui.NumberField({
+    //     min: 0,
+    //     max: 100,
+    //     precision: 1,
+    //     placeholder: '%',
+    // });
+    // brightnessField.link(controls, 'brightness');
+    // brightnessControl.append(brightnessField);
+    // var brightnessSlider = new ui.Slider({
+    //     min: 0,
+    //     max: 100,
+    //     precision: 1,
+    // });
+    // brightnessSlider.link(controls, 'brightness');
+    // brightnessControl.append(brightnessSlider);
+    // canvasControl.append(brightnessControl);
 
     // Right panel
     var rightPanel = null;
 
     // Canvas
-    var canvasPanel = new ui.Panel();
-    canvasPanel.flexGrow = true;
-    canvasPanel.class.add('canvas-panel');
-    middlePanel.append(canvasPanel);
+    // var canvasPanel = new ui.Panel();
+    // canvasPanel.flexGrow = true;
+    // canvasPanel.class.add('canvas-panel');
+    // middlePanel.append(canvasPanel);
 
     var canvas = new ui.Canvas();
     canvas.class.add('canvas');
-    canvasPanel.append(canvas);
+    middlePanel.append(canvas);
 
     // Canvas Context
     var ctx = canvas.element.getContext("2d");
@@ -144,70 +222,6 @@ editor.once('load', function() {
         brightness: 100
     });
 
-    // Canvas control
-    var canvasControl = new ui.Panel();
-    canvasControl.flex = true;
-    canvasControl.flexDirection = 'row';
-    canvasControl.class.add('canvas-control');
-    middlePanel.append(canvasControl);
-
-    var alphaControl = new ui.Panel();
-    alphaControl.class.add('alpha-control');
-    alphaControl.flex = true;
-    alphaControl.flexDirection = 'row';
-    alphaControl.append(new ui.Label({
-        text: 'Alpha'
-    }));
-    canvasControl.append(alphaControl);
-
-    var zoomControl = new ui.Panel();
-    zoomControl.class.add('slider-control');
-    zoomControl.flex = true;
-    zoomControl.flexDirection = 'row';
-    zoomControl.append(new ui.Label({
-        text: 'Zoom'
-    }));
-
-    var zoomField = new ui.NumberField({
-        min: 1,
-        precision: 2,
-        placeholder: 'X',
-    });
-    zoomField.link(controls, 'zoom');
-    zoomControl.append(zoomField);
-    var zoomSlider = new ui.Slider({
-        min: 1,
-        max: 100,
-        precision: 2,
-    });
-    zoomSlider.link(controls, 'zoom');
-    zoomControl.append(zoomSlider);
-    canvasControl.append(zoomControl);
-
-    var brightnessControl = new ui.Panel();
-    brightnessControl.class.add('slider-control');
-    brightnessControl.flex = true;
-    brightnessControl.flexDirection = 'row';
-    brightnessControl.append(new ui.Label({
-        text: 'Brightness'
-    }));
-
-    var brightnessField = new ui.NumberField({
-        min: 0,
-        max: 100,
-        precision: 1,
-        placeholder: '%',
-    });
-    brightnessField.link(controls, 'brightness');
-    brightnessControl.append(brightnessField);
-    var brightnessSlider = new ui.Slider({
-        min: 0,
-        max: 100,
-        precision: 1,
-    });
-    brightnessSlider.link(controls, 'brightness');
-    brightnessControl.append(brightnessSlider);
-    canvasControl.append(brightnessControl);
 
     var imageWidth = function () {
         return controls.get('zoom') * (canvasRatio > aspectRatio ? canvas.height * aspectRatio : canvas.width);
@@ -253,8 +267,8 @@ editor.once('load', function() {
     var resizeCanvas = function() {
         var result = false;
 
-        var width = canvasPanel.element.clientWidth;
-        var height = canvasPanel.element.clientHeight;
+        var width = middlePanel.element.clientWidth;
+        var height = middlePanel.element.clientHeight;
 
         // If it's resolution does not match change it
         if (canvas.element.width !== width || canvas.element.height !== height) {
@@ -466,7 +480,8 @@ editor.once('load', function() {
             modifyFrame(selectedHandle, newFrame, p);
             queueRender();
         } else if (selected && selectedHandle) {
-            var frame = modifyFrame(selectedHandle, atlasAsset.get('data.frames.' + selected), p);
+            var frame = atlasAsset.get('data.frames.' + selected);
+            modifyFrame(selectedHandle, frame, p);
 
             // set asset so that other users can see changes too
             var history = atlasAsset.history.enabled;
@@ -842,8 +857,6 @@ editor.once('load', function() {
             }
 
         }
-
-        return frame;
     };
 
     var setHandle = function (handle, frame, mousePoint) {
@@ -931,6 +944,7 @@ editor.once('load', function() {
 
     var renderCanvas = function() {
         queuedRender = false;
+
         if (overlay.hidden) return;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -962,9 +976,13 @@ editor.once('load', function() {
 
         // draw background outside image
         ctx.fillStyle = COLOR_DARKEST;
+        // left
         ctx.fillRect(0,0, left, canvas.height);
+        // top
         ctx.fillRect(0,0, canvas.width, top);
+        // right
         ctx.fillRect(left + width,0, canvas.width - left - width, canvas.height);
+        // bottom
         ctx.fillRect(0, top + height, canvas.width, canvas.height - top - height);
 
         // draw image
@@ -1589,7 +1607,7 @@ editor.once('load', function() {
         grab = hovering || shiftDown;
         grabbing = newFrame || selected && selectedHandle || panning;
 
-        var cls = canvasPanel.class;
+        var cls = middlePanel.class;
         var oldGrab = cls.contains('grab');
         var oldGrabbing = cls.contains('grabbing');
 
@@ -1643,8 +1661,8 @@ editor.once('load', function() {
 
         atlasAsset = null;
 
-        canvasPanel.class.remove('grab');
-        canvasPanel.class.remove('grabbing');
+        middlePanel.class.remove('grab');
+        middlePanel.class.remove('grabbing');
 
         for (var i = 0; i < events.length; i++) {
             events[i].unbind();
@@ -1717,6 +1735,7 @@ editor.once('load', function() {
     editor.on('picker:sprites:pickFrames:start', function () {
         spriteEditMode = true;
         panel.class.add('select-frames-mode');
+        queueRender();
     });
 
     editor.on('picker:sprites:pickFrames:end', function () {
