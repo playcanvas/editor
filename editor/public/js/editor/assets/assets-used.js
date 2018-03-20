@@ -26,6 +26,9 @@ editor.once('load', function() {
             'data.cubeMap': true,
             'data.lightMap': true
         },
+        'sprite': {
+            'data.textureAtlasAsset': true
+        },
         'model': { },
         'entity': {
             'components.model.materialAsset': true,
@@ -35,8 +38,11 @@ editor.once('load', function() {
             'components.particlesystem.normalMapAsset': true,
             'components.particlesystem.mesh': true,
             'components.element.textureAsset': true,
+            'components.element.spriteAsset': true,
             'components.element.materialAsset': true,
             'components.element.fontAsset': true,
+            'components.light.cookieAsset': true,
+            'components.sprite.spriteAsset': true
         },
         'entity-lists': {
             'components.animation.assets': true,
@@ -156,6 +162,12 @@ editor.once('load', function() {
 
             updateAsset(this.get('id'), 'asset', value);
         },
+        'sprite': function (path, value) {
+            if (! keys['sprite'][path])
+                return;
+
+            updateAsset(this.get('id'), 'asset', value);
+        },
         'entity': function(path, value, valueOld) {
             if (path.startsWith('components.model.mapping.')) {
                 var parts = path.split('.');
@@ -164,6 +176,10 @@ editor.once('load', function() {
             } else if (path.startsWith('components.sound.slots')) {
                 var parts = path.split('.');
                 if (parts.length !== 5 || parts[4] !== 'asset')
+                    return;
+            } else if (path.startsWith('components.sprite.clips')) {
+                var parts = path.split('.');
+                if (parts.length !== 5 || parts[4] !== 'spriteAsset')
                     return;
             } else if (! legacyScripts && path.startsWith('components.script.scripts')) {
                 var parts = path.split('.');
@@ -207,6 +223,10 @@ editor.once('load', function() {
             } else if (path.startsWith('components.sound.slots')) {
                 var parts = path.split('.');
                 if (parts.length !== 5 || parts[4] !== 'asset')
+                    return;
+            } else if (path.startsWith('components.sprite.clips')) {
+                var parts = path.split('.');
+                if (parts.length !== 5 || parts[4] !== 'spriteAsset')
                     return;
             } else if (! legacyScripts && path.startsWith('components.script.scripts')) {
                 var parts = path.split('.');
@@ -478,6 +498,17 @@ editor.once('load', function() {
                     continue;
 
                 updateAsset(entity.get('resource_id'), 'entity', null, slots[i].asset);
+            }
+        }
+
+        var clips = entity.get('components.sprite.clips');
+        if (clips) {
+            for (var key in clips) {
+                if (! clips.hasOwnProperty(key) || ! clips[key].spriteAsset) {
+                    continue;
+                }
+
+                updateAsset(entity.get('resource_id'), 'entity', null, clips[key].spriteAsset);
             }
         }
 

@@ -402,9 +402,8 @@ editor.once('load', function() {
         }
     };
 
-    // Paths in components that represent
-    // assets. Used when copy pasting. Does not include
-    // asset script attributes
+    // Paths in components that represent assets.
+    // Does not include asset script attributes.
     var assetPaths = [
         'components.animation.assets',
         'components.light.cookieAsset',
