@@ -33,7 +33,7 @@ editor.once('load', function() {
         return entities.get(resourceId);
     });
 
-    editor.once('scene:raw', function(data) {
+    editor.on('scene:raw', function(data) {
         for(var key in data.entities) {
             entities.add(new Observer(data.entities[key]));
         }
