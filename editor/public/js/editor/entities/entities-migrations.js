@@ -158,9 +158,25 @@ editor.once('load', function() {
                 if (! entity.has('components.element.batchGroupId')) {
                     entity.set('components.element.batchGroupId', null);
                 }
-
                 if (! entity.has('components.element.mask')) {
                     entity.set('components.element.mask', false);
+                }
+                if (! entity.has('components.element.spriteAsset')) {
+                    entity.set('components.element.spriteAsset', null);
+                }
+
+                if (! entity.has('components.element.spriteFrame')) {
+                    entity.set('components.element.spriteFrame', 0);
+                }
+            }
+
+            // sprite
+            if (entity.has('components.sprite')) {
+                if (! entity.has('components.sprite.width')) {
+                    entity.set('components.sprite.width', 1);
+                }
+                if (! entity.has('components.sprite.height')) {
+                    entity.set('components.sprite.height', 1);
                 }
             }
 

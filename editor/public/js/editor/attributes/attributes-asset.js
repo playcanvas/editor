@@ -422,7 +422,7 @@ editor.once('load', function() {
                 btnSpriteEditor.disabled = assets[0].get('type') === 'sprite' && (! assets[0].get('data.textureAtlasAsset') || ! editor.call('assets:get', assets[0].get('data.textureAtlasAsset')));
                 btnSpriteEditor.class.add('sprite-editor', 'large-with-icon');
                 btnSpriteEditor.on('click', function () {
-                    editor.call('picker:sprites:editor', assets[0]);
+                    editor.call('picker:sprites', assets[0]);
                 });
                 panelButtons.append(btnSpriteEditor);
 

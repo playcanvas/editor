@@ -74,6 +74,32 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'sprite:frame', fieldFrame.parent.innerElement.firstChild.ui);
 
+        // width
+        var fieldWidth = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Size',
+            type: 'number',
+            placeholder: 'Width',
+            link: entities,
+            path: 'components.sprite.width'
+        });
+
+        fieldWidth.style.width = '32px';
+
+        // reference
+        editor.call('attributes:reference:attach', 'sprite:size', fieldWidth.parent.innerElement.firstChild.ui);
+
+        // height
+        var fieldHeight = editor.call('attributes:addField', {
+            panel: fieldWidth.parent,
+            type: 'number',
+            placeholder: 'Height',
+            link: entities,
+            path: 'components.sprite.height'
+        });
+
+        fieldHeight.style.width = '32px';
+
         // sprite color
         var fieldColor = editor.call('attributes:addField', {
             parent: panel,
@@ -673,9 +699,34 @@ editor.once('load', function() {
             fieldSpriteAsset.parent.hidden = !hideAnimated;
             fieldSpeed.parent.hidden = hideAnimated;
             fieldBatchGroup.parent.hidden = !hideAnimated;
+
+            fieldWidth.parent.hidden = hideSpriteSize();
+        };
+
+        var hideSpriteSize = function () {
+            if (fieldType.value !== 'simple')
+                return true;
+
+            if (! fieldSpriteAsset.value)
+                return true;
+
+            var asset = editor.call('assets:get', fieldSpriteAsset.value);
+            if (! asset) {
+                return true;
+            }
+
+            if (! asset.get('data.renderMode')) {
+                return true;
+            }
+
+            return false;
         };
 
         fieldType.on('change', toggleFields);
+
+        fieldSpriteAsset.on('change', function () {
+            fieldWidth.parent.hidden = hideSpriteSize();
+        });
 
         toggleFields();
 

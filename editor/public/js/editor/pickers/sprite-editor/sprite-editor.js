@@ -1,30 +1,21 @@
 editor.once('load', function() {
     'use strict';
 
-    // In this order: top left, top, top right, left, right, bottom left, bottom, bottom right
-    // var widthWeights = [0, 0.5, 1, 0, 1, 0, 0.5, 1];
-    // var heightWeights = [0, 0, 0, 0.5, 0.5, 1, 1, 1];
-    // var leftOffsets = [-1, -0.5, 0, -1, 0, -1, -0.5, 0];
-    // var topOffsets = [-1, -1, -1, -0.5, -0.5, 0, 0, 0];
-
-    // In this order: top left, top right, bottom left, bottom right
-    var leftOffsets = [-0.5, -0.5, -0.5, -0.5];
-    var topOffsets = [-0.5, -0.5, -0.5, -0.5];
-    var widthWeights = [0, 1, 0, 1];
-    var heightWeights = [0, 0, 1, 1];
-
     var handleWidth = 10;
     var pivotWidth = 7;
 
     var COLOR_GRAY = '#B1B8BA';
+    var COLOR_DARKEST = '#20292b';
     var COLOR_DARK = '#2C393C';
     var COLOR_GREEN = '#0f0';
     var COLOR_ORANGE = '#f60';
+    var COLOR_BLUE = '#00f';
 
     var atlasAsset = null;
-    var spriteAsset = null;
     var atlasImage = new Image();
     var atlasImageLoaded = false;
+    var atlasImageDataCanvas = document.createElement('canvas');
+    var atlasImageData = null;
 
     var shiftDown = false;
     var ctrlDown = false;
@@ -32,12 +23,14 @@ editor.once('load', function() {
     var rightButtonDown = false;
 
     var panning = false;
-    var selected = null;
     var newFrame = null;
     var hovering = false;
-    var highlightedFrames = [];
-    var newSpriteFrames = [];
     var spriteEditMode = false;
+
+    var oldFrame = null;
+    var selectedHandle = null;
+    var startingHandleFrame = null;
+    var startingHandleCoords = {x: 0, y: 0};
 
     var resizeInterval = null;
     var pivotX = 0;
@@ -61,7 +54,17 @@ editor.once('load', function() {
         TOP_LEFT: 1,
         TOP_RIGHT: 2,
         BOTTOM_LEFT: 3,
-        BOTTOM_RIGHT: 4
+        BOTTOM_RIGHT: 4,
+        BORDER_TOP_LEFT: 5,
+        BORDER_TOP: 6,
+        BORDER_TOP_RIGHT: 7,
+        BORDER_LEFT: 8,
+        BORDER_RIGHT: 9,
+        BORDER_BOTTOM_LEFT: 10,
+        BORDER_BOTTOM: 11,
+        BORDER_BOTTOM_RIGHT: 12,
+        PIVOT: 13,
+        FRAME: 14
     };
 
     var events = [];
@@ -88,7 +91,7 @@ editor.once('load', function() {
     });
     btnClose.class.add('close');
     btnClose.on('click', function () {
-        editor.call('picker:sprites:editor:close');
+        editor.call('picker:sprites:close');
     });
     panel.headerElement.appendChild(btnClose.element);
 
@@ -96,6 +99,19 @@ editor.once('load', function() {
     overlayPickFrames.class.add('overlay-frames');
     overlayPickFrames.hidden = true;
     panel.append(overlayPickFrames);
+
+    var leftColumns = new ui.Panel();
+    leftColumns.class.add('left-columns');
+    leftColumns.flex = true;
+    leftColumns.flexGrow = true;
+    leftColumns.flexDirection = 'column';
+    panel.append(leftColumns);
+
+    var leftRows = new ui.Panel();
+    leftRows.class.add('left-rows');
+    leftRows.flex = true;
+    leftRows.flexDirection = 'row';
+    leftColumns.append(leftRows);
 
     var leftPanel = new ui.Panel();
     leftPanel.class.add('left-panel');
@@ -109,28 +125,93 @@ editor.once('load', function() {
     leftPanel.resizable = 'right';
     leftPanel.resizeMin = 256;
     leftPanel.resizeMax = 512;
-    panel.append(leftPanel);
+    leftRows.append(leftPanel);
 
     // middle panel
     var middlePanel = new ui.Panel();
     middlePanel.class.add('middle-panel');
-    middlePanel.flex = true;
-    middlePanel.flexGrow = true;
-    middlePanel.flexDirection = 'column';
-    panel.append(middlePanel);
+    // middlePanel.flex = true;
+    // middlePanel.flexGrow = true;
+    // middlePanel.flexDirection = 'column';
+    leftRows.append(middlePanel);
+
+    // // Canvas control
+    var canvasControl = new ui.Panel();
+    canvasControl.flex = true;
+    canvasControl.flexDirection = 'row';
+    canvasControl.class.add('canvas-control');
+    leftColumns.append(canvasControl);
+
+    // var alphaControl = new ui.Panel();
+    // alphaControl.class.add('alpha-control');
+    // alphaControl.flex = true;
+    // alphaControl.flexDirection = 'row';
+    // alphaControl.append(new ui.Label({
+    //     text: 'Alpha'
+    // }));
+    // canvasControl.append(alphaControl);
+
+    // var zoomControl = new ui.Panel();
+    // zoomControl.class.add('slider-control');
+    // zoomControl.flex = true;
+    // zoomControl.flexDirection = 'row';
+    // zoomControl.append(new ui.Label({
+    //     text: 'Zoom'
+    // }));
+
+    // var zoomField = new ui.NumberField({
+    //     min: 1,
+    //     precision: 2,
+    //     placeholder: 'X',
+    // });
+    // zoomField.link(controls, 'zoom');
+    // zoomControl.append(zoomField);
+    // var zoomSlider = new ui.Slider({
+    //     min: 1,
+    //     max: 100,
+    //     precision: 2,
+    // });
+    // zoomSlider.link(controls, 'zoom');
+    // zoomControl.append(zoomSlider);
+    // canvasControl.append(zoomControl);
+
+    // var brightnessControl = new ui.Panel();
+    // brightnessControl.class.add('slider-control');
+    // brightnessControl.flex = true;
+    // brightnessControl.flexDirection = 'row';
+    // brightnessControl.append(new ui.Label({
+    //     text: 'Brightness'
+    // }));
+
+    // var brightnessField = new ui.NumberField({
+    //     min: 0,
+    //     max: 100,
+    //     precision: 1,
+    //     placeholder: '%',
+    // });
+    // brightnessField.link(controls, 'brightness');
+    // brightnessControl.append(brightnessField);
+    // var brightnessSlider = new ui.Slider({
+    //     min: 0,
+    //     max: 100,
+    //     precision: 1,
+    // });
+    // brightnessSlider.link(controls, 'brightness');
+    // brightnessControl.append(brightnessSlider);
+    // canvasControl.append(brightnessControl);
 
     // Right panel
     var rightPanel = null;
 
     // Canvas
-    var canvasPanel = new ui.Panel();
-    canvasPanel.flexGrow = true;
-    canvasPanel.class.add('canvas-panel');
-    middlePanel.append(canvasPanel);
+    // var canvasPanel = new ui.Panel();
+    // canvasPanel.flexGrow = true;
+    // canvasPanel.class.add('canvas-panel');
+    // middlePanel.append(canvasPanel);
 
     var canvas = new ui.Canvas();
     canvas.class.add('canvas');
-    canvasPanel.append(canvas);
+    middlePanel.append(canvas);
 
     // Canvas Context
     var ctx = canvas.element.getContext("2d");
@@ -141,70 +222,6 @@ editor.once('load', function() {
         brightness: 100
     });
 
-    // Canvas control
-    var canvasControl = new ui.Panel();
-    canvasControl.flex = true;
-    canvasControl.flexDirection = 'row';
-    canvasControl.class.add('canvas-control');
-    middlePanel.append(canvasControl);
-
-    var alphaControl = new ui.Panel();
-    alphaControl.class.add('alpha-control');
-    alphaControl.flex = true;
-    alphaControl.flexDirection = 'row';
-    alphaControl.append(new ui.Label({
-        text: 'Alpha'
-    }));
-    canvasControl.append(alphaControl);
-
-    var zoomControl = new ui.Panel();
-    zoomControl.class.add('slider-control');
-    zoomControl.flex = true;
-    zoomControl.flexDirection = 'row';
-    zoomControl.append(new ui.Label({
-        text: 'Zoom'
-    }));
-
-    var zoomField = new ui.NumberField({
-        min: 1,
-        precision: 2,
-        placeholder: 'X',
-    });
-    zoomField.link(controls, 'zoom');
-    zoomControl.append(zoomField);
-    var zoomSlider = new ui.Slider({
-        min: 1,
-        max: 100,
-        precision: 2,
-    });
-    zoomSlider.link(controls, 'zoom');
-    zoomControl.append(zoomSlider);
-    canvasControl.append(zoomControl);
-
-    var brightnessControl = new ui.Panel();
-    brightnessControl.class.add('slider-control');
-    brightnessControl.flex = true;
-    brightnessControl.flexDirection = 'row';
-    brightnessControl.append(new ui.Label({
-        text: 'Brightness'
-    }));
-
-    var brightnessField = new ui.NumberField({
-        min: 0,
-        max: 100,
-        precision: 1,
-        placeholder: '%',
-    });
-    brightnessField.link(controls, 'brightness');
-    brightnessControl.append(brightnessField);
-    var brightnessSlider = new ui.Slider({
-        min: 0,
-        max: 100,
-        precision: 1,
-    });
-    brightnessSlider.link(controls, 'brightness');
-    brightnessControl.append(brightnessSlider);
-    canvasControl.append(brightnessControl);
 
     var imageWidth = function () {
         return controls.get('zoom') * (canvasRatio > aspectRatio ? canvas.height * aspectRatio : canvas.width);
@@ -222,20 +239,21 @@ editor.once('load', function() {
         return (pivotY + pivotOffsetY + zoomOffsetY) * canvas.height;
     };
 
-    var frameLeft = function (frame, left, width) {
-        return left + frame.rect[0] * width;
+    var frameLeft = function (frame, leftOffset, scaledWidth) {
+        return leftOffset + frame.rect[0] * scaledWidth / atlasImage.width;
     };
 
-    var frameTop = function (frame, top, height) {
-        return top + (1 - frame.rect[1] - frame.rect[3]) * height;
+    var frameTop = function (frame, topOffset, scaledHeight) {
+        var inverted = 1 - (frame.rect[1] + frame.rect[3]) / atlasImage.height;
+        return topOffset + inverted * scaledHeight;
     };
 
-    var frameWidth = function (frame, width) {
-        return frame.rect[2] * width;
+    var frameWidth = function (frame, scaledWidth) {
+        return frame.rect[2] * scaledWidth / atlasImage.width;
     };
 
-    var frameHeight = function (frame, height) {
-        return frame.rect[3] * height;
+    var frameHeight = function (frame, scaledHeight) {
+        return frame.rect[3] * scaledHeight / atlasImage.height;
     };
 
     var windowToCanvas = function(windowX, windowY) {
@@ -249,8 +267,8 @@ editor.once('load', function() {
     var resizeCanvas = function() {
         var result = false;
 
-        var width = canvasPanel.element.clientWidth;
-        var height = canvasPanel.element.clientHeight;
+        var width = middlePanel.element.clientWidth;
+        var height = middlePanel.element.clientHeight;
 
         // If it's resolution does not match change it
         if (canvas.element.width !== width || canvas.element.height !== height) {
@@ -289,35 +307,29 @@ editor.once('load', function() {
             callback: focus
         });
 
-        // Delete hotkey to delete selected frames
-        editor.call('hotkey:register', 'sprite-editor-delete', {
-            key: 'delete',
-            callback: function () {
-                if (selected && ! spriteAsset) {
-                    editor.call('picker:sprites:editor:deleteFrames', highlightedFrames);
-                }
-            }
-        });
-
-
         // Esc to deselect and if no selection close the window
         editor.call('hotkey:register', 'sprite-editor-esc', {
             key: 'esc',
             callback: function () {
+                var spriteAsset = editor.call('picker:sprites:selectedSprite');
                 if (spriteAsset) {
                     if (!overlayPickFrames.hidden) {
                         overlayPickFrames.hidden = true;
                     } else {
-                        selectSprite(null, {
+                        editor.call('picker:sprites:selectSprite', null, {
                             history: true
                         });
                     }
-                } else if (selected) {
-                    selectFrames(null, {
-                        history: true
-                    });
                 } else {
-                    overlay.hidden = true;
+                    var selected = editor.call('picker:sprites:selectedFrame');
+                    if (selected) {
+                        selected = editor.call('picker:sprites:selectFrames', null, {
+                            history: true
+                        });
+                        selectedHandle = null;
+                    } else {
+                        overlay.hidden = true;
+                    }
                 }
             }
         });
@@ -333,7 +345,6 @@ editor.once('load', function() {
         canvas.element.removeEventListener("DOMMouseScroll", onWheel);
 
         editor.call('hotkey:unregister', 'sprite-editor-focus');
-        editor.call('hotkey:unregister', 'sprite-editor-delete');
         editor.call('hotkey:unregister', 'sprite-editor-esc');
     };
 
@@ -378,13 +389,15 @@ editor.once('load', function() {
 
         var p = windowToCanvas(e.clientX, e.clientY);
 
+        var selected = editor.call('picker:sprites:selectedFrame');
+
         // if a frame is already selected try to select one of its handles
         if (selected && ! ctrlDown) {
-            selected.oldFrame = atlasAsset.get('data.frames.' + selected.key);
-            if (selected.oldFrame) {
-                selected.handle = handlesHitTest(p, selected.oldFrame);
+            oldFrame = atlasAsset.get('data.frames.' + selected);
+            if (oldFrame) {
+                setHandle(handlesHitTest(p, oldFrame), oldFrame, p);
 
-                if (selected.handle) {
+                if (selectedHandle) {
                     updateCursor();
                     queueRender();
                 }
@@ -393,39 +406,54 @@ editor.once('load', function() {
         }
 
         // if no handle selected try to select the frame under the cursor
-        if (! selected || ! selected.handle) {
+        if (! selected || ! selectedHandle) {
             var frameUnderCursor = framesHitTest(p);
             if (! frameUnderCursor) {
-                // clear selection
-                selectFrames(null, {history: true, clearSprite: !spriteEditMode});
+                // clear selection unless Ctrl is down
+                if (! ctrlDown) {
+                    selected = editor.call('picker:sprites:selectFrames', null, {
+                        history: true,
+                        clearSprite: !spriteEditMode
+                    });
+                    selectedHandle = null;
+                }
             } else {
-                var keys = spriteEditMode ? newSpriteFrames : highlightedFrames;
+                var keys = spriteEditMode ? editor.call('picker:sprites:newSpriteFrames') : editor.call('picker:sprites:highlightedFrames');
                 var idx = keys.indexOf(frameUnderCursor);
                 // deselect already highlighted frame if ctrl is pressed
                 if (idx !== -1 && ctrlDown) {
                     keys = keys.slice();
                     keys.splice(idx, 1);
-                    selectFrames(keys, {
+                    selected = editor.call('picker:sprites:selectFrames', keys, {
                         history: true,
                         clearSprite: !spriteEditMode
                     });
+                    selectedHandle = null;
                 } else {
                     // select new frame
-                    selectFrames(frameUnderCursor, {
+                    selected = editor.call('picker:sprites:selectFrames', frameUnderCursor, {
                         history: true,
                         clearSprite: !spriteEditMode,
                         add: ctrlDown
                     });
+                    selectedHandle = null;
                 }
             }
         }
 
         // if no frame selected then start a new frame
         if (! selected && ! spriteEditMode) {
+            var diffX = clamp((p.x - imageLeft()) / imageWidth(), 0, 1);
+            var diffY = clamp((1 - (p.y - imageTop()) / imageHeight()), 0, 1);
+
+            var x = Math.floor(atlasImage.width * diffX);
+            var y = Math.floor(atlasImage.height * diffY);
             newFrame =  {
-                rect: [(p.x - imageLeft()) / imageWidth(), 1 - (p.y - imageTop()) / imageHeight(), 0, 0],
-                pivot: [0.5, 0.5]
+                rect: [ x, y, 0, 0],
+                pivot: [0.5, 0.5],
+                border: [0, 0, 0, 0]
             };
+            setHandle(HANDLE.BOTTOM_RIGHT, newFrame, p);
 
             updateCursor();
         }
@@ -445,25 +473,34 @@ editor.once('load', function() {
 
         var p = windowToCanvas(mouseX, mouseY);
 
+        var selected = editor.call('picker:sprites:selectedFrame');
+
         // if a handle is selected then modify the selected frame
         if (newFrame) {
-            modifyFrame(HANDLE.BOTTOM_RIGHT, newFrame, p);
+            modifyFrame(selectedHandle, newFrame, p);
             queueRender();
-        } else if (selected && selected.handle) {
-            var frame = modifyFrame(selected.handle, atlasAsset.get('data.frames.' + selected.key), p);
+        } else if (selected && selectedHandle) {
+            var frame = atlasAsset.get('data.frames.' + selected);
+            modifyFrame(selectedHandle, frame, p);
 
             // set asset so that other users can see changes too
             var history = atlasAsset.history.enabled;
             atlasAsset.history.enabled = false;
-            atlasAsset.set('data.frames.' + selected.key + '.rect', frame.rect);
+            if (selectedHandle === HANDLE.PIVOT) {
+                atlasAsset.set('data.frames.' + selected + '.pivot', frame.pivot);
+            } else {
+                atlasAsset.set('data.frames.' + selected + '.rect', frame.rect);
+                atlasAsset.set('data.frames.' + selected + '.border', frame.border);
+            }
             atlasAsset.history.enabled = history;
 
             queueRender();
         }
         // if no handle is selected then change cursor if the user hovers over a handle
         else if (selected) {
-            var selectedFrame = atlasAsset.get('data.frames.' + selected.key);
+            var selectedFrame = atlasAsset.getRaw('data.frames.' + selected);
             if (selectedFrame) {
+                selectedFrame = selectedFrame._data;
                 hovering = !!handlesHitTest(p, selectedFrame);
                 updateCursor();
             }
@@ -485,6 +522,8 @@ editor.once('load', function() {
             stopPanning();
         }
 
+        var selected = editor.call('picker:sprites:selectedFrame');
+
         // if we've been editing a new frame then create it
         if (newFrame) {
 
@@ -492,16 +531,17 @@ editor.once('load', function() {
             if (newFrame.rect[2] !== 0 && newFrame.rect[3] !== 0) {
                 // generate key name for new frame
                 var key = 1;
-                for (var existingKey in atlasAsset.get('data.frames')) {
+                for (var existingKey in atlasAsset.getRaw('data.frames')._data) {
                     key = Math.max(parseInt(existingKey, 10) + 1, key);
                 }
 
                 newFrame.name = 'Frame ' + key;
 
-                commitFrameChanges(key.toString(), newFrame);
-                selectFrames(key.toString(), {
+                editor.call('picker:sprites:commitFrameChanges', key.toString(), newFrame);
+                selected = editor.call('picker:sprites:selectFrames', key.toString(), {
                     clearSprite: true
                 });
+                selectedHandle = null;
             }
 
             newFrame = null;
@@ -511,16 +551,22 @@ editor.once('load', function() {
         // if we have edited the selected frame then commit the changes
         else if (selected) {
             // clear selected handle
-            if (selected.handle) {
-                selected.handle = null;
+            if (selectedHandle) {
+                selectedHandle = null;
                 queueRender();
             }
 
-            if (selected.oldFrame) {
-                var frame = atlasAsset.get('data.frames.' + selected.key);
+            if (oldFrame) {
+                var frame = atlasAsset.getRaw('data.frames.' + selected)._data;
                 var dirty = false;
                 for (var i = 0; i < 4; i++) {
-                    if (selected.oldFrame.rect[i] !== frame.rect[i]) {
+                    if (oldFrame.rect[i] !== frame.rect[i]) {
+                        dirty = true;
+                        break;
+                    }
+
+
+                    if (oldFrame.border[i] !== frame.border[i]) {
                         dirty = true;
                         break;
                     }
@@ -528,7 +574,7 @@ editor.once('load', function() {
 
                 if(! dirty) {
                     for (var i = 0; i < 2; i++) {
-                        if (selected.oldFrame.pivot[i] !== frame.pivot[i]) {
+                        if (oldFrame.pivot[i] !== frame.pivot[i]) {
                             dirty = true;
                             break;
                         }
@@ -536,8 +582,8 @@ editor.once('load', function() {
                 }
 
                 if (dirty) {
-                    commitFrameChanges(selected.key, frame, selected.oldFrame);
-                    selected.oldFrame = null;
+                    editor.call('picker:sprites:commitFrameChanges', selected, frame, oldFrame);
+                    oldFrame = null;
                 }
             }
         }
@@ -562,126 +608,8 @@ editor.once('load', function() {
         controls.set('zoom', Math.max(1, zoom + wheel * 0.1));
     };
 
-    // Select frames by keys
-    // options.history: Whether to add this action to the history
-    // options.add: Whether to add the frames to the existing selection
-    // options.clearSprite: Clear sprite selection if true
-    var selectFrames = function (keys, options) {
-        if (! keys && ! selected && ! highlightedFrames.length) return;
-
-        if (keys && ! (keys instanceof Array))
-            keys = [keys];
-
-        // check if new selection differs from old
-        var dirty = false;
-        if (! keys && selected) {
-            dirty = true;
-        } else if (keys && ! selected) {
-            dirty = true;
-        } else if (selected && spriteAsset && (! options || ! options.clearSprite)) {
-            dirty = true;
-        } else {
-            var klen = keys ? keys.length : 0;
-            var hlen = highlightedFrames.length;
-            if (klen !== hlen) {
-                dirty = true;
-            } else {
-                for (var i = 0; i < klen; i++) {
-                    if (keys[i] !== highlightedFrames[i]) {
-                        dirty = true;
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (! dirty)
-            return;
-
-        var prevSelection = selected && selected.key;
-        var prevHighlighted = spriteEditMode ? newSpriteFrames.slice() : highlightedFrames.slice();
-        var prevSprite = spriteAsset;
-
-        // add to selection if necessary
-        if (keys && options && options.add) {
-            var temp = prevHighlighted.slice();
-            for (var i = 0, len = keys.length; i<len; i++) {
-                if (temp.indexOf(keys[i]) === -1) {
-                    temp.push(keys[i]);
-                }
-            }
-            keys = temp;
-        }
-
-        var select = function (newKeys, newSelection, oldKeys) {
-            selected = null;
-
-            if (oldKeys) {
-                if (spriteEditMode) {
-                    newSpriteFrames.length = 0;
-                } else {
-                    highlightedFrames.length = 0;
-                }
-            }
-
-            var asset = editor.call('assets:get', atlasAsset.get('id'));
-            if (asset) {
-                var len = newKeys && newKeys.length;
-                if (len) {
-                    if (spriteEditMode) {
-                        newSpriteFrames = newKeys.slice();
-                    } else {
-                        highlightedFrames = newKeys.slice();
-                    }
-
-                    if (! spriteAsset) {
-                        selected = {
-                            key: newSelection || newKeys[len-1],
-                            frame: asset.get('data.frames.' + (newSelection || newKeys[len-1]))
-                        };
-
-                    }
-                }
-            }
-
-            queueRender();
-
-            // do not re-create the right panel
-            // while we are selecting frames to add
-            // to the sprite asset
-            if (! spriteEditMode) {
-                updateRightPanel();
-            }
-
-            editor.emit('picker:sprites:editor:framesSelected', newKeys);
-        };
-
-        var redo = function () {
-            if (options && options.clearSprite) {
-                setSprite(null);
-            }
-
-            select(keys, null, prevHighlighted);
-        };
-
-        var undo = function () {
-            if (options && options.clearSprite && prevSprite) {
-                selectSprite(prevSprite);
-            } else {
-                select(prevHighlighted, prevSelection, keys);
-            }
-        };
-
-        if (options && options.history) {
-            editor.call('history:add', {
-                name: 'select frame',
-                undo: undo,
-                redo: redo
-            });
-
-        }
-
-        redo();
+    var clamp = function (value, minValue, maxValue) {
+        return Math.min(Math.max(value, minValue), maxValue);
     };
 
     // Modify a frame using the specified handle
@@ -691,124 +619,261 @@ editor.once('load', function() {
         var imgLeft = imageLeft();
         var imgTop = imageTop();
 
-        var left = frameLeft(frame, imgLeft, imgWidth);
-        var top = frameTop(frame, imgTop, imgHeight);
-        var width = frameWidth(frame, imgWidth);
-        var height = frameHeight(frame, imgHeight);
-
-        var dx = 0;
-        var dy = 0;
+        var realWidth = atlasImage.width;
+        var realHeight = atlasImage.height;
 
         var p = mousePoint;
 
+        var currentX = realWidth * (p.x - imgLeft) / imgWidth;
+        if (currentX < 0 && startingHandleCoords.x <= 0) return;
+        var currentY = realHeight * (p.y - imgTop) / imgHeight;
+        if (currentY < 0 && startingHandleCoords.y <= 0) return;
+
+        var dx = Math.floor(currentX - startingHandleCoords.x);
+        var dy = Math.floor(currentY - startingHandleCoords.y);
+
         switch (handle) {
             case HANDLE.TOP_LEFT: {
-                dx = (p.x - left) / imgWidth;
-                dy = (p.y - top) / imgHeight;
-                frame.rect[0] += dx;
-                frame.rect[2] -= dx;
-                frame.rect[3] -= dy;
-                break;
-            }
-            case HANDLE.TOP: {
-                dy = (p.y - top) / imgHeight;
-                frame.rect[3] -= dy;
+                // limit x coord between image edges
+                var x = clamp(startingHandleFrame.rect[0] + dx, 0, realWidth);
+                dx = x - startingHandleFrame.rect[0];
+                frame.rect[0] = startingHandleFrame.rect[0] + dx;
+                // adjust width
+                frame.rect[2] = startingHandleFrame.rect[2] - dx;
+                // adjust height and limit between image edges
+                frame.rect[3] = startingHandleFrame.rect[3] - dy;
+                if (frame.rect[1] + frame.rect[3] > realHeight) {
+                    frame.rect[3] = realHeight - frame.rect[1];
+                }
+
+                // if width became negative then make it positive and
+                // adjust x coord, then switch handle to top right
+                if (frame.rect[2] < 0) {
+                    frame.rect[2] *= -1;
+                    frame.rect[0] -= frame.rect[2];
+                    setHandle(HANDLE.TOP_RIGHT, frame, p);
+                }
+                if (frame.rect[3] < 0) {
+                    frame.rect[3] *= -1;
+                    frame.rect[1] -= frame.rect[3];
+                    setHandle(selectedHandle === HANDLE.TOP_RIGHT ? HANDLE.BOTTOM_RIGHT : HANDLE.BOTTOM_LEFT, frame, p);
+                }
+
+                // push right border if necessary
+                if (frame.border[2] > frame.rect[2] - frame.border[0]) {
+                    frame.border[2] = Math.max(frame.rect[2] - frame.border[0], 0);
+                }
+
+                // then push left border if necessary
+                if (frame.border[0] > frame.rect[2] - frame.border[2]) {
+                    frame.border[0] = Math.max(frame.rect[2] - frame.border[2], 0);
+                }
+
+                // push bottom border if necessary
+                if (frame.border[1] > frame.rect[3] - frame.border[3]) {
+                    frame.border[1] = Math.max(frame.rect[3] - frame.border[3], 0);
+                }
+
+                // then push top border if necessary
+                if (frame.border[3] > frame.rect[3] - frame.border[1]) {
+                    frame.border[3] = Math.max(frame.rect[3] - frame.border[1], 0);
+                }
+
                 break;
             }
             case HANDLE.TOP_RIGHT: {
-                dx = (p.x - left - width) / imgWidth;
-                dy = (p.y - top) / imgHeight;
-                frame.rect[2] += dx;
-                frame.rect[3] -= dy;
-                break;
-            }
-            case HANDLE.LEFT: {
-                dx = (p.x - left) / imgWidth;
-                frame.rect[0] += dx;
-                frame.rect[2] -= dx;
-                break;
-            }
-            case HANDLE.RIGHT: {
-                dx = (p.x - left - width) / imgWidth;
-                frame.rect[2] += dx;
+                frame.rect[2] = startingHandleFrame.rect[2] + dx;
+                frame.rect[3] = startingHandleFrame.rect[3] - dy;
+
+                if (frame.rect[0] + frame.rect[2] > realWidth) {
+                    frame.rect[2] = realWidth - frame.rect[0];
+                }
+                if (frame.rect[1] + frame.rect[3] > realHeight) {
+                    frame.rect[3] = realHeight - frame.rect[1];
+                }
+
+                if (frame.rect[2] < 0) {
+                    frame.rect[2] *= -1;
+                    frame.rect[0] -= frame.rect[2];
+                    setHandle(HANDLE.TOP_LEFT, frame, p);
+                }
+                if (frame.rect[3] < 0) {
+                    frame.rect[3] *= -1;
+                    frame.rect[1] -= frame.rect[3];
+                    setHandle(selectedHandle === HANDLE.TOP_LEFT ? HANDLE.BOTTOM_LEFT : HANDLE.BOTTOM_RIGHT, frame, p);
+                }
+
+                if (frame.border[0] > frame.rect[2] - frame.border[2]) {
+                    frame.border[0] = Math.max(frame.rect[2] - frame.border[2], 0);
+                }
+
+                if (frame.border[2] > frame.rect[2] - frame.border[0]) {
+                    frame.border[2] = Math.max(frame.rect[2] - frame.border[0], 0);
+                }
+
+                if (frame.border[1] > frame.rect[3] - frame.border[3]) {
+                    frame.border[1] = Math.max(frame.rect[3] - frame.border[3], 0);
+                }
+
+                if (frame.border[3] > frame.rect[3] - frame.border[1]) {
+                    frame.border[3] = Math.max(frame.rect[3] - frame.border[1], 0);
+                }
+
                 break;
             }
             case HANDLE.BOTTOM_LEFT: {
-                dx = (p.x - left) / imgWidth;
-                dy = (p.y - top - height) / imgHeight;
-                frame.rect[0] += dx;
-                frame.rect[1] -= dy;
-                frame.rect[2] -= dx;
-                frame.rect[3] += dy;
-                break;
-            }
-            case HANDLE.BOTTOM: {
-                dy = (p.y - top - height) / imgHeight;
-                frame.rect[1] -= dy;
-                frame.rect[3] += dy;
+                var x = clamp(startingHandleFrame.rect[0] + dx, 0, realWidth);
+                dx = x - startingHandleFrame.rect[0];
+                frame.rect[0] = startingHandleFrame.rect[0] + dx;
+                frame.rect[2] = startingHandleFrame.rect[2] - dx;
+
+                var y = clamp(startingHandleFrame.rect[1] - dy, 0, realHeight);
+                dy = y - startingHandleFrame.rect[1];
+                frame.rect[1] = startingHandleFrame.rect[1] + dy;
+                frame.rect[3] = startingHandleFrame.rect[3] - dy;
+
+                if (frame.rect[2] < 0) {
+                    frame.rect[2] *= -1;
+                    frame.rect[0] -= frame.rect[2];
+                    setHandle(HANDLE.BOTTOM_RIGHT, frame, p);
+                }
+                if (frame.rect[3] < 0) {
+                    frame.rect[3] *= -1;
+                    frame.rect[1] -= frame.rect[3];
+                    setHandle(selectedHandle === HANDLE.BOTTOM_RIGHT ? HANDLE.TOP_RIGHT : HANDLE.TOP_LEFT, frame, p);
+                }
+
+                if (frame.border[2] > frame.rect[2] - frame.border[0]) {
+                    frame.border[2] = Math.max(frame.rect[2] - frame.border[0], 0);
+                }
+
+                if (frame.border[0] > frame.rect[2] - frame.border[2]) {
+                    frame.border[0] = Math.max(frame.rect[2] - frame.border[2], 0);
+                }
+
+                if (frame.border[3] > frame.rect[3] - frame.border[1]) {
+                    frame.border[3] = Math.max(frame.rect[3] - frame.border[1], 0);
+                }
+
+                if (frame.border[1] > frame.rect[3] - frame.border[3]) {
+                    frame.border[1] = Math.max(frame.rect[3] - frame.border[3], 0);
+                }
+
                 break;
             }
             case HANDLE.BOTTOM_RIGHT: {
-                dx = (p.x - left - width) / imgWidth;
-                dy = (p.y - top - height) / imgHeight;
-                frame.rect[2] += dx;
-                frame.rect[3] += dy;
-                frame.rect[1] -= dy;
+                frame.rect[2] = startingHandleFrame.rect[2] + dx;
+
+                var y = clamp(startingHandleFrame.rect[1] - dy, 0, realHeight);
+                dy = y - startingHandleFrame.rect[1];
+                frame.rect[1] = startingHandleFrame.rect[1] + dy;
+                frame.rect[3] = startingHandleFrame.rect[3] - dy;
+
+                if (frame.rect[0] + frame.rect[2] > realWidth) {
+                    frame.rect[2] = realWidth - frame.rect[0];
+                }
+                if (frame.rect[1] + frame.rect[3] > realHeight) {
+                    frame.rect[3] = realHeight - frame.rect[1];
+                }
+
+                if (frame.rect[2] < 0) {
+                    frame.rect[2] *= -1;
+                    frame.rect[0] -= frame.rect[2];
+                    setHandle(HANDLE.BOTTOM_LEFT, frame, p);
+                }
+                if (frame.rect[3] < 0) {
+                    frame.rect[3] *= -1;
+                    frame.rect[1] -= frame.rect[3];
+                    setHandle(selectedHandle === HANDLE.BOTTOM_LEFT ? HANDLE.TOP_LEFT : HANDLE.TOP_RIGHT, frame, p);
+                }
+
+                if (frame.border[0] > frame.rect[2] - frame.border[2]) {
+                    frame.border[0] = Math.max(frame.rect[2] - frame.border[2], 0);
+                }
+
+                if (frame.border[2] > frame.rect[2] - frame.border[0]) {
+                    frame.border[2] = Math.max(frame.rect[2] - frame.border[0], 0);
+                }
+
+                if (frame.border[3] > frame.rect[3] - frame.border[1]) {
+                    frame.border[3] = Math.max(frame.rect[3] - frame.border[1], 0);
+                }
+
+                if (frame.border[1] > frame.rect[3] - frame.border[3]) {
+                    frame.border[1] = Math.max(frame.rect[3] - frame.border[3], 0);
+                }
+
                 break;
             }
-        }
-
-        return frame;
-    };
-
-    var commitFrameChanges = function (key, frame, oldFrame) {
-        // make sure width / height are positive
-        if (frame.rect[2] < 0) {
-            frame.rect[2] = Math.max(1 / atlasImage.width, -frame.rect[2]);
-            frame.rect[0] -= frame.rect[2];
-        }
-
-        if (frame.rect[3] < 0) {
-            frame.rect[3] = Math.max( 1 / atlasImage.height, -frame.rect[3]);
-            frame.rect[1] -= frame.rect[3];
-        }
-
-        var newValue = {
-            name: frame.name,
-            rect: frame.rect.slice(),
-            pivot: frame.pivot.slice()
-        };
-
-        var redo = function () {
-            var asset = editor.call('assets:get', atlasAsset.get('id'));
-            if (! asset) return;
-            var history = asset.history.enabled;
-            asset.history.enabled = false;
-            asset.set('data.frames.' + key, newValue);
-            asset.history.enabled = history;
-        };
-
-        var undo = function () {
-            var asset = editor.call('assets:get', atlasAsset.get('id'));
-            if (! asset) return;
-            var history = asset.history.enabled;
-            asset.history.enabled = false;
-            if (oldFrame) {
-                asset.set('data.frames.' + key, oldFrame);
-            } else {
-                deleteFrames([key]);
+            case HANDLE.BORDER_TOP_LEFT: {
+                frame.border[3] = Math.min(Math.max(startingHandleFrame.border[3] + dy, 0), frame.rect[3] - frame.border[1]);
+                frame.border[0] = Math.min(Math.max(startingHandleFrame.border[0] + dx, 0), frame.rect[2] - frame.border[2]);
+                break;
             }
-            asset.history.enabled = history;
-        };
+            case HANDLE.BORDER_TOP: {
+                frame.border[3] = Math.min(Math.max(startingHandleFrame.border[3] + dy, 0), frame.rect[3] - frame.border[1]);
+                break;
+            }
+            case HANDLE.BORDER_TOP_RIGHT: {
+                frame.border[2] = Math.min(Math.max(startingHandleFrame.border[2] - dx, 0), frame.rect[2] - frame.border[0]);
+                frame.border[3] = Math.min(Math.max(startingHandleFrame.border[3] + dy, 0), frame.rect[3] - frame.border[1]);
+                break;
+            }
+            case HANDLE.BORDER_LEFT: {
+                frame.border[0] = Math.min(Math.max(startingHandleFrame.border[0] + dx, 0), frame.rect[2] - frame.border[2]);
+                break;
+            }
+            case HANDLE.BORDER_RIGHT: {
+                frame.border[2] = Math.min(Math.max(startingHandleFrame.border[2] - dx, 0), frame.rect[2] - frame.border[0]);
+                break;
+            }
+            case HANDLE.BORDER_BOTTOM_LEFT: {
+                frame.border[0] = Math.min(Math.max(startingHandleFrame.border[0] + dx, 0), frame.rect[2] - frame.border[2]);
+                frame.border[1] = Math.min(Math.max(startingHandleFrame.border[1] - dy, 0), frame.rect[3] - frame.border[3]);
+                break;
+            }
+            case HANDLE.BORDER_BOTTOM: {
+                frame.border[1] = Math.min(Math.max(startingHandleFrame.border[1] - dy, 0), frame.rect[3] - frame.border[3]);
+                break;
+            }
+            case HANDLE.BORDER_BOTTOM_RIGHT: {
+                frame.border[2] = Math.min(Math.max(startingHandleFrame.border[2] - dx, 0), frame.rect[2] - frame.border[0]);
+                frame.border[1] = Math.min(Math.max(startingHandleFrame.border[1] - dy, 0), frame.rect[3] - frame.border[3]);
+                break;
+            }
+            case HANDLE.PIVOT: {
+                var left = frameLeft(frame, imgLeft, imgWidth);
+                var top = frameTop(frame, imgTop, imgHeight);
+                var width = frameWidth(frame, imgWidth);
+                var height = frameHeight(frame, imgHeight);
+                frame.pivot[0] = clamp((p.x - left) / width, 0, 1);
+                frame.pivot[1] = clamp(1 - (p.y - top) / height, 0, 1);
+                break;
+            }
+            case HANDLE.FRAME: {
+                frame.rect[0] = clamp(startingHandleFrame.rect[0] + (dx) , 0, realWidth - frame.rect[2]);
+                frame.rect[1] = clamp(startingHandleFrame.rect[1] - (dy) , 0, realHeight - frame.rect[3]);
+                break;
+            }
 
-        editor.call('history:add', {
-            name: 'data.frames.' + key,
-            undo: undo,
-            redo: redo
-        });
-
-        redo();
+        }
     };
+
+    var setHandle = function (handle, frame, mousePoint) {
+        selectedHandle = handle;
+        if (handle) {
+            // this frame will be used as the source frame
+            // when calculating offsets in modifyFrame
+            startingHandleFrame = utils.deepCopy(frame);
+
+            // Store the real image coords of the mouse point
+            // All offsets in modifyFrame will be calculated based on these coords
+            if (mousePoint) {
+                startingHandleCoords.x = clamp((mousePoint.x - imageLeft()) * atlasImage.width / imageWidth(), 0, atlasImage.width);
+                startingHandleCoords.y = clamp((mousePoint.y - imageTop()) * atlasImage.height / imageHeight(), 0, atlasImage.height);
+            }
+        }
+    }
 
     var focus = function () {
         resetControls();
@@ -879,15 +944,19 @@ editor.once('load', function() {
 
     var renderCanvas = function() {
         queuedRender = false;
+
         if (overlay.hidden) return;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         if (! atlasImageLoaded) return;
 
+        var selected = editor.call('picker:sprites:selectedFrame');
+
         // clear selection if no longer exists
-        if (selected && ! atlasAsset.has('data.frames.' + selected.key)) {
-            selectFrames(null);
+        if (selected && ! atlasAsset.has('data.frames.' + selected)) {
+            selected = editor.call('picker:sprites:selectFrames', null);
+            selectedHandle = null;
         }
 
         var left = imageLeft();
@@ -895,11 +964,26 @@ editor.once('load', function() {
         var width = imageWidth();
         var height = imageHeight();
 
+        var highlightedFrames = editor.call('picker:sprites:highlightedFrames');
+        var newSpriteFrames = editor.call('picker:sprites:newSpriteFrames');
+        var spriteAsset = editor.call('picker:sprites:selectedSprite');
+
         // disable smoothing
         ctx.mozImageSmoothingEnabled = false;
         ctx.webkitImageSmoothingEnabled = false;
         ctx.msImageSmoothingEnabled = false;
         ctx.imageSmoothingEnabled = false;
+
+        // draw background outside image
+        ctx.fillStyle = COLOR_DARKEST;
+        // left
+        ctx.fillRect(0,0, left, canvas.height);
+        // top
+        ctx.fillRect(0,0, canvas.width, top);
+        // right
+        ctx.fillRect(left + width,0, canvas.width - left - width, canvas.height);
+        // bottom
+        ctx.fillRect(0, top + height, canvas.width, canvas.height - top - height);
 
         // draw image
         ctx.drawImage(
@@ -932,7 +1016,7 @@ editor.once('load', function() {
         ctx.strokeStyle = spriteAsset ? COLOR_ORANGE : COLOR_DARK;
         for (var i = 0, len = highlightedFrames.length; i<len; i++) {
             var key = highlightedFrames[i];
-            if (selected && selected.key === key) continue;
+            if (selected && selected === key) continue;
 
             // check if frame no longer exists
             if (! frames[key]) {
@@ -944,6 +1028,20 @@ editor.once('load', function() {
             }
         }
         ctx.stroke();
+
+        // render border lines
+        ctx.beginPath();
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4]);
+        if (! spriteEditMode) {
+            for (var i = 0, len = highlightedFrames.length; i<len; i++) {
+                var key = highlightedFrames[i];
+                if (selected && selected === key) continue;
+                renderBorderLines(frames[key]._data, left, top, width, height);
+            }
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
 
         // draw sprite edit mode frames
         ctx.beginPath();
@@ -963,7 +1061,9 @@ editor.once('load', function() {
         }
         ctx.stroke();
 
-        var frame = newFrame || (selected ? atlasAsset.get('data.frames.' + selected.key) : null);
+        var frame = newFrame || (selected ? atlasAsset.getRaw('data.frames.' + selected) : null);
+        if (frame && frame._data)
+            frame = frame._data;
 
         if (frame) {
             ctx.beginPath();
@@ -998,10 +1098,49 @@ editor.once('load', function() {
         ctx.lineTo(x - offset, y - offset);
 
         if (renderPivot) {
+            // render pivot
             var px = x + frame.pivot[0] * w;
             var py = y + (1 - frame.pivot[1]) * h;
-            ctx.moveTo(px + pivotWidth, py);
+            ctx.moveTo(px,py);
             ctx.arc(px, py, pivotWidth, 0, 2 * Math.PI);
+        }
+    };
+
+    var renderBorderLines = function (frame, left, top, width, height) {
+        var x = frameLeft(frame, left, width);
+        var y = frameTop(frame, top, height);
+        var w = frameWidth(frame, width);
+        var h = frameHeight(frame, height);
+
+        var borderWidthModifier = width / atlasImage.width;
+        var borderHeightModifier = height / atlasImage.height;
+        var lb = x + frame.border[0] * borderWidthModifier;
+        var bb = y + h - frame.border[1] * borderHeightModifier;
+        var rb = x + w - frame.border[2] * borderWidthModifier;
+        var tb = y + frame.border[3] * borderHeightModifier;
+
+        // left line
+        if (frame.border[0]) {
+            ctx.moveTo(lb, y);
+            ctx.lineTo(lb, y+h);
+        }
+
+        // right line
+        if (frame.border[2]) {
+            ctx.moveTo(rb, y);
+            ctx.lineTo(rb, y+h);
+        }
+
+        // bottom line
+        if (frame.border[1]) {
+            ctx.moveTo(x, bb);
+            ctx.lineTo(x+w, bb);
+        }
+
+        // top line
+        if (frame.border[3]) {
+            ctx.moveTo(x, tb);
+            ctx.lineTo(x+w, tb);
         }
     };
 
@@ -1012,19 +1151,186 @@ editor.once('load', function() {
         var h = frameHeight(frame, height);
         var px = x + frame.pivot[0] * w;
         var py = y + (1 - frame.pivot[1]) * h;
+        var i;
+
+        ctx.fillStyle = COLOR_BLUE;
+        ctx.strokeStyle = COLOR_BLUE;
+        ctx.lineWidth = 1;
+
+        var borderWidthModifier = width / atlasImage.width;
+        var borderHeightModifier = height / atlasImage.height;
+        var lb = x + frame.border[0] * borderWidthModifier;
+        var bb = y + h - frame.border[1] * borderHeightModifier;
+        var rb = x + w - frame.border[2] * borderWidthModifier;
+        var tb = y + frame.border[3] * borderHeightModifier;
+
+        // border lines
+        ctx.beginPath();
+        ctx.setLineDash([4]);
+
+        // left line
+        if (frame.border[0]) {
+            ctx.moveTo(lb, y);
+            ctx.lineTo(lb, y+h);
+        }
+
+        // right line
+        if (frame.border[2]) {
+            ctx.moveTo(rb, y);
+            ctx.lineTo(rb, y+h);
+        }
+
+        // bottom line
+        if (frame.border[1]) {
+            ctx.moveTo(x, bb);
+            ctx.lineTo(x+w, bb);
+        }
+
+        // top line
+        if (frame.border[3]) {
+            ctx.moveTo(x, tb);
+            ctx.lineTo(x+w, tb);
+        }
+
+        ctx.stroke();
+        ctx.setLineDash([]);
+
         ctx.strokeStyle = COLOR_DARK;
         ctx.fillStyle = COLOR_GREEN;
         ctx.lineWidth = 1;
 
-        // corners
-        for (var i = 0; i < 4; i++) {
-            ctx.fillRect(x + handleWidth * leftOffsets[i] + w * widthWeights[i],
-                         y + handleWidth * topOffsets[i] + h * heightWeights[i],
+        // top left corner
+        ctx.fillRect(x - handleWidth / 2,
+                     y - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+
+        ctx.strokeRect(x - handleWidth / 2,
+                     y - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+        // top right corner
+        ctx.fillRect(x + w - handleWidth / 2,
+                     y - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+
+        ctx.strokeRect(x + w - handleWidth / 2,
+                     y - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+
+        // bottom left corner
+        ctx.fillRect(x - handleWidth / 2,
+                     y + h - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+
+        ctx.strokeRect(x - handleWidth / 2,
+                     y + h - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+        // bottom right corner
+        ctx.fillRect(x + w - handleWidth / 2,
+                     y + h - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+
+        ctx.strokeRect(x + w - handleWidth / 2,
+                     y + h - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+
+
+        ctx.fillStyle = COLOR_BLUE;
+        ctx.strokeStyle = COLOR_DARK;
+
+        // left border
+        ctx.fillRect(lb - handleWidth / 2,
+                     (bb + tb) / 2 - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+        ctx.strokeRect(lb - handleWidth / 2,
+                     (bb + tb) / 2 - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+
+
+        // bottom border
+        ctx.fillRect((lb + rb) / 2 - handleWidth / 2,
+                     bb - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+        ctx.strokeRect((lb + rb) / 2 - handleWidth / 2,
+                     bb - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+
+        // right border
+        ctx.fillRect(rb - handleWidth / 2,
+                     (bb + tb) / 2 - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+        ctx.strokeRect(rb - handleWidth / 2,
+                     (bb + tb) / 2 - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+
+        // top border
+        ctx.fillRect((lb + rb) / 2 - handleWidth / 2,
+                     tb - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+        ctx.strokeRect((lb + rb) / 2 - handleWidth / 2,
+                     tb - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+
+        // bottom left border
+        if (frame.border[0] || frame.border[1]) {
+            ctx.fillRect(lb - handleWidth / 2,
+                     bb - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+            ctx.strokeRect(lb - handleWidth / 2,
+                         bb - handleWidth / 2,
                          handleWidth,
                          handleWidth);
+        }
 
-            ctx.strokeRect(x + handleWidth * leftOffsets[i] + w * widthWeights[i],
-                         y + handleWidth * topOffsets[i] + h * heightWeights[i],
+        // bottom right border
+        if (frame.border[1] || frame.border[2]) {
+            ctx.fillRect(rb - handleWidth / 2,
+                     bb - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+            ctx.strokeRect(rb - handleWidth / 2,
+                         bb - handleWidth / 2,
+                         handleWidth,
+                         handleWidth);
+        }
+
+
+        // top right border
+        if (frame.border[2] || frame.border[3]) {
+            ctx.fillRect(rb - handleWidth / 2,
+                     tb - handleWidth / 2,
+                     handleWidth,
+                         handleWidth);
+            ctx.strokeRect(rb - handleWidth / 2,
+                         tb - handleWidth / 2,
+                         handleWidth,
+                         handleWidth);
+        }
+
+        // top left border
+        if (frame.border[3] || frame.border[0]) {
+            ctx.fillRect(lb - handleWidth / 2,
+                     tb - handleWidth / 2,
+                     handleWidth,
+                     handleWidth);
+            ctx.strokeRect(lb - handleWidth / 2,
+                         tb - handleWidth / 2,
                          handleWidth,
                          handleWidth);
         }
@@ -1038,6 +1344,7 @@ editor.once('load', function() {
         ctx.moveTo(px + pivotWidth, py);
         ctx.arc(px, py, pivotWidth, 0, 2 * Math.PI);
         ctx.stroke();
+
         // inside border
         ctx.lineWidth = 3;
         ctx.strokeStyle = COLOR_GREEN;
@@ -1066,14 +1373,17 @@ editor.once('load', function() {
 
         if (! atlasImageLoaded) return;
 
+        var spriteAsset = editor.call('picker:sprites:selectedSprite');
+
         if (spriteAsset) {
             editor.call('picker:sprites:attributes:sprite', {atlasAsset: atlasAsset, atlasImage: atlasImage, spriteAsset: spriteAsset});
         } else {
-            if (selected) {
+            var highlightedFrames = editor.call('picker:sprites:highlightedFrames');
+            if (highlightedFrames.length) {
                 editor.call('picker:sprites:attributes:frames', {atlasAsset: atlasAsset, atlasImage: atlasImage, frames: highlightedFrames});
             } else {
                 editor.call('picker:sprites:attributes:atlas', atlasAsset);
-                editor.call('picker:sprites:attributes:slice', {atlasAsset: atlasAsset, atlasImage: atlasImage});
+                editor.call('picker:sprites:attributes:slice', {atlasAsset: atlasAsset, atlasImage: atlasImage, atlasImageData: atlasImageData});
                 editor.call('picker:sprites:attributes:spriteassets', {atlasAsset: atlasAsset});
             }
         }
@@ -1091,9 +1401,9 @@ editor.once('load', function() {
         var imgLeft = imageLeft();
         var imgTop = imageTop();
 
-        var frames = atlasAsset.get('data.frames');
+        var frames = atlasAsset.getRaw('data.frames')._data;
         for (var key in frames) {
-            var frame = frames[key];
+            var frame = frames[key]._data;
             var left = frameLeft(frame, imgLeft, imgWidth);
             var top = frameTop(frame, imgTop, imgHeight);
             var width = frameWidth(frame, imgWidth);
@@ -1118,13 +1428,89 @@ editor.once('load', function() {
         var width = frameWidth(frame, imgWidth);
         var height = frameHeight(frame, imgHeight);
 
-        for (var key in HANDLE) {
-            var handle = HANDLE[key];
-            var x = left + handleWidth * leftOffsets[handle-1] + width * widthWeights[handle-1];
-            var y = top + handleWidth * topOffsets[handle-1] + height * heightWeights[handle-1];
-            if (rectContainsPoint(p, x, y, handleWidth, handleWidth)) {
-                return handle;
+        var borderWidthModifier = imgWidth / atlasImage.width;
+        var borderHeightModifier = imgHeight / atlasImage.height;
+        var lb = left + frame.border[0] * borderWidthModifier;
+        var bb = top + height - frame.border[1] * borderHeightModifier;
+        var rb = left + width - frame.border[2] * borderWidthModifier;
+        var tb = top + frame.border[3] * borderHeightModifier;
+
+        // pivot
+        var pivotX = left + frame.pivot[0] * width;
+        var pivotY = top + (1 - frame.pivot[1]) * height;
+        var distFromCenter = Math.sqrt((p.x - pivotX) * (p.x - pivotX) + (p.y - pivotY) * (p.y - pivotY));
+        if (distFromCenter < pivotWidth + 1 && distFromCenter > pivotWidth - 3) {
+            return HANDLE.PIVOT;
+        }
+
+        // top left border
+        if (frame.border[0] || frame.border[3]) {
+            if (rectContainsPoint(p, lb - handleWidth / 2, tb - handleWidth / 2, handleWidth, handleWidth)) {
+                return HANDLE.BORDER_TOP_LEFT;
             }
+        }
+
+        // top border
+        if (rectContainsPoint(p, (lb + rb) / 2 - handleWidth / 2, tb - handleWidth / 2, handleWidth, handleWidth)) {
+            return HANDLE.BORDER_TOP;
+        }
+
+        // top right border
+        if (frame.border[2] || frame.border[3]) {
+            if (rectContainsPoint(p, rb - handleWidth / 2, tb - handleWidth / 2, handleWidth, handleWidth)) {
+                return HANDLE.BORDER_TOP_RIGHT;
+            }
+        }
+
+        // left border
+        if (rectContainsPoint(p, lb - handleWidth / 2, (bb + tb) / 2 - handleWidth / 2, handleWidth, handleWidth)) {
+            return HANDLE.BORDER_LEFT;
+        }
+
+        // right border
+        if (rectContainsPoint(p, rb - handleWidth / 2, (bb + tb) / 2 - handleWidth / 2, handleWidth, handleWidth)) {
+            return HANDLE.BORDER_RIGHT;
+        }
+
+        // bottom left border
+        if (frame.border[0] || frame.border[1]) {
+            if (rectContainsPoint(p, lb - handleWidth / 2, bb - handleWidth / 2, handleWidth, handleWidth)) {
+                return HANDLE.BORDER_BOTTOM_LEFT;
+            }
+        }
+
+        // bottom border
+        if (rectContainsPoint(p, (lb + rb) / 2 - handleWidth / 2, bb - handleWidth / 2, handleWidth, handleWidth)) {
+            return HANDLE.BORDER_BOTTOM;
+        }
+
+        // bottom right border
+        if (frame.border[1] || frame.border[2]) {
+            if (rectContainsPoint(p, rb - handleWidth / 2, bb - handleWidth / 2, handleWidth, handleWidth)) {
+                return HANDLE.BORDER_BOTTOM_RIGHT;
+            }
+        }
+
+        // top left corner
+        if (rectContainsPoint(p, left - handleWidth / 2, top - handleWidth / 2, handleWidth, handleWidth)) {
+            return HANDLE.TOP_LEFT;
+        }
+        // top right corner
+        if (rectContainsPoint(p, left + width - handleWidth / 2, top - handleWidth / 2, handleWidth, handleWidth)) {
+            return HANDLE.TOP_RIGHT;
+        }
+        // bottom left corner
+        if (rectContainsPoint(p, left - handleWidth / 2, top + height - handleWidth / 2, handleWidth, handleWidth)) {
+            return HANDLE.BOTTOM_LEFT;
+        }
+        // bottom right corner
+        if (rectContainsPoint(p, left + width - handleWidth / 2, top + height - handleWidth / 2, handleWidth, handleWidth)) {
+            return HANDLE.BOTTOM_RIGHT;
+        }
+
+        // frame
+        if (rectContainsPoint(p, left, top, width, height)) {
+            return HANDLE.FRAME;
         }
 
         return null;
@@ -1134,15 +1520,14 @@ editor.once('load', function() {
     var showEditor = function (asset) {
         if (! editor.call('users:isSpriteTester')) return;
 
+        var _spriteAsset = null;
         if (asset.get('type') === 'textureatlas') {
             atlasAsset = asset;
-            spriteAsset = null;
         } else if (asset.get('type') === 'sprite') {
             atlasAsset = editor.call('assets:get', asset.get('data.textureAtlasAsset'));
-            spriteAsset = asset;
+            _spriteAsset = asset;
         } else {
             atlasAsset = null;
-            spriteAsset = null;
         }
 
         if (! atlasAsset)
@@ -1154,19 +1539,31 @@ editor.once('load', function() {
         atlasImageLoaded = false;
         atlasImage.onload = function () {
             atlasImageLoaded = true;
+
+            // get image data
+            atlasImageDataCanvas.width = atlasImage.width;
+            atlasImageDataCanvas.height = atlasImage.height;
+            atlasImageDataCanvas.getContext('2d').drawImage(atlasImage, 0, 0, atlasImage.width, atlasImage.height);
+            atlasImageData = atlasImageDataCanvas.getContext('2d').getImageData(0, 0, atlasImage.width, atlasImage.height);
+
             aspectRatio = atlasImage.width / atlasImage.height;
-            updateRightPanel();
 
             editor.call('picker:sprites:frames', {
                 atlasAsset: atlasAsset,
                 atlasImage: atlasImage
             });
 
-            renderCanvas();
+            editor.emit('picker:sprites:open');
+
+            if (_spriteAsset) {
+                editor.call('picker:sprites:selectSprite', _spriteAsset);
+            } else {
+                updateRightPanel();
+                renderCanvas();
+            }
+
         };
         atlasImage.src = atlasAsset.get('file.url') + '?t=' + atlasAsset.get('file.hash');
-
-        selected = null;
 
         // listen to atlas changes and render
         events.push(atlasAsset.on('*:set', queueRender));
@@ -1188,94 +1585,45 @@ editor.once('load', function() {
         updateRightPanel();
 
         registerInputListeners();
+
+        // clear current selection so that we don't
+        // accidentally delete any selected assets when pressing delete
+        editor.call('selector:history', false);
+        editor.call('selector:clear');
+        // restore selector history in a timeout
+        // because selector:clear emits a history
+        // event also in a timeout... annoying
+        setTimeout(function () {
+            editor.call('selector:history', true);
+        });
     };
 
     var updateCursor = function () {
         var grab = false;
         var grabbing = false;
 
+        var selected = editor.call('picker:sprites:selectedFrame');
+
         grab = hovering || shiftDown;
-        grabbing = newFrame || selected && selected.handle || panning;
+        grabbing = newFrame || selected && selectedHandle || panning;
 
-        if (grab)
-            canvasPanel.class.add('grab');
-        else
-            canvasPanel.class.remove('grab');
+        var cls = middlePanel.class;
+        var oldGrab = cls.contains('grab');
+        var oldGrabbing = cls.contains('grabbing');
 
-        if (grabbing)
-            canvasPanel.class.add('grabbing');
-        else
-            canvasPanel.class.remove('grabbing');
-    };
-
-    // if the selected sprite is deleted then deselect it
-    events.push(editor.on('assets:remove', function (asset) {
-        if (spriteAsset && spriteAsset.get('id') === asset.get('id')) {
-            selectSprite(null);
+        if (grab && ! oldGrab) {
+            cls.add('grab');
         }
-    }));
-
-    // Delete frames with specified keys from atlas and also
-    // remove these frames from any sprite assets that are referencing them
-    var deleteFrames = function (keys, history) {
-        if (history) {
-            // make copy of array to make sure undo / redo works
-            keys = keys.slice();
+        else if (! grab && oldGrab) {
+            cls.remove('grab');
         }
 
-        var numKeys = keys.length;
-
-        if (history) {
-            var oldFrames = {};
-            for (var i = 0; i < numKeys; i++) {
-                oldFrames[keys[i]] = atlasAsset.get('data.frames.' + keys[i]);
-            }
+        if (grabbing && ! oldGrabbing) {
+            cls.add('grabbing');
         }
-
-        var redo = function () {
-            var asset = editor.call('assets:get', atlasAsset.get('id'));
-            if (! asset) return;
-            var history = asset.history.enabled;
-            asset.history.enabled = false;
-
-            for (var i = 0; i < numKeys; i++) {
-                asset.unset('data.frames.' + keys[i]);
-            }
-
-            selectFrames(null, {
-                clearSprite: true
-            });
-
-            asset.history.enabled = history;
-        };
-
-        if (history) {
-            var undo = function () {
-                var asset = editor.call('assets:get', atlasAsset.get('id'));
-                if (! asset) return;
-                var history = asset.history.enabled;
-                asset.history.enabled = false;
-
-                for (var i = 0; i < numKeys; i++) {
-                    asset.set('data.frames.' + keys[i], oldFrames[keys[i]]);
-                }
-
-                selectFrames(keys, {
-                    clearSprite: true
-                });
-
-                asset.history.enabled = history;
-
-            };
-
-            editor.call('history:add', {
-                name: 'delete frames',
-                undo: undo,
-                redo: redo
-            });
+        else if (! grabbing && oldGrabbing) {
+            cls.remove('grabbing');
         }
-
-        redo();
     };
 
     var cleanUp = function () {
@@ -1299,11 +1647,11 @@ editor.once('load', function() {
 
         leftPanel.emit('clear');
 
-        selected = null;
         newFrame = null;
+        startingHandleFrame = null;
         hovering = false;
-        highlightedFrames.length = 0;
-        newSpriteFrames.length = 0;
+        atlasImageData = null;
+        atlasImageDataCanvas.getContext('2d').clearRect(0, 0, atlasImageDataCanvas.width, atlasImageDataCanvas.height);
 
         leftButtonDown = false;
         rightButtonDown = false;
@@ -1311,8 +1659,10 @@ editor.once('load', function() {
 
         overlayPickFrames.hidden = true;
 
-        canvasPanel.class.remove('grab');
-        canvasPanel.class.remove('grabbing');
+        atlasAsset = null;
+
+        middlePanel.class.remove('grab');
+        middlePanel.class.remove('grabbing');
 
         for (var i = 0; i < events.length; i++) {
             events[i].unbind();
@@ -1320,252 +1670,82 @@ editor.once('load', function() {
         events.length = 0;
 
         unregisterInputListeners();
+
+        editor.emit('picker:sprites:close');
     };
 
-    editor.method('picker:sprites:editor:selectFrames', function (keys, options) {
-        if (!overlay.hidden) {
-            selectFrames(keys, options);
-        }
-    });
-
-    editor.method('picker:sprites:editor:deleteFrames', function (keys) {
-        deleteFrames(keys, true);
+    // Return canvas
+    editor.method('picker:sprites:canvas', function () {
+        return canvas.element;
     });
 
     // Return left panel
-    editor.method('picker:sprites:editor:leftPanel', function() {
+    editor.method('picker:sprites:leftPanel', function() {
         return leftPanel;
     });
 
     // Return right panel
-    editor.method('picker:sprites:editor:rightPanel', function() {
+    editor.method('picker:sprites:rightPanel', function() {
         return rightPanel;
     });
 
     // Return main panel
-    editor.method('picker:sprites:editor:mainPanel', function () {
+    editor.method('picker:sprites:mainPanel', function () {
         return panel;
     });
 
-    editor.method('picker:sprites:editor:renderFramePreview', function (frame, canvas, allFrames) {
-        if (! frame.pivot || ! frame.rect) return; // this might happen while we are deleting stuff
+    // Return pick frames overlay
+    editor.method('picker:sprites:overlayPick', function () {
+        return overlayPickFrames;
+    });
 
-        var x = frame.rect[0] * atlasImage.width;
-        // convert bottom left WebGL coord to top left pixel coord
-        var y = (1 - frame.rect[1] - frame.rect[3]) * atlasImage.height;
-        var w = frame.rect[2] * atlasImage.width;
-        var h = frame.rect[3] * atlasImage.height;
+    // Return atlas asset
+    editor.method('picker:sprites:atlasAsset', function () {
+        return atlasAsset;
+    });
 
-        var aspectRatio = w / h;
+    // Return atlas image
+    editor.method('picker:sprites:atlasImage', function () {
+        return atlasImage;
+    });
 
-        // choose targetWidth and targetHeight keeping the aspect ratio
-        var width = canvas.width;
-        var height = canvas.height;
-        var targetWidth = width;
-        var targetHeight = height;
-        var offsetX = 0;
-        var offsetY = 0;
+    // Return atlas image data
+    editor.method('picker:sprites:atlasImageData', function () {
+        return atlasImageData;
+    });
 
-        if (allFrames) {
-            var maxHeight = 0;
-            var maxWidth = 0;
-            var maxAspectRatio = 0;
-            for (var i = 0, len = allFrames.length; i<len; i++) {
-                var f = allFrames[i];
-                if (f._data)
-                    f = f._data;
+    // Return sprite editor controls
+    editor.method('picker:sprites:controls', function () {
+        return controls;
+    });
 
-                maxWidth = Math.max(maxWidth, f.rect[2]);
-                maxHeight = Math.max(maxHeight, f.rect[3]);
-                maxAspectRatio = Math.max(maxAspectRatio, f.rect[2] * atlasImage.width / (f.rect[3] * atlasImage.height));
-            }
+    // Queue re-render
+    editor.method('picker:sprites:queueRender', queueRender);
 
-            maxWidth *= atlasImage.width;
-            maxHeight *= atlasImage.height;
-
-            var previewMaxWidth, previewMaxHeight;
-
-            if (width / maxAspectRatio > height || maxWidth < maxHeight) {
-                targetHeight = height * h / maxHeight;
-                targetWidth = targetHeight * aspectRatio;
-
-                previewMaxHeight = height;
-                previewMaxWidth = Math.min(height * maxWidth / maxHeight, width);
-            } else {
-                targetWidth = width * w / maxWidth;
-                targetHeight = targetWidth / aspectRatio;
-
-                previewMaxWidth = width;
-                previewMaxHeight = Math.min(width / (maxWidth / maxHeight), height);
-            }
-
-            offsetX = (width - previewMaxWidth) / 2 + (previewMaxWidth - targetWidth) * frame.pivot[0];
-            offsetY = (height - previewMaxHeight) / 2 + (previewMaxHeight - targetHeight) * (1 - frame.pivot[1]);
-
-        } else {
-            if (w >= h) {
-                targetHeight = width / aspectRatio;
-            } else {
-                targetWidth = height * aspectRatio;
-            }
-
-            offsetX = (width - targetWidth) / 2;
-            offsetY = (height - targetHeight) / 2;
+    // Update inspector when selection changes
+    editor.on('picker:sprites:framesSelected', function () {
+        if (! spriteEditMode) {
+            updateRightPanel();
         }
 
-
-        var ctx = canvas.getContext('2d');
-
-        // disable smoothing
-        ctx.mozImageSmoothingEnabled = false;
-        ctx.webkitImageSmoothingEnabled = false;
-        ctx.msImageSmoothingEnabled = false;
-        ctx.imageSmoothingEnabled = false;
-
-        ctx.clearRect(0, 0, width, height);
-        ctx.drawImage(atlasImage, x, y, w, h, offsetX, offsetY, targetWidth, targetHeight);
+        queueRender();
     });
 
-    var setSprite = function (asset) {
-        spriteAsset = asset;
-        editor.emit('picker:sprites:editor:spriteSelected', asset);
-    };
-
-    var selectSprite = function (asset, options) {
-        if (options && options.history) {
-            var prevSprite = spriteAsset;
-            var newSprite = asset;
-            var selectedFrames = selected && ! prevSprite ? highlightedFrames : null;
-
-            var redo = function () {
-                setSprite(asset);
-                if (spriteAsset) {
-                    selectFrames(spriteAsset.getRaw('data.frameKeys'));
-                } else {
-                    selectFrames(null);
-                }
-            };
-
-            var undo = function () {
-                setSprite(prevSprite);
-                if (spriteAsset) {
-                    selectFrames(spriteAsset.getRaw('data.frameKeys'));
-                } else {
-                    selectFrames(selectedFrames);
-                }
-            };
-
-            editor.call('history:add', {
-                name: 'select sprite',
-                undo: undo,
-                redo: redo
-            });
-
-            redo();
-        } else {
-            setSprite(asset);
-            if (spriteAsset) {
-                selectFrames(spriteAsset.getRaw('data.frameKeys'));
-            } else {
-                selectFrames(null);
-            }
-        }
-    };
-
-    editor.method('picker:sprites:editor:selectSprite', function (asset, options) {
-        if (overlay.hidden) return;
-
-        selectSprite(asset, options);
-    });
-
-    // Create sprite asset from selected frames
-    editor.method('picker:sprites:editor:spriteFromSelection', function (fn) {
-        if (overlay.hidden) return;
-
-        if (! highlightedFrames.length )
-            return;
-
-        editor.call('assets:create:sprite', {
-            pixelsPerUnit: 100,
-            frameKeys: highlightedFrames,
-            textureAtlasAsset: atlasAsset.get('id'),
-            noSelect: true,
-            fn: function (err, id) {
-                var asset = editor.call('assets:get', id);
-                if (asset) {
-                    selectSprite(asset);
-                    if (fn) {
-                        fn(asset);
-                    }
-                } else {
-                    editor.once('assets:add[' + id + ']', function (asset) {
-                        selectSprite(asset);
-                        if (fn) {
-                            fn(asset);
-                        }
-                    });
-                }
-            }
-        });
-    });
-
-    editor.method('picker:sprites:editor:pickFrames', function () {
-        if (spriteEditMode) return;
-
-        var redo = function () {
-            overlayPickFrames.hidden = false;
-        };
-
-        var undo = function () {
-            overlayPickFrames.hidden = true;
-        };
-
-        editor.call('history:add', {
-            name: 'add frames',
-            undo: undo,
-            redo: redo
-        });
-
-        redo();
-    });
-
-    // Adds picked frames to sprite asset and exits sprite edit mode
-    editor.method('picker:sprites:editor:pickFrames:add', function () {
-        if (! spriteAsset) return;
-
-        var length = newSpriteFrames.length;
-        if (length) {
-            var keys = spriteAsset.get('data.frameKeys');
-            keys = keys.concat(newSpriteFrames);
-            spriteAsset.set('data.frameKeys', keys);
-        }
-
-        overlayPickFrames.hidden = true;
-    });
-
-    // Exits sprite edit mode
-    editor.method('picker:sprites:editor:pickFrames:cancel', function () {
-        overlayPickFrames.hidden = true;
-    });
-
-    overlayPickFrames.on('show', function () {
+    // Track sprite edit mode
+    editor.on('picker:sprites:pickFrames:start', function () {
         spriteEditMode = true;
         panel.class.add('select-frames-mode');
-        editor.emit('picker:sprites:editor:pickFrames:start');
+        queueRender();
     });
 
-    overlayPickFrames.on('hide', function () {
-        panel.class.remove('select-frames-mode');
-
+    editor.on('picker:sprites:pickFrames:end', function () {
         spriteEditMode = false;
-        newSpriteFrames.length = 0;
+        panel.class.remove('select-frames-mode');
         queueRender();
-
-        editor.emit('picker:sprites:editor:pickFrames:end');
     });
 
     // open Sprite Editor (undoable)
-    editor.method('picker:sprites:editor', function (asset) {
+    editor.method('picker:sprites', function (asset) {
         editor.call('history:add', {
             name: 'open sprite editor',
             undo: function () {
@@ -1583,7 +1763,7 @@ editor.once('load', function() {
     });
 
     // Close Sprite Editor (undoable)
-    editor.method('picker:sprites:editor:close', function () {
+    editor.method('picker:sprites:close', function () {
         overlay.hidden = true;
     });
 

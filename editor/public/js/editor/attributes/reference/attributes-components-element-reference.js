@@ -39,12 +39,22 @@ editor.once('load', function() {
     }, {
         title: 'textureAsset',
         subTitle: '{pc.Asset}',
-        description: 'The texture used by the Element.',
+        description: 'The texture to be used by the Element.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#textureAsset'
+    }, {
+        title: 'spriteAsset',
+        subTitle: '{pc.Asset}',
+        description: 'The sprite to be used by the Element.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#spriteAsset'
+    }, {
+        title: 'spriteFrame',
+        subTitle: '{Number}',
+        description: 'The frame from the Sprite Asset to render.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#spriteFrame'
     }, {
         title: 'materialAsset',
         subTitle: '{pc.Asset}',
-        description: 'The material used by the element.',
+        description: 'The material to be used by the element.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#materialAsset'
     }, {
         title: 'autoWidth',

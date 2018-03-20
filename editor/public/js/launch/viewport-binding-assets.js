@@ -4,6 +4,9 @@ editor.once('load', function() {
     var app = editor.call('viewport:app');
     if (! app) return; // webgl not available
 
+    var regexFrameUpdate = /^data\.frames\.(\d+)/;
+    var regexFrameRemove = /^data\.frames\.(\d+)$/;
+
     var attachSetHandler = function (asset) {
         // do only for target assets
         if (asset.get('source'))
@@ -52,8 +55,61 @@ editor.once('load', function() {
         };
 
         // attach update handler
-        asset.on('*:set', onChange);
-        asset.on('*:unset', onChange);
+        asset.on('*:set', function (path, value) {
+            // handle texture atlases specifically for better performance
+            if (asset.get('type') === 'textureatlas') {
+                var realtimeAsset = app.assets.get(asset.get('id'));
+                if (! realtimeAsset) return;
+
+                var match = path.match(regexFrameUpdate);
+                if (match) {
+                    var frameKey = match[1];
+                    var frame = asset.get('data.frames.' + frameKey);
+                    if (frame) {
+                        realtimeAsset.resource.setFrame(frameKey, {
+                            rect: new pc.Vec4(frame.rect),
+                            pivot: new pc.Vec2(frame.pivot),
+                            border: new pc.Vec4(frame.border)
+                        });
+                    }
+                }
+            } else {
+                // everything else
+                onChange(path, value);
+            }
+        });
+        asset.on('*:unset', function (path, value) {
+            // handle deleting frames from texture atlas
+            if (asset.get('type') === 'textureatlas') {
+                var realtimeAsset = app.assets.get(asset.get('id'));
+                if (! realtimeAsset) return;
+
+                var match = path.match(regexFrameRemove);
+                if (match) {
+                    var frameKey = match[1];
+                    realtimeAsset.resource.removeFrame(frameKey);
+
+                    editor.call('viewport:render');
+                }
+            } else {
+                // everything else
+                onChange(path, value);
+            }
+
+        });
+
+        // handle changing sprite frame keys
+        if (asset.get('type') === 'sprite') {
+            var onFrameKeys = function () {
+                var realtimeAsset = app.assets.get(asset.get('id'));
+                if (! realtimeAsset) return;
+                realtimeAsset.resource.frameKeys = asset.get('data.frameKeys');
+            };
+
+            asset.on('data.frameKeys:insert', onFrameKeys);
+            asset.on('data.frameKeys:remove', onFrameKeys);
+            asset.on('data.frameKeys:move', onFrameKeys);
+        }
 
         // tags add
         asset.on('tags:insert', function(tag) {

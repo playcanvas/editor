@@ -32,8 +32,6 @@ editor.once('load', function() {
         var engineAtlas = app.assets.get(atlasId);
         if (engineAtlas && engineAtlas.resource && engineAtlas.resource.texture) {
             var atlasTexture = engineAtlas.resource.texture;
-            var atlasWidth = atlasTexture.width;
-            var atlasHeight = atlasTexture.height;
 
             // find max dimensions in frames so that we render the entire sprite asset
             // with the same proportions
@@ -45,17 +43,15 @@ editor.once('load', function() {
                     var rect = frames[frameKeys[i]].rect;
                     maxWidth = Math.max(maxWidth, rect[2]);
                     maxHeight = Math.max(maxHeight, rect[3]);
-                    maxAspectRatio = Math.max(maxAspectRatio, rect[2] * atlasWidth / (rect[3] * atlasHeight));
+                    maxAspectRatio = Math.max(maxAspectRatio, rect[2] / rect[3]);
                 }
             }
-            maxWidth *= atlasWidth;
-            maxHeight *= atlasHeight;
 
-            var x = frame.rect[0] * atlasWidth;
+            var x = frame.rect[0];
             // convert bottom left WebGL coord to top left pixel coord
-            var y = (1 - frame.rect[1] - frame.rect[3]) * atlasHeight;
-            var w = frame.rect[2] * atlasWidth;
-            var h = frame.rect[3] * atlasHeight;
+            var y = atlasTexture.height - frame.rect[1] - frame.rect[3];
+            var w = frame.rect[2];
+            var h = frame.rect[3];
 
             // choose targetWidth and targetHeight keeping the aspect ratio
             var aspectRatio = w / h;
