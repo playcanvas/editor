@@ -302,8 +302,19 @@ editor.once('load', function() {
             title: 'Screen',
             default: {
                 enabled: true,
-                resolution: [640, 320],
-                referenceResolution: [640, 320],
+                // default resolution to project resolution for screen components
+                resolution: function() {
+                    return [
+                        projectSettings.get('width'),
+                        projectSettings.get('height')
+                    ];
+                },
+                referenceResolution: function() {
+                    return [
+                        projectSettings.get('width'),
+                        projectSettings.get('height')
+                    ];
+                },
                 screenSpace: true,
                 scaleMode: 'blend',
                 scaleBlend: 0.5
@@ -323,7 +334,20 @@ editor.once('load', function() {
                 anchor: [0.5, 0.5, 0.5, 0.5],
                 pivot: [0.5, 0.5],
                 text: '',
-                fontAsset: null,
+                fontAsset: function() {
+                    // Reuse the last selected font, if it still exists in the library
+                    var lastSelectedFontId = editor.call('settings:projectUser').get('editor.lastSelectedFontId');
+                    var lastSelectedFontStillExists = lastSelectedFontId !== -1 && !!editor.call('assets:get', lastSelectedFontId);
+
+                    if (lastSelectedFontStillExists) {
+                        return lastSelectedFontId;
+                    }
+
+                    // Otherwise, select the first available font in the library
+                    var firstAvailableFont = editor.call('assets:findOne', function (asset) { return asset.get('type') === 'font'; });
+
+                    return firstAvailableFont ? parseInt(firstAvailableFont[1].get('id'), 10) : null;
+                },
                 fontSize: 32,
                 lineHeight: 32,
                 wrapLines: true,
@@ -476,16 +500,22 @@ editor.once('load', function() {
     editor.method('components:getDefault', function (component) {
         var result = utils.deepCopy(schema[component].default);
 
-        // default resolution to project resolution for screen components
-        if (component === 'screen') {
-            result.resolution[0] = projectSettings.get('width');
-            result.resolution[1] = projectSettings.get('height');
-
-            result.referenceResolution[0] = result.resolution[0];
-            result.referenceResolution[1] = result.resolution[1];
-        }
+        resolveLazyDefaults(result);
 
         return result;
     });
+
+    function resolveLazyDefaults(defaults) {
+        // Any functions in the default property set are used to provide
+        // lazy resolution, to handle cases where the values are not known
+        // at startup time.
+        Object.keys(defaults).forEach(function(key) {
+            var value = defaults[key];
+
+            if (typeof value === 'function') {
+                defaults[key] = value();
+            }
+        });
+    }
 
 });
