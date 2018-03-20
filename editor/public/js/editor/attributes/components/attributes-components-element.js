@@ -703,6 +703,11 @@ editor.once('load', function() {
             toggleColorFields();
         }));
 
+        events.push(fieldFontAsset.on('change', function (value) {
+            if (value) {
+                editor.call('settings:projectUser').set('editor.lastSelectedFontId', value);
+            }
+        }));
 
         // handle local changes to texture field to
         // auto set width and height and combine all of them in the same
