@@ -326,7 +326,6 @@ editor.once('load', function() {
                         selected = editor.call('picker:sprites:selectFrames', null, {
                             history: true
                         });
-                        selectedHandle = null;
                     } else {
                         overlay.hidden = true;
                     }
@@ -415,7 +414,6 @@ editor.once('load', function() {
                         history: true,
                         clearSprite: !spriteEditMode
                     });
-                    selectedHandle = null;
                 }
             } else {
                 var keys = spriteEditMode ? editor.call('picker:sprites:newSpriteFrames') : editor.call('picker:sprites:highlightedFrames');
@@ -428,7 +426,6 @@ editor.once('load', function() {
                         history: true,
                         clearSprite: !spriteEditMode
                     });
-                    selectedHandle = null;
                 } else {
                     // select new frame
                     selected = editor.call('picker:sprites:selectFrames', frameUnderCursor, {
@@ -436,7 +433,6 @@ editor.once('load', function() {
                         clearSprite: !spriteEditMode,
                         add: ctrlDown
                     });
-                    selectedHandle = null;
                 }
             }
         }
@@ -541,7 +537,6 @@ editor.once('load', function() {
                 selected = editor.call('picker:sprites:selectFrames', key.toString(), {
                     clearSprite: true
                 });
-                selectedHandle = null;
             }
 
             newFrame = null;
@@ -956,7 +951,6 @@ editor.once('load', function() {
         // clear selection if no longer exists
         if (selected && ! atlasAsset.has('data.frames.' + selected)) {
             selected = editor.call('picker:sprites:selectFrames', null);
-            selectedHandle = null;
         }
 
         var left = imageLeft();
@@ -1724,6 +1718,8 @@ editor.once('load', function() {
 
     // Update inspector when selection changes
     editor.on('picker:sprites:framesSelected', function () {
+        selectedHandle = null;
+
         if (! spriteEditMode) {
             updateRightPanel();
         }
