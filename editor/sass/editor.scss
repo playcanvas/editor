@@ -945,6 +945,7 @@ strong {
                 width: 100%;
                 height: 100%;
                 border: 8px solid $bcg-darker;
+                border-top: 0;
                 box-sizing: border-box;
 
                 margin: auto;
@@ -6215,7 +6216,7 @@ strong {
 
                     .asset-preview-container {
                         canvas {
-                            height: calc(100% - 32px);
+                            height: 100%;//calc(100% - 32px);
                         }
                     }
 
@@ -6225,6 +6226,7 @@ strong {
                         z-index: 1;
                         background: transparent;
                         width: 100%;
+                        display: none; // hide for now
                     }
                 }
 

@@ -132,7 +132,8 @@ editor.once('load', function() {
 
                 // render
                 editor.call('preview:render', assets[0], previewContainer.clientWidth, previewContainer.clientHeight, preview, {
-                    frame: frame
+                    frame: frame,
+                    animating: true
                 });
 
                 if (playing) {

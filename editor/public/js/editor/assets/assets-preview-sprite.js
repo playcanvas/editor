@@ -4,6 +4,8 @@ editor.once('load', function() {
     var app = editor.call('viewport:app');
     if (! app) return; // webgl not available
 
+    var centerPivot = [0.5, 0.5];
+
     var cancelRender = function (width, height, canvas) {
         canvas.width = width;
         canvas.height = height;
@@ -27,25 +29,39 @@ editor.once('load', function() {
         var frame = frames[frameKeys[args && args.frame || 0]];
         if (! frame) return cancelRender(width, height, canvas);
 
+        var animating = args && args.animating;
+
         var ctx = canvas.getContext('2d');
 
         var engineAtlas = app.assets.get(atlasId);
         if (engineAtlas && engineAtlas.resource && engineAtlas.resource.texture) {
             var atlasTexture = engineAtlas.resource.texture;
 
-            // find max dimensions in frames so that we render the entire sprite asset
-            // with the same proportions
-            var maxHeight = 0;
-            var maxWidth = 0;
-            var maxAspectRatio = 0;
+            var leftBound = Number.POSITIVE_INFINITY;
+            var rightBound = Number.NEGATIVE_INFINITY;
+            var bottomBound = Number.POSITIVE_INFINITY;
+            var topBound = Number.NEGATIVE_INFINITY;
+
             for (var i = 0, len = frameKeys.length; i<len; i++) {
-                if (frames[frameKeys[i]]) {
-                    var rect = frames[frameKeys[i]].rect;
-                    maxWidth = Math.max(maxWidth, rect[2]);
-                    maxHeight = Math.max(maxHeight, rect[3]);
-                    maxAspectRatio = Math.max(maxAspectRatio, rect[2] / rect[3]);
-                }
+                var f = frames[frameKeys[i]];
+                if (! f) continue;
+
+                var pivot = animating ? f.pivot : centerPivot;
+                var rect = f.rect;
+
+                var left = -rect[2] * pivot[0];
+                var right = (1-pivot[0]) * rect[2];
+                var bottom = -rect[3] * pivot[1];
+                var top = (1 - pivot[1]) * rect[3];
+
+                leftBound = Math.min(leftBound, left);
+                rightBound = Math.max(rightBound, right);
+                bottomBound = Math.min(bottomBound, bottom);
+                topBound = Math.max(topBound, top);
             }
+
+            var maxWidth = rightBound - leftBound;
+            var maxHeight = topBound - bottomBound;
 
             var x = frame.rect[0];
             // convert bottom left WebGL coord to top left pixel coord
@@ -53,27 +69,32 @@ editor.once('load', function() {
             var w = frame.rect[2];
             var h = frame.rect[3];
 
-            // choose targetWidth and targetHeight keeping the aspect ratio
-            var aspectRatio = w / h;
-            var targetWidth, targetHeight, previewMaxWidth, previewMaxHeight;
+            var canvasRatio = width / height;
+            var aspectRatio = maxWidth / maxHeight;
 
-            // make sure we never render anything higher than the available height
-            if (width / maxAspectRatio > height || maxWidth < maxHeight) {
-                targetHeight = height * h / maxHeight;
-                targetWidth = targetHeight * aspectRatio;
+            var widthFactor = width;
+            var heightFactor = height;
 
-                previewMaxHeight = height;
-                previewMaxWidth = Math.min(height * maxWidth / maxHeight, width);
+            if (canvasRatio > aspectRatio) {
+                widthFactor = height * aspectRatio;
             } else {
-                targetWidth = width * w / maxWidth;
-                targetHeight = targetWidth / aspectRatio;
-
-                previewMaxWidth = width;
-                previewMaxHeight = Math.min(width / (maxWidth / maxHeight), height);
+                heightFactor = width / aspectRatio;
             }
 
-            var offsetX = (width - previewMaxWidth) / 2 + (previewMaxWidth - targetWidth) * frame.pivot[0];
-            var offsetY = (height - previewMaxHeight) / 2 + (previewMaxHeight - targetHeight) * (1 - frame.pivot[1]);
+            // calculate x and width
+            var pivot = animating ? frame.pivot : centerPivot;
+            var left = -frame.rect[2] * pivot[0];
+            var offsetX = widthFactor * (left - leftBound) / maxWidth;
+            var targetWidth = widthFactor * frame.rect[2] / maxWidth;
+
+            // calculate y and height
+            var top = (1 - pivot[1]) * frame.rect[3];
+            var offsetY = heightFactor * (1 - (top - bottomBound) / maxHeight);
+            var targetHeight = heightFactor * frame.rect[3] / maxHeight;
+
+            // center it
+            offsetX += (width - widthFactor) / 2;
+            offsetY += (height - heightFactor) / 2;
 
             canvas.width = width;
             canvas.height = height;

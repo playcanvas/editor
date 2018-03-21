@@ -95,7 +95,7 @@ editor.once('load', function () {
 
             // render
             var frameData = frameObservers[frame] && frameObservers[frame]._data;
-            editor.call('picker:sprites:renderFramePreview', frameData, canvas, frameObservers);
+            editor.call('picker:sprites:renderFramePreview', frameData, canvas, frameObservers, true);
 
             if (playing) {
                 queueRender();

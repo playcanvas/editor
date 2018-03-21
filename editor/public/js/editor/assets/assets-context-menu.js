@@ -150,6 +150,16 @@ editor.once('load', function() {
     });
     menu.append(menuItemReferences);
 
+    // var menuItemTextureToAtlas = new ui.MenuItem({
+    //     text: 'Convert to Atlas',
+    //     icon: '&#57857;',
+    //     value: 'texture-to-atlas'
+    // });
+    // menu.append(menuItemTextureToAtlas);
+
+    // menuItemTextureToAtlas.on('select', function () {
+    // });
+
 
     // replace
     var replaceAvailable = {
@@ -192,7 +202,7 @@ editor.once('load', function() {
 
     // todo: xdu.
     // todo: merge these 2 items.
-    
+
     // extract. Used for source assets.
     var menuItemExtract = new ui.MenuItem({
         text: 'Re-Import',
