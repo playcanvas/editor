@@ -355,6 +355,8 @@ editor.once('load', function() {
                 color: [1, 1, 1],
                 opacity: 1,
                 textureAsset: null,
+                spriteAsset: null,
+                spriteFrame: 0,
                 width: 32,
                 height: 32,
                 margin: [-16,-16,-16,-16],
@@ -381,6 +383,8 @@ editor.once('load', function() {
             default: {
                 enabled: true,
                 type: 'simple',
+                width: 1,
+                height: 1,
                 color: [1, 1, 1],
                 opacity: 1,
                 flipX: false,
@@ -398,9 +402,8 @@ editor.once('load', function() {
         }
     };
 
-    // Paths in components that represent
-    // assets. Used when copy pasting. Does not include
-    // asset script attributes
+    // Paths in components that represent assets.
+    // Does not include asset script attributes.
     var assetPaths = [
         'components.animation.assets',
         'components.light.cookieAsset',
@@ -414,6 +417,7 @@ editor.once('load', function() {
         'components.particlesystem.mesh',
         'components.element.fontAsset',
         'components.element.textureAsset',
+        'components.element.spriteAsset',
         'components.element.materialAsset',
         'components.sprite.spriteAsset',
         'components.sprite.clips.*.spriteAsset',

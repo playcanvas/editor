@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     editor.method('picker:sprites:attributes:atlas', function (atlasAsset) {
-        var rootPanel = editor.call('picker:sprites:editor:rightPanel');
+        var rootPanel = editor.call('picker:sprites:rightPanel');
 
         rootPanel.header = 'TEXTURE ATLAS';
 
@@ -39,7 +39,7 @@ editor.once('load', function() {
         // Update number of frames field
         var updateFrameCount = function () {
             timeout = null;
-            var frames = atlasAsset.get('data.frames');
+            var frames = atlasAsset.getRaw('data.frames')._data;
             fieldFrames.value = Object.keys(frames).length;
         };
 

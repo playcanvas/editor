@@ -385,7 +385,7 @@ editor.once('load', function() {
                     data.clips = {
                         '0': {
                             name: 'Clip 1',
-                            fps: 30,
+                            fps: 10,
                             loop: true,
                             autoPlay: true,
                             spriteAsset: null

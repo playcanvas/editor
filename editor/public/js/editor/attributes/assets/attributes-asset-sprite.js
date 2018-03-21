@@ -32,6 +32,22 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'asset:sprite:pixelsPerUnit', fieldPixelsPerUnit.parent.innerElement.firstChild.ui);
 
+        var fieldRenderMode = editor.call('attributes:addField', {
+            parent: panelProperties,
+            name: 'Render Mode',
+            type: 'number',
+            enum: [
+                {v:0, t: 'Simple'},
+                {v:1, t:'Sliced'},
+                {v:2, t:'Tiled'}
+            ],
+            link: assets,
+            path: 'data.renderMode'
+        });
+
+        // reference
+        editor.call('attributes:reference:attach', 'asset:sprite:renderMode', fieldRenderMode.parent.innerElement.firstChild.ui);
+
         var fieldAtlas = editor.call('attributes:addField', {
             parent: panelProperties,
             name: 'Texture Atlas',
@@ -116,7 +132,8 @@ editor.once('load', function() {
 
                 // render
                 editor.call('preview:render', assets[0], previewContainer.clientWidth, previewContainer.clientHeight, preview, {
-                    frame: frame
+                    frame: frame,
+                    animating: true
                 });
 
                 if (playing) {

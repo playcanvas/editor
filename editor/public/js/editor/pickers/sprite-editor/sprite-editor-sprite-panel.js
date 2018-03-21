@@ -6,25 +6,14 @@ editor.once('load', function() {
         var atlasImage = args.atlasImage;
         var spriteAsset = args.spriteAsset;
 
-        var frameKeys, frames;
-
-        var refreshFrames = function () {
-            frameKeys = spriteAsset.get('data.frameKeys').filter(function (f) {
-                return atlasAsset.has('data.frames.' + f);
-            });
-            frames = frameKeys.map(function (f) {
-                return atlasAsset.get('data.frames.' + f);
-            });
-        };
-
-        refreshFrames();
+        var frameKeys = spriteAsset.get('data.frameKeys');
 
         var spriteEditMode = false;
         var selectedFrames = null;
 
         var events = [];
 
-        var rootPanel = editor.call('picker:sprites:editor:rightPanel');
+        var rootPanel = editor.call('picker:sprites:rightPanel');
         rootPanel.header = 'SPRITE - ' + spriteAsset.get('name');
 
         var fieldPreview = editor.call('picker:sprites:attributes:frames:preview', {
@@ -35,6 +24,13 @@ editor.once('load', function() {
 
         var panel = editor.call('attributes:addPanel', {
             parent: rootPanel
+        });
+
+        var fieldId = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'ID',
+            link: spriteAsset,
+            path: 'id'
         });
 
         var fieldName = editor.call('attributes:addField', {
@@ -57,6 +53,19 @@ editor.once('load', function() {
             path: 'data.pixelsPerUnit'
         });
 
+        var fieldRenderMode = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Render Mode',
+            type: 'number',
+            enum: [
+                {v: 0, t: 'Simple'},
+                {v: 1, t: 'Sliced'},
+                {v: 2, t: 'Tiled'}
+            ],
+            link: spriteAsset,
+            path: 'data.renderMode'
+        });
+
         var panelEdit = editor.call('attributes:addPanel', {
             parent: rootPanel,
             name: 'SPRITE FRAMES'
@@ -72,7 +81,7 @@ editor.once('load', function() {
         panelEdit.append(btnAddFrames);
 
         btnAddFrames.on('click', function () {
-            editor.call('picker:sprites:editor:pickFrames');
+            editor.call('picker:sprites:pickFrames');
         });
 
         var btnAddSelected = new ui.Button({
@@ -85,7 +94,7 @@ editor.once('load', function() {
 
         // add selected frames to sprite asset
         btnAddSelected.on('click', function () {
-            editor.call('picker:sprites:editor:pickFrames:add');
+            editor.call('picker:sprites:pickFrames:add');
         });
 
         var btnCancel = new ui.Button({
@@ -97,7 +106,7 @@ editor.once('load', function() {
         panelEdit.append(btnCancel);
 
         btnCancel.on('click', function () {
-            editor.call('picker:sprites:editor:pickFrames:cancel');
+            editor.call('picker:sprites:pickFrames:cancel');
         });
 
         var panelFrames = editor.call('attributes:addPanel', {
@@ -105,18 +114,40 @@ editor.once('load', function() {
         });
         panelFrames.class.add('frames');
 
+        var draggedPanel = null;
+
         var panels = [];
 
-        var addFramePanel = function (key, frame, index) {
+        var addFramePanel = function (key, index) {
             var frameEvents = [];
 
             var panel = new ui.Panel();
             panel.class.add('frame');
+            panel._frameKey = key;
             if (index !== undefined) {
                 panels.splice(index, 0, panel);
             } else {
                 panels.push(panel);
             }
+
+            // drag handle
+            var handle = document.createElement('div');
+            handle.classList.add('handle');
+            panel.append(handle);
+
+
+            var onDragStart = function (evt) {
+                draggedPanel = panel;
+
+                panel.class.add('dragged');
+
+                window.addEventListener('mouseup', onDragEnd);
+                panelFrames.innerElement.addEventListener('mousemove', onDragMove);
+
+                // overlay.hidden = false;
+            };
+
+            handle.addEventListener('mousedown', onDragStart);
 
             // preview
             var canvas = new ui.Canvas();
@@ -131,22 +162,28 @@ editor.once('load', function() {
 
             var renderQueued = false;
 
-            var queueRender = function () {
+            panel.queueRender = function () {
                 if (renderQueued) return;
                 renderQueued = true;
                 requestAnimationFrame(renderPreview);
             };
 
             var renderPreview = function () {
+                renderQueued = false;
+
                 ctx.clearRect(0, 0, previewWidth, previewHeight);
 
                 if (! atlasImage) return;
 
-                var x = frame.rect[0] * atlasImage.width;
+                var frame = atlasAsset.getRaw('data.frames.' + key);
+                if (! frame) return;
+                frame = frame._data;
+
+                var x = frame.rect[0];
                 // convert bottom left WebGL coord to top left pixel coord
-                var y = (1 - frame.rect[1] - frame.rect[3]) * atlasImage.height;
-                var w = frame.rect[2] * atlasImage.width;
-                var h = frame.rect[3] * atlasImage.height;
+                var y = atlasImage.height - frame.rect[1] - frame.rect[3];
+                var w = frame.rect[2];
+                var h = frame.rect[3];
 
                 // choose targetWidth and targetHeight keeping the aspect ratio
                 var aspectRatio = w / h;
@@ -170,11 +207,16 @@ editor.once('load', function() {
             // sprite name
             var fieldName = new ui.Label();
             fieldName.class.add('name');
-            fieldName.value = frame.name;
+            fieldName.value = atlasAsset.get('data.frames.' + key + '.name') || 'Missing';
             panel.append(fieldName);
 
             frameEvents.push(atlasAsset.on('data.frames.' + key + '.name:set', function (value) {
                 fieldName.value = value;
+            }));
+
+            frameEvents.push(atlasAsset.on('data.frames.' + key + ':unset', function () {
+                fieldName.value = 'Missing';
+                panel.queueRender();
             }));
 
             // remove frame
@@ -188,7 +230,7 @@ editor.once('load', function() {
             });
 
             panel.on('click', function () {
-                editor.call('picker:sprites:editor:selectFrames', key, {
+                editor.call('picker:sprites:selectFrames', key, {
                     history: true,
                     clearSprite: true
                 });
@@ -200,6 +242,12 @@ editor.once('load', function() {
                     frameEvents[i].unbind();
                 }
                 frameEvents.length = 0;
+
+                handle.removeEventListener('mousedown', onDragStart);
+                if (panel.class.contains('dragged')) {
+                    panelFrames.innerElement.removeEventListener('mousemove', onDragMove);
+                    window.removeEventListener('mouseup', onDragEnd);
+                }
             });
 
             var before = null;
@@ -213,8 +261,42 @@ editor.once('load', function() {
             }
         };
 
+        var onDragMove = function (evt) {
+            var rect = panelFrames.innerElement.getBoundingClientRect();
+            var height = draggedPanel.element.offsetHeight;
+            var top = evt.clientY - rect.top - 6;
+            var overPanelIndex = Math.floor(top / height);
+            var overPanel = panels[overPanelIndex];//panelFrames.innerElement.childNodes[overPanelIndex];
+
+            if (overPanel && overPanel !== draggedPanel) {
+                panelFrames.remove(draggedPanel);
+                panelFrames.appendBefore(draggedPanel, panelFrames.innerElement.childNodes[overPanelIndex]);
+
+                var idx = panels.splice(panels.indexOf(draggedPanel), 1);
+                panels.splice(overPanelIndex, 0, draggedPanel);
+            }
+        };
+
+        var onDragEnd = function () {
+            if (! draggedPanel) return;
+
+            // get old index of panel
+            var oldIndex = spriteAsset.get('data.frameKeys').indexOf(draggedPanel._frameKey);
+            var newIndex = Array.prototype.indexOf.call(panelFrames.innerElement.childNodes, draggedPanel.element);
+
+            // change order in sprite asset
+            if (oldIndex !== newIndex) {
+                spriteAsset.move('data.frameKeys', oldIndex, newIndex);
+            }
+
+            panelFrames.innerElement.removeEventListener('mousemove', onDragMove);
+            window.removeEventListener('mouseup', onDragEnd);
+            draggedPanel.class.remove('dragged');
+            draggedPanel = null;
+        };
+
         for (var i = 0, len = frameKeys.length; i<len; i++) {
-            addFramePanel(frameKeys[i], frames[i]);
+            addFramePanel(frameKeys[i]);
         }
 
         events.push(spriteAsset.on('data.frameKeys:remove', function (value, index) {
@@ -223,14 +305,28 @@ editor.once('load', function() {
             panels[index].destroy();
             panels.splice(index, 1);
 
-            refreshFrames();
+            frameKeys = spriteAsset.get('data.frameKeys');
 
             fieldPreview.setFrames(frameKeys);
         }));
 
         events.push(spriteAsset.on('data.frameKeys:insert', function (value, index) {
-            refreshFrames();
-            addFramePanel(frameKeys[index], frames[index], index);
+            frameKeys = spriteAsset.get('data.frameKeys');
+            addFramePanel(frameKeys[index], index);
+            fieldPreview.setFrames(frameKeys);
+        }));
+
+        events.push(spriteAsset.on('data.frameKeys:move', function (value, indNew, indOld) {
+            var movedPanel = panels[indOld];
+            if (movedPanel && movedPanel._frameKey === value) {
+                panelFrames.remove(movedPanel);
+                panelFrames.appendBefore(movedPanel, panelFrames.innerElement.childNodes[indNew]);
+
+                panels.splice(indOld, 1);
+                panels.splice(indNew, 0, movedPanel);
+            }
+
+            frameKeys = spriteAsset.get('data.frameKeys');
             fieldPreview.setFrames(frameKeys);
         }));
 
@@ -242,16 +338,40 @@ editor.once('load', function() {
             }
             panels.length = 0;
 
-            refreshFrames();
-
+            frameKeys = spriteAsset.get('data.frameKeys');
             for (i = 0, len = frameKeys.length; i<len; i++) {
-                addFramePanel(frameKeys[i], frames[i]);
+                addFramePanel(frameKeys[i]);
             }
 
             fieldPreview.setFrames(frameKeys);
         }));
 
-        events.push(editor.on('picker:sprites:editor:pickFrames:start', function () {
+        events.push(atlasAsset.on('*:set', function (path) {
+            if (! path.startsWith('data.frames')) {
+                return;
+            }
+
+            var parts = path.split('.');
+            var partsLen = parts.length;
+            if (partsLen >= 3) {
+                // re-render frame preview
+                for (var i = 0, len = panels.length; i<len; i++) {
+                    if (panels[i]._frameKey === parts[2]) {
+                        panels[i].queueRender();
+
+                        // if this frame was added back to the atlas
+                        // then re-render preview
+                        if (partsLen === 3) {
+                            fieldPreview.setFrames(frameKeys);
+                        }
+
+                        break;
+                    }
+                }
+            }
+        }));
+
+        events.push(editor.on('picker:sprites:pickFrames:start', function () {
             spriteEditMode = true;
             btnAddFrames.hidden = true;
             btnAddSelected.disabled = true;
@@ -259,7 +379,7 @@ editor.once('load', function() {
             btnCancel.hidden = false;
         }));
 
-        events.push(editor.on('picker:sprites:editor:pickFrames:end', function () {
+        events.push(editor.on('picker:sprites:pickFrames:end', function () {
             spriteEditMode = false;
             btnAddFrames.hidden = false;
             btnAddSelected.hidden = true;
@@ -269,7 +389,7 @@ editor.once('load', function() {
             fieldPreview.setFrames(frameKeys);
         }));
 
-        events.push(editor.on('picker:sprites:editor:framesSelected', function (keys) {
+        events.push(editor.on('picker:sprites:framesSelected', function (keys) {
             if (! spriteEditMode) return;
 
             selectedFrames = keys;
