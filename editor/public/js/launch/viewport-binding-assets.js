@@ -106,6 +106,7 @@ editor.once('load', function() {
                 realtimeAsset.resource.frameKeys = asset.get('data.frameKeys');
             };
 
+            asset.on('data.frameKeys:set', onFrameKeys);
             asset.on('data.frameKeys:insert', onFrameKeys);
             asset.on('data.frameKeys:remove', onFrameKeys);
             asset.on('data.frameKeys:move', onFrameKeys);

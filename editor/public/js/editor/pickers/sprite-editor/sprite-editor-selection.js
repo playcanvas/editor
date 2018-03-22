@@ -127,8 +127,9 @@ editor.once('load', function () {
     // Sets the selected sprite and hooks event listeners
     var setSprite = function (asset) {
         if (spriteAsset) {
-            spriteAsset.unbind('data.frameKeys:remove', onSpriteFrameDeleted);
-            spriteAsset.unbind('data.frameKeys:insert', onSpriteFrameAdded);
+            spriteAsset.unbind('data.frameKeys:remove', selectSpriteFrames);
+            spriteAsset.unbind('data.frameKeys:insert', selectSpriteFrames);
+            spriteAsset.unbind('data.frameKeys:set', selectSpriteFrames);
         }
 
         spriteAsset = asset;
@@ -136,20 +137,15 @@ editor.once('load', function () {
 
         if (! spriteAsset) return;
 
-        spriteAsset.on('data.frameKeys:remove', onSpriteFrameDeleted);
-        spriteAsset.on('data.frameKeys:insert', onSpriteFrameAdded);
+        spriteAsset.on('data.frameKeys:remove', selectSpriteFrames);
+        spriteAsset.on('data.frameKeys:insert', selectSpriteFrames);
+        spriteAsset.on('data.frameKeys:set', selectSpriteFrames);
     };
 
-    // When a frame is added to the selected sprite asset then re-select
-    // all its frames
-    var onSpriteFrameAdded = function (value, index) {
-        selectFrames(spriteAsset.getRaw('data.frameKeys'));
-    };
-
-    // When a frame is deleted from the selected sprite asset then re-select
-    // the sprite's frames
-    var onSpriteFrameDeleted = function (value, index) {
-        selectFrames(spriteAsset.getRaw('data.frameKeys'));
+    var selectSpriteFrames = function () {
+        if (spriteAsset) {
+            selectFrames(spriteAsset.getRaw('data.frameKeys'));
+        }
     };
 
     // Select specified sprite asset

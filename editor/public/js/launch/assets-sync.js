@@ -63,7 +63,16 @@ editor.once('load', function() {
             var assetExists = !!asset;
 
             if (!assetExists) {
-                asset = new Observer(assetData);
+                var options = null;
+
+                // allow duplicate values in data.frameKeys of sprite asset
+                if (assetData.type === 'sprite') {
+                    options = {
+                        pathsWithDuplicates: ['data.frameKeys']
+                    }
+                }
+
+                asset = new Observer(assetData, options);
                 editor.call('assets:add', asset);
 
                 var _asset = asset.asset = new pc.Asset(assetData.name, assetData.type, assetData.file, assetData.data);

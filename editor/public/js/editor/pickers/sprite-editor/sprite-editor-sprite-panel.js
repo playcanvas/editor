@@ -127,6 +127,7 @@ editor.once('load', function() {
         panelFrames.class.add('frames');
 
         var draggedPanel = null;
+        var draggedIndex = null;
 
         var panels = [];
 
@@ -150,6 +151,7 @@ editor.once('load', function() {
 
             var onDragStart = function (evt) {
                 draggedPanel = panel;
+                draggedIndex = panels.indexOf(panel);
 
                 panel.class.add('dragged');
 
@@ -238,7 +240,11 @@ editor.once('load', function() {
 
             btnRemove.on('click', function (e) {
                 e.stopPropagation();
-                spriteAsset.removeValue('data.frameKeys', key);
+
+                var idx = panels.indexOf(panel);
+                if (idx !== -1) {
+                    spriteAsset.remove('data.frameKeys', idx);
+                }
             });
 
             panel.on('click', function () {
@@ -260,7 +266,9 @@ editor.once('load', function() {
                 frameEvents.length = 0;
 
                 handle.removeEventListener('mousedown', onDragStart);
-                if (panel.class.contains('dragged')) {
+                if (draggedPanel === panel) {
+                    draggedPanel = null;
+                    draggedIndex = null;
                     panelFrames.innerElement.removeEventListener('mousemove', onDragMove);
                     window.removeEventListener('mouseup', onDragEnd);
                 }
@@ -296,8 +304,7 @@ editor.once('load', function() {
         var onDragEnd = function () {
             if (! draggedPanel) return;
 
-            // get old index of panel
-            var oldIndex = spriteAsset.get('data.frameKeys').indexOf(draggedPanel._frameKey);
+            var oldIndex = draggedIndex;
             var newIndex = Array.prototype.indexOf.call(panelFrames.innerElement.childNodes, draggedPanel.element);
 
             // change order in sprite asset
@@ -305,10 +312,12 @@ editor.once('load', function() {
                 spriteAsset.move('data.frameKeys', oldIndex, newIndex);
             }
 
-            panelFrames.innerElement.removeEventListener('mousemove', onDragMove);
-            window.removeEventListener('mouseup', onDragEnd);
             draggedPanel.class.remove('dragged');
             draggedPanel = null;
+            draggedIndex = null;
+
+            panelFrames.innerElement.removeEventListener('mousemove', onDragMove);
+            window.removeEventListener('mouseup', onDragEnd);
         };
 
         for (var i = 0, len = frameKeys.length; i<len; i++) {
@@ -333,6 +342,13 @@ editor.once('load', function() {
         }));
 
         events.push(spriteAsset.on('data.frameKeys:move', function (value, indNew, indOld) {
+            // update the draggedIndex if another user dragged the same frame we're dragging
+            if (indOld === draggedIndex) {
+                draggedIndex = indNew;
+            }
+
+            if (draggedIndex === indNew) return;
+
             var movedPanel = panels[indOld];
             if (movedPanel && movedPanel._frameKey === value) {
                 panelFrames.remove(movedPanel);

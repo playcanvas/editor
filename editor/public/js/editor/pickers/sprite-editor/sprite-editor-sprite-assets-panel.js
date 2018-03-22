@@ -104,6 +104,18 @@ editor.once('load', function() {
                 }
             }));
 
+            spriteEvents.push(asset.on('data.frameKeys:move', function (value, indNew, indOld) {
+                if (indNew === 0 || indOld === 0) {
+                    panel.updateFirstFrame();
+                    panel.queueRender();
+                }
+            }));
+
+            spriteEvents.push(asset.on('data.frameKeys:set', function (value) {
+                panel.updateFirstFrame();
+                panel.queueRender();
+            }));
+
             // sprite path (TODO)
             var fieldPath = new ui.Label();
             fieldPath.class.add('path');
