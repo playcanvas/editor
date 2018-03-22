@@ -32,6 +32,8 @@ editor.once('load', function() {
             link: spriteAsset,
             path: 'id'
         });
+        // reference
+        editor.call('attributes:reference:attach', 'asset:id', fieldId.parent.innerElement.firstChild.ui, null, panel);
 
         var fieldName = editor.call('attributes:addField', {
             parent: panel,
@@ -40,6 +42,8 @@ editor.once('load', function() {
             link: spriteAsset,
             path: 'name'
         });
+        // reference
+        editor.call('attributes:reference:attach', 'asset:name', fieldName.parent.innerElement.firstChild.ui, null, panel);
 
         events.push(fieldName.on('change', function (value) {
             rootPanel.header = 'SPRITE - ' + value;
@@ -52,6 +56,8 @@ editor.once('load', function() {
             link: spriteAsset,
             path: 'data.pixelsPerUnit'
         });
+        // reference
+        editor.call('attributes:reference:attach', 'asset:sprite:pixelsPerUnit', fieldPpu.parent.innerElement.firstChild.ui, null, panel);
 
         var fieldRenderMode = editor.call('attributes:addField', {
             parent: panel,
@@ -65,6 +71,8 @@ editor.once('load', function() {
             link: spriteAsset,
             path: 'data.renderMode'
         });
+        // reference
+        editor.call('attributes:reference:attach', 'asset:sprite:renderMode', fieldRenderMode.parent.innerElement.firstChild.ui, null, panel);
 
         var panelEdit = editor.call('attributes:addPanel', {
             parent: rootPanel,
@@ -79,6 +87,10 @@ editor.once('load', function() {
         btnAddFrames.flexGrow = 1;
         btnAddFrames.class.add('icon', 'wide', 'create');
         panelEdit.append(btnAddFrames);
+
+
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:sprites:addFrames', btnAddFrames, null, panel);
 
         btnAddFrames.on('click', function () {
             editor.call('picker:sprites:pickFrames');
@@ -230,6 +242,10 @@ editor.once('load', function() {
             });
 
             panel.on('click', function () {
+                // do not select missing frames
+                if (! atlasAsset.has('data.frames.' + key)) return;
+
+                // select frame
                 editor.call('picker:sprites:selectFrames', key, {
                     history: true,
                     clearSprite: true

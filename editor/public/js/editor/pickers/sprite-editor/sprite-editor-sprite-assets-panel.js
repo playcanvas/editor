@@ -15,6 +15,9 @@ editor.once('load', function() {
             foldable: true,
         });
 
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:sprites', panel, panel.headerElement, rootPanel);
+
         var fieldSprites = editor.call('attributes:addField', {
             parent: panel,
             name: 'No. of sprites'

@@ -16,7 +16,7 @@ editor.once('load', function() {
         index[args.name] = editor.call('attributes:reference', args);
     });
 
-    editor.method('attributes:reference:attach', function(name, target, element) {
+    editor.method('attributes:reference:attach', function(name, target, element, panel) {
         var tooltip = index[name];
 
         if (! tooltip) {
@@ -29,6 +29,7 @@ editor.once('load', function() {
 
         tooltip.attach({
             target: target,
+            panel: panel,
             element: element || target.element
         });
 
@@ -76,10 +77,11 @@ editor.once('load', function() {
         tooltip.attach = function(args) {
             var target = args.target;
             var element = args.element;
+            var targetPanel = args.panel || panel;
 
             var show = function() {
                 if (! target || target.hidden) return;
-                tooltip.position(panel.element.getBoundingClientRect().left, element.getBoundingClientRect().top + 16);
+                tooltip.position(targetPanel.element.getBoundingClientRect().left, element.getBoundingClientRect().top + 16);
                 tooltip.hidden = false;
             };
 
