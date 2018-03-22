@@ -313,6 +313,8 @@ editor.once('load', function () {
 
         editor.call('hotkey:unregister', 'sprite-editor-add-frames');
         editor.emit('picker:sprites:pickFrames:end');
+
+        selectSpriteFrames();
     });
 
     // if the selected sprite is deleted then deselect it
