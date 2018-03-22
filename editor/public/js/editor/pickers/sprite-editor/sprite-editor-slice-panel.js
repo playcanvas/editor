@@ -33,8 +33,8 @@ editor.once('load', function() {
             value: 1,
             enum: [
                 {v: 1, t: 'Grid By Cell Count'},
-                {v: 2, t: 'Grid By Cell Size'},
-                {v: 3, t: 'Auto'}
+                {v: 2, t: 'Grid By Cell Size'}
+                // {v: 3, t: 'Auto'}
             ]
         });
 
