@@ -9,6 +9,17 @@ function Observer(data, options) {
     this._keys = [ ];
     this._data = { };
 
+    // array paths where duplicate entries are allowed - normally
+    // we check if an array already has a value before inserting it
+    // but if the array path is in here we'll allow it
+    this._pathsWithDuplicates = null;
+    if (options.pathsWithDuplicates) {
+        this._pathsWithDuplicates = {};
+        for (var i = 0; i < options.pathsWithDuplicates.length; i++) {
+            this._pathsWithDuplicates[options.pathsWithDuplicates[i]] = true;
+        }
+    }
+
     this.patch(data);
 
     this._parent = options.parent || null;
@@ -604,8 +615,9 @@ Observer.prototype.removeValue = function(path, value, silent, remote) {
     var arr = node._data[key];
 
     var ind = arr.indexOf(value);
-    if (ind === -1)
+    if (ind === -1) {
         return;
+    }
 
     if (arr.length < ind)
         return;
@@ -666,8 +678,11 @@ Observer.prototype.insert = function(path, value, ind, silent, remote) {
         }
     }
 
-    if (arr.indexOf(value) !== -1)
-        return;
+    if (! this._pathsWithDuplicates || ! this._pathsWithDuplicates[path]) {
+        if (arr.indexOf(value) !== -1) {
+            return;
+        }
+    }
 
     if (ind === undefined) {
         arr.push(value);

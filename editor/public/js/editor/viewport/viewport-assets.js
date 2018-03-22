@@ -61,23 +61,16 @@ editor.once('load', function() {
                 }
             });
         } else if (asset.get('type') === 'sprite') {
-            asset.on('data.frameKeys:insert', function (value, index) {
+            var updateFrameKeys = function () {
                 if (! assetEngine.resource) return;
                 assetEngine.resource.frameKeys = asset.get('data.frameKeys');
                 editor.call('viewport:render');
-            });
+            };
 
-            asset.on('data.frameKeys:remove', function (value, index) {
-                if (! assetEngine.resource) return;
-                assetEngine.resource.frameKeys = asset.get('data.frameKeys');
-                editor.call('viewport:render');
-            });
-
-            asset.on('data.frameKeys:move', function (value, newIndex, oldIndex) {
-                if (! assetEngine.resource) return;
-                assetEngine.resource.frameKeys = asset.get('data.frameKeys');
-                editor.call('viewport:render');
-            });
+            asset.on('data.frameKeys:set', updateFrameKeys);
+            asset.on('data.frameKeys:insert', updateFrameKeys);
+            asset.on('data.frameKeys:remove', updateFrameKeys);
+            asset.on('data.frameKeys:move', updateFrameKeys);
         }
 
         // render

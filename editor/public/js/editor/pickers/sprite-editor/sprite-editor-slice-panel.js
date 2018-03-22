@@ -25,6 +25,8 @@ editor.once('load', function() {
                 { v: 2, t: 'Only Append' },
             ],
         });
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:slice:method', fieldMethod.parent.innerElement.firstChild.ui, null, panel);
 
         var fieldType = editor.call('attributes:addField', {
             parent: panel,
@@ -32,31 +34,37 @@ editor.once('load', function() {
             type: 'number',
             value: 1,
             enum: [
-                {v: 1, t: 'Grid By Cell Count'},
-                {v: 2, t: 'Grid By Cell Size'},
-                {v: 3, t: 'Auto'}
+                {v: 1, t: 'Grid By Frame Count'},
+                {v: 2, t: 'Grid By Frame Size'}
+                // {v: 3, t: 'Auto'}
             ]
         });
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:slice:type', fieldType.parent.innerElement.firstChild.ui, null, panel);
 
         var fieldColsRows = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Cell Count',
+            name: 'Frame Count',
             type: 'vec2',
             value: [1, 1],
             precision: 0,
             min: 1,
             placeholder: ['Cols', 'Rows']
         });
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:slice:count', fieldColsRows[0].parent.innerElement.firstChild.ui, null, panel);
 
         var fieldPixels = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Cell Size',
+            name: 'Frame Size',
             type: 'vec2',
             value: [atlasImage.width, atlasImage.height],
             precision: 0,
             min: 1,
             placeholder: ['X', 'Y']
         });
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:slice:size', fieldPixels[0].parent.innerElement.firstChild.ui, null, panel);
 
         var fieldOffset = editor.call('attributes:addField', {
             parent: panel,
@@ -67,6 +75,8 @@ editor.once('load', function() {
             min: 0,
             placeholder: ['X', 'Y']
         });
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:slice:offset', fieldOffset[0].parent.innerElement.firstChild.ui, null, panel);
 
         var fieldPadding = editor.call('attributes:addField', {
             parent: panel,
@@ -77,6 +87,8 @@ editor.once('load', function() {
             min: 0,
             placeholder: ['X', 'Y']
         });
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:slice:padding', fieldPadding[0].parent.innerElement.firstChild.ui, null, panel);
 
         // pivot presets
         var presetValues = [
@@ -108,6 +120,8 @@ editor.once('load', function() {
             ],
             value: 4
         });
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:slice:pivot', fieldPivot.parent.innerElement.firstChild.ui, null, panel);
 
         var toggleFields = function () {
             fieldColsRows[0].parent.hidden = fieldType.value !== 1;
@@ -128,6 +142,9 @@ editor.once('load', function() {
         });
 
         btnSlice.class.add('icon', 'slice');
+
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:slice:slice', btnSlice, null, panel);
 
         btnSlice.on('click', function () {
             btnSlice.disabled = true;
@@ -192,6 +209,9 @@ editor.once('load', function() {
         });
 
         btnClear.class.add('icon', 'remove');
+
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:slice:clear', btnClear, null, panel);
 
         btnClear.on('click', function () {
             editor.call('picker:confirm', 'Are you sure you want to delete all the frames?', function () {

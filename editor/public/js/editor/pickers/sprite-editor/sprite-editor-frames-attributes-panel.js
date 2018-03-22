@@ -29,6 +29,8 @@ editor.once('load', function() {
             link: atlasAsset,
             paths: frames.map(function (f) {return 'data.frames.' + f + '.name';})
         });
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:frame:name', fieldName.parent.innerElement.firstChild.ui, null, panel);
 
         // add field for frame rect but hide it and only use it for multi-editing
         // The user only will see position and size fields in pixels which is more helpful
@@ -89,7 +91,9 @@ editor.once('load', function() {
             var frameData = atlasAsset.getRaw('data.frames')._data;
 
             for (var i = 0, len = frames.length; i<len; i++) {
-                var rect = frameData[frames[i]]._data.rect;
+                var f = frameData[frames[i]];
+                if (! f) continue;
+                var rect = f._data.rect;
                 maxPos = Math.min(maxPos, dimension - rect[rectIndex]);
             }
 
@@ -105,7 +109,9 @@ editor.once('load', function() {
             var frameData = atlasAsset.getRaw('data.frames')._data;
 
             for (var i = 0, len = frames.length; i<len; i++) {
-                var rect = frameData[frames[i]]._data.rect;
+                var f = frameData[frames[i]];
+                if (! f) continue;
+                var rect = f._data.rect;
                 maxSize = Math.min(maxSize, dimension - rect[rectIndex]);
             }
 
@@ -181,6 +187,8 @@ editor.once('load', function() {
             min: 0,
             placeholder: ['→', '↑']
         });
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:frame:position', fieldPosition[0].parent.innerElement.firstChild.ui, null, panel);
 
         updatePositionX();
         updatePositionY();
@@ -212,6 +220,8 @@ editor.once('load', function() {
             min: 1,
             placeholder: ['→', '↑']
         });
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:frame:size', fieldSize[0].parent.innerElement.firstChild.ui, null, panel);
 
         updateSizeX();
         updateSizeY();
@@ -334,6 +344,8 @@ editor.once('load', function() {
                 { v: 8, t: 'Bottom Right' }
             ]
         });
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:frame:pivotPreset', fieldPivotPreset.parent.innerElement.firstChild.ui, null, panel);
 
         fieldPivotPreset.on('change', function (value) {
             if (suspendChanges) return;
@@ -399,6 +411,8 @@ editor.once('load', function() {
             link: atlasAsset,
             paths: frames.map(function (f) {return 'data.frames.' + f + '.pivot';})
         });
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:frame:pivot', fieldPivot[0].parent.innerElement.firstChild.ui, null, panel);
 
         fieldPivot[0].on('change', function (value) {
             if (suspendChanges) return;
@@ -433,6 +447,8 @@ editor.once('load', function() {
             min: 0,
             paths: frames.map(function (f) {return 'data.frames.' + f + '.border';})
         });
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:frame:border', fieldBorder[0].parent.innerElement.firstChild.ui, null, panel);
 
         var updateBorderMax = function () {
             // set left border max to not exceed the right border in any frame
@@ -444,8 +460,10 @@ editor.once('load', function() {
             var frameData = atlasAsset.getRaw('data.frames')._data;
 
             for (var i = 0, len = frames.length; i<len; i++) {
-                var rect = frameData[frames[i]]._data.rect;
-                var border = frameData[frames[i]]._data.border;
+                var f = frameData[frames[i]];
+                if (! f) continue;
+                var rect = f._data.rect;
+                var border = f._data.border;
                 maxLeft = Math.min(maxLeft, rect[2] - border[2]);
                 maxRight = Math.min(maxRight, rect[2] - border[0]);
                 maxBottom = Math.min(maxBottom, rect[3] - border[3]);
@@ -475,6 +493,9 @@ editor.once('load', function() {
         btnCreateSprite.class.add('icon', 'wide', 'create');
         panelButtons.append(btnCreateSprite);
 
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:frame:newsprite', btnCreateSprite, null, panel);
+
         btnCreateSprite.on('click', function () {
             btnCreateSprite.disabled = true;
             editor.call('picker:sprites:spriteFromSelection', function () {
@@ -489,6 +510,9 @@ editor.once('load', function() {
         btnTrim.class.add('icon', 'wide', 'trim');
         panelButtons.append(btnTrim);
 
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:frame:trim', btnTrim, null, panel);
+
         // trim transparent pixels around frame
         btnTrim.on('click', function () {
             editor.call('picker:sprites:trimFrames', frames);
@@ -500,6 +524,10 @@ editor.once('load', function() {
         });
         btnDelete.class.add('icon', 'wide', 'remove');
         panelButtons.append(btnDelete);
+
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:frame:delete', btnDelete, null, panel);
+
         btnDelete.on('click', function () {
             editor.call('picker:sprites:deleteFrames', frames, {
                 history: true

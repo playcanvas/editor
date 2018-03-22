@@ -12,6 +12,16 @@ editor.once('load', function() {
 
         var events = [];
 
+        // atlas id
+        var fieldId = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'ID',
+            link: atlasAsset,
+            path: 'id'
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'asset:id', fieldId.parent.innerElement.firstChild.ui, null, panel);
+
         // atlas width
         var fieldWidth = editor.call('attributes:addField', {
             parent: panel,
@@ -19,6 +29,8 @@ editor.once('load', function() {
             path: 'meta.width',
             link: atlasAsset
         });
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:atlas:width', fieldWidth.parent.innerElement.firstChild.ui, null, panel);
 
         // atlas height
         var fieldHeight = editor.call('attributes:addField', {
@@ -27,12 +39,16 @@ editor.once('load', function() {
             path: 'meta.height',
             link: atlasAsset
         });
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:atlas:height', fieldHeight.parent.innerElement.firstChild.ui, null, panel);
 
         // number of frames
         var fieldFrames = editor.call('attributes:addField', {
             parent: panel,
             name: 'Frames'
         });
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:atlas:frames', fieldFrames.parent.innerElement.firstChild.ui, null, panel);
 
         var timeout;
 

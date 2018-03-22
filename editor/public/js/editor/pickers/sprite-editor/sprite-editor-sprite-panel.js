@@ -32,6 +32,8 @@ editor.once('load', function() {
             link: spriteAsset,
             path: 'id'
         });
+        // reference
+        editor.call('attributes:reference:attach', 'asset:id', fieldId.parent.innerElement.firstChild.ui, null, panel);
 
         var fieldName = editor.call('attributes:addField', {
             parent: panel,
@@ -40,6 +42,8 @@ editor.once('load', function() {
             link: spriteAsset,
             path: 'name'
         });
+        // reference
+        editor.call('attributes:reference:attach', 'asset:name', fieldName.parent.innerElement.firstChild.ui, null, panel);
 
         events.push(fieldName.on('change', function (value) {
             rootPanel.header = 'SPRITE - ' + value;
@@ -52,6 +56,8 @@ editor.once('load', function() {
             link: spriteAsset,
             path: 'data.pixelsPerUnit'
         });
+        // reference
+        editor.call('attributes:reference:attach', 'asset:sprite:pixelsPerUnit', fieldPpu.parent.innerElement.firstChild.ui, null, panel);
 
         var fieldRenderMode = editor.call('attributes:addField', {
             parent: panel,
@@ -65,6 +71,8 @@ editor.once('load', function() {
             link: spriteAsset,
             path: 'data.renderMode'
         });
+        // reference
+        editor.call('attributes:reference:attach', 'asset:sprite:renderMode', fieldRenderMode.parent.innerElement.firstChild.ui, null, panel);
 
         var panelEdit = editor.call('attributes:addPanel', {
             parent: rootPanel,
@@ -79,6 +87,10 @@ editor.once('load', function() {
         btnAddFrames.flexGrow = 1;
         btnAddFrames.class.add('icon', 'wide', 'create');
         panelEdit.append(btnAddFrames);
+
+
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:sprites:addFrames', btnAddFrames, null, panel);
 
         btnAddFrames.on('click', function () {
             editor.call('picker:sprites:pickFrames');
@@ -115,6 +127,7 @@ editor.once('load', function() {
         panelFrames.class.add('frames');
 
         var draggedPanel = null;
+        var draggedIndex = null;
 
         var panels = [];
 
@@ -138,6 +151,7 @@ editor.once('load', function() {
 
             var onDragStart = function (evt) {
                 draggedPanel = panel;
+                draggedIndex = panels.indexOf(panel);
 
                 panel.class.add('dragged');
 
@@ -226,10 +240,18 @@ editor.once('load', function() {
 
             btnRemove.on('click', function (e) {
                 e.stopPropagation();
-                spriteAsset.removeValue('data.frameKeys', key);
+
+                var idx = panels.indexOf(panel);
+                if (idx !== -1) {
+                    spriteAsset.remove('data.frameKeys', idx);
+                }
             });
 
             panel.on('click', function () {
+                // do not select missing frames
+                if (! atlasAsset.has('data.frames.' + key)) return;
+
+                // select frame
                 editor.call('picker:sprites:selectFrames', key, {
                     history: true,
                     clearSprite: true
@@ -244,7 +266,9 @@ editor.once('load', function() {
                 frameEvents.length = 0;
 
                 handle.removeEventListener('mousedown', onDragStart);
-                if (panel.class.contains('dragged')) {
+                if (draggedPanel === panel) {
+                    draggedPanel = null;
+                    draggedIndex = null;
                     panelFrames.innerElement.removeEventListener('mousemove', onDragMove);
                     window.removeEventListener('mouseup', onDragEnd);
                 }
@@ -280,8 +304,7 @@ editor.once('load', function() {
         var onDragEnd = function () {
             if (! draggedPanel) return;
 
-            // get old index of panel
-            var oldIndex = spriteAsset.get('data.frameKeys').indexOf(draggedPanel._frameKey);
+            var oldIndex = draggedIndex;
             var newIndex = Array.prototype.indexOf.call(panelFrames.innerElement.childNodes, draggedPanel.element);
 
             // change order in sprite asset
@@ -289,10 +312,12 @@ editor.once('load', function() {
                 spriteAsset.move('data.frameKeys', oldIndex, newIndex);
             }
 
-            panelFrames.innerElement.removeEventListener('mousemove', onDragMove);
-            window.removeEventListener('mouseup', onDragEnd);
             draggedPanel.class.remove('dragged');
             draggedPanel = null;
+            draggedIndex = null;
+
+            panelFrames.innerElement.removeEventListener('mousemove', onDragMove);
+            window.removeEventListener('mouseup', onDragEnd);
         };
 
         for (var i = 0, len = frameKeys.length; i<len; i++) {
@@ -317,6 +342,13 @@ editor.once('load', function() {
         }));
 
         events.push(spriteAsset.on('data.frameKeys:move', function (value, indNew, indOld) {
+            // update the draggedIndex if another user dragged the same frame we're dragging
+            if (indOld === draggedIndex) {
+                draggedIndex = indNew;
+            }
+
+            if (draggedIndex === indNew) return;
+
             var movedPanel = panels[indOld];
             if (movedPanel && movedPanel._frameKey === value) {
                 panelFrames.remove(movedPanel);
