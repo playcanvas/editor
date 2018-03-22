@@ -296,12 +296,26 @@ editor.once('load', function () {
     overlay.on('show', function () {
         spriteEditMode = true;
         editor.emit('picker:sprites:pickFrames:start');
+
+        // Enter key to add frames and end sprite edit mode
+        editor.call('hotkey:register', 'sprite-editor-add-frames', {
+            key: 'enter',
+            callback: function () {
+                // do this in a timeout because this will terminate sprite edit mode
+                // which will unregister the hotkey which will cause an error because
+                // we are still in the hotkey execution loop
+                setTimeout(function () {
+                    editor.call('picker:sprites:pickFrames:add');
+                });
+            }
+        })
     });
 
     overlay.on('hide', function () {
         spriteEditMode = false;
         newSpriteFrames.length = 0;
 
+        editor.call('hotkey:unregister', 'sprite-editor-add-frames');
         editor.emit('picker:sprites:pickFrames:end');
     });
 

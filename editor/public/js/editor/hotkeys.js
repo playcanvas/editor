@@ -24,7 +24,7 @@ editor.once('load', function() {
         },
         'enter': {
             keyCode: 13,
-            code: [ 'enter', 'NumpadEnter' ],
+            code: [ 'enter', 'NumpadEnter', 'Enter' ],
         },
         'shift': {
             keyCode: 16,
