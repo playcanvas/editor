@@ -12,6 +12,14 @@ editor.once('load', function() {
 
         var events = [];
 
+        // atlas id
+        var fieldId = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'ID',
+            link: atlasAsset,
+            path: 'id'
+        });
+
         // atlas width
         var fieldWidth = editor.call('attributes:addField', {
             parent: panel,
