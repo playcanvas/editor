@@ -222,6 +222,14 @@ editor.once('load', function() {
             path: 'components.camera.layers',
             tagToString: function (tag) {
                 return projectSettings.get('layers.' + tag + '.name') || 'Missing';
+            },
+            onClickTag: function () {
+                // focus layer
+                var layerId = this.originalValue;
+                editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+                setTimeout(function () {
+                    editor.call('editorSettings:layers:focus', layerId);
+                });
             }
         });
 

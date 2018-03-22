@@ -77,6 +77,7 @@ editor.once('load', function() {
 
             var panelLayer = new ui.Panel(data.name);
             panelLayer.class.add('component', 'layer');
+            panelLayer.element.id = 'layer-panel-' + key;
             panelLayer.foldable = true;
             panelLayer.folded = true;
             indexLayerPanels[key] = panelLayer;
@@ -1033,5 +1034,14 @@ editor.once('load', function() {
 
             autoComplete.index = {};
         });
+    });
+
+    // Focus layer UI - only works if settings are open
+    editor.method('editorSettings:layers:focus', function (layerId) {
+        editor.call('editorSettings:panel:unfold', 'layers');
+        var panel = document.getElementById('layer-panel-' + layerId);
+        if (panel && panel.ui) {
+            panel.ui.folded = false;
+        }
     });
 });

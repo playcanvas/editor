@@ -199,6 +199,11 @@ editor.once('load', function() {
                 path: 'batchGroups.' + groupId + '.layers',
                 tagToString: function (tag) {
                     return projectSettings.get('layers.' + tag + '.name') || 'Missing';
+                },
+                onClickTag: function () {
+                    // focus layer
+                    var layerId = this.originalValue;
+                    editor.call('editorSettings:layers:focus', layerId);
                 }
             });
 

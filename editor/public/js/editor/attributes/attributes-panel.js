@@ -799,7 +799,6 @@ editor.once('load', function() {
 
                 // when tag field is initialized
                 var onSet = function (values) {
-                    console.log("setting tags field to: " + values);
                     for (var i = 0; i < values.length; i++) {
                         var value = values[i];
                         onInsert(value);
@@ -813,7 +812,19 @@ editor.once('load', function() {
                         var item = document.createElement('div');
                         tagItems[tag] = item;
                         item.classList.add('tag');
-                        item.textContent = args.tagToString ? args.tagToString(tag) : tag;
+                        var itemText = document.createElement('span');
+                        itemText.textContent = args.tagToString ? args.tagToString(tag) : tag;
+                        item.appendChild(itemText);
+
+                        // the original tag value before tagToString is called. Useful
+                        // if the tag value is an id for example
+                        item.originalValue = tag;
+
+                        // attach click handler on text part of the tag - bind the listener
+                        // to the tag item so that `this` refers to that tag in the listener
+                        if (args.onClickTag) {
+                            itemText.addEventListener('click', args.onClickTag.bind(item));
+                        }
 
                         var icon = document.createElement('span');
                         icon.innerHTML = '&#57650;';
