@@ -196,7 +196,7 @@ editor.once('load', function() {
                 projectSettings.history.enabled = false;
 
                 // find max key to insert new layer
-                var maxKey = 0;
+                var maxKey = 1000; // start at 1000 for user layers
                 var layers = projectSettings.get('layers');
                 for (var key in layers) {
                     maxKey = Math.max(parseInt(key, 10) + 1, maxKey);
