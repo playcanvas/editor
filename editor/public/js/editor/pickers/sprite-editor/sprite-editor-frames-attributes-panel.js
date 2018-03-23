@@ -503,6 +503,19 @@ editor.once('load', function() {
             });
         });
 
+        // focus frame
+        var btnFocus = new ui.Button({
+            text: 'Focus'
+        });
+        btnFocus.class.add('icon', 'wide', 'focus');
+        panelButtons.append(btnFocus);
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:frame:focus', btnFocus, null, panel);
+
+        btnFocus.on('click', function () {
+            editor.call('picker:sprites:focus');
+        });
+
         // trim rect
         var btnTrim = new ui.Button({
             text: 'Trim'
