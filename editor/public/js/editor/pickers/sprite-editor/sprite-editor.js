@@ -871,7 +871,31 @@ editor.once('load', function() {
     }
 
     var focus = function () {
-        resetControls();
+        var selected = editor.call('picker:sprites:selectedFrame');
+        // if we have a selected frame then focus on that
+        // otherwise completely reset view
+        if (selected) {
+            var frame = atlasAsset.getRaw('data.frames.' + selected)._data;
+
+            // these are derived by solving the equations so that frameLeft + frameWidth / 2 === canvas.width / 2
+            // and frameTop + frameHeight / 2 === canvas.height / 2
+            var frameWidthPercentage = (frame.rect[0] + frame.rect[2] / 2) / atlasImage.width;
+            var imageWidthPercentage = imageWidth() / canvas.width;
+
+            var frameHeightPercentage = (atlasImage.height - frame.rect[1] - frame.rect[3] * 0.5) / atlasImage.height;
+            var imageHeightPercentage = imageHeight() / canvas.height;
+
+            // set pivotX and pivotY and zero out the other offsets
+            pivotX = 0.5 - frameWidthPercentage * imageWidthPercentage;
+            pivotY = 0.5 - frameHeightPercentage * imageHeightPercentage;
+            zoomOffsetX = 0;
+            pivotOffsetX = 0;
+            zoomOffsetY = 0;
+            pivotOffsetY = 0;
+
+        } else {
+            resetControls();
+        }
         queueRender();
     };
 
