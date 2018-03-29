@@ -65,13 +65,21 @@ editor.once('load', function() {
                 if (match) {
                     var frameKey = match[1];
                     var frame = asset.get('data.frames.' + frameKey);
-                    if (frame) {
-                        realtimeAsset.resource.setFrame(frameKey, {
-                            rect: new pc.Vec4(frame.rect),
-                            pivot: new pc.Vec2(frame.pivot),
-                            border: new pc.Vec4(frame.border)
-                        });
+                    if (realtimeAsset.resource) {
+                        if (frame) {
+                            realtimeAsset.resource.setFrame(frameKey, {
+                                rect: new pc.Vec4(frame.rect),
+                                pivot: new pc.Vec2(frame.pivot),
+                                border: new pc.Vec4(frame.border)
+                            });
+                        }
                     }
+
+                    if (! realtimeAsset.data.frames) {
+                        realtimeAsset.data.frames = {};
+                    }
+
+                    realtimeAsset.data.frames[frameKey] = frame;
                 }
             } else {
                 // everything else
@@ -87,7 +95,13 @@ editor.once('load', function() {
                 var match = path.match(regexFrameRemove);
                 if (match) {
                     var frameKey = match[1];
-                    realtimeAsset.resource.removeFrame(frameKey);
+                    if (realtimeAsset.resource) {
+                        realtimeAsset.resource.removeFrame(frameKey);
+                    }
+
+                    if (realtimeAsset.data.frames && realtimeAsset.data.frames[frameKey]) {
+                        delete realtimeAsset.data.frames[frameKey];
+                    }
 
                     editor.call('viewport:render');
                 }
@@ -102,8 +116,13 @@ editor.once('load', function() {
         if (asset.get('type') === 'sprite') {
             var onFrameKeys = function () {
                 var realtimeAsset = app.assets.get(asset.get('id'));
-                if (! realtimeAsset) return;
-                realtimeAsset.resource.frameKeys = asset.get('data.frameKeys');
+                if (realtimeAsset) {
+                    if (realtimeAsset.resource) {
+                        realtimeAsset.resource.frameKeys = asset.get('data.frameKeys');
+                    }
+
+                    realtimeAsset.data.frameKeys = asset.get('data.frameKeys');
+                }
             };
 
             asset.on('data.frameKeys:set', onFrameKeys);

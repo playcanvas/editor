@@ -304,7 +304,9 @@ editor.once('load', function() {
         // 'F' hotkey to focus canvas
         editor.call('hotkey:register', 'sprite-editor-focus', {
             key: 'f',
-            callback: focus
+            callback: function () {
+                editor.call('picker:sprites:focus');
+            }
         });
 
         // Esc to deselect and if no selection close the window
@@ -600,7 +602,7 @@ editor.once('load', function() {
         }
 
         var zoom = controls.get('zoom');
-        controls.set('zoom', Math.max(1, zoom + wheel * 0.1));
+        controls.set('zoom', Math.max(0.75, zoom + wheel * 0.1));
     };
 
     var clamp = function (value, minValue, maxValue) {
@@ -869,11 +871,6 @@ editor.once('load', function() {
             }
         }
     }
-
-    var focus = function () {
-        resetControls();
-        queueRender();
-    };
 
 
     var startPanning = function (x, y) {
@@ -1715,6 +1712,36 @@ editor.once('load', function() {
 
     // Queue re-render
     editor.method('picker:sprites:queueRender', queueRender);
+
+    // Focus the selected frame if one exists otherwise resets view
+    editor.method('picker:sprites:focus', function () {
+        var selected = editor.call('picker:sprites:selectedFrame');
+        // if we have a selected frame then focus on that
+        // otherwise completely reset view
+        if (selected) {
+            var frame = atlasAsset.getRaw('data.frames.' + selected)._data;
+
+            // these are derived by solving the equations so that frameLeft + frameWidth / 2 === canvas.width / 2
+            // and frameTop + frameHeight / 2 === canvas.height / 2
+            var frameWidthPercentage = (frame.rect[0] + frame.rect[2] / 2) / atlasImage.width;
+            var imageWidthPercentage = imageWidth() / canvas.width;
+
+            var frameHeightPercentage = (atlasImage.height - frame.rect[1] - frame.rect[3] * 0.5) / atlasImage.height;
+            var imageHeightPercentage = imageHeight() / canvas.height;
+
+            // set pivotX and pivotY and zero out the other offsets
+            pivotX = 0.5 - frameWidthPercentage * imageWidthPercentage;
+            pivotY = 0.5 - frameHeightPercentage * imageHeightPercentage;
+            zoomOffsetX = 0;
+            pivotOffsetX = 0;
+            zoomOffsetY = 0;
+            pivotOffsetY = 0;
+
+        } else {
+            resetControls();
+        }
+        queueRender();
+    });
 
     // Update inspector when selection changes
     editor.on('picker:sprites:framesSelected', function () {

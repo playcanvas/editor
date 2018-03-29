@@ -31,18 +31,26 @@ editor.once('load', function() {
         asset.on('*:set', function (path, value) {
 
             // handle frame changes for texture atlas
-            if (asset.get('type') === 'textureatlas' && assetEngine.resource) {
+            if (asset.get('type') === 'textureatlas') {
                 var match = path.match(regexFrameUpdate);
                 if (match) {
                     var frameKey = match[1];
                     var frame = asset.get('data.frames.' + frameKey);
-                    if (frame) {
-                        assetEngine.resource.setFrame(frameKey, {
-                            rect: new pc.Vec4(frame.rect),
-                            pivot: new pc.Vec2(frame.pivot),
-                            border: new pc.Vec4(frame.border)
-                        });
+
+                    if (assetEngine.resource) {
+                        if (frame) {
+                            assetEngine.resource.setFrame(frameKey, {
+                                rect: new pc.Vec4(frame.rect),
+                                pivot: new pc.Vec2(frame.pivot),
+                                border: new pc.Vec4(frame.border)
+                            });
+                        }
                     }
+
+                    if (! assetEngine.data.frames) {
+                        assetEngine.data.frames = {};
+                    }
+                    assetEngine.data.frames[frameKey] = frame;
                 }
             }
 
@@ -51,19 +59,29 @@ editor.once('load', function() {
 
         if (asset.get('type') === 'textureatlas') {
             asset.on('*:unset', function (path) {
-                if (! assetEngine.resource) return;
                 var match = path.match(regexFrameRemove);
                 if (match) {
                     var frameKey = match[1];
-                    assetEngine.resource.removeFrame(frameKey);
+
+                    if (assetEngine.resource) {
+                        assetEngine.resource.removeFrame(frameKey);
+                    }
+
+                    if (assetEngine.frames && assetEngine.frames[frameKey]) {
+                        delete assetEngine.frames;
+                    }
 
                     editor.call('viewport:render');
                 }
             });
         } else if (asset.get('type') === 'sprite') {
             var updateFrameKeys = function () {
-                if (! assetEngine.resource) return;
-                assetEngine.resource.frameKeys = asset.get('data.frameKeys');
+                if (assetEngine.resource) {
+                    assetEngine.resource.frameKeys = asset.get('data.frameKeys');
+                }
+
+                assetEngine.data.frameKeys = asset.get('data.frameKeys');
+
                 editor.call('viewport:render');
             };
 

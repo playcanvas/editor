@@ -6409,6 +6409,10 @@ strong {
                         content: '\E358';
                     }
 
+                    &.focus:before {
+                        content: '\E335';
+                    }
+
                     &.slice:before {
                         content: '\E332';
                     }

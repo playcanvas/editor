@@ -150,16 +150,16 @@ editor.once('load', function() {
     });
     menu.append(menuItemReferences);
 
-    // var menuItemTextureToAtlas = new ui.MenuItem({
-    //     text: 'Convert to Atlas',
-    //     icon: '&#57857;',
-    //     value: 'texture-to-atlas'
-    // });
-    // menu.append(menuItemTextureToAtlas);
+    var menuItemTextureToAtlas = new ui.MenuItem({
+        text: 'Create Atlas',
+        icon: '&#58162;',
+        value: 'texture-to-atlas'
+    });
+    menu.append(menuItemTextureToAtlas);
 
-    // menuItemTextureToAtlas.on('select', function () {
-    // });
-
+    menuItemTextureToAtlas.on('select', function () {
+        editor.call('assets:textureToAtlas', currentAsset);
+    });
 
     // replace
     var replaceAvailable = {
@@ -328,6 +328,9 @@ editor.once('load', function() {
                 menuItemEdit.hidden = true;
             }
 
+            // create atlas
+            menuItemTextureToAtlas.hidden = (currentAsset.get('type') !== 'texture' || currentAsset.get('source') || currentAsset.get('task') || ! editor.call('permissions:write'));
+
             // delete
             menuItemDelete.hidden = false;
 
@@ -363,6 +366,8 @@ editor.once('load', function() {
 
                     while(menuItemReferences.innerElement.firstChild)
                         menuItemReferences.innerElement.firstChild.ui.destroy();
+
+                    menuItemTextureToAtlas.disabled = true;
 
                     var menuItems = [ ];
 
@@ -440,6 +445,7 @@ editor.once('load', function() {
                 } else {
                     menuItemReferences.hidden = true;
                     menuItemReplace.hidden = true;
+                    menuItemTextureToAtlas.disabled = false;
                 }
             } else {
                 menuItemReferences.hidden = true;
@@ -457,6 +463,7 @@ editor.once('load', function() {
             menuItemDelete.hidden = true;
             menuItemReferences.hidden = true;
             menuItemReplace.hidden = true;
+            menuItemTextureToAtlas.hidden = true;
         }
 
         for(var i = 0; i < customMenuItems.length; i++) {

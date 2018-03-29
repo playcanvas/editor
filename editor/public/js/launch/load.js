@@ -52,7 +52,6 @@ editor.once('load', function() {
         });
 
         connection.on('error', function(msg) {
-            console.log('3');
             editor.emit('realtime:error', msg);
         });
 
