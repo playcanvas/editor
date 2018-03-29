@@ -602,7 +602,7 @@ editor.once('load', function() {
         }
 
         var zoom = controls.get('zoom');
-        controls.set('zoom', Math.max(1, zoom + wheel * 0.1));
+        controls.set('zoom', Math.max(0.75, zoom + wheel * 0.1));
     };
 
     var clamp = function (value, minValue, maxValue) {
