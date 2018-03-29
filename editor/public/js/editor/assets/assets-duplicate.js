@@ -6,7 +6,7 @@ editor.once('load', function() {
         var parent = path.length ? path[path.length - 1] : null;
 
         var raw = {
-            // todo: why type is by default `material`?
+            // only materials can be duplicated at the moment
             type: 'material',
             name: asset.get('name') + ' Copy',
             tags: asset.get('tags'),
