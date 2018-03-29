@@ -108,17 +108,19 @@ editor.once('load', function() {
     Application.prototype.setEditorSettings = function (settings) {
         this.editorSettings = settings;
 
+        var gridLayer = editor.call('gizmo:layers', 'Viewport Grid');
+
          if (this.grid) {
-             this.scene.layers.getLayerById(pc.LAYERID_WORLD).removeMeshInstances(this.grid.model.meshInstances);
+             gridLayer.removeMeshInstances(this.grid.model.meshInstances);
              this.grid.destroy();
          }
 
          settings.gridDivisions = parseInt(settings.gridDivisions, 10);
-         if (settings.gridDivisions > 0) {
+         if (settings.gridDivisions > 0 && settings.gridDivisionSize > 0) {
              var size = settings.gridDivisions * settings.gridDivisionSize;
              this.grid = new pc.Grid(this.graphicsDevice, size, settings.gridDivisions);
              this.grid.model.meshInstances[0].aabb.halfExtents.set(size / 2, size / 2, size / 2);
-             this.scene.layers.getLayerById(pc.LAYERID_WORLD).addMeshInstances(this.grid.model.meshInstances);
+             gridLayer.addMeshInstances(this.grid.model.meshInstances);
          }
 
         this.redraw = true;

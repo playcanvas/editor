@@ -89,6 +89,8 @@ editor.once('load', function() {
 
     });
 
+    // Grid layer
+    editor.call('gizmo:layers:register', 'Viewport Grid', true);
     // Layer before every scene layer
     editor.call('gizmo:layers:register', 'Bright Gizmo', true);
     // First layer after every scene layer
