@@ -6,6 +6,11 @@ editor.once('load', function() {
         var editorCameras = { };
         var currentCamera = null;
         var defaultCamera = null;
+
+        var evtLayersSet = null;
+        var evtLayersInsert = null;
+        var evtLayersRemove = null;
+
         var app = editor.call('viewport:app');
         if (! app) return; // webgl not available
 
@@ -23,6 +28,29 @@ editor.once('load', function() {
             return currentCamera;
         });
 
+        var addGizmoLayers = function (camera, layers) {
+            for (var i = 0; i < layers.length; i++) {
+                var layer = layers[i];
+                var idx = camera.layers.indexOf(layer.id);
+                if (idx === -1) {
+                    camera.layers.push(layer.id);
+                }
+            }
+            camera.layers = camera.layers; // force update
+        };
+
+        var removeGizmoLayers = function (camera, layers) {
+            for (var i = 0; i < layers.length; i++) {
+                var layer = layers[i];
+                var idx = camera.layers.indexOf(layer.id);
+                if (idx !== -1) {
+                    camera.layers.splice(idx, 1);
+                }
+            }
+
+            camera.layers = camera.layers; // force update
+        };
+
         editor.method('camera:set', function(entity) {
             if (! entity) entity = defaultCamera;
 
@@ -34,29 +62,53 @@ editor.once('load', function() {
             var old = currentCamera;
             if (old) {
                 old.camera.enabled = false;
-                for (var i = 0; i < gizmoLayers.length; i++) {
-                    var layer = gizmoLayers[i];
-                    var idx = old.camera.layers.indexOf(layer.id);
-                    if (idx !== -1) {
-                        old.camera.layers.splice(idx, 1);
-                    }
+                removeGizmoLayers(old.camera, gizmoLayers);
+
+                if (evtLayersSet) {
+                    evtLayersSet.unbind();
+                    evtLayersSet = null;
                 }
 
-                old.camera.layers = old.camera.layers; // force update
+                if (evtLayersInsert) {
+                    evtLayersInsert.unbind();
+                    evtLayersInsert = null;
+                }
+
+                if (evtLayersRemove) {
+                    evtLayersRemove.unbind();
+                    evtLayersRemove = null;
+                }
             }
 
             currentCamera = entity;
             currentCamera.camera.enabled = true;
 
-            for (var i = 0; i < gizmoLayers.length; i++) {
-                var layer = gizmoLayers[i];
-                var idx = currentCamera.camera.layers.indexOf(layer.id);
-                if (idx === -1) {
-                    currentCamera.camera.layers.push(layer.id);
+            addGizmoLayers(currentCamera.camera, gizmoLayers);
+
+            // if this is a user's camera and the user changes its layers
+            // make sure we re-add editor layers to this camera if this is the selected viewport
+            // camera at the moment
+            if (! entity.__editorCamera) {
+                var fixLayers = function () {
+                    if (entity !== currentCamera) return;
+
+                    setTimeout(function () {
+                        // check again
+                        if (entity !== currentCamera) return;
+
+                        // add layers and re-render
+                        addGizmoLayers(entity.camera, editor.call('gizmo:layers:list'));
+                        editor.call('viewport:render');
+                    });
+                };
+
+                var e = editor.call('entities:get', entity.getGuid());
+                if (e) {
+                    evtLayersInsert = e.on('components.camera.layers:insert', fixLayers);
+                    evtLayersRemove = e.on('components.camera.layers:remove', fixLayers);
+                    evtLayersSet = e.on('components.camera.layers:set', fixLayers);
                 }
             }
-            currentCamera.camera.layers = currentCamera.camera.layers; // force update
-
 
             editor.emit('camera:change', currentCamera, old);
             editor.call('viewport:render');
