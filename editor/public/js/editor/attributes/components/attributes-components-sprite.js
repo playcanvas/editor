@@ -293,6 +293,19 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'sprite:layers', fieldLayers.parent.parent.innerElement.firstChild.ui);
 
+        // draw order
+        var fieldDrawOrder = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Draw Order',
+            type: 'number',
+            link: entities,
+            path: 'components.sprite.drawOrder'
+        });
+
+        // reference
+        editor.call('attributes:reference:attach', 'sprite:drawOrder', fieldDrawOrder.parent.innerElement.firstChild.ui);
+
+
         var fieldAutoPlay = editor.call('attributes:addField', {
             parent: panel,
             name: 'Auto Play',

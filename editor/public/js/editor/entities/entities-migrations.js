@@ -212,6 +212,10 @@ editor.once('load', function() {
                     entity.set('components.sprite.layers', []);
                     entity.insert('components.sprite.layers', pc.LAYERID_WORLD);
                 }
+                // draw order
+                if (! entity.has('components.sprite.drawOrder')) {
+                    entity.set('components.sprite.drawOrder', 0);
+                }
             }
 
             entity.history.enabled = true;

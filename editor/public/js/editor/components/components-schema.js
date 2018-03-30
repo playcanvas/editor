@@ -399,6 +399,7 @@ editor.once('load', function() {
                 autoPlayClip: null,
                 speed: 1,
                 batchGroupId: null,
+                drawOrder: 0,
                 layers: [pc.LAYERID_WORLD]
             },
             types: {
