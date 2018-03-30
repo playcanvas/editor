@@ -132,7 +132,7 @@ editor.once('load', function() {
                 previewLayer.enabled = true;
 
                 if (lastCamera && lastCamera !== camera) {
-                    if (lastCamera && lastCamera.entity && lastCamera.data) {
+                    if (lastCamera && lastCamera.entity && lastCamera.data && lastCamera.entity !== currentCamera) {
                         lastCamera.enabled = false;
                         lastCamera.camera.cullingMask = DEFAULT_CULLING_MASK;
                     }
@@ -151,7 +151,7 @@ editor.once('load', function() {
             if (previewLayer) previewLayer.enabled = false;
             if (lastCamera) {
                 // ### DISABLE CAMERA ###
-                if (lastCamera && lastCamera.entity && lastCamera.data) {
+                if (lastCamera && lastCamera.entity && lastCamera.data && lastCamera.entity !== currentCamera) {
                     lastCamera.enabled = false;
                     lastCamera.camera.cullingMask = DEFAULT_CULLING_MASK;
                 }
