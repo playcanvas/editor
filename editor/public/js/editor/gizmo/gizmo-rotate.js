@@ -133,7 +133,6 @@ editor.once('load', function() {
                         evtTapStart = editor.on('viewport:tap:start', onTapStart);
 
                     hoverAxis = node.axis;
-                    console.log(hoverAxis);
 
                     // set active material
                     gizmo.line[hoverAxis].material = gizmo.matActive;
