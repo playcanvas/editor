@@ -14,9 +14,6 @@ editor.once('load', function() {
     var gizmoPos = new pc.Vec3();
     var gizmoMoving = false;
     var gizmoAxis;
-    var linesColorActive = new pc.Color(1, 1, 1, 1);
-    var linesColor = new pc.Color(1, 1, 1, .2);
-    var linesColorBehind = new pc.Color(1, 1, 1, .05);
 
     editor.on('gizmo:coordSystem', function(system) {
         if (coordSystem === system)

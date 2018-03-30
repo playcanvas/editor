@@ -71,7 +71,7 @@ editor.once('viewport:load', function(app) {
         firstPan = true;
 
         var camera = editor.call('camera:current');
-        var point = editor.call('camera:depth:pixelAt', camera.camera.camera, tap.x, tap.y);
+        var point = editor.call('camera:depth:pixelAt', camera.camera, tap.x, tap.y);
 
         panCamera = camera;
         editor.call('camera:history:start', panCamera);

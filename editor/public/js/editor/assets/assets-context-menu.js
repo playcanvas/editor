@@ -60,6 +60,7 @@ editor.once('load', function() {
         'cubemap': '&#57879;',
         'html': '&#57864;',
         'json': '&#57864;',
+        'layers': '&#57992',
         'material': '&#57749;',
         'script': '&#57864;',
         'shader': '&#57864;',

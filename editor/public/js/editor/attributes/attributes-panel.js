@@ -563,34 +563,60 @@ editor.once('load', function() {
                 panel.append(field);
                 break;
 
-            case 'strings':
+            case 'tags':
+                // TODO: why isn't this in a seperate class/file???
+
                 var innerPanel = new ui.Panel();
+                var tagType = args.tagType || 'string';
 
-                field = new ui.TextField();
-                field.blurOnEnter = false;
-                field.renderChanges = false;
-                innerPanel.append(field);
+                if (args.enum) {
+                    field = new ui.SelectField({
+                        options: args.enum,
+                        type: tagType
+                    });
+                    field.renderChanges = false;
+                    field.on('change', function (value) {
+                        if (tagType === 'string') {
+                            if (! value) return;
 
-                field.element.addEventListener('keydown', function(evt) {
-                    if (evt.keyCode !== 13 || ! field.value)
-                        return;
+                            value = value.trim();
+                        }
 
-                    addTag(field.value.trim());
-                    field.value = '';
-                });
+                        addTag(value);
+                        field.value = '';
+                    });
 
-                var btnAdd = new ui.Button({
-                    text: '&#57632'
-                });
-                btnAdd.flexGrow = 0;
-                btnAdd.on('click', function() {
-                    if (! field.value)
-                        return;
+                    innerPanel.append(field);
 
-                    addTag(field.value.trim());
-                    field.value = '';
-                });
-                innerPanel.append(btnAdd);
+                } else {
+                    field = new ui.TextField();
+                    field.blurOnEnter = false;
+                    field.renderChanges = false;
+
+                    field.element.addEventListener('keydown', function(evt) {
+                        if (evt.keyCode !== 13 || ! field.value)
+                            return;
+
+                        addTag(field.value.trim());
+                        field.value = '';
+                    });
+
+                    innerPanel.append(field);
+
+                    var btnAdd = new ui.Button({
+                        text: '&#57632'
+                    });
+                    btnAdd.flexGrow = 0;
+                    btnAdd.on('click', function() {
+                        if (! field.value)
+                            return;
+
+                        addTag(field.value.trim());
+                        field.value = '';
+                    });
+                    innerPanel.append(btnAdd);
+                }
+
 
                 var tagsPanel = new ui.Panel();
                 tagsPanel.class.add('tags');
@@ -609,7 +635,13 @@ editor.once('load', function() {
                 };
 
                 var removeTag = function(tag) {
-                    if (! tag || ! tagIndex.hasOwnProperty(tag))
+                    if (tagType === 'string' && ! tag) {
+                        return;
+                    } else if (tag === null || tag === undefined) {
+                        return;
+                    }
+
+                    if (! tagIndex.hasOwnProperty(tag))
                         return;
 
                     var records = [ ];
@@ -670,6 +702,13 @@ editor.once('load', function() {
 
                 var addTag = function(tag) {
                     var records = [ ];
+
+                    // convert to number if needed
+                    if (args.tagType === 'number') {
+                        tag = parseInt(tag, 10);
+                        if (isNaN(tag))
+                            return;
+                    }
 
                     for(var i = 0; i < args.link.length; i++) {
                         var path = pathAt(args, i);
@@ -758,6 +797,14 @@ editor.once('load', function() {
                     }
                 };
 
+                // when tag field is initialized
+                var onSet = function (values) {
+                    for (var i = 0; i < values.length; i++) {
+                        var value = values[i];
+                        onInsert(value);
+                    }
+                };
+
                 var insertElement = function(tag) {
                     if (! tagItems[tag]) {
                         sortTags();
@@ -765,7 +812,19 @@ editor.once('load', function() {
                         var item = document.createElement('div');
                         tagItems[tag] = item;
                         item.classList.add('tag');
-                        item.textContent = tag;
+                        var itemText = document.createElement('span');
+                        itemText.textContent = args.tagToString ? args.tagToString(tag) : tag;
+                        item.appendChild(itemText);
+
+                        // the original tag value before tagToString is called. Useful
+                        // if the tag value is an id for example
+                        item.originalValue = tag;
+
+                        // attach click handler on text part of the tag - bind the listener
+                        // to the tag item so that `this` refers to that tag in the listener
+                        if (args.onClickTag) {
+                            itemText.addEventListener('click', args.onClickTag.bind(item));
+                        }
 
                         var icon = document.createElement('span');
                         icon.innerHTML = '&#57650;';
@@ -791,6 +850,11 @@ editor.once('load', function() {
 
                 var sortTags = function() {
                     tagList.sort(function(a, b) {
+                        if (args.tagToString) {
+                            a = args.tagToString(a);
+                            b = args.tagToString(b);
+                        }
+
                         if (a > b) {
                             return 1;
                         } else if (a < b) {
@@ -816,6 +880,7 @@ editor.once('load', function() {
                             var path = pathAt(args, i);
                             var tags = args.link[i].get(path);
 
+                            args.linkEvents.push(args.link[i].on(path + ':set', onSet));
                             args.linkEvents.push(args.link[i].on(path + ':insert', onInsert));
                             args.linkEvents.push(args.link[i].on(path + ':remove', onRemove));
 
@@ -823,8 +888,11 @@ editor.once('load', function() {
                                 continue;
 
                             for(var t = 0; t < tags.length; t++) {
-                                if (! tags[t])
+                                if (tagType === 'string' && ! tags[t]) {
                                     continue;
+                                } else if (tags[t] === null || tags[t] === undefined) {
+                                    continue;
+                                }
 
                                 if (! tagIndex.hasOwnProperty(tags[t])) {
                                     tagIndex[tags[t]] = 0;

@@ -55,7 +55,7 @@ pc.Grid = function (device, size, divisions) {
     var node = new pc.GraphNode('grid');
 
     var meshInstance = new pc.MeshInstance(node, mesh, material);
-    meshInstance.mask = 8;
+    meshInstance.mask = GIZMO_MASK;
 
     var model = new pc.Model();
     model.graph = node;

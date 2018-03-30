@@ -22,6 +22,24 @@ editor.once('load', function () {
     var poolModels = { 'box': [ ], 'sphere': [ ] };
     var shapes = { 0: 'box', 1: 'sphere' };
 
+    var layerBack = editor.call('gizmo:layers', 'Bright Gizmo');
+    var layerFront = editor.call('gizmo:layers', 'Dim Gizmo');
+
+    // hack: override addModelToLayers to selectively put some
+    // mesh instances to the front and others to the back layer depending
+    // on the __useFrontLayer property
+    var addModelToLayers = function () {
+        var frontMeshInstances = this.meshInstances.filter(function (mi) {
+            return mi.__useFrontLayer;
+        });
+        var backMeshInstances = this.meshInstances.filter(function (mi) {
+            return ! mi.__useFrontLayer;
+        });
+
+        layerFront.addMeshInstances(frontMeshInstances);
+        layerBack.addMeshInstances(backMeshInstances);
+    };
+
     // gizmo class
     function Gizmo() {
         this._link = null;
@@ -68,10 +86,17 @@ editor.once('load', function () {
                 if (! model) {
                     // no in pool
                     model = models[this.type].clone();
+                    for (var i = 0; i < model.meshInstances.length; i++) {
+                        model.meshInstances[i].__useFrontLayer = models[this.type].meshInstances[i].__useFrontLayer;
+                    }
                     model._type = this.type;
                 }
                 // set to model
                 this.entity.model.model = model;
+                // mask meshinstance from camera preview
+                model.meshInstances.forEach(function (mi) {
+                    mi.mask = GIZMO_MASK;
+                });
                 this.entity.setLocalScale(1, 1, 1);
             } else {
                 this.entity.enabled = false;
@@ -80,8 +105,6 @@ editor.once('load', function () {
             }
         }
 
-        var mat = materialBehind;
-
         switch(this.type) {
             case 'sphere':
                 this.entity.setLocalScale(particles.emitterRadius || .000001, particles.emitterRadius || .000001, particles.emitterRadius || .000001);
@@ -89,12 +112,6 @@ editor.once('load', function () {
             case 'box':
                 this.entity.setLocalScale(particles.emitterExtents.x / 2 || .00001, particles.emitterExtents.y / 2 || .00001, particles.emitterExtents.z / 2 || .00001);
                 break;
-        }
-
-        // render behind model
-        if (this.entity.enabled && this.entity.model.model) {
-            var instance = new pc.MeshInstance(this.entity.model.model.meshInstances[0].node, this.entity.model.model.meshInstances[0].mesh, mat);
-            app.scene.immediateDrawCalls.push(instance);
         }
     };
     // link to entity
@@ -114,8 +131,10 @@ editor.once('load', function () {
         this.entity.addComponent('model', {
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [layerFront.id, layerBack.id]
         });
+        this.entity.model.addModelToLayers = addModelToLayers;
 
         container.addChild(this.entity);
     };
@@ -285,11 +304,17 @@ editor.once('load', function () {
         mesh.primitive[0].indexed = false;
         // meshInstance
         meshInstance = new pc.MeshInstance(node, mesh, materialDefault);
+        meshInstance.mask = GIZMO_MASK;
         meshInstance.updateKey();
+
+        var meshInstanceBehind = new pc.MeshInstance(node, mesh, materialBehind);
+        meshInstanceBehind.mask = GIZMO_MASK;
+        meshInstanceBehind.__useFrontLayer = true;
+
         // model
         model = new pc.Model();
         model.graph = node;
-        model.meshInstances = [ meshInstance ];
+        model.meshInstances = [ meshInstance, meshInstanceBehind ];
         models['box'] = model;
 
 
@@ -327,10 +352,14 @@ editor.once('load', function () {
         // meshInstance
         meshInstance = new pc.MeshInstance(node, mesh, materialDefault);
         meshInstance.updateKey();
+
+        meshInstanceBehind = new pc.MeshInstance(node, mesh, materialBehind);
+        meshInstanceBehind.__useFrontLayer = true;
+
         // model
         model = new pc.Model();
         model.graph = node;
-        model.meshInstances = [ meshInstance ];
+        model.meshInstances = [ meshInstance, meshInstanceBehind ];
         models['sphere'] = model;
     });
 

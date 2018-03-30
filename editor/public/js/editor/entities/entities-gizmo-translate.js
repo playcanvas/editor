@@ -17,6 +17,8 @@ editor.once('load', function() {
     var linesColorActive = new pc.Color(1, 1, 1, 1);
     var linesColor = new pc.Color(1, 1, 1, .2);
     var linesColorBehind = new pc.Color(1, 1, 1, .05);
+    var immediateRenderOptions;
+    var brightImmediateRenderOptions;
 
     editor.on('gizmo:coordSystem', function(system) {
         if (coordSystem === system)
@@ -263,11 +265,11 @@ editor.once('load', function() {
                 quat.transformVector(vecB, vecB).add(pos);
                 vecC.set(camera.camera.farClip * -2, 0, 0);
                 quat.transformVector(vecC, vecC).add(pos);
-                app.renderLine(vecB, vecC, linesColorBehind, pc.LINEBATCH_GIZMO);
+                app.renderLine(vecB, vecC, linesColorBehind, immediateRenderOptions);
                 if ((gizmoAxis === 'x' && ! gizmoPlane) || (gizmoPlane && (gizmoAxis === 'y' || gizmoAxis === 'z'))) {
-                    app.renderLine(vecB, vecC, linesColorActive);
+                    app.renderLine(vecB, vecC, linesColorActive, brightImmediateRenderOptions);
                 } else {
-                    app.renderLine(vecB, vecC, linesColor);
+                    app.renderLine(vecB, vecC, linesColor, brightImmediateRenderOptions);
                 }
 
                 // y
@@ -275,11 +277,11 @@ editor.once('load', function() {
                 quat.transformVector(vecB, vecB).add(pos);
                 vecC.set(0, camera.camera.farClip * -2, 0);
                 quat.transformVector(vecC, vecC).add(pos);
-                app.renderLine(vecB, vecC, linesColorBehind, pc.LINEBATCH_GIZMO);
+                app.renderLine(vecB, vecC, linesColorBehind, immediateRenderOptions);
                 if ((gizmoAxis === 'y' && ! gizmoPlane) || (gizmoPlane && (gizmoAxis === 'x' || gizmoAxis === 'z'))) {
-                    app.renderLine(vecB, vecC, linesColorActive);
+                    app.renderLine(vecB, vecC, linesColorActive, brightImmediateRenderOptions);
                 } else {
-                    app.renderLine(vecB, vecC, linesColor);
+                    app.renderLine(vecB, vecC, linesColor, brightImmediateRenderOptions);
                 }
 
                 // z
@@ -287,11 +289,11 @@ editor.once('load', function() {
                 quat.transformVector(vecB, vecB).add(pos);
                 vecC.set(0, 0, camera.camera.farClip * -2);
                 quat.transformVector(vecC, vecC).add(pos);
-                app.renderLine(vecB, vecC, linesColorBehind, pc.LINEBATCH_GIZMO);
+                app.renderLine(vecB, vecC, linesColorBehind, immediateRenderOptions);
                 if ((gizmoAxis === 'z' && ! gizmoPlane) || (gizmoPlane && (gizmoAxis === 'x' || gizmoAxis === 'y'))) {
-                    app.renderLine(vecB, vecC, linesColorActive);
+                    app.renderLine(vecB, vecC, linesColorActive, brightImmediateRenderOptions);
                 } else {
-                    app.renderLine(vecB, vecC, linesColor);
+                    app.renderLine(vecB, vecC, linesColor, brightImmediateRenderOptions);
                 }
             }
         }
@@ -299,6 +301,14 @@ editor.once('load', function() {
 
     editor.once('viewport:load', function() {
         app = editor.call('viewport:app');
+
+        immediateRenderOptions = {
+            layer: editor.call("gizmo:layers", 'Axis Gizmo Immediate')
+        };
+
+        brightImmediateRenderOptions = {
+            layer: editor.call("gizmo:layers", 'Bright Gizmo')
+        }
     });
 
     var updateChildRelation = function() {

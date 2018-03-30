@@ -8,6 +8,8 @@ editor.once('load', function() {
 
         var events = [ ];
 
+        var projectSettings = editor.call('settings:project');
+
         var panel = editor.call('attributes:entity:addComponentPanel', {
             title: 'Element',
             name: 'element',
@@ -647,8 +649,13 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'element:useInput', fieldUseInput.parent.innerElement.firstChild.ui);
 
+        // divider
+        var divider = document.createElement('div');
+        divider.classList.add('fields-divider');
+        panel.append(divider);
+
         // batch group
-        var batchGroups = editor.call('settings:project').get('batchGroups');
+        var batchGroups = projectSettings.get('batchGroups');
         var batchEnum = {
             '': '...',
             'NaN': 'None'
@@ -678,7 +685,7 @@ editor.once('load', function() {
         // Create new batch group, assign it to the selected entities and focus on it in the settings panel
         btnAddGroup.addEventListener('click', function () {
             var group = editor.call('editorSettings:batchGroups:create');
-            batchEnum[group] = editor.call('settings:project').get('batchGroups.' + group + '.name');
+            batchEnum[group] = projectSettings.get('batchGroups.' + group + '.name');
             fieldBatchGroup._updateOptions(batchEnum);
             fieldBatchGroup.value = group;
             editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
@@ -686,6 +693,43 @@ editor.once('load', function() {
                 editor.call('editorSettings:batchGroups:focus', group);
             });
         });
+
+        // layers
+        var layers = projectSettings.get('layers');
+        var layersEnum = {
+            '': ''
+        };
+        for (var key in layers) {
+            layersEnum[key] = layers[key].name;
+        }
+        delete layersEnum[pc.LAYERID_DEPTH];
+        delete layersEnum[pc.LAYERID_SKYBOX];
+        delete layersEnum[pc.LAYERID_IMMEDIATE];
+
+        var fieldLayers = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Layers',
+            type: 'tags',
+            tagType: 'number',
+            enum: layersEnum,
+            placeholder: 'Add Layer',
+            link: entities,
+            path: 'components.element.layers',
+            tagToString: function (tag) {
+                return projectSettings.get('layers.' + tag + '.name') || 'Missing';
+            },
+            onClickTag: function () {
+                // focus layer
+                var layerId = this.originalValue;
+                editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+                setTimeout(function () {
+                    editor.call('editorSettings:layers:focus', layerId);
+                });
+            }
+        });
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:layers', fieldLayers.parent.parent.innerElement.firstChild.ui);
 
         var toggleFields = function () {
             var spriteTester = editor.call('users:isSpriteTester');

@@ -1476,7 +1476,16 @@ a:visited {
             margin: 4px;
             background-color: #07f;
         }
+
+        &[placeholder]:empty:before {
+            content:  attr(placeholder);
+            position: absolute;
+            left: 8px;
+            font-size: 12px;
+        }
     }
+
+
     > ul {
         display: none;
         position: fixed;

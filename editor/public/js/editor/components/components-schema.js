@@ -45,7 +45,8 @@ editor.once('load', function() {
                 cookieChannel: 'rgb',
                 cookieAngle: 0.0,
                 cookieOffset: [ 0.0, 0.0 ],
-                cookieScale: [ 1.0, 1.0 ]
+                cookieScale: [ 1.0, 1.0 ],
+                layers: [pc.LAYERID_WORLD]
             },
             types: {
                 color: 'rgb',
@@ -118,7 +119,8 @@ editor.once('load', function() {
                 nearClip: 0.1,
                 farClip: 1000,
                 priority: 0,
-                rect: [0, 0, 1, 1]
+                rect: [0, 0, 1, 1],
+                layers: [pc.LAYERID_WORLD, pc.LAYERID_DEPTH, pc.LAYERID_SKYBOX, pc.LAYERID_IMMEDIATE, pc.LAYERID_UI]
             },
             types: {
                 clearColor: 'rgb',
@@ -155,7 +157,8 @@ editor.once('load', function() {
                 receiveShadows: true,
                 lightMapped: false,
                 lightMapSizeMultiplier: 1.0,
-                batchGroupId: null
+                batchGroupId: null,
+                layers: [pc.LAYERID_WORLD]
             }
         },
 
@@ -366,7 +369,8 @@ editor.once('load', function() {
                 autoHeight: false,
                 materialAsset: null,
                 batchGroupId: null,
-                mask: false
+                mask: false,
+                layers: [pc.LAYERID_UI]
             },
             types: {
                 anchor: 'vec4',
@@ -394,7 +398,8 @@ editor.once('load', function() {
                 clips: {},
                 autoPlayClip: null,
                 speed: 1,
-                batchGroupId: null
+                batchGroupId: null,
+                layers: [pc.LAYERID_WORLD]
             },
             types: {
                 color: 'rgb'

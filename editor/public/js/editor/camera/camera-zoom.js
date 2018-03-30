@@ -63,7 +63,7 @@ editor.once('viewport:load', function() {
                         var mouseWPos = camera.camera.screenToWorld(mouseCoords.x, mouseCoords.y, 1);
                         var rayDirection = vecB.copy(mouseWPos).sub(camera.getPosition()).normalize();
 
-                        var point = editor.call('camera:depth:pixelAt', camera.camera.camera, mouseCoords.x, mouseCoords.y);
+                        var point = editor.call('camera:depth:pixelAt', camera.camera, mouseCoords.x, mouseCoords.y);
                         if (point) {
                             point.sub(camera.getPosition());
                             distance = Math.max(1, Math.min(zoomMax, point.length()));

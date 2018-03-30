@@ -1008,7 +1008,7 @@ editor.once('load', function() {
 
             if (attribute.array) {
                 if (attribute.type === 'string') {
-                    type = 'strings';
+                    type = 'tags';
                 } else {
                     type = null;
                 }

@@ -17,14 +17,14 @@ editor.once('load', function() {
         this.grid = null;
         this.setEditorSettings(options.editorSettings);
 
-        this.picker = new pc.scene.Picker(this.graphicsDevice, 1, 1);
+        this.picker = new pc.Picker(this, 1, 1);
         this.shading = pc.RENDERSTYLE_SOLID;
 
         // Draw immediately
         this.redraw = true;
 
         // define the tick method
-        this.tick = this.makeTick();;
+        this.tick = this.makeTick();
 
         pc.ComponentSystem.on('toolsUpdate', this.systems.particlesystem.onUpdate, this.systems.particlesystem);
         pc.ComponentSystem.on('toolsUpdate', this.systems.animation.onUpdate, this.systems.animation);
@@ -42,17 +42,9 @@ editor.once('load', function() {
         this.fire('prerender', null);
         editor.emit('viewport:preRender');
 
-        var device = this.graphicsDevice;
-        var dw = device.width;
-        var dh = device.height;
-
         // render current camera
         var cameraEntity = editor.call('camera:current');
         if (cameraEntity && cameraEntity.camera) {
-            var cameraNode = cameraEntity.camera.camera;
-
-            cameraNode.renderTarget = null;
-
             if (cameraEntity.__editorCamera) {
                 var clearColor = this.editorSettings.cameraClearColor;
                 cameraEntity.camera.clearColor = new pc.Color(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
@@ -63,11 +55,10 @@ editor.once('load', function() {
             }
 
             cameraEntity.camera.rect = rect;
-
-            cameraEntity.camera.frameBegin();
-            this.renderer.render(this.scene, cameraNode);
-            cameraEntity.camera.frameEnd();
         }
+
+        this.renderer.renderComposition(this.scene.layers);
+        this.fire('postrender');
     };
 
     Application.prototype.getDt = function () {
@@ -97,6 +88,7 @@ editor.once('load', function() {
                 editor.emit('viewport:update', dt);
                 pc.ComponentSystem.fire('toolsUpdate', dt);
                 editor.emit('viewport:postUpdate', dt);
+
                 editor.emit('viewport:gizmoUpdate', dt);
 
                 app.render();
@@ -116,18 +108,20 @@ editor.once('load', function() {
     Application.prototype.setEditorSettings = function (settings) {
         this.editorSettings = settings;
 
-        if (this.grid) {
-            this.scene.removeModel(this.grid.model);
-            this.grid.destroy();
-        }
+        var gridLayer = editor.call('gizmo:layers', 'Viewport Grid');
 
-        settings.gridDivisions = parseInt(settings.gridDivisions, 10);
-        if (settings.gridDivisions > 0) {
-            var size = settings.gridDivisions * settings.gridDivisionSize;
-            this.grid = new pc.Grid(this.graphicsDevice, size, settings.gridDivisions);
-            this.grid.model.meshInstances[0].aabb.halfExtents.set(size / 2, size / 2, size / 2);
-            this.scene.addModel(this.grid.model);
-        }
+         if (this.grid) {
+             gridLayer.removeMeshInstances(this.grid.model.meshInstances);
+             this.grid.destroy();
+         }
+
+         settings.gridDivisions = parseInt(settings.gridDivisions, 10);
+         if (settings.gridDivisions > 0 && settings.gridDivisionSize > 0) {
+             var size = settings.gridDivisions * settings.gridDivisionSize;
+             this.grid = new pc.Grid(this.graphicsDevice, size, settings.gridDivisions);
+             this.grid.model.meshInstances[0].aabb.halfExtents.set(size / 2, size / 2, size / 2);
+             gridLayer.addMeshInstances(this.grid.model.meshInstances);
+         }
 
         this.redraw = true;
     };

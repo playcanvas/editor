@@ -22,6 +22,24 @@ editor.once('load', function () {
     var models = { };
     var poolModels = { 'directional': [ ], 'point': [ ], 'point-close': [ ], 'spot': [ ] };
 
+    var layerFront = editor.call('gizmo:layers', 'Bright Gizmo');
+    var layerBack = editor.call('gizmo:layers', 'Dim Gizmo');
+
+    // hack: override addModelToLayers to selectively put some
+    // mesh instances to the front and others to the back layer depending
+    // on the __useFrontLayer property
+    var addModelToLayers = function () {
+        var frontMeshInstances = this.meshInstances.filter(function (mi) {
+            return mi.__useFrontLayer;
+        });
+        var backMeshInstances = this.meshInstances.filter(function (mi) {
+            return ! mi.__useFrontLayer;
+        });
+
+        layerBack.addMeshInstances(frontMeshInstances);
+        layerFront.addMeshInstances(backMeshInstances);
+    };
+
     // gizmo class
     function Gizmo() {
         this._link = null;
@@ -59,7 +77,8 @@ editor.once('load', function () {
                 var model = this.entity.model.model;
                 if (model) {
                     // put back in pool
-                    app.scene.removeModel(model);
+                    layerBack.removeMeshInstances(model.meshInstances);
+                    layerFront.removeMeshInstances(model.meshInstances);
                     this.entity.removeChild(model.getGraph());
                     poolModels[model._type].push(model);
                 }
@@ -68,11 +87,17 @@ editor.once('load', function () {
                 if (! model) {
                     // no in pool
                     model = models[this.type].clone();
+                    for (var i = 0; i < model.meshInstances.length; i++) {
+                        model.meshInstances[i].__useFrontLayer = models[this.type].meshInstances[i].__useFrontLayer;
+                        // model.meshInstances[i].mask = GIZMO_MASK;
+                    }
                     model._type = this.type;
                 }
                 // set to model
                 this.entity.model.model = model;
-                model.meshInstances[0].mask = 8;
+                model.meshInstances.forEach(function (mi) {
+                    mi.mask = GIZMO_MASK;
+                });
                 this.entity.setLocalScale(1, 1, 1);
                 this.entity.setEulerAngles(0, 0, 0);
             } else {
@@ -100,23 +125,29 @@ editor.once('load', function () {
                 this.entity.model.model.meshInstances[0].setParameter('range', light.range);
                 this.entity.model.model.meshInstances[0].setParameter('innerAngle', light.innerConeAngle);
                 this.entity.model.model.meshInstances[0].setParameter('outerAngle', light.outerConeAngle);
+                this.entity.model.model.meshInstances[1].setParameter('range', light.range);
+                this.entity.model.model.meshInstances[1].setParameter('innerAngle', light.innerConeAngle);
+                this.entity.model.model.meshInstances[1].setParameter('outerAngle', light.outerConeAngle);
                 material = materialSpotBehind;
                 break;
         }
 
-        // render behind model
-        if (this.entity.enabled && this.entity.model.model) {
-            var instance = new pc.MeshInstance(this.entity, this.entity.model.model.meshInstances[0].mesh, material);
-            instance.mask = 8;
-            instance.pick = false;
-            if (this.type === 'spot') {
-                instance.layer = pc.LAYER_GIZMO;
-                instance.setParameter('range', light.range);
-                instance.setParameter('innerAngle', light.innerConeAngle);
-                instance.setParameter('outerAngle', light.outerConeAngle);
-            }
-            app.scene.immediateDrawCalls.push(instance);
-        }
+        // // render behind model
+        // if (this.entity.enabled && this.entity.model.model) {
+        //     // var instance = new pc.MeshInstance(this.entity, this.entity.model.model.meshInstances[0].mesh, material);
+        //     // instance.__useFrontLayer = true;
+        //     // instance.mask = 8;
+        //     // instance.pick = false;
+        //     if (this.type === 'spot') {
+        //         // instance.layer = pc.LAYER_GIZMO;
+        //         this.entity.model.model.meshInstances[1]
+        //         instance.setParameter('range', light.range);
+        //         instance.setParameter('innerAngle', light.innerConeAngle);
+        //         instance.setParameter('outerAngle', light.outerConeAngle);
+        //     }
+
+        //     // app.scene.immediateDrawCalls.push(instance);
+        // }
     };
     // link to entity
     Gizmo.prototype.link = function(obj) {
@@ -135,8 +166,10 @@ editor.once('load', function () {
         this.entity.addComponent('model', {
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [layerBack.id, layerFront.id]
         });
+        this.entity.model.addModelToLayers = addModelToLayers;
 
         container.addChild(this.entity);
     };
@@ -157,7 +190,8 @@ editor.once('load', function () {
         var model = this.entity.model.model;
         if (model) {
             // put back in pool
-            app.scene.removeModel(model);
+            layerBack.removeMeshInstances(model.meshInstances);
+            layerFront.removeMeshInstances(model.meshInstances);
             this.entity.removeChild(model.getGraph());
             poolModels[model._type].push(model);
         }
@@ -337,13 +371,19 @@ editor.once('load', function () {
         mesh.primitive[0].indexed = false;
         // meshInstance
         meshInstance = new pc.MeshInstance(node, mesh, material);
-        meshInstance.mask = 8;
+        meshInstance.mask = GIZMO_MASK;
         meshInstance.pick = false;
-        meshInstance.updateKey();
+        // meshInstance.updateKey();
+
+        var meshInstanceBehind = new pc.MeshInstance(node, mesh, materialBehind);
+        meshInstanceBehind.__useFrontLayer = true;
+        meshInstanceBehind.mask = GIZMO_MASK;
+        meshInstanceBehind.pick = false;
+
         // model
         model = new pc.Model();
         model.graph = node;
-        model.meshInstances = [ meshInstance ];
+        model.meshInstances = [ meshInstance, meshInstanceBehind ];
         models['directional'] = model;
 
         // ================
@@ -371,13 +411,19 @@ editor.once('load', function () {
         mesh.primitive[0].indexed = false;
         // meshInstance
         meshInstance = new pc.MeshInstance(node, mesh, material);
-        meshInstance.mask = 8;
+        meshInstance.mask = GIZMO_MASK;
         meshInstance.pick = false;
-        meshInstance.updateKey();
+        // meshInstance.updateKey();
+
+        meshInstanceBehind = new pc.MeshInstance(node, mesh, materialBehind);
+        meshInstanceBehind.__useFrontLayer = true;
+        meshInstanceBehind.mask = GIZMO_MASK;
+        meshInstanceBehind.pick = false;
+
         // model
         model = new pc.Model();
         model.graph = node;
-        model.meshInstances = [ meshInstance ];
+        model.meshInstances = [ meshInstance, meshInstanceBehind ];
         models['point'] = model;
 
 
@@ -414,13 +460,19 @@ editor.once('load', function () {
         mesh.primitive[0].indexed = false;
         // meshInstance
         meshInstance = new pc.MeshInstance(node, mesh, material);
-        meshInstance.mask = 8;
+        meshInstance.mask = GIZMO_MASK;
         meshInstance.pick = false;
         meshInstance.updateKey();
+
+        meshInstanceBehind = new pc.MeshInstance(node, mesh, materialBehind);
+        meshInstanceBehind.__useFrontLayer = true;
+        meshInstanceBehind.mask = GIZMO_MASK;
+        meshInstanceBehind.pick = false;
+
         // model
         model = new pc.Model();
         model.graph = node;
-        model.meshInstances = [ meshInstance ];
+        model.meshInstances = [ meshInstance, meshInstanceBehind ];
         models['point-close'] = model;
 
 
@@ -474,13 +526,19 @@ editor.once('load', function () {
         mesh.primitive[0].indexed = false;
         // meshInstance
         meshInstance = new pc.MeshInstance(node, mesh, materialSpot);
-        meshInstance.mask = 8;
+        meshInstance.mask = GIZMO_MASK;
         meshInstance.pick = false;
-        meshInstance.updateKey();
+        // meshInstance.updateKey();
+
+        meshInstanceBehind = new pc.MeshInstance(node, mesh, materialSpotBehind);
+        meshInstanceBehind.__useFrontLayer = true;
+        meshInstanceBehind.mask = GIZMO_MASK;
+        meshInstanceBehind.pick = false;
+
         // model
         model = new pc.Model();
         model.graph = node;
-        model.meshInstances = [ meshInstance ];
+        model.meshInstances = [ meshInstance, meshInstanceBehind ];
         models['spot'] = model;
     });
 

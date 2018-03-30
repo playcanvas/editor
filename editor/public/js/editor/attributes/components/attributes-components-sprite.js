@@ -8,6 +8,8 @@ editor.once('load', function() {
 
         var events = [ ];
 
+        var projectSettings = editor.call('settings:project');
+
         // group clips by name
         var numEntities = entities.length;
         var groupedClips = {};
@@ -213,18 +215,6 @@ editor.once('load', function() {
             });
         }
 
-        var fieldAutoPlay = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Auto Play',
-            type: 'string',
-            link: entities,
-            path: 'components.sprite.autoPlayClip',
-            enum: enumAutoPlay
-        });
-        window.dis = fieldAutoPlay;
-
-        // reference
-        editor.call('attributes:reference:attach', 'sprite:autoPlayClip', fieldAutoPlay.parent.innerElement.firstChild.ui);
 
         // batch group
         var batchGroups = editor.call('settings:project').get('batchGroups');
@@ -264,6 +254,56 @@ editor.once('load', function() {
 
         // reference
         editor.call('attributes:reference:attach', 'sprite:batchGroupId', fieldBatchGroup.parent.innerElement.firstChild.ui);
+
+        // layers
+        var layers = projectSettings.get('layers');
+        var layersEnum = {
+            '': ''
+        };
+        for (var key in layers) {
+            layersEnum[key] = layers[key].name;
+        }
+        delete layersEnum[pc.LAYERID_DEPTH];
+        delete layersEnum[pc.LAYERID_SKYBOX];
+        delete layersEnum[pc.LAYERID_IMMEDIATE];
+
+
+        var fieldLayers = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Layers',
+            type: 'tags',
+            tagType: 'number',
+            enum: layersEnum,
+            placeholder: 'Add Layer',
+            link: entities,
+            path: 'components.sprite.layers',
+            tagToString: function (tag) {
+                return projectSettings.get('layers.' + tag + '.name') || 'Missing';
+            },
+            onClickTag: function () {
+                // focus layer
+                var layerId = this.originalValue;
+                editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+                setTimeout(function () {
+                    editor.call('editorSettings:layers:focus', layerId);
+                });
+            }
+        });
+
+        // reference
+        editor.call('attributes:reference:attach', 'sprite:layers', fieldLayers.parent.parent.innerElement.firstChild.ui);
+
+        var fieldAutoPlay = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Auto Play',
+            type: 'string',
+            link: entities,
+            path: 'components.sprite.autoPlayClip',
+            enum: enumAutoPlay
+        });
+
+        // reference
+        editor.call('attributes:reference:attach', 'sprite:autoPlayClip', fieldAutoPlay.parent.innerElement.firstChild.ui);
 
         // clips
         var panelClips = new ui.Panel();

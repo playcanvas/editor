@@ -30,7 +30,6 @@ editor.once('load', function() {
     var quadMaterial = new pc.Material();
     var selectedIds = { };
 
-
     // icon class
     function Icon() {
         var self = this;
@@ -57,19 +56,24 @@ editor.once('load', function() {
 
         var self = this;
 
-        this.entity = new pc.Entity(app);
+        this.entity = new pc.Entity('front', app);
         this.entity._icon = true;
         this.entity._getEntity = function() {
             return self._link && self._link.entity || null;
         };
+
+        var layerFront = editor.call('gizmo:layers', 'Bright Gizmo');
+        var layerBehind = editor.call('gizmo:layers', 'Dim Gizmo');
+
         this.entity.addComponent('model', {
             type: 'plane',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [layerFront.id],
         });
         this.entity.model.meshInstances[0].__editor = true;
-        this.entity.model.meshInstances[0].mask = 8;
+        this.entity.model.meshInstances[0].mask = GIZMO_MASK;
 
         if (this._link && this._link.entity)
             this.entity.setPosition(this._link.entity.getPosition());
@@ -78,7 +82,7 @@ editor.once('load', function() {
         this.entity.setRotation(cameraRotation);
         this.entity.rotateLocal(90, 0, 0);
 
-        this.behind = new pc.Entity(app);
+        this.behind = new pc.Entity('behind', app);
         this.behind._icon = true;
         this.behind._getEntity = this.entity._getEntity;
         this.entity.addChild(this.behind);
@@ -86,10 +90,11 @@ editor.once('load', function() {
             type: 'plane',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [layerBehind.id]
         });
-        this.behind.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
-        this.behind.model.model.meshInstances[0].mask = 8;
+        // this.behind.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
+        this.behind.model.model.meshInstances[0].mask = GIZMO_MASK;
         this.behind.model.model.meshInstances[0].pick = false;
 
         iconsEntity.addChild(this.entity);

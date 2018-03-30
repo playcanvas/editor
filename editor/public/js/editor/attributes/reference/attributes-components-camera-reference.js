@@ -58,6 +58,12 @@ editor.once('load', function() {
         subTitle: '{pc.Vec4}',
         description: 'A rectangle that specifies the viewport onto the camera\'s attached render target. This allows you to implement features like split-screen or picture-in-picture. It is defined by normalised coordinates (0 to 1) in the following format: x: The lower left x coordinate y: The lower left y coordinate w: The width of the rectangle h: The height of the rectangle',
         url: 'http://developer.playcanvas.com/api/pc.CameraComponent.html#rect'
+    }, {
+        name: 'layers',
+        title: 'layers',
+        subTitle: '{Number[]}',
+        description: 'The layers that this camera will render.',
+        url: 'http://developer.playcanvas.com/api/pc.CameraComponent.html#layers'
     }];
 
     for(var i = 0; i < fields.length; i++) {

@@ -66,6 +66,12 @@ editor.once('load', function() {
         name: 'addClip',
         title: 'Add Clip',
         description: 'Add a new Sprite Animation Clip.'
+    }, {
+        name: 'layers',
+        title: 'layers',
+        subTitle: '{Number[]}',
+        description: 'The layers that this sprite belongs to. When a sprite belongs to multiple layers it will be rendered multiple times.',
+        url: 'http://developer.playcanvas.com/api/pc.SpriteComponent.html#layers'
     }];
 
     for(var i = 0; i < fields.length; i++) {

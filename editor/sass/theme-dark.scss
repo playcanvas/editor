@@ -1039,6 +1039,11 @@ a:visited {
             color: $text-darkest;
             background-color: transparent;
         }
+
+        &[placeholder]:empty:before {
+            color: $text-darkest;
+            background-color: transparent;
+        }
     }
     > ul {
         color: $text-secondary;
