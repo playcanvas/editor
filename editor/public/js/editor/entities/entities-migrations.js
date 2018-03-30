@@ -218,6 +218,15 @@ editor.once('load', function() {
                 }
             }
 
+            // particles
+            if (entity.has('components.particlesystem')) {
+                // layers
+                if (! entity.has('components.particlesystem.layers')) {
+                    entity.set('components.particlesystem.layers', []);
+                    entity.insert('components.particlesystem.layers', pc.LAYERID_WORLD);
+                }
+            }
+
             entity.history.enabled = true;
         }, 0);
     });

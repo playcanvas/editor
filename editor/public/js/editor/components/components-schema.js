@@ -198,6 +198,7 @@ editor.once('load', function() {
                 colorMapAsset: null,
                 normalMapAsset: null,
                 mesh: null,
+                layers: [pc.LAYERID_WORLD],
                 localVelocityGraph: {
                     type: 1,
                     keys: [[0, 0], [0, 0], [0, 0]],
