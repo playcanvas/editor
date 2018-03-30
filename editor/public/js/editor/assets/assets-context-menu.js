@@ -368,8 +368,6 @@ editor.once('load', function() {
                     while(menuItemReferences.innerElement.firstChild)
                         menuItemReferences.innerElement.firstChild.ui.destroy();
 
-                    menuItemTextureToAtlas.disabled = true;
-
                     var menuItems = [ ];
 
                     var addReferenceItem = function(type, id) {
@@ -446,7 +444,6 @@ editor.once('load', function() {
                 } else {
                     menuItemReferences.hidden = true;
                     menuItemReplace.hidden = true;
-                    menuItemTextureToAtlas.disabled = false;
                 }
             } else {
                 menuItemReferences.hidden = true;
