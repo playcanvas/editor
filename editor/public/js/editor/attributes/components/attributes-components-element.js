@@ -394,6 +394,8 @@ editor.once('load', function() {
             fieldWidth.renderChanges = !fieldWidth.disabled;
             fieldHeight.disabled = hasSplitAnchors(false) || (fieldAutoHeight.value && fieldType.value === 'text');
             fieldHeight.renderChanges = !fieldHeight.disabled;
+            fieldAutoWidth.disabled = hasSplitAnchors(true);
+            fieldAutoHeight.disabled = hasSplitAnchors(false);
         };
 
         toggleSize();
@@ -413,10 +415,10 @@ editor.once('load', function() {
         var toggleMargin = function () {
             var horizontalSplit = hasSplitAnchors(true);
             var verticalSplit = hasSplitAnchors(false);
-            fieldMargin[0].disabled = ! horizontalSplit || (fieldAutoWidth.value && fieldType.value === 'text');
+            fieldMargin[0].disabled = ! horizontalSplit;
             fieldMargin[2].disabled = fieldMargin[0].disabled;
 
-            fieldMargin[1].disabled = ! verticalSplit || (fieldAutoHeight.value && fieldType.value === 'text');
+            fieldMargin[1].disabled = ! verticalSplit;
             fieldMargin[3].disabled = fieldMargin[1].disabled;
 
             for (var i = 0; i < 4; i++)
