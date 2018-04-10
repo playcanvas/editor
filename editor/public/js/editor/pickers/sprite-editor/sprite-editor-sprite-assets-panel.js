@@ -1,31 +1,31 @@
 editor.once('load', function() {
     'use strict';
 
-    editor.method('picker:sprites:attributes:spriteassets', function(args) {
+    editor.method('picker:sprites:spriteassets', function(args) {
+        // TODO: make this a bottom panel
+        return;
+
         var events = [];
 
         var atlasAsset = args.atlasAsset;
 
-        var rootPanel = editor.call('picker:sprites:rightPanel');
+        var rootPanel = editor.call('picker:sprites:leftPanel');
 
         // Sprites assets associated with this atlas
-        var panel = editor.call('attributes:addPanel', {
+        var panelSpriteAssets = editor.call('attributes:addPanel', {
             parent: rootPanel,
-            name: 'SPRITE ASSETS',
-            foldable: true,
+            name: 'SPRITE ASSETS'
         });
+
+        panelSpriteAssets.class.add('sprite-assets');
 
         // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:sprites', panel, panel.headerElement, rootPanel);
+        editor.call('attributes:reference:attach', 'spriteeditor:sprites', panelSpriteAssets, panelSpriteAssets.headerElement, rootPanel);
 
         var fieldSprites = editor.call('attributes:addField', {
-            parent: panel,
+            parent: panelSpriteAssets,
             name: 'No. of sprites'
         });
-
-        var panelSpriteAssets = new ui.Panel();
-        panelSpriteAssets.class.add('sprite-assets');
-        panel.append(panelSpriteAssets);
 
         // holds all panels indexed by asset id
         var panelsIndex = {};
@@ -206,10 +206,10 @@ editor.once('load', function() {
         }));
 
         events.push(rootPanel.on('clear', function () {
-            panel.destroy();
+            panelSpriteAssets.destroy();
         }));
 
-        panel.on('destroy', function () {
+        panelSpriteAssets.on('destroy', function () {
             for (var i = 0, len = events.length; i<len; i++) {
                 events[i].unbind();
             }

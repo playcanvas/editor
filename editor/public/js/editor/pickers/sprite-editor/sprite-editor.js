@@ -1375,7 +1375,6 @@ editor.once('load', function() {
             } else {
                 editor.call('picker:sprites:attributes:atlas', atlasAsset);
                 editor.call('picker:sprites:attributes:slice', {atlasAsset: atlasAsset, atlasImage: atlasImage, atlasImageData: atlasImageData});
-                editor.call('picker:sprites:attributes:spriteassets', {atlasAsset: atlasAsset});
             }
         }
     };
@@ -1524,6 +1523,8 @@ editor.once('load', function() {
         if (! atlasAsset)
             return;
 
+        panel.header = 'SPRITE EDITOR - ' + atlasAsset.get('name').toUpperCase();
+
         // show overlay
         overlay.hidden = false;
 
@@ -1544,6 +1545,8 @@ editor.once('load', function() {
                 atlasImage: atlasImage
             });
 
+            editor.call('picker:sprites:spriteassets', {atlasAsset: atlasAsset});
+
             editor.emit('picker:sprites:open');
 
             if (_spriteAsset) {
@@ -1559,6 +1562,9 @@ editor.once('load', function() {
         // listen to atlas changes and render
         events.push(atlasAsset.on('*:set', queueRender));
         events.push(atlasAsset.on('*:unset', queueRender));
+        events.push(atlasAsset.on('name:set', function (value) {
+            panel.header = 'SPRITE EDITOR - ' + value.toUpperCase();
+        }));
 
         // resize 20 times a second - if size is the same nothing will happen
         if (resizeInterval) {

@@ -10,7 +10,11 @@ editor.once('load', function() {
         var numFrames = frames.length;
 
         var rootPanel = editor.call('picker:sprites:rightPanel');
-        rootPanel.header = numFrames > 1 ? 'MULTIPLE FRAMES' : 'FRAME';
+        if (numFrames > 1) {
+            rootPanel.header = 'FRAME INSPECTOR - MULTIPLE FRAMES';
+        } else {
+            rootPanel.header = 'FRAME INSPECTOR - ' + atlasAsset.get('data.frames.' + frames[0] + '.name');
+        }
 
         editor.call('picker:sprites:attributes:frames:preview', {
             atlasAsset: atlasAsset,
@@ -31,6 +35,12 @@ editor.once('load', function() {
         });
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:frame:name', fieldName.parent.innerElement.firstChild.ui, null, panel);
+
+        fieldName.on('change', function (value) {
+            if (numFrames === 1) {
+                rootPanel.header = 'FRAME INSPECTOR - ' + value;
+            }
+        });
 
         // add field for frame rect but hide it and only use it for multi-editing
         // The user only will see position and size fields in pixels which is more helpful
@@ -488,7 +498,7 @@ editor.once('load', function() {
 
         // new sprite
         var btnCreateSprite = new ui.Button({
-            text: 'New Sprite'
+            text: 'New Sprite From Selection'
         });
         btnCreateSprite.class.add('icon', 'wide', 'create');
         panelButtons.append(btnCreateSprite);
@@ -505,7 +515,7 @@ editor.once('load', function() {
 
         // focus frame
         var btnFocus = new ui.Button({
-            text: 'Focus'
+            text: 'Focus On Selection'
         });
         btnFocus.class.add('icon', 'wide', 'focus');
         panelButtons.append(btnFocus);
@@ -518,7 +528,7 @@ editor.once('load', function() {
 
         // trim rect
         var btnTrim = new ui.Button({
-            text: 'Trim'
+            text: 'Trim Selected Frames'
         });
         btnTrim.class.add('icon', 'wide', 'trim');
         panelButtons.append(btnTrim);
@@ -533,7 +543,7 @@ editor.once('load', function() {
 
         // delete frame
         var btnDelete = new ui.Button({
-            text: 'Delete'
+            text: 'Delete Selected Frames'
         });
         btnDelete.class.add('icon', 'wide', 'remove');
         panelButtons.append(btnDelete);

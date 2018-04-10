@@ -14,7 +14,7 @@ editor.once('load', function() {
         var events = [];
 
         var rootPanel = editor.call('picker:sprites:rightPanel');
-        rootPanel.header = 'SPRITE - ' + spriteAsset.get('name');
+        rootPanel.header = 'SPRITE ASSET - ' + spriteAsset.get('name');
 
         var fieldPreview = editor.call('picker:sprites:attributes:frames:preview', {
             atlasAsset: atlasAsset,
@@ -46,7 +46,7 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'asset:name', fieldName.parent.innerElement.firstChild.ui, null, panel);
 
         events.push(fieldName.on('change', function (value) {
-            rootPanel.header = 'SPRITE - ' + value;
+            rootPanel.header = 'SPRITE ASSET - ' + value;
         }));
 
         var fieldPpu = editor.call('attributes:addField', {
@@ -76,13 +76,13 @@ editor.once('load', function() {
 
         var panelEdit = editor.call('attributes:addPanel', {
             parent: rootPanel,
-            name: 'SPRITE FRAMES'
+            name: 'FRAMES IN SPRITE ASSET'
         });
         panelEdit.flex = true;
         panelEdit.class.add('buttons');
 
         var btnAddFrames = new ui.Button({
-            text: 'ADD FRAMES'
+            text: 'ADD FRAMES TO SPRITE ASSET'
         });
         btnAddFrames.flexGrow = 1;
         btnAddFrames.class.add('icon', 'wide', 'create');
@@ -97,7 +97,7 @@ editor.once('load', function() {
         });
 
         var btnAddSelected = new ui.Button({
-            text: 'ADD'
+            text: 'ADD FRAMES'
         });
         btnAddSelected.class.add('icon', 'create');
         btnAddSelected.flexGrow = 1;

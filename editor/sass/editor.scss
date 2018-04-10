@@ -6082,36 +6082,71 @@ strong {
                     > .content {
                         height: 100%;
 
-                        > .ui-panel {
-                            height: 100%;
+                        > .ui-panel.frames {
+                            height: calc(100% - 50px);
+                            margin: 0;
 
                             > .content {
+                                padding: 8px 6px;
                                 height: 100%;
+                            }
+                        }
 
-                                > .top {
-                                    border-bottom: 1px solid $border-primary;
-                                    margin-bottom: 1px;
+                        > .ui-panel.sprite-assets {
+                            margin: 3px;
 
-                                    > .content {
-                                        padding: 8px 6px;
+                            .sprite {
+                                background-color: $bcg-dark;
+                                border: 1px solid $bcg-darker;
+                                border-bottom: 0;
+                                padding: 5px;
+                                white-space: nowrap;
 
-                                        .ui-label {
-                                            font-size: 12px;
-                                        }
-
-                                        .ui-button {
-                                            width: 49%;
-                                        }
-                                    }
+                                &:last-child {
+                                    border-bottom: 1px solid $bcg-darker;
                                 }
 
-                                > .frames {
-                                    height: calc(100% - 100px);
-                                    margin: 0;
+                                &:hover {
+                                    background-color: $bcg-darker;
+                                    cursor: pointer;
+                                }
 
-                                    > .content {
-                                        padding: 8px 6px;
-                                        height: 100%;
+                                canvas {
+                                    background-color: darken($text-darkest, 10%);
+                                    border: 1px solid $border-primary;
+                                    vertical-align: middle;
+                                }
+
+                                .ui-label.name {
+                                    font-size: 12px;
+                                    vertical-align: top;
+                                    margin-left: 5px;
+                                    max-width: calc(100% - 31px);
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                }
+
+                                .ui-button.remove {
+                                    @extend .font-icon;
+
+                                    width: 32px;
+                                    margin: 0;
+                                    padding: 0;
+                                    position: absolute;
+                                    right: 0;
+                                    border: 0;
+                                    font-size: 14px;
+                                    text-align: center;
+                                    background-color: transparent;
+                                    color: $text-darkest;
+
+                                    &:hover {
+                                        color: #d34141;
+                                    }
+
+                                    &:after {
+                                        content: '\E124';
+                                        font-weight: 200;
                                     }
                                 }
                             }
@@ -6137,66 +6172,6 @@ strong {
 
                                 .field-button {
                                     text-align: center;
-                                }
-                            }
-                        }
-                    }
-
-                    .ui-panel.sprite-assets {
-                        margin: 3px;
-
-                        .sprite {
-                            background-color: $bcg-dark;
-                            border: 1px solid $bcg-darker;
-                            border-bottom: 0;
-                            padding: 5px;
-                            white-space: nowrap;
-
-                            &:last-child {
-                                border-bottom: 1px solid $bcg-darker;
-                            }
-
-                            &:hover {
-                                background-color: $bcg-darker;
-                                cursor: pointer;
-                            }
-
-                            canvas {
-                                background-color: darken($text-darkest, 10%);
-                                border: 1px solid $border-primary;
-                                vertical-align: middle;
-                            }
-
-                            .ui-label.name {
-                                font-size: 12px;
-                                vertical-align: top;
-                                margin-left: 5px;
-                                max-width: calc(100% - 31px);
-                                overflow: hidden;
-                                text-overflow: ellipsis;
-                            }
-
-                            .ui-button.remove {
-                                @extend .font-icon;
-
-                                width: 32px;
-                                margin: 0;
-                                padding: 0;
-                                position: absolute;
-                                right: 0;
-                                border: 0;
-                                font-size: 14px;
-                                text-align: center;
-                                background-color: transparent;
-                                color: $text-darkest;
-
-                                &:hover {
-                                    color: #d34141;
-                                }
-
-                                &:after {
-                                    content: '\E124';
-                                    font-weight: 200;
                                 }
                             }
                         }
