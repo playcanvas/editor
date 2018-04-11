@@ -2,61 +2,50 @@ editor.once('load', function() {
     'use strict';
 
     editor.method('picker:sprites:spriteassets', function(args) {
-        // TODO: make this a bottom panel
-        return;
-
         var events = [];
 
         var atlasAsset = args.atlasAsset;
 
-        var rootPanel = editor.call('picker:sprites:leftPanel');
+        var rootPanel = editor.call('picker:sprites:bottomPanel');
 
-        // Sprites assets associated with this atlas
-        var panelSpriteAssets = editor.call('attributes:addPanel', {
-            parent: rootPanel,
-            name: 'SPRITE ASSETS'
+        // grid
+        var grid = new ui.Grid({
+            multiSelect: false
         });
+        grid.class.add('sprites');
+        rootPanel.append(grid);
 
-        panelSpriteAssets.class.add('sprite-assets');
-
-        // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:sprites', panelSpriteAssets, panelSpriteAssets.headerElement, rootPanel);
-
-        var fieldSprites = editor.call('attributes:addField', {
-            parent: panelSpriteAssets,
-            name: 'No. of sprites'
-        });
-
-        // holds all panels indexed by asset id
-        var panelsIndex = {};
+        // holds all sprite items indexed by asset id
+        var spriteItems = {};
         // holds the key of the first frame for each sprite asset - used for rendering preview
         var firstFramePerSprite = {};
 
-        var createSpriteAssetPanel = function (asset) {
+        var createSpriteItem = function (asset) {
             var spriteEvents = [];
 
-            // sprite panel
-            var panel = new ui.Panel();
-            panel.class.add('sprite');
+            // sprite item
+            var spriteItem = new ui.GridItem({
+                toggleSelectOnClick: false
+            });
 
             // sprite preview
             var canvas = new ui.Canvas();
-            canvas.class.add('preview');
-            canvas.resize(26, 26);
-            panel.append(canvas);
+            canvas.class.add('thumbnail');
+            canvas.resize(64, 64);
+            spriteItem.element.appendChild(canvas.element);
 
-            panelsIndex[asset.get('id')] = panel;
+            spriteItems[asset.get('id')] = spriteItem;
 
-            panel.updateFirstFrame = function () {
+            spriteItem.updateFirstFrame = function () {
                 var frameKeys = asset.getRaw('data.frameKeys');
                 firstFramePerSprite[asset.get('id')] = frameKeys[0];
             };
 
-            panel.updateFirstFrame();
+            spriteItem.updateFirstFrame();
 
             var renderQueued = false;
 
-            panel.queueRender = function () {
+            spriteItem.queueRender = function () {
                 if (renderQueued) return;
                 renderQueued = true;
                 requestAnimationFrame(renderPreview);
@@ -82,9 +71,9 @@ editor.once('load', function() {
 
             // sprite name
             var fieldName = new ui.Label();
-            fieldName.class.add('name');
+            fieldName.class.add('label');
             fieldName.value = asset.get('name');
-            panel.append(fieldName);
+            spriteItem.element.appendChild(fieldName.element);
 
             spriteEvents.push(asset.on('name:set', function (value) {
                 fieldName.value = value;
@@ -92,66 +81,63 @@ editor.once('load', function() {
 
             spriteEvents.push(asset.on('data.frameKeys:insert', function (value, index) {
                 if (index === 0) {
-                    panel.updateFirstFrame();
-                    panel.queueRender();
+                    spriteItem.updateFirstFrame();
+                    spriteItem.queueRender();
                 }
             }));
 
             spriteEvents.push(asset.on('data.frameKeys:remove', function (value, index) {
                 if (index === 0) {
-                    panel.updateFirstFrame();
-                    panel.queueRender();
+                    spriteItem.updateFirstFrame();
+                    spriteItem.queueRender();
                 }
             }));
 
             spriteEvents.push(asset.on('data.frameKeys:move', function (value, indNew, indOld) {
                 if (indNew === 0 || indOld === 0) {
-                    panel.updateFirstFrame();
-                    panel.queueRender();
+                    spriteItem.updateFirstFrame();
+                    spriteItem.queueRender();
                 }
             }));
 
             spriteEvents.push(asset.on('data.frameKeys:set', function (value) {
-                panel.updateFirstFrame();
-                panel.queueRender();
+                spriteItem.updateFirstFrame();
+                spriteItem.queueRender();
             }));
 
-            // sprite path (TODO)
-            var fieldPath = new ui.Label();
-            fieldPath.class.add('path');
+            // // delete sprite
+            // var btnRemove = new ui.Button();
+            // btnRemove.class.add('remove');
+            // spriteItem.append(btnRemove);
 
-            // delete sprite
-            var btnRemove = new ui.Button();
-            btnRemove.class.add('remove');
-            panel.append(btnRemove);
-
-            btnRemove.on('click', function (e) {
-                e.stopPropagation();
-                editor.call('assets:delete:picker', [ asset ]);
-            });
+            // btnRemove.on('click', function (e) {
+            //     e.stopPropagation();
+            //     editor.call('assets:delete:picker', [ asset ]);
+            // });
 
             // link to sprite asset
-            panel.on('click', function () {
+            spriteItem.on('click', function () {
                 editor.call('picker:sprites:selectSprite', asset, {
                     history: true
                 });
             });
 
             spriteEvents.push(editor.on('assets:remove[' + asset.get('id') + ']', function () {
-                panel.destroy();
-                delete panelsIndex[asset.get('id')];
-                fieldSprites.value = Math.max(0, parseInt(fieldSprites.value, 10) - 1);
+                spriteItem.destroy();
+                delete spriteItems[asset.get('id')];
             }));
 
             // clean up events
-            panel.on('destroy', function () {
+            spriteItem.on('destroy', function () {
                 for (var i = 0, len = spriteEvents.length; i<len; i++) {
                     spriteEvents[i].unbind();
                 }
                 spriteEvents.length = 0;
             });
 
-            panelSpriteAssets.append(panel);
+            grid.append(spriteItem);
+
+            return spriteItem;
         };
 
         // find all sprite assets associated with this atlas
@@ -160,13 +146,11 @@ editor.once('load', function() {
             return asset.get('type') === 'sprite' && parseInt(asset.get('data.textureAtlasAsset'), 10) === atlasId;
         });
 
-        var count = spriteAssets.length;
-        fieldSprites.value = count;
-
-        for (var i = 0; i<count; i++) {
-            createSpriteAssetPanel(spriteAssets[i][1]);
+        for (var i = 0; i<spriteAssets.length; i++) {
+            createSpriteItem(spriteAssets[i][1]);
         }
 
+        // Add / modify frame event
         events.push(atlasAsset.on('*:set', function (path) {
             if (! path.startsWith('data.frames')) {
                 return;
@@ -177,7 +161,7 @@ editor.once('load', function() {
                 var key = parts[2];
                 for (var assetId in firstFramePerSprite) {
                     if (firstFramePerSprite[assetId] === key) {
-                        var p = panelsIndex[assetId];
+                        var p = spriteItems[assetId];
                         if (p) {
                             p.queueRender();
                         }
@@ -186,6 +170,7 @@ editor.once('load', function() {
             }
         }));
 
+        // Delete frame event
         events.push(atlasAsset.on('*:unset', function (path) {
             if (! path.startsWith('data.frames')) {
                 return;
@@ -196,7 +181,7 @@ editor.once('load', function() {
                 var key = parts[2];
                 for (var assetId in firstFramePerSprite) {
                     if (firstFramePerSprite[assetId] === key) {
-                        var p = panelsIndex[assetId];
+                        var p = spriteItems[assetId];
                         if (p) {
                             p.queueRender();
                         }
@@ -205,11 +190,38 @@ editor.once('load', function() {
             }
         }));
 
-        events.push(rootPanel.on('clear', function () {
-            panelSpriteAssets.destroy();
+        // Sprite selection event
+        events.push(editor.on('picker:sprites:spriteSelected', function (sprite) {
+            if (! sprite) {
+                grid.selected = [];
+            }
         }));
 
-        panelSpriteAssets.on('destroy', function () {
+        // Asset create event
+        events.push(editor.on('assets:add', function (asset) {
+            if (asset.get('type') !== 'sprite' || asset.get('data.textureAtlasAsset') !== atlasAsset.get('id')) return;
+
+            spriteAssets.push(asset);
+            var item = createSpriteItem(asset);
+            if (item) {
+                item.flash();
+            }
+        }));
+
+        // Sprite edit mode
+        events.push(editor.on('picker:sprites:pickFrames:start', function () {
+            rootPanel.disabled = true;
+        }));
+
+        events.push(editor.on('picker:sprites:pickFrames:end', function () {
+            rootPanel.disabled = false;
+        }));
+
+        events.push(rootPanel.on('clear', function () {
+            grid.destroy();
+        }));
+
+        grid.on('destroy', function () {
             for (var i = 0, len = events.length; i<len; i++) {
                 events[i].unbind();
             }

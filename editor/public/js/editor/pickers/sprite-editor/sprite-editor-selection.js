@@ -10,8 +10,6 @@ editor.once('load', function () {
 
     var spriteEditMode = false;
 
-    var overlay = editor.call('picker:sprites:overlayPick');
-
     var events = [];
 
     // Select frames by keys
@@ -217,35 +215,61 @@ editor.once('load', function () {
                     }
                 } else {
                     editor.once('assets:add[' + id + ']', function (asset) {
-                        selectSprite(asset);
-                        if (fn) {
-                            fn(asset);
-                        }
+                        // do this in a timeout in order to wait for
+                        // assets:add to be raised first
+                        requestAnimationFrame(function () {
+                            selectSprite(asset);
+                            if (fn) {
+                                fn(asset);
+                            }
+                        });
                     });
                 }
             }
         });
     });
 
+    var startSpriteEditMode = function () {
+        spriteEditMode = true;
+        editor.emit('picker:sprites:pickFrames:start');
+
+        // Enter key to add frames and end sprite edit mode
+        editor.call('hotkey:register', 'sprite-editor-add-frames', {
+            key: 'enter',
+            callback: function () {
+                // do this in a timeout because this will terminate sprite edit mode
+                // which will unregister the hotkey which will cause an error because
+                // we are still in the hotkey execution loop
+                setTimeout(function () {
+                    editor.call('picker:sprites:pickFrames:add');
+                });
+            }
+        })
+
+
+    };
+
+    var endSpriteEditMode = function () {
+        spriteEditMode = false;
+        newSpriteFrames.length = 0;
+
+        editor.call('hotkey:unregister', 'sprite-editor-add-frames');
+        editor.emit('picker:sprites:pickFrames:end');
+
+        selectSpriteFrames();
+    };
+
     // Start sprite edit mode
     editor.method('picker:sprites:pickFrames', function () {
         if (spriteEditMode) return;
 
-        var redo = function () {
-            overlay.hidden = false;
-        };
-
-        var undo = function () {
-            overlay.hidden = true;
-        };
-
         editor.call('history:add', {
             name: 'add frames',
-            undo: undo,
-            redo: redo
+            undo: endSpriteEditMode,
+            redo: startSpriteEditMode
         });
 
-        redo();
+        startSpriteEditMode();
     });
 
     // Adds picked frames to sprite asset and exits sprite edit mode
@@ -259,12 +283,12 @@ editor.once('load', function () {
             spriteAsset.set('data.frameKeys', keys);
         }
 
-        overlay.hidden = true;
+        endSpriteEditMode();
     });
 
     // Exits sprite edit mode
     editor.method('picker:sprites:pickFrames:cancel', function () {
-        overlay.hidden = true;
+        endSpriteEditMode();
     });
 
     // Return selected frame
@@ -285,36 +309,6 @@ editor.once('load', function () {
     // Return selected sprite
     editor.method('picker:sprites:selectedSprite', function () {
         return spriteAsset;
-    });
-
-
-    // Event Listeners
-    overlay.on('show', function () {
-        spriteEditMode = true;
-        editor.emit('picker:sprites:pickFrames:start');
-
-        // Enter key to add frames and end sprite edit mode
-        editor.call('hotkey:register', 'sprite-editor-add-frames', {
-            key: 'enter',
-            callback: function () {
-                // do this in a timeout because this will terminate sprite edit mode
-                // which will unregister the hotkey which will cause an error because
-                // we are still in the hotkey execution loop
-                setTimeout(function () {
-                    editor.call('picker:sprites:pickFrames:add');
-                });
-            }
-        })
-    });
-
-    overlay.on('hide', function () {
-        spriteEditMode = false;
-        newSpriteFrames.length = 0;
-
-        editor.call('hotkey:unregister', 'sprite-editor-add-frames');
-        editor.emit('picker:sprites:pickFrames:end');
-
-        selectSpriteFrames();
     });
 
     // if the selected sprite is deleted then deselect it

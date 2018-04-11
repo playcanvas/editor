@@ -8,6 +8,7 @@ function GridItem(args) {
     this._text = args.text || '';
     this._selectPending = false;
     this._selected = args.selected || false;
+    this._toggleSelectOnClick = args && args.toggleSelectOnClick !== undefined ? args.toggleSelectOnClick : true;
     this._clicked = false;
 
     this.element = document.createElement('li');
@@ -28,7 +29,11 @@ GridItem.prototype = Object.create(ui.Element.prototype);
 GridItem.prototype._onClick = function() {
     this.ui.emit('click');
     this.ui._clicked = true;
-    this.ui.selected = ! this.ui.selected;
+    if (this.ui._toggleSelectOnClick) {
+        this.ui.selected = ! this.ui.selected;
+    } else {
+        this.ui.selected = true;
+    }
     this.ui._clicked = false;
 };
 

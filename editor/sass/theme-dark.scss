@@ -51,7 +51,6 @@ a:visited {
     animation: ui-flash-animation 200ms ease-in-out forwards;
 }
 
-
 .ui-panel {
     background-color: $bcg-primary;
 
@@ -646,6 +645,36 @@ a:visited {
             color: $text-active;
             background-color: $bcg-darkest;
             outline: none;
+
+            &:hover {
+                background-color: mix($bcg-darkest, $bcg-darker, 75%);
+            }
+        }
+    }
+}
+
+.ui-grid.sprites {
+    .ui-grid-item {
+        color: $text-secondary;
+        outline-color: transparent;
+
+        &.flash {
+            @extend .ui-flash;
+        }
+
+        &.disabled.selected {
+            background-color: $bcg-darkest;
+        }
+        &:hover,
+        &:focus {
+            color: $text-primary;
+            background-color: mix($bcg-darkest, $bcg-dark, 50%);
+            outline-color: transparent;
+        }
+        &.selected {
+            color: $text-active;
+            background-color: $bcg-darkest;
+            outline-color: $text-active;
 
             &:hover {
                 background-color: mix($bcg-darkest, $bcg-darker, 75%);

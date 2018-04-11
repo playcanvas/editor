@@ -54,10 +54,6 @@ editor.once('load', function() {
         title: 'Delete All Frames',
         description: 'Delete all frames from the texture atlas.'
     }, {
-        name: 'sprites',
-        title: 'Sprite Assets',
-        description: 'The Sprite Assets that are using this Texture Atlas.'
-    }, {
         name: 'sprites:addFrames',
         title: 'Add Frames',
         description: 'Add frames to this Sprite Asset. Click to start selecting the frames you want to add.'

@@ -5931,50 +5931,6 @@ strong {
                 flex-direction: row;
                 height: 100%;
 
-                .canvas-panel {
-                    position: absolute;
-                    width: 100%;
-                    height: 100%;
-                    border-top: 1px solid $border-primary;
-
-                    > .content {
-                        width: 100%;
-                        height: 100%;
-
-                        .canvas {
-                            width: 100%;
-                            height: 100%;
-
-                            $checkerboard-dark: #eaeaea;
-                            background-color: #fff;
-                            background-image:
-                            -moz-linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%,transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%),
-                            -moz-linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%,transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%);
-                            background-image:
-                            -webkit-linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%,transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%),
-                            -webkit-linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%,transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%);
-                            background-image:
-                            linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%,transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%),
-                            linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%,transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%);
-                            -moz-background-size: 24px 24px;
-                            background-size: 24px 24px;
-                            -webkit-background-size: 24px 24px;
-                            background-position: 0 0, 12px 12px;
-                        }
-                    }
-
-                    &.grab {
-                        cursor: -webkit-grab;
-                        cursor: -moz-grab;
-                    }
-
-                    &.grabbing {
-                        cursor: -webkit-grabbing;
-                        cursor: -moz-grabbing;
-                    }
-
-                }
-
                 .canvas-control {
                     position: absolute;
                     left: 0;
@@ -6035,10 +5991,11 @@ strong {
                     height: 100%;
                     > .content {
                         height: 100%;
+                        overflow: hidden;
 
                         .canvas {
-                            width: 100%;
                             height: 100%;
+                            width: 100%;
 
                             $checkerboard-dark: #eaeaea;
                             background-color: #fff;
@@ -6056,11 +6013,158 @@ strong {
                             -webkit-background-size: 24px 24px;
                             background-position: 0 0, 12px 12px;
                         }
+
+                        .bottom-panel {
+                            overflow: visible;
+                            background-color: $bcg-darker;
+                            @extend .noSelect;
+
+                            &.resizable {
+                                &.resizable-top.scrollable > .content {
+                                    top: 0;
+                                }
+                                &.foldable.folded {
+                                    height: 0 !important;
+                                }
+                            }
+
+                            &.disabled {
+                                > .ui-header {
+                                    background-color: $bcg-darker;
+                                }
+
+                                > .content {
+                                    pointer-events: none;
+                                }
+                            }
+
+                            > .content {
+                                display: flex;
+                                -webkit-flex: flex;
+                                flex-wrap: nowrap;
+
+                                > .ui-grid {
+                                    align-content: flex-start;
+                                    flex-grow: 1;
+                                    flex-shrink: 1;
+                                    -webkit-flex-grow: 1;
+                                    -webkit-flex-shrink: 1;
+
+                                    > .ui-grid-item {
+                                        width: 104px;
+                                        height: 104px;
+                                        position: relative;
+                                        background-color: $bcg-darker;
+
+                                        &:hover {
+                                            background-color: mix($bcg-darkest, $bcg-dark, 50%);
+
+                                            > .thumbnail {
+                                                color: $text-primary;
+                                            }
+                                            > .label {
+                                                background-color: mix($bcg-darkest, $bcg-dark, 50%);
+                                            }
+                                        }
+                                        &.selected {
+                                            background-color: $bcg-darkest;
+
+                                            > .thumbnail {
+                                                color: $text-primary;
+                                            }
+                                            > .label {
+                                                background-color: $bcg-darkest;
+                                            }
+
+                                            &:hover {
+                                                background-color: mix($bcg-darkest, $bcg-darker, 75%);
+
+                                                > .label {
+                                                    background-color: mix($bcg-darkest, $bcg-darker, 75%);
+                                                }
+                                            }
+                                        }
+
+
+                                        > .thumbnail {
+                                            width: 64px;
+                                            height: 64px;
+                                            line-height: 64px;
+                                            margin: 12px 20px;
+                                            background-position: center center;
+                                            background-size: 64px 64px;
+                                            background-repeat: no-repeat;
+                                            text-align: center;
+                                            color: $text-darkest;
+                                        }
+
+                                        > .label {
+                                            @extend .font-regular;
+                                            position: absolute;
+                                            right: 0;
+                                            left: 0;
+                                            bottom: 6px;
+                                            width: auto;
+                                            max-width: 100px;
+                                            max-height: 40px;
+                                            line-height: 14px;
+                                            margin: 0px;
+                                            padding: 0 2px;
+                                            font-size: 12px;
+                                            text-align: center;
+                                            white-space: nowrap;
+                                            overflow: hidden;
+                                            text-overflow: ellipsis;
+                                            color: $text-primary;
+                                            background-color: rgba($bcg-darker, 0.8);
+                                        }
+                                    }
+                                }
+                            }
+
+                            > .ui-header {
+                                position: absolute;
+                                top: -32px;
+                                left: 4px;
+                                width: 150px;
+
+                                 > .title {
+                                    margin-right: 16px;
+                                    width: 46px;
+                                }
+                            }
+                        }
+                    }
+
+                    &.grab {
+                        cursor: -webkit-grab;
+                        cursor: -moz-grab;
+                    }
+
+                    &.grabbing {
+                        cursor: -webkit-grabbing;
+                        cursor: -moz-grabbing;
+                    }
+
+                    &.ew-resize {
+                        cursor: ew-resize;
+                    }
+                    &.ns-resize {
+                        cursor: ns-resize;
+                    }
+                    &.nwse-resize {
+                        cursor: nwse-resize;
+                    }
+                    &.nesw-resize {
+                        cursor: nesw-resize;
+                    }
+
+                    &.move {
+                        cursor: move;
                     }
                 }
 
                 .left-columns {
-                    outline: 1px solid transparent;
                     height: 100%;
                     > .content {
                         height: 100%;
@@ -6091,66 +6195,6 @@ strong {
                                 height: 100%;
                             }
                         }
-
-                        > .ui-panel.sprite-assets {
-                            margin: 3px;
-
-                            .sprite {
-                                background-color: $bcg-dark;
-                                border: 1px solid $bcg-darker;
-                                border-bottom: 0;
-                                padding: 5px;
-                                white-space: nowrap;
-
-                                &:last-child {
-                                    border-bottom: 1px solid $bcg-darker;
-                                }
-
-                                &:hover {
-                                    background-color: $bcg-darker;
-                                    cursor: pointer;
-                                }
-
-                                canvas {
-                                    background-color: darken($text-darkest, 10%);
-                                    border: 1px solid $border-primary;
-                                    vertical-align: middle;
-                                }
-
-                                .ui-label.name {
-                                    font-size: 12px;
-                                    vertical-align: top;
-                                    margin-left: 5px;
-                                    max-width: calc(100% - 31px);
-                                    overflow: hidden;
-                                    text-overflow: ellipsis;
-                                }
-
-                                .ui-button.remove {
-                                    @extend .font-icon;
-
-                                    width: 32px;
-                                    margin: 0;
-                                    padding: 0;
-                                    position: absolute;
-                                    right: 0;
-                                    border: 0;
-                                    font-size: 14px;
-                                    text-align: center;
-                                    background-color: transparent;
-                                    color: $text-darkest;
-
-                                    &:hover {
-                                        color: #d34141;
-                                    }
-
-                                    &:after {
-                                        content: '\E124';
-                                        font-weight: 200;
-                                    }
-                                }
-                            }
-                        }
                     }
                 }
 
@@ -6160,10 +6204,6 @@ strong {
                     right: 0px;
                     border: 1px solid $border-primary;
                     box-sizing: border-box;
-
-                    .handle {
-                        z-index: 103;
-                    }
 
                     > .content {
                         > .ui-panel {
@@ -6207,6 +6247,24 @@ strong {
                         background: transparent;
                         width: 100%;
                         display: none; // hide for now
+                    }
+
+                    .ui-panel.add-frames-info {
+                        border: 1px solid $text-active;
+                        margin: 3px 3px 10px 3px;
+                        padding: 15px 20px;
+                        font-size: 12px;
+                        background: $bcg-darkest;
+
+                        > .ui-header {
+                            background: transparent;
+                            padding: 0;
+                        }
+
+                        .ui-label {
+                            margin: 0;
+                            line-height: 1.5;
+                        }
                     }
                 }
 
@@ -6265,10 +6323,11 @@ strong {
 
                         &.sprite-frame {
                             border: 1px solid $text-active;
+                            background-color: $bcg-dark;
                         }
 
                         &.highlighted {
-                            border: 1px solid #0f0;
+                            background-color: $bcg-darkest;
                         }
 
                         .ui-label.name {
@@ -6311,24 +6370,9 @@ strong {
                         }
                     }
 
-                    .frame.highlighted + .frame.highlighted {
-                        border-top: 0;
-                        margin-top: 1px;
-                    }
-
                     .frame.sprite-frame + .frame.sprite-frame {
                         border-top: 0;
                         margin-top: 1px;
-                    }
-
-                    .frame.highlighted + .frame.sprite-frame:not(.highlighted) {
-                        border-top: 1px solid $text-active;
-                        margin-top: 0;
-                    }
-
-                    .frame.sprite-frame:not(.highlighted) + .frame.highlighted {
-                        border-top: 1px solid #0f0;
-                        margin-top: 0;
                     }
                 }
 
@@ -6397,31 +6441,6 @@ strong {
                         content: '\E332';
                     }
                 }
-            }
-        }
-    }
-
-    .ui-overlay.overlay-frames {
-        > .overlay {
-            background-color: transparent;
-        }
-
-        > .content {
-            display: none;
-        }
-    }
-
-    .select-frames-mode {
-        .left-columns {
-            outline: 1px solid $text-active !important;
-            z-index: 102;
-        }
-
-        .right-panel {
-            .ui-panel.buttons {
-                border: 1px solid $text-active;
-                margin: 0 2px 0 0;
-                z-index: 102;
             }
         }
     }

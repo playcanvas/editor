@@ -6,7 +6,7 @@ editor.once('load', function() {
 
     var COLOR_GRAY = '#B1B8BA';
     var COLOR_DARKEST = '#20292b';
-    var COLOR_DARK = '#2C393C';
+    var COLOR_DARK = '#1B282B';
     var COLOR_GREEN = '#0f0';
     var COLOR_ORANGE = '#f60';
     var COLOR_BLUE = '#00f';
@@ -24,11 +24,11 @@ editor.once('load', function() {
 
     var panning = false;
     var newFrame = null;
-    var hovering = false;
     var spriteEditMode = false;
 
     var oldFrame = null;
     var selectedHandle = null;
+    var hoveringHandle = null;
     var startingHandleFrame = null;
     var startingHandleCoords = {x: 0, y: 0};
 
@@ -95,11 +95,6 @@ editor.once('load', function() {
     });
     panel.headerElement.appendChild(btnClose.element);
 
-    var overlayPickFrames = new ui.Overlay();
-    overlayPickFrames.class.add('overlay-frames');
-    overlayPickFrames.hidden = true;
-    panel.append(overlayPickFrames);
-
     var leftColumns = new ui.Panel();
     leftColumns.class.add('left-columns');
     leftColumns.flex = true;
@@ -130,10 +125,37 @@ editor.once('load', function() {
     // middle panel
     var middlePanel = new ui.Panel();
     middlePanel.class.add('middle-panel');
-    // middlePanel.flex = true;
-    // middlePanel.flexGrow = true;
-    // middlePanel.flexDirection = 'column';
+    middlePanel.flex = true;
+    middlePanel.flexGrow = true;
+    middlePanel.flexDirection = 'column';
     leftRows.append(middlePanel);
+
+    // canvas
+    var canvasPanel = new ui.Panel();
+    canvasPanel.class.add('canvas-panel');
+    canvasPanel.flexible = true;
+    canvasPanel.flexGrow = true;
+    middlePanel.append(canvasPanel);
+
+    var canvas = new ui.Canvas();
+    canvas.class.add('canvas');
+    canvasPanel.append(canvas);
+
+    // Canvas Context
+    var ctx = canvas.element.getContext("2d");
+
+    // bottom panel
+    var bottomPanel = new ui.Panel('SPRITE ASSETS');
+    bottomPanel.class.add('bottom-panel');
+    bottomPanel.innerElement.style.height = '219px';
+    bottomPanel.foldable = true;
+    bottomPanel.flexShrink = false;
+    bottomPanel.scroll = true;
+    bottomPanel.resizable = 'top';
+    bottomPanel.resizeMin = 106;
+    bottomPanel.resizeMax = 106 * 3;
+    bottomPanel.headerSize = -1;
+    middlePanel.append(bottomPanel);
 
     // // Canvas control
     var canvasControl = new ui.Panel();
@@ -203,19 +225,6 @@ editor.once('load', function() {
     // Right panel
     var rightPanel = null;
 
-    // Canvas
-    // var canvasPanel = new ui.Panel();
-    // canvasPanel.flexGrow = true;
-    // canvasPanel.class.add('canvas-panel');
-    // middlePanel.append(canvasPanel);
-
-    var canvas = new ui.Canvas();
-    canvas.class.add('canvas');
-    middlePanel.append(canvas);
-
-    // Canvas Context
-    var ctx = canvas.element.getContext("2d");
-
     // controls observer (for zoom/brightness).
     var controls = new Observer({
         zoom: 1,
@@ -267,8 +276,8 @@ editor.once('load', function() {
     var resizeCanvas = function() {
         var result = false;
 
-        var width = middlePanel.element.clientWidth;
-        var height = middlePanel.element.clientHeight;
+        var width = canvasPanel.element.clientWidth;
+        var height = canvasPanel.element.clientHeight;
 
         // If it's resolution does not match change it
         if (canvas.element.width !== width || canvas.element.height !== height) {
@@ -315,8 +324,8 @@ editor.once('load', function() {
             callback: function () {
                 var spriteAsset = editor.call('picker:sprites:selectedSprite');
                 if (spriteAsset) {
-                    if (!overlayPickFrames.hidden) {
-                        overlayPickFrames.hidden = true;
+                    if (spriteEditMode) {
+                        editor.call('picker:sprites:pickFrames:cancel');
                     } else {
                         editor.call('picker:sprites:selectSprite', null, {
                             history: true
@@ -473,6 +482,9 @@ editor.once('load', function() {
 
         var selected = editor.call('picker:sprites:selectedFrame');
 
+        var previousHoveringHandle = hoveringHandle;
+        hoveringHandle = null;
+
         // if a handle is selected then modify the selected frame
         if (newFrame) {
             modifyFrame(selectedHandle, newFrame, p);
@@ -499,9 +511,12 @@ editor.once('load', function() {
             var selectedFrame = atlasAsset.getRaw('data.frames.' + selected);
             if (selectedFrame) {
                 selectedFrame = selectedFrame._data;
-                hovering = !!handlesHitTest(p, selectedFrame);
-                updateCursor();
+                hoveringHandle = handlesHitTest(p, selectedFrame);
             }
+        }
+
+        if (hoveringHandle !== previousHoveringHandle) {
+            updateCursor();
         }
 
     };
@@ -542,14 +557,15 @@ editor.once('load', function() {
             }
 
             newFrame = null;
-            updateCursor();
+            hoveringHandle = null;
+            setHandle(null);
             queueRender();
         }
         // if we have edited the selected frame then commit the changes
         else if (selected) {
             // clear selected handle
             if (selectedHandle) {
-                selectedHandle = null;
+                setHandle(null);
                 queueRender();
             }
 
@@ -870,6 +886,8 @@ editor.once('load', function() {
                 startingHandleCoords.y = clamp((mousePoint.y - imageTop()) * atlasImage.height / imageHeight(), 0, atlasImage.height);
             }
         }
+
+        updateCursor();
     }
 
 
@@ -1003,7 +1021,7 @@ editor.once('load', function() {
 
         // draw highlighted frames
         ctx.beginPath();
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1;
         ctx.strokeStyle = spriteAsset ? COLOR_ORANGE : COLOR_DARK;
         for (var i = 0, len = highlightedFrames.length; i<len; i++) {
             var key = highlightedFrames[i];
@@ -1015,7 +1033,27 @@ editor.once('load', function() {
                 len--;
                 i--;
             } else {
-                renderFrame(frames[key]._data, left, top, width, height, 0, !spriteEditMode);
+                if (newSpriteFrames.indexOf(key) === -1) {
+                    renderFrame(frames[key]._data, left, top, width, height, 0, !spriteEditMode);
+                }
+            }
+        }
+        ctx.stroke();
+
+        // draw sprite edit mode frames
+        ctx.beginPath();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = COLOR_DARK;
+        for (var i = 0, len = newSpriteFrames.length; i<len; i++) {
+            var key = newSpriteFrames[i];
+
+            // check if frame no longer exists
+            if (! frames[key]) {
+                newSpriteFrames.splice(i, 1);
+                len--;
+                i--;
+            } else {
+                renderFrame(frames[key]._data, left, top, width, height, 1, !spriteEditMode);
             }
         }
         ctx.stroke();
@@ -1034,23 +1072,6 @@ editor.once('load', function() {
         ctx.stroke();
         ctx.setLineDash([]);
 
-        // draw sprite edit mode frames
-        ctx.beginPath();
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = COLOR_GREEN;
-        for (var i = 0, len = newSpriteFrames.length; i<len; i++) {
-            var key = newSpriteFrames[i];
-
-            // check if frame no longer exists
-            if (! frames[key]) {
-                newSpriteFrames.splice(i, 1);
-                len--;
-                i--;
-            } else {
-                renderFrame(frames[key]._data, left, top, width, height, 1, !spriteEditMode);
-            }
-        }
-        ctx.stroke();
 
         var frame = newFrame || (selected ? atlasAsset.getRaw('data.frames.' + selected) : null);
         if (frame && frame._data)
@@ -1595,31 +1616,94 @@ editor.once('load', function() {
         });
     };
 
+    // var updateCursor = function () {
+    //     var grab = false;
+    //     var grabbing = false;
+
+    //     var selected = editor.call('picker:sprites:selectedFrame');
+
+    //     grab = hovering || shiftDown;
+    //     grabbing = newFrame || selected && selectedHandle || panning;
+
+    //     var cls = middlePanel.class;
+    //     var oldGrab = cls.contains('grab');
+    //     var oldGrabbing = cls.contains('grabbing');
+
+    //     if (grab && ! oldGrab) {
+    //         cls.add('grab');
+    //     }
+    //     else if (! grab && oldGrab) {
+    //         cls.remove('grab');
+    //     }
+
+    //     if (grabbing && ! oldGrabbing) {
+    //         cls.add('grabbing');
+    //     }
+    //     else if (! grabbing && oldGrabbing) {
+    //         cls.remove('grabbing');
+    //     }
+    // };
+
+
     var updateCursor = function () {
-        var grab = false;
-        var grabbing = false;
-
-        var selected = editor.call('picker:sprites:selectedFrame');
-
-        grab = hovering || shiftDown;
-        grabbing = newFrame || selected && selectedHandle || panning;
-
         var cls = middlePanel.class;
-        var oldGrab = cls.contains('grab');
-        var oldGrabbing = cls.contains('grabbing');
 
-        if (grab && ! oldGrab) {
-            cls.add('grab');
-        }
-        else if (! grab && oldGrab) {
-            cls.remove('grab');
-        }
+        cls.remove('ew-resize');
+        cls.remove('ns-resize');
+        cls.remove('nwse-resize');
+        cls.remove('nesw-resize');
+        cls.remove('move');
+        cls.remove('grab');
+        cls.remove('grabbing');
 
-        if (grabbing && ! oldGrabbing) {
-            cls.add('grabbing');
-        }
-        else if (! grabbing && oldGrabbing) {
-            cls.remove('grabbing');
+
+        if ((panning || shiftDown) && ! selectedHandle) {
+            if (panning) {
+                cls.add('grabbing');
+            } else if (shiftDown) {
+                cls.add('grab');
+            }
+        } else {
+            var handle = selectedHandle !== null ? selectedHandle : hoveringHandle;
+            if (handle !== null) {
+                switch (handle) {
+                    case HANDLE.BORDER_LEFT:
+                    case HANDLE.BORDER_RIGHT:
+                        cls.add('ew-resize');
+                        break;
+
+                    case HANDLE.BORDER_TOP:
+                    case HANDLE.BORDER_BOTTOM:
+                        cls.add('ns-resize');
+                        break;
+
+                    case HANDLE.TOP_LEFT:
+                    case HANDLE.BOTTOM_RIGHT:
+                    case HANDLE.BORDER_TOP_LEFT:
+                    case HANDLE.BORDER_BOTTOM_RIGHT:
+                        cls.add('nwse-resize');
+                        break;
+
+                    case HANDLE.TOP_RIGHT:
+                    case HANDLE.BOTTOM_LEFT:
+                    case HANDLE.BORDER_TOP_RIGHT:
+                    case HANDLE.BORDER_BOTTOM_LEFT:
+                        cls.add('nesw-resize');
+                        break;
+
+                    case HANDLE.PIVOT:
+                        if (handle === selectedHandle) {
+                            cls.add('grabbing');
+                        } else {
+                            cls.add('grab');
+                        }
+                        break;
+
+                    case HANDLE.FRAME:
+                        cls.add('move');
+                        break;
+                }
+            }
         }
     };
 
@@ -1643,10 +1727,12 @@ editor.once('load', function() {
         }
 
         leftPanel.emit('clear');
+        bottomPanel.emit('clear');
 
         newFrame = null;
         startingHandleFrame = null;
-        hovering = false;
+        hoveringHandle = null;
+        selectedHandle = null;
         atlasImageData = null;
         atlasImageDataCanvas.getContext('2d').clearRect(0, 0, atlasImageDataCanvas.width, atlasImageDataCanvas.height);
 
@@ -1654,7 +1740,9 @@ editor.once('load', function() {
         rightButtonDown = false;
         shiftDown = false;
 
-        overlayPickFrames.hidden = true;
+        if (spriteEditMode) {
+            editor.call('picker:sprites:pickFrames:cancel');
+        }
 
         atlasAsset = null;
 
@@ -1691,9 +1779,9 @@ editor.once('load', function() {
         return panel;
     });
 
-    // Return pick frames overlay
-    editor.method('picker:sprites:overlayPick', function () {
-        return overlayPickFrames;
+    // Return bottom panel
+    editor.method('picker:sprites:bottomPanel', function () {
+        return bottomPanel;
     });
 
     // Return atlas asset
@@ -1751,7 +1839,9 @@ editor.once('load', function() {
 
     // Update inspector when selection changes
     editor.on('picker:sprites:framesSelected', function () {
-        selectedHandle = null;
+        hoveringHandle = null;
+        setHandle(null);
+        updateCursor();
 
         if (! spriteEditMode) {
             updateRightPanel();
@@ -1763,13 +1853,11 @@ editor.once('load', function() {
     // Track sprite edit mode
     editor.on('picker:sprites:pickFrames:start', function () {
         spriteEditMode = true;
-        panel.class.add('select-frames-mode');
         queueRender();
     });
 
     editor.on('picker:sprites:pickFrames:end', function () {
         spriteEditMode = false;
-        panel.class.remove('select-frames-mode');
         queueRender();
     });
 

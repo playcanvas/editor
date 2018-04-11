@@ -81,6 +81,17 @@ editor.once('load', function() {
         panelEdit.flex = true;
         panelEdit.class.add('buttons');
 
+        // add frames tooltip
+        var panelAddFramesInfo = new ui.Panel('Adding more frames to a sprite');
+        panelAddFramesInfo.class.add('add-frames-info');
+        panelAddFramesInfo.hidden = true;
+        panelEdit.append(panelAddFramesInfo);
+
+        var labelInfo = new ui.Label({
+            text: 'To add more frames to a sprite asset, select the frames you wish to add either on the texture atlas viewport or from the panel on the left, then click \'+ ADD SELECTED FRAMES\'.'
+        });
+        panelAddFramesInfo.append(labelInfo);
+
         var btnAddFrames = new ui.Button({
             text: 'ADD FRAMES TO SPRITE ASSET'
         });
@@ -97,10 +108,10 @@ editor.once('load', function() {
         });
 
         var btnAddSelected = new ui.Button({
-            text: 'ADD FRAMES'
+            text: 'ADD SELECTED FRAMES'
         });
         btnAddSelected.class.add('icon', 'create');
-        btnAddSelected.flexGrow = 1;
+        btnAddSelected.flexGrow = 3;
         btnAddSelected.hidden = true;
         panelEdit.append(btnAddSelected);
 
@@ -110,9 +121,9 @@ editor.once('load', function() {
         });
 
         var btnCancel = new ui.Button({
-            text: 'CANCEL'
+            text: 'DONE'
         });
-        btnCancel.class.add('icon', 'cancel');
+        btnCancel.class.add('icon', 'done');
         btnCancel.flexGrow = 1;
         btnCancel.hidden = true;
         panelEdit.append(btnCancel);
@@ -157,8 +168,6 @@ editor.once('load', function() {
 
                 window.addEventListener('mouseup', onDragEnd);
                 panelFrames.innerElement.addEventListener('mousemove', onDragMove);
-
-                // overlay.hidden = false;
             };
 
             handle.addEventListener('mousedown', onDragStart);
@@ -409,6 +418,7 @@ editor.once('load', function() {
             btnAddSelected.disabled = true;
             btnAddSelected.hidden = false;
             btnCancel.hidden = false;
+            panelAddFramesInfo.hidden = false;
         }));
 
         events.push(editor.on('picker:sprites:pickFrames:end', function () {
@@ -416,6 +426,7 @@ editor.once('load', function() {
             btnAddFrames.hidden = false;
             btnAddSelected.hidden = true;
             btnCancel.hidden = true;
+            panelAddFramesInfo.hidden = true;
 
             // restore preview to the actual frames that the sprite currently has
             fieldPreview.setFrames(frameKeys);
