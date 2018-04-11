@@ -1716,7 +1716,7 @@ strong {
                 content: '\E378';
             }
             &.sprite > header > .title:before {
-                content: '\E264';
+                content: '\E395';
             }
         }
         &.light {
@@ -2195,7 +2195,7 @@ strong {
                             content: '\E130';
                         }
                         &.sprite-editor:before {
-                            content: '\E332';
+                            content: '\E395';
                         }
                     }
                 }
@@ -2901,7 +2901,7 @@ strong {
                     content: '\E141';
                 }
                 &.c-sprite:before {
-                    content: '\E264';
+                    content: '\E395';
                 }
             }
         }
@@ -3051,7 +3051,7 @@ strong {
             content: '\E141';
         }
         &.c-sprite > .title > .icon:after {
-            content: '\E264';
+            content: '\E395';
         }
         &.c-element > .title > .icon:after {
             content: '\E378';
@@ -3319,7 +3319,7 @@ strong {
                 content: '\E201';
             }
             > .icon:after {
-                content: '\E332';
+                content: '\E396';
             }
         }
         &.type-text {
@@ -3356,10 +3356,10 @@ strong {
         }
         &.type-sprite {
             > .thumbnail.placeholder:after {
-                content: '\E264';
+                content: '\E395';
             }
             > .icon:after {
-                content: '\E264';
+                content: '\E395';
             }
         }
         &.type-binary {
@@ -6430,15 +6430,15 @@ strong {
                     }
 
                     &.trim:before {
-                        content: '\E358';
+                        content: '\E394';
                     }
 
                     &.focus:before {
-                        content: '\E335';
+                        content: '\E397';
                     }
 
                     &.generate:before {
-                        content: '\E332';
+                        content: '\E398';
                     }
                 }
             }

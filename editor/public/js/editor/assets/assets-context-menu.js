@@ -166,7 +166,7 @@ editor.once('load', function() {
     // Create Sprite From Atlas
     var menuItemCreateSprite = new ui.MenuItem({
         text: 'Create Sprite Asset',
-        icon: '&#57956;',
+        icon: '&#58261;',
         value: 'atlas-to-sprite'
     });
     menu.append(menuItemCreateSprite);
@@ -180,7 +180,7 @@ editor.once('load', function() {
     // Create Sliced Sprite From Atlas
     var menuItemCreateSlicedSprite = new ui.MenuItem({
         text: 'Create Sliced Sprite Asset',
-        icon: '&#57956;',
+        icon: '&#58261;',
         value: 'atlas-to-sliced-sprite'
     });
     menu.append(menuItemCreateSlicedSprite);
