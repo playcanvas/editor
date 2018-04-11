@@ -46,7 +46,7 @@ editor.once('load', function() {
 
                 editor.call('entities:duplicate', items);
             } else if (type === 'asset' && items.length === 1) {
-                if (items[0].get('type') !== 'material')
+                if (items[0].get('type') !== 'material' && items[0].get('type') !== 'sprite')
                     return;
 
                 editor.call('assets:duplicate', items[0]);
