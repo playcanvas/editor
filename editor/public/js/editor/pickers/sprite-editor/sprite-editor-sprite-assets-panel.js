@@ -6,6 +6,37 @@ editor.once('load', function() {
 
         var atlasAsset = args.atlasAsset;
 
+        // context menu
+        var menu = new ui.Menu();
+        editor.call('layout.root').append(menu);
+        var contextMenuAsset = null;
+
+        // context menu options
+
+        // duplicate
+        var menuDuplicate = new ui.MenuItem({
+            text: 'Duplicate',
+            icon: '&#57638;',
+            value: 'duplicate'
+        });
+        menuDuplicate.on('select', function () {
+            if (! contextMenuAsset) return;
+            editor.call('assets:duplicate', contextMenuAsset);
+        })
+        menu.append(menuDuplicate);
+
+        // delete
+        var menuDelete = new ui.MenuItem({
+            text: 'Delete',
+            icon: '&#57636;',
+            value: 'delete'
+        });
+        menuDelete.on('select', function () {
+            if (! contextMenuAsset) return;
+            editor.call('assets:delete:picker', [ contextMenuAsset ]);
+        });
+        menu.append(menuDelete);
+
         var rootPanel = editor.call('picker:sprites:bottomPanel');
 
         // grid
@@ -105,16 +136,6 @@ editor.once('load', function() {
                 spriteItem.queueRender();
             }));
 
-            // // delete sprite
-            // var btnRemove = new ui.Button();
-            // btnRemove.class.add('remove');
-            // spriteItem.append(btnRemove);
-
-            // btnRemove.on('click', function (e) {
-            //     e.stopPropagation();
-            //     editor.call('assets:delete:picker', [ asset ]);
-            // });
-
             // link to sprite asset
             spriteItem.on('click', function () {
                 editor.call('picker:sprites:selectSprite', asset, {
@@ -125,7 +146,22 @@ editor.once('load', function() {
             spriteEvents.push(editor.on('assets:remove[' + asset.get('id') + ']', function () {
                 spriteItem.destroy();
                 delete spriteItems[asset.get('id')];
+                if (contextMenuAsset && contextMenuAsset.get('id') === asset.get('id')) {
+                    contextMenuAsset = null;
+                    if (menu.open) {
+                        menu.open = false;
+                    }
+                }
             }));
+
+            // context menu
+            var contextMenu = function (e) {
+                contextMenuAsset = asset;
+                menu.open = true;
+                menu.position(e.clientX + 1, e.clientY);
+            };
+
+            spriteItem.element.addEventListener('contextmenu', contextMenu);
 
             // clean up events
             spriteItem.on('destroy', function () {
@@ -133,6 +169,8 @@ editor.once('load', function() {
                     spriteEvents[i].unbind();
                 }
                 spriteEvents.length = 0;
+
+                spriteItem.element.removeEventListener('contextmenu', contextMenu);
             });
 
             grid.append(spriteItem);
@@ -222,6 +260,9 @@ editor.once('load', function() {
         }));
 
         grid.on('destroy', function () {
+            menu.destroy();
+            contextMenuAsset = null;
+
             for (var i = 0, len = events.length; i<len; i++) {
                 events[i].unbind();
             }
