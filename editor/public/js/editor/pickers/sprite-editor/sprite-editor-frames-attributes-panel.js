@@ -508,8 +508,30 @@ editor.once('load', function() {
 
         btnCreateSprite.on('click', function () {
             btnCreateSprite.disabled = true;
-            editor.call('picker:sprites:spriteFromSelection', function () {
-                btnCreateSprite.disabled = false;
+            editor.call('picker:sprites:spriteFromSelection', {
+                callback: function () {
+                    btnCreateSprite.disabled = false;
+                }
+            });
+        });
+
+        // new sliced sprite
+        var btnCreateSlicedSprite = new ui.Button({
+            text: 'New Sliced Sprite From Selection'
+        });
+        btnCreateSlicedSprite.class.add('icon', 'wide', 'create');
+        panelButtons.append(btnCreateSlicedSprite);
+
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:frame:newsprite', btnCreateSlicedSprite, null, panel);
+
+        btnCreateSlicedSprite.on('click', function () {
+            btnCreateSlicedSprite.disabled = true;
+            editor.call('picker:sprites:spriteFromSelection', {
+                sliced: true,
+                callback: function () {
+                    btnCreateSprite.disabled = false;
+                }
             });
         });
 

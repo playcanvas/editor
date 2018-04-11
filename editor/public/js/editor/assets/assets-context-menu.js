@@ -151,8 +151,9 @@ editor.once('load', function() {
     });
     menu.append(menuItemReferences);
 
+    // Create Atlas
     var menuItemTextureToAtlas = new ui.MenuItem({
-        text: 'Create Atlas',
+        text: 'Create Texture Atlas',
         icon: '&#58162;',
         value: 'texture-to-atlas'
     });
@@ -160,6 +161,35 @@ editor.once('load', function() {
 
     menuItemTextureToAtlas.on('select', function () {
         editor.call('assets:textureToAtlas', currentAsset);
+    });
+
+    // Create Sprite From Atlas
+    var menuItemCreateSprite = new ui.MenuItem({
+        text: 'Create Sprite Asset',
+        icon: '&#57956;',
+        value: 'atlas-to-sprite'
+    });
+    menu.append(menuItemCreateSprite);
+
+    menuItemCreateSprite.on('select', function () {
+        editor.call('assets:atlasToSprite', {
+            asset: currentAsset
+        });
+    });
+
+    // Create Sliced Sprite From Atlas
+    var menuItemCreateSlicedSprite = new ui.MenuItem({
+        text: 'Create Sliced Sprite Asset',
+        icon: '&#57956;',
+        value: 'atlas-to-sliced-sprite'
+    });
+    menu.append(menuItemCreateSlicedSprite);
+
+    menuItemCreateSlicedSprite.on('select', function () {
+        editor.call('assets:atlasToSprite', {
+            asset: currentAsset,
+            sliced: true
+        });
     });
 
     // replace
@@ -332,6 +362,10 @@ editor.once('load', function() {
             // create atlas
             menuItemTextureToAtlas.hidden = (currentAsset.get('type') !== 'texture' || currentAsset.get('source') || currentAsset.get('task') || ! editor.call('permissions:write'));
 
+            // create sprite
+            menuItemCreateSprite.hidden = (currentAsset.get('type') !== 'textureatlas' || currentAsset.get('source') || currentAsset.get('task') || ! editor.call('permissions:write'));
+            menuItemCreateSlicedSprite.hidden = menuItemCreateSprite.hidden;
+
             // delete
             menuItemDelete.hidden = false;
 
@@ -462,6 +496,8 @@ editor.once('load', function() {
             menuItemReferences.hidden = true;
             menuItemReplace.hidden = true;
             menuItemTextureToAtlas.hidden = true;
+            menuItemCreateSprite.hidden = true;
+            menuItemCreateSlicedSprite.hidden = true;
         }
 
         for(var i = 0; i < customMenuItems.length; i++) {

@@ -88,7 +88,7 @@ editor.once('load', function() {
         panelEdit.append(panelAddFramesInfo);
 
         var labelInfo = new ui.Label({
-            text: 'To add more frames to a sprite asset, select the frames you wish to add either on the texture atlas viewport or from the panel on the left, then click \'+ ADD SELECTED FRAMES\'.'
+            text: 'To add more frames to a sprite asset, select the frames you wish to add either on the texture atlas viewport or from the panel on the left, then click ADD SELECTED FRAMES.'
         });
         panelAddFramesInfo.append(labelInfo);
 

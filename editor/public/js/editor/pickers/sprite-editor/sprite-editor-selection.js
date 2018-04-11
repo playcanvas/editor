@@ -197,12 +197,29 @@ editor.once('load', function () {
     editor.method('picker:sprites:selectFrames', selectFrames);
 
     // Create sprite asset from selected frames
-    editor.method('picker:sprites:spriteFromSelection', function (fn) {
+    editor.method('picker:sprites:spriteFromSelection', function (args) {
         if (! highlightedFrames.length )
             return;
 
+        // rendermode: 1 - sliced, 0 - simple
+        var renderMode = args && args.sliced ? 1 : 0;
+        // default ppu to 1 if we're using sliced mode and we have just one frame
+        // as that's likely going to be used for Image Elements otherwise default to 100
+        // which is better for world-space sprites
+        var ppu = args && args.sliced && highlightedFrames.length === 1 ? 1 : 100;
+        // if we just have one frame in the atlas use the atlas name for the sprite name
+        // without the extension, otherwise use a generic name
+        var atlasNameWithoutExt = atlasAsset.get('name');
+        var lastDot = atlasNameWithoutExt.lastIndexOf('.');
+        if (lastDot > 0) {
+            atlasNameWithoutExt = atlasNameWithoutExt.substring(0, lastDot);
+        }
+        var name = highlightedFrames.length === 1 && Object.keys(atlasAsset.get('data.frames')).length === 1 ? atlasNameWithoutExt : 'New Sprite';
+
         editor.call('assets:create:sprite', {
-            pixelsPerUnit: 100,
+            name: name,
+            pixelsPerUnit: ppu,
+            renderMode: renderMode,
             frameKeys: highlightedFrames,
             textureAtlasAsset: atlasAsset.get('id'),
             noSelect: true,
@@ -210,8 +227,8 @@ editor.once('load', function () {
                 var asset = editor.call('assets:get', id);
                 if (asset) {
                     selectSprite(asset);
-                    if (fn) {
-                        fn(asset);
+                    if (args && args.callback) {
+                        args.callback(asset);
                     }
                 } else {
                     editor.once('assets:add[' + id + ']', function (asset) {
@@ -219,8 +236,8 @@ editor.once('load', function () {
                         // assets:add to be raised first
                         requestAnimationFrame(function () {
                             selectSprite(asset);
-                            if (fn) {
-                                fn(asset);
+                            if (args && args.callback) {
+                                args.callback(asset);
                             }
                         });
                     });
