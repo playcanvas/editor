@@ -126,7 +126,7 @@ editor.once('load', function() {
         canvas.height = canvasHeight;
         canvas.getContext('2d').putImageData(new ImageData(target.pixelsClamped, width, height), (canvasWidth - width) / 2, (canvasHeight - height) / 2);
 
-        layer.removeLight(lightEntity.light.light);
+        layer.removeLight(lightEntity.light);
         layer.removeCamera(cameraEntity.camera);
         layer.renderTarget = null;
         previewRoot.enabled = false;

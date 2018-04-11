@@ -33,7 +33,8 @@ editor.once('load', function() {
     // light
     var lightEntity = new pc.Entity();
     lightEntity.addComponent('light', {
-        type: 'directional'
+        type: 'directional',
+        layers: []
     });
     lightEntity.setLocalEulerAngles(45, 135, 0);
 
@@ -46,7 +47,8 @@ editor.once('load', function() {
         nearClip: 0.01,
         farClip: 32,
         clearColor: new pc.Color(41 / 255, 53 / 255, 56 / 255, 0.0),
-        frustumCulling: false
+        frustumCulling: false,
+        layers: []
     });
     cameraEntity.setLocalPosition(0, 0, 1.35);
     cameraOrigin.addChild(cameraEntity);
@@ -153,7 +155,7 @@ editor.once('load', function() {
         canvas.height = canvasHeight;
         canvas.getContext('2d').putImageData(new ImageData(target.pixelsClamped, width, height), (canvasWidth - width) / 2, (canvasHeight - height) / 2);
 
-        layer.removeLight(lightEntity.light.light);
+        layer.removeLight(lightEntity.light);
         layer.removeCamera(cameraEntity.camera);
         layer.removeMeshInstances(model.meshInstances);
         layer.renderTarget = null;

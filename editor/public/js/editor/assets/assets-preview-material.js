@@ -232,7 +232,7 @@ editor.once('load', function() {
         // clean up
         layer.renderTarget = null;
         layer.removeCamera(cameraEntity.camera);
-        layer.removeLight(lightEntity.light.light);
+        layer.removeLight(lightEntity.light);
         layer.removeMeshInstances(sphere.enabled ? sphere.model.meshInstances : box.model.meshInstances);
         previewRoot.enabled = false;
 
