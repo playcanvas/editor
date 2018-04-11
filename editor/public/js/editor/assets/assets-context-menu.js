@@ -335,7 +335,7 @@ editor.once('load', function() {
             menuItemDownload.hidden = ! ((! config.project.privateAssets || (config.project.privateAssets && editor.call('permissions:read'))) && currentAsset.get('type') !== 'folder' && (currentAsset.get('source') || downloadable[currentAsset.get('type')] || (! legacyScripts && currentAsset.get('type') === 'script')) && currentAsset.get('file.url'));
 
             // duplicate
-            if (currentAsset.get('type') === 'material') {
+            if (currentAsset.get('type') === 'material' || currentAsset.get('type') === 'sprite') {
                 menuItemEdit.hidden = true;
                 if (editor.call('selector:type') === 'asset') {
                     var items = editor.call('selector:items');
