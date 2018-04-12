@@ -1488,6 +1488,9 @@ strong {
                 &.type-script:before {
                     content: '\E392';
                 }
+                &.type-sprite:before {
+                    content: '\E395';
+                }
                 &.type-texture:before {
                     content: '\E201';
                 }
