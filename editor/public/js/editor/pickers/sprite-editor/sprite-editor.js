@@ -67,7 +67,11 @@ editor.once('load', function() {
         BORDER_BOTTOM: 11,
         BORDER_BOTTOM_RIGHT: 12,
         PIVOT: 13,
-        FRAME: 14
+        FRAME: 14,
+        TOP: 15,
+        RIGHT: 16,
+        BOTTOM: 17,
+        LEFT: 18
     };
 
     var events = [];
@@ -821,6 +825,110 @@ editor.once('load', function() {
 
                 break;
             }
+            case HANDLE.RIGHT: {
+                frame.rect[2] = startingHandleFrame.rect[2] + dx;
+
+                if (frame.rect[0] + frame.rect[2] > realWidth) {
+                    frame.rect[2] = realWidth - frame.rect[0];
+                }
+
+                if (frame.rect[2] < 0) {
+                    frame.rect[2] *= -1;
+                    frame.rect[0] -= frame.rect[2];
+                    setHandle(HANDLE.LEFT, frame, p);
+                }
+
+                if (frame.border[0] > frame.rect[2] - frame.border[2]) {
+                    frame.border[0] = Math.max(frame.rect[2] - frame.border[2], 0);
+                }
+
+                if (frame.border[2] > frame.rect[2] - frame.border[0]) {
+                    frame.border[2] = Math.max(frame.rect[2] - frame.border[0], 0);
+                }
+
+
+                break;
+            }
+            case HANDLE.LEFT: {
+                // limit x coord between image edges
+                var x = clamp(startingHandleFrame.rect[0] + dx, 0, realWidth);
+                dx = x - startingHandleFrame.rect[0];
+                frame.rect[0] = startingHandleFrame.rect[0] + dx;
+                // adjust width
+                frame.rect[2] = startingHandleFrame.rect[2] - dx;
+
+                // if width became negative then make it positive and
+                // adjust x coord, then switch handle to top right
+                if (frame.rect[2] < 0) {
+                    frame.rect[2] *= -1;
+                    frame.rect[0] -= frame.rect[2];
+                    setHandle(HANDLE.RIGHT, frame, p);
+                }
+
+                // push right border if necessary
+                if (frame.border[2] > frame.rect[2] - frame.border[0]) {
+                    frame.border[2] = Math.max(frame.rect[2] - frame.border[0], 0);
+                }
+
+                // then push left border if necessary
+                if (frame.border[0] > frame.rect[2] - frame.border[2]) {
+                    frame.border[0] = Math.max(frame.rect[2] - frame.border[2], 0);
+                }
+
+                break;
+            }
+            case HANDLE.TOP: {
+                // adjust height and limit between image edges
+                frame.rect[3] = startingHandleFrame.rect[3] - dy;
+                if (frame.rect[1] + frame.rect[3] > realHeight) {
+                    frame.rect[3] = realHeight - frame.rect[1];
+                }
+
+                if (frame.rect[3] < 0) {
+                    frame.rect[3] *= -1;
+                    frame.rect[1] -= frame.rect[3];
+                    setHandle(HANDLE.BOTTOM, frame, p);
+                }
+
+                // push bottom border if necessary
+                if (frame.border[1] > frame.rect[3] - frame.border[3]) {
+                    frame.border[1] = Math.max(frame.rect[3] - frame.border[3], 0);
+                }
+
+                // then push top border if necessary
+                if (frame.border[3] > frame.rect[3] - frame.border[1]) {
+                    frame.border[3] = Math.max(frame.rect[3] - frame.border[1], 0);
+                }
+
+                break;
+            }
+            case HANDLE.BOTTOM: {
+                var y = clamp(startingHandleFrame.rect[1] - dy, 0, realHeight);
+                dy = y - startingHandleFrame.rect[1];
+                frame.rect[1] = startingHandleFrame.rect[1] + dy;
+                frame.rect[3] = startingHandleFrame.rect[3] - dy;
+
+
+                if (frame.rect[1] + frame.rect[3] > realHeight) {
+                    frame.rect[3] = realHeight - frame.rect[1];
+                }
+
+                if (frame.rect[3] < 0) {
+                    frame.rect[3] *= -1;
+                    frame.rect[1] -= frame.rect[3];
+                    setHandle(HANDLE.TOP, frame, p);
+                }
+
+                if (frame.border[3] > frame.rect[3] - frame.border[1]) {
+                    frame.border[3] = Math.max(frame.rect[3] - frame.border[1], 0);
+                }
+
+                if (frame.border[1] > frame.rect[3] - frame.border[3]) {
+                    frame.border[1] = Math.max(frame.rect[3] - frame.border[3], 0);
+                }
+
+                break;
+            }
             case HANDLE.BORDER_TOP_LEFT: {
                 frame.border[3] = Math.min(Math.max(startingHandleFrame.border[3] + dy, 0), frame.rect[3] - frame.border[1]);
                 frame.border[0] = Math.min(Math.max(startingHandleFrame.border[0] + dx, 0), frame.rect[2] - frame.border[2]);
@@ -871,6 +979,7 @@ editor.once('load', function() {
                 frame.rect[1] = clamp(startingHandleFrame.rect[1] - (dy) , 0, realHeight - frame.rect[3]);
                 break;
             }
+
 
         }
     };
@@ -1537,6 +1646,48 @@ editor.once('load', function() {
             return HANDLE.BOTTOM_RIGHT;
         }
 
+        // left border edge
+        if (frame.border[0]) {
+            if (rectContainsPoint(p, lb - handleWidth / 2, top + handleWidth / 2, handleWidth, height - handleWidth)) {
+                return HANDLE.BORDER_LEFT;
+            }
+        }
+        // right border edge
+        if (frame.border[2]) {
+            if (rectContainsPoint(p, rb - handleWidth / 2, top + handleWidth / 2, handleWidth, height - handleWidth)) {
+                return HANDLE.BORDER_RIGHT;
+            }
+        }
+        // bottom border edge
+        if (frame.border[1]) {
+            if (rectContainsPoint(p, left + handleWidth / 2, bb - handleWidth / 2, width - handleWidth, handleWidth)) {
+                return HANDLE.BORDER_BOTTOM;
+            }
+        }
+        // top border edge
+        if (frame.border[3]) {
+            if (rectContainsPoint(p, left + handleWidth / 2, tb - handleWidth / 2, width - handleWidth, handleWidth)) {
+                return HANDLE.BORDER_TOP;
+            }
+        }
+
+        // left edge
+        if (rectContainsPoint(p, left - handleWidth / 2, top + handleWidth / 2, handleWidth, height - handleWidth)) {
+            return HANDLE.LEFT;
+        }
+        // right edge
+        if (rectContainsPoint(p, left + width - handleWidth / 2, top + handleWidth / 2, handleWidth, height - handleWidth)) {
+            return HANDLE.RIGHT;
+        }
+        // top edge
+        if (rectContainsPoint(p, left + handleWidth / 2, top - handleWidth / 2, width - handleWidth, handleWidth)) {
+            return HANDLE.TOP;
+        }
+        // bottom edge
+        if (rectContainsPoint(p, left + handleWidth / 2, top + height - handleWidth / 2, width - handleWidth, handleWidth)) {
+            return HANDLE.BOTTOM;
+        }
+
         // frame
         if (rectContainsPoint(p, left, top, width, height)) {
             return HANDLE.FRAME;
@@ -1634,35 +1785,6 @@ editor.once('load', function() {
         });
     };
 
-    // var updateCursor = function () {
-    //     var grab = false;
-    //     var grabbing = false;
-
-    //     var selected = editor.call('picker:sprites:selectedFrame');
-
-    //     grab = hovering || shiftDown;
-    //     grabbing = newFrame || selected && selectedHandle || panning;
-
-    //     var cls = middlePanel.class;
-    //     var oldGrab = cls.contains('grab');
-    //     var oldGrabbing = cls.contains('grabbing');
-
-    //     if (grab && ! oldGrab) {
-    //         cls.add('grab');
-    //     }
-    //     else if (! grab && oldGrab) {
-    //         cls.remove('grab');
-    //     }
-
-    //     if (grabbing && ! oldGrabbing) {
-    //         cls.add('grabbing');
-    //     }
-    //     else if (! grabbing && oldGrabbing) {
-    //         cls.remove('grabbing');
-    //     }
-    // };
-
-
     var updateCursor = function () {
         var cls = middlePanel.class;
 
@@ -1685,11 +1807,15 @@ editor.once('load', function() {
             var handle = selectedHandle !== null ? selectedHandle : hoveringHandle;
             if (handle !== null) {
                 switch (handle) {
+                    case HANDLE.LEFT:
+                    case HANDLE.RIGHT:
                     case HANDLE.BORDER_LEFT:
                     case HANDLE.BORDER_RIGHT:
                         cls.add('ew-resize');
                         break;
 
+                    case HANDLE.TOP:
+                    case HANDLE.BOTTOM:
                     case HANDLE.BORDER_TOP:
                     case HANDLE.BORDER_BOTTOM:
                         cls.add('ns-resize');
