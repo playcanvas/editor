@@ -155,12 +155,27 @@ editor.once('load', function() {
 
             });
 
+            var onMouseEnter = function () {
+                editor.call('picker:sprites:hoverFrame', key);
+            };
+
+            var onMouseLeave = function () {
+                editor.call('picker:sprites:hoverFrame', null);
+            };
+
+            panel.element.addEventListener('mouseenter', onMouseEnter);
+            panel.element.addEventListener('mouseleave', onMouseLeave);
+
             // clean up events
             panel.on('destroy', function () {
                 for (var i = 0, len = frameEvents.length; i<len; i++) {
                     frameEvents[i].unbind();
                 }
                 frameEvents.length = 0;
+
+
+                panel.element.removeEventListener('mouseenter', onMouseEnter);
+                panel.element.removeEventListener('mouseleave', onMouseLeave);
             });
 
             if (afterPanel) {

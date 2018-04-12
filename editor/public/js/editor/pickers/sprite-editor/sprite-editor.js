@@ -9,6 +9,7 @@ editor.once('load', function() {
     var COLOR_DARK = '#1B282B';
     var COLOR_GREEN = '#0f0';
     var COLOR_ORANGE = '#f60';
+    var COLOR_TRANSPARENT_ORANGE = '#ff660099';
     var COLOR_BLUE = '#00f';
 
     var atlasAsset = null;
@@ -23,10 +24,12 @@ editor.once('load', function() {
     var rightButtonDown = false;
 
     var panning = false;
-    var newFrame = null;
     var spriteEditMode = false;
 
+    var newFrame = null;
+    var hoveredFrame = null;
     var oldFrame = null;
+
     var selectedHandle = null;
     var hoveringHandle = null;
     var startingHandleFrame = null;
@@ -1053,7 +1056,7 @@ editor.once('load', function() {
                 len--;
                 i--;
             } else {
-                renderFrame(frames[key]._data, left, top, width, height, 1, !spriteEditMode);
+                renderFrame(frames[key]._data, left, top, width, height, 0, !spriteEditMode);
             }
         }
         ctx.stroke();
@@ -1072,8 +1075,22 @@ editor.once('load', function() {
         ctx.stroke();
         ctx.setLineDash([]);
 
+        var frame;
 
-        var frame = newFrame || (selected ? atlasAsset.getRaw('data.frames.' + selected) : null);
+        // render hovered frame
+        if (hoveredFrame) {
+            ctx.beginPath();
+            ctx.lineWidth = 1;
+            ctx.fillStyle = COLOR_TRANSPARENT_ORANGE;
+            frame = atlasAsset.getRaw('data.frames.' + hoveredFrame);
+            if (frame) {
+                frame = frame._data;
+                renderFrame(frame, left, top, width, height, 1);
+            }
+            ctx.fill();
+        }
+
+        frame = newFrame || (selected ? atlasAsset.getRaw('data.frames.' + selected) : null);
         if (frame && frame._data)
             frame = frame._data;
 
@@ -1731,6 +1748,7 @@ editor.once('load', function() {
         bottomPanel.emit('clear');
 
         newFrame = null;
+        hoveredFrame = null;
         startingHandleFrame = null;
         hoveringHandle = null;
         selectedHandle = null;
@@ -1803,6 +1821,11 @@ editor.once('load', function() {
     // Return sprite editor controls
     editor.method('picker:sprites:controls', function () {
         return controls;
+    });
+
+    editor.method('picker:sprites:hoverFrame', function (frameKey) {
+        hoveredFrame = frameKey;
+        queueRender();
     });
 
     // Queue re-render
