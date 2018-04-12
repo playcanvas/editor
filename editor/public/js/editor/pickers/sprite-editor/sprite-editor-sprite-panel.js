@@ -54,6 +54,7 @@ editor.once('load', function() {
             name: 'Pixels Per Unit',
             type: 'number',
             link: spriteAsset,
+            min: 0,
             path: 'data.pixelsPerUnit'
         });
         // reference

@@ -10,6 +10,8 @@ function NumberField(args) {
     this.max = (args.max !== null) ? args.max : null;
     this.min = (args.min !== null) ? args.min : null;
 
+    this.allowNull = !!args.allowNull;
+
     this.element = document.createElement('div');
     this._element.classList.add('ui-number-field');
 
@@ -57,9 +59,18 @@ NumberField.prototype._onLinkChange = function(value) {
 };
 
 NumberField.prototype._onChange = function() {
-    var value = parseFloat(this.ui.elementInput.value, 10) || 0;
-    this.ui.elementInput.value = value;
-    this.ui.value = value;
+    var value = parseFloat(this.ui.elementInput.value, 10);
+    if (isNaN(value)) {
+        if (this.ui.allowNull) {
+            this.ui.value = null;
+        } else {
+            this.ui.elementInput.value = 0;
+            this.ui.value = 0;
+        }
+    } else {
+        this.ui.elementInput.value = value;
+        this.ui.value = value;
+    }
 };
 
 NumberField.prototype.focus = function(select) {

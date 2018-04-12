@@ -959,6 +959,11 @@ editor.once('load', function() {
 
                 field.value = args.value || 0;
                 field.flexGrow = 1;
+
+                if (args.allowNull) {
+                    field.allowNull = true;
+                }
+
                 if (args.placeholder)
                     field.placeholder = args.placeholder;
 

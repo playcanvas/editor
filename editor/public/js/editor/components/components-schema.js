@@ -361,6 +361,7 @@ editor.once('load', function() {
                 textureAsset: null,
                 spriteAsset: null,
                 spriteFrame: 0,
+                pixelsPerUnit: null,
                 width: 32,
                 height: 32,
                 margin: [-16,-16,-16,-16],

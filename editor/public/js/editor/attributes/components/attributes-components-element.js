@@ -611,8 +611,18 @@ editor.once('load', function() {
             path: 'components.element.spriteFrame'
         });
 
+        var fieldPpu = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Pixels Per Unit',
+            type: 'number',
+            link: entities,
+            min: 0,
+            allowNull: true,
+            path: 'components.element.pixelsPerUnit'
+        });
         // reference
-        editor.call('attributes:reference:attach', 'element:spriteFrame', fieldFrame.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'element:pixelsPerUnit', fieldPpu.parent.innerElement.firstChild.ui, null, panel);
+
 
         var fieldFontAsset = editor.call('attributes:addField', {
             parent: panel,
@@ -737,6 +747,7 @@ editor.once('load', function() {
             var spriteTester = editor.call('users:isSpriteTester');
             fieldSpriteAsset.parent.hidden = !spriteTester || fieldType.value !== 'image' || fieldTextureAsset.value || fieldMaterialAsset.value;
             fieldFrame.parent.hidden = fieldSpriteAsset.parent.hidden || ! fieldSpriteAsset.value;
+            fieldPpu.parent.hidden = fieldSpriteAsset.parent.hidden || ! fieldSpriteAsset.value;
             fieldTextureAsset.parent.hidden = fieldType.value !== 'image' || fieldSpriteAsset.value || fieldMaterialAsset.value;
             fieldMaterialAsset.parent.hidden = fieldType.value !== 'image' || fieldTextureAsset.value || fieldSpriteAsset.value;
             fieldColor.parent.hidden = fieldType.value !== 'image' && fieldType.value !== 'text' || fieldMaterialAsset.value;

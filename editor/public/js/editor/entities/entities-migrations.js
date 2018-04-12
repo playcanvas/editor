@@ -187,9 +187,11 @@ editor.once('load', function() {
                 if (! entity.has('components.element.spriteAsset')) {
                     entity.set('components.element.spriteAsset', null);
                 }
-
                 if (! entity.has('components.element.spriteFrame')) {
                     entity.set('components.element.spriteFrame', 0);
+                }
+                if (! entity.has('components.element.pixelsPerUnit')) {
+                    entity.set('components.element.pixelsPerUnit', null);
                 }
 
                 // layers

@@ -52,6 +52,11 @@ editor.once('load', function() {
         description: 'The frame from the Sprite Asset to render.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#spriteFrame'
     }, {
+        title: 'pixelsPerUnit',
+        subTitle: '{Number}',
+        description: 'The number of pixels that correspond to one PlayCanvas unit. Used when using 9 Sliced Sprite Assets to control the thickness of the borders. If this value is not specified the Element component will use the pixelsPerUnit value from the Sprite Asset.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#pixelsPerUnit'
+    }, {
         title: 'materialAsset',
         subTitle: '{pc.Asset}',
         description: 'The material to be used by the element.',
