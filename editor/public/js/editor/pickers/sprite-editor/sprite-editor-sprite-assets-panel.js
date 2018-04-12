@@ -232,6 +232,13 @@ editor.once('load', function() {
         events.push(editor.on('picker:sprites:spriteSelected', function (sprite) {
             if (! sprite) {
                 grid.selected = [];
+            } else {
+                var item = spriteItems[sprite.get('id')];
+                if (item) {
+                    grid.selected = [item];
+                } else {
+                    grid.selected = [];
+                }
             }
         }));
 
