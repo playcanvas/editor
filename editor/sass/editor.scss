@@ -6262,6 +6262,16 @@ strong {
                         > .ui-header {
                             background: transparent;
                             padding: 0;
+
+                            &:before {
+                                @extend .font-icon;
+                                content: '\E400';
+                                float: left;
+                                margin-right: 5px;
+                                margin-left: -3px;
+                                font-size: 20px;
+                                font-weight: 100;
+                            }
                         }
 
                         .ui-label {
@@ -6418,6 +6428,7 @@ strong {
                         text-align: center;
                         margin-left: -18px;
                         margin-right: 9px;
+                        font-weight: 100;
                     }
 
                     &.create:before {
