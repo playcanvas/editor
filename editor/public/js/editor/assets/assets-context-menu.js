@@ -360,10 +360,10 @@ editor.once('load', function() {
             }
 
             // create atlas
-            menuItemTextureToAtlas.hidden = (currentAsset.get('type') !== 'texture' || currentAsset.get('source') || currentAsset.get('task') || ! editor.call('permissions:write'));
+            menuItemTextureToAtlas.hidden = (currentAsset.get('type') !== 'texture' || currentAsset.get('source') || currentAsset.get('task') || ! editor.call('permissions:write') || ! editor.call('users:isSpriteTester'));
 
             // create sprite
-            menuItemCreateSprite.hidden = (currentAsset.get('type') !== 'textureatlas' || currentAsset.get('source') || currentAsset.get('task') || ! editor.call('permissions:write'));
+            menuItemCreateSprite.hidden = (currentAsset.get('type') !== 'textureatlas' || currentAsset.get('source') || currentAsset.get('task') || ! editor.call('permissions:write') || ! editor.call('users:isSpriteTester'));
             menuItemCreateSlicedSprite.hidden = menuItemCreateSprite.hidden;
 
             // delete
