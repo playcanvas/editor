@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     var create = function(data) {
-        var assetId = data.asset.id;
+        var assetId = parseInt(data.asset.id, 10);
 
         if (data.asset.source === false && data.asset.status && data.asset.status !== 'complete') {
             return;
