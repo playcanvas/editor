@@ -244,7 +244,10 @@ editor.once('load', function() {
 
         // Asset create event
         events.push(editor.on('assets:add', function (asset) {
-            if (asset.get('type') !== 'sprite' || asset.get('data.textureAtlasAsset') !== atlasAsset.get('id')) return;
+            if (asset.get('type') !== 'sprite') return;
+
+            var id = parseInt(asset.get('data.textureAtlasAsset'), 10);
+            if (id !== parseInt(atlasAsset.get('id'), 10)) return;
 
             spriteAssets.push(asset);
             var item = createSpriteItem(asset);
