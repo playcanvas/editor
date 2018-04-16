@@ -46,7 +46,7 @@ editor.once('load', function() {
                 cookieAngle: 0.0,
                 cookieOffset: [ 0.0, 0.0 ],
                 cookieScale: [ 1.0, 1.0 ],
-                layers: [pc.LAYERID_WORLD]
+                layers: [LAYERID_WORLD]
             },
             types: {
                 color: 'rgb',
@@ -120,7 +120,7 @@ editor.once('load', function() {
                 farClip: 1000,
                 priority: 0,
                 rect: [0, 0, 1, 1],
-                layers: [pc.LAYERID_WORLD, pc.LAYERID_DEPTH, pc.LAYERID_SKYBOX, pc.LAYERID_IMMEDIATE, pc.LAYERID_UI]
+                layers: [LAYERID_WORLD, LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE, LAYERID_UI]
             },
             types: {
                 clearColor: 'rgb',
@@ -158,7 +158,7 @@ editor.once('load', function() {
                 lightMapped: false,
                 lightMapSizeMultiplier: 1.0,
                 batchGroupId: null,
-                layers: [pc.LAYERID_WORLD]
+                layers: [LAYERID_WORLD]
             }
         },
 
@@ -198,7 +198,7 @@ editor.once('load', function() {
                 colorMapAsset: null,
                 normalMapAsset: null,
                 mesh: null,
-                layers: [pc.LAYERID_WORLD],
+                layers: [LAYERID_WORLD],
                 localVelocityGraph: {
                     type: 1,
                     keys: [[0, 0], [0, 0], [0, 0]],
@@ -372,7 +372,7 @@ editor.once('load', function() {
                 materialAsset: null,
                 batchGroupId: null,
                 mask: false,
-                layers: [pc.LAYERID_UI]
+                layers: [LAYERID_UI]
             },
             types: {
                 anchor: 'vec4',
@@ -402,7 +402,7 @@ editor.once('load', function() {
                 speed: 1,
                 batchGroupId: null,
                 drawOrder: 0,
-                layers: [pc.LAYERID_WORLD]
+                layers: [LAYERID_WORLD]
             },
             types: {
                 color: 'rgb'

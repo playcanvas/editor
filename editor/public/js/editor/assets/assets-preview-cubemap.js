@@ -7,7 +7,7 @@ editor.once('load', function() {
     var layerComposition = new pc.LayerComposition();
 
     var layer = new pc.Layer({
-        id: pc.LAYERID_SKYBOX,
+        id: LAYERID_SKYBOX,
         enabled: true,
         opaqueSortMode: 0
     });

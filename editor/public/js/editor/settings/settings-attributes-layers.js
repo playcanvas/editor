@@ -641,10 +641,10 @@ editor.once('load', function() {
             }
 
             if (transparent) {
-                if (layerKey === pc.LAYERID_DEPTH || layerKey === pc.LAYERID_SKYBOX) {
+                if (layerKey === LAYERID_DEPTH || layerKey === LAYERID_SKYBOX) {
                     return;
                 }
-            } else if (layerKey === pc.LAYERID_UI) {
+            } else if (layerKey === LAYERID_UI) {
                 return;
             }
 

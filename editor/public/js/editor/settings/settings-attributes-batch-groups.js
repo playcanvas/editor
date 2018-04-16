@@ -184,9 +184,9 @@ editor.once('load', function() {
             for (var key in layers) {
                 layersEnum[key] = layers[key].name;
             }
-            delete layersEnum[pc.LAYERID_DEPTH];
-            delete layersEnum[pc.LAYERID_SKYBOX];
-            delete layersEnum[pc.LAYERID_IMMEDIATE];
+            delete layersEnum[LAYERID_DEPTH];
+            delete layersEnum[LAYERID_SKYBOX];
+            delete layersEnum[LAYERID_IMMEDIATE];
 
             var fieldLayers = editor.call('attributes:addField', {
                 parent: panelGroup,
@@ -213,7 +213,7 @@ editor.once('load', function() {
             // layers
             if (!projectSettings.has('batchGroups.' + groupId + '.layers')) {
                 projectSettings.set('batchGroups.' + groupId + '.layers', []);
-                projectSettings.insert('batchGroups.' + groupId + '.layers', pc.LAYERID_WORLD);
+                projectSettings.insert('batchGroups.' + groupId + '.layers', LAYERID_WORLD);
             }
 
             var prevKey = null;

@@ -122,37 +122,37 @@ editor.once('load', function () {
 
             settings.set('layerOrder', []);
             settings.insert('layerOrder', {
-                layer: pc.LAYERID_WORLD,
+                layer: LAYERID_WORLD,
                 transparent: false,
                 enabled: true
             });
             settings.insert('layerOrder', {
-                layer: pc.LAYERID_DEPTH,
+                layer: LAYERID_DEPTH,
                 transparent: false,
                 enabled: true
             });
             settings.insert('layerOrder', {
-                layer: pc.LAYERID_SKYBOX,
+                layer: LAYERID_SKYBOX,
                 transparent: false,
                 enabled: true
             });
             settings.insert('layerOrder', {
-                layer: pc.LAYERID_WORLD,
+                layer: LAYERID_WORLD,
                 transparent: true,
                 enabled: true
             });
             settings.insert('layerOrder', {
-                layer: pc.LAYERID_IMMEDIATE,
+                layer: LAYERID_IMMEDIATE,
                 transparent: false,
                 enabled: true
             });
             settings.insert('layerOrder', {
-                layer: pc.LAYERID_IMMEDIATE,
+                layer: LAYERID_IMMEDIATE,
                 transparent: true,
                 enabled: true
             });
             settings.insert('layerOrder', {
-                layer: pc.LAYERID_UI,
+                layer: LAYERID_UI,
                 transparent: true,
                 enabled: true
             });
