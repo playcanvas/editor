@@ -8,122 +8,7 @@ editor.once('load', function() {
 
     var layerIndex = {};
 
-    // on settings change
-    projectSettings.on('*:set', function (path, value) {
-        var parts, id;
-
-        if (path.startsWith('layers.')) {
-            parts = path.split('.');
-
-            if (parts.length === 2) {
-                id = parseInt(parts[1],10);
-                var layer = createLayer(id, value);
-                layerIndex[layer.id] = layer;
-
-                var existing = app.scene.layers.getLayerById(value.id);
-                if (existing) {
-                    app.scene.layers.remove(existing);
-                }
-            } else if (parts.length === 3) {
-                id = parseInt(parts[1],10);
-                // change layer property
-                if (layerIndex[id]) {
-                    layerIndex[id][parts[2]] = value;
-                }
-            }
-
-        } else if (path.startsWith('layerOrder.')) {
-            parts = path.split('.');
-
-            if (parts.length === 3) {
-                if (parts[2] === 'enabled') {
-                    var subLayerId = parseInt(parts[1]);
-                    subLayerId += 2; // Add 2 to sublayer ID, because editor has its own 2 layers in front of user's
-                    app.scene.layers.subLayerEnabled[subLayerId] = value;
-                    editor.call('viewport:render');
-                }
-            }
-        }
-    });
-
-    projectSettings.on('*:unset', function (path) {
-        if (path.startsWith('layers.')) {
-            var parts = path.split('.');
-            // remove layer
-            if (parts.length === 2) {
-                var id = parseInt(parts[1],10);
-                delete layerIndex[id];
-
-                var existing = app.scene.layers.getLayerById(id);
-                if (existing) {
-                    app.scene.layers.remove(existing);
-                }
-
-            }
-        }
-    });
-
-    projectSettings.on('layerOrder:insert', function (value, index) {
-        var id = value.get('layer');
-        var layer = layerIndex[id];
-        if (! layer) return;
-
-        var transparent = value.get('transparent');
-
-        editor.call('gizmo:layers:removeFromComposition');
-
-        if (transparent) {
-            app.scene.layers.insertTransparent(layer, index);
-        } else {
-            app.scene.layers.insertOpaque(layer, index);
-        }
-
-        editor.call('gizmo:layers:addToComposition');
-
-
-        editor.call('viewport:render');
-    });
-
-    projectSettings.on('layerOrder:remove', function (value) {
-        var id = value.get('layer');
-        var layer = layerIndex[id];
-        if (! layer) return;
-
-        var transparent = value.get('transparent');
-
-        editor.call('gizmo:layers:removeFromComposition');
-
-        if (transparent) {
-            app.scene.layers.removeTransparent(layer);
-        } else {
-            app.scene.layers.removeOpaque(layer);
-        }
-
-        editor.call('gizmo:layers:addToComposition');
-
-        editor.call('viewport:render');
-    });
-
-    projectSettings.on('layerOrder:move', function (value, indNew, indOld) {
-        var id = value.get('layer');
-        var layer = layerIndex[id];
-        if (! layer) return;
-
-        editor.call('gizmo:layers:removeFromComposition');
-
-        var transparent = value.get('transparent');
-        if (transparent) {
-            app.scene.layers.removeTransparent(layer);
-            app.scene.layers.insertTransparent(layer, indNew);
-        } else {
-            app.scene.layers.removeOpaque(layer);
-            app.scene.layers.insertOpaque(layer, indNew);
-        }
-
-        editor.call('gizmo:layers:addToComposition');
-
-        editor.call('viewport:render');
-    });
+    var events = [];
 
     var createLayer = function (id, data) {
         return new pc.Layer({
@@ -136,6 +21,132 @@ editor.once('load', function() {
     };
 
     var initLayers = function () {
+        for (var i = 0; i < events.length; i++) {
+            events[i].unbind();
+        }
+        events.length = 0;
+
+        // on settings change
+        events.push(projectSettings.on('*:set', function (path, value) {
+            var parts, id;
+
+            if (path.startsWith('layers.')) {
+                parts = path.split('.');
+
+                if (parts.length === 2) {
+                    id = parseInt(parts[1],10);
+                    var layer = createLayer(id, value);
+                    layerIndex[layer.id] = layer;
+
+                    var existing = app.scene.layers.getLayerById(value.id);
+                    if (existing) {
+                        app.scene.layers.remove(existing);
+                    }
+                } else if (parts.length === 3) {
+                    id = parseInt(parts[1],10);
+                    // change layer property
+                    if (layerIndex[id]) {
+                        layerIndex[id][parts[2]] = value;
+                    }
+                }
+
+            } else if (path.startsWith('layerOrder.')) {
+                parts = path.split('.');
+
+                if (parts.length === 3) {
+                    if (parts[2] === 'enabled') {
+                        editor.call('gizmo:layers:removeFromComposition');
+
+                        var subLayerId = parseInt(parts[1]);
+                        app.scene.layers.subLayerEnabled[subLayerId] = value;
+
+                        editor.call('gizmo:layers:addToComposition');
+
+                        editor.call('viewport:render');
+                    }
+                }
+            }
+        }));
+
+        events.push(projectSettings.on('*:unset', function (path) {
+            if (path.startsWith('layers.')) {
+                var parts = path.split('.');
+                // remove layer
+                if (parts.length === 2) {
+                    var id = parseInt(parts[1],10);
+                    delete layerIndex[id];
+
+                    var existing = app.scene.layers.getLayerById(id);
+                    if (existing) {
+                        app.scene.layers.remove(existing);
+                    }
+
+                }
+            }
+        }));
+
+        events.push(projectSettings.on('layerOrder:insert', function (value, index) {
+            var id = value.get('layer');
+            var layer = layerIndex[id];
+            if (! layer) return;
+
+            var transparent = value.get('transparent');
+
+            editor.call('gizmo:layers:removeFromComposition');
+
+            if (transparent) {
+                app.scene.layers.insertTransparent(layer, index);
+            } else {
+                app.scene.layers.insertOpaque(layer, index);
+            }
+
+            editor.call('gizmo:layers:addToComposition');
+
+
+            editor.call('viewport:render');
+        }));
+
+        events.push(projectSettings.on('layerOrder:remove', function (value) {
+            var id = value.get('layer');
+            var layer = layerIndex[id];
+            if (! layer) return;
+
+            var transparent = value.get('transparent');
+
+            editor.call('gizmo:layers:removeFromComposition');
+
+            if (transparent) {
+                app.scene.layers.removeTransparent(layer);
+            } else {
+                app.scene.layers.removeOpaque(layer);
+            }
+
+            editor.call('gizmo:layers:addToComposition');
+
+            editor.call('viewport:render');
+        }));
+
+        events.push(projectSettings.on('layerOrder:move', function (value, indNew, indOld) {
+            var id = value.get('layer');
+            var layer = layerIndex[id];
+            if (! layer) return;
+
+            editor.call('gizmo:layers:removeFromComposition');
+
+            var transparent = value.get('transparent');
+            if (transparent) {
+                app.scene.layers.removeTransparent(layer);
+                app.scene.layers.insertTransparent(layer, indNew);
+            } else {
+                app.scene.layers.removeOpaque(layer);
+                app.scene.layers.insertOpaque(layer, indNew);
+            }
+
+            editor.call('gizmo:layers:addToComposition');
+
+            editor.call('viewport:render');
+        }));
+
         var layers = projectSettings.get('layers');
         if (! layers) return;
 
@@ -169,6 +180,6 @@ editor.once('load', function() {
         app.scene.layers = composition;
     };
 
-    initLayers();
+    editor.on('settings:project:load', initLayers);
 
 });
