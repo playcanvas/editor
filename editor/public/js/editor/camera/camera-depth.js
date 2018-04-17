@@ -16,7 +16,7 @@ editor.once('viewport:load', function() {
     });
 
     editor.method('camera:depth:render', function(camera) {
-        var rect = camera._rect;
+        var rect = camera.camera._rect;
         var width = Math.floor(rect.width * device.width);
         var height = Math.floor(rect.height * device.height);
 
@@ -40,9 +40,9 @@ editor.once('viewport:load', function() {
             });
         }
 
-        var oldTarget = camera.renderTarget;
-        camera.renderTarget = depthTarget;
-        renderer.setCamera(camera);
+        var cam = camera.camera;
+        renderer.setCamera(cam);
+        renderer.clearView(camera, depthTarget)
 
         var oldBlending = device.getBlending();
         device.setBlending(false);
@@ -53,7 +53,7 @@ editor.once('viewport:load', function() {
         for (var i = 0; i < drawCallsCount; i++) {
             var opChan = 'r';
             var meshInstance = drawCalls[i];
-            if (! meshInstance.command && meshInstance.drawToDepth && meshInstance.material && meshInstance.material.blendType === pc.BLEND_NONE && meshInstance.layer === pc.LAYER_WORLD) {
+            if (! meshInstance.command && meshInstance.material && meshInstance.material.blendType === pc.BLEND_NONE) {
                 var mesh = meshInstance.mesh;
 
                 renderer.modelMatrixId.setValue(meshInstance.node.worldTransform.data);
@@ -67,7 +67,6 @@ editor.once('viewport:load', function() {
 
                 if (meshInstance.skinInstance) {
                     renderer._skinDrawCalls++;
-                    renderer.skinPosOffsetId.setValue(meshInstance.skinInstance.rootNode.getPosition().data);
                     if (device.supportsBoneTextures) {
                         var boneTexture = meshInstance.skinInstance.boneTexture;
                         renderer.boneTextureId.setValue(boneTexture);
@@ -75,10 +74,14 @@ editor.once('viewport:load', function() {
                     } else {
                         renderer.poseMatrixId.setValue(meshInstance.skinInstance.matrixPalette);
                     }
-                    device.setShader(material.opacityMap ? renderer._depthShaderSkinOp[opChan] : renderer._depthShaderSkin);
-                } else {
-                    device.setShader(material.opacityMap ? renderer._depthShaderStaticOp[opChan] : renderer._depthShaderStatic);
                 }
+
+                var shader = meshInstance._shader[pc.SHADER_DEPTH];
+                if (!shader) {
+                    app.renderer.updateShader(meshInstance, meshInstance._shaderDefs, null, pc.SHADER_DEPTH);
+                    shader = meshInstance._shader[pc.SHADER_DEPTH];
+                }
+                device.setShader(shader);
 
                 var style = meshInstance.renderStyle;
 
@@ -88,7 +91,7 @@ editor.once('viewport:load', function() {
                 renderer._depthDrawCalls++;
             }
         }
-        camera.renderTarget = oldTarget;
+
         device.setBlending(oldBlending);
 
         rendered = true;
@@ -120,10 +123,10 @@ editor.once('viewport:load', function() {
         if (colorDistance >= 255)
             return null;
 
-        var distance = (camera._nearClip || 0.0001) + (camera._farClip * (colorDistance / 255.0));
+        var distance = (camera.nearClip || 0.0001) + (camera.farClip * (colorDistance / 255.0));
         var point = new pc.Vec3();
 
-        camera.screenToWorld(x, y, distance, depthTarget.width, depthTarget.height, point);
+        camera.camera.screenToWorld(x, y, distance, depthTarget.width, depthTarget.height, point);
 
         return point;
     });

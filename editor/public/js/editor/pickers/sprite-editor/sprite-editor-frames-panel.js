@@ -19,70 +19,16 @@ editor.once('load', function() {
         var scrollSelectionIntoView = true;
 
         var leftPanel = editor.call('picker:sprites:leftPanel');
-        leftPanel.header = 'FRAMES';
+        leftPanel.header = 'FRAMES IN TEXTURE ATLAS';
 
-        var panel = editor.call('attributes:addPanel', {
+        var panelFrames = editor.call('attributes:addPanel', {
             parent: leftPanel
         });
 
-        var panelTop = new ui.Panel();
-        panelTop.class.add('top');
-        panel.append(panelTop);
-
-        // var fieldNumFrames = editor.call('attributes:addField', {
-        //     parent: panelTop,
-        //     name: 'No. of frames',
-        //     value: 0
-        // });
-
-        var panelButtons = new ui.Panel();
-        panelTop.append(panelButtons);
-        panelButtons.flex = true;
-
-        var btnNewSprite = new ui.Button({
-            text: 'NEW SPRITE'
-        });
-        btnNewSprite.class.add('icon', 'create');
-        btnNewSprite.disabled = true;
-        panelButtons.append(btnNewSprite);
-
-        btnNewSprite.on('click', function () {
-            btnNewSprite.disabled = true;
-            editor.call('picker:sprites:spriteFromSelection', function () {
-                btnNewSprite.disabled = false;
-            });
-        });
-
-        var btnDelete = new ui.Button({
-            text: 'DELETE'
-        });
-        btnDelete.class.add('icon', 'remove');
-        btnDelete.disabled = true;
-        panelButtons.append(btnDelete);
-
-        btnDelete.on('click', function () {
-            editor.call('picker:sprites:deleteFrames', selectedKeys, {
-                history: true
-            });
-        });
-
-        var btnAddSelectedFrames = new ui.Button({
-            text: 'ADD FRAMES TO SPRITE'
-        });
-        btnAddSelectedFrames.class.add('icon', 'wide', 'create');
-        btnAddSelectedFrames.flexGrow = 1;
-        btnAddSelectedFrames.disabled = true;
-        btnAddSelectedFrames.hidden = true;
-        panelButtons.append(btnAddSelectedFrames);
-
-        btnAddSelectedFrames.on('click', function () {
-            editor.call('picker:sprites:pickFrames:add');
-        });
-
-        var panelFrames = new ui.Panel();
+        // var panelFrames = new ui.Panel();
         panelFrames.scroll = true;
         panelFrames.class.add('frames');
-        panel.append(panelFrames);
+        // panel.append(panelFrames);
 
         var addFramePanel = function (key, frame, afterPanel, beforePanel) {
             var frameEvents = [];
@@ -209,12 +155,27 @@ editor.once('load', function() {
 
             });
 
+            var onMouseEnter = function () {
+                editor.call('picker:sprites:hoverFrame', key);
+            };
+
+            var onMouseLeave = function () {
+                editor.call('picker:sprites:hoverFrame', null);
+            };
+
+            panel.element.addEventListener('mouseenter', onMouseEnter);
+            panel.element.addEventListener('mouseleave', onMouseLeave);
+
             // clean up events
             panel.on('destroy', function () {
                 for (var i = 0, len = frameEvents.length; i<len; i++) {
                     frameEvents[i].unbind();
                 }
                 frameEvents.length = 0;
+
+
+                panel.element.removeEventListener('mouseenter', onMouseEnter);
+                panel.element.removeEventListener('mouseleave', onMouseLeave);
             });
 
             if (afterPanel) {
@@ -327,10 +288,8 @@ editor.once('load', function() {
 
                 if (keys) {
                     spriteEditModeKeys = keys.slice();
-                    btnAddSelectedFrames.disabled = false;
                 } else {
                     spriteEditModeKeys.length = 0;
-                    btnAddSelectedFrames.disabled = true;
                 }
 
             } else {
@@ -344,12 +303,8 @@ editor.once('load', function() {
 
                 if (keys) {
                     selectedKeys = keys.slice();
-                    btnNewSprite.disabled = false;
-                    btnDelete.disabled = false;
                 } else {
                     selectedKeys.length = 0;
-                    btnNewSprite.disabled = true;
-                    btnDelete.disabled = true;
                 }
             }
 
@@ -381,17 +336,10 @@ editor.once('load', function() {
 
         events.push(editor.on('picker:sprites:pickFrames:start', function () {
             spriteEditMode = true;
-            btnAddSelectedFrames.hidden = false;
-            btnAddSelectedFrames.disabled = true;
-            btnNewSprite.hidden = true;
-            btnDelete.hidden = true;
         }));
 
         events.push(editor.on('picker:sprites:pickFrames:end', function () {
             spriteEditMode = false;
-            btnAddSelectedFrames.hidden = true;
-            btnNewSprite.hidden = false;
-            btnDelete.hidden = false;
 
             for (var i = 0, len = spriteEditModeKeys.length; i<len; i++) {
                 if (panels[spriteEditModeKeys[i]]) {
@@ -419,10 +367,10 @@ editor.once('load', function() {
 
         // clean up
         events.push(leftPanel.on('clear', function () {
-            panel.destroy();
+            panelFrames.destroy();
         }));
 
-        panel.on('destroy', function () {
+        panelFrames.on('destroy', function () {
             for (var i = 0; i < events.length; i++) {
                 events[i].unbind();
             }

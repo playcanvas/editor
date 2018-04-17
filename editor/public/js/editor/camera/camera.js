@@ -2,14 +2,19 @@ editor.once('load', function() {
     'use strict';
 
     editor.once('viewport:load', function() {
-        var cameras = [ ];
         var camerasIndex = { };
         var editorCameras = { };
         var currentCamera = null;
         var defaultCamera = null;
+
+        var evtLayersSet = null;
+        var evtLayersInsert = null;
+        var evtLayersRemove = null;
+
         var app = editor.call('viewport:app');
         if (! app) return; // webgl not available
 
+        var projectSettings = editor.call('settings:project');
 
         editor.method('camera:get', function(name) {
             return editorCameras[name] || null;
@@ -23,18 +28,87 @@ editor.once('load', function() {
             return currentCamera;
         });
 
+        var addGizmoLayers = function (camera, layers) {
+            for (var i = 0; i < layers.length; i++) {
+                var layer = layers[i];
+                var idx = camera.layers.indexOf(layer.id);
+                if (idx === -1) {
+                    camera.layers.push(layer.id);
+                }
+            }
+            camera.layers = camera.layers; // force update
+        };
+
+        var removeGizmoLayers = function (camera, layers) {
+            for (var i = 0; i < layers.length; i++) {
+                var layer = layers[i];
+                var idx = camera.layers.indexOf(layer.id);
+                if (idx !== -1) {
+                    camera.layers.splice(idx, 1);
+                }
+            }
+
+            camera.layers = camera.layers; // force update
+        };
+
         editor.method('camera:set', function(entity) {
-            if (! entity) entity = defaultCamera
+            if (! entity) entity = defaultCamera;
 
             if (currentCamera === entity || ! entity.camera)
                 return;
 
+            var gizmoLayers = editor.call('gizmo:layers:list');
+
             var old = currentCamera;
-            if (old && old.__editorCamera) old.enabled = false;
+            if (old) {
+                old.camera.enabled = false;
+                removeGizmoLayers(old.camera, gizmoLayers);
+
+                if (evtLayersSet) {
+                    evtLayersSet.unbind();
+                    evtLayersSet = null;
+                }
+
+                if (evtLayersInsert) {
+                    evtLayersInsert.unbind();
+                    evtLayersInsert = null;
+                }
+
+                if (evtLayersRemove) {
+                    evtLayersRemove.unbind();
+                    evtLayersRemove = null;
+                }
+            }
 
             currentCamera = entity;
-            if (currentCamera.__editorCamera)
-                currentCamera.enabled = true;
+            currentCamera.camera.enabled = true;
+
+            addGizmoLayers(currentCamera.camera, gizmoLayers);
+
+            // if this is a user's camera and the user changes its layers
+            // make sure we re-add editor layers to this camera if this is the selected viewport
+            // camera at the moment
+            if (! entity.__editorCamera) {
+                var fixLayers = function () {
+                    if (entity !== currentCamera) return;
+
+                    setTimeout(function () {
+                        // check again
+                        if (entity !== currentCamera) return;
+
+                        // add layers and re-render
+                        addGizmoLayers(entity.camera, editor.call('gizmo:layers:list'));
+                        editor.call('viewport:render');
+                    });
+                };
+
+                var e = editor.call('entities:get', entity.getGuid());
+                if (e) {
+                    evtLayersInsert = e.on('components.camera.layers:insert', fixLayers);
+                    evtLayersRemove = e.on('components.camera.layers:remove', fixLayers);
+                    evtLayersSet = e.on('components.camera.layers:set', fixLayers);
+                }
+            }
 
             editor.emit('camera:change', currentCamera, old);
             editor.call('viewport:render');
@@ -44,8 +118,11 @@ editor.once('load', function() {
             if (camerasIndex[entity.getGuid()])
                 return;
 
-            cameras.push(entity);
             camerasIndex[entity.getGuid()] = entity;
+
+            if (entity.camera) {
+                entity.camera.enabled = false;
+            }
 
             editor.emit('camera:add', entity);
         });
@@ -54,20 +131,12 @@ editor.once('load', function() {
             if (! camerasIndex[entity.getGuid()])
                 return;
 
-            var ind = cameras.indexOf(entity);
-            if (ind !== -1)
-                cameras.splice(ind, 1);
-
             delete camerasIndex[entity.getGuid()];
 
             if (entity === currentCamera)
                 editor.call('camera:set');
 
             editor.emit('camera:remove', entity);
-        });
-
-        editor.method('camera:list', function() {
-            return cameras.slice(0);
         });
 
         editor.on('permissions:writeState', function(state) {
@@ -127,7 +196,6 @@ editor.once('load', function() {
             var entity = new pc.Entity();
             entity.__editorCamera = true;
             entity.__editorName = args.name;
-            entity.enabled = false;
             entity.name = args.title;
             entity.setPosition(args.position);
             entity.setEulerAngles(args.rotation);
@@ -141,8 +209,13 @@ editor.once('load', function() {
                 priority: 0,
                 clearColorBuffer: true,
                 clearDepthBuffer: true,
-                frustumCulling: true
+                frustumCulling: true,
             };
+
+            var layerOrder = projectSettings.get('layerOrder');
+            if (layerOrder) {
+                params.layers = layerOrder.map(function (l) {return parseInt(l.layer, 10);});
+            }
 
             if (args.ortho) {
                 params.projection = pc.PROJECTION_ORTHOGRAPHIC;
@@ -153,6 +226,7 @@ editor.once('load', function() {
             }
 
             entity.addComponent('camera', params);
+            entity.camera.enabled = false;
 
             app.root.addChild(entity);
 
@@ -170,6 +244,35 @@ editor.once('load', function() {
                 editor.call('camera:set', entity);
             }
         }
+
+        // when layers change make sure that our Editor cameras have them
+        projectSettings.on('layerOrder:insert', function (value) {
+            var id = parseInt(value.get('layer'), 10);
+            for (var key in editorCameras) {
+                var entity = editorCameras[key];
+                var idx = entity.camera.layers.indexOf(id);
+                if (idx === -1) {
+                    entity.camera.layers.push(id);
+                    entity.camera.layers = entity.camera.layers; // force update
+                }
+            }
+
+            editor.call('viewport:render');
+        });
+
+        projectSettings.on('layerOrder:remove', function (value) {
+            var id = parseInt(value.get('layer'), 10);
+            for (var key in editorCameras) {
+                var entity = editorCameras[key];
+                var idx = entity.camera.layers.indexOf(id);
+                if (idx !== -1) {
+                    entity.camera.layers.splice(idx, 1);
+                    entity.camera.layers = entity.camera.layers; // force update
+                }
+            }
+
+            editor.call('viewport:render');
+        });
 
         editor.emit('camera:load');
     });

@@ -61,6 +61,12 @@ editor.once('load', function() {
         name: 'resolution',
         description: 'Auto-generated lightmap textures resolution is calculated using area of geometry in world space and size multiplier of model and scene.',
         url: 'http://developer.playcanvas.com/en/user-manual/graphics/lighting/lightmaps/#lightmap-size-multipliers'
+    }, {
+        name: 'layers',
+        title: 'layers',
+        subTitle: '{Number[]}',
+        description: 'The layers that this model belongs to. When a model belongs to multiple layers it will be rendered multiple times.',
+        url: 'http://developer.playcanvas.com/api/pc.ModelComponent.html#layers'
     }];
 
     for(var i = 0; i < fields.length; i++) {

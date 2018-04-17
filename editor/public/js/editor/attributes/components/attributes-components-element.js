@@ -8,6 +8,8 @@ editor.once('load', function() {
 
         var events = [ ];
 
+        var projectSettings = editor.call('settings:project');
+
         var panel = editor.call('attributes:entity:addComponentPanel', {
             title: 'Element',
             name: 'element',
@@ -392,6 +394,8 @@ editor.once('load', function() {
             fieldWidth.renderChanges = !fieldWidth.disabled;
             fieldHeight.disabled = hasSplitAnchors(false) || (fieldAutoHeight.value && fieldType.value === 'text');
             fieldHeight.renderChanges = !fieldHeight.disabled;
+            fieldAutoWidth.disabled = hasSplitAnchors(true);
+            fieldAutoHeight.disabled = hasSplitAnchors(false);
         };
 
         toggleSize();
@@ -411,10 +415,10 @@ editor.once('load', function() {
         var toggleMargin = function () {
             var horizontalSplit = hasSplitAnchors(true);
             var verticalSplit = hasSplitAnchors(false);
-            fieldMargin[0].disabled = ! horizontalSplit || (fieldAutoWidth.value && fieldType.value === 'text');
+            fieldMargin[0].disabled = ! horizontalSplit;
             fieldMargin[2].disabled = fieldMargin[0].disabled;
 
-            fieldMargin[1].disabled = ! verticalSplit || (fieldAutoHeight.value && fieldType.value === 'text');
+            fieldMargin[1].disabled = ! verticalSplit;
             fieldMargin[3].disabled = fieldMargin[1].disabled;
 
             for (var i = 0; i < 4; i++)
@@ -607,8 +611,18 @@ editor.once('load', function() {
             path: 'components.element.spriteFrame'
         });
 
+        var fieldPpu = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Pixels Per Unit',
+            type: 'number',
+            link: entities,
+            min: 0,
+            allowNull: true,
+            path: 'components.element.pixelsPerUnit'
+        });
         // reference
-        editor.call('attributes:reference:attach', 'element:spriteFrame', fieldFrame.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'element:pixelsPerUnit', fieldPpu.parent.innerElement.firstChild.ui, null, panel);
+
 
         var fieldFontAsset = editor.call('attributes:addField', {
             parent: panel,
@@ -647,8 +661,13 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'element:useInput', fieldUseInput.parent.innerElement.firstChild.ui);
 
+        // divider
+        var divider = document.createElement('div');
+        divider.classList.add('fields-divider');
+        panel.append(divider);
+
         // batch group
-        var batchGroups = editor.call('settings:project').get('batchGroups');
+        var batchGroups = projectSettings.get('batchGroups');
         var batchEnum = {
             '': '...',
             'NaN': 'None'
@@ -678,7 +697,7 @@ editor.once('load', function() {
         // Create new batch group, assign it to the selected entities and focus on it in the settings panel
         btnAddGroup.addEventListener('click', function () {
             var group = editor.call('editorSettings:batchGroups:create');
-            batchEnum[group] = editor.call('settings:project').get('batchGroups.' + group + '.name');
+            batchEnum[group] = projectSettings.get('batchGroups.' + group + '.name');
             fieldBatchGroup._updateOptions(batchEnum);
             fieldBatchGroup.value = group;
             editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
@@ -687,10 +706,48 @@ editor.once('load', function() {
             });
         });
 
+        // layers
+        var layers = projectSettings.get('layers');
+        var layersEnum = {
+            '': ''
+        };
+        for (var key in layers) {
+            layersEnum[key] = layers[key].name;
+        }
+        delete layersEnum[LAYERID_DEPTH];
+        delete layersEnum[LAYERID_SKYBOX];
+        delete layersEnum[LAYERID_IMMEDIATE];
+
+        var fieldLayers = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Layers',
+            type: 'tags',
+            tagType: 'number',
+            enum: layersEnum,
+            placeholder: 'Add Layer',
+            link: entities,
+            path: 'components.element.layers',
+            tagToString: function (tag) {
+                return projectSettings.get('layers.' + tag + '.name') || 'Missing';
+            },
+            onClickTag: function () {
+                // focus layer
+                var layerId = this.originalValue;
+                editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+                setTimeout(function () {
+                    editor.call('editorSettings:layers:focus', layerId);
+                });
+            }
+        });
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:layers', fieldLayers.parent.parent.innerElement.firstChild.ui);
+
         var toggleFields = function () {
             var spriteTester = editor.call('users:isSpriteTester');
             fieldSpriteAsset.parent.hidden = !spriteTester || fieldType.value !== 'image' || fieldTextureAsset.value || fieldMaterialAsset.value;
             fieldFrame.parent.hidden = fieldSpriteAsset.parent.hidden || ! fieldSpriteAsset.value;
+            fieldPpu.parent.hidden = fieldSpriteAsset.parent.hidden || ! fieldSpriteAsset.value;
             fieldTextureAsset.parent.hidden = fieldType.value !== 'image' || fieldSpriteAsset.value || fieldMaterialAsset.value;
             fieldMaterialAsset.parent.hidden = fieldType.value !== 'image' || fieldTextureAsset.value || fieldSpriteAsset.value;
             fieldColor.parent.hidden = fieldType.value !== 'image' && fieldType.value !== 'text' || fieldMaterialAsset.value;

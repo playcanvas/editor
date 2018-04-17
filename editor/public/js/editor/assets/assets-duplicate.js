@@ -2,12 +2,14 @@ editor.once('load', function() {
     'use strict';
 
     editor.method('assets:duplicate', function(asset) {
+        if (asset.get('type') !== 'material' && asset.get('type') !== 'sprite') return;
+
         var path = asset.get('path');
         var parent = path.length ? path[path.length - 1] : null;
 
         var raw = {
             // only materials can be duplicated at the moment
-            type: 'material',
+            type: asset.get('type'),
             name: asset.get('name') + ' Copy',
             tags: asset.get('tags'),
             source: false,

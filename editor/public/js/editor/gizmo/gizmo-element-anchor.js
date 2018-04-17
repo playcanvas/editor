@@ -43,17 +43,22 @@ editor.once('load', function() {
         obj.matInactive = createMaterial(new pc.Color(c, c, c, 0.5));
         obj.matActive = createMaterial(new pc.Color(c, c, c, 1));
 
+        var layer = editor.call('gizmo:layers', 'Axis Gizmo');
+
         var createCone = function (angle) {
             var result = new pc.Entity();
             result.setLocalEulerAngles(0, 0, angle);
             obj.root.addChild(result);
 
             var cone = new pc.Entity();
-            cone.addComponent('model', {type: 'cone'});
+            cone.addComponent('model', {
+                type: 'cone',
+                layers: [layer.id]
+            });
             cone.model.castShadows = false;
             cone.model.receiveShadows = false;
             cone.model.meshInstances[0].material = obj.matInactive;
-            cone.model.meshInstances[0].layer = pc.LAYER_GIZMO;
+            cone.model.meshInstances[0].mask = GIZMO_MASK;
             cone.setLocalPosition(0, -0.5, 0);
             cone.setLocalScale(1, 1, 0.01);
             cone.handle = result;
@@ -76,7 +81,6 @@ editor.once('load', function() {
         // sphere.model.castShadows = false;
         // sphere.model.receiveShadows = false;
         // sphere.model.meshInstances[0].material = obj.matInactive;
-        // sphere.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         // sphere.setLocalPosition(0,0,0.1);
         // sphere.setLocalScale(0.5, 0.5, 0.5);
         // sphere.handle = obj.handles.center;

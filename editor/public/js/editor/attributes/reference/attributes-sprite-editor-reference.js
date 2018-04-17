@@ -18,45 +18,41 @@ editor.once('load', function() {
         title: 'Frames',
         description: 'The number of frames in the texture atlas. Each frame defines a region in the atlas.'
     }, {
-        name: 'slice:method',
-        title: 'Slice Method',
+        name: 'generate:method',
+        title: 'METHOD',
         description: '"Delete Existing" will delete all frames from the texture atlas first and then create new frames. "Only Append" will append the new frames to the texture atlas without deleting the old ones.'
     }, {
-        name: 'slice:type',
-        title: 'Slice Type',
+        name: 'generate:type',
+        title: 'TYPE',
         description: '"Grid By Frame Count" will create a grid of frames using the specified number of columns and rows. "Grid By Frame Size" will create a grid of frames using the specified frame size. Frames will only be created in areas of the atlas that are not completely transparent.'
     }, {
-        name: 'slice:count',
+        name: 'generate:count',
         title: 'Frame Count',
         description: 'The number of columns and rows in the texture atlas.'
     }, {
-        name: 'slice:size',
+        name: 'generate:size',
         title: 'Frame Size',
         description: 'The size of each frame in pixels.'
     }, {
-        name: 'slice:offset',
+        name: 'generate:offset',
         title: 'Offset',
-        description: 'The offset from the top-left of the texture atlas in pixels, from where to start slicing frames.'
+        description: 'The offset from the top-left of the texture atlas in pixels, from where to start generating frames.'
     }, {
-        name: 'slice:padding',
+        name: 'generate:padding',
         title: 'Padding',
-        description: 'The padding to use for each frame when slicing, in pixels.'
+        description: 'The padding to use for each new frame, in pixels.'
     }, {
-        name: 'slice:pivot',
+        name: 'generate:pivot',
         title: 'Pivot',
-        description: 'The pivot to use for each frame when slicing.'
+        description: 'The pivot to use for each new frame.'
     }, {
-        name: 'slice:slice',
-        title: 'Slice Atlas',
-        description: 'Create new frames and add them to the atlas based on the slicing method chosen above.'
+        name: 'generate:generate',
+        title: 'generate Atlas',
+        description: 'Create new frames and add them to the atlas based on the method chosen above.'
     }, {
-        name: 'slice:clear',
+        name: 'generate:clear',
         title: 'Delete All Frames',
         description: 'Delete all frames from the texture atlas.'
-    }, {
-        name: 'sprites',
-        title: 'Sprite Assets',
-        description: 'The Sprite Assets that are using this Texture Atlas.'
     }, {
         name: 'sprites:addFrames',
         title: 'Add Frames',

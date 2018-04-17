@@ -48,6 +48,11 @@ editor.once('load', function() {
         description: 'The width and height of the Sprite when rendering using 9-Slicing. The width and height are only used when the render mode of the Sprite Asset is Sliced or Tiled.',
         url: 'http://developer.playcanvas.com/api/pc.SpriteComponent.html#width'
     }, {
+        title: 'drawOrder',
+        subTitle: '{Number}',
+        description: 'The draw order of the sprite. A higher value means that the component will be rendered on top of other components in the same layer. For this work the sprite must be in a layer that uses Manual sort order.',
+        url: 'http://developer.playcanvas.com/api/pc.SpriteComponent.html#drawOrder'
+    }, {
         title: 'speed',
         subTitle: '{Number}',
         description: 'A global speed modifier used when playing Sprite Animation Clips.',
@@ -66,6 +71,12 @@ editor.once('load', function() {
         name: 'addClip',
         title: 'Add Clip',
         description: 'Add a new Sprite Animation Clip.'
+    }, {
+        name: 'layers',
+        title: 'layers',
+        subTitle: '{Number[]}',
+        description: 'The layers that this sprite belongs to. When a sprite belongs to multiple layers it will be rendered multiple times.',
+        url: 'http://developer.playcanvas.com/api/pc.SpriteComponent.html#layers'
     }];
 
     for(var i = 0; i < fields.length; i++) {

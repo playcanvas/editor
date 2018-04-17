@@ -87,6 +87,9 @@ function SelectField(args) {
 
     // arrows - change
     this._element.addEventListener('keydown', this._onKeyDown, false);
+
+    if (args.placeholder)
+        this.placeholder = args.placeholder;
 }
 SelectField.prototype = Object.create(ui.Element.prototype);
 
@@ -410,6 +413,19 @@ Object.defineProperty(SelectField.prototype, 'value', {
                 this.elementValue.textContent = '';
             }
             this.emit('change', this._value);
+        }
+    }
+});
+
+Object.defineProperty(SelectField.prototype, 'placeholder', {
+    get: function() {
+        return this.elementValue.getAttribute('placeholder');
+    },
+    set: function(value) {
+        if (! value) {
+            this.elementValue.removeAttribute('placeholder');
+        } else {
+            this.elementValue.setAttribute('placeholder', value);
         }
     }
 });

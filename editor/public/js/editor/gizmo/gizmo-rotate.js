@@ -23,6 +23,9 @@ editor.once('load', function() {
     var angleStart = 0;
     var startRotation = new pc.Quat();
 
+    var immediateRenderOptions;
+    var noDepthImmediateRenderOptions
+
     var snap = false;
     var snapIncrement = 5;
     editor.on('gizmo:snap', function(state, increment) {
@@ -95,6 +98,17 @@ editor.once('load', function() {
         gizmo = createEntity(app);
         gizmo.root.enabled = false;
         app.root.addChild(gizmo.root);
+
+        immediateRenderOptions = {
+            layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate'),
+            mask: GIZMO_MASK
+        };
+
+        noDepthImmediateRenderOptions = {
+            layer: editor.call('gizmo:layers', 'Axis Rotate Gizmo Immediate'),
+            depthTest: false,
+            mask: GIZMO_MASK
+        };
 
         // on picker hover
         editor.on('viewport:pick:hover', function(node, picked) {
@@ -179,7 +193,7 @@ editor.once('load', function() {
                     // quat.invert().transformVector(vecC, vecC);
                     vecC.add(posGizmo);
 
-                    app.renderLine(posGizmo, vecC, gizmo.colorActive, pc.LINEBATCH_GIZMO);
+                    app.renderLine(posGizmo, vecC, gizmo.colorActive, noDepthImmediateRenderOptions);
                 }
 
                 editor.emit('gizmo:rotate:render', dt);
@@ -207,51 +221,53 @@ editor.once('load', function() {
 
                 var worldTransform = gizmo.root.getWorldTransform();
 
+                // draw cull sphere
+                gizmo.line.cull.node.worldTransform = worldTransform;
+                app.renderMeshInstance(gizmo.line.cull, immediateRenderOptions);
+
                 // render lines
                 // x
                 if (moving && hoverAxis === 'x') {
                     // behind line
-                    app.renderMesh(gizmo.line.x.mesh, gizmo.matBehindActive, worldTransform);
+                    app.renderMesh(gizmo.line.x.mesh, gizmo.matBehindActive, worldTransform, immediateRenderOptions);
                 } else {
                     // behind line
-                    app.renderMesh(gizmo.line.x.mesh, gizmo.matBehindHover.x, worldTransform);
+                    app.renderMesh(gizmo.line.x.mesh, gizmo.matBehindHover.x, worldTransform, immediateRenderOptions);
                     // front line
                     if (! moving && gizmo.plane.x.model.enabled) {
                         gizmo.line.x.node.worldTransform = worldTransform;
-                        app.renderMeshInstance(gizmo.line.x);
+                        app.renderMeshInstance(gizmo.line.x, immediateRenderOptions);
                     }
                 }
 
                 // y
                 if (moving && hoverAxis === 'y') {
                     // behind line
-                    app.renderMesh(gizmo.line.y.mesh, gizmo.matBehindActive, worldTransform);
+                    app.renderMesh(gizmo.line.y.mesh, gizmo.matBehindActive, worldTransform, immediateRenderOptions);
                 } else {
                     // behind line
-                    app.renderMesh(gizmo.line.y.mesh, gizmo.matBehindHover.y, worldTransform);
+                    app.renderMesh(gizmo.line.y.mesh, gizmo.matBehindHover.y, worldTransform, immediateRenderOptions);
                     // front line
                     if (! moving && gizmo.plane.y.model.enabled) {
                         gizmo.line.y.node.worldTransform = worldTransform;
-                        app.renderMeshInstance(gizmo.line.y);
+                        app.renderMeshInstance(gizmo.line.y, immediateRenderOptions);
                     }
                 }
                 // z
                 if (moving && hoverAxis === 'z') {
                     // behind line
-                    app.renderMesh(gizmo.line.z.mesh, gizmo.matBehindActive, worldTransform);
+                    app.renderMesh(gizmo.line.z.mesh, gizmo.matBehindActive, worldTransform, immediateRenderOptions);
                 } else {
                     // behind line
-                    app.renderMesh(gizmo.line.z.mesh, gizmo.matBehindHover.z, worldTransform);
+                    app.renderMesh(gizmo.line.z.mesh, gizmo.matBehindHover.z, worldTransform, immediateRenderOptions);
                     // front line
                     if (! moving && gizmo.plane.z.model.enabled) {
                         gizmo.line.z.node.worldTransform = worldTransform;
-                        app.renderMeshInstance(gizmo.line.z);
+                        app.renderMeshInstance(gizmo.line.z, immediateRenderOptions);
                     }
                 }
 
-                // cull
-                gizmo.line.cull.node.worldTransform = worldTransform;
-                app.renderMeshInstance(gizmo.line.cull);
+
             }
 
             mouseTapMoved = false
@@ -397,6 +413,8 @@ editor.once('load', function() {
         obj.matBehindActive.depthTest = false;
         obj.colorActive = new pc.Color(1, 1, 1, 1);
 
+        var gizmoLayer = editor.call('gizmo:layers', 'Axis Gizmo').id;
+
         // root entity
         var entity = obj.root = new pc.Entity();
 
@@ -409,9 +427,9 @@ editor.once('load', function() {
             type: 'cylinder',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        planeX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(planeX);
         planeX.setLocalEulerAngles(90, -90, 0);
         planeX.setLocalScale(4.1, 0.3, 4.1);
@@ -426,9 +444,9 @@ editor.once('load', function() {
             type: 'cylinder',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        planeY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(planeY);
         planeY.setLocalEulerAngles(0, 0, 0);
         planeY.setLocalScale(4.2, 0.3, 4.2);
@@ -443,9 +461,9 @@ editor.once('load', function() {
             type: 'cylinder',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        planeZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(planeZ);
         planeZ.setLocalEulerAngles(90, 0, 0);
         planeZ.setLocalScale(4, 0.3, 4);
@@ -457,9 +475,9 @@ editor.once('load', function() {
             type: 'sphere',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        sphere.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
         entity.addChild(sphere);
         sphere.setLocalScale(3, 3, 3);
         sphere.mat = sphere.model.material = createMaterial(new pc.Color(1, 1, 1, 0));
@@ -476,10 +494,9 @@ editor.once('load', function() {
     };
 
     var createMeshInstance = function (node, mesh, material) {
-        var result = new pc.MeshInstance(node, mesh, material);
-        result.layer = pc.LAYER_GIZMO;
-        result.updateKey();
-        return result;
+        var mi = new pc.MeshInstance(node, mesh, material);
+        mi.cull = false;
+        return mi;
     };
 
     var createLinesModel = function(app) {
@@ -529,6 +546,7 @@ editor.once('load', function() {
             createMaterial(new pc.Color(0, 0, 1, 1.1))
         ];
 
+        // create 3 rings of lines (the visible portion of the gizmo)
         for (var i = 0; i < 3; i++) {
             mesh = new pc.Mesh();
             mesh.vertexBuffer = vertexBuffers[i];
@@ -539,17 +557,24 @@ editor.once('load', function() {
             mesh.primitive[0].indexed = false;
 
             meshInstance = createMeshInstance(node, mesh, materials[i]);
+            meshInstance.mask = GIZMO_MASK;
             meshInstance.mat = materials[i];
             meshInstances.push(meshInstance);
         }
 
+        // create a sphere which is used to render in the center and cull the rings (via depth buffer)
         mesh = pc.createSphere(device, {
             segments: 75,
             radius: 1.95
         });
-        var material = createMaterial(new pc.Color(1, 1, 1, 0));
+        var material = createMaterial(new pc.Color(1, 1, 1, 0.5));
+        material.redWrite = false;
+        material.greenWrite = false;
+        material.blueWrite = false;
+        material.alphaWrite = false;
         material.update();
         meshInstance = createMeshInstance(node, mesh, material);
+        meshInstance.mask = GIZMO_MASK;
         meshInstances.push(meshInstance);
 
         return meshInstances;

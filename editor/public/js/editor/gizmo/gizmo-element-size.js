@@ -43,13 +43,18 @@ editor.once('load', function() {
         obj.matInactive = createMaterial(new pc.Color(1, 1, 0, 0.5));
         obj.matActive = createMaterial(new pc.Color(1, 1, 0, 1));
 
+        var layer = editor.call('gizmo:layers', 'Axis Gizmo');
+
         var createHandle = function () {
             var sphere = new pc.Entity();
-            sphere.addComponent('model', {type: 'sphere'});
+            sphere.addComponent('model', {
+                type: 'sphere',
+                layers: [layer.id]
+            });
             sphere.model.castShadows = false;
             sphere.model.receiveShadows = false;
             sphere.model.meshInstances[0].material = obj.matInactive;
-            sphere.model.meshInstances[0].layer = pc.LAYER_GIZMO;
+            sphere.model.meshInstances[0].mask = GIZMO_MASK;
             sphere.setLocalScale(0.5, 0.5, 0.5);
             obj.root.addChild(sphere);
             return sphere;

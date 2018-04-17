@@ -52,6 +52,11 @@ editor.once('load', function() {
         description: 'The frame from the Sprite Asset to render.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#spriteFrame'
     }, {
+        title: 'pixelsPerUnit',
+        subTitle: '{Number}',
+        description: 'The number of pixels that correspond to one PlayCanvas unit. Used when using 9 Sliced Sprite Assets to control the thickness of the borders. If this value is not specified the Element component will use the pixelsPerUnit value from the Sprite Asset.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#pixelsPerUnit'
+    }, {
         title: 'materialAsset',
         subTitle: '{pc.Asset}',
         description: 'The material to be used by the element.',
@@ -126,7 +131,13 @@ editor.once('load', function() {
         subTitle: '{Number}',
         description: 'The batch group that this Element belongs to. The engine will attempt to batch Elements in the same batch group to reduce draw calls.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#batchGroupId'
-    },];
+    }, {
+        name: 'layers',
+        title: 'layers',
+        subTitle: '{Number[]}',
+        description: 'The layers that this Element belongs to. When an Element belongs to multiple layers it will be rendered multiple times.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#layers'
+    }];
 
     for(var i = 0; i < fields.length; i++) {
         fields[i].name = 'element:' + (fields[i].name || fields[i].title);

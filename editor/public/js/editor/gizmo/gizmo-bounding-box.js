@@ -22,6 +22,8 @@ editor.once('load', function () {
 
     var colorNew = new pc.Color(1, .5, 0);
 
+    var immediateRenderOptions;
+    var immediateMaskRenderOptions;
 
     var points = [ ];
     for(var c = 0; c < 32; c++)
@@ -59,13 +61,13 @@ editor.once('load', function () {
                     points[ind * 4 + 3].copy(points[ind * 4]);
                     points[ind * 4 + 3].z -= aabb.halfExtents.z * .3 * z;
 
-                    app.renderLine(points[ind * 4], points[ind * 4 + 1], colorBehind, pc.LINEBATCH_OVERLAY);
-                    app.renderLine(points[ind * 4], points[ind * 4 + 2], colorBehind, pc.LINEBATCH_OVERLAY);
-                    app.renderLine(points[ind * 4], points[ind * 4 + 3], colorBehind, pc.LINEBATCH_OVERLAY);
+                    app.renderLine(points[ind * 4], points[ind * 4 + 1], colorBehind, immediateRenderOptions);
+                    app.renderLine(points[ind * 4], points[ind * 4 + 2], colorBehind, immediateRenderOptions);
+                    app.renderLine(points[ind * 4], points[ind * 4 + 3], colorBehind, immediateRenderOptions);
 
-                    app.renderLine(points[ind * 4], points[ind * 4 + 1], color, pc.LINEBATCH_WORLD);
-                    app.renderLine(points[ind * 4], points[ind * 4 + 2], color, pc.LINEBATCH_WORLD);
-                    app.renderLine(points[ind * 4], points[ind * 4 + 3], color, pc.LINEBATCH_WORLD);
+                    app.renderLine(points[ind * 4], points[ind * 4 + 1], color, immediateMaskRenderOptions);
+                    app.renderLine(points[ind * 4], points[ind * 4 + 2], color, immediateMaskRenderOptions);
+                    app.renderLine(points[ind * 4], points[ind * 4 + 3], color, immediateMaskRenderOptions);
 
                     ind++;
                 }
@@ -204,6 +206,16 @@ editor.once('load', function () {
 
     editor.once('viewport:load', function() {
         app = editor.call('viewport:app');
+
+        immediateRenderOptions = {
+            layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate'),
+            mask: GIZMO_MASK
+        };
+
+        immediateMaskRenderOptions = {
+            layer: editor.call('gizmo:layers', 'Bright Gizmo'),
+            mask: GIZMO_MASK
+        };
 
         editor.on('viewport:postUpdate', function() {
             if (! entities.length)

@@ -75,11 +75,6 @@ editor.once('load', function() {
                             if (entity.element.autoHeight || Math.abs(entity.element.anchor.y - entity.element.anchor.w) > 0.001) {
                                 return;
                             }
-                        } else if (property === 'margin') {
-                            // do not set margin for elements with autoHeight or autoWidth
-                            if (entity.element.autoHeight || entity.element.autoHeight) {
-                                return;
-                            }
                         }
                     }
 

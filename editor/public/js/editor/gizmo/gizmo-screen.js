@@ -21,6 +21,11 @@ editor.once('load', function() {
     editor.once('viewport:load', function (app) {
         var entities = {};
 
+        var immediateRenderOptions = {
+            layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate'),
+            mask: GIZMO_MASK
+        };
+
         // remember selected entities
         var selectedEntities = {};
 
@@ -199,7 +204,7 @@ editor.once('load', function() {
                 corners[7].copy(position).add(left).add(top);
 
                 // render rectangle for screen
-                app.renderLines(corners, cornerColors, pc.LINEBATCH_GIZMO);
+                app.renderLines(corners, cornerColors, immediateRenderOptions);
             }
         });
     });

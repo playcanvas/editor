@@ -18,7 +18,9 @@ editor.once('load', function () {
         'vr',
         'loadingScreenScript',
         'plugins',
-        'useModelV2'
+        'useModelV2',
+        'layers',
+        'layerOrder'
     ];
 
     var data = {};
@@ -70,7 +72,6 @@ editor.once('load', function () {
         } else {
             obj[parts[parts.length-1]] = value;
         }
-
     });
 
     settings.on('*:unset', function (path) {
@@ -89,6 +90,72 @@ editor.once('load', function () {
         settings.history.enabled = false;
         if (! settings.get('batchGroups')) {
             settings.set('batchGroups', {});
+        }
+        if (! settings.get('layers')) {
+            settings.set('layers', {
+                0: {
+                    name: 'World',
+                    opaqueSortMode: 2,
+                    transparentSortMode: 3
+                },
+                1: {
+                    name: 'Depth',
+                    opaqueSortMode: 2,
+                    transparentSortMode: 3
+                },
+                2: {
+                    name: 'Skybox',
+                    opaqueSortMode: 0,
+                    transparentSortMode: 3
+                },
+                3: {
+                    name: 'Immediate',
+                    opaqueSortMode: 0,
+                    transparentSortMode: 3
+                },
+                4: {
+                    name: 'UI',
+                    opaqueSortMode: 1,
+                    transparentSortMode: 1
+                }
+            });
+
+            settings.set('layerOrder', []);
+            settings.insert('layerOrder', {
+                layer: LAYERID_WORLD,
+                transparent: false,
+                enabled: true
+            });
+            settings.insert('layerOrder', {
+                layer: LAYERID_DEPTH,
+                transparent: false,
+                enabled: true
+            });
+            settings.insert('layerOrder', {
+                layer: LAYERID_SKYBOX,
+                transparent: false,
+                enabled: true
+            });
+            settings.insert('layerOrder', {
+                layer: LAYERID_WORLD,
+                transparent: true,
+                enabled: true
+            });
+            settings.insert('layerOrder', {
+                layer: LAYERID_IMMEDIATE,
+                transparent: false,
+                enabled: true
+            });
+            settings.insert('layerOrder', {
+                layer: LAYERID_IMMEDIATE,
+                transparent: true,
+                enabled: true
+            });
+            settings.insert('layerOrder', {
+                layer: LAYERID_UI,
+                transparent: true,
+                enabled: true
+            });
         }
         settings.history.enabled = history;
     });

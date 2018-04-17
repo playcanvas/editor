@@ -187,6 +187,12 @@ editor.once('load', function() {
         subTitle: '{pc.Vec3}',
         description: 'World space AABB volume centered on the owner entity\'s position. If a particle crosses the boundary of one side of the volume, it teleports to the opposite side. You can use this to make environmental effects like rain by moving a wrapped emitter\'s owner entity.',
         url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#wrapBounds'
+    }, {
+        name: 'layers',
+        title: 'layers',
+        subTitle: '{Number[]}',
+        description: 'The layers that this particle sytem belongs to. When a particle system belongs to multiple layers it will be rendered multiple times.',
+        url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#layers'
     }];
 
     for(var i = 0; i < fields.length; i++) {

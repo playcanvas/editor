@@ -6,9 +6,10 @@ editor.once('load', function() {
 
     var COLOR_GRAY = '#B1B8BA';
     var COLOR_DARKEST = '#20292b';
-    var COLOR_DARK = '#2C393C';
+    var COLOR_DARK = '#1B282B';
     var COLOR_GREEN = '#0f0';
     var COLOR_ORANGE = '#f60';
+    var COLOR_TRANSPARENT_ORANGE = '#ff660099';
     var COLOR_BLUE = '#00f';
 
     var atlasAsset = null;
@@ -23,12 +24,14 @@ editor.once('load', function() {
     var rightButtonDown = false;
 
     var panning = false;
-    var newFrame = null;
-    var hovering = false;
     var spriteEditMode = false;
 
+    var newFrame = null;
+    var hoveredFrame = null;
     var oldFrame = null;
+
     var selectedHandle = null;
+    var hoveringHandle = null;
     var startingHandleFrame = null;
     var startingHandleCoords = {x: 0, y: 0};
 
@@ -64,7 +67,11 @@ editor.once('load', function() {
         BORDER_BOTTOM: 11,
         BORDER_BOTTOM_RIGHT: 12,
         PIVOT: 13,
-        FRAME: 14
+        FRAME: 14,
+        TOP: 15,
+        RIGHT: 16,
+        BOTTOM: 17,
+        LEFT: 18
     };
 
     var events = [];
@@ -94,11 +101,6 @@ editor.once('load', function() {
         editor.call('picker:sprites:close');
     });
     panel.headerElement.appendChild(btnClose.element);
-
-    var overlayPickFrames = new ui.Overlay();
-    overlayPickFrames.class.add('overlay-frames');
-    overlayPickFrames.hidden = true;
-    panel.append(overlayPickFrames);
 
     var leftColumns = new ui.Panel();
     leftColumns.class.add('left-columns');
@@ -130,10 +132,37 @@ editor.once('load', function() {
     // middle panel
     var middlePanel = new ui.Panel();
     middlePanel.class.add('middle-panel');
-    // middlePanel.flex = true;
-    // middlePanel.flexGrow = true;
-    // middlePanel.flexDirection = 'column';
+    middlePanel.flex = true;
+    middlePanel.flexGrow = true;
+    middlePanel.flexDirection = 'column';
     leftRows.append(middlePanel);
+
+    // canvas
+    var canvasPanel = new ui.Panel();
+    canvasPanel.class.add('canvas-panel');
+    canvasPanel.flexible = true;
+    canvasPanel.flexGrow = true;
+    middlePanel.append(canvasPanel);
+
+    var canvas = new ui.Canvas();
+    canvas.class.add('canvas');
+    canvasPanel.append(canvas);
+
+    // Canvas Context
+    var ctx = canvas.element.getContext("2d");
+
+    // bottom panel
+    var bottomPanel = new ui.Panel('SPRITE ASSETS');
+    bottomPanel.class.add('bottom-panel');
+    bottomPanel.innerElement.style.height = '219px';
+    bottomPanel.foldable = true;
+    bottomPanel.flexShrink = false;
+    bottomPanel.scroll = true;
+    bottomPanel.resizable = 'top';
+    bottomPanel.resizeMin = 106;
+    bottomPanel.resizeMax = 106 * 3;
+    bottomPanel.headerSize = -1;
+    middlePanel.append(bottomPanel);
 
     // // Canvas control
     var canvasControl = new ui.Panel();
@@ -203,19 +232,6 @@ editor.once('load', function() {
     // Right panel
     var rightPanel = null;
 
-    // Canvas
-    // var canvasPanel = new ui.Panel();
-    // canvasPanel.flexGrow = true;
-    // canvasPanel.class.add('canvas-panel');
-    // middlePanel.append(canvasPanel);
-
-    var canvas = new ui.Canvas();
-    canvas.class.add('canvas');
-    middlePanel.append(canvas);
-
-    // Canvas Context
-    var ctx = canvas.element.getContext("2d");
-
     // controls observer (for zoom/brightness).
     var controls = new Observer({
         zoom: 1,
@@ -267,8 +283,8 @@ editor.once('load', function() {
     var resizeCanvas = function() {
         var result = false;
 
-        var width = middlePanel.element.clientWidth;
-        var height = middlePanel.element.clientHeight;
+        var width = canvasPanel.element.clientWidth;
+        var height = canvasPanel.element.clientHeight;
 
         // If it's resolution does not match change it
         if (canvas.element.width !== width || canvas.element.height !== height) {
@@ -315,8 +331,8 @@ editor.once('load', function() {
             callback: function () {
                 var spriteAsset = editor.call('picker:sprites:selectedSprite');
                 if (spriteAsset) {
-                    if (!overlayPickFrames.hidden) {
-                        overlayPickFrames.hidden = true;
+                    if (spriteEditMode) {
+                        editor.call('picker:sprites:pickFrames:cancel');
                     } else {
                         editor.call('picker:sprites:selectSprite', null, {
                             history: true
@@ -473,6 +489,9 @@ editor.once('load', function() {
 
         var selected = editor.call('picker:sprites:selectedFrame');
 
+        var previousHoveringHandle = hoveringHandle;
+        hoveringHandle = null;
+
         // if a handle is selected then modify the selected frame
         if (newFrame) {
             modifyFrame(selectedHandle, newFrame, p);
@@ -499,9 +518,12 @@ editor.once('load', function() {
             var selectedFrame = atlasAsset.getRaw('data.frames.' + selected);
             if (selectedFrame) {
                 selectedFrame = selectedFrame._data;
-                hovering = !!handlesHitTest(p, selectedFrame);
-                updateCursor();
+                hoveringHandle = handlesHitTest(p, selectedFrame);
             }
+        }
+
+        if (hoveringHandle !== previousHoveringHandle) {
+            updateCursor();
         }
 
     };
@@ -542,14 +564,15 @@ editor.once('load', function() {
             }
 
             newFrame = null;
-            updateCursor();
+            hoveringHandle = null;
+            setHandle(null);
             queueRender();
         }
         // if we have edited the selected frame then commit the changes
         else if (selected) {
             // clear selected handle
             if (selectedHandle) {
-                selectedHandle = null;
+                setHandle(null);
                 queueRender();
             }
 
@@ -802,6 +825,110 @@ editor.once('load', function() {
 
                 break;
             }
+            case HANDLE.RIGHT: {
+                frame.rect[2] = startingHandleFrame.rect[2] + dx;
+
+                if (frame.rect[0] + frame.rect[2] > realWidth) {
+                    frame.rect[2] = realWidth - frame.rect[0];
+                }
+
+                if (frame.rect[2] < 0) {
+                    frame.rect[2] *= -1;
+                    frame.rect[0] -= frame.rect[2];
+                    setHandle(HANDLE.LEFT, frame, p);
+                }
+
+                if (frame.border[0] > frame.rect[2] - frame.border[2]) {
+                    frame.border[0] = Math.max(frame.rect[2] - frame.border[2], 0);
+                }
+
+                if (frame.border[2] > frame.rect[2] - frame.border[0]) {
+                    frame.border[2] = Math.max(frame.rect[2] - frame.border[0], 0);
+                }
+
+
+                break;
+            }
+            case HANDLE.LEFT: {
+                // limit x coord between image edges
+                var x = clamp(startingHandleFrame.rect[0] + dx, 0, realWidth);
+                dx = x - startingHandleFrame.rect[0];
+                frame.rect[0] = startingHandleFrame.rect[0] + dx;
+                // adjust width
+                frame.rect[2] = startingHandleFrame.rect[2] - dx;
+
+                // if width became negative then make it positive and
+                // adjust x coord, then switch handle to top right
+                if (frame.rect[2] < 0) {
+                    frame.rect[2] *= -1;
+                    frame.rect[0] -= frame.rect[2];
+                    setHandle(HANDLE.RIGHT, frame, p);
+                }
+
+                // push right border if necessary
+                if (frame.border[2] > frame.rect[2] - frame.border[0]) {
+                    frame.border[2] = Math.max(frame.rect[2] - frame.border[0], 0);
+                }
+
+                // then push left border if necessary
+                if (frame.border[0] > frame.rect[2] - frame.border[2]) {
+                    frame.border[0] = Math.max(frame.rect[2] - frame.border[2], 0);
+                }
+
+                break;
+            }
+            case HANDLE.TOP: {
+                // adjust height and limit between image edges
+                frame.rect[3] = startingHandleFrame.rect[3] - dy;
+                if (frame.rect[1] + frame.rect[3] > realHeight) {
+                    frame.rect[3] = realHeight - frame.rect[1];
+                }
+
+                if (frame.rect[3] < 0) {
+                    frame.rect[3] *= -1;
+                    frame.rect[1] -= frame.rect[3];
+                    setHandle(HANDLE.BOTTOM, frame, p);
+                }
+
+                // push bottom border if necessary
+                if (frame.border[1] > frame.rect[3] - frame.border[3]) {
+                    frame.border[1] = Math.max(frame.rect[3] - frame.border[3], 0);
+                }
+
+                // then push top border if necessary
+                if (frame.border[3] > frame.rect[3] - frame.border[1]) {
+                    frame.border[3] = Math.max(frame.rect[3] - frame.border[1], 0);
+                }
+
+                break;
+            }
+            case HANDLE.BOTTOM: {
+                var y = clamp(startingHandleFrame.rect[1] - dy, 0, realHeight);
+                dy = y - startingHandleFrame.rect[1];
+                frame.rect[1] = startingHandleFrame.rect[1] + dy;
+                frame.rect[3] = startingHandleFrame.rect[3] - dy;
+
+
+                if (frame.rect[1] + frame.rect[3] > realHeight) {
+                    frame.rect[3] = realHeight - frame.rect[1];
+                }
+
+                if (frame.rect[3] < 0) {
+                    frame.rect[3] *= -1;
+                    frame.rect[1] -= frame.rect[3];
+                    setHandle(HANDLE.TOP, frame, p);
+                }
+
+                if (frame.border[3] > frame.rect[3] - frame.border[1]) {
+                    frame.border[3] = Math.max(frame.rect[3] - frame.border[1], 0);
+                }
+
+                if (frame.border[1] > frame.rect[3] - frame.border[3]) {
+                    frame.border[1] = Math.max(frame.rect[3] - frame.border[3], 0);
+                }
+
+                break;
+            }
             case HANDLE.BORDER_TOP_LEFT: {
                 frame.border[3] = Math.min(Math.max(startingHandleFrame.border[3] + dy, 0), frame.rect[3] - frame.border[1]);
                 frame.border[0] = Math.min(Math.max(startingHandleFrame.border[0] + dx, 0), frame.rect[2] - frame.border[2]);
@@ -853,6 +980,7 @@ editor.once('load', function() {
                 break;
             }
 
+
         }
     };
 
@@ -870,6 +998,8 @@ editor.once('load', function() {
                 startingHandleCoords.y = clamp((mousePoint.y - imageTop()) * atlasImage.height / imageHeight(), 0, atlasImage.height);
             }
         }
+
+        updateCursor();
     }
 
 
@@ -1003,7 +1133,7 @@ editor.once('load', function() {
 
         // draw highlighted frames
         ctx.beginPath();
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1;
         ctx.strokeStyle = spriteAsset ? COLOR_ORANGE : COLOR_DARK;
         for (var i = 0, len = highlightedFrames.length; i<len; i++) {
             var key = highlightedFrames[i];
@@ -1012,6 +1142,26 @@ editor.once('load', function() {
             // check if frame no longer exists
             if (! frames[key]) {
                 highlightedFrames.splice(i, 1);
+                len--;
+                i--;
+            } else {
+                if (newSpriteFrames.indexOf(key) === -1) {
+                    renderFrame(frames[key]._data, left, top, width, height, 0, !spriteEditMode);
+                }
+            }
+        }
+        ctx.stroke();
+
+        // draw sprite edit mode frames
+        ctx.beginPath();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = COLOR_DARK;
+        for (var i = 0, len = newSpriteFrames.length; i<len; i++) {
+            var key = newSpriteFrames[i];
+
+            // check if frame no longer exists
+            if (! frames[key]) {
+                newSpriteFrames.splice(i, 1);
                 len--;
                 i--;
             } else {
@@ -1034,25 +1184,22 @@ editor.once('load', function() {
         ctx.stroke();
         ctx.setLineDash([]);
 
-        // draw sprite edit mode frames
-        ctx.beginPath();
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = COLOR_GREEN;
-        for (var i = 0, len = newSpriteFrames.length; i<len; i++) {
-            var key = newSpriteFrames[i];
+        var frame;
 
-            // check if frame no longer exists
-            if (! frames[key]) {
-                newSpriteFrames.splice(i, 1);
-                len--;
-                i--;
-            } else {
-                renderFrame(frames[key]._data, left, top, width, height, 1, !spriteEditMode);
+        // render hovered frame
+        if (hoveredFrame) {
+            ctx.beginPath();
+            ctx.lineWidth = 1;
+            ctx.fillStyle = COLOR_TRANSPARENT_ORANGE;
+            frame = atlasAsset.getRaw('data.frames.' + hoveredFrame);
+            if (frame) {
+                frame = frame._data;
+                renderFrame(frame, left, top, width, height, 1);
             }
+            ctx.fill();
         }
-        ctx.stroke();
 
-        var frame = newFrame || (selected ? atlasAsset.getRaw('data.frames.' + selected) : null);
+        frame = newFrame || (selected ? atlasAsset.getRaw('data.frames.' + selected) : null);
         if (frame && frame._data)
             frame = frame._data;
 
@@ -1372,10 +1519,10 @@ editor.once('load', function() {
             var highlightedFrames = editor.call('picker:sprites:highlightedFrames');
             if (highlightedFrames.length) {
                 editor.call('picker:sprites:attributes:frames', {atlasAsset: atlasAsset, atlasImage: atlasImage, frames: highlightedFrames});
+                editor.call('picker:sprites:attributes:frames:relatedSprites', {frames: highlightedFrames});
             } else {
                 editor.call('picker:sprites:attributes:atlas', atlasAsset);
                 editor.call('picker:sprites:attributes:slice', {atlasAsset: atlasAsset, atlasImage: atlasImage, atlasImageData: atlasImageData});
-                editor.call('picker:sprites:attributes:spriteassets', {atlasAsset: atlasAsset});
             }
         }
     };
@@ -1499,6 +1646,48 @@ editor.once('load', function() {
             return HANDLE.BOTTOM_RIGHT;
         }
 
+        // left border edge
+        if (frame.border[0]) {
+            if (rectContainsPoint(p, lb - handleWidth / 2, top + handleWidth / 2, handleWidth, height - handleWidth)) {
+                return HANDLE.BORDER_LEFT;
+            }
+        }
+        // right border edge
+        if (frame.border[2]) {
+            if (rectContainsPoint(p, rb - handleWidth / 2, top + handleWidth / 2, handleWidth, height - handleWidth)) {
+                return HANDLE.BORDER_RIGHT;
+            }
+        }
+        // bottom border edge
+        if (frame.border[1]) {
+            if (rectContainsPoint(p, left + handleWidth / 2, bb - handleWidth / 2, width - handleWidth, handleWidth)) {
+                return HANDLE.BORDER_BOTTOM;
+            }
+        }
+        // top border edge
+        if (frame.border[3]) {
+            if (rectContainsPoint(p, left + handleWidth / 2, tb - handleWidth / 2, width - handleWidth, handleWidth)) {
+                return HANDLE.BORDER_TOP;
+            }
+        }
+
+        // left edge
+        if (rectContainsPoint(p, left - handleWidth / 2, top + handleWidth / 2, handleWidth, height - handleWidth)) {
+            return HANDLE.LEFT;
+        }
+        // right edge
+        if (rectContainsPoint(p, left + width - handleWidth / 2, top + handleWidth / 2, handleWidth, height - handleWidth)) {
+            return HANDLE.RIGHT;
+        }
+        // top edge
+        if (rectContainsPoint(p, left + handleWidth / 2, top - handleWidth / 2, width - handleWidth, handleWidth)) {
+            return HANDLE.TOP;
+        }
+        // bottom edge
+        if (rectContainsPoint(p, left + handleWidth / 2, top + height - handleWidth / 2, width - handleWidth, handleWidth)) {
+            return HANDLE.BOTTOM;
+        }
+
         // frame
         if (rectContainsPoint(p, left, top, width, height)) {
             return HANDLE.FRAME;
@@ -1524,6 +1713,8 @@ editor.once('load', function() {
         if (! atlasAsset)
             return;
 
+        panel.header = 'SPRITE EDITOR - ' + atlasAsset.get('name').toUpperCase();
+
         // show overlay
         overlay.hidden = false;
 
@@ -1544,6 +1735,8 @@ editor.once('load', function() {
                 atlasImage: atlasImage
             });
 
+            editor.call('picker:sprites:spriteassets', {atlasAsset: atlasAsset});
+
             editor.emit('picker:sprites:open');
 
             if (_spriteAsset) {
@@ -1559,6 +1752,9 @@ editor.once('load', function() {
         // listen to atlas changes and render
         events.push(atlasAsset.on('*:set', queueRender));
         events.push(atlasAsset.on('*:unset', queueRender));
+        events.push(atlasAsset.on('name:set', function (value) {
+            panel.header = 'SPRITE EDITOR - ' + value.toUpperCase();
+        }));
 
         // resize 20 times a second - if size is the same nothing will happen
         if (resizeInterval) {
@@ -1590,30 +1786,68 @@ editor.once('load', function() {
     };
 
     var updateCursor = function () {
-        var grab = false;
-        var grabbing = false;
-
-        var selected = editor.call('picker:sprites:selectedFrame');
-
-        grab = hovering || shiftDown;
-        grabbing = newFrame || selected && selectedHandle || panning;
-
         var cls = middlePanel.class;
-        var oldGrab = cls.contains('grab');
-        var oldGrabbing = cls.contains('grabbing');
 
-        if (grab && ! oldGrab) {
-            cls.add('grab');
-        }
-        else if (! grab && oldGrab) {
-            cls.remove('grab');
-        }
+        cls.remove('ew-resize');
+        cls.remove('ns-resize');
+        cls.remove('nwse-resize');
+        cls.remove('nesw-resize');
+        cls.remove('move');
+        cls.remove('grab');
+        cls.remove('grabbing');
 
-        if (grabbing && ! oldGrabbing) {
-            cls.add('grabbing');
-        }
-        else if (! grabbing && oldGrabbing) {
-            cls.remove('grabbing');
+
+        if ((panning || shiftDown) && ! selectedHandle) {
+            if (panning) {
+                cls.add('grabbing');
+            } else if (shiftDown) {
+                cls.add('grab');
+            }
+        } else {
+            var handle = selectedHandle !== null ? selectedHandle : hoveringHandle;
+            if (handle !== null) {
+                switch (handle) {
+                    case HANDLE.LEFT:
+                    case HANDLE.RIGHT:
+                    case HANDLE.BORDER_LEFT:
+                    case HANDLE.BORDER_RIGHT:
+                        cls.add('ew-resize');
+                        break;
+
+                    case HANDLE.TOP:
+                    case HANDLE.BOTTOM:
+                    case HANDLE.BORDER_TOP:
+                    case HANDLE.BORDER_BOTTOM:
+                        cls.add('ns-resize');
+                        break;
+
+                    case HANDLE.TOP_LEFT:
+                    case HANDLE.BOTTOM_RIGHT:
+                    case HANDLE.BORDER_TOP_LEFT:
+                    case HANDLE.BORDER_BOTTOM_RIGHT:
+                        cls.add('nwse-resize');
+                        break;
+
+                    case HANDLE.TOP_RIGHT:
+                    case HANDLE.BOTTOM_LEFT:
+                    case HANDLE.BORDER_TOP_RIGHT:
+                    case HANDLE.BORDER_BOTTOM_LEFT:
+                        cls.add('nesw-resize');
+                        break;
+
+                    case HANDLE.PIVOT:
+                        if (handle === selectedHandle) {
+                            cls.add('grabbing');
+                        } else {
+                            cls.add('grab');
+                        }
+                        break;
+
+                    case HANDLE.FRAME:
+                        cls.add('move');
+                        break;
+                }
+            }
         }
     };
 
@@ -1637,10 +1871,13 @@ editor.once('load', function() {
         }
 
         leftPanel.emit('clear');
+        bottomPanel.emit('clear');
 
         newFrame = null;
+        hoveredFrame = null;
         startingHandleFrame = null;
-        hovering = false;
+        hoveringHandle = null;
+        selectedHandle = null;
         atlasImageData = null;
         atlasImageDataCanvas.getContext('2d').clearRect(0, 0, atlasImageDataCanvas.width, atlasImageDataCanvas.height);
 
@@ -1648,7 +1885,9 @@ editor.once('load', function() {
         rightButtonDown = false;
         shiftDown = false;
 
-        overlayPickFrames.hidden = true;
+        if (spriteEditMode) {
+            editor.call('picker:sprites:pickFrames:cancel');
+        }
 
         atlasAsset = null;
 
@@ -1685,9 +1924,9 @@ editor.once('load', function() {
         return panel;
     });
 
-    // Return pick frames overlay
-    editor.method('picker:sprites:overlayPick', function () {
-        return overlayPickFrames;
+    // Return bottom panel
+    editor.method('picker:sprites:bottomPanel', function () {
+        return bottomPanel;
     });
 
     // Return atlas asset
@@ -1708,6 +1947,11 @@ editor.once('load', function() {
     // Return sprite editor controls
     editor.method('picker:sprites:controls', function () {
         return controls;
+    });
+
+    editor.method('picker:sprites:hoverFrame', function (frameKey) {
+        hoveredFrame = frameKey;
+        queueRender();
     });
 
     // Queue re-render
@@ -1745,7 +1989,9 @@ editor.once('load', function() {
 
     // Update inspector when selection changes
     editor.on('picker:sprites:framesSelected', function () {
-        selectedHandle = null;
+        hoveringHandle = null;
+        setHandle(null);
+        updateCursor();
 
         if (! spriteEditMode) {
             updateRightPanel();
@@ -1757,13 +2003,11 @@ editor.once('load', function() {
     // Track sprite edit mode
     editor.on('picker:sprites:pickFrames:start', function () {
         spriteEditMode = true;
-        panel.class.add('select-frames-mode');
         queueRender();
     });
 
     editor.on('picker:sprites:pickFrames:end', function () {
         spriteEditMode = false;
-        panel.class.remove('select-frames-mode');
         queueRender();
     });
 

@@ -73,6 +73,12 @@ editor.once('load', function() {
                             entity.sprite.stop();
                         }
                     }
+                } else if (component === 'camera') {
+                    // do not let cameras get enabled by changes to the observer
+                    // because we want to control which cameras are being rendered manually
+                    if (property === 'enabled') {
+                        value = false;
+                    }
                 }
 
                 entity[component][property] = editor.call('components:convertValue', component, property, value);

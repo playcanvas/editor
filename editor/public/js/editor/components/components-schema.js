@@ -45,7 +45,8 @@ editor.once('load', function() {
                 cookieChannel: 'rgb',
                 cookieAngle: 0.0,
                 cookieOffset: [ 0.0, 0.0 ],
-                cookieScale: [ 1.0, 1.0 ]
+                cookieScale: [ 1.0, 1.0 ],
+                layers: [LAYERID_WORLD]
             },
             types: {
                 color: 'rgb',
@@ -118,7 +119,8 @@ editor.once('load', function() {
                 nearClip: 0.1,
                 farClip: 1000,
                 priority: 0,
-                rect: [0, 0, 1, 1]
+                rect: [0, 0, 1, 1],
+                layers: [LAYERID_WORLD, LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE, LAYERID_UI]
             },
             types: {
                 clearColor: 'rgb',
@@ -155,7 +157,8 @@ editor.once('load', function() {
                 receiveShadows: true,
                 lightMapped: false,
                 lightMapSizeMultiplier: 1.0,
-                batchGroupId: null
+                batchGroupId: null,
+                layers: [LAYERID_WORLD]
             }
         },
 
@@ -195,6 +198,7 @@ editor.once('load', function() {
                 colorMapAsset: null,
                 normalMapAsset: null,
                 mesh: null,
+                layers: [LAYERID_WORLD],
                 localVelocityGraph: {
                     type: 1,
                     keys: [[0, 0], [0, 0], [0, 0]],
@@ -344,7 +348,7 @@ editor.once('load', function() {
                     }
 
                     // Otherwise, select the first available font in the library
-                    var firstAvailableFont = editor.call('assets:findOne', function (asset) { return asset.get('type') === 'font'; });
+                    var firstAvailableFont = editor.call('assets:findOne', function (asset) { return ! asset.get('source') && asset.get('type') === 'font'; });
 
                     return firstAvailableFont ? parseInt(firstAvailableFont[1].get('id'), 10) : null;
                 },
@@ -357,6 +361,7 @@ editor.once('load', function() {
                 textureAsset: null,
                 spriteAsset: null,
                 spriteFrame: 0,
+                pixelsPerUnit: null,
                 width: 32,
                 height: 32,
                 margin: [-16,-16,-16,-16],
@@ -366,7 +371,8 @@ editor.once('load', function() {
                 autoHeight: false,
                 materialAsset: null,
                 batchGroupId: null,
-                mask: false
+                mask: false,
+                layers: [LAYERID_UI]
             },
             types: {
                 anchor: 'vec4',
@@ -394,7 +400,9 @@ editor.once('load', function() {
                 clips: {},
                 autoPlayClip: null,
                 speed: 1,
-                batchGroupId: null
+                batchGroupId: null,
+                drawOrder: 0,
+                layers: [LAYERID_WORLD]
             },
             types: {
                 color: 'rgb'

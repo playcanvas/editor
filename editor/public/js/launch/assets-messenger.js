@@ -11,7 +11,7 @@ editor.once('load', function() {
         if (data.asset.source || data.asset.status !== 'complete' && ! validRuntimeAssets.hasOwnProperty(data.asset.type))
             return;
 
-        assetId = data.asset.id;
+        assetId = parseInt(data.asset.id, 10);
         if (! assetId)
             return;
 

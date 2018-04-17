@@ -1,6 +1,6 @@
 "use strict";
 
-function Grid() {
+function Grid(args) {
     var self = this;
     ui.ContainerElement.call(this);
 
@@ -10,6 +10,7 @@ function Grid() {
 
     this._lastSelect = null;
     this._selecting = false;
+    this._multiSelect = args && args.multiSelect !== undefined ? args.multiSelect : true;
 
     this.on('select', this._onSelect);
     this.on('beforeDeselect', this._onBeforeDeselect);
@@ -24,7 +25,7 @@ Grid.prototype._onSelect = function(item) {
     if (this._selecting)
         return;
 
-    if (Grid._shift && Grid._shift()) {
+    if (this._multiSelect && Grid._shift && Grid._shift()) {
         var children = Array.prototype.slice.call(this._element.childNodes, 0);
 
         // multi select from-to
@@ -52,7 +53,7 @@ Grid.prototype._onSelect = function(item) {
         } else {
             this._lastSelect = item;
         }
-    } else if (Grid._ctrl && Grid._ctrl()) {
+    } else if (this._multiSelect && Grid._ctrl && Grid._ctrl()) {
         // multi select
         this._lastSelect = item;
     } else {
@@ -79,9 +80,9 @@ Grid.prototype._onBeforeDeselect = function(item) {
 
     this._selecting = true;
 
-    if (Grid._shift && Grid._shift()) {
+    if (this._multiSelect && Grid._shift && Grid._shift()) {
         this._lastSelect = null;
-    } else if (Grid._ctrl && Grid._ctrl()) {
+    } else if (this._multiSelect && Grid._ctrl && Grid._ctrl()) {
         this._lastSelect = null;
     } else {
         var items = this._element.querySelectorAll('.ui-grid-item.selected');

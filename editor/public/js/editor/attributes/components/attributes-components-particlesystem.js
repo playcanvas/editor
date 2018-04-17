@@ -6,6 +6,7 @@ editor.once('load', function() {
         if (! panelComponents)
             return;
 
+        var projectSettings = editor.call('settings:project');
 
         // particlesystem
         var panel = editor.call('attributes:entity:addComponentPanel', {
@@ -532,6 +533,43 @@ editor.once('load', function() {
         });
         // reference
         editor.call('attributes:reference:attach', 'particlesystem:wrap', fieldWrap.parent.innerElement.firstChild.ui);
+
+        // layers
+        var layers = projectSettings.get('layers');
+        var layersEnum = {
+            '': ''
+        };
+        for (var key in layers) {
+            layersEnum[key] = layers[key].name;
+        }
+        delete layersEnum[LAYERID_DEPTH];
+        delete layersEnum[LAYERID_SKYBOX];
+        delete layersEnum[LAYERID_IMMEDIATE];
+
+        var fieldLayers = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Layers',
+            type: 'tags',
+            tagType: 'number',
+            enum: layersEnum,
+            placeholder: 'Add Layer',
+            link: entities,
+            path: 'components.particlesystem.layers',
+            tagToString: function (tag) {
+                return projectSettings.get('layers.' + tag + '.name') || 'Missing';
+            },
+            onClickTag: function () {
+                // focus layer
+                var layerId = this.originalValue;
+                editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+                setTimeout(function () {
+                    editor.call('editorSettings:layers:focus', layerId);
+                });
+            }
+        });
+
+        // reference
+        editor.call('attributes:reference:attach', 'particlesystem:layers', fieldLayers.parent.parent.innerElement.firstChild.ui);
 
 
         // wrapBounds

@@ -14,6 +14,8 @@ editor.once('load', function() {
     var scriptList = [];
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
+    var layerIndex = {};
+
     // update progress bar
     var setProgress = function (value) {
         var bar = document.getElementById('progress-bar');
@@ -147,6 +149,16 @@ editor.once('load', function() {
          }
     };
 
+    var createLayer = function (key, data) {
+        return new pc.Layer({
+            id: parseInt(key, 10),
+            enabled: true,
+            name: data.name,
+            opaqueSortMode: data.opaqueSortMode,
+            transparentSortMode: data.transparentSortMode
+        });
+    };
+
     var canvas = createCanvas();
 
     // convert library properties into URLs
@@ -215,12 +227,38 @@ editor.once('load', function() {
     app.setCanvasResolution(config.project.settings.resolutionMode, config.project.settings.width, config.project.settings.height);
     app.setCanvasFillMode(config.project.settings.fillMode, config.project.settings.width, config.project.settings.height);
 
+    // batch groups
     var batchGroups = config.project.settings.batchGroups;
     if (batchGroups) {
         for (var id in batchGroups) {
             var grp = batchGroups[id];
-            app.batcher.addGroup(grp.name, grp.dynamic, grp.maxAabbSize, grp.id);
+            app.batcher.addGroup(grp.name, grp.dynamic, grp.maxAabbSize, grp.id, grp.layers);
         }
+    }
+
+    // layers
+    if (config.project.settings.layers && config.project.settings.layerOrder) {
+        var composition = new pc.LayerComposition();
+
+        for (var key in config.project.settings.layers) {
+            layerIndex[key] = createLayer(key, config.project.settings.layers[key]);
+        }
+
+        for (var i = 0, len = config.project.settings.layerOrder.length; i<len; i++) {
+            var sublayer = config.project.settings.layerOrder[i];
+            var layer = layerIndex[sublayer.layer];
+            if (! layer) continue;
+
+            if (sublayer.transparent) {
+                composition.pushTransparent(layer);
+            } else {
+                composition.pushOpaque(layer);
+            }
+
+            composition.subLayerEnabled[i] = sublayer.enabled;
+        }
+
+        app.scene.layers = composition;
     }
 
     app._loadLibraries(libraryUrls, function (err) {
@@ -298,8 +336,10 @@ editor.once('load', function() {
     });
 
     projectSettings.on('*:set', function (path, value) {
-        if (/^batchGroups\./.test(path)) {
-            var parts = path.split('.');
+        var parts;
+
+        if (path.startsWith('batchGroups')) {
+            parts = path.split('.');
             var groupId = parseInt(parts[1], 10);
             var groupSettings = projectSettings.get('batchGroups.' + groupId);
             if (! app.batcher._batchGroups[groupId]) {
@@ -307,7 +347,8 @@ editor.once('load', function() {
                     groupSettings.name,
                     groupSettings.dynamic,
                     groupSettings.maxAabbSize,
-                    groupId
+                    groupId,
+                    groupSettings.layers
                 );
 
                 app.batcher.generate();
@@ -318,13 +359,97 @@ editor.once('load', function() {
 
                 app.batcher.generate([groupId]);
             }
-        }
+        } else if (path.startsWith('layers')) {
+            parts = path.split('.');
+            // create layer
+            if (parts.length === 2) {
+                var layer = createLayer(parts[1], value);
+                layerIndex[layer.id] = layer;
+                var existing = app.scene.layers.getLayerById(layer.id);
+                if (existing) {
+                    app.scene.layers.remove(existing);
+                }
+            }
+            // change layer property
+            else if (parts.length === 3) {
+                var layer = layerIndex[parts[1]];
+                if (layer) {
+                    layer[parts[2]] = value;
+                }
+            }
+          } else if (path.startsWith('layerOrder.')) {
+              parts = path.split('.');
+
+              if (parts.length === 3) {
+                  if (parts[2] === 'enabled') {
+                      var subLayerId = parseInt(parts[1]);
+                      // Unlike Editor, DON'T add 2 to subLayerId here
+                      app.scene.layers.subLayerEnabled[subLayerId] = value;
+                      editor.call('viewport:render');
+                  }
+              }
+          }
     });
 
     projectSettings.on('*:unset', function (path, value) {
-        if (/^batchGroups\.\d+$/.test(path)) {
-            var id = path.split('.')[1];
-            app.batcher.removeGroup(id);
+        if (path.startsWith('batchGroups')) {
+            var propNameParts = path.split('.')[1];
+            if (propNameParts.length === 2) {
+                var id = propNameParts[1];
+                app.batcher.removeGroup(id);
+            }
+        } else if (path.startsWith('layers.')) {
+            var parts = path.split('.');
+
+            // remove layer
+            var layer = layerIndex[parts[1]];
+            if (layer) {
+                app.scene.layers.remove(layer);
+                delete layerIndex[parts[1]];
+            }
+        }
+    });
+
+    projectSettings.on('layerOrder:insert', function (value, index) {
+        var id = value.get('layer');
+        var layer = layerIndex[id];
+        if (! layer) return;
+
+        var transparent = value.get('transparent');
+
+        if (transparent) {
+            app.scene.layers.insertTransparent(layer, index);
+        } else {
+            app.scene.layers.insertOpaque(layer, index);
+        }
+    });
+
+    projectSettings.on('layerOrder:remove', function (value) {
+        var id = value.get('layer');
+        var layer = layerIndex[id];
+        if (! layer) return;
+
+        var transparent = value.get('transparent');
+
+        if (transparent) {
+            app.scene.layers.removeTransparent(layer);
+        } else {
+            app.scene.layers.removeOpaque(layer);
+        }
+    });
+
+    projectSettings.on('layerOrder:move', function (value, indNew, indOld) {
+        var id = value.get('layer');
+        var layer = layerIndex[id];
+        if (! layer) return;
+
+        var transparent = value.get('transparent');
+        if (transparent) {
+            app.scene.layers.removeTransparent(layer);
+            app.scene.layers.insertTransparent(layer, indNew);
+        } else {
+            app.scene.layers.removeOpaque(layer);
+            app.scene.layers.insertOpaque(layer, indNew);
         }
     });
 

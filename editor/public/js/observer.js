@@ -65,7 +65,6 @@ function Observer(data, options) {
 }
 Observer.prototype = Object.create(Events.prototype);
 
-
 Observer.prototype.silence = function() {
     this._silent = true;
 
@@ -285,8 +284,8 @@ Observer.prototype.set = function(path, value, silent, remote) {
                         node._data[key][i].patch(value[i]);
                     } else if (node._data[key][i] !== value[i]) {
                         node._data[key][i] = value[i];
-                        obj.emit(path + '.' + i + ':set', node._data[key][i], valueOld[i] || null, remote);
-                        obj.emit('*:set', path + '.' + i, node._data[key][i], valueOld[i] || null, remote);
+                        obj.emit(path + '.' + i + ':set', node._data[key][i], valueOld && valueOld[i] || null, remote);
+                        obj.emit('*:set', path + '.' + i, node._data[key][i], valueOld && valueOld[i] || null, remote);
                     }
                 }
 
@@ -296,8 +295,8 @@ Observer.prototype.set = function(path, value, silent, remote) {
 
                 state = obj.silence();
                 for(var i = 0; i < node._data[key].length; i++) {
-                    obj.emit(path + '.' + i + ':set', node._data[key][i], valueOld[i] || null, remote);
-                    obj.emit('*:set', path + '.' + i, node._data[key][i], valueOld[i] || null, remote);
+                    obj.emit(path + '.' + i + ':set', node._data[key][i], valueOld && valueOld[i] || null, remote);
+                    obj.emit('*:set', path + '.' + i, node._data[key][i], valueOld && valueOld[i] || null, remote);
                 }
                 obj.silenceRestore(state);
             }
@@ -693,7 +692,7 @@ Observer.prototype.insert = function(path, value, ind, silent, remote) {
 
     if (value instanceof Observer) {
         value._parent = obj;
-        value._parentPath = node._path + '.' + key;
+        value._parentPath = (node._path ? node._path + '.' + key : key);
         value._parentField = arr;
         value._parentKey = null;
     } else {

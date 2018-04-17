@@ -11,7 +11,7 @@ editor.once('load', function() {
             pixelsPerUnit: args.pixelsPerUnit !== undefined ? args.pixelsPerUnit : 100,
             frameKeys: args.frameKeys !== undefined ? args.frameKeys : [],
             textureAtlasAsset: args.textureAtlasAsset !== undefined ? parseInt(args.textureAtlasAsset, 10) : null,
-            renderMode: 0
+            renderMode: args.renderMode !== undefined ? args.renderMode : 0
         };
 
         var asset = {

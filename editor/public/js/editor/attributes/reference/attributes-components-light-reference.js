@@ -152,6 +152,12 @@ editor.once('load', function() {
         subTitle: '{pc.Vec2}',
         description: 'Spotlight cookie scale.',
         url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#cookieScale'
+    }, {
+        name: 'layers',
+        title: 'layers',
+        subTitle: '{Number[]}',
+        description: 'The layers that this light will affect.',
+        url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#layers'
     }];
 
     for(var i = 0; i < fields.length; i++) {

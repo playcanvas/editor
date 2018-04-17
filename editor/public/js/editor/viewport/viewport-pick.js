@@ -4,7 +4,7 @@ editor.once('load', function() {
     var app = editor.call('viewport:app');
     if (! app) return; // webgl not available
 
-    var picker = new pc.scene.Picker(app.graphicsDevice, 1, 1);
+    var picker = new pc.Picker(app.graphicsDevice, 1, 1);
     var pickedData = {
         node: null,
         picked: null
@@ -59,20 +59,20 @@ editor.once('load', function() {
     editor.method('viewport:pick', function(x, y, fn) {
         var scene = app.scene;
 
-        if (filter) {
-            scene = {
-                drawCalls: app.scene.drawCalls.filter(filter)
-            };
-        }
+        // if (filter) {
+        //     scene = {
+        //         drawCalls: app.scene.drawCalls.filter(filter)
+        //     };
+        // }
 
         // prepare picker
-        picker.prepare(editor.call('camera:current').camera.camera, scene);
+        picker.prepare(editor.call('camera:current').camera, scene);
 
         // pick node
         var picked = picker.getSelection(x, y);
 
         if (! picked.length || ! picked[0]) {
-            fn(null, null);
+           fn(null, null);
         } else {
             var node = picked[0].node;
 
@@ -128,6 +128,14 @@ editor.once('load', function() {
                     editor.emit('viewport:pick:clear');
                 }
             });
+        }
+    });
+
+    editor.on('scene:unload', function () {
+        // this is needed to clear the picker layer composition
+        // from any mesh instances that are no longer there...
+        if (picker) {
+            picker.layer._dirty = true;
         }
     });
 });

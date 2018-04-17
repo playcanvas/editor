@@ -4,17 +4,14 @@ editor.once('load', function() {
     var app = editor.call('viewport:app');
     if (! app) return; // webgl not available
 
-    var device = app.graphicsDevice;
-    var renderer = app.renderer;
-    var scene = editor.call('preview:scene');
-
     var pitch = 0;
     var yaw = 0;
 
+    var layerComposition = editor.call('preview:layerComposition');
+    var layer = editor.call('preview:layer');
 
     // material
     var material = new pc.StandardMaterial();
-    material._scene = scene;
 
     var mapping = editor.call('assets:material:mapping');
     var mappingShading = {
@@ -31,48 +28,54 @@ editor.once('load', function() {
     ];
 
     // sphere
-    var sphereNode = new pc.GraphNode();
-
-    var currentModel = 'sphere';
-
-    var meshBox = pc.createBox(device, {
-        halfExtents: new pc.Vec3(0.3, 0.3, 0.3)
+    var sphere = new pc.Entity();
+    sphere.addComponent('model', {
+        type: 'sphere',
+        layers: []
     });
-    var meshSphere = pc.createSphere(device, {
-        radius: 0.5,
-        latitudeBands: 64,
-        longitudeBands: 64
+    sphere.model.material = material;
+
+    // box
+    var box = new pc.Entity();
+    box.addComponent('model', {
+        type: 'box',
+        layers: []
     });
-
-    var model = new pc.Model();
-    model.node = sphereNode;
-    model.meshInstances = [ new pc.MeshInstance(sphereNode, meshSphere, material ) ];
-
+    box.setLocalScale(0.6, 0.6, 0.6);
+    box.model.material = material;
 
     // light
-    var lightNode = new pc.GraphNode();
-    lightNode.setLocalEulerAngles(45, 45, 0);
-
-    var light = new pc.Light();
-    light.enabled = true;
-    light.type = pc.LIGHTTYPE_DIRECTIONAL;
-    light._node = lightNode;
-
+    var lightEntity = new pc.Entity();
+    lightEntity.addComponent('light', {
+        type: 'directional',
+        layers: []
+    });
+    lightEntity.setLocalEulerAngles(45, 45, 0);
 
     // camera
     var cameraOrigin = new pc.GraphNode();
 
-    var cameraNode = new pc.GraphNode();
-    cameraNode.setLocalPosition(0, 0, 1.35);
-    cameraOrigin.addChild(cameraNode);
+    var cameraEntity = new pc.Entity();
+    cameraEntity.addComponent('camera', {
+        nearClip: 0.1,
+        farClip: 32,
+        clearColor: new pc.Color(41 / 255, 53 / 255, 56 / 255, 0.0),
+        frustumCulling: false,
+        layers: []
+    });
+    cameraEntity.setLocalPosition(0, 0, 1.35);
+    cameraOrigin.addChild(cameraEntity);
 
-    var camera = new pc.Camera();
-    camera._node = cameraNode;
-    camera.nearClip = 0.1;
-    camera.farClip = 32;
-    camera.clearColor = [ 41 / 255, 53 / 255, 56 / 255, 0.0 ];
-    camera.frustumCulling = false;
-
+    // All preview objects live under this root
+    var previewRoot = new pc.Entity();
+    previewRoot._enabledInHierarchy = true;
+    previewRoot.enabled = true;
+    previewRoot.addChild(box);
+    previewRoot.addChild(sphere);
+    previewRoot.addChild(lightEntity);
+    previewRoot.addChild(cameraOrigin);
+    previewRoot.syncHierarchy();
+    previewRoot.enabled = false;
 
     editor.method('preview:material:render', function(asset, canvasWidth, canvasHeight, canvas, args) {
         var data = asset.get('data');
@@ -87,24 +90,29 @@ editor.once('load', function() {
             width = height;
         else
             height = width;
-        var width = height;
 
         var target = editor.call('preview:getTexture', width, height);
 
-        camera.aspectRatio = height / width;
-        camera.renderTarget = target;
+        previewRoot.enabled = true;
 
-        scene.addModel(model);
-        scene.addLight(light);
+        cameraEntity.camera.aspectRatio = height / width;
 
-        setModel(args.model || 'sphere');
+        layer.renderTarget = target;
+
+        if (args.model === 'box') {
+            sphere.enabled = false;
+            box.enabled = true;
+        } else {
+            sphere.enabled = true;
+            box.enabled = false;
+        }
+
         pitch = args.hasOwnProperty('rotation') ? args.rotation[0] : 0;
         yaw = args.hasOwnProperty('rotation') ? args.rotation[1] : 0;
 
         cameraOrigin.setLocalEulerAngles(pitch, yaw, 0);
-        cameraOrigin.syncHierarchy();
 
-        light.intensity = 1.0 / (Math.min(1.0, scene.exposure) || 0.01);
+        lightEntity.light.intensity = 1.0 / (Math.min(1.0, app.scene.exposure) || 0.01);
 
         // update material
         for(var key in mapping) {
@@ -203,12 +211,16 @@ editor.once('load', function() {
 
         material.update();
 
-        renderer.render(scene, camera);
+        // set up layer
+        layer.addCamera(cameraEntity.camera);
+        layer.addLight(lightEntity.light);
+        layer.addMeshInstances(sphere.enabled ? sphere.model.meshInstances : box.model.meshInstances);
 
-        scene.removeModel(model);
-        scene.removeLight(light);
+        // render
+        app.renderer.renderComposition(layerComposition);
 
         // read pixels from texture
+        var device = app.graphicsDevice;
         device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, target._glFrameBuffer);
         device.gl.readPixels(0, 0, width, height, device.gl.RGBA, device.gl.UNSIGNED_BYTE, target.pixels);
 
@@ -216,18 +228,14 @@ editor.once('load', function() {
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
         canvas.getContext('2d').putImageData(new ImageData(target.pixelsClamped, width, height), (canvasWidth - width) / 2, (canvasHeight - height) / 2);
+
+        // clean up
+        layer.renderTarget = null;
+        layer.removeCamera(cameraEntity.camera);
+        layer.removeLight(lightEntity.light);
+        layer.removeMeshInstances(sphere.enabled ? sphere.model.meshInstances : box.model.meshInstances);
+        previewRoot.enabled = false;
+
     });
 
-    var setModel = function(value) {
-        if (currentModel === value)
-            return;
-
-        if (value === 'box') {
-            currentModel = 'box';
-            model.meshInstances[0].mesh = meshBox;
-        } else {
-            currentModel = 'sphere';
-            model.meshInstances[0].mesh = meshSphere;
-        }
-    };
 });

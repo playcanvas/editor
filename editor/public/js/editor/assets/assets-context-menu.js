@@ -60,6 +60,7 @@ editor.once('load', function() {
         'cubemap': '&#57879;',
         'html': '&#57864;',
         'json': '&#57864;',
+        'layers': '&#57992',
         'material': '&#57749;',
         'script': '&#57864;',
         'shader': '&#57864;',
@@ -150,8 +151,9 @@ editor.once('load', function() {
     });
     menu.append(menuItemReferences);
 
+    // Create Atlas
     var menuItemTextureToAtlas = new ui.MenuItem({
-        text: 'Create Atlas',
+        text: 'Create Texture Atlas',
         icon: '&#58162;',
         value: 'texture-to-atlas'
     });
@@ -159,6 +161,35 @@ editor.once('load', function() {
 
     menuItemTextureToAtlas.on('select', function () {
         editor.call('assets:textureToAtlas', currentAsset);
+    });
+
+    // Create Sprite From Atlas
+    var menuItemCreateSprite = new ui.MenuItem({
+        text: 'Create Sprite Asset',
+        icon: '&#58261;',
+        value: 'atlas-to-sprite'
+    });
+    menu.append(menuItemCreateSprite);
+
+    menuItemCreateSprite.on('select', function () {
+        editor.call('assets:atlasToSprite', {
+            asset: currentAsset
+        });
+    });
+
+    // Create Sliced Sprite From Atlas
+    var menuItemCreateSlicedSprite = new ui.MenuItem({
+        text: 'Create Sliced Sprite Asset',
+        icon: '&#58261;',
+        value: 'atlas-to-sliced-sprite'
+    });
+    menu.append(menuItemCreateSlicedSprite);
+
+    menuItemCreateSlicedSprite.on('select', function () {
+        editor.call('assets:atlasToSprite', {
+            asset: currentAsset,
+            sliced: true
+        });
     });
 
     // replace
@@ -304,7 +335,7 @@ editor.once('load', function() {
             menuItemDownload.hidden = ! ((! config.project.privateAssets || (config.project.privateAssets && editor.call('permissions:read'))) && currentAsset.get('type') !== 'folder' && (currentAsset.get('source') || downloadable[currentAsset.get('type')] || (! legacyScripts && currentAsset.get('type') === 'script')) && currentAsset.get('file.url'));
 
             // duplicate
-            if (currentAsset.get('type') === 'material') {
+            if (currentAsset.get('type') === 'material' || currentAsset.get('type') === 'sprite') {
                 menuItemEdit.hidden = true;
                 if (editor.call('selector:type') === 'asset') {
                     var items = editor.call('selector:items');
@@ -329,7 +360,11 @@ editor.once('load', function() {
             }
 
             // create atlas
-            menuItemTextureToAtlas.hidden = (currentAsset.get('type') !== 'texture' || currentAsset.get('source') || currentAsset.get('task') || ! editor.call('permissions:write'));
+            menuItemTextureToAtlas.hidden = (currentAsset.get('type') !== 'texture' || currentAsset.get('source') || currentAsset.get('task') || ! editor.call('permissions:write') || ! editor.call('users:isSpriteTester'));
+
+            // create sprite
+            menuItemCreateSprite.hidden = (currentAsset.get('type') !== 'textureatlas' || currentAsset.get('source') || currentAsset.get('task') || ! editor.call('permissions:write') || ! editor.call('users:isSpriteTester'));
+            menuItemCreateSlicedSprite.hidden = menuItemCreateSprite.hidden;
 
             // delete
             menuItemDelete.hidden = false;
@@ -366,8 +401,6 @@ editor.once('load', function() {
 
                     while(menuItemReferences.innerElement.firstChild)
                         menuItemReferences.innerElement.firstChild.ui.destroy();
-
-                    menuItemTextureToAtlas.disabled = true;
 
                     var menuItems = [ ];
 
@@ -445,7 +478,6 @@ editor.once('load', function() {
                 } else {
                     menuItemReferences.hidden = true;
                     menuItemReplace.hidden = true;
-                    menuItemTextureToAtlas.disabled = false;
                 }
             } else {
                 menuItemReferences.hidden = true;
@@ -464,6 +496,8 @@ editor.once('load', function() {
             menuItemReferences.hidden = true;
             menuItemReplace.hidden = true;
             menuItemTextureToAtlas.hidden = true;
+            menuItemCreateSprite.hidden = true;
+            menuItemCreateSlicedSprite.hidden = true;
         }
 
         for(var i = 0; i < customMenuItems.length; i++) {

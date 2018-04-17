@@ -1,18 +1,20 @@
 editor.once('load', function() {
-    'use sctrict';
+    'use strict';
 
-    var DEFAULT_CULLING_MASK = 0xFFFFFFFF;
-    var GEOMETRY_ONLY_CULLING_MASK = 1 | 2 | 4;
-
-    var selectedEntity = null;
-    var currentCamera = null;
+    var selectedEntity = null; // currently selected entity
+    var currentCamera = null;  // current camera rendering to viewport
     var renderCamera = false;
-    var pinnedCamera = null;
-    var lastCamera = null;
+    var pinnedCamera = null;   // camera that is currently pinned in preview
+    var enabled = false;
+    var lastCamera = null;     // camera that was last set to preview
+    var oldLayers = null;
     var events = [ ];
     var evtUpdate = null;
     var rect = new pc.Vec4(0, 0.8, 0.2, 0.2);
     var app = null;
+    var previewLayer = null;
+    var editorCamera = null;
+    var previewCamera = null;
 
     var viewport = editor.call('layout.viewport');
 
@@ -29,11 +31,6 @@ editor.once('load', function() {
 
     btnPin.on('click', function(evt) {
         evt.stopPropagation();
-
-        if (lastCamera) {
-            lastCamera.cullingMask = DEFAULT_CULLING_MASK;
-            lastCamera = null;
-        }
 
         if (pinnedCamera) {
             pinnedCamera = null;
@@ -54,6 +51,8 @@ editor.once('load', function() {
             return;
 
         editor.call('camera:set', obj.entity);
+
+        // updateCameraState();
     }, false);
 
 
@@ -74,33 +73,9 @@ editor.once('load', function() {
         rect.y = 1.0 - ((43.0 + 196.0) / (height || 1.0));
         rect.z = 258.0 / width;
         rect.w = 198.0 / height;
+
+        updateCameraState();
     });
-
-    var update = function() {
-        if (! app) return; // WebGL might not be created
-
-        if (! renderCamera)
-            return;
-
-        var obj = pinnedCamera || selectedEntity;
-
-        if (! obj.entity)
-            return;
-
-        var camera = obj.entity.camera;
-        if (! camera)
-            return;
-
-        camera.camera.renderTarget = null;
-        camera.camera.cullingMask = GEOMETRY_ONLY_CULLING_MASK;
-        camera.rect = rect;
-
-        lastCamera = camera.camera;
-
-        camera.frameBegin();
-        app.renderer.render(app.scene, camera.camera);
-        camera.frameEnd();
-    };
 
     var updateCameraState = function() {
         if (pinnedCamera) {
@@ -116,22 +91,75 @@ editor.once('load', function() {
         }
 
         if (renderCamera) {
+            var camera;
+
+            // start rendering preview
             cameraPreviewBorder.classList.add('active');
 
-            if (! evtUpdate)
-                evtUpdate = editor.on('viewport:postRender', update);
+            var obj = pinnedCamera || selectedEntity;
+            if (obj.entity && obj.entity.camera) {
+                camera = obj.entity.camera;
+            }
+
+            if (camera) {
+                // ### ENABLE CAMERA ###
+
+                previewCamera = camera;
+                editorCamera = editor.call('camera:current');
+
+                if (!previewLayer) {
+                    previewLayer = editor.call('gizmo:layers', 'Camera Preview');
+                    previewLayer.onPostRender = function() {
+                        if (!previewCamera || !previewCamera.entity || !previewCamera.data) return;
+                        var entityEnabled = previewCamera.entity.enabled;
+                        previewCamera.entity.enabled = true;
+                        previewCamera.enabled = true;
+                        previewCamera.rect = rect;
+                        previewCamera.camera.cullingMask = GEOMETRY_ONLY_CULLING_MASK;
+                        editorCamera.enabled = false;
+
+                        previewLayer.enabled = false;
+                        app.renderer.renderComposition(app.scene.layers);
+                        previewLayer.enabled = true;
+
+                        previewCamera.enabled = false;
+                        previewCamera.camera.cullingMask = DEFAULT_CULLING_MASK;
+                        editorCamera.enabled = true;
+                        previewCamera.entity.enabled = entityEnabled;
+                    };
+                }
+
+                previewLayer.enabled = true;
+
+                if (lastCamera && lastCamera !== camera) {
+                    if (lastCamera && lastCamera.entity && lastCamera.data && lastCamera.entity !== currentCamera) {
+                        lastCamera.enabled = false;
+                        lastCamera.camera.cullingMask = DEFAULT_CULLING_MASK;
+                    }
+                    lastCamera = null;
+                }
+
+
+                lastCamera = camera;
+            }
         } else {
+
+            // stop rendering preview
             cameraPreviewBorder.classList.remove('active');
 
+
+            if (previewLayer) previewLayer.enabled = false;
             if (lastCamera) {
-                lastCamera.cullingMask = DEFAULT_CULLING_MASK;
+                // ### DISABLE CAMERA ###
+                if (lastCamera && lastCamera.entity && lastCamera.data && lastCamera.entity !== currentCamera) {
+                    lastCamera.enabled = false;
+                    lastCamera.camera.cullingMask = DEFAULT_CULLING_MASK;
+                }
                 lastCamera = null;
             }
 
-            if (evtUpdate) {
-                evtUpdate.unbind();
-                evtUpdate = null;
-            }
+
+            enabled = false;
         }
     };
 
@@ -151,11 +179,6 @@ editor.once('load', function() {
                 events[i].unbind();
 
             events = [ ];
-        }
-
-        if (lastCamera) {
-            lastCamera.cullingMask = DEFAULT_CULLING_MASK;
-            lastCamera = null;
         }
 
         if (type === 'entity' && items.length === 1) {

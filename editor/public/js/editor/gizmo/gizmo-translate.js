@@ -25,6 +25,7 @@ editor.once('load', function() {
     var matB = new pc.Mat4();
     var evtTapStart;
     var pickStart = new pc.Vec3();
+    var immediateRenderOptions;
 
     var snap = false;
     var snapIncrement = 1;
@@ -96,6 +97,13 @@ editor.once('load', function() {
         gizmo = createEntity();
         gizmo.root.enabled = false;
         app.root.addChild(gizmo.root);
+
+        if (!immediateRenderOptions) {
+            immediateRenderOptions = {
+                layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate'),
+                mask: GIZMO_MASK
+            };
+        }
 
         // on picker hover
         editor.on('viewport:pick:hover', function(node, picked) {
@@ -233,7 +241,7 @@ editor.once('load', function() {
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
                     quat.transformVector(vecD, vecD).add(gizmo.root.getPosition());
                     var clr = (hoverAxis === 'x' && hoverPlane) ? gizmo.matActive.color : gizmo.arrow.x.mat.color;
-                    app.renderLines([ vecB, vecC, vecC, vecD ], clr, pc.LINEBATCH_GIZMO);
+                    app.renderLines([ vecB, vecC, vecC, vecD ], clr, immediateRenderOptions);
                 }
                 // plane y lines
                 if (gizmo.plane.y.model.enabled) {
@@ -244,7 +252,7 @@ editor.once('load', function() {
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
                     quat.transformVector(vecD, vecD).add(gizmo.root.getPosition());
                     var clr = (hoverAxis === 'y' && hoverPlane) ? gizmo.matActive.color : gizmo.arrow.y.mat.color;
-                    app.renderLines([ vecB, vecC, vecC, vecD ], clr, pc.LINEBATCH_GIZMO);
+                    app.renderLines([ vecB, vecC, vecC, vecD ], clr, immediateRenderOptions);
                 }
                 // plane z lines
                 if (gizmo.plane.z.model.enabled) {
@@ -255,7 +263,7 @@ editor.once('load', function() {
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
                     quat.transformVector(vecD, vecD).add(gizmo.root.getPosition());
                     var clr = (hoverAxis === 'z' && hoverPlane) ? gizmo.matActive.color : gizmo.arrow.z.mat.color;
-                    app.renderLines([ vecB, vecC, vecC, vecD ], clr, pc.LINEBATCH_GIZMO);
+                    app.renderLines([ vecB, vecC, vecC, vecD ], clr, immediateRenderOptions);
                 }
 
                 // hide lines and arrows if viewed from very angle
@@ -270,7 +278,7 @@ editor.once('load', function() {
                     quat.transformVector(vecB, vecB).add(gizmo.root.getPosition());
                     vecC.set(scale * 2, 0, 0);
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
-                    app.renderLine(vecB, vecC, gizmo.arrow.x.model.material.color, pc.LINEBATCH_GIZMO);
+                    app.renderLines([vecB, vecC], gizmo.arrow.x.model.material.color, immediateRenderOptions);
                 }
                 // line y
                 if (gizmo.line.y.model.enabled) {
@@ -278,7 +286,7 @@ editor.once('load', function() {
                     quat.transformVector(vecB, vecB).add(gizmo.root.getPosition());
                     vecC.set(0, scale * 2, 0);
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
-                    app.renderLine(vecB, vecC, gizmo.arrow.y.model.material.color, pc.LINEBATCH_GIZMO);
+                    app.renderLine(vecB, vecC, gizmo.arrow.y.model.material.color, immediateRenderOptions);
                 }
                 // line z
                 if (gizmo.line.z.model.enabled) {
@@ -286,7 +294,7 @@ editor.once('load', function() {
                     quat.transformVector(vecB, vecB).add(gizmo.root.getPosition());
                     vecC.set(0, 0, scale * 2);
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
-                    app.renderLine(vecB, vecC, gizmo.arrow.z.model.material.color, pc.LINEBATCH_GIZMO);
+                    app.renderLine(vecB, vecC, gizmo.arrow.z.model.material.color, immediateRenderOptions);
                 }
             }
 
@@ -432,8 +440,11 @@ editor.once('load', function() {
         // root entity
         var entity = obj.root = new pc.Entity();
 
+        var gizmoLayer = editor.call('gizmo:layers', 'Axis Gizmo').id;
+
         // plane x
         var planeX = obj.plane.x = new pc.Entity();
+        planeX.name = "planeX";
         obj.hoverable.push(planeX);
         planeX.axis = 'x';
         planeX.plane = true;
@@ -441,10 +452,10 @@ editor.once('load', function() {
             type: 'plane',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        planeX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
-        planeX.model.model.meshInstances[0].mask = 8;
+        planeX.model.model.meshInstances[0].mask = GIZMO_MASK;
         entity.addChild(planeX);
         planeX.setLocalEulerAngles(90, -90, 0);
         planeX.setLocalScale(.8, .8, .8);
@@ -454,6 +465,7 @@ editor.once('load', function() {
 
         // plane y
         var planeY = obj.plane.y = new pc.Entity();
+        planeY.name = "planeY";
         obj.hoverable.push(planeY);
         planeY.axis = 'y';
         planeY.plane = true;
@@ -461,10 +473,10 @@ editor.once('load', function() {
             type: 'plane',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        planeY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
-        planeY.model.model.meshInstances[0].mask = 8;
+        planeY.model.model.meshInstances[0].mask = GIZMO_MASK;
         entity.addChild(planeY);
         planeY.setLocalEulerAngles(0, 0, 0);
         planeY.setLocalScale(.8, .8, .8);
@@ -474,6 +486,7 @@ editor.once('load', function() {
 
         // plane z
         var planeZ = obj.plane.z = new pc.Entity();
+        planeZ.name = "planeZ";
         obj.hoverable.push(planeZ);
         planeZ.axis = 'z';
         planeZ.plane = true;
@@ -481,10 +494,10 @@ editor.once('load', function() {
             type: 'plane',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        planeZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
-        planeZ.model.model.meshInstances[0].mask = 8;
+        planeZ.model.model.meshInstances[0].mask = GIZMO_MASK;
         entity.addChild(planeZ);
         planeZ.setLocalEulerAngles(90, 0, 0);
         planeZ.setLocalScale(.8, .8, .8);
@@ -494,16 +507,17 @@ editor.once('load', function() {
 
         // line x
         var lineX = obj.line.x = new pc.Entity();
+        lineX.name = "lineX";
         obj.hoverable.push(lineX);
         lineX.axis = 'x';
         lineX.addComponent('model', {
             type: 'cylinder',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        lineX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
-        lineX.model.model.meshInstances[0].mask = 8;
+        lineX.model.model.meshInstances[0].mask = GIZMO_MASK;
         entity.addChild(lineX);
         lineX.setLocalEulerAngles(90, 90, 0);
         lineX.setLocalPosition(1.6, 0, 0);
@@ -512,16 +526,17 @@ editor.once('load', function() {
 
         // line y
         var lineY = obj.line.y = new pc.Entity();
+        lineY.name = "lineY";
         obj.hoverable.push(lineY);
         lineY.axis = 'y';
         lineY.addComponent('model', {
             type: 'cylinder',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        lineY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
-        lineY.model.model.meshInstances[0].mask = 8;
+        lineY.model.model.meshInstances[0].mask = GIZMO_MASK;
         entity.addChild(lineY);
         lineY.setLocalEulerAngles(0, 0, 0);
         lineY.setLocalPosition(0, 1.6, 0);
@@ -530,16 +545,17 @@ editor.once('load', function() {
 
         // line z
         var lineZ = obj.line.z = new pc.Entity();
+        lineZ.name = "lineZ";
         obj.hoverable.push(lineZ);
         lineZ.axis = 'z';
         lineZ.addComponent('model', {
             type: 'cylinder',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        lineZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
-        lineZ.model.model.meshInstances[0].mask = 8;
+        lineZ.model.model.meshInstances[0].mask = GIZMO_MASK;
         entity.addChild(lineZ);
         lineZ.setLocalEulerAngles(90, 0, 0);
         lineZ.setLocalPosition(0, 0, 1.6);
@@ -548,16 +564,17 @@ editor.once('load', function() {
 
         // arrow x
         var arrowX = obj.arrow.x = new pc.Entity();
+        arrowX.name = "arrowX";
         obj.hoverable.push(arrowX);
         arrowX.axis = 'x';
         arrowX.addComponent('model', {
             type: 'cone',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        arrowX.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
-        arrowX.model.model.meshInstances[0].mask = 8;
+        arrowX.model.model.meshInstances[0].mask = GIZMO_MASK;
         entity.addChild(arrowX);
         arrowX.setLocalEulerAngles(90, 90, 0);
         arrowX.setLocalPosition(2.3, 0, 0);
@@ -566,16 +583,17 @@ editor.once('load', function() {
 
         // arrow y
         var arrowY = obj.arrow.y = new pc.Entity();
+        arrowY.name = "arrowY";
         obj.hoverable.push(arrowY);
         arrowY.axis = 'y';
         arrowY.addComponent('model', {
             type: 'cone',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        arrowY.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
-        arrowY.model.model.meshInstances[0].mask = 8;
+        arrowY.model.model.meshInstances[0].mask = GIZMO_MASK;
         entity.addChild(arrowY);
         arrowY.setLocalEulerAngles(0, 0, 0);
         arrowY.setLocalPosition(0, 2.3, 0);
@@ -584,16 +602,17 @@ editor.once('load', function() {
 
         // arrow z
         var arrowZ = obj.arrow.z = new pc.Entity();
+        arrowZ.name = "arrowZ";
         obj.hoverable.push(arrowZ);
         arrowZ.axis = 'z';
         arrowZ.addComponent('model', {
             type: 'cone',
             castShadows: false,
             receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            layers: [gizmoLayer]
         });
-        arrowZ.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
-        arrowZ.model.model.meshInstances[0].mask = 8;
+        arrowZ.model.model.meshInstances[0].mask = GIZMO_MASK;
         entity.addChild(arrowZ);
         arrowZ.setLocalEulerAngles(90, 0, 0);
         arrowZ.setLocalPosition(0, 0, 2.3);
