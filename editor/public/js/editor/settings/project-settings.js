@@ -87,7 +87,11 @@ editor.once('load', function () {
     // migrations
     editor.on('settings:project:load', function () {
         var history = settings.history.enabled;
+        var sync = settings.sync.enabled;
+
         settings.history.enabled = false;
+        settings.sync.enabled = editor.call('permissions:write');
+
         if (! settings.get('batchGroups')) {
             settings.set('batchGroups', {});
         }
@@ -158,5 +162,6 @@ editor.once('load', function () {
             });
         }
         settings.history.enabled = history;
+        settings.sync.enabled = sync;
     });
 });
