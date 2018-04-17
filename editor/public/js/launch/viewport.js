@@ -340,6 +340,7 @@ editor.once('load', function() {
 
         if (path.startsWith('batchGroups')) {
             parts = path.split('.');
+            if (parts.length < 2) return;
             var groupId = parseInt(parts[1], 10);
             var groupSettings = projectSettings.get('batchGroups.' + groupId);
             if (! app.batcher._batchGroups[groupId]) {
