@@ -82,8 +82,9 @@ editor.once('load', function() {
                 // tags
                 _asset.tags.add(assetData['tags']);
 
-                if (asset.get('type') !== 'script')
+                if (asset.get('type') !== 'script' || ! asset.get('preload')) {
                     app.assets.add(_asset);
+                }
             } else {
                 for (var key in assetData)
                     asset.set(key, assetData[key]);
@@ -112,7 +113,14 @@ editor.once('load', function() {
                 if (! scripts[order[i]])
                     continue;
 
-                app.assets.add(scripts[order[i]].asset);
+                // Make sure script hasn't been added already
+                // This shouldn't happen it might only happen if
+                // for some reason the script order contains a non-preloaded
+                // script - non-preloaded scripts have already been added to the
+                // registry in `loadAsset`
+                if (! app.assets.get(order[i])) {
+                    app.assets.add(scripts[order[i]].asset);
+                }
             }
         };
 
