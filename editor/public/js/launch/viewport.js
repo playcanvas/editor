@@ -150,9 +150,10 @@ editor.once('load', function() {
     };
 
     var createLayer = function (key, data) {
+        var id = parseInt(key, 10);
         return new pc.Layer({
-            id: parseInt(key, 10),
-            enabled: true,
+            id: id,
+            enabled: id !== LAYERID_DEPTH, // disable depth layer - it will be enabled by the engine when needed
             name: data.name,
             opaqueSortMode: data.opaqueSortMode,
             transparentSortMode: data.transparentSortMode
