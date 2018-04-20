@@ -6252,10 +6252,10 @@ strong {
                         display: none; // hide for now
                     }
 
-                    .ui-panel.add-frames-info {
+                    .ui-panel.add-frames-info, .ui-panel.import-error {
                         border: 1px solid $text-active;
                         margin: 3px 3px 10px 3px;
-                        padding: 15px 20px;
+                        padding: 10px 15px;
                         font-size: 12px;
                         background: $bcg-darkest;
 
@@ -6278,6 +6278,10 @@ strong {
                             margin: 0;
                             line-height: 1.5;
                         }
+                    }
+
+                    .ui-panel.import-error {
+                        border-color: #fb222f;
                     }
                 }
 
@@ -6453,6 +6457,10 @@ strong {
 
                     &.generate:before {
                         content: '\E398';
+                    }
+
+                    &.upload:before {
+                        content: '\E222';
                     }
                 }
             }
