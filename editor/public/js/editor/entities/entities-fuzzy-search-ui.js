@@ -322,7 +322,7 @@ editor.once('load', function() {
         itemsIndex = { };
 
         if (query) {
-            var result = editor.call('entities:fuzzy-search', query);
+            var result = editor.call('entities:fuzzy-search', query, 64);
 
             hierarchy.hidden = true;
             results.hidden = false;
