@@ -91,7 +91,7 @@ editor.once('load', function() {
                     asset.set('preload', false);
                 }
 
-                projectSettings.set('loadingScreenScript', asset ? asset.get('id') : null);
+                projectSettings.set('loadingScreenScript', asset ? asset.get('id') + '' : null);
                 fieldScriptPicker.text = asset ? asset.get('name') : 'Select loading screen script';
                 if (asset) {
                     btnRemove.class.remove('not-visible');
