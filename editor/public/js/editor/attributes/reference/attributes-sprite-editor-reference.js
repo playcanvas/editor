@@ -54,6 +54,9 @@ editor.once('load', function() {
         title: 'Delete All Frames',
         description: 'Delete all frames from the texture atlas.'
     }, {
+        name: 'import:texturepacker',
+        title: 'Click here to upload a JSON file that has been created with the Texture Packer application. PlayCanvas will create new frames for your texture atlas based on that JSON file.'
+    }, {
         name: 'sprites:addFrames',
         title: 'Add Frames',
         description: 'Add frames to this Sprite Asset. Click to start selecting the frames you want to add.'

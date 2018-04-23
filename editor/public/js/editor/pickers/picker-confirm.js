@@ -53,7 +53,12 @@ editor.once('load', function() {
             if (overlay.hidden)
                 return;
 
-            btnNo.emit('click');
+            // do this in a timeout so that other Esc listeners
+            // can query whether the picker is currently open during
+            // this Esc press
+            requestAnimationFrame(function () {
+                btnNo.emit('click');
+            });
         }
     });
 
@@ -67,6 +72,9 @@ editor.once('load', function() {
         evt.stopPropagation();
     });
 
+    overlay.on('show', function () {
+        editor.emit('picker:confirm:open');
+    });
 
     // on overlay hide
     overlay.on('hide', function() {
@@ -109,5 +117,10 @@ editor.once('load', function() {
     // close picker
     editor.method('picker:confirm:close', function() {
         overlay.hidden = true;
+    });
+
+    // Returns true if picker is currently open
+    editor.method('picker:confirm:isOpen', function () {
+        return !overlay.hidden;
     });
 });

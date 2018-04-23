@@ -329,6 +329,10 @@ editor.once('load', function() {
         editor.call('hotkey:register', 'sprite-editor-esc', {
             key: 'esc',
             callback: function () {
+                if (editor.call('picker:confirm:isOpen')) {
+                    return;
+                }
+
                 var spriteAsset = editor.call('picker:sprites:selectedSprite');
                 if (spriteAsset) {
                     if (spriteEditMode) {
@@ -1523,6 +1527,7 @@ editor.once('load', function() {
             } else {
                 editor.call('picker:sprites:attributes:atlas', atlasAsset);
                 editor.call('picker:sprites:attributes:slice', {atlasAsset: atlasAsset, atlasImage: atlasImage, atlasImageData: atlasImageData});
+                editor.call('picker:sprites:attributes:importFrames', {atlasAsset: atlasAsset});
             }
         }
     };
