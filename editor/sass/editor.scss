@@ -1721,6 +1721,10 @@ strong {
             &.sprite > header > .title:before {
                 content: '\E395';
             }
+            &.layoutgroup > header > .title:before,
+            &.layoutchild > header > .title:before {
+                content: '\E143';
+            }
         }
         &.light {
             .ui-button.shadowUpdate {
@@ -3058,6 +3062,10 @@ strong {
         }
         &.c-element > .title > .icon:after {
             content: '\E378';
+        }
+        &.c-layoutgroup > .title > .icon:after,
+        &.c-layoutchild > .title > .icon:after {
+            content: '\E143';
         }
         &.rename {
             > .title {

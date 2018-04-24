@@ -28,6 +28,7 @@ editor.once('load', function() {
 
         pc.ComponentSystem.on('toolsUpdate', this.systems.particlesystem.onUpdate, this.systems.particlesystem);
         pc.ComponentSystem.on('toolsUpdate', this.systems.animation.onUpdate, this.systems.animation);
+        pc.ComponentSystem.on('toolsUpdate', this.systems.layoutgroup._onPostUpdate, this.systems.layoutgroup);
     };
 
     editor.method('viewport:application', function() {
