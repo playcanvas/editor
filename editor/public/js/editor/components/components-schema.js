@@ -496,11 +496,26 @@ editor.once('load', function() {
 
     editor.method('components:list', function () {
         var result = list.slice(0);
-        if (! editor.call('users:isSpriteTester')) {
+
+        // filter out sprites
+        if (!editor.call('users:hasFlag', 'spriteTester')) {
             var idx = result.indexOf('sprite');
             if (idx !== -1)
                 result.splice(idx, 1);
         }
+
+        // filter out layout groups
+        // if (!editor.call('users:hasFlag', 'hasLayoutGroups')) {
+        //     var idx = result.indexOf('layoutgroup');
+        //     if (idx !== -1) {
+        //         result.splice(idx, 1);
+        //     }
+
+        //     idx = result.indexOf('layoutchild');
+        //     if (idx !== -1) {
+        //         result.splice(idx, 1);
+        //     }
+        // }
 
         return result;
     });

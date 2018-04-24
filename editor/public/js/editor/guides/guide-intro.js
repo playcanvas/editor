@@ -184,7 +184,7 @@ editor.once('load', function () {
     };
 
     var showBubble = function (name, bubbleFn, delay, force, callback) {
-        if (!force && config.self.tips[name] !== false) return false;
+        if (!force && config.self.flags.tips[name] !== false) return false;
 
         if (timeouts[name])
             clearTimeout(timeouts[name]);
@@ -196,7 +196,7 @@ editor.once('load', function () {
             bubbles.push(bubble);
 
             bubble.on('deactivate', function () {
-                config.self.tips[name] = true;
+                config.self.flags.tips[name] = true;
                 Ajax.post('/editor/scene/{{scene.id}}/tips/' + name, {});
 
                 if (callback)
@@ -232,14 +232,14 @@ editor.once('load', function () {
             delay += nextDelay;
 
         // show store bubble for existing users as well
-        if (!config.self.tips.store && showBubble('store', bubbleStore, delay, true))
+        if (!config.self.flags.tips.store && showBubble('store', bubbleStore, delay, true))
             delay += nextDelay;
 
         if (showBubble('controls', bubbleControls, delay))
             delay += nextDelay;
 
         // entity bubble on select entity
-        if (config.self.tips.entityInspector === false) {
+        if (config.self.flags.tips.entityInspector === false) {
             var evtEntitySelect = editor.on('selector:change', function (type, items) {
                 if (type !== 'entity') return;
 
@@ -250,7 +250,7 @@ editor.once('load', function () {
         }
 
         // sound component bubble
-        if (!config.self.tips.soundComponent) {
+        if (!config.self.flags.tips.soundComponent) {
             var evtEntityWithSoundSelect = editor.on('selector:change', function (type, items) {
 
                 if (selectEvents) {
@@ -316,7 +316,7 @@ editor.once('load', function () {
          'controls',
          'launch',
          'howdoi'].forEach(function (tip) {
-            config.self.tips[tip] = false;
+            config.self.flags.tips[tip] = false;
          });
 
          showBubbles(100);
@@ -328,6 +328,7 @@ editor.once('load', function () {
         openedDemo = true;
 
         editor.once('help:demo:close', function () {
+            // set user's openedEditor flag to true
             Ajax.post('/editor/scene/{{scene.id}}/opened', { });
 
             // show some demo specific bubbles first

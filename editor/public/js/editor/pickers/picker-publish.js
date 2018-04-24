@@ -49,7 +49,7 @@ editor.once('load', function () {
     var panelFbInstant = new ui.Panel();
     panelFbInstant.class.add('buttons');
     panel.append(panelFbInstant);
-    panelFbInstant.hidden = !config.self.superUser && !config.self.publishFacebook
+    panelFbInstant.hidden = !editor.call('users:hasFlag', 'hasPublishOnFacebook');
 
     panelFbInstant.append(new ui.Label({
         text: 'Publish build to Facebook Instant Games.'

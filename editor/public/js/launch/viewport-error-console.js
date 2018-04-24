@@ -95,18 +95,11 @@ editor.once('load', function() {
 
                 codeEditorUrl = config.url.home + target;
                 query = '?line=' + line + '&col=' + col + '&error=true';
-            } else if (! editor.call('settings:project').get('useLegacyScripts') && url.indexOf('/api/assets/') !== -1 && url.indexOf('.js') !== -1) {
+            } else if (!editor.call('settings:project').get('useLegacyScripts') && url.indexOf('/api/assets/') !== -1 && url.indexOf('.js') !== -1) {
                 assetId = parseInt(url.match(/\/api\/assets\/files\/.+?id=([0-9]+)/)[1], 10);
-                if (config.self.codeEditor2) {
-                    target = 'codeeditor:' + config.project.id;
-                    codeEditorUrl = config.url.home + '/editor/code/' + config.project.id;
-                    query = '?tabs=' + assetId + '&line=' + line + '&col=' + col + '&error=true';
-                } else {
-                    target = '/editor/asset/' + assetId;
-                    codeEditorUrl = config.url.home + target;
-                    query = '?line=' + line + '&col=' + col + '&error=true';
-                }
-
+                target = 'codeeditor:' + config.project.id;
+                codeEditorUrl = config.url.home + '/editor/code/' + config.project.id;
+                query = '?tabs=' + assetId + '&line=' + line + '&col=' + col + '&error=true';
             } else {
                 codeEditorUrl = url;
             }
@@ -117,7 +110,7 @@ editor.once('load', function() {
 
             append(pc.string.format('<a href="{0}{1}" target="{2} class="code-link" id="{6}">[{3}:{4}]</a>: {5}', codeEditorUrl, query, target, relativeUrl, line, msg, 'error-' + errorCount), 'error');
 
-            if (assetId && config.self.codeEditor2) {
+            if (assetId) {
                 var link = document.getElementById('error-' + errorCount);
                 link.addEventListener('click', function (e) {
                     var existing = window.open('', target);

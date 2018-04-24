@@ -14,7 +14,7 @@ editor.once('load', function() {
         if (asset.get('type') === 'script' && editor.call('settings:project').get('useLegacyScripts')) {
             window.open('/editor/code/' + config.project.id + '/' + asset.get('filename'));
         } else {
-            if (config.self.codeEditor2 && ! editor.call('settings:project').get('useLegacyScripts')) {
+            if (!editor.call('settings:project').get('useLegacyScripts')) {
                 editor.call('picker:codeeditor', asset);
             } else {
                 window.open('/editor/asset/' + asset.get('id'), asset.get('id')).focus();
