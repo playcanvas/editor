@@ -744,7 +744,7 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'element:layers', fieldLayers.parent.parent.innerElement.firstChild.ui);
 
         var toggleFields = function () {
-            var spriteTester = editor.call('users:isSpriteTester');
+            var spriteTester = editor.call('users:hasFlag', 'spriteTester');
             fieldSpriteAsset.parent.hidden = !spriteTester || fieldType.value !== 'image' || fieldTextureAsset.value || fieldMaterialAsset.value;
             fieldFrame.parent.hidden = fieldSpriteAsset.parent.hidden || ! fieldSpriteAsset.value;
             fieldPpu.parent.hidden = fieldSpriteAsset.parent.hidden || ! fieldSpriteAsset.value;

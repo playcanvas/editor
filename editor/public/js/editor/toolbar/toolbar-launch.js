@@ -201,8 +201,9 @@ editor.once('load', function() {
     // facebook
     var fb = createOption('facebook', 'Launch on Facebook');
 
-    if (!config.self.superUser && !config.self.publishFacebook)
+    if (!editor.call('users:hasFlag', 'hasPublishOnFacebook')) {
         fb.parent.hidden = true;
+    }
 
     var tooltipFb = Tooltip.attach({
         target: fb.parent.element,

@@ -87,7 +87,7 @@ editor.once('load', function() {
         'text': 'Text'
     };
 
-    if (editor.call('users:isSpriteTester')) {
+    if (editor.call('users:hasFlag', 'spriteTester')) {
         assets.sprite = 'Sprite';
     }
 
@@ -360,10 +360,10 @@ editor.once('load', function() {
             }
 
             // create atlas
-            menuItemTextureToAtlas.hidden = (currentAsset.get('type') !== 'texture' || currentAsset.get('source') || currentAsset.get('task') || ! editor.call('permissions:write') || ! editor.call('users:isSpriteTester'));
+            menuItemTextureToAtlas.hidden = (currentAsset.get('type') !== 'texture' || currentAsset.get('source') || currentAsset.get('task') || ! editor.call('permissions:write') || !editor.call('users:hasFlag', 'spriteTester'));
 
             // create sprite
-            menuItemCreateSprite.hidden = (currentAsset.get('type') !== 'textureatlas' || currentAsset.get('source') || currentAsset.get('task') || ! editor.call('permissions:write') || ! editor.call('users:isSpriteTester'));
+            menuItemCreateSprite.hidden = (currentAsset.get('type') !== 'textureatlas' || currentAsset.get('source') || currentAsset.get('task') || ! editor.call('permissions:write') || !editor.call('users:hasFlag', 'spriteTester'));
             menuItemCreateSlicedSprite.hidden = menuItemCreateSprite.hidden;
 
             // delete

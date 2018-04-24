@@ -418,7 +418,7 @@ editor.once('load', function() {
             }
 
             // script editor
-            if (editor.call('users:isSpriteTester') && (assets[0].get('type') === 'textureatlas' || assets[0].get('type') === 'sprite')) {
+            if (editor.call('users:hasFlag', 'spriteTester') && (assets[0].get('type') === 'textureatlas' || assets[0].get('type') === 'sprite')) {
                 var btnSpriteEditor = new ui.Button();
                 btnSpriteEditor.text = 'Sprite Editor';
                 btnSpriteEditor.disabled = assets[0].get('type') === 'sprite' && (! assets[0].get('data.textureAtlasAsset') || ! editor.call('assets:get', assets[0].get('data.textureAtlasAsset')));

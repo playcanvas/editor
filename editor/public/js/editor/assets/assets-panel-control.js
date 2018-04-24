@@ -55,7 +55,7 @@ editor.once('load', function() {
         }
     };
 
-    if (! editor.call('users:isSpriteTester'))
+    if (!editor.call('users:hasFlag', 'spriteTester'))
         delete assets['sprite'];
 
     var addNewMenuItem = function(key, data) {

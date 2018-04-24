@@ -54,7 +54,7 @@ editor.once('load', function () {
         editor.unbind('scene:name', positionWidget);
         editor.unbind('viewport:resize', positionWidget);
 
-        if (!config.self.tips['howdoi'])
+        if (!config.self.flags.tips['howdoi'])
             editor.call('guide:bubble:show', 'howdoi', bubble, 200, true);
     });
 

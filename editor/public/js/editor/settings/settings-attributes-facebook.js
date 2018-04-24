@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    if (!config.self.superUser && !config.self.publishFacebook)
+    if (!editor.call('users:hasFlag', 'hasPublishOnFacebook'))
         return;
 
     var foldStates = {

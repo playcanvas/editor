@@ -400,7 +400,8 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'asset:texture:compression', panelCompression, panelCompression.headerElement);
 
-        if (! config.self.superUser && ! config.self.betaTester && config.owner.plan.type === 'free')
+
+        if ( !editor.call('users:hasFlag', 'betaTester') && config.owner.plan.type === 'free')
             panelCompression.hidden = true;
 
         // compress alpha

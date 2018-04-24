@@ -360,7 +360,7 @@ editor.once('load', function() {
                 title: 'Sprite',
                 icon: componentsLogos.sprite,
                 hide: function () {
-                    return !editor.call('users:isSpriteTester');
+                    return !editor.call('users:hasFlag', 'spriteTester');
                 },
                 select: function() {
                     var data = editor.call('components:getDefault', 'sprite');
@@ -377,7 +377,7 @@ editor.once('load', function() {
                 title: 'Animated Sprite',
                 icon: componentsLogos.sprite,
                 hide: function () {
-                    return !editor.call('users:isSpriteTester');
+                    return !editor.call('users:hasFlag', 'spriteTester');
                 },
                 select: function() {
                     var data = editor.call('components:getDefault', 'sprite');
