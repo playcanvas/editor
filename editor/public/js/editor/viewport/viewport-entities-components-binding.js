@@ -13,6 +13,10 @@ editor.once('load', function() {
         return result;
     };
 
+    var approxEqual = function(a, b) {
+        return Math.abs(a - b) < 1e-4;
+    };
+
     editor.on('entities:add', function (obj) {
         var app;
 
@@ -27,6 +31,7 @@ editor.once('load', function() {
             var parts = path.split('.');
             var component = parts[1];
             var property = parts[2];
+            var callSetter = true;
 
             // ignore script component
             if (component === 'script')
@@ -79,9 +84,26 @@ editor.once('load', function() {
                     if (property === 'enabled') {
                         value = false;
                     }
+                } else if (component === 'element') {
+                    // Only propagate values to the margin or anchor if the value has
+                    // actually been modified. Doing so in other cases gives the element
+                    // the impression that the user has intentionally changed the margin,
+                    // which in turn will change its width/height unnecessarily.
+                    if (property === 'margin' || property === 'anchor') {
+                        var existing = entity.element[property].data;
+
+                        if (approxEqual(value[0], existing[0]) &&
+                            approxEqual(value[1], existing[1]) &&
+                            approxEqual(value[2], existing[2]) &&
+                            approxEqual(value[3], existing[3])) {
+                            callSetter = false;
+                        }
+                    }
                 }
 
-                entity[component][property] = editor.call('components:convertValue', component, property, value);
+                if (callSetter) {
+                    entity[component][property] = editor.call('components:convertValue', component, property, value);
+                }
 
                 // render
                 editor.call('viewport:render');

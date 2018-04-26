@@ -31,6 +31,8 @@ editor.once('load', function() {
         entity.sync.enabled = false;
         var margin = entity.entity.element.margin.data;
         entity.set('components.element.margin', [margin[0], margin[1], margin[2], margin[3]]);
+        var anchor = entity.entity.element.anchor.data;
+        entity.set('components.element.anchor', [anchor[0], anchor[1], anchor[2], anchor[3]]);
         entity.set('components.element.width', entity.entity.element.width);
         entity.set('components.element.height', entity.entity.element.height);
         var pos = entity.entity.getLocalPosition().data;
