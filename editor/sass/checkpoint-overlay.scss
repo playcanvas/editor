@@ -1,0 +1,73 @@
+@import 'fonts';
+
+.checkpoint-overlay {
+    > .content {
+        width: 512px;
+        position: absolute;
+        top: 40%;
+        left: 0;
+        right: 0;
+        margin: auto;
+        vertical-align: middle;
+
+        .vert-align-helper {
+            display: inline-block;
+            height: 100%;
+            vertical-align: middle;
+        }
+
+        > .checkpoint-content {
+            display: inline-block;
+            padding-left: 20px;
+            width: 512px - 64px - 20px;
+            vertical-align: middle;
+            color: white;
+        }
+
+        > .checkpoint-icon {
+            display: inline-block;
+            width: 64px;
+            height: 80px;
+            line-height: 80px;
+            @extend .font-icon;
+            font-size: 27px;
+            font-weight: 100;
+            text-align: center;
+            vertical-align: middle;
+
+            &.in-progress {
+                color: #f60;
+            }
+
+            &.in-progress:before {
+                content: '\E401';
+            }
+
+            &.success {
+                color: #f60;
+            }
+
+            &.success:before {
+                content: '\E154';
+            }
+
+            &.error {
+              color: #D34141;
+            }
+
+            &.error:before {
+                content: '\E156';
+            }
+        }
+
+        > .checkpoint-error-btn-div {
+            .btn-ok {
+                margin-left: 346px;
+                margin-bottom: 10px;
+                width: 155px;
+                text-align: center;
+            }
+        }
+    }
+}
+

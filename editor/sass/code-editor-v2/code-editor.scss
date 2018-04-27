@@ -1,5 +1,6 @@
 @import 'variables';
 @import '../fonts';
+@import '../checkpoint-overlay';
 
 html {
     height: 100%;
@@ -1255,3 +1256,4 @@ a.link-docs {
 .ui-button.icon {
     @extend .font-icon;
 }
+
