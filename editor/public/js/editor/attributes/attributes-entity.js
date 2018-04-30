@@ -358,17 +358,27 @@ editor.once('load', function() {
     });
 
     var toggleFields = function (selectedEntities) {
-        var disablePosition = false;
+        var disablePositionXY = false;
         var disableRotation = false;
         var disableScale = false;
 
         for (var i = 0, len = selectedEntities.length; i < len; i++) {
+            var entity = selectedEntities[i];
+
             // disable rotation / scale for 2D screens
-            if (selectedEntities[i].get('components.screen.screenSpace')) {
+            if (entity.get('components.screen.screenSpace')) {
                 disableRotation = true;
                 disableScale = true;
             }
+
+            // disable position on the x/y axis for elements that are part of a layout group
+            if (editor.call('entities:layout:isUnderControlOfLayoutGroup', entity)) {
+                disablePositionXY = true;
+            }
         }
+
+        items.fieldPosition[0].enabled = !disablePositionXY;
+        items.fieldPosition[1].enabled = !disablePositionXY;
 
         for (var i = 0; i < 3; i++) {
             items.fieldRotation[i].enabled = !disableRotation;
@@ -385,7 +395,7 @@ editor.once('load', function() {
 
         var addEvents = function (entity) {
             inspectEvents.push(entity.on('*:set', function (path) {
-                if (/components.screen.screenSpace/.test(path)) {
+                if (/components.screen.screenSpace/.test(path) || /^parent/.test(path)) {
                     toggleFieldsIfNeeded(entity);
                 }
             }));

@@ -175,9 +175,8 @@ editor.once('load', function() {
         var isUnderControlOfLayoutGroup = function () {
             for (var i = 0, len = entities.length; i < len; i++) {
                 var entity = entities[i];
-                var parent = entity.entity && entity.entity.parent;
 
-                if (parent && parent.layoutgroup) {
+                if (editor.call('entities:layout:isUnderControlOfLayoutGroup', entity)) {
                     return true;
                 }
             }
@@ -185,16 +184,21 @@ editor.once('load', function() {
             return false;
         };
 
-        var toggleAnchor = function () {
+        var toggleAnchorAndPresets = function () {
             var disabled = isUnderControlOfLayoutGroup();
 
             for (var i = 0; i < 4; i++) {
                 fieldAnchor[i].disabled = disabled;
-                fieldAnchor[i].renderChanges = !disabled;
             }
+
+            fieldPreset.disabled = disabled;
         };
 
-        toggleAnchor();
+        toggleAnchorAndPresets();
+
+        entities.forEach(function(entity) {
+            events.push(entity.on('parent:set', toggleAnchorAndPresets));
+        });
 
         var fieldPivot = editor.call('attributes:addField', {
             parent: panel,

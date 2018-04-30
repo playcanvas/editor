@@ -65,13 +65,15 @@ editor.once('load', function() {
                 // timeout because if we do it in the handler
                 // it won't get sent to C3 due to observer.silence
                 setTimeout(function () {
-                    var margin = entity.entity.element.margin.data;
-                    var history = entity.history.enabled;
-                    entity.history.enabled = false;
-                    setting.margin = true;
-                    entity.set('components.element.margin', [fixed(margin[0]), fixed(margin[1]), fixed(margin[2]), fixed(margin[3])]);
-                    setting.margin = false;
-                    entity.history.enabled = history;
+                    if (!editor.call('entities:layout:isUnderControlOfLayoutGroup', entity)) {
+                        var margin = entity.entity.element.margin.data;
+                        var history = entity.history.enabled;
+                        entity.history.enabled = false;
+                        setting.margin = true;
+                        entity.set('components.element.margin', [fixed(margin[0]), fixed(margin[1]), fixed(margin[2]), fixed(margin[3])]);
+                        setting.margin = false;
+                        entity.history.enabled = history;
+                    }
 
                     setting.position = false;
                 });
@@ -221,6 +223,42 @@ editor.once('load', function() {
 
                 }
             }
+            // disabling a layout group
+            else if (/^components.layoutgroup.enabled/.test(path)) {
+                if (value === false && valueOld === true) {
+                    editor.call('entities:layout:storeLayout', entity.get('children'));
+                }
+            }
+        }));
+
+        // removing a layout group component
+        events.push(entity.on('components.layoutgroup:unset', function () {
+            setTimeout(function () {
+                editor.call('entities:layout:storeLayout', entity.get('children'));
+            });
+        }));
+
+        events.push(editor.on('gizmo:translate:end', function() {
+            var translatedEntities = editor.call('selector:items');
+
+            setTimeout(function () {
+                // Trigger reflow if the user has moved an element that is under
+                // the control of a layout group.
+                for (var i = 0; i < translatedEntities.length; ++i) {
+                    var entity = translatedEntities[i];
+
+                    if (editor.call('entities:layout:isUnderControlOfLayoutGroup', entity)) {
+                        editor.call('entities:layout:scheduleReflow', entity.get('parent'));
+                    }
+                }
+
+                setTimeout(function () {
+                    // Trigger the translate gizmo to re-sync with the position of
+                    // the selected elements, as they will likely have moved as a
+                    // result of the reflow.
+                    editor.emit('gizmo:translate:sync');
+                });
+            });
         }));
     };
 

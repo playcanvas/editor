@@ -409,4 +409,5 @@ editor.once('load', function() {
 
     editor.on('gizmo:type', updateGizmo);
     editor.on('selector:change', updateGizmo);
+    editor.on('gizmo:translate:sync', updateGizmo);
 });
