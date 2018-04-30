@@ -66,16 +66,34 @@ editor.once('load', function() {
             delete index[script];
     };
     var attributeValue = function(attribute) {
-        var value = null;
-        if (attribute.default === undefined || (attribute.default !== null && typeof(attribute.default) !== types[attribute.type])) {
-            if (attribute.array) {
-                value = [ ];
-            } else {
-                value = defaults[attribute.type];
-                if (value instanceof Array)
-                    value = value.slice(0);
+        var value = attribute.array ? [] : null;
 
-                if (attribute.type === 'curve') {
+        if (attribute.default !== undefined && attribute.default !== null) {
+            if (attribute.array) {
+                if (attribute.default instanceof Array) {
+                    value = attribute.default;
+                    for (var i = 0; i < attribute.default.length; i++) {
+                        if (typeof(attribute.default[i]) !== types[attribute.type]) {
+                            value = [];
+                            break;
+                        }
+                    }
+                }
+            } else if (typeof(attribute.default) === types[attribute.type]) {
+                value = attribute.default;
+            }
+        }
+
+        if (value === null) {
+            value = defaults[attribute.type];
+            if (value instanceof Array) {
+                value = value.slice(0);
+            }
+
+            if (attribute.type === 'curve') {
+                if (attribute.array) {
+                    value = [];
+                } else {
                     value = {
                         keys: [ 0, 0 ],
                         type: 2
@@ -88,9 +106,8 @@ editor.once('load', function() {
                     }
                 }
             }
-        } else {
-            value = attribute.default;
         }
+
         return value;
     };
     var attributeDefaultValue = function(value, attribute) {
@@ -173,11 +190,27 @@ editor.once('load', function() {
                 if (! setAttribute && attribute.type === 'curve') {
                     if (attribute.color || attribute.curves) {
                         var len = attribute.color ? attribute.color.length : attribute.curves.length;
-                        if (len !== 1 && (! (value.keys[0] instanceof Array) || value.keys.length !== len)) {
-                            setAttribute = true;
-                        } else if (len === 1 && (value.keys[0] instanceof Array)) {
-                            setAttribute = true;
+                        if (attribute.array) {
+                            if (! value || (!(value instanceof Array))) {
+                                setAttribute = true;
+                            } else {
+                                for (var j = 0; j < value.length && ! setAttribute; j++) {
+                                    var val = value[j];
+                                    if (len !== 1 && (! (val.keys[0] instanceof Array) || val.keys.length !== len)) {
+                                        setAttribute = true;
+                                    } else if (len === 1 && (val.keys[0] instanceof Array)) {
+                                        setAttribute = true;
+                                    }
+                                }
+                            }
+                        } else {
+                            if (len !== 1 && (! (value.keys[0] instanceof Array) || value.keys.length !== len)) {
+                                setAttribute = true;
+                            } else if (len === 1 && (value.keys[0] instanceof Array)) {
+                                setAttribute = true;
+                            }
                         }
+
                     } else if (value.keys[0] instanceof Array) {
                         setAttribute = true;
                     }
@@ -213,18 +246,47 @@ editor.once('load', function() {
                 setAttribute = ! old || attributeDefaultValue(value, old);
 
                 // value type
-                if (! setAttribute && (typeof(value) !== typeof(valueDefault) || attribute.type !== old.type))
+                if (! setAttribute && (attribute.type !== old.type))
                     setAttribute = true;
 
                 // curve types
                 if (! setAttribute && attribute.type === 'curve') {
-                    if (attribute.color || attribute.curves) {
-                        var len = attribute.color ? attribute.color.length : attribute.curves.length;
-                        if (! (value.keys[0] instanceof Array) || value.keys.length !== len)
+                    if (attribute.array) {
+                        if (! value || ! (value instanceof Array)) {
                             setAttribute = true;
-                    } else if (value.keys[0] instanceof Array) {
-                        setAttribute = true;
+                        } else {
+                            for (var j = 0; j < value.length && ! setAttribute; j++) {
+                                var val = value[j];
+                                if (attribute.color || attribute.curves) {
+                                    var len = attribute.color ? attribute.color.length : attribute.curves.length;
+                                    if (len === 1) {
+                                        if (val.keys[0] instanceof Array) {
+                                            setAttribute = true;
+                                        }
+                                    } else if (! (val.keys[0] instanceof Array) || val.keys.length !== len) {
+                                        setAttribute = true;
+                                    }
+                                } else if (val.keys[0] instanceof Array) {
+                                    setAttribute = true;
+                                }
+                            }
+                        }
+                    } else {
+                        if (attribute.color || attribute.curves) {
+                            var len = attribute.color ? attribute.color.length : attribute.curves.length;
+                            if (len === 1) {
+                                if (value.keys[0] instanceof Array) {
+                                    setAttribute = true;
+                                }
+                            } else if (! (value.keys[0] instanceof Array) || value.keys.length !== len) {
+                                setAttribute = true;
+                            }
+                        } else if (value.keys[0] instanceof Array) {
+                            setAttribute = true;
+                        }
+
                     }
+
                 }
             } else {
                 setAttribute = true;

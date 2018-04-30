@@ -84,6 +84,22 @@ var parseScript = function(id, url, engine) {
                 } else if (typeof(args.type) !== 'string') {
                     script.attributesInvalid.push('attribute `' + attr + '` args.type must be a string');
                     return;
+                } else if (
+                    [
+                        'asset',
+                        'boolean',
+                        'curve',
+                        'entity',
+                        'number',
+                        'rgb',
+                        'rgba',
+                        'string',
+                        'vec2',
+                        'vec3',
+                        'vec4'
+                    ].indexOf(args.type) === -1) {
+                    script.attributesInvalid.push('attribute `' + attr + '` invalid type: ' + args.type);
+                    return;
                 }
 
                 if (args.hasOwnProperty('enum')) {
@@ -144,55 +160,89 @@ var parseScript = function(id, url, engine) {
                     args.enum = obj;
                 }
 
+                // validate default value
                 if (args.hasOwnProperty('default')) {
-                    switch (args.type) {
-                        case 'rgb':
-                        case 'vec3':
-                            if (! (args.default instanceof Array) || args.default.length !== 3) {
-                                script.attributesInvalid.push('attribute `' + attr + '`: invalid default value - needs to be an array of 3 numbers');
-                                return;
-                            }
-                            break;
-                        case 'rgba':
-                        case 'vec4':
-                            if (! (args.default instanceof Array) || args.default.length !== 4) {
-                                script.attributesInvalid.push('attribute `' + attr + '`: invalid default value - needs to be an array of 4 numbers');
-                                return;
-                            }
-                            break;
-                        case 'vec2':
-                            if (! (args.default instanceof Array) || args.default.length !== 2) {
-                                script.attributesInvalid.push('attribute `' + attr + '`: invalid default value - needs to be an array of 2 numbers');
-                                return;
-                            }
-                            break;
-                        case 'number':
-                            if ( typeof args.default !== 'number') {
-                                script.attributesInvalid.push('attribute `' + attr + '`: invalid default value - needs to be a number');
-                                return;
-                            }
-                            break;
+                    if (args.array) {
+                        if (!(args.default instanceof Array)) {
+                            script.attributesInvalid.push('attribute `' + attr + '`: invalid default value - needs to be an array');
+                            return;
+                        }
 
-                        case 'boolean':
-                            if (args.default !== true && args.default !== false) {
-                                script.attributesInvalid.push('attribute `' + attr + '`: invalid default value - needs to be a boolean');
-                                return;
+                        if (defaultValidators[args.type]) {
+                            for (var i = 0; i < args.default.length; i++) {
+                                var errorMessage = defaultValidators[args.type](args.default[i]);
+                                if (errorMessage) {
+                                    script.attributesInvalid.push('attribute `' + attr + '`: invalid default value at index ' + i + ' - ' + errorMessage);
+                                    return;
+                                }
                             }
-                            break;
 
-                        case 'string':
-                            if (typeof args.default !== 'string') {
-                                script.attributesInvalid.push('attribute `' + attr + '`: invalid default value - needs to be a string');
+                        }
+
+                    } else {
+                        if (defaultValidators[args.type]) {
+                            var errorMessage = defaultValidators[args.type](args.default);
+                            if (errorMessage) {
+                                script.attributesInvalid.push('attribute `' + attr + '`: invalid default value - ' + errorMessage);
                                 return;
                             }
-                            break;
-                        default:
-                            break;
+                        }
                     }
                 }
 
                 script.attributesOrder.push(attr);
                 script.attributes[attr] = args;
+            }
+        };
+
+        defaultValidators = {
+            vec2: function (value) {
+                if (! (value instanceof Array) || value.length !== 2) {
+                    return 'needs to be an array of 2 numbers';
+                }
+                return null;
+            },
+            vec3: function (value) {
+                if (! (value instanceof Array) || value.length !== 3) {
+                    return 'needs to be an array of 3 numbers';
+                }
+                return null;
+            },
+            vec4: function (value) {
+                if (! (value instanceof Array) || value.length !== 4) {
+                    return 'needs to be an array of 4 numbers';
+                }
+                return null;
+            },
+            rgb: function (value) {
+                if (! (value instanceof Array) || value.length !== 3) {
+                    return 'needs to be an array of 3 numbers';
+                }
+                return null;
+            },
+            rgba: function (value) {
+                if (! (value instanceof Array) || value.length !== 4) {
+                    return 'needs to be an array of 4 numbers';
+                }
+                return null;
+            },
+            number: function (value) {
+                if ( typeof value !== 'number') {
+                    return 'needs to be a number';
+                }
+                return null;
+            },
+            boolean: function (value) {
+                if (value !== true && value !== false) {
+                    return 'needs to be a boolean';
+                }
+                return null;
+            },
+            string: function (value) {
+                if (typeof value !== 'string') {
+                    return 'needs to be a string';
+                }
+                return null;
             }
         };
 
