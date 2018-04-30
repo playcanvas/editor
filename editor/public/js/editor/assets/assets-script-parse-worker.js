@@ -84,6 +84,22 @@ var parseScript = function(id, url, engine) {
                 } else if (typeof(args.type) !== 'string') {
                     script.attributesInvalid.push('attribute `' + attr + '` args.type must be a string');
                     return;
+                } else if (
+                    [
+                        'asset',
+                        'boolean',
+                        'curve',
+                        'entity',
+                        'number',
+                        'rgb',
+                        'rgba',
+                        'string',
+                        'vec2',
+                        'vec3',
+                        'vec4'
+                    ].indexOf(args.type) === -1) {
+                    script.attributesInvalid.push('attribute `' + attr + '` invalid type: ' + args.type);
+                    return;
                 }
 
                 if (args.hasOwnProperty('enum')) {
