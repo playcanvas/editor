@@ -1006,53 +1006,52 @@ editor.once('load', function() {
                 description: attribute.description || ''
             };
 
-            if (attribute.array) {
-                if (attribute.type === 'string') {
-                    type = 'tags';
+            var min = typeof(attribute.min) === 'number' ? attribute.min : undefined;
+            var max = typeof(attribute.max) === 'number' ? attribute.max : undefined;
+            var curves = null;
+            var choices = null;
+            if (attribute.type === 'curve') {
+                if (attribute.color) {
+                    curves = attribute.color.split('');
+                    min = 0;
+                    max = 1;
+                } else if (attribute.curves) {
+                    curves = attribute.curves;
                 } else {
-                    type = null;
+                    curves = [ 'Value' ];
                 }
             }
 
-            if (attribute.array && attribute.type === 'asset') {
-                panel.args = {
+            if (attribute.enum) {
+                choices = [ { v: '', t: '...' } ];
+                for(var i = 0; i < attribute.enum.order.length; i++) {
+                    var key = attribute.enum.order[i];
+                    choices.push({
+                        v: attribute.enum.options[key],
+                        t: key
+                    });
+                }
+            }
+
+            if (attribute.array) {
+                panel.field = editor.call('attributes:addArrayField', {
                     panel: panel,
-                    title: attribute.title || name,
                     name: attribute.title || name,
+                    placeholder: attribute.placeholder || null,
                     reference: reference,
-                    type: attribute.assetType || '*',
+                    type: type,
+                    default: attribute.default,
+                    kind: attribute.assetType || '*',
                     link: entities,
+                    enum: choices,
+                    curves: curves,
+                    gradient: !! attribute.color,
+                    min: min,
+                    max: max,
+                    hideRandomize: true,
                     path: 'components.script.scripts.' + script + '.attributes.' + name
-                };
-                panel.field = editor.call('attributes:addAssetsList', panel.args);
+                });
             } else {
-                var min = typeof(attribute.min) === 'number' ? attribute.min : undefined;
-                var max = typeof(attribute.max) === 'number' ? attribute.max : undefined;
-                var curves = null;
-                var choices = null;
-                if (attribute.type === 'curve') {
-                    if (attribute.color) {
-                        curves = attribute.color.split('');
-                        min = 0;
-                        max = 1;
-                    } else if (attribute.curves) {
-                        curves = attribute.curves;
-                    } else {
-                        curves = [ 'Value' ];
-                    }
-                }
-
-                if (attribute.enum) {
-                    choices = [ { v: '', t: '...' } ];
-                    for(var i = 0; i < attribute.enum.order.length; i++) {
-                        var key = attribute.enum.order[i];
-                        choices.push({
-                            v: attribute.enum.options[key],
-                            t: key
-                        });
-                    }
-                }
-
                 panel.args = {
                     parent: panel,
                     name: attribute.title || name,
