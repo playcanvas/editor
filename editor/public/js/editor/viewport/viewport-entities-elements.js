@@ -253,6 +253,11 @@ editor.once('load', function() {
                 }
 
                 setTimeout(function () {
+                    // Ensure the reflowed positions are synced to other clients.
+                    var parent = editor.call('entities:get', entity.get('parent'));
+                    var siblings = parent.get('children');
+                    editor.call('entities:layout:storeLayout', siblings);
+
                     // Trigger the translate gizmo to re-sync with the position of
                     // the selected elements, as they will likely have moved as a
                     // result of the reflow.
