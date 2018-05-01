@@ -242,6 +242,8 @@ editor.once('load', function() {
             var translatedEntities = editor.call('selector:items');
 
             setTimeout(function () {
+                var didReflow = false;
+
                 // Trigger reflow if the user has moved an element that is under
                 // the control of a layout group.
                 for (var i = 0; i < translatedEntities.length; ++i) {
@@ -249,20 +251,23 @@ editor.once('load', function() {
 
                     if (editor.call('entities:layout:isUnderControlOfLayoutGroup', entity)) {
                         editor.call('entities:layout:scheduleReflow', entity.get('parent'));
+                        didReflow = true;
                     }
                 }
 
-                setTimeout(function () {
-                    // Ensure the reflowed positions are synced to other clients.
-                    var parent = editor.call('entities:get', entity.get('parent'));
-                    var siblings = parent.get('children');
-                    editor.call('entities:layout:storeLayout', siblings);
+                if (didReflow) {
+                    setTimeout(function () {
+                        // Ensure the reflowed positions are synced to other clients.
+                        var parent = editor.call('entities:get', entity.get('parent'));
+                        var siblings = parent.get('children');
+                        editor.call('entities:layout:storeLayout', siblings);
 
-                    // Trigger the translate gizmo to re-sync with the position of
-                    // the selected elements, as they will likely have moved as a
-                    // result of the reflow.
-                    editor.emit('gizmo:translate:sync');
-                });
+                        // Trigger the translate gizmo to re-sync with the position of
+                        // the selected elements, as they will likely have moved as a
+                        // result of the reflow.
+                        editor.emit('gizmo:translate:sync');
+                    });
+                }
             });
         }));
     };
