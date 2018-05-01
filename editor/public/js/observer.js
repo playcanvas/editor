@@ -227,8 +227,11 @@ Observer.prototype.set = function(path, value, silent, remote, force) {
             return;
 
         var valueOld = node[ind];
-        if (! (valueOld instanceof Observer))
+        if (valueOld instanceof Observer) {
+            valueOld = valueOld.json();
+        } else {
             valueOld = obj.json(valueOld);
+        }
 
         node[ind] = value;
 
