@@ -48,8 +48,10 @@ editor.once('load', function() {
         var reparent = function (child, index) {
             var childEntity = editor.call('entities:get', child);
             if (childEntity && childEntity.entity && obj.entity) {
-                if (childEntity.entity.parent)
-                    childEntity.entity.parent.removeChild(childEntity.entity);
+                var oldParent = childEntity.entity.parent;
+
+                if (oldParent)
+                    oldParent.removeChild(childEntity.entity);
 
                 // skip any graph nodes
                 if (index > 0) {
@@ -65,6 +67,12 @@ editor.once('load', function() {
 
                 // re-insert
                 obj.entity.insertChild(childEntity.entity, index);
+
+                // persist the positions and sizes of elements if they were previously
+                // under control of a layout group but have now been reparented
+                if (oldParent && oldParent.layoutgroup) {
+                    editor.call('entities:layout:storeLayout', [childEntity.entity.getGuid()]);
+                }
             }
         };
 

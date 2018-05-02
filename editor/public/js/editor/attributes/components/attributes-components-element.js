@@ -172,6 +172,34 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'element:anchor', fieldAnchor[0].parent.innerElement.firstChild.ui);
 
+        var isUnderControlOfLayoutGroup = function () {
+            for (var i = 0, len = entities.length; i < len; i++) {
+                var entity = entities[i];
+
+                if (editor.call('entities:layout:isUnderControlOfLayoutGroup', entity)) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
+
+        var toggleAnchorAndPresets = function () {
+            var disabled = isUnderControlOfLayoutGroup();
+
+            for (var i = 0; i < 4; i++) {
+                fieldAnchor[i].disabled = disabled;
+            }
+
+            fieldPreset.disabled = disabled;
+        };
+
+        toggleAnchorAndPresets();
+
+        entities.forEach(function(entity) {
+            events.push(entity.on('parent:set', toggleAnchorAndPresets));
+        });
+
         var fieldPivot = editor.call('attributes:addField', {
             parent: panel,
             placeholder: ['↔', '↕'],

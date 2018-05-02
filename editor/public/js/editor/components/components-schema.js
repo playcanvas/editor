@@ -407,7 +407,41 @@ editor.once('load', function() {
             types: {
                 color: 'rgb'
             }
-        }
+        },
+
+        layoutgroup: {
+            title: 'Layout Group',
+            default: {
+                enabled: true,
+                orientation: pc.ORIENTATION_HORIZONTAL,
+                reverseX: false,
+                reverseY: true,
+                alignment: [0.0, 1.0],
+                padding: [0.0, 0.0, 0.0, 0.0],
+                spacing: [0.0, 0.0],
+                widthFitting: pc.FITTING_NONE,
+                heightFitting: pc.FITTING_NONE,
+                wrap: false
+            },
+            types: {
+                alignment: 'vec2',
+                padding: 'vec4',
+                spacing: 'vec2',
+            }
+        },
+
+        layoutchild: {
+            title: 'Layout Child',
+            default: {
+                enabled: true,
+                minWidth: 0,
+                minHeight: 0,
+                maxWidth: null,
+                maxHeight: null,
+                fitWidthProportion: 0,
+                fitHeightProportion: 0,
+            }
+        },
     };
 
     // Paths in components that represent assets.
@@ -505,17 +539,17 @@ editor.once('load', function() {
         }
 
         // filter out layout groups
-        // if (!editor.call('users:hasFlag', 'hasLayoutGroups')) {
-        //     var idx = result.indexOf('layoutgroup');
-        //     if (idx !== -1) {
-        //         result.splice(idx, 1);
-        //     }
+        if (!editor.call('users:hasFlag', 'hasLayoutGroups')) {
+            var idx = result.indexOf('layoutgroup');
+            if (idx !== -1) {
+                result.splice(idx, 1);
+            }
 
-        //     idx = result.indexOf('layoutchild');
-        //     if (idx !== -1) {
-        //         result.splice(idx, 1);
-        //     }
-        // }
+            idx = result.indexOf('layoutchild');
+            if (idx !== -1) {
+                result.splice(idx, 1);
+            }
+        }
 
         return result;
     });

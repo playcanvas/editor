@@ -1097,11 +1097,14 @@ editor.once('load', function() {
                 });
                 var evtPick;
 
-                label.renderChanges = false;
-                field._label = label;
+                if (label) {
+                    label.renderChanges = false;
+                    field._label = label;
 
-                label.style.width = '32px';
-                label.flexGrow = 1;
+                    label.style.width = '32px';
+                    label.flexGrow = 1;
+                }
+
 
                 var panelFields = document.createElement('div');
                 panelFields.classList.add('top');
@@ -1461,8 +1464,10 @@ editor.once('load', function() {
                 // controls
                 panelFields.appendChild(panelControls);
                 // label
-                panel.innerElement.removeChild(label.element);
-                panelControls.appendChild(label.element);
+                if (label) {
+                    panel.innerElement.removeChild(label.element);
+                    panelControls.appendChild(label.element);
+                }
                 panelControls.classList.remove('label-field');
                 // edit
                 panelControls.appendChild(btnEdit.element);
@@ -1649,12 +1654,15 @@ editor.once('load', function() {
                 field.flexGrow = 1;
                 field.text = args.text || '';
 
+                // Warning: Curve fields do not currently support multiselect
                 if (args.link) {
                     var link = args.link;
                     if (args.link instanceof Array)
                         link = args.link[0];
 
-                    field.link(link, args.canRandomize ? [args.path, args.path + '2'] : [args.path]);
+                    var path = pathAt(args, 0);
+
+                    field.link(link, args.canRandomize ? [path, path + '2'] : [path]);
                 }
 
                 var curvePickerOn = false;
@@ -1685,6 +1693,8 @@ editor.once('load', function() {
                         var evtPickerChanged = editor.on('picker:curve:change', function (paths, values) {
                             if (! field._link) return;
 
+                            var link = field._link;
+
                             var previous = {
                                 paths: [],
                                 values: []
@@ -1692,7 +1702,7 @@ editor.once('load', function() {
 
                             var path;
                             for (var i = 0, len = paths.length; i < len; i++) {
-                                path = args.path;
+                                path = pathAt(args, 0); // always use 0 because we do not support multiselect
                                 // use the second curve path if needed
                                 if (args.canRandomize && paths[i][0] !== '0') {
                                     path += '2';
@@ -1706,41 +1716,49 @@ editor.once('load', function() {
 
 
                             var undo = function () {
-                                if (! field._link)
-                                    return;
+                                var item = link;
+                                if (link.history && link.history._getItemFn) {
+                                    item = link.history._getItemFn();
+                                }
+
+                                if (! item) return;
 
                                 args.keepZoom = true;
 
                                 var history = false;
-                                if (field._link.history) {
-                                    history = field._link.history.enabled;
-                                    field._link.history.enabled = false;
+                                if (item.history) {
+                                    history = item.history.enabled;
+                                    item.history.enabled = false;
                                 }
 
                                 for (var i = 0, len = previous.paths.length; i < len; i++) {
-                                    field._link.set(previous.paths[i], previous.values[i]);
+                                    item.set(previous.paths[i], previous.values[i]);
                                 }
 
-                                if (field._link.history)
-                                    field._link.history.enabled = history;
+                                if (item.history)
+                                    item.history.enabled = history;
 
                                 args.keepZoom = false;
                             };
 
                             var redo = function () {
-                                if (! field._link)
-                                    return;
+                                var item = link;
+                                if (link.history && link.history._getItemFn) {
+                                    item = link.history._getItemFn();
+                                }
+
+                                if (! item) return;
 
                                 args.keepZoom = true;
 
                                 var history = false;
-                                if (field._link.history) {
-                                    history = field._link.history.enabled;
-                                    field._link.history.enabled = false;
+                                if (item.history) {
+                                    history = item.history.enabled;
+                                    item.history.enabled = false;
                                 }
 
                                 for (var i = 0, len = paths.length; i < len; i++) {
-                                    path = args.path;
+                                    path = pathAt(args, 0); // always use 0 because we do not support multiselect
                                     // use the second curve path if needed
                                     if (args.canRandomize && paths[i][0] !== '0') {
                                         path += '2';
@@ -1748,11 +1766,11 @@ editor.once('load', function() {
 
                                     path += paths[i].substring(1);
 
-                                    field._link.set(path, values[i]);
+                                    item.set(path, values[i]);
                                 }
 
-                                if (field._link.history)
-                                    field._link.history.enabled = history;
+                                if (item.history)
+                                    item.history.enabled = history;
 
                                 args.keepZoom = false;
                             };
@@ -1793,6 +1811,12 @@ editor.once('load', function() {
                 });
 
                 panel.append(field);
+                break;
+
+            case 'array':
+                field = editor.call('attributes:addArray', args);
+                panel.append(field);
+
                 break;
 
             default:

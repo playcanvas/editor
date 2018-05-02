@@ -184,7 +184,7 @@ Observer.prototype._prepare = function(target, key, value, silent, remote) {
 };
 
 
-Observer.prototype.set = function(path, value, silent, remote) {
+Observer.prototype.set = function(path, value, silent, remote, force) {
     var keys = path.split('.');
     var length = keys.length;
     var key = keys[length - 1];
@@ -223,12 +223,15 @@ Observer.prototype.set = function(path, value, silent, remote) {
 
     if (node instanceof Array) {
         var ind = parseInt(key, 10);
-        if (node[ind] === value)
+        if (node[ind] === value && !force)
             return;
 
         var valueOld = node[ind];
-        if (! (valueOld instanceof Observer))
+        if (valueOld instanceof Observer) {
+            valueOld = valueOld.json();
+        } else {
             valueOld = obj.json(valueOld);
+        }
 
         node[ind] = value;
 
@@ -269,7 +272,7 @@ Observer.prototype.set = function(path, value, silent, remote) {
         }
     } else {
         if (typeof(value) === 'object' && (value instanceof Array)) {
-            if (value.equals(node._data[key]))
+            if (value.equals(node._data[key]) && !force)
                 return false;
 
             var valueOld = node._data[key];
@@ -404,7 +407,7 @@ Observer.prototype.set = function(path, value, silent, remote) {
                 data = node._data;
             }
 
-            if (data[key] === value)
+            if (data[key] === value && !force)
                 return false;
 
             if (silent)

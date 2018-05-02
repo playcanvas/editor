@@ -1,5 +1,6 @@
 @import 'variables';
 @import 'fonts';
+@import 'checkpoint-overlay';
 
 html {
     height: 100%;
@@ -1721,6 +1722,10 @@ strong {
             &.sprite > header > .title:before {
                 content: '\E395';
             }
+            &.layoutgroup > header > .title:before,
+            &.layoutchild > header > .title:before {
+                content: '\E143';
+            }
         }
         &.light {
             .ui-button.shadowUpdate {
@@ -3058,6 +3063,10 @@ strong {
         }
         &.c-element > .title > .icon:after {
             content: '\E378';
+        }
+        &.c-layoutgroup > .title > .icon:after,
+        &.c-layoutchild > .title > .icon:after {
+            content: '\E143';
         }
         &.rename {
             > .title {
@@ -5846,13 +5855,9 @@ strong {
                         text-align: center;
                         height: 24px;
                         line-height: 24px;
-                        width: 24px;
-                        min-width: 14px;
+                        min-width: 24px;
                         margin: 3px 0px;
 
-                        & + .ui-button.picker-curve-toggle {
-                            border-right: none;
-                        }
                         &.active.first {
                             color: rgb(255, 0, 0);
                         }
@@ -5863,7 +5868,6 @@ strong {
                             color: rgb(133, 133, 252);
                         }
                     }
-
                 }
             }
 
@@ -6881,6 +6885,10 @@ strong {
 
                                 &.builds:before {
                                     content: '\E160';
+                                }
+
+                                &.checkpoints:before {
+                                    content: '\E401';
                                 }
                             }
                         }
@@ -8296,5 +8304,230 @@ strong {
 
     > .content {
         display: none;
+    }
+}
+
+.ui-panel.picker-checkpoint-new {
+    &.disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
+    > .content {
+        > .ui-panel > .content > .ui-label {
+            font-size: 12px;
+            height: auto;
+            line-height: initial;
+            vertical-align: top;
+
+            &.field-label {
+                margin: 0 0 8px 0;
+            }
+        }
+
+        > .new-checkpoint-form > .content {
+            padding: 20px;
+
+            > textarea {
+                display: block;
+                border: 1px solid $bcg-darker;
+                background-color: $bcg-dark;
+                color: $text-primary;
+                margin: 0;
+                padding: 10px;
+                resize: none;
+
+                @extend .font-regular;
+                font-size: 14px;
+                width: calc(100% - 20px);
+                height: 65px;
+
+                &.active,
+                &:hover,
+                &:focus,
+                &.focus {
+                    border-color: $bcg-darkest;
+                    background-color: $bcg-darkest;
+                    outline: none;
+                    border-color: transparent;
+                    box-shadow: none;
+                }
+            }
+
+            > .create-btn {
+                margin: 10px 0 15px 0;
+                padding: 0;
+                width: 165px;
+                height: 34px;
+                line-height: 34px;
+                font-size: 12px;
+                text-align: center;
+                @extend .font-bold;
+                @extend .font-smooth;
+
+                &:not(.disabled):hover:before {
+                    color: $text-active;
+                }
+            }
+        }
+    }
+}
+
+.ui-panel.picker-checkpoint-panel {
+
+    .content {
+        font-size: 14px;
+        @extend .font-regular;
+    }
+
+    > .content {
+
+        > .btnCheckpointNew {
+            margin: 15px 0 15px 10px;
+            padding: 0;
+            width: 165px;
+            height: 34px;
+            line-height: 34px;
+            font-size: 12px;
+            text-transform: uppercase;
+            @extend .font-bold;
+            @extend .font-smooth;
+
+            &:before {
+                @extend .font-icon;
+                font-size: 14px;
+                content: '\E122';
+                color: $text-secondary;
+                vertical-align: top;
+                padding-right: 10px;
+                padding-left: 20px;
+            }
+
+            &:not(.disabled):hover:before {
+                color: $text-active;
+            }
+        }
+
+        .checkpoint-list-div {
+            overflow-y: scroll;
+            height: 500px;
+        }
+
+        .ui-list.checkpoint-list {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            border: none;
+
+            > li {
+                @extend .font-regular;
+                height: auto;
+                border-top: 1px solid $border-primary;
+
+                .checkpoint-item-info {
+                    display: inline-block;
+                    width: 80%;
+                }
+
+                .ch-info-first-line {
+                    font-size: 14px;
+                    color: $text-primary;
+                    padding: 10px 15px 5px 15px;
+                    white-space: normal;
+                    word-wrap: break-word;
+                }
+
+                .ch-info-second-line {
+                    font-size: 12px;
+                    line-height: 12px;
+                    color: $text-secondary;
+                    padding: 0 15px 10px 15px;
+                    white-space: normal;
+                }
+
+                .ui-button {
+                    width: 19%;
+                    margin-top: 16px;
+                    vertical-align: top;
+                    text-align: center;
+                }
+
+                &:not(.current):not(.disabled):hover {
+                    background-color: #414f52;
+                    cursor: default;
+                }
+            }
+        }
+
+        .btnCheckpointMore {
+            width: 100%;
+            text-align: center;
+        }
+
+    }
+}
+
+.ui-overlay.center.checkpoint-restore-confirm {
+    z-index: 1000;
+
+    > .content {
+        position: absolute;
+        top: calc(50% - 150px);
+        left: calc(50% - 250px);
+        width: 500px;
+        height: auto;
+    }
+
+    .ui-header {
+        padding-left: 11px;
+    }
+
+    .ui-button {
+        font-size: 12px;
+        height: 26px;
+        line-height: 26px;
+        text-align: center;
+        width: 164px;
+    }
+
+    .button-cancel {
+        margin: 9px 11px 12px 147px;
+        color: $text-primary;
+        background-color: #f60;
+        &:hover {
+            background-color: #ff5000;
+        }
+    }
+
+    .button-yes {
+        margin: 9px 0 12px 0;
+    }
+
+    .ch-confirm-first-line {
+        color: $text-primary;
+        padding: 19px 15px 11px 20px;
+        font-size: 18px;
+    }
+
+    .ch-confirm-second-line {
+        color: $text-secondary;
+        padding: 0 15px 12px 20px;
+        font-size: 13px;
+        line-height: 18px;
+        border-bottom: 2px solid $bcg-darker;
+    }
+}
+
+.ui-panel.attributes-array {
+    > .content {
+        padding: 0;
+        flex-grow: 1;
+        flex-direction: column;
+
+        .ui-panel.attributes-array-elements {
+            > .content {
+                flex-direction: column;
+            }
+        }
     }
 }
