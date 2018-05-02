@@ -1,6 +1,8 @@
 @import 'fonts';
 
 .checkpoint-overlay {
+    z-index: 400;
+
     > .content {
         width: 512px;
         position: absolute;
