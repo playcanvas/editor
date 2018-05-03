@@ -36,12 +36,12 @@ editor.once('load', function() {
 
     btnOK.class.add('btn-ok');
     btnOK.hidden = true;
-    btnOK.on('click', hideAndReset);
+    btnOK.on('click', hideOverlay);
 
     btnDiv.appendChild(btnOK.element);
 
     editor.on('messenger:checkpoint.createStarted', function(data) {
-        checkpointActionStart();
+        hideAndReset();
 
         var msg = data.user_full_name + ' is creating a new checkpoint';
 
@@ -49,6 +49,8 @@ editor.once('load', function() {
     });
 
     editor.on('messenger:checkpoint.createEnded', function(data) {
+        hideAndReset();
+
         if (data.status === 'success') {
             handleCreateSuccess(data);
         } else {
@@ -56,8 +58,8 @@ editor.once('load', function() {
         }
     });
 
-    editor.on('messenger:checkpoint.revertStarted', function(data) { // todo refactor
-        checkpointActionStart();
+    editor.on('messenger:checkpoint.revertStarted', function(data) {
+        hideAndReset();
 
         var msg = data.user_full_name + ' is restoring a checkpoint';
 
@@ -65,6 +67,8 @@ editor.once('load', function() {
     });
 
     editor.on('messenger:checkpoint.revertEnded', function(data) {
+        hideAndReset();
+
         if (data.status === 'success') {
             handleRevertSuccess(data);
         } else {
@@ -126,16 +130,16 @@ editor.once('load', function() {
     }
 
     function hideAndReset() {
-        overlay.hidden = true;
+        hideOverlay();
 
         btnOK.hidden = true;
 
         setIconClass('in-progress');
-    }
-
-    function checkpointActionStart() {
-        hideAndReset();
 
         editor.call('picker:project:close');
+    }
+
+    function hideOverlay() {
+        overlay.hidden = true;
     }
 });
