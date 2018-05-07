@@ -538,19 +538,6 @@ editor.once('load', function() {
                 result.splice(idx, 1);
         }
 
-        // filter out layout groups
-        if (!editor.call('users:hasFlag', 'hasLayoutGroups')) {
-            var idx = result.indexOf('layoutgroup');
-            if (idx !== -1) {
-                result.splice(idx, 1);
-            }
-
-            idx = result.indexOf('layoutchild');
-            if (idx !== -1) {
-                result.splice(idx, 1);
-            }
-        }
-
         return result;
     });
 
