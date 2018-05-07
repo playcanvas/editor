@@ -43,6 +43,8 @@ editor.once('load', function() {
     editor.on('messenger:checkpoint.createStarted', function(data) {
         hideAndReset();
 
+        setIconClass('in-progress');
+
         var msg = data.user_full_name + ' is creating a new checkpoint';
 
         showOverlayWithMessage(msg);
@@ -60,6 +62,8 @@ editor.once('load', function() {
 
     editor.on('messenger:checkpoint.revertStarted', function(data) {
         hideAndReset();
+
+        setIconClass('in-progress');
 
         var msg = data.user_full_name + ' is restoring a checkpoint';
 
@@ -133,8 +137,6 @@ editor.once('load', function() {
         hideOverlay();
 
         btnOK.hidden = true;
-
-        setIconClass('in-progress');
 
         editor.call('picker:project:close');
     }
