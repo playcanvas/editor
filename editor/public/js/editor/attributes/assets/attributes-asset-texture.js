@@ -879,7 +879,7 @@ editor.once('load', function() {
             var root = editor.call('attributes.rootPanel');
 
             var reloadImage = function() {
-                if (assets[0].get('file.hash')) {
+                if (assets[0].get('file.url') && assets[0].get('file.hash')) {
                     image.src = config.url.home + assets[0].get('file.url') + '?t=' + assets[0].get('file.hash');
                     previewContainer.style.display = '';
                 } else {
@@ -913,6 +913,7 @@ editor.once('load', function() {
 
             var events = [ ];
             events.push(assets[0].on('file.hash:set', reloadImage));
+            events.push(assets[0].on('file.url:set', reloadImage));
 
             panel.on('destroy', function() {
                 for(var i = 0; i < events.length; i++)
