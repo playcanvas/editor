@@ -21,6 +21,11 @@ ObserverSync.prototype._initialize = function() {
     item.on('*:set', function(path, value, valueOld) {
         if (! self._enabled) return;
 
+        // if this happens it's a bug
+        if (item.sync !== self) {
+            console.error('Garbage Observer Sync still pointing to item', item);
+        }
+
         // check if path is allowed
         if (self._paths) {
             var allowedPath = false;
