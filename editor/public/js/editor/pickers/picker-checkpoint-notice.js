@@ -105,8 +105,20 @@ editor.once('load', function() {
         showOverlayWithMessage('Restore successful. Reloading browser window');
 
         setTimeout(function() {
-            window.location.reload(true);
+            reloadOrRedirect(data);
         }, 1000);
+    }
+
+    function reloadOrRedirect(data) {
+        if (currentSceneRemoved(data.removedScenes)) {
+            window.location = '/editor/project/' + config.project.id + window.location.search;
+        } else {
+            window.location.reload(true);
+        }
+    }
+
+    function currentSceneRemoved(removedScenes) {
+        return removedScenes.indexOf(config.scene.id) !== -1;
     }
 
     function handleRevertError(data) {
