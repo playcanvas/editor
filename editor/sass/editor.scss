@@ -6786,7 +6786,7 @@ strong {
 
             width: auto;
             height: 600px;
-            left: calc(50% - 325px);
+            left: calc(50% - 560px);
             top: calc(50% - 300px);
             border: 1px solid $border-primary;
 
@@ -6890,13 +6890,17 @@ strong {
                                 &.checkpoints:before {
                                     content: '\E401';
                                 }
+
+                                &.version-control:before {
+                                    content: '\E399';
+                                }
                             }
                         }
                     }
 
                     .ui-panel.right {
                         float: left;
-                        width: 650px - 188px;
+                        width: 1120px - 188px;
                         height: 100%;
 
                         > .ui-header {
@@ -6925,7 +6929,7 @@ strong {
                         }
 
                         > .content {
-                            max-height: calc(100% - 33px);
+                            height: calc(100% - 33px);
                             overflow: hidden;
                             overflow-y: auto;
 
@@ -8527,6 +8531,275 @@ strong {
         .ui-panel.attributes-array-elements {
             > .content {
                 flex-direction: column;
+            }
+        }
+    }
+}
+
+
+.ui-panel.picker-version-control {
+    height: 100%;
+    > .content {
+        height: 100%;
+
+        > .ui-panel {
+            height: 100%;
+            > .content {
+                height: 100%;
+            }
+
+            &.branches-container {
+                width: 280px;
+                border-right: 1px solid $border-primary;
+
+                > .content {
+                    flex-direction: column;
+                }
+            }
+
+            &.checkpoints-container {
+                overflow: hidden;
+                > .content {
+                    flex-direction: column;
+                }
+            }
+
+            .branches-top, .checkpoints-top {
+                height: 28px;
+                padding: 10px;
+                border-bottom: 1px solid $border-primary;
+            }
+
+            .checkpoints-top {
+                .ui-label.branch-history {
+                    float: left;
+                    color: $text-primary;
+                    text-transform: uppercase;
+                    font-size: 12px;
+                    @extend .font-bold;
+                }
+
+                .ui-button.create {
+                    float: right;
+                    width: 147px;
+                }
+            }
+
+            .ui-list {
+                margin: 0;
+                flex-grow: 1;
+                border: 0;
+                background: transparent;
+
+                > .ui-list-item {
+                    box-sizing: border-box; 
+                    @extend .font-regular;
+
+                    &:last-child {
+                        border-bottom: 1px solid $border-primary;
+                    }
+
+                    &:hover {
+                        background: $bcg-dark;
+                        border-color: $border-primary;
+                    }
+
+                    .ui-button.dropdown {
+                        @extend .font-icon;
+                        position: absolute;
+                        right: 0px;
+                        top: 8px;
+                        width: 16px;
+                        height: 16px;
+                        line-height: 16px;
+                        border: none;
+                        padding: 0;
+                        margin: 0;
+                        text-align: center;
+
+                        font-size: 12px;
+                        color: $bcg-darkest;
+                        background-color: $text-darkest;
+
+                        &:hover, &.clicked {
+                            color: $text-primary;
+                            background-color: $bcg-darkest;
+                        }
+                    }
+
+                    .ui-panel {
+                        background: transparent;
+                    }
+                }
+            }
+
+            .branches, .checkpoints {
+                overflow-y: auto;
+            }
+
+            .branches {
+                .ui-list {
+                    > .ui-list-item {
+                        height: 82px;
+                        padding: 20px 10px;
+
+                        .ui-label {
+                            display: block;
+                            &.icon {
+                                @extend .font-icon;
+                                float: left;
+                                &.active {
+                                    color: #4AE22B;
+                                }
+                            }
+                            &.name {
+                                color: $text-primary;
+                                margin-left: 25px;
+                            }
+                            &.date {
+                                margin-top: -5px;
+                                margin-left: 25px;
+                            }
+                        }
+                    } 
+                }
+            }
+
+            .checkpoints {
+                .ui-list {
+                    > .ui-list-item {
+                        min-height: 122px;
+                        height: auto;
+                        padding: 25px 30px;
+
+                        .ui-label {
+                            display: block;
+
+                            &.date {
+                                color: $text-primary;
+                            }
+                            &.full-name {
+                                color: $text-dark;
+                                opacity: 0.8;
+                                margin-top: -5px;
+                            }
+                            &.desc {
+                                color: $text-secondary;
+                                white-space: normal;
+                                max-width: 95%;
+                            }
+                        }
+                    } 
+                }
+
+            }
+        }
+    }
+
+    .ui-button.icon {
+        background-color: $bcg-dark;
+
+        &:hover {
+            background-color: $bcg-darkest;
+
+            &:before {
+                color: $text-active;
+            }
+        }
+
+        font-size: 12px;
+        border: none;
+        position: relative;
+        height: 28px;
+        line-height: 28px;
+        padding-left: 28px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-transform: uppercase;
+        text-align: left;
+        margin: auto;
+
+        &:before {
+            @extend .font-icon;
+            font-size: 14px;
+            text-align: center;
+            margin-left: -18px;
+            margin-right: 9px;
+            font-weight: 100;
+        }
+
+        &.create:before {
+            content: '\E120';
+        }
+    }
+}
+
+.ui-overlay.version-control-popup {
+    z-index: 301; // larger than picker-project
+    > .content {
+        width: 500px;
+        left: calc(50% - 250px);
+
+        -webkit-box-shadow: none;
+        -moz-box-shadow: none;
+        box-shadow: none;
+
+        .ui-panel.container {
+            $popup-shadow: 7px 7px 5px 0px rgba(0,0,0,0.15);
+            -webkit-box-shadow: $popup-shadow;
+            -moz-box-shadow: $popup-shadow;
+            box-shadow: $popup-shadow;
+        }
+
+        .ui-panel.popup-content {
+            > .content {
+                padding: 20px 40px;
+
+                .ui-label.message {
+                    color: $text-primary;
+                    display: block;
+                    font-size: 16px;
+                }
+                .ui-label.note {
+                    color: $text-secondary;
+                    font-size: 12px;
+                    display: block;
+                }
+            }
+        }
+
+        .ui-panel.buttons {
+            width: 100%;
+            height: 68px;
+            padding: 16px;
+            box-sizing: border-box;
+            border-top: 1px solid $border-primary;
+
+            .ui-button {
+                float: right;
+                height: 38px;
+                line-height: 38px;
+                text-align: center;
+                text-transform: uppercase;
+                min-width: 170px;
+                margin: 0;
+
+                &.left {
+                    margin-right: 15px;
+                }
+
+                &.highlighted {
+                    color: $text-primary;
+                    background: darken($text-active, 10%);
+
+                    &:hover {
+                        background: darken(#f60, 7%);
+                    }
+                    &:active {
+                        background: darken(#f60, 12%);
+                    }
+                }
             }
         }
     }

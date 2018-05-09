@@ -144,7 +144,7 @@ editor.once('load', function () {
     // register new panel / menu option
     editor.method('picker:project:registerMenu', function (name, title, panel) {
         var menuItem = new ui.ListItem({text: name});
-        menuItem.class.add(name);
+        menuItem.class.add(name.replace(' ', '-'));
         list.append(menuItem);
 
         menuItem.on('click', function () {

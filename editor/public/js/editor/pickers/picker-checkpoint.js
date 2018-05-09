@@ -161,8 +161,7 @@ editor.once('load', function () {
 
     function confirmAndRevert(data) {
         editor.call('picker:checkpointRestoreConfirm', data, function() {
-
-            editor.call('checkpoint:revert', data);
+            editor.call('checkpoint:restore', data);
         });
     }
 

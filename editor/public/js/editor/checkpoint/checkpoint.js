@@ -13,7 +13,7 @@ editor.once('load', function () {
         }).on('error', logError);
     });
 
-    editor.method('checkpoint:revert', function (data) {
+    editor.method('checkpoint:restore', function (data) {
         Ajax({
             url: '{{url.api}}/checkpoint/' + data.checkpoint_id,
             auth: true,
