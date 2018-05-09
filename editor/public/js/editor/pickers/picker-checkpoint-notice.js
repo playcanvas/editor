@@ -118,7 +118,9 @@ editor.once('load', function() {
     }
 
     function currentSceneRemoved(removedScenes) {
-        return removedScenes.indexOf(config.scene.id) !== -1;
+        const curSceneId = config.scene && config.scene.id; // undef in code editor
+
+        return curSceneId && removedScenes.indexOf(curSceneId) !== -1;
     }
 
     function handleRevertError(data) {
