@@ -209,7 +209,7 @@ editor.once('load', function () {
 
     // Merges specified branch into current branch
     var mergeBranch = function (branch) {
-
+        editor.call('picker:versioncontrol:mergeBranch', branch);
     };
 
     // Restore specified checkpoint
