@@ -5,7 +5,7 @@ editor.once('load', function () {
 
     var listenersToUnbind = [];
 
-    if (!editor.call('users:hasFlag', 'hasCheckpoints')) {
+    if (shouldHideCheckpoints()) {
         return;
     }
 
@@ -45,6 +45,11 @@ editor.once('load', function () {
             }, 0);
         }
     });
+
+    function shouldHideCheckpoints() {
+        return !editor.call('users:hasFlag', 'hasCheckpoints') ||
+            editor.call('settings:project').get('useLegacyScripts');
+    }
 
     function addNewCheckpointBtn(dst) {
         var btn = makeButton('New Checkpoint', 'btnCheckpointNew');
