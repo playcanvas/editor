@@ -94,6 +94,15 @@ editor.once('load', function() {
             watch.callbacks[key].callback();
     };
 
+    // used to force the trigger when the asset is known to have changed
+    // e.g. when loading the uncompressed texture atlas completes
+    editor.method('assets:sprite:watch:trigger', function(asset) {
+        var watch = watching[asset.get('id')];
+        if (watch) {
+            trigger(watch);
+        }
+    });
+
     editor.method('assets:sprite:watch', function(args) {
         var watch = watching[args.asset.get('id')];
 
