@@ -154,8 +154,8 @@ editor.once('load', function() {
             ctx.imageSmoothingEnabled = false;
 
             var img;
-            if (atlasTexture._compressed) {
-                var entry = imageCache.get(engineAtlas.id);
+            if (atlasTexture._compressed && engineAtlas.file) {
+                var entry = imageCache.get(engineAtlas.file.hash);
                 if (entry) {
                     if (entry.status === 'loaded') {
                         img = entry.value;
@@ -170,10 +170,10 @@ editor.once('load', function() {
                     // create an image element from the asset source file
                     // used in the preview if the texture contains compressed data
                     img = new Image();
-                    img.src = asset.file.url;
+                    img.src = engineAtlas.file.url;
 
                     // insert image into cache which fires an event when the image is loaded
-                    var entry = imageCache.insert(engineAtlas.id, img);
+                    var entry = imageCache.insert(engineAtlas.file.hash, img);
                     entry.once('loaded', function (entry) {
                         editor.call('assets:sprite:watch:trigger', asset);
                     });
