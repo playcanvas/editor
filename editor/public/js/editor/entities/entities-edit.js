@@ -214,8 +214,8 @@ editor.once('load', function() {
     editor.method('entities:addEntity', addEntity);
     editor.method('entities:removeEntity', removeEntity);
 
-    var duplicateEntity = function(entity, parent, ind) {
-        var resourceId = entity.get('resource_id');
+    var duplicateEntity = function(entity, parent, ind, duplicatedIdsMap) {
+        var originalResourceId = entity.get('resource_id');
         var data = entity.json();
         var children = data.children;
 
@@ -225,6 +225,7 @@ editor.once('load', function() {
 
         entity = new Observer(data);
         childToParent[entity.get('resource_id')] = parent.get('resource_id');
+        duplicatedIdsMap[originalResourceId] = entity.get('resource_id');
 
         // call add event
         editor.call('entities:add', entity);
@@ -242,10 +243,76 @@ editor.once('load', function() {
 
         // add children too
         children.forEach(function(childId) {
-            duplicateEntity(editor.call('entities:get', childId), entity);
+            duplicateEntity(editor.call('entities:get', childId), entity, undefined, duplicatedIdsMap);
         });
 
         return entity;
+    };
+
+    // When an entity that has properties that contain references to some entities
+    // within its subtree is duplicated, the expectation of the user is likely that
+    // those properties will be updated to point to the corresponding entities within
+    // the newly created duplicate subtree. I realise that sentence is a bit insane,
+    // so here is an example:
+    //
+    // Buttons, Scroll Views and other types of UI component are made up of several
+    // related entities. For example, a Scroll View has child entities representing
+    // the scroll bar track and handle, as well as the scrollable container area.
+    // The Scroll View component needs references to each of these entities so that
+    // it can add listeners to them, and move them around.
+    //
+    // If the user duplicates a Scroll View, they will end up with a set of newly
+    // created entities that mirrors the original structure. However, as the properties
+    // of all components have been copied verbatim from the original entities, any
+    // properties that refer to entities will still refer to the one from the old
+    // structure.
+    //
+    // What needs to happen is that properties that refer to entities within the old
+    // duplicated structure are automatically updated to point to the corresponding
+    // entities within the new structure. This function implements that requirement.
+    var resolveDuplicatedEntityReferenceProperties = function(oldSubtreeRoot, oldEntity, newEntity, duplicatedIdsMap) {
+        // TODO Would be nice to also make this work for entity script attributes
+
+        var components = oldEntity.get('components');
+
+        Object.keys(components).forEach(function(componentName) {
+            var component = components[componentName];
+            var entityFields = editor.call('components:getFieldsOfType', componentName, 'entity');
+
+            entityFields.forEach(function(fieldName) {
+                var oldEntityId = component[fieldName];
+                var entityWithinOldSubtree = oldSubtreeRoot.entity.findByGuid(oldEntityId);
+
+                if (entityWithinOldSubtree) {
+                    var newEntityId = duplicatedIdsMap[oldEntityId];
+
+                    if (newEntityId) {
+                        var prevHistory = newEntity.history.enabled;
+                        newEntity.history.enabled = false;
+                        newEntity.set('components.' + componentName + '.' + fieldName, newEntityId);
+                        newEntity.history.enabled = prevHistory;
+                    } else {
+                        console.warn('Could not find corresponding entity id when resolving duplicated entity references');
+                    }
+                }
+            });
+        });
+
+        // Recurse into children. Note that we continue to pass in the same `oldSubtreeRoot`,
+        // in order to correctly handle cases where a child has an entity reference
+        // field that points to a parent or other ancestor that is still within the
+        // duplicated subtree.
+        var oldChildren = oldEntity.get('children');
+        var newChildren = newEntity.get('children');
+
+        if (oldChildren && oldChildren.length > 0) {
+            oldChildren.forEach(function(oldChildId, index) {
+                var oldChild = editor.call('entities:get', oldChildId);
+                var newChild = editor.call('entities:get', newChildren[index]);
+
+                resolveDuplicatedEntityReferenceProperties(oldSubtreeRoot, oldChild, newChild, duplicatedIdsMap);
+            });
+        }
     };
 
     // duplicate entity
@@ -321,7 +388,9 @@ editor.once('load', function() {
             var entity = items[i];
             var id = entity.get('resource_id');
             var parent = editor.call('entities:get', childToParent[id]);
-            var entityNew = duplicateEntity(entity, parent, ids[id].ind + 1);
+            var duplicatedIdsMap = {};
+            var entityNew = duplicateEntity(entity, parent, ids[id].ind + 1, duplicatedIdsMap);
+            resolveDuplicatedEntityReferenceProperties(entity, entity, entityNew, duplicatedIdsMap);
             entitiesNew.push(entityNew);
             entitiesNewData.push(entityNew.json());
             entitiesNewMeta[entityNew.get('resource_id')] = {

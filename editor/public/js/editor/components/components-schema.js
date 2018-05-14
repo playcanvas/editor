@@ -517,6 +517,9 @@ editor.once('load', function() {
                         result = new pc.Curve(value.keys);
                         result.type = value.type;
                         break;
+                    case 'entity':
+                        result = value; // Entity fields should just be a string guid
+                        break;
                 }
             }
         }
@@ -565,5 +568,18 @@ editor.once('load', function() {
             }
         });
     }
+
+    editor.method('components:getFieldsOfType', function (component, type) {
+        var types = schema[component].types || {};
+        var matchingFields = [];
+
+        Object.keys(types).forEach(function(fieldName) {
+            if (types[fieldName] === type) {
+                matchingFields.push(fieldName);
+            }
+        });
+
+        return matchingFields;
+    });
 
 });
