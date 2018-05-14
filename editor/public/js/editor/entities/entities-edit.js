@@ -24,6 +24,29 @@ editor.once('load', function() {
         childToParent[child.get('resource_id')] = parent.get('resource_id');
     });
 
+    var createNewEntityData = function(raw, parentResourceId) {
+        var entityData = {
+            name: raw.name || 'New Entity',
+            tags: [ ],
+            enabled: true,
+            resource_id: pc.guid.create(),
+            parent: parentResourceId,
+            children: [ ],
+            position: raw.position || [ 0, 0, 0 ],
+            rotation: raw.rotation || [ 0, 0, 0 ],
+            scale: raw.scale || [ 1, 1, 1 ],
+            components: raw.components || { }
+        };
+
+        if (raw.children) {
+            for (var i = 0; i < raw.children.length; i++) {
+                var childEntityData = createNewEntityData(raw.children[i], entityData.resource_id);
+                entityData.children.push(childEntityData);
+            }
+        }
+
+        return entityData;
+    };
 
     // new entity
     editor.method('entities:new', function (raw) {
@@ -31,18 +54,7 @@ editor.once('load', function() {
         raw = raw || { };
         var parent = raw.parent || editor.call('entities:root');
 
-        var data = {
-            name: raw.name || 'New Entity',
-            tags: [ ],
-            enabled: true,
-            resource_id: pc.guid.create(),
-            parent: parent.get('resource_id'),
-            children: [ ],
-            position: raw.position || [ 0, 0, 0 ],
-            rotation: raw.rotation || [ 0, 0, 0 ],
-            scale: raw.scale || [ 1, 1, 1 ],
-            components: raw.components || { }
-        };
+        var data = createNewEntityData(raw, parent.get('resource_id'));
 
         var selectorType, selectorItems;
 
@@ -136,10 +148,21 @@ editor.once('load', function() {
         }
 
         // add children too
-        children.forEach(function(childId) {
-            var data = deletedCache[childId];
-            if (! data)
-                return;
+        children.forEach(function(childIdOrData) {
+            var data;
+
+            // If we've been provided an id, we're re-creating children from the deletedCache
+            if (typeof childIdOrData === 'string') {
+                data = deletedCache[childIdOrData];
+                if (!data) {
+                    return;
+                }
+            // If we've been provided an object, we're creating children for a new entity
+            } else if (typeof childIdOrData === 'object') {
+                data = childIdOrData;
+            } else {
+                throw new Error('Unhandled childIdOrData format');
+            }
 
             var child = new Observer(data);
             childToParent[child.get('resource_id')] = entity.get('resource_id');
