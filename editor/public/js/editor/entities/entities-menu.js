@@ -18,7 +18,37 @@ editor.once('load', function() {
         'sprite': '&#57956;',
         'zone': '&#57910;',
         'screen': '&#57665;',
-        'element': '&#58232;'
+        'element': '&#58232;',
+        'button': '&#58232;'
+    };
+
+    var applyAdditions = function(object, additions) {
+        if (additions) {
+            Object.keys(additions).forEach(function(name) {
+                object[name] = additions[name];
+            });
+        }
+    };
+
+    var createImageData = function(additions) {
+        var data = editor.call('components:getDefault', 'element');
+        data.type = 'image';
+
+        applyAdditions(data, additions);
+
+        return data;
+    };
+
+    var createTextData = function(additions) {
+        var data = editor.call('components:getDefault', 'element');
+        data.type = 'text';
+        data.text = 'Text';
+        data.autoWidth = true;
+        data.autoHeight = true;
+
+        applyAdditions(data, additions);
+
+        return data;
     };
 
     editor.method('menu:entities:new', function (getParentFn) {
@@ -312,16 +342,11 @@ editor.once('load', function() {
                 title: 'Text Element',
                 icon: componentsLogos.element,
                 select: function() {
-                    var data = editor.call('components:getDefault', 'element');
-                    data.type = 'text';
-                    data.text = 'Text';
-                    data.autoWidth = true;
-                    data.autoHeight = true;
                     editor.call('entities:new', {
                         name: 'Text',
                         parent: getParentFn(),
                         components: {
-                            element: data
+                            element: createTextData()
                         }
                     });
                 }
@@ -330,13 +355,11 @@ editor.once('load', function() {
                 title: 'Image Element',
                 icon: componentsLogos.element,
                 select: function() {
-                    var data = editor.call('components:getDefault', 'element');
-                    data.type = 'image';
                     editor.call('entities:new', {
                         name: 'Image',
                         parent: getParentFn(),
                         components: {
-                            element: data
+                            element: createImageData()
                         }
                     });
                 }
@@ -354,6 +377,43 @@ editor.once('load', function() {
                             element: data
                         }
                     });
+                }
+            },
+            'add-new-button': {
+                title: 'Button Element',
+                icon: componentsLogos.element,
+                select: function() {
+                    var buttonComponentData = editor.call('components:getDefault', 'button');
+                    buttonComponentData.type = 'button';
+
+                    var buttonEntityData = {
+                        name: 'Button',
+                        parent: getParentFn(),
+                        components: {
+                            button: buttonComponentData,
+                            element: createImageData({ useInput: true })
+                        },
+                        children: [
+                            {
+                                name: 'Text',
+                                components: {
+                                    element: createTextData()
+                                }
+                            }
+                        ]
+                    };
+
+                    // The button component needs references to its Image entity, which is
+                    // only known post-creation. Defining these as a post-creation callback
+                    // means that they'll also be correctly resolved if the user undoes the
+                    // button creation and then redoes it.
+                    var postCreationCallback = function(button) {
+                        button.history.enabled = false;
+                        button.set('components.button.imageEntity', button.entity.getGuid());
+                        button.history.enabled = true;
+                    };
+
+                    editor.call('entities:new', buttonEntityData, postCreationCallback);
                 }
             },
             'add-new-sprite': {

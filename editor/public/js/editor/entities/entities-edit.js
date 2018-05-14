@@ -48,8 +48,12 @@ editor.once('load', function() {
         return entityData;
     };
 
-    // new entity
-    editor.method('entities:new', function (raw) {
+    // Create a new entity.
+    //
+    // The postCreationCallback argument is designed for cases where composite entity
+    // hierarchies need some post-processing, and the post processing needs to be done
+    // both in the case of initial creation and also the case of undo/redo.
+    editor.method('entities:new', function (raw, postCreationCallback) {
         // get root if parent is null
         raw = raw || { };
         var parent = raw.parent || editor.call('entities:root');
@@ -71,6 +75,10 @@ editor.once('load', function() {
         var entity = new Observer(data);
         childToParent[entity.get('resource_id')] = parent.get('resource_id');
         addEntity(entity, parent, ! raw.noSelect);
+
+        if (postCreationCallback) {
+            postCreationCallback(entity);
+        }
 
         // history
         if (! raw.noHistory) {
@@ -111,6 +119,10 @@ editor.once('load', function() {
                     var entity = new Observer(data);
                     childToParent[entity.get('resource_id')] = parent.get('resource_id');
                     addEntity(entity, parent, true);
+
+                    if (postCreationCallback) {
+                        postCreationCallback(entity);
+                    }
                 }
             });
         }

@@ -384,6 +384,37 @@ editor.once('load', function() {
             }
         },
 
+        button: {
+            title: 'Button',
+            default: {
+                enabled: true,
+                active: true,
+                imageEntity: null,
+                hitPadding: [0, 0, 0, 0],
+                transitionMode: BUTTON_TRANSITION_MODE_TINT,
+                hoverTint: [1, 1, 1, 1],
+                pressedTint: [1, 1, 1, 1],
+                inactiveTint: [1, 1, 1, 1],
+                fadeDuration: 0,
+                hoverSpriteAsset: null,
+                pressedSpriteAsset: null,
+                inactiveSpriteAsset: null,
+                hoverSpriteFrame: 0,
+                pressedSpriteFrame: 0,
+                inactiveSpriteFrame: 0,
+                hoverTextureAsset: null,
+                pressedTextureAsset: null,
+                inactiveTextureAsset: null
+            },
+            types: {
+                imageEntity: 'entity',
+                hitPadding: 'vec4',
+                hoverTint: 'rgba',
+                pressedTint: 'rgba',
+                inactiveTint: 'rgba'
+            }
+        },
+
         sprite: {
             title: 'Sprite',
             default: {
@@ -461,6 +492,12 @@ editor.once('load', function() {
         'components.element.textureAsset',
         'components.element.spriteAsset',
         'components.element.materialAsset',
+        'components.button.hoverSpriteAsset',
+        'components.button.pressedSpriteAsset',
+        'components.button.inactiveSpriteAsset',
+        'components.button.hoverTextureAsset',
+        'components.button.pressedTextureAsset',
+        'components.button.inactiveTextureAsset',
         'components.sprite.spriteAsset',
         'components.sprite.clips.*.spriteAsset',
     ];

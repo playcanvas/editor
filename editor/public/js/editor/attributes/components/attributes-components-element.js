@@ -529,7 +529,7 @@ editor.once('load', function() {
             parent: panel,
             name: 'Color',
             type: 'rgb',
-            channels: 4,
+            channels: 3,
             link: entities,
             path: 'components.element.color'
         });
