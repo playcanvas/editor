@@ -58,7 +58,8 @@ editor.once('load', function () {
     var dropRef = editor.call('drop:target', {
         ref: projectImg,
         filter: function (type, data) {
-            return editor.call('permissions:write') &&
+            return editor.call('permissions:write') && 
+                   !leftPanel.disabled &&
                    ! uploadingImage &&
                    type === 'files';
         },
@@ -88,7 +89,7 @@ editor.once('load', function () {
     var uploadingImage = false;
 
     projectImg.addEventListener('click', function () {
-        if (! editor.call('permissions:write'))
+        if (! editor.call('permissions:write') || leftPanel.disabled)
             return;
 
         fileInput.click();
@@ -228,6 +229,11 @@ editor.once('load', function () {
     editor.method('picker:project:setClosable', function (closable) {
         btnClose.hidden = !closable;
         overlay.clickable = closable;
+    });
+
+    // disable / enable the state of the left panel
+    editor.method('picker:project:toggleLeftPanel', function (enabled) {
+        leftPanel.disabled = !enabled;
     });
 
     // activate menu option

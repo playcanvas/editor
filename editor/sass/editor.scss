@@ -148,7 +148,7 @@ strong {
                 background-color: $bcg-darker;
             }
 
-            &.editor-settings {
+            &.pditor-settings {
                 position: absolute;
                 left: 0;
                 bottom: 0;
@@ -3693,6 +3693,15 @@ strong {
     to { background-position: 24px 0; }
 }
 
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 .ui-select-field.viewport-camera {
     position: absolute;
     top: 2px;
@@ -6786,7 +6795,7 @@ strong {
 
             width: auto;
             height: 600px;
-            left: calc(50% - 560px);
+            left: calc(50% - 455px);
             top: calc(50% - 300px);
             border: 1px solid $border-primary;
 
@@ -6900,7 +6909,7 @@ strong {
 
                     .ui-panel.right {
                         float: left;
-                        width: 1120px - 188px;
+                        width: 910px - 188px;
                         height: 100%;
 
                         > .ui-header {
@@ -8549,7 +8558,7 @@ strong {
             }
 
             &.branches-container {
-                width: 280px;
+                min-width: 280px;
                 border-right: 1px solid $border-primary;
 
                 > .content {
@@ -8557,17 +8566,193 @@ strong {
                 }
             }
 
-            &.checkpoints-container {
+            &.side-panel {
                 overflow: hidden;
                 > .content {
-                    flex-direction: column;
+                    flex-wrap: wrap;
+                    place-content: flex-start;
+
+                    > .side-panel-widget {
+                        > .content {
+                            > .ui-panel {
+                                padding: 20px;
+
+                                > .content {
+                                    > .ui-label {
+                                        display: block;
+
+                                        &.title {
+                                            font-size: 16px;
+                                            color: $text-primary;
+                                        }
+                                        &.note {
+                                            font-size: 13px;
+                                            line-height: 1.4;
+                                            color: $text-secondary;
+                                        }
+                                        &.small {
+                                            font-size: 12px;
+                                        }
+                                    }
+                                }
+
+                                &.main {
+                                    border-top: 1px solid $border-primary;
+                                }
+
+                                &.buttons {
+                                    border-top: 1px solid $border-primary;
+                                    border-bottom: 1px solid $border-primary; 
+                                    height: 68px;
+                                    padding: 20px;
+                                    box-sizing: border-box;
+
+                                    .ui-button {
+                                        float: right;
+                                        height: 28px;
+                                        line-height: 28px;
+                                        text-align: center;
+                                        text-transform: uppercase;
+                                        min-width: 140px;
+                                        margin: 0;
+                                        margin-left: 10px;
+                                        font-size: 12px;
+                        
+                                        &.highlighted {
+                                            color: $text-primary;
+                                            background: darken(#f60, 7%);
+                        
+                                            &:hover {
+                                                background: darken($text-active, 10%);
+                                            }
+                                            &:active {
+                                                background: darken(#f60, 12%);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        &.create-checkpoint {
+                            .ui-panel.main {
+                                > .content {
+                                    flex-direction: column;
+                                    .ui-textarea-field {
+                                        width: auto;
+                                        height: 100px;
+                                    }
+                                }
+                            }
+                        }
+
+                        &.create-branch {
+                            .ui-panel.main {
+                                > .content {
+                                    flex-direction: column;
+                                    .ui-panel {
+                                        display: block;
+                                        .ui-label {
+                                            font-size: 12px;
+                                            width: 120px;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        &.archive-branch {
+                            .ui-panel.main {
+                                > .content {
+                                    flex-direction: column;
+                                    .ui-text-field {
+                                        width: auto;
+                                    }
+                                }
+                            }
+                        }
+
+                        &.merge-branches {
+                            .ui-panel.main {
+                                > .content {
+                                    flex-direction: column;
+                                    .ui-label.left {
+                                        font-size: 12px;
+                                        width: 120px;
+                                    }
+                                    .ui-label.right {
+                                        font-size: 12px;
+                                        font-family: inconsolatamedium;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    > .progress-widget {
+                        align-self: center;
+                        margin: auto;
+
+                        .ui-label {
+                            color: $text-primary;
+                            font-size: 16px;
+                        }
+
+                        svg {
+                            display: block;
+                            margin: 15px auto auto auto;
+
+                            &.spin {
+                                g {
+                                    animation-name: spin;
+                                    animation-duration: 500ms;
+                                    animation-iteration-count: infinite;
+                                    animation-timing-function: linear;
+                                    transform-origin: center;
+                                }
+                            }
+
+                            &.hidden {
+                                display: none;
+                            }
+                        }
+                    }
                 }
+
+                
             }
 
             .branches-top, .checkpoints-top {
-                height: 28px;
+                height: 45px;
+                width: 100%;
                 padding: 10px;
+                box-sizing: border-box;
                 border-bottom: 1px solid $border-primary;
+                > .content {
+                    justify-content: space-between;
+                    .ui-button {
+                        margin: 0;
+                    }
+                }
+            }
+
+            .branches-filter {
+                height: 36px;
+                box-sizing: border-box;
+                border-bottom: 1px solid $border-primary;
+                padding: 7px 10px;
+
+                .ui-select-field {
+                    margin: 0;
+                    height: 22px;
+                    line-height: 22px;
+                    > .value {
+                        line-height: 21px;
+                        &:after {
+                            line-height: 22px;
+                        }
+                    }
+                }
             }
 
             .checkpoints-top {
@@ -8604,11 +8789,12 @@ strong {
                         border-color: $border-primary;
                     }
 
+                    .ui-panel {
+                        background: transparent;
+                    }
+
                     .ui-button.dropdown {
                         @extend .font-icon;
-                        position: absolute;
-                        right: 0px;
-                        top: 8px;
                         width: 16px;
                         height: 16px;
                         line-height: 16px;
@@ -8625,10 +8811,6 @@ strong {
                             color: $text-primary;
                             background-color: $bcg-darkest;
                         }
-                    }
-
-                    .ui-panel {
-                        background: transparent;
                     }
                 }
             }
@@ -8661,6 +8843,12 @@ strong {
                                 margin-left: 25px;
                             }
                         }
+
+                        .ui-button.dropdown {
+                            position: absolute;
+                            right: 0px;
+                            top: 8px;
+                        }
                     } 
                 }
             }
@@ -8668,26 +8856,74 @@ strong {
             .checkpoints {
                 .ui-list {
                     > .ui-list-item {
-                        min-height: 122px;
                         height: auto;
-                        padding: 25px 30px;
+                        padding: 25px 15px;
 
-                        .ui-label {
-                            display: block;
+                        img {
+                            width: 28px;
+                            height: 28px;
+                            margin-right: 15px;
+                        }
 
-                            &.date {
-                                color: $text-primary;
+                        .ui-panel.info {
+                            flex-grow: 1;
+                            margin-top: -7px;
+                            > .content {
+                                flex-direction: column;
+
+                                .ui-panel.top-row {
+                                    white-space: nowrap;
+
+                                    .ui-label.desc {
+                                        overflow: hidden;
+                                        max-width: 260px;
+                                        color: $text-primary;
+                                        font-size: 13px;
+
+                                        &.more {
+                                            white-space: normal;
+                                        }
+                                    }
+
+                                    .ui-button {
+                                        position: absolute;
+                                        background: transparent;
+                                        border: 0;
+                                        margin: 0;
+                                        padding: 0;
+                                        font-size: 12px;
+                                        text-decoration: underline;
+                                        top: 2px;
+                                        right: 0;
+
+                                        &:hover {
+                                            color: $text-primary;
+                                        }
+                                    }
+                                }
+
+                                .ui-panel.bottom-row {
+                                    margin-top: -10px;
+
+                                    .ui-label {
+                                        &.id {
+                                            color: $text-primary;
+                                            opacity: 0.9;
+                                            font-size: 12px;
+                                        }
+
+                                        &.info {
+                                            color: $text-secondary;
+                                            font-size: 12px;
+                                        }
+                                    }
+                                }
                             }
-                            &.full-name {
-                                color: $text-dark;
-                                opacity: 0.8;
-                                margin-top: -5px;
-                            }
-                            &.desc {
-                                color: $text-secondary;
-                                white-space: normal;
-                                max-width: 95%;
-                            }
+                        }
+
+                        .ui-button.dropdown {
+                            margin-left: 15px;
+                            margin-top: 10px;
                         }
                     } 
                 }
@@ -8710,9 +8946,9 @@ strong {
         font-size: 12px;
         border: none;
         position: relative;
-        height: 28px;
-        line-height: 28px;
-        padding-left: 28px;
+        height: 26px;
+        line-height: 26px;
+        padding-left: 26px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -8731,76 +8967,6 @@ strong {
 
         &.create:before {
             content: '\E120';
-        }
-    }
-}
-
-.ui-overlay.version-control-popup {
-    z-index: 301; // larger than picker-project
-    > .content {
-        width: 500px;
-        left: calc(50% - 250px);
-
-        -webkit-box-shadow: none;
-        -moz-box-shadow: none;
-        box-shadow: none;
-
-        .ui-panel.container {
-            $popup-shadow: 7px 7px 5px 0px rgba(0,0,0,0.15);
-            -webkit-box-shadow: $popup-shadow;
-            -moz-box-shadow: $popup-shadow;
-            box-shadow: $popup-shadow;
-        }
-
-        .ui-panel.popup-content {
-            > .content {
-                padding: 20px 40px;
-
-                .ui-label.message {
-                    color: $text-primary;
-                    display: block;
-                    font-size: 16px;
-                }
-                .ui-label.note {
-                    color: $text-secondary;
-                    font-size: 13px;
-                    display: block;
-                }
-            }
-        }
-
-        .ui-panel.buttons {
-            width: 100%;
-            height: 68px;
-            padding: 16px;
-            box-sizing: border-box;
-            border-top: 1px solid $border-primary;
-
-            .ui-button {
-                float: right;
-                height: 38px;
-                line-height: 38px;
-                text-align: center;
-                text-transform: uppercase;
-                min-width: 170px;
-                margin: 0;
-
-                &.left {
-                    margin-right: 15px;
-                }
-
-                &.highlighted {
-                    color: $text-primary;
-                    background: darken($text-active, 10%);
-
-                    &:hover {
-                        background: darken(#f60, 7%);
-                    }
-                    &:active {
-                        background: darken(#f60, 12%);
-                    }
-                }
-            }
         }
     }
 }
