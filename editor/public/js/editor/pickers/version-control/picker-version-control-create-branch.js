@@ -3,9 +3,11 @@ editor.once('load', function () {
 
     var panelName = new ui.Panel();
     panelName.flex = true;
-    panelName.append(new ui.Label({
+    var label = new ui.Label({
         text: 'New Branch Name'
-    }));
+    });
+    label.class.add('left');
+    panelName.append(label);
 
     var fieldBranchName = new ui.TextField();
     fieldBranchName.flexGrow = 1;
@@ -15,9 +17,11 @@ editor.once('load', function () {
 
     var panelFrom = new ui.Panel();
     panelFrom.flex = true;
-    panelFrom.append(new ui.Label({
+    label = new ui.Label({
         text: 'Branching From'
-    }));
+    });
+    label.class.add('left');
+    panelFrom.append(label);
 
     var labelBranch = new ui.Label();
     labelBranch.renderChanges = false;
@@ -25,9 +29,11 @@ editor.once('load', function () {
 
     var panelCheckpoint = new ui.Panel();
     panelCheckpoint.flex = true;
-    panelCheckpoint.append(new ui.Label({
+    label = new ui.Label({
         text: 'Using Checkpoint'
-    }))
+    });
+    label.class.add('left');
+    panelCheckpoint.append(label);
 
     var labelCheckpoint = new ui.Label();
     labelCheckpoint.renderChanges = false;
@@ -54,7 +60,12 @@ editor.once('load', function () {
     panel.on('hide', function () {
         labelBranch.text = '';
         labelCheckpoint.text = '';
+        fieldBranchName.value = '';
         panel.buttonConfirm.disabled = true;
+    });
+
+    panel.on('show', function () {
+        fieldBranchName.focus();
     });
 
     fieldBranchName.on('change', function (value) {
@@ -62,7 +73,7 @@ editor.once('load', function () {
     });
 
     panel.setCheckpoint = function (checkpoint) {
-        labelCheckpoint.text = checkpoint.id + ' - ' + editor.call('datetime:convert', checkpoint.created);
+        labelCheckpoint.text = checkpoint.id.substring(0, 7) + ' - ' + editor.call('datetime:convert', checkpoint.created);
 
         // TODO: load branch name from checkpoint
         labelBranch.text = checkpoint.branch;

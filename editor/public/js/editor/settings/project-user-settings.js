@@ -33,7 +33,8 @@ editor.once('load', function () {
                     overwriteMaterial: false,
                     overwriteTexture: true
                 }
-            }
+            },
+            branch: null
         },
         userId: config.self.id
     });
@@ -53,7 +54,7 @@ editor.once('load', function () {
     editor.on('settings:projectUser:load', function () {
         setTimeout(function () {
             var history = settings.history.enabled;
-            settings.history.enabled= false;
+            settings.history.enabled = false;
 
             if (! settings.has('editor.pipeline'))
                 settings.set('editor.pipeline', {});
@@ -81,6 +82,10 @@ editor.once('load', function () {
 
             if (! settings.has('editor.pipeline.overwriteTexture'))
                 settings.set('editor.pipeline.overwriteTexture', true);
+
+            if (! settings.get('branch')) {
+                settings.set('branch', config.project.masterBranch);
+            }
 
             settings.history.enabled = history;
         });

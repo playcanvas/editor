@@ -19,6 +19,7 @@ editor.once('load', function () {
     });
 
     panel.setCheckpoint = function (checkpoint) {
-        panel.labelTitle.text = 'Restore current branch to checkpoint ' + '"' + checkpoint.id + '" ?';
+        panel.checkpoint = checkpoint;
+        panel.labelTitle.text = 'Restore current branch to checkpoint ' + '"' + checkpoint.id.substring(0, 7) + '" ?';
     };
 });

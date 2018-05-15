@@ -8650,11 +8650,14 @@ strong {
                             .ui-panel.main {
                                 > .content {
                                     flex-direction: column;
+
                                     .ui-panel {
                                         display: block;
                                         .ui-label {
                                             font-size: 12px;
-                                            width: 120px;
+                                            &.left {
+                                                width: 120px;
+                                            }
                                         }
                                     }
                                 }
@@ -8696,6 +8699,17 @@ strong {
                         .ui-label {
                             color: $text-primary;
                             font-size: 16px;
+                            width: 100%;
+                            text-align: center;
+
+                            &.note {
+                                &:not(.hidden) {
+                                    display: block;
+                                }
+
+                                color: $text-secondary;
+                                font-size: 12px;
+                            }
                         }
 
                         svg {
@@ -8720,6 +8734,10 @@ strong {
                 }
 
                 
+            }
+
+            .ui-panel.checkpoints-container {
+                flex-grow: 1;
             }
 
             .branches-top, .checkpoints-top {

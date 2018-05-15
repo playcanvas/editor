@@ -31,4 +31,22 @@ editor.once('load', function () {
             if (callback) callback(null, data);
         });
     });
+
+    // Creates a branch
+    editor.method('branches:create', function (name, callback) {
+        Ajax({
+            url: '{{url.api}}/branches',
+            method: 'POST',
+            data: {
+                name: name
+            },
+            auth: true
+        })
+        .on('error', function (status, err) {
+            if (callback) callback(err);
+        })
+        .on('load', function (status, data) {
+            if (callback) callback(null, data);
+        });
+    });
 });

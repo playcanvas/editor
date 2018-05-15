@@ -31,6 +31,10 @@ editor.once('load', function () {
         fieldDescription.value = '';
     });
 
+    panel.on('show', function () {
+        fieldDescription.focus();  
+    });
+
     editor.method('picker:versioncontrol:widget:createCheckpoint', function () {
         return panel;  
     });

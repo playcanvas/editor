@@ -1,12 +1,18 @@
 editor.once('load', function () {
     'use strict';
 
-    editor.method('checkpoints:create', function (data, callback) {
+    var projectUserSettings = editor.call('settings:projectUser');
+
+    editor.method('checkpoints:create', function (description, callback) {
         Ajax({
-            url: '{{url.api}}/checkpoint',
+            url: '{{url.api}}/checkpoints',
             auth: true,
             method: 'POST',
-            data: data
+            data: {
+                project: config.project.id,
+                branch: projectUserSettings.get('branch'),
+                description: description
+            }
         })
         .on('error', function (status, err) {
             if (callback) callback(err);
@@ -16,13 +22,14 @@ editor.once('load', function () {
         });
     });
 
-    editor.method('checkpoints:restore', function (checkpointId, callback) {
+    editor.method('checkpoints:restore', function (id, callback) {
         Ajax({
-            url: '{{url.api}}/checkpoint/' + checkpointId + '/restore',
+            url: '{{url.api}}/checkpoints/' + id + '/restore',
             auth: true,
             method: 'POST',
+            // TODO: remove this it's not needed when we fix assets-server->dynamo communication
             data: {
-                project_id: config.project.id
+                project: config.project.id
             }
         })
         .on('error', function (status, err) {
@@ -60,9 +67,7 @@ editor.once('load', function () {
             if (callback) callback(data);
         })
         .on('load', function (status, data) {
-            setTimeout(function () {
-                if (callback) callback(null, data);
-            }, 2000);
+            if (callback) callback(null, data);
         });
     });
     
