@@ -11,27 +11,25 @@ editor.once('load', function () {
     fieldName.flexGrow = 1;
     fieldName.keyChange = true;
 
-    var currentBranch = null;
-
     var panel = editor.call('picker:versioncontrol:createWidget', {
-        note: 'Archiving this branch will place it in the archive where it can be restored at a later date. If you are sure then please type the name of the branch below.',
+        note: 'Closing this branch will place it in the archive where it can be restored at a later date. If you are sure then please type the name of the branch below.',
         mainContents: [label, fieldName],
         buttons: {
             cancel: {
                 highlighted: true
             },
             confirm: {
-                text: 'Archive Branch'
+                text: 'Close Branch'
             }
         }
     });
-    panel.class.add('archive-branch');
+    panel.class.add('close-branch');
 
     panel.buttonConfirm.disabled = true;
     fieldName.on('change', function () {
-        if (! currentBranch) return;
+        if (! panel.branch) return;
 
-        panel.buttonConfirm.disabled = fieldName.value !== currentBranch.name;
+        panel.buttonConfirm.disabled = fieldName.value !== panel.branch.name;
     });
 
     panel.on('hide', function () {
@@ -40,11 +38,11 @@ editor.once('load', function () {
     });
 
     panel.setBranch = function (branch) {
-        currentBranch = branch;
-        panel.labelTitle.text = 'Archive the branch "' + branch.name + '" ? ';
+        panel.branch = branch;
+        panel.labelTitle.text = 'Close the branch "' + branch.name + '" ? ';
     };
 
-    editor.method('picker:versioncontrol:widget:archiveBranch', function () {
+    editor.method('picker:versioncontrol:widget:closeBranch', function () {
         return panel;  
     });
 });

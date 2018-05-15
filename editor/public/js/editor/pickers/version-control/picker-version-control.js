@@ -5,6 +5,8 @@ editor.once('load', function () {
         return;
     }
 
+    var projectUserSettings = editor.call('settings:projectUser');
+
     // main panel
     var panel = new ui.Panel();
     panel.class.add('picker-version-control');
@@ -32,12 +34,12 @@ editor.once('load', function () {
     // filter
     var fieldBranchesFilter = new ui.SelectField({
         options: [{
-            v: 'active', t: 'Active Branches'
+            v: 'open', t: 'Open Branches'
         }, {
-            v: 'archived', t: 'Archived Branches'
+            v: 'closed', t: 'Closed Branches'
         }]
     });
-    fieldBranchesFilter.value = 'active';
+    fieldBranchesFilter.value = 'open';
     fieldBranchesFilter.flexGrow = 1;
     panelBranchesFilter.append(fieldBranchesFilter);
 
@@ -70,7 +72,7 @@ editor.once('load', function () {
     // create checkpoint progress
     var panelCreateCheckpointProgress = editor.call('picker:versioncontrol:createProgressWidget', {
         progressText: 'Creating checkpoint',
-        finishText: 'Checkpoint created - refreshing the browser',
+        finishText: 'Checkpoint created',
         errorText: 'Failed to create new checkpoint'
     });
     panelCreateCheckpointProgress.hidden = true;
@@ -90,10 +92,10 @@ editor.once('load', function () {
     panelCreateBranchProgress.hidden = true;
     panelRight.append(panelCreateBranchProgress);
 
-    // archive branch panel
-    var panelArchiveBranch = editor.call('picker:versioncontrol:widget:archiveBranch');
-    panelArchiveBranch.hidden = true;
-    panelRight.append(panelArchiveBranch);
+    // close branch panel
+    var panelCloseBranch = editor.call('picker:versioncontrol:widget:closeBranch');
+    panelCloseBranch.hidden = true;
+    panelRight.append(panelCloseBranch);
 
     // merge branches panel
     var panelMergeBranches = editor.call('picker:versioncontrol:widget:mergeBranches');
@@ -132,7 +134,7 @@ editor.once('load', function () {
         panelRestoreCheckpointProgress,
         panelCreateBranch,
         panelCreateBranchProgress,
-        panelArchiveBranch,
+        panelCloseBranch,
         panelMergeBranches,
         panelSwitchBranchProgress
     ];
@@ -171,12 +173,27 @@ editor.once('load', function () {
     });
     menuBranches.append(menuBranchesMerge);
 
-    // archive branch
-    var menuBranchesArchive = new ui.MenuItem({
-        text: 'Archive',
-        value: 'archive-branch'
+    // close branch
+    var menuBranchesClose = new ui.MenuItem({
+        text: 'Close',
+        value: 'close-branch'
     });
-    menuBranches.append(menuBranchesArchive);
+    menuBranches.append(menuBranchesClose);
+
+    // open branch
+    var menuBranchesOpen = new ui.MenuItem({
+        text: 'Re-Open',
+        value: 'open-branch'
+    });
+    menuBranches.append(menuBranchesOpen);
+
+    // Filter context menu items
+    menuBranches.on('open', function () {
+        menuBranchesClose.hidden = ! contextBranch || contextBranch.closed || contextBranch.id === config.project.masterBranch || contextBranch.id === projectUserSettings.get('branch');
+        menuBranchesOpen.hidden = ! contextBranch || ! contextBranch.closed;
+        menuBranchesSwitchTo.hidden = ! contextBranch || contextBranch.id === projectUserSettings.get('branch') || contextBranch.closed;
+        menuBranchesMerge.hidden = menuBranchesSwitchTo.hidden;
+    });
 
     editor.call('layout.root').append(menuBranches);
 
@@ -237,12 +254,17 @@ editor.once('load', function () {
         });
     };
 
+    var getBranchListItem = function (branch) {
+        var item = document.getElementById('branch-' + branch.id);
+        return item && item.ui;
+    };
+
     var selectBranch = function (branch) {
         showCheckpoints();
 
-        var item = document.getElementById('branch-' + branch.id);
-        if (! item || ! item.ui) return;
-        listBranches.selected = [item.ui];
+        var item = getBranchListItem(branch);
+        if (! item) return;
+        listBranches.selected = [item];
 
         panelCheckpointsContainer.setBranch(branch);
 
@@ -275,11 +297,35 @@ editor.once('load', function () {
     });
 
 
-    // archive branch
-    menuBranchesArchive.on('select', function () {
+    // close branch
+    menuBranchesClose.on('select', function () {
         if (contextBranch) {
-            showRightSidePanel(panelArchiveBranch);
-            panelArchiveBranch.setBranch(contextBranch);
+            showRightSidePanel(panelCloseBranch);
+            panelCloseBranch.setBranch(contextBranch);
+        }
+    });
+
+    // open branch
+    menuBranchesOpen.on('select', function () {
+        if (contextBranch) {
+            var item = getBranchListItem(contextBranch);
+            var idx = -1;
+
+            // remove item from list
+            if (item) {
+                idx = Array.prototype.indexOf.call(listBranches.innerElement.childNodes, item.element);
+                listBranches.remove(item);
+            }
+
+            editor.call('branches:open', contextBranch.id, function (err) {
+                if (err) {
+                    console.error(err);
+                    if (idx >= 0) {
+                        var itemNext = listBranches.innerElement.childNodes[idx];
+                        listBranches.appendBefore(item, itemNext);
+                    }
+                }
+            });
         }
     });
 
@@ -294,14 +340,16 @@ editor.once('load', function () {
     // switch to branch
     menuBranchesSwitchTo.on('select', function () {
         if (contextBranch) {
-            // TODO switch branch
+            togglePanels(false);
             showRightSidePanel(panelSwitchBranchProgress);
-            setTimeout(function() {
-                panelSwitchBranchProgress.finish();
-                setTimeout(function () {
-                    document.location.reload();
-                }, 1000);
-            }, 1000);
+            editor.call('branches:checkout', contextBranch.id, function (err, data) {
+                panelSwitchBranchProgress.finish(err);
+                if (err) {
+                    togglePanels(true);
+                } else {
+                    refreshBrowser();
+                }
+            });
         }
     });
 
@@ -327,10 +375,11 @@ editor.once('load', function () {
 
         editor.call('checkpoints:create', data.description, function (err) {
             panelCreateCheckpointProgress.finish(err);
-            if (err) {
-                togglePanels(true);
-            } else {
-                refreshBrowser();
+            if (! err) {
+                setTimeout(function () {
+                    togglePanels(true);
+                    showCheckpoints();
+                },  1000);
             }
         });
     });
@@ -352,10 +401,30 @@ editor.once('load', function () {
         });
     });
 
-    // Archive branch
-    panelArchiveBranch.on('cancel', showCheckpoints);
-    panelArchiveBranch.on('confirm', function (data) {
-        // TODO Archive branch
+    // Close branch
+    panelCloseBranch.on('cancel', showCheckpoints);
+    panelCloseBranch.on('confirm', function (data) {
+        var item = getBranchListItem(panelCloseBranch.branch);
+        var idx = -1;
+
+        // remove item from list
+        if (item) {
+            idx = Array.prototype.indexOf.call(listBranches.innerElement.childNodes, item.element);
+            listBranches.remove(item);
+        }
+
+        editor.call('branches:close', panelCloseBranch.branch.id, function (err) {
+            // if there was an error re-add the item to the list
+            if (err) {
+                console.error(err);
+                if (idx >= 0) {
+                    var itemNext = listBranches.innerElement.childNodes[idx];
+                    listBranches.appendBefore(item, itemNext);
+                }
+            }
+
+            showCheckpoints();
+        });
     });
 
     // Merge branches
@@ -383,6 +452,7 @@ editor.once('load', function () {
     // when the branches context menu is closed 'unclick' dropdowns
     menuBranches.on('open', function (open) {
         if (open || ! contextBranch) return;
+
         var item = document.getElementById('branch-' + contextBranch.id);
         contextBranch = null;
         if (! item) return;
@@ -417,7 +487,7 @@ editor.once('load', function () {
         editor.call('branches:list', {
             limit: 20,
             skip: branchesSkip,
-            archived: fieldBranchesFilter.value === 'archived'
+            closed: fieldBranchesFilter.value === 'closed'
         }, function (err, data) {
             if (err) {
                 return console.error(err);
