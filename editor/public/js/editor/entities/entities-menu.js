@@ -382,6 +382,9 @@ editor.once('load', function() {
             'add-new-button': {
                 title: 'Button Element',
                 icon: componentsLogos.element,
+                hide: function () {
+                    return !editor.call('users:hasFlag', 'spriteTester');
+                },
                 select: function() {
                     var buttonComponentData = editor.call('components:getDefault', 'button');
                     buttonComponentData.type = 'button';
