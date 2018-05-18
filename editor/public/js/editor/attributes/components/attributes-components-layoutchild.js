@@ -84,6 +84,11 @@ editor.once('load', function() {
 
         fieldFitHeightProportion.style.width = '32px';
 
+        addField('excludeFromLayout', {
+            name: 'Exclude from Layout',
+            type: 'checkbox'
+        });
+
         panel.on('destroy', function () {
             events.forEach(function (e) {
                 e.unbind();

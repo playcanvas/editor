@@ -471,6 +471,7 @@ editor.once('load', function() {
                 maxHeight: null,
                 fitWidthProportion: 0,
                 fitHeightProportion: 0,
+                excludeFromLayout: false
             }
         },
     };
