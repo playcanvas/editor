@@ -220,6 +220,13 @@ editor.once('load', function() {
                 }
             }
 
+            // layoutchild
+            if (entity.has('components.layoutchild')) {
+                if (! entity.has('components.layoutchild.excludeFromLayout')) {
+                    entity.set('components.layoutchild.excludeFromLayout', false);
+                }
+            }
+
             // particles
             if (entity.has('components.particlesystem')) {
                 // layers

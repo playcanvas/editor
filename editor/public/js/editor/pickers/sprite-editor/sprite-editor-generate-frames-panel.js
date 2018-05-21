@@ -13,16 +13,33 @@ editor.once('load', function() {
             name: 'GENERATE FRAMES'
         });
 
+        var METHOD_DELETE_EXISTING = 1;
+        var METHOD_ONLY_APPEND = 2;
+
+        var TYPE_GRID_BY_FRAME_COUNT  = 1;
+        var TYPE_GRID_BY_FRAME_SIZE  = 2;
+        var TYPE_GRID_AUTO = 3; // not implemented
+
+        var PIVOT_TOP_LEFT  = 0;
+        var PIVOT_TOP       = 1;
+        var PIVOT_TOP_RIGHT = 2;
+        var PIVOT_LEFT      = 3;
+        var PIVOT_CENTER    = 4;
+        var PIVOT_RIGHT     = 5;
+        var PIVOT_BOTTOM_LEFT   = 6;
+        var PIVOT_BOTTOM        = 7;
+        var PIVOT_BOTTOM_RIGHT  = 8;
+
         var events = [];
 
         var fieldMethod = editor.call('attributes:addField', {
             parent: panel,
             name: 'Method',
             type: 'number',
-            value: 1,
+            value: METHOD_DELETE_EXISTING,
             enum: [
-                { v: 1, t: 'Delete Existing' },
-                { v: 2, t: 'Only Append' },
+                { v: METHOD_DELETE_EXISTING, t: 'Delete Existing' },
+                { v: METHOD_ONLY_APPEND, t: 'Only Append' },
             ],
         });
         // reference
@@ -32,10 +49,10 @@ editor.once('load', function() {
             parent: panel,
             name: 'Type',
             type: 'number',
-            value: 1,
+            value: TYPE_GRID_BY_FRAME_COUNT,
             enum: [
-                {v: 1, t: 'Grid By Frame Count'},
-                {v: 2, t: 'Grid By Frame Size'}
+                {v: TYPE_GRID_BY_FRAME_COUNT, t: 'Grid By Frame Count'},
+                {v: TYPE_GRID_BY_FRAME_SIZE, t: 'Grid By Frame Size'}
                 // {v: 3, t: 'Auto'}
             ]
         });
@@ -78,9 +95,9 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:generate:offset', fieldOffset[0].parent.innerElement.firstChild.ui, null, panel);
 
-        var fieldPadding = editor.call('attributes:addField', {
+        var fieldSpacing = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Padding',
+            name: 'Spacing',
             type: 'vec2',
             value: [0, 0],
             precision: 0,
@@ -88,7 +105,7 @@ editor.once('load', function() {
             placeholder: ['X', 'Y']
         });
         // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:generate:padding', fieldPadding[0].parent.innerElement.firstChild.ui, null, panel);
+        editor.call('attributes:reference:attach', 'spriteeditor:generate:spacing', fieldSpacing[0].parent.innerElement.firstChild.ui, null, panel);
 
         // pivot presets
         var presetValues = [
@@ -108,26 +125,26 @@ editor.once('load', function() {
             name: 'Pivot',
             type: 'number',
             enum: [
-                { v: 0, t: 'Top Left' },
-                { v: 1, t: 'Top' },
-                { v: 2, t: 'Top Right' },
-                { v: 3, t: 'Left' },
-                { v: 4, t: 'Center' },
-                { v: 5, t: 'Right' },
-                { v: 6, t: 'Bottom Left' },
-                { v: 7, t: 'Bottom' },
-                { v: 8, t: 'Bottom Right' }
+                { v: PIVOT_TOP_LEFT, t: 'Top Left' },
+                { v: PIVOT_TOP, t: 'Top' },
+                { v: PIVOT_TOP_RIGHT, t: 'Top Right' },
+                { v: PIVOT_LEFT, t: 'Left' },
+                { v: PIVOT_CENTER, t: 'Center' },
+                { v: PIVOT_RIGHT, t: 'Right' },
+                { v: PIVOT_BOTTOM_LEFT, t: 'Bottom Left' },
+                { v: PIVOT_BOTTOM, t: 'Bottom' },
+                { v: PIVOT_BOTTOM_RIGHT, t: 'Bottom Right' }
             ],
-            value: 4
+            value: PIVOT_CENTER
         });
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:generate:pivot', fieldPivot.parent.innerElement.firstChild.ui, null, panel);
 
         var toggleFields = function () {
-            fieldColsRows[0].parent.hidden = fieldType.value !== 1;
-            fieldPixels[0].parent.hidden = fieldType.value !== 2;
-            fieldOffset[0].parent.hidden = fieldType.value !== 1 && fieldType.value !== 2;
-            fieldPadding[0].parent.hidden = fieldType.value !== 1 && fieldType.value !== 2;
+            fieldColsRows[0].parent.hidden = fieldType.value !== TYPE_GRID_BY_FRAME_COUNT;
+            fieldPixels[0].parent.hidden = fieldType.value !== TYPE_GRID_BY_FRAME_SIZE;
+            fieldOffset[0].parent.hidden = fieldType.value !== TYPE_GRID_BY_FRAME_COUNT && fieldType.value !== TYPE_GRID_BY_FRAME_SIZE;
+            fieldSpacing[0].parent.hidden = fieldType.value !== TYPE_GRID_BY_FRAME_COUNT && fieldType.value !== TYPE_GRID_BY_FRAME_SIZE;
         };
 
         toggleFields();
@@ -152,7 +169,7 @@ editor.once('load', function() {
             var method = fieldMethod.value;
 
             var oldFrames = atlasAsset.get('data.frames');
-            var newFrames = method === 1 ? {} : atlasAsset.get('data.frames');
+            var newFrames = method === METHOD_DELETE_EXISTING ? {} : atlasAsset.get('data.frames');
 
             var redo = function () {
                 var asset = editor.call('assets:get', atlasAsset.get('id'));
@@ -160,18 +177,18 @@ editor.once('load', function() {
                 var history = asset.history.enabled;
                 asset.history.enabled = false;
 
-                if (type === 1) {
-                    sliceGrid(fieldColsRows[0].value, fieldColsRows[1].value, newFrames);
+                if (type === TYPE_GRID_BY_FRAME_COUNT) {
+                    sliceGridByCount(fieldColsRows[0].value, fieldColsRows[1].value, newFrames);
 
                     // set frames and manually emit 'set' event
                     // to avoid huge performance hit if there's a lot of frames
                     setFrames(asset, newFrames);
-                } else if (type === 2) {
+                } else if (type === TYPE_GRID_BY_FRAME_SIZE) {
                     var width = atlasImage.width;
                     var height = atlasImage.height;
-                    sliceGrid(Math.floor(width / fieldPixels[0].value), Math.floor(height / fieldPixels[1].value), newFrames);
+                    sliceGridBySize(fieldPixels[0].value, fieldPixels[1].value, newFrames);
                     setFrames(asset, newFrames);
-                } else if (type === 3) {
+                } else if (type === TYPE_GRID_AUTO) {
                     // TODO
                 }
 
@@ -262,7 +279,7 @@ editor.once('load', function() {
         };
 
         // Slice atlas in frames using a grid
-        var sliceGrid = function (cols, rows, frames) {
+        var sliceGridByCount = function (cols, rows, frames) {
             var pivot = presetValues[fieldPivot.value];
 
             var maxKey = 1;
@@ -272,24 +289,75 @@ editor.once('load', function() {
 
             var offsetX = fieldOffset[0].value;
             var offsetY = fieldOffset[1].value;
-            var paddingX = fieldPadding[0].value;
-            var paddingY = fieldPadding[1].value;
 
-            var imgWidth = atlasImage.width;
-            var imgHeight = atlasImage.height;
+            var spacingX = fieldSpacing[0].value;
+            var spacingY = fieldSpacing[1].value;
+
+            var imgWidth = atlasImage.width - offsetX;
+            var imgHeight = atlasImage.height - offsetY;
+
+            var totalSpacingX = spacingX * (cols - 1);
+            var totalSpacingY = spacingY * (rows - 1);
+
+            var frameWidth = Math.floor((imgWidth - totalSpacingX) / cols);
+            var frameHeight = Math.floor((imgHeight - totalSpacingY) / rows);
+
+            var spacedWidth = frameWidth + spacingX;
+            var spacedHeight = frameHeight + spacingY;
 
             for (var r = 0; r < rows; r++) {
                 for (var c = 0; c < cols; c++) {
-                    var w = imgWidth / cols;
-                    var h = imgHeight / rows;
-                    var width = Math.floor(w - 2 * paddingX);
-                    var height = Math.floor(h - 2 * paddingY);
-                    var left = Math.floor(offsetX + c * w + paddingX);
-                    var top = Math.floor(offsetY + r * h + paddingY);
-                    if (! isRegionEmpty(left, top, width, height)) {
+                    var left = offsetX + c * (frameWidth + spacingX);
+                    var top = offsetY + r * (frameHeight + spacingY) - offsetY - spacingY;
+
+                    if (! isRegionEmpty(left, top+spacingY, frameWidth, frameHeight)) {
                         frames[maxKey] = {
                             name: 'Frame ' + maxKey,
-                            rect: [left, Math.floor(imgHeight - (top + height)), width, height],
+                            rect: [left, Math.floor(imgHeight - (top + spacedHeight)), frameWidth, frameHeight],
+                            pivot: pivot,
+                            border: [0,0,0,0]
+                        };
+                        maxKey++;
+                    }
+                }
+            }
+        };
+
+        var sliceGridBySize = function (frameWidth, frameHeight, frames) {
+            var pivot = presetValues[fieldPivot.value];
+
+            var maxKey = 1;
+            for (var key in frames) {
+                maxKey = Math.max(maxKey, parseInt(key, 10) + 1);
+            }
+
+            var offsetX = fieldOffset[0].value;
+            var offsetY = fieldOffset[1].value;
+
+            var spacingX = fieldSpacing[0].value;
+            var spacingY = fieldSpacing[1].value;
+
+            var imgWidth = atlasImage.width - offsetX;
+            var imgHeight = atlasImage.height - offsetY;
+
+            var cols = Math.floor((imgWidth + spacingX) / (frameWidth + spacingX));
+            var rows = Math.floor((imgHeight + spacingY) / (frameHeight + spacingY));
+
+            var totalSpacingX = spacingX * (cols - 1);
+            var totalSpacingY = spacingY * (rows - 1);
+
+            var spacedWidth = frameWidth + spacingX;
+            var spacedHeight = frameHeight + spacingY;
+
+            for (var r = 0; r < rows; r++) {
+                for (var c = 0; c < cols; c++) {
+                    var left = offsetX + c * (frameWidth + spacingX);
+                    var top = offsetY + r * (frameHeight + spacingY) - offsetY - spacingY;
+
+                    if (! isRegionEmpty(left, top+spacingY, frameWidth, frameHeight)) {
+                        frames[maxKey] = {
+                            name: 'Frame ' + maxKey,
+                            rect: [left, Math.floor(imgHeight - (top + spacedHeight)), frameWidth, frameHeight],
                             pivot: pivot,
                             border: [0,0,0,0]
                         };

@@ -13,6 +13,54 @@ editor.once('load', function() {
         return false;
     };
 
+
+    // ImageCache holds Image objects
+    // cached with some key (asset.id)
+    var ImageCache = function () {
+        this._items = {};
+    };
+
+    // return true if key exists
+    ImageCache.prototype.has = function (key) {
+        return !!this._items[key];
+    };
+
+    // return the ImageCacheEntry at key
+    ImageCache.prototype.get = function (key) {
+        if (this.has(key)) return this._items[key];
+        return null;
+    };
+
+    // Insert an Image element into the cache
+    // Returns the new ImageCacheEntry
+    ImageCache.prototype.insert = function (key, image) {
+        var entry = new ImageCacheEntry(image);
+        this._items[key] = entry;
+
+        return entry;
+    };
+
+    // ImageCacheEntry
+    // an item in the ImageCache
+    // fires 'loaded' event if the Image element loads after being created
+    var ImageCacheEntry = function (image) {
+        Events.call(this);
+
+        this.value = image;
+        this.status = 'loading';
+
+        var self = this;
+        image.onload = function () {
+            self.status = 'loaded';
+            self.emit('loaded', self);
+        };
+    };
+    ImageCacheEntry.prototype = Object.create(Events.prototype);
+
+
+    // Cache for holding Image elements used by compressed textures
+    var imageCache = new ImageCache();
+
     editor.method('preview:sprite:render', function(asset, width, height, canvas, args) {
         var frameKeys = asset.get('data.frameKeys');
         if (! frameKeys || ! frameKeys.length) return cancelRender(width, height, canvas);
@@ -105,7 +153,40 @@ editor.once('load', function() {
             ctx.msImageSmoothingEnabled = false;
             ctx.imageSmoothingEnabled = false;
 
-            ctx.drawImage(atlasTexture.getSource(), x, y, w, h, offsetX, offsetY, targetWidth, targetHeight);
+            var img;
+            if (atlasTexture._compressed && engineAtlas.file) {
+                var entry = imageCache.get(engineAtlas.file.hash);
+                if (entry) {
+                    if (entry.status === 'loaded') {
+                        img = entry.value;
+                    } else {
+                        entry.once('loaded', function (entry) {
+                            editor.call('assets:sprite:watch:trigger', asset);
+                        });
+                    }
+
+                } else {
+
+                    // create an image element from the asset source file
+                    // used in the preview if the texture contains compressed data
+                    img = new Image();
+                    img.src = engineAtlas.file.url;
+
+                    // insert image into cache which fires an event when the image is loaded
+                    var entry = imageCache.insert(engineAtlas.file.hash, img);
+                    entry.once('loaded', function (entry) {
+                        editor.call('assets:sprite:watch:trigger', asset);
+                    });
+                }
+            } else {
+                img = atlasTexture.getSource();
+            }
+
+            if (img) {
+                ctx.drawImage(img, x, y, w, h, offsetX, offsetY, targetWidth, targetHeight);
+            } else {
+                cancelRender(width, height, canvas);
+            }
 
             return true;
         } else {

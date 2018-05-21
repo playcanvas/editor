@@ -38,9 +38,9 @@ editor.once('load', function() {
         title: 'Offset',
         description: 'The offset from the top-left of the texture atlas in pixels, from where to start generating frames.'
     }, {
-        name: 'generate:padding',
-        title: 'Padding',
-        description: 'The padding to use for each new frame, in pixels.'
+        name: 'generate:spacing',
+        title: 'Spacing',
+        description: 'The spacing between each frame in pixels.'
     }, {
         name: 'generate:pivot',
         title: 'Pivot',
