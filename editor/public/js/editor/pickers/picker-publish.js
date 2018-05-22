@@ -4,6 +4,7 @@ editor.once('load', function () {
     // main panel
     var panel = new ui.Panel();
     panel.class.add('picker-publish');
+    panel.flex = true;
 
     // register panel with project popup
     editor.call('picker:project:registerMenu', 'publish', 'Publish', panel);
@@ -31,12 +32,20 @@ editor.once('load', function () {
     panelPlaycanvas.class.add('buttons');
     panel.append(panelPlaycanvas);
 
-    panelPlaycanvas.append(new ui.Label({
-        text: 'Publish on PlayCanvas.'
-    }));
+    var labelIcon = new ui.Label({
+        text: '&#57960;'
+    });
+    labelIcon.class.add('icon');
+    panelPlaycanvas.append(labelIcon);
+
+    var labelDesc = new ui.Label({
+        text: 'Publish your project publicly on PlayCanvas.'
+    });
+    labelDesc.class.add('desc');
+    panelPlaycanvas.append(labelDesc);
 
     // publish button
-    var btnPublish = new ui.Button({text: 'Publish'});
+    var btnPublish = new ui.Button({text: 'Publish To PlayCanvas'});
     btnPublish.class.add('publish');
     handlePermissions(btnPublish);
     panelPlaycanvas.append(btnPublish);
@@ -45,37 +54,25 @@ editor.once('load', function () {
         editor.call('picker:publish:new');
     });
 
-    // facebook instant
-    var panelFbInstant = new ui.Panel();
-    panelFbInstant.class.add('buttons');
-    panel.append(panelFbInstant);
-    panelFbInstant.hidden = !editor.call('users:hasFlag', 'hasPublishOnFacebook');
-
-    panelFbInstant.append(new ui.Label({
-        text: 'Publish build to Facebook Instant Games.'
-    }));
-
-    var btnPublishFb = new ui.Button({text: 'Publish'});
-    btnPublishFb.class.add('publish-fb');
-    handlePermissions(btnPublishFb);
-    panelFbInstant.append(btnPublishFb);
-
-    btnPublishFb.on('click', function () {
-        editor.call('picker:publish:facebook');
-    });
-
-
     // self host
     var panelSelfHost = new ui.Panel();
     panelSelfHost.class.add('buttons');
     panel.append(panelSelfHost);
 
-    panelSelfHost.append(new ui.Label({
+    labelIcon = new ui.Label({
+        text: '&#57925;'
+    });
+    labelIcon.class.add('icon');
+    panelSelfHost.append(labelIcon);
+
+    labelDesc = new ui.Label({
         text: 'Download build and host it on your own server.'
-    }));
+    });
+    labelDesc.class.add('desc');
+    panelSelfHost.append(labelDesc);
 
     // download button
-    var btnDownload = new ui.Button({text: 'Download'});
+    var btnDownload = new ui.Button({text: 'Download .zip'});
     btnDownload.class.add('download');
     handlePermissions(btnDownload);
     panelSelfHost.append(btnDownload);
@@ -84,6 +81,33 @@ editor.once('load', function () {
         editor.call('picker:publish:download');
     });
 
+    // facebook instant
+    var panelFbInstant = new ui.Panel();
+    panelFbInstant.class.add('buttons');
+    panel.append(panelFbInstant);
+    panelFbInstant.hidden = !editor.call('users:hasFlag', 'hasPublishOnFacebook');
+    
+    labelIcon = new ui.Label({
+        text: '&#57941;'
+    });
+    labelIcon.class.add('icon');
+    panelFbInstant.append(labelIcon);
+
+    labelDesc = new ui.Label({
+        text: 'Publish your project to Facebook Instant Games.'
+    });
+    labelDesc.class.add('desc');
+    panelFbInstant.append(labelDesc);
+
+    var btnPublishFb = new ui.Button({text: 'Publish To Facebook'});
+    btnPublishFb.class.add('publish-fb');
+    handlePermissions(btnPublishFb);
+    panelFbInstant.append(btnPublishFb);
+
+    btnPublishFb.on('click', function () {
+        editor.call('picker:publish:facebook');
+    });
+    
     // on show
     panel.on('show', function () {
         editor.emit('picker:publish:open');

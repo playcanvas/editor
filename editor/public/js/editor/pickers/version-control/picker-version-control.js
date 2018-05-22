@@ -191,7 +191,7 @@ editor.once('load', function () {
     menuBranches.on('open', function () {
         menuBranchesClose.hidden = ! contextBranch || contextBranch.closed || contextBranch.id === config.project.masterBranch || contextBranch.id === projectUserSettings.get('branch');
         menuBranchesOpen.hidden = ! contextBranch || ! contextBranch.closed;
-        menuBranchesSwitchTo.hidden = ! contextBranch || contextBranch.id === projectUserSettings.get('branch') || contextBranch.closed;
+        menuBranchesSwitchTo.hidden = ! contextBranch || contextBranch.id === projectUserSettings.get('branch') || ! contextBranch.open;
         menuBranchesMerge.hidden = menuBranchesSwitchTo.hidden;
     });
 
@@ -211,6 +211,9 @@ editor.once('load', function () {
             text: '&#58208;'
         });
         labelIcon.class.add('icon');
+        if (branch.id === config.project.masterBranch) {
+            labelIcon.class.add('active');
+        }
         panel.append(labelIcon);
 
         var labelName = new ui.Label({
@@ -220,7 +223,7 @@ editor.once('load', function () {
         panel.append(labelName);
 
         var labelDate = new ui.Label({
-            text: 'Updated ' + editor.call('datetime:convert', branch.modified)
+            text: 'Created ' + editor.call('datetime:convert', branch.created)
         });
         labelDate.class.add('date');
         panel.append(labelDate);
@@ -234,6 +237,10 @@ editor.once('load', function () {
 
         dropdown.on('click', function (e) {
             e.stopPropagation();
+
+            if (panelCheckpointsContainer.hidden) {
+                showCheckpoints();
+            }
 
             if (panelBranches.disabled) return;
 
@@ -380,6 +387,8 @@ editor.once('load', function () {
                     togglePanels(true);
                     showCheckpoints();
                 },  1000);
+            } else {
+                togglePanels(true);
             }
         });
     });

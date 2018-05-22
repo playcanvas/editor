@@ -7645,16 +7645,33 @@ strong {
         }
 
         > .ui-panel.buttons {
-            border-bottom: 1px solid $border-primary;
+            border-left: 1px solid $border-primary;
+            border-right: 1px solid $border-primary;
+            border-top: 1px solid $border-primary;
+            margin: 15px;
+            text-align: center;
 
             > .content {
                 > .ui-label {
-                    vertical-align: middle;
-                    padding: 15px;
-                    width: 40%;
+                    text-align: center;
+
+                    &.icon {
+                        @extend .font-icon;
+                        color: $text-primary;
+                        opacity: 0.9;
+                        font-size: 70px;
+                        margin: 60px 0 20px 0;
+                    }
+
+                    &.desc {
+                        color: $text-primary;
+                        opacity: 0.9;
+                        font-size: 13px;
+                        padding: 13px;
+                    }
                 }
                 > .ui-button {
-                    margin: 15px 0 15px 15px;
+                    margin: 0;
                     padding: 0;
                     width: 210px;
                     height: 34px;
@@ -8805,6 +8822,7 @@ strong {
                     &:hover {
                         background: $bcg-dark;
                         border-color: $border-primary;
+                        z-index: initial;
                     }
 
                     .ui-panel {
@@ -8985,6 +9003,235 @@ strong {
 
         &.create:before {
             content: '\E120';
+        }
+    }
+}
+
+.ui-overlay.picker-conflict-manager {
+    > .content {
+        width: 1100px;
+        height: 700px;
+        left: calc(50% - 550px);
+        top: calc(50% - 350px);
+
+        > .ui-panel {
+            height: 100%;
+
+            > .content {
+                height: 100%;
+                border-top: 1px solid $border-primary;
+
+                > .ui-panel.left {
+                    width: 250px;
+                    height: 100%;
+                    border-right: 1px solid $border-primary;
+
+                    > .content {
+                        height: 100%;
+                        flex-direction: column;
+
+                        > .ui-list {
+                            background: transparent;
+                            border: 0;
+                            margin: 0;
+                            overflow-y: auto;
+
+                            > .ui-list-item {
+                                height: 80px;
+                                padding: 25px 15px;
+                                box-sizing: border-box;
+                                &:last-child {
+                                    border-bottom: 1px solid $border-primary;
+                                }
+
+                                .ui-panel {
+                                    background: transparent;
+                                }
+
+                                > .ui-panel {
+                                    > .content {
+                                        > .icon {
+                                            @extend .font-icon;
+                                            margin-right: 15px;
+                                            vertical-align: top;
+
+                                            &.resolved {
+                                                color: #4AE22B;
+                                            }
+                                            &.conflict {
+                                                color: #fb222f;
+                                            }
+                                        }
+
+                                        > .ui-panel {
+                                            display: inline-block;
+                                            margin-top: -7px;
+                                            width: 85%;
+                                            > .content {
+                                                > .ui-label {
+                                                    display: block;
+                                                    margin: 0;
+                                                    @extend .font-regular;
+                                                    overflow: hidden;
+                                                    text-overflow: ellipsis;
+
+                                                    &.name {
+                                                        color: $text-primary;
+                                                        font-size: 13px;
+                                                    }
+
+                                                    &.type {
+                                                        font-size: 12px;
+                                                        color: $text-secondary;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        > .ui-button {
+                            height: 60px;
+                            line-height: 60px;
+                            margin: 0;
+                            font-size: 12px;
+                            text-align: center;
+                        }
+                    }
+                }
+
+                > .ui-panel.right {
+                    > .content {
+                        height: 100%;
+                        flex-direction: column;
+
+                        > .selected-overlay {
+                            position: absolute;
+                            left: 0;
+                            top: 0;
+                            width: 50%;
+                            height: 100%;
+                            border: 1px solid #4AE22B;
+                            pointer-events: none;
+
+                            &.theirs {
+                                left: 50%;
+                            }
+
+                            &:after {
+                                content: '\E154';
+                                @extend .font-icon;
+                                position: absolute;
+                                right: 10px;
+                                top: 7px;
+                                color: #4AE22B;
+                                font-size: 50px;
+                            }
+                        }
+
+                        > .ui-panel {
+                            // height: calc(50% - 30px);
+                            height: calc(100% - 60px);
+
+                            // &.full-height {
+                            //     height: calc(100% - 60px);
+                            // }
+
+                            &.file-diffs {
+                                > .content {
+                                    > .ui-panel {
+                                        > .content {
+                                            height: 100%;
+                                        }
+                                    }
+                                }
+                            }
+
+                            &.diffs {
+                                > .content {
+                                    height: calc(100% - 32px);
+                                    overflow-y: auto;
+
+                                    > .ui-panel {
+                                        > .content {
+                                            flex-direction: column;
+                                            min-height: 100%;
+                                            box-sizing: border-box;
+                                            padding: 5px 25px;
+
+                                            > .ui-panel {
+                                                white-space: nowrap;
+
+                                                > .content {
+                                                    flex-direction: column;
+
+                                                    > .ui-label {
+                                                        font-size: 12px;
+                                                        overflow: hidden;
+                                                        text-overflow: ellipsis;
+
+                                                        &.name {
+                                                            width: 120px;
+                                                            margin-right: 30px;
+                                                        }
+                                                        &.value {
+                                                            color: $text-secondary;
+                                                            opacity: 0.8;
+                                                            font-family: inconsolatamedium;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            &.pick {
+                                height: 60px;
+                                border-top: 1px solid $border-primary;
+                                > .content {
+                                    > .ui-panel {
+                                        width: 50%;
+
+                                        > .content {
+                                            height: 100%;
+                                            align-items: center;
+                                            padding: 0 10px;
+
+                                            .ui-button {
+                                                height: 25px;
+                                                line-height: 25px;
+                                                text-align: center;
+                                                font-size: 12px;
+                                                margin: 10px;
+                                            }
+
+                                        }
+                                    }
+                                    
+                                }
+                            }
+
+                            > .content {
+                                height: 100%;
+
+                                > .ui-panel {
+                                    width: 50%;
+
+                                    &:last-child {
+                                        > .content {
+                                            border-left: 1px solid $border-primary;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

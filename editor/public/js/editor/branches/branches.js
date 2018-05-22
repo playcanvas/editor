@@ -14,7 +14,7 @@ editor.once('load', function () {
     // Load project branches
     // args.limit: the limit
     // args.skip: the number of entries to skip
-    // args.closed: true to return closed branches
+    // args.closed: If true only return closed branches
     editor.method('branches:list', function (args, callback) {
         var url = '{{url.api}}/projects/{{project.id}}/branches';
         var separator = '?';
@@ -44,6 +44,7 @@ editor.once('load', function () {
             url: '{{url.api}}/branches',
             method: 'POST',
             data: {
+                project: config.project.id,
                 name: name
             },
             auth: true

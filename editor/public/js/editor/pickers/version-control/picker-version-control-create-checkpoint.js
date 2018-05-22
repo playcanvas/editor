@@ -7,6 +7,8 @@ editor.once('load', function () {
     labelDesc.class.add('small');
 
     var fieldDescription = new ui.TextAreaField();
+    fieldDescription.renderChanges = false;
+    fieldDescription.keyChange = true;
     fieldDescription.flexGrow = 1;
 
     var panel = editor.call('picker:versioncontrol:createWidget', {
@@ -19,7 +21,7 @@ editor.once('load', function () {
                 highlighted: true,
                 onClick: function () {
                     panel.emit('confirm', {
-                        description: fieldDescription.value
+                        description: fieldDescription.value.trim()
                     })
                 }
             }
@@ -27,8 +29,15 @@ editor.once('load', function () {
     });
     panel.class.add('create-checkpoint');
 
+    panel.buttonConfirm.disabled = true;
+
+    fieldDescription.on('change', function (value) {
+        panel.buttonConfirm.disabled = !value.trim();
+    });
+
     panel.on('hide', function () {
         fieldDescription.value = '';
+        panel.buttonConfirm.disabled = true;
     });
 
     panel.on('show', function () {
