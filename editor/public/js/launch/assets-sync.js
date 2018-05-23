@@ -45,8 +45,11 @@ editor.once('load', function() {
                 }
             });
 
-            // notify of asset load
             assetData.id = id;
+
+            // delete unecessary fields
+            delete assetData.item_id;
+            delete assetData.branch_id;
 
             if (assetData.file) {
                 assetData.file.url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.filename);
