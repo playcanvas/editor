@@ -102,6 +102,14 @@ editor.once('load', function () {
     panelMergeBranches.hidden = true;
     panelRight.append(panelMergeBranches);
 
+    // merge branches progress
+    var panelMergeBranchesProgress = editor.call('picker:versioncontrol:createProgressWidget', {
+        progressText: 'Attempting to auto merge branches',
+        finishText: 'Merge completed - refreshing the browser',
+        errorText: 'Unable to auto merge'
+    });
+    panelRight.append(panelMergeBranchesProgress);
+
     // restore checkpoint panel
     var panelRestoreCheckpoint = editor.call('picker:versioncontrol:widget:restoreCheckpoint');
     panelRestoreCheckpoint.hidden = true;
@@ -136,6 +144,7 @@ editor.once('load', function () {
         panelCreateBranchProgress,
         panelCloseBranch,
         panelMergeBranches,
+        panelMergeBranchesProgress,
         panelSwitchBranchProgress
     ];
 
@@ -149,13 +158,7 @@ editor.once('load', function () {
 
     // branch for which context menu is open
     var contextBranch = null;
-    // current branch (TODO)
-    var currentBranch = {
-        id: 1,
-        name: 'master',
-        created: new Date()
-    };
-
+    
     // branches context menu
     var menuBranches = new ui.Menu();
 
@@ -191,7 +194,7 @@ editor.once('load', function () {
     menuBranches.on('open', function () {
         menuBranchesClose.hidden = ! contextBranch || contextBranch.closed || contextBranch.id === config.project.masterBranch || contextBranch.id === projectUserSettings.get('branch');
         menuBranchesOpen.hidden = ! contextBranch || ! contextBranch.closed;
-        menuBranchesSwitchTo.hidden = ! contextBranch || contextBranch.id === projectUserSettings.get('branch') || ! contextBranch.open;
+        menuBranchesSwitchTo.hidden = ! contextBranch || contextBranch.id === projectUserSettings.get('branch') || contextBranch.closed;
         menuBranchesMerge.hidden = menuBranchesSwitchTo.hidden;
     });
 
@@ -211,7 +214,7 @@ editor.once('load', function () {
             text: '&#58208;'
         });
         labelIcon.class.add('icon');
-        if (branch.id === config.project.masterBranch) {
+        if (branch.id === config.self.branch.id) {
             labelIcon.class.add('active');
         }
         panel.append(labelIcon);
@@ -340,7 +343,8 @@ editor.once('load', function () {
     menuBranchesMerge.on('select', function () {
         if (contextBranch) {
             showRightSidePanel(panelMergeBranches);
-            panelMergeBranches.setBranches(contextBranch, currentBranch);
+            panelMergeBranches.setSourceBranch(contextBranch);
+            panelMergeBranches.setTargetBranch(config.self.branch);
         }
     });
 
@@ -439,7 +443,31 @@ editor.once('load', function () {
     // Merge branches
     panelMergeBranches.on('cancel', showCheckpoints);
     panelMergeBranches.on('confirm', function () {
-        // TODO Merge branches
+        var sourceBranchId = panelMergeBranches.sourceBranch.id;
+        var targetBranchId = panelMergeBranches.targetBranch.id;
+
+        togglePanels(false);
+        showRightSidePanel(panelMergeBranchesProgress);
+        editor.call('branches:merge', sourceBranchId, targetBranchId, function (err, data) {
+            panelMergeBranchesProgress.finish(err);
+            if (err) {
+                togglePanels(true);
+            } else {
+                // if there are merge conflicts then show
+                // conflict manager
+                if (data.conflicts) {
+                    panelMergeBranchesProgress.setMessage('Unable to auto merge - opening conflict manager')
+                    setTimeout(function () {
+                        editor.call('picker:project:close');
+                        editor.call('picker:conflictManager', data);
+                    }, 1500);
+                } else {
+                    // otherwise merge was successful
+                    // so refresh
+                    refreshBrowser();
+                }
+            }
+        });
     });
 
     // Restore checkpoints

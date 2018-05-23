@@ -54,16 +54,24 @@ editor.once('load', function () {
         // Call this when the asynchronous action is finished
         panel.finish = function (err) {
             if (err) {
-                labelMessage.text = args.errorText;
-                labelNote.text = err;
-                labelNote.hidden = false;
+                panel.setMessage(args.errorText);
+                panel.setNote(err);
                 error.classList.remove('hidden');
             } else {
-                labelMessage.text = args.finishText;
-                labelNote.hidden = true;
+                panel.setMessage(args.finishText);
+                panel.setNote('');
                 completed.classList.remove('hidden');
             } 
             spinner.classList.add('hidden');
+        };
+
+        panel.setMessage = function (text) {
+            labelMessage.text = text;
+        };
+
+        panel.setNote = function (text) {
+            labelNote.text = text;
+            labelNote.hidden = !text;
         };
 
         // restore panel contents when the panel is hidden

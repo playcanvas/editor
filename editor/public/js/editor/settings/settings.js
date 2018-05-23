@@ -41,6 +41,9 @@ editor.once('load', function () {
                 delete data.name;
                 delete data.user;
                 delete data.project;
+                delete data.item_id;
+                delete data.branch_id;
+                delete data.checkpoint_id;
 
                 if (! settings.sync) {
                     settings.sync = new ObserverSync({

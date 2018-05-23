@@ -77,4 +77,17 @@ editor.once('load', function () {
             auth: true
         }, callback);
     });
+
+    // Start merging branches
+    editor.method('branches:merge', function (sourceId, targetId, callback) {
+        request({
+            url: '{{url.api}}/branches/merge',
+            method: 'POST',
+            auth: true,
+            data: {
+                sourceBranch: sourceId,
+                targetBranch: targetId
+            }
+        }, callback);
+    });
 });

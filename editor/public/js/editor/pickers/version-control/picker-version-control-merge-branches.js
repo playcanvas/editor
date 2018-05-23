@@ -43,13 +43,17 @@ editor.once('load', function () {
     panel.class.add('merge-branches');
 
     panel.on('hide', function () {
-        labelFrom.text = '';
-        labelInto.text = '';
+        panel.setSourceBranch(null);
+        panel.setTargetBranch(null);
     });
 
-    panel.setBranches = function (fromBranch, intoBranch) {
-        labelFrom.text = fromBranch.name;
-        labelInto.text = intoBranch.name;
+    panel.setSourceBranch = function (sourceBranch) {
+        panel.sourceBranch = sourceBranch;
+        labelFrom.text = sourceBranch ? sourceBranch.name : '';
+    }
+    panel.setTargetBranch = function (targetBranch) {
+        panel.targetBranch = targetBranch;
+        labelInto.text = targetBranch ? targetBranch.name : '';
     };
 
     editor.method('picker:versioncontrol:widget:mergeBranches', function () {
