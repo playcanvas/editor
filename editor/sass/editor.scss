@@ -7654,18 +7654,17 @@ strong {
             > .content {
                 > .ui-label {
                     text-align: center;
+                    opacity: 0.8;
+                    color: $text-primary;
 
                     &.icon {
                         @extend .font-icon;
-                        color: $text-primary;
-                        opacity: 0.9;
                         font-size: 70px;
                         margin: 60px 0 20px 0;
                     }
 
                     &.desc {
                         color: $text-primary;
-                        opacity: 0.9;
                         font-size: 13px;
                         padding: 13px;
                     }
@@ -7689,9 +7688,22 @@ strong {
                         vertical-align: top;
                         padding-right: 10px;
                     }
+                }
 
-                    &:not(.disabled):hover:before {
-                        color: $text-active;
+                &:hover {
+                    cursor: pointer;
+                    > .ui-label {
+                        opacity: 1;
+                    }
+
+                    > .ui-button {
+                        &:not(.disabled) {
+                            background: $bcg-darkest;
+                            color: $text-primary;
+                            &:before {
+                                color: $text-active;
+                            }
+                        }
                     }
                 }
 

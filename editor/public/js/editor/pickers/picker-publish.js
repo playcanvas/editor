@@ -50,7 +50,7 @@ editor.once('load', function () {
     handlePermissions(btnPublish);
     panelPlaycanvas.append(btnPublish);
 
-    btnPublish.on('click', function () {
+    panelPlaycanvas.on('click', function () {
         editor.call('picker:publish:new');
     });
 
@@ -77,7 +77,7 @@ editor.once('load', function () {
     handlePermissions(btnDownload);
     panelSelfHost.append(btnDownload);
 
-    btnDownload.on('click', function () {
+    panelSelfHost.on('click', function () {
         editor.call('picker:publish:download');
     });
 
@@ -104,7 +104,7 @@ editor.once('load', function () {
     handlePermissions(btnPublishFb);
     panelFbInstant.append(btnPublishFb);
 
-    btnPublishFb.on('click', function () {
+    panelFbInstant.on('click', function () {
         editor.call('picker:publish:facebook');
     });
     
