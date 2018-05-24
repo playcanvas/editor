@@ -4,7 +4,7 @@ editor.once('load', function () {
     editor.method('settings:create', function (args) {
         // settings observer
         var settings = new Observer(args.data);
-        settings.scopeId = args.scopeId;
+        settings.id = args.id;
 
         // Get settings
         editor.method('settings:' + args.name, function () {
@@ -13,23 +13,18 @@ editor.once('load', function () {
 
         var doc;
 
-        settings.reload = function (scopeId) {
-            settings.scopeId = scopeId;
-
+        settings.reload = function () {
             var connection = editor.call('realtime:connection');
-            var name = args.scopeType + '_' + args.scopeId;
-            if (args.userId)
-                name += '_' + args.userId;
 
             if (doc)
                 doc.destroy();
 
-            doc = connection.get('settings', name);
+            doc = connection.get('settings', settings.id);
 
             // handle errors
             doc.on('error', function (err) {
                 console.error(err);
-                editor.emit('settings:' + args.scopeType + ':error', err);
+                editor.emit('settings:' + args.name + ':error', err);
             });
 
             // load settings
@@ -98,7 +93,7 @@ editor.once('load', function () {
 
         if (! args.deferLoad) {
             editor.on('realtime:authenticated', function () {
-                settings.reload(settings.scopeId);
+                settings.reload();
             });
         }
 

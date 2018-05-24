@@ -29,8 +29,7 @@ editor.once('load', function () {
 
     var settings = editor.call('settings:create', {
         name: 'project',
-        scopeType: 'project',
-        scopeId: config.project.id,
+        id: config.project.settings.id,
         data: data
     });
 

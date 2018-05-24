@@ -5,8 +5,7 @@ editor.once('load', function () {
 
     var settings = editor.call('settings:create', {
         name: 'projectUser',
-        scopeType: 'project',
-        scopeId: config.project.id,
+        id: 'project_' + config.project.id + '_' + config.self.id,
         deferLoad: true,
         data: {
             editor: {
