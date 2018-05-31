@@ -397,6 +397,11 @@ editor.once('load', function () {
         });
     });
 
+    var onPrimarySceneChanged = function (newValue, oldValue) {
+        if (panel.hidden || parseInt(newValue, 10) === parseInt(oldValue, 10)) return;
+        refreshScenes();
+    };
+
     editor.on('project:primaryScene', onPrimarySceneChanged);
 
     var destroyTooltips = function () {
@@ -412,13 +417,6 @@ editor.once('load', function () {
         });
         events = [];
     };
-
-    var onPrimarySceneChanged = function (newValue, oldValue) {
-        if (panel.hidden || parseInt(newValue, 10) === parseInt(oldValue, 10)) return;
-
-        refreshScenes();
-    };
-
 
     // open picker if no scene is loaded
     if (!config.scene.id)
