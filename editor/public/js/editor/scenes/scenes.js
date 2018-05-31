@@ -5,7 +5,7 @@ editor.once('load', function () {
     // pass them to the callback
     editor.method('scenes:list', function (callback) {
         Ajax({
-            url: '{{url.api}}/projects/{{project.id}}/scenes',
+            url: '{{url.api}}/projects/{{project.id}}/scenes?branchId=' + config.self.branch.id,
             auth: true
         })
         .on('load', function (status, data) {
@@ -17,7 +17,7 @@ editor.once('load', function () {
     // Get a specific scene from the server and pass result to callback
     editor.method('scenes:get', function (sceneId, callback) {
         Ajax({
-            url: '{{url.api}}/scenes/' + sceneId,
+            url: '{{url.api}}/scenes/' + sceneId + '?branchId=' + config.self.branch.id,
             auth: true
         })
         .on('load', function (status, data) {
@@ -29,7 +29,8 @@ editor.once('load', function () {
     // Create a scene and pass result to callback
     editor.method('scenes:new', function (name, callback) {
         var data = {
-            project_id: config.project.id
+            projectId: config.project.id,
+            branchId: config.self.branch.id
         };
 
         if (name) data.name = name;
@@ -53,8 +54,9 @@ editor.once('load', function () {
             auth: true,
             method: 'POST',
             data: {
-                project_id: config.project.id,
-                duplicate_from: sceneId,
+                projectId: config.project.id,
+                duplicateFrom: parseInt(sceneId, 10),
+                branchId: config.self.branch.id,
                 name: newName
             }
         })
@@ -68,7 +70,7 @@ editor.once('load', function () {
     // Delete a scene
     editor.method('scenes:delete', function (sceneId, callback) {
         Ajax({
-            url: '{{url.api}}/scenes/' + sceneId,
+            url: '{{url.api}}/scenes/' + sceneId + '?branchId=' + config.self.branch.id,
             auth: true,
             method: 'DELETE'
         })
