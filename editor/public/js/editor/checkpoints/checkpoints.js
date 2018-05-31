@@ -1,16 +1,14 @@
 editor.once('load', function () {
     'use strict';
 
-    var projectUserSettings = editor.call('settings:projectUser');
-
     editor.method('checkpoints:create', function (description, callback) {
         Ajax({
             url: '{{url.api}}/checkpoints',
             auth: true,
             method: 'POST',
             data: {
-                project: config.project.id,
-                branch: projectUserSettings.get('branch'),
+                projectId: config.project.id,
+                branchId: config.self.branch.id,
                 description: description
             }
         })
@@ -29,7 +27,7 @@ editor.once('load', function () {
             method: 'POST',
             // TODO: remove this it's not needed when we fix assets-server->dynamo communication
             data: {
-                project: config.project.id
+                projectId: config.project.id
             }
         })
         .on('error', function (status, err) {
@@ -67,7 +65,7 @@ editor.once('load', function () {
             if (callback) callback(data);
         })
         .on('load', function (status, data) {
-            if (callback) callback(null, data);
+            if (callback) callback(null, data.result);
         });
     });
     
