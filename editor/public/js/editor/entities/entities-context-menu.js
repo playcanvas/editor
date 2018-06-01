@@ -28,7 +28,8 @@ editor.once('load', function() {
         'sprite': '&#57956;',
         'element': '&#58232;',
         'layoutgroup': '&#57667;',
-        'layoutchild': '&#57667;'
+        'layoutchild': '&#57667;',
+        'button': '&#57667;'
     };
 
 
