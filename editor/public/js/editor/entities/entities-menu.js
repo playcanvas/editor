@@ -15,7 +15,7 @@ editor.once('load', function() {
         'particlesystem': '&#57753;',
         'rigidbody': '&#57737;',
         'script': '&#57910;',
-        'sprite': '&#57956;',
+        'sprite': '&#58261;',
         'zone': '&#57910;',
         'screen': '&#57665;',
         'element': '&#58232;',

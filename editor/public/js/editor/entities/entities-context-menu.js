@@ -25,7 +25,7 @@ editor.once('load', function() {
         'script': '&#57910;',
         'zone': '&#57910;',
         'screen': '&#57665;',
-        'sprite': '&#57956;',
+        'sprite': '&#58261;',
         'element': '&#58232;',
         'layoutgroup': '&#57667;',
         'layoutchild': '&#57667;'

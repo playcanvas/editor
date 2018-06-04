@@ -64,7 +64,6 @@ editor.once('load', function() {
         'material': '&#57749;',
         'script': '&#57864;',
         'shader': '&#57864;',
-        'sprite': '&#57858',
         'text': '&#57864;',
         'texture': '&#57857;',
         'textureatlas': '&#57857;',
@@ -86,10 +85,6 @@ editor.once('load', function() {
         'shader': 'Shader',
         'text': 'Text'
     };
-
-    if (editor.call('users:hasFlag', 'spriteTester')) {
-        assets.sprite = 'Sprite';
-    }
 
     var addNewMenuItem = function(key, title) {
         // new folder
