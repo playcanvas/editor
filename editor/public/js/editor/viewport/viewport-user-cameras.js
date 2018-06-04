@@ -40,7 +40,7 @@ editor.once('load', function() {
             loadUserData(userId, data);
         });
 
-        userdata[userId] = editor.call('realtime:subscribe:userdata', config.scene.id, userId);
+        userdata[userId] = editor.call('realtime:subscribe:userdata', config.scene.uniqueId, userId);
     };
 
     // Removes user camera and unsubscribes from userdata

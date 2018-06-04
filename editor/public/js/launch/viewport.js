@@ -47,6 +47,8 @@ editor.once('load', function() {
             // prevent multiple init calls during scene loading
             done = true;
 
+            app._parseScenes(config.scenes);
+
             // load assets that are in the preload set
             app.preload(function (err) {
                 // load scripts that are in the scene data

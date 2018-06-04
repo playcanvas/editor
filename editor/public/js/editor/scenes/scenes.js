@@ -20,9 +20,15 @@ editor.once('load', function () {
             url: '{{url.api}}/scenes/' + sceneId + '?branchId=' + config.self.branch.id,
             auth: true
         })
-        .on('load', function (status, data) {
-            if (callback)
+        .on('error', function (status, data) {
+            if (callback) {
                 callback(data);
+            }
+        })
+        .on('load', function (status, data) {
+            if (callback) {
+                callback(null, data);
+            }
         });
     });
 

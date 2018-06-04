@@ -139,6 +139,7 @@ editor.once('load', function () {
         // add list item
         var listItem = new ui.ListItem();
         container.append(listItem);
+        container.hidden = false;
 
         // add label
         var label = new ui.Label({
@@ -173,7 +174,7 @@ editor.once('load', function () {
 
                 editor.call('picker:scene:close');
                 editor.call('scenes:new', input.value, function (scene) {
-                    editor.call('scene:load', scene.id, true);
+                    editor.call('scene:load', scene.uniqueId, true);
                 });
             }
         });
@@ -228,37 +229,6 @@ editor.once('load', function () {
         if (config.scene.id && parseInt(scene.id, 10) === parseInt(config.scene.id, 10))
             row.class.add('current');
 
-        if (parseInt(scene.id, 10) === parseInt(config.project.primaryScene, 10))
-            row.class.add('primary');
-
-        // primary scene icon
-        var primary = new ui.Button({
-            text: '&#57891'
-        });
-        events.push(handlePermissions(primary));
-        primary.class.add('primary');
-        row.element.appendChild(primary.element);
-
-        events.push(primary.on('click', function () {
-            if (!editor.call('permissions:write') || config.project.primaryScene === scene.id)
-                return;
-
-            var prevPrimary = config.project.primaryScene;
-            config.project.primaryScene = scene.id;
-            onPrimarySceneChanged(scene.id, prevPrimary);
-            editor.call('project:setPrimaryScene', scene.id);
-        }));
-
-        // show tooltip for primary scene icon
-        var tooltipText = parseInt(scene.id, 10) === parseInt(config.project.primaryScene, 10) ? 'Primary Scene' : 'Set Primary Scene';
-        var tooltip = Tooltip.attach({
-            target: primary.element,
-            text: tooltipText,
-            align: 'right',
-            root: editor.call('layout.root')
-        });
-        tooltips.push(tooltip);
-
         // scene name
         var name = new ui.Label({
             text: scene.name
@@ -298,7 +268,7 @@ editor.once('load', function () {
                         return;
 
                     editor.call('picker:scene:close');
-                    editor.call('scene:load', scene.id);
+                    editor.call('scene:load', scene.uniqueId);
                 }
             }));
         }
@@ -308,20 +278,13 @@ editor.once('load', function () {
 
     var sortScenes = function (scenes) {
         scenes.sort(function (a, b) {
-            var primary = parseInt(config.project.primaryScene, 10);
-            if (primary === parseInt(a.id, 10)) {
-                return -1;
-            } else if (primary === parseInt(b.id, 10)) {
+            if (a.modified < b.modified) {
                 return 1;
-            } else {
-                if (a.modified < b.modified) {
-                    return 1;
-                } else if (a.modified > b.modified) {
-                    return -1;
-                } else {
-                    return 0;
-                }
+            } else if (a.modified > b.modified) {
+                return -1;
             }
+
+            return 0;
         });
     };
 
@@ -384,7 +347,7 @@ editor.once('load', function () {
     editor.on('messenger:pack.new', function (data) {
         if (panel.hidden) return;
 
-        editor.call('scenes:get', data.pack.id, function (scene) {
+        editor.call('scenes:get', data.pack.id, function (err, scene) {
             if (panel.hidden) return; // check if hidden when Ajax returns
 
             scenes.push({
@@ -396,13 +359,6 @@ editor.once('load', function () {
             refreshScenes();
         });
     });
-
-    var onPrimarySceneChanged = function (newValue, oldValue) {
-        if (panel.hidden || parseInt(newValue, 10) === parseInt(oldValue, 10)) return;
-        refreshScenes();
-    };
-
-    editor.on('project:primaryScene', onPrimarySceneChanged);
 
     var destroyTooltips = function () {
         tooltips.forEach(function (tooltip) {

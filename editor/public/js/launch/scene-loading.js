@@ -1,10 +1,10 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     // cache
     var loaded = {};
     var isLoading = false;
-    var loadScene = function(id, callback, settingsOnly) {
+    var loadScene = function (id, callback, settingsOnly) {
         if (loaded[id]) {
             if (callback)
                 callback(null, loaded[id].data);
@@ -18,18 +18,18 @@ editor.once('load', function() {
         var scene = connection.get('scenes', '' + id);
 
         // error
-        scene.on('error', function(err) {
+        scene.on('error', function (err) {
             if (callback)
                 callback(new Error(err));
         });
 
         // ready to sync
-        scene.on('load', function() {
+        scene.on('load', function () {
             // cache loaded scene for any subsequent load requests
             loaded[id] = scene;
 
             // notify of operations
-            scene.on('op', function(ops, local) {
+            scene.on('op', function (ops, local) {
                 if (local)
                     return;
 
@@ -82,7 +82,7 @@ editor.once('load', function() {
         // all then we are initializing
         // for the first time so load the main scene
         if (! startedLoading) {
-            editor.call('loadScene', config.scene.id);
+            editor.call('loadScene', config.scene.uniqueId);
         }
     });
 });

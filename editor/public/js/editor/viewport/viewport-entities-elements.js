@@ -229,6 +229,12 @@ editor.once('load', function() {
                     editor.call('entities:layout:storeLayout', entity.get('children'));
                 }
             }
+            // excluding a layout child from the layout
+            else if (/^components.layoutchild.excludeFromLayout/.test(path)) {
+                if (value === true && valueOld === false) {
+                    editor.call('entities:layout:storeLayout', [entity.entity.getGuid()]);
+                }
+            }
         }));
 
         // removing a layout group component

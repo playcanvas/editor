@@ -1041,6 +1041,9 @@ editor.once('load', function() {
             case 'rgb':
                 field = new ui.ColorField();
 
+                if (args.channels != null)
+                    field.channels = args.channels;
+
                 linkField();
 
                 var colorPickerOn = false;

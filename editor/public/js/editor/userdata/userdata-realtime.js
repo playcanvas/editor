@@ -5,7 +5,7 @@ editor.once('load', function() {
 
     var loadUserData = function () {
         if (! userData && config.scene.id) {
-            userData = editor.call('realtime:subscribe:userdata', config.scene.id, config.self.id);
+            userData = editor.call('realtime:subscribe:userdata', config.scene.uniqueId, config.self.id);
         }
     };
 

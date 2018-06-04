@@ -37,6 +37,11 @@ editor.once('load', function() {
         subTitle: '{Number}',
         description: 'The amount of additional vertical space that the element should take up, if necessary to satisfy a Stretch/Shrink fitting calculation. This is specified as a proportion, taking into account the proportion values of other siblings.',
         url: 'http://developer.playcanvas.com/api/pc.LayoutChildComponent.html#fitHeightProportion'
+    }, {
+        title: 'excludeFromLayout',
+        subTitle: '{Boolean}',
+        description: 'When enabled, the child will be excluded from all layout calculations.',
+        url: 'http://developer.playcanvas.com/api/pc.LayoutChildComponent.html#excludeFromLayout'
     }];
 
     for(var i = 0; i < fields.length; i++) {
