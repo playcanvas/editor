@@ -415,6 +415,44 @@ editor.once('load', function() {
             }
         },
 
+        scrollview: {
+            title: 'Scroll View',
+            default: {
+                enabled: true,
+                horizontal: true,
+                vertical: true,
+                scrollMode: SCROLL_MODE_BOUNCE,
+                bounceAmount: 0.1,
+                friction: 0.05,
+                horizontalScrollbarVisibility: SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED,
+                verticalScrollbarVisibility: SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED,
+                viewportEntity: null,
+                contentEntity: null,
+                horizontalScrollbarEntity: null,
+                verticalScrollbarEntity: null,
+            },
+            types: {
+                viewportEntity: 'entity',
+                contentEntity: 'entity',
+                horizontalScrollbarEntity: 'entity',
+                verticalScrollbarEntity: 'entity'
+            }
+        },
+
+        scrollbar: {
+            title: 'Scrollbar',
+            default: {
+                enabled: true,
+                orientation: null,
+                value: 0,
+                handleSize: 0.5,
+                handleEntity: null
+            },
+            types: {
+                handleEntity: 'entity'
+            }
+        },
+
         sprite: {
             title: 'Sprite',
             default: {
@@ -608,7 +646,7 @@ editor.once('load', function() {
     }
 
     editor.method('components:getFieldsOfType', function (component, type) {
-        var types = schema[component].types || {};
+        var types = (schema[component] && schema[component].types) || {};
         var matchingFields = [];
 
         Object.keys(types).forEach(function(fieldName) {

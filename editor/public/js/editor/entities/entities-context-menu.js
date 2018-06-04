@@ -29,7 +29,9 @@ editor.once('load', function() {
         'element': '&#58232;',
         'layoutgroup': '&#57667;',
         'layoutchild': '&#57667;',
-        'button': '&#57667;'
+        'button': '&#57667;',
+        'scrollview': '&#57667;',
+        'scrollbar': '&#57667;'
     };
 
 

@@ -19,7 +19,9 @@ editor.once('load', function() {
         'zone': '&#57910;',
         'screen': '&#57665;',
         'element': '&#58232;',
-        'button': '&#58232;'
+        'button': '&#58232;',
+        'scrollview': '&#58232;',
+        'scrollbar': '&#58232;'
     };
 
     var applyAdditions = function(object, additions) {
@@ -30,7 +32,16 @@ editor.once('load', function() {
         }
     };
 
-    var createImageData = function(additions) {
+    var createGroupElementComponentData = function(additions) {
+        var data = editor.call('components:getDefault', 'element');
+        data.type = 'group';
+
+        applyAdditions(data, additions);
+
+        return data;
+    };
+
+    var createImageElementComponentData = function(additions) {
         var data = editor.call('components:getDefault', 'element');
         data.type = 'image';
 
@@ -39,12 +50,66 @@ editor.once('load', function() {
         return data;
     };
 
-    var createTextData = function(additions) {
+    var createTextElementComponentData = function(additions) {
         var data = editor.call('components:getDefault', 'element');
         data.type = 'text';
         data.text = 'Text';
         data.autoWidth = true;
         data.autoHeight = true;
+
+        applyAdditions(data, additions);
+
+        return data;
+    };
+
+    var createButtonEntityData = function(additions) {
+        var data = {
+            components: {
+                button: editor.call('components:getDefault', 'button'),
+                element: createImageElementComponentData({ useInput: true })
+            },
+            // The button component needs references to its Image entity, which is
+            // only known post-creation. Defining these as a post-creation callback
+            // means that they'll also be correctly resolved if the user undoes the
+            // button creation and then redoes it.
+            postCreationCallback: function(button) {
+                button.history.enabled = false;
+                button.set('components.button.imageEntity', button.entity.getGuid());
+                button.history.enabled = true;
+            }
+        };
+
+        applyAdditions(data, additions);
+
+        return data;
+    };
+
+    var createScrollbarEntityData = function(orientation, additions) {
+        var scrollbarComponentData = editor.call('components:getDefault', 'scrollbar');
+        scrollbarComponentData.orientation = orientation;
+
+        var containerData = createImageElementComponentData();
+        var containerElementDefaults = editor.call('components:scrollbar:getContainerElementDefaultsForOrientation', orientation);
+        applyAdditions(containerData, containerElementDefaults);
+
+        var handleData = createButtonEntityData({ name: 'Handle' });
+        var handleElementDefaults = editor.call('components:scrollbar:getHandleElementDefaultsForOrientation', orientation);
+        applyAdditions(handleData.components.element, handleElementDefaults);
+
+        var data = {
+            components: {
+                scrollbar: scrollbarComponentData,
+                element: containerData
+            },
+            postCreationCallback: function(scrollbar) {
+                scrollbar.history.enabled = false;
+                scrollbar.set('components.scrollbar.handleEntity', scrollbar.entity.findByName('Handle').getGuid());
+                scrollbar.history.enabled = true;
+            },
+            children: [
+                handleData
+            ]
+        };
 
         applyAdditions(data, additions);
 
@@ -346,7 +411,7 @@ editor.once('load', function() {
                         name: 'Text',
                         parent: getParentFn(),
                         components: {
-                            element: createTextData()
+                            element: createTextElementComponentData()
                         }
                     });
                 }
@@ -359,7 +424,7 @@ editor.once('load', function() {
                         name: 'Image',
                         parent: getParentFn(),
                         components: {
-                            element: createImageData()
+                            element: createImageElementComponentData()
                         }
                     });
                 }
@@ -386,37 +451,92 @@ editor.once('load', function() {
                     return !editor.call('users:hasFlag', 'spriteTester');
                 },
                 select: function() {
-                    var buttonComponentData = editor.call('components:getDefault', 'button');
-                    buttonComponentData.type = 'button';
-
-                    var buttonEntityData = {
+                    editor.call('entities:new', createButtonEntityData({
                         name: 'Button',
                         parent: getParentFn(),
-                        components: {
-                            button: buttonComponentData,
-                            element: createImageData({ useInput: true })
-                        },
                         children: [
                             {
                                 name: 'Text',
                                 components: {
-                                    element: createTextData()
+                                    element: createTextElementComponentData()
                                 }
                             }
+                        ],
+                    }));
+                }
+            },
+            'add-new-scroll-view': {
+                title: 'Scroll View Element',
+                icon: componentsLogos.element,
+                select: function() {
+                    var viewportSize = 200;
+                    var scrollbarSize = 20;
+
+                    editor.call('entities:new', {
+                        name: 'ScrollView',
+                        parent: getParentFn(),
+                        components: {
+                            scrollview: editor.call('components:getDefault', 'scrollview'),
+                            element: createGroupElementComponentData({
+                                width: viewportSize,
+                                height: viewportSize,
+                                pivot: [0, 1]
+                            })
+                        },
+                        postCreationCallback: function(scrollView) {
+                            scrollView.history.enabled = false;
+                            scrollView.set('components.scrollview.viewportEntity', scrollView.entity.findByName('Viewport').getGuid());
+                            scrollView.set('components.scrollview.contentEntity', scrollView.entity.findByName('Content').getGuid());
+                            scrollView.set('components.scrollview.verticalScrollbarEntity', scrollView.entity.findByName('VerticalScrollbar').getGuid());
+                            scrollView.set('components.scrollview.horizontalScrollbarEntity', scrollView.entity.findByName('HorizontalScrollbar').getGuid());
+                            scrollView.history.enabled = true;
+                        },
+                        children: [
+                            {
+                                name: 'Viewport',
+                                components: {
+                                    element: createImageElementComponentData({
+                                        anchor: [0, 0, 1, 1],
+                                        margin: [0, scrollbarSize, scrollbarSize, 0],
+                                        pivot: [0, 1],
+                                        color: [.2, .2, .2],
+                                        mask: true
+                                    })
+                                },
+                                children: [
+                                    {
+                                        name: 'Content',
+                                        components: {
+                                            element: createGroupElementComponentData({
+                                                anchor: [0, 1, 0, 1],
+                                                margin: [0, 0, 0, 0],
+                                                width: viewportSize * 2,
+                                                height: viewportSize * 2,
+                                                pivot: [0, 1],
+                                                useInput: true
+                                            })
+                                        }
+                                    }
+                                ]
+                            },
+                            createScrollbarEntityData(ORIENTATION_HORIZONTAL, {
+                                name: 'HorizontalScrollbar'
+                            }),
+                            createScrollbarEntityData(ORIENTATION_VERTICAL, {
+                                name: 'VerticalScrollbar'
+                            })
                         ]
-                    };
-
-                    // The button component needs references to its Image entity, which is
-                    // only known post-creation. Defining these as a post-creation callback
-                    // means that they'll also be correctly resolved if the user undoes the
-                    // button creation and then redoes it.
-                    var postCreationCallback = function(button) {
-                        button.history.enabled = false;
-                        button.set('components.button.imageEntity', button.entity.getGuid());
-                        button.history.enabled = true;
-                    };
-
-                    editor.call('entities:new', buttonEntityData, postCreationCallback);
+                    });
+                }
+            },
+            'add-new-scrollbar': {
+                title: 'Scrollbar Element',
+                icon: componentsLogos.element,
+                select: function() {
+                    editor.call('entities:new', createScrollbarEntityData(ORIENTATION_VERTICAL, {
+                        name: 'Scrollbar',
+                        parent: getParentFn()
+                    }));
                 }
             },
             'add-new-sprite': {
