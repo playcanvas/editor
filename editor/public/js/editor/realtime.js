@@ -35,14 +35,14 @@ editor.once('load', function() {
                             editor.emit('realtime:authenticated');
 
                             // load scene
-                            if (! scene && config.scene.uniqueId)
+                            if (! scene && config.scene.uniqueId) {
                                 editor.call('realtime:loadScene', config.scene.uniqueId);
+                            }
                         }
                     } else if (msg.data.startsWith('whoisonline:')) {
                         var parts = msg.data.split(':');
                         if (parts.length === 5 && parts[1] === 'scene') {
                             var data;
-                            var scene = parts[2];
                             var op = parts[3];
                             if (op === 'set') {
                                 data = JSON.parse(parts[4]);
@@ -217,13 +217,13 @@ editor.once('load', function() {
             editor.emit('permissions:writeState', editor.call('permissions:write'));
         });
 
-        editor.on('scene:unload', function (id, itemId) {
+        editor.on('scene:unload', function (id, uniqueId) {
             if (scene) {
                 scene.unsubscribe();
                 scene.destroy();
                 scene = null;
 
-                connection.socket.send('close:scene:' + id);
+                connection.socket.send('close:scene:' + uniqueId);
             }
         });
     });

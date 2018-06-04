@@ -343,18 +343,14 @@ editor.once('load', function () {
         onSceneDeleted(data.pack.id);
     });
 
-    // subscribe to messenger pack.new
-    editor.on('messenger:pack.new', function (data) {
+    // subscribe to messenger scene.new
+    editor.on('messenger:scene.new', function (data) {
         if (panel.hidden) return;
 
-        editor.call('scenes:get', data.pack.id, function (err, scene) {
+        editor.call('scenes:get', data.scene.id, function (err, scene) {
             if (panel.hidden) return; // check if hidden when Ajax returns
 
-            scenes.push({
-                id: scene.id,
-                modified: scene.modified,
-                name: scene.name
-            });
+            scenes.push(scene);
 
             refreshScenes();
         });
