@@ -62,6 +62,7 @@ editor.once('load', function () {
         labelCheckpoint.text = '';
         fieldBranchName.value = '';
         panel.buttonConfirm.disabled = true;
+        panel.checkpoint = null;
     });
 
     panel.on('show', function () {
@@ -73,6 +74,7 @@ editor.once('load', function () {
     });
 
     panel.setCheckpoint = function (checkpoint) {
+        panel.checkpoint = checkpoint;
         labelCheckpoint.text = checkpoint.id.substring(0, 7) + ' - ' + editor.call('datetime:convert', checkpoint.created);
 
         // TODO: load branch name from checkpoint
@@ -80,6 +82,6 @@ editor.once('load', function () {
     };
 
     editor.method('picker:versioncontrol:widget:createBranch', function () {
-        return panel;  
+        return panel;
     });
 });

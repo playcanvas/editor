@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     editor.method('checkpoints:create', function (description, callback) {
-        Ajax({
+        var request = Ajax({
             url: '{{url.api}}/checkpoints',
             auth: true,
             method: 'POST',
@@ -11,17 +11,21 @@ editor.once('load', function () {
                 branchId: config.self.branch.id,
                 description: description
             }
-        })
+        });
+
+        request
         .on('error', function (status, err) {
             if (callback) callback(err);
         })
         .on('load', function (status, data) {
             if (callback) callback(null, data);
         });
+
+        return request;
     });
 
     editor.method('checkpoints:restore', function (id, callback) {
-        Ajax({
+        var request = Ajax({
             url: '{{url.api}}/checkpoints/' + id + '/restore',
             auth: true,
             method: 'POST',
@@ -29,13 +33,17 @@ editor.once('load', function () {
             data: {
                 projectId: config.project.id
             }
-        })
+        });
+
+        request
         .on('error', function (status, err) {
             if (callback) callback(err);
         })
         .on('load', function (status, data) {
             if (callback) callback(null, data);
         });
+
+        return request;
     });
 
     editor.method('checkpoints:list', function (args, callback) {
@@ -57,16 +65,19 @@ editor.once('load', function () {
             separator = '&';
         }
 
-        Ajax({
+        var request = Ajax({
             url: url,
             auth: true
-        })
-        .on('error', function (status, data) {
+        });
+
+        request.on('error', function (status, data) {
             if (callback) callback(data);
         })
         .on('load', function (status, data) {
             if (callback) callback(null, data.result);
         });
+
+        return request;
     });
-    
+
 });

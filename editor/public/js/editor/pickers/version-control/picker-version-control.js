@@ -6,6 +6,7 @@ editor.once('load', function () {
     }
 
     var projectUserSettings = editor.call('settings:projectUser');
+    var currentCheckpointListRequest = null;
 
     // main panel
     var panel = new ui.Panel();
@@ -158,7 +159,7 @@ editor.once('load', function () {
 
     // branch for which context menu is open
     var contextBranch = null;
-    
+
     // branches context menu
     var menuBranches = new ui.Menu();
 
@@ -278,16 +279,27 @@ editor.once('load', function () {
 
         panelCheckpointsContainer.setBranch(branch);
 
-        editor.call('checkpoints:list', {
+        // list checkpoints but make sure in the response
+        // that the results are from this request and not another
+        // Happens sometimes when this request takes a long time
+        var request = editor.call('checkpoints:list', {
             branch: branch.id,
             limit: 20
         }, function (err, data) {
+            if (request !== currentCheckpointListRequest) {
+                return;
+            }
+
+            currentCheckpointListRequest = null;
+
             if (err) {
                 return console.error(err);
             }
 
             panelCheckpointsContainer.setCheckpoints(data);
         });
+
+        currentCheckpointListRequest = request;
     };
 
     var showCheckpoints = function () {
@@ -404,7 +416,17 @@ editor.once('load', function () {
 
         showRightSidePanel(panelCreateBranchProgress);
 
-        editor.call('branches:create', data.name, function (err, branch) {
+        var data = {
+            name: data.name,
+            projectId: config.project.id,
+            sourceBranchId: config.self.branch.id,
+        };
+
+        if (panelCreateBranch.checkpoint) {
+            data.sourceCheckpointId = panelCreateBranch.checkpoint.id;
+        }
+
+        editor.call('branches:create', data, function (err, branch) {
             panelCreateBranchProgress.finish(err);
             if (err) {
                 togglePanels(true);

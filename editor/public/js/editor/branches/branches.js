@@ -39,14 +39,11 @@ editor.once('load', function () {
     });
 
     // Creates a branch
-    editor.method('branches:create', function (name, callback) {
+    editor.method('branches:create', function (data, callback) {
         request({
             url: '{{url.api}}/branches',
             method: 'POST',
-            data: {
-                project: config.project.id,
-                name: name
-            },
+            data: data,
             auth: true
         }, callback);
     });
