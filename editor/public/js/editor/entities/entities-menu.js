@@ -496,13 +496,13 @@ editor.once('load', function() {
                                 parent: getParentFn(),
                                 components: {
                                     button: buttonComponentData,
-                                    element: createImageData({ useInput: true })
+                                    element: createImageElementComponentData({ useInput: true })
                                 },
                                 children: [
                                     {
                                         name: 'Text',
                                         components: {
-                                            element: createTextData()
+                                            element: createTextElementComponentData()
                                         }
                                     }
                                 ]
