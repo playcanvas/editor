@@ -1,6 +1,9 @@
 editor.once('load', function() {
     'use strict';
 
+    // by default we hide the scrollview and scrollbar components
+    var HIDE_SCROLLVIEW_COMPONENTS = true;
+
     var projectSettings = editor.call('settings:project');
 
     var schema = {
@@ -609,17 +612,30 @@ editor.once('load', function() {
 
     editor.method('components:list', function () {
         var result = list.slice(0);
+        var idx;
 
         // filter out sprites
         if (!editor.call('users:hasFlag', 'spriteTester')) {
-            var idx = result.indexOf('sprite');
+            idx = result.indexOf('sprite');
             if (idx !== -1)
                 result.splice(idx, 1);
         }
 
         // filter out zone (which is not really supported)
         if (!editor.call('users:hasFlag', 'hasZoneComponent')) {
-            var idx = result.indexOf('zone');
+            idx = result.indexOf('zone');
+            if (idx !== -1) {
+                result.splice(idx, 1);
+            }
+        }
+
+        if (HIDE_SCROLLVIEW_COMPONENTS) {
+            idx = result.indexOf('scrollview');
+            if (idx !== -1) {
+                result.splice(idx, 1);
+            }
+
+            idx = result.indexOf('scrollbar');
             if (idx !== -1) {
                 result.splice(idx, 1);
             }
