@@ -1,8 +1,8 @@
 editor.once('load', function() {
     'use strict';
 
-    var entity = null;
-    var items = [ ];
+    var entity = null; // the entity that was clicked on to open the context menu
+    var items = [ ];   // the current selection
     var customMenuItems = [ ];
     var root = editor.call('layout.root');
 
@@ -10,30 +10,6 @@ editor.once('load', function() {
 
     // create data for entity menu
     var menu;
-
-    var componentsLogos = {
-        'animation': '&#57875;',
-        'audiolistener': '&#57750;',
-        'audiosource': '&#57751;',
-        'sound': '&#57751;',
-        'camera': '&#57874;',
-        'collision': '&#57735;',
-        'light': '&#57748;',
-        'model': '&#57736;',
-        'particlesystem': '&#57753;',
-        'rigidbody': '&#57737;',
-        'script': '&#57910;',
-        'zone': '&#57910;',
-        'screen': '&#57665;',
-        'sprite': '&#58261;',
-        'element': '&#58232;',
-        'layoutgroup': '&#57667;',
-        'layoutchild': '&#57667;',
-        'button': '&#57667;',
-        'scrollview': '&#57667;',
-        'scrollbar': '&#57667;'
-    };
-
 
     var getSelection = function() {
         var selection = editor.call('selector:items');
@@ -192,7 +168,7 @@ editor.once('load', function() {
 
         menuData['add-component'] = {
             title: 'Add Component',
-            items: { }
+            items: editor.call('menu:entities:add-component')
         };
 
         if (legacyScripts) {
@@ -313,41 +289,6 @@ editor.once('load', function() {
                 editor.call('entities:delete', items);
             }
         };
-
-        var makeMenuComponentItem = function(key) {
-            var data = {
-                title: components[key].title,
-                icon: componentsLogos[key],
-                filter: function() {
-                    var name = 'components.' + key;
-                    for (var i = 0, len = items.length; i < len; i++) {
-                        if (!items[i].has(name))
-                            return true;
-                    }
-
-                    return false;
-                },
-
-                select: function() {
-                    editor.call('entities:addComponent', items, this._value);
-                }
-            };
-
-            if (key === 'audiosource') {
-                data.hide = function () {
-                    return !editor.call('settings:project').get('useLegacyAudio');
-                };
-            }
-
-            return data;
-        };
-
-        var components = editor.call('components:schema');
-        var list = editor.call('components:list');
-        for(var i = 0; i < list.length; i++) {
-            var key = list[i];
-            menuData['add-component'].items[key] = makeMenuComponentItem(key);
-        }
 
         if (legacyScripts) {
             var builtInScripts = [{
@@ -478,6 +419,11 @@ editor.once('load', function() {
         menu.position(x + 1, y);
 
         return true;
+    });
+
+    // get the entity that was right-clicked when opening the context menu
+    editor.method('entities:contextmenu:entity', function () {
+        return entity;
     });
 
     // for each entity added

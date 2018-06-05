@@ -617,6 +617,14 @@ editor.once('load', function() {
                 result.splice(idx, 1);
         }
 
+        // filter out zone (which is not really supported)
+        if (!editor.call('users:hasFlag', 'hasZoneComponent')) {
+            var idx = result.indexOf('zone');
+            if (idx !== -1) {
+                result.splice(idx, 1);
+            }
+        }
+
         return result;
     });
 
