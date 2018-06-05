@@ -621,6 +621,14 @@ editor.once('load', function() {
                 result.splice(idx, 1);
         }
 
+        // filter out button
+        if (!editor.call('users:hasFlag', 'spriteTester')) {
+            idx = result.indexOf('button');
+            if (idx !== -1) {
+                result.splice(idx, 1);
+            }
+        }
+
         // filter out zone (which is not really supported)
         if (!editor.call('users:hasFlag', 'hasZoneComponent')) {
             idx = result.indexOf('zone');
