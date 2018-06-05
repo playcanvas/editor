@@ -35,7 +35,8 @@ editor.once('load', function() {
             position: raw.position || [ 0, 0, 0 ],
             rotation: raw.rotation || [ 0, 0, 0 ],
             scale: raw.scale || [ 1, 1, 1 ],
-            components: raw.components || { }
+            components: raw.components || { },
+            __postCreationCallback: raw.postCreationCallback
         };
 
         if (raw.children) {
@@ -50,10 +51,11 @@ editor.once('load', function() {
 
     // Create a new entity.
     //
-    // The postCreationCallback argument is designed for cases where composite entity
-    // hierarchies need some post-processing, and the post processing needs to be done
-    // both in the case of initial creation and also the case of undo/redo.
-    editor.method('entities:new', function (raw, postCreationCallback) {
+    // The `raw` data can also define a postCreationCallback argument at each level, which is
+    // designed for cases where composite entity hierarchies need some post-processing, and the
+    // post processing needs to be done both in the case of initial creation and also the case
+    // of undo/redo.
+    editor.method('entities:new', function (raw) {
         // get root if parent is null
         raw = raw || { };
         var parent = raw.parent || editor.call('entities:root');
@@ -75,10 +77,6 @@ editor.once('load', function() {
         var entity = new Observer(data);
         childToParent[entity.get('resource_id')] = parent.get('resource_id');
         addEntity(entity, parent, ! raw.noSelect);
-
-        if (postCreationCallback) {
-            postCreationCallback(entity);
-        }
 
         // history
         if (! raw.noHistory) {
@@ -119,10 +117,6 @@ editor.once('load', function() {
                     var entity = new Observer(data);
                     childToParent[entity.get('resource_id')] = parent.get('resource_id');
                     addEntity(entity, parent, true);
-
-                    if (postCreationCallback) {
-                        postCreationCallback(entity);
-                    }
                 }
             });
         }
@@ -130,7 +124,56 @@ editor.once('load', function() {
         return entity;
     });
 
-    var addEntity = function(entity, parent, select, ind) {
+    var recursivelySearchForEntityReferences = function(sourceEntity, entityReferencesMap) {
+        var componentNames = Object.keys(sourceEntity.get('components') || {});
+        var i, j;
+
+        for (i = 0; i < componentNames.length; i++) {
+            var componentName = componentNames[i];
+            var entityFields = editor.call('components:getFieldsOfType', componentName, 'entity');
+
+            for (j = 0; j < entityFields.length; j++) {
+                var fieldName = entityFields[j];
+                var targetEntityGuid = sourceEntity.get('components.' + componentName + '.' + fieldName);
+
+                entityReferencesMap[targetEntityGuid] = entityReferencesMap[targetEntityGuid] || [];
+                entityReferencesMap[targetEntityGuid].push({
+                    sourceEntityGuid: sourceEntity.get('resource_id'),
+                    componentName: componentName,
+                    fieldName: fieldName
+                });
+            }
+        }
+
+        var children = sourceEntity.get('children');
+
+        if (children.length > 0) {
+            for (i = 0; i < children.length; i++) {
+                recursivelySearchForEntityReferences(editor.call('entities:get', children[i]), entityReferencesMap);
+            }
+        }
+    };
+
+    var updateEntityReferenceFields = function(entityReferencesMap, oldValue, newValue) {
+        var referencesToThisEntity = entityReferencesMap[oldValue];
+
+        if (referencesToThisEntity) {
+            referencesToThisEntity.forEach(function(reference) {
+                var sourceEntity = editor.call('entities:get', reference.sourceEntityGuid);
+
+                if (sourceEntity) {
+                    var prevHistory = sourceEntity.history.enabled;
+                    sourceEntity.history.enabled = false;
+                    sourceEntity.set('components.' + reference.componentName + '.' + reference.fieldName, newValue);
+                    sourceEntity.history.enabled = prevHistory;
+                }
+            });
+        }
+    };
+
+    var addEntity = function(entity, parent, select, ind, entityReferencesMap) {
+        entityReferencesMap = entityReferencesMap || {};
+
         var children = entity.get('children');
         if (children.length)
             entity.set('children', [ ]);
@@ -178,12 +221,33 @@ editor.once('load', function() {
 
             var child = new Observer(data);
             childToParent[child.get('resource_id')] = entity.get('resource_id');
-            addEntity(child, entity);
+            addEntity(child, entity, undefined, undefined, entityReferencesMap);
         });
+
+        // Hook up any entity references which need to be pointed to this newly created entity
+        // (happens when addEntity() is being called during the undoing of a deletion). In order
+        // to force components to respond to the setter call even when they are running in other
+        // tabs or in the Launch window, we unfortunately have to use a setTimeout() hack :(
+        var guid = entity.get('resource_id');
+
+        // First set all entity reference fields targeting this guid to null
+        updateEntityReferenceFields(entityReferencesMap, guid, null);
+        setTimeout(function() {
+            // Then update the same fields to target the guid again
+            updateEntityReferenceFields(entityReferencesMap, guid, guid);
+        }, 0);
+
+        if (entity.get('__postCreationCallback')) {
+            entity.get('__postCreationCallback')(entity);
+        }
     };
 
-    var removeEntity = function(entity) {
+    var removeEntity = function(entity, entityReferencesMap) {
+        entityReferencesMap = entityReferencesMap || {};
         deletedCache[entity.get('resource_id')] = entity.json();
+
+        // Nullify any entity references which currently point to this guid
+        updateEntityReferenceFields(entityReferencesMap, entity.get('resource_id'), null);
 
         // remove children
         entity.get('children').forEach(function (child) {
@@ -191,7 +255,7 @@ editor.once('load', function() {
             if (! entity)
                 return;
 
-            removeEntity(entity);
+            removeEntity(entity, entityReferencesMap);
         });
 
         if (editor.call('selector:type') === 'entity' && editor.call('selector:items').indexOf(entity) !== -1) {
@@ -543,8 +607,14 @@ editor.once('load', function() {
             });
         }
 
+        // Build a map of representing all entity reference properties in the graph. This is
+        // effectively a snapshot of the entity references as they were at the point of deletion,
+        // so that they can be re-constituted later if the deletion is undone.
+        var entityReferencesMap = {};
+        recursivelySearchForEntityReferences(editor.call('entities:root'), entityReferencesMap);
+
         for(var i = 0; i < items.length; i++) {
-            removeEntity(items[i]);
+            removeEntity(items[i], entityReferencesMap);
         }
 
         // sort records by index
@@ -566,7 +636,7 @@ editor.once('load', function() {
                     var entity = new Observer(records[i].data);
                     items.push(entity);
                     childToParent[entity.get('resource_id')] = parent.get('resource_id');
-                    addEntity(entity, parent, false, records[i].ind);
+                    addEntity(entity, parent, false, records[i].ind, entityReferencesMap);
                 }
 
                 setTimeout(function() {
@@ -583,7 +653,7 @@ editor.once('load', function() {
                     if (! entity)
                         return;
 
-                    removeEntity(entity);
+                    removeEntity(entity, entityReferencesMap);
                 }
             }
         });
