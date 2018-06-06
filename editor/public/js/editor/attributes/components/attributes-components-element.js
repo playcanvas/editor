@@ -695,6 +695,7 @@ editor.once('load', function() {
         panel.append(divider);
 
         // batch group
+
         var batchGroups = projectSettings.get('batchGroups');
         var batchEnum = {
             '': '...',
@@ -781,6 +782,9 @@ editor.once('load', function() {
             fieldColor.parent.hidden = fieldType.value !== 'image' && fieldType.value !== 'text' || fieldMaterialAsset.value;
             fieldOpacity.parent.hidden = fieldType.value !== 'image' && fieldType.value !== 'text' || fieldMaterialAsset.value;
             fieldRect[0].parent.hidden = fieldType.value !== 'image' || fieldSpriteAsset.value;
+
+            // disable batch groups until they're working properly
+            fieldBatchGroup.parent.hidden = !editor.call('users:hasFlag', 'has2DBatchGroups');
         };
 
         toggleFields();

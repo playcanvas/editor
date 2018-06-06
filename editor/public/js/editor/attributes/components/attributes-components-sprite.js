@@ -754,6 +754,9 @@ editor.once('load', function() {
             fieldBatchGroup.parent.hidden = !hideAnimated;
 
             fieldWidth.parent.hidden = hideSpriteSize();
+
+            // disable batch groups until they're working properly
+            fieldBatchGroup.parent.hidden = !editor.call('users:hasFlag', 'has2DBatchGroups');
         };
 
         var hideSpriteSize = function () {
