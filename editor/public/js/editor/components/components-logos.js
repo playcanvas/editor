@@ -16,15 +16,21 @@ editor.once('load', function() {
             'particlesystem': '&#57753;',
             'rigidbody': '&#57737;',
             'script': '&#57910;',
-            'screen': '&#57665;',
+            'screen': '&#58371;',
             'sprite': '&#58261;',
             'element': '&#58232;',
             'layoutgroup': '&#57667;',
             'layoutchild': '&#57667;',
-            'scrollview': '&#57667;',
-            'scrollbar': '&#57667;',
-            'button': '&#57667;',
-            'zone': '&#57910;'
+            'scrollview': '&#58376;',
+            'scrollbar': '&#58377;',
+            'button': '&#58373;',
+            'zone': '&#57910;',
+            '2d-screen': '&#58371;',
+            '3d-screen': '&#58372;',
+            'text-element': '&#58374;',
+            'image-element': '&#58005;',
+            'group-element': '&#58375;',
+            'userinterface': '&#58370;'
         };
     });
 });

@@ -1714,10 +1714,19 @@ strong {
                 content: '\E212';
             }
             &.screen > header > .title:before {
-                content: '\E141';
+                content: '\E403';
             }
             &.element > header > .title:before {
                 content: '\E378';
+            }
+            &.button > header > .title:before {
+                content: '\E405';
+            }
+            &.scrollview > header > .title:before {
+                content: '\E408';
+            }
+            &.scrollbar > header > .title:before {
+                content: '\E409';
             }
             &.sprite > header > .title:before {
                 content: '\E395';
@@ -3056,7 +3065,7 @@ strong {
             content: '\E212';
         }
         &.c-screen > .title > .icon:after {
-            content: '\E141';
+            content: '\E403';
         }
         &.c-sprite > .title > .icon:after {
             content: '\E395';
@@ -3064,9 +3073,18 @@ strong {
         &.c-element > .title > .icon:after {
             content: '\E378';
         }
+        &.c-button > .title > .icon:after {
+            content: '\E405';
+        }
         &.c-layoutgroup > .title > .icon:after,
         &.c-layoutchild > .title > .icon:after {
             content: '\E143';
+        }
+        &.c-scrollview > .title > .icon:after {
+            content: '\E408';
+        }
+        &.c-scrollbar > .title > .icon:after {
+            content: '\E409';
         }
         &.rename {
             > .title {

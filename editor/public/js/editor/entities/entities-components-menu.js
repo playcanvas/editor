@@ -13,7 +13,7 @@ editor.once('load', function() {
             },
             'ui-sub-menu': {
                 title: 'User Interface',
-                icon: logos.screen,
+                icon: logos.userinterface,
                 items: {}
             },
             'physics-sub-menu': {

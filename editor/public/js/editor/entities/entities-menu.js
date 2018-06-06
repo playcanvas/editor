@@ -405,11 +405,11 @@ editor.once('load', function() {
             },
             'ui-sub-menu': {
                 title: 'User Interface',
-                icon: componentsLogos.screen,
+                icon: componentsLogos.userinterface,
                 items: {
                     'add-new-2d-screen': {
                         title: '2D Screen',
-                        icon: componentsLogos.screen,
+                        icon: componentsLogos['2d-screen'],
                         select: function() {
                             var data = editor.call('components:getDefault', 'screen');
                             data.screenSpace = true;
@@ -425,7 +425,7 @@ editor.once('load', function() {
                     },
                     'add-new-3d-screen': {
                         title: '3D Screen',
-                        icon: componentsLogos.screen,
+                        icon: componentsLogos['3d-screen'],
                         select: function() {
                             var data = editor.call('components:getDefault', 'screen');
                             data.screenSpace = false;
@@ -442,7 +442,7 @@ editor.once('load', function() {
                     },
                     'add-new-text': {
                         title: 'Text Element',
-                        icon: componentsLogos.element,
+                        icon: componentsLogos['text-element'],
                         select: function() {
                             editor.call('entities:new', {
                                 name: 'Text',
@@ -455,7 +455,7 @@ editor.once('load', function() {
                     },
                     'add-new-image': {
                         title: 'Image Element',
-                        icon: componentsLogos.element,
+                        icon: componentsLogos['image-element'],
                         select: function() {
                             editor.call('entities:new', {
                                 name: 'Image',
@@ -468,7 +468,7 @@ editor.once('load', function() {
                     },
                     'add-new-group': {
                         title: 'Element Group',
-                        icon: componentsLogos.element,
+                        icon: componentsLogos['group-element'],
                         select: function() {
                             var data = editor.call('components:getDefault', 'element');
                             data.type = 'group';
@@ -483,7 +483,7 @@ editor.once('load', function() {
                     },
                     'add-new-button': {
                         title: 'Button Element',
-                        icon: componentsLogos.element,
+                        icon: componentsLogos.button,
                         hide: function () {
                             return !editor.call('users:hasFlag', 'spriteTester');
                         },
@@ -523,7 +523,7 @@ editor.once('load', function() {
                     },
                     'add-new-scroll-view': {
                         title: 'Scroll View Element',
-                        icon: componentsLogos.element,
+                        icon: componentsLogos.scrollview,
                         hide: function () {
                             return !editor.call('users:hasFlag', 'hasScrollViews');
                         },
@@ -590,7 +590,7 @@ editor.once('load', function() {
                     },
                     'add-new-scrollbar': {
                         title: 'Scrollbar Element',
-                        icon: componentsLogos.element,
+                        icon: componentsLogos.scrollbar,
                         hide: function () {
                             return !editor.call('users:hasFlag', 'hasScrollViews');
                         },
